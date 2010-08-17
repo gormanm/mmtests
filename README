@@ -1,0 +1,27 @@
+This is a basic test suite that runs a number of common workloads of
+interest to MM developers. The ideal would have been similar integration
+or layout to either LTP, xfstests or base it upon autotest - Phoronix
+Test being another possibility. Unfortunately, large portions of these
+tests are cobbled together over a number of years with varying degrees
+of quality before test frameworks for this sort of testing was common.
+The refactoring effort to integrate with another framework is significant.
+
+This is an early prototype based on code hacked for a specific test
+environment. Hence, there might be still a number of bugs that are depending
+on non-existant scripts or hard-coded paths that are not available. Buyer
+Beware.
+
+vmr/ contains portions of an ancient tool called VMRegress. Relevant
+portions from it are being copied in as necessary rather than redeveloping
+or preparing that tool for public release. stat/ also constains simple
+helpers from VMRegress related to statistics.
+
+The top-level directory has a single driver script called run-mmtests.sh
+which reads the config file and runs the requested tests.
+
+Each test is driven by a run-TESTNAME.sh script. This reads the config,
+takes any necessary additional steps and calls the appropriate shellpack.
+
+Shellpacks are a pairing of a bench and install script in shellpacks/. There
+is another tool that can assemble these shellpacks and manage them but they
+are not releasable yet.
