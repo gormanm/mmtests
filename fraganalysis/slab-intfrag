@@ -1,0 +1,242 @@
+#!/usr/bin/perl
+# slab-intfrag
+#
+# Prints the current status of internal fragmentation of the slab allocator. It
+# can be used as an approximate measure of the space efficiency of the slab allocator
+# License under the LGPL 2.1
+# (c) Mel Gorman 2002
+
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+
+use Getopt::Long;
+use Pod::Usage;
+use FA::Report;
+use File::Basename;
+use POSIX;
+use strict;
+
+# Option variables
+my $opt_man = 0;
+my $opt_help = 0;
+my $opt_delay = -1;
+my $opt_verbose = 0;
+my $opt_all = 0;
+my $opt_unused = 0;
+my $opt_sortcolumn = "Frag";
+my $opt_hidefull = 0;
+
+# Proc variables
+my $proc;		# Proc entry read into memory
+
+# Time related
+my $starttime;
+my $duration;
+
+# System related
+my $pagesize = POSIX::sysconf(POSIX::_SC_PAGESIZE);
+
+# Get options
+GetOptions(
+	'help|h'	=> \$opt_help, 
+	'man'		=> \$opt_man,
+	'verbose'	=> \$opt_verbose,
+	'all|a'		=> \$opt_all,
+	'unused|u'	=> \$opt_unused,
+	'f|hidefull'	=> \$opt_hidefull,
+	'sort|s=s'	=> \$opt_sortcolumn,
+	'delay|n=n'	=> \$opt_delay);
+
+# Print usage if requested
+pod2usage(-exitstatus => 0, -verbose => 0) if $opt_help;
+pod2usage(-exitstatus => 0, -verbose => 2) if $opt_man;
+$opt_verbose && setVerbose();
+
+# Function to sort output columns
+sub OutputSort {
+	my (@lElements, @rElements);
+	@lElements = split(/\s+/, $a);
+	@rElements = split(/\s+/, $b);
+
+	my $index=-1;
+	if ($opt_sortcolumn =~ /Frag/i)		{ $index = 1; }
+	if ($opt_sortcolumn =~ /Inactive/i)	{ $index = 2; }
+	if ($opt_sortcolumn =~ /ObjSize/i)	{ $index = 3; }
+	if ($opt_sortcolumn =~ /NumObj/i)	{ $index = 4; }
+	if ($opt_sortcolumn =~ /SizeBytes/i)	{ $index = 5; }
+	if ($opt_sortcolumn =~ /SizePages/i){ $index = 6; }
+	if ($opt_sortcolumn =~ /WastedBytes/i)	{ $index = 7; }
+
+	$index == -1 && die("Unknown sort column '$opt_sortcolumn' specified");
+
+	return $lElements[$index] <=> $rElements[$index];
+}
+
+# Print header if necessary
+if ($opt_delay != -1) {
+	printf("%7s %12s %10s %12s %10s\n", "Inactive", "SizeBytes", "SizePages", "WastedBytes", "Frag %");
+}	
+
+# Print fragmentation
+do {
+	my $line;
+	my $total_used=0;
+	my $total_unused=0;
+	my $total_inactive;
+	my $total_wastage;
+	my $total_inactivecaches;
+	my $total_fullcaches;
+
+	# Read the entire contents of slabinfo
+	{
+		local $/ = undef;
+		open(PROC, "/proc/slabinfo") || die("Failed to open /proc/slabinfo: $!");
+		$proc = <PROC>;
+		close PROC;
+	}
+
+	# Process proc entry
+	my @output;
+	my $count=0;
+	foreach $line (split /\n/, $proc) {
+		if ($line =~ /.*:.*:.*/ && $line !~ /^\#/) {
+			my @elements = split(/\s+/, $line);
+			my $cache = $elements[0];
+			my $active = $elements[1];
+			my $numobjects = $elements[2];
+			my $objsize = $elements[3];
+			my $inactive = $numobjects - $active;
+			my $used_memory = $numobjects * $objsize;
+			my $unused_memory = $inactive * $objsize;
+			printVerbose("DEBUG: $cache $inactive $active $objsize\n");
+			if ($active > $numobjects) {
+				die("active > numobjects, makes no sense\n");
+			}
+
+			if ($opt_all) { 
+				my $frag;
+
+				# Internal fragmentation calculation
+				if ($used_memory == 0) {
+					$frag = 0;
+				} else {
+					$frag = $unused_memory / $used_memory * 100;
+				}
+				if ((!$opt_unused || $numobjects) &&
+						(!$opt_hidefull || $inactive)) {
+					$output[$count] = sprintf "%-24s %6.3f%% %8d %7d %6d %11d %10d %11d\n",
+							$cache,
+							$frag, 
+							$inactive,
+							$objsize,
+							$numobjects,
+							$used_memory,
+							$used_memory / $pagesize,
+							$unused_memory;
+					$count++;
+				}
+			}
+
+			$total_used += $used_memory;
+			$total_unused += $unused_memory;
+			$total_inactive += $inactive;
+			$total_wastage += $unused_memory;
+
+			if (!$numobjects) { $total_inactivecaches++; }
+			if (!$inactive)	 { $total_fullcaches++; }
+		}
+
+	}
+
+	if ($opt_all) {
+		printf "%-24s %7s %8s %7s %6s %11s %10s %11s\n",
+					"Cache name",
+					"Frag %",
+					"Inactive",
+					"ObjSize",
+					"NumObj",
+					"SizeBytes",
+					"SizePages",
+					"WasteBytes";
+
+		my @sortedOutput = sort OutputSort @output;
+		print @sortedOutput; 
+		print "\n\n";
+	}
+
+	if ($opt_delay == -1) {
+		printf "Total memory used by slab:   %12d\n", $total_used;
+		printf "Total inactive objects:      %12d\n", $total_inactive;
+		printf "Total wasted bytes:          %12d\n", $total_wastage;
+		printf "Total unused caches:         %12d\n", $total_inactivecaches;
+		printf "Total fully utilized caches: %12d\n", $total_fullcaches;
+		printf "Internal fragmentation:      %11.3f%%\n", $total_unused / $total_used * 100;
+	} else {
+		printf("%8d %12d %10d %12d %9.4f%%\n",
+				$total_inactive,
+				$total_used,
+				$total_used / $pagesize,
+				$total_wastage,
+				$total_unused / $total_used * 100);
+	}
+
+	if ($opt_delay != -1) { sleep $opt_delay; }
+} while ($opt_delay != -1);
+				
+# Below this line is help and manual page information
+__END__
+
+=head1 NAME
+
+slab-intfrag - Measure the extent of internal fragmentation in the kernel
+
+=head1 SYNOPSIS
+
+slab-intfrag [options]
+
+ Options:
+    --help         Print help messages
+    --man          Print man page
+    -a, --all      Show fragmentation on individual caches, not just the total
+    -s, --sort     Sort the "all" output by a column
+    -u, --unused   Strip out caches that are not used at all
+    -f, --hidefull Hide fully used caches
+    -n, --delay    Print a report every n seconds
+
+=head1 DESCRIPTION
+
+Internal fragmentation is a measurement of the amount of memory allocated
+that is not required by live objects currently in the system. The reported
+internal fragmentation is a percentage of unused memory over the total
+amount of memory allocated by the slab allocator.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--help>
+
+Print a help message and exit
+
+=item B<-a, --all>
+
+By default, just the total internal fragmentation for the system is displayed.
+This option will print the fragmentation of each individual cache to help 
+identify where the problems are
+
+=item B<-n, --delay>
+
+By default, a single report is generated and the program exits. This option
+will generate a report every requested number of seconds.
+
+=back
+
+=head1 AUTHOR
+
+Written by Mel Gorman (mel@csn.ul.ie)
+
+=head1 REPORTING BUGS
+
+Report bugs to the author
+
+=cut

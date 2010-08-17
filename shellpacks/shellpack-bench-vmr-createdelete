@@ -1,0 +1,37 @@
+#!/bin/bash
+# Run createdelete benchmark via VMRegress
+
+P=vmr-createdelete
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic arguement parser
+while [ "$1" != "" ]; do
+  case "$1" in
+    --) shift; break;;
+  esac
+done
+
+# Prepare the benchmark
+RESULTS=$LOGDIR_RESULTS
+if [ -e "$RESULTS" ]; then
+  echo Cleaning up old results
+  rm -rf $RESULTS
+fi
+
+# Run the benchmark
+echo "Starting bench-createdelete test"
+BENCH_CREATEDELETE="$SHELLPACK_TOPLEVEL/vmr/bin/bench-createdelete.sh"
+
+save_rc $BENCH_CREATEDELETE -r $RESULTS -e -anonmapping --anonymous ; recover_rc ; check_status "$P: anonmapping" ; RET1=$RC
+save_rc $BENCH_CREATEDELETE -r $RESULTS -e -filemapping             ; recover_rc ; check_status "$P: filemapping" ; RET2=$RC
+
+# Generate Summary
+if [ "$RET1" = "0" -a "$RET2" = "0" ]; then
+  echo bench-createdelete completed successfully
+else
+  echo bench-createdelete failed miserably
+fi
+
+exit $RET
+#### Description Scalability benchmark for the creation and deletion of small files
+#### Details vmr-createdelete-bench 4

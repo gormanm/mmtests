@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+if ($ARGV[0] == $ARGV[1] || $ARGV[0] == 0) {
+	print 0;
+} else {
+	# Print the percentage difference between two values
+	print ((($ARGV[0] - $ARGV[1]) * 100) / $ARGV[0]);
+}

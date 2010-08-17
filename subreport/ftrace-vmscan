@@ -1,0 +1,188 @@
+echo FTrace Reclaim Statistics: vmscan
+	
+printheader
+rm -f /tmp/stalled-$$-*
+rm -f /tmp/scanned-$$-*
+rm -f /tmp/reclaimed-$$-*
+rm -f /tmp/io-$$-*
+rm -f /tmp/file-io-$$-*
+
+for KERNEL in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ -e ftrace-$KERNEL-$FTRACE_TEST.gz -a ! -e ftrace-$KERNEL-$FTRACE_TEST-vmscan.report ]; then
+		echo Generating ftrace report ftrace-$KERNEL-$FTRACE_TEST-vmscan.report
+		zcat ftrace-$KERNEL-$FTRACE_TEST.gz 2> /dev/null | grep -v "stack trace" | grep -v =\> | perl $LINUX_GIT/Documentation/trace/postprocess/trace-vmscan-postprocess.pl --ignore-pid > ftrace-$KERNEL-$FTRACE_TEST-vmscan.report
+	fi
+done
+
+for HEADING in "Direct reclaims" "Direct reclaim pages scanned" "Direct reclaim pages reclaimed" "Direct reclaim write file async I/O" "Direct reclaim write anon async I/O" "Direct reclaim write file sync I/O" "Direct reclaim write anon sync I/O" "Wake kswapd requests" "Kswapd wakeups" "Kswapd pages scanned" "Kswapd pages reclaimed" "Kswapd reclaim write file async I/O" "Kswapd reclaim write anon async I/O" "Kswapd reclaim write file sync I/O" "Kswapd reclaim write anon sync I/O" "Time stalled direct reclaim" "Time kswapd awake"; do
+	PRINT_HEADING=$HEADING
+	if [ "$HEADING" = "Time stalled direct reclaim" -o "$HEADING" = "Time kswapd awake" ]; then
+		PRINT_HEADING="$PRINT_HEADING (seconds)"
+	fi
+	printf "%-40s" "$PRINT_HEADING"
+
+	for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+		if [ ! -e ftrace-$DIRNAME-$FTRACE_TEST-vmscan.report ]; then
+			continue
+		fi
+		RESULT=`grep "^$HEADING" ftrace-$DIRNAME-$FTRACE_TEST-vmscan.report | awk -F : '{print $2}' | sed -e 's/seconds//' -e 's/\\s//g'`
+		if [ "$RESULT" = "" ]; then
+			RESULT=0
+		fi
+		if [ "$HEADING" = "Kswapd pages scanned" -o \
+			"$HEADING" = "Direct reclaim pages scanned" ]; then
+			echo $RESULT >> /tmp/scanned-$$-$DIRNAME
+		fi
+		if [ "$HEADING" = "Kswapd pages reclaimed" ]; then
+			RESULT=`$TIMESTAMP_HELPER kswapd_steal $FTRACE_TEST tests-timestamp-$DIRNAME`
+			echo $RESULT >> /tmp/reclaimed-$$-$DIRNAME
+		fi
+		if [ "$HEADING" = "Direct reclaim pages reclaimed" ]; then
+			KSWAPD=`$TIMESTAMP_HELPER kswapd_steal $FTRACE_TEST tests-timestamp-$DIRNAME`
+			
+			TOTAL=`$TIMESTAMP_HELPER "pgsteal_.*" $FTRACE_TEST tests-timestamp-$DIRNAME`
+			RESULT=$(($TOTAL-$KSWAPD))
+			echo $RESULT >> /tmp/reclaimed-$$-$DIRNAME
+		fi
+
+		if [ "$HEADING" = "Kswapd reclaim write file async I/O" -o \
+				"$HEADING" = "Kswapd reclaim write anon async I/O" -o \
+				"$HEADING" = "Direct reclaim write file async I/O" -o \
+				"$HEADING" = "Direct reclaim write anon async I/O" -o \
+				"$HEADING" = "Direct reclaim write anon sync I/O" -o \
+				"$HEADING" = "Direct reclaim write file sync I/O" ]; then
+			echo $RESULT >> /tmp/io-$$-$DIRNAME
+		fi
+
+		if [ "$HEADING" = "Kswapd reclaim write file async I/O" -o \
+				"$HEADING" = "Direct reclaim write file async I/O" -o \
+				"$HEADING" = "Direct reclaim write file sync I/O" ]; then
+			echo $RESULT >> /tmp/file-io-$$-$DIRNAME
+		fi
+
+
+		if [ "$HEADING" = "Time stalled direct reclaim" ]; then
+			TIME_STALLED=$RESULT
+			echo $TIME_STALLED > /tmp/stalled-$$-$DIRNAME
+		fi
+		if [ "$HEADING" = "Time kswapd awake" ]; then
+			TIME_KSWAPD_AWAKE=$RESULT
+			echo $TIME_KSWAPD_AWAKE > /tmp/kswapd-$DIRNAME
+		fi
+		printf "%10s " $RESULT
+	done
+	echo
+done
+echo
+
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	for FILE in /tmp/scanned-$$-$DIRNAME /tmp/reclaimed-$$-$DIRNAME /tmp/io-$$-$DIRNAME /tmp/file-io-$$-$DIRNAME /tmp/stalled-$$-$DIRNAME; do
+		if [ ! -e $FILE ]; then
+			echo 0 > $FILE
+		fi
+	done
+done
+
+# Work out scanning ratios
+printf "%-40s" "Total pages scanned"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+	SCANNED=`cat /tmp/scanned-$$-$DIRNAME | add`
+	printf "%10d" $SCANNED
+done
+echo
+printf "%-40s" "Total pages reclaimed"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+	RECLAIMED=`cat /tmp/reclaimed-$$-$DIRNAME | add`
+	printf "%10d" $RECLAIMED
+done
+echo
+printf "%-40s" "%age total pages scanned/reclaimed"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+	SCANNED=`cat /tmp/scanned-$$-$DIRNAME | add`
+	RECLAIMED=`cat /tmp/reclaimed-$$-$DIRNAME | add`
+	if [ "$SCANNED" = 0 ]; then
+		RATIO=0
+	else
+		RATIO=`perl -e "print ($RECLAIMED*100/$SCANNED)"`
+	fi
+	printf "%9.2f%%" $RATIO
+done
+echo
+
+printf "%-40s" "%age total pages scanned/written"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+	SCANNED=`cat /tmp/scanned-$$-$DIRNAME | add`
+	WRITTEN=`cat /tmp/io-$$-$DIRNAME | add`
+	if [ "$SCANNED" = 0 ]; then
+		RATIO=0
+	else
+		RATIO=`perl -e "print ($WRITTEN*100/$SCANNED)"`
+	fi
+	printf "%9.2f%%" $RATIO
+done
+echo
+
+printf "%-40s" "%age  file pages scanned/written"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+	SCANNED=`cat /tmp/scanned-$$-$DIRNAME | add`
+	WRITTEN=`cat /tmp/file-io-$$-$DIRNAME | add`
+	if [ "$SCANNED" = 0 ]; then
+		RATIO=0
+	else
+		RATIO=`perl -e "print ($WRITTEN*100/$SCANNED)"`
+	fi
+	printf "%9.2f%%" $RATIO
+done
+echo
+
+# Work out percentage of time in direct relcaim
+printf "%-40s" "Percentage Time Spent Direct Reclaim"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+ 
+	TIME_STALLED=`cat /tmp/stalled-$$-$DIRNAME`
+	USER_TIME=`grep "time :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk '{print $4}'`
+	SYS_TIME=`grep "time :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk '{print $6}'`
+	TOTAL_TIME=`perl -e "print ($USER_TIME+$SYS_TIME+$TIME_STALLED)"`
+	if [ "$TOTAL_TIME" = "0" ]; then
+		PERCENTAGE=0
+	else
+		PERCENTAGE=`perl -e "print ($TIME_STALLED*100/$TOTAL_TIME)"`
+	fi
+	printf "%9.2f%%" $PERCENTAGE
+done
+echo
+
+printf "%-40s" "Percentage Time kswapd Awake"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+	TIME_KSWAPD_AWAKE=`cat /tmp/kswapd-$DIRNAME`
+	ELAPSED_TIME=`grep "time :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk '{print $8}'`
+	#TIME_KSWAPD_AWAKE=`perl -e "print ($TIME_KSWAPD_AWAKE/1000)"`
+	PERCENTAGE=`perl -e "print ($TIME_KSWAPD_AWAKE*100/$ELAPSED_TIME)"`
+	printf "%9.2f%%" $PERCENTAGE
+done
+echo
+echo
+
+rm -f /tmp/scanned-$$-* /tmp/reclaimed-$$-* /tmp/io-$$-* /tmp/file-io-$$-* /tmp/stalled-$$-*
+

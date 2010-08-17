@@ -1,0 +1,66 @@
+%{
+#include <linux/mmzone.h>
+#include <linux/jiffies.h>
+#include <linux/gfp.h>
+
+int burst_alloc = 1;
+int pause = 0;
+#define ALLOC_ORDER 2
+#define MAX_BURST (524288 >> (PAGE_SHIFT + ALLOC_ORDER))
+%}
+
+function atomic_alloc () %{
+	struct page **max_alloc;
+	int i, local_burst = burst_alloc;
+	int success = 0, failure = 0;
+
+	max_alloc = kmalloc(sizeof(struct page *) * MAX_BURST, GFP_KERNEL);
+	if (!max_alloc) {
+		_stp_printf("failed to alloc max_alloc array\n");
+		return;
+	}
+
+	if (pause) {
+		pause--;
+		kfree(max_alloc);
+		return;
+	}
+
+	if (local_burst > MAX_BURST)
+		local_burst = MAX_BURST;
+
+	for (i = 0; i < local_burst; i++) {
+		max_alloc[i] = alloc_pages(GFP_ATOMIC, ALLOC_ORDER);
+		if (!max_alloc[i])
+			break;
+	}
+
+	success = i;
+	failure = local_burst - success;
+
+	for (i = 0; i < success; i++) {
+		if (max_alloc[i])
+			__free_pages(max_alloc[i], ALLOC_ORDER);
+	}
+	if (failure) {
+		pause = 8;
+		_stp_printf("atomic alloc burst %d success %d failure %d\n",
+				local_burst, success, failure);
+	}
+
+	kfree(max_alloc);
+%}
+
+function update_burst () %{
+	burst_alloc = jiffies % MAX_BURST;
+%}
+
+probe timer.ms(250)
+{
+	atomic_alloc()
+}
+
+probe timer.ms(5000)
+{
+	update_burst()
+}

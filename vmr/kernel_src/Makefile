@@ -1,0 +1,6 @@
+CONFIG_VMR_CORE=m
+CONFIG_VMR_TEST=m
+
+obj-$(CONFIG_VMR_CORE) += core/ 
+obj-$(CONFIG_VMR_TEST) += test/
+

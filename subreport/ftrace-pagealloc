@@ -1,0 +1,29 @@
+echo FTrace Reclaim Statistics: pagealloc
+
+for KERNEL in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ -e ftrace-$KERNEL-$FTRACE_TEST.gz -a ! -e ftrace-$KERNEL-$FTRACE_TEST-pagealloc.report ]; then
+		echo Generating ftrace report ftrace-$KERNEL-$FTRACE_TEST-pagealloc.report
+		zcat ftrace-$KERNEL-$FTRACE_TEST.gz 2> /dev/null | perl $FTRACE_HELPER_PAGEALLOC --ignore-pid > ftrace-$KERNEL-$FTRACE_TEST-pagealloc.report
+	fi
+done
+
+for HEADING in "Page allocations" "Page alloc type unmovable" "Page alloc type reclaimable" "Page alloc type movable" "Page alloc type temporary" "Ext. fragmentation events" "Ext. fragmentation event severe" "Ext. fragmentation event moderate" "Pageblock changed ownership"; do
+	PRINT_HEADING=$HEADING
+	printf "%-40s" "$PRINT_HEADING"
+
+	for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+		if [ ! -e ftrace-$DIRNAME-$FTRACE_TEST-pagealloc.report ]; then
+			continue
+		fi
+		RESULT=`grep "^$HEADING" ftrace-$DIRNAME-$FTRACE_TEST-pagealloc.report | awk '{print $NF}'`
+		if [ "$RESULT" = "" ]; then
+			RESULT=0
+		fi
+
+		printf "%10s " $RESULT
+	done
+	echo
+done
+
+echo
+echo

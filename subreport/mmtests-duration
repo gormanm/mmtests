@@ -1,0 +1,24 @@
+echo MMTests Statistics: duration
+
+# Work out times running test
+printf "%-40s" "User/Sys Time Running Test (seconds)"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+	USER_TIME=`grep "time :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk '{print $4}'`
+	SYS_TIME=`grep "time :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk '{print $6}'`
+	TOTAL_CPU_TIME=`perl -e "print $USER_TIME+$SYS_TIME"`
+	printf "%10s" $TOTAL_CPU_TIME
+done
+echo
+
+printf "%-40s" "Total Elapsed Time (seconds)"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+	ELAPSED_TIME=`grep "time :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk '{print $8}'`
+	printf "%10s" $ELAPSED_TIME
+done
+echo

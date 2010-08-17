@@ -1,0 +1,16 @@
+echo
+echo STRESS-HIGHALLOC
+gendirlist stress-highalloc
+printheader
+ROW=1
+for HEADER in "Pass 1" "Pass 2" "At Rest"; do
+	printf "%-12s" "$HEADER"
+	VANILLA=`grep "% Success" stress-highalloc-$KERNEL_BASE/$TOPLEVEL/log.txt | head -$ROW | tail -1 | awk '{print $3}'`
+	for DIR in $DIRLIST; do
+		RESULT=`grep "% Success" $DIR/$TOPLEVEL/log.txt | head -$ROW | tail -1 | awk '{print $3}'`
+		printf " %8.2f (%5.2f%%)" $RESULT $(($RESULT-$VANILLA))
+	done
+	echo
+	ROW=$(($ROW+1))
+done
+echo

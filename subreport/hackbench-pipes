@@ -1,0 +1,25 @@
+echo
+echo HACKBENCH PIPES
+gendirlist hackbench-pipes
+THREADS=`ls hackbench-pipes-$KERNEL_BASE/$TOPLEVEL/hackbench.* | sed -e 's/.*hackbench.//' | sort -n`
+
+echo -n > hackbench-pipes-$KERNEL_BASE/$TOPLEVEL/hackbench-results
+for DIR in $DIRLIST; do
+	echo -n > $DIR/$TOPLEVEL/hackbench-results
+done
+for THREAD in $THREADS; do
+	printf "%12d" $THREAD
+	VANILLA=`cat hackbench-pipes-$KERNEL_BASE/$TOPLEVEL/hackbench.$THREAD | grep Time: | awk '{print $2}' | check-confidence.pl --confidence-level 99 --limit 1 --print-mean`
+	if [ "$VANILLA" = "" ]; then
+		VANILLA=`cat hackbench-pipes-$KERNEL_BASE/$TOPLEVEL/hackbench.$THREAD | grep Time: | awk '{print $2}' | mean`
+	fi
+	for DIR in $DIRLIST; do
+		RESULT=`cat $DIR/$TOPLEVEL/hackbench.$THREAD | grep Time: | awk '{print $2}' | check-confidence.pl --confidence-level 99 --limit 1 --print-mean`
+		if [ "$RESULT" = "" ]; then
+			RESULT=`cat $DIR/$TOPLEVEL/hackbench.$THREAD | grep Time: | awk '{print $2}' | mean`
+		fi
+		echo $THREAD $RESULT >> $DIR/$TOPLEVEL/hackbench-results
+		printf " %8.4f (%5.4f%%)" $RESULT `pndiff $RESULT $VANILLA`
+	done
+	echo
+done

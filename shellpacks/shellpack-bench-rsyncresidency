@@ -1,0 +1,168 @@
+#!/bin/bash
+# This bench splits into two parts. One part creates a mapping and accesses
+# it linerally in a loop recording if pages were resident and how long it
+# took to access the page. The second part runs rsync to see how badly
+# it interferes with the anonymous mapping.
+
+P=rsyncresidency-bench
+
+MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+RSYNC_SOURCE=$RSYNC_RESIDENCY_SOURCE
+RSYNC_DESTINATION=$RSYNC_RESIDENCY_DESTINATION
+MAPPING_SIZE=${RSYNC_RESIDENCY_MAPPING_SIZE:=$MEMTOTAL_BYTES}
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		--mapping-size)
+			MAPPING_SIZE=$2
+			shift 2
+			;;
+		--source)
+			RSYNC_SOURCE=$2
+			shift 2
+			;;
+		--destination)
+			RSYNC_DESTINATION=$2
+			shift 2
+			;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Build the mapping program
+echo Building mapping program
+TEMPFILE=`mktemp`
+LINECOUNT=`wc -l $0 | awk '{print $1}'`
+CSTART=`grep -n "BEGIN C FILE" $0 | tail -1 | awk -F : '{print $1}'`
+tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > $TEMPFILE.c
+gcc -O2 $TEMPFILE.c -o $TEMPFILE || exit -1
+
+# Dump all existing cache for full IO effect
+echo Dropping caches, inodes and dentries
+echo 3 > /proc/sys/vm/drop_caches
+
+# Start it reading in the background
+EXPECT_UNBUFFER=expect_unbuffer
+if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
+        EXPECT_UNBUFFER=unbuffer
+fi
+echo Starting background mapping writer
+echo Logging: $LOGDIR_RESULTS/access-latency.log
+$EXPECT_UNBUFFER $TEMPFILE $MAPPING_SIZE > $LOGDIR_RESULTS/access-latency.log &
+MAPPINGPID=$!
+
+# Rsync
+echo Starting rsync
+echo rsync -a -l -r $RSYNC_SOURCE $RSYNC_DESTINATION
+rsync -a -l -r $RSYNC_SOURCE $RSYNC_DESTINATION
+
+echo -n Shutting down mapping pid $MAPPINGPID
+kill -INT $MAPPINGPID
+while [ "`ps h --pid $MAPPINGPID`" != "" ]; do
+		echo -n .
+		sleep 1
+done
+echo
+
+rm $TEMPFILE $TEMPFILE.c
+
+exit 0
+==== BEGIN C FILE ====
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/time.h>
+
+int exiting;
+void sighandle(int dummy) {
+	exiting = 1;
+}
+
+int main(int argc, char **argv)
+{
+	size_t length;
+	struct timeval tv;
+	char *mapping, *end_mapping, *addr;
+	int stride = getpagesize();
+	struct sigaction sigact = {
+		.sa_handler = sighandle
+	};
+
+	if (argc <= 1) {
+		printf("Usage: mmap-anon-access <mapping-size>\n");
+		exit(EXIT_FAILURE);
+	}
+
+	length = strtoull(argv[1], NULL, 10);
+	length &= ~(getpagesize()-1);
+
+	if (sigaction(SIGINT, &sigact, NULL) == -1) {
+		perror("sigaction");
+		exit(EXIT_FAILURE);
+	}
+
+	/* Create anonymous mapping */
+	mapping = mmap(NULL, length, PROT_READ|PROT_WRITE,
+			MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
+	if (mapping == MAP_FAILED) {
+		printf("Failed mapping size: %lu\n", length);
+		perror("mmap");
+		exit(EXIT_FAILURE);
+	}
+
+	/* Loop until interrupted */
+	addr = mapping;
+	end_mapping = mapping + length;
+	while (!exiting) {
+		struct timeval start, end, diff;
+		int resident;
+		unsigned char vec[1];
+
+		if (mincore(addr, 1, vec) == -1) {
+			perror("mincore");
+			exit(EXIT_FAILURE);
+		}
+
+		if (gettimeofday(&start, NULL) == -1) {
+			perror("gettimeofday");
+			exit(EXIT_FAILURE);
+		}
+
+		/* Random write */
+		*addr = (char)start.tv_usec;
+
+		if (gettimeofday(&end, NULL) == -1) {
+			perror("gettimeofday");
+			exit(EXIT_FAILURE);
+		}
+
+		timersub(&end, &start, &diff);
+
+		/*
+		 * Only print lines for significant delays or non-resident
+		 * pages. Otherwise the volume of output would itself be
+		 * very disruptive if it was being written to disk
+		 */
+		if (diff.tv_sec || diff.tv_usec > 1000 || !vec[0])
+			printf("%lu.%06lu %lu.%06lu %d\n",
+				start.tv_sec, start.tv_usec,
+				diff.tv_sec, diff.tv_usec,
+				vec[0]);
+			
+		addr += stride;
+		if (addr >= end_mapping)
+			addr = mapping;
+	}
+
+	/* Print one dummy line to record when the test ended */
+	if (gettimeofday(&tv, NULL) == -1) {
+		perror("gettimeofday");
+		exit(EXIT_FAILURE);
+	}
+	printf("%lu.%06lu 0.000000 1\n", tv.tv_sec, tv.tv_usec);
+}
+#### Description Rsync residency plots delays accessing a mapping during rsync of a large dir
+#### Details rsyncresidency-bench 4

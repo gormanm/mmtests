@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+use POSIX qw(setsid);
+
+open(STDIN, '/dev/null');
+open(STDOUT, '> /dev/null');
+open(STDERR, '> /dev/null');
+
+if ( ($pid = fork) < 0 ) {
+	die "fork: $!";
+}
+if ($pid) {
+	exit;
+}
+setsid();
+
+exec { $ARGV[0] } @ARGV;
+

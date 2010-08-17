@@ -1,0 +1,28 @@
+BACKING_TYPES=
+FIRST_TYPE=
+for POTENTIAL in base huge transhuge; do
+	DIRNAME=sysbench$SUBKERNEL/$TOPLEVEL/$POTENTIAL
+	LAST_TYPE=`basename $DIRNAME`
+	if [ -e $DIRNAME ]; then
+		BACKING_TYPES="$BACKING_TYPES $LAST_TYPE"
+		if [ "$FIRST_TYPE" = "" ]; then
+			FIRST_TYPE=$LAST_TYPE
+		fi
+	fi
+done
+
+echo
+echo sysbench huge page comparison
+gendirlist sysbench$SUBKERNEL
+printheader
+
+for THREADS in `awk '{print $1}' sysbench$SUBKERNEL/$TOPLEVEL/$FIRST_TYPE/sysbench.log`; do
+	VANILLA=`grep "^$THREADS " sysbench$SUBKERNEL/$TOPLEVEL/$FIRST_TYPE/sysbench.log | awk '{print $2}'`
+	printf "%-14s" $THREADS
+
+	for BACKING_TYPE in $BACKING_TYPES; do
+		RESULT=`grep "^$THREADS " sysbench$SUBKERNEL/$TOPLEVEL/$BACKING_TYPE/sysbench.log | awk '{print $2}'`
+		printf " %8.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+	done
+	echo
+done

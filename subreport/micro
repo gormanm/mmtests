@@ -1,0 +1,38 @@
+echo
+echo MICRO
+gendirlist micro
+printheader
+
+TESTS=`\ls -d micro-$KERNEL_BASE/$TOPLEVEL/[0-9]*.log | sed -e 's/\\.log//'`
+
+for TEST in $TESTS ; do
+	TEST=`basename $TEST`
+	TEST_NR=`echo $TEST | awk -F - '{print $1}'`
+	TEST_NAME=`echo $TEST | sed -e 's/[0-9*]-//'`
+	case $TEST_NAME in
+		mapped-file-stream)
+			HEADINGS="pgalloc_dma pgalloc_dma32 pgalloc_normal pgalloc_highmem pgsteal_dma pgsteal_dma32 pgsteal_normal pgsteal_highmem pgscan_kswapd_dma pgscan_kswapd_dma32 pgscan_kswapd_normal pgscan_kswapd_highmem pgscan_direct_dma pgscan_direct_dma32 pgscan_direct_normal pgscan_direct_highmem pageoutrun allocstall"
+			for HEADING in $HEADINGS; do
+				VANILLA_BEFORE=`grep "^$HEADING " micro-$KERNEL_BASE/$TOPLEVEL/$TEST.vmstat-before | awk '{print $2}'`
+				VANILLA_AFTER=`grep "^$HEADING " micro-$KERNEL_BASE/$TOPLEVEL/$TEST.vmstat-after | awk '{print $2}'`
+
+				if [ "$VANILLA_BEFORE" = "" ]; then
+					continue
+				fi
+				VANILLA=$(($VANILLA_AFTER-$VANILLA_BEFORE))
+				printf "%-28s" $HEADING
+
+				for DIR in $DIRLIST; do
+					RESULT_BEFORE=`grep "^$HEADING " $DIR/$TOPLEVEL/$TEST.vmstat-before | awk '{print $2}'`
+					RESULT_AFTER=`grep "^$HEADING " $DIR/$TOPLEVEL/$TEST.vmstat-after | awk '{print $2}'`
+					RESULT=$(($RESULT_AFTER-$RESULT_BEFORE))
+					printf " %12.2f (%7.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+				done
+				echo
+			done
+			;;
+		*)
+			echo Unrecognised test $TEST_NAME
+			;;
+	esac
+done

@@ -1,0 +1,93 @@
+#!/bin/bash
+# This script installs reaim and runs the regression tests
+
+P=reaim-bench
+VERSION=7.0.1.13
+FILESIZE=10m
+POOLSIZE=1m
+STARTUSERS=1
+ENDUSERS=$((NUM_CPU*4))
+INCREMENT=$((NUM_CPU/2))
+JOBS_PER_USER=100
+ITERATIONS=3
+WORKFILE=workfile.fserver
+QUICK=no
+
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2;;
+		--poolsize)
+			POOLSIZE=$2
+			shift 2
+			;;
+		--startusers)
+			STARTUSERS=$2
+			shift 2
+			;;
+		--filesize)
+			FILESIZE=$2
+			shift 2
+			;;
+		--endusers)
+			ENDUSERS=$2
+			shift 2
+			;;
+		--increment)
+			INCREMENT=$2
+			if [ $INCREMENT -eq 0 ]; then
+				INCREMENT=1
+			fi
+			shift 2
+			;;
+		--jobs-per-user)
+			JOBS_PER_USER=$2
+			shift 2
+			;;
+		--iterations)
+			ITERATIONS=$2
+			shift 2
+			;;
+		--workfile)
+			WORKFILE=$2
+			shift 2
+			;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/reaim-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-reaim -v ${VERSION} || die reaim install script returned error
+fi
+cd $SHELLPACK_SOURCES/reaim-${VERSION}-installed || die Failed to cd to reaim install directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+echo FILESIZE $FILESIZE > reaim.config
+echo POOLSIZE $POOLSIZE >> reaim.config
+echo DISKDIR $SHELLPACK_TEMP >> reaim.config
+
+monitor_pre_hook $LOGDIR_RESULTS $SIZE
+ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
+./src/reaim \
+	-s$STARTUSERS \
+	-e$ENDUSERS \
+	-t \
+	-i$INCREMENT \
+	-fdata/$WORKFILE \
+	-r$ITERATIONS \
+	-c./reaim.config \
+	-l$LOGDIR_RESULTS/reaim.results \
+		2>&1 | tee $LOGDIR_RESULTS/reaim.log \
+				|| die Failed to run reaim
+monitor_post_hook $LOGDIR_RESULTS $SIZE
+
+exit $SHELLPACK_SUCCESS
+#### Description reaim
+#### Details reaim-bench 12

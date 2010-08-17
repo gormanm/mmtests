@@ -1,0 +1,57 @@
+#!/bin/bash
+# This script installs ltp and runs the regression tests
+
+P=ltp-bench
+VERSION=full-20091031
+LTP_RUN_TESTS="controllers"
+. $SHELLPACK_INCLUDE/common.sh
+
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2;;
+		--ltp-tests)
+			LTP_RUN_TESTS="$2"
+			shift 2
+			;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/ltp-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-ltp -v ${VERSION}  || die ltp install script returned error
+fi
+
+# Run the testsuite
+cd $SHELLPACK_SOURCES/ltp-${VERSION}-installed || die Failed to cd to ltp install directory
+export LTPROOT=`pwd`
+export PATH=$PATH:$LTPROOT/testcases/bin
+
+for TEST in $LTP_RUN_TESTS; do
+	echo Executing $TEST LTP test
+	RESULTS="$LOGDIR_RESULTS"
+	mkdir -p $RESULTS
+	( ./runltp -f $TEST 2>&1 || die ltp $TEST failed ) | tee $RESULTS/log-$TEST.txt
+
+	# Check for failures
+	#grep -v PASS $RESULTS/log-$TEST.txt > $RESULTS/failed_tests.txt
+	#TEST=`cat $RESULTS/failed_tests.txt`
+	#if [ "$TEST" != "" ]; then
+	#	echo
+	#	echo Some ltp regression tests reported failure | tee -a $LOGDIR/summary
+	#	cat $RESULTS/failed_tests.txt | tee -a $LOGDIR/summary
+	#	echo
+	#
+	#	echo ltp successfully installed but some regression tests failed | tee -a $LOGDIR/summary
+	#	exit $SHELLPACK_ERROR
+	#fi
+done
+
+echo
+exit $SHELLPACK_SUCCESS
+#### Description LTP Regression Test Suite
+#### Details ltp-bench 8

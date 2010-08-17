@@ -1,0 +1,27 @@
+echo
+echo STREAM
+gendirlist vmr-stream
+printheader
+
+PAGESIZE_TYPES=
+for DIRNAME in `\ls -d vmr-stream-$KERNEL_BASE/$TOPLEVEL/base/stream-*`; do
+	LAST_TYPE=`basename $DIRNAME`
+	PAGESIZE_TYPES="$PAGESIZE_TYPES $LAST_TYPE"
+done
+
+WSS_SIZES=`cat vmr-stream-$KERNEL_BASE/$TOPLEVEL/base/$LAST_TYPE/stream-Add.avg | awk '{print $1}'`
+
+for PAGESIZE_TYPE in $PAGESIZE_TYPES; do
+for OP in Add Copy Scale Triad; do
+	for WSS_SIZE in $WSS_SIZES; do
+		VANILLA=`grep "^$WSS_SIZE " vmr-stream-$KERNEL_BASE/$TOPLEVEL/base/$PAGESIZE_TYPE/stream-$OP.avg | awk '{print $2}'`
+		printf "%-28s" $OP-`echo $PAGESIZE_TYPE | sed -e 's/stream-//'`-$WSS_SIZE
+
+		for DIR in $DIRLIST; do
+			RESULT=`grep "^$WSS_SIZE " $DIR/$TOPLEVEL/base/$PAGESIZE_TYPE/stream-$OP.avg | awk '{print $2}'`
+			printf " %8.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+		done
+		echo
+	done
+done
+done

@@ -1,0 +1,34 @@
+echo
+echo FS-Mark
+gendirlist fsmark
+printheader
+
+REPORT=fsmark-$KERNEL_BASE/$TOPLEVEL/fsmark.log
+
+for DIR in $DIRLIST; do
+	STARTLINE=`grep -n ^FSUse $DIR/$TOPLEVEL/fsmark.log | awk -F : '{print $1}'`
+	LENGTH=`cat $DIR/$TOPLEVEL/fsmark.log | wc -l`
+	tail -$(($LENGTH-$STARTLINE)) $DIR/$TOPLEVEL/fsmark.log | grep -v "No space left on device" | grep -v "fopen failed to open" > $DIR/$TOPLEVEL/fsmark-stripped.log
+done
+
+# Files/sec
+for PROCESS in min mean stddev max; do
+	printf "%-8s %-6s" Files/s $PROCESS
+	VANILLA=`awk '{print $4}' fsmark-$KERNEL_BASE/$TOPLEVEL/fsmark-stripped.log | $PROCESS`
+
+	for DIR in $DIRLIST; do
+		RESULT=`awk '{print $4}' $DIR/$TOPLEVEL/fsmark-stripped.log | $PROCESS`
+		printf " %11.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+	done
+	echo
+done
+for PROCESS in min mean stddev max; do
+	printf "%-8s %-6s" Overhead $PROCESS
+	VANILLA=`awk '{print $5}' fsmark-$KERNEL_BASE/$TOPLEVEL/fsmark-stripped.log | $PROCESS`
+
+	for DIR in $DIRLIST; do
+		RESULT=`awk '{print $5}' $DIR/$TOPLEVEL/fsmark-stripped.log | $PROCESS`
+		printf " %11.2f (%5.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+	done
+	echo
+done

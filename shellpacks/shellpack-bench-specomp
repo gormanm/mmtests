@@ -1,0 +1,145 @@
+#!/bin/bash
+# This is the script for running SPEComp
+P='specomp'
+
+. $SHELLPACK_INCLUDE/common.sh
+export PATH=$SHELLPACK_TOPLEVEL/spec/bin:$PATH
+
+if [ "$SIZE" = "" ]; then
+        SIZE=$SPECOMP_DEFAULT_SIZE
+fi
+if [ "$ITER" = "" ]; then
+        ITER=$SPECOMP_DEFAULT_ITER
+fi
+if [ "$TESTS" = "" ]; then
+        TESTS=
+fi
+if [ "$RUNBITS" = "" ]; then
+	case `uname -m` in
+		i?86)
+			RUNBITS=32
+			;;
+		*)
+			RUNBITS=64
+			;;
+	esac
+fi
+if [ "$REPORTABLE" = "" ]; then
+        REPORTABLE=--reportable
+        if [ "$TESTS" != "all" -o "$ITER" = "1" -o "$SIZE" != "ref" ]; then
+                REPORTABLE=--noreportable
+        fi
+fi
+
+# Install support files ######################################################
+if [ ! \( -e $SHELLPACK_SOURCES/specomp2001 \) ]; then
+  	$SHELLPACK_INCLUDE/shellpack-install-specomp
+	check_status "$P: Installing specomp"
+fi
+
+# Ensure everything is where it is expected to be
+pushd $SHELLPACK_SOURCES/specomp2001 > /dev/null || die Failed to cd to specomp2001
+[ ! -e shrc ] && die No specomp2001 shrc script
+
+# Prepare system
+echo 0 > /proc/sys/vm/nr_hugepages
+rm -f /tmp/OPiter.*
+[ -e result ] && rm -rf result
+GENSPEC=$SHELLPACK_TOPLEVEL/spec/genspec-conf/$ARCH-$HOSTNAME.conf
+if [ -e "$GENSPEC" ]; then
+	GENSPECSH="generate-specomp.sh --bitness ${RUNBITS} --conf $GENSPEC"
+else
+	GENSPECSH="generate-specomp.sh --bitness ${RUNBITS}"
+fi
+if [ "$PROFILE_EVENTS" != "" ]; then
+	GENSPECSH="$GENSPECSH --monitor $PROFILE_EVENTS"
+fi
+echo genspec: $GENSPECSH
+
+# SPEComp requires adjustments to stack ulimit
+OLD_STACK_LIMIT=`ulimit -s`
+case `uname -m` in
+x86_64)
+	ulimit -s $((4*1048576))
+	;;
+ppc64)
+	ulimit -s 32768
+	;;
+i?86)
+	ulimit -s 32768
+	;;
+esac
+
+
+# Generate SPEC configurations
+. shrc
+HLINK=--hugepages-newrelink
+
+$GENSPECSH > config/gen-m${RUNBITS}base.cfg || die Failed to generate base spec config file
+$GENSPECSH --hugepages-heaponly > config/gen-m${RUNBITS}huge-heap.cfg || die Failed to generate huge-heap spec config file
+$GENSPECSH $HLINK > config/gen-m${RUNBITS}huge-all.cfg || die Failed to generate huge-all spec config file
+cp config/gen-m${RUNBITS}base.cfg config/gen-m${RUNBITS}huge-*.cfg $LOGDIR_RESULTS
+
+for PAGES in $SPECOMP_PAGESIZES; do
+	opcontrol --stop ; opcontrol --deinit
+
+	HUGECTL=
+	case $PAGES in
+		base)
+			hugeadm --pool-pages-min DEFAULT:0MB
+			hugeadm --pool-pages-max DEFAULT:8192
+			HUGECTL=
+			disable_transhuge
+			;;
+		huge-heap)
+			hugeadm --hard --pool-pages-min DEFAULT:7000MB
+			hugeadm --hard --pool-pages-min DEFAULT:0MB
+			hugeadm --pool-pages-max DEFAULT:8192
+			HUGECTL="hugectl --verbose 0 --heap --shm"
+			disable_transhuge
+			;;
+		huge-all)
+			hugeadm --hard --pool-pages-min DEFAULT:6144MB
+			hugeadm --hard --pool-pages-min DEFAULT:4096MB
+			hugeadm --pool-pages-max DEFAULT:8192
+			HUGECTL="hugectl --verbose 0 --text --data --bss --heap --shm"
+			disable_transhuge
+			;;
+		transhuge)
+			hugeadm --pool-pages-min DEFAULT:0MB
+			hugeadm --pool-pages-max DEFAULT:8192
+			HUGECTL=
+			if [ "$TRANSHUGE_AVAILABLE" = "yes" ]; then
+				enable_transhuge
+			else
+				echo THP support unavailable for transhuge
+				continue
+			fi
+			;;
+	esac
+
+	ATTEMPT=1
+	while [ $ATTEMPT -lt 3 ]; do
+		rm -rf result
+       		$HUGECTL runspec -c gen-m${RUNBITS}${PAGES}.cfg \
+               		$REPORTABLE \
+               		--tune base \
+               		--size $SIZE \
+               		--iterations $ITER \
+               		$TESTS
+		if [ $? -eq 0 ]; then
+			echo SPEComp succeeeded on attempt $ATTEMPT
+			mv result $LOGDIR_RESULTS/$PAGES
+			ATTEMPT=3
+		else
+			echo SPEComp failed on attempt $ATTEMPT
+		fi
+		ATTEMPT=$((ATTEMPT+1))
+		rm -rf /tmp/OPiter*
+	done
+done
+
+# Should be unnecessary
+ulimit -s $OLD_STACK_LIMIT
+#### Description SPEComp
+#### Details specomp-bench 13

@@ -1,0 +1,36 @@
+#!/bin/bash
+# This script installs libhugetlbfs and runs the regression tests
+
+P=libhugetlbfs-bench
+VERSION=2.9
+HUGETLBFS_MOUNT=/mnt/hugetlbfs
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2;;
+		--force-32bit)
+			FORCE32=$1
+			shift
+			;;
+		--force-64bit)
+			FORCE64=$1
+			shift
+			;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/libhugetlbfs-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-libhugetlbfsbuild -v ${VERSION} $FORCE32 $FORCE64 || die libhugetlbfs install script returned error
+fi
+
+echo
+echo libhugetlbfs successfully installed | tee -a $LOGDIR/summary
+exit $SHELLPACK_SUCCESS
+#### Description This pack builds, installs and tests libhugetlbfs
+#### Details libhugetlbfsbuild-bench 29

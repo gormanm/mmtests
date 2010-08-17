@@ -1,0 +1,72 @@
+#!/bin/bash
+# Run cacheeffects benchmark via VMRegress
+
+P=vmr-cacheeffects
+LIBHUGETLBFS_VERSION=2.9
+USE_LARGE_PAGES=yes
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic arguement parser
+while [ "$1" != "" ]; do
+  case "$1" in
+    --small-only)
+	USE_LARGE_PAGES=no
+	shift
+	;;
+    --) shift; break;;
+  esac
+done
+
+# Check for libhugetlbfs support files
+if [ "$USE_LARGE_PAGES" = "yes" ]; then
+	. $SHELLPACK_INCLUDE/include-libhugetlbfs.sh
+fi
+
+# Prepare the benchmark
+RESULTS=$LOGDIR_RESULTS
+if [ -e "$RESULTS" ]; then
+	echo Cleaning up old results
+	rm -rf $RESULTS
+fi
+
+# Setup parameters needed by the test
+BENCH_CACHEEFFECTS="$SHELLPACK_TOPLEVEL/vmr/bin/bench-cacheeffects.sh"
+LIBHUGE="--libhugetlbfs-root $LIBHUGETLBFS_ROOT --use-libhugetlbfs-malloc"
+
+# Based on available memory, choose a size of array
+MEM=`free -m | grep Mem | awk '{print $2}'`
+if [ $MEM -lt 1200 ]; then
+	BENCH_CACHEEFFECTS="$BENCH_CACHEEFFECTS -m 29"
+fi
+if [ $MEM -gt 1200 -a $MEM -lt 4000 ]; then
+	BENCH_CACHEEFFECTS="$BENCH_CACHEEFFECTS -m 30"
+fi
+if [ $MEM -gt 4000 -a $MEM -lt 8000 ]; then
+	BENCH_CACHEEFFECTS="$BENCH_CACHEEFFECTS -m 32"
+fi
+if [ $MEM -ge 8000 -a $MEM -lt 20000 ]; then
+	BENCH_CACHEEFFECTS="$BENCH_CACHEEFFECTS -m 34"
+fi
+if [ $MEM -ge 20000 ]; then
+	BENCH_CACHEEFFECTS="$BENCH_CACHEEFFECTS -m 35"
+fi
+
+# Run the benchmark
+echo "Starting bench-cacheeffects test"
+if [ "$USE_LARGE_PAGES" = "yes" ]; then
+	save_rc $BENCH_CACHEEFFECTS -r $RESULTS -e -seq-largepages              $LIBHUGE	; recover_rc ; check_status "$P: seq-largepages"  ; RET2=$RC
+	save_rc $BENCH_CACHEEFFECTS -r $RESULTS -e -rand-largepages --randomise $LIBHUGE	; recover_rc ; check_status "$P: rand-largepages" ; RET3=$RC
+fi
+save_rc $BENCH_CACHEEFFECTS -r $RESULTS -e -seq-smallpages                       ; recover_rc ; check_status "$P: seq-smallpages"  ; RET0=$RC
+save_rc $BENCH_CACHEEFFECTS -r $RESULTS -e -rand-smallpages --randomise          ; recover_rc ; check_status "$P: rand-smallpages" ; RET1=$RC
+
+# Generate Summary
+if [ "$RET0" = "0" -a "$RET1" = "0" -a "$RET2" = "0" -a "$RET3" = "0" ]; then
+  echo bench-cacheeffects completed successfully
+else
+  echo bench-cacheeffects failed miserably
+fi
+
+exit $RET
+#### Description Benchmark to measure basic caching and TLB effects
+#### Details vmr-cacheeffects-bench 9

@@ -1,0 +1,73 @@
+echo proc vmstat: Faults
+
+printheader
+printf "%-40s" "Major Faults"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+
+	VALUE=`$TIMESTAMP_HELPER pgmajfault $FTRACE_TEST tests-timestamp-$DIRNAME`
+
+	printf "%10s" $VALUE
+done
+echo
+
+printf "%-40s" "Minor Faults"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+
+	MAJOR=`$TIMESTAMP_HELPER pgmajfault $FTRACE_TEST tests-timestamp-$DIRNAME`
+	FAULT=`$TIMESTAMP_HELPER pgfault $FTRACE_TEST tests-timestamp-$DIRNAME`
+	VALUE=$(($FAULT-$MAJOR))
+
+	printf "%10s" $VALUE
+done
+echo
+
+printf "%-40s" "Page ins"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+
+	VALUE=`$TIMESTAMP_HELPER pgpgin $FTRACE_TEST tests-timestamp-$DIRNAME`
+	printf "%10s" $VALUE
+done
+echo
+
+printf "%-40s" "Page outs"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+
+	VALUE=`$TIMESTAMP_HELPER pgpgout $FTRACE_TEST tests-timestamp-$DIRNAME`
+	printf "%10s" $VALUE
+done
+echo
+
+printf "%-40s" "Swap ins"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+
+	VALUE=`$TIMESTAMP_HELPER pswpin $FTRACE_TEST tests-timestamp-$DIRNAME`
+	printf "%10s" $VALUE
+done
+echo
+
+printf "%-40s" "Swap outs"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+
+	VALUE=`$TIMESTAMP_HELPER pswpout $FTRACE_TEST tests-timestamp-$DIRNAME`
+	printf "%10s" $VALUE
+done
+echo
+echo

@@ -1,3 +1,5 @@
+Overview
+========
 This is a basic test suite that runs a number of common workloads of
 interest to MM developers. The ideal would have been similar integration
 or layout to either LTP, xfstests or base it upon autotest - Phoronix
@@ -6,22 +8,153 @@ tests are cobbled together over a number of years with varying degrees
 of quality before test frameworks for this sort of testing was common.
 The refactoring effort to integrate with another framework is significant.
 
-This is an early prototype based on code hacked for a specific test
-environment. Hence, there might be still a number of bugs that are depending
-on non-existant scripts or hard-coded paths that are not available. Buyer
-Beware.
+This is an early prototype based on code ported from another test environment.
+Buyer Beware.
 
 vmr/ contains portions of an ancient tool called VMRegress. Relevant
 portions from it are being copied in as necessary rather than redeveloping
-or preparing that tool for public release. stat/ also constains simple
-helpers from VMRegress related to statistics.
+or preparing that tool for public release. stat/ constains simple helpers
+from VMRegress related to statistics.
 
-The top-level directory has a single driver script called run-mmtests.sh
-which reads the config file and runs the requested tests.
+The top-level directory has a single driver script called run-mmtests.sh which
+reads the config file, configures the system and runs the requested tests.
+config also has some per-test configuration items that can be set depending
+on the test. mmtests takes the name of the test as a parameter. Generally,
+this would be a symbolic name you are giving to the kernel being tested.
 
-Each test is driven by a run-TESTNAME.sh script. This reads the config,
-takes any necessary additional steps and calls the appropriate shellpack.
+Each test is driven by a run-single-test.sh script which reads the relevant
+driver-TESTNAME.sh script to script how the benchmark should be actually
+run. The overall driver script reads the config file and setups up profiling
+where required. Shellpacks are a pairing of a bench and install script
+in shellpacks/.
 
-Shellpacks are a pairing of a bench and install script in shellpacks/. There
-is another tool that can assemble these shellpacks and manage them but they
-are not releasable yet.
+Monitors can be optionally configured. A full list is in monitors/
+. Monitors only optionally run because there is a possibility that they
+introduce overhead of their own. Hence, for some performance tests it is
+preferable to have no monitoring.
+
+Many of the tests download external benchmarks. They will try for a mirror
+first whose location is specified in config. To get an idea where all the
+mirrors are, grep for MIRROR_LOCATION= in shellpacks/.
+
+Available tests
+===============
+
+Note the ones that are marked untested. These have been ported from other
+test suites but no guarantee they actually work correctly here. If you want
+to run these tests and run into a problem, report a bug.
+
+kernbench
+	Builds a kernel 5 times recording the time taken to completion.
+	An average time is stored. This is sensitive to the overall
+	performance of the system as it hits a number of subsystems.
+
+aim9 (untested)
+	Runs a short version of aim9 by default. Each test runs for 60
+	seconds. This is a micro-benchmark of a number of VM operations. It's
+	sensitive to changes in the allocator paths for example.
+
+vmr-stream
+	Runs the STREAM benchmark a number of times for varying sizes. An
+	average is recorded. This can be used to measure approximate memory
+	throughput or the average cost of a number of basic operations. It is
+	sensitive to cache layout used for page faults.
+
+vmr-cacheeffects
+	Performs linear and random walks on nodes of different sizes stored in
+	a large amount of memory. Sensitive to cache footprint and layout.
+
+vmr-createdelete
+	A micro-benchmark that measures the time taken to create and delete
+	file or anonymous mappings of increasing sizes. Sensitive to changes
+	in the page fault path performance.
+
+iozone
+	A basic filesystem benchmark.
+
+fsmark
+	This tests write workloads varying the number of files and directory
+	depth.	It's useful for simulating mail servers and other setups.
+
+hackbench-*
+	Hackbench is generally a scheduler benchmark but is also sensitive to
+	overhead in the allocators and to a lesser extent the fault paths.
+	Can be run for either sockets or pipes.
+
+nas-*
+	The NAS Parallel Benchmarks for the serial and openmp versions of
+	the test.
+
+netperf-*
+	Runs the netperf benchmark for *_STREAM on the local machine.
+	Sensitive to cache usage and allocator costs. To test for cache line
+	bouncing, the test can be configured to bind to certain processors.
+
+speccpu (untested)
+	SPECcpu, what else can be said. A restriction is that you must have
+	a mirrored copy of the tarball as it is not publicly available.
+
+specjvm (untested)
+	SPECjvm. Same story as speccpu
+
+specomp (untested)
+	SPEComp. Same story as speccpu
+
+sysbench
+	Runs the complex workload for sysbench backed by postgres. Running
+	this test requires a significant build environment on the test
+	machine. It can run either read-only or read/write tests.
+
+simple-writeback
+	This is a simple writeback test based on dd. It's meant to be
+	easy to understand and quick to run. Useful for measuring page
+	writeback changes.
+
+ltp (untested)
+	The LTP benchmark. What it is testing depends on exactly which of the
+	suite is configured to run.
+
+ltp-pounder (untested)
+	ltp pounder is a non-default test that exists in LTP. It's used by
+	IBM for hardware certification to hammer a machine for a configured
+	number of hours. Typically, they expect it to run for 72 hours
+	without major errors.  Useful for testing general VM stability in
+	high-pressure low-memory situations.
+
+stress-highalloc
+	This test requires that the system not have too much memory and
+	that the kernel source of the running kernel be available in
+	/lib/modules/`uname -r/build.  Typically, it's tested with 3GB of
+	RAM. It builds a number of kernels in parallel such that total
+	memory usage is 1.5 times physical memory. When this is running
+	for 5 minutes, it tries to allocate a large percentage of memory
+	(e.g. 95%) as huge pages recording the latency of each operation as it
+	goes. It does this twice. It then cancels the kernel compiles, cleans
+	the system and tries to allocate huge pages at rest again. It's a
+	basic test for fragmentation avoidance and the performance of huge
+	page allocation.
+
+Reporting
+=========
+
+For reporting, there is a basic compare-kernels.sh script. It must be updated
+with a list of kernels you want to compare and in what order. It generates a
+table for each test, operation and kernel showing the relative performance
+of each. The test reporting scripts are in subreports/. compare-kernel.sh
+should be run from the path storing the test logs. By default this is
+work/log. If you are automating tests from an external source, work/log is
+what yuo should be capturing after a set of tests complete.
+
+If monitors are configured such as ftrace, there are additional
+processing scripts. They can be activated by setting FTRACE_ANALYSERS in
+compare-kernels.sh. A basic post-process script is mmtests-duration which
+simply reports how long an individual test took and what its CPU usage was.
+
+There are a very limited number of graphing scripts included in report/
+
+TODO
+====
+
+Port spec tests (omp, jvm, cpu), NPB (sometimes called the NAS tests) swap
+stress tests, memory pressure tests, some micro-benchmarks such as the mmap
+layout stress test.

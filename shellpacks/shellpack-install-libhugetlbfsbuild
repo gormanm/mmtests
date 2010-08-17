@@ -1,0 +1,141 @@
+#!/bin/bash
+# Libhugetlbfs installer
+P=libhugetlbfs-install
+INSTALL_TESTS=0
+VERSION=
+WEB_LOCATION=http://mesh.dl.sourceforge.net/project/libhugetlbfs/libhugetlbfs
+MIRROR_LOCATION="$WEBROOT/libhugetlbfs"
+DEFAULT_VERSION=2.9
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+  case "$1" in
+    -v)
+            VERSION=$2
+	    shift 2
+	    ;;
+    -l)
+            WEB_LOCATION=$2
+	    shift 2
+	    ;;
+    --install-tests)
+            INSTALL_TESTS=1
+	    shift 1
+	    ;;
+    --force-32bit)
+            FORCE32=-32bitonly-;
+	    shift 1
+	    ;;
+    --force-64bit)
+            FORCE64=-64bitonly-;
+	    shift 1
+	    ;;
+    *)
+            echo Unrecognised option: $1
+	    shift
+  esac
+done
+
+
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+WEB_LOCATION=$WEB_LOCATION/$VERSION/libhugetlbfs-$VERSION.tar.gz
+MIRROR_LOCATION=$WEBROOT/libhugetlbfs-$VERSION.tar.gz
+TARFILE=libhugetlbfs-${VERSION}.tar.gz
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/$TARFILE
+pushd $SHELLPACK_SOURCES > /dev/null
+
+# Building from scratch, uncompress the tar
+tar xf $TARFILE
+if [ $? -ne 0 ]; then
+	die "$P: tar zxf libhugetlbfs-${VERSION}.tar.gz failed"
+	exit $SHELLPACK_ERROR
+fi
+
+# Build the library
+pushd libhugetlbfs-${VERSION} > /dev/null
+
+if [ "$FORCE32" != "" ]; then
+	echo Forcing build of 32bit-only
+	echo 'diff --git a/Makefile b/Makefile
+index 4909872..d54a2b4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -30,9 +30,8 @@ CPPFLAGS += -D__LIBHUGETLBFS__
+ ARCH = $(shell uname -m | sed -e s/i.86/i386/)
+ 
+ ifeq ($(ARCH),ppc64)
+-CC64 = gcc -m64
+-ELF64 = elf64ppc
+-TMPLIB64 = lib64
++CC32 = gcc
++ELF32 = elm32ppclinux
+ TMPLIB32 = lib
+ ifneq ($(BUILDTYPE),NATIVEONLY)
+ CC32 = gcc -m32
+@@ -50,9 +49,8 @@ ELF32 = elf_i386
+ TMPLIB32 = lib
+ else
+ ifeq ($(ARCH),x86_64)
+-CC64 = gcc -m64
+-ELF64 = elf_x86_64
+-TMPLIB64 = lib64
++CC32 = gcc -m32
++ELF32 = elf_i386
+ TMPLIB32 = lib
+ ifneq ($(BUILDTYPE),NATIVEONLY)
+ CC32 = gcc -m32' | patch -p1 || exit
+fi
+
+if [ "$FORCE64" != "" ]; then
+	echo Forcing build of 64 bit only
+	echo 'diff --git a/Makefile b/Makefile
+index 4909872..f0cc540 100644
+--- a/Makefile
++++ b/Makefile
+@@ -85,9 +85,6 @@ endif
+ endif
+ endif
+ 
+-ifdef CC32
+-OBJDIRS += obj32
+-endif
+ ifdef CC64
+ OBJDIRS +=  obj64
+ endif' | patch -p1 || exit
+fi
+
+# Build
+INSTALLPATH=$SHELLPACK_SOURCES/libhugetlbfs-${VERSION}-installed
+rm -rf $INSTALLPATH
+if [ "$INSTALL_TESTS" = "1" ]; then
+	make PREFIX=$INSTALLPATH
+	if [ $? -ne 0 ]; then
+		error "$P: build failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
+else
+	for TARGET in libs tools; do
+		make PREFIX=$INSTALLPATH $TARGET
+		if [ $? -ne 0 ]; then
+			error "$P: build failed"
+			popd > /dev/null
+			exit $SHELLPACK_ERROR
+		fi
+	done
+fi
+
+# Install
+make PREFIX=$INSTALLPATH install
+if [ $? -ne 0 ]; then
+	error "$P: installation failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+echo Libhugetlbfs installed successfully
+#### Description This pack builds, installs and tests libhugetlbfs
+#### Details libhugetlbfsbuild 29

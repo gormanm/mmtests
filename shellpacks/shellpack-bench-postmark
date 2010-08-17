@@ -1,0 +1,120 @@
+#!/bin/bash
+# This script installs postmark and runs the regression tests
+
+P=postmark-bench
+VERSION=1.51.orig
+. $SHELLPACK_INCLUDE/common.sh
+CONSUME_MEMORY=no
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2;;
+		--consume-memory)
+			CONSUME_MEMORY=yes
+			shift 1;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/postmark-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-postmark -v ${VERSION} || die postmark install script returned error
+fi
+cd $SHELLPACK_SOURCES/postmark-${VERSION}-installed || die Failed to cd to postmark install directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Write configuration file
+echo "set transactions $POSTMARK_TRANSACTIONS
+set size $POSTMARK_MIN_SIZE $POSTMARK_MAX_SIZE
+set number $POSTMARK_SIMULTANEOUS_FILES
+set subdirectories $POSTMARK_SUBDIRECTORIES
+set location $SHELLPACK_TEMP
+run
+quit" > $LOGDIR_RESULTS/postmark.pmrc
+
+monitor_pre_hook $LOGDIR_RESULTS $SIZE
+if [ "$CONSUME_MEMORY" = "yes" ]; then
+	echo "/*
+ * This simple program maps some memory and continually reads it. It's to have
+ * the most basic of anonymous memory processing while postmark runs
+ */
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#include <sys/mman.h>
+
+#define BUFFER_SIZE (2*1024*1024*1024UL)
+#define BLOCK_SIZE  (256*1024*1024)
+#define ADDRESS	    (1*1024*1024*1024)
+#define STRIDE	    64
+#define ITERATIONS  (100*STRIDE)
+
+int main() {
+	char *buffer, *end_buffer;
+	char *block;
+	int end_subblock_index;
+	time_t curr_time;
+
+	buffer = mmap((void *)ADDRESS, BUFFER_SIZE, PROT_READ|PROT_WRITE,
+				MAP_PRIVATE|MAP_ANONYMOUS,
+				0, 0);
+	if (buffer == MAP_FAILED) {
+		perror(\"mmap\");
+		exit(EXIT_FAILURE);
+	}
+
+	/* Fault the address */
+	memset(buffer, 1, BUFFER_SIZE);
+
+	end_buffer = buffer + BUFFER_SIZE + 1 - BLOCK_SIZE;
+	end_subblock_index = BLOCK_SIZE / STRIDE;
+	block = buffer;
+	curr_time = time(NULL);
+
+	while (1) {
+		int iter;
+		int i = 0;
+
+		for (iter = 0; iter < ITERATIONS; iter++) {
+			for (i = 0; i < end_subblock_index; i += STRIDE) {
+				/* slightly hard to optimise write */
+				block[i] = (char)curr_time + i - iter;
+			}
+		}
+
+		sleep(15);
+		curr_time = time(NULL);
+		block += BLOCK_SIZE;
+		if (block >= end_buffer) {
+			block = buffer;
+		}
+
+	}
+
+	exit(EXIT_SUCCESS);
+}" > /tmp/consume.c
+	gcc -Wall /tmp/consume.c -o /tmp/consume
+	/tmp/consume &
+	PID=$!
+	echo Background consume PID: $PID
+fi
+
+./postmark $LOGDIR_RESULTS/postmark.pmrc \
+		2>&1 | tee $LOGDIR_RESULTS/postmark.log \
+			|| die Failed to run postmark
+
+if [ "$CONSUME_MEMORY" = "yes" ]; then
+	echo Shutting down background memory consumer
+	kill $PID
+fi
+monitor_post_hook $LOGDIR_RESULTS $SIZE
+
+exit $SHELLPACK_SUCCESS
+#### Description postmark
+#### Details postmark-bench 15

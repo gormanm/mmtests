@@ -1,0 +1,33 @@
+echo FTrace Reclaim Statistics: congestion_wait
+
+for KERNEL in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ -e ftrace-$KERNEL-$FTRACE_TEST.gz -a ! -e ftrace-$KERNEL-$FTRACE_TEST-congestion.report ]; then
+		echo Generating ftrace report ftrace-$KERNEL-$FTRACE_TEST-congestion.report
+		zcat ftrace-$KERNEL-$FTRACE_TEST.gz 2> /dev/null | perl $FTRACE_HELPER_CONGESTION --ignore-pid > ftrace-$KERNEL-$FTRACE_TEST-congestion.report
+	fi
+done
+
+for HEADING in "Direct number congest     waited" "Direct time   congest     waited" "Direct full   congest     waited" "Direct number conditional waited" "Direct time   conditional waited" "Direct full   conditional waited" "KSwapd number congest     waited" "KSwapd time   congest     waited" "KSwapd full   congest     waited" "KSwapd number conditional waited" "KSwapd time   conditional waited" "KSwapd full   conditional waited"; do
+
+	PRINT_HEADING=$HEADING
+	if [ "$HEADING" = "Time stalled direct reclaim" -o "$HEADING" = "Time kswapd awake" ]; then
+		PRINT_HEADING="$PRINT_HEADING (seconds)"
+	fi
+	printf "%-40s" "$PRINT_HEADING"
+
+	for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+		if [ ! -e ftrace-$DIRNAME-$FTRACE_TEST-congestion.report ]; then
+			continue
+		fi
+		RESULT=`grep "^$HEADING" ftrace-$DIRNAME-$FTRACE_TEST-congestion.report | awk -F : '{print $2}' | sed -e 's/seconds//' -e 's/\\s//g'`
+		if [ "$RESULT" = "" ]; then
+			RESULT=0
+		fi
+
+		printf "%10s " $RESULT
+	done
+	echo
+done
+
+echo
+echo

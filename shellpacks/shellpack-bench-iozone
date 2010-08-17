@@ -1,0 +1,104 @@
+#!/bin/bash
+# This script installs iozone and runs the regression tests
+
+P=iozone-bench
+VERSION=3_327
+. $SHELLPACK_INCLUDE/common.sh
+
+MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+MEMTOTAL_KBYTES=$((MEMTOTAL_BYTES/1024))
+MAXIMUM_FILESIZE=$((MEMTOTAL_KBYTES*3/2))
+NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
+RECORD_LEN=4
+TESTS=0,1,2,3
+WORKFILE_PREFIX=
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2;;
+		--fast)
+			MAXIMUM_FILESIZE=$((MEMTOTAL_KBYTES))
+			shift
+			;;
+		--faster)
+			MAXIMUM_FILESIZE=$((MEMTOTAL_KBYTES*3/4))
+			shift
+			;;
+		--fastest)
+			MAXIMUM_FILESIZE=$((MEMTOTAL_KBYTES/2))
+			shift
+			;;
+		--max-filesize-kbytes)
+			MAXIMUM_FILESIZE=$2
+			shift 2
+			;;
+		--record-length)
+			RECORD_LEN=$2
+			shift 2
+			;;
+		--workfile-prefix)
+			WORKFILE_PREFIX="-f $2"
+			shift 2
+			;;
+		--tests)
+			TESTS=$2
+			shift 2
+			;;
+		--single)
+			THROUGHPUT_IOZONE=no
+			shift
+			;;
+		--throughput)
+			THROUGHPUT_IOZONE=yes
+			TESTS=0,1
+			shift
+			;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/iozone-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-iozone -v ${VERSION} || die iozone install script returned error
+fi
+cd $SHELLPACK_SOURCES/iozone-${VERSION}-installed || die Failed to cd to iozone install directory
+
+# Build test parameters
+TESTS_PARAM=
+TESTS=`echo $TESTS | tr ',' ' '`
+for TEST in $TESTS; do
+	TESTS_PARAM="$TESTS_PARAM -i $TEST"
+done
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+monitor_pre_hook $LOGDIR_RESULTS $RECORD_LEN
+if [ "$THROUGHPUT_IOZONE" != "yes" ]; then
+	$SHELLPACK_SOURCES/iozone-${VERSION}-installed/bin/iozone \
+		-a -g $MAXIMUM_FILESIZE \
+		$WORKFILE_PREFIX \
+		$TESTS_PARAM \
+		-r $RECORD_LEN 2>&1 | tee $LOGDIR_RESULTS/iozone-$RECORD_LEN.result
+else
+	CPU=1
+	while [ $CPU -le $((NUMCPUS*16)) ]; do
+		$SHELLPACK_SOURCES/iozone-${VERSION}-installed/bin/iozone \
+			$WORKFILE_PREFIX \
+			-s $((MAXIMUM_FILESIZE/CPU)) -t $CPU \
+			-r 64 $TESTS_PARAM \
+			2>&1 | tee $LOGDIR_RESULTS/iozone-tput-$CPU-$MAXIMUM_FILESIZE.result
+		CPU=$((CPU*2))
+	done
+	FILESIZE=$((FILESIZE*2))
+fi
+monitor_post_hook $LOGDIR_RESULTS $RECORD_LEN
+
+echo
+echo IOZone completed successfully
+exit $SHELLPACK_SUCCESS
+#### Description IOZone benchmark
+#### Details iozone-bench 10

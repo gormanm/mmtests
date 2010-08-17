@@ -1,0 +1,5 @@
+echo
+echo Rsync Residency
+gendirlist rsyncresidency
+printheader
+

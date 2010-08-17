@@ -1,0 +1,104 @@
+#!/bin/bash
+# This is the script for running the hackbench benchmark
+#
+# Usage $P <pipes|sockets> <number-of-groups> -i iterations
+#
+
+P='hackbench'
+iterations=1
+conn_name=
+conn_type=
+num_groups=
+. $SHELLPACK_INCLUDE/common.sh
+
+function usage() {
+  echo "Usage:  $P <pipes|sockets> <number-of-groups> [-i iterations]
+    Specify a connection type of 'pipes' or 'sockets' and the number of
+    client/server groups to create.  For example, 'hackbench sockets 1'
+    creates a group of 20 processes listening on a socket each, and 20
+    writers.  Each of the writers writes 100 messages to each socket, i.e.,
+    20 x 100 messages each.  'hackbench sockets N' simply runs N of these
+    groups in parallel. If a comma-separated list of numbers is given
+    for groups, each of those values will be used in turn" 
+  exit -1
+}
+
+
+# Process the arguments ######################################################
+while [ $# -gt 0 ]; do
+	case $1 in
+	pipes)
+		conn_type="-pipe"
+		conn_name=pipes
+		num_groups=$2
+		shift 2
+		;;
+	sockets)
+		num_groups=$2
+		conn_name=sockets
+		shift 2
+		;;
+	-i)
+		iterations=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised commane-line parameter $1
+		usage
+		exit $SHELLPACK_ERROR
+	esac
+done
+
+# Ensure pipes or sockets were specified
+if [ "$num_groups" = "" ]; then
+	usage
+fi
+
+# Install support files ######################################################
+if [ ! \( -e $SHELLPACK_SOURCES/hackbench/hackbench \) ]; then
+  	$SHELLPACK_INCLUDE/shellpack-install-hackbench
+	check_status "$P: Installing hackbench"
+fi
+
+
+# Prepare the benchmark ######################################################
+
+pushd $SHELLPACK_SOURCES/hackbench > /dev/null
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Run the benchmark ##########################################################
+RESULTSLOG=$LOGDIR_RESULTS/hackbench
+TIFS=$IFS
+RETVAL=0
+IFS=,
+echo -n > $RESULTSLOG
+for group in $num_groups; do
+	IFS=$TIFS
+	echo -n > $RESULTSLOG.$group
+	monitor_pre_hook $LOGDIR_RESULTS $group
+	if [ $RETVAL -eq 0 ]; then
+		echo "Connection type: $conn_name" | tee -a $RESULTSLOG $RESULTSLOG.$group
+		echo "Number of groups: $group" | tee -a $RESULTSLOG $RESULTSLOG.$group
+
+		# Run a number of iterations.
+		iter=$iterations
+		while [ $iter -gt 0 ]; do
+			save_rc ./hackbench $conn_type $group | tee -a $RESULTSLOG $RESULTSLOG.$group
+			recover_rc
+			RETVAL=$?
+			if [ $RETVAL -ne 0 ]; then
+				echo Error encountered in hackbench
+				iter=0
+			fi
+			iter=$(($iter-1))
+		done
+	fi
+	monitor_post_hook $LOGDIR_RESULTS $group
+	IFS=,
+done
+
+exit $RETVAL
+#### Description Run the HackBench benchmark
+#### Details hackbench-bench 10

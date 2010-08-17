@@ -1,0 +1,74 @@
+#!/bin/bash
+
+P='specomp-install'
+WEB_LOCATION="NOT_AVAILABLE"
+MIRROR_LOCATION="$WEBROOT/spec/specomp2001.tar.gz"
+
+. $SHELLPACK_INCLUDE/common.sh
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/specomp2001.tar.gz
+cd $SHELLPACK_SOURCES
+tar -zxf specomp2001.tar.gz || die Failed to expand tarball
+rm specomp2001.tar.gz
+pushd specomp2001
+
+if [ "$SPECOMP_LICENSE_ACCEPTED" = "no" ]; then
+	./install.sh
+else
+	SCRIPT=`mktemp`
+	echo "spawn ./install.sh
+expect \"Use this?\" { exp_send y\r }
+expect \"No Waiver.\" { exp_send q }
+expect \"If you agree to the terms of the above SPEC license\" { exp_send yes\r }
+expect \"Everything looks okay.\" { exit }" > $SCRIPT
+        expect -f $SCRIPT || die Failed to install SPEComp 2001
+        rm $SCRIPT
+fi
+
+# This is a gcc-related fix
+echo '--- ./benchspec/OMPM2001/314.mgrid_m/src/mgrid.f.orig	2009-12-07 09:50:09.000000000 +0000
++++ ./benchspec/OMPM2001/314.mgrid_m/src/mgrid.f	2009-12-07 09:50:40.000000000 +0000
+@@ -359,7 +359,7 @@
+       DIMENSION a(0:3), r(n, n, n), u(n, n, n), v(n, n, n)
+ !$OMP PARALLEL
+ !$OMP+IF(8+(-1)*n.LE.0)
+-!$OMP+DEFAULT(SHARED)
++!$OMP+SHARED(I1,I2)
+ !$OMP+PRIVATE(I3)
+ !$OMP DO
+ !$OMP+LASTPRIVATE(I1,I2)
+@@ -402,7 +402,7 @@
+       DIMENSION c(0:3), r(n, n, n), u(n, n, n)
+ !$OMP PARALLEL
+ !$OMP+IF(8+(-1)*n.LE.0)
+-!$OMP+DEFAULT(SHARED)
++!$OMP+SHARED(I1,I2)
+ !$OMP+PRIVATE(I3)
+ !$OMP DO
+ !$OMP+LASTPRIVATE(I1,I2)
+--- ./benchspec/OMPL2001/315.mgrid_l/src/mgrid.f.orig	2009-12-07 09:51:09.000000000 +0000
++++ ./benchspec/OMPL2001/315.mgrid_l/src/mgrid.f	2002-03-22 20:30:48.000000000 +0000
+@@ -353,7 +353,7 @@
+       INTEGER*8 i1, i2, i3, n
+       DIMENSION a(0:3), r(n, n, n), u(n, n, n), v(n, n, n)
+ !$OMP PARALLEL
+-!$OMP+DEFAULT(SHARED)
++!$OMP+SHARED(I1,I2)
+ !$OMP+PRIVATE(I3)
+ !$OMP DO
+ !$OMP+LASTPRIVATE(I1,I2)
+@@ -395,7 +395,7 @@
+       INTEGER*8 i1, i2, i3, n
+       DIMENSION c(0:3), r(n, n, n), u(n, n, n)
+ !$OMP PARALLEL
+-!$OMP+DEFAULT(SHARED)
++!$OMP+SHARED(I1,I2)
+ !$OMP+PRIVATE(I3)
+ !$OMP DO
+ !$OMP+LASTPRIVATE(I1,I2)' | patch -p1 || die Failed to patch SPEComp 2001
+
+exit $SHELLPACK_SUCCESS
+#### Description SPEComp
+#### Details specomp 13

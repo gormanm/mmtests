@@ -1,0 +1,73 @@
+#!/bin/bash
+# Netperf installer
+P=netperf-install
+WEB_LOCATION=ftp://ftp.netperf.org/netperf
+MIRROR_LOCATION="$WEBROOT/netperf/"
+DEFAULT_VERSION=2.4.5
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+  case "$1" in
+    -v)
+            VERSION=$2
+	    shift 2
+	    ;;
+    *)
+            echo Unrecognised option: $1
+	    shift
+  esac
+done
+
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=netperf-${VERSION}.tar.gz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+
+# Building from scratch, uncompress the tar
+cd $SHELLPACK_SOURCES
+tar xf $TARFILE
+if [ $? -ne 0 ]; then
+  error "$P: tar xf netperf-${VERSION}.tar.gz failed"
+  popd > /dev/null
+  exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+[ "$DST_DIR" != "netperf-${VERSION}/" ] && mv $DST_DIR netperf-${VERSION}
+
+# Build the library
+pushd netperf-${VERSION} > /dev/null
+
+# Configure
+INSTALLPATH=$SHELLPACK_SOURCES/netperf-${VERSION}-installed
+rm -rf $INSTALLPATH
+CFLAGS="-O2" ./configure --prefix=$INSTALLPATH
+if [ $? -ne 0 ]; then
+	error "$P: configure failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Build
+make
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Install
+make install
+if [ $? -ne 0 ]; then
+	error "$P: installation failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+echo Netperf installed successfully
+#### Description Netperf benchmark
+#### Details netperf 6

@@ -1,0 +1,34 @@
+echo
+echo NAS-OMP huge page comparison
+gendirlist nas-omp$SUBKERNEL
+
+BACKING_TYPES=
+FIRST_TYPE=
+for POTENTIAL in base huge-heap huge-all; do
+	DIRNAME=nas-omp$SUBKERNEL/$TOPLEVEL/$POTENTIAL
+	LAST_TYPE=`basename $DIRNAME`
+	if [ -e $DIRNAME ]; then
+		BACKING_TYPES="$BACKING_TYPES $LAST_TYPE"
+		if [ "$FIRST_TYPE" = "" ]; then
+			FIRST_TYPE=$LAST_TYPE
+		fi
+	fi
+done
+printheader
+
+echo DEBUG: $BACKING_TYPES
+
+for BACKING_TYPE in $BACKING_TYPES; do
+	$NAS_EXTRACT nas-omp$SUBKERNEL/$TOPLEVEL/$BACKING_TYPE > nas-omp$SUBKERNEL/$TOPLEVEL/$BACKING_TYPE/nas-result.txt
+done
+
+for JOB in `awk '{print $1}' nas-omp$SUBKERNEL/$TOPLEVEL/$FIRST_TYPE/nas-result.txt`; do
+	VANILLA=`grep $JOB nas-omp$SUBKERNEL/$TOPLEVEL/$FIRST_TYPE/nas-result.txt | awk '{print $3}'`
+	printf "%-14s" $JOB
+
+	for BACKING_TYPE in $BACKING_TYPES; do
+		RESULT=`grep ^$JOB nas-omp$SUBKERNEL/$TOPLEVEL/$BACKING_TYPE/nas-result.txt | awk '{print $3}'`
+		printf " %8.2f (%5.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+	done
+	echo
+done

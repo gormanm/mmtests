@@ -1,0 +1,15 @@
+echo
+echo LARGE COPY AND UNTAR
+gendirlist largecopy
+printheader
+
+for OPER in `seq 1 6`; do
+	OPERNAME=`grep ^$OPER: largecopy-$KERNEL_BASE/$TOPLEVEL/largecopy.result | awk -F : '{print $2}' | sed -e 's/^Time to //' -e 's/directories/dirs/'`
+	printf "%-20s" "$OPERNAME"
+	VANILLA=`grep ^$OPER: largecopy-$KERNEL_BASE/$TOPLEVEL/largecopy.result | awk -F : '{print $4}'`
+	for DIR in $DIRLIST; do
+		RESULT=`grep ^$OPER: $DIR/$TOPLEVEL/largecopy.result | awk -F : '{print $4}'`
+		printf " %4d (%5.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+	done
+	echo
+done

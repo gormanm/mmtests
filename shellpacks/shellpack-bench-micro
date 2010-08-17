@@ -1,0 +1,208 @@
+#!/bin/bash
+
+TESTLIST=mapped-file-stream
+SOURCE_LOCATION=
+BITNESS=-m32
+CC_OPTIONS=
+LINK_OPTIONS=
+MAX_MAPPING=-1
+. $SHELLPACK_INCLUDE/common.sh
+
+MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+
+# Basic arguement parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		--tests)
+			TESTLIST=$2
+			shift 2
+			;;
+		--)
+			shift
+			break
+			;;
+	esac
+done
+
+# Work out bitness to build for
+case `uname -m` in
+	i?86)
+		BITNESS=-m32
+		MAX_MAPPING=$(((1<<31)-1))
+		;;
+	x86_64)
+		BITNESS=-m64
+		;;
+	ppc64)
+		BITNESS=-m64
+		;;
+esac
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+TESTCOUNT=1
+TIFS=$IFS
+IFS=,
+EXIT_CODE=$SHELLPACK_SUCCESS
+for TEST in $TESTLIST; do
+	IFS=$TIFS
+
+	case $TEST in
+		mapped-file-stream)
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/mapped-file-stream.c"
+			PATCH_LOCATION=
+			CC_OPTIONS=
+			LINK_OPTIONS=
+			PARAMETERA=1
+			if [ "$MICRO_MAPPED_FILE_STREAM_FORCESIZE" != "" ]; then
+				PARAMETERB=$MICRO_MAPPED_FILE_STREAM_FORCESIZE
+			else
+				PARAMETERB=$(($MEMTOTAL_BYTES*4))
+			fi
+			if [ $MAX_MAPPING -ne -1 ]; then
+				if [ $PARAMETERB -gt $MAX_MAPPING ]; then
+					PARAMETERB=$MAX_MAPPING
+				fi
+			fi
+			;;
+		vmscan-file-mmap-read)
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-file-mmap-ops.sh"
+			PATCH_LOCATION=
+			CC_OPTIONS=
+			LINK_OPTIONS=
+			PARAMETERA=--readonly
+			PARAMETERB=
+			;;
+		vmscan-file-mmap-write)
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-file-mmap-ops.sh"
+			PATCH_LOCATION=
+			CC_OPTIONS=
+			LINK_OPTIONS=
+			PARAMETERA=
+			PARAMETERB=
+			;;
+		vmscan-anon-mmap-read)
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-anon-mmap-ops.sh"
+			PATCH_LOCATION=
+			CC_OPTIONS=
+			LINK_OPTIONS=
+			PARAMETERA=--readonly
+			PARAMETERB=
+			;;
+		vmscan-anon-mmap-write)
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-anon-mmap-ops.sh"
+			PATCH_LOCATION=
+			CC_OPTIONS=
+			LINK_OPTIONS=
+			PARAMETERA=
+			PARAMETERB=
+			;;
+		vmscan-mixed-mmap-read)
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-mixed-mmap-ops.sh"
+			PATCH_LOCATION=
+			CC_OPTIONS=
+			LINK_OPTIONS=
+			PARAMETERA=--readonly
+			PARAMETERB=
+			;;
+		vmscan-mixed-mmap-write)
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-mixed-mmap-ops.sh"
+			PATCH_LOCATION=
+			CC_OPTIONS=
+			LINK_OPTIONS=
+			PARAMETERA=
+			PARAMETERB=
+			;;
+		vmscan-device-copy)
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-device-copy.sh"
+			PATCH_LOCATION=
+			CC_OPTIONS=
+			LINK_OPTIONS=
+			PARAMETERA=
+			PARAMETERB=
+			if [ "$MICRO_VMSCAN_DEVICE_COPY" != "" ]; then
+				PARAMETERA=$MICRO_VMSCAN_DEVICE_COPY
+			else
+				echo MICRO_VMSCAN_DEVICE_COPY must be defined
+				exit -1
+			fi
+			;;
+		*)
+			die Unrecognised test $TEST
+			;;
+	esac
+
+	TEST_FILENAME=`basename "$SOURCE_LOCATION"`
+	TEST_TYPE=`echo $TEST_FILENAME | awk -F . '{print $NF}'`
+
+	cd $SHELLPACK_TEMP || die Failed to cd to temporary directory
+	if [[ $SOURCE_LOCATION =~ ^http: ]]; then
+		wget -q -O $TEST_FILENAME "$SOURCE_LOCATION" || die Failed to download source for $TEST
+		if [ "$PATCH_LOCATION" != "" ]; then
+			wget -q -O $TEST.patch "$PATCH_LOCATION" || die Failed to download patch for $TEST
+			(cat $TEST.patch | patch > /dev/null ) || die Failed to apply patch
+		fi
+	else
+		cp "$SOURCE_LOCATION" $TEST_FILENAME
+		if [ "$PATCH_LOCATION" != "" ]; then
+			cp "$PATCH_LOCATION" $TEST.patch || die Failed to copy patch for $TEST
+			(cat $TEST.patch  | patch > /dev/null ) || die Failed to apply patch
+		fi
+	fi
+
+	case $TEST_TYPE in
+	c)
+		gcc $BITNESS $CC_OPTIONS $LINK_OPTIONS $TEST.c -o $TEST || die Failed to build $TEST
+		;;
+	sh)
+		cp $TEST_FILENAME $TEST
+		chmod a+x $TEST
+		;;
+	*)
+		die Unrecognised test type $TEST_TYPE
+	esac
+
+	KSWAPD_NOTED=no
+	
+	echo -n "$TEST $PARAMETERA $PARAMETERB: "
+	echo Running ./$TEST $PARAMETERA $PARAMETERB > $LOGDIR_RESULTS/$TESTCOUNT-$TEST.log
+	cat /proc/vmstat >> $LOGDIR_RESULTS/$TESTCOUNT-$TEST.vmstat-before
+	/usr/bin/time -f "%U user %S system %e elapsed" \
+		-o $LOGDIR_RESULTS/$TESTCOUNT-$TEST.time \
+		./$TEST $PARAMETERA $PARAMETERB \
+			>> $LOGDIR_RESULTS/$TESTCOUNT-$TEST.log 2>&1
+	EXITCODE=$?
+	while [ "`ps auxr | grep kswapd | grep -v grep`" != "" ]; do
+		if [ "$KSWAPD_NOTED" = "no" ]; then
+			echo -n "[kswapd] "
+			KSWAPD_NOTED=yes
+		fi
+		sleep 3
+	done
+	if [ $EXITCODE -eq 0 ]; then
+		echo OK
+	else
+		echo FAILED
+		EXIT_CODE=$SHELLPACK_ERROR
+	fi
+
+	cat /proc/vmstat >> $LOGDIR_RESULTS/$TESTCOUNT-$TEST.vmstat-after
+
+	TESTCOUNT=$(($TESTCOUNT+1))
+	IFS=,
+done
+
+cd /
+rm -rf $SHELLPACK_TEMP
+if [ $EXIT_CODE -ne $SHELLPACK_SUCCESS ]; then
+	die Failed to run one of the micro benchmarks
+fi
+exit $EXIT_CODE
+#### Description Run a number of micro-benchmark test-cases
+#### Details micro-bench 19
+#### Description Run a number of micro-benchmark test-cases
+#### Details micro-bench 20

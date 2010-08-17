@@ -1,0 +1,29 @@
+#!/bin/bash
+# This script installs postgres and leaves it ready for benchmarking
+
+P=postgresbuild-bench
+VERSION=9.0.4
+POSTGRES_USER=nobody
+POSTGRES_GROUP=nogroup
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)	export VERSION=$2; shift 2;;
+		--postgres-user)
+			export POSTGRES_USER=$2; shift 2;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/postgres-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild -v ${VERSION}
+fi
+cd $SHELLPACK_SOURCES/postgres-${VERSION}-installed || bombout Failed to cd to mysql install directory
+
+echo postgres successfully installed
+exit $SHELLPACK_SUCCESS
+#### Description Build and setup postgres
+#### Details postgresbuild-bench 17

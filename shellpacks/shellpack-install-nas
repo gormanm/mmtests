@@ -1,0 +1,17 @@
+#!/bin/bash
+
+P='nas-install'
+WEB_LOCATION="NOT_AVAILABLE"
+MIRROR_LOCATION="$WEBROOT/nas/NPB3.3.tar.gz"
+
+. $SHELLPACK_INCLUDE/common.sh
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf NPB3.3
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/NPB3.3.tar.gz
+tar xf NPB3.3.tar.gz || die "$P: Failed to unpack NPB"
+
+exit $SHELLPACK_SUCCESS
+#### Description NAS Parallel Benchmark
+#### Details nas 20

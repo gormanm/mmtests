@@ -1,0 +1,30 @@
+#!/usr/bin/perl
+
+use Time::HiRes qw( time );
+use IO::Handle;
+
+my $start=time();
+my $last = $start;
+my $line = "";
+while (!eof STDIN) {
+	sysread(STDIN,$c,1);
+	if ($c eq "") {
+		exit;
+	}
+	if ($c eq "\r") {
+		$c = "\n";
+	}
+
+	$line .= $c;
+	if ($c eq "\n") {
+		my $now = time();
+		my $offset = $now - $start;
+		my $latency = $now - $last;
+		printf "%16.4f %8.4f %10.4f -- %s", $now, $offset, $latency, $line;
+		$last=$now;
+		$line="";
+		flush STDIN;
+		flush STDOUT;
+	}
+
+}

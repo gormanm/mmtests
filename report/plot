@@ -1,0 +1,404 @@
+#!/bin/bash
+TEMP=`mktemp`
+
+PLOTTYPE=lines
+USING=
+declare -a TITLES
+FORMAT="postscript color"
+PLOTCOMMAND=standard
+
+while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
+	case $1 in
+		--format)
+			FORMAT="$2"				>> $TEMP
+			shift 2
+			;;
+		--output)
+			echo "set terminal $FORMAT"		>> $TEMP
+			echo "set output '$2'"			>> $TEMP
+			shift 2
+			;;
+		--title)
+			echo "set title '$2'" >> $TEMP
+			shift 2
+			;;
+		--header)
+			cat $2 >> $TEMP
+			shift 2
+			;;
+		--specplot)
+			SPECPLOT=yes
+			USING="using 3:xtic(1)"
+			PLOTTYPE="histogram"
+			shift
+			;;
+		--stream)
+			STREAM=yes
+			shift
+			;;
+		--xlabel)
+			XLABEL="$2"
+			shift 2
+			;;
+		--ylabel)
+			YLABEL="$2"
+			shift 2
+			;;
+		--cacheeffects)
+			CACHEEFFECTS=yes
+			shift
+			;;
+		--createdelete)
+			CREATEDELETE=yes
+			shift
+			;;
+		--netperf)
+			NETPERF=yes
+			shift
+			;;
+		--irqsoff)
+			IRQSOFF=yes
+			shift
+			;;
+		--sysbench)
+			SYSBENCH=yes
+			shift
+			;;
+		--mem-usage)
+			TITLE="Memory Usage"
+			MEMORY_USAGE=yes
+			shift
+			;;
+		--cpu-usage)
+			CPU_USAGE=yes
+			YRANGE=0:100
+			shift
+			;;
+		--iostat-rates)
+			IOSTAT_RATES=yes
+			shift
+			;;
+		--iostat-blocks)
+			IOSTAT_BLOCKS=yes
+			shift
+			;;
+		--unusable-index)
+			UNUSABLE_INDEX=yes
+			shift
+			;;
+		--fragmentation-index)
+			FRAGMENTATION_INDEX=yes
+			PLOTTYPE="points"
+			shift
+			;;
+		--timeplot)
+			AWK_FORMAT="<awk '{print \$1/60,\$2}' @@PLOT@@"
+			XLABEL="Time Elapsed (minutes)"
+			shift
+			;;
+		--specthesis)
+			SPECPLOT=yes
+			SPECTHESIS=yes
+			USING="using 2:xtic(1)"
+			PLOTTYPE="linespoints"
+			shift
+			;;
+		--kernbench)
+			KERNBENCH=yes
+			PLOTTYPE="candlesticks"
+			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"
+			shift
+			;;
+		--highorder-latency)
+			HIGHORDER_LATENCY=yes
+			PLOTTYPE=points
+			USING="using 1:3"
+			shift
+			;;
+		--hackbench)
+			HACKBENCH=yes
+			shift
+			;;
+		--plottype)
+			PLOTTYPE=$2
+			shift 2
+			;;
+		--extra)
+			EXTRA=$2
+			shift 2
+			;;
+		--using)
+			USING=$2
+			shift 2
+			;;
+		--dump)
+			DUMP=yes
+			shift
+			;;
+		--logX)
+			LOGX=yes
+			shift
+			;;
+		--logY)
+			LOGY=yes
+			shift
+			;;
+		--logscaleX)
+			LOGSCALEX=yes
+			shift
+			;;
+		--logscaleY)
+			LOGSCALEY=yes
+			shift
+			;;
+		--titles)
+			TIFS=$IFS
+			IFS=","
+			COUNT=0
+			for TITLE in $2; do
+				TITLES[$COUNT]="$TITLE"
+				COUNT=$(($COUNT+1))
+			done
+			shift 2
+			IFS=$TIFS
+			;;
+		--shrink)
+			SHRINK="set size 0.5,0.5"
+			shift
+			;;
+		--xrange)
+			XRANGE=$2
+			shift 2
+			;;
+		--yrange)
+			YRANGE=$2
+			shift 2
+			;;
+		*)
+			FINISHED="yes"
+			;;
+	esac
+done
+
+#echo "set xrange[0:300]" >> $TEMP
+#echo "set yrange [-100:1500]" >> $TEMP
+
+FIRST=yes
+#XRANGE=1
+if [ "$SHRINK" != "" ]; then
+	echo $SHRINK >> $TEMP
+fi
+
+if [ "$SPECPLOT" = "yes" ]; then
+#	IFS="
+#"
+	echo "set xtic rotate by -45" >> $TEMP
+#	echo -n "set xtics (" >> $TEMP
+#	for LINE in `cat $1`; do
+#		TITLE=`echo $LINE | awk '{print $1}'`
+#		OFFSET=`echo $LINE | awk '{print $2}'`
+#		XRANGE=$(($XRANGE+1))
+#		if [ "$FIRST" = "no" ]; then
+#			echo -n ", " >> $TEMP
+#		fi
+#		FIRST=no
+#		echo -n \"$TITLE\" $OFFSET\ >> $TEMP
+#	done
+#	echo ")" >> $TEMP
+#	echo "set xrange [0:$XRANGE]" >> $TEMP
+
+	if [ "$SPECTHESIS" = "yes" ]; then
+		TITLES="Speed-Up"
+		YLABEL="Ratio of Base to Superpages"
+		echo "set multiplot" >> $TEMP
+		echo "set ytics nomirror" >> $TEMP
+		echo "f(x)=1" >> $TEMP
+	fi
+	echo "set style fill solid border -1" >> $TEMP
+fi
+if [ "$STREAM" = "yes" ]; then
+	echo set ylabel \"MB/s Throughput\" >> $TEMP
+	echo set xlabel \"Working Set Size \(bytes\)\" >> $TEMP
+	echo set format x \"2**%g\" >> $TEMP
+	echo set xtics 5 >> $TEMP
+fi
+if [ "$SYSBENCH" = "yes" ]; then
+	echo set ylabel \"Thousand Transactions Per Second\" >> $TEMP
+	echo set xlabel \"Threads\" >> $TEMP
+fi
+if [ "$NETPERF" = "yes" ]; then
+	echo set ylabel \"MB/s Throughput\" >> $TEMP
+	echo set xlabel \"Packet Size \(bytes\)\" >> $TEMP
+	echo set xtics 2048 >> $TEMP
+fi
+if [ "$CACHEEFFECTS" = "yes" ]; then
+	echo set ylabel \"Cycles To Access Element\" >> $TEMP
+	echo set xlabel \"Working Set Size \(bytes\)\" >> $TEMP
+	echo set format x \"2**%g\" >> $TEMP
+	echo set xtics 5 >> $TEMP
+fi
+if [ "$CREATEDELETE" = "yes" ]; then
+	echo set ylabel \"Time in Seconds\" >> $TEMP
+	echo set xlabel \"Working Set Size \(bytes\)\" >> $TEMP
+	echo set format x \"2**%g\" >> $TEMP
+	echo set xtics 5 >> $TEMP
+fi
+if [ "$HIGHORDER_LATENCY" = "yes" ]; then
+	echo set xlabel \"Timestamp\" >> $TEMP
+	echo set ylabel \"Latency\" >> $TEMP
+fi
+if [ "$HACKBENCH" = "yes" ]; then
+	echo set ylabel \"Time in Seconds\" >> $TEMP
+	echo set xlabel \"Number of Processes\" >> $TEMP
+fi
+if [ "$UNUSABLE_INDEX" = "yes" ]; then
+	echo set ylabel \"Unusable Free Space Index\" >> $TEMP
+	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
+fi
+if [ "$IRQSOFF" = "yes" ]; then
+	echo set ylabel \"IRQs Disabled Latency \(us\)\" >> $TEMP
+	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
+fi
+if [ "$MEMORY_USAGE" = "yes" ]; then
+	echo set ylabel \"Memory Used \(MB\)\" >> $TEMP
+	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
+	AWK_FORMAT="<awk '{print \$1/60,\$2/1048576}' @@PLOT@@"
+fi
+if [ "$CPU_USAGE" = "yes" ]; then
+	echo set ylabel \"CPU Usage\" >> $TEMP
+	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
+	AWK_FORMAT="<awk '{print \$1/60,\$@@FIELD@@}' @@PLOT@@"
+	PLOTCOMMAND=cpuusage
+fi
+if [ "$IOSTAT_BLOCKS" = "yes" ]; then
+	echo set ylabel \"Blocks Read/Written\" >> $TEMP
+	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
+	AWK_FORMAT="<awk '{print \$1/60,\$@@FIELD@@}' @@PLOT@@"
+	PLOTCOMMAND=iostat-blocks
+fi
+if [ "$IOSTAT_RATES" = "yes" ]; then
+	echo set ylabel \"Blocks Read/Written per second\" >> $TEMP
+	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
+	AWK_FORMAT="<awk '{print \$1/60,\$@@FIELD@@}' @@PLOT@@"
+	PLOTCOMMAND=iostat-rates
+fi
+if [ "$FRAGMENTATION_INDEX" = "yes" ]; then
+	echo set ylabel \"Fragmentation Index\" >> $TEMP
+	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
+fi
+if [ "$KERNBENCH" = "yes" ]; then
+	#echo set ylabel \"Time Elapsed \(seconds\)\" >> $TEMP
+	echo set style fill pattern 6 border  >> $TEMP
+	echo "set xtic ''" >> $TEMP
+	echo set boxwidth 1 >> $TEMP
+fi
+
+if [ "$XRANGE" != "" ]; then
+	echo "set xrange [$XRANGE]" >> $TEMP
+fi
+if [ "$YRANGE" != "" ]; then
+	echo "set yrange [$YRANGE]" >> $TEMP
+fi
+if [ "$XLABEL" != "" ]; then
+	echo "set xlabel '$XLABEL'" >> $TEMP
+fi
+if [ "$YLABEL" != "" ]; then
+	echo "set ylabel '$YLABEL'" >> $TEMP
+fi
+if [ "$LOGX" = "yes" ]; then
+	echo "set log x 2" >> $TEMP
+fi
+if [ "$LOGY" = "yes" ]; then
+	echo "set log y 20" >> $TEMP
+fi
+if [ "$LOGSCALEX" = "yes" ]; then
+	echo "set logscale x 2" >> $TEMP
+fi
+if [ "$LOGSCALEY" = "yes" ]; then
+	echo "set logscale y 10" >> $TEMP
+fi
+
+if [ "$EXTRA" != "" ]; then
+	if [ "`grep x2tics $EXTRA`" != "" ]; then
+		MINX=`grep "set x2tics" $EXTRA | awk -F '(' '{print $2}' | awk -F ')' '{print $1}' | tr ',' ' ' | awk '{print $2}'`
+		MAXX=`grep "set x2tics" $EXTRA | awk -F '(' '{print $2}' | awk -F ')' '{print $1}' | tr ',' ' ' | awk '{print $NF}'`
+		echo "set xrange [$MINX:$MAXX]" >> $TEMP
+		echo "set x2range [$MINX:$MAXX]" >> $TEMP
+	fi
+		
+	cat $EXTRA >> $TEMP
+fi
+echo "plot \\"				>> $TEMP
+
+FIRST=yes
+COUNT=0
+while [ "$1" != "" ]; do
+	if [ "$FIRST" = "no" ]; then
+		echo ", \\"		>> $TEMP
+	fi
+	FIRST=no
+	TITLE=
+	if [ "${TITLES[$COUNT]}" != "" ]; then
+		TITLE="title '${TITLES[$COUNT]}'"
+	fi
+
+	# Work out an individual plot string
+
+	case $PLOTCOMMAND in
+	standard)
+		PLOTSTRING="'$1'"
+		if [ "$AWK_FORMAT" != "" ]; then
+			ESCAPED=`echo "$1" | sed -e 's/\//\\\\\//g'`
+			PLOTSTRING="\"`echo $AWK_FORMAT | sed -e "s/@@PLOT@@/$ESCAPED/"`\""
+		fi
+		echo -n "$PLOTSTRING $USING $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
+		;;
+	cpuusage)
+		PLOTSTRING="'$1'"
+		if [ "$AWK_FORMAT" != "" ]; then
+			ESCAPED=`echo "$1" | sed -e 's/\//\\\\\//g'`
+			PLOTSTRING_USER="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/2/' -e "s/@@PLOT@@/$ESCAPED/"`\""
+			PLOTSTRING_SYS="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/3/' -e "s/@@PLOT@@/$ESCAPED/"`\""
+			PLOTSTRING_WAIT="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/5/' -e "s/@@PLOT@@/$ESCAPED/"`\""
+		fi
+
+		echo -n "$PLOTSTRING_USER title \"User %\" with lines, $PLOTSTRING_SYS title \"Sys  %\" with lines, $PLOTSTRING_WAIT title \"Wait %\" with lines" >> $TEMP
+		;;
+	iostat-blocks)
+		PLOTSTRING="'$1'"
+		if [ "$AWK_FORMAT" != "" ]; then
+			ESCAPED=`echo "$1" | sed -e 's/\//\\\\\//g'`
+			PLOTSTRING_READ="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/2/' -e "s/@@PLOT@@/$ESCAPED/"`\""
+			PLOTSTRING_WRITE="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/3/' -e "s/@@PLOT@@/$ESCAPED/"`\""
+		fi
+
+		echo -n "$PLOTSTRING_READ title \"read\" with lines, $PLOTSTRING_WRITE title \"write\" with lines" >> $TEMP
+		;;
+	iostat-rates)
+		PLOTSTRING="'$1'"
+		if [ "$AWK_FORMAT" != "" ]; then
+			ESCAPED=`echo "$1" | sed -e 's/\//\\\\\//g'`
+			PLOTSTRING_READ="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/2/' -e "s/@@PLOT@@/$ESCAPED/"`\""
+			PLOTSTRING_WRITE="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/3/' -e "s/@@PLOT@@/$ESCAPED/"`\""
+		fi
+
+		echo -n "$PLOTSTRING_READ title \"read rate\" with lines, $PLOTSTRING_WRITE title \"write rate\" with lines" >> $TEMP
+		;;
+
+	esac
+	shift
+	COUNT=$(($COUNT+1))
+done
+echo >> $TEMP
+if [ "$SPECTHESIS" = "yes" ]; then
+	echo "set nokey" >> $TEMP
+	echo "set size 0.5,0.5" >> $TEMP
+	echo "replot f(x)" >> $TEMP
+	echo
+fi
+
+if [ "$DUMP" = "yes" ]; then
+	cat $TEMP
+fi
+cat $TEMP | gnuplot -name gnuplot -persist
+rm $TEMP

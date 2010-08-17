@@ -1,0 +1,54 @@
+#!/bin/bash
+# fs-mark installer
+P=fsmark-install
+WEB_LOCATION=http://heanet.dl.sourceforge.net/project/fsmark/fsmark/
+MIRROR_LOCATION="$WEBROOT/fsmark/"
+DEFAULT_VERSION=3.3
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+  case "$1" in
+    -v)
+            VERSION=$2
+	    shift 2
+	    ;;
+    *)
+            echo Unrecognised option: $1
+	    shift
+  esac
+done
+
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=fs_mark-${VERSION}.tar.gz
+sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+
+# Building from scratch, uncompress the tar
+cd $SHELLPACK_SOURCES
+tar xf $TARFILE
+if [ $? -ne 0 ]; then
+  error "$P: tar xf fs_mark-${VERSION}.tar.gz failed"
+  popd > /dev/null
+  exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR fsmark-${VERSION}-installed
+pushd fsmark-${VERSION}-installed > /dev/null || die Failed to rename tar
+
+# Build
+make
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+echo fsmark installed successfully
+#### Description fsmark
+#### Details fsmark 12

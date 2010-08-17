@@ -1,0 +1,37 @@
+postmark_parse_log() {
+	TRANSACTIONS_PER_SECOND=`grep "seconds of transactions" $1 | awk -F \( '{print $2}' | awk '{print $1}'`
+	DATAREAD_PER_SECOND=`grep "megabytes read" $1 | awk -F \( '{print $2}' | awk '{print $1}'`
+	DATAWRITE_PER_SECOND=`grep "megabytes written" $1 | awk -F \( '{print $2}' | awk '{print $1}'`
+	FILE_CREATION_ALONE=`grep "Creation alone:" $1 | awk -F \( '{print $2}' | awk '{print $1}'`
+	FILE_CREATION_MIXED=`grep "Mixed with transactions" $1 | head -1 | awk -F \( '{print $2}' | awk '{print $1}'`
+	FILE_DELETION_ALONE=`grep "Deletion alone:" $1 | awk -F \( '{print $2}' | awk '{print $1}'`
+	FILE_DELETION_MIXED=`grep "Mixed with transactions" $1 | head -1 | awk -F \( '{print $2}' | awk '{print $1}'`
+
+	echo "Transactions per second:           $TRANSACTIONS_PER_SECOND" > $2
+	echo "Data megabytes read per second:    $DATAREAD_PER_SECOND" >> $2
+	echo "Data megabytes written per second: $DATAWRITE_PER_SECOND" >> $2
+	echo "Files created alone per second:    $FILE_CREATION_ALONE" >> $2
+	echo "Files create/transact per second:  $FILE_CREATION_MIXED" >> $2
+	echo "Files deleted alone per second:    $FILE_DELETION_ALONE" >> $2
+	echo "Files delete/transact per second:  $FILE_DELETION_MIXED" >> $2
+}
+
+echo
+echo POSTMARK
+gendirlist postmark
+printheader
+
+for DIR in $DIRLIST; do
+	postmark_parse_log "$DIR/$TOPLEVEL/postmark.log" "$DIR/$TOPLEVEL/result.txt"
+done
+
+for HEADING in "Transactions per second:" "Data megabytes read per second:" "Data megabytes written per second:" "Files created alone per second:" "Files create/transact per second:" "Files deleted alone per second:" "Files delete/transact per second:"; do
+	printf "%-35s" "$HEADING"
+	VANILLA=`grep "$HEADING" postmark-$KERNEL_BASE/$TOPLEVEL/result.txt | awk -F : '{print $2}'`
+	for DIR in $DIRLIST; do
+		RESULT=`grep "$HEADING" $DIR/$TOPLEVEL/result.txt | awk -F : '{print $2}'`
+		printf " %8.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+	done
+	echo
+done
+echo

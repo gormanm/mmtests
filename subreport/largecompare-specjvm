@@ -1,0 +1,33 @@
+BACKING_TYPES=
+FIRST_TYPE=
+for POTENTIAL in base huge transhuge; do
+	DIRNAME=specjvm$SUBKERNEL/$TOPLEVEL/$POTENTIAL
+	LAST_TYPE=`basename $DIRNAME`
+	if [ -e $DIRNAME ]; then
+		BACKING_TYPES="$BACKING_TYPES $LAST_TYPE"
+		if [ "$FIRST_TYPE" = "" ]; then
+			FIRST_TYPE=$LAST_TYPE
+		fi
+	fi
+done
+
+echo
+echo SPECjvm huge page comparison
+gendirlist specjvm$SUBKERNEL
+printheader
+
+for BACKING_TYPE in $BACKING_TYPES; do
+	$SPECJVM_EXTRACT specjvm$SUBKERNEL/$TOPLEVEL/$BACKING_TYPE/SPECjvm2008.001/SPECjvm2008.001.txt | head -10 > specjvm$SUBKERNEL/$TOPLEVEL/$BACKING_TYPE/specjvm-result.txt
+	done
+
+
+for JOB in `awk '{print $1}' specjvm$SUBKERNEL/$TOPLEVEL/$FIRST_TYPE/specjvm-result.txt`; do
+	VANILLA=`grep $JOB specjvm$SUBKERNEL/$TOPLEVEL/$FIRST_TYPE/specjvm-result.txt | awk '{print $3}'`
+	printf "%-14s" $JOB
+
+	for BACKING_TYPE in $BACKING_TYPES; do
+		RESULT=`grep ^$JOB specjvm$SUBKERNEL/$TOPLEVEL/$BACKING_TYPE/specjvm-result.txt | awk '{print $3}'`
+		printf " %8.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+	done
+	echo
+done

@@ -1,0 +1,130 @@
+#!/bin/bash
+# This is the script for running SPECcpu
+P='speccpu'
+
+. $SHELLPACK_INCLUDE/common.sh
+export PATH=$SHELLPACK_TOPLEVEL/spec/bin:$PATH
+
+if [ "$SIZE" = "" ]; then
+        SIZE=$SPECCPU_DEFAULT_SIZE
+fi
+if [ "$ITER" = "" ]; then
+        ITER=$SPECCPU_DEFAULT_ITER
+fi
+if [ "$TESTS" = "" ]; then
+        TESTS=all
+fi
+if [ "$RUNBITS" = "" ]; then
+	case `uname -m` in
+		i?86)
+			RUNBITS=32
+			;;
+		*)
+			RUNBITS=64
+			;;
+	esac
+fi
+if [ "$REPORTABLE" = "" ]; then
+        REPORTABLE=--reportable
+        if [ "$TESTS" != "all" -o "$ITER" = "1" -o "$SIZE" != "ref" ]; then
+                REPORTABLE=--noreportable
+        fi
+fi
+
+# Install support files ######################################################
+if [ ! \( -e $SHELLPACK_SOURCES/speccpu2006 \) ]; then
+  	$SHELLPACK_INCLUDE/shellpack-install-speccpu
+	check_status "$P: Installing speccpu"
+fi
+
+# Ensure everything is where it is expected to be
+pushd $SHELLPACK_SOURCES/speccpu2006 > /dev/null || die Failed to cd to speccpu2006
+[ ! -e shrc ] && die No speccpu2006 shrc script
+
+# Prepare system
+echo 0 > /proc/sys/vm/nr_hugepages
+rm -f /tmp/OPiter.*
+[ -e result ] && rm -rf result
+export MALLOC_CHECK_=0
+GENSPEC=$SHELLPACK_TOPLEVEL/spec/genspec-conf/$ARCH-$HOSTNAME.conf
+if [ -e "$GENSPEC" ]; then
+	GENSPECSH="generate-speccpu.sh --bitness ${RUNBITS} --conf $GENSPEC"
+else
+	GENSPECSH="generate-speccpu.sh --bitness ${RUNBITS}"
+fi
+if [ "$PROFILE_EVENTS" != "" ]; then
+	GENSPECSH="$GENSPECSH --monitor $PROFILE_EVENTS"
+fi
+echo genspec: $GENSPECSH
+
+# Generate SPEC configurations
+. shrc
+HLINK=--hugepages-newrelink
+
+$GENSPECSH > config/gen-m${RUNBITS}base.cfg || die Failed to generate base spec config file
+$GENSPECSH --hugepages-heaponly > config/gen-m${RUNBITS}huge-heap.cfg || die Failed to generate huge-heap spec config file
+$GENSPECSH $HLINK > config/gen-m${RUNBITS}huge-all.cfg || die Failed to generate huge-all spec config file
+cp config/gen-m${RUNBITS}base.cfg config/gen-m${RUNBITS}huge-*.cfg $LOGDIR_RESULT
+
+for PAGES in $SPECCPU_PAGESIZES; do
+	opcontrol --stop ; opcontrol --deinit
+
+	HUGECTL=
+	case $PAGES in
+		base)
+			hugeadm --pool-pages-min DEFAULT:0MB
+			hugeadm --pool-pages-max DEFAULT:8192
+			HUGECTL=
+			disable_transhuge
+			;;
+		huge-heap)
+			hugeadm --hard --pool-pages-min DEFAULT:4096MB
+			hugeadm --hard --pool-pages-min DEFAULT:2048MB
+
+			hugeadm --pool-pages-max DEFAULT:8192
+			HUGECTL="hugectl --verbose 0 --heap"
+			disable_transhuge
+			;;
+		huge-all)
+			hugeadm --hard --pool-pages-min DEFAULT:4096MB
+			hugeadm --hard --pool-pages-min DEFAULT:2048MB
+			hugeadm --pool-pages-max DEFAULT:8192
+
+			HUGECTL="hugectl --verbose 0 --text --data --bss --heap"
+			disable_transhuge
+			;;
+		transhuge)
+			hugeadm --pool-pages-min DEFAULT:0MB
+			hugeadm --pool-pages-max DEFAULT:8192
+			HUGECTL=
+			if [ "$TRANSHUGE_AVAILABLE" = "yes" ]; then
+				enable_transhuge
+			else
+				echo THP support unavailable for transhuge
+				continue
+			fi
+			;;
+	esac
+
+	ATTEMPT=1
+	while [ $ATTEMPT -lt 3 ]; do
+		rm -rf result
+       		$HUGECTL runspec -c gen-m${RUNBITS}${PAGES}.cfg \
+               		$REPORTABLE \
+               		--tune base \
+               		--size $SIZE \
+               		-n $ITER \
+               		$TESTS
+		if [ $? -eq 0 ]; then
+			echo SPECcpu succeeeded on attempt $ATTEMPT
+			mv result $LOGDIR_RESULTS/$PAGES
+			ATTEMPT=3
+		else
+			echo SPECCpu failed on attempt $ATTEMPT
+		fi
+		ATTEMPT=$((ATTEMPT+1))
+		rm -rf /tmp/OPiter*
+	done
+done
+#### Description SPECcpu
+#### Details speccpu-bench 10

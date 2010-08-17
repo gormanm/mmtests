@@ -1,0 +1,32 @@
+#!/bin/bash
+
+P='speccpu-install'
+WEB_LOCATION="NOT_AVAILABLE"
+MIRROR_LOCATION="$WEBROOT/spec/speccpu06-1.1.tgz"
+
+. $SHELLPACK_INCLUDE/common.sh
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/speccpu06-1.1.tgz
+cd $SHELLPACK_SOURCES
+tar -zxf speccpu06-1.1.tgz || die Failed to expand tarball
+rm speccpu06-1.1.tgz
+pushd speccpu2006
+
+if [ "$SPECCPU_LICENSE_ACCEPTED" = "no" ]; then
+	./install.sh
+else
+	SCRIPT=`mktemp`
+	echo "spawn ./install.sh
+expect \"Is this correct?\" {exp_send yes\r }
+while {1} {
+	expect \"Installation successful\" exit
+}" > $SCRIPT
+	expect -f $SCRIPT || die Failed to install SPECcpu 2006
+	rm $SCRIPT
+fi
+
+exit $SHELLPACK_SUCCESS
+#### Description SPECcpu
+#### Details speccpu 10

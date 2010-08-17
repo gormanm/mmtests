@@ -1,0 +1,155 @@
+#!/bin/bash
+# This script installs netperf and runs the regression tests
+
+P=ltp-pounder-bench
+VERSION=full-20091031
+RUNTIME=$((3600*7))
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2;;
+		--ltp-runtime)
+			RUNTIME=$2
+			shift 2
+			;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Install LTP if necessary
+if [ ! -d $SHELLPACK_SOURCES/ltp-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-ltp -v ${VERSION} || die ltp install script returned error
+fi
+cd $SHELLPACK_SOURCES/ltp-${VERSION}/testcases/pounder21 || die Failed to cd to ltp pounder install directory
+
+# Fixup LTP Pounder if necessary
+if [ ! -e LTP_POUNDER_INSTALLED ]; then
+	yes '' | ./Install
+	if [ $? -ne 0 ]; then
+		echo "--- pounder21-orig/opt/bonnie++-1.03a/zcav.cpp	2010-07-11 17:49:25.000000000 +0100
++++ pounder21/opt/bonnie++-1.03a/zcav.cpp	2010-07-11 17:45:39.000000000 +0100
+@@ -9,6 +9,7 @@
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <stdlib.h>
++#include <string.h>
+ #include \"bonnie.h\"
+ #ifdef HAVE_VECTOR
+ #include <vector>
+fi
+touch LTP_POUNDER_INSTALLED" | patch -p1 || die Failed to patch bonnie
+		echo "--- pounder21-orig/build_scripts/build_kernel	2010-07-11 17:38:27.000000000 +0100
++++ pounder21/build_scripts/build_kernel	2010-07-11 17:55:41.000000000 +0100
+@@ -33,6 +33,6 @@
+ 		wget \"\${POUNDER_CACHE}\${TARNAME}\"
+ 	fi
+ 	if [ ! -f \"\$TARNAME\" ]; then
+-		wget \"http://www.kernel.org/pub/linux/kernel/v2.6/\$TARNAME\"
++		wget \"http://mcp/mirror/v2.6/\$TARNAME\"
+ 	fi
+ fi" | patch -p1 || die Failed to patch kernel build
+
+	echo "--- pounder21-orig/build_scripts/ltp	2010-07-12 16:46:14.000000000 +0100
++++ pounder21/build_scripts/ltp	2010-07-12 16:46:38.000000000 +0100
+@@ -32,11 +32,6 @@
+ 		cp -pRdu testcases/network/sctp/func_tests/test_1_to_1_connect.c testcases/network/sctp/func_tests/test_1_to_1_connect.c.pounder
+ 		echo \"Debian/Ubuntu detected; applying build fixes...\"
+ 		patch -p1 < \$POUNDER_SRCDIR/ltp-debian-build.patch
+-		RESULT=\$?
+-		if [ \$RESULT -ne 0 ]; then
+-			echo Patching failed.
+-			exit 1
+-		fi
+ 	fi
+ else
+ 	# We need to _unpatch_ this.
+@@ -44,11 +39,6 @@
+ 		rm -rf testcases/network/sctp/func_tests/test_1_to_1_connect.c.pounder
+ 		echo \"Previous Debian/Ubuntu detected; removing build fixes...\"
+ 		patch -p1 -R < \$POUNDER_SRCDIR/ltp-debian-build.patch
+-		RESULT=\$?
+-		if [ \$RESULT -ne 0 ]; then
+-			echo Patching failed.
+-			exit 1
+-		fi
+ 	fi
+ 
+ fi
+@@ -60,10 +50,6 @@
+ 	cp -pRdu testcases/kernel/syscalls/setregid/setregid02.c testcases/kernel/syscalls/setregid/setregid02.c.pounder
+ 	patch -p1 < \$POUNDER_SRCDIR/ltp-setregid-fix.patch
+ 	RESULT=\$?
+-	if [ \$RESULT -ne 0 ]; then
+-		echo Patching failed.
+-		exit 1
+-	fi
+ fi
+ 
+ # Build" | patch -p1 || die Failed to patch ltp build
+
+	echo "--- pounder21-orig/build_scripts/memtest	2010-07-13 11:22:43.000000000 +0100
++++ pounder21/build_scripts/memtest	2010-07-13 11:23:16.000000000 +0100
+@@ -28,7 +28,7 @@
+ 		wget \"\${POUNDER_CACHE\}memtest.html\"
+ 	fi
+ 	if [ ! -f \"memtest.html\" ]; then
+-		wget \"http://people.redhat.com/dledford/memtest.html\"
++		wget \"http://www.csn.ul.ie/~mel/memtest.html\"
+ 	fi
+ 	IN_BLOCK=0" | patch -p1 || die Failewd to patch memtest
+		yes '' | ./Install || die Failed to install LTP pounder
+	fi
+	touch LTP_POUNDER_INSTALLED
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+monitor_pre_hook $LOGDIR/results ltp-pounder
+if [ ! -e /mnt/nfs ]; then
+	mkdir -p /mnt/nfs
+fi
+export NFS_LOGDIR=$LTP_POUNDER_NFS_LOGDIR
+export NFS_LOGSERVER=$LTP_POUNDER_NFS_LOGSERVER
+export NFS_LOGGING=$LTP_POUNDER_NFS_LOGGING
+export DO_X_TESTS=0
+mount -v -o nolock $NFS_LOGSERVER:$NFS_LOGDIR /mnt/nfs/
+if [ $? -ne 0 ]; then
+	echo WARNING: Failed to mount NFS directory, disabling logging
+	export NFS_LOGGING=0
+else
+	# LTP will remount it where it likes
+	umount /mnt/nfs
+fi
+
+STARTTIME=`date +%s`
+ENDTIME=$(($STARTTIME+$RUNTIME))
+
+rm -f pounder.pid
+./pounder &
+PID=$!
+while [ `date +%s` -lt $ENDTIME ]; do
+	TEST=`ps aux | grep $PID | grep -v grep`
+	if [ "$TEST" = "" ]; then
+		echo WARNING: Cannot find pounder process
+	else
+		echo Heartbeat: pounder $PID alive `date`
+	fi
+	sleep 300
+done
+echo Run time complete, killing pounder
+./pounder -k
+sleep 10
+mv log/* $LOGDIR_RESULTS
+
+monitor_post_hook $LOGDIR/results ltp-pounder
+
+echo
+echo LTP pounder completed successfully | tee -a $LOGDIR/summary
+exit $SHELLPACK_SUCCESS
+#### Description Run just the pounder test from LTP
+#### Details ltp-pounder-bench 4

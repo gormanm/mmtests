@@ -1,0 +1,174 @@
+#!/bin/bash
+# This is the script for running the NAS Parallel Benchmark
+#
+
+P='nas'
+NAS_TYPE=SER
+RUNBITS=
+HLINK=--hugepages-newrelink
+OPENMP=
+MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+MEMTOTAL_MBYTES=$((MEMTOTAL_BYTES/1048576))
+HUGEPAGE_MAX=$(($MEMTOTAL_MBYTES/8*7))
+. $SHELLPACK_INCLUDE/common.sh
+
+# Process the arguments ######################################################
+while [ $# -gt 0 ]; do
+	case $1 in
+	--type)
+		NAS_TYPE=$2
+		if [ "$NAS_TYPE" = "OMP" ]; then
+			OPENMP=--openmp
+		fi
+		shift 2
+		;;
+	--bitness)
+		RUNBITS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised command line parameter $1
+		usage
+		exit $SHELLPACK_ERROR
+	esac
+done
+
+# Install support files ######################################################
+if [ ! \( -e $SHELLPACK_SOURCES/NPB3.3 \) ]; then
+  	$SHELLPACK_INCLUDE/shellpack-install-nas
+	check_status "$P: Installing NAS"
+fi
+
+pushd $SHELLPACK_SOURCES/NPB3.3 > /dev/null || die Failed to cd to NPB3.3
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Additional test parameters
+JOBLIST="ft mg sp lu bt is ep cg ua"
+if [ "$NAS_CLASS" != "C" ]; then
+	JOBLIST="$JOBLIST dc"
+fi
+if [ "$RUNBITS" = "" ]; then
+	case `uname -m` in
+		i?86)
+			RUNBITS=32
+			;;
+		*)
+			RUNBITS=64
+			;;
+	esac
+fi
+export PATH=$SHELLPACK_TOPLEVEL/nas/bin:$PATH
+
+record_procs() {
+	echo -n > $1/procstats-$2 || die Failed to record procstats-$1
+	for i in vmstat meminfo; do
+		cat /proc/$i >> $1/procstats-$2
+		cat /proc/$i >> $1/procstats-$2
+	done
+}
+
+# Generate suite.def
+pushd $SHELLPACK_SOURCES/NPB3.3/NPB3.3-$NAS_TYPE > /dev/null || die Failed to cd to NPB3.3/NPB3.3-$NAS_TYPE
+echo -n > config/suite.def
+for JOB in $JOBLIST; do
+	echo "$JOB      $NAS_CLASS" >> config/suite.def
+done
+
+# Run the benchmark ##########################################################
+GENSPECSH="generate-nas.sh --bitness ${RUNBITS} $OPENMP"
+$GENSPECSH > config/make-base.def
+if [ $? -ne 0 ]; then
+	cat config/make-base.def 
+	die Failed to generate base make.def file
+fi
+$GENSPECSH --hugepages-heaponly > config/make-huge-heap.def
+if [ $? -ne 0 ]; then
+	cat config/make-huge-heap.def
+	die Failed to generate huge-heap make.def file
+fi
+$GENSPECSH $HLINK > config/make-huge-all.def
+if [ $? -ne 0 ]; then
+	cat config/make-huge-all.def
+	die Failed to generate huge-all make.def file
+fi
+cp config/make-*.def $LOGDIR_RESULTS
+
+for PAGES in $NAS_PAGESIZES; do
+	opcontrol --stop ; opcontrol --deinit
+	mkdir -p $LOGDIR_RESULTS/$PAGES
+	cp config/make-$PAGES.def config/make.def
+	make clean || die Failed to clean
+	make suite || die Failed to build for $PAGES
+
+	# Should not be necessary on modern kernels
+	HUGECTL=
+	case $PAGES in
+		base)
+			hugeadm --pool-pages-min DEFAULT:0MB
+			hugeadm --pool-pages-max DEFAULT:${MEMTOTAL_MBYTES}MB
+			HUGECTL=
+			disable_transhuge
+			;;
+		huge-heap)
+			hugeadm --hard --pool-pages-min DEFAULT:${HUGEPAGE_MAX}MB
+			hugeadm --hard --pool-pages-min DEFAULT:0
+			hugeadm --pool-pages-max DEFAULT:${MEMTOTAL_MBYTES}MB
+			HUGECTL="hugectl --verbose 0 --heap"
+			disable_transhuge
+			;;
+		huge-all)
+			hugeadm --hard --pool-pages-min DEFAULT:${HUGEPAGE_MAX}MB
+			hugeadm --hard --pool-pages-min DEFAULT:$((HUGEPAGE_MAX*3/4))MB
+			hugeadm --pool-pages-max DEFAULT:${MEMTOTAL_MBYTES}MB
+			HUGECTL="hugectl --verbose 0 --text --data --bss --heap"
+			disable_transhuge
+			;;
+		transhuge)
+			hugeadm --pool-pages-min DEFAULT:0MB
+			hugeadm --pool-pages-max DEFAULT:${MEMTOTAL_MBYTES}MB
+			HUGECTL=
+			if [ "$TRANSHUGE_AVAILABLE" = "yes" ]; then
+				enable_transhuge
+			else
+				echo THP support unavailable for transhuge
+				continue
+			fi
+			;;
+	esac
+
+	for JOB in $JOBLIST; do
+		if [ "$RUNBITS" = "32" -a ! -x ./bin/$JOB.$NAS_CLASS ]; then
+			echo Skipping $JOB.$NAS_CLASS for $PAGES - no exist
+			continue
+		fi
+
+		echo Executing $JOB.$NAS_CLASS for $PAGES
+		ATTEMPT=0
+		while [ $ATTEMPT -lt 3 ]; do
+			ATTEMPT=$((ATTEMPT+1))
+			record_procs $LOGDIR_RESULTS/$PAGES before-$PAGES-$JOB.$NAS_CLASS
+			if [ "$MONITOR_PRE_HOOK" != "" ]; then
+				$MONITOR_PRE_HOOK
+			fi
+			$HUGECTL ./bin/$JOB.$NAS_CLASS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
+			if [ $? -eq 0 ]; then
+				ATTEMPT=3
+			else
+				if [ $ATTEMPT -eq 3 ]; then
+					die Failed to execute $JOB.$NAS_CLASS
+				fi
+			fi
+			if [ "$MONITOR_POST_HOOK" != "" ]; then
+				$MONITOR_POST_HOOK $LOGDIR_RESULTS/$PAGES $PAGES-$JOB.$NAS_CLASS
+			fi
+			record_procs $LOGDIR_RESULTS/$PAGES after-$PAGES-$JOB.$NAS_CLASS
+		done
+	done
+	rm `find -name "ADC.view.dat*"`
+done
+
+exit $RETVAL
+#### Description NAS Parallel Benchmark
+#### Details nas-bench 20

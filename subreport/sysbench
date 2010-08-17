@@ -1,0 +1,14 @@
+echo
+echo SYSBENCH
+gendirlist sysbench
+printheader
+NUMCLIENTS=`wc -l sysbench-$KERNEL_BASE/$TOPLEVEL/base/sysbench.log | awk '{print $1}'`
+for CLIENT in `seq 1 $NUMCLIENTS`; do
+	printf "%12d" $CLIENT
+	VANILLA=`grep "^$CLIENT " sysbench-$KERNEL_BASE/$TOPLEVEL/base/sysbench.log | awk '{print $2}'`
+	for DIR in $DIRLIST; do
+		RESULT=`grep "^$CLIENT " $DIR/$TOPLEVEL/base/sysbench.log | awk '{print $2}'`
+		printf " %8.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+	done
+	echo
+done
