@@ -271,7 +271,7 @@ fi
 # Warm up. More appropriate warmup depends on the exact test
 if [ "$SKIP_WARMUP" != "yes" ]; then
 	echo Entering warmup
-	./run-kernbench.sh
+	./run-single-test kernbench
 	rm -rf $SHELLPACK_LOG/kernbench
 	echo Warmup complete, beginning tests
 else
