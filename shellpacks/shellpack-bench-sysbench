@@ -380,4 +380,4 @@ reset_hugepages
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 23
+#### Details sysbench-bench 24

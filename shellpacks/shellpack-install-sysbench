@@ -49,6 +49,12 @@ if [ ! -e sysbench$DBDRIVER-${VERSION}-installed ]; then
 	if [ "$DBDRIVER" = "postgres" ]; then
 		CONFIGURE_ARGS="--without-mysql --with-pgsql"
 	fi
+
+	echo Running autoreconf
+	touch NEWS
+	touch AUTHORS
+	autoreconf -f  -i
+
 	CFLAGS="-O2" \
 		./configure $CONFIGURE_ARGS \
 		  --prefix=$SHELLPACK_SOURCES/sysbench$DBDRIVER-$VERSION-installed \
@@ -69,26 +75,7 @@ if [ ! -e sysbench$DBDRIVER-${VERSION}-installed ]; then
 " | patch -p0 || exit -1
 
 	echo Building sysbench
-	make -j$NUM_CPU
-
-	# Check for stupid build error
-	if [ ! -e sysbench/sysbench ]; then
-		echo BADNESS: A sysbench binary was not created. Trying to work around
-
-		echo Running autoreconf
-		touch NEWS
-		touch AUTHORS
-		autoreconf -f  -i || die sysbench failed to build and autoconf is not available to automatically fix it
-
-		echo Reconfiguring sysbench
-		CFLAGS="-O2" \
-			./configure $CONFIGURE_ARGS \
-		  	--prefix=$SHELLPACK_SOURCES/sysbench$DBDRIVER-$VERSION-installed \
-				|| die "Failed to configure"
-
-		echo Rebuilding sysbench
-		make -j$NUM_CPU || die "Failed to build sysbench"
-	fi
+	make -j$NUM_CPU || die "Failed to build sysbench"
 
 	echo Installing sysbench
 	make install || die "Failed to install sysbench"
@@ -97,4 +84,4 @@ fi
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench 23
+#### Details sysbench 24
