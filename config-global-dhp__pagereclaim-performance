@@ -197,7 +197,11 @@ export OLTP_READONLY=
 export OLTP_SIZE=
 export OLTP_CONFIDENCE=
 export OLTP_PAGESIZES="base"
-export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+if [[ `uname -m` =~ "i?86" ]]; then
+	export OLTP_SHAREDBUFFERS=$((1048576*512))
+else
+	export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+fi
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
 #export OLTP_PAGESIZES="base huge dynhuge"
 #export OLTP_MAX_THREADS="--max-threads N"

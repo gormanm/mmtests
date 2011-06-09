@@ -196,7 +196,11 @@ export OLTP_READONLY=--read-only
 export OLTP_SIZE=--faster
 export OLTP_CONFIDENCE=
 export OLTP_PAGESIZES="base huge transhuge"
-export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+if [[ `uname -m` =~ "i?86" ]]; then
+	export OLTP_SHAREDBUFFERS=$((1048576*512))
+else
+	export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+fi
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
 
 # STREAM
