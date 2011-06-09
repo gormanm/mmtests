@@ -154,7 +154,7 @@ export REAIM_WORKFILE=workfile.fserver
 export REAIM_QUICK=no
 
 # Rsync residenty delay
-export RSYNC_RESIDENCY_SOURCE=/home/mel/git-private/phd_papers
+export RSYNC_RESIDENCY_SOURCE=root@mcp:/var/www/rsyncsource
 export RSYNC_RESIDENCY_DESTINATION=$SHELLPACK_TEMP
 export RSYNC_RESIDENCY_MAPPING_SIZE=$((MEMTOTAL_BYTES*6/10))
 
