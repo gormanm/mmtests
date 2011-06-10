@@ -229,7 +229,8 @@ fi
 if [ "$NETPERF" = "yes" ]; then
 	echo set ylabel \"MB/s Throughput\" >> $TEMP
 	echo set xlabel \"Packet Size \(bytes\)\" >> $TEMP
-	echo set xtics 2048 >> $TEMP
+	echo "set log x 2" >> $TEMP
+	echo "set log y 2" >> $TEMP
 fi
 if [ "$CACHEEFFECTS" = "yes" ]; then
 	echo set ylabel \"Cycles To Access Element\" >> $TEMP

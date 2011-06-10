@@ -2,6 +2,10 @@ echo
 echo NETPERF UDP
 gendirlist netperf-udp
 printheader
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/netperf-UDP_STREAM.result"
+	TITLES="$TITLES `echo $DIR | sed -e 's/netperf-udp-//'`"
+done
 for SIZE in `awk '{print $1}' netperf-udp-$KERNEL_BASE/$TOPLEVEL/netperf-UDP_STREAM.result`; do
 	printf "%8d" $SIZE
 	VANILLA=`grep "^$SIZE " netperf-udp-$KERNEL_BASE/$TOPLEVEL/netperf-UDP_STREAM.result | awk '{print $2}'`

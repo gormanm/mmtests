@@ -9,6 +9,11 @@ for DIRNAME in `\ls -d vmr-stream-$KERNEL_BASE/$TOPLEVEL/base/stream-*`; do
 	PAGESIZE_TYPES="$PAGESIZE_TYPES $LAST_TYPE"
 done
 
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/base/stream-static-small/stream-Triad.avg"
+	TITLES="$TITLES `echo $DIR | sed -e 's/netperf-udp-//'`"
+done
+
 WSS_SIZES=`cat vmr-stream-$KERNEL_BASE/$TOPLEVEL/base/$LAST_TYPE/stream-Add.avg | awk '{print $1}'`
 
 for PAGESIZE_TYPE in $PAGESIZE_TYPES; do

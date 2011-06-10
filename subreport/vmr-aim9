@@ -1,0 +1,19 @@
+echo
+echo AIM9
+gendirlist vmr-aim9
+printheader
+
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/aim9/log.txt"
+	TITLES="$TITLES `echo $DIR | sed -e 's/vmr-aim9-//'`"
+done
+
+for HEADING in creat-clo page_test brk_test signal_test exec_test fork_test link_test; do
+	printf "%-12s" $HEADING
+	VANILLA=`grep $HEADING vmr-aim9-$KERNEL_BASE/$TOPLEVEL/aim9/log.txt | awk '{print $6}'`
+	for DIR in $DIRLIST; do
+		RESULT=`grep $HEADING "$DIR"/$TOPLEVEL/aim9/log.txt | awk '{print $6}'`
+		printf " %10.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+	done
+	echo
+done
