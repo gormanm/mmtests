@@ -5,8 +5,8 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 . $SCRIPTDIR/config
 
 KERNEL_BASE="2.6.38-mainline"
-KERNEL_COMPARE=""
-FTRACE_ANALYSERS="mmtests-duration"
+KERNEL_COMPARE="2.6.39-mainline"
+FTRACE_ANALYSERS="mmtests-duration mmtests-vmstat"
 FTRACE_HELPER_PAGEALLOC=$LINUX_GIT/Documentation/trace/postprocess/trace-pagealloc-postprocess.pl
 FTRACE_HELPER_VMSCAN=$LINUX_GIT/Documentation/trace/postprocess/trace-vmscan-postprocess.pl
 FTRACE_HELPER_CONGESTION=$SCRIPTDIR/subreport/trace-congestion-postprocess.pl
@@ -47,7 +47,7 @@ done
 echo
 }
 
-for SUBREPORT in kernbench multibuild fsmark postmark iozone netperf-udp netperf-tcp hackbench-pipes hackbench-sockets vmr-createdelete vmr-cacheeffects vmr-aim9 vmr-stream sysbench simple-writeback micro rsyncresidency stress-highalloc; do
+for SUBREPORT in kernbench multibuild fsmark postmark iozone netperf-udp netperf-tcp hackbench-pipes hackbench-sockets vmr-createdelete vmr-cacheeffects vmr-aim9 vmr-stream sysbench largecopy simple-writeback rsyncresidency stress-highalloc micro; do
 	if [ -e $SUBREPORT-$KERNEL_BASE ]; then
 		echo ===BEGIN $SUBREPORT
 		INPUTS=
@@ -59,6 +59,7 @@ for SUBREPORT in kernbench multibuild fsmark postmark iozone netperf-udp netperf
 		for FTRACE_ANALYSER in $FTRACE_ANALYSERS; do
 			FTRACE_TEST=$SUBREPORT
 			. $SCRIPTDIR/subreport/$FTRACE_ANALYSER
+			echo
 		done
 		echo ===END $SUBREPORT
 		if [ "$INPUTS" != "" ]; then

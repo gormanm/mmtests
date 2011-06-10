@@ -9,6 +9,8 @@ for DIR in $DIRLIST; do
 	STARTLINE=`grep -n ^FSUse $DIR/$TOPLEVEL/fsmark.log | awk -F : '{print $1}'`
 	LENGTH=`cat $DIR/$TOPLEVEL/fsmark.log | wc -l`
 	tail -$(($LENGTH-$STARTLINE)) $DIR/$TOPLEVEL/fsmark.log | grep -v "No space left on device" | grep -v "fopen failed to open" > $DIR/$TOPLEVEL/fsmark-stripped.log
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/fsmark-stripped.log"
+	TITLES="$TITLES `echo $DIR | sed -e 's/fsmark-//'`"
 done
 
 # Files/sec

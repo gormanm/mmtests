@@ -1,0 +1,95 @@
+echo MMTests Statistics: vmstat
+
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+
+	START_LINE=`grep -n "test begin :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk -F : '{print $1}'`
+	END_LINE=`grep -n "test end :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk -F : '{print $1}'`
+	head -$END_LINE tests-timestamp-$DIRNAME | tail -$((END_LINE-START_LINE+2)) > /tmp/mmtests-full.log
+
+	START_LINE=`grep -n "file start :: /proc/vmstat" /tmp/mmtests-full.log | awk -F : '{print $1}'`
+	END_LINE=`grep -n "file start :: /proc/zoneinfo" /tmp/mmtests-full.log | awk -F : '{print $1}'`
+	head -$END_LINE /tmp/mmtests-full.log | tail -$((END_LINE-START_LINE)) > /tmp/mmtests-vmstat-before.log
+	START_LINE=`grep -n "file end :: /proc/vmstat" /tmp/mmtests-full.log | awk -F : '{print $1}'`
+	END_LINE=`grep -n "file end :: /proc/zoneinfo" /tmp/mmtests-full.log | awk -F : '{print $1}'`
+	head -$END_LINE /tmp/mmtests-full.log | tail -$((END_LINE-START_LINE)) > /tmp/mmtests-vmstat-after.log
+
+	VALUE=0
+	for HEADING in kswapd_steal; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	KSWAPD_STEAL=$VALUE
+
+	VALUE=0
+	for HEADING in pgsteal_dma pgsteal_dma32 pgsteal_normal pgsteal_movable pgsteal_highmem; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	PGSTEAL=$VALUE
+	DIRECT_STEAL=$((PGSTEAL-KSWAPD_STEAL))
+
+	VALUE=0
+	for HEADING in pgscan_kswapd_dma pgscan_kswapd_dma32 pgscan_kswapd_normal pgscan_kswapd_movable pgscan_kswapd_highmem; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	KSWAPD_SCAN=$VALUE
+
+	VALUE=0
+	for HEADING in pgscan_direct_dma pgscan_direct_dma32 pgscan_direct_normal pgscan_direct_movable pgscan_direct_highmem; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	DIRECT_SCAN=$VALUE
+
+	if [ $DIRECT_SCAN -gt 0 ] ; then
+		DIRECT_EFFICENCY=$((DIRECT_STEAL*100/DIRECT_SCAN))
+	else
+		DIRECT_EFFICENCY=100
+	fi
+	if [ $KSWAPD_SCAN -gt 0 ]; then
+		KSWAPD_EFFICENCY=$((KSWAPD_STEAL*100/KSWAPD_SCAN))
+	else
+		KSWAPD_EFFICENCY=100
+	fi
+	if [ $KSWAPD_SCAN -gt 0 ]; then
+		DIRECT_PSCAN=$((DIRECT_SCAN*100/(KSWAPD_SCAN+DIRECT_SCAN)))
+	else
+		DIRECT_PSCAN=0
+	fi
+	
+
+	echo "Direct pages scanned    : $DIRECT_SCAN"  >  vmstat-summary-$DIRNAME
+	echo "Kswapd pages scanned    : $KSWAPD_SCAN"  >> vmstat-summary-$DIRNAME
+	echo "Kswapd pages reclaimed  : $KSWAPD_STEAL" >> vmstat-summary-$DIRNAME
+	echo "Direct pages reclaimed  : $DIRECT_STEAL" >> vmstat-summary-$DIRNAME
+	echo "Kswapd efficiency       : ${KSWAPD_EFFICENCY}%" >> vmstat-summary-$DIRNAME
+	echo "Direct efficiency       : ${DIRECT_EFFICENCY}%" >> vmstat-summary-$DIRNAME
+	echo "Percentage direct scans : ${DIRECT_PSCAN}%" >> vmstat-summary-$DIRNAME
+done
+
+for HEADING in "Direct pages scanned" "Kswapd pages scanned" "Kswapd pages reclaimed" "Direct pages reclaimed" "Kswapd efficiency" "Direct efficiency" "Percentage direct scans"; do
+	printf "%-40s" "$HEADING"
+	for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+		if [ ! -e vmstat-summary-$DIRNAME ]; then
+			continue
+		fi
+		printf "%10s" `grep "$HEADING" vmstat-summary-$DIRNAME | awk -F : '{print $2}'`
+	done
+	echo
+done

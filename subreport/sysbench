@@ -3,6 +3,12 @@ echo SYSBENCH
 gendirlist sysbench
 printheader
 NUMCLIENTS=`wc -l sysbench-$KERNEL_BASE/$TOPLEVEL/base/sysbench.log | awk '{print $1}'`
+
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/base/sysbench.log"
+	TITLES="$TITLES `echo $DIR | sed -e 's/sysbench-//'`"
+done
+
 for CLIENT in `seq 1 $NUMCLIENTS`; do
 	printf "%12d" $CLIENT
 	VANILLA=`grep "^$CLIENT " sysbench-$KERNEL_BASE/$TOPLEVEL/base/sysbench.log | awk '{print $2}'`
