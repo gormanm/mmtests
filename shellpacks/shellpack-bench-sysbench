@@ -47,6 +47,10 @@ while [ "$1" != "" ]; do
 			MAX_TIME=60
 			OLTP_TABLESIZE=1000000
 			shift;;
+		--slower)
+			MAX_TIME=180
+			OLTP_TABLESIZE=50000000
+			shift;;
 		--max-threads) export RUN_NUM=$2; shift 2;;
 		--less-confident)
 			export MIN_ITERATIONS=3
@@ -380,4 +384,4 @@ reset_hugepages
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 24
+#### Details sysbench-bench 25
