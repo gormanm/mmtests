@@ -673,6 +673,10 @@ for POWERSTEP in `seq $(($MINIMUM_POWER*$INCREMENT)) $(($LARGEST_POWER*$INCREMEN
 	DEVIATE=yes
 	while [ "$DEVIATE" = "yes" ]; do
 		WSS=$((($ARRAY_SIZE+$ARR_OFFSET+$OFFSET)*3*$DOUBLESIZE))
+		MODEL=
+		if [ $WSS -gt 1800000000 ]; then
+			MODEL="-mcmodel=medium"
+		fi
 		case "$TLANG" in 
 			c)	cat stream.c | \
 					#sed -e "s/#   define N\s[0-9]*/# define N $ARRAY_SIZE/" | \
@@ -689,14 +693,14 @@ for POWERSTEP in `seq $(($MINIMUM_POWER*$INCREMENT)) $(($LARGEST_POWER*$INCREMEN
 		# Build the tool
 		echo Building stream
 		case "$TLANG" in 
-			c)	echo gcc -DN=$ARRAY_SIZE -DOFFSET=$(($ARR_OFFSET+$OFFSET)) $LINK_OPTIONS stream.c -o stream
-					gcc -DN=$ARRAY_SIZE -DOFFSET=$(($ARR_OFFSET+$OFFSET)) $LINK_OPTIONS stream.c -o stream || die Failed to compile stream
+			c)	echo gcc $MODEL -DN=$ARRAY_SIZE -DOFFSET=$(($ARR_OFFSET+$OFFSET)) $LINK_OPTIONS stream.c -o stream
+					gcc $MODEL -DN=$ARRAY_SIZE -DOFFSET=$(($ARR_OFFSET+$OFFSET)) $LINK_OPTIONS stream.c -o stream || die Failed to compile stream
 					;;
 			f)	gcc -c mysecond.c || die Failed to compile mysecond.o
 					g77 -c stream.f	 || die Failed to compile stream.f
 					g77 $LINK_OPTIONS mysecond.o stream.o -o stream 2> /dev/null || {
 				gcc -c -DUNDERSCORE mysecond.c
-				g77 mysecond.o stream.o -o stream || die "Failed to compile stream for fortran"
+				g77 $MODEL mysecond.o stream.o -o stream || die "Failed to compile stream for fortran"
 					}
 					;;
 			*)	die Unrecognised language $TLANG;;
