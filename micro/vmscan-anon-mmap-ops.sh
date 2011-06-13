@@ -26,6 +26,15 @@ tar -xf gtarazbJaHPaAT.gtar
 mv test/usemem.c .
 gcc $BITNESS -lpthread -O2 usemem.c -o usemem || exit -1
 
+# Adjust size for 32-bit if necessary
+if [[ `uname -m` =~ i?86 ]]; then
+	UNITSIZE=$(($MICRO_VMSCAN_ANON_MMAP_OPS_SIZE / NUM_THREADS))
+	while [ $UNITSIZE -gt 1182793728 ]; do
+		MICRO_VMSCAN_ANON_MMAP_OPS_SIZE=$((MICRO_VMSCAN_ANON_MMAP_OPS_SIZE*7/8))
+		UNITSIZE=$(($MICRO_VMSCAN_ANON_MMAP_OPS_SIZE / NUM_THREADS))
+	done
+fi
+
 for i in `seq 1 $NUM_THREADS`
 do
 	echo ./usemem -j 4096 -r $MICRO_VMSCAN_ANON_MMAP_OPS_ITER $READONLY $(($MICRO_VMSCAN_ANON_MMAP_OPS_SIZE / NUM_THREADS))
