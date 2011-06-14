@@ -14,7 +14,7 @@ while [ $# -gt 0 ]; do
 		shift 2
 		;;
 	*)
-		echo Unrecognised, passing remainder through
+		echo Unrecognised \($1\) pass thru $@
 		break
 		;;
 	esac
