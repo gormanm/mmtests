@@ -38,7 +38,7 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	DIRECT_STEAL=$((PGSTEAL-KSWAPD_STEAL))
 
 	VALUE=0
-	for HEADING in pgscan_kswapd_dma pgscan_kswapd_dma32 pgscan_kswapd_normal pgscan_kswapd_movable pgscan_kswapd_highmem; do
+	for HEADING in pgscan_kswapd_dma pgscan_kswapd_dma32 pgscan_kswapd_normal pgscan_kswapd_movable pgscan_kswapd_high; do
 		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
 		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
