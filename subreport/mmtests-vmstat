@@ -5,6 +5,7 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 		continue
 	fi
 
+	ELAPSED_TIME=`grep "time :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk '{print $8}'`
 	START_LINE=`grep -n "test begin :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk -F : '{print $1}'`
 	END_LINE=`grep -n "test end :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk -F : '{print $1}'`
 	head -$END_LINE tests-timestamp-$DIRNAME | tail -$((END_LINE-START_LINE+2)) > /tmp/mmtests-full.log
@@ -46,6 +47,7 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 		fi
 	done
 	KSWAPD_SCAN=$VALUE
+	KSWAPD_VELOCITY=`perl -e "print ($KSWAPD_SCAN/$ELAPSED_TIME)"`
 
 	VALUE=0
 	for HEADING in pgscan_direct_dma pgscan_direct_dma32 pgscan_direct_normal pgscan_direct_movable pgscan_direct_highmem; do
@@ -56,6 +58,7 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 		fi
 	done
 	DIRECT_SCAN=$VALUE
+	DIRECT_VELOCITY=`perl -e "print ($DIRECT_SCAN/$ELAPSED_TIME)"`
 
 	if [ $DIRECT_SCAN -gt 0 ] ; then
 		DIRECT_EFFICENCY=$((DIRECT_STEAL*100/DIRECT_SCAN))
@@ -79,11 +82,13 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	echo "Kswapd pages reclaimed  : $KSWAPD_STEAL" >> vmstat-summary-$DIRNAME
 	echo "Direct pages reclaimed  : $DIRECT_STEAL" >> vmstat-summary-$DIRNAME
 	echo "Kswapd efficiency       : ${KSWAPD_EFFICENCY}%" >> vmstat-summary-$DIRNAME
+        printf "Kswapd velocity         : %8.3f\n" $KSWAPD_VELOCITY >> vmstat-summary-$DIRNAME
 	echo "Direct efficiency       : ${DIRECT_EFFICENCY}%" >> vmstat-summary-$DIRNAME
 	echo "Percentage direct scans : ${DIRECT_PSCAN}%" >> vmstat-summary-$DIRNAME
+        printf "Direct velocity         : %8.3f\n" $DIRECT_VELOCITY >> vmstat-summary-$DIRNAME
 done
 
-for HEADING in "Direct pages scanned" "Kswapd pages scanned" "Kswapd pages reclaimed" "Direct pages reclaimed" "Kswapd efficiency" "Direct efficiency" "Percentage direct scans"; do
+for HEADING in "Direct pages scanned" "Kswapd pages scanned" "Kswapd pages reclaimed" "Direct pages reclaimed" "Kswapd efficiency" "Kswapd velocity" "Direct efficiency" "Direct velocity" "Percentage direct scans"; do
 	printf "%-40s" "$HEADING"
 	for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 		if [ ! -e vmstat-summary-$DIRNAME ]; then

@@ -14,7 +14,28 @@ for CLIENT in `seq 1 $NUMCLIENTS`; do
 	VANILLA=`grep "^$CLIENT " sysbench-$KERNEL_BASE/$TOPLEVEL/base/sysbench.log | awk '{print $2}'`
 	for DIR in $DIRLIST; do
 		RESULT=`grep "^$CLIENT " $DIR/$TOPLEVEL/base/sysbench.log | awk '{print $2}'`
+		CONFIDENCE_LIMIT=2
+		while [ "$RESULT" = "" ]; do
+			CONFIDENCE_LIMIT=$((CONFIDENCE_LIMIT+1))
+			RESULT=`awk '{print $2}' $DIR/$TOPLEVEL/base/sysbench-$CLIENT.log | check-confidence.pl --limit $CONFIDENCE_LIMIT --print-mean`
+			cat $DIR/$TOPLEVEL/base/sysbench.log | sed -e "s/^$CLIENT .*/$CLIENT $RESULT/" > $DIR/$TOPLEVEL/base/sysbench.log.tmp
+			mv $DIR/$TOPLEVEL/base/sysbench.log.tmp $DIR/$TOPLEVEL/base/sysbench.log
+		done
+			
 		printf " %8.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+	done
+	echo
+	printf "%12s" "+/-"
+	for DIR in $DIRLIST; do
+		CONFIDENCE_LIMIT=1
+		STDDEV=""
+		while [ "$STDDEV" = "" ]; do
+			CONFIDENCE_LIMIT=$((CONFIDENCE_LIMIT+1))
+			RESULT=`awk '{print $2}' $DIR/$TOPLEVEL/base/sysbench-$CLIENT.log | check-confidence.pl --limit $CONFIDENCE_LIMIT --print-mean`
+			STDDEV=`awk '{print $2}' $DIR/$TOPLEVEL/base/sysbench-$CLIENT.log | check-confidence.pl --limit $CONFIDENCE_LIMIT --print-stddev`
+		done
+			
+		printf " %8.2f%%" `perl -e "print ($STDDEV*100/$RESULT)"`
 	done
 	echo
 done

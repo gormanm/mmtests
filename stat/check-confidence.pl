@@ -18,6 +18,7 @@ my $opt_confidence_level = 95;
 my $opt_limit = 2;
 my $opt_min_samples = 3;
 my $opt_print_mean;
+my $opt_print_stddev;
 
 # Get options
 GetOptions(
@@ -26,6 +27,7 @@ GetOptions(
 	'limit=s'            => \$opt_limit,
 	'min-samples=s'      => \$opt_min_samples,
 	'print-mean'         => \$opt_print_mean,
+	'print-stddev'       => \$opt_print_stddev,
         );
 setVerbose if $opt_verbose;
 
@@ -94,5 +96,8 @@ CONF_LOOP:
 printVerbose("confident\n");
 if ($opt_print_mean) {
 	print calc_mean(@results);
+}
+if ($opt_print_stddev) {
+	print calc_stddev(@results);
 }
 exit 0;
