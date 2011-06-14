@@ -40,9 +40,10 @@ gcc $BITNESS -lpthread -O2 usemem.c -o usemem || exit -1
 if [[ `uname -m` =~ i?86 ]]; then
 	UNITSIZE=$(($MICRO_VMSCAN_FILE_MMAP_OPS_SIZE / NUM_THREADS))
 	while [ $UNITSIZE -gt 1182793728 ]; do
-		MICRO_VMSCAN_FILE_MMAP_OPS_SIZE=$((MICRO_VMSCAN_FILE_MMAP_OPS_SIZE*7/8))
+		NUM_THREADS=$((NUM_THREADS+1))
 		UNITSIZE=$(($MICRO_VMSCAN_FILE_MMAP_OPS_SIZE / NUM_THREADS))
 	done
+	echo Thread count $NUM_THREADS for 32-bit
 fi
 
 for i in `seq 1 $NUM_THREADS`
