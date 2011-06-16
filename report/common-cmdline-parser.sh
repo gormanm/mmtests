@@ -56,7 +56,7 @@ for SINGLE_KERNEL in $KERNEL; do
 		fi
 	fi
 done
-PRESENT_KB=`grep MemTotal: tests-timestamp-$SINGLE_KERNEL | head -1 | awk '{print $2}'`
+PRESENT_KB=`grep MemTotal: $WORKINGDIR/tests-timestamp-$SINGLE_KERNEL | head -1 | awk '{print $2}'`
 PRESENT_MB=$((PRESENT_KB/1024))
 PRESENT_PAGES=$(($PRESENT_KB/4))
 KERNEL="$FILTERED_KERNEL"
