@@ -10,9 +10,9 @@ TITLES=
 for SINGLE_KERNEL in $KERNEL; do
 	START=`head -1 $WORKINGDIR/tests-timestamp-$SINGLE_KERNEL | awk '{print $3}'`
 
-	ANY_TEST=`ls $WORKINGDIR/vmstat-$SINGLE_KERNEL-* | head -1 | awk -F - '{print $NF}'`
+	ANY_TEST=`echo $MMTESTS | awk '{print $1}'`
 	if [ ! -e $WORKINGDIR/vmstat-$SINGLE_KERNEL-$ANY_TEST ]; then
-        	echo Cannot find records for $ANY_TEST in $WORKINGDIR/vmstat-$SINGLE_KERNEL-$ANY_TEST
+        	echo Cannot find records for $ANY_TEST
         	exit -1
 	fi 
 
@@ -20,10 +20,13 @@ for SINGLE_KERNEL in $KERNEL; do
 	head -1 vmstat-$SINGLE_KERNEL-$ANY_TEST | grep -- -- > /dev/null
 	if [ $? -eq 0 ]; then
 		TIMESTAMPS=yes
-		awk "{print (\$1-$START)\" \"\$16}" vmstat-$SINGLE_KERNEL-* > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+		awk "{print (\$1-$START)\" \"\$16}" vmstat-$SINGLE_KERNEL-fsmark* > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
 	else
+		# Clear the markup as we cannot correlate with it reliability
+		echo -n > /tmp/$NAME-extra
+	
 		echo -n > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
-		for TEST in $MMTESTS; do
+		for TEST in fsmark; do
 			awk "{print ($COUNT+NR)\" \"\$11}" vmstat-$SINGLE_KERNEL-$TEST >> /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
 			THISCOUNT=`cat vmstat-$SINGLE_KERNEL-$TEST | wc -l`
 			COUNT=$(($COUNT+$THISCOUNT))
@@ -51,23 +54,21 @@ done
 
 $PLOT \
 	--timeplot \
-	--title "$ARCH Interrupts Comparison" \
-	--extra /tmp/$NAME-extra \
+	--title "$ARCH Interrupts comparison" \
 	--format "postscript color" \
 	--ylabel "Interrupts" \
 	--titles $TITLES \
-	--output $OUTPUTDIR/interrupt-comparison-$NAME.ps \
+	--output $OUTPUTDIR/interrupt-comparison-fsmark-$NAME.ps \
 	$PLOTS
-echo Generated interrupt-comparison-$NAME.ps
+echo Generated interrupt-comparison-fsmark-$NAME.ps
 
 $PLOT \
 	--timeplot \
 	--using "smooth bezier" \
-	--extra /tmp/$NAME-extra \
-	--title "$ARCH Interrupts Comparison" \
+	--title "$ARCH $HEADING" \
 	--format "postscript color" \
 	--ylabel "Interrupts" \
 	--titles $TITLES \
-	--output $OUTPUTDIR/interrupt-comparison-smooth-$NAME.ps \
+	--output $OUTPUTDIR/interrupt-comparison-fsmark-smooth-$NAME.ps \
 	$PLOTS
-echo Generated interrupt-comparison-smooth-$NAME.ps
+echo Generated interrupt-comparison-fsmark-smooth-$NAME.ps

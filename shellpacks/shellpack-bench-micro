@@ -117,6 +117,14 @@ for TEST in $TESTLIST; do
 			PARAMETERA=
 			PARAMETERB=
 			;;
+		memcg-oom-notifier)
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/memcg-oom-notifier.sh"
+			PATCH_LOCATION=
+			CC_OPTIONS=
+			LINK_OPTIONS=
+			PARAMETERA=
+			PARAMETERB=
+			;;
 		vmscan-device-copy)
 			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-device-copy.sh"
 			PATCH_LOCATION=

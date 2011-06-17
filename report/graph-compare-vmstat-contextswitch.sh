@@ -20,17 +20,17 @@ for SINGLE_KERNEL in $KERNEL; do
 	head -1 vmstat-$SINGLE_KERNEL-$ANY_TEST | grep -- -- > /dev/null
 	if [ $? -eq 0 ]; then
 		TIMESTAMPS=yes
-		awk "{print (\$1-$START)\" \"\$16}" vmstat-$SINGLE_KERNEL-* > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+		awk "{print (\$1-$START)\" \"\$17}" vmstat-$SINGLE_KERNEL-* > /tmp/contextswitch-$NAME-$SINGLE_KERNEL.data-unsorted
 	else
-		echo -n > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+		echo -n > /tmp/contextswitch-$NAME-$SINGLE_KERNEL.data-unsorted
 		for TEST in $MMTESTS; do
-			awk "{print ($COUNT+NR)\" \"\$11}" vmstat-$SINGLE_KERNEL-$TEST >> /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+			awk "{print ($COUNT+NR)\" \"\$12}" vmstat-$SINGLE_KERNEL-$TEST >> /tmp/contextswitch-$NAME-$SINGLE_KERNEL.data-unsorted
 			THISCOUNT=`cat vmstat-$SINGLE_KERNEL-$TEST | wc -l`
 			COUNT=$(($COUNT+$THISCOUNT))
 		done
 	fi
-	sort -n /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data
-	rm /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+	sort -n /tmp/contextswitch-$NAME-$SINGLE_KERNEL.data-unsorted > /tmp/contextswitch-$NAME-$SINGLE_KERNEL.data
+	rm /tmp/contextswitch-$NAME-$SINGLE_KERNEL.data-unsorted
 	
 	if [ "$TITLES" != "" ]; then
 		TITLES=$TITLES,
@@ -46,28 +46,28 @@ fi
 
 PLOTS=
 for SINGLE_KERNEL in $KERNEL; do
-	PLOTS="$PLOTS /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data"
+	PLOTS="$PLOTS /tmp/contextswitch-$NAME-$SINGLE_KERNEL.data"
 done
 
 $PLOT \
 	--timeplot \
-	--title "$ARCH Interrupts Comparison" \
+	--title "$ARCH Context Switch Comparison" \
 	--extra /tmp/$NAME-extra \
 	--format "postscript color" \
-	--ylabel "Interrupts" \
+	--ylabel "Context Switches" \
 	--titles $TITLES \
-	--output $OUTPUTDIR/interrupt-comparison-$NAME.ps \
+	--output $OUTPUTDIR/contextswitch-comparison-$NAME.ps \
 	$PLOTS
-echo Generated interrupt-comparison-$NAME.ps
+echo Generated contextswitch-comparison-$NAME.ps
 
 $PLOT \
 	--timeplot \
 	--using "smooth bezier" \
 	--extra /tmp/$NAME-extra \
-	--title "$ARCH Interrupts Comparison" \
+	--title "$ARCH Context Switch Comparison" \
 	--format "postscript color" \
-	--ylabel "Interrupts" \
+	--ylabel "Context Switches" \
 	--titles $TITLES \
-	--output $OUTPUTDIR/interrupt-comparison-smooth-$NAME.ps \
+	--output $OUTPUTDIR/contextswitch-comparison-smooth-$NAME.ps \
 	$PLOTS
-echo Generated interrupt-comparison-smooth-$NAME.ps
+echo Generated contextswitch-comparison-smooth-$NAME.ps

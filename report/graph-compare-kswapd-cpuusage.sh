@@ -68,23 +68,23 @@ while (<>) {
 done
 
 $PLOT \
-	--title "$NAME Kswapd CPU Usage" \
+	--title "$NAME Kswapd CPU Usage Comparison" \
 	--format "postscript color" \
 	--titles $TITLES \
 	--extra /tmp/$NAME-extra \
 	--dump \
-	--output $OUTPUTDIR/kswapdcpu-$NAME.ps \
-	$PLOTS > $OUTPUTDIR/kswapdcpu-$NAME.gp
+	--output $OUTPUTDIR/kswapdcpu-comparison-$NAME.ps \
+	$PLOTS > $OUTPUTDIR/kswapdcpu-comparison-$NAME.gp
 echo Generated kswapdcpu-$NAME.ps
 
 $PLOT \
-	--title "$NAME Kswapd CPU Usage" \
+	--title "$NAME Kswapd CPU Usage Comparison" \
 	--using "smooth bezier" \
 	--format "postscript color" \
 	--titles $TITLES \
 	--extra /tmp/$NAME-extra \
 	--dump \
-	--output $OUTPUTDIR/kswapdcpu-smooth-$NAME.ps \
-	$PLOTS > $OUTPUTDIR/kswapdcpu-smooth-$NAME.gp
+	--output $OUTPUTDIR/kswapdcpu-comparison-smooth-$NAME.ps \
+	$PLOTS > $OUTPUTDIR/kswapdcpu-comparison-smooth-$NAME.gp
 echo Generated kswapdcpu-smooth-$NAME.ps
 

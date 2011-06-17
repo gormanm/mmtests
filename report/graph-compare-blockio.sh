@@ -20,17 +20,17 @@ for SINGLE_KERNEL in $KERNEL; do
 	head -1 vmstat-$SINGLE_KERNEL-$ANY_TEST | grep -- -- > /dev/null
 	if [ $? -eq 0 ]; then
 		TIMESTAMPS=yes
-		awk "{print (\$1-$START)\" \"\$16}" vmstat-$SINGLE_KERNEL-* > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+		awk "{print (\$1-$START)\" \"(\$14+\$15)}" vmstat-$SINGLE_KERNEL-* > /tmp/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
 	else
-		echo -n > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+		echo -n > /tmp/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
 		for TEST in $MMTESTS; do
-			awk "{print ($COUNT+NR)\" \"\$11}" vmstat-$SINGLE_KERNEL-$TEST >> /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+			awk "{print ($COUNT+NR)\" \"(\$9+\$10)}" vmstat-$SINGLE_KERNEL-$TEST >> /tmp/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
 			THISCOUNT=`cat vmstat-$SINGLE_KERNEL-$TEST | wc -l`
 			COUNT=$(($COUNT+$THISCOUNT))
 		done
 	fi
-	sort -n /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data
-	rm /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+	sort -n /tmp/blockio-$NAME-$SINGLE_KERNEL.data-unsorted > /tmp/blockio-$NAME-$SINGLE_KERNEL.data
+	rm /tmp/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
 	
 	if [ "$TITLES" != "" ]; then
 		TITLES=$TITLES,
@@ -46,28 +46,28 @@ fi
 
 PLOTS=
 for SINGLE_KERNEL in $KERNEL; do
-	PLOTS="$PLOTS /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data"
+	PLOTS="$PLOTS /tmp/blockio-$NAME-$SINGLE_KERNEL.data"
 done
 
 $PLOT \
 	--timeplot \
-	--title "$ARCH Interrupts Comparison" \
+	--title "$NAME Block IO Comparison" \
 	--extra /tmp/$NAME-extra \
 	--format "postscript color" \
-	--ylabel "Interrupts" \
+	--ylabel "Block IO" \
 	--titles $TITLES \
 	--output $OUTPUTDIR/interrupt-comparison-$NAME.ps \
 	$PLOTS
-echo Generated interrupt-comparison-$NAME.ps
+echo Generated blockio-comparison-$NAME.ps
 
 $PLOT \
 	--timeplot \
 	--using "smooth bezier" \
 	--extra /tmp/$NAME-extra \
-	--title "$ARCH Interrupts Comparison" \
+	--title "$NAME Block IO Comparison" \
 	--format "postscript color" \
-	--ylabel "Interrupts" \
+	--ylabel "Block IO" \
 	--titles $TITLES \
-	--output $OUTPUTDIR/interrupt-comparison-smooth-$NAME.ps \
+	--output $OUTPUTDIR/blockio-comparison-smooth-$NAME.ps \
 	$PLOTS
-echo Generated interrupt-comparison-smooth-$NAME.ps
+echo Generated blockio-comparison-smooth-$NAME.ps

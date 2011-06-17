@@ -1,5 +1,5 @@
 #!/bin/bash
-# Plot free memory over time
+# Plot the worst latency for IRQs being disabled
 
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
@@ -21,20 +21,23 @@ KERNEL=$COPY
 PLOTS=
 TITLES=
 for SINGLE_KERNEL in $KERNEL; do
-	PLOTS="$PLOTS proc-vmstat-$SINGLE_KERNEL.plot"
+	PLOTS="$PLOTS irqsoff-$SINGLE_KERNEL.plot"
 	START=`head -1 tests-timestamp-$SINGLE_KERNEL | awk '{print $3}'`
-	zcat proc-vmstat-$SINGLE_KERNEL-*.gz | perl -e "\$timestamp = 0;
+	zcat irqsoff-$SINGLE_KERNEL-*.gz | perl -e "\$timestamp = 0;
 	while (<>) {
 		if (/^time: ([0-9]*)/) {
 			\$timestamp=(\$1-$START);
 		}
-		if (/^nr_free_pages ([.0-9]*)/) {
-			\$used=($PRESENT_PAGES-\$1)*4096;
-			print \"\$timestamp \$used\n\";
+		if (/^\\# latency: ([0-9]*) ([a-z]*).*/) {
+			\$latency=\$1;
+			if (\$2 ne \"us\") {
+				print \"UNEXPECTED TIMEUNIT\n\";
+			}
+			print \"\$timestamp \$latency\n\";
 		}
-	}" > proc-vmstat-$SINGLE_KERNEL.plot-unsorted
-	sort -n proc-vmstat-$SINGLE_KERNEL.plot-unsorted > proc-vmstat-$SINGLE_KERNEL.plot
-	rm proc-vmstat-$SINGLE_KERNEL.plot-unsorted
+	}" > irqsoff-$SINGLE_KERNEL.plot-unsorted
+	sort -n irqsoff-$SINGLE_KERNEL.plot-unsorted > irqsoff-$SINGLE_KERNEL.plot
+	rm irqsoff-$SINGLE_KERNEL.plot-unsorted
 
 	if [ "$TITLES" != "" ]; then
 		TITLES=$TITLES,
@@ -42,13 +45,12 @@ for SINGLE_KERNEL in $KERNEL; do
 	TITLES="$TITLES$SINGLE_KERNEL"
 done
 
-$PLOT --mem-usage \
-	--title "$NAME Memory Usage Comparison"
+$PLOT --irqsoff \
+	--title "$NAME Worst IRQs Disabled Latency" \
 	--format "postscript color" \
 	--titles $TITLES \
-	--extra /tmp/$NAME-extra \
-	--yrange 0:$PRESENT_MB \
+	--logscaleY \
 	--dump \
-	--output $OUTPUTDIR/memory-usage-comparison-$NAME.ps \
-	$PLOTS > $OUTPUTDIR/memory-usage-comparison-$NAME.gp
-echo Generated memory-usage-$NAME.ps
+	--output $OUTPUTDIR/irqsoff-worstlatency-$NAME.ps \
+	$PLOTS > $OUTPUTDIR/irqsoff-worstlatency-$NAME.gp
+echo Generated irqsoff-worstlatency-$NAME.ps

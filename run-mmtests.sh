@@ -234,9 +234,9 @@ echo Swap configuration
 swapon -s
 
 # Create memory control group if requested
+mkdir /cgroups
+mount -t cgroup none /cgroups -o memory || die Failed to mount /cgroups
 if [ "$MEMCG_SIZE" != "" ]; then
-	mkdir /cgroups
-	mount -t cgroup none /cgroups -o memory || die Failed to mount /cgroups
 	mkdir /cgroups/0
 	echo $$ > /cgroups/0/tasks
 
