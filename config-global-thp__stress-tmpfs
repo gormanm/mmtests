@@ -53,10 +53,10 @@ export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " "
 #export TESTDISK_RAID_OFFSET=63
 #export TESTDISK_RAID_SIZE=250019532
 #export TESTDISK_RAID_TYPE=raid0
-#export TESTDISK_PARTITION=none
-#export TESTDISK_FILESYSTEM=tmpfs
-#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+export TESTDISK_PARTITION=none
+export TESTDISK_FILESYSTEM=tmpfs
 export TESTDISK_MOUNT_ARGS="size=$((MEMTOTAL_BYTES*3/2))"
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
 #
 # Test NFS disk to setup (optional)
 #export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
