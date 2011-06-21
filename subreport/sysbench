@@ -18,8 +18,6 @@ for CLIENT in `seq 1 $NUMCLIENTS`; do
 		while [ "$RESULT" = "" ]; do
 			CONFIDENCE_LIMIT=$((CONFIDENCE_LIMIT+1))
 			RESULT=`awk '{print $2}' $DIR/$TOPLEVEL/base/sysbench-$CLIENT.log | check-confidence.pl --limit $CONFIDENCE_LIMIT --print-mean`
-			cat $DIR/$TOPLEVEL/base/sysbench.log | sed -e "s/^$CLIENT $/$CLIENT $RESULT/" > $DIR/$TOPLEVEL/base/sysbench.log.tmp
-			mv $DIR/$TOPLEVEL/base/sysbench.log.tmp $DIR/$TOPLEVEL/base/sysbench.log
 		done
 
 		printf " %8.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
