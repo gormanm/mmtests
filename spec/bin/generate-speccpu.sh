@@ -438,7 +438,7 @@ emit_portint() {
 	echo
 
 	H264_EXTRA=
-	if [[ "`uname -m`" =~ i?86 ]]; then
+	if [[ "`uname -m`" =~ i.86 ]]; then
 		H264_EXTRA="$H264_EXTRA -fno-strict-aliasing"
 	fi
 	if [[ "`uname -m`" = "x86_64" ]]; then

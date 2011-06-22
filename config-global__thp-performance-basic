@@ -179,7 +179,7 @@ export SPECJVM_DEFAULT_TERATIONS=1
 export SPECJVM_MAXHEAP=-Xmx756m
 export SPECJVM_PAGESIZES="base huge"
 export SPECJVM_HUGESWITCH=-Xlp
-if [[ `uname -m` =~ i?86 ]]; then
+if [[ `uname -m` =~ i.86 ]]; then
 	# Sun JRE which works better on x86 uses this switch
 	export SPECJVM_HUGESWITCH=-XX:+UseLargePages
 fi
@@ -196,7 +196,7 @@ export OLTP_READONLY=--read-only
 export OLTP_SIZE=--faster
 export OLTP_CONFIDENCE=
 export OLTP_PAGESIZES="base huge transhuge"
-if [[ `uname -m` =~ i?86 ]]; then
+if [[ `uname -m` =~ i.86 ]]; then
 	export OLTP_SHAREDBUFFERS=$((1048576*512))
 else
 	export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))

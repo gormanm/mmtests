@@ -27,7 +27,7 @@ mv test/usemem.c .
 gcc $BITNESS -lpthread -O2 usemem.c -o usemem || exit -1
 
 # Adjust size for 32-bit if necessary
-if [[ `uname -m` =~ i?86 ]]; then
+if [[ `uname -m` =~ i.86 ]]; then
 	UNITSIZE=$(($MICRO_VMSCAN_ANON_MMAP_OPS_SIZE / NUM_THREADS))
 	while [ $UNITSIZE -gt 1182793728 ]; do
 		NUM_THREADS=$((NUM_THREADS+1))
