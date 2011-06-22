@@ -96,6 +96,7 @@ export IOZONE_SIZE=--fastest
 export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-1.tar.bz2
 #export LARGECOPY_SRCTAR_EXTRA=http://mcp/~gormanm/large-tar-file-2.tar.bz2
 export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
+export LARGECOPY_THREADS=1
 
 # LTP
 export LTP_RUN_TESTS="controllers"

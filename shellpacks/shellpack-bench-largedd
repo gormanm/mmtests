@@ -7,6 +7,9 @@ SRCTAR=
 SRCTAR_EXTRA=
 TARGETSIZE_MB=
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
+if [ "$LARGECOPY_THREADS" = "" ]; then
+	LARGECOPY_THREADS=$NUM_CPU
+fi
 
 . $SHELLPACK_INCLUDE/common.sh
 . $SHELLPACK_INCLUDE/include-monitor.sh
@@ -59,7 +62,7 @@ while [ $IN_PROGRESS -lt $NR_COPIES ]; do
 		fi
 	done
 
-	if [ $NR_ACTIVE -lt $NUM_CPU ]; then
+	if [ $NR_ACTIVE -lt $LARGECOPY_THREADS ]; then
 		dd if=0 of=$IN_PROGRESS &
 		PID=$!
 		echo $PID >> dd.pids
@@ -88,3 +91,5 @@ rm -rf $DIRECTORIES
 monitor_post_hook $LOGDIR_RESULTS deletesource
 CURRENTTIME=`date +%s`
 echo "5:Time to delete source:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_RESULTS/largedd.result
+#### Description Large dd
+#### Details largedd-bench 7
