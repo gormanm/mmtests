@@ -43,7 +43,7 @@ for SINGLE_KERNEL in $KERNEL; do
 done
 
 $PLOT --mem-usage \
-	--title "$NAME Memory Usage Comparison"
+	--title "$NAME Memory Usage Comparison" \
 	--format "postscript color" \
 	--titles $TITLES \
 	--extra /tmp/$NAME-extra \
