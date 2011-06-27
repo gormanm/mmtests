@@ -69,6 +69,11 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			MEMORY_USAGE=yes
 			shift
 			;;
+		--thp-count)
+			TITLE="Transparent Huge Pages"
+			THP=yes
+			shift
+			;;
 		--cpu-usage)
 			CPU_USAGE=yes
 			YRANGE=0:100
@@ -264,6 +269,11 @@ if [ "$MEMORY_USAGE" = "yes" ]; then
 	echo set ylabel \"Memory Used \(MB\)\" >> $TEMP
 	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
 	AWK_FORMAT="<awk '{print \$1/60,\$2/1048576}' @@PLOT@@"
+fi
+if [ "$THP" = "yes" ]; then
+	echo set ylabel \"Transparent Huge Pages\" >> $TEMP
+	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
+	AWK_FORMAT="<awk '{print \$1/60,\$2}' @@PLOT@@"
 fi
 if [ "$CPU_USAGE" = "yes" ]; then
 	echo set ylabel \"CPU Usage\" >> $TEMP
