@@ -3,12 +3,24 @@ echo STRESS-HIGHALLOC
 gendirlist stress-highalloc
 printheader
 ROW=1
-for HEADER in "Pass 1" "Pass 2" "At Rest"; do
+
+for DIR in $DIRLIST; do
+        INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/log.txt"
+        TITLES="$TITLES `echo $DIR | sed -e 's/stress-highalloc-//'`"
+done
+
+for HEADER in "Pass 1" "Pass 2" "while Rested"; do
 	printf "%-12s" "$HEADER"
 	VANILLA=`grep "% Success" stress-highalloc-$KERNEL_BASE/$TOPLEVEL/log.txt | head -$ROW | tail -1 | awk '{print $3}'`
 	for DIR in $DIRLIST; do
 		RESULT=`grep "% Success" $DIR/$TOPLEVEL/log.txt | head -$ROW | tail -1 | awk '{print $3}'`
 		printf " %8.2f (%5.2f%%)" $RESULT $(($RESULT-$VANILLA))
+
+		# Extract latencies for later
+		STARTLINE=`grep -n "$HEADER" $DIR/$TOPLEVEL/log.txt | awk -F : '{print $1}'`
+		STARTLINE=$((STARTLINE+2))
+		ENDLINE=`grep -n ", printing results" $DIR/$TOPLEVEL/log.txt | head -$ROW | tail -1 | awk -F : '{print $1}'`
+		head -$((ENDLINE-1)) $DIR/$TOPLEVEL/log.txt | tail -$((ENDLINE-$STARTLINE)) | awk '{print $1" "$3}' | sort -n > $DIR/$TOPLEVEL/latencies-$ROW.txt
 	done
 	echo
 	ROW=$(($ROW+1))
