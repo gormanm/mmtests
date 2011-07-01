@@ -1,0 +1,57 @@
+#!/bin/bash
+# This script installs xfstests and runs the regression tests
+P=xfstests-bench
+VERSION=20110701
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/xfstests-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-xfstests -v ${VERSION} || die xfstests install script returned error
+fi
+cd $SHELLPACK_SOURCES/xfstests-${VERSION}-installed || die Failed to cd to xfstests install directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Check configuration
+if [ "$XFSTESTS_TEST_DEV" = "" ]; then
+	die XFSTESTS_TEST_DEV must be configured
+fi
+if [ "$XFSTESTS_SCRATCH_DEV" = "" ]; then
+	die XFSTESTS_SCRATCH_DEV must be configured
+fi
+if [ "$XFSTESTS_180_NR_FILES" = "" ]; then
+	die XFSTESTS_180_NR_FILES must be configured
+fi
+
+# Configure environment
+export TEST_DEV=$XFSTESTS_TEST_DEV
+export TEST_DIR=$SHELLPACK_TEMP/test_dir
+export SCRATCH_DEV=$XFSTESTS_SCRATCH_DEV
+export SCRATCH_DIR=$SHELLPACK_TEMP/scrach_dir
+
+mkdir -p $TEST_DIR
+mkdir -p $SCRATCH_DIR
+
+for TEST in 180; do
+	monitor_pre_hook $LOGDIR_RESULTS $TEST
+
+	./$TEST 2>&1 | tee $LOGDIR_RESULTS/xfstests-$TEST.log \
+		|| die Failed to run xfstests
+
+	monitor_post_hook $LOGDIR_RESULTS $SIZE
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description xfstests
+#### Details xfstests-bench 5

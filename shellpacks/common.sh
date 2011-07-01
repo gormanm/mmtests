@@ -54,6 +54,30 @@ function sources_fetch() {
 	fi
 }
 
+function git_fetch() {
+	GIT=$1
+	TREE=$2
+	MIRROR=$3
+	OUTPUT=$4
+
+	echo "$P: Fetching from mirror $MIRROR"
+	wget -q -O $OUTPUT $MIRROR
+	if [ $? -ne 0 ]; then
+		if [ "$GIT" = "NOT_AVAILABLE" ]; then
+			die Benchmark is not publicly available. You must make it available from a local mirror
+		fi
+			
+		echo "$P: Cloning from internet $GIT"
+		git clone $GIT $TREE
+		if [ $? -ne 0 ]; then
+			die "$P: Could not clone $GIT"
+		fi
+		cd $TREE || die "$P: Could not cd $TREE"
+		echo Creating $OUTPUT
+		git archive --format=tar --prefix=$TREE/ master | gzip -c > $OUTPUT
+	fi
+}
+
 export TRANSHUGE_AVAILABLE=no
 if [ -e /sys/kernel/mm/transparent_hugepage/enabled ]; then
 	export TRANSHUGE_AVAILABLE=yes

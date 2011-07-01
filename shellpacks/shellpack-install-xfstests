@@ -1,0 +1,50 @@
+#!/bin/bash
+# xfstests installer
+P=xfstests-install
+GIT_LOCATION=git://oss.sgi.com/xfs/cmds/xfstests
+MIRROR_LOCATION="$WEBROOT/xfstests/"
+DEFAULT_VERSION=20110701
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+  case "$1" in
+    -v)
+            VERSION=$2
+	    shift 2
+	    ;;
+    *)
+            echo Unrecognised option: $1
+	    shift
+  esac
+done
+
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=xfstests-${VERSION}.tar.gz
+git_fetch $GIT_LOCATION xfstests-$VERSION $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf xfstests-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR xfstests-${VERSION}-installed
+pushd xfstests-${VERSION}-installed > /dev/null || die Failed to rename tar
+
+# Edit some of the tests
+cat 180 | sed -e 's/$i -lt 1000/$i -lt $XFSTESTS_180_NR_FILES/' > 180.tmp; mv 180.tmp 180
+
+make || die Failed to build xfstests
+
+echo xfstests installed successfully
+#### Description xfstests
+#### Details xfstests 5
