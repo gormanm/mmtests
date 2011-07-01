@@ -50,6 +50,127 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	KSWAPD_VELOCITY=`perl -e "print ($KSWAPD_SCAN/$ELAPSED_TIME)"`
 
 	VALUE=0
+	for HEADING in pgpgin; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	PAGEIN=$VALUE
+	VALUE=0
+	for HEADING in pgpgout; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	PAGEOUT=$VALUE
+	VALUE=0
+	for HEADING in pswpin; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	SWAPIN=$VALUE
+	VALUE=0
+	for HEADING in pswpout; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	SWAPOUT=$VALUE
+
+	VALUE=0
+	for HEADING in kswapd_inodesteal; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	KSWAPD_INODESTEAL=$VALUE
+	VALUE=0
+	for HEADING in pginodesteal; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	DIRECT_INODESTEAL=$VALUE
+	VALUE=0
+	for HEADING in slabs_scanned; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	SLABS_SCANNED=$VALUE
+
+	VALUE=0
+	for HEADING in compact_pages_moved; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	COMPACT_MOVES=$VALUE
+	VALUE=0
+	for HEADING in compact_pagemigrate_failed; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	COMPACT_MOVES_FAILED=$VALUE
+	VALUE=0
+	for HEADING in compact_fail; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	COMPACT_FAIL=$VALUE
+	VALUE=0
+	for HEADING in compact_success; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	COMPACT_SUCCESS=$VALUE
+	VALUE=0
+	for HEADING in compact_stall; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	COMPACT_STALL=$VALUE
+
+	VALUE=0
+	for HEADING in nr_vmscan_write; do
+		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	VMSCAN_WRITE=$VALUE
+
+	VALUE=0
 	for HEADING in pgscan_direct_dma pgscan_direct_dma32 pgscan_direct_normal pgscan_direct_movable pgscan_direct_highmem; do
 		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
 		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
@@ -76,19 +197,31 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 		DIRECT_PSCAN=0
 	fi
 	
-
-	echo "Direct pages scanned    : $DIRECT_SCAN"  >  vmstat-summary-$DIRNAME
+	echo "Page Ins                : $PAGEIN"       >  vmstat-summary-$DIRNAME
+	echo "Page Outs               : $PAGEOUT"      >>  vmstat-summary-$DIRNAME
+	echo "Swap Ins                : $SWAPIN"       >>  vmstat-summary-$DIRNAME
+	echo "Swap Outs               : $SWAPOUT"      >>  vmstat-summary-$DIRNAME
+	echo "Direct pages scanned    : $DIRECT_SCAN"  >>  vmstat-summary-$DIRNAME
 	echo "Kswapd pages scanned    : $KSWAPD_SCAN"  >> vmstat-summary-$DIRNAME
 	echo "Kswapd pages reclaimed  : $KSWAPD_STEAL" >> vmstat-summary-$DIRNAME
 	echo "Direct pages reclaimed  : $DIRECT_STEAL" >> vmstat-summary-$DIRNAME
 	echo "Kswapd efficiency       : ${KSWAPD_EFFICENCY}%" >> vmstat-summary-$DIRNAME
-        printf "Kswapd velocity         : %8.3f\n" $KSWAPD_VELOCITY >> vmstat-summary-$DIRNAME
+        printf "Kswapd velocity       : %8.3f\n" $KSWAPD_VELOCITY >> vmstat-summary-$DIRNAME
 	echo "Direct efficiency       : ${DIRECT_EFFICENCY}%" >> vmstat-summary-$DIRNAME
 	echo "Percentage direct scans : ${DIRECT_PSCAN}%" >> vmstat-summary-$DIRNAME
-        printf "Direct velocity         : %8.3f\n" $DIRECT_VELOCITY >> vmstat-summary-$DIRNAME
+        printf "Direct velocity       : %8.3f\n" $DIRECT_VELOCITY >> vmstat-summary-$DIRNAME
+	echo "Page writes by reclaim  : $VMSCAN_WRITE">>  vmstat-summary-$DIRNAME
+	echo "Slabs scanned           : $SLABS_SCANNED">>  vmstat-summary-$DIRNAME
+	echo "Direct inode steals     : $DIRECT_INODESTEAL">>  vmstat-summary-$DIRNAME
+	echo "Kswapd inode steals     : $KSWAPD_INODESTEAL">>  vmstat-summary-$DIRNAME
+	echo "Compaction stalls       : $COMPACT_STALL" >> vmstat-summary-$DIRNAME
+	echo "Compaction success      : $COMPACT_SUCCESS" >> vmstat-summary-$DIRNAME
+	echo "Compaction failures     : $COMPACT_FAIL" >> vmstat-summary-$DIRNAME
+	echo "Compaction pages moved  : $COMPACT_MOVES" >> vmstat-summary-$DIRNAME
+	echo "Compaction move failure : $COMPACT_MOVES_FAILED" >> vmstat-summary-$DIRNAME
 done
 
-for HEADING in "Direct pages scanned" "Kswapd pages scanned" "Kswapd pages reclaimed" "Direct pages reclaimed" "Kswapd efficiency" "Kswapd velocity" "Direct efficiency" "Direct velocity" "Percentage direct scans"; do
+for HEADING in "Page Ins" "Page Outs" "Swap Ins" "Swap Outs" "Direct pages scanned" "Kswapd pages scanned" "Kswapd pages reclaimed" "Direct pages reclaimed" "Kswapd efficiency" "Kswapd velocity" "Direct efficiency" "Direct velocity" "Percentage direct scans" "Page writes by reclaim" "Slabs scanned" "Direct inode steals" "Kswapd inode steals" "Compaction stalls" "Compaction success" "Compaction failures" "Compaction pages moved" "Compaction move failure"; do
 	printf "%-40s" "$HEADING"
 	for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 		if [ ! -e vmstat-summary-$DIRNAME ]; then

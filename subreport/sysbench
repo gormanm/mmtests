@@ -5,8 +5,9 @@ printheader
 NUMCLIENTS=`wc -l sysbench-$KERNEL_BASE/$TOPLEVEL/base/sysbench.log | awk '{print $1}'`
 
 for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/base/sysbench.log"
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/base/sysbench-graph.log"
 	TITLES="$TITLES `echo $DIR | sed -e 's/sysbench-//'`"
+	echo -n > `pwd`/$DIR/$TOPLEVEL/base/sysbench-graph.log
 done
 
 for CLIENT in `seq 1 $NUMCLIENTS`; do
@@ -20,6 +21,10 @@ for CLIENT in `seq 1 $NUMCLIENTS`; do
 			RESULT=`awk '{print $2}' $DIR/$TOPLEVEL/base/sysbench-$CLIENT.log | check-confidence.pl --limit $CONFIDENCE_LIMIT --print-mean`
 		done
 
+		if [ "$VANILLA" = "" ]; then
+			VANILLA=$RESULT
+		fi
+		echo $CLIENT $RESULT >> $DIR/$TOPLEVEL/base/sysbench-graph.log
 		printf " %8.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
 	done
 	echo
