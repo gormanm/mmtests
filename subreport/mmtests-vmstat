@@ -171,7 +171,7 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	VMSCAN_WRITE=$VALUE
 
 	VALUE=0
-	for HEADING in pgscan_direct_dma pgscan_direct_dma32 pgscan_direct_normal pgscan_direct_movable pgscan_direct_highmem; do
+	for HEADING in pgscan_direct_dma pgscan_direct_dma32 pgscan_direct_normal pgscan_direct_movable pgscan_direct_high; do
 		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
 		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then

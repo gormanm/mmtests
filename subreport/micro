@@ -11,7 +11,7 @@ for TEST in $TESTS ; do
 	TEST_NAME=`echo $TEST | sed -e 's/[0-9*]-//'`
 	case $TEST_NAME in
 		vmscan-file-mmap-write)
-			HEADINGS="pgalloc_dma pgalloc_dma32 pgalloc_normal pgalloc_highmem pgsteal_dma pgsteal_dma32 pgsteal_normal pgsteal_high kswapd_steal pgscan_kswapd_dma pgscan_kswapd_dma32 pgscan_kswapd_normal pgscan_kswapd_high pgscan_direct_dma pgscan_direct_dma32 pgscan_direct_normal pgscan_direct_highmem pageoutrun allocstall"
+			HEADINGS="pgalloc_dma pgalloc_dma32 pgalloc_normal pgalloc_highmem pgsteal_dma pgsteal_dma32 pgsteal_normal pgsteal_high kswapd_steal pgscan_kswapd_dma pgscan_kswapd_dma32 pgscan_kswapd_normal pgscan_kswapd_high pgscan_direct_dma pgscan_direct_dma32 pgscan_direct_normal pgscan_direct_high pageoutrun allocstall"
 
 			for HEADING in $HEADINGS; do
 				VANILLA_BEFORE=`grep "^$HEADING " micro-$KERNEL_BASE/$TOPLEVEL/$TEST.vmstat-before | awk '{print $2}'`
