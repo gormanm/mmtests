@@ -8,12 +8,12 @@ tests are cobbled together over a number of years with varying degrees
 of quality before test frameworks for this sort of testing was common.
 The refactoring effort to integrate with another framework is significant.
 
-This is an early prototype based on code ported from another test environment.
+This is a prototype based on code ported from another test environment.
 Buyer Beware.
 
 vmr/ contains portions of an ancient tool called VMRegress. Relevant
 portions from it are being copied in as necessary rather than redeveloping
-or preparing that tool for public release. stat/ constains simple helpers
+or preparing that tool for public release. stat/ contains simple helpers
 from VMRegress related to statistics.
 
 The top-level directory has a single driver script called run-mmtests.sh which
@@ -37,6 +37,53 @@ Many of the tests download external benchmarks. They will try for a mirror
 first whose location is specified in config. To get an idea where all the
 mirrors are, grep for MIRROR_LOCATION= in shellpacks/.
 
+Configuration
+=============
+
+The config file used is always called "config". A number of other
+sample configuration files are provided that have a given theme. Some
+important points of variability are;
+
+MMTESTS is a list of what tests will be run
+
+WEBROOT is the location where a number of tarballs are mirrored. For example,
+	kernbench tries to download
+	$WEBROOT/kernbench/linux-2.6.30.tar.gz . If this is not available,
+	it is downloaded from the internet. This can add delays in testing
+	and consumes bandwidth so is worth configuring.
+
+LINUX_GIT is the location of a git repo of the kernel. At the moment it's only
+	used during report generation
+
+SKIP_*PROFILE
+	These parameters determine what profiling runs are done. Even with
+	profiling enabled, a non-profile run can be used to ensure that
+	the profile and non-profile runs are comparable.
+
+SWAP_CONFIGURATION
+SWAP_PARTITIONS
+SWAP_SWAPFILE_SIZEMB
+	It's possible to use a different swap configuration than what is
+	provided by default.
+	
+TESTDISK_RAID_PARTITIONS
+TESTDISK_RAID_DEVICE
+TESTDISK_RAID_OFFSET
+TESTDISK_RAID_SIZE
+TESTDISK_RAID_TYPE
+	If the target machine has partitions suitable for configuring RAID,
+	they can be specified here. This RAID partition is then used for
+	all the tests
+
+TESTDISK_PARTITION
+	Use this partition for all tests
+
+TESTDISK_FILESYSTEM
+TESTDISK_MKFS_PARAM
+TESTDISK_MOUNT_ARGS
+	The filesystem, mkfs parameters and mount arguements for the test
+	partitions
+
 Available tests
 ===============
 
@@ -49,7 +96,12 @@ kernbench
 	An average time is stored. This is sensitive to the overall
 	performance of the system as it hits a number of subsystems.
 
-aim9 (untested)
+multibuild
+	Similar to kernbench except it runs a number of kernel compiles
+	in parallel. Can be useful for stressing the system and seeing
+	how well it deals with simple fork-based parallelism.
+
+aim9
 	Runs a short version of aim9 by default. Each test runs for 60
 	seconds. This is a micro-benchmark of a number of VM operations. It's
 	sensitive to changes in the allocator paths for example.
@@ -74,12 +126,21 @@ iozone
 
 fsmark
 	This tests write workloads varying the number of files and directory
-	depth.	It's useful for simulating mail servers and other setups.
+	depth.
 
 hackbench-*
 	Hackbench is generally a scheduler benchmark but is also sensitive to
 	overhead in the allocators and to a lesser extent the fault paths.
 	Can be run for either sockets or pipes.
+
+largecopy
+	This is a simple single-threaded benchmark that downloads a large
+	tar file, expands it a number of times, creates a new tar and
+	expands it again. Each operation is timed and is aimed at shaking
+	out stall-related bugs when copying large amounts of data
+
+largedd
+	Similar to largecopy except it uses dd instead of cp.
 
 nas-*
 	The NAS Parallel Benchmarks for the serial and openmp versions of
@@ -89,6 +150,12 @@ netperf-*
 	Runs the netperf benchmark for *_STREAM on the local machine.
 	Sensitive to cache usage and allocator costs. To test for cache line
 	bouncing, the test can be configured to bind to certain processors.
+
+postmark
+	Run the postmark benchmark. Optionally a program can be run in the
+	background that consumes anonymous memory. This is vary rarely
+	needed except when trying to identify desktop stalls during
+	heavy IO.
 
 speccpu (untested)
 	SPECcpu, what else can be said. A restriction is that you must have
@@ -134,6 +201,10 @@ stress-highalloc
 	basic test for fragmentation avoidance and the performance of huge
 	page allocation.
 
+xfstests (untested)
+	This is still at prototype level and aimed at running testcase 180
+	initially to reproduce some figures provided by the filesystems people.
+
 Reporting
 =========
 
@@ -143,7 +214,7 @@ table for each test, operation and kernel showing the relative performance
 of each. The test reporting scripts are in subreports/. compare-kernel.sh
 should be run from the path storing the test logs. By default this is
 work/log. If you are automating tests from an external source, work/log is
-what yuo should be capturing after a set of tests complete.
+what you should be capturing after a set of tests complete.
 
 If monitors are configured such as ftrace, there are additional
 processing scripts. They can be activated by setting FTRACE_ANALYSERS in
