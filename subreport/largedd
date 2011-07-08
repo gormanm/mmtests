@@ -5,6 +5,9 @@ printheader
 
 for OPER in `seq 1 6`; do
 	OPERNAME=`grep ^$OPER: largedd-$KERNEL_BASE/$TOPLEVEL/largedd.result | awk -F : '{print $2}' | sed -e 's/^Time to //' -e 's/directories/dirs/'`
+	if [ "$OPERNAME" = "" ]; then
+		continue
+	fi
 	printf "%-20s" "$OPERNAME"
 	VANILLA=`grep ^$OPER: largedd-$KERNEL_BASE/$TOPLEVEL/largedd.result | awk -F : '{print $4}'`
 	for DIR in $DIRLIST; do

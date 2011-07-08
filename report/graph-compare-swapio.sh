@@ -59,7 +59,7 @@ $PLOT \
 	--format "postscript color" \
 	--ylabel "Swap Page IO" \
 	--titles $TITLES \
-	--output $OUTPUTDIR/interrupt-comparison-$NAME.ps \
+	--output $OUTPUTDIR/swapio-comparison-$NAME.ps \
 	$PLOTS
 echo Generated swapio-comparison-$NAME.ps
 

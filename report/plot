@@ -185,9 +185,6 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 	esac
 done
 
-#echo "set xrange[0:300]" >> $TEMP
-#echo "set yrange [-100:1500]" >> $TEMP
-
 FIRST=yes
 #XRANGE=1
 if [ "$SHRINK" != "" ]; then

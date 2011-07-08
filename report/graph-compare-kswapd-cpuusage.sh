@@ -18,6 +18,7 @@ for SINGLE_KERNEL in $KERNEL; do
 	END=`tail -1 tests-timestamp-$SINGLE_KERNEL | awk '{print $3}'`
 	DURATION=$((END-START))
 	if [ $DURATION -gt $LONGEST_TEST ]; then
+		LONGEST_TEST=$DURATION
 		LONGEST_KERNEL=$SINGLE_KERNEL
 	fi
 done
@@ -75,7 +76,7 @@ $PLOT \
 	--dump \
 	--output $OUTPUTDIR/kswapdcpu-comparison-$NAME.ps \
 	$PLOTS > $OUTPUTDIR/kswapdcpu-comparison-$NAME.gp
-echo Generated kswapdcpu-$NAME.ps
+echo Generated kswapdcpu-comparison-$NAME.ps
 
 $PLOT \
 	--title "$NAME Kswapd CPU Usage Comparison" \
@@ -86,5 +87,5 @@ $PLOT \
 	--dump \
 	--output $OUTPUTDIR/kswapdcpu-comparison-smooth-$NAME.ps \
 	$PLOTS > $OUTPUTDIR/kswapdcpu-comparison-smooth-$NAME.gp
-echo Generated kswapdcpu-smooth-$NAME.ps
+echo Generated kswapdcpu-comparison-smooth-$NAME.ps
 
