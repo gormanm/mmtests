@@ -27,7 +27,7 @@ function create_sparse_file() {
 echo -n > vmscan-file-mmap-ops-$$.pids
 cd $SHELLPACK_TEMP || die Failed to cd to temporary directory
 
-ulimit -v $((MICRO_VMSCAN_FILE_MMAP_OPS_SIZE/1024))
+ulimit -v $((MICRO_VMSCAN_FILE_MMAP_OPS_SIZE*2/1024))
 
 # Download and build usemem program
 # TODO: Get permission to distribute this without external downloads
