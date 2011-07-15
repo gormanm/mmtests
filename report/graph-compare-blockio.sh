@@ -59,7 +59,7 @@ $PLOT \
 	--format "postscript color" \
 	--ylabel "Block IO" \
 	--titles $TITLES \
-	--output $OUTPUTDIR/interrupt-comparison-$NAME.ps \
+	--output $OUTPUTDIR/blockio-comparison-$NAME.ps \
 	$PLOTS
 echo Generated blockio-comparison-$NAME.ps
 

@@ -369,6 +369,10 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		cat /proc/zoneinfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		echo file start :: /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		cat /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		if [ "`cat /proc/sys/kernel/stack_tracer_enabled`" = "1" ]; then
+			echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		fi
 		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-$RUNNAME \
 			./run-single-test.sh $TEST
 
@@ -379,6 +383,10 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		cat /proc/zoneinfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		echo file end :: /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		cat /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		if [ "`cat /proc/sys/kernel/stack_tracer_enabled`" = "1" ]; then
+			echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		fi
 
 		# Mark the finish of the test
 		echo test end :: $TEST `date +%s` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
