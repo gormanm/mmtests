@@ -65,19 +65,7 @@ cd $SHELLPACK_SOURCES/fsmark-${VERSION}-installed || die Failed to cd to fsmark 
 monitor_pre_hook $LOGDIR_RESULTS $SIZE
 ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
 
-if [ "$FSMARK_PARALLEL_DIRECTORIES" = "no" ]; then
-	./fs_mark \
-		-d /tmp/fsmark-$$ \
-		-D $NUM_DIRECTORIES \
-		-N $NUM_FILES_PER_DIRECTORY \
-		-n $(($NUM_FILES_PER_ITERATION/$NUM_THREADS)) \
-		-L $NUM_ITERATIONS \
-		-t $NUM_THREADS \
-		-S0 \
-		-s $FILESIZE \
-			2>&1 | tee $LOGDIR_RESULTS/fsmark.log \
-					|| die Failed to run fsmark
-else
+if [ "$FSMARK_PARALLEL_DIRECTORIES" = "yes" ]; then
 	PARAM=
 	for THREAD in `seq 1 $NUM_THREADS`; do
 		mkdir -p /tmp/fsmark-$$/$THREAD
@@ -94,10 +82,22 @@ else
 		-s $FILESIZE \
 			2>&1 | tee $LOGDIR_RESULTS/fsmark.log \
 					|| die Failed to run fsmark
+else
+	./fs_mark \
+		-d /tmp/fsmark-$$ \
+		-D $NUM_DIRECTORIES \
+		-N $NUM_FILES_PER_DIRECTORY \
+		-n $(($NUM_FILES_PER_ITERATION/$NUM_THREADS)) \
+		-L $NUM_ITERATIONS \
+		-t $NUM_THREADS \
+		-S0 \
+		-s $FILESIZE \
+			2>&1 | tee $LOGDIR_RESULTS/fsmark.log \
+					|| die Failed to run fsmark
 fi
 rm /tmp/fsmark-$$
 monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description fsmark
-#### Details fsmark-bench 13
+#### Details fsmark-bench 14
