@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="multibuild"
+export MMTESTS="multibuild largecopy largedd"
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -15,7 +15,7 @@ export SHELLPACK_INCLUDE=$SCRIPTDIR/shellpacks
 export SHELLPACK_LOG=$SCRIPTDIR/work/log
 export LINUX_GIT=/home/mel/git-public/linux-2.6
 export WEBROOT=http://mcp/~gormanm
-export SKIP_WARMUP=no
+export SKIP_WARMUP=yes
 
 # Profiling parameters
 export SKIP_NOPROFILE=no
@@ -55,7 +55,7 @@ export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " "
 #export TESTDISK_RAID_TYPE=raid0
 export TESTDISK_PARTITION=none
 export TESTDISK_FILESYSTEM=tmpfs
-export TESTDISK_MOUNT_ARGS="size=$((MEMTOTAL_BYTES*3/2))"
+export TESTDISK_MOUNT_ARGS="size=$((MEMTOTAL_BYTES*15/8))"
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
 #
 # Test NFS disk to setup (optional)
@@ -70,7 +70,7 @@ export TESTDISK_MOUNT_ARGS="size=$((MEMTOTAL_BYTES*3/2))"
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_GZIP="proc-vmstat top ftrace"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
@@ -93,10 +93,9 @@ export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
 export IOZONE_SIZE=--fastest
 
 # Large copy and untar
-export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-1.tar.bz2
-#export LARGECOPY_SRCTAR_EXTRA=http://mcp/~gormanm/large-tar-file-2.tar.bz2
-export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
-export LARGECOPY_THREADS=1
+export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file.tar.bz2
+export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*6/5/1048576))
+export LARGECOPY_THREADS=$NUM_CPU
 
 # LTP
 export LTP_RUN_TESTS="controllers"
@@ -124,9 +123,9 @@ export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=30
 export MICRO_VMSCAN_MIXED_MMAP_NUM_THREADS=$NUM_CPU
 
 # MultiBuild
-export MULTIBUILD_NUM_SIMULTANEOUS=$((MEMTOTAL_BYTES/400/1048576))
-export MULTIBUILD_NUM_THREADS=1
-export MULTIBUILD_NUM_COPIES=$((MULTIBUILD_NUM_SIMULTANEOUS*5))
+export MULTIBUILD_NUM_SIMULTANEOUS=$((1+MEMTOTAL_BYTES/250/1048576))
+export MULTIBUILD_NUM_THREADS=$NUM_CPU
+export MULTIBUILD_NUM_COPIES=$((MULTIBUILD_NUM_SIMULTANEOUS*2))
 
 # NAS Parallel Benchmark
 export NAS_CLASS=C

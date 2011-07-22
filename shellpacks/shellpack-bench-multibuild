@@ -7,7 +7,7 @@ KERNEL_VERSION=2.6.30
 NUM_CPUS=`grep processor /proc/cpuinfo | wc -l`
 NUM_COPIES=$((NUM_CPUS*5))
 NUM_SIMULTANEOUS=$NUM_CPUS
-FACTOR=1
+THREADS=1
 . $SHELLPACK_INCLUDE/common.sh
 
 # Basic args parser
@@ -25,15 +25,11 @@ while [ "$1" != "" ]; do
 		-c)
 			NUM_COPIES=$2
 			shift 2;;
-		-f)
-			FACTOR=$2
-			shift 2;;
 	esac
 done
 
 WEB_LOCATION=http://ftp.ie.kernel.org/pub/linux/kernel/v2.6/linux-$KERNEL_VERSION.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$KERNEL_VERSION.tar.gz
-THREADS=$(($NUM_CPUS*$FACTOR))
 
 pushd $SHELLPACK_TEMP > /dev/null
 sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$KERNEL_VERSION.tar.gz
@@ -49,6 +45,16 @@ echo "Threads per build:          $THREADS"
 echo "Total copies:               $NUM_COPIES"
 echo
 echo -n > build.pids
+
+for IN_PROGRESS in `seq 1 $NUM_SIMULTANEOUS`; do
+	echo Pre-expanding instance $IN_PROGRESS
+	mkdir $IN_PROGRESS
+	tar -C $IN_PROGRESS -xf linux-$KERNEL_VERSION.tar.gz
+	if [ ! -e $IN_PROGRESS/linux-$KERNEL_VERSION ]; then
+		die Failed to expand tarfile
+	fi
+done
+
 IN_PROGRESS=1
 while [ $IN_PROGRESS -lt $NUM_COPIES ]; do
 	NUM_ACTIVE=0
@@ -79,14 +85,17 @@ while [ $IN_PROGRESS -lt $NUM_COPIES ]; do
 	done
 
 	if [ $NUM_ACTIVE -lt $NUM_SIMULTANEOUS ]; then
-		echo o Creating instance $IN_PROGRESS
-		mkdir $IN_PROGRESS
-		tar -C $IN_PROGRESS -xf linux-$KERNEL_VERSION.tar.gz
-		if [ ! -e $IN_PROGRESS/linux-$KERNEL_VERSION ]; then
-			die Failed to expand tarfile
+		echo o Expanding instance $IN_PROGRESS
+		if [ ! -e $IN_PROGRESS ]; then
+			mkdir $IN_PROGRESS
+			tar -C $IN_PROGRESS -xf linux-$KERNEL_VERSION.tar.gz
+			if [ ! -e $IN_PROGRESS/linux-$KERNEL_VERSION ]; then
+				die Failed to expand tarfile
+			fi
 		fi
+		echo o Building instance $IN_PROGRESS
 		cd $IN_PROGRESS/linux-$KERNEL_VERSION || die Failed to enter kernel source
-		yes '' | make allmodconfig > /dev/null 2>&1
+		yes '' | make defconfig > /dev/null 2>&1
 		make -j$THREADS clean > /dev/null
 		$TIME_CMD make -j$THREADS all 2>> $LOGDIR_RESULTS/time.$IN_PROGRESS > build.log &
 		PID=$!
