@@ -1,2 +1,17 @@
 echo
-echo SIMPLE-WRITEBACK
+echo SIMPLE WRITEBACK
+gendirlist simple-writeback
+printheader
+
+for RESULT_FILE in `ls simple-writeback-$KERNEL_BASE/$TOPLEVEL/result-*.txt`; do
+	JOB_NR=`basename $RESULT_FILE .txt | sed -e 's/result-//'`
+	JOB_NAME=`echo $JOB_NR | sed -e 's/^0*//'`
+
+	printf "%-20s" "$JOB_NAME"
+	VANILLA=`grep ^job simple-writeback-$KERNEL_BASE/$TOPLEVEL/result-$JOB_NR.txt | awk '{print $10}' | mean`
+	for DIR in $DIRLIST; do
+		RESULT=`grep ^job $DIR/$TOPLEVEL/result-$JOB_NR.txt | awk '{print $10}' | mean`
+		printf " %4.2f (%5.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+	done
+	echo
+done
