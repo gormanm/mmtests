@@ -169,16 +169,17 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 		fi
 	done
 	VMSCAN_WRITE=$VALUE
+	VMSCAN_WRITE_FILE=$((VMSCAN_WRITE-SWAPOUT))
 
 	VALUE=0
-	for HEADING in nr_vmscan_write_skip; do
+	for HEADING in kswapd_skip_congestion_wait; do
 		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
 		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
 	done
-	VMSCAN_WRITE_SKIP=$VALUE
+	KSWAPD_SKIP_CONGESTION=$VALUE
 
 	VALUE=0
 	for HEADING in nr_vmscan_invalidate; do
@@ -231,6 +232,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	echo "Percentage direct scans : ${DIRECT_PSCAN}%" >> vmstat-summary-$DIRNAME
         printf "Direct velocity       : %8.3f\n" $DIRECT_VELOCITY >> vmstat-summary-$DIRNAME
 	echo "Page writes by reclaim  : $VMSCAN_WRITE">>  vmstat-summary-$DIRNAME
+	echo "Page writes anon        : $SWAPOUT">>  vmstat-summary-$DIRNAME
+	echo "Page writes file        : $VMSCAN_WRITE_FILE">>  vmstat-summary-$DIRNAME
 	echo "Page reclaim invalidate : $VMSCAN_INVALIDATE">>  vmstat-summary-$DIRNAME
 	echo "Slabs scanned           : $SLABS_SCANNED">>  vmstat-summary-$DIRNAME
 	echo "Direct inode steals     : $DIRECT_INODESTEAL">>  vmstat-summary-$DIRNAME
@@ -243,7 +246,7 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	echo "Compaction move failure : $COMPACT_MOVES_FAILED" >> vmstat-summary-$DIRNAME
 done
 
-for HEADING in "Page Ins" "Page Outs" "Swap Ins" "Swap Outs" "Direct pages scanned" "Kswapd pages scanned" "Kswapd pages reclaimed" "Direct pages reclaimed" "Kswapd efficiency" "Kswapd velocity" "Direct efficiency" "Direct velocity" "Percentage direct scans" "Page writes by reclaim" "Page reclaim invalidate" "Slabs scanned" "Direct inode steals" "Kswapd inode steals" "Kswapd skipped wait" "Compaction stalls" "Compaction success" "Compaction failures" "Compaction pages moved" "Compaction move failure"; do
+for HEADING in "Page Ins" "Page Outs" "Swap Ins" "Swap Outs" "Direct pages scanned" "Kswapd pages scanned" "Kswapd pages reclaimed" "Direct pages reclaimed" "Kswapd efficiency" "Kswapd velocity" "Direct efficiency" "Direct velocity" "Percentage direct scans" "Page writes by reclaim" "Page writes file" "Page writes anon" "Page reclaim invalidate" "Slabs scanned" "Direct inode steals" "Kswapd inode steals" "Kswapd skipped wait" "Compaction stalls" "Compaction success" "Compaction failures" "Compaction pages moved" "Compaction move failure"; do
 	printf "%-40s" "$HEADING"
 	for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 		if [ ! -e vmstat-summary-$DIRNAME ]; then
