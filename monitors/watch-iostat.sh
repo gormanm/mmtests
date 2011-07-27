@@ -1,2 +1,2 @@
 #!/bin/bash
-iostat -d $MONITOR_UPDATE_FREQUENCY
+exec iostat -x $MONITOR_UPDATE_FREQUENCY
