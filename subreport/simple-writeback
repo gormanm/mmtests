@@ -14,4 +14,12 @@ for RESULT_FILE in `ls simple-writeback-$KERNEL_BASE/$TOPLEVEL/result-*.txt`; do
 		printf " %4.2f (%5.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
 	done
 	echo
+	printf "%20s" "+/-"
+	for DIR in $DIRLIST; do
+		RESULT=`grep ^job $DIR/$TOPLEVEL/result-$JOB_NR.txt | awk '{print $10}' | mean`
+		STDDEV=`grep ^job $DIR/$TOPLEVEL/result-$JOB_NR.txt | awk '{print $10}' | stddev`
+
+		printf "            %4.2f%%" `perl -e "print ($STDDEV*100/$RESULT)"`
+	done
+	echo
 done
