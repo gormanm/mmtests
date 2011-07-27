@@ -109,7 +109,22 @@ unit: sectors
 
 	modprobe $TESTDISK_RAID_TYPE
 	mdadm --create $TESTDISK_RAID_DEVICE -f -R -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS || exit
-	TESTDISK_PARTITION=$TESTDISK_RAID_DEVICE
+
+	# Create LVM device of a fixed name. This is in case the blktrace
+	# monitor is in use. For reasons I did not bother tracking down,
+	# blktrace does not capture events from MD devices properly on
+	# at least kernel 3.0
+	yes y | pvcreate -ff $TESTDISK_RAID_DEVICE || exit
+	vgcreate mmtests-raid /dev/md0 || exit
+	SIZE=`vgdisplay mmtests-raid | grep Free | grep PE | awk '{print $5}'`
+	if [ "$SIZE" = "" ]; then
+		die Failed to determine LVM size
+	fi
+	lvcreate -l $SIZE mmtests-raid -n lvm0 || exit
+
+	# Consider the test partition to be the LVM volume
+	export TESTDISK_PARTITION=/dev/mmtests-raid/lvm0
+
 fi
 
 # Create NBD device
@@ -118,7 +133,7 @@ if [ "$TESTDISK_NBD_DEVICE" != "" ]; then
 	nbd-client -d $TESTDISK_NBD_DEVICE
 	echo Connecting NBD client $TESTDISK_NBD_HOST $TESTDISK_NBD_PORT $TESTDISK_NBD_DEVICE
 	nbd-client $TESTDISK_NBD_HOST $TESTDISK_NBD_PORT $TESTDISK_NBD_DEVICE || exit
-	TESTDISK_PARTITION=$TESTDISK_NBD_DEVICE
+	export TESTDISK_PARTITION=$TESTDISK_NBD_DEVICE
 fi
 
 # Create test disk
@@ -294,19 +309,22 @@ function start_monitors() {
 	echo -n > monitor.pids
 	for MONITOR in $MONITORS_ALWAYS; do
 		discover_script
-		$EXPECT_UNBUFFER $MONITOR_SCRIPT > $SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST &
+		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
+		$EXPECT_UNBUFFER $MONITOR_SCRIPT > $MONITOR_LOG &
 		echo $! >> monitor.pids
 		echo Started monitor $MONITOR always pid `tail -1 monitor.pids`
 	done
 	for MONITOR in $MONITORS_PLAIN; do
 		discover_script
-		$EXPECT_UNBUFFER $MONITOR_SCRIPT > $SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST &
+		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
+		$EXPECT_UNBUFFER $MONITOR_SCRIPT > $MONITOR_LOG &
 		echo $! >> monitor.pids
 		echo Started monitor $MONITOR plain pid `tail -1 monitor.pids`
 	done
 	for MONITOR in $MONITORS_GZIP; do
 		discover_script
-		$EXPECT_UNBUFFER $MONITOR_SCRIPT | tee | gzip -c > $SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST.gz &
+		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
+		$EXPECT_UNBUFFER $MONITOR_SCRIPT | tee | gzip -c > $MONITOR_LOG.gz &
 		PID1=$!
 		PID2=`./bin/piping-pid.sh $PID1`
 		PID3=`./bin/piping-pid.sh $PID2`
@@ -316,7 +334,8 @@ function start_monitors() {
 	done
 	for MONITOR in $MONITORS_WITH_LATENCY; do
 		discover_script
-		$EXPECT_UNBUFFER $MONITOR_SCRIPT | ./monitors/latency-output > $SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST &
+		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
+		$EXPECT_UNBUFFER $MONITOR_SCRIPT | ./monitors/latency-output > $MONITOR_LOG &
 		PID1=$!
 		sleep 1
 		PID2=`ps aux | grep watch-$MONITOR.sh | grep -v grep | grep -v expect | awk '{print $2}'`
