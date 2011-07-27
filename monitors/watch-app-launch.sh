@@ -76,8 +76,14 @@ exec $COMMAND $ARGS" > /tmp/$$.script
 		fi
 		WID=`wmctrl -l -p | grep "$EXIT_ARG" | grep " $PID " | awk '{print $1}'`
 		wmctrl -i -c $WID
+		COUNT=0
 		while [ "`ps h -p $PID`" != "" ]; do
 			sleep 0.2
+			wmctrl -i -c $WID
+			COUNT=$((COUNT+1))
+			if [ $COUNT -gt 50 ]; then
+				kill -9 $PID
+			fi
 		done
 		;;
 	*)
@@ -94,6 +100,5 @@ done
 exit
 
 # Following is command specifications to run in order
-C::firefox-table::firefox::/tmp/firefox-table.html::wmctrl-window::Table Populate - Mozilla Firefox::
-C::evolution-wait30::evolution::::wmctrl-window::Evolution::30
+C::firefox-table::/usr/lib64/firefox/firefox::/tmp/firefox-table.html::wmctrl-window::Table Populate - Mozilla Firefox::
 C::gnome-terminal-find::gnome-terminal::--disable-factory -e "find /usr/share -type f"::exit::::
