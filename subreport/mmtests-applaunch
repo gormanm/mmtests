@@ -1,13 +1,14 @@
 echo
 echo MMTests Statistics: application launch
 
-for APPLICATION in `cat app-launch-$KERNEL_BASE-* | awk '{print $1}' | sort | uniq`; do
+for APPLICATION in `cat app-launch-$KERNEL_BASE-* | awk '{print $1}' | sort | uniq | grep -v \*`; do
 	printf "%-20s" "$APPLICATION"
 	for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 		if [ ! -e app-launch-$DIRNAME-$FTRACE_TEST ]; then
 			continue
 		fi
-		AVG_TIME=`grep "^$APPLICATION" app-launch-$DIRNAME-$FTRACE_TEST | awk '{print $2}' | mean`
+		LENGTH=`wc -l app-launch-$DIRNAME-$FTRACE_TEST | awk '{print $1}'`
+		AVG_TIME=`grep "^$APPLICATION" app-launch-$DIRNAME-$FTRACE_TEST | tail -$((LENGTH-1)) | awk '{print $2}' | mean`
 		printf "%8.2f" $AVG_TIME
 	done
 	echo
