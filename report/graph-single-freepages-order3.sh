@@ -39,7 +39,7 @@ $PLOT \
 	--title "$NAME $KERNEL Unusable Free Space Index" \
 	--format "postscript color" \
 	--titles freeorder-3 \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--dump \
 	--output $OUTPUTDIR/freeorder3-$NAME.ps \
 	freeorder3.plot > $OUTPUTDIR/freeorder3-$NAME.gp

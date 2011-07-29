@@ -42,7 +42,7 @@ rm iostat-rates.plot-unsorted
 $PLOT --iostat-rates \
 	--title "$NAME $KERNEL IO read rate /write rate"  \
 	--format "postscript color" \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--dump \
 	--output $OUTPUTDIR/iostat-rates-$NAME.ps \
 	iostat-rates.plot > $OUTPUTDIR/iostat-rates-$NAME.gp

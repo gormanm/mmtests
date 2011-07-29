@@ -29,7 +29,7 @@ $PLOT --unusable-index \
 	--title "$NAME $KERNEL Unusable Free Space Index" \
 	--format "postscript color" \
 	--titles unusable-index \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--yrange 0:1 \
 	--dump \
 	--output $OUTPUTDIR/unusable-index-$NAME.ps \

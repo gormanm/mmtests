@@ -46,7 +46,7 @@ $PLOT --thp-count \
 	--title "$NAME Transparent Huge Pages Count Comparison" \
 	--format "postscript color" \
 	--titles $TITLES \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--dump \
 	--output $OUTPUTDIR/thp-comparison-$NAME.ps \
 	$PLOTS > $OUTPUTDIR/thp-comparison-$NAME.gp

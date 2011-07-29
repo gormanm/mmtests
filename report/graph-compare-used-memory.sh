@@ -46,7 +46,7 @@ $PLOT --mem-usage \
 	--title "$NAME Memory Usage Comparison" \
 	--format "postscript color" \
 	--titles $TITLES \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--yrange 0:$PRESENT_MB \
 	--dump \
 	--output $OUTPUTDIR/memory-usage-comparison-$NAME.ps \

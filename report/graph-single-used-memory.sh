@@ -27,7 +27,7 @@ $PLOT --mem-usage \
 	--title "$NAME $KERNEL Memory Usage" \
 	--format "postscript color" \
 	--titles memory-used \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--yrange 0:$PRESENT_MB \
 	--dump \
 	--output $OUTPUTDIR/memory-usage-$NAME.ps \

@@ -20,20 +20,20 @@ for SINGLE_KERNEL in $KERNEL; do
 	head -1 vmstat-$SINGLE_KERNEL-$ANY_TEST | grep -- -- > /dev/null
 	if [ $? -eq 0 ]; then
 		TIMESTAMPS=yes
-		awk "{print (\$1-$START)\" \"\$16}" vmstat-$SINGLE_KERNEL-fsmark* > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+		awk "{print (\$1-$START)\" \"\$16}" vmstat-$SINGLE_KERNEL-fsmark* > $TMPDIR/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
 	else
 		# Clear the markup as we cannot correlate with it reliability
-		echo -n > /tmp/$NAME-extra
+		echo -n > $TMPDIR/$NAME-extra
 	
-		echo -n > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+		echo -n > $TMPDIR/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
 		for TEST in fsmark; do
-			awk "{print ($COUNT+NR)\" \"\$11}" vmstat-$SINGLE_KERNEL-$TEST >> /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+			awk "{print ($COUNT+NR)\" \"\$11}" vmstat-$SINGLE_KERNEL-$TEST >> $TMPDIR/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
 			THISCOUNT=`cat vmstat-$SINGLE_KERNEL-$TEST | wc -l`
 			COUNT=$(($COUNT+$THISCOUNT))
 		done
 	fi
-	sort -n /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted > /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data
-	rm /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
+	sort -n $TMPDIR/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted > $TMPDIR/interrupt-stats-$NAME-$SINGLE_KERNEL.data
+	rm $TMPDIR/interrupt-stats-$NAME-$SINGLE_KERNEL.data-unsorted
 	
 	if [ "$TITLES" != "" ]; then
 		TITLES=$TITLES,
@@ -49,7 +49,7 @@ fi
 
 PLOTS=
 for SINGLE_KERNEL in $KERNEL; do
-	PLOTS="$PLOTS /tmp/interrupt-stats-$NAME-$SINGLE_KERNEL.data"
+	PLOTS="$PLOTS $TMPDIR/interrupt-stats-$NAME-$SINGLE_KERNEL.data"
 done
 
 $PLOT \

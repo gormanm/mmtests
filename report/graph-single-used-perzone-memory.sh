@@ -50,7 +50,7 @@ $PLOT --mem-usage \
 	--title "$NAME $KERNEL Per Zone Memory Usage" \
 	--format "postscript color" \
 	--titles $TITLES \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--yrange 0:$PRESENT_MB \
 	--dump \
 	--output $OUTPUTDIR/perzone-memory-usage-$KERNEL-$NAME.ps \

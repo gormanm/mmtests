@@ -48,7 +48,7 @@ TIMESTAMP=`tail -1 tests-timestamp-$KERNEL | awk '{print $3}'`
 TIMESTAMP=$((($TIMESTAMP-$START)/60))
 MIRROR="$MIRROR, '' $TIMESTAMP"
 
-echo "set grid x2tics" > /tmp/$NAME-extra
-echo "set x2tics mirror ($MIRROR) rotate by 45" >> /tmp/$NAME-extra
+echo "set grid x2tics" > $TMPDIR/$NAME-extra
+echo "set x2tics mirror ($MIRROR) rotate by 45" >> $TMPDIR/$NAME-extra
 
 

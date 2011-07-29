@@ -23,13 +23,13 @@ for SINGLE_KERNEL in $KERNEL; do
 	head -1 vmstat-$SINGLE_KERNEL-$ANY_TEST | grep -- -- > /dev/null
 	if [ $? -eq 0 ]; then
 		TIMESTAMPS=yes
-		awk "{print (\$1-$START)\" \"\$3}" vmstat-$SINGLE_KERNEL-* > /tmp/vmstat-latency-$NAME-$SINGLE_KERNEL.data-unsorted
+		awk "{print (\$1-$START)\" \"\$3}" vmstat-$SINGLE_KERNEL-* > $TMPDIR/vmstat-latency-$NAME-$SINGLE_KERNEL.data-unsorted
 	else
 		echo ERROR: Timestamp and latency information unavailable
 		exit
 	fi
-	sort -n /tmp/vmstat-latency-$NAME-$SINGLE_KERNEL.data-unsorted > /tmp/vmstat-latency-$NAME-$SINGLE_KERNEL.data
-	rm /tmp/vmstat-latency-$NAME-$SINGLE_KERNEL.data-unsorted
+	sort -n $TMPDIR/vmstat-latency-$NAME-$SINGLE_KERNEL.data-unsorted > $TMPDIR/vmstat-latency-$NAME-$SINGLE_KERNEL.data
+	rm $TMPDIR/vmstat-latency-$NAME-$SINGLE_KERNEL.data-unsorted
 	
 	if [ "$TITLES" != "" ]; then
 		TITLES=$TITLES,
@@ -45,13 +45,13 @@ fi
 
 PLOTS=
 for SINGLE_KERNEL in $KERNEL; do
-	PLOTS="$PLOTS /tmp/vmstat-latency-$NAME-$SINGLE_KERNEL.data"
+	PLOTS="$PLOTS $TMPDIR/vmstat-latency-$NAME-$SINGLE_KERNEL.data"
 done
 
 $PLOT \
 	--timeplot \
 	--title "$ARCH VMStat Latency Update Comparison" \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--format "postscript color" \
 	--ylabel "Update Latency (seconds)" \
 	--titles $TITLES \
@@ -62,7 +62,7 @@ echo Generated vmstat-latency-comparison-$NAME.ps
 $PLOT \
 	--timeplot \
 	--using "smooth bezier" \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--title "$ARCH VMStat Latency Update Comparison" \
 	--format "postscript color" \
 	--ylabel "Update Latency (seconds)" \

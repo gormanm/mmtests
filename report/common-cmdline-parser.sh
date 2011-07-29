@@ -60,3 +60,7 @@ PRESENT_KB=`grep MemTotal: $WORKINGDIR/tests-timestamp-$SINGLE_KERNEL | head -1 
 PRESENT_MB=$((PRESENT_KB/1024))
 PRESENT_PAGES=$(($PRESENT_KB/4))
 KERNEL="$FILTERED_KERNEL"
+TMPDIR=`mktemp`
+rm  $TMPDIR
+mkdir $TMPDIR
+trap "rm -rf $TMPDIR" EXIT

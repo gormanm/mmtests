@@ -73,7 +73,7 @@ $PLOT \
 	--title "$NAME Kswapd CPU Usage Comparison" \
 	--format "postscript color" \
 	--titles $TITLES \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--dump \
 	--output $OUTPUTDIR/kswapdcpu-comparison-$NAME.ps \
 	$PLOTS > $OUTPUTDIR/kswapdcpu-comparison-$NAME.gp
@@ -84,7 +84,7 @@ $PLOT \
 	--using "smooth bezier" \
 	--format "postscript color" \
 	--titles $TITLES \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--dump \
 	--output $OUTPUTDIR/kswapdcpu-comparison-smooth-$NAME.ps \
 	$PLOTS > $OUTPUTDIR/kswapdcpu-comparison-smooth-$NAME.gp

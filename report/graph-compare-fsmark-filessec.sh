@@ -15,7 +15,7 @@ for SINGLE_KERNEL in $KERNEL; do
 	LENGTH=`cat $REPORTDIR/fsmark.log | wc -l`
 	tail -$(($LENGTH-$STARTLINE)) $REPORTDIR/fsmark.log > $REPORTDIR/fsmark-stripped.log
 
-	awk '{print NR" "$4}' $REPORTDIR/fsmark-stripped.log > /tmp/fsmark-$NAME-$SINGLE_KERNEL.data
+	awk '{print NR" "$4}' $REPORTDIR/fsmark-stripped.log > $TMPDIR/fsmark-$NAME-$SINGLE_KERNEL.data
 
 	if [ "$TITLES" != "" ]; then
 		TITLES=$TITLES,
@@ -31,7 +31,7 @@ fi
 
 PLOTS=
 for SINGLE_KERNEL in $KERNEL; do
-	PLOTS="$PLOTS /tmp/fsmark-$NAME-$SINGLE_KERNEL.data"
+	PLOTS="$PLOTS $TMPDIR/fsmark-$NAME-$SINGLE_KERNEL.data"
 done
 
 $PLOT \
@@ -43,14 +43,3 @@ $PLOT \
 	--output $OUTPUTDIR/fsmark-$NAME.ps \
 	$PLOTS
 	echo Generated fsmark-$NAME.ps
-
-#$PLOT \
-#	--title "$ARCH fsmark files/sec comparison" \
-#	--using "smooth bezier" \
-#	--format "postscript color" \
-#	--xlabel "Iteration" \
-#	--ylabel "Files/sec" \
-#	--titles $TITLES \
-#	--output $OUTPUTDIR/fsmark-smooth-$NAME.ps \
-#	$PLOTS
-#	echo Generated fsmark-smooth-$NAME.ps

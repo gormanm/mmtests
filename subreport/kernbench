@@ -3,10 +3,10 @@ kernbench_breakout_results() {
 	IFS="
 "
 
-	echo -n > /tmp/kernbench-$$-$2.User
-	echo -n > /tmp/kernbench-$$-$2.System
-	echo -n > /tmp/kernbench-$$-$2.Elapsed
-	echo -n > /tmp/kernbench-$$-$2.CPU
+	echo -n > $TMPDIR/kernbench-$$-$2.User
+	echo -n > $TMPDIR/kernbench-$$-$2.System
+	echo -n > $TMPDIR/kernbench-$$-$2.Elapsed
+	echo -n > $TMPDIR/kernbench-$$-$2.CPU
 
 	for LINE in `cat $1`; do
 		USER=`echo $LINE | awk '{print $1}' | sed -e 's/user//'`
@@ -18,10 +18,10 @@ kernbench_breakout_results() {
 		ELAPSED_MINUTES=`echo $ELAPSED_TIME | awk -F : '{print $1}'`
 		ELAPSED=`perl -e "print ($ELAPSED_MINUTES*60+$ELAPSED_SECONDS)"`
 
-		echo $USER >> /tmp/kernbench-$$-$2.User
-		echo $SYSTEM >> /tmp/kernbench-$$-$2.System
-		echo $ELAPSED >> /tmp/kernbench-$$-$2.Elapsed
-		echo $CPU >> /tmp/kernbench-$$-$2.CPU
+		echo $USER >> $TMPDIR/kernbench-$$-$2.User
+		echo $SYSTEM >> $TMPDIR/kernbench-$$-$2.System
+		echo $ELAPSED >> $TMPDIR/kernbench-$$-$2.Elapsed
+		echo $CPU >> $TMPDIR/kernbench-$$-$2.CPU
 	done
 	IFS=$TIFS
 }
@@ -39,9 +39,9 @@ for HEADING in Elapsed User System CPU; do
 	# Record the min, mean, stddev and max
 	for PROCESS in min mean stddev max; do
 		printf "%-7s %-6s" $HEADING $PROCESS
-		VANILLA=`cat /tmp/kernbench-$$-kernbench-$KERNEL_BASE.$HEADING | $PROCESS`
+		VANILLA=`cat $TMPDIR/kernbench-$$-kernbench-$KERNEL_BASE.$HEADING | $PROCESS`
 		for DIR in $DIRLIST; do
-			RESULT=`cat /tmp/kernbench-$$-$DIR.$HEADING | $PROCESS`
+			RESULT=`cat $TMPDIR/kernbench-$$-$DIR.$HEADING | $PROCESS`
 			printf " %8.2f (%5.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
 		done
 		echo
@@ -51,10 +51,10 @@ for HEADING in Elapsed User System CPU; do
 	OFFSET=0
 	INDEX=1
 	for DIR in $DIRLIST; do
-		MIN=`cat /tmp/kernbench-$$-$DIR.$HEADING | min`
-		MAX=`cat /tmp/kernbench-$$-$DIR.$HEADING | max`
-		MEAN=`cat /tmp/kernbench-$$-$DIR.$HEADING | mean`
-		STDDEV=`cat /tmp/kernbench-$$-$DIR.$HEADING | stddev`
+		MIN=`cat $TMPDIR/kernbench-$$-$DIR.$HEADING | min`
+		MAX=`cat $TMPDIR/kernbench-$$-$DIR.$HEADING | max`
+		MEAN=`cat $TMPDIR/kernbench-$$-$DIR.$HEADING | mean`
+		STDDEV=`cat $TMPDIR/kernbench-$$-$DIR.$HEADING | stddev`
 
 		LOW_STDDEV=`perl -e "print $MEAN-$STDDEV"`
 		HIGH_STDDEV=`perl -e "print $MEAN+$STDDEV"`
@@ -73,5 +73,5 @@ $LOW_STDDEV" | max`
 done
 
 for DIR in $DIRLIST; do
-	rm /tmp/kernbench-$$-$DIR.*
+	rm $TMPDIR/kernbench-$$-$DIR.*
 done

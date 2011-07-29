@@ -42,7 +42,7 @@ rm iostat.plot-unsorted
 $PLOT --iostat-blocks \
 	--title "$NAME $KERNEL IO reads/writes" \
 	--format "postscript color" \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--dump \
 	--output $OUTPUTDIR/iostat-$NAME.ps \
 	iostat.plot > $OUTPUTDIR/iostat-$NAME.gp

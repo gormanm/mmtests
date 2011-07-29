@@ -25,7 +25,7 @@ if [ $? -eq 0 ]; then
 	. $SCRIPTDIR/common-testname-markup.sh
 else
 	# Clear the markup as we cannot correlate with it reliability
-	echo -n > /tmp/$NAME-extra
+	echo -n > $TMPDIR/$NAME-extra
 
 	echo -n > interrupts.plot-unsorted
 	for TEST in $MMTESTS; do
@@ -43,7 +43,7 @@ $PLOT --timeplot \
 	--ylabel "Interrupts" \
 	--format "postscript color" \
 	--titles "interrupts" \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--dump \
 	--output $OUTPUTDIR/interrupts-$NAME.ps \
 	interrupts.plot > $OUTPUTDIR/interrupts-$NAME.gp

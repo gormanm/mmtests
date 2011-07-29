@@ -59,7 +59,7 @@ $PLOT \
 	--title "$NAME Unusable Free Space Index" \
 	--format "postscript color" \
 	--titles $TITLES \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--dump \
 	--output $OUTPUTDIR/freeorder3-$NAME.ps \
 	$PLOTS > $OUTPUTDIR/freeorder3-$NAME.gp

@@ -326,6 +326,7 @@ function start_monitors() {
 		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
 		$EXPECT_UNBUFFER $MONITOR_SCRIPT | tee | gzip -c > $MONITOR_LOG.gz &
 		PID1=$!
+		sleep 5
 		PID2=`./bin/piping-pid.sh $PID1`
 		PID3=`./bin/piping-pid.sh $PID2`
 		echo $PID3 >> monitor.pids
@@ -337,7 +338,7 @@ function start_monitors() {
 		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
 		$EXPECT_UNBUFFER $MONITOR_SCRIPT | ./monitors/latency-output > $MONITOR_LOG &
 		PID1=$!
-		sleep 1
+		sleep 5
 		PID2=`ps aux | grep watch-$MONITOR.sh | grep -v grep | grep -v expect | awk '{print $2}'`
 		echo $PID2 >> monitor.pids
 		echo $PID1 >> monitor.pids

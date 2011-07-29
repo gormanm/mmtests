@@ -21,7 +21,7 @@ fi
 TESTSTART=`grep -n "test begin :: $FTRACE_TEST" $INPUT | awk -F : '{print $1}'`
 TESTEND=`grep -n "test end :: $FTRACE_TEST" $INPUT | awk -F : '{print $1}'`
 TESTLENGTH=$(($TESTEND-$TESTSTART))
-head -$TESTEND $INPUT | tail -$TESTLENGTH > /tmp/vmstat.txt
+head -$TESTEND $INPUT | tail -$TESTLENGTH > $TMPDIR/vmstat.txt
 
 # Get the full list of fields
 FIELDS=`grep "$FIELD_PATTERN" $INPUT | awk '{print $1}' | sort | uniq`
@@ -29,8 +29,8 @@ FIELDS=`grep "$FIELD_PATTERN" $INPUT | awk '{print $1}' | sort | uniq`
 VALUE=0
 for FIELD in $FIELDS; do
 
-	VALUESTART=`grep "^$FIELD " /tmp/vmstat.txt | awk '{print $2}' | head -1`
-	VALUEEND=`grep "^$FIELD " /tmp/vmstat.txt | awk '{print $2}' | tail -1`
+	VALUESTART=`grep "^$FIELD " $TMPDIR/vmstat.txt | awk '{print $2}' | head -1`
+	VALUEEND=`grep "^$FIELD " $TMPDIR/vmstat.txt | awk '{print $2}' | tail -1`
 
 	VALUE=$(($VALUE+$VALUEEND-$VALUESTART))
 done

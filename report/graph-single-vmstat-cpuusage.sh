@@ -25,7 +25,7 @@ if [ $? -eq 0 ]; then
 	. $SCRIPTDIR/common-testname-markup.sh
 else
 	# Clear the markup as we cannot correlate with it reliability
-	echo -n > /tmp/$NAME-extra
+	echo -n > $TMPDIR/$NAME-extra
 
 	echo -n > cpu-usage.plot-unsorted
 	for TEST in $MMTESTS; do
@@ -41,7 +41,7 @@ rm cpu-usage.plot-unsorted
 $PLOT --cpu-usage \
 	--title "$NAME $KERNEL CPU Usage" \
 	--format "postscript color" \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--dump \
 	--output $OUTPUTDIR/cpu-usage-$NAME.ps \
 	cpu-usage.plot > $OUTPUTDIR/cpu-usage-$NAME.gp

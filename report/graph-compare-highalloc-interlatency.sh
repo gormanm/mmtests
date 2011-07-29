@@ -12,12 +12,12 @@ for SINGLE_KERNEL in $KERNEL; do
 	REPORTDIR=$WORKINGDIR/stress-highalloc-$SINGLE_KERNEL/noprofile
 	XMIN=0
 	XMAX=`cat $REPORTDIR/buddyinfo_at_fails-pass1.txt | grep ^Buddyinfo | wc -l`
-	$RAW_LATENCY stats $REPORTDIR $XMIN $XMAX 1 > /tmp/highalloc-stats-$NAME-$SINGLE_KERNEL.data
+	$RAW_LATENCY stats $REPORTDIR $XMIN $XMAX 1 > $TMPDIR/highalloc-stats-$NAME-$SINGLE_KERNEL.data
 
-	cat /tmp/highalloc-stats-$NAME-$SINGLE_KERNEL.data | awk '{print $1" "$3}' > /tmp/highalloc-stats-$NAME-$SINGLE_KERNEL.data-min
-	cat /tmp/highalloc-stats-$NAME-$SINGLE_KERNEL.data | awk '{print $1" "$4}' > /tmp/highalloc-stats-$NAME-$SINGLE_KERNEL.data-max
-	cat /tmp/highalloc-stats-$NAME-$SINGLE_KERNEL.data | awk '{print $1" "$5}' > /tmp/highalloc-stats-$NAME-$SINGLE_KERNEL.data-mean
-	cat /tmp/highalloc-stats-$NAME-$SINGLE_KERNEL.data | awk '{print $1" "$6}' > /tmp/highalloc-stats-$NAME-$SINGLE_KERNEL.data-stddev
+	cat $TMPDIR/highalloc-stats-$NAME-$SINGLE_KERNEL.data | awk '{print $1" "$3}' > $TMPDIR/highalloc-stats-$NAME-$SINGLE_KERNEL.data-min
+	cat $TMPDIR/highalloc-stats-$NAME-$SINGLE_KERNEL.data | awk '{print $1" "$4}' > $TMPDIR/highalloc-stats-$NAME-$SINGLE_KERNEL.data-max
+	cat $TMPDIR/highalloc-stats-$NAME-$SINGLE_KERNEL.data | awk '{print $1" "$5}' > $TMPDIR/highalloc-stats-$NAME-$SINGLE_KERNEL.data-mean
+	cat $TMPDIR/highalloc-stats-$NAME-$SINGLE_KERNEL.data | awk '{print $1" "$6}' > $TMPDIR/highalloc-stats-$NAME-$SINGLE_KERNEL.data-stddev
 
 	if [ "$TITLES" != "" ]; then
 		TITLES=$TITLES,
@@ -49,7 +49,7 @@ for OP in mean max stddev; do
 
 	PLOTS=
 	for SINGLE_KERNEL in $KERNEL; do
-		PLOTS="$PLOTS /tmp/highalloc-stats-$NAME-$SINGLE_KERNEL.data-$OP"
+		PLOTS="$PLOTS $TMPDIR/highalloc-stats-$NAME-$SINGLE_KERNEL.data-$OP"
 	done
 
 	$PLOT \

@@ -23,17 +23,17 @@ for SINGLE_KERNEL in $KERNEL; do
 	head -1 vmstat-$SINGLE_KERNEL-$ANY_TEST | grep -- -- > /dev/null
 	if [ $? -eq 0 ]; then
 		TIMESTAMPS=yes
-		awk "{print (\$1-$START)\" \"(\$14+\$15)}" vmstat-$SINGLE_KERNEL-* > /tmp/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
+		awk "{print (\$1-$START)\" \"(\$14+\$15)}" vmstat-$SINGLE_KERNEL-* > $TMPDIR/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
 	else
-		echo -n > /tmp/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
+		echo -n > $TMPDIR/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
 		for TEST in $MMTESTS; do
-			awk "{print ($COUNT+NR)\" \"(\$9+\$10)}" vmstat-$SINGLE_KERNEL-$TEST >> /tmp/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
+			awk "{print ($COUNT+NR)\" \"(\$9+\$10)}" vmstat-$SINGLE_KERNEL-$TEST >> $TMPDIR/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
 			THISCOUNT=`cat vmstat-$SINGLE_KERNEL-$TEST | wc -l`
 			COUNT=$(($COUNT+$THISCOUNT))
 		done
 	fi
-	sort -n /tmp/blockio-$NAME-$SINGLE_KERNEL.data-unsorted > /tmp/blockio-$NAME-$SINGLE_KERNEL.data
-	rm /tmp/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
+	sort -n $TMPDIR/blockio-$NAME-$SINGLE_KERNEL.data-unsorted > $TMPDIR/blockio-$NAME-$SINGLE_KERNEL.data
+	rm $TMPDIR/blockio-$NAME-$SINGLE_KERNEL.data-unsorted
 	
 	if [ "$TITLES" != "" ]; then
 		TITLES=$TITLES,
@@ -49,13 +49,13 @@ fi
 
 PLOTS=
 for SINGLE_KERNEL in $KERNEL; do
-	PLOTS="$PLOTS /tmp/blockio-$NAME-$SINGLE_KERNEL.data"
+	PLOTS="$PLOTS $TMPDIR/blockio-$NAME-$SINGLE_KERNEL.data"
 done
 
 $PLOT \
 	--timeplot \
 	--title "$NAME Block IO Comparison" \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--format "postscript color" \
 	--ylabel "Block IO" \
 	--titles $TITLES \
@@ -66,7 +66,7 @@ echo Generated blockio-comparison-$NAME.ps
 $PLOT \
 	--timeplot \
 	--using "smooth bezier" \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--title "$NAME Block IO Comparison" \
 	--format "postscript color" \
 	--ylabel "Block IO" \

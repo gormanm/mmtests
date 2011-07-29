@@ -13,6 +13,10 @@ FTRACE_HELPER_CONGESTION=$SCRIPTDIR/subreport/trace-congestion-postprocess.pl
 TIMESTAMP_HELPER=$SCRIPTDIR/subreport/teststimestamp-extract
 DIRLIST=
 
+TMPDIR=`mktemp`
+rm $TMPDIR
+mkdir $TMPDIR
+
 TOPLEVEL=noprofile
 if [ "$1" != "" ]; then
 	TOPLEVEL=$1
@@ -70,3 +74,5 @@ for SUBREPORT in kernbench multibuild fsmark postmark iozone netperf-udp netperf
 		fi
 	fi
 done
+
+rm -rf $TMPDIR

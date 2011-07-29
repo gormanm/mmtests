@@ -8,19 +8,19 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	ELAPSED_TIME=`grep "time :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk '{print $8}'`
 	START_LINE=`grep -n "test begin :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk -F : '{print $1}'`
 	END_LINE=`grep -n "test end :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk -F : '{print $1}'`
-	head -$END_LINE tests-timestamp-$DIRNAME | tail -$((END_LINE-START_LINE+2)) > /tmp/mmtests-full.log
+	head -$END_LINE tests-timestamp-$DIRNAME | tail -$((END_LINE-START_LINE+2)) > $TMPDIR/mmtests-full.log
 
-	START_LINE=`grep -n "file start :: /proc/vmstat" /tmp/mmtests-full.log | awk -F : '{print $1}'`
-	END_LINE=`grep -n "file start :: /proc/zoneinfo" /tmp/mmtests-full.log | awk -F : '{print $1}'`
-	head -$END_LINE /tmp/mmtests-full.log | tail -$((END_LINE-START_LINE)) > /tmp/mmtests-vmstat-before.log
-	START_LINE=`grep -n "file end :: /proc/vmstat" /tmp/mmtests-full.log | awk -F : '{print $1}'`
-	END_LINE=`grep -n "file end :: /proc/zoneinfo" /tmp/mmtests-full.log | awk -F : '{print $1}'`
-	head -$END_LINE /tmp/mmtests-full.log | tail -$((END_LINE-START_LINE)) > /tmp/mmtests-vmstat-after.log
+	START_LINE=`grep -n "file start :: /proc/vmstat" $TMPDIR/mmtests-full.log | awk -F : '{print $1}'`
+	END_LINE=`grep -n "file start :: /proc/zoneinfo" $TMPDIR/mmtests-full.log | awk -F : '{print $1}'`
+	head -$END_LINE $TMPDIR/mmtests-full.log | tail -$((END_LINE-START_LINE)) > $TMPDIR/mmtests-vmstat-before.log
+	START_LINE=`grep -n "file end :: /proc/vmstat" $TMPDIR/mmtests-full.log | awk -F : '{print $1}'`
+	END_LINE=`grep -n "file end :: /proc/zoneinfo" $TMPDIR/mmtests-full.log | awk -F : '{print $1}'`
+	head -$END_LINE $TMPDIR/mmtests-full.log | tail -$((END_LINE-START_LINE)) > $TMPDIR/mmtests-vmstat-after.log
 
 	VALUE=0
 	for HEADING in kswapd_steal; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -29,8 +29,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 
 	VALUE=0
 	for HEADING in pgsteal_dma pgsteal_dma32 pgsteal_normal pgsteal_movable pgsteal_high; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -40,8 +40,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 
 	VALUE=0
 	for HEADING in pgscan_kswapd_dma pgscan_kswapd_dma32 pgscan_kswapd_normal pgscan_kswapd_movable pgscan_kswapd_high; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -51,8 +51,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 
 	VALUE=0
 	for HEADING in pgpgin; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -60,8 +60,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	PAGEIN=$VALUE
 	VALUE=0
 	for HEADING in pgpgout; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -69,8 +69,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	PAGEOUT=$VALUE
 	VALUE=0
 	for HEADING in pswpin; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -78,8 +78,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	SWAPIN=$VALUE
 	VALUE=0
 	for HEADING in pswpout; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -88,8 +88,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 
 	VALUE=0
 	for HEADING in kswapd_inodesteal; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -97,8 +97,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	KSWAPD_INODESTEAL=$VALUE
 	VALUE=0
 	for HEADING in pginodesteal; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -106,8 +106,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	DIRECT_INODESTEAL=$VALUE
 	VALUE=0
 	for HEADING in slabs_scanned; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -116,8 +116,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 
 	VALUE=0
 	for HEADING in compact_pages_moved; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -125,8 +125,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	COMPACT_MOVES=$VALUE
 	VALUE=0
 	for HEADING in compact_pagemigrate_failed; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -134,8 +134,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	COMPACT_MOVES_FAILED=$VALUE
 	VALUE=0
 	for HEADING in compact_fail; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -143,8 +143,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	COMPACT_FAIL=$VALUE
 	VALUE=0
 	for HEADING in compact_success; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -152,8 +152,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	COMPACT_SUCCESS=$VALUE
 	VALUE=0
 	for HEADING in compact_stall; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -162,8 +162,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 
 	VALUE=0
 	for HEADING in nr_vmscan_write; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -173,8 +173,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 
 	VALUE=0
 	for HEADING in kswapd_skip_congestion_wait; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -183,8 +183,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 
 	VALUE=0
 	for HEADING in nr_vmscan_invalidate; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi
@@ -193,8 +193,8 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 
 	VALUE=0
 	for HEADING in pgscan_direct_dma pgscan_direct_dma32 pgscan_direct_normal pgscan_direct_movable pgscan_direct_high; do
-		BEFORE=`grep "^$HEADING " /tmp/mmtests-vmstat-before.log | awk '{print $2}'`
-		AFTER=`grep "^$HEADING " /tmp/mmtests-vmstat-after.log | awk '{print $2}'`
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
 		fi

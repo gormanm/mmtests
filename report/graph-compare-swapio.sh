@@ -23,17 +23,17 @@ for SINGLE_KERNEL in $KERNEL; do
 	head -1 vmstat-$SINGLE_KERNEL-$ANY_TEST | grep -- -- > /dev/null
 	if [ $? -eq 0 ]; then
 		TIMESTAMPS=yes
-		awk "{print (\$1-$START)\" \"(\$12+\$13)}" vmstat-$SINGLE_KERNEL-* > /tmp/swapio-$NAME-$SINGLE_KERNEL.data-unsorted
+		awk "{print (\$1-$START)\" \"(\$12+\$13)}" vmstat-$SINGLE_KERNEL-* > $TMPDIR/swapio-$NAME-$SINGLE_KERNEL.data-unsorted
 	else
-		echo -n > /tmp/swapio-$NAME-$SINGLE_KERNEL.data-unsorted
+		echo -n > $TMPDIR/swapio-$NAME-$SINGLE_KERNEL.data-unsorted
 		for TEST in $MMTESTS; do
-			awk "{print ($COUNT+NR)\" \"(\$7+\$8)}" vmstat-$SINGLE_KERNEL-$TEST >> /tmp/swapio-$NAME-$SINGLE_KERNEL.data-unsorted
+			awk "{print ($COUNT+NR)\" \"(\$7+\$8)}" vmstat-$SINGLE_KERNEL-$TEST >> $TMPDIR/swapio-$NAME-$SINGLE_KERNEL.data-unsorted
 			THISCOUNT=`cat vmstat-$SINGLE_KERNEL-$TEST | wc -l`
 			COUNT=$(($COUNT+$THISCOUNT))
 		done
 	fi
-	sort -n /tmp/swapio-$NAME-$SINGLE_KERNEL.data-unsorted > /tmp/swapio-$NAME-$SINGLE_KERNEL.data
-	rm /tmp/swapio-$NAME-$SINGLE_KERNEL.data-unsorted
+	sort -n $TMPDIR/swapio-$NAME-$SINGLE_KERNEL.data-unsorted > $TMPDIR/swapio-$NAME-$SINGLE_KERNEL.data
+	rm $TMPDIR/swapio-$NAME-$SINGLE_KERNEL.data-unsorted
 	
 	if [ "$TITLES" != "" ]; then
 		TITLES=$TITLES,
@@ -49,13 +49,13 @@ fi
 
 PLOTS=
 for SINGLE_KERNEL in $KERNEL; do
-	PLOTS="$PLOTS /tmp/swapio-$NAME-$SINGLE_KERNEL.data"
+	PLOTS="$PLOTS $TMPDIR/swapio-$NAME-$SINGLE_KERNEL.data"
 done
 
 $PLOT \
 	--timeplot \
 	--title "$NAME Swap IO Comparison" \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--format "postscript color" \
 	--ylabel "Swap Page IO" \
 	--titles $TITLES \
@@ -66,7 +66,7 @@ echo Generated swapio-comparison-$NAME.ps
 $PLOT \
 	--timeplot \
 	--using "smooth bezier" \
-	--extra /tmp/$NAME-extra \
+	--extra $TMPDIR/$NAME-extra \
 	--title "$NAME Swap IO Comparison" \
 	--format "postscript color" \
 	--ylabel "Swap Page IO" \
