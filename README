@@ -1,41 +1,48 @@
 Overview
 ========
-This is a basic test suite that runs a number of common workloads of
-interest to MM developers. The ideal would have been similar integration
-or layout to either LTP, xfstests or base it upon autotest - Phoronix
-Test being another possibility. Unfortunately, large portions of these
-tests are cobbled together over a number of years with varying degrees
-of quality before test frameworks for this sort of testing was common.
-The refactoring effort to integrate with another framework is significant.
 
-This is a prototype based on code ported from another test environment.
-Buyer Beware.
+MMTests is a configurable test suite that runs a number of common
+workloads of interest to MM developers. Ideally this would have been
+to integrated with LTP, xfstests or Phoronix Test or implemented
+with autotest.  Unfortunately, large portions of these tests are
+cobbled together over a number of years with varying degrees of
+quality before decent test frameworks were common.  The refactoring
+effort to integrate with another framework is significant.
 
-vmr/ contains portions of an ancient tool called VMRegress. Relevant
-portions from it are being copied in as necessary rather than redeveloping
-or preparing that tool for public release. stat/ contains simple helpers
-from VMRegress related to statistics.
+Organisation
+============
 
-The top-level directory has a single driver script called run-mmtests.sh which
-reads the config file, configures the system and runs the requested tests.
-config also has some per-test configuration items that can be set depending
-on the test. mmtests takes the name of the test as a parameter. Generally,
-this would be a symbolic name you are giving to the kernel being tested.
+The top-level directory has a single driver script called
+run-mmtests.sh which reads a config file that describes how the
+benchmarks should be run, configures the system and runs the requested
+tests. config also has some per-test configuration items that can be
+set depending on the test. The driver script takes the name of the
+test as a parameter. Generally, this would be a symbolic name naming
+the kernel being tested.
 
-Each test is driven by a run-single-test.sh script which reads the relevant
-driver-TESTNAME.sh script to script how the benchmark should be actually
-run. The overall driver script reads the config file and setups up profiling
-where required. Shellpacks are a pairing of a bench and install script
-in shellpacks/.
+Each test is driven by a run-single-test.sh script which reads
+the relevant driver-TESTNAME.sh script. High level items such as
+profiling are configured from the top-level script while the driver
+scripts typically convert the config parameters into switches for a
+"shellpack". A shellpack is a pair of benchmark and install scripts
+that are all stored in shellpacks/ .
 
 Monitors can be optionally configured. A full list is in monitors/
-. Monitors only optionally run because there is a possibility that they
-introduce overhead of their own. Hence, for some performance tests it is
-preferable to have no monitoring.
+. Care should be taken with monitors as there is a possibility that
+they introduce overhead of their own.  Hence, for some performance
+sensitive tests it is preferable to have no monitoring.
 
-Many of the tests download external benchmarks. They will try for a mirror
-first whose location is specified in config. To get an idea where all the
-mirrors are, grep for MIRROR_LOCATION= in shellpacks/.
+Many of the tests download external benchmarks. An attempt will be
+made to download from a mirror . To get an idea where the mirror
+should be located, grep for MIRROR_LOCATION= in shellpacks/.
+
+A basic invocation of the suite is
+
+<pre>
+$ cp config-global-dhp__pagealloc-performance config
+$ ./run-mmtests.sh --no-monitor 3.0-nomonitor
+$ ./run-mmtests.sh --run-monitor 3.0-runmonitor
+</pre>
 
 Configuration
 =============
@@ -81,7 +88,7 @@ TESTDISK_PARTITION
 TESTDISK_FILESYSTEM
 TESTDISK_MKFS_PARAM
 TESTDISK_MOUNT_ARGS
-	The filesystem, mkfs parameters and mount arguements for the test
+	The filesystem, mkfs parameters and mount arguments for the test
 	partitions
 
 Available tests
@@ -112,11 +119,11 @@ vmr-stream
 	throughput or the average cost of a number of basic operations. It is
 	sensitive to cache layout used for page faults.
 
-vmr-cacheeffects
+vmr-cacheeffects (untested)
 	Performs linear and random walks on nodes of different sizes stored in
 	a large amount of memory. Sensitive to cache footprint and layout.
 
-vmr-createdelete
+vmr-createdelete (untested)
 	A micro-benchmark that measures the time taken to create and delete
 	file or anonymous mappings of increasing sizes. Sensitive to changes
 	in the page fault path performance.
@@ -142,6 +149,12 @@ largecopy
 largedd
 	Similar to largecopy except it uses dd instead of cp.
 
+libreofficebuild
+	This downloads and builds libreoffice. It is a more aggressive
+	compile-orientated test. This is a very download-intensive
+	benchmark and was only created as a reproduction case for
+	a bug.
+
 nas-*
 	The NAS Parallel Benchmarks for the serial and openmp versions of
 	the test.
@@ -152,10 +165,10 @@ netperf-*
 	bouncing, the test can be configured to bind to certain processors.
 
 postmark
-	Run the postmark benchmark. Optionally a program can be run in the
-	background that consumes anonymous memory. This is vary rarely
-	needed except when trying to identify desktop stalls during
-	heavy IO.
+	Run the postmark benchmark. Optionally a program can be run in
+	the background that consumes anonymous memory. The background
+	program is vary rarely needed except when trying to identify
+	desktop stalls during heavy IO.
 
 speccpu (untested)
 	SPECcpu, what else can be said. A restriction is that you must have
@@ -190,8 +203,7 @@ ltp-pounder (untested)
 
 stress-highalloc
 	This test requires that the system not have too much memory and
-	that the kernel source of the running kernel be available in
-	/lib/modules/`uname -r/build.  Typically, it's tested with 3GB of
+	that systemtap is available. Typically, it's tested with 3GB of
 	RAM. It builds a number of kernels in parallel such that total
 	memory usage is 1.5 times physical memory. When this is running
 	for 5 minutes, it tries to allocate a large percentage of memory
@@ -221,11 +233,12 @@ processing scripts. They can be activated by setting FTRACE_ANALYSERS in
 compare-kernels.sh. A basic post-process script is mmtests-duration which
 simply reports how long an individual test took and what its CPU usage was.
 
-There are a very limited number of graphing scripts included in report/
+There are a limited number of graphing scripts included in report/
 
 TODO
 ====
 
-Port spec tests (omp, jvm, cpu), NPB (sometimes called the NAS tests) swap
-stress tests, memory pressure tests, some micro-benchmarks such as the mmap
-layout stress test.
+o Add option to test on filesystem loopback device stored on tmpfs
+o Add volanomark
+o Create config-* set suitable for testing scheduler to isolate situations
+  where the scheduler was the main cause of a regression
