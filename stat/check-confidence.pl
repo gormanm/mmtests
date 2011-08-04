@@ -42,19 +42,20 @@ while ( $results[$nr_samples] = <>) {
 }
 
 my $sample;
+my $mean = calc_mean(@results);
+my $stddev = calc_stddev(@results);
+my $conf = calc_confidence_interval_lower($opt_confidence_level, @results);
+my $limit = $mean * $opt_limit / 100;
+my $conf_delta = $mean - $conf;
+my $usable_samples = $nr_samples;
+printVerbose("Initial stats\n");
+printVerbose("  o mean      = $mean\n");
+printVerbose("  o stddev    = $stddev\n");
+printVerbose("  o con $opt_confidence_level    = $conf\n");
+printVerbose("  o limit     = $limit\n");
+printVerbose("  o con delta = $conf_delta\n");
+
 for ($sample = 0; $sample <= $nr_samples; $sample++) {
-	my $mean = calc_mean(@results);
-	my $conf = calc_confidence_interval_lower($opt_confidence_level, @results);
-	my $limit = $mean * $opt_limit / 100;
-	my $conf_delta = $mean - $conf;
-
-	printVerbose("  o mean      = " . calc_mean(@results) . "\n");
-	printVerbose("  o stddev    = " . calc_stddev(@results) . "\n");
-	printVerbose("  o con $opt_confidence_level    = " . calc_confidence_interval_lower($opt_confidence_level, @results) . "\n");
-	printVerbose("  o limit     = $limit\n");
-	printVerbose("  o con delta = $conf_delta\n");
-
-	my $usable_samples = $nr_samples;
 
 CONF_LOOP:
 	while ($conf_delta > $limit) {
@@ -81,13 +82,14 @@ CONF_LOOP:
 		$usable_samples--;
 
 		$mean = calc_mean(@results);
+		$stddev = calc_stddev(@results);
 		$conf = calc_confidence_interval_lower($opt_confidence_level, @results);
 		$limit = $mean * $opt_limit / 100;
 		$conf_delta = $mean - $conf;
 
-		printVerbose("  o recalc mean   = " . calc_mean(@results) . "\n");
-		printVerbose("  o recalc stddev = " . calc_stddev(@results) . "\n");
-		printVerbose("  o recalc con $opt_confidence_level = " . calc_confidence_interval_lower($opt_confidence_level, @results) . "\n");
+		printVerbose("  o recalc mean   = $mean\n");
+		printVerbose("  o recalc stddev = $stddev\n");
+		printVerbose("  o recalc con $opt_confidence_level = $conf\n");
 		printVerbose("  o limit     = $limit\n");
 		printVerbose("  o con delta = $conf_delta\n");
 	}

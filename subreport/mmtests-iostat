@@ -1,0 +1,74 @@
+if [ "$IOSTAT_DEVICE" = "" ]; then
+	IOSTAT_DEVICE=sda
+fi
+
+
+for DEVICE in sda $IOSTAT_DEVICE; do
+	echo
+	echo MMTests Statistics: IO stats $DEVICE
+
+	for OPERATION in avgrq-sz rkBs wkBs await svctm; do
+		case $OPERATION in
+		avgrq-sz)
+			NAME="Avg request size"
+			OFFSET=8
+			;;
+		rkBs)
+			NAME="Read KB/s"
+			OFFSET=6
+			;;
+		wkBs)
+			NAME="Write KB/s"
+			OFFSET=7
+			;;
+		await)
+			NAME="Avg wait ms"
+			OFFSET=10
+			;;
+		svctm)
+			NAME="Avg service ms"
+			OFFSET=11
+			;;
+		esac
+
+		printf "%-25s" "$NAME"
+		for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+			if [ -e iostat-$DIRNAME-$FTRACE_TEST.gz ]; then
+				COMMAND=zgrep
+				PATTERN="^ $DEVICE"
+				SOURCE=iostat-$DIRNAME-$FTRACE_TEST.gz
+				LATENCY_OFFSET=0
+			elif [ -e iostat-$DIRNAME-$FTRACE_TEST ]; then
+				COMMAND="grep --"
+				PATTERN="-- $DEVICE "
+				SOURCE=iostat-$DIRNAME-$FTRACE_TEST
+				LATENCY_OFFSET=4
+			else
+				continue
+			fi
+			REAL_OFFSET=$((OFFSET+LATENCY_OFFSET))
+			$COMMAND "$PATTERN" $SOURCE | awk "{print \$$REAL_OFFSET}" > $TMPDIR/iostats
+
+			MEAN=`cat $TMPDIR/iostats | mean | sed -e 's/\..*//'`
+			STDDEV=`cat $TMPDIR/iostats | stddev | sed -e 's/\..*//'`
+			COUNT=10
+
+			# iostat sometimes throws up really weird outliers that make no
+			# sense. Strip out some of the serious outliers
+			while [ $STDDEV -gt $((MEAN*2)) -a $COUNT -gt 0 ]; do
+				MAX=`cat $TMPDIR/iostats | max`
+				grep -v "^$MAX$" $TMPDIR/iostats > $TMPDIR/iostats.tmp
+				mv $TMPDIR/iostats.tmp $TMPDIR/iostats
+				MEAN=`cat $TMPDIR/iostats | mean | sed -e 's/\..*//'`
+				STDDEV=`cat $TMPDIR/iostats | stddev | sed -e 's/\..*//'`
+				COUNT=$((COUNT-1))
+			done
+
+			RESULT=`cat $TMPDIR/iostats | mean`
+
+			printf "%12.2f" $RESULT
+		done
+		echo
+	done
+	echo
+done
