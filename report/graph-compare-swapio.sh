@@ -5,6 +5,7 @@ SCRIPTDIR=`cd "$DIRNAME" && pwd`
 PLOT=$SCRIPTDIR/plot
 . $SCRIPTDIR/../config
 . $SCRIPTDIR/common-cmdline-parser.sh
+. $SCRIPTDIR/common-testname-markup.sh
 
 TITLES=
 for SINGLE_KERNEL in $KERNEL; do

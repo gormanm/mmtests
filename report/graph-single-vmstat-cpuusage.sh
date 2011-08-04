@@ -5,7 +5,6 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 PLOT=$SCRIPTDIR/plot
 . $SCRIPTDIR/../config
-
 . $SCRIPTDIR/common-cmdline-parser.sh
 
 ANY_TEST=`echo $MMTESTS | awk '{print $1}'`

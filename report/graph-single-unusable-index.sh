@@ -5,9 +5,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 PLOT=$SCRIPTDIR/plot
 . $SCRIPTDIR/../config
-
 . $SCRIPTDIR/common-cmdline-parser.sh
-START=`head -1 tests-timestamp-$KERNEL | awk '{print $3}'`
 . $SCRIPTDIR/common-testname-markup.sh
 
 echo > unusable-index.plot-unsorted

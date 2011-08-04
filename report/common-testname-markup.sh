@@ -1,3 +1,23 @@
+for SINGLE_KERNEL in $KERNEL; do
+	FIRST_KERNEL=$SINGLE_KERNEL
+	break
+done
+
+LONGEST_TEST=0
+for SINGLE_KERNEL in $KERNEL; do
+	START=`head -1 tests-timestamp-$SINGLE_KERNEL | awk '{print $3}'`
+	END=`tail -1 tests-timestamp-$SINGLE_KERNEL | awk '{print $3}'`
+	DURATION=$((END-START))
+	if [ $DURATION -gt $LONGEST_TEST ]; then
+		LONGEST_TEST=$DURATION
+		LONGEST_KERNEL=$SINGLE_KERNEL
+	fi
+done
+
+COPY=$KERNEL
+KERNEL=$LONGEST_KERNEL
+START=`head -1 tests-timestamp-$LONGEST_KERNEL | awk '{print $3}'`
+
 # Calculate when tests began
 TESTNAMES=`grep "^test begin" tests-timestamp-$KERNEL | grep -v aim9 | awk '{print $4}'`
 MIRROR=""
@@ -51,4 +71,4 @@ MIRROR="$MIRROR, '' $TIMESTAMP"
 echo "set grid x2tics" > $TMPDIR/$NAME-extra
 echo "set x2tics mirror ($MIRROR) rotate by 45" >> $TMPDIR/$NAME-extra
 
-
+KERNEL=$COPY

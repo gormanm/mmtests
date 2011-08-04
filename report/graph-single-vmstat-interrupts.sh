@@ -1,5 +1,5 @@
 #!/bin/bash
-# Plot CPU usage over time
+# Plot interrupt counts over time
 
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
