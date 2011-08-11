@@ -92,8 +92,17 @@ export FSMARK_ITERATIONS=75
 # HackBench
 export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
 
-# IOzone
+# IOzone full automatic mode
 export IOZONE_SIZE=--fastest
+export IOZONE_TEST_TYPE=--full-automatic
+
+# IOzone single mode
+#export IOZONE_SIZE=$((200*1048576))
+#export IOZONE_RECORD_LEN=$((16*1024))
+#export IOZONE_THREADS=1
+#export IOZONE_FLUSH=yes
+#export IOZONE_SHOW_THREAD_THROUGHPUT=yes
+#export IOZONE_TEST_TYPE=--single
 
 # Large copy and untar
 export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-1.tar.bz2

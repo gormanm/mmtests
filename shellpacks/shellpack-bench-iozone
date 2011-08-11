@@ -10,8 +10,11 @@ MEMTOTAL_KBYTES=$((MEMTOTAL_BYTES/1024))
 MAXIMUM_FILESIZE=$((MEMTOTAL_KBYTES*3/2))
 NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
 RECORD_LEN=4
+THREADS=1
 TESTS=0,1,2,3
 WORKFILE_PREFIX=
+EXTRA_OPTS=
+TEST_TYPE=full-automatic
 
 # Basic args parser
 while [ "$1" != "" ]; do
@@ -31,6 +34,10 @@ while [ "$1" != "" ]; do
 			MAXIMUM_FILESIZE=$((MEMTOTAL_KBYTES/2))
 			shift
 			;;
+		--filesize)
+			MAXIMUM_FILESIZE=$2
+			shift 2
+			;;
 		--max-filesize-kbytes)
 			MAXIMUM_FILESIZE=$2
 			shift 2
@@ -47,13 +54,33 @@ while [ "$1" != "" ]; do
 			TESTS=$2
 			shift 2
 			;;
-		--single)
-			THROUGHPUT_IOZONE=no
+		--full-automatic)
+			TEST_TYPE=full-automatic
 			shift
+			;;
+		--thread-scalability)
+			TEST_TYPE=thread-scalability
+			shift
+			;;
+		--single)
+			TEST_TYPE=single
+			shift
+			;;
+		--threads)
+			THREADS=$2
+			shift 2
 			;;
 		--throughput)
 			THROUGHPUT_IOZONE=yes
 			TESTS=0,1
+			shift
+			;;
+		--flush)
+			EXTRA_OPTS="$EXTRA_OPTS -e"
+			shift
+			;;
+		--show-thread-throughput)
+			EXTRA_OPTS="$EXTRA_OPTS -C"
 			shift
 			;;
 		*)	echo Unrecognised option: $1; shift
@@ -76,25 +103,39 @@ done
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
+# Dump caches
+sync
+sleep 2
+echo 3 > /proc/sys/vm/drop_caches
+
 monitor_pre_hook $LOGDIR_RESULTS $RECORD_LEN
-if [ "$THROUGHPUT_IOZONE" != "yes" ]; then
+case $TEST_TYPE in
+full-automatic)
 	$SHELLPACK_SOURCES/iozone-${VERSION}-installed/bin/iozone \
 		-a -g $MAXIMUM_FILESIZE \
 		$WORKFILE_PREFIX \
 		$TESTS_PARAM \
-		-r $RECORD_LEN 2>&1 | tee $LOGDIR_RESULTS/iozone-$RECORD_LEN.result
-else
+		-r $RECORD_LEN $EXTRA_OPTS \
+		2>&1 | tee $LOGDIR_RESULTS/iozone-$RECORD_LEN.result
+	;;
+thread-scalability)
 	CPU=1
 	while [ $CPU -le $((NUMCPUS*16)) ]; do
 		$SHELLPACK_SOURCES/iozone-${VERSION}-installed/bin/iozone \
 			$WORKFILE_PREFIX \
 			-s $((MAXIMUM_FILESIZE/CPU)) -t $CPU \
-			-r 64 $TESTS_PARAM \
+			-r $RECORD_LEN $TESTS_PARAM $EXTRA_OPTS \
 			2>&1 | tee $LOGDIR_RESULTS/iozone-tput-$CPU-$MAXIMUM_FILESIZE.result
 		CPU=$((CPU*2))
 	done
 	FILESIZE=$((FILESIZE*2))
-fi
+	;;
+single)
+	$SHELLPACK_SOURCES/iozone-${VERSION}-installed/bin/iozone \
+		-s $((MAXIMUM_FILESIZE/THREADS)) -t $THREADS \
+		$WORKFILE_PREFIX \
+		-r $RECORD_LEN $EXTRA_OPTS 2>&1 | tee $LOGDIR_RESULTS/iozone.result
+esac
 monitor_post_hook $LOGDIR_RESULTS $RECORD_LEN
 
 echo

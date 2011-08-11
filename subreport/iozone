@@ -1,6 +1,6 @@
 echo
 echo IOZone
-gendirlist iozone
+gendirlist iozone full-automatic
 printheader
 
 SIZES=`grep -A 5000 reclen iozone-$KERNEL_BASE/noprofile/iozone-4.result | grep '^\s*[0-9]' | awk '{print $1}'`
@@ -18,3 +18,20 @@ for SIZE in $SIZES; do
 done
 COLUMN=$((COLUMN+1))
 done
+
+#echo
+#echo IOZone
+#gendirlist iozone single
+##printheader
+#
+#COLUMN=3
+#
+#for TEST in writers rewriters readers re-readers "reverse readers" "stride readers" "random readers" "mixed workload" "random writers"; do
+#	printf "%-16s" "$TEST"
+#	VANILLA=`grep "Parent sees throughput" iozone-$KERNEL_BASE/$TOPLEVEL/iozone.result | sed -e 's/initial //' | grep -e "[0-9] $TEST " | awk -F = '{print $2}' | awk '{print $1}'`
+#	for DIR in $DIRLIST; do
+#		RESULT=`grep "Parent sees throughput" $DIR/$TOPLEVEL/iozone.result  | sed -e 's/initial //' | grep -e "[0-9] $TEST " | awk -F = '{print $2}' | awk '{print $1}'`
+#		printf " %12.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+#	done
+#	echo
+#done
