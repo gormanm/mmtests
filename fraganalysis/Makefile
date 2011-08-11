@@ -6,7 +6,7 @@ ifeq ($(PMDIR),)
 PMDIR = $(PREFIX)/lib/perl5/FA
 endif
 
-INSTALL_SCRIPT = pagealloc-extfrag show-buddyinfo slab-intfrag record-buddyinfo
+INSTALL_SCRIPT = pagealloc-extfrag show-buddyinfo slab-intfrag record-extfrag
 INSTALL_PERLMOD = Report.pm
 INSTALL = install
 
