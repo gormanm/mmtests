@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="kernbench reaim postmark vmr-aim9 vmr-stream vmr-cacheeffects vmr-createdelete iozone fsmark hackbench-sockets hackbench-pipes netperf-tcp netperf-udp sysbench simple-writeback ltp micro specjvm nas-ser nas-omp rsyncresidency specomp speccpu stress-highalloc stress-blktrace"
+export MMTESTS="kernbench reaim postmark vmr-aim9 vmr-stream vmr-cacheeffects vmr-createdelete iozone fsmark hackbench-sockets hackbench-pipes netperf-tcp netperf-udp sysbench simple-writeback ltp micro specjvm nas-ser nas-omp rsyncresidency specomp speccpu stress-highalloc stress-blktrace lmbench"
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -99,6 +99,11 @@ export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-1.tar.bz2
 #export LARGECOPY_SRCTAR_EXTRA=http://mcp/~gormanm/large-tar-file-2.tar.bz2
 export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
 export LARGECOPY_THREADS=1
+
+# LMBench
+export LMBENCH_TESTS=lat_mmap
+export LMBENCH_ITERATIONS=500
+export LMBENCH_LATMMAP_FILESIZE=$((256*1048576))
 
 # LTP
 export LTP_RUN_TESTS="controllers"

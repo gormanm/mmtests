@@ -1,0 +1,64 @@
+#!/bin/bash
+# This script installs and runs lmbench
+# All parameters are passed by environment variables
+
+P=lmbench-bench
+VERSION=3
+
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2
+			;;
+		*)	echo Unrecognised option: $1
+			shift
+			;;
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/lmbench${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-lmbench -v ${VERSION} || die lmbench install script returned error
+fi
+cd $SHELLPACK_SOURCES/lmbench${VERSION}-installed || die Failed to cd to lmbench install directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+for LMBENCH_TEST in $LMBENCH_TESTS; do
+	# Prepare test
+	case $LMBENCH_TEST in
+	lat_mmap)
+		dd if=/dev/zero of=$SHELLPACK_TEMP/lmbench.file ibs=4096 count=$((LMBENCH_LATMMAP_FILESIZE/4096))
+		;;
+	*)
+		die "Unrecognised test $LMBENCH_TEST for preparation"
+		;;
+	esac
+
+	# Run test
+	monitor_pre_hook $LOGDIR_RESULTS $LMBENCH_TEST
+	case $LMBENCH_TEST in
+	lat_mmap)
+		echo -n "$LMBENCH_TEST " | tee -a $LOGDIR_RESULTS/lmbench.log
+		./bin/$LMBENCH_TEST \
+			-N $LMBENCH_ITERATIONS \
+			$LMBENCH_LATMMAP_FILESIZE $SHELLPACK_TEMP/lmbench.file \
+				2>&1 | tee -a $LOGDIR_RESULTS/lmbench.log
+		;;
+	*)
+		die "Unrecognised test $LMBENCH_TEST for execution"
+		;;
+	esac
+	monitor_post_hook $LOGDIR_RESULTS $LMBENCH_TEST 
+
+	rm -f $SHELLPACK_TEMP/lmbench.file 2> /dev/null
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description lmbench
+#### Details lmbench-bench 3
