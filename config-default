@@ -76,6 +76,48 @@ export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
+# FFSB
+export FFSB_DURATION=300
+export FFSB_NUM_THREADS=1
+
+# FFSB sequential reads
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=seq-read
+
+# FFSB large files create
+#export FFSB_MIN_FILESIZE=$((128*1048576))
+#export FFSB_MAX_FILESIZE=$((128*1048576))
+#export FFSB_FILE_PROFILE=single-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=file-create
+
+# FFSB random reads
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=random-read
+
+# FFSB random writes
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=random-write
+
+# FFSB mailserver simulator
+#export FFSB_NUM_FILES=500000
+#export FFSB_NUM_DIRECTORIES=1000
+#export FFSB_FILE_PROFILE=many-file-many-directory
+#export FFSB_FILESIZE_PROFILE=weight-mailserver
+#export FFSB_OPERATIONS_PROFILE=mailserver
+
 # FS-Mark
 #export FSMARK_SINGLETHREAD=1
 #export FSMARK_THREADS=1

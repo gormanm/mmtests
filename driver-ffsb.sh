@@ -1,0 +1,28 @@
+FINEGRAINED_SUPPORTED=yes
+NAMEEXTRA=
+
+run_bench() {
+	COMMAND_FILES=
+	COMMAND_DIRECTORIES=
+	COMMAND_MIN_FILESIZE=
+	COMMAND_MAX_FILESIZE=
+
+	if [ "$FFSB_NUM_FILES" != "" ]; then
+		COMMAND_FILES="--files $FFSB_NUM_FILES"
+	fi
+	if [ "$FFSB_NUM_DIRECTORIES" != "" ]; then
+		COMMAND_DIRECTORIES="--directories $FFSB_NUM_DIRECTORIES"
+	fi
+	if [ "$FFSB_MIN_FILESIZE" != "" ]; then
+		COMMAND_MIN_FILESIZE="--min-filesize $FFSB_MIN_FILESIZE"
+	fi
+	if [ "$FFSB_MAX_FILESIZE" != "" ]; then
+		COMMAND_MAX_FILESIZE="--max-filesize $FFSB_MIN_FILESIZE"
+	fi
+	$SHELLPACK_INCLUDE/shellpack-bench-ffsb \
+		--threads $FFSB_NUM_THREADS \
+		--file-profile $FFSB_FILE_PROFILE \
+		--filesize-profile $FFSB_FILESIZE_PROFILE \
+		--operations-profile $FFSB_OPERATIONS_PROFILE \
+		$COMMAND_FILES $COMMAND_DIRECTORIES $COMMAND_MIN_FILESIZE $COMMAND_MAX_FILESIZE
+}
