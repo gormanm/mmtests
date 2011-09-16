@@ -1,0 +1,52 @@
+#!/bin/bash
+# This script installs dbench and whatever
+P=dbench-bench
+VERSION=20110916
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/dbench-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-dbench -v ${VERSION} || die dbench install script returned error
+fi
+cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die Failed to cd to dbench install directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+if [ "$DBENCH_OSYNC" = "yes" ]; then
+	DBENCH_OSYNC_COMMAND=-s
+fi
+if [ "$DBENCH_SYNC_DIRECTORY" = "yes" ]; then
+	DBENCH_SYNC_COMMAND=-S
+fi
+if [ "$DBENCH_FSYNC" = "yes" ]; then
+	DBENCH_FSYNC_COMMAND=-F
+fi
+
+DBENCH_CLIENTS=`echo $DBENCH_CLIENTS | tr ',' ' '`
+
+CLIENT=1
+while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
+	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
+	./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
+		-D $SHELLPACK_TEMP \
+		-t $DBENCH_DURATION \
+		$CLIENT 2>&1 | tee $LOGDIR_RESULTS/dbench-$CLIENT.log \
+			|| die Failed to run dbench
+	monitor_post_hook $LOGDIR_RESULTS $CLIENT
+	CLIENT=$((CLIENT*2))
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description dbench
+#### Details dbench-bench 8

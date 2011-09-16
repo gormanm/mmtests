@@ -1,0 +1,52 @@
+#!/bin/bash
+# dbench installer
+P=dbench-install
+GIT_LOCATION=git://git.samba.org/sahlberg/dbench.git
+MIRROR_LOCATION="$WEBROOT/dbench/"
+DEFAULT_VERSION=20110916
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+  case "$1" in
+    -v)
+            VERSION=$2
+	    shift 2
+	    ;;
+    *)
+            echo Unrecognised option: $1
+	    shift
+  esac
+done
+
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=dbench-${VERSION}.tar.gz
+git_fetch $GIT_LOCATION dbench-$VERSION $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf dbench-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR dbench-${VERSION}
+pushd dbench-${VERSION} > /dev/null || die Failed to rename tar
+
+# Build
+./autogen.sh || die Failed to run autogen
+./configure --prefix=$SHELLPACK_SOURCES/dbench-${VERSION}-installed || die Failed to configure
+make || die Failed to build
+make install || die Failed to install
+cp $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/doc/dbench/loadfiles/client.txt $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share
+
+echo dbench installed successfully
+#### Description dbench
+#### Details dbench 8
