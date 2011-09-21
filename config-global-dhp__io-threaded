@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="kernbench reaim postmark vmr-aim9 vmr-stream vmr-cacheeffects vmr-createdelete iozone fsmark hackbench-sockets hackbench-pipes netperf-tcp netperf-udp sysbench simple-writeback ltp micro specjvm nas-ser nas-omp rsyncresidency specomp speccpu stress-highalloc stress-blktrace lmbench"
+export MMTESTS="tiobench"
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -81,7 +81,7 @@ export DBENCH_DURATION=$((7*60))
 export DBENCH_OSYNC=no
 export DBENCH_SYNC_DIRECTORY=no
 export DBENCH_FSYNC=no
-export DBENCH_MAX_CLIENTS=$((NUM_CPU*64))
+export DBENCH_CLIENTS=1,$((NUM_CPU)),$((NUM_CPU*2)),$((NUM_CPU*4)),$((NUM_CPU*8)),$((NUM_CPU*16)),$((NUM_CPU*32)),$((NUM_CPU*64))
 
 # FFSB
 export FFSB_DURATION=300

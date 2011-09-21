@@ -1,0 +1,47 @@
+#!/bin/bash
+# This script installs tiobench and whatever
+P=tiobench-bench
+VERSION=0.3.3
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/tiobench-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-tiobench -v ${VERSION} || die tiobench install script returned error
+fi
+cd $SHELLPACK_SOURCES/tiobench-${VERSION}-installed || die Failed to cd to tiobench install directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+if [ "$TIOBENCH_RANDOM" = "" -o "$TIOBENCH_RANDOM" != "0" ]; then
+	TIOBENCH_COMMAND_RANDOM="--random $TIOBENCH_RANDOM"
+fi
+
+CLIENT=1
+while [ $CLIENT -le $TIOBENCH_MAX_CLIENTS ]; do
+	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
+	./tiobench.pl $TIOBENCH_COMMAND_RANDOM \
+		--dir     $SHELLPACK_TEMP \
+		--numruns $TIOBENCH_ITERATIONS \
+		--size    $((TIOBENCH_SIZE/1048576)) \
+		--block   $TIOBENCH_BLOCKSIZE \
+		--threads $CLIENT \
+		2>&1 | tee $LOGDIR_RESULTS/tiobench-$CLIENT.log \
+			|| die Failed to run tiobench
+	monitor_post_hook $LOGDIR_RESULTS $CLIENT
+	CLIENT=$((CLIENT*2))
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description tiobench
+#### Details tiobench-bench 3
