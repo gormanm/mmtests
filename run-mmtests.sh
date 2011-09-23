@@ -259,8 +259,20 @@ if [ "$MEMCG_SIZE" != "" ]; then
 	echo Memory limit configured: `cat /cgroups/0/memory.limit_in_bytes`
 fi
 
+# Configure low_latency if requested
+if [ "$CFQ_LOW_LATENCY" != "" ]; then
+	echo Configuring cfq low_latency == $CFQ_LOW_LATENCY
+	cd /sys
+	for PARAM in `find -name "low_latency"`; do
+		echo $CFQ_LOW_LATENCY > $PARAM
+	done
+	cd -
+fi
+
 # If profiling is enabled, make sure the necessary oprofile helpers are
-# available
+# available and that there is a unable vmlinux file in the expected
+# place
+export EXPANDED_VMLINUX=no
 if [ "$SKIP_FINEPROFILE" = "no" -o "$SKIP_COARSEPROFILE" = "no" ]; then
 	if [ "`which oprofile_start.sh`" = "" ]; then
 		./shellpacks/shellpack-install-libhugetlbfsbuild -v 2.9
@@ -268,6 +280,13 @@ if [ "$SKIP_FINEPROFILE" = "no" -o "$SKIP_COARSEPROFILE" = "no" ]; then
 		if [ "`which oprofile_start.sh`" = "" ]; then
 			die Profiling requested but unable to provide
 		fi
+	fi
+
+	VMLINUX=/boot/vmlinux-`uname -r`
+	if [ ! -e $VMLINUX -a -e $VMLINUX.gz ]; then
+		echo Expanding vmlinux.gz file
+		gunzip $VMLINUX.gz || die "Failed to expand vmlinux file for profiling"
+		export EXPANDED_VMLINUX=yes
 	fi
 fi
 
@@ -507,3 +526,7 @@ for TEST in $MMTESTS; do
 	rm -rf $SHELLPACK_LOG/$TEST-$RUNNAME
 	mv $SHELLPACK_LOG/$TEST $SHELLPACK_LOG/$TEST-$RUNNAME
 done
+if [ "$EXPANDED_VMLINUX" = "yes" ]; then
+	echo Recompressing vmlinux
+	gzip /boot/vmlinux-`uname -r`
+fi
