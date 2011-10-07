@@ -2,8 +2,9 @@
 # dbench installer
 P=dbench-install
 GIT_LOCATION=git://git.samba.org/sahlberg/dbench.git
+WEB_LOCATION=http://samba.org/ftp/tridge/dbench/
 MIRROR_LOCATION="$WEBROOT/dbench/"
-DEFAULT_VERSION=20110916
+DEFAULT_VERSION=3.04
 . $SHELLPACK_INCLUDE/common.sh
 
 # Basic argument parser
@@ -25,7 +26,8 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=dbench-${VERSION}.tar.gz
-git_fetch $GIT_LOCATION dbench-$VERSION $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+#git_fetch $GIT_LOCATION dbench-$VERSION $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
@@ -45,8 +47,10 @@ pushd dbench-${VERSION} > /dev/null || die Failed to rename tar
 ./configure --prefix=$SHELLPACK_SOURCES/dbench-${VERSION}-installed || die Failed to configure
 make || die Failed to build
 make install || die Failed to install
-cp $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/doc/dbench/loadfiles/client.txt $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share
+if [ ! -e $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share ]; then
+	cp $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/doc/dbench/loadfiles/client.txt $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share
+fi
 
 echo dbench installed successfully
 #### Description dbench
-#### Details dbench 8
+#### Details dbench 9

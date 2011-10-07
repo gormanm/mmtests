@@ -49,6 +49,7 @@ for SINGLE_KERNEL in $KERNEL; do
 	if [ ! -e tests-timestamp-$SINGLE_KERNEL ]; then
 		echo WARN: $WORKINGDIR/test-timestamp-$SINGLE_KERNEL does not exist
 	else
+		AKERNEL=$SINGLE_KERNEL
 		if [ "$FILTERED_KERNEL" = "" ]; then
 			FILTERED_KERNEL=$SINGLE_KERNEL
 		else
@@ -56,7 +57,7 @@ for SINGLE_KERNEL in $KERNEL; do
 		fi
 	fi
 done
-PRESENT_KB=`grep MemTotal: $WORKINGDIR/tests-timestamp-$SINGLE_KERNEL | head -1 | awk '{print $2}'`
+PRESENT_KB=`grep MemTotal: $WORKINGDIR/tests-timestamp-$AKERNEL | head -1 | awk '{print $2}'`
 PRESENT_MB=$((PRESENT_KB/1024))
 PRESENT_PAGES=$(($PRESENT_KB/4))
 KERNEL="$FILTERED_KERNEL"

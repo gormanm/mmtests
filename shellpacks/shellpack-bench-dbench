@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script installs dbench and whatever
 P=dbench-bench
-VERSION=20110916
+VERSION=3.04
 . $SHELLPACK_INCLUDE/common.sh
 
 # Basic args parser
@@ -49,4 +49,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description dbench
-#### Details dbench-bench 8
+#### Details dbench-bench 9

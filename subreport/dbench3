@@ -1,0 +1,44 @@
+echo
+gendirlist dbench3
+printheader
+
+CLIENTS=`ls dbench3-$KERNEL_BASE/$TOPLEVEL/dbench-*.log | sed -e 's/.*\///' -e 's/dbench-//' -e 's/.log//' | sort -n`
+
+# Generate plot files
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/dbench-NR_CLIENT.plot"
+	TITLES="$TITLES `echo $DIR | sed -e 's/dbench3-//'`"
+	for CLIENT in $CLIENTS; do
+		grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $6" "$3}' > $DIR/$TOPLEVEL/dbench-$CLIENT.plot
+	done
+done
+
+echo DBench 3 Throughput
+for PROCESS in min mean true-mean stddev max; do
+for CLIENT in $CLIENTS; do
+	printf "%-7s %3d %-6s" Clients $CLIENT $PROCESS
+	VANILLA=`grep execute dbench3-$KERNEL_BASE/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
+
+	for DIR in $DIRLIST; do
+		RESULT=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
+		printf " %7.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+	done
+	echo
+	if [ "$PROCESS" = "mean" ]; then
+		printf "%-17s" "+/-"
+		for DIR in $DIRLIST; do
+			MEAN=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | mean`
+			STDDEV=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | stddev`
+			printf " %7.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
+		done
+		echo
+		printf "%-7s %3s %-6s" "" "" "true"
+		VANILLA=`grep execute dbench3-$KERNEL_BASE/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | true-mean`
+		for DIR in $DIRLIST; do
+			RESULT=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | true-mean`
+			printf " %7.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+		done
+		echo
+	fi
+done
+done

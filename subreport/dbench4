@@ -1,0 +1,77 @@
+echo
+gendirlist dbench4
+printheader
+
+CLIENTS=`ls dbench4-$KERNEL_BASE/$TOPLEVEL/dbench-*.log | sed -e 's/.*\///' -e 's/dbench-//' -e 's/.log//' | sort -n`
+
+# Generate plot files
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/dbench-NR_CLIENT.plot"
+	TITLES="$TITLES `echo $DIR | sed -e 's/dbench4-//'`"
+	for CLIENT in $CLIENTS; do
+		grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $6" "$3}' > $DIR/$TOPLEVEL/dbench-$CLIENT.plot
+		grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $6" "$9}' > $DIR/$TOPLEVEL/dbench-latency-$CLIENT.plot
+	done
+done
+
+echo DBench 4 Throughput
+for PROCESS in min mean stddev max; do
+for CLIENT in $CLIENTS; do
+	printf "%-7s %3d %-6s" Clients $CLIENT $PROCESS
+	VANILLA=`grep execute dbench4-$KERNEL_BASE/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
+
+	for DIR in $DIRLIST; do
+		RESULT=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
+		printf " %7.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+	done
+	echo
+
+	if [ "$PROCESS" = "mean" ]; then
+		printf "%-17s" "+/-"
+		for DIR in $DIRLIST; do
+			MEAN=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | mean`
+			STDDEV=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | stddev`
+			printf " %7.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
+		done
+		echo
+		printf "%-7s %3s %-6s" "" "" true
+		VANILLA=`grep execute dbench4-$KERNEL_BASE/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
+		for DIR in $DIRLIST; do
+			RESULT=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
+			printf " %7.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+		done
+		echo
+	fi
+done
+done
+
+# Latency
+echo
+echo DBench 4 Latency
+for PROCESS in min mean stddev max; do
+for CLIENT in $CLIENTS; do
+	printf "%-7s %3d %-6s" Clients $CLIENT $PROCESS
+	VANILLA=`grep execute dbench4-$KERNEL_BASE/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $9}' | $PROCESS`
+
+	for DIR in $DIRLIST; do
+		RESULT=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $9}' | $PROCESS`
+		printf " %7.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+	done
+	echo
+done
+done
+
+# Operations
+echo
+echo DBench 4 Operation Latency
+for OPERATION in Deltree Flush Close LockX Mkdir Rename ReadX WriteX Unlink UnlockX FIND_FIRST SET_FILE_INFORMATION QUERY_FILE_INFORMATION QUERY_PATH_INFORMATION QUERY_FS_INFORMATION NTCreateX; do
+for CLIENT in $CLIENTS; do
+	printf "%-7s %3d %-6s" Clients $CLIENT $OPERATION
+	VANILLA=`grep -A 20 "^ Operation" dbench4-$KERNEL_BASE/$TOPLEVEL/dbench-$CLIENT.log | grep " $OPERATION " | awk '{print $3}'`
+	for DIR in $DIRLIST; do
+		RESULT=`grep -A 20 "^ Operation" $DIR/$TOPLEVEL/dbench-$CLIENT.log | grep " $OPERATION " | awk '{print $3}'`
+		printf " %7.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+	done
+	echo
+done
+done

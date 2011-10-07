@@ -24,7 +24,7 @@ for SINGLE_KERNEL in $KERNEL; do
 	head -1 vmstat-$SINGLE_KERNEL-$ANY_TEST | grep -- -- > /dev/null
 	if [ $? -eq 0 ]; then
 		TIMESTAMPS=yes
-		awk "{print (\$1-$START)\" \"\$17}" vmstat-$SINGLE_KERNEL-* > $TMPDIR/contextswitch-$NAME-$SINGLE_KERNEL.data-unsorted
+		awk "{print (\$1-$START)\" \"\$16}" vmstat-$SINGLE_KERNEL-* > $TMPDIR/contextswitch-$NAME-$SINGLE_KERNEL.data-unsorted
 	else
 		echo -n > $TMPDIR/contextswitch-$NAME-$SINGLE_KERNEL.data-unsorted
 		for TEST in $MMTESTS; do

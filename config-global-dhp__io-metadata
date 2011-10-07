@@ -56,7 +56,7 @@ export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " "
 #export TESTDISK_RAID_SIZE=250019532
 #export TESTDISK_RAID_TYPE=raid0
 #export TESTDISK_PARTITION=/dev/sda6
-#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_FILESYSTEM=ext3
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
 #export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
 #
@@ -77,11 +77,11 @@ export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # DBench
-export DBENCH_DURATION=$((7*60))
+export DBENCH_DURATION=$((3*60))
 export DBENCH_OSYNC=no
 export DBENCH_SYNC_DIRECTORY=no
 export DBENCH_FSYNC=no
-export DBENCH_CLIENTS=1,$((NUM_CPU)),$((NUM_CPU*2)),$((NUM_CPU*4)),$((NUM_CPU*8)),$((NUM_CPU*16)),$((NUM_CPU*32)),$((NUM_CPU*64))
+export DBENCH_MAX_CLIENTS=$((NUM_CPU*64))
 
 # FFSB
 export FFSB_DURATION=300
