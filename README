@@ -113,6 +113,20 @@ aim9
 	seconds. This is a micro-benchmark of a number of VM operations. It's
 	sensitive to changes in the allocator paths for example.
 
+dbench3
+	Runs the dbench3 benchmark. This is not a great benchmark as it is
+	mostly testing how fast IO to cached memory is.
+
+dbench4
+	Runs the dbench4 benchmark. This is in better shape than dbench3
+	in that it is more of an IO benchmark. It also reports on latencies
+	of various different operations which is useful.
+
+ffsb
+	The ffsb benchmark takes a workfile to simulate various different
+	workloads. Support is there to generate profiles similar to what
+	is used for evaulating btrfs.
+
 vmr-stream
 	Runs the STREAM benchmark a number of times for varying sizes. An
 	average is recorded. This can be used to measure approximate memory
@@ -189,6 +203,9 @@ simple-writeback
 	This is a simple writeback test based on dd. It's meant to be
 	easy to understand and quick to run. Useful for measuring page
 	writeback changes.
+
+tiobench
+	Threaded IO benchmark.
 
 ltp (untested)
 	The LTP benchmark. What it is testing depends on exactly which of the

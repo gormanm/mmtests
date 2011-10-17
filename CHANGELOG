@@ -1,0 +1,12 @@
+v0.02
+o Added benchmark for running dbench3, dbench4, tiobench
+o Added benchmark for ffsb that can generate work profiles similar to the
+  ffsb tests used for btrfs
+o iozone can now run in single mode to allow better specification of what
+  the test should do
+o Corrected name of fraganalysis script in makefile
+o Polished reporting a little, added some support for comparing iostat
+  reports
+
+v0.01
+o Initial public release
