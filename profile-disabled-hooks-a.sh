@@ -9,15 +9,15 @@ echo "#!/bin/bash" > monitor-pre-hook
 case `uname -m` in
 	i?86)
 		echo "oprofile_start.sh --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer" >> monitor-pre-hook
-		export PROFILE_EVENTS=timer,dtlb_miss
+		export PROFILE_EVENTS=timer
 		;;
 	x86_64)
 		echo "oprofile_start.sh --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer" >> monitor-pre-hook
-		export PROFILE_EVENTS=timer,dtlb_miss
+		export PROFILE_EVENTS=timer
 		;;
 	ppc64)
 		echo "oprofile_start.sh --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer" >> monitor-pre-hook
-		export PROFILE_EVENTS=timer,dtlb_miss
+		export PROFILE_EVENTS=timer
 		;;
 	*)
 		echo Unrecognised architecture

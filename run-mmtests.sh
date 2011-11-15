@@ -289,7 +289,7 @@ if [ "$SKIP_FINEPROFILE" = "no" -o "$SKIP_COARSEPROFILE" = "no" ]; then
 		export EXPANDED_VMLINUX=yes
 	fi
 
-	if [ `cat /proc/sys/kernel/nmi_watchdog` = "1" ]; then
+	if [ "`cat /proc/sys/kernel/nmi_watchdog`" = "1" ]; then
 		echo Disabling NMI watchdog for profiling
 		echo 0 > /proc/sys/kernel/nmi_watchdog
 	fi
