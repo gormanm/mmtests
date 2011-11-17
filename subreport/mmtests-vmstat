@@ -7,8 +7,12 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 
 	ELAPSED_TIME=`grep "time :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk '{print $8}'`
 	START_LINE=`grep -n "test begin :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk -F : '{print $1}'`
-	END_LINE=`grep -n "test end :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk -F : '{print $1}'`
-	head -$END_LINE tests-timestamp-$DIRNAME | tail -$((END_LINE-START_LINE+2)) > $TMPDIR/mmtests-full.log
+	if [ "$START_LINE" != "" ]; then
+		END_LINE=`grep -n "test end :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk -F : '{print $1}'`
+		head -$END_LINE tests-timestamp-$DIRNAME | tail -$((END_LINE-START_LINE+2)) > $TMPDIR/mmtests-full.log
+	else
+		cp tests-timestamp-$DIRNAME $TMPDIR/mmtests-full.log
+	fi
 
 	START_LINE=`grep -n "file start :: /proc/vmstat" $TMPDIR/mmtests-full.log | awk -F : '{print $1}'`
 	END_LINE=`grep -n "file start :: /proc/zoneinfo" $TMPDIR/mmtests-full.log | awk -F : '{print $1}'`

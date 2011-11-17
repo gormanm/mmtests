@@ -51,12 +51,13 @@ done
 echo
 }
 
+SIMUL=`ls *mmtestsimul* 2> /dev/null`
 for SUBREPORT in kernbench tiobench dbench3 dbench4 multibuild fsmark postmark iozone netperf-udp netperf-tcp hackbench-pipes hackbench-sockets vmr-createdelete vmr-cacheeffects ffsb vmr-aim9 vmr-stream sysbench largecopy largedd simple-writeback rsyncresidency stress-highalloc micro; do
 	if [ -e $SUBREPORT-$KERNEL_BASE ]; then
 		echo ===BEGIN $SUBREPORT
 		INPUTS=
 		TITLES=
-		if [ -e $SCRIPTDIR/subreport/$SUBREPORT ]; then
+		if [ "$SIMUL" = "" -a -e $SCRIPTDIR/subreport/$SUBREPORT ]; then
 			. $SCRIPTDIR/subreport/$SUBREPORT
 		fi
 
@@ -71,6 +72,10 @@ for SUBREPORT in kernbench tiobench dbench3 dbench4 multibuild fsmark postmark i
 		fi
 		if [ "$INPUTS" != "" ]; then
 			echo ===TITLES $SUBREPORT : $TITLES
+		fi
+		if [ "$SIMUL" != "" ]; then
+			rm -rf $TMPDIR
+			exit
 		fi
 	fi
 done

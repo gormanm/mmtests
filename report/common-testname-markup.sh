@@ -66,9 +66,13 @@ for TESTNAME in $TESTNAMES; do
 done
 TIMESTAMP=`tail -1 tests-timestamp-$KERNEL | awk '{print $3}'`
 TIMESTAMP=$((($TIMESTAMP-$START)/60))
-MIRROR="$MIRROR, '' $TIMESTAMP"
 
-echo "set grid x2tics" > $TMPDIR/$NAME-extra
-echo "set x2tics mirror ($MIRROR) rotate by 45" >> $TMPDIR/$NAME-extra
+if [ "$MIRROR" != "" ]; then
+	MIRROR="$MIRROR, '' $TIMESTAMP"
+	echo "set grid x2tics" > $TMPDIR/$NAME-extra
+	echo "set x2tics mirror ($MIRROR) rotate by 45" >> $TMPDIR/$NAME-extra
+else
+	echo -n > $TMPDIR/$NAME-extra
+fi
 
 KERNEL=$COPY
