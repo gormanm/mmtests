@@ -22,8 +22,7 @@ my @trace_functions = (
 	"wait_for_completion",
 	"wait_on_page_bit",
 	"try_to_free_pages",
-	"shrink_zone",
-	"balance_dirty_pages");
+	"shrink_zone");
 
 my @completion_functions=(
 	"handle_mm_fault",
@@ -41,7 +40,8 @@ my @trace_conditional = (
 	"sleep_on_page",
 	"sleep_on_buffer",
 	"try_to_compact_pages",
-);
+	"balance_dirty_pages_ratelimited_nr",
+	"balance_dirty_pages");
 
 # Information on each stall is gathered and stored in a hash table for
 # dumping later. Define some constants for the table lookup to avoid
@@ -163,9 +163,10 @@ sub read_blockstat($) {
 	my $ret;
 	
 	foreach $stat (@block_iostat_files) {
-		open(STAT, $stat) || die("Failed to open $stat");
-		$ret .= sprintf "%s%20s %s", $prefix, $stat, <STAT>;
-		close(STAT);
+		if (open(STAT, $stat)) {
+			$ret .= sprintf "%s%20s %s", $prefix, $stat, <STAT>;
+			close(STAT);
+		}
 	}
 	return $ret;
 }
