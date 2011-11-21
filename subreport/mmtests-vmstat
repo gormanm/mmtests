@@ -196,6 +196,57 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	VMSCAN_INVALIDATE=$VALUE
 
 	VALUE=0
+	for HEADING in thp_fault_alloc; do
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	THP_FAULT_ALLOC=$VALUE
+
+	VALUE=0
+	for HEADING in thp_collapse_alloc; do
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	THP_COLLAPSE_ALLOC=$VALUE
+
+	VALUE=0
+	for HEADING in thp_split; do
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	THP_SPLIT=$VALUE
+
+	VALUE=0
+	for HEADING in thp_fault_fallback; do
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	THP_FAULT_FALLBACK=$VALUE
+
+	VALUE=0
+	for HEADING in thp_collapse_alloc_failed; do
+		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
+		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
+		if [ "$BEFORE" != "" ]; then
+			VALUE=$((VALUE+(AFTER-BEFORE)))
+		fi
+	done
+	THP_COLLAPSE_ALLOC_FAILED=$VALUE
+
+
+	VALUE=0
 	for HEADING in pgscan_direct_dma pgscan_direct_dma32 pgscan_direct_normal pgscan_direct_movable pgscan_direct_high; do
 		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
 		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
@@ -243,6 +294,11 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	echo "Direct inode steals     : $DIRECT_INODESTEAL">>  vmstat-summary-$DIRNAME
 	echo "Kswapd inode steals     : $KSWAPD_INODESTEAL">>  vmstat-summary-$DIRNAME
 	echo "Kswapd skipped wait     : $KSWAPD_SKIP_CONGESTION" >> vmstat-summary-$DIRNAME
+	echo "THP fault alloc         : $THP_FAULT_ALLOC" >> vmstat-summary-$DIRNAME
+	echo "THP collapse alloc      : $THP_COLLAPSE_ALLOC" >> vmstat-summary-$DIRNAME
+	echo "THP splits              : $THP_SPLIT" >> vmstat-summary-$DIRNAME
+	echo "THP fault fallback      : $THP_FAULT_FALLBACK" >> vmstat-summary-$DIRNAME
+	echo "THP collapse failure    : $THP_COLLAPSE_ALLOC_FAILED" >> vmstat-summary-$DIRNAME
 	echo "Compaction stalls       : $COMPACT_STALL" >> vmstat-summary-$DIRNAME
 	echo "Compaction success      : $COMPACT_SUCCESS" >> vmstat-summary-$DIRNAME
 	echo "Compaction failures     : $COMPACT_FAIL" >> vmstat-summary-$DIRNAME
@@ -250,7 +306,7 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	echo "Compaction move failure : $COMPACT_MOVES_FAILED" >> vmstat-summary-$DIRNAME
 done
 
-for HEADING in "Page Ins" "Page Outs" "Swap Ins" "Swap Outs" "Direct pages scanned" "Kswapd pages scanned" "Kswapd pages reclaimed" "Direct pages reclaimed" "Kswapd efficiency" "Kswapd velocity" "Direct efficiency" "Direct velocity" "Percentage direct scans" "Page writes by reclaim" "Page writes file" "Page writes anon" "Page reclaim invalidate" "Slabs scanned" "Direct inode steals" "Kswapd inode steals" "Kswapd skipped wait" "Compaction stalls" "Compaction success" "Compaction failures" "Compaction pages moved" "Compaction move failure"; do
+for HEADING in "Page Ins" "Page Outs" "Swap Ins" "Swap Outs" "Direct pages scanned" "Kswapd pages scanned" "Kswapd pages reclaimed" "Direct pages reclaimed" "Kswapd efficiency" "Kswapd velocity" "Direct efficiency" "Direct velocity" "Percentage direct scans" "Page writes by reclaim" "Page writes file" "Page writes anon" "Page reclaim invalidate" "Slabs scanned" "Direct inode steals" "Kswapd inode steals" "Kswapd skipped wait" "THP fault alloc" "THP collapse alloc" "THP splits" "THP fault fallback" "THP collapse fail" "Compaction stalls" "Compaction success" "Compaction failures" "Compaction pages moved" "Compaction move failure"; do
 	printf "%-40s" "$HEADING"
 	for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 		if [ ! -e vmstat-summary-$DIRNAME ]; then

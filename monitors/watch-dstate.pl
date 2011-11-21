@@ -67,11 +67,13 @@ sub usage() {
 my $opt_help;
 my $opt_output;
 my $opt_stapout;
-my $opt_accurate_stall;
+my $opt_accurate_stall = 1;
+my $opt_accurate_stack = 0;
 GetOptions(
 	'help|h'		=> \$opt_help,
 	'output|o=s'		=> \$opt_output,
 	'stapout|s=s'		=> \$opt_stapout,
+	'accurate-stack|a'	=> \$opt_accurate_stack,
 	'accurate-stall|a'	=> \$opt_accurate_stall,
 );
 
@@ -81,6 +83,13 @@ if ($opt_output) {
 }
 if ($opt_stapout) {
 	open(OUTPUT, ">$opt_stapout") || die("Failed to open $opt_stapout for writing");
+}
+
+if ($opt_accurate_stack) {
+	$opt_accurate_stall = 0;
+}
+if ($opt_accurate_stall) {
+	$opt_accurate_stack = 0;
 }
 
 # Handle cleanup of temp files

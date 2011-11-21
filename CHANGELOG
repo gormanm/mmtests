@@ -1,3 +1,7 @@
+v0.03
+o Add a page allocator micro-benchmark
+o Add monitor for tracking processes stuck in D state
+
 v0.02
 o Added benchmark for running dbench3, dbench4, tiobench
 o Added benchmark for ffsb that can generate work profiles similar to the
