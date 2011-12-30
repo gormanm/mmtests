@@ -7,6 +7,7 @@ for KERNEL in $KERNEL_BASE $KERNEL_COMPARE; do
 	fi
 done
 
+if [ -e ftrace-$KERNEL_BASE-$FTRACE_TEST-congestion.report ]; then
 for HEADING in "Direct number congest     waited" "Direct time   congest     waited" "Direct full   congest     waited" "Direct number conditional waited" "Direct time   conditional waited" "Direct full   conditional waited" "KSwapd number congest     waited" "KSwapd time   congest     waited" "KSwapd full   congest     waited" "KSwapd number conditional waited" "KSwapd time   conditional waited" "KSwapd full   conditional waited"; do
 
 	PRINT_HEADING=$HEADING
@@ -28,6 +29,7 @@ for HEADING in "Direct number congest     waited" "Direct time   congest     wai
 	done
 	echo
 done
+fi
 
 echo
 echo

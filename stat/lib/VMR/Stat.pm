@@ -25,9 +25,16 @@ sub calc_mean {
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined $_[$i]) {
+			if ($_[$i] !~ /^[0-9]+/) {
+				return "NaN";
+			}
 			$sum += $_[$i];
 			$n++;
 		}
+	}
+
+	if ($n == 0) {
+		return "NaN";
 	}
 	return $sum / $n;
 }
@@ -42,9 +49,16 @@ sub calc_stddev {
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined $_[$i]) {
+			if ($_[$i] !~ /^[0-9]+/) {
+				return "NaN";
+			}
 			$diff += ($_[$i] - $mean) ** 2;
 			$n++;
 		}
+	}
+
+	if ($n == 0) {
+		return "NaN";
 	}
 
 	return sqrt($diff / $n);
