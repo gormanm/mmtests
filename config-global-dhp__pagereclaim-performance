@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="micro sysbench postmark fsmark largecopy largedd rsyncresidency"
+export MMTESTS="micro sysbench postmark fsmark largecopy largedd"
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts

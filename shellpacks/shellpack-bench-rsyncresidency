@@ -49,21 +49,25 @@ if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
 fi
 echo Starting background mapping writer
 echo Logging: $LOGDIR_RESULTS/access-latency.log
-$EXPECT_UNBUFFER $TEMPFILE $MAPPING_SIZE > $LOGDIR_RESULTS/access-latency.log &
-MAPPINGPID=$!
+$EXPECT_UNBUFFER $TEMPFILE $MAPPING_SIZE | tee | gzip -c > $LOGDIR_RESULTS/access-latency.log.gz &
+MAPPINGPID1=$!
+MAPPINGPID2=`$SHELLPACK_TOPLEVEL/bin/piping-pid.sh $MAPPINGPID1`
+MAPPINGPID3=`$SHELLPACK_TOPLEVEL/bin/piping-pid.sh $MAPPINGPID2`
 
 # Rsync
 echo Starting rsync
 echo rsync -a -l -r $RSYNC_SOURCE $RSYNC_DESTINATION
 rsync -a -l -r $RSYNC_SOURCE $RSYNC_DESTINATION
 
-echo -n Shutting down mapping pid $MAPPINGPID
-kill -INT $MAPPINGPID
-while [ "`ps h --pid $MAPPINGPID`" != "" ]; do
-		echo -n .
-		sleep 1
+for MAPPINGPID in $MAPPINGPID1 $MAPPINGPID2 $MAPPINGPID3; do
+	echo -n Shutting down mapping pid $MAPPINGPID
+	kill -INT $MAPPINGPID
+	while [ "`ps h --pid $MAPPINGPID`" != "" ]; do
+			echo -n .
+			sleep 1
+	done
+	echo
 done
-echo
 
 rm $TEMPFILE $TEMPFILE.c
 
