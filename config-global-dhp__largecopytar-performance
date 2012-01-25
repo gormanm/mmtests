@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="kernbench vmr-aim9 hackbench-pipes hackbench-sockets netperf-udp netperf-tcp sysbench stress-highalloc"
+export MMTESTS="largecopy"
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -71,7 +71,7 @@ export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top slabinfo"
-export MONITORS_WITH_LATENCY="vmstat"
+export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # FS-Mark
@@ -84,7 +84,7 @@ export FSMARK_FILESIZE=0
 export FSMARK_NR_DIRECTORIES=225
 export FSMARK_NR_FILES_PER_DIRECTORY=22500
 export FSMARK_NR_FILES_PER_ITERATION=50000
-export FSMARK_ITERATIONS=35
+export FSMARK_ITERATIONS=15
 
 # HackBench
 export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
@@ -93,8 +93,7 @@ export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
 export IOZONE_SIZE=--fastest
 
 # Large copy and untar
-export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-1.tar.bz2
-#export LARGECOPY_SRCTAR_EXTRA=http://mcp/~gormanm/large-tar-file-2.tar.bz2
+export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-2.tar.bz2
 export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
 export LARGECOPY_THREADS=1
 
@@ -195,7 +194,7 @@ export SPECOMP_PAGESIZES="base huge-heap huge-all"
 # SysBench
 export OLTP_TESTTYPE=complex
 export OLTP_READONLY=--read-only
-export OLTP_SIZE=--faster
+export OLTP_SIZE=--slower
 export OLTP_CONFIDENCE=
 export OLTP_PAGESIZES="base"
 if [[ `uname -m` =~ i.86 ]]; then
@@ -210,7 +209,7 @@ export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
 
 # STREAM
 export STREAM_BACKING_TYPE=static
-export STREAM_PAGESIZES="base"
+export STREAM_PAGESIZES="base transhuge"
 #export STREAM_PAGESIZES="base huge dynhuge"
 
 # Stress blktrace

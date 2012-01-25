@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="micro"
+export MMTESTS="ddresidency"
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -16,12 +16,14 @@ export SHELLPACK_LOG=$SCRIPTDIR/work/log
 export LINUX_GIT=/home/mel/git-public/linux-2.6
 export WEBROOT=http://mcp/~gormanm
 export SKIP_WARMUP=yes
+export MMTESTS_SIMULTANEOUS=no
+export MMTESTS_SIMULTANEOUS_DURATION=600
 
 # Profiling parameters
 export SKIP_NOPROFILE=no
 export SKIP_FINEPROFILE=yes
 export SKIP_COARSEPROFILE=yes
-export OPROFILE_REPORT_ANNOTATE=no
+export OPROFILE_REPORT_ANNOTATE=yes
 
 # Fixups
 if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
@@ -46,16 +48,22 @@ export SWAP_NBD_DEVICE=/dev/nbd0
 export SWAP_NBD_HOST=mcp
 export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
 
+# Optionally use a memory control group
+# export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+
 # Test disk to setup (optional)
 #export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
 #export TESTDISK_RAID_DEVICE=/dev/md0
 #export TESTDISK_RAID_OFFSET=63
 #export TESTDISK_RAID_SIZE=250019532
 #export TESTDISK_RAID_TYPE=raid0
-#export TESTDISK_PARTITION=/dev/sda6
-#export TESTDISK_FILESYSTEM=ext3
+export TESTDISK_PARTITION=/dev/sdb1
+if [ "`hostname`" = "hydra" ]; then
+	export TESTDISK_PARTITION=/dev/sdf1
+fi
+export TESTDISK_FILESYSTEM=ext4
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
-#export TESTDISK_MOUNT_ARGS=""
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
 #
 # Test NFS disk to setup (optional)
 #export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
@@ -69,9 +77,63 @@ export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " "
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top slabinfo"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_GZIP="dstate readprofile proc-vmstat top slabinfo"
+export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
+
+# DBench
+export DBENCH_DURATION=$((7*60))
+export DBENCH_OSYNC=no
+export DBENCH_SYNC_DIRECTORY=no
+export DBENCH_FSYNC=no
+export DBENCH_MAX_CLIENTS=$((NUM_CPU*64))
+
+# DD residency delay
+export DD_RESIDENCY_MAPPING_SIZE=$((MEMTOTAL_BYTES*98/100))
+export DD_RESIDENCY_FILESIZE=$((MEMTOTAL_BYTES*2))
+export DD_RESIDENCY_MAX_DURATION=900
+
+# FFSB
+export FFSB_DURATION=300
+export FFSB_NUM_THREADS=1
+
+# FFSB sequential reads
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=seq-read
+
+# FFSB large files create
+#export FFSB_MIN_FILESIZE=$((128*1048576))
+#export FFSB_MAX_FILESIZE=$((128*1048576))
+#export FFSB_FILE_PROFILE=single-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=file-create
+
+# FFSB random reads
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=random-read
+
+# FFSB random writes
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=random-write
+
+# FFSB mailserver simulator
+#export FFSB_NUM_FILES=500000
+#export FFSB_NUM_DIRECTORIES=1000
+#export FFSB_FILE_PROFILE=many-file-many-directory
+#export FFSB_FILESIZE_PROFILE=weight-mailserver
+#export FFSB_OPERATIONS_PROFILE=mailserver
 
 # FS-Mark
 #export FSMARK_SINGLETHREAD=1
@@ -92,10 +154,14 @@ export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
 export IOZONE_SIZE=--fastest
 
 # Large copy and untar
-export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-1.tar.bz2
-#export LARGECOPY_SRCTAR_EXTRA=http://mcp/~gormanm/large-tar-file-2.tar.bz2
-export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
+export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-2.tar.bz2
+export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*3/2/1048576))
 export LARGECOPY_THREADS=1
+
+# LMBench
+export LMBENCH_TESTS=lat_mmap
+export LMBENCH_ITERATIONS=500
+export LMBENCH_LATMMAP_FILESIZE=$((256*1048576))
 
 # LTP
 export LTP_RUN_TESTS="controllers"
@@ -108,23 +174,23 @@ export LTP_POUNDER_NFS_LOGGING=0
 export LTP_POUNDER_DO_X_TESTS=0
 
 # Micro benchmarks
-export MICRO_TESTLIST=vmscan-anon-mmap-read,vmscan-anon-mmap-write
+export MICRO_TESTLIST=vmscan-anon-mmap-write
 export MICRO_MAPPED_FILE_STREAM_FORCESIZE=
 export MICRO_VMSCAN_DEVICE_COPY=/dev/sda1
 export MICRO_VMSCAN_DEVICE_COPY_LIMIT_MB=8192
-export MICRO_VMSCAN_ANON_MMAP_OPS_SIZE=$((3 * MEMTOTAL_BYTES / 2))
-export MICRO_VMSCAN_ANON_MMAP_OPS_ITER=5
+export MICRO_VMSCAN_ANON_MMAP_OPS_SIZE=$((MEMTOTAL_BYTES / 4))
+export MICRO_VMSCAN_ANON_MMAP_OPS_ITER=10000
 export MICRO_VMSCAN_ANON_MMAP_NUM_THREADS=$NUM_CPU
 export MICRO_VMSCAN_FILE_MMAP_OPS_SIZE=$((10 * MEMTOTAL_BYTES))
-export MICRO_VMSCAN_FILE_MMAP_NUM_THREADS=$NUM_CPU
-export MICRO_VMSCAN_MIXED_MMAPREAD_SIZE=$(($MEMTOTAL_BYTES*3))
-export MICRO_VMSCAN_MIXED_MMAPREAD_ITER=5
+export MICRO_VMSCAN_FILE_MMAP_NUM_THREADS=$((NUM_CPU * 2))
+export MICRO_VMSCAN_MIXED_MMAPREAD_SIZE=$(($MEMTOTAL_BYTES*3/2))
+export MICRO_VMSCAN_MIXED_MMAPREAD_ITER=3
 export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=30
 export MICRO_VMSCAN_MIXED_MMAP_NUM_THREADS=$NUM_CPU
 
 # MultiBuild
 export MULTIBUILD_NUM_SIMULTANEOUS=$((MEMTOTAL_BYTES/450/1048576))
-export MULTIBUILD_NUM_THREADS=1
+export MULTIBUILD_NUM_THREADS=$NUM_CPU
 export MULTIBUILD_NUM_COPIES=$((MULTIBUILD_NUM_SIMULTANEOUS*5))
 
 # NAS Parallel Benchmark
@@ -197,7 +263,11 @@ export OLTP_READONLY=--read-only
 export OLTP_SIZE=--faster
 export OLTP_CONFIDENCE=
 export OLTP_PAGESIZES="base"
-export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+if [[ `uname -m` =~ i.86 ]]; then
+	export OLTP_SHAREDBUFFERS=$((1048576*512))
+else
+	export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+fi
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
 #export OLTP_PAGESIZES="base huge dynhuge"
 #export OLTP_MAX_THREADS="--max-threads N"
@@ -205,7 +275,7 @@ export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
 
 # STREAM
 export STREAM_BACKING_TYPE=static
-export STREAM_PAGESIZES="base transhuge"
+export STREAM_PAGESIZES="base"
 #export STREAM_PAGESIZES="base huge dynhuge"
 
 # Stress blktrace
@@ -216,3 +286,10 @@ export STRESS_BLKTRACE_THREADS=1
 # Stress High-Alloc
 export HIGHALLOC_ALLOC_RATE=16
 export HIGHALLOC_PERCENTAGE=95
+
+# tiobench
+export TIOBENCH_BLOCKSIZE=4096
+export TIOBENCH_SIZE=$((MEMTOTAL_BYTES*2))
+export TIOBENCH_ITERATIONS=7
+export TIOBENCH_RANDOM=0
+export TIOBENCH_MAX_CLIENTS=$((NUM_CPU*64))

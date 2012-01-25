@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="micro sysbench postmark fsmark largecopy largedd"
+export MMTESTS="sysbench postmark largedd"
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -15,7 +15,7 @@ export SHELLPACK_INCLUDE=$SCRIPTDIR/shellpacks
 export SHELLPACK_LOG=$SCRIPTDIR/work/log
 export LINUX_GIT=/home/mel/git-public/linux-2.6
 export WEBROOT=http://mcp/~gormanm
-export SKIP_WARMUP=no
+export SKIP_WARMUP=yes
 
 # Profiling parameters
 export SKIP_NOPROFILE=no
@@ -71,7 +71,7 @@ export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top slabinfo"
-export MONITORS_WITH_LATENCY="vmstat"
+export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # FS-Mark

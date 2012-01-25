@@ -4,7 +4,10 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="netperf-udp netperf-tcp vmr-stream vmr-aim9"
+export MMTESTS="kernbench netperf-udp netperf-tcp vmr-stream vmr-aim9 hackbench-pipes hackbench-sockets sysbench"
+# Add stress-highalloc if mem <= 4G. Over that and the number of kernel builds
+# causes problems
+
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -71,7 +74,7 @@ export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top slabinfo"
-export MONITORS_WITH_LATENCY="vmstat"
+export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # FS-Mark
@@ -133,7 +136,7 @@ export NAS_CLASS=C
 export NAS_PAGESIZES="base huge-heap huge-all"
 
 # NetPerf
-export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
+export NETPERF_BUFFER_SIZES=64,1024,3312,4096,8192,16384
 
 # PostMark
 export POSTMARK_TRANSACTIONS=30000
@@ -198,11 +201,14 @@ export OLTP_READONLY=--read-only
 export OLTP_SIZE=--faster
 export OLTP_CONFIDENCE=
 export OLTP_PAGESIZES="base"
-export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+if [[ `uname -m` =~ i.86 ]]; then
+        export OLTP_SHAREDBUFFERS=$((1048576*512))
+else
+        export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+fi
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
 #export OLTP_PAGESIZES="base huge dynhuge"
 #export OLTP_MAX_THREADS="--max-threads N"
-#
 
 # STREAM
 export STREAM_BACKING_TYPE=static
