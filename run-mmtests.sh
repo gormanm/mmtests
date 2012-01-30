@@ -269,6 +269,47 @@ if [ "$CFQ_LOW_LATENCY" != "" ]; then
 	cd -
 fi
 
+# Validate systemtap installation if it exists
+STAP_USED=
+for TEST in $MMTESTS; do
+	if [ "$TEST" = "stress-highalloc" -o "$TEST" = "pagealloc" ]; then
+		STAP_USED=test-$TEST
+	fi
+done
+for MONITOR in $MONITORS_ALWAYS $MONITORS_PLAIN $MONITORS_GZIP $MONITORS_WITH_LATENCY; do
+	if [ "$MONITOR" = "dstate" -o "$MONITOR" = "stap-highorder-atomic" ]; then
+		STAP_USED=monitor-$MONITOR
+	fi
+done
+if [ "$STAP_USED" != "" ]; then
+	if [ `which stap` != "" ]; then
+		echo ERROR: systemtap required for $STAP_USED but not installed
+	fi
+
+	stap -e 'probe begin { println("validate systemtap") exit () }'
+	if [ $? != 0 ]; then
+		echo WARNING: systemtap installation broken, trying to fix.
+		if [ ! -e /usr/share/systemtap/runtime/stack.c.orig ]; then
+			cp /usr/share/systemtap/runtime/stack.c /usr/share/systemtap/runtime/stack.c.orig
+		fi
+
+		cp /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
+		stap -e 'probe begin { println("validate systemtap") exit () }'
+		if [ $? != 0 ]; then
+			sed /usr/share/systemtap/runtime/stack.c \
+				-e 's/.warning = print_stack_warning/\/\/MMTESTS:.warning = print_stack_warning/' \
+				-e 's/.warning_symbol = print_stack_warning_symbol,/\/\/MMTESTS:.warning_symbol = print_stack_warning_symbol,/' > /usr/share/systemtap/runtime/stack.c.tmp
+			mv /usr/share/systemtap/runtime/stack.c.tmp /usr/share/systemtap/runtime/stack.c
+			stap -e 'probe begin { println("validating systemtap fix") exit () }'
+			if [ $? != 0 ]; then
+				cp /usr/share/systemtap/runtime/stack.c /usr/share/systemtap/runtime/stack.c.orig
+				echo ERROR: systemtap required for $STAP_USED but installation is broken
+				exit -1
+			fi
+		fi
+	fi
+fi
+
 # If profiling is enabled, make sure the necessary oprofile helpers are
 # available and that there is a unable vmlinux file in the expected
 # place
@@ -531,6 +572,10 @@ for TEST in $MMTESTS; do
 	rm -rf $SHELLPACK_LOG/$TEST-$RUNNAME
 	mv $SHELLPACK_LOG/$TEST $SHELLPACK_LOG/$TEST-$RUNNAME
 done
+# Restore system to original state
+if [ -e /usr/share/systemtap/runtime/stack.c.orig ]; then
+	mv /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
+fi
 if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 	echo Recompressing vmlinux
 	gzip /boot/vmlinux-`uname -r`
