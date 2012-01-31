@@ -248,17 +248,6 @@ esac
 echo Swap configuration
 swapon -s
 
-# Create memory control group if requested
-mkdir /cgroups
-mount -t cgroup none /cgroups -o memory || die Failed to mount /cgroups
-if [ "$MEMCG_SIZE" != "" ]; then
-	mkdir /cgroups/0
-	echo $$ > /cgroups/0/tasks
-
-	echo $MEMCG_SIZE > /cgroups/0/memory.limit_in_bytes || die Failed to set memory limit
-	echo Memory limit configured: `cat /cgroups/0/memory.limit_in_bytes`
-fi
-
 # Configure low_latency if requested
 if [ "$CFQ_LOW_LATENCY" != "" ]; then
 	echo Configuring cfq low_latency == $CFQ_LOW_LATENCY
@@ -435,6 +424,16 @@ function stop_monitors() {
 }
 
 if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
+	# Create memory control group if requested
+	if [ "$MEMCG_SIZE" != "" ]; then
+		mkdir -p /cgroups
+		mount -t cgroup none /cgroups -o memory || die Failed to mount /cgroups
+		mkdir /cgroups/0
+		echo $MEMCG_SIZE > /cgroups/0/memory.limit_in_bytes || die Failed to set memory limit
+		echo $$ > /cgroups/0/tasks
+		echo Memory limit configured: `cat /cgroups/0/memory.limit_in_bytes`
+	fi
+
 	# Run tests in single mode
 	echo start :: `date +%s` > $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	for TEST in $MMTESTS; do
@@ -487,6 +486,12 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	done
 	echo finish :: `date +%s` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 else
+	# Create memory control group if requested
+	if [ "$MEMCG_SIZE" != "" ]; then
+		mkdir -p /cgroups
+		mount -t cgroup none /cgroups -o memory || die Failed to mount /cgroups
+	fi
+
 	# Run tests in simultaneous mode
 	START_TIME=`date +%s`
 	MIN_END_TIME=$((START_TIME+MMTESTS_SIMULTANEOUS_DURATION))
@@ -509,12 +514,21 @@ else
 			CURRENTPID=`grep $TEST: test.pids | tail -1 | awk -F : '{print $2}'`
 			TESTID=`grep $TEST: test.pids | tail -1 | awk -F : '{print $3}'`
 
+			if [ "$MEMCG_SIZE" != "" -a ! -e /cgroups/$NR_TEST ]; then
+				mkdir /cgroups/$NR_TEST
+				echo $MEMCG_SIZE > /cgroups/$NR_TEST/memory.limit_in_bytes || die Failed to set memory limit
+				echo Memory limit $NR_TEST configured: `cat /cgroups/$NR_TEST/memory.limit_in_bytes`
+			fi
+
 			# Start tests for the first time if necessary
 			if [ "$CURRENTPID" = "" ]; then
 				/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
 				PID=$!
 				echo Started first test $TEST pid $PID
 				echo $TEST:$PID:$NR_TEST >> test.pids
+				if [ "$MEMCG_SIZE" != "" ]; then
+					echo $PID > /cgroups/$NR_TEST/tasks
+				fi
 				NR_TEST=$((NR_TEST+1))
 				continue
 			fi
@@ -529,6 +543,9 @@ else
 				PID=$!
 				echo Started test $TEST pid $PID
 				echo $TEST:$PID:$NR_TEST >> test.pids
+				if [ "$MEMCG_SIZE" != "" ]; then
+					echo $PID > /cgroups/$NR_TEST/tasks
+				fi
 				NR_TEST=$((NR_TEST+1))
 				continue
 			fi
