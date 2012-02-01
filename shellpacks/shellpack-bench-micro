@@ -52,6 +52,20 @@ for TEST in $TESTLIST; do
 	IFS=$TIFS
 
 	case $TEST in
+		compaction-parallel)
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/compaction-parallel.sh"
+			PATCH_LOCATION=
+			CC_OPTIONS=
+			LINK_OPTIONS=
+			PARAMETERA=$((4*1048576*2-64738))
+			PARAMETERB=100
+			if [ "$MICRO_COMPACTION_PARALLEL_FORCESIZE" != "" ]; then
+				PARAMETERA=$MICRO_COMPACTION_PARALLEL_FORCESIZE
+			fi
+			if [ "$MICRO_COMPACTION_ANON_PERCENTAGE" != "" ]; then
+				PARAMETERB=$MICRO_COMPACTION_ANON_PERCENTAGE
+			fi
+			;;
 		mapped-file-stream)
 			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/mapped-file-stream.c"
 			PATCH_LOCATION=
@@ -117,14 +131,6 @@ for TEST in $TESTLIST; do
 			PARAMETERA=
 			PARAMETERB=
 			;;
-		memcg-oom-notifier)
-			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/memcg-oom-notifier.sh"
-			PATCH_LOCATION=
-			CC_OPTIONS=
-			LINK_OPTIONS=
-			PARAMETERA=
-			PARAMETERB=
-			;;
 		vmscan-device-copy)
 			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-device-copy.sh"
 			PATCH_LOCATION=
@@ -145,7 +151,7 @@ for TEST in $TESTLIST; do
 	esac
 
 	TEST_FILENAME=`basename "$SOURCE_LOCATION"`
-	TEST_TYPE=`echo $TEST_FILENAME | awk -F . '{print $NF}'`
+	TEST_TYPE=`echo $TEST_FILENAME | sed -e "s/$TEST.//"`
 
 	cd $SHELLPACK_TEMP || die Failed to cd to temporary directory
 	if [[ $SOURCE_LOCATION =~ ^http: ]]; then
@@ -214,3 +220,7 @@ exit $EXIT_CODE
 #### Details micro-bench 19
 #### Description Run a number of micro-benchmark test-cases
 #### Details micro-bench 20
+#### Description Run a number of micro-benchmark test-cases
+#### Details micro-bench 21
+#### Description Run a number of micro-benchmark test-cases
+#### Details micro-bench 23

@@ -2,7 +2,7 @@
 # This script installs netperf and runs the regression tests
 
 P=ltp-pounder-bench
-VERSION=full-20091031
+VERSION=full-20120104
 RUNTIME=$((3600*7))
 . $SHELLPACK_INCLUDE/common.sh
 
@@ -152,4 +152,4 @@ echo
 echo LTP pounder completed successfully | tee -a $LOGDIR/summary
 exit $SHELLPACK_SUCCESS
 #### Description Run just the pounder test from LTP
-#### Details ltp-pounder-bench 4
+#### Details ltp-pounder-bench 5

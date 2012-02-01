@@ -1,0 +1,46 @@
+#!/bin/bash
+# lhcs regression test installer
+P=lhcs-install
+WEB_LOCATION=https://github.com/autotest/autotest/raw/master/client/tests/cpu_hotplug/
+MIRROR_LOCATION="$WEBROOT/lhcs/"
+DEFAULT_VERSION=1.6
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+  case "$1" in
+    -v)
+            VERSION=$2
+	    shift 2
+	    ;;
+    *)
+            echo Unrecognised option: $1
+	    shift
+  esac
+done
+
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=lhcs_regression-${VERSION}.tar.tgz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+
+# Building from scratch, uncompress the tar
+cd $SHELLPACK_SOURCES
+tar xf $TARFILE
+if [ $? -ne 0 ]; then
+  error "$P: tar xf $TARFILE failed"
+  popd > /dev/null
+  exit $SHELLPACK_ERROR
+fi
+
+if [ ! -e lhcs_regression-$VERSION ]; then
+	echo ERROR: Did not expand as expected
+	exit $SHELLPACK_ERROR
+fi
+
+echo lhcs installed successfully
+#### Description Linux Hotplug CPU Support
+#### Details lhcs 5

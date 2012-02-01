@@ -1,0 +1,29 @@
+#!/bin/bash
+
+P=lhcs-bench
+VERSION=1.6
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2;;
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/lhcs-${VERSION} ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-lhcs -v ${VERSION} || die lhcs install script returned error
+fi
+cd $SHELLPACK_SOURCES/lhcs-${VERSION} || die Failed to cd to lhcs install directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+./runtests.sh
+
+exit $SHELLPACK_SUCCESS
+#### Description Linux Hotplug CPU Support
+#### Details lhcs-bench 5
