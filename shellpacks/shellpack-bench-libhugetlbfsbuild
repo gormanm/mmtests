@@ -33,4 +33,4 @@ echo
 echo libhugetlbfs successfully installed | tee -a $LOGDIR/summary
 exit $SHELLPACK_SUCCESS
 #### Description This pack builds, installs and tests libhugetlbfs
-#### Details libhugetlbfsbuild-bench 29
+#### Details libhugetlbfsbuild-bench 30
