@@ -64,9 +64,9 @@ $HIGH_STDDEV" | min`
 
 		LOW_STDDEV=`echo "$STDDEV
 $LOW_STDDEV" | max`
-		echo $(($INDEX+$OFFSET)) $LOW_STDDEV $MIN $MAX $HIGH_STDDEV $MEAN \# stddev=$STDDEV > $DIR/$TOPLEVEL/kernbench-$$-$HEADING.plot
-		echo $MEAN > $DIR/$TOPLEVEL/kernbench-$$-$HEADING-mean
-		echo $STDDEV > $DIR/$TOPLEVEL/kernbench-$$-$HEADING-$STDDEV
+		echo $(($INDEX+$OFFSET)) $LOW_STDDEV $MIN $MAX $HIGH_STDDEV $MEAN \# stddev=$STDDEV > $DIR/$TOPLEVEL/kernbench-$HEADING.plot
+		echo $MEAN > $DIR/$TOPLEVEL/kernbench-$HEADING-mean
+		echo $STDDEV > $DIR/$TOPLEVEL/kernbench-$HEADING-$STDDEV
 		OFFSET=$(($OFFSET+1))
 	done
 	#INDEX=$(($INDEX+$OFFSET+1))
@@ -74,4 +74,10 @@ done
 
 for DIR in $DIRLIST; do
 	rm $TMPDIR/kernbench-$$-$DIR.*
+done
+
+INPUTS=
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/kernbench-Elapsed.plot"
+	TITLES="$TITLES `echo $DIR | sed -e 's/kernbench-//'`"
 done

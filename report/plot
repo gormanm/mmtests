@@ -112,6 +112,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			KERNBENCH=yes
 			PLOTTYPE="candlesticks"
 			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"
+			USING="using 1:2:3:4:5"
 			shift
 			;;
 		--residency)
@@ -310,8 +311,10 @@ if [ "$FRAGMENTATION_INDEX" = "yes" ]; then
 fi
 if [ "$KERNBENCH" = "yes" ]; then
 	#echo set ylabel \"Time Elapsed \(seconds\)\" >> $TEMP
+	#echo "set xtics ('2.6.32' 1)" >> $TEMP
+	echo "set noxtics" >> $TEMP
+	echo "set xrange[-0.5:$#.5]" >> $TEMP
 	echo set style fill pattern 6 border  >> $TEMP
-	echo "set xtic ''" >> $TEMP
 	echo set boxwidth 1 >> $TEMP
 fi
 if [ "$XRANGE" != "" ]; then
