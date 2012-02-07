@@ -271,8 +271,9 @@ for MONITOR in $MONITORS_ALWAYS $MONITORS_PLAIN $MONITORS_GZIP $MONITORS_WITH_LA
 	fi
 done
 if [ "$STAP_USED" != "" ]; then
-	if [ `which stap` != "" ]; then
+	if [ `which stap` = "" ]; then
 		echo ERROR: systemtap required for $STAP_USED but not installed
+		exit -1
 	fi
 
 	stap -e 'probe begin { println("validate systemtap") exit () }'
@@ -281,8 +282,18 @@ if [ "$STAP_USED" != "" ]; then
 		if [ ! -e /usr/share/systemtap/runtime/stack.c.orig ]; then
 			cp /usr/share/systemtap/runtime/stack.c /usr/share/systemtap/runtime/stack.c.orig
 		fi
+		if [ ! -e /usr/share/systemtap/runtime/transport/relay_v2.c.orig ]; then
+			cp /usr/share/systemtap/runtime/transport/relay_v2.c /usr/share/systemtap/runtime/transport/relay_v2.c.orig
+		fi
+		if [ ! -e /usr/share/systemtap/runtime/transport/transport.c.orig ]; then
+			cp /usr/share/systemtap/runtime/transport/transport.c /usr/share/systemtap/runtime/transport/transport.c.orig
+		fi
 
+		# Restore original files and go through workarounds in order
 		cp /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
+		cp /usr/share/systemtap/runtime/transport/relay_v2.c.orig /usr/share/systemtap/runtime/transport/relay_v2.c
+		cp /usr/share/systemtap/runtime/transport/transport.c.orig /usr/share/systemtap/runtime/transport/transport.c
+
 		stap -e 'probe begin { println("validate systemtap") exit () }'
 		if [ $? != 0 ]; then
 			sed /usr/share/systemtap/runtime/stack.c \
@@ -291,9 +302,22 @@ if [ "$STAP_USED" != "" ]; then
 			mv /usr/share/systemtap/runtime/stack.c.tmp /usr/share/systemtap/runtime/stack.c
 			stap -e 'probe begin { println("validating systemtap fix") exit () }'
 			if [ $? != 0 ]; then
-				cp /usr/share/systemtap/runtime/stack.c /usr/share/systemtap/runtime/stack.c.orig
-				echo ERROR: systemtap required for $STAP_USED but installation is broken
-				exit -1
+
+				sed /usr/share/systemtap/runtime/transport/relay_v2.c \
+					-e 's/int mode/umode_t mode/' > /usr/share/systemtap/runtime/transport/relay_v2.c.tmp
+				mv /usr/share/systemtap/runtime/transport/relay_v2.c.tmp /usr/share/systemtap/runtime/transport/relay_v2.c
+				sed /usr/share/systemtap/runtime/transport/transport.c \
+					-e 's/fs_supers.next/fs_supers.first/' > /usr/share/systemtap/runtime/transport/transport.c.tmp
+				mv /usr/share/systemtap/runtime/transport/transport.c.tmp /usr/share/systemtap/runtime/transport/transport.c
+
+				stap -e 'probe begin { println("validating systemtap fix") exit () }'
+				if [ $? != 0 ]; then
+					mv /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
+					mv /usr/share/systemtap/runtime/transport/relay_v2.c.orig /usr/share/systemtap/runtime/transport/relay_v2.c
+					mv /usr/share/systemtap/runtime/transport/transport.c.orig /usr/share/systemtap/runtime/transport/transport.c
+					echo ERROR: systemtap required for $STAP_USED but installation is broken
+					exit -1
+				fi
 			fi
 		fi
 	fi
@@ -592,6 +616,8 @@ done
 # Restore system to original state
 if [ -e /usr/share/systemtap/runtime/stack.c.orig ]; then
 	mv /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
+	mv /usr/share/systemtap/runtime/transport/relay_v2.c.orig /usr/share/systemtap/runtime/transport/relay_v2.c
+	mv /usr/share/systemtap/runtime/transport/transport.c.orig /usr/share/systemtap/runtime/transport/transport.c
 fi
 if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 	echo Recompressing vmlinux
