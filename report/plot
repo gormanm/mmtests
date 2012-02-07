@@ -114,6 +114,20 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"
 			shift
 			;;
+		--residency)
+			RESIDENCY=yes
+			PLOTTYPE="points"
+			PLOTCOMMAND=residency
+			shift
+			;;
+		--residency-smooth)
+			RESIDENCY=yes
+			PLOTTYPE="lines"
+			PLOTCOMMAND=residency
+			USING="smooth bezier"
+			LOGY=yes
+			shift
+			;;
 		--highorder-latency)
 			HIGHORDER_LATENCY=yes
 			PLOTTYPE=points
@@ -300,7 +314,6 @@ if [ "$KERNBENCH" = "yes" ]; then
 	echo "set xtic ''" >> $TEMP
 	echo set boxwidth 1 >> $TEMP
 fi
-
 if [ "$XRANGE" != "" ]; then
 	echo "set xrange [$XRANGE]" >> $TEMP
 fi
@@ -340,7 +353,9 @@ echo "plot \\"				>> $TEMP
 
 FIRST=yes
 COUNT=0
+CLEANUP_FILES=
 while [ "$1" != "" ]; do
+	PLOTFILE=$1
 	if [ "$FIRST" = "no" ]; then
 		echo ", \\"		>> $TEMP
 	fi
@@ -354,17 +369,23 @@ while [ "$1" != "" ]; do
 
 	case $PLOTCOMMAND in
 	standard)
-		PLOTSTRING="'$1'"
+		PLOTSTRING="'$PLOTFILE'"
 		if [ "$AWK_FORMAT" != "" ]; then
-			ESCAPED=`echo "$1" | sed -e 's/\//\\\\\//g'`
+			ESCAPED=`echo "$PLOTFILE" | sed -e 's/\//\\\\\//g'`
 			PLOTSTRING="\"`echo $AWK_FORMAT | sed -e "s/@@PLOT@@/$ESCAPED/"`\""
 		fi
 		echo -n "$PLOTSTRING $USING $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
 		;;
+	residency)
+		STARTTIME=`zcat $PLOTFILE | head -1 | awk '{print $1}'`
+		zcat $PLOTFILE | perl -e "\$last=0; while (<>) {(\$time,\$latency) = split(/ /); \$time -= $STARTTIME; \$latency += \$time-\$last; \$last=\$time; print \"\$time \$latency\n\"}" > $PLOTFILE.tmp
+		CLEANUP_FILES="$CLEANUP_FILES $PLOTFILE.tmp"
+		echo -n "'$PLOTFILE.tmp' $USING $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
+		;;
 	cpuusage)
-		PLOTSTRING="'$1'"
+		PLOTSTRING="'$PLOTFILE'"
 		if [ "$AWK_FORMAT" != "" ]; then
-			ESCAPED=`echo "$1" | sed -e 's/\//\\\\\//g'`
+			ESCAPED=`echo "$PLOTFILE" | sed -e 's/\//\\\\\//g'`
 			PLOTSTRING_USER="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/2/' -e "s/@@PLOT@@/$ESCAPED/"`\""
 			PLOTSTRING_SYS="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/3/' -e "s/@@PLOT@@/$ESCAPED/"`\""
 			PLOTSTRING_WAIT="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/5/' -e "s/@@PLOT@@/$ESCAPED/"`\""
@@ -373,9 +394,9 @@ while [ "$1" != "" ]; do
 		echo -n "$PLOTSTRING_USER title \"User %\" with lines, $PLOTSTRING_SYS title \"Sys  %\" with lines, $PLOTSTRING_WAIT title \"Wait %\" with lines" >> $TEMP
 		;;
 	iostat-blocks)
-		PLOTSTRING="'$1'"
+		PLOTSTRING="'$PLOTFILE'"
 		if [ "$AWK_FORMAT" != "" ]; then
-			ESCAPED=`echo "$1" | sed -e 's/\//\\\\\//g'`
+			ESCAPED=`echo "$PLOTFILE" | sed -e 's/\//\\\\\//g'`
 			PLOTSTRING_READ="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/2/' -e "s/@@PLOT@@/$ESCAPED/"`\""
 			PLOTSTRING_WRITE="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/3/' -e "s/@@PLOT@@/$ESCAPED/"`\""
 		fi
@@ -383,9 +404,9 @@ while [ "$1" != "" ]; do
 		echo -n "$PLOTSTRING_READ title \"read\" with lines, $PLOTSTRING_WRITE title \"write\" with lines" >> $TEMP
 		;;
 	iostat-rates)
-		PLOTSTRING="'$1'"
+		PLOTSTRING="'$PLOTFILE'"
 		if [ "$AWK_FORMAT" != "" ]; then
-			ESCAPED=`echo "$1" | sed -e 's/\//\\\\\//g'`
+			ESCAPED=`echo "$PLOTFILE" | sed -e 's/\//\\\\\//g'`
 			PLOTSTRING_READ="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/2/' -e "s/@@PLOT@@/$ESCAPED/"`\""
 			PLOTSTRING_WRITE="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/3/' -e "s/@@PLOT@@/$ESCAPED/"`\""
 		fi
@@ -410,3 +431,6 @@ if [ "$DUMP" = "yes" ]; then
 fi
 cat $TEMP | gnuplot -name gnuplot -persist
 rm $TEMP
+if [ "$CLEANUP_FILES" != "" ]; then
+	rm $CLEANUP_FILES
+fi

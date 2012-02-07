@@ -1,7 +1,17 @@
 echo MMTests Statistics: duration
 
 # Work out times running test
-printf "%-40s" "User/Sys Time Running Test (seconds)"
+printf "%-40s" "Sys Time Running Test (seconds)"
+for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ ! -e tests-timestamp-$DIRNAME ]; then
+		continue
+	fi
+	SYS_TIME=`grep "time :: $FTRACE_TEST" tests-timestamp-$DIRNAME | awk '{print $6}'`
+	printf "%10s" $SYS_TIME
+done
+echo
+
+printf "%-40s" "User+Sys Time Running Test (seconds)"
 for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	if [ ! -e tests-timestamp-$DIRNAME ]; then
 		continue

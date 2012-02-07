@@ -92,6 +92,21 @@ $EXPECT_UNBUFFER $TEMPFILE $MAPPING_SIZE | tee | gzip -c > $LOGDIR_RESULTS/acces
 MAPPINGPID1=$!
 MAPPINGPID2=`$SHELLPACK_TOPLEVEL/bin/piping-pid.sh $MAPPINGPID1`
 MAPPINGPID3=`$SHELLPACK_TOPLEVEL/bin/piping-pid.sh $MAPPINGPID2`
+sleep 3
+
+# Make sure it actually starts
+while [ "$MAPPINGPID3" = "" -o "`ps h --pid $MAPPINGPID3`" = "" ]; do
+	echo WARNING: Background mapping failed to start with $MAPPING_SIZE
+	zcat $LOGDIR_RESULTS/access-latency.log.gz
+
+	MAPPING_SIZE=$((MAPPING_SIZE-(512*1048576)))
+	echo Restarting with $MAPPING_SIZE
+	$EXPECT_UNBUFFER $TEMPFILE $MAPPING_SIZE | tee | gzip -c > $LOGDIR_RESULTS/access-latency.log.gz &
+	MAPPINGPID1=$!
+	MAPPINGPID2=`$SHELLPACK_TOPLEVEL/bin/piping-pid.sh $MAPPINGPID1`
+	MAPPINGPID3=`$SHELLPACK_TOPLEVEL/bin/piping-pid.sh $MAPPINGPID2`
+	sleep 3
+done
 
 # DD
 echo Starting dd
@@ -260,4 +275,4 @@ int main(int argc, char **argv)
 	printf("%lu.%06lu 0.000000 1\n", tv.tv_sec, tv.tv_usec);
 }
 #### Description DD residency plots delays accessing a mapping during a large dd
-#### Details ddresidency-bench 27
+#### Details ddresidency-bench 29

@@ -2,8 +2,10 @@
 
 if ($ARGV[0] == $ARGV[1] || $ARGV[0] == 0) {
 	print 0;
+} elsif ($ARGV[1] == 0) {
+	print 100;
 } else {
 	# Print the percentage difference between two values
 	# print ((($ARGV[0] - $ARGV[1]) * 100) / $ARGV[0]);
-	print $ARGV[0] * 100 / $ARGV[1];
+	print $ARGV[0] * 100 / $ARGV[1] - 100;
 }
