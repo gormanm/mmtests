@@ -1,7 +1,7 @@
 #!/bin/bash
 
 P='hackbench-install'
-WEB_LOCATION="http://developer.osdl.org/craiger/hackbench/src/hackbench.c"
+WEB_LOCATION="http://people.redhat.com/mingo/cfs-scheduler/tools/hackbench.c"
 MIRROR_LOCATION="$WEBROOT/hackbench/hackbench.c"
 
 . $SHELLPACK_INCLUDE/common.sh
@@ -13,11 +13,11 @@ mkdir -p hackbench
 sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/hackbench/hackbench.c
 cd $SHELLPACK_SOURCES/hackbench
 
-gcc -O2 hackbench.c -o hackbench
+gcc -O2 -lpthread hackbench.c -o hackbench
 if [ $? -ne 0 ]; then
 	die "$P: Failed to build hackbench"
 fi
 
 exit $SHELLPACK_SUCCESS
 #### Description Run the HackBench benchmark
-#### Details hackbench 10
+#### Details hackbench 11

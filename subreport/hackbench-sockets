@@ -25,3 +25,9 @@ for THREAD in $THREADS; do
 	done
 	echo
 done
+
+INPUTS=
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/hackbench-results"
+	TITLES="$TITLES `echo $DIR | sed -e 's/hackbench-sockets-//'`"
+done

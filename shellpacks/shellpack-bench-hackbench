@@ -101,4 +101,4 @@ done
 
 exit $RETVAL
 #### Description Run the HackBench benchmark
-#### Details hackbench-bench 10
+#### Details hackbench-bench 11
