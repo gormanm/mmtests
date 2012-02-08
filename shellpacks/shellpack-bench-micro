@@ -151,7 +151,7 @@ for TEST in $TESTLIST; do
 	esac
 
 	TEST_FILENAME=`basename "$SOURCE_LOCATION"`
-	TEST_TYPE=`echo $TEST_FILENAME | sed -e "s/$TEST.//"`
+	TEST_TYPE=`echo $TEST_FILENAME | awk -F . '{print $NF}'`
 
 	cd $SHELLPACK_TEMP || die Failed to cd to temporary directory
 	if [[ $SOURCE_LOCATION =~ ^http: ]]; then
@@ -223,4 +223,4 @@ exit $EXIT_CODE
 #### Description Run a number of micro-benchmark test-cases
 #### Details micro-bench 21
 #### Description Run a number of micro-benchmark test-cases
-#### Details micro-bench 23
+#### Details micro-bench 24
