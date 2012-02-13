@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="kernbench reaim postmark vmr-aim9 vmr-stream vmr-cacheeffects vmr-createdelete iozone fsmark hackbench-sockets hackbench-pipes netperf-tcp netperf-udp sysbench simple-writeback ltp micro specjvm nas-ser nas-omp rsyncresidency specomp speccpu stress-highalloc stress-blktrace"
+export MMTESTS="dbench4"
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -55,8 +55,8 @@ export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " "
 #export TESTDISK_RAID_OFFSET=63
 #export TESTDISK_RAID_SIZE=250019532
 #export TESTDISK_RAID_TYPE=raid0
-#export TESTDISK_PARTITION=/dev/sda5
-#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
 #export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
 #
@@ -72,21 +72,58 @@ export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " "
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top"
-export MONITORS_WITH_LATENCY="vmstat"
+export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # DBench
-export DBENCH_DURATION=$((7*60))
+export DBENCH_DURATION=$((3*60))
 export DBENCH_OSYNC=no
 export DBENCH_SYNC_DIRECTORY=no
-export DBENCH_FSYNC=no
+export DBENCH_FSYNC=yes
 export DBENCH_MAX_CLIENTS=$((NUM_CPU*64))
 
-# DD residency delay
-export DD_RESIDENCY_MAPPING_SIZE=$((MEMTOTAL_BYTES*6/10))
-export DD_RESIDENCY_FILESIZE=$((MEMTOTAL_BYTES*2))
-export DD_RESIDENCY_MAX_DURATION=
+# FFSB
+export FFSB_DURATION=300
+export FFSB_NUM_THREADS=1
+
+# FFSB sequential reads
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=seq-read
+
+# FFSB large files create
+#export FFSB_MIN_FILESIZE=$((128*1048576))
+#export FFSB_MAX_FILESIZE=$((128*1048576))
+#export FFSB_FILE_PROFILE=single-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=file-create
+
+# FFSB random reads
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=random-read
+
+# FFSB random writes
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=random-write
+
+# FFSB mailserver simulator
+#export FFSB_NUM_FILES=500000
+#export FFSB_NUM_DIRECTORIES=1000
+#export FFSB_FILE_PROFILE=many-file-many-directory
+#export FFSB_FILESIZE_PROFILE=weight-mailserver
+#export FFSB_OPERATIONS_PROFILE=mailserver
 
 # FS-Mark
 #export FSMARK_SINGLETHREAD=1
@@ -98,29 +135,24 @@ export FSMARK_FILESIZE=0
 export FSMARK_NR_DIRECTORIES=225
 export FSMARK_NR_FILES_PER_DIRECTORY=22500
 export FSMARK_NR_FILES_PER_ITERATION=50000
-export FSMARK_PARALLEL_DIRECTORIES=no
-export FSMARK_ITERATIONS=75
+export FSMARK_ITERATIONS=35
 
 # HackBench
 export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
 
-# IOzone full automatic mode
+# IOzone
 export IOZONE_SIZE=--fastest
-export IOZONE_TEST_TYPE=--full-automatic
-
-# IOzone single mode
-#export IOZONE_SIZE=$((200*1048576))
-#export IOZONE_RECORD_LEN=$((16*1024))
-#export IOZONE_THREADS=1
-#export IOZONE_FLUSH=yes
-#export IOZONE_SHOW_THREAD_THROUGHPUT=yes
-#export IOZONE_TEST_TYPE=--single
 
 # Large copy and untar
 export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-1.tar.bz2
 #export LARGECOPY_SRCTAR_EXTRA=http://mcp/~gormanm/large-tar-file-2.tar.bz2
 export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
 export LARGECOPY_THREADS=1
+
+# LMBench
+export LMBENCH_TESTS=lat_mmap
+export LMBENCH_ITERATIONS=500
+export LMBENCH_LATMMAP_FILESIZE=$((256*1048576))
 
 # LTP
 export LTP_RUN_TESTS="controllers"
@@ -146,11 +178,6 @@ export MICRO_VMSCAN_MIXED_MMAPREAD_SIZE=$(($MEMTOTAL_BYTES*3))
 export MICRO_VMSCAN_MIXED_MMAPREAD_ITER=5
 export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=30
 export MICRO_VMSCAN_MIXED_MMAP_NUM_THREADS=$NUM_CPU
-export MICRO_MEMCG_OOMNOTIIFY_MEMCG_SIZE=200M
-export MICRO_MEMCG_OOMNOTIIFY_MEMCG_NAME=memcg-notify
-export MICRO_MEMCG_OOMNOTIIFY_NR_TASKS=100
-export MICRO_MEMCG_OOMNOTIIFY_DURATION=1200
-export MICRO_MEMCG_OOMNOTIIFY_HANGTIME=20
 
 # MultiBuild
 export MULTIBUILD_NUM_SIMULTANEOUS=$((MEMTOTAL_BYTES/450/1048576))
@@ -184,20 +211,9 @@ export REAIM_WORKFILE=workfile.fserver
 export REAIM_QUICK=no
 
 # Rsync residenty delay
-export RSYNC_RESIDENCY_SOURCE=/home/mel/git-private/phd_papers
+export RSYNC_RESIDENCY_SOURCE=root@mcp:/var/www/rsyncsource
 export RSYNC_RESIDENCY_DESTINATION=$SHELLPACK_TEMP
 export RSYNC_RESIDENCY_MAPPING_SIZE=$((MEMTOTAL_BYTES*6/10))
-
-# Page allocator microbench
-export PAGEALLOC_GFPFLAGS=GFP_KERNEL
-export PAGEALLOC_ORDER_MIN=0
-export PAGEALLOC_ORDER_MAX=4
-
-# Page Fault Test (PFT)
-export PFT_ITERATIONS=5
-export PFT_MAPPING_SIZE=$((MEMTOTAL_BYTES/5))
-export PFT_MAX_CLIENTS=$NUM_CPU
-export PFT_USE_PROCESSES=yes
 
 # Simple Writeback (parallel dd writer)
 # NR_JOBS = NR_CPUS * CPU_FACTOR
@@ -237,13 +253,13 @@ export OLTP_TESTTYPE=complex
 export OLTP_READONLY=--read-only
 export OLTP_SIZE=--faster
 export OLTP_CONFIDENCE=
-if [[ `uname -m` =~ i(.)86 ]]; then
-	export OLTP_SHAREDBUFFERS=$((512*1048576))
+export OLTP_PAGESIZES="base"
+if [[ `uname -m` =~ i.86 ]]; then
+	export OLTP_SHAREDBUFFERS=$((1048576*512))
 else
 	export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
 fi
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
-export OLTP_PAGESIZES="base"
 #export OLTP_PAGESIZES="base huge dynhuge"
 #export OLTP_MAX_THREADS="--max-threads N"
 #
@@ -261,8 +277,3 @@ export STRESS_BLKTRACE_THREADS=1
 # Stress High-Alloc
 export HIGHALLOC_ALLOC_RATE=16
 export HIGHALLOC_PERCENTAGE=95
-
-# XFS Tests
-#export XFSTESTS_TEST_DEV=
-#export XFSTESTS_SCRATCH_DEV=
-#export XFSTESTS_180_NR_FILES=100
