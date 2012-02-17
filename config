@@ -76,6 +76,10 @@ export MONITORS_GZIP="proc-vmstat top"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
+# Monitor-specific settings
+export MONITOR_INTERACTIVE_APPS="evolution akregator gnome-terminal xchat firefox konqueror"
+export MONITOR_INTERACTIVE_APPS_STACKIGNORE="poll_schedule_timeout do_wait"
+
 # DBench
 export DBENCH_DURATION=$((7*60))
 export DBENCH_OSYNC=no
