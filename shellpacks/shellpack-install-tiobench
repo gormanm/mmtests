@@ -49,6 +49,25 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 
+# Patch the stupid thing for low cpu efficiency
+echo "--- tiobench.pl-orig	2012-02-17 08:51:54.915428315 +0000
++++ tiobench.pl	2012-02-17 09:08:27.004613193 +0000
+@@ -167,9 +167,13 @@
+                   100 * ( \$stat_data{\$identifier}{\$thread}{\$size}{\$block}{\$field}{'utime'} +
+                   \$stat_data{\$identifier}{\$thread}{\$size}{\$block}{\$field}{'stime'} ) / 
+                   \$stat_data{\$identifier}{\$thread}{\$size}{\$block}{\$field}{'time'};
++               my \$cpur = \$stat_data{\$identifier}{\$thread}{\$size}{\$block}{\$field}{'cpu'}/100;
++               if (\$cpur == 0) {
++                  \$cpur = 0.01;
++               }
+                \$stat_data{\$identifier}{\$thread}{\$size}{\$block}{\$field}{'cpueff'} =
+                   (\$stat_data{\$identifier}{\$thread}{\$size}{\$block}{\$field}{'rate'} /
+-                  (\$stat_data{\$identifier}{\$thread}{\$size}{\$block}{\$field}{'cpu'}/100));
++                  (\$cpur));
+             }
+          }
+       }" | patch -p0
+
 echo tiobench installed successfully
 #### Description tiobench
 #### Details tiobench 3
