@@ -1,0 +1,44 @@
+echo
+gendirlist pft
+printheader
+
+CLIENTS=`ls pft-$KERNEL_BASE/$TOPLEVEL/pft-*.log | sed -e 's/.*\///' -e 's/pft-//' -e 's/.log//' | sort -n`
+
+# Example
+# MappingSize  Threads CacheLine   UserTime  SysTime WallTime flt/cpu/s fault/wsec
+
+for OPERATION in "UserTime" "SysTime" "WallTime" "Flt/sec/cpu" "Flt/sec"; do
+for CLIENT in $CLIENTS; do
+	case $OPERATION in
+	UserTime)
+		INDEX=4
+		COMP=pndiff
+		;;
+	SysTime)
+		INDEX=5
+		COMP=pndiff
+		;;
+	WallTime)
+		INDEX=6
+		COMP=pndiff
+		;;
+	Flt/sec/cpu)
+		INDEX=7
+		COMP=pdiff
+		;;
+	Flt/sec)
+		INDEX=8
+		COMP=pdiff
+		;;
+	esac
+
+	printf "%-7s %3d %-12s" Clients $CLIENT $OPERATION
+	VANILLA=`awk "{print \\$$INDEX}" pft-$KERNEL_BASE/$TOPLEVEL/pft-$CLIENT.log | sed -e 's/s//' | mean`
+
+	for DIR in $DIRLIST; do
+		RESULT=`awk "{print \\$$INDEX}" $DIR/$TOPLEVEL/pft-$CLIENT.log | sed -e 's/s//' | mean`
+		printf " %6.2f (%6.2f%%)" $RESULT `$COMP $RESULT $VANILLA`
+	done
+	echo
+done
+done
