@@ -1,6 +1,12 @@
 v0.03
 o Add a page allocator micro-benchmark
 o Add monitor for tracking processes stuck in D state
+o Add a page fault micro-benchmark
+o Add a memory compaction micro-benchmark
+o Patch a tiobench divide-by-0 error
+o Adapt systemtap for >= 3.3 kernel
+o Reporting scripts for kernbench
+o Reporting scripts for ddresidency
 
 v0.02
 o Added benchmark for running dbench3, dbench4, tiobench
