@@ -1,7 +1,7 @@
 #!/bin/bash
 # Netperf installer
 P=netperf-install
-WEB_LOCATION=ftp://ftp.netperf.org/netperf
+WEB_LOCATION=ftp://ftp.netperf.org/netperf/archive
 MIRROR_LOCATION="$WEBROOT/netperf/"
 DEFAULT_VERSION=2.4.5
 . $SHELLPACK_INCLUDE/common.sh
@@ -70,4 +70,4 @@ fi
 
 echo Netperf installed successfully
 #### Description Netperf benchmark
-#### Details netperf 6
+#### Details netperf 7
