@@ -115,6 +115,16 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			USING="using 1:2:3:4:5"
 			shift
 			;;
+		--tbench)
+			TBENCH=yes
+			LOGX=yes
+			shift
+			;;
+		--tbench-latency)
+			TBENCH_LATENCH=yes
+			LOGX=yes
+			shift
+			;;
 		--residency)
 			RESIDENCY=yes
 			PLOTTYPE="points"
@@ -316,6 +326,14 @@ if [ "$KERNBENCH" = "yes" ]; then
 	echo "set xrange[-0.5:$#.5]" >> $TEMP
 	echo set style fill pattern 6 border  >> $TEMP
 	echo set boxwidth 1 >> $TEMP
+fi
+if [ "$TBENCH" = "yes" ]; then
+	echo set ylabel \"Throughput MB/sec\" >> $TEMP
+	echo set xlabel \"Clients\" >> $TEMP
+fi
+if [ "$TBENCH_LATENCY" = "yes" ]; then
+	echo set ylabel \"Latency ms\" >> $TEMP
+	echo set xlabel \"Clients\" >> $TEMP
 fi
 if [ "$XRANGE" != "" ]; then
 	echo "set xrange [$XRANGE]" >> $TEMP
