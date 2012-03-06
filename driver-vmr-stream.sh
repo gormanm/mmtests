@@ -29,6 +29,12 @@ run_bench() {
 				echo THP support unavailable for transhuge
 				continue
 			fi
+			;;
+		default)
+			PAGEPARAM=--smallonly
+			unset USE_DYNAMIC_HUGEPAGES
+			reset_transhuge
+			;;
 		esac
 
 		export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/$PAGESIZE

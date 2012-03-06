@@ -36,8 +36,8 @@ fi
 
 # Machine configuration
 # Swap configuration can be one of default, partitions, swapfile, NFS
-export VM_DIRTY_RATIO=20
-export VM_TRANSPARENT_HUGEPAGES_DEFAULT=never
+#export VM_DIRTY_RATIO=20
+export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
 export SWAP_CONFIGURATION=default
 export SWAP_PARTITIONS=
 export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
@@ -247,14 +247,14 @@ else
 	export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
 fi
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
-export OLTP_PAGESIZES="base"
+export OLTP_PAGESIZES="default"
 #export OLTP_PAGESIZES="base huge dynhuge"
 #export OLTP_MAX_THREADS="--max-threads N"
 #
 
 # STREAM
 export STREAM_BACKING_TYPE=static
-export STREAM_PAGESIZES="base"
+export STREAM_PAGESIZES="default"
 #export STREAM_PAGESIZES="base huge dynhuge"
 
 # Stress blktrace

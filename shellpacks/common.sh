@@ -81,6 +81,7 @@ function git_fetch() {
 export TRANSHUGE_AVAILABLE=no
 if [ -e /sys/kernel/mm/transparent_hugepage/enabled ]; then
 	export TRANSHUGE_AVAILABLE=yes
+	export TRANSHUGE_DEFAULT=`cat /sys/kernel/mm/transparent_hugepage/enabled | awk -F [ '{print $2}' | awk -F ] '{print $1}'`
 fi
 
 function enable_transhuge() {
@@ -97,9 +98,13 @@ function disable_transhuge() {
 
 function reset_transhuge() {
 	if [ -e /sys/kernel/mm/transparent_hugepage/enabled ]; then
-		echo $VM_TRANSPARENT_HUGEPAGES_DEFAULT > /sys/kernel/mm/transparent_hugepage/enabled
+		if [ "$VM_TRANSPARENT_HUGEPAGES_DEFAULT" = "default" ]; then
+			echo $TRANSHUGE_DEFAULT > /sys/kernel/mm/transparent_hugepage/enabled
+		else
+			echo $VM_TRANSPARENT_HUGEPAGES_DEFAULT > /sys/kernel/mm/transparent_hugepage/enabled
+		fi
 	else
-		if [ "$VM_TRANSPARENT_HUGEPAGES_DEFAULT" != "never" ]; then
+		if [ "$VM_TRANSPARENT_HUGEPAGES_DEFAULT" != "never" -a "$VM_TRANSPARENT_HUGEPAGES_DEFAULT" != "default" ]; then
 			echo Tests configured to use THP but it is unavailable
 			exit
 		fi
