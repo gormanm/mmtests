@@ -4,7 +4,9 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="ltp lhcs"
+# Not recommended if mem > 4G as the number of kerel builds cause problems
+export MMTESTS="kernbench vmr-stream sysbench stress-highalloc"
+
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -70,8 +72,8 @@ export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " "
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP=
-export MONITORS_WITH_LATENCY=
+export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # FS-Mark
@@ -99,10 +101,10 @@ export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
 export LARGECOPY_THREADS=1
 
 # LTP
-export LTP_RUN_TESTS="test-direct-process"
+export LTP_RUN_TESTS="controllers"
 
 # LTP Pounder
-export LTP_POUNDER_RUNTIME=$((3600*24))
+export LTP_POUNDER_RUNTIME=$((3600*7))
 #export LTP_POUNDER_NFS_LOGDIR=/exports/pounder
 #export LTP_POUNDER_NFS_LOGSERVER=10.0.0.7
 export LTP_POUNDER_NFS_LOGGING=0
@@ -124,7 +126,7 @@ export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=30
 export MICRO_VMSCAN_MIXED_MMAP_NUM_THREADS=$NUM_CPU
 
 # MultiBuild
-export MULTIBUILD_NUM_SIMULTANEOUS=$((MEMTOTAL_BYTES/400/1048576))
+export MULTIBUILD_NUM_SIMULTANEOUS=$((MEMTOTAL_BYTES/450/1048576))
 export MULTIBUILD_NUM_THREADS=1
 export MULTIBUILD_NUM_COPIES=$((MULTIBUILD_NUM_SIMULTANEOUS*5))
 
@@ -133,7 +135,7 @@ export NAS_CLASS=C
 export NAS_PAGESIZES="base huge-heap huge-all"
 
 # NetPerf
-export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
+export NETPERF_BUFFER_SIZES=64,1024,3312,4096,8192,16384
 
 # PostMark
 export POSTMARK_TRANSACTIONS=30000
@@ -198,11 +200,14 @@ export OLTP_READONLY=--read-only
 export OLTP_SIZE=--faster
 export OLTP_CONFIDENCE=
 export OLTP_PAGESIZES="default"
-export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+if [[ `uname -m` =~ i.86 ]]; then
+        export OLTP_SHAREDBUFFERS=$((1048576*512))
+else
+        export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+fi
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
 #export OLTP_PAGESIZES="base huge dynhuge"
 #export OLTP_MAX_THREADS="--max-threads N"
-#
 
 # STREAM
 export STREAM_BACKING_TYPE=static
