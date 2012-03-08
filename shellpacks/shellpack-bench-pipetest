@@ -1,0 +1,69 @@
+#!/bin/bash
+# This is the script for running the pipetest benchmark
+P='pipetest'
+ITERATIONS=30
+. $SHELLPACK_INCLUDE/common.sh
+
+# Process the arguments
+while [ $# -gt 0 ]; do
+	case $1 in
+	-i)
+		ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised commane-line parameter $1
+		usage
+		exit $SHELLPACK_ERROR
+	esac
+done
+
+# Install support files
+if [ ! \( -e "$SHELLPACK_SOURCES/pipetest/pipe-test" \) ]; then
+  	$SHELLPACK_INCLUDE/shellpack-install-pipetest
+	check_status "$P: Installing pipetest"
+fi
+pushd $SHELLPACK_SOURCES/pipetest > /dev/null
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Start it reading in the background
+EXPECT_UNBUFFER=expect_unbuffer
+if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
+	EXPECT_UNBUFFER=unbuffer
+fi
+
+# Run the benchmark ##########################################################
+RETVAL=0
+monitor_pre_hook $LOGDIR_RESULTS
+
+$EXPECT_UNBUFFER ./pipe-test | tee $LOGDIR_RESULTS/pipetest.log &
+PID_TEE=$!
+PID_PIPETEST=`$SHELLPACK_TOPLEVEL/bin/piping-pid.sh $PID_TEE`
+echo pipetest pid $PID_PIPETEST
+
+SAMPLECOUNT=0
+while [ $SAMPLECOUNT -lt $ITERATIONS ]; do
+	sleep 5
+	SAMPLECOUNT=`wc -l $LOGDIR_RESULTS/pipetest.log | awk '{print $1}'`
+	if [ "`ps h --pid $PID_PIPETEST`" = "" ]; then
+		SAMPLECOUNT=$ITERATIONS
+	fi
+done
+
+echo -n Shutting down pipe-test
+for PID in $PID_TEE $PID_PIPETEST; do
+	while [ "`ps h --pid $PID`" != "" ]; do
+		echo -n .
+		kill $PID
+		sleep 2
+	done
+done
+echo
+
+monitor_post_hook $LOGDIR_RESULTS
+
+exit $RETVAL
+#### Description Run the pipe-test benchmark
+#### Details pipetest-bench 11

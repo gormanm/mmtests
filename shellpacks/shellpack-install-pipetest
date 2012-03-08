@@ -1,0 +1,23 @@
+#!/bin/bash
+
+P='pipetest-install'
+WEB_LOCATION="http://people.redhat.com/mingo/cfs-scheduler/tools/pipe-test.c"
+MIRROR_LOCATION="$WEBROOT/pipetest/pipe-test.c"
+
+. $SHELLPACK_INCLUDE/common.sh
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf pipetest
+mkdir -p pipetest
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/pipetest/pipe-test.c
+cd $SHELLPACK_SOURCES/pipetest
+
+gcc -O2 pipe-test.c -o pipe-test
+if [ $? -ne 0 ]; then
+	die "$P: Failed to build pipetest"
+fi
+
+exit $SHELLPACK_SUCCESS
+#### Description Run the pipe-test benchmark
+#### Details pipetest 11
