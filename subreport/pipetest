@@ -15,7 +15,7 @@ for PROCESS in min mean stddev true-mean true-stddev max; do
 
 	for DIR in $DIRLIST; do
 		RESULT=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | $PROCESS`
-		printf " %7.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+		printf " %7.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
 	done
 	echo
 	if [ "$PROCESS" = "mean" ]; then

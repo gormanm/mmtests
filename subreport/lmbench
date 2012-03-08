@@ -1,0 +1,27 @@
+echo
+gendirlist lmbench
+printheader
+
+for TEST in lat_ctx; do
+	# Generate plot files
+	for DIR in $DIRLIST; do
+		INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/lmbench-$TEST.plot"
+		TITLES="$TITLES `echo $DIR | sed -e 's/lmbench-//'`"
+		grep ^[0-9] $DIR/$TOPLEVEL/lmbench-$TEST.log > $DIR/$TOPLEVEL/lmbench-$TEST.plot
+		done
+	done
+
+	CLIENTS=`grep ^[0-9] lmbench-$KERNEL_BASE/$TOPLEVEL/lmbench-$TEST.log | awk '{print $1}' | sort -n`
+
+	echo LMBench $TEST Latency
+	for CLIENT in $CLIENTS; do
+		printf "%-5s %3d %-6s" Procs $CLIENT $PROCESS
+		VANILLA=`grep "^$CLIENT " lmbench-$KERNEL_BASE/$TOPLEVEL/lmbench-$TEST.log | awk '{print $2}'`
+
+		for DIR in $DIRLIST; do
+			RESULT=`grep "^$CLIENT " $DIR/$TOPLEVEL/lmbench-$TEST.log | awk '{print $2}'`
+			printf " %7.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+		done
+		echo
+	done
+done

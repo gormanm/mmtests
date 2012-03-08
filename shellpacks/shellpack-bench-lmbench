@@ -4,6 +4,7 @@
 
 P=lmbench-bench
 VERSION=3
+NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 . $SHELLPACK_INCLUDE/common.sh
 
@@ -35,6 +36,9 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 	lat_mmap)
 		dd if=/dev/zero of=$SHELLPACK_TEMP/lmbench.file ibs=4096 count=$((LMBENCH_LATMMAP_FILESIZE/4096))
 		;;
+	lat_ctx)
+		echo
+		;;
 	*)
 		die "Unrecognised test $LMBENCH_TEST for preparation"
 		;;
@@ -42,13 +46,27 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 
 	# Run test
 	monitor_pre_hook $LOGDIR_RESULTS $LMBENCH_TEST
+	LMBENCH_RESULTS=$LOGDIR_RESULTS/lmbench-$LMBENCH_TEST.log
+
 	case $LMBENCH_TEST in
 	lat_mmap)
-		echo -n "$LMBENCH_TEST " | tee -a $LOGDIR_RESULTS/lmbench.log
 		./bin/$LMBENCH_TEST \
-			-N $LMBENCH_ITERATIONS \
+			-N $LMBENCH_LATMMAP_ITERATIONS \
 			$LMBENCH_LATMMAP_FILESIZE $SHELLPACK_TEMP/lmbench.file \
-				2>&1 | tee -a $LOGDIR_RESULTS/lmbench.log
+				2>&1 | tee -a $LMBENCH_RESULTS
+		;;
+	lat_ctx)
+		CLIENT=1
+		while [ $CLIENT -lt $LMBENCH_LATCTX_MAXCLIENTS ]; do
+			./bin/$LMBENCH_TEST \
+				-s $LMBENCH_LATCTX_SIZE \
+				$CLIENT 2>&1 | tee -a $LMBENCH_RESULTS
+			if [ $CLIENT -lt $NUM_CPU ]; then
+				CLIENT=$((CLIENT+1))
+			else
+				CLIENT=$((CLIENT+7))
+			fi
+		done
 		;;
 	*)
 		die "Unrecognised test $LMBENCH_TEST for execution"
@@ -61,4 +79,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description lmbench
-#### Details lmbench-bench 3
+#### Details lmbench-bench 8
