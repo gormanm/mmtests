@@ -167,6 +167,7 @@ export NAS_PAGESIZES="base huge-heap huge-all"
 
 # NetPerf
 export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
+export NETPERF_BINDING=firstsecond
 
 # PostMark
 export POSTMARK_TRANSACTIONS=30000
