@@ -1,0 +1,23 @@
+#!/bin/bash
+
+P='starve-install'
+WEB_LOCATION="http://www.hpl.hp.com/research/linux/kernel/prog/test-starve.c"
+MIRROR_LOCATION="$WEBROOT/starve/test-starve.c"
+
+. $SHELLPACK_INCLUDE/common.sh
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf starve
+mkdir -p starve
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/starve/test-starve.c
+cd $SHELLPACK_SOURCES/starve
+
+gcc -O2 test-starve.c -o test-starve
+if [ $? -ne 0 ]; then
+	die "$P: Failed to build starve"
+fi
+
+exit $SHELLPACK_SUCCESS
+#### Description Run the scheduler starve benchmark
+#### Details starve 3
