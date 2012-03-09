@@ -4,6 +4,11 @@
 $x[$i++] = $_;
 $min=$x[0];
 END {
+	if (! defined $i) {
+		print "nan";
+		exit;
+	}
+
 	# Calculate mean
 	for ($j = 1; $j < $i; $j++) {
 		if ($x[$j] < $min) {

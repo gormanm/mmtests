@@ -2,7 +2,7 @@ echo
 echo SYSBENCH
 gendirlist sysbench
 printheader
-NUMCLIENTS=`wc -l sysbench-$KERNEL_BASE/$TOPLEVEL/default/sysbench.log | awk '{print $1}'`
+CLIENTS=`awk '{print $1}' sysbench-$KERNEL_BASE/$TOPLEVEL/default/sysbench.log`
 
 for DIR in $DIRLIST; do
 	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/default/sysbench-graph.log"
@@ -10,7 +10,12 @@ for DIR in $DIRLIST; do
 	echo -n > `pwd`/$DIR/$TOPLEVEL/default/sysbench-graph.log
 done
 
-for CLIENT in `seq 1 $NUMCLIENTS`; do
+for CLIENT in $CLIENTS; do
+	# Cope with stupid log entries from an obsolete version of mm tests
+	if [ ! -e sysbench-$KERNEL_BASE/$TOPLEVEL/default/sysbench-raw-$CLIENT-1 ]; then
+		continue
+	fi
+
 	printf "%12d" $CLIENT
 	VANILLA=`grep "^$CLIENT " sysbench-$KERNEL_BASE/$TOPLEVEL/default/sysbench.log | awk '{print $2}'`
 	for DIR in $DIRLIST; do

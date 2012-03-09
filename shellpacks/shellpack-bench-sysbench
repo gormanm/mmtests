@@ -293,8 +293,16 @@ echo Warming up with $SYSBENCH_OPTIONS $OLTP_OPTIONS --num-threads=$RUN_NUM run
 sync
 sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS --num-threads=$RUN_NUM run > $LOGDIR_RESULTS/sysbench-raw-warmup
 
+# Work out threads
+CLIENTS=
+if [ $RUN_NUM -lt $NUM_CPU ]; then
+	CLIENTS=`seq 1 $RUN_NUM`
+else
+	CLIENTS="`seq 1 $NUM_CPU` `seq $((NUM_CPU+2)) 2 $RUN_NUM`"
+fi
+
 echo Running sysbench maximum $RUN_NUM threads
-for N in `seq 1 $RUN_NUM`; do
+for N in $CLIENTS; do
 
 	echo -n > $LOGDIR_RESULTS/samples
 	monitor_pre_hook $LOGDIR_RESULTS $N
@@ -360,7 +368,7 @@ fi
 echo Gathering results
 cd $LOGDIR_RESULTS
 echo -n > sysbench.log
-for N in `seq 1 $RUN_NUM`; do
+for N in $CLIENTS; do
 	ITERATIONS=`ls sysbench-raw-$N-* | wc -l`
 	echo -n > sysbench-$N.log
 	for ITER in `seq 1 $ITERATIONS`; do
@@ -384,4 +392,4 @@ reset_hugepages
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 25
+#### Details sysbench-bench 27
