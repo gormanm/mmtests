@@ -2,9 +2,10 @@ FINEGRAINED_SUPPORTED=yes
 NAMEEXTRA=
 
 run_bench() {
-	if [ "$FSMARK_SINGLETHREAD" = "1" ]; then
+
+	if [ "$FSMARK_THREADS" != "" ]; then
 		$SHELLPACK_INCLUDE/shellpack-bench-fsmark \
-			--threads 1 \
+			--threads $FSMARK_THREADS \
 			--filesize $FSMARK_FILESIZE \
 			--nr-files-per-iteration $FSMARK_NR_FILES_PER_ITERATION \
 			--nr-files-per-directory $FSMARK_NR_FILES_PER_DIRECTORY \
@@ -18,6 +19,12 @@ run_bench() {
 			--nr-files-per-directory $FSMARK_NR_FILES_PER_DIRECTORY \
 			--nr-directories $FSMARK_NR_DIRECTORIES \
 			--iterations $FSMARK_ITERATIONS
-
 	fi
+}
+
+
+FINEGRAINED_SUPPORTED=yes
+NAMEEXTRA=
+
+run_bench() {
 }

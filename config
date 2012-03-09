@@ -4,7 +4,8 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="kernbench reaim postmark vmr-aim9 vmr-stream vmr-cacheeffects vmr-createdelete iozone fsmark hackbench-sockets hackbench-pipes netperf-tcp netperf-udp sysbench simple-writeback ltp micro specjvm nas-ser nas-omp rsyncresidency specomp speccpu stress-highalloc stress-blktrace"
+export MMTESTS="hackbench-pipes hackbench-sockets pipetest starve lmbench"
+
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -36,8 +37,8 @@ fi
 
 # Machine configuration
 # Swap configuration can be one of default, partitions, swapfile, NFS
-export VM_DIRTY_RATIO=20
-export VM_TRANSPARENT_HUGEPAGES_DEFAULT=never
+#export VM_DIRTY_RATIO=20
+export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
 export SWAP_CONFIGURATION=default
 export SWAP_PARTITIONS=
 export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
@@ -45,9 +46,7 @@ export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
 export SWAP_NBD_DEVICE=/dev/nbd0
 export SWAP_NBD_HOST=mcp
 export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
-
-# Optionally use a memory control group
-# export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+#export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
@@ -55,10 +54,10 @@ export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " "
 #export TESTDISK_RAID_OFFSET=63
 #export TESTDISK_RAID_SIZE=250019532
 #export TESTDISK_RAID_TYPE=raid0
-#export TESTDISK_PARTITION=/dev/sda5
-#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
-#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+#export TESTDISK_MOUNT_ARGS=""
 #
 # Test NFS disk to setup (optional)
 #export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
@@ -72,59 +71,36 @@ export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " "
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top"
-export MONITORS_WITH_LATENCY="vmstat"
+export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# Monitor-specific settings
-export MONITOR_INTERACTIVE_APPS="evolution akregator gnome-terminal xchat firefox konqueror"
-export MONITOR_INTERACTIVE_APPS_STACKIGNORE="poll_schedule_timeout do_wait"
-
-# DBench
-export DBENCH_DURATION=$((7*60))
-export DBENCH_OSYNC=no
-export DBENCH_SYNC_DIRECTORY=no
-export DBENCH_FSYNC=no
-export DBENCH_MAX_CLIENTS=$((NUM_CPU*64))
-
-# DD residency delay
-export DD_RESIDENCY_MAPPING_SIZE=$((MEMTOTAL_BYTES*6/10))
-export DD_RESIDENCY_FILESIZE=$((MEMTOTAL_BYTES*2))
-export DD_RESIDENCY_MAX_DURATION=
-
 # FS-Mark
-#export FSMARK_SINGLETHREAD=1
-#export FSMARK_THREADS=1
-export FSMARK_SINGLETHREAD=0
 export FSMARK_THREADS_PER_CPU=1
-export FSMARK_CPU_FACTOR=1
 export FSMARK_FILESIZE=0
 export FSMARK_NR_DIRECTORIES=225
 export FSMARK_NR_FILES_PER_DIRECTORY=22500
 export FSMARK_NR_FILES_PER_ITERATION=50000
-export FSMARK_PARALLEL_DIRECTORIES=no
-export FSMARK_ITERATIONS=75
+export FSMARK_ITERATIONS=35
 
 # HackBench
-export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
+export HACKBENCH_GROUPS=1,4,8,13,16,20,27,40,72,104,168,266,360,464,512
 
-# IOzone full automatic mode
+# IOzone
 export IOZONE_SIZE=--fastest
-export IOZONE_TEST_TYPE=--full-automatic
-
-# IOzone single mode
-#export IOZONE_SIZE=$((200*1048576))
-#export IOZONE_RECORD_LEN=$((16*1024))
-#export IOZONE_THREADS=1
-#export IOZONE_FLUSH=yes
-#export IOZONE_SHOW_THREAD_THROUGHPUT=yes
-#export IOZONE_TEST_TYPE=--single
 
 # Large copy and untar
 export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-1.tar.bz2
 #export LARGECOPY_SRCTAR_EXTRA=http://mcp/~gormanm/large-tar-file-2.tar.bz2
 export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
 export LARGECOPY_THREADS=1
+
+# LMBench
+export LMBENCH_TESTS=lat_ctx
+export LMBENCH_LATMMAP_ITERATIONS=500
+export LMBENCH_LATMMAP_FILESIZE=$((256*1048576))
+export LMBENCH_LATCTX_SIZE=0
+export LMBENCH_LATCTX_MAXCLIENTS=$((NUM_CPU*32))
 
 # LTP
 export LTP_RUN_TESTS="controllers"
@@ -137,7 +113,7 @@ export LTP_POUNDER_NFS_LOGGING=0
 export LTP_POUNDER_DO_X_TESTS=0
 
 # Micro benchmarks
-export MICRO_TESTLIST=vmscan-file-mmap-read,vmscan-file-mmap-write
+export MICRO_TESTLIST=vmscan-file-mmap-write
 export MICRO_MAPPED_FILE_STREAM_FORCESIZE=
 export MICRO_VMSCAN_DEVICE_COPY=/dev/sda1
 export MICRO_VMSCAN_DEVICE_COPY_LIMIT_MB=8192
@@ -150,15 +126,10 @@ export MICRO_VMSCAN_MIXED_MMAPREAD_SIZE=$(($MEMTOTAL_BYTES*3))
 export MICRO_VMSCAN_MIXED_MMAPREAD_ITER=5
 export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=30
 export MICRO_VMSCAN_MIXED_MMAP_NUM_THREADS=$NUM_CPU
-export MICRO_MEMCG_OOMNOTIIFY_MEMCG_SIZE=200M
-export MICRO_MEMCG_OOMNOTIIFY_MEMCG_NAME=memcg-notify
-export MICRO_MEMCG_OOMNOTIIFY_NR_TASKS=100
-export MICRO_MEMCG_OOMNOTIIFY_DURATION=1200
-export MICRO_MEMCG_OOMNOTIIFY_HANGTIME=20
 
 # MultiBuild
 export MULTIBUILD_NUM_SIMULTANEOUS=$((MEMTOTAL_BYTES/450/1048576))
-export MULTIBUILD_NUM_THREADS=$NUM_CPU
+export MULTIBUILD_NUM_THREADS=1
 export MULTIBUILD_NUM_COPIES=$((MULTIBUILD_NUM_SIMULTANEOUS*5))
 
 # NAS Parallel Benchmark
@@ -166,7 +137,7 @@ export NAS_CLASS=C
 export NAS_PAGESIZES="base huge-heap huge-all"
 
 # NetPerf
-export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
+export NETPERF_BUFFER_SIZES=64,1024,3312,4096,8192,16384
 
 # PipeTest
 export PIPETEST_ITERATIONS=30
@@ -191,20 +162,9 @@ export REAIM_WORKFILE=workfile.fserver
 export REAIM_QUICK=no
 
 # Rsync residenty delay
-export RSYNC_RESIDENCY_SOURCE=/home/mel/git-private/phd_papers
+export RSYNC_RESIDENCY_SOURCE=root@mcp:/var/www/rsyncsource
 export RSYNC_RESIDENCY_DESTINATION=$SHELLPACK_TEMP
 export RSYNC_RESIDENCY_MAPPING_SIZE=$((MEMTOTAL_BYTES*6/10))
-
-# Page allocator microbench
-export PAGEALLOC_GFPFLAGS=GFP_KERNEL
-export PAGEALLOC_ORDER_MIN=0
-export PAGEALLOC_ORDER_MAX=4
-
-# Page Fault Test (PFT)
-export PFT_ITERATIONS=5
-export PFT_MAPPING_SIZE=$((MEMTOTAL_BYTES/5))
-export PFT_MAX_CLIENTS=$NUM_CPU
-export PFT_USE_PROCESSES=yes
 
 # Simple Writeback (parallel dd writer)
 # NR_JOBS = NR_CPUS * CPU_FACTOR
@@ -244,20 +204,19 @@ export OLTP_TESTTYPE=complex
 export OLTP_READONLY=--read-only
 export OLTP_SIZE=--faster
 export OLTP_CONFIDENCE=
-if [[ `uname -m` =~ i(.)86 ]]; then
-	export OLTP_SHAREDBUFFERS=$((512*1048576))
+export OLTP_PAGESIZES="default"
+if [[ `uname -m` =~ i.86 ]]; then
+        export OLTP_SHAREDBUFFERS=$((1048576*512))
 else
-	export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+        export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
 fi
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
-export OLTP_PAGESIZES="base"
 #export OLTP_PAGESIZES="base huge dynhuge"
 #export OLTP_MAX_THREADS="--max-threads N"
-#
 
 # STREAM
 export STREAM_BACKING_TYPE=static
-export STREAM_PAGESIZES="base"
+export STREAM_PAGESIZES="default"
 #export STREAM_PAGESIZES="base huge dynhuge"
 
 # Stress blktrace
@@ -268,12 +227,3 @@ export STRESS_BLKTRACE_THREADS=1
 # Stress High-Alloc
 export HIGHALLOC_ALLOC_RATE=16
 export HIGHALLOC_PERCENTAGE=95
-
-# TBench
-export TBENCH_DURATION=$((7*60))
-export TBENCH_MAX_CLIENTS=$((NUM_CPU*64))
-
-# XFS Tests
-#export XFSTESTS_TEST_DEV=
-#export XFSTESTS_SCRATCH_DEV=
-#export XFSTESTS_180_NR_FILES=100

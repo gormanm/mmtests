@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="dbench"
+export MMTESTS="dbench fsmark-single fsmark-threaded"
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -126,16 +126,13 @@ export FFSB_NUM_THREADS=1
 #export FFSB_OPERATIONS_PROFILE=mailserver
 
 # FS-Mark
-#export FSMARK_SINGLETHREAD=1
-#export FSMARK_THREADS=1
-export FSMARK_SINGLETHREAD=0
+export FSMARK_PARALLEL_DIRECTORIES=yes
 export FSMARK_THREADS_PER_CPU=1
-export FSMARK_CPU_FACTOR=1
 export FSMARK_FILESIZE=0
 export FSMARK_NR_DIRECTORIES=225
 export FSMARK_NR_FILES_PER_DIRECTORY=22500
 export FSMARK_NR_FILES_PER_ITERATION=50000
-export FSMARK_ITERATIONS=35
+export FSMARK_ITERATIONS=15
 
 # HackBench
 export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
