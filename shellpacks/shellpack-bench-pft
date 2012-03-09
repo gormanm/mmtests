@@ -41,9 +41,9 @@ while [ $CLIENT -le $PFT_MAX_CLIENTS ]; do
 				|| die Failed to run pft
 	done
 	monitor_post_hook $LOGDIR_RESULTS $CLIENT
-	CLIENT=$((CLIENT*2))
+	CLIENT=$((CLIENT+1))
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description pft
-#### Details pft-bench 3
+#### Details pft-bench 4
