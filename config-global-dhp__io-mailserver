@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="sysbench postmark largedd fsmark-threaded"
+export MMTESTS="postmark ffsb"
 export PROFILE_PATH=$SCRIPTDIR
 export SHELLPACK_TOPLEVEL=$SCRIPTDIR
 export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
@@ -74,6 +74,13 @@ export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
+# FFSB mailserver simulator
+export FFSB_NUM_FILES=500000
+export FFSB_NUM_DIRECTORIES=1000
+export FFSB_FILE_PROFILE=many-file-many-directory
+export FFSB_FILESIZE_PROFILE=weight-mailserver
+export FFSB_OPERATIONS_PROFILE=mailserver
+
 # FS-Mark
 export FSMARK_PARALLEL_DIRECTORIES=yes
 export FSMARK_THREADS_PER_CPU=4
@@ -135,9 +142,9 @@ export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
 # PostMark
 export POSTMARK_TRANSACTIONS=15000
 export POSTMARK_MIN_SIZE=3096
-export POSTMARK_MAX_SIZE=5242880
+export POSTMARK_MAX_SIZE=26214400
 export POSTMARK_SUBDIRECTORIES=100
-export POSTMARK_SIMULTANEOUS_FILES=$((MEMTOTAL_BYTES*4/POSTMARK_MAX_SIZE))
+export POSTMARK_SIMULTANEOUS_FILES=5000
 export POSTMARK_BACKGROUND_MMAP=no
 
 # Re-aim
