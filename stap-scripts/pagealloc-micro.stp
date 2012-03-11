@@ -80,10 +80,10 @@ function alloc_runtest() %{
 			cycles_free += read_clockcycles() - start_cycles_free;
 		}
 
-		cycles_alloc /= PARAM_ITERATIONS_INNER;
-		cycles_free /= PARAM_ITERATIONS_INNER;
-		cycles_alloc /= batch;
-		cycles_free /= batch;
+		cycles_alloc = (unsigned long)cycles_alloc / PARAM_ITERATIONS_INNER;
+		cycles_free = (unsigned long)cycles_free / PARAM_ITERATIONS_INNER;
+		cycles_alloc = (unsigned long)cycles_alloc / batch;
+		cycles_free = (unsigned long)cycles_free / batch;
 
 		_stp_printf("order %2d batch %6d alloc %llu free %llu\n",
 			order, batch, cycles_alloc, cycles_free);
