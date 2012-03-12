@@ -738,6 +738,14 @@ for POWERSTEP in `seq $(($MINIMUM_POWER*$INCREMENT)) $(($LARGEST_POWER*$INCREMEN
 			else
 				PERCENTAGE=6
 			fi
+
+			# Allow more leeway on NUMA boxen, this is less than
+			# ideal because ideally STREAM would be configured
+			# to run multi-threaded on each node
+			if [ `awk '{print $2}' /proc/buddyinfo  | uniq | wc -l` -gt 1 ]; then
+				PERCENTAGE=$((PERCENTAGE*2))
+			fi
+
 			ACCEPTABLE=$(($AVG_THROUGHPUT*$PERCENTAGE/100))
 			if [ $DEVIATION -gt $ACCEPTABLE ]; then
 				DEVIATE=yes
