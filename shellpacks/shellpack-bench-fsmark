@@ -95,9 +95,10 @@ else
 			2>&1 | tee $LOGDIR_RESULTS/fsmark.log \
 					|| die Failed to run fsmark
 fi
+rm -rf $SHELLPACK_TEMP/*
 rm /tmp/fsmark-$$
 monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description fsmark
-#### Details fsmark-bench 14
+#### Details fsmark-bench 15
