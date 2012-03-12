@@ -2,7 +2,6 @@ FINEGRAINED_SUPPORTED=yes
 NAMEEXTRA=
 
 run_bench() {
-
 	if [ "$FSMARK_THREADS" != "" ]; then
 		$SHELLPACK_INCLUDE/shellpack-bench-fsmark \
 			--threads $FSMARK_THREADS \
@@ -20,11 +19,4 @@ run_bench() {
 			--nr-directories $FSMARK_NR_DIRECTORIES \
 			--iterations $FSMARK_ITERATIONS
 	fi
-}
-
-
-FINEGRAINED_SUPPORTED=yes
-NAMEEXTRA=
-
-run_bench() {
 }

@@ -8,7 +8,6 @@ for TEST in lat_ctx; do
 		INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/lmbench-$TEST.plot"
 		TITLES="$TITLES `echo $DIR | sed -e 's/lmbench-//'`"
 		grep ^[0-9] $DIR/$TOPLEVEL/lmbench-$TEST.log > $DIR/$TOPLEVEL/lmbench-$TEST.plot
-		done
 	done
 
 	CLIENTS=`grep ^[0-9] lmbench-$KERNEL_BASE/$TOPLEVEL/lmbench-$TEST.log | awk '{print $1}' | sort -n`
