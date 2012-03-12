@@ -76,6 +76,11 @@ if [ "`which hugeadm 2> /dev/null`" = "" ]; then
 	cd -
 fi
 
+# Move oprofile helpers to right place (hack)
+if [ ! -e /usr/lib/perl5/5.*/TLBC ]; then
+	cp -r /usr/lib/perl5/TLBC /usr/lib/perl5/5.*/
+fi
+
 # Configure system parameters
 echo Tuning the system for run: $RUNNAME monitor: $RUN_MONITOR
 #hugeadm --create-global-mounts || exit
