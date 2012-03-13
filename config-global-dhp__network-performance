@@ -117,8 +117,8 @@ export IOZONE_TEST_TYPE=--full-automatic
 #export IOZONE_TEST_TYPE=--single
 
 # Large copy and untar
-export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-1.tar.bz2
-#export LARGECOPY_SRCTAR_EXTRA=http://mcp/~gormanm/large-tar-file-2.tar.bz2
+export LARGECOPY_SRCTAR=$WEBROOT/large-tar-file-1.tar.bz2
+#export LARGECOPY_SRCTAR_EXTRA=$WEBROOT/large-tar-file-2.tar.bz2
 export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
 export LARGECOPY_THREADS=1
 

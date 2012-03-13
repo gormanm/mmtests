@@ -89,7 +89,7 @@ export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
 export IOZONE_SIZE=--fastest
 
 # Large copy and untar
-export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file.tar.bz2
+export LARGECOPY_SRCTAR=$WEBROOT/large-tar-file.tar.bz2
 export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*6/5/1048576))
 export LARGECOPY_THREADS=$NUM_CPU
 
