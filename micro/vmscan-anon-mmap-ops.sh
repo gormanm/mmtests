@@ -8,6 +8,7 @@
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 NUM_THREADS=${MICRO_VMSCAN_ANON_MMAP_NUM_THREADS:=$NUM_CPU}
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+SWAPTOTAL_BYTES=`free -b | grep Swap: | awk '{print $2}'`
 SELF=$0
 READONLY=$1
 BITNESS=-m64
@@ -15,6 +16,15 @@ case `uname -m` in
 i?86)
 	BITNESS=
 esac
+
+# No point shoving the system OOM for no reason
+ADDRESSIBLE_LIMIT=$(((MEMTOTAL_BYTES+SWAPTOTAL_BYTES)*7/10))
+if [ $MICRO_VMSCAN_ANON_MMAP_OPS_SIZE -gt $ADDRESSIBLE_LIMIT ]; then
+	echo "WARNING: Requested size $MICRO_VMSCAN_ANON_MMAP_OPS_SIZE exceeds"
+	echo "         addressible memory. $MEMTOTAL_BYTES RAM + $SWAPTOTAL_BYTES swap"
+	echo "Resetting to $ADDRESSIBLE_LIMIT"
+	MICRO_VMSCAN_ANON_MMAP_OPS_SIZE=$ADDRESSIBLE_LIMIT
+fi
 
 echo -n > vmscan-anon-mmap-ops-$$.pids
 cd $SHELLPACK_TEMP || die Failed to cd to temporary directory
