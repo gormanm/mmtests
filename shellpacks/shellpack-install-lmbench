@@ -1,8 +1,8 @@
 #!/bin/bash
 # lmbench installer
 P=lmbench-install
-WEB_LOCATION=http://www.bitmover.com/lmbench/
-MIRROR_LOCATION="$WEBROOT/lmbench/"
+WEB_LOCATION=http://www.bitmover.com/lmbench
+MIRROR_LOCATION="$WEBROOT/lmbench"
 DEFAULT_VERSION=3
 . $SHELLPACK_INCLUDE/common.sh
 
@@ -24,7 +24,7 @@ if [ -z "$VERSION" ]; then
 fi
 
 TARFILE=lmbench${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 
 # Building from scratch, uncompress the tar
 cd $SHELLPACK_SOURCES
@@ -58,4 +58,4 @@ cp ../bin/*/* ../bin/
 
 echo lmbench installed successfully
 #### Description lmbench
-#### Details lmbench 8
+#### Details lmbench 10
