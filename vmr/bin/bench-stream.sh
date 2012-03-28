@@ -671,6 +671,7 @@ for POWERSTEP in `seq $(($MINIMUM_POWER*$INCREMENT)) $(($LARGEST_POWER*$INCREMEN
 	fi
 
 	DEVIATE=yes
+	DEVIATE_FAIL=0
 	while [ "$DEVIATE" = "yes" ]; do
 		WSS=$((($ARRAY_SIZE+$ARR_OFFSET+$OFFSET)*3*$DOUBLESIZE))
 		MODEL=
@@ -762,6 +763,7 @@ for POWERSTEP in `seq $(($MINIMUM_POWER*$INCREMENT)) $(($LARGEST_POWER*$INCREMEN
 				ARR_OFFSET=0
 				OFFSET=$(($OFFSET+1))
 				ARRAY_SIZE=$(($ARRAY_SIZE-1))
+				DEVIATE_FAIL=$((DEVIATE_FAIL+1))
 			else
 				ARR_OFFSET=$(($ARR_OFFSET+8))
 			fi
@@ -772,6 +774,12 @@ for POWERSTEP in `seq $(($MINIMUM_POWER*$INCREMENT)) $(($LARGEST_POWER*$INCREMEN
 			else
 				echo Deviation too high for $HIGH_OP: $HIGH_DEVIATION -gt $ACCEPTABLE
 				monitor_cleanup_hook $RESULT_DIR $MONITOR_TAG
+
+				if [ $DEVIATE_FAIL -gt 4 ]; then
+					echo Deviation high are multiple attempts, skipping the size
+					DEVIATE=no
+				fi
+
 				continue
 			fi
 		fi
@@ -793,16 +801,6 @@ for POWERSTEP in `seq $(($MINIMUM_POWER*$INCREMENT)) $(($LARGEST_POWER*$INCREMEN
 
 		cat $TEMPFILE-rawstream >> $RESULT_DIR/stream-raw-output-$ARRAY_SIZE.txt
 	done
-
-	if [ $OFFSET -gt 15 ]; then
-		# Only worry about results deviating at the major powers
-		if [ $STEP_NO -eq 0 ]; then
-			echo Deviations were too high to get a meaningful result >> $RESULT_DIR/log.txt
-			die Deviations were too high to get a meaningful result
-		else
-			echo Deviations too high to get a result, continuing >> $RESULT_DIR/log.txt
-		fi
-	fi
 done
 grep . $RESULT_DIR/*.avg | sed -e 's/.*stream-//' | tee -a $RESULT_DIR/log.txt
 rm $TEMPFILE*
