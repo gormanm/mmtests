@@ -184,6 +184,8 @@ for TEST in $TESTLIST; do
 	
 	echo -n "$TEST $PARAMETERA $PARAMETERB: "
 	echo Running ./$TEST $PARAMETERA $PARAMETERB > $LOGDIR_RESULTS/$TESTCOUNT-$TEST.log
+	echo time: `date +%s` >> $LOGDIR_RESULTS/$TESTCOUNT-$TEST.log
+	echo date: `date`     >> $LOGDIR_RESULTS/$TESTCOUNT-$TEST.log
 	cat /proc/vmstat >> $LOGDIR_RESULTS/$TESTCOUNT-$TEST.vmstat-before
 	/usr/bin/time -f "%U user %S system %e elapsed" \
 		-o $LOGDIR_RESULTS/$TESTCOUNT-$TEST.time \
@@ -203,7 +205,7 @@ for TEST in $TESTLIST; do
 		echo FAILED
 		EXIT_CODE=$SHELLPACK_ERROR
 	fi
-
+	echo finish: `date +%s` >> $LOGDIR_RESULTS/$TESTCOUNT-$TEST.log
 	cat /proc/vmstat >> $LOGDIR_RESULTS/$TESTCOUNT-$TEST.vmstat-after
 
 	TESTCOUNT=$(($TESTCOUNT+1))
@@ -223,4 +225,4 @@ exit $EXIT_CODE
 #### Description Run a number of micro-benchmark test-cases
 #### Details micro-bench 21
 #### Description Run a number of micro-benchmark test-cases
-#### Details micro-bench 24
+#### Details micro-bench 25
