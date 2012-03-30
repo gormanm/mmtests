@@ -2,7 +2,7 @@
 # Benchmark a number of kernel builds. Unlike kernbench, multiple kernels are built
 # together and can be configured to run over a period of time as a stress test
 
-P='kernbench'
+P='multibuild'
 KERNEL_VERSION=2.6.30
 NUM_CPUS=`grep processor /proc/cpuinfo | wc -l`
 NUM_COPIES=$((NUM_CPUS*5))

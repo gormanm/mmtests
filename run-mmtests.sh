@@ -266,7 +266,7 @@ fi
 # Validate systemtap installation if it exists
 STAP_USED=
 for TEST in $MMTESTS; do
-	if [ "$TEST" = "stress-highalloc" -o "$TEST" = "pagealloc" ]; then
+	if [ "$TEST" = "stress-highalloc" -o "$TEST" = "pagealloc" -o "$TEST" = "highalloc" ]; then
 		STAP_USED=test-$TEST
 	fi
 done
