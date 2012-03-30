@@ -75,7 +75,7 @@ export TESTDISK_FILESYSTEM=ext4
 
 # List of monitors
 export RUN_MONITOR=yes
-export MONITORS_ALWAYS=
+export MONITORS_ALWAYS="read-latency"
 export MONITORS_PLAIN=
 export MONITORS_GZIP="dstate readprofile proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat"
