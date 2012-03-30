@@ -1,0 +1,83 @@
+starve_breakout_results() {
+	TIFS=$IFS
+	IFS="
+"
+
+	echo -n > $TMPDIR/starve-$$-$2.User
+	echo -n > $TMPDIR/starve-$$-$2.System
+	echo -n > $TMPDIR/starve-$$-$2.Elapsed
+	echo -n > $TMPDIR/starve-$$-$2.CPU
+
+	for LINE in `cat $1`; do
+		USER=`echo $LINE | awk '{print $1}' | sed -e 's/user//'`
+		SYSTEM=`echo $LINE | awk '{print $2}' | sed -e 's/system//'`
+		CPU=`echo $LINE | awk '{print $4}' | sed -e 's/\%CPU//'`
+
+		ELAPSED_TIME=`echo $LINE | awk '{print $3}' | sed -e 's/elapsed//'`
+		ELAPSED_SECONDS=`echo $ELAPSED_TIME | awk -F : '{print $2}' | sed -e 's/^0//'`
+		ELAPSED_MINUTES=`echo $ELAPSED_TIME | awk -F : '{print $1}'`
+		ELAPSED=`perl -e "print ($ELAPSED_MINUTES*60+$ELAPSED_SECONDS)"`
+
+		echo $USER >> $TMPDIR/starve-$$-$2.User
+		echo $SYSTEM >> $TMPDIR/starve-$$-$2.System
+		echo $ELAPSED >> $TMPDIR/starve-$$-$2.Elapsed
+		echo $CPU >> $TMPDIR/starve-$$-$2.CPU
+	done
+	IFS=$TIFS
+}
+
+echo
+echo starve
+gendirlist starve
+printheader
+
+for DIR in $DIRLIST; do
+	starve_breakout_results "$DIR/$TOPLEVEL/time" $DIR
+done
+
+for HEADING in Elapsed User System CPU; do
+	# Record the min, mean, stddev and max
+	for PROCESS in min mean stddev max; do
+		printf "%-7s %-6s" $HEADING $PROCESS
+		VANILLA=`cat $TMPDIR/starve-$$-starve-$KERNEL_BASE.$HEADING | $PROCESS`
+		for DIR in $DIRLIST; do
+			RESULT=`cat $TMPDIR/starve-$$-$DIR.$HEADING | $PROCESS`
+			printf " %8.2f (%5.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+		done
+		echo
+	done
+
+	# Generate something usable as a plot
+	OFFSET=0
+	INDEX=1
+	for DIR in $DIRLIST; do
+		MIN=`cat $TMPDIR/starve-$$-$DIR.$HEADING | min`
+		MAX=`cat $TMPDIR/starve-$$-$DIR.$HEADING | max`
+		MEAN=`cat $TMPDIR/starve-$$-$DIR.$HEADING | mean`
+		STDDEV=`cat $TMPDIR/starve-$$-$DIR.$HEADING | stddev`
+
+		LOW_STDDEV=`perl -e "print $MEAN-$STDDEV"`
+		HIGH_STDDEV=`perl -e "print $MEAN+$STDDEV"`
+
+		HIGH_STDDEV=`echo "$MAX
+$HIGH_STDDEV" | min`
+
+		LOW_STDDEV=`echo "$STDDEV
+$LOW_STDDEV" | max`
+		echo $(($INDEX+$OFFSET)) $LOW_STDDEV $MIN $MAX $HIGH_STDDEV $MEAN \# stddev=$STDDEV > $DIR/$TOPLEVEL/starve-$HEADING.plot
+		echo $MEAN > $DIR/$TOPLEVEL/starve-$HEADING-mean
+		echo $STDDEV > $DIR/$TOPLEVEL/starve-$HEADING-$STDDEV
+		OFFSET=$(($OFFSET+1))
+	done
+	#INDEX=$(($INDEX+$OFFSET+1))
+done
+
+for DIR in $DIRLIST; do
+	rm $TMPDIR/starve-$$-$DIR.*
+done
+
+INPUTS=
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/starve-Elapsed.plot"
+	TITLES="$TITLES `echo $DIR | sed -e 's/starve-//'`"
+done
