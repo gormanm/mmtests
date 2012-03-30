@@ -121,7 +121,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			shift
 			;;
 		--tbench-latency)
-			TBENCH_LATENCH=yes
+			TBENCH_LATENCY=yes
 			LOGX=yes
 			shift
 			;;
@@ -147,6 +147,12 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			;;
 		--hackbench)
 			HACKBENCH=yes
+			shift
+			;;
+		--pagealloc)
+			PAGEALLOC=yes
+			PLOTTYPE="linespoints"
+			LOGX=yes
 			shift
 			;;
 		--plottype)
@@ -278,6 +284,10 @@ fi
 if [ "$HACKBENCH" = "yes" ]; then
 	echo set ylabel \"Time in Seconds\" >> $TEMP
 	echo set xlabel \"Number of Processes\" >> $TEMP
+fi
+if [ "$PAGEALLOC" = "yes" ]; then
+	echo set ylabel \"Latency \(clock cycles\)\" >> $TEMP
+	echo set xlabel \"Number of Pages\" >> $TEMP
 fi
 if [ "$UNUSABLE_INDEX" = "yes" ]; then
 	echo set ylabel \"Unusable Free Space Index\" >> $TEMP

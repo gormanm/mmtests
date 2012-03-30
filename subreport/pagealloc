@@ -1,0 +1,54 @@
+echo
+gendirlist pagealloc
+printheader
+
+ORDERS=`ls pagealloc-$KERNEL_BASE/$TOPLEVEL/alloc-* | sed -e 's/.*\///' -e 's/alloc-//' -e 's/.log//' | sort -n`
+
+
+# Generate plot file stubs
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/pagealloc-ORDER.plot"
+	TITLES="$TITLES `echo $DIR | sed -e 's/pagealloc-//'`"
+	for OPER in alloc free; do
+		for ORDER in $ORDERS; do
+			echo -n > $DIR/$TOPLEVEL/page$OPER-$ORDER.plot
+		done
+	done
+done
+
+echo Page Alloc/Free Latency
+
+for OPER in alloc free; do
+for ORDER in $ORDERS; do
+BATCHES=`awk '{print $1}' pagealloc-$KERNEL_BASE/$TOPLEVEL/alloc-$ORDER | uniq`
+for BATCH in $BATCHES; do
+	printf "%-15s" "Order $ORDER $OPER-$BATCH"
+	VANILLA=`grep "^$BATCH " pagealloc-$KERNEL_BASE/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | mean`
+
+	for DIR in $DIRLIST; do
+		RESULT=`grep "^$BATCH " $DIR/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | mean`
+		printf " %7.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+	done
+	echo
+
+	printf "%-15s" "+/-"
+	for DIR in $DIRLIST; do
+		MEAN=`grep "^$BATCH " $DIR/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | mean`
+		STDDEV=`grep "^$BATCH " $DIR/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | stddev`
+		printf " %7.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
+	done
+	echo
+
+	printf "%-15s" "true-mean"
+	VANILLA=`grep "^$BATCH " pagealloc-$KERNEL_BASE/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | true-mean`
+
+	for DIR in $DIRLIST; do
+		RESULT=`grep "^$BATCH " $DIR/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | true-mean`
+		printf " %7.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+		echo $BATCH $RESULT >> $DIR/$TOPLEVEL/page$OPER-$ORDER.plot
+	done
+	echo
+
+done
+done
+done
