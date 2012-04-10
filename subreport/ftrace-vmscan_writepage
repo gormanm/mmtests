@@ -1,0 +1,32 @@
+echo FTrace Reclaim Statistics: mm_vmscan_writepage
+
+for KERNEL in $KERNEL_BASE $KERNEL_COMPARE; do
+	if [ -e ftrace-$KERNEL-$FTRACE_TEST.gz -a ! -e ftrace-$KERNEL-$FTRACE_TEST-vmscan_writepage.report ]; then
+		echo Generating ftrace report ftrace-$KERNEL-$FTRACE_TEST-vmscan_writepage.report
+		zcat ftrace-$KERNEL-$FTRACE_TEST.gz 2> /dev/null | perl $FTRACE_HELPER_VMSCAN_WRITEPAGE > ftrace-$KERNEL-$FTRACE_TEST-vmscan_writepage.report
+	fi
+done
+
+if [ -e ftrace-$KERNEL_BASE-$FTRACE_TEST-vmscan_writepage.report ]; then
+for HEADING in "Direct writes anon  sync" "Direct writes anon  async" "Direct writes file  sync" "Direct writes file  async" "Direct writes mixed sync" "Direct writes mixed async" "KSwapd writes anon  sync" "KSwapd writes anon  async" "KSwapd writes file  sync" "KSwapd writes file  async" "KSwapd writes mixed sync" "KSwapd writes mixed async"; do
+
+	PRINT_HEADING=$HEADING
+	printf "%-40s" "$PRINT_HEADING"
+
+	for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
+		if [ ! -e ftrace-$DIRNAME-$FTRACE_TEST-vmscan_writepage.report ]; then
+			continue
+		fi
+		RESULT=`grep "^$HEADING" ftrace-$DIRNAME-$FTRACE_TEST-vmscan_writepage.report | awk -F : '{print $2}' | sed -e 's/seconds//' -e 's/\\s//g'`
+		if [ "$RESULT" = "" ]; then
+			RESULT=0
+		fi
+
+		printf "%10s " $RESULT
+	done
+	echo
+done
+fi
+
+echo
+echo

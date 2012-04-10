@@ -1,0 +1,11 @@
+#!/usr/bin/perl -wn
+# Print out the mean of a set of data read from standard in
+
+use FindBin qw($Bin);
+use lib "$Bin/lib/";
+use VMR::Stat;
+
+$sum += $_;
+END {
+	print $sum;
+}
