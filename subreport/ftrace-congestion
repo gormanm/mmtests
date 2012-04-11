@@ -3,7 +3,7 @@ echo FTrace Reclaim Statistics: congestion_wait
 for KERNEL in $KERNEL_BASE $KERNEL_COMPARE; do
 	if [ -e ftrace-$KERNEL-$FTRACE_TEST.gz -a ! -e ftrace-$KERNEL-$FTRACE_TEST-congestion.report ]; then
 		echo Generating ftrace report ftrace-$KERNEL-$FTRACE_TEST-congestion.report
-		zcat ftrace-$KERNEL-$FTRACE_TEST.gz 2> /dev/null | perl $FTRACE_HELPER_CONGESTION --ignore-pid > ftrace-$KERNEL-$FTRACE_TEST-congestion.report
+		zcat ftrace-$KERNEL-$FTRACE_TEST.gz 2> /dev/null | sed -e 's/\.\.\.\.//' | perl $FTRACE_HELPER_CONGESTION --ignore-pid > ftrace-$KERNEL-$FTRACE_TEST-congestion.report
 	fi
 done
 

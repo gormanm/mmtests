@@ -10,7 +10,7 @@ rm -f $TMPDIR/file-io-$$-*
 for KERNEL in $KERNEL_BASE $KERNEL_COMPARE; do
 	if [ -e ftrace-$KERNEL-$FTRACE_TEST.gz -a ! -e ftrace-$KERNEL-$FTRACE_TEST-vmscan.report ]; then
 		echo Generating ftrace report ftrace-$KERNEL-$FTRACE_TEST-vmscan.report
-		zcat ftrace-$KERNEL-$FTRACE_TEST.gz 2> /dev/null | grep -v "stack trace" | grep -v =\> | perl $LINUX_GIT/Documentation/trace/postprocess/trace-vmscan-postprocess.pl --ignore-pid > ftrace-$KERNEL-$FTRACE_TEST-vmscan.report
+		zcat ftrace-$KERNEL-$FTRACE_TEST.gz 2> /dev/null | sed -e 's/\.\.\.\.//' | grep -v "stack trace" | grep -v =\> | perl $LINUX_GIT/Documentation/trace/postprocess/trace-vmscan-postprocess.pl --ignore-pid > ftrace-$KERNEL-$FTRACE_TEST-vmscan.report
 	fi
 done
 

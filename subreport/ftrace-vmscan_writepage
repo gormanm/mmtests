@@ -3,7 +3,7 @@ echo FTrace Reclaim Statistics: mm_vmscan_writepage
 for KERNEL in $KERNEL_BASE $KERNEL_COMPARE; do
 	if [ -e ftrace-$KERNEL-$FTRACE_TEST.gz -a ! -e ftrace-$KERNEL-$FTRACE_TEST-vmscan_writepage.report ]; then
 		echo Generating ftrace report ftrace-$KERNEL-$FTRACE_TEST-vmscan_writepage.report
-		zcat ftrace-$KERNEL-$FTRACE_TEST.gz 2> /dev/null | perl $FTRACE_HELPER_VMSCAN_WRITEPAGE > ftrace-$KERNEL-$FTRACE_TEST-vmscan_writepage.report
+		zcat ftrace-$KERNEL-$FTRACE_TEST.gz 2> /dev/null | sed -e 's/\.\.\.\.//' | perl $FTRACE_HELPER_VMSCAN_WRITEPAGE > ftrace-$KERNEL-$FTRACE_TEST-vmscan_writepage.report
 	fi
 done
 
