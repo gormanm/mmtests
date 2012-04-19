@@ -1,0 +1,109 @@
+#!/bin/bash
+# memcached installer
+P=memcached-install
+WEB_LOCATION=http://memcached.googlecode.com/files
+MIRROR_LOCATION="$WEBROOT/memcached"
+DEFAULT_VERSION=1.4.13
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2
+			;;
+		--shutdown)
+			SHUTDOWN=yes
+			shift
+			;;
+		--install-only)
+			INSTALL_ONLY=yes
+			shift
+			;;
+		--mempool)
+			MEMCACHED_MEMPOOL=$(($2/1048576))
+			shift 2
+			;;
+		*)
+			die Unrecognised option: $1
+			shift
+		esac
+done
+
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Install if necessary
+if [ ! -e $SHELLPACK_SOURCES/memcached-${VERSION}-installed ]; then
+	# Unconditionally fetch the tar to find out the real version number
+	TARFILE=memcached-${VERSION}.tar.gz
+	sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+
+	# Building from scratch, uncompress the tar
+	cd $SHELLPACK_SOURCES
+	tar xf $TARFILE
+	if [ $? -ne 0 ]; then
+		error "$P: tar xf $TARFILE failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
+
+	# Rename directory to something we expect.
+	DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+	mv $DST_DIR memcached-${VERSION}
+	pushd memcached-${VERSION} > /dev/null || die Failed to rename tar
+
+	# Configure
+	./configure --prefix=$SHELLPACK_SOURCES/memcached-${VERSION}-installed
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
+
+	# Build
+	make
+	if [ $? -ne 0 ]; then
+		error "$P: make failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
+
+	# Install
+	make install
+	if [ $? -ne 0 ]; then
+		error "$P: install failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
+
+	if [ "$INSTALL_ONLY" = "yes" ]; then
+		exit 0
+	fi
+fi
+
+# Shutdown existing instances
+if [ -e $SHELLPACK_SOURCES/memcached-${VERSION}-installed/memcached.pid ]; then
+	MEMCACHED_PID=`cat $SHELLPACK_SOURCES/memcached-${VERSION}-installed/memcached.pid`
+	shutdown_pid memcached $MEMCACHED_PID
+	rm $SHELLPACK_SOURCES/memcached-${VERSION}-installed/memcached.pid
+fi
+if [ "$SHUTDOWN" = "yes" ]; then
+	exit 0
+fi
+
+if [ "$MEMCACHED_MEMPOOL" = "" ]; then
+	die "MEMCACHED_MEMPOOL environment variable or --mempool switch not set"
+fi
+
+# Start new instance
+echo Starting memcached server with pool $MEMCACHED_MEMPOOL bytes
+$SHELLPACK_SOURCES/memcached-${VERSION}-installed/bin/memcached \
+	-d -P $SHELLPACK_SOURCES/memcached-${VERSION}-installed/memcached.pid \
+	-m $MEMCACHED_MEMPOOL \
+	
+echo memcached installed successfully
+#### Description memcached installer
+#### Details memcached 9

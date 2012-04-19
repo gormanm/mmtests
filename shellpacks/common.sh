@@ -7,8 +7,39 @@ fi
 
 function die() {
 	rm -rf $SHELLPACK_TEMP
-	echo "FATAL: $@"
+	if [ "$P" != "" ]; then
+		TAG=" $P"
+	fi
+	echo "FATAL${TAG}: $@"
 	exit $SHELLPACK_ERROR
+}
+
+function error() {
+	if [ "$P" != "" ]; then
+		TAG=" $P"
+	fi
+	echo "ERROR${TAG}: $@"
+}
+
+function shutdown_pid() {
+	TITLE=$1
+	SHUTDOWN_PID=$2
+	if [ "$TITLE" = "" -o "$SHUTDOWN_PID" = "" ]; then
+		error Did not specify name and PID to shutdown
+	fi
+
+	echo -n Shutting down $TITLE pid $SHUTDOWN_PID
+	ATTEMPT=0
+	kill $SHUTDOWN_PID
+	while [ "`ps h --pid $SHUTDOWN_PID`" != "" ]; do
+		echo -n .
+		sleep 1
+		ATTEMPT=$((ATTEMPT+1))
+		if [ $ATTEMPT -gt 5 ]; then
+			kill -9 $SHUTDOWN_PID
+		fi
+	done
+	echo
 }
 
 function check_status() {

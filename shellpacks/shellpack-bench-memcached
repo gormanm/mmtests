@@ -1,0 +1,24 @@
+#!/bin/bash
+# This script installs memcached and leaves it ready for benchmarking
+
+P=memcached-bench
+VERSION=1.4.13
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)	export VERSION=$2; shift 2;;
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/memcached-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-memcached -v ${VERSION}
+fi
+cd $SHELLPACK_SOURCES/memcached-${VERSION}-installed || die Failed to cd to memcached install directory
+
+echo memcached successfully installed
+exit $SHELLPACK_SUCCESS
+#### Description memcached installer
+#### Details memcached-bench 9

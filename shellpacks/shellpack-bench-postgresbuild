@@ -21,9 +21,9 @@ done
 if [ ! -d $SHELLPACK_SOURCES/postgres-${VERSION}-installed ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild -v ${VERSION}
 fi
-cd $SHELLPACK_SOURCES/postgres-${VERSION}-installed || bombout Failed to cd to mysql install directory
+cd $SHELLPACK_SOURCES/postgres-${VERSION}-installed || die Failed to cd to postgres install directory
 
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild-bench 17
+#### Details postgresbuild-bench 18

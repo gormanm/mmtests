@@ -280,4 +280,4 @@ fi
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 17
+#### Details postgresbuild 18
