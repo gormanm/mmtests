@@ -1,0 +1,72 @@
+#!/bin/bash
+# This script whatevers memcachetest
+
+P=memcachetest-bench
+VERSION=1
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			export VERSION=$2
+			shift 2
+			;;
+		--threads)
+			MEMCACHETEST_CONCURRENCY=$2
+			shift 2
+			;;
+		--duration)
+			MEMCACHETEST_DURATION=$2
+			shift 2
+			;;
+		--memcached-mempool)
+			MEMCACHED_MEMPOOL=$2
+			shift 2
+			;;
+		--value-size)
+			MEMCACHED_VALUE_SIZE=$2
+			shift 2
+			;;
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/memcachetest-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-memcachetest -v ${VERSION}
+fi
+cd $SHELLPACK_SOURCES/memcachetest-${VERSION}-installed || die Failed to cd to memcachetest install directory
+
+if [ "$MEMCACHED_MEMPOOL" = "" ]; then
+	die Must specify memcached memory pool size
+fi
+
+# Start memcached server
+$SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
+if [ $? -ne 0 ]; then
+	die Failed to start memcached server
+fi
+
+# Fire this sucker up
+MEMCACHETEST_ITEMS=$(($MEMCACHED_MEMPOOL/($MEMCACHETEST_VALUE_SIZE+2048)))
+
+echo Starting memcachetest client $MEMCACHETEST_CONCURRENCY
+echo o $MEMCACHED_MEMPOOL memcached pool
+echo o $MEMCACHETEST_CONCURRENCY concurrent requests
+echo o $MEMCACHETEST_VALUE_SIZE value size
+echo o $MEMCACHETEST_DURATION second duration
+echo o $MEMCACHETEST_ITEMS items per iteration
+
+./bin/memcachetest \
+	-h 127.0.0.1 \
+	-t $MEMCACHETEST_CONCURRENCY \
+	-F -M $MEMCACHETEST_VALUE_SIZE \
+	-i $MEMCACHETEST_ITEMS \
+	-T $MEMCACHETEST_DURATION -l \
+		    | tee $LOGDIR_RESULTS/memcachetest.log
+
+$SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
+
+exit $SHELLPACK_SUCCESS
+#### Description memcachetest
+#### Details memcachetest-bench 6
