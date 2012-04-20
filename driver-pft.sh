@@ -26,6 +26,8 @@ run_bench() {
 		export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/$PAGESIZE
 		mkdir -p $LOGDIR_RESULTS
 		$SHELLPACK_INCLUDE/shellpack-bench-pft
+		RETVAL=$?
 	done
 	export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL
+	return $RETVAL
 }

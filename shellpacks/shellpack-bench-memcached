@@ -21,4 +21,4 @@ cd $SHELLPACK_SOURCES/memcached-${VERSION}-installed || die Failed to cd to memc
 echo memcached successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description memcached installer
-#### Details memcached-bench 9
+#### Details memcached-bench 15

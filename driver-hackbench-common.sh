@@ -6,4 +6,5 @@ run_bench() {
 		$IPCMETHOD \
 		$HACKBENCH_GROUPS \
 		-i 30
+	return $?
 }

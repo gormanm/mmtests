@@ -1,0 +1,49 @@
+echo
+gendirlist parallelio
+printheader
+
+# Generate plot files
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/parallelio.plot"
+	TITLES="$TITLES `echo $DIR | sed -e 's/parallelio-//'`"
+done
+
+# Hard-coding the workload for now
+echo Memcachetest during Parallel IO
+for IO_STEP in `awk '{print $2}' parallelio-$KERNEL_BASE/$TOPLEVEL/workload-durations.log`; do
+	VANILLA=`tail -1 parallelio-$KERNEL_BASE/$TOPLEVEL/memcachetest-$IO_STEP/$TOPLEVEL/memcachetest.log | awk '{print $NF}'`
+	IO_SIZE=`grep "^$IO_STEP " parallelio-$KERNEL_BASE/$TOPLEVEL/io-durations.log | awk '{print $2}'`
+	if [ $IO_SIZE -gt 1000 -a $IO_SIZE -le 1048576 ]; then
+		IO_SIZE=$((IO_SIZE/1024))K
+	elif [ $IO_SIZE -gt 1048576 ]; then
+		IO_SIZE=$((IO_SIZE/1048576))M
+	fi
+
+	printf "%-19s" "memcachetest-$IO_SIZE"
+	for DIR in $DIRLIST; do
+		RESULT=`tail -1 $DIR/$TOPLEVEL/memcachetest-$IO_STEP/$TOPLEVEL/memcachetest.log | awk '{print $NF}'`
+		printf " %7.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+	done
+	echo
+
+#	# Generate something usable as a plot
+#	OFFSET=0
+#	INDEX=1
+#	for DIR in $DIRLIST; do
+#		MIN=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | min`
+#		MAX=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | max`
+#		MEAN=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | mean`
+#		STDDEV=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | stddev`
+#
+#		LOW_STDDEV=`perl -e "print $MEAN-$STDDEV"`
+#		HIGH_STDDEV=`perl -e "print $MEAN+$STDDEV"`
+#
+#		HIGH_STDDEV=`echo "$MAX
+#$HIGH_STDDEV" | min`
+#
+#		LOW_STDDEV=`echo "$STDDEV
+#$LOW_STDDEV" | max`
+#		echo $(($INDEX+$OFFSET)) $LOW_STDDEV $MIN $MAX $HIGH_STDDEV $MEAN \# stddev=$STDDEV > $DIR/$TOPLEVEL/pipetest.plot
+#		OFFSET=$(($OFFSET+1))
+#	done
+done

@@ -6,4 +6,5 @@ run_bench() {
 		-t $MULTIBUILD_NUM_THREADS \
 		-s $MULTIBUILD_NUM_SIMULTANEOUS \
 		-c $MULTIBUILD_NUM_COPIES
+	return $?
 }

@@ -46,8 +46,10 @@ run_bench() {
 			--shared_buffers $OLTP_SHAREDBUFFERS \
 			--effective_cachesize $OLTP_CACHESIZE \
 			--use-postgres
+		RETVAL=$?
 	done
 	export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL
 	unset USELARGE
 	unset USE_DYNAMIC_HUGEPAGES
+	return $RETVAL
 }

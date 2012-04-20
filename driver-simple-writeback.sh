@@ -18,4 +18,5 @@ run_bench() {
 			--iterations $SIMPLE_WRITEBACK_ITERATIONS \
 			--bs $SIMPLE_WRITEBACK_BS
 	fi
+	return $?
 }

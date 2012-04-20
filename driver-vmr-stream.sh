@@ -41,8 +41,10 @@ run_bench() {
 		$SCRIPTDIR/shellpacks/shellpack-bench-vmr-stream \
 			$PAGEPARAM \
 			--backing $STREAM_BACKING_TYPE
+		RETVAL=$?
 	done
 	export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL
 	unset PAGEPARAM
 	unset USE_DYNAMIC_HUGEPAGES
+	return $RETVAL
 }

@@ -9,4 +9,5 @@ run_bench() {
 		--nr-files-per-directory $FSMARK_NR_FILES_PER_DIRECTORY \
 		--nr-directories $FSMARK_NR_DIRECTORIES \
 		--iterations $FSMARK_ITERATIONS
+	return $?
 }

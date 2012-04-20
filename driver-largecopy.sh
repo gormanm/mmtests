@@ -9,4 +9,5 @@ run_bench() {
 	$SHELLPACK_INCLUDE/shellpack-bench-largecopy \
 		--srctar $LARGECOPY_SRCTAR $EXTRA \
 		--targetsize $LARGECOPY_TARGETSIZE_MB
+	return $?
 }

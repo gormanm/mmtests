@@ -46,7 +46,7 @@ function check_status() {
 	EXITCODE=$?
 
 	if [ $EXITCODE != 0 ]; then
-		echo "ERROR: $@"
+		echo "FATAL: $@"
 		rm -rf $SHELLPACK_TEMP
 		exit $SHELLPACK_ERROR
 	fi

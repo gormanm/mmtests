@@ -3,4 +3,5 @@ NAMEEXTRA=
 
 run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-nas --type SER
+	return $?
 }

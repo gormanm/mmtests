@@ -6,4 +6,5 @@ run_bench() {
 		--source $RSYNC_RESIDENCY_SOURCE 		\
 		--destination $RSYNC_RESIDENCY_DESTINATION	\
 		--mapping-size $RSYNC_RESIDENCY_MAPPING_SIZE
+	return $?
 }

@@ -7,4 +7,5 @@ run_bench() {
 		CONSUME=--consume-memory
 	fi
 	$SHELLPACK_INCLUDE/shellpack-bench-postmark $CONSUME
+	return $?
 }

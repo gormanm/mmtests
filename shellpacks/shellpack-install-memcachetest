@@ -49,4 +49,4 @@ make install || die Failed to install
 
 echo memcachetest installed successfully
 #### Description memcachetest
-#### Details memcachetest 6
+#### Details memcachetest 8

@@ -13,4 +13,5 @@ run_bench() {
 		--write-device $THP_AVAILABILITY_WRITE_DEVICE \
 		--filesystem $THP_AVAILABILITY_WRITE_FILESYSTEM \
 		--iterations $THP_AVAILABILITY_ITERATIONS
+	return $?
 }

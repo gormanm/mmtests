@@ -7,4 +7,5 @@ run_bench() {
 		--duration $MEMCACHETEST_DURATION \
 		--value-size $MEMCACHETEST_VALUE_SIZE \
 		--memcached-mempool $MEMCACHED_MEMPOOL
+	return $?
 }

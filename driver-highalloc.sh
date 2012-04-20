@@ -7,6 +7,6 @@ run_bench() {
 		--mb-per-sec $HIGHALLOC_ALLOC_RATE \
 		--percent $HIGHALLOC_PERCENTAGE \
 		--workloads "$HIGHALLOC_WORKLOADS" \
-		--gfp-flags $HIGHALLOC_GFPFLAGS  \
-		|| exit -1
+		--gfp-flags $HIGHALLOC_GFPFLAGS
+	return $?
 }

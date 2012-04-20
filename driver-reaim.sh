@@ -11,4 +11,5 @@ run_bench() {
 		--jobs-per-user $REAIM_JOBS_PER_USER \
 		--workfile $REAIM_WORKFILE \
 		--iterations $REAIM_ITERATIONS
+	return $?
 }

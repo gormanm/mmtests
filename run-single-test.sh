@@ -2,6 +2,7 @@
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 FAILED=no
+P="run-single-test"
 . $SCRIPTDIR/config
 . $SHELLPACK_INCLUDE/common.sh
 
@@ -57,13 +58,6 @@ if [ "$SKIP_FINEPROFILE" = "no" -o "$SKIP_COARSEPROFILE" = "no" ]; then
 	fi
 fi
 
-function check_failure() {
-	if [ "$FAILED" = "yes" ]; then
-		echo ERROR: Last test returned failure, unable to continue
-		exit -1
-	fi
-}
-
 function setup_dirs() {
 	for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG; do
 		if [ ! -e "$DIRNAME" ]; then
@@ -85,9 +79,10 @@ else
 	export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/noprofile
 
 	setup_dirs
-	( run_bench || FAILED=yes ) | tee /tmp/mmtests-$$.log
+	save_rc run_bench | tee /tmp/mmtests-$$.log
 	mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
-	check_failure
+	recover_rc
+	check_status $NAME "returned failure, unable to continue"
 fi
 fi
 
@@ -110,10 +105,11 @@ else
 	export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/fine-profile-$PROFILE_TITLE
 
 	setup_dirs
-	( run_bench || FAILED=yes ) | tee /tmp/mmtests-$$.log
+	save_rc run_bench | tee /tmp/mmtests-$$.log
 	mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
 	./monitor-reset
-	check_failure
+	recover_rc
+	check_status $NAME "returned failure, unable to continue"
 fi
 fi
 
@@ -138,11 +134,12 @@ else
 
 	setup_dirs
 	./monitor-pre-hook || die Failed to start profiler
-	( run_bench || FAILED=yes ) | tee /tmp/mmtests-$$.log
+	save_rc run_bench | tee /tmp/mmtests-$$.log
 	mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
 	./monitor-post-hook $LOGDIR_RESULTS $NAME || die Failed to stop profiler
 	./monitor-reset
-	check_failure
+	recover_rc
+	check_status $NAME "returned failure, unable to continue"
 fi
 done
 fi

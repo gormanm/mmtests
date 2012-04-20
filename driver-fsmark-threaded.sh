@@ -19,4 +19,5 @@ run_bench() {
 			--nr-directories $FSMARK_NR_DIRECTORIES \
 			--iterations $FSMARK_ITERATIONS
 	fi
+	return $?
 }

@@ -25,4 +25,5 @@ run_bench() {
 		--filesize-profile $FFSB_FILESIZE_PROFILE \
 		--operations-profile $FFSB_OPERATIONS_PROFILE \
 		$COMMAND_FILES $COMMAND_DIRECTORIES $COMMAND_MIN_FILESIZE $COMMAND_MAX_FILESIZE
+	return $?
 }

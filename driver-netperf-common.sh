@@ -9,4 +9,5 @@ run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-netperf $BIND_SWITCH \
 		--$PROTOCOL-only \
 		--buffer-sizes $NETPERF_BUFFER_SIZES
+	return $?
 }

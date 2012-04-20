@@ -6,4 +6,5 @@ run_bench() {
 		--threads $MEMSLAP_CONCURRENCY \
 		--duration $MEMSLAP_DURATION \
 		--memcached-mempool $MEMCACHED_MEMPOOL
+	return $?
 }

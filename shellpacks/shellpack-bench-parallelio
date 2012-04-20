@@ -1,0 +1,135 @@
+#!/bin/bash
+#
+# This benchmark measures how much IO in the background interferes with a
+# target workload. For example, background IO can severely interefere with
+# scheduling or cause a higher priority workload to be swapped out. This
+# measures the effect.
+#
+# Copyright Mel Gorman 2012
+P='parallelio'
+. $SHELLPACK_INCLUDE/common.sh
+. $SHELLPACK_INCLUDE/include-sizes.sh
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Parse basic arguments
+while [ $# -gt 0 ]; do
+	case $1 in
+	--workloads)
+		export PARALLELIO_WORKLOADS="$2"
+		shift 2
+		;;
+	--max-io-size)
+		export PARALLELIO_MAX_IOSIZE=$2
+		shift 2
+		;;
+	--io-load)
+		export PARALLELIO_IOLOAD=$2
+		shift 2
+		;;
+	--workload-duration)
+		export PARALLELIO_WORKLOAD_DURATION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option $1
+		exit -1
+		;;
+	esac
+done
+
+# Warmup runs
+for WORKLOAD in $PARALLELIO_WORKLOADS; do
+	echo Warmup background workload: $WORKLOAD
+	cd $SHELLPACK_TOPLEVEL
+	./run-single-test.sh $WORKLOAD || die Failed to run warmup of $WORKLOAD
+	rm -rf $SHELLPACK_LOG/$WORKLOAD
+	rm -rf $SHELLPACK_TEMP/*
+done
+
+# Run one test for ever size of parallel IO
+for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
+	if [ $IO_STEP -eq 0 ]; then
+		IO_SIZE=0
+	else
+		IO_SIZE=$((($IO_STEP*$IO_STEP)*$PARALLELIO_MAX_IOSIZE/($PARALLELIO_INCREMENTS*$PARALLELIO_INCREMENTS)))
+	fi
+
+	# Cycle through each of the requested workloads
+	monitor_pre_hook $LOGDIR_RESULTS $WORKLOAD-$IO_STEP
+	for WORKLOAD in $PARALLELIO_WORKLOADS; do
+		cd $SHELLPACK_TOPLEVEL
+		mkdir -p $LOGDIR_RESULTS
+
+		# Record vmstat at start of test
+		echo start: `date +%s` >  $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP.log
+		cat /proc/vmstat       >> $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP.log
+
+		echo Starting background workload: $WORKLOAD
+		STARTTIME_WORKLOAD=`date +%s`
+		./run-single-test.sh $WORKLOAD > $LOGDIR_RESULTS/workload-$WORKLOAD-$IO_STEP.log 2>&1 &
+		WORKLOAD_PID=$!
+	
+		# Allow target workload to get established
+		echo Waiting $((PARALLELIO_WORKLOAD_DURATION/3)) seconds to warmup
+		sleep $((PARALLELIO_WORKLOAD_DURATION/3))
+
+		# While workload is running, run parallel IO workload
+		echo Starting parallel io: $PARALLELIO_IOLOAD $IO_SIZE
+		STARTTIME_IO=`date +%s`
+		if [ $IO_SIZE -gt 0 ]; then
+			case $PARALLELIO_IOLOAD in
+			dd)
+				mkdir -p $SHELLPACK_TEMP
+				dd if=/dev/zero of=$SHELLPACK_TEMP/largefile \
+					bs=1M count=$((IO_SIZE/1048576)) \
+					conv=fdatasync \
+					> $LOGDIR_RESULTS/io-$IO_STEP.log 2>&1
+				if [ $? -ne 0 ]; then
+					error DD Failed
+					cat $LOGDIR_RESULTS/io-log-$IO_STEP.log
+					echo Waiting on $WORKLOAD $pid $WORKLOAD_PID to complete
+					wait $WORKLOAD_PID
+					die IO workload failed
+				fi
+			
+				rm $SHELLPACK_TEMP/largefile
+				;;
+			*)
+				die Unrecognised parallel IO workload
+			esac
+		fi
+		ENDTIME_IO=`date +%s`
+
+		# Record the time it took to complete the IO
+		DURATION=$((ENDTIME_IO-STARTTIME_IO))
+		echo $IO_STEP $IO_SIZE $DURATION >> $LOGDIR_RESULTS/io-durations.log
+
+		echo Waiting on $WORKLOAD $pid $WORKLOAD_PID to complete
+		wait $WORKLOAD_PID
+		RETVAL=$?
+		if [ $RETVAL -ne 0 ]; then
+			error Background workload $WORKLOAD failed
+			cat $LOGDIR_RESULTS/workload-$WORKLOAD.log
+			die Aborting due to backgrounworkload failure
+		fi
+
+		ENDTIME_WORKLOAD=`date +%s`
+
+		# Record vmstat at end of test
+		echo end: `date +%s`   >> $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP.log
+		cat /proc/vmstat       >> $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP.log
+
+		# Record how long the workload took to complete
+		echo $WORKLOAD $IO_STEP $((ENDTIME_WORKLOAD-STARTTIME_WORKLOAD)) >> $LOGDIR_RESULTS/workload-durations.log
+
+		# Collect the data from the target workload and cleanup
+		mv $SHELLPACK_LOG/$WORKLOAD $LOGDIR_RESULTS/$WORKLOAD-$IO_STEP
+		rm -rf $SHELLPACK_TEMP/*
+	done
+	monitor_post_hook $LOGDIR_RESULTS $WORKLOAD-$IO_STEP
+done
+
+rm -rf $SHELLPACK_TEMP
+exit $SHELLPACK_SUCCESS
+#### Description Run a workload with varying amounts of IO in the background to see the effect
+#### Details parallelio-bench 13

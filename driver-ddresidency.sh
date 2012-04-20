@@ -12,4 +12,5 @@ run_bench() {
 			--mapping-size $DD_RESIDENCY_MAPPING_SIZE	\
 			--filesize $DD_RESIDENCY_FILESIZE
 	fi
+	return $?
 }

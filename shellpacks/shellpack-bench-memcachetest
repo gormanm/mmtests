@@ -48,7 +48,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Fire this sucker up
-MEMCACHETEST_ITEMS=$(($MEMCACHED_MEMPOOL/($MEMCACHETEST_VALUE_SIZE+2048)))
+MEMCACHETEST_ITEMS=$(($MEMCACHED_MEMPOOL/($MEMCACHETEST_VALUE_SIZE+4096)))
 
 echo Starting memcachetest client $MEMCACHETEST_CONCURRENCY
 echo o $MEMCACHED_MEMPOOL memcached pool
@@ -69,4 +69,4 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 
 exit $SHELLPACK_SUCCESS
 #### Description memcachetest
-#### Details memcachetest-bench 6
+#### Details memcachetest-bench 8
