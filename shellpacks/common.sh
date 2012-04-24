@@ -21,6 +21,13 @@ function error() {
 	echo "ERROR${TAG}: $@"
 }
 
+function warn() {
+	if [ "$P" != "" ]; then
+		TAG=" $P"
+	fi
+	echo "WARNING${TAG}: $@"
+}
+
 function shutdown_pid() {
 	TITLE=$1
 	SHUTDOWN_PID=$2

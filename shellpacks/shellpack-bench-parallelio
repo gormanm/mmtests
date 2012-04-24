@@ -30,6 +30,10 @@ while [ $# -gt 0 ]; do
 		export PARALLELIO_WORKLOAD_DURATION=$2
 		shift 2
 		;;
+	--iterations)
+		export PARALLELIO_ITERATIONS=$2
+		shift 2
+		;;
 	*)
 		echo Unrecognised option $1
 		exit -1
@@ -38,40 +42,74 @@ while [ $# -gt 0 ]; do
 done
 
 # Warmup runs
-for WORKLOAD in $PARALLELIO_WORKLOADS; do
-	echo Warmup background workload: $WORKLOAD
-	cd $SHELLPACK_TOPLEVEL
-	./run-single-test.sh $WORKLOAD || die Failed to run warmup of $WORKLOAD
-	rm -rf $SHELLPACK_LOG/$WORKLOAD
-	rm -rf $SHELLPACK_TEMP/*
-done
+##for WORKLOAD in $PARALLELIO_WORKLOADS; do
+##	echo Warmup background workload: $WORKLOAD
+##	cd $SHELLPACK_TOPLEVEL
+##	./run-single-test.sh $WORKLOAD || die Failed to run warmup of $WORKLOAD
+##	rm -rf $SHELLPACK_LOG/$WORKLOAD
+##	rm -rf $SHELLPACK_TEMP/*
+##done
 
 # Run one test for ever size of parallel IO
 for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 	if [ $IO_STEP -eq 0 ]; then
 		IO_SIZE=0
 	else
-		IO_SIZE=$((($IO_STEP*$IO_STEP)*$PARALLELIO_MAX_IOSIZE/($PARALLELIO_INCREMENTS*$PARALLELIO_INCREMENTS)))
+		# Use this value to get dense testing of smaller values
+		#IO_SIZE=$((($IO_STEP*$IO_STEP)*$PARALLELIO_MAX_IOSIZE/($PARALLELIO_INCREMENTS*$PARALLELIO_INCREMENTS)))
+
+		# Evenly spaced increments
+		IO_SIZE=$((IO_STEP*(PARALLELIO_MAX_IOSIZE/$PARALLELIO_INCREMENTS)))
 	fi
 
 	# Cycle through each of the requested workloads
 	monitor_pre_hook $LOGDIR_RESULTS $WORKLOAD-$IO_STEP
+	for ITERATION in `seq 1 $PARALLELIO_ITERATIONS`; do
+	echo Starting iteration $ITERATION
 	for WORKLOAD in $PARALLELIO_WORKLOADS; do
 		cd $SHELLPACK_TOPLEVEL
 		mkdir -p $LOGDIR_RESULTS
 
 		# Record vmstat at start of test
-		echo start: `date +%s` >  $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP.log
-		cat /proc/vmstat       >> $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP.log
+		echo start: `date +%s` >  $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP-$ITERATION.log
+		cat /proc/vmstat       >> $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP-$ITERATION.log
 
 		echo Starting background workload: $WORKLOAD
 		STARTTIME_WORKLOAD=`date +%s`
-		./run-single-test.sh $WORKLOAD > $LOGDIR_RESULTS/workload-$WORKLOAD-$IO_STEP.log 2>&1 &
+		./run-single-test.sh $WORKLOAD > $LOGDIR_RESULTS/workload-$WORKLOAD-$IO_STEP-$ITERATION.log 2>&1 &
 		WORKLOAD_PID=$!
-	
-		# Allow target workload to get established
-		echo Waiting $((PARALLELIO_WORKLOAD_DURATION/3)) seconds to warmup
-		sleep $((PARALLELIO_WORKLOAD_DURATION/3))
+
+		# Wait until workload reaches 80% of the target size
+		WARMUP_WORKLOAD_SIZE=$((PARALLELIO_TARGETLOAD_SIZE*8/10))
+		echo Waiting for workload to warm up to $((WARMUP_WORKLOAD_SIZE/1048576)) MB
+		MAXIMUM_WARMUP_TIME=$((PARALLELIO_WORKLOAD_DURATION/3))
+		MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
+		LAST_USED=0
+		WARMUP_START=`date +%s`
+		while [ $MEMUSED_BYTES -lt $WARMUP_WORKLOAD_SIZE ]; do
+			MEMUSED_MB=$((MEMUSED_BYTES/1048576))
+			if [ $LAST_USED -ne $MEMUSED_MB ]; then
+				echo o usage: $MEMUSED_MB MB
+				LAST_USED=$((MEMUSED_MB))
+			fi
+			sleep 0.5
+			MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
+			if [ "`ps h --pid $WORKLOAD_PID`" = "" ]; then
+				die Workload exited before warmup completed
+			fi
+		done
+		sleep 5
+		WARMUP_END=`date +%s`
+		WARMUP_DURATION=$((WARMUP_END-WARMUP_START))
+		MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
+		MEMUSED_MB=$((MEMUSED_BYTES/1048576))
+		WARNING=
+		echo Warmup time: $WARMUP_DURATION seconds, $MEMUSED_MB MB
+		if [ $WARMUP_DURATION -gt $MAXIMUM_WARMUP_TIME ]; then
+			warn Warmup duration longer than desired time of $MAXIMUM_WARMUP_TIME
+			WARNING="WARNING:$WARMUP_DURATION:$MAXIMUM_WARMUP_TIME"
+		fi
+		echo $IO_STEP $IO_SIZE $ITERATION $WARMUP_DURATION $MEMUSED_MB $WARNING >> $LOGDIR_RESULTS/io-warmups.log
 
 		# While workload is running, run parallel IO workload
 		echo Starting parallel io: $PARALLELIO_IOLOAD $IO_SIZE
@@ -83,10 +121,10 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 				dd if=/dev/zero of=$SHELLPACK_TEMP/largefile \
 					bs=1M count=$((IO_SIZE/1048576)) \
 					conv=fdatasync \
-					> $LOGDIR_RESULTS/io-$IO_STEP.log 2>&1
+					> $LOGDIR_RESULTS/io-$IO_STEP-$ITERATION.log 2>&1
 				if [ $? -ne 0 ]; then
 					error DD Failed
-					cat $LOGDIR_RESULTS/io-log-$IO_STEP.log
+					cat $LOGDIR_RESULTS/io-log-$IO_STEP-$ITERATION.log
 					echo Waiting on $WORKLOAD $pid $WORKLOAD_PID to complete
 					wait $WORKLOAD_PID
 					die IO workload failed
@@ -102,9 +140,9 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 
 		# Record the time it took to complete the IO
 		DURATION=$((ENDTIME_IO-STARTTIME_IO))
-		echo $IO_STEP $IO_SIZE $DURATION >> $LOGDIR_RESULTS/io-durations.log
+		echo $IO_STEP $IO_SIZE $ITERATION $DURATION >> $LOGDIR_RESULTS/io-durations.log
 
-		echo Waiting on $WORKLOAD $pid $WORKLOAD_PID to complete
+		echo Waiting on $WORKLOAD pid $WORKLOAD_PID to complete
 		wait $WORKLOAD_PID
 		RETVAL=$?
 		if [ $RETVAL -ne 0 ]; then
@@ -116,15 +154,16 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 		ENDTIME_WORKLOAD=`date +%s`
 
 		# Record vmstat at end of test
-		echo end: `date +%s`   >> $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP.log
-		cat /proc/vmstat       >> $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP.log
+		echo end: `date +%s`   >> $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP-$ITERATION.log
+		cat /proc/vmstat       >> $LOGDIR_RESULTS/vmstat-$WORKLOAD-$IO_STEP-$ITERATION.log
 
 		# Record how long the workload took to complete
-		echo $WORKLOAD $IO_STEP $((ENDTIME_WORKLOAD-STARTTIME_WORKLOAD)) >> $LOGDIR_RESULTS/workload-durations.log
+		echo $WORKLOAD $IO_STEP $ITERATION $((ENDTIME_WORKLOAD-STARTTIME_WORKLOAD)) >> $LOGDIR_RESULTS/workload-durations.log
 
 		# Collect the data from the target workload and cleanup
 		mv $SHELLPACK_LOG/$WORKLOAD $LOGDIR_RESULTS/$WORKLOAD-$IO_STEP
 		rm -rf $SHELLPACK_TEMP/*
+	done
 	done
 	monitor_post_hook $LOGDIR_RESULTS $WORKLOAD-$IO_STEP
 done
@@ -132,4 +171,4 @@ done
 rm -rf $SHELLPACK_TEMP
 exit $SHELLPACK_SUCCESS
 #### Description Run a workload with varying amounts of IO in the background to see the effect
-#### Details parallelio-bench 13
+#### Details parallelio-bench 22
