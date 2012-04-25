@@ -115,6 +115,22 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			USING="using 1:2:3:4:5"
 			shift
 			;;
+		--parallelio)
+			PARALLELIO=yes
+			shift
+			;;
+		--parallelio-swap)
+			PARALLELIO_SWAP=yes
+			shift
+			;;
+		--parallelio-swapin)
+			PARALLELIO_SWAPIN=yes
+			shift
+			;;
+		--parallelio-ioduration)
+			PARALLELIO_IODURATION=yes
+			shift
+			;;
 		--tbench)
 			TBENCH=yes
 			LOGX=yes
@@ -301,6 +317,26 @@ if [ "$MEMORY_USAGE" = "yes" ]; then
 	echo set ylabel \"Memory Used \(MB\)\" >> $TEMP
 	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
 	AWK_FORMAT="<awk '{print \$1/60,\$2/1048576}' @@PLOT@@"
+fi
+if [ "$PARALLELIO" = "yes" ]; then
+	echo set ylabel \"Transactions per second\" >> $TEMP
+	echo set xlabel \"Parallel IO Size MB\" >> $TEMP
+	AWK_FORMAT="<awk '{print \$1/1048576,\$2}' @@PLOT@@"
+fi
+if [ "$PARALLELIO_SWAP" = "yes" ]; then
+	echo set ylabel \"Swap In/Out Pages\" >> $TEMP
+	echo set xlabel \"Parallel IO Size MB\" >> $TEMP
+	AWK_FORMAT="<awk '{print \$1/1048576,\$2}' @@PLOT@@"
+fi
+if [ "$PARALLELIO_SWAPIN" = "yes" ]; then
+	echo set ylabel \"SwapIn IO Pages\" >> $TEMP
+	echo set xlabel \"Parallel IO Size MB\" >> $TEMP
+	AWK_FORMAT="<awk '{print \$1/1048576,\$2}' @@PLOT@@"
+fi
+if [ "$PARALLELIO_IODURATION" = "yes" ]; then
+	echo set ylabel \"Completion Time \(seconds\)\" >> $TEMP
+	echo set xlabel \"Parallel IO Size MB\" >> $TEMP
+	AWK_FORMAT="<awk '{print \$1/1048576,\$2}' @@PLOT@@"
 fi
 if [ "$THP" = "yes" ]; then
 	echo set ylabel \"Transparent Huge Pages\" >> $TEMP

@@ -6,25 +6,278 @@ printheader
 for DIR in $DIRLIST; do
 	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/parallelio.plot"
 	TITLES="$TITLES `echo $DIR | sed -e 's/parallelio-//'`"
+	echo -n > `pwd`/$DIR/$TOPLEVEL/parallelio.plot
+	echo -n > `pwd`/$DIR/$TOPLEVEL/parallelio-swaptotal.plot
+	echo -n > `pwd`/$DIR/$TOPLEVEL/parallelio-swapin.plot
+	echo -n > `pwd`/$DIR/$TOPLEVEL/parallelio-ioduration.plot
 done
+
+calc_iosize() {
+	IO_SIZE_BYTES=`grep "^$IO_STEP " parallelio-$KERNEL_BASE/$TOPLEVEL/io-durations.log | awk '{print $2}' | head -1`
+	if [ $IO_SIZE_BYTES -le 1000 ]; then
+		IO_SIZE=$IO_SIZE_BYTES
+	elif [ $IO_SIZE_BYTES -le 1048576 ]; then
+		IO_SIZE=$((IO_SIZE_BYTES/1024))K
+	else
+		IO_SIZE=$((IO_SIZE_BYTES/1048576))M
+	fi
+}
 
 # Hard-coding the workload for now
 echo Memcachetest during Parallel IO
-for IO_STEP in `awk '{print $2}' parallelio-$KERNEL_BASE/$TOPLEVEL/workload-durations.log`; do
-	VANILLA=`tail -1 parallelio-$KERNEL_BASE/$TOPLEVEL/memcachetest-$IO_STEP/$TOPLEVEL/memcachetest.log | awk '{print $NF}'`
-	IO_SIZE=`grep "^$IO_STEP " parallelio-$KERNEL_BASE/$TOPLEVEL/io-durations.log | awk '{print $2}'`
-	if [ $IO_SIZE -gt 1000 -a $IO_SIZE -le 1048576 ]; then
-		IO_SIZE=$((IO_SIZE/1024))K
-	elif [ $IO_SIZE -gt 1048576 ]; then
-		IO_SIZE=$((IO_SIZE/1048576))M
-	fi
+for IO_STEP in `awk '{print $2}' parallelio-$KERNEL_BASE/$TOPLEVEL/workload-durations.log | uniq`; do
+	calc_iosize
 
 	printf "%-19s" "memcachetest-$IO_SIZE"
+	VANILLA=`grep ops/sec parallelio-$KERNEL_BASE/$TOPLEVEL/memcachetest-$IO_STEP-*/$TOPLEVEL/mmtests.log | awk '{print $NF}' | mean`
+
 	for DIR in $DIRLIST; do
-		RESULT=`tail -1 $DIR/$TOPLEVEL/memcachetest-$IO_STEP/$TOPLEVEL/memcachetest.log | awk '{print $NF}'`
-		printf " %7.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+		RESULT=`grep ops/sec $DIR/$TOPLEVEL/memcachetest-$IO_STEP-*/$TOPLEVEL/mmtests.log | awk '{print $NF}' | mean`
+		printf " %12.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+
+		# Generate something useful for a lot
+		echo $IO_SIZE_BYTES $RESULT >> $DIR/$TOPLEVEL/parallelio.plot
+	done
+
+	echo
+#	printf "%-19s" "+/-"
+#	VANILLA_STDDEV=`grep ops/sec parallelio-$KERNEL_BASE/$TOPLEVEL/workload-memcachetest-$IO_STEP-* | awk '{print $NF}' | stddev`
+#	for DIR in $DIRLIST; do
+#		RESULT_STDDEV=`grep ops/sec $DIR/$TOPLEVEL/workload-memcachetest-$IO_STEP-* | awk '{print $NF}' | stddev`
+#		printf " %8.2f %9s" $RESULT_STDDEV ""
+#	done
+#	echo
+	printf "%-18s" " +/-"
+	VANILLA_STDDEV=`grep ops/sec parallelio-$KERNEL_BASE/$TOPLEVEL/memcachetest-$IO_STEP-*/$TOPLEVEL/mmtests.log | awk '{print $NF}' | stddev`
+	for DIR in $DIRLIST; do
+		RESULT_MEAN=`grep ops/sec $DIR/$TOPLEVEL/memcachetest-$IO_STEP-*/$TOPLEVEL/mmtests.log | awk '{print $NF}' | mean`
+		RESULT_STDDEV=`grep ops/sec $DIR/$TOPLEVEL/memcachetest-$IO_STEP-*/$TOPLEVEL/mmtests.log | awk '{print $NF}' | stddev`
+		RESULT=`perl -e "print ($RESULT_STDDEV*100/$RESULT_MEAN)"`
+		printf " %12.2f%% %8s" $RESULT ""
 	done
 	echo
+
+done
+
+# First parse all the vmstat files and put them in a more usable
+# format
+rm `find -name "pvmstat*.log"` 2> /dev/null
+for VMSTAT in `find -name "vmstat-memcachetest-*.log"`; do
+	# Break out individual fields
+	for FIELD in pswpin pswpout kswapd_skip_congestion_wait pgfault pgmajfault; do
+		OUTPUT=`echo $VMSTAT | sed -e "s/vmstat/pvmstat-$FIELD/" -e "s/-[0-9].log/.log/"`
+		START=`grep $FIELD $VMSTAT | head -1 | awk '{print $2}'`
+		END=`grep $FIELD $VMSTAT | tail -1 | awk '{print $2}'`
+		VALUE=$((END-START))
+		echo $VALUE >> $OUTPUT
+	done
+
+	# Aggregate fields
+	OUTPUT=`echo $VMSTAT | sed -e "s/vmstat/pvmstat-pswptotal/" -e "s/-[0-9].log/.log/"`
+	SWAPIN_START=`grep pswpin $VMSTAT | head -1 | awk '{print $2}'`
+	SWAPIN_END=`grep pswpin $VMSTAT | tail -1 | awk '{print $2}'`
+	SWAPIN=$((SWAPIN_END-SWAPIN_START))
+	SWAPOUT_START=`grep pswpout $VMSTAT | head -1 | awk '{print $2}'`
+	SWAPOUT_END=`grep pswpout $VMSTAT | tail -1 | awk '{print $2}'`
+	SWAPOUT=$((SWAPOUT_END-SWAPOUT_START))
+	echo $((SWAPIN+SWAPOUT)) >> $OUTPUT
+
+	OUTPUT=`echo $VMSTAT | sed -e "s/vmstat/pvmstat-pgminfault/" -e "s/-[0-9].log/.log/"`
+	PGMAJFAULT_START=`grep pgmajfault $VMSTAT | head -1 | awk '{print $2}'`
+	PGMAJFAULT_END=`grep pgmajfault $VMSTAT | tail -1 | awk '{print $2}'`
+	PGMAJFAULT=$((PGMAJFAULT_END-PGMAJFAULT_START))
+	PGFAULT_START=`grep pgfault $VMSTAT | head -1 | awk '{print $2}'`
+	PGFAULT_END=`grep pgfault $VMSTAT | tail -1 | awk '{print $2}'`
+	PGFAULT=$((PGFAULT_END-PGFAULT_START))
+	echo $((PGFAULT-PGMAJFAULT)) >> $OUTPUT
+done
+
+# Print statistics on swapping
+for IO_STEP in `awk '{print $2}' parallelio-$KERNEL_BASE/$TOPLEVEL/workload-durations.log | uniq`; do
+	calc_iosize
+
+	printf "%-19s" "swap in/out $IO_SIZE"
+	VANILLA=`cat parallelio-$KERNEL_BASE/$TOPLEVEL/pvmstat-pswptotal-memcachetest-$IO_STEP.log | mean`
+	for DIR in $DIRLIST; do
+		RESULT=`cat $DIR/$TOPLEVEL/pvmstat-pswptotal-memcachetest-$IO_STEP.log | mean`
+		printf " %12.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+
+		# Generate something useful for a lot
+		echo $IO_SIZE_BYTES $RESULT >> $DIR/$TOPLEVEL/parallelio-swaptotal.plot
+	done
+	echo
+	printf "%-18s" " +/-"
+	VANILLA_STDDEV=`cat parallelio-$KERNEL_BASE/$TOPLEVEL/pvmstat-pswptotal-memcachetest-$IO_STEP.log | stddev`
+	for DIR in $DIRLIST; do
+		RESULT_MEAN=`cat $DIR/$TOPLEVEL/pvmstat-pswptotal-memcachetest-$IO_STEP.log | mean`
+		RESULT_STDDEV=`cat $DIR/$TOPLEVEL/pvmstat-pswptotal-memcachetest-$IO_STEP.log | stddev`
+		if [ "$RESULT_MEAN" = "0" -o "$RESULT_STDDEV" = "0" ]; then
+			RESULT=0
+		else
+			RESULT=`perl -e "print ($RESULT_STDDEV*100/$RESULT_MEAN)"`
+		fi
+		printf " %12.2f%% %8s" $RESULT ""
+	done
+	echo
+done
+
+for IO_STEP in `awk '{print $2}' parallelio-$KERNEL_BASE/$TOPLEVEL/workload-durations.log | uniq`; do
+	calc_iosize
+
+	printf "%-19s" "swap in $IO_SIZE"
+	VANILLA=`cat parallelio-$KERNEL_BASE/$TOPLEVEL/pvmstat-pswpin-memcachetest-$IO_STEP.log | mean`
+	for DIR in $DIRLIST; do
+		RESULT=`cat $DIR/$TOPLEVEL/pvmstat-pswpin-memcachetest-$IO_STEP.log | mean`
+		printf " %12.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+
+		# Generate something useful for a lot
+		echo $IO_SIZE_BYTES $RESULT >> $DIR/$TOPLEVEL/parallelio-swapin.plot
+	done
+	echo
+	printf "%-18s" " +/-"
+	VANILLA_STDDEV=`cat parallelio-$KERNEL_BASE/$TOPLEVEL/pvmstat-pswpin-memcachetest-$IO_STEP.log | stddev`
+	for DIR in $DIRLIST; do
+		RESULT_MEAN=`cat $DIR/$TOPLEVEL/pvmstat-pswpin-memcachetest-$IO_STEP.log | mean`
+		RESULT_STDDEV=`cat $DIR/$TOPLEVEL/pvmstat-pswpin-memcachetest-$IO_STEP.log | stddev`
+		if [ "$RESULT_MEAN" = "0" -o "$RESULT_STDDEV" = "0" ]; then
+			RESULT=0
+		else
+			RESULT=`perl -e "print ($RESULT_STDDEV*100/$RESULT_MEAN)"`
+		fi
+		printf " %12.2f%% %8s" $RESULT ""
+	done
+	echo
+done
+
+for IO_STEP in `awk '{print $2}' parallelio-$KERNEL_BASE/$TOPLEVEL/workload-durations.log | uniq`; do
+	calc_iosize
+
+	printf "%-19s" "sleep skip $IO_SIZE"
+	VANILLA=`cat parallelio-$KERNEL_BASE/$TOPLEVEL/pvmstat-kswapd_skip_congestion_wait-memcachetest-$IO_STEP.log | mean`
+	for DIR in $DIRLIST; do
+		RESULT=`cat $DIR/$TOPLEVEL/pvmstat-kswapd_skip_congestion_wait-memcachetest-$IO_STEP.log | mean`
+		printf " %12.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+
+		# Generate something useful for a lot
+		echo $IO_SIZE_BYTES $RESULT >> $DIR/$TOPLEVEL/parallelio-swapin.plot
+	done
+	echo
+	printf "%-18s" " +/-"
+	VANILLA_STDDEV=`cat parallelio-$KERNEL_BASE/$TOPLEVEL/pvmstat-kswapd_skip_congestion_wait-memcachetest-$IO_STEP.log | stddev`
+	for DIR in $DIRLIST; do
+		RESULT_MEAN=`cat $DIR/$TOPLEVEL/pvmstat-kswapd_skip_congestion_wait-memcachetest-$IO_STEP.log | mean`
+		RESULT_STDDEV=`cat $DIR/$TOPLEVEL/pvmstat-kswapd_skip_congestion_wait-memcachetest-$IO_STEP.log | stddev`
+		if [ "$RESULT_MEAN" = "0" -o "$RESULT_STDDEV" = "0" ]; then
+			RESULT=0
+		else
+			RESULT=`perl -e "print ($RESULT_STDDEV*100/$RESULT_MEAN)"`
+		fi
+		printf " %12.2f%% %8s" $RESULT ""
+	done
+	echo
+done
+for IO_STEP in `awk '{print $2}' parallelio-$KERNEL_BASE/$TOPLEVEL/workload-durations.log | uniq`; do
+	calc_iosize
+
+	printf "%-19s" "minor faults $IO_SIZE"
+	VANILLA=`cat parallelio-$KERNEL_BASE/$TOPLEVEL/pvmstat-pgminfault-memcachetest-$IO_STEP.log | mean`
+	for DIR in $DIRLIST; do
+		RESULT=`cat $DIR/$TOPLEVEL/pvmstat-pgminfault-memcachetest-$IO_STEP.log | mean`
+		printf " %12.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+
+		# Generate something useful for a lot
+		echo $IO_SIZE_BYTES $RESULT >> $DIR/$TOPLEVEL/parallelio-swapin.plot
+	done
+	echo
+	printf "%-18s" " +/-"
+	VANILLA_STDDEV=`cat parallelio-$KERNEL_BASE/$TOPLEVEL/pvmstat-pgminfault-memcachetest-$IO_STEP.log | stddev`
+	for DIR in $DIRLIST; do
+		RESULT_MEAN=`cat $DIR/$TOPLEVEL/pvmstat-pgminfault-memcachetest-$IO_STEP.log | mean`
+		RESULT_STDDEV=`cat $DIR/$TOPLEVEL/pvmstat-pgminfault-memcachetest-$IO_STEP.log | stddev`
+		if [ "$RESULT_MEAN" = "0" -o "$RESULT_STDDEV" = "0" ]; then
+			RESULT=0
+		else
+			RESULT=`perl -e "print ($RESULT_STDDEV*100/$RESULT_MEAN)"`
+		fi
+		printf " %12.2f%% %8s" $RESULT ""
+	done
+	echo
+done
+for IO_STEP in `awk '{print $2}' parallelio-$KERNEL_BASE/$TOPLEVEL/workload-durations.log | uniq`; do
+	calc_iosize
+
+	printf "%-19s" "major faults $IO_SIZE"
+	VANILLA=`cat parallelio-$KERNEL_BASE/$TOPLEVEL/pvmstat-pgmajfault-memcachetest-$IO_STEP.log | mean`
+	for DIR in $DIRLIST; do
+		RESULT=`cat $DIR/$TOPLEVEL/pvmstat-pgmajfault-memcachetest-$IO_STEP.log | mean`
+		printf " %12.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+
+		# Generate something useful for a lot
+		echo $IO_SIZE_BYTES $RESULT >> $DIR/$TOPLEVEL/parallelio-swapin.plot
+	done
+	echo
+	printf "%-18s" " +/-"
+	VANILLA_STDDEV=`cat parallelio-$KERNEL_BASE/$TOPLEVEL/pvmstat-pgmajfault-memcachetest-$IO_STEP.log | stddev`
+	for DIR in $DIRLIST; do
+		RESULT_MEAN=`cat $DIR/$TOPLEVEL/pvmstat-pgmajfault-memcachetest-$IO_STEP.log | mean`
+		RESULT_STDDEV=`cat $DIR/$TOPLEVEL/pvmstat-pgmajfault-memcachetest-$IO_STEP.log | stddev`
+		if [ "$RESULT_MEAN" = "0" -o "$RESULT_STDDEV" = "0" ]; then
+			RESULT=0
+		else
+			RESULT=`perl -e "print ($RESULT_STDDEV*100/$RESULT_MEAN)"`
+		fi
+		printf " %12.2f%% %8s" $RESULT ""
+	done
+	echo
+done
+
+
+for IO_STEP in `awk '{print $2}' parallelio-$KERNEL_BASE/$TOPLEVEL/workload-durations.log | uniq`; do
+	calc_iosize
+
+	printf "%-19s" "IO Completions $IO_SIZE"
+	VANILLA=`grep "^$IO_STEP " parallelio-$KERNEL_BASE/$TOPLEVEL/io-durations.log | awk '{print $4}' | mean`
+	for DIR in $DIRLIST; do
+		RESULT=`grep "^$IO_STEP " $DIR/$TOPLEVEL/io-durations.log | awk '{print $4}' | mean`
+		printf " %12.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
+
+		# Generate something useful for a lot
+		echo $IO_SIZE_BYTES $RESULT >> $DIR/$TOPLEVEL/parallelio-ioduration.plot
+	done
+	echo
+	printf "%-18s" " +/-"
+	VANILLA_STDDEV=`grep "^$IO_STEP " parallelio-$KERNEL_BASE/$TOPLEVEL/io-durations.log | awk '{print $4}' | stddev`
+	for DIR in $DIRLIST; do
+		RESULT_MEAN=`grep "^$IO_STEP " $DIR/$TOPLEVEL/io-durations.log | awk '{print $4}' | mean`
+		RESULT_STDDEV=`grep "^$IO_STEP " $DIR/$TOPLEVEL/io-durations.log | awk '{print $4}' | stddev`
+		if [ "$RESULT_MEAN" = "0" -o "$RESULT_STDDEV" = "0" ]; then
+			RESULT=0
+		else
+			RESULT=`perl -e "print ($RESULT_STDDEV*100/$RESULT_MEAN)"`
+		fi
+		printf " %12.2f%% %8s" $RESULT ""
+	done
+	echo
+done
+
+
+#	printf "%-19s" " - swap ins"
+#	for DIR in $DIRLIST; do
+#		RESULT_SWAPIN_START=`grep pswpin $DIR/$TOPLEVEL/vmstat-memcachetest-$IO_STEP.log | head -1 | awk '{print $2}'`
+#		RESULT_SWAPIN_END=`grep pswpin $DIR/$TOPLEVEL/vmstat-memcachetest-$IO_STEP.log | tail -1 | awk '{print $2}'`
+#		RESULT_SWAPIN=$((RESULT_SWAPIN_END-RESULT_SWAPIN_START))
+#		printf " %7.2f (%6.2f%%)" $RESULT_SWAPIN `pndiff $RESULT_SWAPIN $VANILLA_SWAPIN`
+#	done
+#	echo
+#
+#	printf "%-19s" " - swap outs"
+#	for DIR in $DIRLIST; do
+#		RESULT_SWAPOUT_START=`grep pswpout $DIR/$TOPLEVEL/vmstat-memcachetest-$IO_STEP.log | head -1 | awk '{print $2}'`
+#		RESULT_SWAPOUT_END=`grep pswpout $DIR/$TOPLEVEL/vmstat-memcachetest-$IO_STEP.log | tail -1 | awk '{print $2}'`
+#		RESULT_SWAPOUT=$((RESULT_SWAPOUT_END-RESULT_SWAPOUT_START))
+#		printf " %7.2f (%6.2f%%)" $RESULT_SWAPOUT `pndiff $RESULT_SWAPOUT $VANILLA_SWAPOUT`
+#	done
+#	echo
 
 #	# Generate something usable as a plot
 #	OFFSET=0
@@ -46,4 +299,3 @@ for IO_STEP in `awk '{print $2}' parallelio-$KERNEL_BASE/$TOPLEVEL/workload-dura
 #		echo $(($INDEX+$OFFSET)) $LOW_STDDEV $MIN $MAX $HIGH_STDDEV $MEAN \# stddev=$STDDEV > $DIR/$TOPLEVEL/pipetest.plot
 #		OFFSET=$(($OFFSET+1))
 #	done
-done

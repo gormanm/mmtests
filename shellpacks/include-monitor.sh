@@ -8,7 +8,7 @@ monitor_pre_hook() {
 
 monitor_post_hook() {
 	if [ "$MONITOR_POST_HOOK" != "" ]; then
-		echo Monitor post-hook: $MONITOR_PRE_HOOK
+		echo Monitor post-hook: $MONITOR_POST_HOOK
 		echo Monitor args: $@
 		$MONITOR_POST_HOOK $@ || die Failed to execute monitor post-hook
 	fi

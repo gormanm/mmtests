@@ -98,7 +98,7 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 				echo o usage: $MEMUSED_MB MB
 				LAST_USED=$((MEMUSED_MB))
 			fi
-			sleep 0.5
+			sleep 2
 			MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
 			if [ "`ps h --pid $WORKLOAD_PID`" = "" ]; then
 				die Workload exited before warmup completed
@@ -175,4 +175,4 @@ done
 rm -rf $SHELLPACK_TEMP
 exit $SHELLPACK_SUCCESS
 #### Description Run a workload with varying amounts of IO in the background to see the effect
-#### Details parallelio-bench 27
+#### Details parallelio-bench 28
