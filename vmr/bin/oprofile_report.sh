@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bash opcontrol --dump || exit -1
+bash opcontrol --dump
 
 fixup_oprofile() {
 	TIFS=$IFS

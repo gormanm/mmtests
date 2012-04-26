@@ -26,6 +26,7 @@ case `uname -m` in
 esac
 
 echo "#!/bin/bash" > monitor-post-hook
+echo "opcontrol --dump" >> monitor-post-hook
 echo "opcontrol --stop" >> monitor-post-hook
 echo "oprofile_report.sh > \$1/oprofile-\$2-report-$PROFILE_TITLE.txt" >> monitor-post-hook
 
