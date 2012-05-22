@@ -1,0 +1,60 @@
+#!/bin/bash
+# This script installs trinity and runs the mbind fuzzing test
+P=trinity-bench
+VERSION=1
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic args parser
+while [ "$1" != "" ]; do
+	case "$1" in
+		-v)
+			VERSION=$2
+			shift 2;;
+		*)	echo Unrecognised option: $1; shift
+	esac
+done
+
+# Install if necessary
+if [ ! -d $SHELLPACK_SOURCES/trinity-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-trinity -v ${VERSION} || die trinity install script returned error
+fi
+cd $SHELLPACK_SOURCES/trinity-${VERSION}-installed || die Failed to cd to trinity install directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Run trinity in the background
+echo Launching trinity
+TAINT=`cat /proc/sys/kernel/tainted`
+STARTTIME=`date +%s`
+ENDTIME=$((STARTTIME+300))
+su -s /bin/bash nobody -c "$SHELLPACK_SOURCES/trinity-$VERSION-installed/trinity -q -c mbind" > $LOGDIR_RESULTS/trinity.log 2>&1 &
+TRINITY_PID=$!
+
+echo -n Waiting for trinity to exit, 300 seconds or a kernel taint
+CURRENTTIME=`date +%s`
+while [ $CURRENTTIME -lt $ENDTIME ]; do
+	if [ "`ps h --pid $TRINITY_PID`" = "" ]; then
+		dmesg > $LOGDIR_RESULTS/dmesg.log
+		cat $LOGDIR_RESULTS/trinity.log
+		die Trinity died unexpectedly
+	fi
+	if [ "`cat /proc/sys/kernel/tainted`" != $TAINT ]; then
+		cat $LOGDIR_RESULTS/trinity.log
+		echo ERROR: Taint flag changed `cat /proc/sys/kernel/tainted`
+		kill -9 $TRINITY_PID
+		dmesg > $LOGDIR_RESULTS/dmesg.log
+		die Unable to continue due to taint
+	fi
+
+	echo -n .
+	sleep 5
+	CURRENTTIME=`date +%s`
+done
+echo
+
+shutdown_pid trinity $TRINITY_PID
+
+exit $SHELLPACK_SUCCESS
+#### Description trinity fuzzing tool
+#### Details trinity-bench 10

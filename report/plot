@@ -203,6 +203,10 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			LOGSCALEY=yes
 			shift
 			;;
+		--multiplot)
+			MULTIPLOT=yes
+			shift
+			;;
 		--titles)
 			TIFS=$IFS
 			IFS=","
@@ -264,6 +268,13 @@ if [ "$SPECPLOT" = "yes" ]; then
 		echo "f(x)=1" >> $TEMP
 	fi
 	echo "set style fill solid border -1" >> $TEMP
+fi
+if [ "$MULTIPLOT" = "yes" ]; then
+	echo set ytics nomirror >> $TEMP
+	echo set y2tics >> $TEMP
+	echo set tics out >> $TEMP
+	echo "set y2range [0:5000]" >> $TEMP
+	echo set autoscale  y >> $TEMP
 fi
 if [ "$STREAM" = "yes" ]; then
 	echo set ylabel \"MB/s Throughput\" >> $TEMP
