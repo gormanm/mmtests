@@ -215,7 +215,7 @@ NFS)
 	if [ -e $MNTPNT/swapfile ]; then
 		EXISTING_SIZE=`stat $MNTPNT/swapfile | grep Size: | awk '{print $2}'`
 		EXISTING_SIZE=$((EXISTING_SIZE/1048576))
-		if [ $EXISTING_SIZE -ne $SWAP_SWAPFILE_SIZEMB ]; then
+		if [ $((EXISTING_SIZE/20)) -ne $((SWAP_SWAPFILE_SIZEMB/20)) ]; then
 			echo Slightly annoying: $EXISTING_SIZE -ne $SWAP_SWAPFILE_SIZEMB
 			CREATE_SWAP=yes
 		fi

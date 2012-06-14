@@ -1,0 +1,27 @@
+#!/bin/bash
+
+P='sharepagetest-install'
+WEB_LOCATION="http://bugzillafiles.novell.org/attachment.cgi?id=494714"
+MIRROR_LOCATION="$WEBROOT/sharepagetest/sharepage-test.c"
+
+. $SHELLPACK_INCLUDE/common.sh
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf sharepagetest
+mkdir -p sharepagetest
+
+echo WARNING: This test depends on a testcase from a bugzilla entry that you
+echo may have to log into first for the download to succeed. It may be easier
+echo to mirror this one manually
+echo
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/sharepagetest/sharepage-test.c
+cd $SHELLPACK_SOURCES/sharepagetest
+
+gcc -O2 sharepage-test.c -o sharepage-test
+if [ $? -ne 0 ]; then
+	die "$P: Failed to build sharepagetest"
+fi
+
+exit $SHELLPACK_SUCCESS
+#### Description Tests fault contention on a single page
+#### Details sharepagetest 5
