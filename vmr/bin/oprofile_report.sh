@@ -48,11 +48,21 @@ if [ "$1" = "" ]; then
 	echo ======= short report =========
 	opreport $MODULES || exit -1
 
+	if [ "$OPROFILE_REPORT_CALLGRAPH" != "" ]; then
+		echo ======= callgraph report =========
+		opreport $MODULES --callgraph || exit -1
+	fi
+
 	echo ======= long report =========
 	opreport $MODULES -l || exit -1
 else
 	echo ======= short report =========  > $1
 	opreport $MODULES >> $1 || exit -1
+
+	if [ "$OPROFILE_REPORT_CALLGRAPH" != "" ]; then
+		echo ======= callgraph report =========
+		opreport $MODULES --callgraph >> $1 || exit -1
+	fi
 
 	echo ======= long report ========= >> $1
 	opreport $MODULES -l >> $1 || exit -1

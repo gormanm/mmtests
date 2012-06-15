@@ -22,6 +22,7 @@ export SKIP_NOPROFILE=no
 export SKIP_FINEPROFILE=yes
 export SKIP_COARSEPROFILE=yes
 export OPROFILE_REPORT_ANNOTATE=no
+export OPROFILE_REPORT_CALLGRAPH=
 
 # Fixups
 if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then

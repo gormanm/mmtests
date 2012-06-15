@@ -2,21 +2,29 @@ if [ "$SAMPLE_CYCLE_FACTOR" = "" ]; then
 	SAMPLE_CYCLE_FACTOR=1
 fi
 
+CALLGRAPH=0
+if [ "$OPROFILE_REPORT_CALLGRAPH" != "" ]; then
+	CALLGRAPH=$OPROFILE_REPORT_CALLGRAPH
+	if [ $SAMPLE_CYCLE_FACTOR -lt 15 ]; then
+		SAMPLE_CYCLE_FACTOR=15
+	fi
+fi
+
 # Create profiling hooks
 PROFILE_TITLE="timer"
 
 echo "#!/bin/bash" > monitor-pre-hook
 case `uname -m` in
 	i?86)
-		echo "oprofile_start.sh --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer" >> monitor-pre-hook
+		echo "oprofile_start.sh --callgraph $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer" >> monitor-pre-hook
 		export PROFILE_EVENTS=timer
 		;;
 	x86_64)
-		echo "oprofile_start.sh --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer" >> monitor-pre-hook
+		echo "oprofile_start.sh --callgraph $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer" >> monitor-pre-hook
 		export PROFILE_EVENTS=timer
 		;;
 	ppc64)
-		echo "oprofile_start.sh --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer" >> monitor-pre-hook
+		echo "oprofile_start.sh --callgraph $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer" >> monitor-pre-hook
 		export PROFILE_EVENTS=timer
 		;;
 	*)
