@@ -255,7 +255,6 @@ There are a limited number of graphing scripts included in report/
 TODO
 ====
 
-o Add option to test on filesystem loopback device stored on tmpfs
-o Add volanomark
-o Create config-* set suitable for testing scheduler to isolate situations
-  where the scheduler was the main cause of a regression
+o Add volanomark, specjvm
+o Use tracecmd for capturing ftrace information
+o Add preliminary support for running perf instead of oprofile

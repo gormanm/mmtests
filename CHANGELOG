@@ -1,3 +1,22 @@
+v0.04
+o Add benchmarks for tbench, pipetest, lmbench, starve, memcachedtest
+o Add basic benchmark to run trinity fuzz testing tool
+o Add monitor that runs parallel IO in the background. Measures how much
+  IO interferes with a target workload.
+o Allow limited run of sysbench to save time
+o Add helpers for running oprofile, taken from libhugetlbfs
+o Add fsmark configurations suitable for page reclaim and metadata tests
+o Add a mailserver simulator (needs work, takes too long to run)
+o Tune page fault test configuration for page allocator comparisons
+o Allow greater skew when running STREAM on NUMA machines
+o Add a monitor that roughly measures interactive app startup times
+o Add a monitor that tracks read() latency (useful for interactivity tests)
+o Add script for calculating quartiles (incomplete, not tested properly)
+o Add config examples for measuring interactivity during IO (not validated)
+o Add background allocator for hugepage allocations (not validated)
+o Patch SystemTap installation to work with 3.4 and later kernels
+o Allow use of out-of-box THP configuration
+
 v0.03
 o Add a page allocator micro-benchmark
 o Add monitor for tracking processes stuck in D state
