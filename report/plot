@@ -28,7 +28,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			;;
 		--specplot)
 			SPECPLOT=yes
-			USING="using 3:xtic(1)"
+			USING="3:xtic(1)"
 			PLOTTYPE="histogram"
 			shift
 			;;
@@ -52,8 +52,36 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			CREATEDELETE=yes
 			shift
 			;;
+		--dbench)
+			DBENCH=yes
+			shift
+			;;
+		--dbench-candle)
+			DBENCH_CANDLE=yes
+			PLOTTYPE="candlesticks"
+			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"
+			USING="1:2:3:4:5"
+			shift
+			;;
+		--fsmark-candle)
+			FSMARK_CANDLE=yes
+			PLOTTYPE="candlesticks"
+			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"
+			USING="1:2:3:4:5"
+			shift
+			;;
 		--netperf)
 			NETPERF=yes
+			shift
+			;;
+		--tiobench)
+			TIOBENCH=yes
+			LOGX=yes
+			shift
+			;;
+		--tiobench-ratio)
+			TIOBENCH_RATIO=yes
+			LOGX=yes
 			shift
 			;;
 		--irqsoff)
@@ -64,9 +92,21 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			SYSBENCH=yes
 			shift
 			;;
+		--sysbench-ratio)
+			SYSBENCH_RATIO=yes
+			shift
+			;;
 		--mem-usage)
 			TITLE="Memory Usage"
 			MEMORY_USAGE=yes
+			shift
+			;;
+		--time-series)
+			TIME_SERIES="yes"
+			shift
+			;;
+		--stacked-histogram)
+			STACKED_HISTOGRAM=yes
 			shift
 			;;
 		--thp-count)
@@ -104,7 +144,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 		--specthesis)
 			SPECPLOT=yes
 			SPECTHESIS=yes
-			USING="using 2:xtic(1)"
+			USING="2:xtic(1)"
 			PLOTTYPE="linespoints"
 			shift
 			;;
@@ -112,7 +152,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			KERNBENCH=yes
 			PLOTTYPE="candlesticks"
 			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"
-			USING="using 1:2:3:4:5"
+			USING="1:2:3:4:5"
 			shift
 			;;
 		--parallelio)
@@ -151,18 +191,30 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			RESIDENCY=yes
 			PLOTTYPE="lines"
 			PLOTCOMMAND=residency
-			USING="smooth bezier"
+			SMOOTH="smooth bezier"
 			LOGY=yes
 			shift
 			;;
 		--highorder-latency)
 			HIGHORDER_LATENCY=yes
 			PLOTTYPE=points
-			USING="using 1:3"
+			USING="1:3"
 			shift
 			;;
 		--hackbench)
 			HACKBENCH=yes
+			shift
+			;;
+		--hackbench-ratio)
+			HACKBENCH_RATIO=yes
+			shift
+			;;
+		--lmbench)
+			LMBENCH=yes
+			shift
+			;;
+		--lmbench-ratio)
+			LMBENCH_RATIO=yes
 			shift
 			;;
 		--pagealloc)
@@ -179,8 +231,8 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			EXTRA=$2
 			shift 2
 			;;
-		--using)
-			USING=$2
+		--smooth)
+			SMOOTH="smooth $2"
 			shift 2
 			;;
 		--dump)
@@ -201,10 +253,6 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			;;
 		--logscaleY)
 			LOGSCALEY=yes
-			shift
-			;;
-		--multiplot)
-			MULTIPLOT=yes
 			shift
 			;;
 		--titles)
@@ -269,13 +317,6 @@ if [ "$SPECPLOT" = "yes" ]; then
 	fi
 	echo "set style fill solid border -1" >> $TEMP
 fi
-if [ "$MULTIPLOT" = "yes" ]; then
-	echo set ytics nomirror >> $TEMP
-	echo set y2tics >> $TEMP
-	echo set tics out >> $TEMP
-	echo "set y2range [0:5000]" >> $TEMP
-	echo set autoscale  y >> $TEMP
-fi
 if [ "$STREAM" = "yes" ]; then
 	echo set ylabel \"MB/s Throughput\" >> $TEMP
 	echo set xlabel \"Working Set Size \(bytes\)\" >> $TEMP
@@ -284,6 +325,10 @@ if [ "$STREAM" = "yes" ]; then
 fi
 if [ "$SYSBENCH" = "yes" ]; then
 	echo set ylabel \"Thousand Transactions Per Second\" >> $TEMP
+	echo set xlabel \"Threads\" >> $TEMP
+fi
+if [ "$SYSBENCH_RATIO" = "yes" ]; then
+	echo set ylabel \"Transactions Ratio\" >> $TEMP
 	echo set xlabel \"Threads\" >> $TEMP
 fi
 if [ "$NETPERF" = "yes" ]; then
@@ -304,12 +349,32 @@ if [ "$CREATEDELETE" = "yes" ]; then
 	echo set format x \"2**%g\" >> $TEMP
 	echo set xtics 5 >> $TEMP
 fi
+if [ "$DBENCH" = "yes" ]; then
+	echo set ylabel \"Throughput MB/sec\" >> $TEMP
+	echo set xlabel \"Threads\" >> $TEMP
+fi
+if [ "$FSMARK" = "yes" ]; then
+	echo set ylabel \"Files/sec\" >> $TEMP
+	echo set xlabel \"Threads\" >> $TEMP
+fi
 if [ "$HIGHORDER_LATENCY" = "yes" ]; then
 	echo set xlabel \"Timestamp\" >> $TEMP
 	echo set ylabel \"Latency\" >> $TEMP
 fi
 if [ "$HACKBENCH" = "yes" ]; then
 	echo set ylabel \"Time in Seconds\" >> $TEMP
+	echo set xlabel \"Number of Processes\" >> $TEMP
+fi
+if [ "$HACKBENCH_RATIO" = "yes" ]; then
+	echo set ylabel \"Time Ratio\" >> $TEMP
+	echo set xlabel \"Number of Processes\" >> $TEMP
+fi
+if [ "$LMBENCH" = "yes" ]; then
+	echo set ylabel \"Context Switch Latency\" >> $TEMP
+	echo set xlabel \"Number of Processes\" >> $TEMP
+fi
+if [ "$LMBENCH_RATIO" = "yes" ]; then
+	echo set ylabel \"Context Switch Latency Ratio\" >> $TEMP
 	echo set xlabel \"Number of Processes\" >> $TEMP
 fi
 if [ "$PAGEALLOC" = "yes" ]; then
@@ -349,6 +414,14 @@ if [ "$PARALLELIO_IODURATION" = "yes" ]; then
 	echo set xlabel \"Parallel IO Size MB\" >> $TEMP
 	AWK_FORMAT="<awk '{print \$1/1048576,\$2}' @@PLOT@@"
 fi
+if [ "$TIOBENCH" = "yes" ]; then
+	echo set ylabel \"Throughput MB/sec\" >> $TEMP
+	echo set xlabel \"Threads\" >> $TEMP
+fi
+if [ "$TIOBENCH_RATIO" = "yes" ]; then
+	echo set ylabel \"Throughput Ratio\" >> $TEMP
+	echo set xlabel \"Threads\" >> $TEMP
+fi
 if [ "$THP" = "yes" ]; then
 	echo set ylabel \"Transparent Huge Pages\" >> $TEMP
 	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
@@ -376,6 +449,18 @@ if [ "$FRAGMENTATION_INDEX" = "yes" ]; then
 	echo set ylabel \"Fragmentation Index\" >> $TEMP
 	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
 fi
+if [ "$DBENCH_CANDLE" = "yes" ]; then
+	echo "set noxtics" >> $TEMP
+	echo "set xrange[-0.5:$#.5]" >> $TEMP
+	echo set style fill pattern 6 border  >> $TEMP
+	echo set boxwidth 1 >> $TEMP
+fi
+if [ "$FSMARK_CANDLE" = "yes" ]; then
+	echo "set noxtics" >> $TEMP
+	echo "set xrange[-0.5:$#.5]" >> $TEMP
+	echo set style fill pattern 6 border  >> $TEMP
+	echo set boxwidth 1 >> $TEMP
+fi
 if [ "$KERNBENCH" = "yes" ]; then
 	#echo set ylabel \"Time Elapsed \(seconds\)\" >> $TEMP
 	#echo "set xtics ('2.6.32' 1)" >> $TEMP
@@ -383,6 +468,13 @@ if [ "$KERNBENCH" = "yes" ]; then
 	echo "set xrange[-0.5:$#.5]" >> $TEMP
 	echo set style fill pattern 6 border  >> $TEMP
 	echo set boxwidth 1 >> $TEMP
+fi
+if [ "$STACKED_HISTOGRAM" = "yes" ]; then
+	echo set style histogram rowstacked >> $TEMP
+	echo set style data histograms  >> $TEMP
+	echo set boxwidth 0.75 absolute >> $TEMP
+	echo set style fill solid 1.00 border -1 >> $TEMP
+	PLOTCOMMAND=stacked-histogram
 fi
 if [ "$TBENCH" = "yes" ]; then
 	echo set ylabel \"Throughput MB/sec\" >> $TEMP
@@ -443,8 +535,18 @@ while [ "$1" != "" ]; do
 		TITLE="title '${TITLES[$COUNT]}'"
 	fi
 
-	# Work out an individual plot string
+	TIME_OFFSET=
+	USING_COMMAND=
+	if [ "$TIME_SERIES" = "yes" ]; then
+		TIME_OFFSET=`head -1 $PLOTFILE | awk '{print $1}'`
+		TIME_OFFSET="(\$1-$TIME_OFFSET):2"
+	fi
 
+	if [ "$USING" != "" -o "$TIME_OFFSET" != "" ]; then
+		USING_COMMAND="using $TIME_OFFSET $USING"
+	fi
+
+	# Work out an individual plot string
 	case $PLOTCOMMAND in
 	standard)
 		PLOTSTRING="'$PLOTFILE'"
@@ -452,13 +554,13 @@ while [ "$1" != "" ]; do
 			ESCAPED=`echo "$PLOTFILE" | sed -e 's/\//\\\\\//g'`
 			PLOTSTRING="\"`echo $AWK_FORMAT | sed -e "s/@@PLOT@@/$ESCAPED/"`\""
 		fi
-		echo -n "$PLOTSTRING $USING $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
+		echo -n "$PLOTSTRING $USING_COMMAND $SMOOTH $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
 		;;
 	residency)
 		STARTTIME=`zcat $PLOTFILE | head -1 | awk '{print $1}'`
 		zcat $PLOTFILE | perl -e "\$last=0; while (<>) {(\$time,\$latency) = split(/ /); \$time -= $STARTTIME; \$latency += \$time-\$last; \$last=\$time; print \"\$time \$latency\n\"}" > $PLOTFILE.tmp
 		CLEANUP_FILES="$CLEANUP_FILES $PLOTFILE.tmp"
-		echo -n "'$PLOTFILE.tmp' $USING $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
+		echo -n "'$PLOTFILE.tmp' $USING_COMMAND $SMOOTH $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
 		;;
 	cpuusage)
 		PLOTSTRING="'$PLOTFILE'"
@@ -491,7 +593,10 @@ while [ "$1" != "" ]; do
 
 		echo -n "$PLOTSTRING_READ title \"read rate\" with lines, $PLOTSTRING_WRITE title \"write rate\" with lines" >> $TEMP
 		;;
-
+	stacked-histogram)
+		PLOTSTRING="'$PLOTFILE'"
+		echo -n "'$PLOTFILE' using 2 t \"Alloc\", '$PLOTFILE' using 3 t \"Free\"" >> $TEMP
+		;;
 	esac
 	shift
 	COUNT=$(($COUNT+1))

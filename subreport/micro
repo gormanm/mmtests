@@ -3,6 +3,11 @@ echo MICRO
 gendirlist micro
 printheader
 
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/micro.plot"
+	TITLES="$TITLES `echo $DIR | sed -e 's/micro-//'`"
+done
+
 TESTS=`\ls -d micro-$KERNEL_BASE/$TOPLEVEL/[0-9]*.log | sed -e 's/\\.log//'`
 
 for TEST in $TESTS ; do
@@ -10,97 +15,6 @@ for TEST in $TESTS ; do
 	TEST_NR=`echo $TEST | awk -F - '{print $1}'`
 	TEST_NAME=`echo $TEST | sed -e 's/[0-9*]-//'`
 	case $TEST_NAME in
-		vmscan-file-mmap-write)
-			HEADINGS="pgalloc_dma pgalloc_dma32 pgalloc_normal pgalloc_highmem pgsteal_dma pgsteal_dma32 pgsteal_normal pgsteal_high kswapd_steal pgscan_kswapd_dma pgscan_kswapd_dma32 pgscan_kswapd_normal pgscan_kswapd_high pgscan_direct_dma pgscan_direct_dma32 pgscan_direct_normal pgscan_direct_high pageoutrun allocstall"
-
-			for HEADING in $HEADINGS; do
-				VANILLA_BEFORE=`grep "^$HEADING " micro-$KERNEL_BASE/$TOPLEVEL/$TEST.vmstat-before | awk '{print $2}'`
-				VANILLA_AFTER=`grep "^$HEADING " micro-$KERNEL_BASE/$TOPLEVEL/$TEST.vmstat-after | awk '{print $2}'`
-
-				if [ "$VANILLA_BEFORE" = "" ]; then
-					continue
-				fi
-				VANILLA=$(($VANILLA_AFTER-$VANILLA_BEFORE))
-				printf "%-28s" $HEADING
-
-				for DIR in $DIRLIST; do
-					RESULT_BEFORE=`grep "^$HEADING " $DIR/$TOPLEVEL/$TEST.vmstat-before | awk '{print $2}'`
-					RESULT_AFTER=`grep "^$HEADING " $DIR/$TOPLEVEL/$TEST.vmstat-after | awk '{print $2}'`
-					RESULT=$(($RESULT_AFTER-$RESULT_BEFORE))
-					printf " %12d (%7.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
-				done
-				echo
-			done
-
-			for DIR in $DIRLIST; do
-				KSWAPD_SCAN_BEFORE=0
-				DIRECT_SCAN_BEFORE=0
-				KSWAPD_STEAL_BEFORE=0
-				DIRECT_STEAL_BEFORE=0
-				KSWAPD_SCAN_AFTER=0
-				DIRECT_SCAN_AFTER=0
-				KSWAPD_STEAL_AFTER=0
-				DIRECT_STEAL_AFTER=0
-
-
-				for HEADING in $HEADINGS; do
-					RESULT_BEFORE=`grep "^$HEADING " $DIR/$TOPLEVEL/$TEST.vmstat-before | awk '{print $2}'`
-					RESULT_AFTER=`grep "^$HEADING " $DIR/$TOPLEVEL/$TEST.vmstat-after | awk '{print $2}'`
-
-					echo $HEADING | grep -q pgscan_direct
-					if [ $? -eq 0 ]; then
-						DIRECT_SCAN_BEFORE=$((DIRECT_SCAN_BEFORE+RESULT_BEFORE))
-						DIRECT_SCAN_AFTER=$((DIRECT_SCAN_AFTER+RESULT_AFTER))
-					fi
-					echo $HEADING | grep -q pgscan_kswapd
-					if [ $? -eq 0 ]; then
-						KSWAPD_SCAN_BEFORE=$((KSWAPD_SCAN_BEFORE+RESULT_BEFORE))
-						KSWAPD_SCAN_AFTER=$((KSWAPD_SCAN_AFTER+RESULT_AFTER))
-					fi
-					echo $HEADING | grep -q pgsteal_
-					if [ $? -eq 0 ]; then
-						DIRECT_STEAL_BEFORE=$((DIRECT_STEAL_BEFORE+RESULT_BEFORE))
-						DIRECT_STEAL_AFTER=$((DIRECT_STEAL_AFTER+RESULT_AFTER))
-					fi
-					echo $HEADING | grep -q kswapd_steal
-					if [ $? -eq 0 ]; then
-						KSWAPD_STEAL_BEFORE=$((KSWAPD_STEAL_BEFORE+RESULT_BEFORE))
-						KSWAPD_STEAL_AFTER=$((KSWAPD_STEAL_AFTER+RESULT_AFTER))
-					fi
-				done
-
-				KSWAPD_SCAN=$((KSWAPD_SCAN_AFTER-KSWAPD_SCAN_BEFORE))
-				DIRECT_SCAN=$((DIRECT_SCAN_AFTER-DIRECT_SCAN_BEFORE))
-				KSWAPD_STEAL=$((KSWAPD_STEAL_AFTER-KSWAPD_STEAL_BEFORE))
-				DIRECT_STEAL=$((DIRECT_STEAL_AFTER-DIRECT_STEAL_BEFORE-$KSWAPD_STEAL))
-				if [ $KSWAPD_STEAL -gt 0 ]; then
-					perl -e "print ($KSWAPD_STEAL*100/$KSWAPD_SCAN)" > $DIR/$TOPLEVEL/kswapd.ratio
-				else
-					echo 0 > $DIR/$TOPLEVEL/kswapd.ratio
-				fi
-				if [ $DIRECT_STEAL -gt 0 ]; then
-					perl -e "print ($DIRECT_STEAL*100/$DIRECT_SCAN)" > $DIR/$TOPLEVEL/direct.ratio
-				else
-					echo 0 > $DIR/$TOPLEVEL/direct.ratio
-				fi
-				
-			done
-
-			VANILLA_KSWAPD=`cat micro-$KERNEL_BASE/$TOPLEVEL/kswapd.ratio`
-			VANILLA_DIRECT=`cat micro-$KERNEL_BASE/$TOPLEVEL/direct.ratio`
-
-			printf "%-28s" "Direct rclm efficiency"
-			for DIR in $DIRLIST; do
-				RESULT=`cat $DIR/$TOPLEVEL/direct.ratio`
-				printf " %12.2f (%7.2f%%)" $RESULT `pdiff $RESULT $VANILLA_DIRECT`
-			done
-			printf "\n%-28s" "Kswapd rclm efficiency"
-			for DIR in $DIRLIST; do
-				RESULT=`cat $DIR/$TOPLEVEL/kswapd.ratio`
-				printf " %12.2f (%7.2f%%)" $RESULT `pdiff $RESULT $VANILLA_KSWAPD`
-			done
-			echo
-			;;
 		*)
 			echo Unrecognised test $TEST_NAME
 			;;

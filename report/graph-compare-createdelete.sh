@@ -42,14 +42,3 @@ for MAPPING in anonmapping filemapping; do
 			echo Generated createdelete-$MAPPING-$NR_THREADS-$NAME.ps
 		done
 done
-
-#$PLOT \
-#	--title "$ARCH fsmark files/sec comparison" \
-#	--using "smooth bezier" \
-#	--format "postscript color" \
-#	--xlabel "Iteration" \
-#	--ylabel "Files/sec" \
-#	--titles $TITLES \
-#	--output $OUTPUTDIR/fsmark-smooth-$NAME.ps \
-#	$PLOTS
-#	echo Generated fsmark-smooth-$NAME.ps

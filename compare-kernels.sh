@@ -22,6 +22,21 @@ if [ "$1" != "" ]; then
 	TOPLEVEL=$1
 fi
 
+if [ ! -e tests-timestamp-$KERNEL_BASE ]; then
+	TEMP_KERNEL_BASE=
+	TEMP_KERNEL_COMPARE=
+	for KERNEL in $KERNEL_COMPARE; do
+		if [ -e tests-timestamp-$KERNEL ]; then
+			if [ "$TEMP_KERNEL_BASE" = "" ]; then
+				TEMP_KERNEL_BASE=$KERNEL
+			fi
+			TEMP_KERNEL_COMPARE="$TEMP_KERNEL_COMPARE $KERNEL"
+		fi
+		KERNEL_BASE=$TEMP_KERNEL_BASE
+		KERNEL_COMPARE=$TEMP_KERNEL_COMPARE
+	done
+fi
+
 gendirlist() {
 	PREFIX=$1
 
@@ -57,6 +72,8 @@ for SUBREPORT in kernbench parallelio starve pagealloc tiobench dbench3 dbench4 
 		echo ===BEGIN $SUBREPORT
 		INPUTS=
 		TITLES=
+		CLIENTS=
+		ORDERS=
 		if [ "$SIMUL" = "" -a -e $SCRIPTDIR/subreport/$SUBREPORT ]; then
 			. $SCRIPTDIR/subreport/$SUBREPORT
 		fi
@@ -73,11 +90,23 @@ for SUBREPORT in kernbench parallelio starve pagealloc tiobench dbench3 dbench4 
 		if [ "$INPUTS" != "" ]; then
 			echo ===TITLES $SUBREPORT : $TITLES
 		fi
+		if [ "$CLIENTS" != "" ]; then
+			echo ===CLIENTS $SUBREPORT : $CLIENTS
+		fi
+		if [ "$ORDERS" != "" ]; then
+			echo ===ORDERS $SUBREPORT : $ORDERS
+		fi
 		if [ "$SIMUL" != "" ]; then
 			rm -rf $TMPDIR
 			exit
 		fi
 	fi
 done
+
+echo -n "===TIMESTAMPS : "
+for KERNEL in $KERNEL_BASE $KERNEL_COMPARE; do
+	echo -n "`pwd`/tests-timestamp-$KERNEL "
+done
+echo
 
 rm -rf $TMPDIR

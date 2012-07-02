@@ -5,9 +5,10 @@ printheader
 CLIENTS=`awk '{print $1}' sysbench-$KERNEL_BASE/$TOPLEVEL/default/sysbench.log`
 
 for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/default/sysbench-graph.log"
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/default/sysbench.plot"
 	TITLES="$TITLES `echo $DIR | sed -e 's/sysbench-//'`"
-	echo -n > `pwd`/$DIR/$TOPLEVEL/default/sysbench-graph.log
+	echo -n > `pwd`/$DIR/$TOPLEVEL/default/sysbench.plot
+	echo -n > `pwd`/$DIR/$TOPLEVEL/default/sysbench-ratio.plot
 done
 
 for CLIENT in $CLIENTS; do
@@ -29,7 +30,8 @@ for CLIENT in $CLIENTS; do
 		if [ "$VANILLA" = "" ]; then
 			VANILLA=$RESULT
 		fi
-		echo $CLIENT $RESULT >> $DIR/$TOPLEVEL/default/sysbench-graph.log
+		echo $CLIENT $RESULT >> $DIR/$TOPLEVEL/default/sysbench.plot
+		echo $CLIENT `rdiff $RESULT $VANILLA` >> $DIR/$TOPLEVEL/default/sysbench-ratio.plot
 		printf " %8.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
 	done
 	echo

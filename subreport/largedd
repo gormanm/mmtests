@@ -3,6 +3,11 @@ echo LARGE DD
 gendirlist largedd
 printheader
 
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/largedd.result"
+	TITLES="$TITLES `echo $DIR | sed -e 's/largedd-//'`"
+done
+
 for OPER in `seq 1 6`; do
 	OPERNAME=`grep ^$OPER: largedd-$KERNEL_BASE/$TOPLEVEL/largedd.result | awk -F : '{print $2}' | sed -e 's/^Time to //' -e 's/directories/dirs/'`
 	if [ "$OPERNAME" = "" ]; then

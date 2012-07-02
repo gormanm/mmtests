@@ -4,6 +4,16 @@ printheader
 
 CLIENTS=`ls tiobench-$KERNEL_BASE/$TOPLEVEL/tiobench-*.log | sed -e 's/.*\///' -e 's/tiobench-//' -e 's/.log//' | sort -n`
 
+# Generate plot files
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/tiobench-OPERATION.plot"
+	TITLES="$TITLES `echo $DIR | sed -e 's/dbench3-//'`"
+	for OPERATION in seq-read rand-read seq-write rand-write; do
+		echo -n > $DIR/$TOPLEVEL/tiobench-$OPERATION.plot
+		echo -n > $DIR/$TOPLEVEL/tiobench-$OPERATION-ratio.plot
+	done
+done
+
 echo TIOBench Throughput
 for OPERATION in seq-read rand-read seq-write rand-write; do
 for CLIENT in $CLIENTS; do
@@ -28,6 +38,8 @@ for CLIENT in $CLIENTS; do
 	for DIR in $DIRLIST; do
 		RESULT=`grep -A 1 "$LONG_OPERATION" $DIR/$TOPLEVEL/tiobench-$CLIENT.log | tail -1 | awk '{print $5}'`
 		printf " %6.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+		echo $CLIENT $RESULT >> $DIR/$TOPLEVEL/tiobench-$OPERATION.plot
+		echo $CLIENT `rdiff $RESULT $VANILLA` >> $DIR/$TOPLEVEL/tiobench-$OPERATION-ratio.plot
 	done
 	echo
 done

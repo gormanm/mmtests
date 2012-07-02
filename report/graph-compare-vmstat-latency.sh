@@ -62,7 +62,7 @@ echo Generated vmstat-latency-comparison-$NAME.ps
 
 $PLOT \
 	--timeplot \
-	--using "smooth bezier" \
+	--smooth bezier \
 	--extra $TMPDIR/$NAME-extra \
 	--title "$ARCH VMStat Latency Update Comparison" \
 	--format "postscript color" \

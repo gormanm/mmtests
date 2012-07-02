@@ -66,7 +66,7 @@ echo Generated iostat-await-comparison-$NAME.ps
 
 $PLOT \
 	--timeplot \
-	--using "smooth bezier" \
+	--smooth bezier \
 	--extra $TMPDIR/$NAME-extra \
 	--title "$ARCH IO Stat Average Wait Comparison" \
 	--format "postscript color" \

@@ -66,7 +66,7 @@ echo Generated iostat-rbs-comparison-$NAME.ps
 
 $PLOT \
 	--timeplot \
-	--using "smooth bezier" \
+	--smooth bezier \
 	--extra $TMPDIR/$NAME-extra \
 	--title "$ARCH IO Stat Read Sectors Comparison" \
 	--format "postscript color" \

@@ -1,0 +1,7 @@
+#!/usr/bin/perl
+
+if ($ARGV[1] == 0) {
+	print 0;
+} else {
+	print $ARGV[0] / $ARGV[1];
+}

@@ -6,11 +6,12 @@ CLIENTS=`ls dbench3-$KERNEL_BASE/$TOPLEVEL/dbench-*.log | sed -e 's/.*\///' -e '
 
 # Generate plot files
 for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/dbench-NR_CLIENT.plot"
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/dbench3-DBENCHDATA.plot"
 	TITLES="$TITLES `echo $DIR | sed -e 's/dbench3-//'`"
 	for CLIENT in $CLIENTS; do
-		grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $6" "$3}' > $DIR/$TOPLEVEL/dbench-$CLIENT.plot
+		echo -n > $DIR/$TOPLEVEL/dbench3-candle-$CLIENT.plot
 	done
+	echo -n > $DIR/$TOPLEVEL/dbench3-mean.plot
 done
 
 echo DBench 3 Throughput
@@ -18,10 +19,14 @@ for PROCESS in min mean true-mean stddev max; do
 for CLIENT in $CLIENTS; do
 	printf "%-7s %3d %-6s" Clients $CLIENT $PROCESS
 	VANILLA=`grep execute dbench3-$KERNEL_BASE/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
+	COMP=pdiff
+	if [ "$PROCESS" = "stddev" ]; then
+		COMP=pndiff
+	fi
 
 	for DIR in $DIRLIST; do
 		RESULT=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
-		printf " %7.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+		printf " %7.2f (%6.2f%%)" $RESULT `$COMP $RESULT $VANILLA`
 	done
 	echo
 	if [ "$PROCESS" = "mean" ]; then
@@ -32,13 +37,28 @@ for CLIENT in $CLIENTS; do
 			printf " %7.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
 		done
 		echo
-		printf "%-7s %3s %-6s" "" "" "true"
-		VANILLA=`grep execute dbench3-$KERNEL_BASE/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | true-mean`
-		for DIR in $DIRLIST; do
-			RESULT=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | true-mean`
-			printf " %7.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
-		done
-		echo
 	fi
 done
+done
+
+# Generate something useful as a plot
+OFFSET=0
+for DIR in $DIRLIST; do
+for CLIENT in $CLIENTS; do
+	MIN=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | min`
+	MAX=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | max`
+	MEAN=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | mean`
+	STDDEV=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | stddev`
+
+	LOW_STDDEV=`perl -e "print $MEAN-$STDDEV"`
+	HIGH_STDDEV=`perl -e "print $MEAN+$STDDEV"`
+	HIGH_STDDEV=`echo "$MAX
+$HIGH_STDDEV" | min`
+	LOW_STDDEV=`echo "$STDDEV
+$LOW_STDDEV" | max`
+	echo $OFFSET $LOW_STDDEV $MIN $MAX $HIGH_STDDEV $MEAN \# stddev=$STDDEV > $DIR/$TOPLEVEL/dbench3-candle-$CLIENT.plot
+	echo $CLIENT $MEAN >> $DIR/$TOPLEVEL/dbench3-mean.plot
+
+done
+OFFSET=$(($OFFSET+1))
 done

@@ -4,14 +4,18 @@ printheader
 
 CLIENTS=`ls dbench4-$KERNEL_BASE/$TOPLEVEL/dbench-*.log | sed -e 's/.*\///' -e 's/dbench-//' -e 's/.log//' | sort -n`
 
-# Generate plot files
+# Generate plot file stubs
 for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/dbench-NR_CLIENT.plot"
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/dbench4-DBENCHDATA.plot"
 	TITLES="$TITLES `echo $DIR | sed -e 's/dbench4-//'`"
 	for CLIENT in $CLIENTS; do
-		grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $6" "$3}' > $DIR/$TOPLEVEL/dbench-$CLIENT.plot
-		grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $6" "$9}' > $DIR/$TOPLEVEL/dbench-latency-$CLIENT.plot
+		echo -n > $DIR/$TOPLEVEL/dbench4-candle-tput-$CLIENT.plot
+		echo -n > $DIR/$TOPLEVEL/dbench4-candle-latency-$CLIENT.plot
 	done
+	echo -n > $DIR/$TOPLEVEL/dbench4-tput-mean.plot
+	echo -n > $DIR/$TOPLEVEL/dbench4-latency-mean.plot
+	echo -n > $DIR/$TOPLEVEL/dbench4-tput-ratio.plot
+	echo -n > $DIR/$TOPLEVEL/dbench4-latency-ratio.plot
 done
 
 echo DBench 4 Throughput
@@ -32,13 +36,6 @@ for CLIENT in $CLIENTS; do
 			MEAN=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | mean`
 			STDDEV=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | stddev`
 			printf " %7.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
-		done
-		echo
-		printf "%-7s %3s %-6s" "" "" true
-		VANILLA=`grep execute dbench4-$KERNEL_BASE/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
-		for DIR in $DIRLIST; do
-			RESULT=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
-			printf " %7.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
 		done
 		echo
 	fi
@@ -74,4 +71,46 @@ for CLIENT in $CLIENTS; do
 	done
 	echo
 done
+done
+
+# Generate something useful as a plot for throughput
+OFFSET=0
+for DIR in $DIRLIST; do
+for CLIENT in $CLIENTS; do
+	MIN=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | min`
+	MAX=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | max`
+	MEAN=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | mean`
+	STDDEV=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $3}' | stddev`
+
+	LOW_STDDEV=`perl -e "print $MEAN-$STDDEV"`
+	HIGH_STDDEV=`perl -e "print $MEAN+$STDDEV"`
+	HIGH_STDDEV=`echo "$MAX
+$HIGH_STDDEV" | min`
+	LOW_STDDEV=`echo "$STDDEV
+$LOW_STDDEV" | max`
+	echo $OFFSET $LOW_STDDEV $MIN $MAX $HIGH_STDDEV $MEAN \# stddev=$STDDEV > $DIR/$TOPLEVEL/dbench4-candle-tput-$CLIENT.plot
+	echo $CLIENT $MEAN >> $DIR/$TOPLEVEL/dbench4-tput-mean.plot
+done
+OFFSET=$(($OFFSET+1))
+done
+
+# Generate something useful as a plot for latency
+OFFSET=0
+for DIR in $DIRLIST; do
+for CLIENT in $CLIENTS; do
+	MIN=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $9}' | min`
+	MAX=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $9}' | max`
+	MEAN=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $9}' | mean`
+	STDDEV=`grep execute $DIR/$TOPLEVEL/dbench-$CLIENT.log | awk '{print $9}' | stddev`
+
+	LOW_STDDEV=`perl -e "print $MEAN-$STDDEV"`
+	HIGH_STDDEV=`perl -e "print $MEAN+$STDDEV"`
+	HIGH_STDDEV=`echo "$MAX
+$HIGH_STDDEV" | min`
+	LOW_STDDEV=`echo "$STDDEV
+$LOW_STDDEV" | max`
+	echo $OFFSET $LOW_STDDEV $MIN $MAX $HIGH_STDDEV $MEAN \# stddev=$STDDEV > $DIR/$TOPLEVEL/dbench4-candle-latency-$CLIENT.plot
+	echo $CLIENT $MEAN >> $DIR/$TOPLEVEL/dbench4-latency-mean.plot
+done
+OFFSET=$(($OFFSET+1))
 done

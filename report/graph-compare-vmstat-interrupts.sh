@@ -66,7 +66,7 @@ echo Generated interrupt-comparison-$NAME.ps
 
 $PLOT \
 	--timeplot \
-	--using "smooth bezier" \
+	--smooth bezier \
 	--extra $TMPDIR/$NAME-extra \
 	--title "$ARCH Interrupts Comparison" \
 	--format "postscript color" \

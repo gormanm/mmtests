@@ -66,7 +66,7 @@ echo Generated iostat-wbs-comparison-$NAME.ps
 
 $PLOT \
 	--timeplot \
-	--using "smooth bezier" \
+	--smooth bezier \
 	--extra $TMPDIR/$NAME-extra \
 	--title "$ARCH IO Stat Write Sectors Comparison" \
 	--format "postscript color" \

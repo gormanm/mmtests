@@ -66,7 +66,7 @@ echo Generated contextswitch-comparison-$NAME.ps
 
 $PLOT \
 	--timeplot \
-	--using "smooth bezier" \
+	--smooth bezier \
 	--extra $TMPDIR/$NAME-extra \
 	--title "$ARCH Context Switch Comparison" \
 	--format "postscript color" \

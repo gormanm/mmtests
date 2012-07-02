@@ -64,6 +64,11 @@ for TESTNAME in $TESTNAMES; do
 	fi
 	MIRROR="$MIRROR '$TESTNAME' $MIN_TIMESTAMP"
 done
+
+if [ "$MIRROR" != "" ]; then
+	MIRROR="$MIRROR, "
+fi
+MIRROR="$MIRROR 'finish' $((END-START))"
 TIMESTAMP=`tail -1 tests-timestamp-$KERNEL | awk '{print $3}'`
 TIMESTAMP=$((($TIMESTAMP-$START)/60))
 

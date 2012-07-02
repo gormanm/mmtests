@@ -21,18 +21,22 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 	END_LINE=`grep -n "file end :: /proc/zoneinfo" $TMPDIR/mmtests-full.log | awk -F : '{print $1}'`
 	head -$END_LINE $TMPDIR/mmtests-full.log | tail -$((END_LINE-START_LINE)) > $TMPDIR/mmtests-vmstat-after.log
 
+	KSWAPD_NEW_FORMAT=no
 	VALUE=0
-	for HEADING in kswapd_steal; do
+	for HEADING in kswapd_steal pgsteal_kswapd_dma pgsteal_kswapd_dma32 pgsteal_kswapd_normal pgsteal_kswapd_high pgsteal_kswapd_movable; do
 		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
 		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
 			VALUE=$((VALUE+(AFTER-BEFORE)))
+			if [ "$HEADING" != "kswapd_steal" ]; then
+				KSWAPD_NEW_FORMAT=yes
+			fi
 		fi
 	done
 	KSWAPD_STEAL=$VALUE
 
 	VALUE=0
-	for HEADING in pgsteal_dma pgsteal_dma32 pgsteal_normal pgsteal_movable pgsteal_high; do
+	for HEADING in pgsteal_dma pgsteal_dma32 pgsteal_normal pgsteal_movable pgsteal_high pgsteal_direct_dma pgsteal_direct_dma32 pgsteal_direct_normal pgsteal_direct_movable pgsteal_direct_high; do
 		BEFORE=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-before.log | awk '{print $2}'`
 		AFTER=`grep "^$HEADING " $TMPDIR/mmtests-vmstat-after.log | awk '{print $2}'`
 		if [ "$BEFORE" != "" ]; then
@@ -40,7 +44,11 @@ for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
 		fi
 	done
 	PGSTEAL=$VALUE
-	DIRECT_STEAL=$((PGSTEAL-KSWAPD_STEAL))
+	if [ "$KSWAPD_NEW_FORMAT" = "yes" ]; then
+		DIRECT_STEAL=$PGSTEAL
+	else
+		DIRECT_STEAL=$((PGSTEAL-KSWAPD_STEAL))
+	fi
 
 	VALUE=0
 	for HEADING in pgscan_kswapd_dma pgscan_kswapd_dma32 pgscan_kswapd_normal pgscan_kswapd_movable pgscan_kswapd_high; do

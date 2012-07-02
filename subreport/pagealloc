@@ -7,12 +7,11 @@ ORDERS=`ls pagealloc-$KERNEL_BASE/$TOPLEVEL/alloc-* | sed -e 's/.*\///' -e 's/al
 
 # Generate plot file stubs
 for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/pagealloc-ORDER.plot"
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/pageallocfree-ORDER.plot"
 	TITLES="$TITLES `echo $DIR | sed -e 's/pagealloc-//'`"
-	for OPER in alloc free; do
-		for ORDER in $ORDERS; do
-			echo -n > $DIR/$TOPLEVEL/page$OPER-$ORDER.plot
-		done
+	for ORDER in $ORDERS; do
+		echo -n > $DIR/$TOPLEVEL/pageallocfree-$ORDER.plot
+		echo -n > $DIR/$TOPLEVEL/pageallocfree-$ORDER-batches.plot
 	done
 done
 
@@ -38,17 +37,21 @@ for BATCH in $BATCHES; do
 		printf " %7.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
 	done
 	echo
-
-	printf "%-15s" "true-mean"
-	VANILLA=`grep "^$BATCH " pagealloc-$KERNEL_BASE/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | true-mean`
-
-	for DIR in $DIRLIST; do
-		RESULT=`grep "^$BATCH " $DIR/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | true-mean`
-		printf " %7.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
-		echo $BATCH $RESULT >> $DIR/$TOPLEVEL/page$OPER-$ORDER.plot
-	done
-	echo
-
 done
+done
+done
+
+# Generate something for the plot
+for ORDER in $ORDERS; do
+BATCHES=`awk '{print $1}' pagealloc-$KERNEL_BASE/$TOPLEVEL/alloc-$ORDER | uniq`
+for BATCH in $BATCHES; do
+	for DIR in $DIRLIST; do
+		echo $BATCH >> $DIR/$TOPLEVEL/pageallocfree-$ORDER-batches.plot
+
+		ALLOC=`grep "^$BATCH " $DIR/$TOPLEVEL/alloc-$ORDER | awk '{print $2}' | mean`
+		FREE=`grep "^$BATCH " $DIR/$TOPLEVEL/free-$ORDER | awk '{print $2}' | mean`
+
+		echo $BATCH $ALLOC $FREE >> $DIR/$TOPLEVEL/pageallocfree-$ORDER.plot
+	done
 done
 done

@@ -66,7 +66,7 @@ echo Generated blockio-comparison-$NAME.ps
 
 $PLOT \
 	--timeplot \
-	--using "smooth bezier" \
+	--smooth bezier \
 	--extra $TMPDIR/$NAME-extra \
 	--title "$NAME Block IO Comparison" \
 	--format "postscript color" \

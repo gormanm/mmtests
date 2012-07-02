@@ -6,6 +6,7 @@ THREADS=`ls hackbench-sockets-$KERNEL_BASE/$TOPLEVEL/hackbench.* | sed -e 's/.*h
 echo -n > hackbench-sockets-$KERNEL_BASE/$TOPLEVEL/hackbench-results
 for DIR in $DIRLIST; do
 	echo -n > $DIR/$TOPLEVEL/hackbench-results
+	echo -n > $DIR/$TOPLEVEL/hackbench-ratio
 done
 for THREAD in $THREADS; do
 	printf "%12d" $THREAD
@@ -21,6 +22,7 @@ for THREAD in $THREADS; do
 			RESULT=`cat $DIR/$TOPLEVEL/hackbench.$THREAD | grep Time: | awk '{print $2}' | mean`
 		fi
 		echo $THREAD $RESULT >> $DIR/$TOPLEVEL/hackbench-results
+		echo $THREAD `rdiff $RESULT $VANILLA` >> $DIR/$TOPLEVEL/hackbench-ratio
 		printf " %8.4f (%5.4f%%)" $RESULT `pndiff $RESULT $VANILLA`
 	done
 	echo

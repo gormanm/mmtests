@@ -66,7 +66,7 @@ echo Generated swapio-comparison-$NAME.ps
 
 $PLOT \
 	--timeplot \
-	--using "smooth bezier" \
+	--smooth bezier \
 	--extra $TMPDIR/$NAME-extra \
 	--title "$NAME Swap IO Comparison" \
 	--format "postscript color" \

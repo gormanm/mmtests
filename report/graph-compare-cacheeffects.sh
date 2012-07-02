@@ -47,14 +47,3 @@ for MAPPING in seq-smallpages seq-largepages rand-smallpages rand-largepages; do
 			echo Generated cacheeffects-$MAPPING-$ARRAYSIZE-$NAME.ps
 		done
 done
-
-#$PLOT \
-#	--title "$ARCH fsmark files/sec comparison" \
-#	--using "smooth bezier" \
-#	--format "postscript color" \
-#	--xlabel "Iteration" \
-#	--ylabel "Files/sec" \
-#	--titles $TITLES \
-#	--output $OUTPUTDIR/fsmark-smooth-$NAME.ps \
-#	$PLOTS
-#	echo Generated fsmark-smooth-$NAME.ps

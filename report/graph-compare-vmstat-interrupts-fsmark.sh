@@ -64,7 +64,7 @@ echo Generated interrupt-comparison-fsmark-$NAME.ps
 
 $PLOT \
 	--timeplot \
-	--using "smooth bezier" \
+	--smooth bezier \
 	--title "$ARCH $HEADING" \
 	--format "postscript color" \
 	--ylabel "Interrupts" \

@@ -60,7 +60,7 @@ echo Generated kswapdcpu-comparison-$NAME.ps
 
 $PLOT \
 	--title "$NAME Kswapd CPU Usage Comparison" \
-	--using "smooth bezier" \
+	--smooth bezier \
 	--format "postscript color" \
 	--titles $TITLES \
 	--extra $TMPDIR/$NAME-extra \
