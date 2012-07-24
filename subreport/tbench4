@@ -1,57 +1,42 @@
 echo
 gendirlist tbench4
-printheader
 
-CLIENTS=`ls tbench4-$KERNEL_BASE/$TOPLEVEL/tbench-*.log | sed -e 's/.*\///' -e 's/tbench-//' -e 's/.log//' | sort -n`
-
-# Generate plot files
 for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/tbench.plot"
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/tbench4-DBENCHDATA.plot"
 	TITLES="$TITLES `echo $DIR | sed -e 's/tbench4-//'`"
-	echo -n > $DIR/$TOPLEVEL/tbench.plot
-	echo -n > $DIR/$TOPLEVEL/tbench-latency.plot
-	for CLIENT in $CLIENTS; do
-		echo $CLIENT `grep execute $DIR/$TOPLEVEL/tbench-$CLIENT.log | awk '{print $3}' | mean | sed -e 's/NaN/0/'` >> $DIR/$TOPLEVEL/tbench.plot
-		echo $CLIENT `grep execute $DIR/$TOPLEVEL/tbench-$CLIENT.log | awk '{print $9}' | mean | sed -e 's/NaN/0/'` >> $DIR/$TOPLEVEL/tbench-latency.plot
-	done
+	extract-mmtests.pl -b tbench4 -d $DIR --print-extra > $TMPDIR/tbench4-operations-$$-$DIR
 done
 
-echo TBench 4 Throughput
-for PROCESS in min mean true-mean stddev max; do
-for CLIENT in $CLIENTS; do
-	printf "%-7s %3d %-6s" Clients $CLIENT $PROCESS
-	VANILLA=`grep execute tbench4-$KERNEL_BASE/$TOPLEVEL/tbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
+echo DBench 4 Throughput
+compare-mmtests.pl -d . -b tbench4 -n $KERNEL_LIST --sub-heading MB/sec
 
-	for DIR in $DIRLIST; do
-		RESULT=`grep execute $DIR/$TOPLEVEL/tbench-$CLIENT.log | awk '{print $3}' | $PROCESS`
-		printf " %7.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
-	done
-	echo
+echo DBench 4 Latency
+compare-mmtests.pl -d . -b tbench4 -n $KERNEL_LIST --sub-heading Latency
 
-	if [ "$PROCESS" = "mean" ]; then
-		printf "%-17s" "+/-"
-		for DIR in $DIRLIST; do
-			MEAN=`grep execute $DIR/$TOPLEVEL/tbench-$CLIENT.log | awk '{print $3}' | mean`
-			STDDEV=`grep execute $DIR/$TOPLEVEL/tbench-$CLIENT.log | awk '{print $3}' | stddev`
-			printf " %7.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
-		done
-		echo
-	fi
-done
-done
-
-# Latency
+# Operations
 echo
-echo TBench 4 Latency
-for PROCESS in min mean stddev max; do
+echo DBench 4 Operation Latency
+CLIENTS=`awk '{print $1}' $TMPDIR/tbench4-operations-$$-tbench4-$KERNEL_BASE | sort | uniq`
+OPERATIONS=`awk '{print $2}' $TMPDIR/tbench4-operations-$$-tbench4-$KERNEL_BASE | sort | uniq`
+for OPERATION in $OPERATIONS; do
 for CLIENT in $CLIENTS; do
-	printf "%-7s %3d %-6s" Clients $CLIENT $PROCESS
-	VANILLA=`grep execute tbench4-$KERNEL_BASE/$TOPLEVEL/tbench-$CLIENT.log | awk '{print $9}' | $PROCESS`
-
+	printf "%-7s %3d %-6s" Clients $CLIENT $OPERATION
+	VANILLA=`grep "^$CLIENT " $TMPDIR/tbench4-operations-$$-tbench4-$KERNEL_BASE | grep "$OPERATION " | awk '{print $3}'`
 	for DIR in $DIRLIST; do
-		RESULT=`grep execute $DIR/$TOPLEVEL/tbench-$CLIENT.log | awk '{print $9}' | $PROCESS`
+		RESULT=`grep "^$CLIENT " $TMPDIR/tbench4-operations-$$-$DIR | grep "$OPERATION " | awk '{print $3}'`
 		printf " %7.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
 	done
 	echo
 done
+done
+
+# Generate something useful as a plot for throughput
+OFFSET=0
+for DIR in $DIRLIST; do
+	extract-mmtests.pl -b tbench4 -d $DIR --print-plot --sub-heading MB/sec > $DIR/$TOPLEVEL/tbench4-tput-mean.plot
+	extract-mmtests.pl -b tbench4 -d $DIR --print-plot --sub-heading Latency > $DIR/$TOPLEVEL/tbench4-latency-mean.plot
+	for CLIENT in $CLIENTS; do
+		grep "^$CLIENT " $DIR/$TOPLEVEL/tbench4-tput-mean.plot | sed -e 's/^[0-9]*//' > $DIR/$TOPLEVEL/tbench4-candle-tput-$CLIENT.plot
+		grep "^$CLIENT " $DIR/$TOPLEVEL/tbench4-latency-mean.plot | sed -e 's/^[0-9]*//' > $DIR/$TOPLEVEL/tbench4-candle-latency-$CLIENT.plot
+	done
 done

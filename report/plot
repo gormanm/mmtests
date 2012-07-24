@@ -546,6 +546,19 @@ while [ "$1" != "" ]; do
 		USING_COMMAND="using $TIME_OFFSET $USING"
 	fi
 
+	# Add index information for candlesticks if necessary
+	if [ "$PLOTTYPE" = "candlesticks" ]; then
+		DATACOUNT=`cat $PLOTFILE | wc -l`
+		if [ $DATACOUNT -eq 1 ]; then
+			DATA=`cat $PLOTFILE`
+		else
+			DATA=`cat $PLOTFILE | sed -e 's/^[0-9]*//'`
+		fi
+		echo "$COUNT $DATA" > $PLOTFILE.tmp.$$
+		PLOTFILE=$PLOTFILE.tmp.$$
+		CLEANUP_FILES="$CLEANUP_FILES $PLOTFILE"
+	fi
+
 	# Work out an individual plot string
 	case $PLOTCOMMAND in
 	standard)

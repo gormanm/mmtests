@@ -1,13 +1,12 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -wn
+# Print out the estimated true mean of a set of data read from standard in
+
 use FindBin qw($Bin);
-use strict;
+use lib "$Bin/lib/";
+use VMR::Stat;
 
-my $sample;
-
-# Read samples from stdin
-open(CONF, "|$Bin/check-confidence.pl --confidence-level 99 --limit 1 --print-mean") || die ("Failed to run check-confidence.pl");
-while (<>) {
-	print CONF $_
+$x[$i++] = $_;
+END {
+	$i = 0;
+	print calc_true_mean(99, 1, @x);
 }
-close(CONF);
-exit 0;

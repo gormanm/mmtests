@@ -13,6 +13,11 @@ FTRACE_HELPER_CONGESTION=$SCRIPTDIR/subreport/trace-congestion-postprocess.pl
 TIMESTAMP_HELPER=$SCRIPTDIR/subreport/teststimestamp-extract
 DIRLIST=
 
+KERNEL_LIST=$KERNEL_BASE
+for KERNEL in $KERNEL_COMPARE; do
+	KERNEL_LIST=$KERNEL_LIST,$KERNEL
+done
+
 TMPDIR=`mktemp`
 rm $TMPDIR
 mkdir $TMPDIR
@@ -47,7 +52,30 @@ gendirlist() {
 		done
 	done
 }
-		
+
+findIndex() {
+	INDEX=0
+	COMP=pdiff
+	case $1 in
+	min)
+		INDEX=1
+		;;
+	mean)
+		INDEX=2
+		;;
+	true-mean)
+		INDEX=3
+		;;
+	stddev)
+		INDEX=4
+		COMP=pndiff
+		;;
+	max)
+		INDEX=5
+		;;
+	esac
+}
+
 printheader() {
 printf "            "
 for DIR in $DIRLIST; do

@@ -1,11 +1,7 @@
 #!/usr/bin/perl
 
-if ($ARGV[0] == $ARGV[1] || $ARGV[0] == 0) {
-	print 0;
-} elsif ($ARGV[1] == 0 && $ARGV[0] != 0) {
-	print -99;
-} else {
-	# Print the percentage difference between two values
-	# print -((($ARGV[0] - $ARGV[1]) * 100) / $ARGV[0]);
-	print 100 - ($ARGV[0] * 100 / $ARGV[1]);
-}
+use FindBin qw($Bin);
+use lib "$Bin/lib/";
+use VMR::Stat;
+
+print pndiff($ARGV[0], $ARGV[1]);

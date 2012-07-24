@@ -6,16 +6,76 @@
 package VMR::Stat;
 require Exporter;
 use vars qw (@ISA @EXPORT);
+use VMR::Report;
 use strict;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&calc_mean &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&pdiff &pndiff &rdiff &calc_min &calc_max &calc_true_mean &calc_mean &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Values taken from a standard normal table
 my %za = (
 	95=>1.96,
 	99=>2.58,
 );
+
+# Print the percentage difference between two values
+sub pdiff {
+	if ($_[0] == $_[1] || $_[0] == 0) {
+		return 0;
+	} elsif ($_[1] == 0) {
+		return 100;
+	} else {
+		return $_[0] * 100 / $_[1] - 100;
+	}
+}
+
+sub pndiff {
+	if ($_[0] == $_[1] || $_[0] == 0) {
+		return 0;
+	} elsif ($_[1] == 0 && $_[0] != 0) {
+		return -99;
+	} else {
+		return 100 - ($_[0] * 100 / $_[1]);
+	}
+}
+
+sub rdiff {
+	if ($_[1] == 0) {
+		return 0;
+	} else {
+		return $_[0] / $_[1];
+	}
+}
+
+sub calc_min {
+	if (! defined $_[0]) {
+		return "NaN";
+	}
+
+	my $min = $_[0];
+	foreach my $value (@_) {
+		if ($value < $min) {
+			$min = $value;
+		}
+	}
+
+	return $min;
+}
+
+sub calc_max {
+	if (! defined $_[0]) {
+		return "NaN";
+	}
+
+	my $max = $_[0];
+	foreach my $value (@_) {
+		if ($value > $max) {
+			$max = $value;
+		}
+	}
+
+	return $max;
+}
 
 sub calc_mean {
 	my $sum = 0;
@@ -37,6 +97,66 @@ sub calc_mean {
 		return "NaN";
 	}
 	return $sum / $n;
+}
+
+sub calc_true_mean {
+	my ($confidenceLevel, $confidenceLimit, @samples) = @_;
+	my $nr_samples = $#samples;
+	my $mean = calc_mean(@samples);
+	my $standardMean = $mean;
+	if ($standardMean eq "NaN") {
+		return "NaN";
+	}
+
+	my $stddev = calc_stddev(@samples);
+	my $conf = calc_confidence_interval_lower($confidenceLevel, @samples);
+	my $limit = $mean * $confidenceLimit / 100;
+	my $conf_delta = $mean - $conf; 
+	my $usable_samples = $nr_samples;
+	my $minSamples = 3;
+
+	
+	for (my $sample = 0; $sample <= $nr_samples; $sample++) {
+
+CONF_LOOP:
+		while ($conf_delta > $limit) {
+			if ($usable_samples == $minSamples) {
+				printVerbose("Minimum number of samples reached\n");
+				return $standardMean;
+			}
+			printVerbose("  o confidence delta $conf_delta outside $limit\n");
+			my $max_delta = -1;
+			my $max_index = -1;
+			for ($sample = 0; $sample <= $nr_samples; $sample++) {
+				if (! defined $samples[$sample]) {
+					next;
+				}
+				my $delta = abs($samples[$sample] - $mean);
+				if ($delta > $max_delta) {
+					$max_delta = $delta;
+					$max_index = $sample;
+				}
+			}
+
+			printVerbose("  o dropping index $max_index result $samples[$max_index]\n");
+			undef $samples[$max_index];
+			$usable_samples--;
+
+			$mean = calc_mean(@samples);
+			$stddev = calc_stddev(@samples);
+			$conf = calc_confidence_interval_lower($confidenceLevel, @samples);
+			$limit = $mean * $confidenceLimit / 100;
+			$conf_delta = $mean - $conf;
+
+			printVerbose("  o recalc mean   = $mean\n");
+			printVerbose("  o recalc stddev = $stddev\n");
+			printVerbose("  o recalc con $confidenceLevel = $conf\n");
+			printVerbose("  o limit     = $limit\n");
+			printVerbose("  o con delta = $conf_delta\n");
+		}
+	}
+
+	return calc_mean(@samples);
 }
 
 sub calc_stddev {
@@ -73,11 +193,19 @@ sub calc_quartiles {
 	$quartiles[2] = $x[int($#x * 0.50 + 0.5)];
 	$quartiles[3] = $x[int($#x * 0.75 + 0.5)];
 	$quartiles[4] = $x[$#x];
+	$quartiles[90] = $x[int($#x * 0.90 + 0.5)];
+	$quartiles[93] = $x[int($#x * 0.93 + 0.5)];
+	$quartiles[95] = $x[int($#x * 0.95 + 0.5)];
+	$quartiles[99] = $x[int($#x * 0.99 + 0.5)];
 
 	chomp($quartiles[1]);
 	chomp($quartiles[2]);
 	chomp($quartiles[3]);
 	chomp($quartiles[4]);
+	chomp($quartiles[90]);
+	chomp($quartiles[93]);
+	chomp($quartiles[95]);
+	chomp($quartiles[99]);
 
 	return \@quartiles;
 }

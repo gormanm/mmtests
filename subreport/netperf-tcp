@@ -1,39 +1,8 @@
 echo
 echo NETPERF TCP
 gendirlist netperf-tcp
-printheader
-
 for DIR in $DIRLIST; do
 	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/netperf-TCP_STREAM.result"
-	TITLES="$TITLES `echo $DIR | sed -e 's/netperf-udp-//'`"
+	TITLES="$TITLES `echo $DIR | sed -e 's/netperf-tcp-//'`"
 done
-
-for SIZE in `awk '{print $1}' netperf-tcp-$KERNEL_BASE/$TOPLEVEL/netperf-TCP_STREAM.result`; do
-	printf "%8d" $SIZE
-	VANILLA=`grep "^$SIZE " netperf-tcp-$KERNEL_BASE/$TOPLEVEL/netperf-TCP_STREAM.result | awk '{print $2}'`
-	WASCONFID=""
-	for DIR in $DIRLIST; do
-		RESULT=`grep "^$SIZE " $DIR/$TOPLEVEL/netperf-TCP_STREAM.result | awk '{print $2}'`
-		printf " %8.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
-		CONFID=`grep "Desired confidence" $DIR/$TOPLEVEL/TCP_STREAM-$SIZE.log`
-		if [ "$CONFID" != "" ]; then
-			printf "*"
-			WASCONFID="yes"
-		else
-			printf " "
-		fi
-	done
-	echo
-	if [ "$WASCONFID" != "" ]; then
-		printf "%8s" " "
-		for DIR in $DIRLIST; do
-			CONFID=`grep "Confidence intervals: Throughput" $DIR/$TOPLEVEL/TCP_STREAM-$SIZE.log | awk '{print $6}'`
-			if [ "$CONFID" = "" ]; then
-				CONFID="1.00%"
-			fi
-			CONFID=`echo $CONFID | sed -e 's/%//'`
-			printf " %8.2f%%        " $CONFID
-		done
-		echo
-	fi
-done
+compare-mmtests.pl -d . -b netperf-tcp -n $KERNEL_LIST

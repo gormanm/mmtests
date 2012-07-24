@@ -1,51 +1,21 @@
 echo
-echo SYSBENCH
 gendirlist sysbench
 printheader
-CLIENTS=`awk '{print $1}' sysbench-$KERNEL_BASE/$TOPLEVEL/default/sysbench.log`
 
 for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/default/sysbench.plot"
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/sysbench-SYSBENCHDATA.plot"
 	TITLES="$TITLES `echo $DIR | sed -e 's/sysbench-//'`"
-	echo -n > `pwd`/$DIR/$TOPLEVEL/default/sysbench.plot
-	echo -n > `pwd`/$DIR/$TOPLEVEL/default/sysbench-ratio.plot
+	echo -n > `pwd`/$DIR/$TOPLEVEL/sysbench-ratio.plot
 done
+CLIENTS=`ls sysbench-$KERNEL_BASE/$TOPLEVEL/sysbench-tput-* | awk -F - '{print \$NF}' | sed -e 's/\..*//' | sort -n | uniq`
 
-for CLIENT in $CLIENTS; do
-	# Cope with stupid log entries from an obsolete version of mm tests
-	if [ ! -e sysbench-$KERNEL_BASE/$TOPLEVEL/default/sysbench-raw-$CLIENT-1 ]; then
-		continue
-	fi
+echo Sysbench Throughput
+compare-mmtests.pl -d . -b sysbench -n $KERNEL_LIST --sub-heading MB/sec
 
-	printf "%12d" $CLIENT
-	VANILLA=`grep "^$CLIENT " sysbench-$KERNEL_BASE/$TOPLEVEL/default/sysbench.log | awk '{print $2}'`
-	for DIR in $DIRLIST; do
-		RESULT=`grep "^$CLIENT " $DIR/$TOPLEVEL/default/sysbench.log | awk '{print $2}'`
-		CONFIDENCE_LIMIT=2
-		while [ "$RESULT" = "" ]; do
-			CONFIDENCE_LIMIT=$((CONFIDENCE_LIMIT+1))
-			RESULT=`awk '{print $2}' $DIR/$TOPLEVEL/default/sysbench-$CLIENT.log | check-confidence.pl --limit $CONFIDENCE_LIMIT --print-mean`
-		done
-
-		if [ "$VANILLA" = "" ]; then
-			VANILLA=$RESULT
-		fi
-		echo $CLIENT $RESULT >> $DIR/$TOPLEVEL/default/sysbench.plot
-		echo $CLIENT `rdiff $RESULT $VANILLA` >> $DIR/$TOPLEVEL/default/sysbench-ratio.plot
-		printf " %8.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
-	done
-	echo
-	printf "%12s" "+/-"
-	for DIR in $DIRLIST; do
-		CONFIDENCE_LIMIT=1
-		STDDEV=""
-		while [ "$STDDEV" = "" ]; do
-			CONFIDENCE_LIMIT=$((CONFIDENCE_LIMIT+1))
-			RESULT=`awk '{print $2}' $DIR/$TOPLEVEL/default/sysbench-$CLIENT.log | check-confidence.pl --limit $CONFIDENCE_LIMIT --print-mean`
-			STDDEV=`awk '{print $2}' $DIR/$TOPLEVEL/default/sysbench-$CLIENT.log | check-confidence.pl --limit $CONFIDENCE_LIMIT --print-stddev`
-		done
-			
-		printf " %8.2f%%" `perl -e "print ($STDDEV*100/$RESULT)"`
-	done
-	echo
+# Generate something useful as a plot for throughput
+OFFSET=3
+for DIR in $DIRLIST; do
+	extract-mmtests.pl -b sysbench -d $DIR --print-plot > $DIR/$TOPLEVEL/sysbench-mean.plot
+	compare-mmtests.pl -d . -b sysbench -n $KERNEL_LIST --sub-heading ratio | grep ^Mean | sed -e 's/([0-9.% ]*)//g' | awk "{print \$2\" \"\$$OFFSET}" > $DIR/$TOPLEVEL/sysbench-ratio.plot
+	OFFSET=$((OFFSET+1))
 done

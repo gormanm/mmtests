@@ -1,19 +1,12 @@
 #!/usr/bin/perl -wn
 # Print out the max of a set of data read from standard in
 
-$x[$i++] = $_;
-$max=$x[0];
-END {
-	if (! defined $i) {
-		print "nan";
-		exit;
-	}
+use FindBin qw($Bin);
+use lib "$Bin/lib/";
+use VMR::Stat;
 
-	# Calculate mean
-	for ($j = 1; $j < $i; $j++) {
-		if ($x[$j] > $max) {
-			$max = $x[$j];
-		}
-	}
-	print $max;
+$x[$i++] = $_;
+END {
+	$i = 0;
+	print calc_max(@x);
 }

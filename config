@@ -28,6 +28,9 @@ export OPROFILE_REPORT_ANNOTATE=no
 if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
 	export PATH=$SCRIPTDIR/stat:$PATH
 fi
+if [ "`which extract-mmtests.pl 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/extract:$PATH
+fi
 if [ "`which record-extfrag 2> /dev/null`" = "" ]; then
 	export PATH=$SCRIPTDIR/fraganalysis:$PATH
 fi

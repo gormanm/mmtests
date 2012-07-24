@@ -2,56 +2,21 @@ echo
 gendirlist pagealloc
 printheader
 
-ORDERS=`ls pagealloc-$KERNEL_BASE/$TOPLEVEL/alloc-* | sed -e 's/.*\///' -e 's/alloc-//' -e 's/.log//' | sort -n`
-
-
-# Generate plot file stubs
 for DIR in $DIRLIST; do
 	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/pageallocfree-ORDER.plot"
 	TITLES="$TITLES `echo $DIR | sed -e 's/pagealloc-//'`"
-	for ORDER in $ORDERS; do
-		echo -n > $DIR/$TOPLEVEL/pageallocfree-$ORDER.plot
-		echo -n > $DIR/$TOPLEVEL/pageallocfree-$ORDER-batches.plot
-	done
+	echo -n > $DIR/$TOPLEVEL/pageallocfree-$ORDER-batches.plot
 done
+compare-mmtests.pl -d . -b pagealloc -n $KERNEL_LIST
 
-echo Page Alloc/Free Latency
-
-for OPER in alloc free; do
+# Plot data
+ORDERS=`ls pagealloc-$KERNEL_BASE/$TOPLEVEL/alloc-* | sed -e 's/.*\///' -e 's/alloc-//' -e 's/.log//' | sort -n`
 for ORDER in $ORDERS; do
-BATCHES=`awk '{print $1}' pagealloc-$KERNEL_BASE/$TOPLEVEL/alloc-$ORDER | uniq`
-for BATCH in $BATCHES; do
-	printf "%-15s" "Order $ORDER $OPER-$BATCH"
-	VANILLA=`grep "^$BATCH " pagealloc-$KERNEL_BASE/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | mean`
-
-	for DIR in $DIRLIST; do
-		RESULT=`grep "^$BATCH " $DIR/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | mean`
-		printf " %7.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
-	done
-	echo
-
-	printf "%-15s" "+/-"
-	for DIR in $DIRLIST; do
-		MEAN=`grep "^$BATCH " $DIR/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | mean`
-		STDDEV=`grep "^$BATCH " $DIR/$TOPLEVEL/$OPER-$ORDER | awk '{print $2}' | stddev`
-		printf " %7.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
-	done
-	echo
-done
-done
-done
-
-# Generate something for the plot
-for ORDER in $ORDERS; do
-BATCHES=`awk '{print $1}' pagealloc-$KERNEL_BASE/$TOPLEVEL/alloc-$ORDER | uniq`
+BATCHES=`awk '{print $1}' pagealloc-$KERNEL_BASE/$TOPLEVEL/alloc-0 | uniq`
 for BATCH in $BATCHES; do
 	for DIR in $DIRLIST; do
 		echo $BATCH >> $DIR/$TOPLEVEL/pageallocfree-$ORDER-batches.plot
-
-		ALLOC=`grep "^$BATCH " $DIR/$TOPLEVEL/alloc-$ORDER | awk '{print $2}' | mean`
-		FREE=`grep "^$BATCH " $DIR/$TOPLEVEL/free-$ORDER | awk '{print $2}' | mean`
-
-		echo $BATCH $ALLOC $FREE >> $DIR/$TOPLEVEL/pageallocfree-$ORDER.plot
+		extract-mmtests.pl -b pagealloc -d $DIR --print-plot --sub-heading order-$ORDER > $DIR/$TOPLEVEL/pageallocfree-$ORDER.plot &
 	done
 done
 done

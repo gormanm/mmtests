@@ -2,60 +2,14 @@ echo
 gendirlist pipetest
 printheader
 
-# Generate plot files
 for DIR in $DIRLIST; do
 	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/pipetest.plot"
 	TITLES="$TITLES `echo $DIR | sed -e 's/pipetest-//'`"
 done
+compare-mmtests.pl -d . -b pipetest -n $KERNEL_LIST
 
-echo PipeTest Latency
-for PROCESS in min mean stddev true-mean true-stddev max; do
-	printf "Latency %-11s" $PROCESS
-	VANILLA=`awk '{print $1}' pipetest-$KERNEL_BASE/$TOPLEVEL/pipetest.log | $PROCESS`
-
-	for DIR in $DIRLIST; do
-		RESULT=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | $PROCESS`
-		printf " %7.2f (%6.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
-	done
-	echo
-	if [ "$PROCESS" = "mean" ]; then
-		printf "%-19s" "+/-"
-		for DIR in $DIRLIST; do
-			MEAN=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | mean`
-			STDDEV=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | stddev`
-			printf " %7.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
-		done
-		echo
-	fi
-	if [ "$PROCESS" = "true-mean" ]; then
-		printf "%-17s" "+/-"
-		for DIR in $DIRLIST; do
-			MEAN=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | true-mean`
-			STDDEV=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | true-stddev`
-			printf " %7.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
-		done
-		echo
-	fi
-
-
-	# Generate something usable as a plot
-	OFFSET=0
-	INDEX=1
-	for DIR in $DIRLIST; do
-		MIN=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | min`
-		MAX=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | max`
-		MEAN=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | mean`
-		STDDEV=`awk '{print $1}' $DIR/$TOPLEVEL/pipetest.log | stddev`
-
-		LOW_STDDEV=`perl -e "print $MEAN-$STDDEV"`
-		HIGH_STDDEV=`perl -e "print $MEAN+$STDDEV"`
-
-		HIGH_STDDEV=`echo "$MAX
-$HIGH_STDDEV" | min`
-
-		LOW_STDDEV=`echo "$STDDEV
-$LOW_STDDEV" | max`
-		echo $(($INDEX+$OFFSET)) $LOW_STDDEV $MIN $MAX $HIGH_STDDEV $MEAN \# stddev=$STDDEV > $DIR/$TOPLEVEL/pipetest.plot
-		OFFSET=$(($OFFSET+1))
-	done
+# Generate something useful as a plot for throughput
+OFFSET=0
+for DIR in $DIRLIST; do
+	extract-mmtests.pl -b pipetest -d $DIR --print-plot > $DIR/$TOPLEVEL/pipetest.plot
 done

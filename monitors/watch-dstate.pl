@@ -228,7 +228,7 @@ while (<SELF>) {
 	}
 }
 foreach(@trace_functions) {
-	print $handle "probe kernel.function(\"$_\").call
+	print $handle "probe kprobe.function(\"$_\")
 { 
 	t=tid()
 	name[t]=execname()
@@ -244,7 +244,7 @@ if ($opt_accurate_stall) {
 	# the stack trace so we have the option of either accurately tracking stalls
 	# or accurately tracking stacks
 	foreach(@trace_functions) {
-		print $handle "probe kernel.function(\"$_\").return
+		print $handle "probe kprobe.function(\"$_\").return
 {
 	t=tid()
 
@@ -264,7 +264,7 @@ if ($opt_accurate_stall) {
 	# commonly used functions and guessing that when they are called
 	# that the operation completed
 	foreach(@completion_functions) {
-		print $handle "probe kernel.function(\"$_\")
+		print $handle "probe kprobe.function(\"$_\").return
 {
 	t=tid()
 

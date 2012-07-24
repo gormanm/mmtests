@@ -54,6 +54,7 @@ printVerbose("  o stddev    = $stddev\n");
 printVerbose("  o con $opt_confidence_level    = $conf\n");
 printVerbose("  o limit     = $limit\n");
 printVerbose("  o con delta = $conf_delta\n");
+printVerbose("Start\n");
 
 for ($sample = 0; $sample <= $nr_samples; $sample++) {
 
@@ -66,7 +67,7 @@ CONF_LOOP:
 		printVerbose("  o confidence delta $conf_delta outside $limit\n");
 		my $max_delta = -1;
 		my $max_index = -1;
-		for ($sample = 0; $sample < $nr_samples; $sample++) {
+		for ($sample = 0; $sample <= $nr_samples; $sample++) {
 			if (! defined $results[$sample]) {
 				next;
 			}

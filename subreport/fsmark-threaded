@@ -1,100 +1,20 @@
 echo
 echo FS-Mark Multi Threaded
 gendirlist fsmark-threaded
-printheader
 
 REPORT=fsmark-threaded-$KERNEL_BASE/$TOPLEVEL/fsmark.log
 
 for DIR in $DIRLIST; do
-	STARTLINE=`grep -n ^FSUse $DIR/$TOPLEVEL/fsmark.log | awk -F : '{print $1}'`
-	if [ "$STARTLINE" = "" ]; then
-		continue
-	fi
-	LENGTH=`cat $DIR/$TOPLEVEL/fsmark.log | wc -l`
-	tail -$(($LENGTH-$STARTLINE)) $DIR/$TOPLEVEL/fsmark.log | grep -v "No space left on device" | grep -v "Insufficient free space" | grep -v "File exists" | grep -v "fopen failed to open" > $DIR/$TOPLEVEL/fsmark-stripped.log
 	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/fsmark-threaded-FSMARKDATA.plot"
 	TITLES="$TITLES `echo $DIR | sed -e 's/fsmark-threaded-//'`"
 done
 
-if [ "$STARTLINE" != "" ]; then
-	# Files/sec
-	for PROCESS in min mean stddev max; do
-		printf "%-8s %-6s" Files/s $PROCESS
-		VANILLA=`awk '{print $4}' fsmark-threaded-$KERNEL_BASE/$TOPLEVEL/fsmark-stripped.log | $PROCESS`
-
-		COMP=pdiff
-		if [ "$PROCESS" = "stddev" ]; then
-			COMP=pndiff
-		fi
-
-		for DIR in $DIRLIST; do
-			RESULT=`awk '{print $4}' $DIR/$TOPLEVEL/fsmark-stripped.log | $PROCESS`
-			printf " %11.2f (%5.2f%%)" $RESULT `$COMP $RESULT $VANILLA`
-		done
-		echo
-
-		if [ "$PROCESS" = "mean" ]; then
-			printf "%-15s" "+/-"
-			for DIR in $DIRLIST; do
-				MEAN=`awk '{print $4}' $DIR/$TOPLEVEL/fsmark-stripped.log | mean`
-				STDDEV=`awk '{print $4}' $DIR/$TOPLEVEL/fsmark-stripped.log | stddev`
-				printf " %10.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
-			done
-			echo
-		fi
-	done
-	for PROCESS in min mean stddev max; do
-		printf "%-8s %-6s" Overhead $PROCESS
-		VANILLA=`awk '{print $5}' fsmark-threaded-$KERNEL_BASE/$TOPLEVEL/fsmark-stripped.log | $PROCESS`
-	
-		for DIR in $DIRLIST; do
-			RESULT=`awk '{print $5}' $DIR/$TOPLEVEL/fsmark-stripped.log | $PROCESS`
-			printf " %11.2f (%5.2f%%)" $RESULT `pndiff $RESULT $VANILLA`
-		done
-		echo
-
-		if [ "$PROCESS" = "mean" ]; then
-			printf "%-15s" "+/-"
-			for DIR in $DIRLIST; do
-				MEAN=`awk '{print $5}' $DIR/$TOPLEVEL/fsmark-stripped.log | mean`
-				STDDEV=`awk '{print $5}' $DIR/$TOPLEVEL/fsmark-stripped.log | stddev`
-				printf " %7.2f%%         " `perl -e "print ($STDDEV*100/$MEAN)"`
-			done
-			echo
-		fi
-	done
-fi
+compare-mmtests.pl -d . -b fsmark-threaded -n $KERNEL_LIST --sub-heading Files/sec
+compare-mmtests.pl -d . -b fsmark-threaded -n $KERNEL_LIST --sub-heading Overhead
 
 # Generate something useful as a plot
 INDEX=1
 for DIR in $DIRLIST; do
-	MIN=`awk '{print $4}' $DIR/$TOPLEVEL/fsmark-stripped.log | min`
-	MAX=`awk '{print $4}' $DIR/$TOPLEVEL/fsmark-stripped.log | max`
-	MEAN=`awk '{print $4}' $DIR/$TOPLEVEL/fsmark-stripped.log | mean`
-	STDDEV=`awk '{print $4}' $DIR/$TOPLEVEL/fsmark-stripped.log | stddev`
-
-	LOW_STDDEV=`perl -e "print $MEAN-$STDDEV"`
-	HIGH_STDDEV=`perl -e "print $MEAN+$STDDEV"`
-	HIGH_STDDEV=`echo "$MAX
-$HIGH_STDDEV" | min`
-	LOW_STDDEV=`echo "$STDDEV
-$LOW_STDDEV" | max`
-	echo $INDEX $LOW_STDDEV $MIN $MAX $HIGH_STDDEV $MEAN \# stddev=$STDDEV > $DIR/$TOPLEVEL/fsmark-threaded-files.plot
-	INDEX=$(($INDEX+1))
-done
-INDEX=1
-for DIR in $DIRLIST; do
-	MIN=`awk '{print $5}' $DIR/$TOPLEVEL/fsmark-stripped.log | min`
-	MAX=`awk '{print $5}' $DIR/$TOPLEVEL/fsmark-stripped.log | max`
-	MEAN=`awk '{print $5}' $DIR/$TOPLEVEL/fsmark-stripped.log | mean`
-	STDDEV=`awk '{print $5}' $DIR/$TOPLEVEL/fsmark-stripped.log | stddev`
-
-	LOW_STDDEV=`perl -e "print $MEAN-$STDDEV"`
-	HIGH_STDDEV=`perl -e "print $MEAN+$STDDEV"`
-	HIGH_STDDEV=`echo "$MAX
-$HIGH_STDDEV" | min`
-	LOW_STDDEV=`echo "$STDDEV
-$LOW_STDDEV" | max`
-	echo $INDEX $LOW_STDDEV $MIN $MAX $HIGH_STDDEV $MEAN \# stddev=$STDDEV > $DIR/$TOPLEVEL/fsmark-threaded-overhead.plot
-	INDEX=$(($INDEX+1))
+        extract-mmtests.pl -b fsmark-threaded -d $DIR --print-plot --sub-heading Files/sec > $DIR/$TOPLEVEL/fsmark-threaded-files.plot
+        extract-mmtests.pl -b fsmark-threaded -d $DIR --print-plot --sub-heading Overhead > $DIR/$TOPLEVEL/fsmark-threaded-overhead.plot
 done

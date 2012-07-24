@@ -1,46 +1,10 @@
 echo
 echo PAGE FAULT TEST
 gendirlist pft
-printheader
 
 PAGESIZE=base
-CLIENTS=`ls pft-$KERNEL_BASE/$TOPLEVEL/$PAGESIZE/pft-*.log | sed -e 's/.*\///' -e 's/pft-//' -e 's/.log//' | sort -n`
-
-# Example
-# MappingSize  Threads CacheLine   UserTime  SysTime WallTime flt/cpu/s fault/wsec
-
-for OPERATION in "UserTime" "SysTime" "WallTime" "Flt/sec/cpu" "Flt/sec"; do
-for CLIENT in $CLIENTS; do
-	case $OPERATION in
-	UserTime)
-		INDEX=4
-		COMP=pndiff
-		;;
-	SysTime)
-		INDEX=5
-		COMP=pndiff
-		;;
-	WallTime)
-		INDEX=6
-		COMP=pndiff
-		;;
-	Flt/sec/cpu)
-		INDEX=7
-		COMP=pdiff
-		;;
-	Flt/sec)
-		INDEX=8
-		COMP=pdiff
-		;;
-	esac
-
-	printf "%-7s %3d %-12s" Clients $CLIENT $OPERATION
-	VANILLA=`grep -v expected pft-$KERNEL_BASE/$TOPLEVEL/$PAGESIZE/pft-$CLIENT.log | grep -v ^Calculated | grep -v "user time" | awk "{print \\$$INDEX}" | sed -e 's/s//' | mean`
-
-	for DIR in $DIRLIST; do
-		RESULT=`grep -v expected $DIR/$TOPLEVEL/$PAGESIZE/pft-$CLIENT.log | grep -v ^Calculated | grep -v "user time" | awk "{print \\$$INDEX}" | sed -e 's/s//' | mean`
-		printf " %6.2f (%6.2f%%)" $RESULT `$COMP $RESULT $VANILLA`
-	done
-	echo
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/pft.plot"
+	TITLES="$TITLES `echo $DIR | sed -e 's/pft-//'`"
 done
-done
+compare-mmtests.pl -d . -b pft -n $KERNEL_LIST
