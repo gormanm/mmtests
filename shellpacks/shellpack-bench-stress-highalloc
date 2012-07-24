@@ -3,7 +3,7 @@
 P='stress-highalloc'
 . $SHELLPACK_INCLUDE/common.sh
 KERNEL_VERSION=2.6.30
-WEB_LOCATION=http://ftp.ie.kernel.org/pub/linux/kernel/v2.6/linux-$KERNEL_VERSION.tar.gz
+WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v2.6/linux-$KERNEL_VERSION.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$KERNEL_VERSION.tar.gz
 
 NUM_KERNELS=0
@@ -14,7 +14,7 @@ while [ $# -gt 0 ]; do
 		shift 2
 		;;
 	*)
-		echo Unrecognised \($1\) pass thru $@
+		echo Unrecognised, passing remainder through
 		break
 		;;
 	esac
@@ -52,3 +52,5 @@ rm -rf $SHELLPACK_TEMP
 exit $SHELLPACK_SUCCESS
 #### Description Stress test the allocation of huge pages
 #### Details stress-highalloc-bench 7
+#### Description Stress test the allocation of huge pages
+#### Details stress-highalloc-bench 9
