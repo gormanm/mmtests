@@ -178,6 +178,7 @@ function alloc_runtest() %{
 
 	/* Print header */
 	_stp_printf("Order:                 %lu\n", order);
+	_stp_printf("GFP flags:             0x%lX\n", PARAM_GFPFLAGS);
 	_stp_printf("Allocation type:       %s\n", (PARAM_GFPFLAGS & __GFP_HIGHMEM) ? "HighMem" : "Normal");
 	_stp_printf("Attempted allocations: %lu\n", numpages);
 	_stp_printf("Success allocs:        %lu\n", success);
