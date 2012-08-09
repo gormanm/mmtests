@@ -1,0 +1,33 @@
+echo
+echo HIGHALLOC
+gendirlist highalloc
+printheader
+
+for DIR in $DIRLIST; do
+        INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/log.txt"
+        TITLES="$TITLES `echo $DIR | sed -e 's/stress-highalloc-//'`"
+	extract-mmtests.pl -b highalloc -d $DIR --print-summary > $TMPDIR/highalloc-$$-$DIR
+done
+
+for WORKLOAD in `awk '{print $1}' $TMPDIR/highalloc-$$-highalloc-$KERNEL_BASE`; do
+	COLUMN=2
+	echo $WORKLOAD
+	for HEADER in "Iterations" "min" "mean" "stddev" "max"; do
+		printf "%-12s" "$HEADER"
+		VANILLA=`grep "^$WORKLOAD " $TMPDIR/highalloc-$$-highalloc-$KERNEL_BASE | awk "{print \\$$COLUMN}"`
+		for DIR in $DIRLIST; do
+			RESULT=`grep "^$WORKLOAD " $TMPDIR/highalloc-$$-$DIR | awk "{print \\$$COLUMN}"`
+			if [ "$HEADER" = "Iterations" ]; then
+				printf " %8d (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+			else
+				printf " %8.2f (%6.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
+			fi
+		done
+		echo
+
+		COLUMN=$((COLUMN+1))
+	done
+	echo
+done
+
+rm $TMPDIR/highalloc-$$-*
