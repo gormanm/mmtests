@@ -5,16 +5,6 @@ NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
 export MMTESTS="kernbench reaim postmark vmr-aim9 vmr-stream vmr-cacheeffects vmr-createdelete iozone fsmark-single hackbench-sockets hackbench-pipes netperf-tcp netperf-udp sysbench simple-writeback ltp micro specjvm nas-ser nas-omp rsyncresidency specomp speccpu stress-highalloc stress-blktrace lmbench"
-export PROFILE_PATH=$SCRIPTDIR
-export SHELLPACK_TOPLEVEL=$SCRIPTDIR
-export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
-export SHELLPACK_TEST_MOUNT=$SCRIPTDIR/work/testdisk
-export SHELLPACK_SOURCES=$SHELLPACK_TEST_MOUNT/sources
-export SHELLPACK_TEMP=$SHELLPACK_TEST_MOUNT/tmp/$$
-export SHELLPACK_INCLUDE=$SCRIPTDIR/shellpacks
-export SHELLPACK_LOG=$SCRIPTDIR/work/log
-export LINUX_GIT=/home/mel/git-public/linux-2.6
-export WEBROOT=http://mcp/~gormanm
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -26,7 +16,7 @@ export OPROFILE_REPORT_CALLGRAPH=
 
 # Fixups
 if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
-	export PATH=$SCRIPTDIR/stat:$PATH
+	export PATH=$SCRIPTDIR/bin:$PATH
 fi
 if [ "`which record-extfrag 2> /dev/null`" = "" ]; then
 	export PATH=$SCRIPTDIR/fraganalysis:$PATH

@@ -2,6 +2,8 @@
 
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
+. $SCRIPTDIR/shellpacks/common.sh
+. $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/config
 
 KERNEL_BASE="2.6.38-mainline"

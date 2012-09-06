@@ -1,11 +1,7 @@
 #!/bin/bash
-
-function die() {
-        echo "FATAL: $@"
-        exit -1
-}
-
 CONFIG=config
+DIRNAME=`dirname $0`
+export SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # Parse command-line arguments
 ARGS=`getopt -o mn --long run-monitor,no-monitor -n run-mmtests -- "$@"`
@@ -13,11 +9,11 @@ eval set -- "$ARGS"
 while true; do
 	case "$1" in
 		-m|--run-monitor)
-			export RUN_MONITOR=yes
+			export FORCE_RUN_MONITOR=yes
 			shift
 			;;
 		-n|--no-monitor)
-			export RUN_MONITOR=no
+			export FORCE_RUN_MONITOR=no
 			shift
 			;;
 		-c|--config)
@@ -25,80 +21,62 @@ while true; do
 			shift 2
 			;;
 		*)
-			export RUNNAME=$1
 			break
 			;;
 	esac
 done
 
+# Take the unparsed option as the parameter
+shift
+RUNNAME=$1
+
+# Import config
 if [ ! -e $CONFIG ]; then
 	echo "A config must be in the current directory or specified with --config"
 	exit -1
 fi
-
-# Import config
+. $SCRIPTDIR/shellpacks/common.sh
+. $SCRIPTDIR/shellpacks/common-config.sh
 . $CONFIG
-. $SHELLPACK_INCLUDE/common.sh
 cd $SHELLPACK_TOPLEVEL
-for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG; do
+for TEST in $MMTESTS; do
+	rm -rf $SHELLPACK_LOG/$TEST
+done
+for DIRNAME in $SHELLPACK_SOURCES $SHELLPACK_LOG; do
 	if [ ! -e "$DIRNAME" ]; then
 		mkdir -p "$DIRNAME"
 	fi
 done
-for TEST in $MMTESTS; do
-	rm -rf $SHELLPACK_LOG/$TEST
-done
-
-# Take the default parameter as the run name
-shift
-if [ "$1" != "" ]; then
-	RUNNAME=$1
+if [ "$FORCE_RUN_MONITOR" != "" ]; then
+	RUN_MONITOR=$FORCE_RUN_MONITOR
 fi
 
 if [ "$RUN_MONITOR" = "no" ]; then
+	# Disable monitor
 	unset MONITORS_PLAIN
 	unset MONITORS_GZIP
 	unset MONITORS_WITH_LATENCY
 else
+	# Check at least one monitor is enabled
 	if [ "$MONITORS_ALWAYS" = "" -a "$MONITORS_PLAIN" = "" -a "$MONITORS_GZIP" = "" -a "$MONITORS_WITH_LATENCY" = "" ]; then
 		echo Monitors enabled but none configured
-		exit
+		exit $SHELLPACK_ERROR
 	fi
-fi
 
-EXPECT_UNBUFFER=expect_unbuffer
-if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
-	EXPECT_UNBUFFER=unbuffer
-fi
-
-mkdir -p $SHELLPACK_LOG
-mkdir -p $SHELLPACK_TEMP
-mkdir -p $SHELLPACK_SOURCES
-
-# Install libhugetlbfs if necessary
-if [ "`which hugeadm 2> /dev/null`" = "" ]; then
-	./shellpacks/shellpack-install-libhugetlbfsbuild -v 2.9
-	export PATH=$SHELLPACK_SOURCES/libhugetlbfs-2.9-installed/bin:$PATH
-	export PERL5LIB=$SHELLPACK_SOURCES/libhugetlbfs-2.9-installed/lib/perl5
-	if [ "`which hugeadm`" = "" ]; then
-		die Profiling requested but unable to provide
+	# Check that expect_unbuffer is installed
+	EXPECT_UNBUFFER=expect_unbuffer
+	if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
+		EXPECT_UNBUFFER=unbuffer
+		if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
+			echo Monitoring enabled but expect_unbuffer is not installed.
+			echo Install the expect-devel package or equivalent
+			exit $SHELLPACK_ERROR
+		fi
 	fi
-	cd $SHELLPACK_SOURCES/libhugetlbfs-2.9
-	make install-stat
-	cd -
-fi
-
-# Move oprofile helpers to right place (hack)
-if [ ! -e /usr/lib/perl5/5.*/TLBC ]; then
-	cp -r /usr/lib/perl5/TLBC /usr/lib/perl5/5.*/
 fi
 
 # Configure system parameters
 echo Tuning the system for run: $RUNNAME monitor: $RUN_MONITOR
-#hugeadm --create-global-mounts || exit
-#hugeadm --pool-pages-max DEFAULT:8G || exit
-#hugeadm --set-recommended-min_free_kbytes || exit
-#hugeadm --set-recommended-shmmax || exit
 if [ "$VM_DIRTY_RATIO" != "" ]; then
 	sysctl -w vm.dirty_ratio=$VM_DIRTY_RATIO
 fi
@@ -356,14 +334,6 @@ fi
 # place
 export EXPANDED_VMLINUX=no
 if [ "$SKIP_FINEPROFILE" = "no" -o "$SKIP_COARSEPROFILE" = "no" ]; then
-	if [ "`which oprofile_start.sh`" = "" ]; then
-		./shellpacks/shellpack-install-libhugetlbfsbuild -v 2.9
-		export PATH=$SHELLPACK_SOURCES/libhugetlbfs-2.9-installed/bin:$PATH
-		if [ "`which oprofile_start.sh`" = "" ]; then
-			die Profiling requested but unable to provide
-		fi
-	fi
-
 	VMLINUX=/boot/vmlinux-`uname -r`
 	if [ ! -e $VMLINUX -a -e $VMLINUX.gz ]; then
 		echo Expanding vmlinux.gz file
@@ -386,8 +356,8 @@ if [ "$RUN_MONITOR" = "yes" ]; then
 fi
 
 # Disable any inadvertent profiling going on right now
-#oprofile --stop > /dev/null 2> /dev/null
-#opcontrol --deinit > /dev/null 2> /dev/null
+oprofile --stop > /dev/null 2> /dev/null
+opcontrol --deinit > /dev/null 2> /dev/null
 
 # Warm up. More appropriate warmup depends on the exact test
 if [ "$SKIP_WARMUP" != "yes" ]; then
@@ -530,7 +500,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		rm $SHELLPACK_LOG/timestamp-$RUNNAME
 
 		# Reset some parameters in case tests are sloppy
-		hugeadm --pool-pages-min DEFAULT:0
+		hugeadm --pool-pages-min DEFAULT:0 2> /dev/null
 		opcontrol --stop   > /dev/null 2> /dev/null
 		opcontrol --deinit > /dev/null 2> /dev/null
 

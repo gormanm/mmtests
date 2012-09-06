@@ -1,10 +1,11 @@
 #!/bin/bash
 DIRNAME=`dirname $0`
-SCRIPTDIR=`cd "$DIRNAME" && pwd`
+export SCRIPTDIR=`cd "$DIRNAME" && pwd`
 FAILED=no
 P="run-single-test"
+. $SCRIPTDIR/shellpacks/common.sh
+. $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/config
-. $SHELLPACK_INCLUDE/common.sh
 
 function die() {
         echo "FATAL: $@"

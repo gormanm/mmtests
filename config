@@ -4,18 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="hackbench-pipes hackbench-sockets pipetest starve lmbench"
-
-export PROFILE_PATH=$SCRIPTDIR
-export SHELLPACK_TOPLEVEL=$SCRIPTDIR
-export SHELLPACK_STAP=$SHELLPACK_TOPLEVEL/stap-scripts
-export SHELLPACK_TEST_MOUNT=$SCRIPTDIR/work/testdisk
-export SHELLPACK_SOURCES=$SHELLPACK_TEST_MOUNT/sources
-export SHELLPACK_TEMP=$SHELLPACK_TEST_MOUNT/tmp/$$
-export SHELLPACK_INCLUDE=$SCRIPTDIR/shellpacks
-export SHELLPACK_LOG=$SCRIPTDIR/work/log
-export LINUX_GIT=/home/mel/git-public/linux-2.6
-export WEBROOT=http://mcp/~gormanm
+export MMTESTS="pft"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -26,10 +15,7 @@ export OPROFILE_REPORT_ANNOTATE=no
 
 # Fixups
 if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
-	export PATH=$SCRIPTDIR/stat:$PATH
-fi
-if [ "`which extract-mmtests.pl 2> /dev/null`" = "" ]; then
-	export PATH=$SCRIPTDIR/extract:$PATH
+	export PATH=$SCRIPTDIR/bin:$PATH
 fi
 if [ "`which record-extfrag 2> /dev/null`" = "" ]; then
 	export PATH=$SCRIPTDIR/fraganalysis:$PATH
@@ -78,174 +64,22 @@ export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# FS-Mark
-export FSMARK_THREADS_PER_CPU=1
-export FSMARK_FILESIZE=0
-export FSMARK_NR_DIRECTORIES=225
-export FSMARK_NR_FILES_PER_DIRECTORY=22500
-export FSMARK_NR_FILES_PER_ITERATION=50000
-export FSMARK_ITERATIONS=35
-
 # HackBench
-export HACKBENCH_GROUPS=1,4,8,13,16,20,27,40,72,104,168,266,360,464,512
+export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
 
-# IOzone
-export IOZONE_SIZE=--fastest
+# Page allocator microbench
+export PAGEALLOC_GFPFLAGS=GFP_KERNEL
+export PAGEALLOC_ORDER_MIN=0
+export PAGEALLOC_ORDER_MAX=4
 
-# Large copy and untar
-export LARGECOPY_SRCTAR=http://mcp/~gormanm/large-tar-file-1.tar.bz2
-#export LARGECOPY_SRCTAR_EXTRA=http://mcp/~gormanm/large-tar-file-2.tar.bz2
-export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
-export LARGECOPY_THREADS=1
-
-# LMBench
-export LMBENCH_TESTS=lat_ctx
-export LMBENCH_LATMMAP_ITERATIONS=500
-export LMBENCH_LATMMAP_FILESIZE=$((256*1048576))
-export LMBENCH_LATCTX_SIZE=0
-export LMBENCH_LATCTX_MAXCLIENTS=$((NUM_CPU*32))
-
-# LTP
-export LTP_RUN_TESTS="controllers"
-
-# LTP Pounder
-export LTP_POUNDER_RUNTIME=$((3600*7))
-#export LTP_POUNDER_NFS_LOGDIR=/exports/pounder
-#export LTP_POUNDER_NFS_LOGSERVER=10.0.0.7
-export LTP_POUNDER_NFS_LOGGING=0
-export LTP_POUNDER_DO_X_TESTS=0
-
-# Memslap
-export MEMSLAP_CONCURRENCY=1
-export MEMSLAP_ITERATIONS=4
-export MEMSLAP_DURATION=30
-export MEMCACHED_MEMPOOL=$((MEMTOTAL_BYTES*4/5))
-
-# Memcache Test
-export MEMCACHETEST_CONCURRENCY=1
-export MEMCACHETEST_DURATION=120
-export MEMCACHETEST_VALUE_SIZE=16384
-export MEMCACHED_MEMPOOL=$((MEMTOTAL_BYTES*4/5))
-
-# Micro benchmarks
-export MICRO_TESTLIST=vmscan-file-mmap-write
-export MICRO_MAPPED_FILE_STREAM_FORCESIZE=
-export MICRO_VMSCAN_DEVICE_COPY=/dev/sda1
-export MICRO_VMSCAN_DEVICE_COPY_LIMIT_MB=8192
-export MICRO_VMSCAN_ANON_MMAP_OPS_SIZE=$((3 * MEMTOTAL_BYTES / 2))
-export MICRO_VMSCAN_ANON_MMAP_OPS_ITER=5
-export MICRO_VMSCAN_ANON_MMAP_NUM_THREADS=$NUM_CPU
-export MICRO_VMSCAN_FILE_MMAP_OPS_SIZE=$((10 * MEMTOTAL_BYTES))
-export MICRO_VMSCAN_FILE_MMAP_NUM_THREADS=$NUM_CPU
-export MICRO_VMSCAN_MIXED_MMAPREAD_SIZE=$(($MEMTOTAL_BYTES*3))
-export MICRO_VMSCAN_MIXED_MMAPREAD_ITER=5
-export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=30
-export MICRO_VMSCAN_MIXED_MMAP_NUM_THREADS=$NUM_CPU
-
-# MultiBuild
-export MULTIBUILD_NUM_SIMULTANEOUS=$((MEMTOTAL_BYTES/450/1048576))
-export MULTIBUILD_NUM_THREADS=1
-export MULTIBUILD_NUM_COPIES=$((MULTIBUILD_NUM_SIMULTANEOUS*5))
-
-# NAS Parallel Benchmark
-export NAS_CLASS=C
-export NAS_PAGESIZES="base huge-heap huge-all"
-
-# NetPerf
-export NETPERF_BUFFER_SIZES=64,1024,3312,4096,8192,16384
-
-# Parallel IO
-export PARALLELIO_TARGETLOAD_SIZE=$MEMCACHED_MEMPOOL
-export PARALLELIO_WORKLOADS="memcachetest"
-export PARALLELIO_IOLOAD="dd"
-export PARALLELIO_MAX_IOSIZE=$PARALLELIO_TARGETLOAD_SIZE
-export PARALLELIO_INCREMENTS=10
-
-# PipeTest
-export PIPETEST_ITERATIONS=30
-
-# PostMark
-export POSTMARK_TRANSACTIONS=30000
-export POSTMARK_MIN_SIZE=5120
-export POSTMARK_MAX_SIZE=524288
-export POSTMARK_SUBDIRECTORIES=100
-export POSTMARK_SIMULTANEOUS_FILES=5000
-export POSTMARK_BACKGROUND_MMAP=no
-
-# Re-aim
-export REAIM_FILESIZE=10k
-export REAIM_POOLSIZE=1m
-export REAIM_STARTUSERS=$NUM_CPU
-export REAIM_ENDUSERS=$((NUM_CPU*4))
-export REAIM_INCREMENT=$((NUM_CPU/2))
-export REAIM_JOBS_PER_USER=100
-export REAIM_ITERATIONS=3
-export REAIM_WORKFILE=workfile.fserver
-export REAIM_QUICK=no
-
-# Rsync residenty delay
-export RSYNC_RESIDENCY_SOURCE=root@mcp:/var/www/rsyncsource
-export RSYNC_RESIDENCY_DESTINATION=$SHELLPACK_TEMP
-export RSYNC_RESIDENCY_MAPPING_SIZE=$((MEMTOTAL_BYTES*6/10))
-
-# Simple Writeback (parallel dd writer)
-# NR_JOBS = NR_CPUS * CPU_FACTOR
-export SIMPLE_WRITEBACK_FILESIZE=$((MEMTOTAL_BYTES*4))
-export SIMPLE_WRITEBACK_MIN_CPU_FACTOR=1
-export SIMPLE_WRITEBACK_MAX_CPU_FACTOR=64
-export SIMPLE_WRITEBACK_BS=1048576
-export SIMPLE_WRITEBACK_CONV=
-
-# SPECcpu
-export SPECCPU_LICENSE_ACCEPTED=no
-export SPECCPU_DEFAULT_SIZE=ref
-export SPECCPU_DEFAULT_ITER=3
-export SPECCPU_PAGESIZES="base huge-heap huge-all"
-
-# SPECjvm
-export SPECJVM_JRE=/opt/IBMJava/jre/bin
-export SPECJVM_DEFAULT_ITERATION_TIME=300
-export SPECJVM_DEFAULT_WARMUP_TIME=120
-export SPECJVM_DEFAULT_TERATIONS=1
-export SPECJVM_MAXHEAP=-Xmx756m
-export SPECJVM_PAGESIZES="base huge"
-export SPECJVM_HUGESWITCH=-Xlp
-if [[ `uname -m` =~ i.86 ]]; then
-	# Sun JRE which works better on x86 uses this switch
-	export SPECJVM_HUGESWITCH=-XX:+UseLargePages
-fi
-
-# SPEComp
-export SPECOMP_LICENSE_ACCEPTED=no
-export SPECOMP_DEFAULT_SIZE=ref
-export SPECOMP_DEFAULT_ITER=3
-export SPECOMP_PAGESIZES="base huge-heap huge-all"
-
-# SysBench
-export OLTP_TESTTYPE=complex
-export OLTP_READONLY=--read-only
-export OLTP_SIZE=--faster
-export OLTP_CONFIDENCE=
-export OLTP_PAGESIZES="default"
-if [[ `uname -m` =~ i.86 ]]; then
-        export OLTP_SHAREDBUFFERS=$((1048576*512))
-else
-        export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
-fi
-export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
-#export OLTP_PAGESIZES="base huge dynhuge"
-#export OLTP_MAX_THREADS="--max-threads N"
+# Page Fault Test (PFT)
+export PFT_ITERATIONS=20
+export PFT_MAPPING_SIZE=$((MEMTOTAL_BYTES/5))
+export PFT_MAX_CLIENTS=$NUM_CPU
+export PFT_USE_PROCESSES=yes
+export PFT_PAGESIZES=base
 
 # STREAM
 export STREAM_BACKING_TYPE=static
 export STREAM_PAGESIZES="default"
 #export STREAM_PAGESIZES="base huge dynhuge"
-
-# Stress blktrace
-export STRESS_BLKTRACE_DURATION=300
-export STRESS_BLKTRACE_FILESIZE=$((MEMTOTAL_BYTES))
-export STRESS_BLKTRACE_THREADS=1
-
-# Stress High-Alloc
-export HIGHALLOC_ALLOC_RATE=16
-export HIGHALLOC_PERCENTAGE=95

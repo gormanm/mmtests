@@ -53,12 +53,6 @@ important points of variability are;
 
 MMTESTS is a list of what tests will be run
 
-WEBROOT is the location where a number of tarballs are mirrored. For example,
-	kernbench tries to download
-	$WEBROOT/kernbench/linux-2.6.30.tar.gz . If this is not available,
-	it is downloaded from the internet. This can add delays in testing
-	and consumes bandwidth so is worth configuring.
-
 LINUX_GIT is the location of a git repo of the kernel. At the moment it's only
 	used during report generation
 
@@ -90,6 +84,13 @@ TESTDISK_MKFS_PARAM
 TESTDISK_MOUNT_ARGS
 	The filesystem, mkfs parameters and mount arguments for the test
 	partitions
+
+As MMTests downloads a number of benchmarks it is possible to create
+a local mirror. The location of the mirror is configured in WEBROOT in
+shellpacks/common-config.sh.  For example, kernbench tries to download
+$WEBROOT/kernbench/linux-2.6.30.tar.gz . If this is not available, it is
+downloaded from the internet. This can add delays in testing and consumes
+bandwidth so is worth configuring.
 
 Available tests
 ===============
@@ -299,5 +300,3 @@ TODO
 
 o Add option to test on filesystem loopback device stored on tmpfs
 o Add volanomark
-o Create config-* set suitable for testing scheduler to isolate situations
-  where the scheduler was the main cause of a regression

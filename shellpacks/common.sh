@@ -1,7 +1,11 @@
 export SHELLPACK_ERROR=-1
 export SHELLPACK_SUCCESS=0
+if [ "$SCRIPTDIR" = "" ]; then
+	echo $P: SCRIPTDIR not set, should not happen
+	exit $SHELLPACK_ERROR
+fi
 
-if [ "`which check-confidence.pl`" = "" ]; then
+if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
 	export PATH=$SCRIPTDIR/stat:$PATH
 fi
 
