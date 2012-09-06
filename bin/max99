@@ -1,0 +1,13 @@
+#!/usr/bin/perl -wn
+# Print out the quartiles of data read from standard in
+
+use FindBin qw($Bin);
+use lib "$Bin/lib/";
+use VMR::Stat;
+
+$x[$i++] = $_;
+END {
+	$i = 0;
+	$quartiles = calc_quartiles(@x);
+	print "$$quartiles[99]";
+}

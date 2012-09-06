@@ -23,11 +23,11 @@ if [ "$NAME" = "" ]; then
 	echo Specify a test to run
 	exit -1
 fi
-if [ ! -e driver-$NAME.sh ]; then
+if [ ! -e $SCRIPTDIR/drivers/driver-$NAME.sh ]; then
 	echo A driver script called driver-$NAME.sh does not exist
 fi
 shift
-. driver-$NAME.sh
+. $SCRIPTDIR/drivers/driver-$NAME.sh
 
 # Logging parameters
 export LOGDIR_TOPLEVEL=$SHELLPACK_LOG/$NAME$NAMEEXTRA

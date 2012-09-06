@@ -39,7 +39,7 @@ should be located, grep for MIRROR_LOCATION= in shellpacks/.
 A basic invocation of the suite is
 
 <pre>
-$ cp config-global-dhp__pagealloc-performance config
+$ cp configs/config-global-dhp__pagealloc-performance config
 $ ./run-mmtests.sh --no-monitor 3.0-nomonitor
 $ ./run-mmtests.sh --run-monitor 3.0-runmonitor
 </pre>

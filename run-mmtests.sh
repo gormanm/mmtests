@@ -1,21 +1,11 @@
 #!/bin/bash
-. config
-. $SHELLPACK_INCLUDE/common.sh
 
 function die() {
         echo "FATAL: $@"
         exit -1
 }
 
-for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG; do
-	if [ ! -e "$DIRNAME" ]; then
-		mkdir -p "$DIRNAME"
-	fi
-done
-
-for TEST in $MMTESTS; do
-	rm -rf $SHELLPACK_LOG/$TEST
-done
+CONFIG=config
 
 # Parse command-line arguments
 ARGS=`getopt -o mn --long run-monitor,no-monitor -n run-mmtests -- "$@"`
@@ -30,11 +20,33 @@ while true; do
 			export RUN_MONITOR=no
 			shift
 			;;
+		-c|--config)
+			export CONFIG=$2
+			shift 2
+			;;
 		*)
 			export RUNNAME=$1
 			break
 			;;
 	esac
+done
+
+if [ ! -e $CONFIG ]; then
+	echo "A config must be in the current directory or specified with --config"
+	exit -1
+fi
+
+# Import config
+. $CONFIG
+. $SHELLPACK_INCLUDE/common.sh
+cd $SHELLPACK_TOPLEVEL
+for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG; do
+	if [ ! -e "$DIRNAME" ]; then
+		mkdir -p "$DIRNAME"
+	fi
+done
+for TEST in $MMTESTS; do
+	rm -rf $SHELLPACK_LOG/$TEST
 done
 
 # Take the default parameter as the run name
