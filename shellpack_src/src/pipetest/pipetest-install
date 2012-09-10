@@ -1,0 +1,20 @@
+#!/bin/bash
+###SHELLPACK preamble pipetest-install 0
+WEB_LOCATION="http://people.redhat.com/mingo/cfs-scheduler/tools/pipe-test.c"
+MIRROR_LOCATION="$WEBROOT/pipetest/pipe-test.c"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf pipetest-${VERSION}-installed
+mkdir -p pipetest-${VERSION}-installed
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/pipetest-${VERSION}-installed/pipe-test.c
+cd $SHELLPACK_SOURCES/pipetest-${VERSION}-installed
+gcc -O2 pipe-test.c -o pipe-test
+if [ $? -ne 0 ]; then
+	die "$P: Failed to build pipetest"
+fi
+
+exit $SHELLPACK_SUCCESS

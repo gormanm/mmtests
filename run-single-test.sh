@@ -46,19 +46,6 @@ if [ "$SKIP_FINEPROFILE" != "yes" ]; then
 	fi
 fi
 
-# Check should be unecessary because of run-mmtests but conceivably someone
-# would run this script directly so ....
-if [ "$SKIP_FINEPROFILE" = "no" -o "$SKIP_COARSEPROFILE" = "no" ]; then
-	if [ "`which oprofile_start.sh`" = "" ]; then
-		$SHELLPACK_TOPLEVEL/shellpacks/shellpack-install-libhugetlbfsbuild -v 2.9
-		export PATH=$SHELLPACK_SOURCES/libhugetlbfs-2.9-installed/bin:$PATH
-		if [ "`which oprofile_start.sh`" = "" ]; then
-			echo ERROR: Profiling requested but unable to provide
-			echo -1
-		fi
-	fi
-fi
-
 function setup_dirs() {
 	for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG; do
 		if [ ! -e "$DIRNAME" ]; then

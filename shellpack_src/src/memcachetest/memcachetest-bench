@@ -1,0 +1,46 @@
+#!/bin/bash
+# This script whatevers memcachetest
+###SHELLPACK preamble memcachetest-bench 1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --threads           MEMCACHETEST_CONCURRENCY
+###SHELLPACK parseargParam --duration          MEMCACHETEST_DURATION
+###SHELLPACK parseargParam --memcached-mempool MEMCACHED_MEMPOOL
+###SHELLPACK parseargParam --value-size        MEMCACHED_VALUE_SIZE
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required memcachetest-${VERSION}
+
+if [ "$MEMCACHED_MEMPOOL" = "" ]; then
+	die Must specify memcached memory pool size
+fi
+
+# Start memcached server
+$SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
+if [ $? -ne 0 ]; then
+	die Failed to start memcached server
+fi
+
+# Fire this sucker up
+cd $SHELLPACK_SOURCES/memcachetest-${VERSION}-installed || die Failed to cd to memcachetest directory
+MEMCACHETEST_ITEMS=$(($MEMCACHED_MEMPOOL/($MEMCACHETEST_VALUE_SIZE+4096)))
+
+echo Starting memcachetest client $MEMCACHETEST_CONCURRENCY
+echo o $MEMCACHED_MEMPOOL memcached pool
+echo o $MEMCACHETEST_CONCURRENCY concurrent requests
+echo o $MEMCACHETEST_VALUE_SIZE value size
+echo o $MEMCACHETEST_DURATION second duration
+echo o $MEMCACHETEST_ITEMS items per iteration
+
+./bin/memcachetest \
+	-h 127.0.0.1 \
+	-t $MEMCACHETEST_CONCURRENCY \
+	-F -M $MEMCACHETEST_VALUE_SIZE \
+	-i $MEMCACHETEST_ITEMS \
+	-T $MEMCACHETEST_DURATION -l \
+		    | tee $LOGDIR_RESULTS/memcachetest.log
+
+$SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
+
+exit $SHELLPACK_SUCCESS

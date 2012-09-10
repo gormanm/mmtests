@@ -1,18 +1,32 @@
 #!/bin/bash
-
-P='pipetest-install'
+P=pipetest-install
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
 WEB_LOCATION="http://people.redhat.com/mingo/cfs-scheduler/tools/pipe-test.c"
 MIRROR_LOCATION="$WEBROOT/pipetest/pipe-test.c"
 
-. $SHELLPACK_INCLUDE/common.sh
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
 cd $SHELLPACK_SOURCES || die Sources directory does not exist
-rm -rf pipetest
-mkdir -p pipetest
+rm -rf pipetest-${VERSION}-installed
+mkdir -p pipetest-${VERSION}-installed
 
-sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/pipetest/pipe-test.c
-cd $SHELLPACK_SOURCES/pipetest
-
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/pipetest-${VERSION}-installed/pipe-test.c
+cd $SHELLPACK_SOURCES/pipetest-${VERSION}-installed
 gcc -O2 pipe-test.c -o pipe-test
 if [ $? -ne 0 ]; then
 	die "$P: Failed to build pipetest"
@@ -20,4 +34,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description Run the pipe-test benchmark
-#### Details pipetest 11
+#### Details pipetest 12

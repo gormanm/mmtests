@@ -1,0 +1,255 @@
+#!/bin/bash
+# This script installs postgres and leaves it ready for benchmarking
+###SHELLPACK preamble postgres-install 9.0.4
+
+LIBHUGETLBFS_VERSION=2.9
+POSTGRES_USER=nobody
+POSTGRES_GROUP=nogroup
+USE_LARGE_PAGES=no
+EFFECTIVE_CACHESIZE=$((756*1048576))
+SHARED_BUFFERS=$((32*1048576))
+WORK_MEM=$((64*1048576))
+
+NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --postgres-user POSTGRES_USER
+###SHELLPACK parseargParam --effective_cachesize EFFECTIVE_CACHESIZE
+###SHELLPACK parseargParam --shared_buffers      SHARED_BUFFERS
+###SHELLPACK parseargParam --work_mem            WORK_MEM
+###SHELLPACK parseargYes --use-large-pages USE_LARGE_PAGES
+###SHELLPACK parseargYes --force-build     FORCE_BUILD
+###SHELLPACK parseargYes --shutdown        SHUTDOWN
+###SHELLPACK parseargEnd
+
+WEB_LOCATION=http://ftp.ie.postgresql.org/mirrors/ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz
+MIRROR_LOCATION="$WEBROOT/postgres/postgresql-${VERSION}.tar.gz"
+
+# Only updates the first occurance of the parameter
+update_entry_cnf() {
+	PARAMETER=$1
+	VALUE=$2
+	CONF=$SHELLPACK_SOURCES/postgres-${VERSION}-installed/data/postgresql.conf
+
+	LINE=`grep -n "^$PARAMETER" $CONF | cut -d: -f1 | head -1`
+	if [ "$LINE" = "" ]; then
+		LINE=`grep -n "^#$PARAMETER" $CONF | cut -d: -f1 | head -1`
+		if [ "$LINE" = "" ]; then
+			die Failed to locate parameter $PARAMETER
+		fi
+	fi
+	LINEC=`wc -l $CONF | awk '{print $1}'`
+	head -$(($LINE-1)) $CONF > $CONF.tmp
+	echo $PARAMETER = $VALUE >> $CONF.tmp
+	tail -$(($LINEC-$LINE)) $CONF >> $CONF.tmp
+
+	mv $CONF.tmp $CONF
+}
+
+if [ ! -e $SHELLPACK_SOURCES/postgres-${VERSION}-installed ]; then
+	sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/postgres-$VERSION.tar.gz
+
+	cd $SHELLPACK_SOURCES
+	tar xf postgres-$VERSION.tar.gz
+	cd postgresql-${VERSION}
+	if [ ! -e /usr/lib/libncurses.so ]; then
+		ln -s /usr/lib/libncurses.so.5 /usr/lib/libncurses.so
+	fi
+	./configure \
+		CFLAGS="-O2 -pipe" \
+		--prefix=$SHELLPACK_SOURCES/postgres-$VERSION-installed \
+		--enable-thread-safety \
+		--without-krb5 \
+		--without-readline \
+		--enable-assembler \
+		|| die Failed to configure
+
+	###SHELLPACK make_make_install
+	touch $SHELLPACK_SOURCES/postgres-${VERSION}-installed/unconfigured
+fi
+
+cd $SHELLPACK_SOURCES/postgres-${VERSION}-installed || die Failed to cd
+
+# Configure main parameters just once
+PSQL="su -s /bin/bash $POSTGRES_USER -c"
+POSTGRES_DATADIR=$SHELLPACK_SOURCES/postgres-${VERSION}-installed/data
+if [ -e unconfigured ]; then
+	echo Configuring postgres
+	chown -R $POSTGRES_USER .
+
+	$PSQL "bin/initdb -D $POSTGRES_DATADIR" || die Failed to init DB
+
+	# Update the max connection count if necessary
+	if [ $NUMCPUS -gt 24 ]; then
+		echo o Setting max_connections: $(($NUMCPUS*6))
+		update_entry_cnf max_connections $(($NUMCPUS*6))
+	fi
+
+	# This option just wastes time
+	update_entry_cnf update_process_title off
+
+	rm unconfigured
+fi
+
+RUNNING=no
+wait_postgres_running() {
+	ATTEMPT=0
+	if [ "$1" != "" ]; then
+		ATTEMPT=$1
+	fi
+	PIDFILE=$POSTGRES_DATADIR/postmaster.pid
+	PID=`head -1 $PIDFILE 2> /dev/null`
+	RUNNING=no
+	if [ ! -e $PIDFILE ]; then
+		echo Waiting for pidfile
+		while [ ! -e $PIDFILE -a "$PID" = "" -a $ATTEMPT -lt 24 ]; do
+			sleep 5
+			PID=`head -1 $PIDFILE 2> /dev/null`
+			ATTEMPT=$(($ATTEMPT+1))
+		done
+	fi
+	if [ "$PID" != "" ]; then
+		TEST=
+		ATTEMPT=1
+		if [ "$1" != "" ]; then
+			ATTEMPT=$1
+		fi
+		while [ "$TEST" = "" -a $ATTEMPT -lt 24 ]; do
+			TEST=`ps -p $PID | grep -v CMD | tail -1`
+			if [ "$TEST" != "" ]; then
+				RUNNING=yes
+			else
+				echo Waiting for pid $PID
+				sleep 5
+				ATTEMPT=$(($ATTEMPT+1))
+			fi
+			done
+	fi
+}
+
+check_postgres_running() {
+	wait_postgres_running 23
+}
+
+wait_server_shutdown() {
+	ATTEMPT=0
+	while [ "$RUNNING" = "yes" -a $ATTEMPT -lt 24 ]; do
+		check_postgres_running
+		sleep 5
+	done
+	if [ "$RUNNING" = "yes" ]; then
+		die Gave up waiting on server to shutdown
+	fi
+}
+
+check_restart_necessary() {
+	ENVIR=$1
+	CONTROL=$2
+	TITLE=$3
+
+	if [ "$ENVIR" = "yes" -a ! -e $CONTROL ]; then
+		echo Shutting down server to load $TITLE
+		$PSQL "bin/pg_ctl -D $POSTGRES_DATADIR -l logfile stop"
+		wait_server_shutdown
+	fi
+	if [ "$ENVIR" != "yes" -a -e $CONTROL ]; then
+		echo Shutting down server to unload $TITLE
+		$PSQL "bin/pg_ctl -D $POSTGRES_DATADIR -l logfile stop"
+		wait_server_shutdown
+	fi
+}
+
+# Operate from the postgres installation
+cd $SHELLPACK_SOURCES/postgres-${VERSION}-installed
+
+# Install libhugetlbfs if necessary
+TARGET_BINARY=`pwd`/bin/pg_ctl
+. $SHELLPACK_INCLUDE/include-libhugetlbfs.sh
+
+# Do the shutdown request now if asked
+if [ "$SHUTDOWN" = "yes" ]; then
+	echo Shutting down server on request
+	$PSQL "bin/pg_ctl -D $POSTGRES_DATADIR -l logfile stop"
+	wait_server_shutdown
+	if [ "$RUNNING" = "yes" ]; then
+		die Failed to shutdown running server
+	fi
+	exit 0
+fi
+
+# Start if necessary
+echo Checking if postgres is already running
+check_postgres_running
+
+# Decide if it should be shutdown if already running
+if [ "$RUNNING" = "yes" ]; then
+	check_restart_necessary $USE_LARGE_PAGES using_large_pages "large page"
+fi
+
+if [ "$RUNNING" = "no" ]; then
+
+	HUGECTL=
+	if [ "$USE_LARGE_PAGES" = "yes" ]; then
+		# Only override shared memory. Heap just isn't worth it
+		# with a fork-heavy server
+		HUGECTL="hugectl --shm"
+	fi
+
+	# Configure shmem parameters
+	TOTALBUFFER_SIZE=$(($EFFECTIVE_CACHESIZE+$WORK_MEM))
+	echo $TOTALBUFFER_SIZE > /proc/sys/kernel/shmmax
+	echo $(($TOTALBUFFER_SIZE*2/4096)) > /proc/sys/kernel/shmall
+	ulimit -l $TOTALBUFFER_SIZE
+	GROUPNAME=`groups $POSTGRES_USER | awk '{print $3}'`
+	if [ "$GROUPNAME" = "" ]; then
+		GROUPNAME=`groups $POSTGRES_USER`
+	fi
+	GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
+	echo $GROUPID > /proc/sys/vm/hugetlb_shm_group
+
+	# Update the memory configurations
+	update_entry_cnf work_mem $(($WORK_MEM/1048576))MB
+	update_entry_cnf random_page_cost 3.0
+	update_entry_cnf shared_buffers $((SHARED_BUFFERS/1048576))MB
+	update_entry_cnf effective_cache_size $(($EFFECTIVE_CACHESIZE/1048576))MB
+
+	# Do not checkpoint or syncronise frequently
+	update_entry_cnf checkpoint_segments 512
+	update_entry_cnf fsync off
+	update_entry_cnf synchronous_commit off
+
+	# Use unix domain sockets
+	mkdir -p /var/run/postgresql/
+	chown $POSTGRES_USER /var/run/postgresql/
+	chmod a+rwx /var/run/postgresql/
+	update_entry_cnf unix_socket_directory \'/var/run/postgresql/\'
+	update_entry_cnf unix_socket_group $GROUPID
+	update_entry_cnf unix_socket_permissions 0777
+
+	# Disable logging
+	update_entry_cnf log_connections off
+	update_entry_cnf log_duration off
+	update_entry_cnf log_hostname off
+
+	# Disable encryption
+	update_entry_cnf password_encryption off
+
+	echo Starting postgres
+	$HUGECTL $PSQL "$SHELLPACK_INCLUDE/run_background bin/pg_ctl -D $POSTGRES_DATADIR -l logfile start"
+
+	echo Waiting for postgres to be running
+	wait_postgres_running
+	sleep 5
+	if [ "$RUNNING" = "no" ]; then
+		die Failed to detect postgres running
+	fi
+
+	if [ "$USE_LARGE_PAGES" = "yes" ]; then
+		touch using_large_pages
+	else
+		rm using_large_pages
+	fi
+fi
+
+echo postgres successfully installed
+exit $SHELLPACK_SUCCESS

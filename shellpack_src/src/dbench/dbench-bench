@@ -1,0 +1,36 @@
+#!/bin/bash
+###SHELLPACK preamble dbench-bench 3.04
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required dbench-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+if [ "$DBENCH_OSYNC" = "yes" ]; then
+	DBENCH_OSYNC_COMMAND=-s
+fi
+if [ "$DBENCH_SYNC_DIRECTORY" = "yes" ]; then
+	DBENCH_SYNC_COMMAND=-S
+fi
+if [ "$DBENCH_FSYNC" = "yes" ]; then
+	DBENCH_FSYNC_COMMAND=-F
+fi
+
+DBENCH_CLIENTS=`echo $DBENCH_CLIENTS | tr ',' ' '`
+
+CLIENT=1
+while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
+	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
+	./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
+		-D $SHELLPACK_TEMP \
+		-t $DBENCH_DURATION \
+		$CLIENT 2>&1 | tee $LOGDIR_RESULTS/dbench-$CLIENT.log \
+			|| die Failed to run dbench
+	monitor_post_hook $LOGDIR_RESULTS $CLIENT
+	CLIENT=$((CLIENT*2))
+done
+
+exit $SHELLPACK_SUCCESS

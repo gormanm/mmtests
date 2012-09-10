@@ -1,0 +1,199 @@
+#!/usr/bin/perl
+# Reads a file from STDIN and replaces ###SHELLPACK macros with code
+
+use strict;
+
+my $shellpack;
+
+while (<>) {
+	my $line = $_;
+	if ($_ !~ /###SHELLPACK/) {
+		print $_;
+		next;
+	}
+
+	$line =~ s/.*###SHELLPACK //;
+
+	my ($command, @details) = split(/\s+/, $line);
+
+	if ($command eq "preamble") {
+		my ($name, $version) = @details;
+		my $dummy;
+		($shellpack, $dummy) = split(/-/, $name);
+		$shellpack = substr($name, 0, rindex($name, "-"));
+		print <<EOC
+P=$name
+DEFAULT_VERSION=$version
+. \$SHELLPACK_INCLUDE/common.sh
+EOC
+	} elsif ($command eq "parseargBegin") {
+		print <<EOC
+# Basic argument parser
+while [ "\$1" != "" ]; do
+	case "\$1" in
+	-v)
+		VERSION=\$2
+		shift 2
+		;;
+EOC
+	} elsif ($command eq "parseargInstall") {
+		print <<EOC
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+EOC
+	} elsif ($command eq "parseargParam") {
+		my ($switch, $param) = @details;
+		print <<EOC
+	$switch)
+		$param=\$2
+		shift 2
+		;;
+EOC
+	} elsif ($command eq "parseargYes") {
+		my ($switch, $param) = @details;
+		print <<EOC
+	$switch)
+		$param=yes
+		shift
+		;;
+EOC
+	} elsif ($command eq "parseargEnd") {
+		print <<EOC
+	*)
+		echo Unrecognised option: \$1
+		shift
+	esac
+done
+if [ -z "\$VERSION" ]; then
+	VERSION=\$DEFAULT_VERSION
+fi
+EOC
+	} elsif ($command eq "sources_fetch") {
+		my ($tarfile, $srcdir) = @details;
+		my $versionDir = "";
+		if ($tarfile =~ /\//) {
+			($versionDir,$tarfile) = split(/\//, $tarfile);
+			$versionDir="$versionDir/";
+		}
+		
+		print <<EOC
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=$tarfile
+sources_fetch \$WEB_LOCATION/$versionDir\$TARFILE \$MIRROR_LOCATION/\$TARFILE \$SHELLPACK_SOURCES/\$TARFILE
+cd \$SHELLPACK_SOURCES
+tar -xf \$TARFILE
+if [ \$? -ne 0 ]; then
+        error "\$P: tar xf $tarfile failed"
+        popd > /dev/null
+        exit \$SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf \$TARFILE | head -n 1 | awk -F / '{print \$1}'`
+mv \$DST_DIR $srcdir
+pushd $srcdir > /dev/null || die Failed to rename tar
+EOC
+	} elsif ($command eq "git_fetch") {
+		my ($tarfile, $srcdir) = @details;
+		my $versionDir = "";
+		if ($tarfile =~ /\//) {
+			($versionDir,$tarfile) = split(/\//, $tarfile);
+			$versionDir="$versionDir/";
+		}
+		
+		print <<EOC
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=$tarfile
+git_fetch \$GIT_LOCATION $srcdir \$MIRROR_LOCATION/\$TARFILE \$SHELLPACK_SOURCES/\$TARFILE
+cd \$SHELLPACK_SOURCES
+tar -xf \$TARFILE
+if [ \$? -ne 0 ]; then
+        error "\$P: tar xf $tarfile failed"
+        popd > /dev/null
+        exit \$SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf \$TARFILE | head -n 1 | awk -F / '{print \$1}'`
+mv \$DST_DIR $srcdir
+pushd $srcdir > /dev/null || die Failed to rename tar
+EOC
+	} elsif ($command eq "build_start") {
+		my ($srcdir) = @details;
+		print <<EOC
+pushd \$SHELLPACK_SOURCES/$srcdir || die Failed to change to source directory
+EOC
+	} elsif ($command eq "build_autogen") {
+		print <<EOC
+./autogen.sh || die Failed to run autogen
+EOC
+
+	} elsif ($command eq "build_configure") {
+		my ($srcdir) = @details;
+		print <<EOC
+./configure --prefix=\$SHELLPACK_SOURCES/$srcdir-installed
+if [ \$? -ne 0 ]; then
+	error "\$P: configure failed"
+	popd > /dev/null
+	exit \$SHELLPACK_ERROR
+fi
+EOC
+	} elsif ($command eq "make") {
+		my ($srcdir) = @details;
+		print <<EOC
+make -j\$NUMCPUS
+if [ \$? -ne 0 ]; then
+	error "\$P: make failed"
+	popd > /dev/null
+	exit \$SHELLPACK_ERROR
+fi
+EOC
+	} elsif ($command eq "make_make_install") {
+		my ($srcdir) = @details;
+		print <<EOC
+make -j\$NUMCPUS
+if [ \$? -ne 0 ]; then
+	error "\$P: make failed"
+	popd > /dev/null
+	exit \$SHELLPACK_ERROR
+fi
+make install
+if [ \$? -ne 0 ]; then
+	error "\$P: make install failed"
+	popd > /dev/null
+	exit \$SHELLPACK_ERROR
+fi
+EOC
+	} elsif ($command eq "check_install_required") {
+		my ($srcdir, @other) = @details;
+		my $dstdir = "$srcdir-installed";
+
+		print <<EOC
+if [ "\$INSTALL_FORCE" = "yes" ]; then
+	rm -rf \$SHELLPACK_SOURCES/$srcdir
+fi
+if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
+	\$SHELLPACK_INCLUDE/shellpack-install-$shellpack -v \${VERSION} @other || die $shellpack install script returned error
+fi
+cd \$SHELLPACK_SOURCES/$shellpack-\${VERSION}-installed || die Failed to cd to $shellpack install directory
+if [ "\$INSTALL_ONLY" = "yes" ]; then
+	echo $shellpack installed only as requested.
+	exit \$SHELLPACK_SUCCESS
+fi
+EOC
+	} elsif ($command eq "monitor_hooks") {
+		print <<EOC
+# Include monitor hooks
+. \$SHELLPACK_INCLUDE/include-monitor.sh
+EOC
+	} else {
+		print "# WARNING: UNRECOGNISED command $command\n";
+		print $_;
+	}
+}

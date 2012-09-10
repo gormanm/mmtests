@@ -1,29 +1,52 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
-
 P=postgresbuild-bench
-VERSION=9.0.4
+DEFAULT_VERSION=9.0.4
+. $SHELLPACK_INCLUDE/common.sh
 POSTGRES_USER=nobody
 POSTGRES_GROUP=nogroup
-. $SHELLPACK_INCLUDE/common.sh
 
-# Basic args parser
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		-v)	export VERSION=$2; shift 2;;
-		--postgres-user)
-			export POSTGRES_USER=$2; shift 2;;
-		*)	echo Unrecognised option: $1; shift
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--postgres-user)
+		POSTGRES_USER=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
-
-# Install if necessary
-if [ ! -d $SHELLPACK_SOURCES/postgres-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild -v ${VERSION}
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
 fi
-cd $SHELLPACK_SOURCES/postgres-${VERSION}-installed || die Failed to cd to postgres install directory
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/postgres-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/postgres-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild -v ${VERSION} || die postgresbuild install script returned error
+fi
+cd $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed || die Failed to cd to postgresbuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo postgresbuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild-bench 18
+#### Details postgresbuild-bench 20

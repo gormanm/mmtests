@@ -70,7 +70,7 @@ export SPECCPU_DEFAULT_ITER=3
 export SPECCPU_PAGESIZES="base huge-all transhuge"
 
 # SPECjvm
-export SPECJVM_JRE=/opt/IBMJava/jre/bin
+export SPECJVM_JRE=/opt/java/jre/bin
 export SPECJVM_DEFAULT_ITERATION_TIME=300
 export SPECJVM_DEFAULT_WARMUP_TIME=120
 export SPECJVM_DEFAULT_TERATIONS=1

@@ -5,8 +5,9 @@
 # it interferes with the anonymous mapping.
 
 P=ddresidency-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
 
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 MAPPING_SIZE=${DD_RESIDENCY_MAPPING_SIZE:=$MEMTOTAL_BYTES}
 BS=1048576
 MAX_DURATION=0
@@ -49,25 +50,33 @@ function shutdown_pid() {
 	done
 	echo
 }
-
-# Basic args parser
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		--mapping-size)
-			MAPPING_SIZE=$2
-			shift 2
-			;;
-		--filesize)
-			FILESIZE=$2
-			shift 2
-			;;
-		--max-duration)
-			MAX_DURATION=$2
-			shift 2
-			;;
-		*)	echo Unrecognised option: $1; shift
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--mapping-size)
+		MAPPING_SIZE=$2
+		shift 2
+		;;
+	--filesize)
+		=$2
+		shift 2
+		;;
+	--max-duration)
+		MAX_DURATION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
 # Build the mapping program
 echo Building mapping program
@@ -275,4 +284,4 @@ int main(int argc, char **argv)
 	printf("%lu.%06lu 0.000000 1\n", tv.tv_sec, tv.tv_usec);
 }
 #### Description DD residency plots delays accessing a mapping during a large dd
-#### Details ddresidency-bench 29
+#### Details ddresidency-bench 32

@@ -1,0 +1,128 @@
+#!/bin/bash
+# memcached installer
+###SHELLPACK preamble memcached-install 1.4.13
+WEB_LOCATION=http://memcached.googlecode.com/files
+MIRROR_LOCATION="$WEBROOT/memcached"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargYes   --shutdown SHUTDOWN
+###SHELLPACK parseargParam --mempool  MEMCACHED_MEMPOOL
+###SHELLPACK parseargEnd
+
+# Install if necessary
+if [ ! -e $SHELLPACK_SOURCES/memcached-${VERSION}-installed ]; then
+	# Unconditionally fetch the tar to find out the real version number
+	TARFILE=memcached-${VERSION}.tar.gz
+	sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+
+	# Building from scratch, uncompress the tar
+	cd $SHELLPACK_SOURCES
+	tar xf $TARFILE
+	if [ $? -ne 0 ]; then
+		error "$P: tar xf $TARFILE failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
+
+	# Rename directory to something we expect.
+	DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+	mv $DST_DIR memcached-${VERSION}
+	pushd memcached-${VERSION} > /dev/null || die Failed to rename tar
+
+	# Configure
+	./configure --prefix=$SHELLPACK_SOURCES/memcached-${VERSION}-installed
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
+
+	# Build
+	make
+	if [ $? -ne 0 ]; then
+		error "$P: make failed"
+		echo Attempting workaround specific to openSUSE gcc bug
+		echo "diff --git a/memcached.c b/memcached.c
+--- a/memcached.c
++++ b/memcached.c
+@@ -2498,15 +2498,20 @@ void append_stat(const char *name, ADD_STAT add_stats, conn *c,
+ inline static void process_stats_detail(conn *c, const char *command) {
+     assert(c != NULL);
+ 
+-    if (strcmp(command, \"on\") == 0) {
++    /* Workaround for stupid openSUSE gcc bug */
++    char on[] = \"on\";
++    char off[] = \"off\";
++    char dump[] = \"dump\";
++
++    if (strcmp(command, on) == 0) {
+         settings.detail_enabled = 1;
+         out_string(c, \"OK\");
+     }
+-    else if (strcmp(command, \"off\") == 0) {
++    else if (strcmp(command, off) == 0) {
+         settings.detail_enabled = 0;
+         out_string(c, \"OK\");
+     }
+-    else if (strcmp(command, \"dump\") == 0) {
++    else if (strcmp(command, dump) == 0) {
+         int len;
+         char *stats = stats_prefix_dump(&len);
+         write_and_free(c, stats, len);
+" | patch -p1 || die Failed to patch workaround
+		make
+		if [ $? -ne 0 ]; then
+			die make failed
+		fi
+	fi
+
+	# Install
+	make install
+	if [ $? -ne 0 ]; then
+		error "$P: install failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
+
+	if [ "$INSTALL_ONLY" = "yes" ]; then
+		exit 0
+	fi
+fi
+
+# Shutdown existing instances
+if [ -e $SHELLPACK_SOURCES/memcached-${VERSION}-installed/memcached.pid ]; then
+	MEMCACHED_PID=`cat $SHELLPACK_SOURCES/memcached-${VERSION}-installed/memcached.pid`
+	shutdown_pid memcached $MEMCACHED_PID
+	rm $SHELLPACK_SOURCES/memcached-${VERSION}-installed/memcached.pid
+fi
+if [ "$SHUTDOWN" = "yes" ]; then
+	exit 0
+fi
+
+if [ "$MEMCACHED_MEMPOOL" = "" ]; then
+	die "MEMCACHED_MEMPOOL environment variable or --mempool switch not set"
+fi
+
+# memcached refuses to run as root by default but security is not a priority
+# and the expectation is that mmtests will often be running as root
+USER_SWITCH=
+if [ `whoami` = "root" ]; then
+	USER_SWITCH="-u root"
+fi
+
+# Start new instance
+echo Starting memcached server with pool $MEMCACHED_MEMPOOL MB
+$SHELLPACK_SOURCES/memcached-${VERSION}-installed/bin/memcached $USER_SWITCH \
+	-d -P $SHELLPACK_SOURCES/memcached-${VERSION}-installed/memcached.pid \
+	-m $MEMCACHED_MEMPOOL
+	
+if [ $? -ne 0 ]; then
+	die Failed to start memcached server
+fi
+
+# Give the server a few seconds to get started. Ideally, we would connect
+# and make sure it's alive but it's overkill at this point
+sleep 10
+	
+echo memcached installed successfully

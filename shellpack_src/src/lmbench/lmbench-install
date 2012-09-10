@@ -1,0 +1,21 @@
+#!/bin/bash
+###SHELLPACK preamble lmbench-install 3
+WEB_LOCATION=http://www.bitmover.com/lmbench
+MIRROR_LOCATION="$WEBROOT/lmbench"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch lmbench${VERSION}.tar.gz lmbench-${VERSION}-installed
+
+###SHELLPACK build_start lmbench-${VERSION}-installed
+# Workaround build problem
+mkdir SCCS
+touch SCCS/s.ChangeSet
+cd src
+###SHELLPACK make
+
+# Simplify path finding
+cp ../bin/*/* ../bin/
+
+echo lmbench installed successfully

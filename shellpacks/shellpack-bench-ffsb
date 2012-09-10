@@ -1,8 +1,9 @@
 #!/bin/bash
 # This script installs ffsb and runs the regression tests
+P=ffsb-install
+DEFAULT_VERSION=6.0-rc2
+. $SHELLPACK_INCLUDE/common.sh
 
-P=ffsb-bench
-VERSION=6.0-rc2
 DURATION=300
 NUM_FILES=100
 NUM_DIRECTORIES=100
@@ -14,58 +15,77 @@ OPERATIONS_PROFILE=seq-read
 MIN_FILESIZE=$((32*1048576))
 MAX_FILESIZE=$((32*1048576))
 
-. $SHELLPACK_INCLUDE/common.sh
-
-# Basic args parser
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		-v)
-			VERSION=$2
-			shift 2;;
-		--duration)
-			DURATION=$2
-			shift 2
-			;;
-		--file-profile)
-			FILE_PROFILE=$2
-			shift 2
-			;;
-		--filesize-profile)
-			FILESIZE_PROFILE=$2
-			shift 2
-			;;
-		--operations-profile)
-			OPERATIONS_PROFILE=$2
-			shift 2
-			;;
-		--files)
-			NUM_FILES=$2
-			shift 2
-			;;
-		--directories)
-			NUM_DIRECTORIES=$2
-			shift 2
-			;;
-		--threads)
-			NUM_THREADS=$2
-			shift 2
-			;;
-		--min-filesize)
-			MIN_FILESIZE=$2
-			shift 2
-			;;
-		--max-filesize)
-			MAX_FILESIZE=$2
-			shift 2
-			;;
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--duration)
+		DURATION=$2
+		shift 2
+		;;
+	--file-profile)
+		FILE_PROFILE=$2
+		shift 2
+		;;
+	--filesize-profile)
+		FILESIZE_PROFILE=$2
+		shift 2
+		;;
+	--operations-profile)
+		OPERATIONS_PROFILE=$2
+		shift 2
+		;;
+	--files)
+		NUM_FILES=$2
+		shift 2
+		;;
+	--directories)
+		NUM_DIRECTORIES=$2
+		shift 2
+		;;
+	--threads)
+		NUM_THREADS=$2
+		shift 2
+		;;
+	--min-filesize)
+		MIN_FILESIZE=$2
+		shift 2
+		;;
+	--max-filesize)
+		MAX_FILESIZE=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
-# Install if necessary
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/ffsb-${VERSION}
+fi
 if [ ! -d $SHELLPACK_SOURCES/ffsb-${VERSION}-installed ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-ffsb -v ${VERSION} || die ffsb install script returned error
 fi
 cd $SHELLPACK_SOURCES/ffsb-${VERSION}-installed || die Failed to cd to ffsb install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo ffsb installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
@@ -190,4 +210,4 @@ monitor_post_hook $LOGDIR_RESULTS ffsb
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb-bench 4
+#### Details ffsb-bench 7

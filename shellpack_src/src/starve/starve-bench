@@ -1,0 +1,32 @@
+#!/bin/bash
+# This is the script for running the starve benchmark
+#
+###SHELLPACK preamble starve-bench 0
+ITERATIONS=15
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam -i ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required starve
+
+###SHELLPACK monitor_hooks
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Run the test and gather results
+pushd $SHELLPACK_SOURCES/starve-${VERSION}-installed > /dev/null
+for i in `seq 1 $ITERATIONS`; do
+	echo Pass $i
+
+	$TIME_CMD ./test-starve 2>> $LOGDIR_RESULTS/time.$i > /dev/null
+	grep elapsed $LOGDIR_RESULTS/time.$i
+done
+cat $LOGDIR_RESULTS/time.* | grep elapsed > $LOGDIR_RESULTS/time
+
+exit $RETVAL

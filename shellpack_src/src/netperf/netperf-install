@@ -1,0 +1,24 @@
+#!/bin/bash
+# Netperf installer
+###SHELLPACK preamble netperf-install 2.4.5
+WEB_LOCATION=ftp://ftp.netperf.org/netperf/archive
+MIRROR_LOCATION="$WEBROOT/netperf/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch netperf-${VERSION}.tar.gz netperf-${VERSION}
+
+###SHELLPACK build_start netperf-${VERSION}
+INSTALLPATH=$SHELLPACK_SOURCES/netperf-${VERSION}-installed
+rm -rf $INSTALLPATH
+CFLAGS="-O2" ./configure --prefix=$INSTALLPATH
+if [ $? -ne 0 ]; then
+	error "$P: configure failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+###SHELLPACK make_make_install
+
+echo Netperf installed successfully

@@ -1,19 +1,20 @@
 #!/bin/bash
-
-P='pagealloc'
+P=pagealloc-bench
+DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
-
 ORDER_MIN=0
 ORDER_MAX=4
 GFPFLAGS=GFP_KERNEL
 BATCH_MIN=1
 BATCH_SIZE=$((128*1048576))
 
-while [ $# -gt 0 ]; do
-	case $1 in
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
 	--min-order)
 		ORDER_MIN=$2
 		shift 2
@@ -27,11 +28,16 @@ while [ $# -gt 0 ]; do
 		shift 2
 		;;
 	*)
-		echo Unrecognised switch \'$1\'
-		exit $SHELLPACK_ERROR
-		;;
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
 
 if [ "`which stap`" = "" ]; then
 	echo systemtap is required
@@ -77,4 +83,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description Micro-benchmark to stress the page allocator
-#### Details pagealloc-bench 17
+#### Details pagealloc-bench 18

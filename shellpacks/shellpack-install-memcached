@@ -1,36 +1,39 @@
 #!/bin/bash
 # memcached installer
 P=memcached-install
-WEB_LOCATION=http://memcached.googlecode.com/files
-MIRROR_LOCATION="$WEBROOT/memcached"
 DEFAULT_VERSION=1.4.13
 . $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION=http://memcached.googlecode.com/files
+MIRROR_LOCATION="$WEBROOT/memcached"
 
 # Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		-v)
-			VERSION=$2
-			shift 2
-			;;
-		--shutdown)
-			SHUTDOWN=yes
-			shift
-			;;
-		--install-only)
-			INSTALL_ONLY=yes
-			shift
-			;;
-		--mempool)
-			MEMCACHED_MEMPOOL=$(($2/1048576))
-			shift 2
-			;;
-		*)
-			die Unrecognised option: $1
-			shift
-		esac
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--shutdown)
+		SHUTDOWN=yes
+		shift
+		;;
+	--mempool)
+		MEMCACHED_MEMPOOL=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
 done
-
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -152,4 +155,4 @@ sleep 10
 	
 echo memcached installed successfully
 #### Description memcached installer
-#### Details memcached 15
+#### Details memcached 19

@@ -1,29 +1,49 @@
 #!/bin/bash
 # This is the script for running the pipetest benchmark
-P='pipetest'
-ITERATIONS=30
+P=pipetest-bench
+DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+ITERATIONS=30
 
-# Process the arguments
-while [ $# -gt 0 ]; do
-	case $1 in
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
 	-i)
-		ITERATIONS=$2
+		iterations=$2
 		shift 2
 		;;
 	*)
-		echo Unrecognised commane-line parameter $1
-		usage
-		exit $SHELLPACK_ERROR
+		echo Unrecognised option: $1
+		shift
 	esac
 done
-
-# Install support files
-if [ ! \( -e "$SHELLPACK_SOURCES/pipetest/pipe-test" \) ]; then
-  	$SHELLPACK_INCLUDE/shellpack-install-pipetest
-	check_status "$P: Installing pipetest"
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
 fi
-pushd $SHELLPACK_SOURCES/pipetest > /dev/null
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/pipetest
+fi
+if [ ! -d $SHELLPACK_SOURCES/pipetest-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-pipetest -v ${VERSION} || die pipetest install script returned error
+fi
+cd $SHELLPACK_SOURCES/pipetest-${VERSION}-installed || die Failed to cd to pipetest install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo pipetest installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
@@ -34,10 +54,11 @@ if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
 	EXPECT_UNBUFFER=unbuffer
 fi
 
-# Run the benchmark ##########################################################
+# Run the benchmark
 RETVAL=0
 monitor_pre_hook $LOGDIR_RESULTS
 
+pushd $SHELLPACK_SOURCES/pipetest-${VERSION}-installed > /dev/null
 $EXPECT_UNBUFFER ./pipe-test | tee $LOGDIR_RESULTS/pipetest.log &
 PID_TEE=$!
 PID_PIPETEST=`$SHELLPACK_TOPLEVEL/bin/piping-pid.sh $PID_TEE`
@@ -66,4 +87,4 @@ monitor_post_hook $LOGDIR_RESULTS
 
 exit $RETVAL
 #### Description Run the pipe-test benchmark
-#### Details pipetest-bench 11
+#### Details pipetest-bench 12

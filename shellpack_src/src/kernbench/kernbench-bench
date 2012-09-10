@@ -1,0 +1,56 @@
+#!/bin/bash
+# Benchmark a number of kernel builds
+###SHELLPACK preamble kernbench 2.6.30
+ITERATIONS=5
+FACTOR=1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam -k VERSION
+###SHELLPACK parseargParam -i ITERATIONS
+###SHELLPACK parseargParam -t THREADS
+###SHELLPACK parseargParam -f FACTOR
+###SHELLPACK parseargEnd
+
+WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v2.6/linux-$VERSION.tar.gz
+MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
+THREADS=$(($NUMCPUS*$FACTOR))
+
+pushd $SHELLPACK_TEMP > /dev/null
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
+tar xf linux-$VERSION.tar.gz || die Failed to extract
+cd linux-$VERSION || die Unexpected layout
+
+yes '' | make defconfig > /dev/null 2>&1 || die Failed to make defconfig
+
+make -j$THREADS clean > /dev/null
+
+echo Warming run
+make -j$THREADS vmlinux > /dev/null 2>&1 || die Failed to build vmlinux
+make clean >/dev/null
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Build pass
+for i in `seq 1 $ITERATIONS`; do
+	echo Pass $i
+	sync
+
+	$TIME_CMD make -j$THREADS vmlinux 2>> $LOGDIR_RESULTS/time.$i > /dev/null
+	grep elapsed $LOGDIR_RESULTS/time.$i
+	make clean >/dev/null
+done
+
+# Gather results and cleanup
+cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time
+rm -rf $SHELLPACK_TEMP
+
+# clean up the tree to save space
+popd > /dev/null
+rm -rf $TMPDIR/kernbench
+
+exit 0

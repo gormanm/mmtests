@@ -3,8 +3,9 @@
 # number of files or untarring a large object. The exact problem varies
 # but the symtoms of random stalls are common. Simple benchmark of this
 # problem
-
-P=largecopy
+P=largecopy-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
 SRCTAR=
 SRCTAR_EXTRA=
 TARGETSIZE_MB=
@@ -13,23 +14,36 @@ if [ "$LARGECOPY_THREADS" = "" ]; then
 	LARGECOPY_THREADS=$NUM_CPU
 fi
 
-. $SHELLPACK_INCLUDE/common.sh
-. $SHELLPACK_INCLUDE/include-monitor.sh
-
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		--srctar)
-			SRCTAR=$2
-			shift 2;;
-		--srctar-extra)
-			SRCTAR_EXTRA=$2
-			shift 2;;
-		--targetsize)
-			TARGETSIZE_MB=$2
-			shift 2
-			;;
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--srctar)
+		SRCTAR=$2
+		shift 2
+		;;
+	--srctar-extra)
+		SRCTAR_EXTRA=$2
+		shift 2
+		;;
+	--targetsize)
+		TARGETSIZE_MB=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
 
 STARTTIME=`date +%s`
 echo "0:Start time:$STARTTIME:0" > $LOGDIR_RESULTS/largecopy.result
@@ -148,4 +162,4 @@ echo "6:Time to expand tar:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_R
 echo Deleting work
 rm -rf $DIRECTORIES gianttar.tar.gz `basename $SRCTAR`
 #### Description Large copy and untar
-#### Details largecopy-bench 5
+#### Details largecopy-bench 7

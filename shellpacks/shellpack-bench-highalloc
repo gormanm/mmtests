@@ -1,6 +1,7 @@
 #!/bin/bash
 
-P='highalloc'
+P=highalloc-bench
+DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
 . $SHELLPACK_INCLUDE/include-hugepage.sh
 . $SHELLPACK_INCLUDE/include-sizes.sh
@@ -13,31 +14,37 @@ HIGHALLOC_ORDER=$HUGETLB_ORDER
 HIGHALLOC_COUNT=0
 HIGHALLOC_GFPFLAGS=GFP_ALLOC_LIKE_HUGETLB
 
-# Parse basic arguments
-while [ $# -gt 0 ]; do
-	case $1 in
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
 	--mb-per-sec)
-		export MB_PER_SEC="$2"
+		MB_PER_SEC=$2
 		shift 2
 		;;
 	--percent)
-		export HIGHALLOC_PERCENT="$2"
+		HIGHALLOC_PERCENT=$2
 		shift 2
 		;;
 	--workloads)
-		export WORKLOADS="$2"
+		WORKLOADS=$2
 		shift 2
 		;;
 	--gfp-flags)
-		export HIGHALLOC_GFPFLAGS=$2
+		HIGHALLOC_GFPFLAGS=$2
 		shift 2
 		;;
 	*)
-		echo Unrecognised option $1
-		exit -1
-		;;
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
 # Systemtap required
 if [ "`which stap`" = "" ]; then
@@ -118,4 +125,4 @@ stap -g /tmp/highalloc.stp | tee $LOGDIR_RESULTS/highalloc-at-end.log
 rm -rf $SHELLPACK_TEMP
 exit $SHELLPACK_SUCCESS
 #### Description Run a highorder allocation test in the background of any test
-#### Details highalloc-bench 21
+#### Details highalloc-bench 22

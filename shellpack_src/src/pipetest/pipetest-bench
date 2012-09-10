@@ -1,0 +1,52 @@
+#!/bin/bash
+# This is the script for running the pipetest benchmark
+###SHELLPACK preamble pipetest-bench 0
+ITERATIONS=30
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam -i ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required pipetest
+
+###SHELLPACK monitor_hooks
+
+# Start it reading in the background
+EXPECT_UNBUFFER=expect_unbuffer
+if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
+	EXPECT_UNBUFFER=unbuffer
+fi
+
+# Run the benchmark
+RETVAL=0
+monitor_pre_hook $LOGDIR_RESULTS
+
+pushd $SHELLPACK_SOURCES/pipetest-${VERSION}-installed > /dev/null
+$EXPECT_UNBUFFER ./pipe-test | tee $LOGDIR_RESULTS/pipetest.log &
+PID_TEE=$!
+PID_PIPETEST=`$SHELLPACK_TOPLEVEL/bin/piping-pid.sh $PID_TEE`
+echo pipetest pid $PID_PIPETEST
+
+SAMPLECOUNT=0
+while [ $SAMPLECOUNT -lt $ITERATIONS ]; do
+	sleep 5
+	SAMPLECOUNT=`wc -l $LOGDIR_RESULTS/pipetest.log | awk '{print $1}'`
+	if [ "`ps h --pid $PID_PIPETEST`" = "" ]; then
+		SAMPLECOUNT=$ITERATIONS
+	fi
+done
+
+echo -n Shutting down pipe-test
+for PID in $PID_TEE $PID_PIPETEST; do
+	while [ "`ps h --pid $PID`" != "" ]; do
+		echo -n .
+		kill $PID
+		sleep 2
+	done
+done
+echo
+
+monitor_post_hook $LOGDIR_RESULTS
+
+exit $RETVAL

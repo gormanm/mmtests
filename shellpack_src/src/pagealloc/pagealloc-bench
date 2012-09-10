@@ -1,0 +1,59 @@
+#!/bin/bash
+###SHELLPACK preamble pagealloc-bench 0
+ORDER_MIN=0
+ORDER_MAX=4
+GFPFLAGS=GFP_KERNEL
+BATCH_MIN=1
+BATCH_SIZE=$((128*1048576))
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --min-order ORDER_MIN
+###SHELLPACK parseargParam --max-order ORDER_MAX
+###SHELLPACK parseargParam --gfp-flags GFPFLAGS
+###SHELLPACK parseargEnd
+
+###SHELLPACK monitor_hooks
+
+if [ "`which stap`" = "" ]; then
+	echo systemtap is required
+	exit $SHELLPACK_ERROR
+fi
+
+echo -n > $LOGDIR_RESULTS/pagealloc.log
+for ORDER in `seq $ORDER_MIN $ORDER_MAX`; do
+	BATCH_MAX=$((((BATCH_SIZE) / 4096) >> $ORDER))
+	BATCH=$BATCH_MIN
+
+	while [ $BATCH -lt $BATCH_MAX ]; do
+		# Setup the stap script
+		cat $SHELLPACK_STAP/pagealloc-micro.stp | sed \
+        		-e "s/define PARAM_GFPFLAGS.*/define PARAM_GFPFLAGS $GFPFLAGS/" \
+        		-e "s/define PARAM_BATCH.*/define PARAM_BATCH $BATCH/" \
+        		-e "s/define PARAM_ORDER.*/define PARAM_ORDER $ORDER/" > /tmp/pagealloc.stp
+
+		# Execute
+		monitor_pre_hook $LOGDIR_RESULTS $ORDER-$BATCH
+		stap -g /tmp/pagealloc.stp | tee -a $LOGDIR_RESULTS/pagealloc.log
+		monitor_post_hook $LOGDIR_RESULTS $ORDER-$BATCH
+
+		BATCH=$((BATCH<<1))
+	done
+done
+
+# Split out results a bit for easier reporting later
+IFS="
+"
+rm $LOGDIR_RESULTS/alloc-* 2> /dev/null
+rm $LOGDIR_RESULTS/free-* 2> /dev/null
+
+for LINE in `cat $LOGDIR_RESULTS/pagealloc.log`; do
+	ORDER=`echo $LINE | awk '{print $2}'`
+	BATCH=`echo $LINE | awk '{print $4}'`
+	ALLOC=`echo $LINE | awk '{print $6}'`
+	FREE=`echo $LINE | awk '{print $8}'`
+
+	echo "$BATCH $ALLOC" >> $LOGDIR_RESULTS/alloc-$ORDER
+	echo "$BATCH $FREE"  >> $LOGDIR_RESULTS/free-$ORDER
+done
+
+exit $SHELLPACK_SUCCESS

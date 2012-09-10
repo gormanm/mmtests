@@ -1,25 +1,44 @@
 #!/bin/bash
 # This script installs pft and whatever
 P=pft-bench
-VERSION=0.12x
+DEFAULT_VERSION=0.12x
 . $SHELLPACK_INCLUDE/common.sh
 
-# Basic args parser
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		-v)
-			VERSION=$2
-			shift 2
-			;;
-		*)	echo Unrecognised option: $1; shift
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
-# Install if necessary
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/pft-${VERSION}
+fi
 if [ ! -d $SHELLPACK_SOURCES/pft-${VERSION}-installed ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-pft -v ${VERSION} || die pft install script returned error
 fi
 cd $SHELLPACK_SOURCES/pft-${VERSION}-installed || die Failed to cd to pft install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo pft installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
@@ -29,6 +48,7 @@ if [ "$PFT_USE_PROCESSES" = "yes" ]; then
 	PFT_CLIENT_SWITCH=-n
 fi
 
+cd $SHELLPACK_SOURCES/pft-${VERSION}-installed || die Failed to cd to pft directory
 CLIENT=1
 while [ $CLIENT -le $PFT_MAX_CLIENTS ]; do
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
@@ -46,4 +66,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description pft
-#### Details pft-bench 5
+#### Details pft-bench 6

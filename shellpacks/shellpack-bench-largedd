@@ -1,8 +1,9 @@
 #!/bin/bash
 # An annoying number of bugs are reported as a result of dd'ing a large
 # file. Uses the same parameters as largedd for convenience
-
-P=largedd
+P=largedd-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
 SRCTAR=
 SRCTAR_EXTRA=
 TARGETSIZE_MB=
@@ -11,23 +12,36 @@ if [ "$LARGECOPY_THREADS" = "" ]; then
 	LARGECOPY_THREADS=$NUM_CPU
 fi
 
-. $SHELLPACK_INCLUDE/common.sh
-. $SHELLPACK_INCLUDE/include-monitor.sh
-
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		--srctar)
-			SRCTAR=$2
-			shift 2;;
-		--srctar-extra)
-			SRCTAR_EXTRA=$2
-			shift 2;;
-		--targetsize)
-			TARGETSIZE_MB=$2
-			shift 2
-			;;
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--srctar)
+		SRCTAR=$2
+		shift 2
+		;;
+	--srctar-extra)
+		SRCTAR_EXTRA=$2
+		shift 2
+		;;
+	--targetsize)
+		TARGETSIZE_MB=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
 
 STARTTIME=`date +%s`
 echo "0:Start time:$STARTTIME:0" > $LOGDIR_RESULTS/largedd.result
@@ -92,4 +106,4 @@ monitor_post_hook $LOGDIR_RESULTS deletesource
 CURRENTTIME=`date +%s`
 echo "5:Time to delete source:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_RESULTS/largedd.result
 #### Description Large dd
-#### Details largedd-bench 7
+#### Details largedd-bench 8

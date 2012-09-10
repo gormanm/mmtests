@@ -1,36 +1,42 @@
 #!/bin/bash
 # This script installs the page fault test
 P=pft-install
-VERSION=0.12x
+DEFAULT_VERSION=0.12x
 . $SHELLPACK_INCLUDE/common.sh
-
-# Basic args parser
-while [ "$1" != "" ]; do
-	case "$1" in
-		-v)
-			VERSION=$2
-			shift 2;;
-		*)	echo Unrecognised option: $1; shift
-	esac
-done
-
-# Download PFT
-TARFILE=pft-${VERSION}.tar.gz
 WEB_LOCATION="http://free.linux.hp.com/~lts/Tools"
 MIRROR_LOCATION="$WEBROOT/pft/$TARFILE"
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
-pushd $SHELLPACK_SOURCES > /dev/null
 
-# Uncompress it
-tar xf pft-${VERSION}.tar.gz
-if [ $? -ne 0 ]; then
-	error "$P: tar xf pft-${VERSION}.tar.gz failed"
-	exit $SHELLPACK_ERROR
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
 fi
 
-# Rename it
-DST_DIR=`tar ztf pft-${VERSION}.tar.gz | head -n 1`
-mv $DST_DIR pft-$VERSION-installed
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=pft-${VERSION}.tar.gz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+        error "$P: tar xf pft-${VERSION}.tar.gz failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR pft-${VERSION}-installed
+pushd pft-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 # Patch it if necessary
 pushd $SHELLPACK_SOURCES/pft-${VERSION}-installed
@@ -122,7 +128,6 @@ index 2ea0986..5544803 100644
 " | patch -p1 || exit -1
 fi
 
-# Build it
 make
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -132,4 +137,4 @@ fi
 
 echo pft installed successfully
 #### Description pft
-#### Details pft 5
+#### Details pft 6

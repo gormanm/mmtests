@@ -1,0 +1,15 @@
+#!/bin/bash
+# This script installs postgres and leaves it ready for benchmarking
+###SHELLPACK preamble postgresbuild-bench 9.0.4
+POSTGRES_USER=nobody
+POSTGRES_GROUP=nogroup
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --postgres-user POSTGRES_USER
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required postgres-${VERSION}
+
+echo postgres successfully installed
+exit $SHELLPACK_SUCCESS

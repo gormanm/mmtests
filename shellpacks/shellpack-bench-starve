@@ -1,32 +1,50 @@
 #!/bin/bash
 # This is the script for running the starve benchmark
 #
-P='starve'
-ITERATIONS=15
+P=starve-bench
+DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+ITERATIONS=15
 
-# Process the arguments
-while [ $# -gt 0 ]; do
-	case $1 in
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
 	-i)
 		ITERATIONS=$2
 		shift 2
 		;;
 	*)
-		echo Unrecognised commane-line parameter $1
-		usage
-		exit $SHELLPACK_ERROR
+		echo Unrecognised option: $1
+		shift
 	esac
 done
-
-# Install support files
-if [ ! \( -e $SHELLPACK_SOURCES/starve/test-starve \) ]; then
-  	$SHELLPACK_INCLUDE/shellpack-install-starve
-	check_status "$P: Installing starve"
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
 fi
 
-
-pushd $SHELLPACK_SOURCES/starve > /dev/null
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/starve
+fi
+if [ ! -d $SHELLPACK_SOURCES/starve-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-starve -v ${VERSION} || die starve install script returned error
+fi
+cd $SHELLPACK_SOURCES/starve-${VERSION}-installed || die Failed to cd to starve install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo starve installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
@@ -38,6 +56,7 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 # Run the test and gather results
+pushd $SHELLPACK_SOURCES/starve-${VERSION}-installed > /dev/null
 for i in `seq 1 $ITERATIONS`; do
 	echo Pass $i
 
@@ -48,4 +67,4 @@ cat $LOGDIR_RESULTS/time.* | grep elapsed > $LOGDIR_RESULTS/time
 
 exit $RETVAL
 #### Description Run the scheduler starve benchmark
-#### Details starve-bench 3
+#### Details starve-bench 4

@@ -1,0 +1,164 @@
+#!/bin/bash
+
+PACK=shellpack.tar.gz
+INSTALL=
+DOWNLOADED=no
+TEMP=
+
+usage() {
+	echo "install-shellpack"
+	echo
+	echo "   -p <packname>     Pack to install (Default: shellpack.tar.gz)"
+	echo "   -i <install dir>  Location to install the pack to"
+	echo "   -h, --help        Print this help message"
+	exit 1
+}
+
+die() {
+	echo ERROR: $@
+	if [ "$TEMP" != "" ]; then
+		cd /
+		rm -rf $TEMP
+	fi
+	exit -1
+}
+
+# Parse command line args
+ARGS=`getopt -o hi:p: --long help -n install-shellpack -- "$@"`
+eval set -- "$ARGS"
+while true; do
+	case "$1" in 
+	-p)
+		export PACK="$2"
+		shift 2
+		;;
+	-i)
+		export INSTALL="$2"
+		shift 2
+		;;
+	-h)
+		usage
+		;;
+	--)
+		break
+		;;
+	*)
+		echo "Unrecognised arg: $1"
+		usage
+		;;
+	esac
+done
+
+# Verify the pack exists
+if [ "$PACK" = "" -o ! -f "$PACK" ]; then
+	die Pack $PACK does not exist. Use -p
+fi
+
+if [ "$INSTALL" = "" ]; then
+	die Install directory not specified. Use -i
+fi
+cd $INSTALL || die Install directory does not exist
+INSTALL=`pwd`
+cd - > /dev/null
+
+# Setup a temporary directory
+TEMP=`mktemp 2> /dev/null`
+if [ "$TEMP" = "" ]; then
+	TEMP=`mktemp -t shellpack.XXXXXX 2> /dev/null`
+	if [ "$TEMP" = "" ]; then
+		die Cannot figure out how to use mktemp
+	fi
+fi
+mkdir $TEMP.dir
+rm $TEMP
+TEMP=$TEMP.dir
+
+cp "$PACK" $TEMP
+cd $TEMP
+
+PACK=`basename $PACK`
+tar -tf "$PACK" > /dev/null || die Failed to read pack contents
+tar -xf "$PACK"
+if [ ! -f install ];         then die File install is not in pack; fi
+if [ ! -f bench ];           then die File bench is not in pack; fi
+if [ ! -f name  ];           then die File name is not in pack; fi
+if [ ! -f version ];         then die File version is not in pack; fi
+if [ ! -f description ];     then die File description is not in pack; fi
+NAME=`cat name`
+VERSION=`cat version`
+DESCRIPTION=`cat description`
+if [ "$NAME" = "" ];         then die File name is empty; fi
+if [ "$VERSION" = "" ];      then die File version is empty; fi
+
+VERIFY=$(($VERSION+0))
+if [ "$VERSION" != "$VERIFY" ]; then die Version is garbage; fi
+
+cd $INSTALL
+
+if [ -f "shellpack-bench-$NAME" ]; then
+	LINE=`tail -1 "shellpack-bench-$NAME"`
+	OLD_NAME=`tail -1 "shellpack-bench-$NAME" | awk '{print $3}'`
+	OLD_VERS=`tail -1 "shellpack-bench-$NAME" | awk '{print $4}'`
+	OLD_DESC=`tail -2 "shellpack-bench-$NAME" | head -1 | sed -e 's/^#### Description //'`
+	NEW_NAME=`tail -1 $TEMP/bench | awk '{print $3}'`
+	NEW_VERS=`tail -1 $TEMP/bench | awk '{print $4}'`
+	NEW_DESC=`tail -2 $TEMP/bench | head -1 | sed -e 's/^#### Description //'`
+	if [ "$OLD_NAME" != "$NEW_NAME" ]; then
+		die Original benchmark script name of $OLD_NAME does not match $NEW_NAME. Possible shellpack naming collision. Playing safe
+	fi
+	if [ "$OLD_DESC" != "$NEW_DESC" ]; then
+		echo Old description: $OLD_DESC
+		echo New description: $NEW_DESC
+		die "Original description details do not match the new description. Possible shellpack naming collision. Playing safe"
+	fi
+	if [ $OLD_VERS -ge $NEW_VERS ]; then
+		echo "Existing benchmark has greater than or matching version than pack ($OLD_VERS > $NEW_VERS)"
+	else
+		echo "Updating shellpack benchmark"
+		rm ./shellpack-bench-$NAME
+		cp $TEMP/bench ./shellpack-bench-$NAME
+	fi
+else
+	echo "Installing shellpack benchmark"
+	cp $TEMP/bench ./shellpack-bench-$NAME
+fi
+
+if [ -f "shellpack-install-$NAME" ]; then
+	LINE=`tail -1 "shellpack-install-$NAME"`
+	OLD_NAME=`tail -1 "shellpack-install-$NAME" | awk '{print $3}'`
+	OLD_VERS=`tail -1 "shellpack-install-$NAME" | awk '{print $4}'`
+	OLD_DESC=`tail -2 "shellpack-install-$NAME" | head -1 | sed -e 's/^#### Description //'`
+	NEW_NAME=`tail -1 $TEMP/install | awk '{print $3}'`
+	NEW_VERS=`tail -1 $TEMP/install | awk '{print $4}'`
+	NEW_DESC=`tail -2 $TEMP/install | head -1 | sed -e 's/^#### Description //'`
+	if [ "$OLD_NAME" != "$NEW_NAME" ]; then
+		die Original install script name of $OLD_NAME does not match $NEW_NAME
+	fi
+	if [ "$OLD_DESC" != "$NEW_DESC" ]; then
+		echo Old description: $OLD_DESC
+		echo New description: $NEW_DESC
+		die Original description details does not match the new description
+	fi
+	if [ $OLD_VERS -ge $NEW_VERS ]; then
+		echo "Existing install has greater than or matching version than pack ($OLD_VERS > $NEW_VERS)"
+	else
+		echo "Updating shellpack install script"
+		rm ./shellpack-install-$NAME
+		cp $TEMP/install ./shellpack-install-$NAME
+	fi
+else
+	echo "Installing shellpack install script"
+	cp $TEMP/install ./shellpack-install-$NAME
+fi
+
+# Make executable
+chmod a+x $INSTALL/shellpack-bench-$NAME
+chmod a+x $INSTALL/shellpack-install-$NAME
+
+# Clean up temp files
+rm -rf $TEMP
+if [ "$DOWNLOADED" = "yes" ]; then
+	rm $PACK
+fi
+echo Installation $NEW_NAME shellpack complete
+exit 0

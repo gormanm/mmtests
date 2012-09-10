@@ -1,40 +1,52 @@
 #!/bin/bash
 # Benchmark a number of kernel builds
-
-P='kernbench'
-KERNEL_VERSION=2.6.30
-ITERATIONS=5
-NUM_CPUS=`grep processor /proc/cpuinfo | wc -l`
-FACTOR=1
+P=kernbench
+DEFAULT_VERSION=2.6.30
 . $SHELLPACK_INCLUDE/common.sh
+ITERATIONS=5
+FACTOR=1
 
-# Basic args parser
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		-k)
-			KERNEL_VERSION=$2
-			shift 2;;
-		-i)
-			ITERATIONS=$2
-			shift 2;;
-		-t)
-			THREADS=$2
-			shift 2;;
-		-f)
-			FACTOR=$2
-			shift 2;;
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	-k)
+		VERSION=$2
+		shift 2
+		;;
+	-i)
+		ITERATIONS=$2
+		shift 2
+		;;
+	-t)
+		THREADS=$2
+		shift 2
+		;;
+	-f)
+		FACTOR=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
-WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v2.6/linux-$KERNEL_VERSION.tar.gz
-MIRROR_LOCATION=$WEBROOT/kernbench/linux-$KERNEL_VERSION.tar.gz
-THREADS=$(($NUM_CPUS*$FACTOR))
+WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v2.6/linux-$VERSION.tar.gz
+MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
+THREADS=$(($NUMCPUS*$FACTOR))
 
 pushd $SHELLPACK_TEMP > /dev/null
 
-sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$KERNEL_VERSION.tar.gz
-tar xf linux-$KERNEL_VERSION.tar.gz || die Failed to extract
-cd linux-$KERNEL_VERSION || die Unexpected layout
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
+tar xf linux-$VERSION.tar.gz || die Failed to extract
+cd linux-$VERSION || die Unexpected layout
 
 yes '' | make defconfig > /dev/null 2>&1 || die Failed to make defconfig
 
@@ -70,4 +82,4 @@ rm -rf $TMPDIR/kernbench
 
 exit 0
 #### Description Benchmark based on kernel builds
-#### Details kernbench-bench 17
+#### Details kernbench-bench 19

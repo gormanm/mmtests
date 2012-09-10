@@ -1,55 +1,82 @@
 #!/bin/bash
 # This script installs netperf and runs the regression tests
-
 P=netperf-bench
-VERSION=2.4.5
+DEFAULT_VERSION=2.4.5
+. $SHELLPACK_INCLUDE/common.sh
 NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
 PROTOCOLS="UDP_STREAM TCP_STREAM"
 BUFFER_SIZES="64 128 256 1024 2048 3312 4096 6144 8192 10240 12288 14336 16384"
-. $SHELLPACK_INCLUDE/common.sh
 
 TASKSET_SERVER=
 TASKSET_CLIENT=
 
-# Basic args parser
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		-v)
-			VERSION=$2
-			shift 2;;
-		--udp-only)
-			PROTOCOLS=UDP_STREAM
-			shift;;
-		--tcp-only)
-			PROTOCOLS=TCP_STREAM
-			shift;;
-		--bind-same)
-			TASKSET_SERVER="taskset -c 0"
-			TASKSET_CLIENT="taskset -c 0"
-			shift;;
-		--bind-firstsecond)
-			TASKSET_SERVER="taskset -c 0"
-			TASKSET_CLIENT="taskset -c 1"
-			shift;;
-		--bind-firstlast)
-			TASKSET_SERVER="taskset -c 0"
-			TASKSET_CLIENT="taskset -c $(($NUMCPUS-1))"
-			shift;;
-		--buffer-sizes)
-			BUFFER_SIZES=`echo $2 | tr ',' ' '`
-			shift 2;;
-		*)	echo Unrecognised option: $1; shift
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--udp-only)
+		PROTOCOLS=UDP_STREAM
+		shift
+		;;
+	--tcp-only)
+		PROTOCOLS=TCP_STREAM
+		shift
+		;;
+	--bind-same)
+		TASKSET_SERVER="taskset -c 0"
+		TASKSET_CLIENT="taskset -c 0"
+		shift
+		;;
+	--bind-firstsecond)
+		TASKSET_SERVER="taskset -c 0"
+		TASKSET_CLIENT="taskset -c 1"
+		shift
+		;;
+	--bind-firstlast)
+		TASKSET_SERVER="taskset -c 0"
+		TASKSET_CLIENT="taskset -c $(($NUMCPUS-1))"
+		shift
+		;;
+	--buffer-sizes)
+		BUFFER_SIZES=`echo $2 | tr ',' ' '`
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
-# Install if necessary
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/netperf-${VERSION}
+fi
 if [ ! -d $SHELLPACK_SOURCES/netperf-${VERSION}-installed ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-netperf -v ${VERSION} || die netperf install script returned error
 fi
 cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo netperf installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
+
+cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf directory
 
 echo Killing old servers
 killall netserver
@@ -93,4 +120,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 8
+#### Details netperf-bench 11

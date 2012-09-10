@@ -1,52 +1,65 @@
 #!/bin/bash
 # memcachetest installer
 P=memcachetest-install
-GIT_LOCATION=https://github.com/ingenthr/memcachetest.git
-MIRROR_LOCATION="$WEBROOT/memcachetest"
 DEFAULT_VERSION=0.01
 . $SHELLPACK_INCLUDE/common.sh
+GIT_LOCATION=https://github.com/ingenthr/memcachetest.git
+MIRROR_LOCATION="$WEBROOT/memcachetest"
 
 # Basic argument parser
 while [ "$1" != "" ]; do
-  case "$1" in
-    -v)
-            VERSION=$2
-	    shift 2
-	    ;;
-    *)
-            echo Unrecognised option: $1
-	    shift
-  esac
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
 done
-
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=memcachetest-${VERSION}.tar.gz
-git_fetch $GIT_LOCATION memcachetest-$VERSION $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
-
+git_fetch $GIT_LOCATION memcachetest-${VERSION} $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-	error "$P: tar xf memcachetest-${VERSION}.tar.gz failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+        error "$P: tar xf memcachetest-${VERSION}.tar.gz failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR memcachetest-${VERSION}
 pushd memcachetest-${VERSION} > /dev/null || die Failed to rename tar
-echo "m4_define([VERSION_NUMBER], [0.8.3_6_g35fd1b9])" > m4/version.m4
 
-# Build
+pushd $SHELLPACK_SOURCES/memcachetest-${VERSION} || die Failed to change to source directory
+echo "m4_define([VERSION_NUMBER], [0.8.3_6_g35fd1b9])" > m4/version.m4
 ./config/autorun.sh || die Failed to generate configure script
-./configure --prefix=$SHELLPACK_SOURCES/memcachetest-${VERSION}-installed || die Failed to configure
-make         || die Failed to build
-make install || die Failed to install
+./configure --prefix=$SHELLPACK_SOURCES/memcachetest-${VERSION}-installed
+if [ $? -ne 0 ]; then
+	error "$P: configure failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+make -j$NUMCPUS
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+make install
+if [ $? -ne 0 ]; then
+	error "$P: make install failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
 
 echo memcachetest installed successfully
 #### Description memcachetest
-#### Details memcachetest 8
+#### Details memcachetest 13

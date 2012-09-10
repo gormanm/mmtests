@@ -1,24 +1,23 @@
 #!/bin/bash
 # postmarkmark installer
 P=postmark-install
-WEB_LOCATION=http://ftp.de.debian.org/debian/pool/main/p/postmark
-MIRROR_LOCATION="$WEBROOT/postmark/"
 DEFAULT_VERSION=1.51.orig
 . $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION=http://ftp.de.debian.org/debian/pool/main/p/postmark
+MIRROR_LOCATION="$WEBROOT/postmark/"
 
 # Basic argument parser
 while [ "$1" != "" ]; do
-  case "$1" in
-    -v)
-            VERSION=$2
-	    shift 2
-	    ;;
-    *)
-            echo Unrecognised option: $1
-	    shift
-  esac
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
 done
-
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -187,4 +186,4 @@ fi
 
 echo postmark installed successfully
 #### Description postmark
-#### Details postmark 15
+#### Details postmark 16

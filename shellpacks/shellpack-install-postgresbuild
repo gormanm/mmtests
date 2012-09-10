@@ -1,8 +1,9 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
-
 P=postgres-install
-VERSION=9.0.4
+DEFAULT_VERSION=9.0.4
+. $SHELLPACK_INCLUDE/common.sh
+
 LIBHUGETLBFS_VERSION=2.9
 POSTGRES_USER=nobody
 POSTGRES_GROUP=nogroup
@@ -10,40 +11,53 @@ USE_LARGE_PAGES=no
 EFFECTIVE_CACHESIZE=$((756*1048576))
 SHARED_BUFFERS=$((32*1048576))
 WORK_MEM=$((64*1048576))
-. $SHELLPACK_INCLUDE/common.sh
 
 NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
 
-# Basic args parser
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		-v)	export VERSION=$2; shift 2;;
-		--cnf)	export CNF_FILE=$2; shift 2;;
-		--postgres-user) 
-			export POSTGRES_USER=$2
-			shift 2;;
-		--use-large-pages)
-			export USE_LARGE_PAGES=yes
-			shift
-			;;
-		--force-build)
-			export FORCE_BUILD=yes
-			shift;;
-		--shutdown)
-			export SHUTDOWN=yes
-			shift;;
-		--effective_cachesize)
-			export EFFECTIVE_CACHESIZE=$2
-			shift 2;;
-		--shared_buffers)
-			export SHARED_BUFFERS=$2
-			shift 2;;
-		--work_mem)
-			export WORK_MEM=$2
-			shift 2;;
-		*)	echo Unrecognised option: $1; shift
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--postgres-user)
+		POSTGRES_USER=$2
+		shift 2
+		;;
+	--effective_cachesize)
+		EFFECTIVE_CACHESIZE=$2
+		shift 2
+		;;
+	--shared_buffers)
+		SHARED_BUFFERS=$2
+		shift 2
+		;;
+	--work_mem)
+		WORK_MEM=$2
+		shift 2
+		;;
+	--use-large-pages)
+		USE_LARGE_PAGES=yes
+		shift
+		;;
+	--force-build)
+		FORCE_BUILD=yes
+		shift
+		;;
+	--shutdown)
+		SHUTDOWN=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
 WEB_LOCATION=http://ftp.ie.postgresql.org/mirrors/ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz
 MIRROR_LOCATION="$WEBROOT/postgres/postgresql-${VERSION}.tar.gz"
 
@@ -86,11 +100,18 @@ if [ ! -e $SHELLPACK_SOURCES/postgres-${VERSION}-installed ]; then
 		--enable-assembler \
 		|| die Failed to configure
 
-	echo Building postgres
-	make -j$NUMCPUS || die "Failed to build postgres"
-
-	echo Installing postgres
-	make install || die "Failed to install postgres"
+make -j$NUMCPUS
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+make install
+if [ $? -ne 0 ]; then
+	error "$P: make install failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
 	touch $SHELLPACK_SOURCES/postgres-${VERSION}-installed/unconfigured
 fi
 
@@ -280,4 +301,4 @@ fi
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 18
+#### Details postgresbuild 20

@@ -1,0 +1,82 @@
+#!/bin/bash
+# An annoying number of bugs are reported as a result of dd'ing a large
+# file. Uses the same parameters as largedd for convenience
+###SHELLPACK preamble largedd-bench 0
+SRCTAR=
+SRCTAR_EXTRA=
+TARGETSIZE_MB=
+NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
+if [ "$LARGECOPY_THREADS" = "" ]; then
+	LARGECOPY_THREADS=$NUM_CPU
+fi
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --srctar       SRCTAR
+###SHELLPACK parseargParam --srctar-extra SRCTAR_EXTRA
+###SHELLPACK parseargParam --targetsize   TARGETSIZE_MB
+###SHELLPACK parseargEnd
+
+###SHELLPACK monitor_hooks
+
+STARTTIME=`date +%s`
+echo "0:Start time:$STARTTIME:0" > $LOGDIR_RESULTS/largedd.result
+
+monitor_pre_hook $LOGDIR_RESULTS download
+STARTTIME=`date +%s`
+echo Downloading source tar: $SRCTAR
+cd $SHELLPACK_TEMP || die Failed to change to temp directory
+wget -O 0 -q $SRCTAR || die Failed to download source tar
+if [ "$SRCTAR_EXTRA" != "" ]; then
+	echo Downloading extra source tar: $SRCTAR_EXTRA
+	wget -O 1 -q $SRCTAR_EXTRA || die Failed to download source tar
+	cat 0 1 > 0.tmp
+	mv 0.tmp 0
+fi
+monitor_post_hook $LOGDIR_RESULTS download
+CURRENTTIME=`date +%s`
+echo "1:Time to download tar:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_RESULTS/largedd.result
+
+monitor_pre_hook $LOGDIR_RESULTS copy
+STARTTIME=`date +%s`
+SRCSIZE=`du -BM 0 | tail -1 | awk '{print $1}' | sed -e 's/M//'`
+NR_COPIES=$((TARGETSIZE_MB/SRCSIZE))
+IN_PROGRESS=1
+DIRECTORIES=`seq 0 $((NR_COPIES-1))`
+echo Making $NR_COPIES copies via dd, source size ${SRCSIZE}M
+while [ $IN_PROGRESS -lt $NR_COPIES ]; do
+	NR_ACTIVE=0
+	for PID in `cat dd.pids`; do
+		if [ "`ps h --pid $PID`" != "" ]; then
+			NR_ACTIVE=$((NR_ACTIVE+1))
+		fi
+	done
+
+	if [ $NR_ACTIVE -lt $LARGECOPY_THREADS ]; then
+		dd if=0 of=$IN_PROGRESS &
+		PID=$!
+		echo $PID >> dd.pids
+		IN_PROGRESS=$((IN_PROGRESS+1))
+		echo o Started copy pid $PID
+	fi
+	sleep 1
+done
+
+echo Waiting on completion
+for PID in `cat dd.pids`; do
+	echo -n "o $PID"
+	while [ "`ps h --pid $PID`" != "" ]; do
+		sleep 2
+	done
+	echo
+done
+monitor_post_hook $LOGDIR_RESULTS dd
+CURRENTTIME=`date +%s`
+echo "3:Time to dd source files:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_RESULTS/largedd.result
+
+monitor_pre_hook $LOGDIR_RESULTS deletesource
+STARTTIME=`date +%s`
+echo Deleting source files
+rm -rf $DIRECTORIES
+monitor_post_hook $LOGDIR_RESULTS deletesource
+CURRENTTIME=`date +%s`
+echo "5:Time to delete source:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_RESULTS/largedd.result

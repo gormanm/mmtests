@@ -1,0 +1,88 @@
+#!/bin/bash
+# This script installs netperf and runs the regression tests
+###SHELLPACK preamble netperf-bench 2.4.5
+NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
+PROTOCOLS="UDP_STREAM TCP_STREAM"
+BUFFER_SIZES="64 128 256 1024 2048 3312 4096 6144 8192 10240 12288 14336 16384"
+
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+	--udp-only)
+		PROTOCOLS=UDP_STREAM
+		shift
+		;;
+	--tcp-only)
+		PROTOCOLS=TCP_STREAM
+		shift
+		;;
+	--bind-same)
+		TASKSET_SERVER="taskset -c 0"
+		TASKSET_CLIENT="taskset -c 0"
+		shift
+		;;
+	--bind-firstsecond)
+		TASKSET_SERVER="taskset -c 0"
+		TASKSET_CLIENT="taskset -c 1"
+		shift
+		;;
+	--bind-firstlast)
+		TASKSET_SERVER="taskset -c 0"
+		TASKSET_CLIENT="taskset -c $(($NUMCPUS-1))"
+		shift
+		;;
+	--buffer-sizes)
+		BUFFER_SIZES=`echo $2 | tr ',' ' '`
+		shift 2
+		;;
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required netperf-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf directory
+
+echo Killing old servers
+killall netserver
+
+echo Starting server
+NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
+$TASKSET_SERVER $NETROOT/bin/netserver || die Failed to start netserver
+sleep 2
+
+for PROTOCOL in $PROTOCOLS; do
+	echo -n > $LOGDIR_RESULTS/netperf-$PROTOCOL.result
+
+	EXTRA=
+	if [ "$PROTOCOL" = "UDP_STREAM" ]; then
+		EXTRA="-P 15895 12391 -s 32768 -S 32768"
+	fi
+	
+	for SIZE in $BUFFER_SIZES; do
+		echo Running test $PROTOCOL 
+		monitor_pre_hook $LOGDIR_RESULTS $SIZE
+		$TASKSET_CLIENT $NETROOT/bin/netperf \
+			-t $PROTOCOL \
+			-i 50,6 -I 99,1 \
+			-l 20 \
+			-H 127.0.0.1 \
+			-- \
+			$EXTRA \
+			-m $SIZE \
+			-M $SIZE \
+				2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-$SIZE.log \
+				|| die Failed to run netperf
+		monitor_post_hook $LOGDIR_RESULTS $SIZE
+		if [ "$PROTOCOL" = "UDP_STREAM" ]; then
+			grep -v '[a-zA-Z]' $LOGDIR_RESULTS/$PROTOCOL-$SIZE.log | grep -v '^$' | head -1 | awk '{print $2" "$6}' >> $LOGDIR_RESULTS/netperf-$PROTOCOL.result
+		else
+			grep -v '[a-zA-Z]' $LOGDIR_RESULTS/$PROTOCOL-$SIZE.log | grep -v '^$' | head -1 | awk '{print $3" "$5}' >> $LOGDIR_RESULTS/netperf-$PROTOCOL.result
+		fi
+	done
+done
+killall netserver
+
+exit $SHELLPACK_SUCCESS

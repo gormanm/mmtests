@@ -1,0 +1,15 @@
+#!/bin/bash
+# fs-mark installer
+###SHELLPACK preamble fsmark-install 3.3
+WEB_LOCATION=http://heanet.dl.sourceforge.net/project/fsmark/fsmark/
+MIRROR_LOCATION="$WEBROOT/fsmark/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch $VERSION/fs_mark-${VERSION}.tar.gz fsmark-${VERSION}-installed
+
+###SHELLPACK build_start fsmark-${VERSION}-installed
+###SHELLPACK make
+
+echo fsmark installed successfully

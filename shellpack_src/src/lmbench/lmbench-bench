@@ -1,0 +1,62 @@
+#!/bin/bash
+# This script installs and runs lmbench
+# All parameters are passed by environment variables
+###SHELLPACK preamble lmbench 3
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required lmbench-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/lmbench-${VERSION}-installed || die Failed to cd to lmbench directory
+for LMBENCH_TEST in $LMBENCH_TESTS; do
+	# Prepare test
+	case $LMBENCH_TEST in
+	lat_mmap)
+		dd if=/dev/zero of=$SHELLPACK_TEMP/lmbench.file ibs=4096 count=$((LMBENCH_LATMMAP_FILESIZE/4096))
+		;;
+	lat_ctx)
+		echo
+		;;
+	*)
+		die "Unrecognised test $LMBENCH_TEST for preparation"
+		;;
+	esac
+
+	# Run test
+	monitor_pre_hook $LOGDIR_RESULTS $LMBENCH_TEST
+	LMBENCH_RESULTS=$LOGDIR_RESULTS/lmbench-$LMBENCH_TEST.log
+
+	case $LMBENCH_TEST in
+	lat_mmap)
+		./bin/$LMBENCH_TEST \
+			-N $LMBENCH_LATMMAP_ITERATIONS \
+			$LMBENCH_LATMMAP_FILESIZE $SHELLPACK_TEMP/lmbench.file \
+				2>&1 | tee -a $LMBENCH_RESULTS
+		;;
+	lat_ctx)
+		CLIENT=1
+		while [ $CLIENT -lt $LMBENCH_LATCTX_MAXCLIENTS ]; do
+			./bin/$LMBENCH_TEST \
+				-s $LMBENCH_LATCTX_SIZE \
+				$CLIENT 2>&1 | tee -a $LMBENCH_RESULTS
+			if [ $CLIENT -lt $NUMCPUS ]; then
+				CLIENT=$((CLIENT+1))
+			else
+				CLIENT=$((CLIENT+7))
+			fi
+		done
+		;;
+	*)
+		die "Unrecognised test $LMBENCH_TEST for execution"
+		;;
+	esac
+	monitor_post_hook $LOGDIR_RESULTS $LMBENCH_TEST 
+
+	rm -f $SHELLPACK_TEMP/lmbench.file 2> /dev/null
+done
+
+exit $SHELLPACK_SUCCESS

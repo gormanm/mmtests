@@ -1,35 +1,50 @@
 #!/bin/bash
 # This script installs and runs lmbench
 # All parameters are passed by environment variables
-
-P=lmbench-bench
-VERSION=3
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
-
+P=lmbench
+DEFAULT_VERSION=3
 . $SHELLPACK_INCLUDE/common.sh
 
-# Basic args parser
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		-v)
-			VERSION=$2
-			shift 2
-			;;
-		*)	echo Unrecognised option: $1
-			shift
-			;;
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
-# Install if necessary
-if [ ! -d $SHELLPACK_SOURCES/lmbench${VERSION}-installed ]; then
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/lmbench-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/lmbench-${VERSION}-installed ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-lmbench -v ${VERSION} || die lmbench install script returned error
 fi
-cd $SHELLPACK_SOURCES/lmbench${VERSION}-installed || die Failed to cd to lmbench install directory
+cd $SHELLPACK_SOURCES/lmbench-${VERSION}-installed || die Failed to cd to lmbench install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo lmbench installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
+cd $SHELLPACK_SOURCES/lmbench-${VERSION}-installed || die Failed to cd to lmbench directory
 for LMBENCH_TEST in $LMBENCH_TESTS; do
 	# Prepare test
 	case $LMBENCH_TEST in
@@ -61,7 +76,7 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 			./bin/$LMBENCH_TEST \
 				-s $LMBENCH_LATCTX_SIZE \
 				$CLIENT 2>&1 | tee -a $LMBENCH_RESULTS
-			if [ $CLIENT -lt $NUM_CPU ]; then
+			if [ $CLIENT -lt $NUMCPUS ]; then
 				CLIENT=$((CLIENT+1))
 			else
 				CLIENT=$((CLIENT+7))
@@ -79,4 +94,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description lmbench
-#### Details lmbench-bench 10
+#### Details lmbench-bench 11

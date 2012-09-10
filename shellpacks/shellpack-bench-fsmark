@@ -2,9 +2,9 @@
 # This script installs fsmark and runs the regression tests
 
 P=fsmark-bench
-VERSION=3.3
+DEFAULT_VERSION=3.3
+. $SHELLPACK_INCLUDE/common.sh
 NUM_THREADS=1
-NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
 NUM_CPU_THREADS=1
 NUM_DIRECTORIES=100
 NUM_FILES_PER_DIRECTORY=25000
@@ -12,52 +12,71 @@ NUM_FILES_PER_ITERATION=50000
 NUM_ITERATIONS=63
 FILESIZE=0
 CPU_FACTOR=1
-. $SHELLPACK_INCLUDE/common.sh
 
-# Basic args parser
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		-v)
-			VERSION=$2
-			shift 2;;
-		--threads)
-			NUM_THREADS=$2
-			shift 2
-			;;
-		--threads-per-cpu)
-			NUM_CPU_THREADS=$2
-			NUM_THREADS=$(($NUM_CPU_THREADS*$NUMCPUS))
-			shift 2
-			;;
-		--filesize)
-			FILESIZE=$2
-			shift 2
-			;;
-		--nr-files-per-iteration)
-			NUM_FILES_PER_ITERATION=$2
-			shift 2
-			;;
-		--nr-files-per-directory)
-			NUM_FILES_PER_DIRECTORY=$2
-			shift 2
-			;;
-		--nr-directories)
-			NUM_DIRECTORIES=$2
-			shift 2
-			;;
-		--iterations)
-			NUM_ITERATIONS=$2
-			shift 2
-			;;
-		*)	echo Unrecognised option: $1; shift
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--threads)
+		NUM_THREADS=$2
+		shift 2
+		;;
+	--filesize)
+		FILESIZE=$2
+		shift 2
+		;;
+	--nr-files-per-iteration)
+		NUM_FILES_PER_ITERATION=$2
+		shift 2
+		;;
+	--nr-files-per-directory)
+		NUM_FILES_PER_DIRECTORY=$2
+		shift 2
+		;;
+	--nr-directories)
+		NUM_DIRECTORIES=$2
+		shift 2
+		;;
+	--iterations)
+		NUM_ITERATIONS=$2
+		shift 2
+		;;
+	--threads-per-cpu)
+		NUM_CPU_THREADS=$2
+		NUM_THREADS=$(($NUM_CPU_THREADS*$NUMCPUS))
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
-# Install if necessary
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/fsmark-${VERSION}
+fi
 if [ ! -d $SHELLPACK_SOURCES/fsmark-${VERSION}-installed ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-fsmark -v ${VERSION} || die fsmark install script returned error
 fi
 cd $SHELLPACK_SOURCES/fsmark-${VERSION}-installed || die Failed to cd to fsmark install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo fsmark installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
@@ -101,4 +120,4 @@ monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description fsmark
-#### Details fsmark-bench 15
+#### Details fsmark-bench 19

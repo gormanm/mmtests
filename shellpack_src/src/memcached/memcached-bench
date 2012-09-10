@@ -1,0 +1,17 @@
+#!/bin/bash
+# This script installs memcached and leaves it ready for benchmarking
+###SHELLPACK preamble memcached-bench 1.4.13
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+INSTALL_SWITCH=
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	INSTALL_SWITCH=--install-only
+fi
+
+###SHELLPACK check_install_required memcached-${VERSION} $INSTALL_SWITCH
+
+echo memcached successfully installed
+exit $SHELLPACK_SUCCESS

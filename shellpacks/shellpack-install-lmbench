@@ -1,50 +1,46 @@
 #!/bin/bash
-# lmbench installer
 P=lmbench-install
-WEB_LOCATION=http://www.bitmover.com/lmbench
-MIRROR_LOCATION="$WEBROOT/lmbench"
 DEFAULT_VERSION=3
 . $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION=http://www.bitmover.com/lmbench
+MIRROR_LOCATION="$WEBROOT/lmbench"
 
 # Basic argument parser
 while [ "$1" != "" ]; do
-  case "$1" in
-    -v)
-            VERSION=$2
-	    shift 2
-	    ;;
-    *)
-            echo Unrecognised option: $1
-	    shift
-  esac
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
 done
-
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+# Unconditionally fetch the tar to find out the real version number
 TARFILE=lmbench${VERSION}.tar.gz
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
-
-# Building from scratch, uncompress the tar
 cd $SHELLPACK_SOURCES
-tar xf $TARFILE
+tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-  error "$P: tar xf $TARFILE failed"
-  popd > /dev/null
-  exit $SHELLPACK_ERROR
+        error "$P: tar xf lmbench${VERSION}.tar.gz failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-mv $DST_DIR lmbench${VERSION}-installed
-pushd lmbench${VERSION}-installed > /dev/null || die Failed to rename tar
+mv $DST_DIR lmbench-${VERSION}-installed
+pushd lmbench-${VERSION}-installed > /dev/null || die Failed to rename tar
 
+pushd $SHELLPACK_SOURCES/lmbench-${VERSION}-installed || die Failed to change to source directory
 # Workaround build problem
 mkdir SCCS
 touch SCCS/s.ChangeSet
-
-# Build
 cd src
 make
 if [ $? -ne 0 ]; then
@@ -58,4 +54,4 @@ cp ../bin/*/* ../bin/
 
 echo lmbench installed successfully
 #### Description lmbench
-#### Details lmbench 10
+#### Details lmbench 11

@@ -1,0 +1,34 @@
+#!/bin/bash
+# This script installs pft and whatever
+###SHELLPACK preamble pft-bench 0.12x
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required pft-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+PFT_CLIENT_SWITCH=-t
+if [ "$PFT_USE_PROCESSES" = "yes" ]; then
+	PFT_CLIENT_SWITCH=-n
+fi
+
+cd $SHELLPACK_SOURCES/pft-${VERSION}-installed || die Failed to cd to pft directory
+CLIENT=1
+while [ $CLIENT -le $PFT_MAX_CLIENTS ]; do
+	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
+	echo -n > $LOGDIR_RESULTS/pft-$CLIENT.log
+	for ITER in `seq 1 $PFT_ITERATIONS`; do
+		( ./pft \
+			-m			$PFT_MAPPING_SIZE \
+			$PFT_CLIENT_SWITCH	$CLIENT		  \
+			2>&1 | tee -a $LOGDIR_RESULTS/pft-$CLIENT.log ) \
+				|| die Failed to run pft
+	done
+	monitor_post_hook $LOGDIR_RESULTS $CLIENT
+	CLIENT=$((CLIENT+1))
+done
+
+exit $SHELLPACK_SUCCESS

@@ -2,31 +2,29 @@
 # This is the script for running the hackbench benchmark
 #
 # Usage $P <pipes|sockets> <number-of-groups> -i iterations
-#
-
-P='hackbench'
+P=hackbench-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
 iterations=1
 conn_name=
 conn_type=
 num_groups=
-. $SHELLPACK_INCLUDE/common.sh
 
-function usage() {
-  echo "Usage:  $P <pipes|sockets> <number-of-groups> [-i iterations]
-    Specify a connection type of 'pipes' or 'sockets' and the number of
-    client/server groups to create.  For example, 'hackbench sockets 1'
-    creates a group of 20 processes listening on a socket each, and 20
-    writers.  Each of the writers writes 100 messages to each socket, i.e.,
-    20 x 100 messages each.  'hackbench sockets N' simply runs N of these
-    groups in parallel. If a comma-separated list of numbers is given
-    for groups, each of those values will be used in turn" 
-  exit -1
-}
-
-
-# Process the arguments ######################################################
-while [ $# -gt 0 ]; do
-	case $1 in
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
 	pipes)
 		conn_type="-pipe"
 		conn_name=pipes
@@ -43,32 +41,35 @@ while [ $# -gt 0 ]; do
 		shift 2
 		;;
 	*)
-		echo Unrecognised commane-line parameter $1
-		usage
-		exit $SHELLPACK_ERROR
+		echo Unrecognised option: $1
+		shift
 	esac
 done
-
-# Ensure pipes or sockets were specified
-if [ "$num_groups" = "" ]; then
-	usage
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
 fi
 
-# Install support files ######################################################
-if [ ! \( -e $SHELLPACK_SOURCES/hackbench/hackbench \) ]; then
-  	$SHELLPACK_INCLUDE/shellpack-install-hackbench
-	check_status "$P: Installing hackbench"
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/hackbench
 fi
-
-
-# Prepare the benchmark ######################################################
-
-pushd $SHELLPACK_SOURCES/hackbench > /dev/null
+if [ ! -d $SHELLPACK_SOURCES/hackbench-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-hackbench -v ${VERSION}  || die hackbench install script returned error
+fi
+cd $SHELLPACK_SOURCES/hackbench-${VERSION}-installed || die Failed to cd to hackbench install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo hackbench installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-# Run the benchmark ##########################################################
+# Ensure pipes or sockets were specified
+if [ "$num_groups" = "" ]; then
+	die Failed to specify pipes or sockets
+fi
+
+pushd $SHELLPACK_SOURCES/hackbench-${VERSION}-installed > /dev/null
 RESULTSLOG=$LOGDIR_RESULTS/hackbench
 TIFS=$IFS
 RETVAL=0
@@ -101,4 +102,4 @@ done
 
 exit $RETVAL
 #### Description Run the HackBench benchmark
-#### Details hackbench-bench 11
+#### Details hackbench-bench 17

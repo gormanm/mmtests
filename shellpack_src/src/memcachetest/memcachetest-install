@@ -1,0 +1,18 @@
+#!/bin/bash
+# memcachetest installer
+###SHELLPACK preamble memcachetest-install 0.01
+GIT_LOCATION=https://github.com/ingenthr/memcachetest.git
+MIRROR_LOCATION="$WEBROOT/memcachetest"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch memcachetest-${VERSION}.tar.gz memcachetest-${VERSION}
+
+###SHELLPACK build_start memcachetest-${VERSION}
+echo "m4_define([VERSION_NUMBER], [0.8.3_6_g35fd1b9])" > m4/version.m4
+./config/autorun.sh || die Failed to generate configure script
+###SHELLPACK build_configure memcachetest-${VERSION}
+###SHELLPACK make_make_install memcachetest-${VERSION}
+
+echo memcachetest installed successfully

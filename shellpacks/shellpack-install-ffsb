@@ -1,41 +1,37 @@
 #!/bin/bash
 # ffsb installer
 P=ffsb-install
-WEB_LOCATION=http://heanet.dl.sourceforge.net/project/ffsb/ffsb/
-#ffsb-6.0-rc2/ffsb-6.0-rc2.tar.bz2
-MIRROR_LOCATION="$WEBROOT/ffsb/"
 DEFAULT_VERSION=6.0-rc2
 . $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION=http://heanet.dl.sourceforge.net/project/ffsb/ffsb/
+MIRROR_LOCATION="$WEBROOT/ffsb/"
 
 # Basic argument parser
 while [ "$1" != "" ]; do
-  case "$1" in
-    -v)
-            VERSION=$2
-	    shift 2
-	    ;;
-    *)
-            echo Unrecognised option: $1
-	    shift
-  esac
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
 done
-
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-# Unconditionally fetch the tar to find out the real version number
 WEB_LOCATION=$WEB_LOCATION/ffsb-$VERSION
+# Unconditionally fetch the tar to find out the real version number
 TARFILE=ffsb-${VERSION}.tar.bz2
-sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
-
-# Building from scratch, uncompress the tar
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
-tar xf $TARFILE
+tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-  error "$P: tar xf $TARFILE failed"
-  popd > /dev/null
-  exit $SHELLPACK_ERROR
+        error "$P: tar xf ffsb-${VERSION}.tar.bz2 failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -43,31 +39,26 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR ffsb-${VERSION}
 pushd ffsb-${VERSION} > /dev/null || die Failed to rename tar
 
-# Configure
+pushd $SHELLPACK_SOURCES/ffsb-${VERSION} || die Failed to change to source directory
 ./configure --prefix=$SHELLPACK_SOURCES/ffsb-${VERSION}-installed
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
-
-# Build
 make
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
-
-# Install
 make install
 if [ $? -ne 0 ]; then
-	error "$P: install failed"
+	error "$P: make install failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
 
-
 echo ffsb installed successfully
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb 4
+#### Details ffsb 7

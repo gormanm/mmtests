@@ -1,32 +1,57 @@
 #!/bin/bash
 # This script installs postmark and runs the regression tests
-
 P=postmark-bench
-VERSION=1.51.orig
+DEFAULT_VERSION=1.51.orig
 . $SHELLPACK_INCLUDE/common.sh
 CONSUME_MEMORY=no
 
-# Basic args parser
+# Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		-v)
-			VERSION=$2
-			shift 2;;
-		--consume-memory)
-			CONSUME_MEMORY=yes
-			shift 1;;
-		*)	echo Unrecognised option: $1; shift
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--consume-memory)
+		CONSUME_MEMORY=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
-# Install if necessary
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/postmark-${VERSION}
+fi
 if [ ! -d $SHELLPACK_SOURCES/postmark-${VERSION}-installed ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-postmark -v ${VERSION} || die postmark install script returned error
 fi
 cd $SHELLPACK_SOURCES/postmark-${VERSION}-installed || die Failed to cd to postmark install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo postmark installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+cd $SHELLPACK_SOURCES/postmark-${VERSION}-installed || die Failed to cd to postmark install directory
 
 # Write configuration file
 echo "set transactions $POSTMARK_TRANSACTIONS
@@ -117,4 +142,4 @@ monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description postmark
-#### Details postmark-bench 15
+#### Details postmark-bench 16

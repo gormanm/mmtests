@@ -110,7 +110,7 @@ gethugetlb_order() {
 ##
 # Get memtotals
 getmemtotals() {
-	if [ "$MEMTOTAL_BYTES" != "" ]; then
+	if [ "$MEMTOTAL_PAGES" != "" ]; then
 		return
 	fi
 	getpagesize

@@ -9,6 +9,9 @@ if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
 	export PATH=$SCRIPTDIR/stat:$PATH
 fi
 
+MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
+
 function die() {
 	rm -rf $SHELLPACK_TEMP
 	if [ "$P" != "" ]; then
@@ -108,7 +111,8 @@ function git_fetch() {
 		if [ "$GIT" = "NOT_AVAILABLE" ]; then
 			die Benchmark is not publicly available. You must make it available from a local mirror
 		fi
-			
+
+		cd $SHELLPACK_SOURCES
 		echo "$P: Cloning from internet $GIT"
 		git clone $GIT $TREE
 		if [ $? -ne 0 ]; then
@@ -117,6 +121,7 @@ function git_fetch() {
 		cd $TREE || die "$P: Could not cd $TREE"
 		echo Creating $OUTPUT
 		git archive --format=tar --prefix=$TREE/ master | gzip -c > $OUTPUT
+		cd -
 	fi
 }
 

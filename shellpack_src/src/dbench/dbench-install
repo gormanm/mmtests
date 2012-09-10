@@ -1,0 +1,24 @@
+#!/bin/bash
+# dbench installer
+###SHELLPACK preamble dbench-install 3.04
+GIT_LOCATION=git://git.samba.org/sahlberg/dbench.git
+WEB_LOCATION=http://samba.org/ftp/tridge/dbench/
+MIRROR_LOCATION="$WEBROOT/dbench/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch dbench-${VERSION}.tar.gz dbench-${VERSION}
+
+# Build
+###SHELLPACK build_start dbench-${VERSION}
+###SHELLPACK build_autogen dbench-${VERSION}
+###SHELLPACK build_configure dbench-${VERSION}
+###SHELLPACK make_make_install
+
+# Fixups
+if [ ! -e $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share ]; then
+	cp $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/doc/dbench/loadfiles/client.txt $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share
+fi
+
+echo dbench installed successfully

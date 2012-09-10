@@ -28,12 +28,6 @@ CONFIDENCE_LIMIT=2
 OLTP_TRANSTYPE=
 . $SHELLPACK_INCLUDE/common.sh
 
-# Save some typing
-die() {
-	echo "$P: ERROR $@"
-	exit $SHELLPACK_ERROR
-}
-
 # Basic args parser
 while [ "$1" != "" ]; do
 	case "$1" in
@@ -392,4 +386,4 @@ reset_hugepages
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 27
+#### Details sysbench-bench 29

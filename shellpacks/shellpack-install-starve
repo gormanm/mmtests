@@ -1,17 +1,32 @@
 #!/bin/bash
-
-P='starve-install'
+P=starve-install
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
 WEB_LOCATION="http://www.hpl.hp.com/research/linux/kernel/prog/test-starve.c"
 MIRROR_LOCATION="$WEBROOT/starve/test-starve.c"
 
-. $SHELLPACK_INCLUDE/common.sh
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
 cd $SHELLPACK_SOURCES || die Sources directory does not exist
-rm -rf starve
-mkdir -p starve
+rm -rf starve-${VERSION}-installed
+mkdir -p starve-${VERSION}-installed
 
-sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/starve/test-starve.c
-cd $SHELLPACK_SOURCES/starve
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/starve-${VERSION}-installed/test-starve.c
+cd $SHELLPACK_SOURCES/starve-${VERSION}-installed
 
 gcc -O2 test-starve.c -o test-starve
 if [ $? -ne 0 ]; then
@@ -20,4 +35,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description Run the scheduler starve benchmark
-#### Details starve 3
+#### Details starve 4
