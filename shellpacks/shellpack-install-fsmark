@@ -6,6 +6,8 @@ DEFAULT_VERSION=3.3
 WEB_LOCATION=http://heanet.dl.sourceforge.net/project/fsmark/fsmark/
 MIRROR_LOCATION="$WEBROOT/fsmark/"
 
+install-depends glibc-devel-static glibc-devel-static-32bit
+
 # Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
@@ -39,7 +41,7 @@ mv $DST_DIR fsmark-${VERSION}-installed
 pushd fsmark-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/fsmark-${VERSION}-installed || die Failed to change to source directory
-make
+make -j$NUMCPUS
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -48,4 +50,4 @@ fi
 
 echo fsmark installed successfully
 #### Description fsmark
-#### Details fsmark 19
+#### Details fsmark 20

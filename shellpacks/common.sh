@@ -105,6 +105,8 @@ function git_fetch() {
 	MIRROR=$3
 	OUTPUT=$4
 
+	install-depends git-core
+
 	echo "$P: Fetching from mirror $MIRROR"
 	wget -q -O $OUTPUT $MIRROR
 	if [ $? -ne 0 ]; then

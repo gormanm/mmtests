@@ -38,6 +38,8 @@ fi
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $CONFIG
+
+# Create directories that must exist
 cd $SHELLPACK_TOPLEVEL
 for TEST in $MMTESTS; do
 	rm -rf $SHELLPACK_LOG/$TEST
@@ -47,10 +49,16 @@ for DIRNAME in $SHELLPACK_SOURCES $SHELLPACK_LOG; do
 		mkdir -p "$DIRNAME"
 	fi
 done
+
+# Install packages that are generally needed by a large number of tests
+install-depends autoconf automake binutils-devel bzip2 dosfstools expect \
+	expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch \
+	recode systemtap xfsprogs xfsprogs-devel
+
+# Check monitoring
 if [ "$FORCE_RUN_MONITOR" != "" ]; then
 	RUN_MONITOR=$FORCE_RUN_MONITOR
 fi
-
 if [ "$RUN_MONITOR" = "no" ]; then
 	# Disable monitor
 	unset MONITORS_PLAIN

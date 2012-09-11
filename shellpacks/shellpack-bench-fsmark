@@ -70,7 +70,7 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/fsmark-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/fsmark-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-fsmark -v ${VERSION} || die fsmark install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-fsmark -v ${VERSION}  || die fsmark install script returned error
 fi
 cd $SHELLPACK_SOURCES/fsmark-${VERSION}-installed || die Failed to cd to fsmark install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -120,4 +120,4 @@ monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description fsmark
-#### Details fsmark-bench 19
+#### Details fsmark-bench 20

@@ -32,7 +32,7 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/pft-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/pft-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-pft -v ${VERSION} || die pft install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-pft -v ${VERSION}  || die pft install script returned error
 fi
 cd $SHELLPACK_SOURCES/pft-${VERSION}-installed || die Failed to cd to pft install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -66,4 +66,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description pft
-#### Details pft-bench 6
+#### Details pft-bench 7

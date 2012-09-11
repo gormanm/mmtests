@@ -58,6 +58,8 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+install-depends bison gcc-c++ libstdc++-devel zlib-devel
+
 WEB_LOCATION=http://ftp.ie.postgresql.org/mirrors/ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz
 MIRROR_LOCATION="$WEBROOT/postgres/postgresql-${VERSION}.tar.gz"
 
@@ -301,4 +303,4 @@ fi
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 20
+#### Details postgresbuild 22

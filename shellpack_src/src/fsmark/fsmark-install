@@ -4,6 +4,8 @@
 WEB_LOCATION=http://heanet.dl.sourceforge.net/project/fsmark/fsmark/
 MIRROR_LOCATION="$WEBROOT/fsmark/"
 
+install-depends glibc-devel-static glibc-devel-static-32bit
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 

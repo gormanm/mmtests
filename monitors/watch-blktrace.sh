@@ -1,5 +1,7 @@
 #!/bin/bash
 
+install-depends blktrace
+
 # Guess what partition we are running from. Awful but could not
 # be arsed figuring out what device we are running on based
 # in the output of stat and this happens to work on all my

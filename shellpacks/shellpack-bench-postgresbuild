@@ -38,7 +38,7 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/postgres-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/postgres-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild -v ${VERSION} || die postgresbuild install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild -v ${VERSION}  || die postgresbuild install script returned error
 fi
 cd $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed || die Failed to cd to postgresbuild install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -49,4 +49,4 @@ fi
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild-bench 20
+#### Details postgresbuild-bench 22

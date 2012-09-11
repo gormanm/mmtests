@@ -1,0 +1,88 @@
+#!/usr/bin/perl
+# Installs a package dependency. By and large the source package names are
+# based on opensuse but the capacity exists to map the package names based
+# on the distribution.
+use strict;
+use POSIX();
+use POSIX qw(getuid);
+
+# File::Which is not always available. Bodge it
+sub which {
+	my $binary = $_[0];
+
+	open(BODGE, "which $binary 2>/dev/null |") || die("Failed to open pipe to which");
+	my $line = <BODGE>;
+	close(BODGE);
+	return $line;
+}
+
+my %package_map = (
+	"debian::zlib-devel"  => "zlib1g-dev",
+	"debian::gcc-fortran" => "gfortran",
+	"debian::gcc-c++"     => "g++",
+	"debian::diffutils"   => "diff",
+);
+	
+my %package_bin = (
+	"suse"   => "zypper install -y",
+	"debian" => "apt-get install -y --force-yes",
+	"redhat" => "yum install -i",
+);
+
+my $distro;
+foreach my $release_file ("debian_version", "debian_release", "redhat-release", "redhat_version", "SuSE-release", "lsb-release") {
+	if (-r "/etc/$release_file" ) {
+		$distro = $release_file;
+		$distro =~ tr/[A-Z]/[a-z]/;
+		$distro =~ s/[_-].*//;
+		last;
+	}
+}
+
+if (!defined($distro)) {
+	die("Failed to identify distribution\n");
+}
+
+if (!defined($package_bin{$distro})) {
+	die("Do not know how to invoke package manager for distro $distro");
+}
+
+my $sudo = "";
+if (getuid() != 0) {
+	$sudo = which("sudo");
+	if (!defined $sudo) {
+		print "ERROR: user is not root and sudo not available\n";
+		exit(-1);
+	}
+}
+
+foreach my $package (@ARGV) {
+
+	# Map the package onto the distro-equivalent name
+	if (defined($package_map{"$distro\::$package"})) {
+		$package == $package_map{"$distro\::$package"};
+	}
+
+	# Check if the package is already installed
+	if ($distro eq "debian") {
+		if (system("dpkg --list $package > /dev/null 2>&1") == 0) {
+			next;
+		}
+	} else {
+		# Assume RPM based distro
+		if (!defined(which("rpm"))) {
+			die("Assumed rpm-based distro but no rpm");
+		}
+		if (system("rpm -qa $package | grep ^$package- > /dev/null") == 0) {
+			next;
+		}
+	}
+
+	if (system("$sudo $package_bin{$distro} $package") != 0) {
+		die("Failed to install package $package for distro $distro");
+	}
+
+	print "Installed $package\n";
+}
+
+exit(0);

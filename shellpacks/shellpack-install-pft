@@ -38,6 +38,8 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR pft-${VERSION}-installed
 pushd pft-${VERSION}-installed > /dev/null || die Failed to rename tar
 
+install-depends libnuma-devel
+
 # Patch it if necessary
 pushd $SHELLPACK_SOURCES/pft-${VERSION}-installed
 if [ ! -e /usr/include/numa.h ]; then
@@ -128,7 +130,7 @@ index 2ea0986..5544803 100644
 " | patch -p1 || exit -1
 fi
 
-make
+make -j$NUMCPUS
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -137,4 +139,4 @@ fi
 
 echo pft installed successfully
 #### Description pft
-#### Details pft 6
+#### Details pft 7

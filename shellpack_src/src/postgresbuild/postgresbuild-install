@@ -22,6 +22,8 @@ NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
 ###SHELLPACK parseargYes --shutdown        SHUTDOWN
 ###SHELLPACK parseargEnd
 
+install-depends bison gcc-c++ libstdc++-devel popt-devel zlib-devel
+
 WEB_LOCATION=http://ftp.ie.postgresql.org/mirrors/ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz
 MIRROR_LOCATION="$WEBROOT/postgres/postgresql-${VERSION}.tar.gz"
 
