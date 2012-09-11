@@ -97,7 +97,7 @@ echo
 }
 
 SIMUL=`ls *mmtestsimul* 2> /dev/null`
-for SUBREPORT in kernbench parallelio starve pagealloc tiobench dbench3 dbench4 multibuild fsmark-single fsmark-threaded postmark iozone netperf-udp netperf-tcp tbench4 lmbench hackbench-pipes hackbench-sockets pipetest vmr-createdelete vmr-cacheeffects ffsb vmr-aim9 vmr-stream sysbench largecopy largedd simple-writeback rsyncresidency ddresidency highalloc stress-highalloc thpavail pft micro; do
+for SUBREPORT in kernbench parallelio starve pagealloc tiobench dbench3 dbench4 multibuild fsmark-single fsmark-threaded postmark iozone netperf-udp netperf-tcp tbench4 lmbench hackbench-pipes hackbench-sockets pipetest vmr-createdelete vmr-cacheeffects ffsb vmr-aim9 vmr-stream sysbench largecopy largedd simple-writeback rsyncresidency ddresidency highalloc stress-highalloc thpavail pft micro specjvm; do
 	if [ -e $SUBREPORT-$KERNEL_BASE ]; then
 		echo ===BEGIN $SUBREPORT
 		INPUTS=

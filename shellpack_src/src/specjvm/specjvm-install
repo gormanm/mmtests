@@ -14,5 +14,3 @@ cd $SHELLPACK_SOURCES
 java -jar SPECjvm2008_1_00_setup.jar -DUSER_INSTALL_DIR=`pwd`/specjvm -i silent || die Failed to install specjvm
 
 exit $SHELLPACK_SUCCESS
-#### Description SPECjvm
-#### Details specjvm 9
