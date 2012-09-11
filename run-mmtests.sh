@@ -4,7 +4,7 @@ DIRNAME=`dirname $0`
 export SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # Parse command-line arguments
-ARGS=`getopt -o mn --long run-monitor,no-monitor -n run-mmtests -- "$@"`
+ARGS=`getopt -o mnc --long run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
 eval set -- "$ARGS"
 while true; do
 	case "$1" in
