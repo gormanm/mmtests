@@ -1,72 +1,9 @@
 echo
 echo FFSB
 gendirlist ffsb
-printheader
-
-REPORT=ffsb-$KERNEL_BASE/$TOPLEVEL/ffsb.log
 
 for DIR in $DIRLIST; do
-	# FS setup cost
-	printf "%-16s" "FS setup time"
-	VANILLA=`grep "fs setup" ffsb-$KERNEL_BASE/$TOPLEVEL/ffsb.log | awk '{print $4}'`
-
-	for DIR in $DIRLIST; do
-		RESULT=`grep "fs setup" $DIR/$TOPLEVEL/ffsb.log | awk '{print $4}'`
-		printf " %11d (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
-	done
-	echo
-
-	# FS sync
-	printf "%-16s" "FS sync start"
-	VANILLA=`grep "^Syncing" ffsb-$KERNEL_BASE/$TOPLEVEL/ffsb.log | tr '...' '   ' | awk '{print $2}' | head -1`
-
-	for DIR in $DIRLIST; do
-		RESULT=`grep "^Syncing" $DIR/$TOPLEVEL/ffsb.log | tr '...' '   ' | awk '{print $2}' | head -1`
-		printf " %11d (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
-	done
-	echo
-	printf "%-16s" "FS sync end"
-	VANILLA=`grep "^Syncing" ffsb-$KERNEL_BASE/$TOPLEVEL/ffsb.log | tr '...' '   ' | awk '{print $2}' | tail -1`
-
-	for DIR in $DIRLIST; do
-		RESULT=`grep "^Syncing" $DIR/$TOPLEVEL/ffsb.log | tr '...' '   ' | awk '{print $2}' | tail -1`
-		printf " %11d (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
-	done
-	echo
-
-	printf "%-16s" "Transactions/sec"
-	VANILLA=`grep "Transactions per Second" ffsb-$KERNEL_BASE/$TOPLEVEL/ffsb.log | awk '{print $1}'`
-
-	for DIR in $DIRLIST; do
-		RESULT=`grep "Transactions per Second" $DIR/$TOPLEVEL/ffsb.log | awk '{print $1}'`
-		printf " %11.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
-	done
-	echo
-
-	for OPERATION in open read write unlink close; do
-		for VALUE in Min Avg Max Calls; do
-			case $VALUE in
-			Min)
-				OFFSET=2
-				;;
-			Avg)
-				OFFSET=3
-				;;
-			Max)
-				OFFSET=4
-				;;
-			Calls)
-				OFFSET=5
-				;;
-			esac
-
-			printf "%-10s %5s" "$OPERATION" "$VALUE"
-			VANILLA=`sed -e 's/^\\[\\s*//' ffsb-$KERNEL_BASE/$TOPLEVEL/ffsb.log | grep ^$OPERATION | awk "{print \\$$OFFSET}"`
-			for DIR in $DIRLIST; do
-				RESULT=`sed -e 's/^\\[\\s*//' $DIR/$TOPLEVEL/ffsb.log | grep ^$OPERATION | awk "{print \\$$OFFSET}"`
-				printf " %11.2f (%5.2f%%)" $RESULT `pdiff $RESULT $VANILLA`
-			done
-			echo
-		done
-	done
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/result.txt"
+	TITLES="$TITLES `echo $DIR | sed -e 's/ffsb-//'`"
 done
+compare-mmtests.pl -d . -b ffsb -n $KERNEL_LIST

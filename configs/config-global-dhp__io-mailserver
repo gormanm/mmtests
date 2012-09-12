@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="postmark ffsb"
+export MMTESTS="ffsb"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -64,17 +64,11 @@ export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# FFSB mailserver simulator
-export FFSB_NUM_FILES=500000
+# FFSB mailserver simulator. Create 5 files per 1M of memory.
+export FFSB_DURATION=900
+export FFSB_NUM_FILES=$((MEMTOTAL_BYTES*5/1048576))
 export FFSB_NUM_DIRECTORIES=1000
+export FFSB_NUM_THREADS=$NUM_CPU
 export FFSB_FILE_PROFILE=many-file-many-directory
 export FFSB_FILESIZE_PROFILE=weight-mailserver
 export FFSB_OPERATIONS_PROFILE=mailserver
-
-# PostMark
-export POSTMARK_TRANSACTIONS=15000
-export POSTMARK_MIN_SIZE=3096
-export POSTMARK_MAX_SIZE=26214400
-export POSTMARK_SUBDIRECTORIES=100
-export POSTMARK_SIMULTANEOUS_FILES=5000
-export POSTMARK_BACKGROUND_MMAP=no
