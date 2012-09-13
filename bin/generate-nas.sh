@@ -10,7 +10,7 @@ EXIT_SUCCESS=0
 EXIT_FAILURE=-1
 
 # Default
-GCC_VERSION=4.4
+GCC_VERSION=
 GCC_OPTIMIZE="-O2"
 BITNESS=32
 ARCH=`uname -m`
@@ -25,10 +25,11 @@ generate-nas.sh (c) Mel Gorman 2009
 
 Usage: generate-nas.sh [options]
   -h, --help   Print this usage message
-  --gcc        GCC version (Default: $GCC_VERSION)
+  --gcc        GCC version (Default: installed)
   --conf file  Read default configuration values from file
   --bitness    32/64 bitness (Default: $BITNESS)
   --openmp     Enable use of OpenMP
+  --openmpi    Enable use of OpenMPI
   --hugepages-heaponly   Use hugepages in the configuration
   --hugepages-oldrelink  Use hugepages in the configuration
   --hugepages-newrelink  Use hugepages in the configuration
@@ -58,13 +59,32 @@ emit_header() {
 ##
 # emit_compiler - Print the compiler configuration
 emit_compiler() {
-	if [ "`which gcc-$GCC_VERSION`" = "" ]; then die No gcc-$GCC_VERSION; fi
-	if [ "`which g++-$GCC_VERSION`" = "" ]; then die No g++-$GCC_VERSION; fi
-	if [ "`which gfortran-$GCC_VERSION`" = "" ]; then die No gfortran-$GCC_VERSION; fi
-	echo "## Compiler"
-	echo "F77                = gfortran-$GCC_VERSION"
-	echo "CC                 = gcc-$GCC_VERSION"
-	echo
+	if [ "$OPENMPI" != "" ]; then
+		COMPILE_FORTRAN=mpif77
+		COMPILE_C=mpicc
+
+		echo "## Compiler"
+		echo "MPIF77             = $COMPILE_FORTRAN"
+		echo "MPICC              = $COMPILE_C"
+		echo
+	else
+		if [ "$GCC_VERSION" != "" ]; then
+			COMPILE_FORTRAN="gfortran-$GCC_VERSION"
+			COMPILE_C="gcc-$GCC_VERSION"
+		else
+			COMPILE_FORTRAN="gfortran"
+			COMPILE_C="gcc"
+		fi
+
+		echo "## Compiler"
+		echo "F77                = $COMPILE_FORTRAN"
+		echo "CC                 = $COMPILE_C"
+		echo
+	fi
+
+	# Belated check but who cares, it'll still work
+	if [ "`which $COMPILE_FORTRAN`" = "" ]; then die No $COMPILE_FORTRAN; fi
+	if [ "`which $COMPILE_C`" = "" ]; then die No $COMPILE_C; fi
 }
 
 ##
@@ -99,7 +119,7 @@ emit_optimization() {
 
 	echo
 	echo "# Fortran Optimisation"
-	echo "FLINK              = gfortran-$GCC_VERSION"
+	echo "FLINK              = $COMPILE_FORTRAN"
 	echo "F_LIB              = \$(LHRELINK) \$(LHLIB)"
 	echo "F_INC              ="
 	echo "FFLAGS             = $GCC_OPTIMIZE $OPENMP $EFLAGS -m$BITNESS"
@@ -107,15 +127,15 @@ emit_optimization() {
 
 	echo
 	echo "# C Optimisation"
-	echo "CLINK              = gcc-$GCC_VERSION"
+	echo "CLINK              = $COMPILE_C"
 	echo "C_LIB              = \$(LHRELINK) \$(LHLIB)"
 	echo "C_INC              ="
 	echo "CFLAGS             = $GCC_OPTIMIZE $OPENMP $EFLAGS -m$BITNESS"
-	echo "CLINKFLAGS         = $GCC_OPTIMIZE $OPENMP $EFLAGS -m$BITNESS \$(LHRELINK) \$(LHLIB)"
+	echo "CLINKFLAGS         = $GCC_OPTIMIZE $OPENMP $OPENMPI $EFLAGS -m$BITNESS \$(LHRELINK) \$(LHLIB)"
 
 	echo
 	echo "# Other"
-	echo "UCC                = gcc-$GCC_VERSION"
+	echo "UCC                = $COMPILE_C"
 	echo "BINDIR             = ../bin"
 	echo "RAND               = randi8"
 	echo "WTIME              = wtime.c"
@@ -128,7 +148,7 @@ emit_footer() {
 }
 
 # Parse the arguments
-OPTARGS=`getopt -o h --long help,gcc,emit-conf,bitness:,conf:,monitor:,hugepages-heaponly,hugepages-oldrelink,hugepages-newrelink,openmp -n generate-speccpu.sh -- "$@"`
+OPTARGS=`getopt -o h --long help,gcc,emit-conf,bitness:,conf:,monitor:,hugepages-heaponly,hugepages-oldrelink,hugepages-newrelink,openmp,openmpi -n generate-speccpu.sh -- "$@"`
 eval set -- "$OPTARGS"
 while [ "$1" != "" ] && [ "$1" != "--" ]; do
 	case "$1" in
@@ -157,8 +177,15 @@ while [ "$1" != "" ] && [ "$1" != "--" ]; do
 			;;
 		--openmp)
 			OPENMP=-fopenmp
+			OPENMPI=
 			shift
 			;;
+		--openmpi)
+			OPENMPI=-lmpi
+			OPENMP=
+			shift
+			;;
+
 	esac
 done
 

@@ -1,9 +1,7 @@
 #!/bin/bash
 # This is the script for running the NAS Parallel Benchmark
 #
-P=nas-bench
-DEFAULT_VERSION=3.3
-. $SHELLPACK_INCLUDE/common.sh
+###SHELLPACK preamble nas-bench 3.3
 
 install-depends openmpi openmpi-devel
 
@@ -16,13 +14,7 @@ MPICPUS=
 MEMTOTAL_MBYTES=$((MEMTOTAL_BYTES/1048576))
 HUGEPAGE_MAX=$(($MEMTOTAL_MBYTES/8*7))
 
-# Basic argument parser
-while [ "$1" != "" ]; do
-	case "$1" in
-	-v)
-		VERSION=$2
-		shift 2
-		;;
+###SHELLPACK parseargBegin
 	--type)
 		NAS_TYPE=$2
 		if [ "$NAS_TYPE" = "OMP" ]; then
@@ -39,29 +31,11 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 
-	*)
-		echo Unrecognised option: $1
-		shift
-	esac
-done
-if [ -z "$VERSION" ]; then
-	VERSION=$DEFAULT_VERSION
-fi
+###SHELLPACK parseargEnd
 
-if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/nas-3.3
-fi
-if [ ! -d $SHELLPACK_SOURCES/nas-3.3-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-nas -v ${VERSION}  || die nas install script returned error
-fi
-cd $SHELLPACK_SOURCES/nas-${VERSION}-installed || die Failed to cd to nas install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo nas installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
+###SHELLPACK check_install_required nas-3.3
 
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+###SHELLPACK monitor_hooks
 
 # Additional test parameters
 if [ "$OPENMPI" = "" ]; then
@@ -200,5 +174,3 @@ for PAGES in $NAS_PAGESIZES; do
 done
 
 exit $SHELLPACK_SUCCESS
-#### Description NAS Parallel Benchmark
-#### Details nas-bench 31
