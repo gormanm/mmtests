@@ -16,6 +16,14 @@ MPICPUS=
 MEMTOTAL_MBYTES=$((MEMTOTAL_BYTES/1048576))
 HUGEPAGE_MAX=$(($MEMTOTAL_MBYTES/8*7))
 
+if [ "$NAS_MPI_PATH" != "" ]; then
+	export PATH=$PATH:$NAS_MPI_PATH
+fi
+
+if [ "$NAS_MPI_LIBPATH" != "" ]; then
+	export LD_LIBRARY_PATH=$NAS_MPI_LIBPATH
+fi
+
 # Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
@@ -30,7 +38,6 @@ while [ "$1" != "" ]; do
 		fi
 		if [ "$NAS_TYPE" = "MPI" ]; then
 			OPENMPI=--openmpi
-			MPICPUS=$NUMCPUS
 		fi
 		shift 2
 		;;
@@ -38,7 +45,10 @@ while [ "$1" != "" ]; do
 		RUNBITS=$2
 		shift 2
 		;;
-
+	--cma)
+		CMAOPT="--mca btl btl_sm_use_cma 1"
+		shift
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -92,6 +102,17 @@ record_procs() {
 		cat /proc/$i >> $1/procstats-$2
 	done
 }
+
+round_down_power_2_cpus() {
+	POWER=1
+
+	while [ $((1<<$POWER)) -le $NUMCPUS ]; do
+		POWER=$((POWER+1))
+	done
+
+	MPICPUS=$((1<<(POWER-1)))
+}
+round_down_power_2_cpus
 
 # Generate suite.def
 pushd $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB3.3-$NAS_TYPE > /dev/null || die Failed to cd to nas-$VERSION-installed/NPB3.3-$NAS_TYPE
@@ -180,7 +201,7 @@ for PAGES in $NAS_PAGESIZES; do
 			if [ "$OPENMPI" = "" ]; then
 				$HUGECTL ./bin/$JOB.$NAS_CLASS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 			else
-				$HUGECTL mpirun -np $NUMCPUS ./bin/$JOB.$NAS_CLASS.$NUMCPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
+				$HUGECTL mpirun $CMAOPT -np $MPICPUS ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 			fi
 
 			if [ $? -eq 0 ]; then
@@ -201,4 +222,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 31
+#### Details nas-bench 35
