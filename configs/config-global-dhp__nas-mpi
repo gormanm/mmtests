@@ -70,4 +70,5 @@ export MONITOR_UPDATE_FREQUENCY=10
 # NAS Parallel Benchmark
 export NAS_CLASS=C
 export NAS_PAGESIZES="base"
+export NAS_USE_CMA=no
 #export NAS_PAGESIZES="base huge-heap huge-all"

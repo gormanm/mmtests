@@ -30,7 +30,10 @@ HUGEPAGE_MAX=$(($MEMTOTAL_MBYTES/8*7))
 		RUNBITS=$2
 		shift 2
 		;;
-
+	--cma)
+		CMAOPT="--mca btl btl_sm_use_cma 1"
+		shift
+		;;
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required nas-3.3
@@ -154,7 +157,7 @@ for PAGES in $NAS_PAGESIZES; do
 			if [ "$OPENMPI" = "" ]; then
 				$HUGECTL ./bin/$JOB.$NAS_CLASS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 			else
-				$HUGECTL mpirun -np $NUMCPUS ./bin/$JOB.$NAS_CLASS.$NUMCPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
+				$HUGECTL mpirun $CMAOPT -np $NUMCPUS ./bin/$JOB.$NAS_CLASS.$NUMCPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 			fi
 
 			if [ $? -eq 0 ]; then
