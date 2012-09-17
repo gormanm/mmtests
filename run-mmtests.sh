@@ -355,14 +355,6 @@ if [ "$SKIP_FINEPROFILE" = "no" -o "$SKIP_COARSEPROFILE" = "no" ]; then
 	fi
 fi
 
-if [ "$RUN_MONITOR" = "yes" ]; then
-	echo Configuring ftrace
-	mount -t debugfs none /sys/kernel/debug
-	#echo 1 > /sys/kernel/debug/tracing/events/kmem/mm_page_alloc_extfrag/enable
-	#echo 1 > /sys/kernel/debug/tracing/events/vmscan/enable
-	#echo 1 > /proc/sys/kernel/stack_tracer_enabled
-fi
-
 # Disable any inadvertent profiling going on right now
 oprofile --stop > /dev/null 2> /dev/null
 opcontrol --deinit > /dev/null 2> /dev/null
