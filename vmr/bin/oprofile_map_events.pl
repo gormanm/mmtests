@@ -1,14 +1,14 @@
 #!/usr/bin/perl
 # This script attempts to map a high-level CPU event to the oprofile counter
 # of the current CPU
-# Licensed under LGPL 2.1 as packaged with libhugetlbfs
-# (c) Mel Gorman 2008
+# Re-licensed under GPL by original author. Script was originally part of
+# VMRegress, then packaged as part of libhugetlbfs and now part of mmtests.
 
 use Getopt::Long;
 use FindBin qw($Bin);
-use lib "$Bin";
+use lib "$Bin/lib";
 
-use TLBC::Report;
+use VMR::Report;
 use strict;
 
 my ($arch, $cputype);
