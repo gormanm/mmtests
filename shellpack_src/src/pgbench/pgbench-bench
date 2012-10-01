@@ -1,0 +1,195 @@
+#!/bin/bash
+
+###SHELLPACK preamble pgbench-bench 9.0.4
+
+ROLE=`whoami`
+DBUSER=nobody
+DBPASSWORD=shellpack-mysqlbench
+EFFECTIVE_CACHESIZE=$((756*1048576))
+SHARED_BUFFERS=$((32*1048576))
+WORK_MEM=$((32*1048576))
+MAX_TIME=
+TRANSACTIONS_CLIENT=
+MAX_ITERATIONS=5
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --effective-cachesize EFFECTIVE_CACHESIZE
+###SHELLPACK parseargParam   --shared-buffers      SHARED_BUFFERS
+###SHELLPACK parseargParam   --work-mem            WORK_MEM
+###SHELLPACK parseargParam   --max-time            MAX_TIME
+###SHELLPACK parseargParam   --max-transactions    TRANSACTIONS_CLIENT
+	--use-large-pages)
+		export LARGEPAGES=--use-large-pages
+		shift
+		;;
+	--use-dynamic-pool)
+		export USE_DYNAMIC_POOL=--use-dynamic-pool
+		shift
+		;;
+###SHELLPACK parseargEnd
+
+if [ "$MAX_TIME" != "" ]; then
+	MAX_TIME="-T $MAX_TIME"
+else
+	if [ "$TRANSACTIONS_CLIENT" != "" ]; then
+		TRANSACTIONS_CLIENT="-t $TRANSACTIONS_CLIENT"
+	else
+		die Specify time or transactions
+	fi
+fi
+
+# Install if necessary and run database. Do not use large pages or google
+# malloc as they are unnecessary at this point
+unset DATS_FUNCTIONS_SOURCED
+$SHELLPACK_INCLUDE/shellpack-install-postgresbuild \
+	-v ${VERSION} \
+	--effective_cachesize $EFFECTIVE_CACHESIZE \
+	--shared_buffers $SHARED_BUFFERS \
+	--work_mem $WORK_MEM \
+	|| die Failed to get a usable postgres installation
+export PGHOST=/var/run/postgresql
+export PGPORT=5432
+
+# Set paths and libraries
+export PATH=$SHELLPACK_SOURCES/postgres-${VERSION}-installed/bin:$PATH
+export LD_LIBRARY_PATH=postgres-${VERSION}-installed/lib
+
+echo Copying database configuration
+cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
+
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo
+	echo pgbench install-only successfully completed
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Calculate memory usage upper-limit as 75% phys memory
+UPPERLIMIT=$((`grep ^MemTotal /proc/meminfo  | awk '{print $2}'`*1024*3/4))
+TOTALBUFFER_SIZE=$(($UPPERLIMIT+1))
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Calculate memory requirements
+. $SHELLPACK_INCLUDE/include-hugepage.sh
+gethugepagesize
+while [ $TOTALBUFFER_SIZE -ge $UPPERLIMIT ]; do
+	TOTALBUFFER_SIZE=$(($EFFECTIVE_CACHESIZE))
+
+	if [ $TOTALBUFFER_SIZE -ge $UPPERLIMIT ]; then
+		echo Shrinking memory requirements \($TOTALBUFFER_SIZE ge $UPPERLIMIT\)
+		EFFECTIVE_CACHESIZE=$(($EFFECTIVE_CACHESIZE-$EFFECTIVE_CACHESIZE/10))
+		SHARED_BUFFERS=$(($SHARED_BUFFERS-$SHARED_BUFFERS/10))
+		WORK_MEM=$(($WORK_MEM-$WORK_MEM/10))
+		KEYBUFFER_SIZE=$(($KEYBUFFER_SIZE-$KEYBUFFER_SIZE/10))
+	fi
+done
+
+echo Shutting down DB to reconfigure system
+$SHELLPACK_INCLUDE/shellpack-install-postgresbuild --shutdown
+
+# Configure shmem parameters
+getpagesize
+echo $TOTALBUFFER_SIZE > /proc/sys/kernel/shmmax
+echo $(($TOTALBUFFER_SIZE*2/$PAGESIZE)) > /proc/sys/kernel/shmall
+ulimit -l $TOTALBUFFER_SIZE
+GROUPNAME=`groups $POSTGRES_USER | awk '{print $3}'`
+if [ "$GROUPNAME" = "" ]; then
+	GROUPNAME=`groups $POSTGRES_USER`
+fi
+GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
+echo $GROUPID > /proc/sys/vm/hugetlb_shm_group
+
+# Reserve the required hugepages if necessary
+if [ "$LARGEPAGES" != "" ]; then
+	# Reserve the hugepages
+	REQUIRED_HUGEPAGES=$(($TOTALBUFFER_SIZE/$HUGE_PAGESIZE))
+	echo Required hugepages: $REQUIRED_HUGEPAGES
+	if [ $HUGE_PAGESIZE -gt 4194304 ]; then
+		REQUIRED_HUGEPAGES=$(($REQUIRED_HUGEPAGES+$REQUIRED_HUGEPAGES/4))
+		echo Adjusted for larger pages required hugepages: $REQUIRED_HUGEPAGES
+	fi
+
+	if [ $NUMCPUS -gt 32 ]; then
+		REQUIRED_HUGEPAGES=$(($REQUIRED_HUGEPAGES*4))
+		echo Adjusted for number cpus required hugepages: $REQUIRED_HUGEPAGES
+	fi
+	reserve_hugepages $USE_DYNAMIC_POOL $REQUIRED_HUGEPAGES
+fi
+
+# Restart the database
+echo Starting DB up after configuring system
+unset DATS_FUNCTIONS_SOURCED
+$SHELLPACK_INCLUDE/shellpack-install-postgresbuild $LARGEPAGES \
+	--effective_cachesize $EFFECTIVE_CACHESIZE \
+	--shared_buffers $SHARED_BUFFERS \
+	--work_mem $WORK_MEM \
+	-v ${VERSION} \
+	|| die Failed to get a usable mysql installation
+export PGHOST=localhost
+export PGPORT=5432
+
+# Create database
+echo Creating database
+PSQL=$SHELLPACK_SOURCES/postgres-${VERSION}-installed/bin/psql
+RUNDBUSER="su -s /bin/bash $DBUSER -c"
+
+$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
+if [ $? -ne 0 ]; then
+	echo " o Database create returned $?"
+	echo " o Dumping previous runs database"
+	$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+	echo " o Re-creating database"
+	$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
+fi
+
+$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'"
+if [ $? -ne 0 ]; then
+	echo " o Role create returned $?"
+	$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+	$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
+fi
+
+echo Initialising database for pgbench
+pgbench -h $PGHOST -p $PGPORT -i pgbench || die Failed to initialise pgbench database
+
+# Work out threads
+CLIENTS=
+if [ $RUN_NUM -lt $NUMCPUS ]; then
+	CLIENTS=`seq 1 $RUN_NUM`
+else
+	CLIENTS="`seq 1 $NUMCPUS` `seq $((NUMCPUS+2)) 2 $RUN_NUM`"
+fi
+
+echo Running sysbench maximum $RUN_NUM threads
+for N in $CLIENTS; do
+	echo -n > $LOGDIR_RESULTS/samples
+	monitor_pre_hook $LOGDIR_RESULTS $N
+	for ITER in `seq 1 $MAX_ITERATIONS`; do
+		echo -n o $N threads iter $ITER
+		pgbench -v -h $PGHOST -p $PGPORT \
+			-c $N \
+			$TRANSACTIONS_CLIENT $MAX_TIME \
+			pgbench > $LOGDIR_RESULTS/pgbench-raw-$N-$ITER
+		SYSRET=$?
+		if [ $SYSRET -ne 0 ]; then
+			cat $LOGDIR_RESULTS/pgbench-raw-$N-$ITER
+			die pgbench failed to execute
+		fi
+	done
+	monitor_post_hook $LOGDIR_RESULTS $N
+
+	# Copy the log files
+	cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
+
+done
+
+$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+
+# Shutdown server
+$SHELLPACK_INCLUDE/shellpack-install-postgresbuild --shutdown
+reset_hugepages
+
+echo pgbench successfully completed
+exit $SHELLPACK_SUCCESS

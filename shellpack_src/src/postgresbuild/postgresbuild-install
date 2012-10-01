@@ -67,6 +67,11 @@ if [ ! -e $SHELLPACK_SOURCES/postgres-${VERSION}-installed ]; then
 		|| die Failed to configure
 
 	###SHELLPACK make_make_install
+
+	# Make pgbench
+	cd contrib/pgbench
+	###SHELLPACK make_make_install
+
 	touch $SHELLPACK_SOURCES/postgres-${VERSION}-installed/unconfigured
 fi
 

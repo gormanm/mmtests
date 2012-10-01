@@ -58,7 +58,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-install-depends bison gcc-c++ libstdc++-devel zlib-devel
+install-depends bison gcc-c++ libstdc++-devel popt-devel zlib-devel
 
 WEB_LOCATION=http://ftp.ie.postgresql.org/mirrors/ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz
 MIRROR_LOCATION="$WEBROOT/postgres/postgresql-${VERSION}.tar.gz"
@@ -114,6 +114,22 @@ if [ $? -ne 0 ]; then
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
+
+	# Make pgbench
+	cd contrib/pgbench
+make -j$NUMCPUS
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+make install
+if [ $? -ne 0 ]; then
+	error "$P: make install failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
 	touch $SHELLPACK_SOURCES/postgres-${VERSION}-installed/unconfigured
 fi
 
@@ -303,4 +319,4 @@ fi
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 22
+#### Details postgresbuild 23
