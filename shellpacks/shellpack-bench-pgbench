@@ -1,7 +1,7 @@
 #!/bin/bash
 
 P=pgbench-bench
-DEFAULT_VERSION=9.0.4
+DEFAULT_VERSION=9.2.1
 . $SHELLPACK_INCLUDE/common.sh
 
 ROLE=`whoami`
@@ -231,4 +231,4 @@ reset_hugepages
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 16
+#### Details pgbench-bench 17

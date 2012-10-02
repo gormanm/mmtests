@@ -2,7 +2,7 @@
 
 P=sysbench-bench
 MYSQL_VERSION=5.0.51b
-POSTGRES_VERSION=9.0.4
+POSTGRES_VERSION=9.2.1
 VERSION=0.4.12
 DBUSER=nobody
 DBPASSWORD=shellpack-mysqlbench
@@ -386,4 +386,4 @@ reset_hugepages
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 29
+#### Details sysbench-bench 30

@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
-###SHELLPACK preamble postgres-install 9.0.4
+###SHELLPACK preamble postgres-install 9.2.1
 
 LIBHUGETLBFS_VERSION=2.9
 POSTGRES_USER=nobody
@@ -213,6 +213,9 @@ if [ "$RUNNING" = "no" ]; then
 	fi
 	GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
 	echo $GROUPID > /proc/sys/vm/hugetlb_shm_group
+
+	# Record the PID file
+	update_entry_cnd external_pid_file $POSTGRES_DATADIR/postmaster.pid
 
 	# Update the memory configurations
 	update_entry_cnf work_mem $(($WORK_MEM/1048576))MB

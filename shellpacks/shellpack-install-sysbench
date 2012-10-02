@@ -3,7 +3,7 @@
 P=sysbench-install
 VERSION=0.4.12
 MYSQL_VERSION=5.0.51a
-POSTGRES_VERSION=9.0.4
+POSTGRES_VERSION=9.2.1
 DBUSER=root
 DBPASSWORD=shellpack-mysqlbench
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
@@ -84,4 +84,4 @@ fi
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench 29
+#### Details sysbench 30
