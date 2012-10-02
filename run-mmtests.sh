@@ -64,9 +64,10 @@ if [ "$RUN_MONITOR" = "no" ]; then
 	unset MONITORS_PLAIN
 	unset MONITORS_GZIP
 	unset MONITORS_WITH_LATENCY
+	unset MONITORS_TRACER
 else
 	# Check at least one monitor is enabled
-	if [ "$MONITORS_ALWAYS" = "" -a "$MONITORS_PLAIN" = "" -a "$MONITORS_GZIP" = "" -a "$MONITORS_WITH_LATENCY" = "" ]; then
+	if [ "$MONITORS_ALWAYS" = "" -a "$MONITORS_PLAIN" = "" -a "$MONITORS_GZIP" = "" -a "$MONITORS_WITH_LATENCY" = "" -a "$MONITORS_TRACER" = "" ]; then
 		echo Monitors enabled but none configured
 		exit $SHELLPACK_ERROR
 	fi
@@ -268,7 +269,7 @@ for TEST in $MMTESTS; do
 		STAP_USED=test-$TEST
 	fi
 done
-for MONITOR in $MONITORS_ALWAYS $MONITORS_PLAIN $MONITORS_GZIP $MONITORS_WITH_LATENCY; do
+for MONITOR in $MONITORS_ALWAYS $MONITORS_PLAIN $MONITORS_GZIP $MONITORS_WITH_LATENCY $MONITORS_TRACER; do
 	if [ "$MONITOR" = "dstate" -o "$MONITOR" = "stap-highorder-atomic" ]; then
 		STAP_USED=monitor-$MONITOR
 	fi
@@ -419,6 +420,26 @@ function start_monitors() {
 		echo $PID2 >> monitor.pids
 		echo $PID1 >> monitor.pids
 		echo Started monitor $MONITOR latency pid $PID2,$PID1
+	done
+	for MONITOR in $MONITORS_TRACER; do
+		discover_script
+		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
+		export MONITOR_PID=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST.pid
+		$EXPECT_UNBUFFER $MONITOR_SCRIPT &
+
+		ATTEMPT=1
+		while [ ! -e $MONITOR_PID ]; do
+			sleep 1
+			ATTEMPT=$((ATTEMPT+1))
+			if [ $ATTEMPT -gt 10 ]; then
+				die "Waited 10 seconds for $MONITOR to start but no sign of it."
+			fi
+		done
+
+		PID1=`cat $MONITOR_PID`
+		rm $MONITOR_PID
+		echo $PID1 >> monitor.pids
+		echo Started monitor $MONITOR tracer pid $PID1
 	done
 }
 
