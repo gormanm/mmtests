@@ -1,6 +1,6 @@
 #!/bin/bash
 # Benchmark a number of kernel builds
-###SHELLPACK preamble kernbench 2.6.30
+###SHELLPACK preamble kernbench 3.0
 ITERATIONS=5
 FACTOR=1
 
@@ -11,7 +11,7 @@ FACTOR=1
 ###SHELLPACK parseargParam -f FACTOR
 ###SHELLPACK parseargEnd
 
-WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v2.6/linux-$VERSION.tar.gz
+WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v3.0/linux-$VERSION.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS*$FACTOR))
 

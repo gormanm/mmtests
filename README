@@ -88,7 +88,7 @@ TESTDISK_MOUNT_ARGS
 As MMTests downloads a number of benchmarks it is possible to create
 a local mirror. The location of the mirror is configured in WEBROOT in
 shellpacks/common-config.sh.  For example, kernbench tries to download
-$WEBROOT/kernbench/linux-2.6.30.tar.gz . If this is not available, it is
+$WEBROOT/kernbench/linux-3.0.tar.gz . If this is not available, it is
 downloaded from the internet. This can add delays in testing and consumes
 bandwidth so is worth configuring.
 
