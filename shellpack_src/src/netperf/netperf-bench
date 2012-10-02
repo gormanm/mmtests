@@ -58,7 +58,7 @@ for PROTOCOL in $PROTOCOLS; do
 
 	EXTRA=
 	if [ "$PROTOCOL" = "UDP_STREAM" ]; then
-		EXTRA="-P 15895 12391 -s 32768 -S 32768"
+		EXTRA="-P 15895 -s 32768 -S 32768"
 	fi
 	
 	for SIZE in $BUFFER_SIZES; do

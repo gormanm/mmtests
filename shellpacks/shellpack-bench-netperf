@@ -65,7 +65,7 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/netperf-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/netperf-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-netperf -v ${VERSION} || die netperf install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-netperf -v ${VERSION}  || die netperf install script returned error
 fi
 cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -91,7 +91,7 @@ for PROTOCOL in $PROTOCOLS; do
 
 	EXTRA=
 	if [ "$PROTOCOL" = "UDP_STREAM" ]; then
-		EXTRA="-P 15895 12391 -s 32768 -S 32768"
+		EXTRA="-P 15895 -s 32768 -S 32768"
 	fi
 	
 	for SIZE in $BUFFER_SIZES; do
@@ -120,4 +120,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 11
+#### Details netperf-bench 12
