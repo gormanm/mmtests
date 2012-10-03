@@ -3,7 +3,7 @@
 # together and can be configured to run over a period of time as a stress test
 
 P='multibuild'
-KERNEL_VERSION=2.6.30
+KERNEL_VERSION=3.0
 NUM_CPUS=`grep processor /proc/cpuinfo | wc -l`
 NUM_COPIES=$((NUM_CPUS*5))
 NUM_SIMULTANEOUS=$NUM_CPUS

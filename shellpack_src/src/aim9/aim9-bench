@@ -1,0 +1,47 @@
+#!/bin/bash
+# Run aim9 benchmark
+
+###SHELLPACK preamble aim9-bench 9110
+
+WORKFILE=s9workfile-short
+HOSTNAME=`hostname`
+RELEASE=`uname -r`
+TESTTIME=15
+ITERATIONS=12
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+		--full)
+			WORKFILE=s9workfile-full
+			shift
+			;;
+		--time)
+			TESTTIME="-t $2"
+			shift 2
+			;;
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required aim9-${VERSION}
+
+# Create expect script
+EXPECT=`which expect`
+EXPECT_SCRIPT=$SHELLPACK_TEMP/aim9-expect
+cat > $EXPECT_SCRIPT <<EOF
+spawn ./singleuser
+expect "s name"             { exp_send $HOSTNAME\\r }
+expect "s configuration"    { exp_send $RELEASE\\r  }
+expect "Number of seconds"  { exp_send $TESTTIME\\r }
+expect "Path to disk files" { exp_send $SHELLPACK_TEMP\\r }
+while {1} {
+  expect disk_rr exit
+}
+EOF
+chmod u+x $EXPECT_SCRIPT
+
+cd $SHELLPACK_SOURCES/aim9-${VERSION}-installed
+cp $WORKFILE s9workfile
+
+for ITERATION in `seq 1 $ITERATIONS`; do
+	echo Starting iteration $ITERATION
+	$EXPECT -f $EXPECT_SCRIPT | tee $LOGDIR_RESULTS/aim9-$ITERATION
+done

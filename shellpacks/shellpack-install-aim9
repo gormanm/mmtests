@@ -1,0 +1,67 @@
+#!/bin/bash
+
+P=aim9-install
+DEFAULT_VERSION=9110
+. $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/aimbench"
+MIRROR_LOCATION="$WEBROOT/aim9"
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=s${VERSION}.tar.Z
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+        error "$P: tar xf s${VERSION}.tar.Z failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR aim9-$VERSION-installed
+pushd aim9-$VERSION-installed > /dev/null || die Failed to rename tar
+
+pushd $SHELLPACK_SOURCES/aim9-$VERSION-installed || die Failed to change to source directory
+echo  > aim9.configure
+echo >> aim9.configure
+echo >> aim9.configure
+echo >> aim9.configure
+echo >> aim9.configure
+
+cat aim9.configure | ./S9setup || die Failed to configure aim9
+
+make -j$NUMCPUS
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+cp s9workfile s9workfile-full
+echo "# @(#) s9workfile:1.2 1/22/96 00:00:00
+# AIM Independent Resource Benchmark - Suite IX Workfile
+FILESIZE: 5M >> s9workfile-short
+page_test
+brk_test
+exec_test
+fork_test" >> s9workfile-short
+
+exit $SHELLPACK_SUCCESS
+#### Description AIM9 benchmark
+#### Details aim9 8

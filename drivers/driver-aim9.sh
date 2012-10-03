@@ -2,6 +2,6 @@ FINEGRAINED_SUPPORTED=no
 NAMEEXTRA=
 
 run_bench() {
-	$SHELLPACK_INCLUDE/shellpack-bench-vmr-aim9
+	$SHELLPACK_INCLUDE/shellpack-bench-aim9
 	return $?
 }

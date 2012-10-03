@@ -1,0 +1,81 @@
+#!/bin/bash
+# Run aim9 benchmark
+
+P=aim9-bench
+DEFAULT_VERSION=9110
+. $SHELLPACK_INCLUDE/common.sh
+
+WORKFILE=s9workfile-short
+HOSTNAME=`hostname`
+RELEASE=`uname -r`
+TESTTIME=15
+ITERATIONS=12
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+		--full)
+			WORKFILE=s9workfile-full
+			shift
+			;;
+		--time)
+			TESTTIME="-t $2"
+			shift 2
+			;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/aim9-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/aim9-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-aim9 -v ${VERSION}  || die aim9 install script returned error
+fi
+cd $SHELLPACK_SOURCES/aim9-${VERSION}-installed || die Failed to cd to aim9 install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo aim9 installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Create expect script
+EXPECT=`which expect`
+EXPECT_SCRIPT=$SHELLPACK_TEMP/aim9-expect
+cat > $EXPECT_SCRIPT <<EOF
+spawn ./singleuser
+expect "s name"             { exp_send $HOSTNAME\\r }
+expect "s configuration"    { exp_send $RELEASE\\r  }
+expect "Number of seconds"  { exp_send $TESTTIME\\r }
+expect "Path to disk files" { exp_send $SHELLPACK_TEMP\\r }
+while {1} {
+  expect disk_rr exit
+}
+EOF
+chmod u+x $EXPECT_SCRIPT
+
+cd $SHELLPACK_SOURCES/aim9-${VERSION}-installed
+cp $WORKFILE s9workfile
+
+for ITERATION in `seq 1 $ITERATIONS`; do
+	echo Starting iteration $ITERATION
+	$EXPECT -f $EXPECT_SCRIPT | tee $LOGDIR_RESULTS/aim9-$ITERATION
+done
+#### Description AIM9 benchmark
+#### Details aim9-bench 8

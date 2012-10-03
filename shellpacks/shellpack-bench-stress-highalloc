@@ -2,8 +2,8 @@
 
 P='stress-highalloc'
 . $SHELLPACK_INCLUDE/common.sh
-KERNEL_VERSION=2.6.30
-WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v2.6/linux-$KERNEL_VERSION.tar.gz
+KERNEL_VERSION=3.0
+WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v3.0/linux-$KERNEL_VERSION.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$KERNEL_VERSION.tar.gz
 
 NUM_KERNELS=0
@@ -53,4 +53,4 @@ exit $SHELLPACK_SUCCESS
 #### Description Stress test the allocation of huge pages
 #### Details stress-highalloc-bench 7
 #### Description Stress test the allocation of huge pages
-#### Details stress-highalloc-bench 9
+#### Details stress-highalloc-bench 10

@@ -29,6 +29,10 @@ my %package_bin = (
 	"redhat" => "yum install -i",
 );
 
+if ($ENV{"ASSUME_PACKAGE_INSTALLED"} eq "yes") {
+	exit 0;
+}
+
 my $distro;
 foreach my $release_file ("debian_version", "debian_release", "redhat-release", "redhat_version", "SuSE-release", "lsb-release") {
 	if (-r "/etc/$release_file" ) {

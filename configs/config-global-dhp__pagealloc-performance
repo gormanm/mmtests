@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="kernbench vmr-aim9 vmr-stream pagealloc pft hackbench-pipes hackbench-sockets"
+export MMTESTS="kernbench aim9 vmr-stream pagealloc pft hackbench-pipes hackbench-sockets"
 export SKIP_WARMUP=no
 
 # Profiling parameters

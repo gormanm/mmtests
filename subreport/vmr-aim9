@@ -1,9 +1,0 @@
-echo
-echo AIM9
-gendirlist vmr-aim9
-
-for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/aim9/log.txt"
-	TITLES="$TITLES `echo $DIR | sed -e 's/vmr-aim9-//'`"
-done
-compare-mmtests.pl -d . -b vmr-aim9 -n $KERNEL_LIST
