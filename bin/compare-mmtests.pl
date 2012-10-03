@@ -6,7 +6,6 @@
 
 use FindBin qw($Bin);
 use lib "$Bin/lib";
-use lib "$Bin/../vmr/bin/lib";
 
 use Getopt::Long;
 use Pod::Usage;

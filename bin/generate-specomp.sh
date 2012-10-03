@@ -317,12 +317,6 @@ emit_sconf() {
 ##
 # emit_monitor - Emit monitoring hooks
 emit_monitor() {
-	if [ -e $SHELLPACK_TOPLEVEL/vmr/bin ]; then
-		VMREGRESS_BIN=$SHELLPACK_TOPLEVEL/vmr/bin
-	else
-		die Cannot find VMRegress in path
-	fi
-
 	if [ "`which opcontrol`" = "" ]; then
 		die oprofile not installed
 	fi
@@ -330,8 +324,8 @@ emit_monitor() {
  	EMIT_UPITER="echo iter >> /tmp/OPiter.\${lognum}.\${size}.\${benchmark}"
 	EMIT_LOCKBEFORE="echo no_lock_stat > /dev/null"
 	EMIT_LOCKAFTER="echo no_lock_stat > /dev/null"
-	EMIT_PROCBEFORE="$VMREGRESS_BIN/hugepage-defrag.sh ; $VMREGRESS_BIN/gather-proc-info.sh \`dirname \${resultdir}\`/procinfo-before.\${lognum}.\${size}.iter\`cat /tmp/OPiter.\${lognum}.\${size}.\${benchmark} | wc -l\`.\${benchmark}.txt"
-	EMIT_PROCAFTER="$VMREGRESS_BIN/gather-proc-info.sh \`dirname \${resultdir}\`/procinfo-after.\${lognum}.\${size}.iter\`cat /tmp/OPiter.\${lognum}.\${size}.\${benchmark} | wc -l\`.\${benchmark}.txt"
+	EMIT_PROCBEFORE="gather-proc-info.sh \`dirname \${resultdir}\`/procinfo-before.\${lognum}.\${size}.iter\`cat /tmp/OPiter.\${lognum}.\${size}.\${benchmark} | wc -l\`.\${benchmark}.txt"
+	EMIT_PROCAFTER="gather-proc-info.sh \`dirname \${resultdir}\`/procinfo-after.\${lognum}.\${size}.iter\`cat /tmp/OPiter.\${lognum}.\${size}.\${benchmark} | wc -l\`.\${benchmark}.txt"
 	echo "## Monitor hooks"
 	if [ "$EVENTS" = "" ]; then
 		echo "monitor_pre_bench = $EMIT_UPITER; $EMIT_PROCBEFORE; $EMIT_LOCKBEFORE"
@@ -344,7 +338,7 @@ emit_monitor() {
 		EVENT="$EVENT --event $i"
 	done
 	EMIT_OPSTART="oprofile_start.sh --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --sample-event-factor $SAMPLE_EVENT_FACTOR $EVENT"
-	EMIT_OPREPORT="opcontrol --stop ; $VMREGRESS_BIN/oprofile_report.sh $SHELLPACK_TOPLEVEL/work/testdisk/sources/specomp2001/result/OP.\${lognum}.\${size}.iter\`cat /tmp/OPiter.\${lognum}.\${size}.\${benchmark} | wc -l\`.\${benchmark}.txt"
+	EMIT_OPREPORT="opcontrol --stop ; oprofile_report.sh $SHELLPACK_TOPLEVEL/work/testdisk/sources/specomp2001/result/OP.\${lognum}.\${size}.iter\`cat /tmp/OPiter.\${lognum}.\${size}.\${benchmark} | wc -l\`.\${benchmark}.txt"
 
 	echo "monitor_pre_bench = $EMIT_UPITER; $EMIT_PROCBEFORE; $EMIT_LOCKBEFORE; $EMIT_OPSTART"
 	echo "monitor_post_bench = $EMIT_PROCAFTER; $EMIT_LOCKAFTER; $EMIT_OPREPORT"

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 source $SCRIPTDIR/lib/sh/funcs.sh
@@ -27,12 +25,11 @@ usage() {
   echo 2. Copy and start building the tree as each copy finishes. $SEQ copies are made and
   echo "    build with -j1"
   echo 3. Start building the main copy
-  echo 4. Start running updatedb in the background
-  echo 5. After 1 minute, try allocate and pin $HIALLOC_COUNT 2\*\*10 pages
-  echo 6. Immediately after, try again to see has reclaim made a difference
-  echo 7. Wait 30 seconds
-  echo 8. Kill all compiles and delete the source trees
-  echo 9. Try and allocate 2\*\*10 pages again
+  echo 4. After 1 minute, try allocate and pin $HIALLOC_COUNT 2\*\*10 pages
+  echo 5. Immediately after, try again to see has reclaim made a difference
+  echo 6. Wait 30 seconds
+  echo 7. Kill all compiles and delete the source trees
+  echo 8. Try and allocate 2\*\*10 pages again
   echo
   echo "Usage: bench-stresshighalloc.sh [options]"
   echo "    -t, --tar      Kernel source tree to use (default: $KERNEL_TAR)"
@@ -251,9 +248,6 @@ make defconfig > /dev/null 2> /dev/null
 make -j1 > /dev/null 2> ../error-primary.txt &
 cd ..
 
-echo Starting updatedb
-updatedb &
-
 echo Sleeping 5 minutes
 
 for i in `seq 1 10`; do
@@ -323,7 +317,6 @@ sleep 180
 echo Killing compile process
 killall -KILL make
 killall -KILL cc1
-killall -KILL updatedb
 
 #### Before delete
 cd $RESULT_DIR/mapfrag-before-delete

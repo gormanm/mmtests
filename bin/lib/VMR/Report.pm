@@ -13,7 +13,7 @@ use VMR::File;
 my $verbose;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&setVerbose &printVerbose &reportHeader &reportPrint &reportZone &reportTest &reportGraph &reportEnvironment &reportFooter &reportOpen &reportClose);
+@EXPORT = qw(&setVerbose &printVerbose &printWarning &reportHeader &reportPrint &reportZone &reportTest &reportGraph &reportEnvironment &reportFooter &reportOpen &reportClose);
 
 ##
 # setVerbose - Set the verbose flag
@@ -26,6 +26,13 @@ sub setVerbose {
 # @String to print
 sub printVerbose {
   $verbose && print @_;
+}
+
+##
+# printWarning - Print a warning message is verbosity allows
+# @String to print
+sub printWarning {
+  print "WARNING: @_\n";
 }
 
 ##
