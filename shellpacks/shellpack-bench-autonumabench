@@ -1,0 +1,89 @@
+#!/bin/bash
+P=autonumabench-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+
+AUTONUMA_TESTS="NUMA01 NUMA02 NUMA01_THEADLOCAL NUMA02_SMT"
+install-depends numactl libnuma-devel gnuplot
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/autonumabench-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/autonumabench-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-autonumabench -v ${VERSION}  || die autonumabench install script returned error
+fi
+cd $SHELLPACK_SOURCES/autonumabench-${VERSION}-installed || die Failed to cd to autonumabench install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo autonumabench installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+cd $SHELLPACK_SOURCES/autonumabench-${VERSION}/installed
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
+fi
+
+for TESTTYPE in $AUTONUMA_TESTS; do
+	SWITCH=
+	case $TESTTYPE in
+	NUMA01)
+		SWITCH=-x
+		;;
+	NUMA02)
+		SWITCH=-y
+		;;
+	NUMA01_THEADLOCAL)
+		SWITCH=-t
+		;;
+	NUMA02_SMT)
+		SWITCH=-s
+		;;
+	HARD_BIND)
+		SWITCH=-b
+		;;
+	INVERSE_BIND)
+		SWITCH=-i
+		;;
+	esac
+	
+	monitor_pre_hook $LOGDIR_RESULTS $TESTTYPE
+	$TIME_CMD -o $LOGDIR_RESULTS/time.$TESTTYPE \
+		./start_bench.sh $SWITCH | tee $LOGDIR_RESULTS/autonumabench.$TESTTYPE
+	monitor_post_hook $LOGDIR_RESULTS $TESTTYPE
+	mv *.txt *.pdf $LOGDIR_RESULTS
+	grep elapsed $LOGDIR_RESULTS/time.$TESTTYPE
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description AutoNUMA Benchmark
+#### Details autonumabench-bench 9

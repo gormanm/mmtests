@@ -1,0 +1,54 @@
+#!/bin/bash
+###SHELLPACK preamble autonumabench-bench 0
+
+AUTONUMA_TESTS="NUMA01 NUMA02 NUMA01_THEADLOCAL NUMA02_SMT"
+install-depends numactl libnuma-devel gnuplot
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required autonumabench-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/autonumabench-${VERSION}/installed
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
+fi
+
+for TESTTYPE in $AUTONUMA_TESTS; do
+	SWITCH=
+	case $TESTTYPE in
+	NUMA01)
+		SWITCH=-x
+		;;
+	NUMA02)
+		SWITCH=-y
+		;;
+	NUMA01_THEADLOCAL)
+		SWITCH=-t
+		;;
+	NUMA02_SMT)
+		SWITCH=-s
+		;;
+	HARD_BIND)
+		SWITCH=-b
+		;;
+	INVERSE_BIND)
+		SWITCH=-i
+		;;
+	esac
+	
+	monitor_pre_hook $LOGDIR_RESULTS $TESTTYPE
+	$TIME_CMD -o $LOGDIR_RESULTS/time.$TESTTYPE \
+		./start_bench.sh $SWITCH | tee $LOGDIR_RESULTS/autonumabench.$TESTTYPE
+	monitor_post_hook $LOGDIR_RESULTS $TESTTYPE
+	mv *.txt *.pdf $LOGDIR_RESULTS
+	grep elapsed $LOGDIR_RESULTS/time.$TESTTYPE
+done
+
+exit $SHELLPACK_SUCCESS
