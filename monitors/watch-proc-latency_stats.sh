@@ -7,9 +7,8 @@ shutdown_read() {
 	EXITING=1
 	exit 0
 }
-
-trap shutdown_read TERM
-trap shutdown_read INT
+trap shutdown_read SIGTERM
+trap shutdown_read SIGINT
 
 echo 1 > /proc/sys/kernel/latencytop
 echo 0 > /proc/latency_stats

@@ -2,6 +2,40 @@
 CONFIG=config
 DIRNAME=`dirname $0`
 export SCRIPTDIR=`cd "$DIRNAME" && pwd`
+RUNNING_TEST=
+
+INTERRUPT_COUNT=0
+begin_shutdown() {
+	TEST_PID=
+	if [ "$RUNNING_TEST" != "" ]; then
+		echo Interrupt received, shutting down $RUNNING_TEST
+		ps auxwww | grep shellpack-bench-$RUNNING_TEST | grep -v grep
+		TEST_PID=`ps auxwww | grep shellpack-bench-$RUNNING_TEST | grep -v grep | awk '{print $2}'`
+		if [ "$TEST_PID " = "" ]; then
+			TEST_PID=`ps auxwww | grep shellpack-install-$RUNNING_TEST | grep -v grep | awk '{print $2}'`
+		fi
+	fi
+	if [ "$TEST_PID" != "" ]; then
+		echo Sending shutdown request to running test pid $TEST_PID
+		kill $TEST_PID
+		INTERRUPT_COUNT=$((INTERRUPT_COUNT+1))
+
+		if [ $INTERRUPT_COUNT -gt 3 ]; then
+			echo Fine, force killing running test
+			kill -9 $TEST_PID
+		fi
+	else
+		echo Interrupt received but test not running to shutdown
+	fi
+
+	if [ $INTERRUPT_COUNT -gt 10 ]; then
+		echo OK, bailing without any attempt at cleanup
+		exit -1
+	fi
+
+}
+trap begin_shutdown SIGTERM
+trap begin_shutdown SIGINT
 
 # Parse command-line arguments
 ARGS=`getopt -o mnc --long run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
@@ -363,7 +397,9 @@ opcontrol --deinit > /dev/null 2> /dev/null
 # Warm up. More appropriate warmup depends on the exact test
 if [ "$SKIP_WARMUP" != "yes" ]; then
 	echo Entering warmup
+	RUNNING_TEST=kernbench
 	./run-single-test.sh kernbench
+	RUNNING_TEST=
 	rm -rf $SHELLPACK_LOG/kernbench
 	echo Warmup complete, beginning tests
 else
@@ -503,6 +539,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 			echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		fi
+		RUNNING_TEST=$TEST
 		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-$RUNNAME \
 			./run-single-test.sh $TEST
 

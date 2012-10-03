@@ -32,8 +32,8 @@ shutdown_read() {
 	exit 0
 }
 	
-trap shutdown_read TERM
-trap shutdown_read INT
+trap shutdown_read SIGTERM
+trap shutdown_read SIGINT
 
 while [ 1 ]; do
 	sleep 5

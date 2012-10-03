@@ -1,0 +1,15 @@
+#!/bin/bash
+###SHELLPACK preamble monitor 0
+
+cleanup()
+{
+	rm /tmp/mmtests-monitor.pid
+	exit
+}
+trap cleanup SIGTERM
+trap cleanup SIGINT
+
+echo $$ > /tmp/mmtests-monitor.pid
+echo Hit enter, run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
+
+read INPUT
