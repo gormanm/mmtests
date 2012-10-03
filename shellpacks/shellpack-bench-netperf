@@ -110,7 +110,8 @@ for PROTOCOL in $PROTOCOLS; do
 				|| die Failed to run netperf
 		monitor_post_hook $LOGDIR_RESULTS $SIZE
 		if [ "$PROTOCOL" = "UDP_STREAM" ]; then
-			grep -v '[a-zA-Z]' $LOGDIR_RESULTS/$PROTOCOL-$SIZE.log | grep -v '^$' | head -1 | awk '{print $2" "$6}' >> $LOGDIR_RESULTS/netperf-$PROTOCOL.result
+			echo -n "$SIZE " >> $LOGDIR_RESULTS/netperf-$PROTOCOL.result
+			grep -v '[a-zA-Z]' $LOGDIR_RESULTS/$PROTOCOL-$SIZE.log | grep -v '^$' | tail -1 | awk '{print $4}' >> $LOGDIR_RESULTS/netperf-$PROTOCOL.result
 		else
 			grep -v '[a-zA-Z]' $LOGDIR_RESULTS/$PROTOCOL-$SIZE.log | grep -v '^$' | head -1 | awk '{print $3" "$5}' >> $LOGDIR_RESULTS/netperf-$PROTOCOL.result
 		fi
@@ -120,4 +121,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 13
+#### Details netperf-bench 14
