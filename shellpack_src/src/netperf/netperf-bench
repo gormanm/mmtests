@@ -66,7 +66,7 @@ for PROTOCOL in $PROTOCOLS; do
 		monitor_pre_hook $LOGDIR_RESULTS $SIZE
 		$TASKSET_CLIENT $NETROOT/bin/netperf \
 			-t $PROTOCOL \
-			-i 50,6 -I 99,1 \
+			-i 30,6 -I 99,1 \
 			-l 20 \
 			-H 127.0.0.1 \
 			-- \
