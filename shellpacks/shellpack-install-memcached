@@ -155,4 +155,4 @@ sleep 10
 	
 echo memcached installed successfully
 #### Description memcached installer
-#### Details memcached 19
+#### Details memcached 20

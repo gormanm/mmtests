@@ -4,6 +4,8 @@ P=memcached-bench
 DEFAULT_VERSION=1.4.13
 . $SHELLPACK_INCLUDE/common.sh
 
+install-depends libevent-devel
+
 # Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
@@ -48,4 +50,4 @@ fi
 echo memcached successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description memcached installer
-#### Details memcached-bench 19
+#### Details memcached-bench 20
