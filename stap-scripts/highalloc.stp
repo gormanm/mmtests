@@ -63,6 +63,7 @@ function alloc_runtest() %{
 	struct zone *zone;
 	char finishString[60];
 	int timing_pages, pages_required;
+	bool disabled_preempt = false;
 
 	/* Get the parameters */
 	order = PARAM_ORDER;
@@ -71,12 +72,18 @@ function alloc_runtest() %{
 	/* Check parameters */
 	if (order < 0 || order >= MAX_ORDER) {
 		_stp_printf("Order request of %lu makes no sense\n", order);
-		return;
+		goto out_preempt;
 	}
 
 	if (numpages < 0) {
 		_stp_printf("Number of pages %lu makes no sense\n", numpages);
-		return;
+		goto out_preempt;
+	}
+
+	if (in_atomic()) {
+		_stp_printf("WARNING: Enabling preempt behind systemtaps back\n");
+		preempt_enable();
+		disabled_preempt = true;
 	}
 
 	/* 
@@ -87,7 +94,8 @@ function alloc_runtest() %{
 			PAGE_KERNEL);
 	if (pages == NULL) {
 		_stp_printf("Failed to allocate space to store page pointers\n");
-		return;
+		preempt_disable();
+		goto out_preempt;
 	}
 
 #if defined(OOM_DISABLE)
@@ -209,6 +217,11 @@ function alloc_runtest() %{
 		sprintf(finishString, "Test aborted after %lu allocations due to delays\n", aborted);
 	
 	_stp_printf("%s", finishString);
+
+out_preempt:
+	if (disabled_preempt)
+		preempt_disable();
+	
 	return;
 %}
 

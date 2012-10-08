@@ -6,19 +6,19 @@ RUNNING_TEST=
 
 INTERRUPT_COUNT=0
 begin_shutdown() {
+	INTERRUPT_COUNT=$((INTERRUPT_COUNT+1))
 	TEST_PID=
 	if [ "$RUNNING_TEST" != "" ]; then
 		echo Interrupt received, shutting down $RUNNING_TEST
 		ps auxwww | grep shellpack-bench-$RUNNING_TEST | grep -v grep
 		TEST_PID=`ps auxwww | grep shellpack-bench-$RUNNING_TEST | grep -v grep | awk '{print $2}'`
-		if [ "$TEST_PID " = "" ]; then
+		if [ "$TEST_PID" = "" ]; then
 			TEST_PID=`ps auxwww | grep shellpack-install-$RUNNING_TEST | grep -v grep | awk '{print $2}'`
 		fi
 	fi
 	if [ "$TEST_PID" != "" ]; then
 		echo Sending shutdown request to running test pid $TEST_PID
 		kill $TEST_PID
-		INTERRUPT_COUNT=$((INTERRUPT_COUNT+1))
 
 		if [ $INTERRUPT_COUNT -gt 3 ]; then
 			echo Fine, force killing running test

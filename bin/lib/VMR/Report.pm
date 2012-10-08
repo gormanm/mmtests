@@ -32,7 +32,7 @@ sub printVerbose {
 # printWarning - Print a warning message is verbosity allows
 # @String to print
 sub printWarning {
-  print "WARNING: @_\n";
+  print STDERR "WARNING: @_\n";
 }
 
 ##
