@@ -131,7 +131,7 @@ fi
 
 # Set paths and libraries
 export PATH=$SHELLPACK_SOURCES/mysql-${MYSQL_VERSION}-installed/bin:$SHELLPACK_SOURCES/postgres-${POSTGRES_VERSION}-installed/bin:$SHELLPACK_SOURCES/sysbench$DBDRIVER-${VERSION}-installed/bin:$PATH
-export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/mysql-${MYSQL_VERSION}-installed/lib/mysql:$SHELLPACK_SOURCES/postgres-${POSTGRES_VERSION}-installed/lib
+export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/mysql-${MYSQL_VERSION}-installed/lib/mysql:$SHELLPACK_SOURCES/postgres-${POSTGRES_VERSION}-installed/lib:$SHELLPACK_SOURCES/postgres-${POSTGRES_VERSION}-installed/lib64
 
 # Install sysbench if necessary
 if [ ! -d $SHELLPACK_SOURCES/sysbench$DBDRIVER-${VERSION}-installed ]; then
@@ -386,4 +386,4 @@ reset_hugepages
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 30
+#### Details sysbench-bench 31
