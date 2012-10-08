@@ -25,7 +25,16 @@ monitor_pre_hook $LOGDIR_RESULTS download
 STARTTIME=`date +%s`
 echo Downloading source tar: $SRCTAR
 cd $SHELLPACK_TEMP || die Failed to change to temp directory
-wget -O 0 -q $SRCTAR || die Failed to download source tar
+wget -O 0 -q $SRCTAR
+if [ $? -ne 0 ]; then
+	echo Failed to download source tar, creating dummy
+
+	# This will create a file that will need 32 copies
+	dd if=/dev/zero of=0 ibs=4096 count=$((TARGETSIZE_MB*8)) ||
+		die Failed to create dummy source file
+fi
+
+# Download extra source tar if available
 if [ "$SRCTAR_EXTRA" != "" ]; then
 	echo Downloading extra source tar: $SRCTAR_EXTRA
 	wget -O 1 -q $SRCTAR_EXTRA || die Failed to download source tar
