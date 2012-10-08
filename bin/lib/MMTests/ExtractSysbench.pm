@@ -90,7 +90,6 @@ sub printReport() {
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
-	my ($tm, $tput, $latency);
 	my @clients = @{$self->{_Clients}};
 
 	foreach my $client (@clients) {

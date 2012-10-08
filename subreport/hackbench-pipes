@@ -5,6 +5,7 @@ gendirlist hackbench-pipes
 for DIR in $DIRLIST; do
 	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/hackbench-results"
 	TITLES="$TITLES `echo $DIR | sed -e 's/hackbench-pipes-//'`"
+	extract-mmtests.pl -d $DIR -b hackbench-pipes --print-plot > $DIR/$TOPLEVEL/hackbench-results &
 done
 compare-mmtests.pl -d . -b hackbench-pipes -n $KERNEL_LIST
 

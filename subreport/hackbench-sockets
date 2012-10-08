@@ -5,6 +5,7 @@ gendirlist hackbench-sockets
 for DIR in $DIRLIST; do
 	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/hackbench-results"
 	TITLES="$TITLES `echo $DIR | sed -e 's/hackbench-sockets-//'`"
+	extract-mmtests.pl -d $DIR -b hackbench-sockets --print-plot > $DIR/$TOPLEVEL/hackbench-results
 done
 compare-mmtests.pl -d . -b hackbench-sockets -n $KERNEL_LIST
 

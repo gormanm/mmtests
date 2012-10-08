@@ -23,16 +23,17 @@ sub printDataType() {
 }
 
 sub initialise() {
-	my ($self, $reportDir) = @_;
+	my ($self, $reportDir, $testName) = @_;
 
 	$self->SUPER::initialise();
 
-	my $fieldLength = $self->{_FieldLength} = 16;
+	my $fieldLength = $self->{_FieldLength} = 12;
 	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f" ];
 	$self->{_FieldHeaders} = [ "Test", "Ops/sec" ];
 	$self->{_SummaryLength} = 16;
 	$self->{_SummaryHeaders} = [ "Test", "Min", "Mean", "Stddev", "Max" ];
 	$self->{_Workloads} = [ "page_test", "brk_test", "exec_test", "fork_test" ];
+	$self->{_TestName} = $testName;
 }
 
 sub extractSummary() {

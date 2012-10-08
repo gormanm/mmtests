@@ -1,7 +1,7 @@
 # ExtractLargecopy.pm
 package MMTests::ExtractLargecopy;
-use MMTests::Extract;
-our @ISA = qw(MMTests::Extract); 
+use MMTests::ExtractLargecopytar;
+our @ISA = qw(MMTests::ExtractLargecopytar); 
 
 sub new() {
 	my $class = shift;

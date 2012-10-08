@@ -4,6 +4,8 @@ P=tbench-bench
 VERSION=3.04
 . $SHELLPACK_INCLUDE/common.sh
 
+install-depends popt-devel
+
 # Basic args parser
 while [ "$1" != "" ]; do
 	case "$1" in
@@ -24,8 +26,6 @@ cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die Failed to cd to dbench 
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
 TBENCH_CLIENTS=`echo $TBENCH_CLIENTS | tr ',' ' '`
-
-
 CLIENT=1
 while [ $CLIENT -le $TBENCH_MAX_CLIENTS ]; do
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
@@ -42,4 +42,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description tbench
-#### Details tbench-bench 3
+#### Details tbench-bench 4
