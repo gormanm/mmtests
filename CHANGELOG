@@ -1,3 +1,31 @@
+v0.06
+o Automatically install packages (need name mappings for other distros)
+o Add benchmark for autonumabench
+o Add support for benchmarking NAS with MPI
+o Add pgbench for autonumabench (may need a bit more work)
+o Upgrade postgres version to 9.2.1
+o Upgrade kernel verion used for kernbench to 3.0 for newer toolchains
+o Alter mailserver config to finish in a reasonable time
+o Add monitor for perf sched
+o Add moinitor that gathers ftrace information with trace-cmd
+o Add preliminary monitors for NUMA stats (very basic)
+o Specify ftrace events to monitor from config file
+o Remove the bulk of whats left of VMRegress
+o Convert shellpacks to a template format to auto-generate boilerplate code
+o Collect lock_stat information if enabled
+o Run multiple iterations of aim9
+o Add basic regression tests for Cross Memory Attach
+o Copy with preempt being enabled in highalloc stres tests
+o Have largedd cope with a missing large file to work with
+o Add a monitor-only mode to just capture logs
+o Report receive-side throughput in netperf for results
+
+v0.05
+o Move driver and config scripts into their own directory
+o Add bin/extract-mmtests.pl and bin/compare-mmtests.pl
+o Remove references to Irish kernel.org mirror
+o Small tidy up
+
 v0.04
 o Add benchmarks for tbench, pipetest, lmbench, starve, memcachedtest
 o Add basic benchmark to run trinity fuzz testing tool
