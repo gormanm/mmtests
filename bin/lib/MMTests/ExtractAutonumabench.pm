@@ -37,6 +37,10 @@ sub extractReport($$$) {
 	my $bindTypes;
 
 	my @files = <$reportDir/noprofile/time.*>;
+	if (!@files) {
+		die("Failed to open any time files\n")
+	}
+	print "DEBUG: $#files\n";
 	foreach my $file (@files) {
 		my @split = split /\./, $file;
 		my $bindType = $split[-1];
