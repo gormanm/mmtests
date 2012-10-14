@@ -759,11 +759,11 @@ for POWERSTEP in `seq $(($MINIMUM_POWER*$INCREMENT)) $(($LARGEST_POWER*$INCREMEN
 		# Check if we deviated too much
 		if [ "$DEVIATE" = "yes" -a $OFFSET -lt 16 ]; then
 			echo $HIGH_OP size $ARRAY_SIZE offset $OFFSET+$ARR_OFFSET deviated too high: $HIGH_DEVIATION -gt $ACCEPTABLE >> $RESULT_DIR/log.txt
+			DEVIATE_FAIL=$((DEVIATE_FAIL+1))
 			if [ $ARR_OFFSET -gt 1024 ]; then
 				ARR_OFFSET=0
 				OFFSET=$(($OFFSET+1))
 				ARRAY_SIZE=$(($ARRAY_SIZE-1))
-				DEVIATE_FAIL=$((DEVIATE_FAIL+1))
 			else
 				ARR_OFFSET=$(($ARR_OFFSET+8))
 			fi
