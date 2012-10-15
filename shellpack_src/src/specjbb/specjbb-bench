@@ -1,0 +1,171 @@
+#!/bin/bash
+# This is the script for running SPECjbb
+
+###SHELLPACK preamble specjbb-bench 2005_kitv1.07
+. $SHELLPACK_INCLUDE/common-detect.sh
+
+install-depends dmidecode
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --starting-warehouses	STARTING_WAREHOUSES
+###SHELLPACK parseargParam --increment-warehouses	INCREMENT_WAREHOUSE
+###SHELLPACK parseargParam --ending-warehouses		ENDING_WAREHOUSE
+###SHELLPACK parseargParam --instances			INSTANCES
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required specjbb-${VERSION}
+###SHELLPACK monitor_hooks
+
+export PATH=$SPECJBB_JRE:$PATH
+STARTING_HUGEPAGES=`cat /proc/sys/vm/nr_hugepages`
+
+record_procs() {
+	mkdir -p results
+	echo -n > results/procstats-$1 || die Failed to record procstats-$1
+	for i in vmstat meminfo; do
+		cat /proc/$i >> results/procstats-$1
+		cat /proc/$i >> results/procstats-$1
+	done
+}
+
+# Ensure everything is where it is expected to be
+pushd $SHELLPACK_SOURCES/specjbb-${VERSION}-installed > /dev/null || die Failed to cd to specjbb
+[ ! -e jbb.jar ] && die No jbb.jar available
+
+# Clean out old results
+[ -e results ] && rm -rf results
+
+# Backup config file to extract fixed parameters from later
+if [ ! -e SPECjbb.props.orig ]; then
+	cp SPECjbb.props SPECjbb.props.orig
+fi
+if [ ! -e SPECjbb_config.props.orig ]; then
+	cp SPECjbb_config.props SPECjbb_config.props.orig
+fi
+
+# Write configuration file
+detect_mconf
+echo -n > SPECjbb.props
+echo input.jvm_instances=$INSTANCES				>> SPECjbb.props
+echo input.starting_number_warehouses=$STARTING_WAREHOUSES	>> SPECjbb.props
+echo input.increment_number_warehouses=$INCREMENT_WAREHOUSE	>> SPECjbb.props
+echo input.ending_number_warehouses=$ENDING_WAREHOUSE		>> SPECjbb.props
+echo input.show_warehouse_detail=false				>> SPECjbb.props
+echo input.include_file=SPECjbb_config.props			>> SPECjbb.props
+echo input.output_directory=results				>> SPECjbb.props
+grep -A 1000 "Fixed input parameters" SPECjbb.props.orig	>> SPECjbb.props
+
+detect_mconf
+echo -n > SPECjbb_config.props
+echo config.hw.vendor=$hw_manu					>> SPECjbb.props
+echo config.hw.vendor.url=http://www.unknown.com		>> SPECjbb.props
+echo config.hw.model=$hw_model					>> SPECjbb.props
+echo config.hw.processor=$hw_cpu_name				>> SPECjbb.props
+echo config.hw.MHz=$hw_cpu_mhz					>> SPECjbb.props
+echo config.hw.nchips=$hw_nchips				>> SPECjbb.props
+echo config.nw.ncores=$hw_ncores				>> SPECjbb.props
+echo config.hw.hwThreads=$hw_ht_enabled				>> SPECjbb.props
+echo config.hw.memory=$((MEMTOTAL_BYTES/1048576))		>> SPECjbb.props
+echo config.hw.memory_description=Team of gnomes		>> SPECjbb.props
+echo config.hw.primaryCache=$hw_pcache				>> SPECjbb.props
+echo config.hw.secondaryCache=					>> SPECjbb.props
+echo config.hw.otherCache=					>> SPECjbb.props
+echo config.hw.fileSystem=					>> SPECjbb.props
+echo config.hw.disk=						>> SPECjbb.props
+echo config.hw.other=						>> SPECjbb.props
+echo config.hw.available=					>> SPECjbb.props
+echo config.sw.vendor=						>> SPECjbb.props
+echo config.sw.vendor.url=					>> SPECjbb.props
+echo config.sw.JVM=						>> SPECjbb.props
+echo config.sw.JVMavailable=					>> SPECjbb.props
+echo config.sw.JVMheapInitial=					>> SPECjbb.props
+echo config.sw.JVMheapMax=$SPECJBB_MAXHEAP			>> SPECjbb.props
+echo config.sw.JVMbitness=					>> SPECjbb.props
+echo config.sw.command_line=					>> SPECjbb.props
+echo config.sw.OS=						>> SPECjbb.props
+echo config.sw.OSavailable=					>> SPECjbb.props
+echo config.sw.tuning=						>> SPECjbb.props
+echo config.sw.aot=						>> SPECjbb.props
+echo config.sw.other=						>> SPECjbb.props
+echo config.sw.otherAvailable=					>> SPECjbb.props
+echo config.test.testedBy=MMTests				>> SPECjbb.props
+echo config.testx.testedByName=MMTests				>> SPECjbb.props
+echo config.test.internalReference=				>> SPECjbb.props
+echo config.test.specLicense=					>> SPECjbb.props
+echo config.test.location=					>> SPECjbb.props
+echo config.sw.notes=						>> SPECjbb.props
+
+export CLASSPATH=./jbb.jar:./check.jar:$CLASSPATH
+
+# Run the actual test
+for PAGES in $SPECJBB_PAGESIZES; do
+	opcontrol --stop ; opcontrol --deinit
+
+	USE_HUGEPAGE=
+	case $PAGES in
+		base)
+			hugeadm --pool-pages-min DEFAULT:0
+			hugeadm --pool-pages-max DEFAULT:0
+			USE_HUGEPAGE=
+			disable_transhuge
+			;;
+		huge)
+			hugeadm --hard --pool-pages-min DEFAULT:4096M
+			USE_HUGEPAGE=$SPECJBB_HUGESWITCH
+			disable_transhuge
+			;;
+		transhuge)
+			hugeadm --pool-pages-min DEFAULT:0
+			hugeadm --pool-pages-max DEFAULT:0
+			USE_HUGEPAGE=
+			if [ "$TRANSHUGE_AVAILABLE" = "yes" ]; then
+				enable_transhuge
+			else
+				echo THP support unavailable for transhuge
+				continue
+			fi
+			;;
+
+	esac
+
+	cat SPECjbb.props | sed -e "s/config.sw.command_line=.*/config.sw.command_line=java $USE_HUGEPAGE $SPECJBB_MAXHEAP spec.jbb.JBBmain -propfile SPECjbb.props/" > SPECjbb.props.tmp
+	mv SPECjbb.props.tmp SPECjbb.props
+
+	record_procs before-$PAGES
+	monitor_pre_hook $LOGDIR_RESULTS specjbb
+
+	# Run single or multi mode
+	if [ $INSTANCES -eq 1 ]; then
+		java $USE_HUGEPAGE $SPECJBB_MAXHEAP spec.jbb.JBBmain -propfile SPECjbb.props || exit $SHELLPACK_ERROR
+	else
+		# Start controller
+		java -Xms32m -Xmx32m spec.jbb.Controller -propfile SPECjbb.props &
+		CONTROLLER_PID=$!
+		sleep 10
+
+		# Start the number of instances
+		echo -n > $SHELLPACK_TEMP/jvm-instances.pids
+		for INSTANCE in `seq 1 $INSTANCES`; do
+			java $USE_HUGEPAGE $SPECJBB_MAXHEAP spec.jbb.JBBmain -propfile SPECjbb.props -id $INSTANCE > $SHELLPACK_TEMP/jvm-instance-$INSTANCE.log &
+			echo $! >> $SHELLPACK_TEMP/jvm-instances.pids
+		done
+
+		INSTANCE=1
+		for INSTANCE_PID in `cat $SHELLPACK_TEMP/jvm-instances.pids`; do
+			echo Waiting on instance $INSTANCE pid $INSTANCE_PID to finish.
+			wait $INSTANCE_PID
+		done
+	fi
+
+	monitor_post_hook $LOGDIR_RESULTS specjbb
+	record_procs after-$PAGES
+
+	cp SPECjbb.props	results/SPECjbb.props-$PAGES
+	cp SPECjbb_config.props	results/SPECjbb_config.props-$PAGES
+	mv results $LOGDIR_RESULTS/$PAGES/
+	mv $SHELLPACK_TEMP/jvm-instance-*.log $LOGDIR_RESULTS/$PAGES/
+	kill -9 $CONTROLLER_PID
+done
+
+exit $SHELLPACK_SUCCESS

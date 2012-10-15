@@ -11,6 +11,7 @@ fi
 
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
+NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
 
 function die() {
 	rm -rf $SHELLPACK_TEMP

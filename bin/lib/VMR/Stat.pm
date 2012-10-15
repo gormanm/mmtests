@@ -10,7 +10,7 @@ use VMR::Report;
 use strict;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&pdiff &pndiff &rdiff &calc_min &calc_max &calc_true_mean &calc_mean &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_true_mean &calc_mean &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Values taken from a standard normal table
 my %za = (
@@ -45,6 +45,19 @@ sub rdiff {
 	} else {
 		return $_[0] / $_[1];
 	}
+}
+
+sub calc_sum {
+	if (! defined $_[0]) {
+		return "NaN";
+	}
+
+	my $sum = 0;
+	foreach my $value (@_) {
+		$sum += $value;
+	}
+
+	return $sum;
 }
 
 sub calc_min {

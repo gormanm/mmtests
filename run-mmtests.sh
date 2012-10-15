@@ -18,11 +18,11 @@ begin_shutdown() {
 	fi
 	if [ "$TEST_PID" != "" ]; then
 		echo Sending shutdown request to running test pid $TEST_PID
-		kill $TEST_PID
+		/bin/kill $TEST_PID
 
 		if [ $INTERRUPT_COUNT -gt 3 ]; then
 			echo Fine, force killing running test
-			kill -9 $TEST_PID
+			/bin/kill -9 $TEST_PID
 		fi
 	else
 		echo Interrupt received but test not running to shutdown

@@ -44,7 +44,6 @@ sub printSummary() {
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
-	my ($user, $system, $elapsed, $cpu);
 	my $section = 0;
 
 	my $file = "$reportDir/noprofile/base/SPECjvm2008.001/SPECjvm2008.001.txt";

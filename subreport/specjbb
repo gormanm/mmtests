@@ -1,0 +1,13 @@
+echo
+gendirlist specjvm
+
+for DIR in $DIRLIST; do
+	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/result.txt"
+	TITLES="$TITLES `echo $DIR | sed -e 's/specjvm-//'`"
+done
+
+echo SPECJBB BOPS
+compare-mmtests.pl -d . -b specjbb -n $KERNEL_LIST
+
+echo SPECJBB PEAKS
+compare-mmtests.pl -d . -b specjbbpeak -n $KERNEL_LIST
