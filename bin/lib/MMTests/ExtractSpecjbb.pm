@@ -40,6 +40,11 @@ sub extractSummary() {
 	my ($self) = @_;
 	my @data = @{$self->{_ResultData}};
 	my @instances = @{$self->{_JVMInstances}};
+	my @funcList = ("calc_min", "calc_mean", "calc_stddev", "calc_max", "calc_sum");
+	if ($self->{_JVMSingle}) {
+		@funcList = ("calc_sum");
+		$self->{_SummaryHeaders} = [ "Warehouse", "TPut" ];
+	}
 
 	# Bodge
 	my $fieldLength = $self->{_FieldLength};
@@ -49,7 +54,7 @@ sub extractSummary() {
 		my @summaryRow;
 		push @summaryRow, $warehouse + 1;
 
-		foreach my $funcName ("calc_min", "calc_mean", "calc_stddev", "calc_max", "calc_sum") {
+		foreach my $funcName (@funcList) {
 			no strict "refs";
 			my @units;
 
@@ -86,14 +91,24 @@ sub extractReport($$$) {
 	my $reading_tput = 0;
 	my $max_warehouse = 0;
 	my @jvm_instances;
+	my $single_instance = 0;
 
 	my $file = "$reportDir/noprofile/base/SPECjbbMultiJVM.001/MultiVMReport.txt";
+	if (! -e $file) {
+		$single_instance = 1;
+		$file = "$reportDir/noprofile/base/SPECjbbSingleJVM/SPECjbb.001.txt";
+	}
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my $line = $_;
 
-		if ($line =~ /JVM ([0-9]+) Scores/) {
+		if (!$single_instance && $line =~ /JVM ([0-9]+) Scores/) {
 			$jvm_instance = $1;
+			push @jvm_instances, $jvm_instance;
+			next;
+		}
+		if ($single_instance && $line =~ /SPEC scores/) {
+			$jvm_instance = 1;
 			push @jvm_instances, $jvm_instance;
 			next;
 		}
@@ -124,19 +139,9 @@ sub extractReport($$$) {
 			push @{$self->{_ResultData}[$jvm_instance]}, [ $warehouse, $throughput, $included ];
 		}
 	}
+	$self->{_JVMSingle} = $single_instance;
 	$self->{_JVMInstances} = \@jvm_instances;
 	$self->{_MaxWarehouse} = $max_warehouse;
-	close INPUT;
-
-
-	$file = "$reportDir/noprofile/base/SPECjbbMultiJVM.001/SPECjbb.raw";
-	open(INPUT, $file) || die("Failed to open $file\n");
-	while (<INPUT>) {
-		my $line = $_;
-		if ($line =~ /^global.input.expected_peak_warehouse/) {
-			(my $dummy, $self->{_ExpectedPeak}) = split(/=/, $line);
-		}
-	}
 	close INPUT;
 }
 

@@ -90,17 +90,27 @@ sub extractReport($$$) {
 	my $reading_tput = 0;
 	my $max_warehouse = 0;
 	my @jvm_instances;
+	my $single_instance;
 
 	# Bodge
 	$reportDir =~ s/specjbbpeak/specjbb/;
 
 	my $file = "$reportDir/noprofile/base/SPECjbbMultiJVM.001/MultiVMReport.txt";
+	if (! -e $file) {
+		$single_instance = 1;
+		$file = "$reportDir/noprofile/base/SPECjbbSingleJVM/SPECjbb.001.txt";
+	}
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my $line = $_;
 
-		if ($line =~ /JVM ([0-9]+) Scores/) {
+		if (!$single_instance && $line =~ /JVM ([0-9]+) Scores/) {
 			$jvm_instance = $1;
+			push @jvm_instances, $jvm_instance;
+			next;
+		}
+		if ($single_instance && $line =~ /SPEC scores/) {
+			$jvm_instance = 1;
 			push @jvm_instances, $jvm_instance;
 			next;
 		}
@@ -137,10 +147,14 @@ sub extractReport($$$) {
 
 
 	$file = "$reportDir/noprofile/base/SPECjbbMultiJVM.001/SPECjbb.raw";
+	if ($single_instance) {
+		$file = "$reportDir/noprofile/base/SPECjbbSingleJVM/SPECjbb.001.raw";
+	}
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my $line = $_;
-		if ($line =~ /^global.input.expected_peak_warehouse/) {
+		if ($line =~ /^global.input.expected_peak_warehouse/ ||
+		    $line =~ /^input.expected_peak_warehouse/) {
 			(my $dummy, $self->{_ExpectedPeak}) = split(/=/, $line);
 			$self->{_ExpectedPeak}--;
 		}
