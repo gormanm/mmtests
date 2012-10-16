@@ -9,7 +9,8 @@ sub new() {
 		_ModuleName  => "CompareSpecjbb",
 		_DataType    => MMTests::Compare::DATA_OPSSEC,
 		_FieldLength => 13,
-		_ResultData  => []
+		_ResultData  => [],
+		_CompareOps  => [ "none", "pdiff", "pdiff", "pndiff", "pdiff", "pdiff" ],
 	};
 	bless $self, $class;
 	return $self;

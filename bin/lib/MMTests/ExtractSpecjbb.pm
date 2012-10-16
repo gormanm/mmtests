@@ -10,7 +10,7 @@ use constant DATA_SPECJBB     => 800;
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ExtractSpecjbb",
+		_ModuleName  => "ExtractSpecjbb",
 		_DataType    => DATA_SPECJBB,
 		_ResultData  => [],
 		_FieldLength => 12,
@@ -28,11 +28,11 @@ sub initialise() {
 
 	$self->SUPER::initialise();
 
-	my $fieldLength = $self->{_FieldLength};
+	my $fieldLength = $self->{_FieldLength} = 12;
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%${fieldLength}d", "%${fieldLength}s" ];
 	$self->{_FieldHeaders} = [ "JVMInstance", "Warehouses", "Bops", "Included" ];
-	$self->{_SummaryHeaders} = [ "Metric", "Bops" ];
-	$self->{_SummaryLength} = 15;
+	$self->{_SummaryHeaders} = [ "Warehouse", "Min", "Mean", "Stddev", "Max", "TPut" ];
+	$self->{_SummaryLength} = $fieldLength;
 	$self->{_TestName} = $testName;
 }
 
@@ -42,29 +42,26 @@ sub extractSummary() {
 	my @instances = @{$self->{_JVMInstances}};
 
 	# Bodge
-	my $fieldLength = $self->{_FieldLength} = 15;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}.2f" ];
+	my $fieldLength = $self->{_FieldLength};
+	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d", "%${fieldLength}d", "%${fieldLength}d" ];
 
-	foreach my $funcName ("calc_min", "calc_mean", "calc_stddev", "calc_max", "calc_sum") {
-		my $printFuncName = $funcName;
-		$printFuncName =~ s/calc_//;
-		if ($printFuncName eq "sum") {
-			$printFuncName = "tput";
-		}
-		for (my $warehouse = 0; $warehouse < $self->{_MaxWarehouse}; $warehouse++) {
+	for (my $warehouse = 0; $warehouse < $self->{_MaxWarehouse}; $warehouse++) {
+		my @summaryRow;
+		push @summaryRow, $warehouse + 1;
+
+		foreach my $funcName ("calc_min", "calc_mean", "calc_stddev", "calc_max", "calc_sum") {
 			no strict "refs";
 			my @units;
-			my $printWarehouse = $warehouse + 1;
 
 			foreach my $instance (@instances) {
 				my @instance_rows = @{$self->{_ResultData}[$instance]};
 				my @row = @{$instance_rows[$warehouse]};
 				push @units, $row[1];
 			}
-			push @{$self->{_SummaryData}}, [ "Warehouse $printWarehouse $printFuncName", &$funcName(@units) ];
+			push @summaryRow, &$funcName(@units);
 		}
 
-		
+		push @{$self->{_SummaryData}}, \@summaryRow;
 	}
 
 	return 1;
