@@ -9,6 +9,7 @@ use VMR::Report;
 use MMTests::Print;
 use constant MONITOR_CPUTIME_SINGLE	=> 1;
 use constant MONITOR_VMSTAT		=> 2;
+use constant MONITOR_NUMA_CONVERGENCE	=> 3;
 use strict;
 
 sub new() {

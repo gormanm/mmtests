@@ -17,6 +17,9 @@ sub new() {
 	return $self;
 }
 
+my $new_compaction_stats = 0;
+my $autonuma_enabled = 0;
+
 my %_fieldNameMap = (
 	"pgpgin"			=> "Page Ins",
 	"pgpgout"			=> "Page Outs",
@@ -47,9 +50,41 @@ my %_fieldNameMap = (
 	"thp_collapse_alloc_failed"	=> "THP collapse fail",
 	"compact_stall"			=> "Compaction stalls",
 	"compact_success"		=> "Compaction success",
+	"pgmigrate_success"		=> "Page migrate success",
+	"pgmigrate_failure"		=> "Page migrate failure",
+	"compact_isolated"		=> "Compaction pages isolated",
+	"compact_migrate_scanned"	=> "Compaction migrate scanned",
+	"compact_free_scanned"		=> "Compaction free scanned",
 	"compact_fail"			=> "Compaction failures",
 	"compact_pages_moved"		=> "Compaction pages moved",
 	"compact_pagemigrate_failed"	=> "Compaction move failure",
+	"mmtests_compaction_cost"	=> "Compaction cost",
+	"numa_pte_updates"		=> "NUMA PTE updates",
+	"numa_hint_faults"		=> "NUMA hint faults",
+	"numa_hint_faults_local"	=> "NUMA hint local faults",
+	"numa_pages_migrated"		=> "NUMA pages migrated",
+	"mmtests_autonuma_cost"		=> "AutoNUMA cost",
+);
+
+my @_old_migrate_stats = (
+	"compact_pages_moved",
+	"compact_pagemigrate_failed",
+);
+
+my @_new_migrate_stats = (
+	"compact_migrate_scanned",
+	"compact_free_scanned",
+	"compact_isolated",
+	"pgmigrate_success",
+	"pgmigrate_failure",
+);
+
+my @_autonuma_stats = (
+	"numa_pte_updates",
+	"numa_hint_faults",
+	"numa_hint_faults_local",
+	"numa_pages_migrated",
+	"mmtests_autonuma_cost",
 );
 
 my @_fieldOrder = (
@@ -84,8 +119,19 @@ my @_fieldOrder = (
         "compact_stall",
         "compact_success",
         "compact_fail",
+        "pgmigrate_success",
+        "pgmigrate_failure",
         "compact_pages_moved",
         "compact_pagemigrate_failed",
+        "compact_isolated",
+        "compact_migrate_scanned",
+        "compact_free_scanned",
+	"mmtests_compaction_cost",
+	"numa_pte_updates",
+	"numa_hint_faults",
+	"numa_hint_faults_local",
+	"numa_pages_migrated",
+	"mmtests_autonuma_cost",
 );
 
 sub extractReport($$$$) {
@@ -139,6 +185,12 @@ sub extractReport($$$$) {
 				$vmstat_before{$key} = $value;
 			} elsif ($reading_after) {
 				$vmstat_after{$key} = $value;
+			}
+			if ($key eq "pgmigrate_success") {
+				$new_compaction_stats = 1;
+			}
+			if ($key eq "numa_hint_faults") {
+				$autonuma_enabled = 1;
 			}
 		}
 	}
@@ -214,6 +266,10 @@ sub extractReport($$$$) {
 			 "compact_fail", "compact_success", "compact_stall",
 			 "nr_vmscan_write", "kswapd_skip_congestion_wait",
 			 "nr_vmscan_immediate_reclaim", "pgrescued",
+        		 "pgmigrate_success", "pgmigrate_failure",
+			 "compact_blocks_moved",
+        		 "compact_isolated", "compact_migrate_scanned",
+        		 "compact_free_scanned",
 			 "thp_fault_alloc", "thp_collapse_alloc",
 			 "thp_split", "thp_fault_fallback",
 			 "thp_collapse_alloc_failed") {
@@ -222,6 +278,45 @@ sub extractReport($$$$) {
 	}
 	$vmstat{"mmtests_vmscan_write_file"} = $vmstat{"nr_vmscan_write"} - $vmstat{"pswpout"};
 	$vmstat{"mmtests_vmscan_write_anon"} = $vmstat{"pswpout"};
+
+	# Compaction cost model
+	my $Ca  = 56 / 8;	# Values for x86-64
+	my $Cpagerw = ($Ca + (4096 / 8));
+	my $Cmc = $Cpagerw * 2;
+	my $Cmf = $Ca * 2;
+	my $Ci  = $Ca + 12;	# 4 for list operations, 8 for locks
+	my $Csm = $Ca;
+	my $Csf = $Ca;
+	if ($new_compaction_stats ) {
+		$vmstat{"mmtests_compaction_cost"} =
+			$Csm * $vmstat{"compact_migrate_scanned"} +
+			$Csf * $vmstat{"compact_migrate_free"} +
+			$Ci  * $vmstat{"compact_isolated"} +
+			$Cmc * $vmstat{"pgmigrate_success"} +
+			$Cmf * $vmstat{"pgmigrate_fail"};
+	} else {
+		$vmstat{"mmtests_compaction_cost"} =
+			$Csm * $vmstat{"compact_blocks_moved"} * 16384 +
+			$Cmc * $vmstat{"compact_pages_moved"} +
+			$Cmf * $vmstat{"compact_pagemigrate_failed"};
+	}
+	$vmstat{"mmtests_compaction_cost"} /= 1000000;
+
+	# AutoNUMA cost model
+	if ($autonuma_enabled) {
+		my $Cpte = $Ca;
+		my $Cupdate = (2 * $Cpte) + (2 * 8);
+		my $Cnumahint = 5000;
+		$Cmc = $Cpagerw + $Cpagerw * 1.5;
+
+		$vmstat{"mmtests_autonuma_cost"} =
+				$Cpte * $vmstat{"numa_pte_updates"} +
+				$Cnumahint * $vmstat{"numa_hint_faults"} +
+				$Ci * $vmstat{"numa_pages_migrated"};
+				$Cpagerw * $vmstat{"numa_pages_migrated"};
+	}
+
+
 
 	# Pick order to display keys in
 	my @keys;
@@ -234,8 +329,34 @@ sub extractReport($$$$) {
 	my $fieldLength = 0;
 	my (@headers, @fields, @format);
 	my $count = 0;
-	foreach my $key (@keys) {
+key:	foreach my $key (@keys) {
 		my $keyName = $key;
+		my $suppress = 0;
+
+		# Some stats for migration may have changed
+		if ($new_compaction_stats) {
+			foreach my $compareKey (@_old_migrate_stats) {
+				if ($compareKey eq $key) {
+					next key;
+				}
+			}
+		} else {
+			foreach my $compareKey (@_new_migrate_stats) {
+				if ($compareKey eq $key) {
+					next key;
+				}
+			}
+		}
+
+		# AutoNUMA may not be available
+		if (!$autonuma_enabled) {
+			foreach my $compareKey (@_autonuma_stats) {
+				if ($compareKey eq $key) {
+					next key;
+				}
+			}
+		}
+
 		if ($rowOrientated && $_fieldNameMap{$key}) {
 			$keyName = $_fieldNameMap{$key};
 		}
