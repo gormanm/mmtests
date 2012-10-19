@@ -40,6 +40,10 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 
+if [ $NUM_SIMULTANEOUS -gt $NUM_COPIES ]; then
+	NUM_SIMULTANEOUS=$NUM_COPIES
+fi
+
 echo "Number simultaneous builds: $NUM_SIMULTANEOUS"
 echo "Threads per build:          $THREADS"
 echo "Total copies:               $NUM_COPIES"
