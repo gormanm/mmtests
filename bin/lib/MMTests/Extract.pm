@@ -122,6 +122,12 @@ sub printPlotHeaders() {
 		$self->{_FieldHeaderFormat});
 }
 
+sub setSummaryLength() {
+	my ($self, $subHeading);
+
+	$self->{_SummaryLength} = $self->{_FieldLength};
+}
+
 sub printSummaryHeaders() {
 	my ($self) = @_;
 	if (defined $self->{_SummaryLength}) {

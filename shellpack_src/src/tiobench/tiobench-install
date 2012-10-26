@@ -1,51 +1,17 @@
 #!/bin/bash
 # tiobench installer
-P=tiobench-install
-DEFAULT_VERSION=0.3.3
-. $SHELLPACK_INCLUDE/common.sh
+###SHELLPACK preamble tiobench-install 0.3.3
 WEB_LOCATION=http://garr.dl.sourceforge.net/project/tiobench/tiobench/
 MIRROR_LOCATION="$WEBROOT/tiobench/"
 
-# Basic argument parser
-while [ "$1" != "" ]; do
-	case "$1" in
-	-v)
-		VERSION=$2
-		shift 2
-		;;
-	*)
-		echo Unrecognised option: $1
-		shift
-	esac
-done
-if [ -z "$VERSION" ]; then
-	VERSION=$DEFAULT_VERSION
-fi
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
 
-# Unconditionally fetch the tar to find out the real version number
-TARFILE=tiobench-${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
-cd $SHELLPACK_SOURCES
-tar -xf $TARFILE
-if [ $? -ne 0 ]; then
-        error "$P: tar xf tiobench-${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
-fi
-
-# Rename directory to something we expect.
-DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-mv $DST_DIR tiobench-${VERSION}
-pushd tiobench-${VERSION} > /dev/null || die Failed to rename tar
+###SHELLPACK sources_fetch tiobench-${VERSION}.tar.gz tiobench-${VERSION}
 
 # Build
-pushd $SHELLPACK_SOURCES/tiobench-${VERSION} || die Failed to change to source directory
-make -j$NUMCPUS
-if [ $? -ne 0 ]; then
-	error "$P: make failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
-fi
+###SHELLPACK build_start tiobench-${VERSION}
+###SHELLPACK make
 
 # Patch the stupid thing for low cpu efficiency
 echo "--- tiobench.pl-orig	2012-02-17 08:51:54.915428315 +0000
@@ -67,5 +33,3 @@ echo "--- tiobench.pl-orig	2012-02-17 08:51:54.915428315 +0000
        }" | patch -p0
 
 echo tiobench installed successfully
-#### Description tiobench
-#### Details tiobench 4

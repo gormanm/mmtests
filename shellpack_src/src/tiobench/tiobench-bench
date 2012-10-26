@@ -1,0 +1,34 @@
+#!/bin/bash
+# This script installs tiobench and whatever
+###SHELLPACK preamble tiobench-bench 0.3.3
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required tiobench-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+if [ "$TIOBENCH_RANDOM" = "" -o "$TIOBENCH_RANDOM" != "0" ]; then
+	TIOBENCH_COMMAND_RANDOM="--random $TIOBENCH_RANDOM"
+fi
+
+CLIENT=1
+while [ $CLIENT -le $TIOBENCH_MAX_CLIENTS ]; do
+	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
+	for ITERATION in `seq 1 $TIOBENCH_ITERATIONS`; do
+		./tiobench.pl $TIOBENCH_COMMAND_RANDOM \
+			--dir     $SHELLPACK_TEMP \
+			--numruns 1 \
+			--size    $((TIOBENCH_SIZE/1048576)) \
+			--block   $TIOBENCH_BLOCKSIZE \
+			--threads $CLIENT \
+			2>&1 | tee $LOGDIR_RESULTS/tiobench-$CLIENT-$ITERATION.log \
+				|| die Failed to run tiobench
+	done
+	monitor_post_hook $LOGDIR_RESULTS $CLIENT
+	CLIENT=$((CLIENT*2))
+done
+
+exit $SHELLPACK_SUCCESS

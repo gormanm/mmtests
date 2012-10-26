@@ -98,7 +98,7 @@ sub calc_mean {
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined $_[$i]) {
-			if ($_[$i] !~ /^[0-9]+/) {
+			if ($_[$i] !~ /^[-0-9]+/) {
 				return "NaN";
 			}
 			$sum += $_[$i];
@@ -182,7 +182,7 @@ sub calc_stddev {
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined $_[$i]) {
-			if ($_[$i] !~ /^[0-9]+/) {
+			if ($_[$i] !~ /^[-0-9]+/) {
 				return "NaN";
 			}
 			$diff += ($_[$i] - $mean) ** 2;
