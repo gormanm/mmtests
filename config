@@ -63,6 +63,8 @@ export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_FTRACE_EVENTS=
+export MONITOR_PERF_EVENTS=
 
 # HackBench
 export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
