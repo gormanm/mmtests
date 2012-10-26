@@ -8,7 +8,7 @@ use MMTests::Monitor;
 our @ISA    = qw(MMTests::Monitor);
 use strict;
 
-my $windowSize = 2000000;
+my $windowSize = 20000;
 
 sub new() {
 	my $class = shift;
@@ -88,6 +88,10 @@ sub parseVMStat($)
 	}
 	$self->{_LastNumaFaults} = $numa_faults;
 	$self->{_LastNumaFaultsLocal} = $numa_faults_local;
+
+	# Approximate to save memory
+	$faults_local = int ($faults_local / 100);
+	$faults_remote = int ($faults_remote / 100);
 
 	while ($faults_remote || $faults_local) {
 		if ($faults_remote) {
