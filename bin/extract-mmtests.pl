@@ -64,7 +64,7 @@ if (defined $opt_monitor) {
 		exit(-1);
 	};
 
-	$monitorModule->extractReport($opt_reportDirectory, $opt_name, $opt_benchmark);
+	$monitorModule->extractReport($opt_reportDirectory, $opt_name, $opt_benchmark, $opt_subheading);
 	$monitorModule->printFieldHeaders() if $opt_printHeader;
 	$monitorModule->printReport();
 	exit(0);

@@ -9,7 +9,9 @@ use VMR::Report;
 use MMTests::Print;
 use constant MONITOR_CPUTIME_SINGLE	=> 1;
 use constant MONITOR_VMSTAT		=> 2;
-use constant MONITOR_NUMA_CONVERGENCE	=> 3;
+use constant MONITOR_PROCVMSTAT		=> 3;
+use constant MONITOR_NUMA_CONVERGENCE	=> 4;
+use constant MONITOR_NUMA_USAGE		=> 5;
 use strict;
 
 sub new() {
@@ -55,6 +57,7 @@ sub printFieldHeaders() {
 sub printReport() {
 	my ($self) = @_;
 	if ($self->{_DataType} == MONITOR_CPUTIME_SINGLE ||
+	    $self->{_DataType} == MONITOR_PROCVMSTAT ||
 	    $self->{_DataType} == MONITOR_VMSTAT) {
 		$self->{_PrintHandler}->printGeneric($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {

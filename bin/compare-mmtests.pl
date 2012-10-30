@@ -75,7 +75,7 @@ if (!defined($opt_monitor)) {
 		eval {
 			my $reportDirectory = $opt_reportDirectory;
 			$extractModules[$nrModules] = $extractFactory->loadModule($opt_monitor, $reportDirectory, $name);
-			$extractModules[$nrModules]->extractReport($reportDirectory, $name, $opt_benchmark, 1);
+			$extractModules[$nrModules]->extractReport($reportDirectory, $name, $opt_benchmark, $opt_subheading, 1);
 			$extractModules[$nrModules++]->extractSummary($opt_subheading);
 		} or do {
 			printWarning("Failed to load module for benchmark $opt_benchmark, $name\n$@");

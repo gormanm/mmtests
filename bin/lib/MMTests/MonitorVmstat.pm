@@ -18,7 +18,7 @@ sub new() {
 }
 
 my $new_compaction_stats = 0;
-my $autonuma_enabled = 0;
+my $autonuma_enabled = 1;
 
 my %_fieldNameMap = (
 	"pgpgin"			=> "Page Ins",
@@ -135,7 +135,7 @@ my @_fieldOrder = (
 );
 
 sub extractReport($$$$) {
-	my ($self, $reportDir, $testName, $testBenchmark, $rowOrientated) = @_;
+	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my (%vmstat_before, %vmstat_after, %vmstat);
 	my ($reading_test, $reading_before, $reading_after);
 	my $elapsed_time;
@@ -270,6 +270,8 @@ sub extractReport($$$$) {
 			 "compact_blocks_moved",
         		 "compact_isolated", "compact_migrate_scanned",
         		 "compact_free_scanned",
+        		 "numa_pte_updates", "numa_hint_faults",
+        		 "numa_hint_faults_local", "numa_pages_migrated",
 			 "thp_fault_alloc", "thp_collapse_alloc",
 			 "thp_split", "thp_fault_fallback",
 			 "thp_collapse_alloc_failed") {
@@ -314,6 +316,7 @@ sub extractReport($$$$) {
 				$Cnumahint * $vmstat{"numa_hint_faults"} +
 				$Ci * $vmstat{"numa_pages_migrated"};
 				$Cpagerw * $vmstat{"numa_pages_migrated"};
+		$vmstat{"mmtests_autonuma_cost"} /= 1000000;
 	}
 
 

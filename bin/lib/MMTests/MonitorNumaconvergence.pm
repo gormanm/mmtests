@@ -113,7 +113,7 @@ sub printReport() {
 }
 
 sub extractReport($$$$$) {
-	my ($self, $reportDir, $testName, $testBenchmark) = @_;
+	my ($self, $reportDir, $testName, $testBenchmark, $subHeading) = @_;
 	my $vmstat = "";
 	my $timestamp = 0;
 	my $start_timestamp = 0;
@@ -123,7 +123,7 @@ sub extractReport($$$$$) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {
 		$file = $file . ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
+		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
 	}
 	while (<INPUT>) {
 		if ($_ =~ /^time: ([0-9]+)/) {
