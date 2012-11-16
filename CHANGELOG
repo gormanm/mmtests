@@ -1,3 +1,9 @@
+v0.07
+o Add benchmark for specjbb
+o Run multiple instances of tiobench and report variances
+o Basic NUMA monitoring scripts
+o Describe the components of autonumbench and add a configuration file
+
 v0.06
 o Automatically install packages (need name mappings for other distros)
 o Add benchmark for autonumabench
