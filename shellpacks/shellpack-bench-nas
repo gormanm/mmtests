@@ -141,7 +141,6 @@ fi
 cp config/make-*.def $LOGDIR_RESULTS
 
 for PAGES in $NAS_PAGESIZES; do
-	opcontrol --stop ; opcontrol --deinit
 	mkdir -p $LOGDIR_RESULTS/$PAGES
 	cp config/make-$PAGES.def config/make.def
 	make clean || die Failed to clean
@@ -222,4 +221,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 35
+#### Details nas-bench 36

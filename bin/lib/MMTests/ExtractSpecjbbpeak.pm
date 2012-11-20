@@ -91,15 +91,21 @@ sub extractReport($$$) {
 	my $max_warehouse = 0;
 	my @jvm_instances;
 	my $single_instance;
+	my $pagesize = "base";
 
 	# Bodge
 	$reportDir =~ s/specjbbpeak/specjbb/;
 
-	my $file = "$reportDir/noprofile/base/SPECjbbMultiJVM.001/MultiVMReport.txt";
+	if (! -e "$reportDir/noprofile/base") {
+		$pagesize = "transhuge";
+	}
+
+	my $file = "$reportDir/noprofile/$pagesize/SPECjbbMultiJVM.001/MultiVMReport.txt";
 	if (! -e $file) {
 		$single_instance = 1;
-		$file = "$reportDir/noprofile/base/SPECjbbSingleJVM/SPECjbb.001.txt";
+		$file = "$reportDir/noprofile/$pagesize/SPECjbbSingleJVM/SPECjbb.001.txt";
 	}
+
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my $line = $_;
@@ -146,9 +152,9 @@ sub extractReport($$$) {
 	close INPUT;
 
 
-	$file = "$reportDir/noprofile/base/SPECjbbMultiJVM.001/SPECjbb.raw";
+	$file = "$reportDir/noprofile/$pagesize/SPECjbbMultiJVM.001/SPECjbb.raw";
 	if ($single_instance) {
-		$file = "$reportDir/noprofile/base/SPECjbbSingleJVM/SPECjbb.001.raw";
+		$file = "$reportDir/noprofile/$pagesize/SPECjbbSingleJVM/SPECjbb.001.raw";
 	}
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {

@@ -92,11 +92,16 @@ sub extractReport($$$) {
 	my $max_warehouse = 0;
 	my @jvm_instances;
 	my $single_instance = 0;
+	my $pagesize = "base";
 
-	my $file = "$reportDir/noprofile/base/SPECjbbMultiJVM.001/MultiVMReport.txt";
+	if (! -e "$reportDir/noprofile/base") {
+		$pagesize = "transhuge";
+	}
+
+	my $file = "$reportDir/noprofile/$pagesize/SPECjbbMultiJVM.001/MultiVMReport.txt";
 	if (! -e $file) {
 		$single_instance = 1;
-		$file = "$reportDir/noprofile/base/SPECjbbSingleJVM/SPECjbb.001.txt";
+		$file = "$reportDir/noprofile/$pagesize/SPECjbbSingleJVM/SPECjbb.001.txt";
 	}
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {

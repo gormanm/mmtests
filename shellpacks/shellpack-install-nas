@@ -44,4 +44,4 @@ pushd nas-$VERSION-installed > /dev/null || die Failed to rename tar
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas 35
+#### Details nas 36

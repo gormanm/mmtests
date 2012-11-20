@@ -49,7 +49,6 @@ pushd $SHELLPACK_SOURCES/specjvm > /dev/null || die Failed to cd to specjvm
 
 # Run the actual test
 for PAGES in $SPECJVM_PAGESIZES; do
-	opcontrol --stop ; opcontrol --deinit
 
 	USE_HUGEPAGE=
 	case $PAGES in

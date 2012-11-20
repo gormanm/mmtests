@@ -145,8 +145,6 @@ export CLASSPATH=./jbb.jar:./check.jar:$CLASSPATH
 
 # Run the actual test
 for PAGES in $SPECJBB_PAGESIZES; do
-	opcontrol --stop ; opcontrol --deinit
-
 	USE_HUGEPAGE=
 	case $PAGES in
 		base)
@@ -215,4 +213,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description SPECjbb
-#### Details specjbb-bench 18
+#### Details specjbb-bench 19
