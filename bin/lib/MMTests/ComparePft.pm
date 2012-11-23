@@ -10,7 +10,7 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ComparePft",
 		_DataType    => DATA_PFT,
-		_FieldLength => 12,
+		_FieldLength => 13,
 		_CompareOps  => [ "none", "pndiff", "pndiff", "pndiff", "pdiff", "pdiff" ],
 		_Precision   => 4,
 		_ResultData  => []

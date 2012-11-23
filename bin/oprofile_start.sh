@@ -65,13 +65,18 @@ bash opcontrol --reset
 bash opcontrol --deinit
 echo
 
+CALLGRAPH_SWITCH=
+if [ "$CALLGRAPH" != "0" ]; then
+	CALLGRAPH_SWITCH="--callgraph=$CALLGRAPH"
+fi
+
 # Setup the profiler
 echo Stage 2: Setting up oprofile
 echo High-level event: $EVENTS
 echo Low-level event: `echo $LOWLEVEL_EVENT | sed -e 's/--event //'`
 echo vmlinux: $VMLINUX
-echo opcontrol --callgraph=$CALLGRAPH --setup $LOWLEVEL_EVENT --vmlinux=$VMLINUX
-bash opcontrol --callgraph=$CALLGRAPH --setup $LOWLEVEL_EVENT --vmlinux=$VMLINUX
+echo opcontrol $CALLGRAPH_SWITCH --setup $LOWLEVEL_EVENT --vmlinux=$VMLINUX
+bash opcontrol $CALLGRAPH_SWITCH --setup $LOWLEVEL_EVENT --vmlinux=$VMLINUX
 if [ $? -ne 0 ]; then
 	echo opcontrol --setup returned failed
 	exit -1

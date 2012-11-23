@@ -40,6 +40,8 @@ sub extractSummary() {
 	my ($self) = @_;
 	my @data = @{$self->{_ResultData}};
 	my @instances = @{$self->{_JVMInstances}};
+	my $specjbb_bops = $self->{_SpecJBBBops};
+	my $specjbb_bopsjvm = $self->{_SpecJBBBopsJVM};
 	my $peak_warehouse = 0;
 	my $peak_bops;
 	my $expected_peak = $self->{_ExpectedPeak};
@@ -73,6 +75,8 @@ sub extractSummary() {
 	push @{$self->{_SummaryData}}, [ "Expctd Peak Bops", $expected_bops ];
 	push @{$self->{_SummaryData}}, [ "Actual Warehouse", $peak_warehouse + 1 ];
 	push @{$self->{_SummaryData}}, [ "Actual Peak Bops",   $peak_bops ];
+	push @{$self->{_SummaryData}}, [ "SpecJBB Bops", $specjbb_bops ];
+	push @{$self->{_SummaryData}}, [ "SpecJBB Bops/JVM",   $specjbb_bopsjvm ];
 
 	return 1;
 }
@@ -90,6 +94,8 @@ sub extractReport($$$) {
 	my $reading_tput = 0;
 	my $max_warehouse = 0;
 	my @jvm_instances;
+	my $specjbb_bops;
+	my $specjbb_bopsjvm;
 	my $single_instance;
 	my $pagesize = "base";
 
@@ -126,6 +132,11 @@ sub extractReport($$$) {
 			next;
 		}
 
+		if ($jvm_instance == -1 && $line =~ /SPECjbb2005 bops=([0-9]+), SPECjbb2005 bops\/JVM=([0-9]+)/) {
+			$specjbb_bops = $1;
+			$specjbb_bopsjvm = $2;
+		}
+
 		if ($reading_tput && $line =~ /^\s+$/) {
 			$reading_tput = 0;
 			next;
@@ -147,6 +158,9 @@ sub extractReport($$$) {
 			push @{$self->{_ResultData}[$jvm_instance]}, [ $warehouse, $throughput, $included ];
 		}
 	}
+	$self->{_SpecJBBBops} = $specjbb_bops;
+	$self->{_SpecJBBBopsJVM} = $specjbb_bopsjvm;
+	$self->{_MaxWarehouse} = $max_warehouse;
 	$self->{_JVMInstances} = \@jvm_instances;
 	$self->{_MaxWarehouse} = $max_warehouse;
 	close INPUT;

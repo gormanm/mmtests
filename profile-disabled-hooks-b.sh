@@ -5,9 +5,10 @@ if [ "$SAMPLE_EVENT_FACTOR" = "" ]; then
 	SAMPLE_EVENT_FACTOR=4
 fi
 
-CALLGRAPH=0
+CALLGRAPH=
 if [ "$OPROFILE_REPORT_CALLGRAPH" != "" ]; then
 	CALLGRAPH=$OPROFILE_REPORT_CALLGRAPH
+	CALLGRAPH_SWITCH=--callgraph
 	if [ $SAMPLE_CYCLE_FACTOR -lt 15 ]; then
 		SAMPLE_CYCLE_FACTOR=15
 	fi
@@ -19,15 +20,15 @@ PROFILE_TITLE="dtlb_miss"
 echo "#!/bin/bash" > monitor-pre-hook
 case `uname -m` in
 	i?86)
-		echo "oprofile_start.sh --callgraph $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --sample-event-factor $SAMPLE_EVENT_FACTOR --event timer --event dtlb_miss" >> monitor-pre-hook
+		echo "oprofile_start.sh $CALLGRAPH_SWITCH $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --sample-event-factor $SAMPLE_EVENT_FACTOR --event timer --event dtlb_miss" >> monitor-pre-hook
 		export PROFILE_EVENTS=timer,dtlb_miss
 		;;
 	x86_64)
-		echo "oprofile_start.sh --callgraph $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --sample-event-factor $SAMPLE_EVENT_FACTOR --event timer --event dtlb_miss" >> monitor-pre-hook
+		echo "oprofile_start.sh $CALLGRAPH_SWITCH $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --sample-event-factor $SAMPLE_EVENT_FACTOR --event timer --event dtlb_miss" >> monitor-pre-hook
 		export PROFILE_EVENTS=timer,dtlb_miss
 		;;
 	ppc64)
-		echo "oprofile_start.sh --callgraph $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --sample-event-factor $SAMPLE_EVENT_FACTOR --event timer --event dtlb_miss" >> monitor-pre-hook
+		echo "oprofile_start.sh $CALLGRAPH_SWITCH $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --sample-event-factor $SAMPLE_EVENT_FACTOR --event timer --event dtlb_miss" >> monitor-pre-hook
 		export PROFILE_EVENTS=timer,dtlb_miss
 		;;
 	*)

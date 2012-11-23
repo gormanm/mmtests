@@ -34,7 +34,7 @@ sub initialise() {
 		$split[-1] =~ s/.log//;
 		push @clients, $split[-1];
 	}
-	@clients = sort @clients;
+	@clients = sort { $a <=> $b } @clients;
 	$self->{_Clients} = \@clients;
 
 	my $fieldLength = 12;
