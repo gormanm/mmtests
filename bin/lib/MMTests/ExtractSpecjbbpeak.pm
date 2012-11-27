@@ -132,9 +132,14 @@ sub extractReport($$$) {
 			next;
 		}
 
-		if ($jvm_instance == -1 && $line =~ /SPECjbb2005 bops=([0-9]+), SPECjbb2005 bops\/JVM=([0-9]+)/) {
+		if (!$single_instance && $jvm_instance == -1 && $line =~ /SPECjbb2005 bops=([0-9]+), SPECjbb2005 bops\/JVM=([0-9]+)/) {
 			$specjbb_bops = $1;
 			$specjbb_bopsjvm = $2;
+		}
+
+		if ($single_instance && $line =~ /^Throughput\s+([0-9]+)/) {
+			$specjbb_bops = $1;
+			$specjbb_bopsjvm = $1;
 		}
 
 		if ($reading_tput && $line =~ /^\s+$/) {
