@@ -287,12 +287,20 @@ echo Warming up with $SYSBENCH_OPTIONS $OLTP_OPTIONS --num-threads=$RUN_NUM run
 sync
 sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS --num-threads=$RUN_NUM run > $LOGDIR_RESULTS/sysbench-raw-warmup
 
-# Work out threads
-CLIENTS=
+# Work out threads. For large numbers of CPUs be prepared to skip a lot to keep
+# the test running in a semi-reasonable amount of time.
+START_CPU=1
+CPU_STRIDE=1
+if [ $NUM_CPU -gt 8 ]; then
+	CLIENTS=`seq $START_CPU 10`
+	START_CPU=12
+	CPU_STRIDE=4
+	CLIENTS="$CLIENTS "
+fi
 if [ $RUN_NUM -lt $NUM_CPU ]; then
-	CLIENTS=`seq 1 $RUN_NUM`
+	CLIENTS="$CLIENTS`seq $START_CPU $CPU_STRIDE $RUN_NUM`"
 else
-	CLIENTS="`seq 1 $NUM_CPU` `seq $((NUM_CPU+2)) 2 $RUN_NUM`"
+	CLIENTS="$CLIENTS`seq $START_CPU $CPU_STRIDE $NUM_CPU` `seq $((NUM_CPU+2)) $((CPU_STRIDE*2)) $RUN_NUM`"
 fi
 
 echo Running sysbench maximum $RUN_NUM threads
@@ -386,4 +394,4 @@ reset_hugepages
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 31
+#### Details sysbench-bench 32
