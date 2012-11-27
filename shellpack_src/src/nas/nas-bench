@@ -98,6 +98,7 @@ done
 # Run the benchmark ##########################################################
 GENSPECSH="generate-nas.sh --bitness ${RUNBITS} $OPENMP $OPENMPI"
 $GENSPECSH > config/make-base.def
+cp config/make-base.def config/make-default.def
 if [ $? -ne 0 ]; then
 	cat config/make-base.def 
 	die Failed to generate base make.def file
@@ -123,6 +124,9 @@ for PAGES in $NAS_PAGESIZES; do
 	# Should not be necessary on modern kernels
 	HUGECTL=
 	case $PAGES in
+		default)
+			echo Using default pagesize configuration
+			;;
 		base)
 			hugeadm --pool-pages-min DEFAULT:0MB
 			hugeadm --pool-pages-max DEFAULT:${MEMTOTAL_MBYTES}MB

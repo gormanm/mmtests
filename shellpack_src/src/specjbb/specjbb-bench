@@ -102,6 +102,9 @@ export CLASSPATH=./jbb.jar:./check.jar:$CLASSPATH
 for PAGES in $SPECJBB_PAGESIZES; do
 	USE_HUGEPAGE=
 	case $PAGES in
+		default)
+			echo Using default pagesize configuration
+			;;
 		base)
 			hugeadm --pool-pages-min DEFAULT:0
 			hugeadm --pool-pages-max DEFAULT:0

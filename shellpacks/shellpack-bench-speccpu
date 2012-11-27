@@ -62,6 +62,7 @@ echo genspec: $GENSPECSH
 HLINK=--hugepages-newrelink
 
 $GENSPECSH > config/gen-m${RUNBITS}base.cfg || die Failed to generate base spec config file
+$GENSPECSH > config/gen-m${RUNBITS}default.cfg || die Failed to generate default spec config file
 $GENSPECSH --hugepages-heaponly > config/gen-m${RUNBITS}huge-heap.cfg || die Failed to generate huge-heap spec config file
 $GENSPECSH $HLINK > config/gen-m${RUNBITS}huge-all.cfg || die Failed to generate huge-all spec config file
 cp config/gen-m${RUNBITS}base.cfg config/gen-m${RUNBITS}huge-*.cfg $LOGDIR_RESULT
@@ -71,6 +72,9 @@ for PAGES in $SPECCPU_PAGESIZES; do
 
 	HUGECTL=
 	case $PAGES in
+		default)
+			echo Using default pagesize configuration
+			;;
 		base)
 			hugeadm --pool-pages-min DEFAULT:0MB
 			hugeadm --pool-pages-max DEFAULT:8192
@@ -127,4 +131,4 @@ for PAGES in $SPECCPU_PAGESIZES; do
 	done
 done
 #### Description SPECcpu
-#### Details speccpu-bench 10
+#### Details speccpu-bench 12
