@@ -96,7 +96,7 @@ sub extractReport($$$) {
 
 sub printReport() {
 	my ($self) = @_;
-	$self->{_PrintHandler}->printGeneric($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
+	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 }
 
 1;

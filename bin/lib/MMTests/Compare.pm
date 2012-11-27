@@ -11,7 +11,8 @@ use constant DATA_WALLTIME_VARIABLE	=> 3;
 use constant DATA_OPSSEC		=> 4;
 use constant DATA_THROUGHPUT		=> 5;
 use VMR::Stat;
-use MMTests::Print;
+use MMTests::PrintGeneric;
+use MMTests::PrintHtml;
 use strict;
 
 sub new() {
@@ -56,7 +57,26 @@ sub initialise() {
 	}
 	$self->{_FieldHeaders} = \@fieldHeaders;
 	$self->{_ExtractModules} = $extractModulesRef;
-	$self->{_PrintHandler} = MMTests::Print->new();
+}
+
+sub setFormat() {
+	my ($self, $format) = @_;
+
+	if ($format eq "html") {
+		$self->{_PrintHandler} = MMTests::PrintHtml->new(1);
+	} else {
+		$self->{_PrintHandler} = MMTests::PrintGeneric->new(1);
+	}
+}
+
+sub printReportTop($) {
+	my ($self) = @_;
+	$self->{_PrintHandler}->printTop();
+}
+
+sub printReportBottom($) {
+	my ($self) = @_;
+	$self->{_PrintHandler}->printBottom();
 }
 
 sub printFieldHeaders() {
@@ -145,6 +165,14 @@ sub _generateHeaderTable() {
 		for (my $j = 0; $j <= $#extractModules; $j++) {
 			my $testName = $extractModules[$j]->{_TestName};
 			my $index = index($testName, "-");
+
+			# Bodge identification of -rc. Will fail if there is
+			# every an -rc10 and will screw up if the name just
+			# happened to have -rc at the start
+			if (substr($testName, $index, $index+3) =~ /-rc[0-9]/) {
+				$index += 4;
+			}
+
 			my $element;
 			if ($i == 0) {
 				my $len = $extractModules[$j]->{_FieldLength};
@@ -264,10 +292,10 @@ sub _printComparisonRow() {
 	$self->_generateRenderTable(1);
 	$self->_generateHeaderTable();
 
-	$self->{_PrintHandler}->printGeneric($self->{_HeaderTable},
+	$self->{_PrintHandler}->printHeaderRow($self->{_HeaderTable},
 		$self->{_FieldLength},
 		$self->{_HeaderFormat});
-	$self->{_PrintHandler}->printGenericRow($self->{_RenderTable},
+	$self->{_PrintHandler}->printRow($self->{_RenderTable},
 		$self->{_FieldLength},
 		$self->{_FieldFormat},
 		$extractModules[0]->{_RowFieldFormat});
@@ -284,12 +312,14 @@ sub printComparison() {
 	$self->_generateRenderTable(0);
 	$self->_generateHeaderTable();
 
-	$self->{_PrintHandler}->printGeneric($self->{_HeaderTable},
+	$self->{_PrintHandler}->printTop();
+	$self->{_PrintHandler}->printHeaderRow($self->{_HeaderTable},
 		$self->{_FieldLength},
 		$self->{_HeaderFormat});
-	$self->{_PrintHandler}->printGeneric($self->{_RenderTable},
+	$self->{_PrintHandler}->printRow($self->{_RenderTable},
 		$self->{_FieldLength},
 		$self->{_FieldFormat});
+	$self->{_PrintHandler}->printBottom();
 }
 
 sub printReport() {
@@ -298,7 +328,7 @@ sub printReport() {
 			$self->{_DataType} == DATA_WALLTIME ||
 			$self->{_DataType} == DATA_OPSSEC ||
 			$self->{_DataType} == DATA_THROUGHPUT) {
-		$self->{_PrintHandler}->printGeneric($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
+		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {
 		print "Unknown data type for reporting raw data\n";
 	}

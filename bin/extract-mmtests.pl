@@ -27,11 +27,12 @@ my ($opt_verbose);
 my ($opt_help, $opt_manual);
 my ($opt_reportDirectory, $opt_monitor);
 my ($opt_printHeader, $opt_printPlot, $opt_printSummary, $opt_printType, $opt_printExtra);
-my ($opt_subheading);
+my ($opt_subheading, $opt_format);
 my ($opt_name, $opt_benchmark);
 GetOptions(
 	'verbose|v'		=> \$opt_verbose,
 	'help|h'		=> \$opt_help,
+	'--format=s'		=> \$opt_format,
 	'--print-type'		=> \$opt_printType,
 	'--print-header'	=> \$opt_printHeader,
 	'--print-plot'		=> \$opt_printPlot,
@@ -58,15 +59,17 @@ if (defined $opt_monitor) {
 	my $monitorFactory = MMTests::MonitorFactory->new();
 	my $monitorModule;
 	eval {
-		$monitorModule = $monitorFactory->loadModule($opt_monitor, $opt_reportDirectory);
+		$monitorModule = $monitorFactory->loadModule($opt_monitor, $opt_reportDirectory, $opt_name, $opt_format);
 	} or do {
 		printWarning("Failed to load module for monitor $opt_monitor\n$@");
 		exit(-1);
 	};
 
 	$monitorModule->extractReport($opt_reportDirectory, $opt_name, $opt_benchmark, $opt_subheading);
+	$monitorModule->printReportTop();
 	$monitorModule->printFieldHeaders() if $opt_printHeader;
 	$monitorModule->printReport();
+	$monitorModule->printReportBottom();
 	exit(0);
 }
 
@@ -78,7 +81,7 @@ eval {
 	if ($opt_name ne "") {
 		$opt_reportDirectory = "$opt_reportDirectory/$opt_benchmark-$opt_name";
 	}
-	$extractModule = $extractFactory->loadModule($opt_benchmark, $opt_reportDirectory);
+	$extractModule = $extractFactory->loadModule($opt_benchmark, $opt_reportDirectory, $opt_name, $opt_format);
 } or do {
 	printWarning("Failed to load module for benchmark $opt_benchmark\n$@");
 	exit(-1);
@@ -92,6 +95,7 @@ if ($opt_printType) {
 
 # Extract data from the benchmark itself and print whatever was requested
 $extractModule->extractReport($opt_reportDirectory, $opt_name);
+$extractModule->printReportTop();
 if ($opt_printPlot) {
 	$extractModule->printPlotHeaders() if $opt_printHeader;
 	$extractModule->printPlot($opt_subheading);
@@ -106,6 +110,7 @@ if ($opt_printPlot) {
 	$extractModule->printFieldHeaders() if $opt_printHeader;
 	$extractModule->printReport();
 }
+$extractModule->printReportBottom();
 
 # Below this line is help and manual page information
 __END__
@@ -149,6 +154,11 @@ been a kernel version for example.
 The name of the benchmark to extract data from. For example, if a given
 test ran kernbench and sysbench and the sysbench results were required
 then specify "-b sysbench".
+
+=item B<--format>
+
+Output format for the report. Valid options are html and text. By default
+the formatting is in plain text.
 
 =item B<--print-type>
 

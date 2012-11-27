@@ -14,7 +14,7 @@ sub new() {
 my %module_map;
 
 sub loadModule($$$) {
-	my ($self, $moduleName, $opt_reportDirectory, $testName) = @_;
+	my ($self, $moduleName, $opt_reportDirectory, $testName, $format) = @_;
 	printVerbose("Loading monitor module $moduleName\n");
 
 	my $pmName = $moduleName;
@@ -27,6 +27,7 @@ sub loadModule($$$) {
 	my $className = "MMTests::Monitor$pmName";
 	my $classInstance = $className->new();
 	$classInstance->initialise($opt_reportDirectory, $testName);
+	$classInstance->setFormat($format);
 	printVerbose("Loaded  monitor module " . $classInstance->getModuleName() . "\n");
 
 	bless $classInstance, "MMTests::Monitor$pmName";

@@ -11,7 +11,8 @@ use constant DATA_WALLTIME_VARIABLE	=> 3;
 use constant DATA_OPSSEC		=> 4;
 use constant DATA_THROUGHPUT		=> 5;
 use VMR::Stat;
-use MMTests::Print;
+use MMTests::PrintGeneric;
+use MMTests::PrintHtml;
 use strict;
 
 sub new() {
@@ -33,7 +34,7 @@ sub getModuleName() {
 }
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $reportDir, $testName, $format) = @_;
 	my (@fieldHeaders, @plotHeaders, @summaryHeaders);
 	my ($fieldLength, $plotLength, $summaryLength);
 
@@ -78,7 +79,15 @@ sub initialise() {
 	$self->{_PlotHeaders} = \@plotHeaders;
 	$self->{_SummaryLength}  = $summaryLength;
 	$self->{_SummaryHeaders} = \@summaryHeaders;
-	$self->{_PrintHandler} = MMTests::Print->new();
+}
+
+sub setFormat() {
+	my ($self, $format) = @_;
+	if ($format eq "html") {
+		$self->{_PrintHandler} = MMTests::PrintHtml->new();
+	} else {
+		$self->{_PrintHandler} = MMTests::PrintGeneric->new();
+	}
 }
 
 sub printDataType() {
@@ -106,6 +115,16 @@ sub printExtraHeaders() {
 	$self->{_PrintHandler}->printHeaders(
 		$self->{_ExtraLength}, $self->{_ExtraHeaders},
 		$self->{_FieldHeaderFormat});
+}
+
+sub printReportTop() {
+	my ($self) = @_;
+	$self->{_PrintHandler}->printTop();
+}
+
+sub printReportBottom() {
+	my ($self) = @_;
+	$self->{_PrintHandler}->printBottom();
 }
 
 sub printFieldHeaders() {
@@ -299,7 +318,7 @@ sub printSummary() {
 	}
 
 	$self->extractSummary($subHeading);
-	$self->{_PrintHandler}->printGeneric($self->{_SummaryData}, $fieldLength, $self->{_FieldFormat});
+	$self->{_PrintHandler}->printRow($self->{_SummaryData}, $fieldLength, $self->{_FieldFormat});
 }
 
 sub _printClientReport() {
@@ -308,7 +327,7 @@ sub _printClientReport() {
 
 	my $fieldLength = $self->{_FieldLength};
 	foreach my $client (@clients) {
-		$self->{_PrintHandler}->printGeneric($data[$client], $fieldLength, $self->{_FieldFormat}, "%-${fieldLength}d", $client);
+		$self->{_PrintHandler}->printRow($data[$client], $fieldLength, $self->{_FieldFormat}, "%-${fieldLength}d", $client);
 	}
 }
 
@@ -318,7 +337,7 @@ sub _printClientExtra() {
 
 	my $fieldLength = $self->{_ExtraLength};
 	foreach my $client (@clients) {
-		$self->{_PrintHandler}->printGeneric($data[$client], $fieldLength, $self->{_ExtraFormat}, "%-${fieldLength}d", $client);
+		$self->{_PrintHandler}->printRow($data[$client], $fieldLength, $self->{_ExtraFormat}, "%-${fieldLength}d", $client);
 	}
 }
 
@@ -329,7 +348,7 @@ sub printExtra() {
 		return;
 	}
 
-	$self->{_PrintHandler}->printGeneric($self->{_ExtraData}, $self->{_ExtraLength}, $self->{_ExtraFormat});
+	$self->{_PrintHandler}->printRow($self->{_ExtraData}, $self->{_ExtraLength}, $self->{_ExtraFormat});
 }
 
 sub printReport() {
@@ -338,7 +357,7 @@ sub printReport() {
 			$self->{_DataType} == DATA_WALLTIME ||
 			$self->{_DataType} == DATA_OPSSEC ||
 			$self->{_DataType} == DATA_THROUGHPUT) {
-		$self->{_PrintHandler}->printGeneric($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
+		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {
 		print "Unknown data type for reporting raw data\n";
 	}

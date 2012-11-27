@@ -6,7 +6,8 @@
 package MMTests::Monitor;
 
 use VMR::Report;
-use MMTests::Print;
+use MMTests::PrintGeneric;
+use MMTests::PrintHtml;
 use constant MONITOR_CPUTIME_SINGLE	=> 1;
 use constant MONITOR_VMSTAT		=> 2;
 use constant MONITOR_PROCVMSTAT		=> 3;
@@ -43,8 +44,26 @@ sub initialise() {
 	}
 	$self->{_FieldLength}  = $fieldLength;
 	$self->{_FieldHeaders} = \@fieldHeaders;
-	$self->{_PrintHandler} = MMTests::Print->new();
 	$self->{_TestName} = $testName;
+}
+
+sub setFormat() {
+	my ($self, $format) = @_;
+	if ($format eq "html") {
+		$self->{_PrintHandler} = MMTests::PrintHtml->new();
+	} else {
+		$self->{_PrintHandler} = MMTests::PrintGeneric->new();
+	}
+}
+
+sub printReportTop() {
+	my ($self) = @_;
+	$self->{_PrintHandler}->printTop();
+}
+
+sub printReportBottom() {
+	my ($self) = @_;
+	$self->{_PrintHandler}->printBottom();
 }
 
 sub printFieldHeaders() {
@@ -59,7 +78,7 @@ sub printReport() {
 	if ($self->{_DataType} == MONITOR_CPUTIME_SINGLE ||
 	    $self->{_DataType} == MONITOR_PROCVMSTAT ||
 	    $self->{_DataType} == MONITOR_VMSTAT) {
-		$self->{_PrintHandler}->printGeneric($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
+		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {
 		print "Unknown data type for reporting raw data\n";
 	}

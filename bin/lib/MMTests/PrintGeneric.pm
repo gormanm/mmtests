@@ -1,10 +1,18 @@
-# Print.pm
-package MMTests::Print;
+# PrintGeneric.pm
+package MMTests::PrintGeneric;
 
 sub new() {
 	my $class = shift;
 	my $self = {};
 	bless $self, $class;
+}
+
+sub printTop($)
+{
+}
+
+sub printBottom($)
+{
 }
 
 sub printHeaders($$$) {
@@ -26,7 +34,7 @@ sub printHeaders($$$) {
 	print "\n";
 }
 
-sub printGenericRow($$@) {
+sub printRow($$@) {
 	my ($self, $dataRef, $fieldLength, $formatColumnRef, $formatRowRef) = @_;
 	my (@formatColumnList, @formatRowList);
 	my $rowIndex = 1;
@@ -53,8 +61,12 @@ sub printGenericRow($$@) {
 	}
 }
 
+sub printHeaderRow($$@) {
+	my ($self, $dataRef, $fieldLength, $formatColumnRef, $formatRowRef) = @_;
+	$self->printRow($dataRef, $fieldLength, $formatColumnRef, $formatRowRef);
+}
 
-sub printGeneric($$@) {
+sub printRowFineFormat($$@) {
 	my ($self, $dataRef, $fieldLength, $formatRef, $prefixFormat, $prefixData) = @_;
 	my @formatList;
 	if (defined $formatRef) {
@@ -77,6 +89,9 @@ sub printGeneric($$@) {
 		}
 		print "\n";
 	}
+}
+
+sub printFooters() {
 }
 
 1;

@@ -12,7 +12,7 @@ sub new() {
 }
 
 sub loadModule($$$) {
-	my ($self, $moduleName, $extractModules) = @_;
+	my ($self, $moduleName, $format, $extractModules) = @_;
 	printVerbose("Loading module $moduleName\n");
 
 	my $pmName = $moduleName;
@@ -24,6 +24,7 @@ sub loadModule($$$) {
 	my $className = "MMTests::Compare$pmName";
 	my $classInstance = $className->new();
 	$classInstance->initialise($extractModules);
+	$classInstance->setFormat($format);
 	printVerbose("Loaded  module " . $classInstance->getModuleName() . "\n");
 
 	bless $classInstance, "MMTests::Compare$pmName";

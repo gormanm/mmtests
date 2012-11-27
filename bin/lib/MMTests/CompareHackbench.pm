@@ -18,8 +18,8 @@ sub new() {
 }
 
 sub initialise() {
-	my ($self, $extractModulesRef) = @_;
-	$self->SUPER::initialise($extractModulesRef);
+	my ($self, $format, $extractModulesRef) = @_;
+	$self->SUPER::initialise($format, $extractModulesRef);
 
 	my @extractModules = @{$self->{_ExtractModules}};
 	$extractModules[0]->{_SummaryHeaders} = [ "Time", "Procs" ];

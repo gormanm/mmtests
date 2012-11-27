@@ -24,7 +24,7 @@ my ($opt_verbose);
 my ($opt_help, $opt_manual);
 my ($opt_reportDirectory);
 my ($opt_printHeader, $opt_printExtra);
-my ($opt_subheading);
+my ($opt_subheading, $opt_format);
 my ($opt_names, $opt_benchmark);
 my ($opt_monitor, $opt_hideCompare);
 GetOptions(
@@ -35,6 +35,7 @@ GetOptions(
 	'--print-monitor=s'	=> \$opt_monitor,
 	'--no-compare'		=> \$opt_hideCompare,
 	'--sub-heading=s'	=> \$opt_subheading,
+	'--format=s'		=> \$opt_format,
 	'n|names=s'		=> \$opt_names,
 	'b|benchmark=s'		=> \$opt_benchmark,
 	'manual'		=> \$opt_manual,
@@ -92,9 +93,9 @@ my $compareModule;
 printVerbose("Loading compare $opt_benchmark\n");
 eval {
 	if ($opt_monitor) {
-		$compareModule = $compareFactory->loadModule("cputime", \@extractModules);
+		$compareModule = $compareFactory->loadModule("cputime", $opt_format, \@extractModules);
 	} else {
-		$compareModule = $compareFactory->loadModule($opt_benchmark, \@extractModules);
+		$compareModule = $compareFactory->loadModule($opt_benchmark, $opt_format, \@extractModules);
 	}
 } or do {
 	printWarning("Failed to compare module for benchmark $opt_benchmark\n$@");
@@ -120,6 +121,7 @@ compare-mmtests.pl [options]
  -n, --names		Titles for the series if tests given to run-mmtests.sh
  -b, --benchmark	Benchmark to extract data for
  -v, --verbose		Verbose output
+ --format		Output format
  --print-header		Print a header
  --print-extra		Print secondary data collected by the benchmark
  --sub-heading		Analyse just a sub-heading of the data, see manual page
@@ -144,6 +146,11 @@ been a kernel version for example.
 The name of the benchmark to extract data from. For example, if a given
 test ran kernbench and sysbench and the sysbench results were required
 then specify "-b sysbench".
+
+=item B<--format>
+
+Output format for the report. Valid options are html and text. By default
+the formatting is in plain text.
 
 =item B<--print-header>
 
