@@ -40,6 +40,12 @@ sub initialise() {
 	$self->{_FieldHeaderFormat} = [ "%-8s", "%${fieldLength}s" ];
 }
 
+sub extractSummary() {
+	my ($self) = @_;
+	$self->{_SummaryData} = $self->{_ResultData};
+	return 1;
+}
+
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my ($wallTime);
