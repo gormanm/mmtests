@@ -52,6 +52,8 @@ sub extractReport($$$) {
 	my $dummy;
 	my @kernels = @{$self->{_Kernels}};
 
+	die("No data") if $kernels[0] eq "";
+
 	foreach my $kernel (@kernels) {
 		my $file = "$reportDir/noprofile/$_pagesize/$kernel.log";
 		open(INPUT, $file) || die("Failed to open $file\n");
