@@ -10,6 +10,7 @@ sub new() {
 		_DataType    => MMTests::Extract::DATA_WALLTIME,
 		_FieldLength => 12,
 		_Precision   => 2,
+		_CompareOps  => [ "none", "pndiff" ],
 		_ResultData  => []
 	};
 	bless $self, $class;
