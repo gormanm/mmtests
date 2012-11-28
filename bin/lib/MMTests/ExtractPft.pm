@@ -44,7 +44,6 @@ sub initialise() {
 	$self->{_SummaryHeaders} = $self->{_FieldHeaders};
 	$self->{_FieldFormat} = [ "%-8d", "%-${fieldLength}.2f", "%-${fieldLength}.2f", "%-${fieldLength}.2f", "%-${fieldLength}.3f", "%-${fieldLength}.3f" ];
 	$self->{_FieldHeaderFormat} = [ "%-8s", "%-${fieldLength}s", "%-${fieldLength}s", "%-${fieldLength}s", "%-${fieldLength}s", "%-${fieldLength}s" ];
-	$self->{_PrintHandler} = MMTests::Print->new();
 }
 
 sub extractSummary() {

@@ -1,0 +1,19 @@
+# CompareNas.pm
+package MMTests::CompareNas;
+use MMTests::Compare;
+our @ISA = qw(MMTests::Compare); 
+
+sub new() {
+	my $class = shift;
+	my $self = {
+		_ModuleName  => "CompareNas",
+		_DataType    => MMTests::Extract::DATA_WALLTIME,
+		_FieldLength => 12,
+		_Precision   => 2,
+		_ResultData  => []
+	};
+	bless $self, $class;
+	return $self;
+}
+
+1;
