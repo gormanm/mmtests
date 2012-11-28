@@ -113,8 +113,21 @@ emit_optimization() {
 	fi
 
 	EFLAGS=
-	if [ "`uname -m`" = "x86_64" -a "$NAS_CLASS" = "C" ]; then
-		EFLAGS=-mcmodel=medium
+	if [ "`uname -m`" = "x86_64" ]; then
+		case $NAS_CLASS in
+		C)
+			EFLAGS=-mcmodel=medium
+			;;
+		D)
+			EFLAGS=-mcmodel=large
+			;;
+		E)
+			EFLAGS=-mcmodel=large
+			;;
+		F)
+			EFLAGS=-mcmodel=large
+			;;
+		esac
 	fi
 
 	echo
