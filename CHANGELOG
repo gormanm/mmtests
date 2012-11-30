@@ -1,4 +1,10 @@
 v0.07
+o Preliminary support for rendering HTML reports
+o specjbb configs for single JVMs
+o specjbb extraction script changes for single JVMs
+o nas reporting scripts
+
+v0.07
 o Add benchmark for specjbb
 o Run multiple instances of tiobench and report variances
 o Basic NUMA monitoring scripts
