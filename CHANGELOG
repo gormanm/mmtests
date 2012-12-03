@@ -1,4 +1,4 @@
-v0.07
+v0.08
 o Preliminary support for rendering HTML reports
 o specjbb configs for single JVMs
 o specjbb extraction script changes for single JVMs

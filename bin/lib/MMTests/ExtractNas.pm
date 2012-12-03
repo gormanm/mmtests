@@ -23,6 +23,13 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my @kernels;
 
+	if (! -e "$reportDir/noprofile/$_pagesize") {
+		$_pagesize = "base";
+	}
+	if (! -e "$reportDir/noprofile/$_pagesize") {
+		$_pagesize = "transhuge";
+	}
+
 	my @files = <$reportDir/noprofile/$_pagesize/*.log>;
 	foreach my $file (@files) {
 		my @split = split /\//, $file;

@@ -102,8 +102,11 @@ sub extractReport($$$) {
 	# Bodge
 	$reportDir =~ s/specjbbpeak/specjbb/;
 
-	if (! -e "$reportDir/noprofile/base") {
+	if (! -e "$reportDir/noprofile/$pagesize") {
 		$pagesize = "transhuge";
+	}
+	if (! -e "$reportDir/noprofile/$pagesize") {
+		$pagesize = "default";
 	}
 
 	my $file = "$reportDir/noprofile/$pagesize/SPECjbbMultiJVM.001/MultiVMReport.txt";
