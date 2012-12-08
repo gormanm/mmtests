@@ -21,6 +21,7 @@ my @trace_functions = (
 	"get_request_wait",
 	"wait_for_completion",
 	"wait_on_page_bit",
+	"wait_on_page_bit_killable",
 	"try_to_free_pages",
 	"shrink_zone");
 
@@ -36,8 +37,6 @@ my @completion_functions=(
 my @trace_conditional = (
 	"sync_page",
 	"sync_buffer",
-	"sleep_on_buffer",
-	"sleep_on_page",
 	"sleep_on_buffer",
 	"try_to_compact_pages",
 	"balance_dirty_pages_ratelimited_nr",
