@@ -63,7 +63,7 @@ function alloc_runtest() %{
 	struct zone *zone;
 	char finishString[60];
 	int timing_pages, pages_required;
-	bool disabled_preempt = false;
+	bool enabled_preempt = false;
 
 	/* Get the parameters */
 	order = PARAM_ORDER;
@@ -83,7 +83,7 @@ function alloc_runtest() %{
 	if (in_atomic()) {
 		_stp_printf("WARNING: Enabling preempt behind systemtaps back\n");
 		preempt_enable();
-		disabled_preempt = true;
+		enabled_preempt = true;
 	}
 
 	/* 
@@ -219,7 +219,7 @@ function alloc_runtest() %{
 	_stp_printf("%s", finishString);
 
 out_preempt:
-	if (disabled_preempt)
+	if (enabled_preempt)
 		preempt_disable();
 	
 	return;

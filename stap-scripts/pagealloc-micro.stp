@@ -46,6 +46,13 @@ function alloc_runtest() %{
 	int i, j;
 	unsigned long long start_cycles_alloc, cycles_alloc;
 	unsigned long long start_cycles_free, cycles_free;
+	bool enabled_preempt = false;
+
+	if (in_atomic()) {
+		_stp_printf("WARNING: Enabling preempt behind systemtaps back\n");
+		preempt_enable();
+		enabled_preempt = true;
+	}
 
 	/* Allocate memory to store pointers to pages */
 	pages = __vmalloc((PARAM_BATCH+1) * sizeof(struct page **),
@@ -53,7 +60,7 @@ function alloc_runtest() %{
 			PAGE_KERNEL);
 	if (pages == NULL) {
 		_stp_printf("Failed to allocate space to store page pointers\n");
-		return;
+		goto out_preempt;
 	}
 	memset(pages, 0, (PARAM_BATCH+1) * sizeof(struct page **));
 
@@ -90,6 +97,10 @@ function alloc_runtest() %{
 	}
 
 	vfree(pages);
+
+out_preempt:
+	if (enabled_preempt)
+		preempt_disable();
 
 	return;
 %}
