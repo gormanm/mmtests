@@ -8,15 +8,35 @@
 # 
 # (c) Mel Gorman 2012
 
-# Build the reader program
+# Extract the reader program
 TEMPFILE=`mktemp`
 LINECOUNT=`wc -l $0 | awk '{print $1}'`
 CSTART=`grep -n "BEGIN C FILE" $0 | tail -1 | awk -F : '{print $1}'`
 tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > $TEMPFILE.c
-gcc -O2 $TEMPFILE.c -o $TEMPFILE || exit -1
+
+# Build it
+READSIZE=
+READPAUSE=
+BUILDRAND=
+COUNT=100
+if [ "$MONITOR_READ_LATENCY_RANDOM" = "yes" ]; then
+	BUILDRAND=-DRANDREAD
+fi
+if [ "$MONITOR_READ_LATENCY_READSIZE_MB" != "" ]; then
+	READSIZE="-DBUFFER_SIZE=$((MONITOR_READ_LATENCY_READSIZE_MB*1048576))"
+	if [ $MONITOR_READ_LATENCY_READSIZE_MB -gt $COUNT ]; then
+		COUNT=$MONITOR_READ_LATENCY_READSIZE_MB
+	fi
+fi
+if [ "$MONITOR_READ_LATENCY_READPAUSE_MS" != "" ]; then
+	READPAUSE="-DBETWEENREAD_PAUSE_MS=$MONITOR_READ_LATENCY_READPAUSE_MS"
+fi
+
+gcc $BUILDRAND $READSIZE $READPAUSE -O2 $TEMPFILE.c -o $TEMPFILE || exit -1
+
 
 # Build a file on local storage for the program to access
-dd if=/dev/zero of=monitor_readfile ibs=1048576 count=100 > /dev/null 2> /dev/null
+dd if=/dev/zero of=monitor_readfile ibs=1048576 count=$COUNT > /dev/null 2> /dev/null
 
 # Start the reader
 $TEMPFILE monitor_readfile &
