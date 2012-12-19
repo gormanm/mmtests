@@ -46,7 +46,7 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 			if [ $CLIENT -lt $NUMCPUS ]; then
 				CLIENT=$((CLIENT+1))
 			else
-				CLIENT=$((CLIENT+7))
+				CLIENT=$((CLIENT+2))
 			fi
 		done
 		;;

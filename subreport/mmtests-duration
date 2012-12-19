@@ -1,2 +1,0 @@
-echo MMTests Statistics: duration
-compare-mmtests.pl -d . --print-monitor duration -b $FTRACE_TEST -n $KERNEL_LIST

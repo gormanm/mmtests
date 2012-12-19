@@ -1,9 +1,0 @@
-echo
-echo STREAM
-gendirlist vmr-stream
-
-for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/default/stream-static-small/stream-Triad.avg"
-	TITLES="$TITLES `echo $DIR | sed -e 's/vmr-stream-//'`"
-done
-compare-mmtests.pl -d . -b vmr-stream -n $KERNEL_LIST

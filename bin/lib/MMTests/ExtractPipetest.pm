@@ -16,6 +16,10 @@ sub new() {
 	return $self;
 }
 
+sub printDataType() {
+	print "WalltimeVariable,TestName,Time,candlesticks\n";
+}
+
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 

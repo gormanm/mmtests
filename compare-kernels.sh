@@ -6,29 +6,57 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/config
 
-KERNEL_BASE="2.6.38-mainline"
-KERNEL_COMPARE="2.6.39-mainline"
-FTRACE_ANALYSERS="mmtests-duration mmtests-vmstat"
-FTRACE_HELPER_PAGEALLOC=$LINUX_GIT/Documentation/trace/postprocess/trace-pagealloc-postprocess.pl
-FTRACE_HELPER_VMSCAN=$LINUX_GIT/subreport/trace-vmscan-postprocess.pl
-FTRACE_HELPER_CONGESTION=$SCRIPTDIR/subreport/trace-congestion-postprocess.pl
-TIMESTAMP_HELPER=$SCRIPTDIR/subreport/teststimestamp-extract
-DIRLIST=
+KERNEL_BASE=
+KERNEL_COMPARE=
+MONITORS_ANALYSERS="mmtests-duration read-latency mmtests-vmstat"
 
-KERNEL_LIST=$KERNEL_BASE
-for KERNEL in $KERNEL_COMPARE; do
-	KERNEL_LIST=$KERNEL_LIST,$KERNEL
+while [ "$1" != "" ]; do
+	case $1 in
+	--format)
+		FORMAT=$2
+		FORMAT_CMD="--format $FORMAT"
+		shift 2
+		;;
+	--output-dir)
+		OUTPUT_DIRECTORY=$2
+		shift 2
+		;;
+	--baseline)
+		KERNEL_BASE=$2
+		shift 2
+		;;
+	--compare)
+		KERNEL_COMPARE="$2"
+		shift 2
+		;;
+	--result-dir)
+		cd "$2" || die Result directory does not exist or is not directory
+		shift 2
+		;;
+	*)
+		echo Unrecognised argument: $1 1>&2
+		shift
+		;;
+	esac
 done
 
-TMPDIR=`mktemp`
-rm $TMPDIR
-mkdir $TMPDIR
-
-TOPLEVEL=noprofile
-if [ "$1" != "" ]; then
-	TOPLEVEL=$1
+FORMAT_CMD=
+if [ "$FORMAT" != "" ]; then
+	FORMAT_CMD="--format $FORMAT"
+fi
+if [ "$OUTPUT_DIRECTORY" != "" -a ! -e "$OUTPUT_DIRECTORY" ]; then
+	mkdir $OUTPUT_DIRECTORY
+fi
+if [ "$OUTPUT_DIRECTORY" != "" -a ! -d "$OUTPUT_DIRECTORY" ]; then
+	echo Output directory is not a directory
+	exit -1
 fi
 
+if [ `ls tests-timestamp-* 2> /dev/null | wc -l` -eq 0 ]; then
+	die This does not look like a mmtests results directory
+fi
+
+# Only include kernels we have results for
 if [ ! -e tests-timestamp-$KERNEL_BASE ]; then
 	TEMP_KERNEL_BASE=
 	TEMP_KERNEL_COMPARE=
@@ -44,99 +72,175 @@ if [ ! -e tests-timestamp-$KERNEL_BASE ]; then
 	done
 fi
 
-gendirlist() {
-	PREFIX=$1
-
-	DIRLIST=
-	for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
-		for SUBDIR in `ls -d $PREFIX-$DIRNAME 2> /dev/null`; do
-			DIRLIST="$DIRLIST $SUBDIR"
-		done
+# Build a list of kernels
+if [ "$KERNEL_BASE" != "" ]; then
+	KERNEL_LIST=$KERNEL_BASE
+	for KERNEL in $KERNEL_COMPARE; do
+		KERNEL_LIST=$KERNEL_LIST,$KERNEL
 	done
+else
+	for KERNEL in `grep ^start tests-timestamp-* | awk -F : '{print $4" "$1}' | sort -n | awk '{print $2}' | sed -e 's/tests-timestamp-//'`; do
+		if [ "$KERNEL_BASE" = "" ]; then
+			KERNEL_BASE=$KERNEL
+			KERNEL_LIST=$KERNEL
+		else
+			KERNEL_LIST="$KERNEL_LIST,$KERNEL"
+		fi
+	done
+fi
+
+smoothover() {
+	IMG_SRC=$1.png
+	IMG_SMOOTH=$1-smooth.png
+	echo -n "  <td><img src=\"$IMG_SRC\" onmouseover=\"this.src='$IMG_SMOOTH'\" onmouseout=\"this.src='$IMG_SRC'\"></td>"
 }
 
-findIndex() {
-	INDEX=0
-	COMP=pdiff
-	case $1 in
-	min)
-		INDEX=1
+cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
+for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
+	COMPARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
+	GRAPH_CMD="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
+	echo
+	case $SUBREPORT in
+	dbench3)
+		echo $SUBREPORT MB/sec
+		eval $COMPARE_CMD --sub-heading MB/sec
 		;;
-	mean)
-		INDEX=2
+	dbench4|tbench4)
+		echo $SUBREPORT MB/sec
+		eval $COMPARE_CMD --sub-heading MB/sec
+		echo $SUBREPORT Latency
+		eval $COMPARE_CMD --sub-heading Latency
 		;;
-	true-mean)
-		INDEX=3
+	fsmark-single|fsmark-threaded)
+		echo $SUBREPORT Files/sec
+		eval $COMPARE_CMD --sub-heading Files/sec
+		echo $SUBREPORT Latency
+		eval $COMPARE_CMD --sub-heading Overhead
 		;;
-	stddev)
-		INDEX=4
-		COMP=pndiff
+	specjbb)
+		echo $SUBREPORT
+		$COMPARE_CMD
+		echo $SUBREPORT Peaks
+		compare-mmtests.pl -d . -b specjbbpeak -n $KERNEL_LIST $FORMAT_CMD
 		;;
-	max)
-		INDEX=5
+	*)
+		echo $SUBREPORT
+		eval $COMPARE_CMD
 		;;
 	esac
-}
+	echo
+	eval $COMPARE_CMD --print-monitor duration
+	echo
+	eval $COMPARE_CMD --print-monitor mmtests-vmstat
 
-printheader() {
-printf "            "
-for DIR in $DIRLIST; do
-	NAME=`echo $DIR | awk -F - '{print $(NF-3)"-"$(NF-2)}' 2> /dev/null`
-	if [ "$NAME" = "" ]; then
-		NAME="-"
+	# Graphs
+	if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+		echo "<table class=\"resultsGraphs\">"
+
+		case $SUBREPORT in
+		aim9)
+			;;
+		dbench3|dbench4)
+			;;
+		fsmark-single|fsmark-threaded)
+			echo "<tr>"
+			for HEADING in Files/sec Overhead; do
+				PRINTHEADING=$HEADING
+				if [ "$HEADING" = "Files/sec" ]; then
+					PRINTHEADING=Files_sec
+				fi
+				eval $GRAPH_CMD --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.png
+				echo "<td><img src=\"graph-$SUBREPORT-$PRINTHEADING.png\"></td>"
+			done
+			echo "</tr>"
+			;;
+		kernbench|starve)
+			echo "<tr>"
+			for HEADING in User System Elapsed CPU; do
+				eval $GRAPH_CMD --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				echo "<td><img src=\"graph-$SUBREPORT-$HEADING.png\"></td>"
+			done
+			echo "</tr>"
+			;;
+		largedd)
+			;;
+		micro)
+			;;
+		pagealloc)
+			;;
+		pft)
+			;;
+		postmark)
+			;;
+		vmr-stream)
+			;;
+		*)
+			eval $GRAPH_CMD --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png
+			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT.png ]; then
+				echo "<tr><td><img src=\"graph-$SUBREPORT.png\"></td></tr>"
+			else
+				echo "<tr><td>No graph representation</td></tr>"
+			fi
+		esac
+		echo "</table>"
+
+		if [ `ls read-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+			echo "<table class=\"resultsGraphs\">"
+			eval $COMPARE_CMD --print-monitor read-latency
+			echo "</table>"
+		fi
+
+		# Monitor graphs for this test
+		echo "<table class=\"monitorGraphs\">"
+		if [ `ls read-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+			eval $GRAPH_CMD --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.png
+			eval $GRAPH_CMD --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency-smooth.png --smooth
+			smoothover graph-$SUBREPORT-read-latency
+		fi
+		if [ `ls vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
+			eval $GRAPH_CMD --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.png
+			eval $GRAPH_CMD --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy.png
+			eval $GRAPH_CMD --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs.png
+			eval $GRAPH_CMD --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs-smooth.png --smooth
+			eval $GRAPH_CMD --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in.png
+			eval $GRAPH_CMD --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in-smooth.png --smooth
+			echo "<tr>"
+			echo "  <td><img src=\"graph-$SUBREPORT-vmstat-us.png\"></td>"
+			echo "  <td><img src=\"graph-$SUBREPORT-vmstat-sy.png\"></td>"
+			smoothover graph-$SUBREPORT-vmstat-cs
+			smoothover graph-$SUBREPORT-vmstat-in
+			echo "</tr>"
+		fi
+		if [ `zgrep kswapd top-* | awk '{print $10}' | max | cut -d. -f1` -gt 0 ]; then
+			eval $GRAPH_CMD --title \"Free Memory\"      --print-monitor vmstat --sub-heading free --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-free.png
+			eval $GRAPH_CMD --title \"Swap Ins\"         --print-monitor vmstat --sub-heading si --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si.png
+			eval $GRAPH_CMD --title \"Swap Outs\"        --print-monitor vmstat --sub-heading so --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so.png
+			eval $GRAPH_CMD --title \"KSwapd CPU Usage\" --print-monitor top                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd.png
+			eval $GRAPH_CMD --title \"KSwapd CPU Usage\" --print-monitor top                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd-smooth.png --smooth
+			echo "<tr>"
+			echo "  <td><img src=\"graph-$SUBREPORT-vmstat-free.png\"></td>"
+			echo "  <td><img src=\"graph-$SUBREPORT-vmstat-si.png\"></td>"
+			echo "  <td><img src=\"graph-$SUBREPORT-vmstat-so.png\"></td>"
+			smoothover graph-$SUBREPORT-top-kswapd
+			echo "</tr>"
+
+			eval $GRAPH_CMD --title \"Direct Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.png
+			eval $GRAPH_CMD --title \"Direct Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan-smooth.png --smooth
+			eval $GRAPH_CMD --title \"Page Ins\"            --print-monitor proc-vmstat --sub-heading pgpgin  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin.png
+			eval $GRAPH_CMD --title \"Page Ins\"            --print-monitor proc-vmstat --sub-heading pgpgin  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin-smooth.png --smooth
+			eval $GRAPH_CMD --title \"Page Outs\"           --print-monitor proc-vmstat --sub-heading pgpgout --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout.png
+			eval $GRAPH_CMD --title \"Page Outs\"           --print-monitor proc-vmstat --sub-heading pgpgout --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout-smooth.png --smooth
+			eval $GRAPH_CMD --title \"KSwapd Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan.png
+			eval $GRAPH_CMD --title \"KSwapd Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan-smooth.png --smooth
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-proc-vmstat-direct-scan
+			smoothover graph-$SUBREPORT-proc-vmstat-pgpin
+			smoothover graph-$SUBREPORT-proc-vmstat-pgpout
+			smoothover graph-$SUBREPORT-proc-vmstat-kswapd-scan
+			echo "</tr>"
+		fi
+
+		echo "</table>"
 	fi
-	printf "%18s" $NAME
 done
-echo
-printf "            "
-for DIR in $DIRLIST; do
-	NAME=`echo $DIR | awk -F - '{print $(NF-1)"-"$NF}'`
-	printf "%18s" $NAME
-done
-echo
-}
-
-SIMUL=`ls *mmtestsimul* 2> /dev/null`
-for SUBREPORT in kernbench aim9 parallelio starve pagealloc tiobench dbench3 dbench4 multibuild fsmark-single fsmark-threaded postmark iozone netperf-udp netperf-tcp tbench4 lmbench hackbench-pipes hackbench-sockets pipetest vmr-createdelete vmr-cacheeffects ffsb vmr-stream sysbench largecopy largedd simple-writeback rsyncresidency ddresidency highalloc stress-highalloc thpavail pft micro specjvm specjbb nas-mpi nas-omp nas-ser autonumabench; do
-	if [ -e $SUBREPORT-$KERNEL_BASE ]; then
-		echo ===BEGIN $SUBREPORT
-		INPUTS=
-		TITLES=
-		CLIENTS=
-		ORDERS=
-		if [ "$SIMUL" = "" -a -e $SCRIPTDIR/subreport/$SUBREPORT ]; then
-			. $SCRIPTDIR/subreport/$SUBREPORT
-		fi
-
-		for FTRACE_ANALYSER in $FTRACE_ANALYSERS; do
-			FTRACE_TEST=$SUBREPORT
-			. $SCRIPTDIR/subreport/$FTRACE_ANALYSER
-			echo
-		done
-		echo ===END $SUBREPORT
-		if [ "$INPUTS" != "" ]; then
-			echo ===INPUTS $SUBREPORT : $INPUTS
-		fi
-		if [ "$INPUTS" != "" ]; then
-			echo ===TITLES $SUBREPORT : $TITLES
-		fi
-		if [ "$CLIENTS" != "" ]; then
-			echo ===CLIENTS $SUBREPORT : $CLIENTS
-		fi
-		if [ "$ORDERS" != "" ]; then
-			echo ===ORDERS $SUBREPORT : $ORDERS
-		fi
-		if [ "$SIMUL" != "" ]; then
-			rm -rf $TMPDIR
-			exit
-		fi
-	fi
-done
-
-echo -n "===TIMESTAMPS : "
-for KERNEL in $KERNEL_BASE $KERNEL_COMPARE; do
-	echo -n "`pwd`/tests-timestamp-$KERNEL "
-done
-echo
-
-rm -rf $TMPDIR
+cat $SCRIPTDIR/shellpacks/common-footer-$FORMAT 2> /dev/null

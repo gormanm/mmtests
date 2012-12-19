@@ -1,9 +1,0 @@
-echo
-echo FFSB
-gendirlist ffsb
-
-for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/result.txt"
-	TITLES="$TITLES `echo $DIR | sed -e 's/ffsb-//'`"
-done
-compare-mmtests.pl -d . -b ffsb -n $KERNEL_LIST

@@ -18,6 +18,11 @@ sub new() {
 	return $self;
 }
 
+sub printDataType() {
+	my ($self) = @_;
+	print "WallTime,Threads,Time"
+}
+
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 

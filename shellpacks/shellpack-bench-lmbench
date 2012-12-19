@@ -33,11 +33,11 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/lmbench-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/lmbench-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-lmbench -v ${VERSION} || die lmbench install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-lmbenc -v ${VERSION}  || die lmbenc install script returned error
 fi
-cd $SHELLPACK_SOURCES/lmbench-${VERSION}-installed || die Failed to cd to lmbench install directory
+cd $SHELLPACK_SOURCES/lmbenc-${VERSION}-installed || die Failed to cd to lmbenc install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo lmbench installed only as requested.
+	echo lmbenc installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
 
@@ -79,7 +79,7 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 			if [ $CLIENT -lt $NUMCPUS ]; then
 				CLIENT=$((CLIENT+1))
 			else
-				CLIENT=$((CLIENT+7))
+				CLIENT=$((CLIENT+2))
 			fi
 		done
 		;;
@@ -94,4 +94,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description lmbench
-#### Details lmbench-bench 11
+#### Details lmbench-bench 12

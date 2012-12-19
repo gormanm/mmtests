@@ -1,2 +1,0 @@
-echo MMTests Statistics: vmstat
-compare-mmtests.pl -d . --print-monitor vmstat -b $FTRACE_TEST -n $KERNEL_LIST

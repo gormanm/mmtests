@@ -1,8 +1,0 @@
-echo
-echo NETPERF TCP
-gendirlist netperf-tcp
-for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/netperf-TCP_STREAM.result"
-	TITLES="$TITLES `echo $DIR | sed -e 's/netperf-tcp-//'`"
-done
-compare-mmtests.pl -d . -b netperf-tcp -n $KERNEL_LIST

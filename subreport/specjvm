@@ -1,9 +1,0 @@
-echo
-echo SPECJVM
-gendirlist specjvm
-
-for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/result.txt"
-	TITLES="$TITLES `echo $DIR | sed -e 's/specjvm-//'`"
-done
-compare-mmtests.pl -d . -b specjvm -n $KERNEL_LIST

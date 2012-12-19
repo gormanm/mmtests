@@ -44,6 +44,13 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			YLABEL="$2"
 			shift 2
 			;;
+		--candlesticks)
+			CANDLESTICKS="yes"
+			PLOTTYPE="candlesticks"
+			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"
+			USING="1:2:3:4:5"
+			shift
+			;;
 		--cacheeffects)
 			CACHEEFFECTS=yes
 			shift
@@ -461,7 +468,7 @@ if [ "$FSMARK_CANDLE" = "yes" ]; then
 	echo set style fill pattern 6 border  >> $TEMP
 	echo set boxwidth 1 >> $TEMP
 fi
-if [ "$KERNBENCH" = "yes" ]; then
+if [ "$KERNBENCH" = "yes" -o "$CANDLESTICKS" = "yes" ]; then
 	#echo set ylabel \"Time Elapsed \(seconds\)\" >> $TEMP
 	#echo "set xtics ('2.6.32' 1)" >> $TEMP
 	echo "set noxtics" >> $TEMP

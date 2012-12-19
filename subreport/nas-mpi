@@ -1,5 +1,0 @@
-echo
-echo NAS MPI
-gendirlist nas-mpi
-
-compare-mmtests.pl -d . -b nas-mpi -n $KERNEL_LIST

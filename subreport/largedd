@@ -1,9 +1,0 @@
-echo
-echo LARGE DD
-gendirlist largedd
-
-for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/largedd.result"
-	TITLES="$TITLES `echo $DIR | sed -e 's/largedd-//'`"
-done
-compare-mmtests.pl -d . -b largedd -n $KERNEL_LIST

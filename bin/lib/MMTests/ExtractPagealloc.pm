@@ -25,7 +25,7 @@ sub new() {
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
-	my @files = <$reportDir/noprofile/alloc-*>;
+	my @files = <$reportDir/noprofile/alloc-[0-9]*>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		push @_orders, $split[-1];
@@ -45,7 +45,6 @@ sub initialise() {
 	$self->{_SummaryHeaders} = $self->{_FieldHeaders};
 	$self->{_PlotLength} = $fieldLength;
 	$self->{_PlotHeaders} = ["Batch", "Alloc", "Free"];
-	$self->{_PrintHandler} = MMTests::Print->new();
 }
 
 sub printDataType() {

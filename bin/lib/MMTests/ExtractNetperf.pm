@@ -18,6 +18,15 @@ sub new() {
 
 my $_netperf_type;
 
+sub printDataType() {
+	print "Throughput,Packet Size (bytes),Throughput (Mbits/sec),netperf\n";
+}
+
+sub printPlot() {
+	my ($self, $subheading) = @_;
+	$self->printSummary();
+}
+
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 

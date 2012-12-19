@@ -13,6 +13,8 @@ use constant MONITOR_VMSTAT		=> 2;
 use constant MONITOR_PROCVMSTAT		=> 3;
 use constant MONITOR_NUMA_CONVERGENCE	=> 4;
 use constant MONITOR_NUMA_USAGE		=> 5;
+use constant MONITOR_TOP		=> 6;
+use constant MONITOR_READLATENCY	=> 7;
 use strict;
 
 sub new() {
@@ -77,11 +79,36 @@ sub printReport() {
 	my ($self) = @_;
 	if ($self->{_DataType} == MONITOR_CPUTIME_SINGLE ||
 	    $self->{_DataType} == MONITOR_PROCVMSTAT ||
+	    $self->{_DataType} == MONITOR_READLATENCY ||
+	    $self->{_DataType} == MONITOR_TOP ||
 	    $self->{_DataType} == MONITOR_VMSTAT) {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {
 		print "Unknown data type for reporting raw data\n";
 	}
+}
+
+sub printSummaryHeaders() {
+	my ($self) = @_;
+	if (defined $self->{_SummaryLength}) {
+		$self->{_PrintHandler}->printHeaders(
+			$self->{_SummaryLength}, $self->{_SummaryHeaders},
+			$self->{_FieldHeaderFormat});
+	} else {
+		$self->printFieldHeaders();
+	}
+}
+
+sub printSummary() {
+	my ($self, $subHeading) = @_;
+	my @formatList;
+	my $fieldLength = $self->{_FieldLength};
+	if (defined $self->{_FieldFormat}) {
+		@formatList = @{$self->{_FieldFormat}};
+	}
+
+	$self->extractSummary($subHeading);
+	$self->{_PrintHandler}->printRow($self->{_SummaryData}, $fieldLength, $self->{_FieldFormat});
 }
 
 sub extractSummary() {

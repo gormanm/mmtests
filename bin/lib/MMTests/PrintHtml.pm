@@ -16,7 +16,7 @@ sub new($) {
 
 sub printTop($)
 {
-	print "<table>\n";
+	print "<table class=\"resultsTable\">\n";
 }
 
 sub printBottom($)

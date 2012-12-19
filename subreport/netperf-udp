@@ -1,8 +1,0 @@
-echo
-echo NETPERF UDP
-gendirlist netperf-udp
-for DIR in $DIRLIST; do
-	INPUTS="$INPUTS `pwd`/$DIR/$TOPLEVEL/netperf-UDP_STREAM.result"
-	TITLES="$TITLES `echo $DIR | sed -e 's/netperf-udp-//'`"
-done
-compare-mmtests.pl -d . -b netperf-udp -n $KERNEL_LIST

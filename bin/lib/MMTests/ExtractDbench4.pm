@@ -16,6 +16,12 @@ sub new() {
 	return $self;
 }
 
+sub printDataType() {
+	my ($self) = @_;
+	my $heading = $self->{_SummariseColumn};
+	print "Throughput,Clients,$heading,candlestick";
+}
+
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my @clients;

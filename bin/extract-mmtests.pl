@@ -66,10 +66,22 @@ if (defined $opt_monitor) {
 	};
 
 	$monitorModule->extractReport($opt_reportDirectory, $opt_name, $opt_benchmark, $opt_subheading);
-	$monitorModule->printReportTop();
-	$monitorModule->printFieldHeaders() if $opt_printHeader;
-	$monitorModule->printReport();
-	$monitorModule->printReportBottom();
+
+	# Just print the type if asked
+	if ($opt_printType) {
+		$monitorModule->printDataType();
+		exit;
+	}
+
+	if ($opt_printSummary) {
+		$monitorModule->printSummaryHeaders() if $opt_printHeader;
+		$monitorModule->printSummary($opt_subheading);
+	} else {
+		$monitorModule->printReportTop();
+		$monitorModule->printFieldHeaders() if $opt_printHeader;
+		$monitorModule->printReport();
+		$monitorModule->printReportBottom();
+	}
 	exit(0);
 }
 

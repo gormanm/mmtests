@@ -42,7 +42,7 @@ pushd $SHELLPACK_SOURCES/lmbench-${VERSION}-installed || die Failed to change to
 mkdir SCCS
 touch SCCS/s.ChangeSet
 cd src
-make
+make -j$NUMCPUS
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -54,4 +54,4 @@ cp ../bin/*/* ../bin/
 
 echo lmbench installed successfully
 #### Description lmbench
-#### Details lmbench 11
+#### Details lmbench 12

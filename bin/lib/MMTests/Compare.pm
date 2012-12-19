@@ -199,6 +199,7 @@ sub _generateRenderTable() {
 	my @formatTable;
 	my @compareTable;
 
+
 	my @titleTable = @{$self->{_TitleTable}};
 	my @resultsTable = @{$self->{_ResultsTable}};
 	my $fieldLength = $self->{_FieldLength};
@@ -253,7 +254,7 @@ sub _generateRenderTable() {
 		if (defined $self->{_CompareTable}) {
 			push @formatTable, ($fieldFormat, " (%${compareLength}.2f%%)");
 		} else {
-			push @formatTable, $fieldFormat;
+			push @formatTable, ($fieldFormat, "");
 		}
 	}
 
@@ -269,6 +270,8 @@ sub _generateRenderTable() {
 			push @row, $resultsTable[$row][$i];
 			if (defined $self->{_CompareTable}) {
 				push @row, $compareTable[$row][$i];
+			} else {
+				push @row, [""];
 			}
 		}
 		push @finalTable, [@row];
@@ -306,7 +309,10 @@ sub printComparison() {
 	my @extractModules = @{$self->{_ExtractModules}};
 
 	if ($extractModules[0]->{_RowOrientated}) {
-		return $self->_printComparisonRow();
+		$self->{_PrintHandler}->printTop();
+		$self->_printComparisonRow();
+		$self->{_PrintHandler}->printBottom();
+		return;
 	}
 
 	$self->_generateRenderTable(0);

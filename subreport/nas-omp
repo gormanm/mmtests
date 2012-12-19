@@ -1,5 +1,0 @@
-echo
-echo NAS OMP
-gendirlist nas-omp
-
-compare-mmtests.pl -d . -b nas-omp -n $KERNEL_LIST

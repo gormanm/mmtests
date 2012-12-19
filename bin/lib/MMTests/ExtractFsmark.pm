@@ -14,6 +14,10 @@ sub new() {
 	return $self;
 }
 
+sub printDataType() {
+	print "Operations/sec,TestName,Latency,candlesticks";
+}
+
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 

@@ -93,7 +93,7 @@ sub setFormat() {
 sub printDataType() {
 	my ($self) = @_;
 	if ($self->{_DataType} == DATA_CPUTIME) {
-		print "CPUTime";
+		print "CPUTime,TestName,Time,candlesticks";
 	} elsif ($self->{_DataType} == DATA_WALLTIME) {
 		print "WallTime";
 	} elsif ($self->{_DataType} == DATA_WALLTIME_VARIABLE) {
@@ -355,6 +355,7 @@ sub printReport() {
 	my ($self) = @_;
 	if ($self->{_DataType} == DATA_CPUTIME ||
 			$self->{_DataType} == DATA_WALLTIME ||
+			$self->{_DataType} == DATA_WALLTIME_VARIABLE ||
 			$self->{_DataType} == DATA_OPSSEC ||
 			$self->{_DataType} == DATA_THROUGHPUT) {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});

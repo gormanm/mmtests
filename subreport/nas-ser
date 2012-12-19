@@ -1,5 +1,0 @@
-echo
-echo NAS SER
-gendirlist nas-ser
-
-compare-mmtests.pl -d . -b nas-ser -n $KERNEL_LIST

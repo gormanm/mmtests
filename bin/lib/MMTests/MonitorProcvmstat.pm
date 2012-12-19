@@ -134,15 +134,43 @@ my @_fieldOrder = (
 	"mmtests_autonuma_cost",
 );
 
+sub printDataType() {
+	my ($self) = @_;
+	my $heading = $self->{_Heading};
+	my $niceHeading = $_fieldNameMap{$heading};
+	if ($niceHeading eq "") {
+		$niceHeading = $heading;
+	}
+
+	print "Vmstat,Time,$niceHeading\n";
+}
+
 sub parseVMStat($)
 {
 	my ($self, $vmstatOutput, $subHeading) = @_;
-	my $current_value;
+	my $current_value = 0;
 	my $window = $self->{_Window};
 
 	foreach my $line (split(/\n/, $_[1])) {
 		my ($stat, $value) = split(/\s/, $line);
-		if ($stat eq $subHeading) {
+		if ($subHeading eq "mmtests_direct_scan" ) {
+			foreach my $key ("pgscan_direct_dma", "pgscan_direct_dma32", 
+			  "pgscan_direct_normal", "pgscan_direct_movable",
+			  "pgscan_direct_high") {
+				if ($stat eq $key) {
+					$current_value += $value;
+				}
+			}
+
+		} elsif ($subHeading eq "mmtests_kswapd_scan") {
+			foreach my $key ("pgscan_kswapd_dma", "pgscan_kswapd_dma32",
+			 "pgscan_kswapd_normal", "pgscan_kswapd_movable",
+			 "pgscan_kswapd_high") {
+				if ($stat eq $key) {
+					$current_value += $value;
+				}
+			}
+		} elsif ($stat eq $subHeading) {
 			$current_value = $value;
 		}
 	}
@@ -167,6 +195,7 @@ sub extractReport($$$$) {
 	if ($subHeading eq "") {
 		$subHeading = "pgpgin";
 	}
+	$self->{_Heading} = $subHeading;
 
 	# TODO: Auto-discover lengths and handle multi-column reports
 	my $fieldLength = 12;
