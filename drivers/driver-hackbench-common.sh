@@ -5,6 +5,6 @@ run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-hackbench \
 		$IPCMETHOD \
 		$HACKBENCH_GROUPS \
-		-i 30
+		-i 7
 	return $?
 }

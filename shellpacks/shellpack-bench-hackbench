@@ -86,7 +86,7 @@ for group in $num_groups; do
 		# Run a number of iterations.
 		iter=$iterations
 		while [ $iter -gt 0 ]; do
-			save_rc ./hackbench $conn_type $group | tee -a $RESULTSLOG $RESULTSLOG.$group
+			save_rc ./hackbench $conn_type $group process 1000 | tee -a $RESULTSLOG $RESULTSLOG.$group
 			recover_rc
 			RETVAL=$?
 			if [ $RETVAL -ne 0 ]; then
@@ -102,4 +102,4 @@ done
 
 exit $RETVAL
 #### Description Run the HackBench benchmark
-#### Details hackbench-bench 17
+#### Details hackbench-bench 19

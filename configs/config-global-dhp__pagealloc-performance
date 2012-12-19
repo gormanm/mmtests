@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="kernbench aim9 vmr-stream pagealloc pft hackbench-pipes hackbench-sockets"
+export MMTESTS="kernbench aim9 vmr-stream pagealloc pft"
 export SKIP_WARMUP=no
 
 # Profiling parameters
@@ -63,9 +63,6 @@ export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
-
-# HackBench
-export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
 
 # Page allocator microbench
 export PAGEALLOC_GFPFLAGS=GFP_KERNEL
