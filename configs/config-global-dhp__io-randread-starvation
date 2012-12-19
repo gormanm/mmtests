@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="largedd"
+export MMTESTS="postmark largedd fsmark-threaded"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -65,7 +65,24 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 export MONITOR_READ_LATENCY_RANDOM=yes
 
+# FS-Mark
+export FSMARK_PARALLEL_DIRECTORIES=yes
+export FSMARK_THREADS_PER_CPU=4
+export FSMARK_FILESIZE=$((30*1048576))
+export FSMARK_NR_DIRECTORIES=16
+export FSMARK_NR_FILES_PER_DIRECTORY=256
+export FSMARK_NR_FILES_PER_ITERATION=$((MEMTOTAL_BYTES/FSMARK_FILESIZE))
+export FSMARK_ITERATIONS=15
+
 # Large copy and untar
 export LARGECOPY_SRCTAR=$WEBROOT/large-tar-file-1.tar.bz2
 export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
 export LARGECOPY_THREADS=1
+
+# PostMark
+export POSTMARK_TRANSACTIONS=15000
+export POSTMARK_MIN_SIZE=3096
+export POSTMARK_MAX_SIZE=5242880
+export POSTMARK_SUBDIRECTORIES=100
+export POSTMARK_SIMULTANEOUS_FILES=$((MEMTOTAL_BYTES*4/POSTMARK_MAX_SIZE))
+export POSTMARK_BACKGROUND_MMAP=no
