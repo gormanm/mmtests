@@ -335,6 +335,9 @@ if [ "$STAP_USED" != "" ]; then
 		if [ ! -e /usr/share/systemtap/runtime/map-stat.c.orig ]; then
 			cp /usr/share/systemtap/runtime/map-stat.c /usr/share/systemtap/runtime/map-stat.c.orig
 		fi
+		if [ ! -e /usr/share/systemtap/runtime/task_finder2.c.orig ]; then
+			cp /usr/share/systemtap/runtime/task_finder2.c /usr/share/systemtap/runtime/task_finder2.c.orig
+		fi
 
 		# Restore original files and go through workarounds in order
 		cp /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
@@ -343,6 +346,7 @@ if [ "$STAP_USED" != "" ]; then
 		cp /usr/share/systemtap/runtime/stat.c.orig /usr/share/systemtap/runtime/stat.c
 		cp /usr/share/systemtap/runtime/map.c.orig /usr/share/systemtap/runtime/map.c
 		cp /usr/share/systemtap/runtime/map-stat.c.orig /usr/share/systemtap/runtime/map-stat.c
+		cp /usr/share/systemtap/runtime/task_finder2.c.orig /usr/share/systemtap/runtime/task_finder2.c
 
 		stap -e 'probe begin { println("validate systemtap") exit () }'
 		if [ $? != 0 ]; then
@@ -370,13 +374,20 @@ if [ "$STAP_USED" != "" ]; then
 					stap -e 'probe begin { println("validating systemtap fix") exit () }'
 
 					if [ $? != 0 ]; then
-						mv /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
-						mv /usr/share/systemtap/runtime/transport/relay_v2.c.orig /usr/share/systemtap/runtime/transport/relay_v2.c
-						mv /usr/share/systemtap/runtime/transport/transport.c.orig /usr/share/systemtap/runtime/transport/transport.c
-						mv /usr/share/systemtap/runtime/stat.c.orig /usr/share/systemtap/stat.c
-						mv /usr/share/systemtap/runtime/map.c.orig /usr/share/systemtap/map.c
-						mv /usr/share/systemtap/runtime/map-stat.c.orig /usr/share/systemtap/map-stat.c
-						exit -1
+						sed /usr/share/systemtap/runtime/task_finder2.c \
+							-e 's/VM_EXECUTABLE/0xF/' > /usr/share/systemtap/runtime/task_finder2.c.tmp
+						mv /usr/share/systemtap/runtime/task_finder2.c.tmp /usr/share/systemtap/runtime/task_finder2.c
+						stap -e 'probe begin { println("validating systemtap fix") exit () }'
+						if [ $? != 0 ]; then
+							mv /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
+							mv /usr/share/systemtap/runtime/transport/relay_v2.c.orig /usr/share/systemtap/runtime/transport/relay_v2.c
+							mv /usr/share/systemtap/runtime/transport/transport.c.orig /usr/share/systemtap/runtime/transport/transport.c
+							mv /usr/share/systemtap/runtime/stat.c.orig /usr/share/systemtap/stat.c
+							mv /usr/share/systemtap/runtime/map.c.orig /usr/share/systemtap/map.c
+							mv /usr/share/systemtap/runtime/map-stat.c.orig /usr/share/systemtap/map-stat.c
+							mv /usr/share/systemtap/runtime/task_finder2.c.orig /usr/share/systemtap/runtime/task_finder2.c
+							exit -1
+						fi
 					fi
 				fi
 			fi
