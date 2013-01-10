@@ -1,7 +1,6 @@
 # ExtractStresshighalloc.pm
 package MMTests::ExtractStresshighalloc;
 use MMTests::Extract;
-use MMTests::Print;
 our @ISA = qw(MMTests::Extract); 
 
 use constant DATA_STRESSHIGHALLOC	=> 400;
@@ -23,15 +22,25 @@ sub printDataType() {
 }
 
 sub initialise() {
-	my ($self, $reportDir) = @_;
+	my ($self, $reportDir, $testName) = @_;
 
 	$self->SUPER::initialise();
-	my $fieldLength = $self->{_FieldLength};
+	my $fieldLength = 12;
+	$self->{_TestName} = $testName;
+	$self->{_SummaryLength} = $fieldLength;
+	$self->{_SummaryHeaders} = [ "Pass", "Success" ];
+	$self->{_FieldLength} = $fieldLength;
 	$self->{_FieldHeaders} = [ "Pass", "Success" ];
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d" ];
 	$self->{_ExtraHeaders} = [ "Pass", "Attempt", "Result", "Latency" ];
 	$self->{_ExtraLength} = $self->{_FieldLength};
 	$self->{_ExtraFormat} = [ "%-${fieldLength}d", "%-${fieldLength}d", "%${fieldLength}s" , "%${fieldLength}d" ];
+}
+
+sub extractSummary() {
+	my ($self) = @_;
+	$self->{_SummaryData} = $self->{_ResultData};
+	return 1;
 }
 
 sub printSummary() {

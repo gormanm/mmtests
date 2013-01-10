@@ -25,7 +25,7 @@ sub printDataType() {
 }
 
 sub initialise() {
-	my ($self, $reportDir) = @_;
+	my ($self, $reportDir, $testName) = @_;
 
 	my @files = <$reportDir/noprofile/workload-*-results.log>;
 	foreach my $file (@files) {
@@ -38,6 +38,7 @@ sub initialise() {
 
 	$self->SUPER::initialise();
 
+	$self->{_TestName} = $testName;
 	my $fieldLength = $self->{_FieldLength} = 16;
 	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f" ];
 	$self->{_FieldHeaders} = [ "Workload", "Iteration", "Success" ];
