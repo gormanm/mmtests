@@ -9,11 +9,21 @@ sub new() {
 		_ModuleName  => "CompareDbench4",
 		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
 		_FieldLength => 12,
-		_CompareOp   => "pdiff",
+		_CompareOps  => [ "none", "pdiff", "pdiff", "pdiff", "pndiff", "pdiff" ],
 		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;
+}
+
+sub extractComparison() {
+	my ($self, $subHeading, $showCompare) = @_;
+
+	if ($subHeading eq "Latency" ) {
+		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
+	}
+
+	$self->SUPER::extractComparison($self, $subHeading, $showCompare);
 }
 
 1;

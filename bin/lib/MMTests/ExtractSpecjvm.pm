@@ -45,8 +45,16 @@ sub printSummary() {
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my $section = 0;
+	my $pagesize = "base";
 
-	my $file = "$reportDir/noprofile/base/SPECjvm2008.001/SPECjvm2008.001.txt";
+	if (! -e "$reportDir/noprofile/$pagesize") {
+		$pagesize = "transhuge";
+	}
+	if (! -e "$reportDir/noprofile/$pagesize") {
+		$pagesize = "default";
+	}
+
+	my $file = "$reportDir/noprofile/$pagesize/SPECjvm2008.001/SPECjvm2008.001.txt";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my $line = $_;
@@ -58,12 +66,16 @@ sub extractReport($$$) {
 
 		if ($section == 3 && $line !~ /result:/) {
 			my ($bench, $ops) = split(/\s+/, $line);
-			push @{$self->{_ResultData}}, [ $bench, $ops ];
+			if ($bench !~ /startup/) {
+				push @{$self->{_ResultData}}, [ $bench, $ops ];
+			}
 		}
 
 		if ($section == 4 && $line =~ /iteration [0-9]+/) {
 			my ($bench, $dA, $dB, $dC, $dD, $dE, $ops) = split(/\s+/, $line);
-			push @{$self->{_ResultData}}, [ $bench, $ops ];
+			if ($bench !~ /startup/) {
+				push @{$self->{_ResultData}}, [ $bench, $ops ];
+			}
 		}
 	}
 	close INPUT;

@@ -35,7 +35,7 @@ sub printHeaders($$$) {
 }
 
 sub printRow($$@) {
-	my ($self, $dataRef, $fieldLength, $formatColumnRef, $formatRowRef) = @_;
+	my ($self, $dataRef, $fieldLength, $formatColumnRef, $formatRowRef, $prefix) = @_;
 	my (@formatColumnList, @formatRowList);
 	my $rowIndex = 1;
 	@formatColumnList = @{$formatColumnRef};
@@ -43,8 +43,13 @@ sub printRow($$@) {
 
 	foreach my $row (@{$dataRef}) {
 		my $columnIndex = 0;
+		my @rowArr = @$row;
 
-		foreach my $column (@$row) {
+		if ($prefix ne "") {
+			unshift @rowArr, $prefix;
+		}
+
+		foreach my $column (@rowArr) {
 			if (defined $formatColumnList[$columnIndex]) {
 				my $format = $formatColumnList[$columnIndex];
 				if ($format eq "ROW") {

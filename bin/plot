@@ -44,7 +44,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			YLABEL="$2"
 			shift 2
 			;;
-		--candlesticks)
+		--candlestick|--candlesticks)
 			CANDLESTICKS="yes"
 			PLOTTYPE="candlesticks"
 			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"

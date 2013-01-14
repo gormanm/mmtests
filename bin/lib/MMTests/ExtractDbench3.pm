@@ -16,6 +16,12 @@ sub new() {
 	return $self;
 }
 
+
+sub printDataType() {
+	my ($self) = @_;
+	print "Throughput,Clients,MB/sec";
+}
+
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my @clients;

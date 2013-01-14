@@ -8,6 +8,7 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 
 KERNEL_BASE=
 KERNEL_COMPARE=
+KERNEL_EXCLUDE=
 MONITORS_ANALYSERS="mmtests-duration read-latency mmtests-vmstat"
 
 while [ "$1" != "" ]; do
@@ -80,11 +81,19 @@ if [ "$KERNEL_BASE" != "" ]; then
 	done
 else
 	for KERNEL in `grep ^start tests-timestamp-* | awk -F : '{print $4" "$1}' | sort -n | awk '{print $2}' | sed -e 's/tests-timestamp-//'`; do
-		if [ "$KERNEL_BASE" = "" ]; then
-			KERNEL_BASE=$KERNEL
-			KERNEL_LIST=$KERNEL
-		else
-			KERNEL_LIST="$KERNEL_LIST,$KERNEL"
+		EXCLUDE=no
+		for TEST_KERNEL in $KERNEL_EXCLUDE; do
+			if [ "$TEST_KERNEL" = "$KERNEL" ]; then
+				EXCLUDE=yes
+			fi
+		done
+		if [ "$EXCLUDE" = "no" ]; then
+			if [ "$KERNEL_BASE" = "" ]; then
+				KERNEL_BASE=$KERNEL
+				KERNEL_LIST=$KERNEL
+			else
+				KERNEL_LIST="$KERNEL_LIST,$KERNEL"
+			fi
 		fi
 	done
 fi
@@ -117,6 +126,10 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		echo $SUBREPORT Latency
 		eval $COMPARE_CMD --sub-heading Overhead
 		;;
+	specjvm)
+		echo $SUBREPORT
+		eval $COMPARE_CMD
+		;;
 	specjbb)
 		echo $SUBREPORT
 		$COMPARE_CMD
@@ -140,7 +153,25 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		case $SUBREPORT in
 		aim9)
 			;;
-		dbench3|dbench4)
+		dbench3)
+			echo "<tr>"
+			eval $GRAPH_CMD --logX --title \"$SUBREPORT $HEADING\" --sub-heading MB/sec --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-MB_sec.png
+			echo "<td><img src=\"graph-$SUBREPORT-MB_sec.png\"></td>"
+			echo "</tr>"
+			;;
+		dbench4|tbench4)
+			echo "<tr>"
+			for HEADING in MB/sec Latency; do
+				PRINTHEADING=$HEADING
+				if [ "$HEADING" = "MB/sec" ]; then
+					PRINTHEADING=MB_sec
+				fi
+				eval $GRAPH_CMD --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.png --y-label $HEADING
+				echo "<td><img src=\"graph-$SUBREPORT-$PRINTHEADING.png\"></td>"
+			done
+			echo "</tr>"
+			;;
+		ffsb)
 			;;
 		fsmark-single|fsmark-threaded)
 			echo "<tr>"
@@ -166,11 +197,19 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			;;
 		micro)
 			;;
+		nas-mpi)
+			;;
+		nas-ser)
+			;;
 		pagealloc)
 			;;
 		pft)
 			;;
 		postmark)
+			;;
+		specjvm)
+			;;
+		stress-highalloc)
 			;;
 		vmr-stream)
 			;;

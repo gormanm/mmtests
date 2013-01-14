@@ -158,6 +158,15 @@ sub printSummaryHeaders() {
 	}
 }
 
+
+sub _printSimplePlotData() {
+	my ($self, $fieldLength, @data) = @_;
+
+	my $mean = calc_mean(@data);
+
+	printf("%${fieldLength}.3f\n", $mean);
+}
+
 sub _printCandlePlotData() {
 	my ($self, $fieldLength, @data) = @_;
 
@@ -261,7 +270,7 @@ sub extractSummary() {
 			push @{$walltimes[$rowArray[0]]}, $rowArray[1];
 		}
 
-		push @row, "Ops";
+		push @row, "Time";
 		foreach my $unit (sort {$a <=> $b} (keys %units)) {
 			foreach my $funcName ("calc_min", "calc_mean", "calc_true_mean", "calc_stddev", "calc_max") {
 				no strict "refs";

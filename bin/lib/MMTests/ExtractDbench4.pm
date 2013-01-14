@@ -19,7 +19,7 @@ sub new() {
 sub printDataType() {
 	my ($self) = @_;
 	my $heading = $self->{_SummariseColumn};
-	print "Throughput,Clients,$heading,candlestick";
+	print "Throughput,Clients,$heading";
 }
 
 sub initialise() {
@@ -77,7 +77,7 @@ sub printPlot() {
 			push @units, @{$row}[$column];
 		}
 		printf("%-${fieldLength}d", $client);
-		$self->_printCandlePlotData($fieldLength, @units);
+		$self->_printSimplePlotData($fieldLength, @units);
 	}
 }
 
