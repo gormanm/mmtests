@@ -25,6 +25,7 @@ my %package_map = (
 	"debian::expect-devel"   => "expect-dev",
 	"debian::gcc-32bit"      => "gcc-multilib",
 	"debian::libhugetlbfs"   => "libhugetlbfs0",
+	"debian::libnuma-devel"  => "libnuma-dev",
 	"debian::xfsprogs-devel" => "xfslibs-dev",
 );
 	
