@@ -21,6 +21,11 @@ my %package_map = (
 	"debian::gcc-fortran" => "gfortran",
 	"debian::gcc-c++"     => "g++",
 	"debian::diffutils"   => "diff",
+	"debian::binutils-devel" => "binutils-dev",
+	"debian::expect-devel"   => "expect-dev",
+	"debian::gcc-32bit"      => "gcc-multilib",
+	"debian::libhugetlbfs"   => "libhugetlbfs0",
+	"debian::xfsprogs-devel" => "xfslibs-dev",
 );
 	
 my %package_bin = (
