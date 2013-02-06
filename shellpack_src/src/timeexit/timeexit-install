@@ -1,0 +1,20 @@
+#!/bin/bash
+###SHELLPACK preamble timeexit-install 0
+WEB_LOCATION="http://cache.gmane.org//gmane/linux/kernel/mm/93394-001.bin"
+MIRROR_LOCATION="$WEBROOT/timeexit/timeexit.c"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf timeexit-${VERSION}-installed
+mkdir -p timeexit-${VERSION}-installed
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/timeexit-${VERSION}-installed/timeexit.c
+cd $SHELLPACK_SOURCES/timeexit-${VERSION}-installed
+gcc -O2  timeexit.c -o timeexit
+if [ $? -ne 0 ]; then
+	die "$P: Failed to build timeexit"
+fi
+
+exit $SHELLPACK_SUCCESS

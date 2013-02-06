@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+P=timeexit-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+DELAY=1
+INSTANCES=$NUMCPUS
+ITERATIONS=120
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	-d)
+		DELAY=$2
+		shift 2
+		;;
+	-c)
+		INSTANCES=$2
+		shift 2
+		;;
+	-i)
+		ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/timeexit
+fi
+if [ ! -d $SHELLPACK_SOURCES/timeexit-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-timeexit -v ${VERSION}  || die timeexit install script returned error
+fi
+cd $SHELLPACK_SOURCES/timeexit-${VERSION}-installed || die Failed to cd to timeexit install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo timeexit installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+pushd $SHELLPACK_SOURCES/timeexit-${VERSION}-installed > /dev/null
+monitor_pre_hook $LOGDIR_RESULTS $group
+for ITERATION in `seq 1 $ITERATIONS`; do
+	echo -n "$INSTANCES " | tee -a $LOGDIR_RESULTS/timeexit.log
+	save_rc ./timeexit -p $DELAY $INSTANCES | tee -a $LOGDIR_RESULTS/timeexit.log
+	recover_rc
+	RETVAL=$?
+	if [ $RETVAL -ne 0 ]; then
+		echo Error encountered in hackbench
+		exit $SHELLPACK_ERROR
+	fi
+done
+monitor_post_hook $LOGDIR_RESULTS $group
+
+exit $RETVAL
+#### Description Timed exit microbenchmark
+#### Details timeexit-bench 3

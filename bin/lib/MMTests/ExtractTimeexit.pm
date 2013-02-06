@@ -1,5 +1,5 @@
-# ExtractPipetest.pm
-package MMTests::ExtractPipetest;
+# ExtractTimeexit.pm
+package MMTests::ExtractTimeexit;
 use MMTests::Extract;
 use VMR::Report;
 our @ISA = qw(MMTests::Extract); 
@@ -7,9 +7,10 @@ our @ISA = qw(MMTests::Extract);
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ExtractPipetest",
+		_ModuleName  => "ExtractTimeexit",
 		_DataType    => MMTests::Extract::DATA_WALLTIME_VARIABLE,
 		_ResultData  => [],
+		_Precision   => 6,
 		_UseTrueMean => 1,
 	};
 	bless $self, $class;
@@ -25,8 +26,8 @@ sub initialise() {
 
 	$self->SUPER::initialise();
 	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders}[0] = "PipePairs";
+	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f" ];
+	$self->{_FieldHeaders} = [ "Instances", "Time" ];
 	$self->{_TestName} = $testName;
 }
 
@@ -39,11 +40,11 @@ sub printPlot() {
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 
-	my $file = "$reportDir/noprofile/pipetest.log";
+	my $file = "$reportDir/noprofile/timeexit.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
-		my @elements = split(/\s/);
-		push @{$self->{_ResultData}}, [1, $elements[0]];
+		my @elements = split(/\s+/);
+		push @{$self->{_ResultData}}, [$elements[0], $elements[1]];
 	}
 	close INPUT;
 }
