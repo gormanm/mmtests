@@ -10,7 +10,7 @@ use VMR::Report;
 use strict;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_true_mean &calc_mean &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_true_mean &calc_5trimmed_mean &calc_5trimmed_median &calc_mean &calc_median &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Values taken from a standard normal table
 my %za = (
@@ -110,6 +110,46 @@ sub calc_mean {
 		return "NaN";
 	}
 	return $sum / $n;
+}
+
+sub calc_median {
+	my $nr_elements = @_;
+	my $mid = int $nr_elements / 2;
+
+	my @sorted = sort { $a <=> $b } @_;
+	if ($nr_elements % 2 == 0) {
+		return $sorted[$nr_elements / 2];
+	} else {
+		return ($sorted[$mid-1] + $sorted[$mid])/2;
+	}
+}
+
+sub calc_5trimmed_mean {
+	my $nr_elements = @_;
+	my $nr_trim = int ($nr_elements * 2.5 / 100);
+
+	if ($nr_trim == 0 || $nr_trim * 2 > $nr_elements) {
+		return calc_mean(@_);
+	}
+
+	my @sorted = sort { $a <=> $b } @_;
+	my @trimmed = @sorted[$nr_trim..$nr_elements - $nr_trim];
+
+	return calc_mean(@trimmed);
+}
+
+sub calc_5trimmed_median {
+	my $nr_elements = @_;
+	my $nr_trim = int ($nr_elements * 2.5 / 100);
+
+	if ($nr_trim == 0 || $nr_trim * 2 > $nr_elements) {
+		return calc_median(@_);
+	}
+
+	my @sorted = sort { $a <=> $b } @_;
+	my @trimmed = @sorted[$nr_trim..$nr_elements - $nr_trim];
+
+	return calc_median(@trimmed);
 }
 
 sub calc_true_mean {

@@ -1,0 +1,12 @@
+#!/usr/bin/perl -wn
+# Print out the 5% trimmed median of a set of data read from standard in
+
+use FindBin qw($Bin);
+use lib "$Bin/lib/";
+use VMR::Stat;
+
+$x[$i++] = $_;
+END {
+	$i = 0;
+	print calc_5trimmed_median(@x);
+}
