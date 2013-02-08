@@ -40,11 +40,26 @@ mv $DST_DIR dbench-${VERSION}
 pushd dbench-${VERSION} > /dev/null || die Failed to rename tar
 
 # Build
-cd $SHELLPACK_SOURCES/dbench-${VERSION} || die Failed to change to source directory
+pushd $SHELLPACK_SOURCES/dbench-${VERSION} || die Failed to change to source directory
 ./autogen.sh || die Failed to run autogen
-./configure --prefix=$SHELLPACK_SOURCES/dbench-${VERSION}-installed || die Failed to configure
-make || die Failed to build
-make install || die Failed to install
+./configure --prefix=$SHELLPACK_SOURCES/dbench-${VERSION}-installed
+if [ $? -ne 0 ]; then
+	error "$P: configure failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+make -j$NUMCPUS
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+make install
+if [ $? -ne 0 ]; then
+	error "$P: make install failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
 
 # Fixups
 if [ ! -e $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share ]; then
@@ -53,4 +68,4 @@ fi
 
 echo dbench installed successfully
 #### Description dbench
-#### Details dbench 13
+#### Details dbench 14

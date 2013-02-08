@@ -31,7 +31,7 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/dbench-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/dbench-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-dbench -v ${VERSION} || die dbench install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-dbench -v ${VERSION}  || die dbench install script returned error
 fi
 cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die Failed to cd to dbench install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -63,9 +63,13 @@ while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 		$CLIENT 2>&1 | tee $LOGDIR_RESULTS/dbench-$CLIENT.log \
 			|| die Failed to run dbench
 	monitor_post_hook $LOGDIR_RESULTS $CLIENT
-	CLIENT=$((CLIENT*2))
+	if [ $CLIENT -le $NUMCPUS ]; then
+		CLIENT=$((CLIENT*2))
+	else
+		CLIENT=$((CLIENT*8))
+	fi
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description dbench
-#### Details dbench-bench 13
+#### Details dbench-bench 14

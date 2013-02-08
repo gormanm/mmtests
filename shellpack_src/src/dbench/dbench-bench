@@ -30,7 +30,11 @@ while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 		$CLIENT 2>&1 | tee $LOGDIR_RESULTS/dbench-$CLIENT.log \
 			|| die Failed to run dbench
 	monitor_post_hook $LOGDIR_RESULTS $CLIENT
-	CLIENT=$((CLIENT*2))
+	if [ $CLIENT -le $NUMCPUS ]; then
+		CLIENT=$((CLIENT*2))
+	else
+		CLIENT=$((CLIENT*8))
+	fi
 done
 
 exit $SHELLPACK_SUCCESS
