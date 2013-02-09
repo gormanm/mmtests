@@ -250,7 +250,7 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			smoothover graph-$SUBREPORT-vmstat-in
 			echo "</tr>"
 		fi
-		if [ `zgrep kswapd top-* | awk '{print $10}' | max | cut -d. -f1` -gt 0 ]; then
+		if [ `ls top-* 2> /dev/null | wc -l` -gt 0 ] && [ `zgrep kswapd top-* | awk '{print $10}' | max | cut -d. -f1` -gt 0 ]; then
 			eval $GRAPH_CMD --title \"Free Memory\"      --print-monitor vmstat --sub-heading free --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-free.png
 			eval $GRAPH_CMD --title \"Swap Ins\"         --print-monitor vmstat --sub-heading si --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si.png
 			eval $GRAPH_CMD --title \"Swap Outs\"        --print-monitor vmstat --sub-heading so --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so.png

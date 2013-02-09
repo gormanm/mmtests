@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script installs and runs lmbench
 # All parameters are passed by environment variables
-P=lmbench
+P=lmbench-bench
 DEFAULT_VERSION=3
 . $SHELLPACK_INCLUDE/common.sh
 
@@ -33,11 +33,11 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/lmbench-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/lmbench-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-lmbenc -v ${VERSION}  || die lmbenc install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-lmbench -v ${VERSION}  || die lmbench install script returned error
 fi
-cd $SHELLPACK_SOURCES/lmbenc-${VERSION}-installed || die Failed to cd to lmbenc install directory
+cd $SHELLPACK_SOURCES/lmbench-${VERSION}-installed || die Failed to cd to lmbench install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo lmbenc installed only as requested.
+	echo lmbench installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
 
@@ -94,4 +94,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description lmbench
-#### Details lmbench-bench 12
+#### Details lmbench-bench 13

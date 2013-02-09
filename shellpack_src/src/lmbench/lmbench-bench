@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script installs and runs lmbench
 # All parameters are passed by environment variables
-###SHELLPACK preamble lmbench 3
+###SHELLPACK preamble lmbench-bench 3
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
