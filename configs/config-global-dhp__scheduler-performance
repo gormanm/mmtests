@@ -65,7 +65,7 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # HackBench
-export HACKBENCH_GROUPS=1,4,8,13,16,20,27,40,72,104,168,266,360,464,512
+export HACKBENCH_GROUPS=1,3,8,13,27,62,168,360
 if [[ `uname -m` =~ i.86 ]]; then
 	export HACKBENCH_GROUPS=1,4,8,13,16,20,27,40,72,104
 fi
