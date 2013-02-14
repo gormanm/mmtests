@@ -20,7 +20,34 @@ sub new() {
 my $new_compaction_stats = 0;
 my $autonuma_enabled = 0;
 
+my %_fieldCounters = (
+	"nr_active_anon"	=> 1,
+	"nr_active_file"	=> 1,
+	"nr_anon_pages"		=> 1,
+	"nr_anon_transparent_hugepages"	=> 1,
+	"nr_dirty"		=> 1,
+	"nr_file_pages"		=> 1,
+	"nr_free_cma"		=> 1,
+	"nr_free_pages"		=> 1,
+	"nr_inactive_anon"	=> 1,
+	"nr_inactive_file"	=> 1,
+	"nr_isolated_anon"	=> 1,
+	"nr_isolated_file"	=> 1,
+	"nr_kernel_stack"	=> 1,
+	"nr_mapped"		=> 1,
+	"nr_mlock"		=> 1,
+	"nr_page_table_pages"	=> 1,
+	"nr_shmem"		=> 1,
+	"nr_slab_reclaimable"	=> 1,
+	"nr_slab_unreclaimable"	=> 1,
+	"nr_unevictable"	=> 1,
+	"nr_unstable"		=> 1,
+	"nr_writeback"		=> 1,
+	"nr_writeback_temp"	=> 1
+);
+
 my %_fieldNameMap = (
+	"pgpgtotal"			=> "Total Page IO",
 	"pgpgin"			=> "Page Ins",
 	"pgpgout"			=> "Page Outs",
 	"pswpin"			=> "Swap Ins",
@@ -89,6 +116,7 @@ my @_autonuma_stats = (
 
 my @_fieldOrder = (
 	"blank",
+        "pgpgtotal",
         "pgpgin",
         "pgpgout",
         "pswpin",
@@ -161,11 +189,16 @@ sub parseVMStat($)
 					$current_value += $value;
 				}
 			}
-
 		} elsif ($subHeading eq "mmtests_kswapd_scan") {
 			foreach my $key ("pgscan_kswapd_dma", "pgscan_kswapd_dma32",
 			 "pgscan_kswapd_normal", "pgscan_kswapd_movable",
 			 "pgscan_kswapd_high") {
+				if ($stat eq $key) {
+					$current_value += $value;
+				}
+			}
+		} elsif ($subHeading eq "pgpgtotal") {
+			foreach my $key ("pgpgin", "pgpgout") {
 				if ($stat eq $key) {
 					$current_value += $value;
 				}
@@ -175,13 +208,17 @@ sub parseVMStat($)
 		}
 	}
 
-	my $delta_value;
-	if ($self->{_LastValue}) {
-		$delta_value = $current_value - $self->{_LastValue};
-	}
-	$self->{_LastValue} = $current_value;
+	if ($_fieldCounters{$subHeading}) {
+		return $current_value;
+	} else {
+		my $delta_value;
+		if ($self->{_LastValue}) {
+			$delta_value = $current_value - $self->{_LastValue};
+		}
+		$self->{_LastValue} = $current_value;
 
-	return $delta_value;
+		return $delta_value;
+	}
 }
 
 sub extractReport($$$$) {

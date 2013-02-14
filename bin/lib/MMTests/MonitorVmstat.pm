@@ -41,7 +41,9 @@ sub printDataType() {
 	my ($self) = @_;
 	my $headingIndex = $self->{_HeadingIndex};
 
-	if ($headingIndex == 3) {
+	if ($headingIndex == 2) {
+		print "Pages,Time,Swap usage (pages)\n";
+	} elsif ($headingIndex == 3) {
 		print "Time,Time,Free Memory (mb)\n";
 	} elsif ($headingIndex == 6) {
 		print "Time,Time,Swap Ins";

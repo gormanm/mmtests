@@ -98,16 +98,27 @@ else
 	done
 fi
 
+plain() {
+	IMG_SRC=$1
+	echo -n "  <td><a href=\"$IMG_SRC.ps\"><img src=\"$IMG_SRC.png\"></a></td>"
+}
+
+plain_alone() {
+	IMG_SRC=$1
+	echo -n "  <td colspan=4><a href=\"$IMG_SRC.ps\"><img src=\"$IMG_SRC.png\"></a></td>"
+}
+
 smoothover() {
-	IMG_SRC=$1.png
-	IMG_SMOOTH=$1-smooth.png
-	echo -n "  <td><img src=\"$IMG_SRC\" onmouseover=\"this.src='$IMG_SMOOTH'\" onmouseout=\"this.src='$IMG_SRC'\"></td>"
+	IMG_SRC=$1
+	IMG_SMOOTH=$1-smooth
+	echo -n "  <td><a href=\"$IMG_SMOOTH.ps\"><img src=\"$IMG_SRC.png\" onmouseover=\"this.src='$IMG_SMOOTH.png'\" onmouseout=\"this.src='$IMG_SRC.png'\"></a></td>"
 }
 
 cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
 for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
 	COMPARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
-	GRAPH_CMD="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
+	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
+	GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format \"postscript color solid\""
 	echo
 	case $SUBREPORT in
 	dbench3)
@@ -155,8 +166,9 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			;;
 		dbench3)
 			echo "<tr>"
-			eval $GRAPH_CMD --logX --title \"$SUBREPORT $HEADING\" --sub-heading MB/sec --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-MB_sec.png
-			echo "<td><img src=\"graph-$SUBREPORT-MB_sec.png\"></td>"
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT $HEADING\" --sub-heading MB/sec --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-MB_sec.png
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT $HEADING\" --sub-heading MB/sec --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-MB_sec.ps
+			plain graph-$SUBREPORT-MB_sec
 			echo "</tr>"
 			;;
 		dbench4|tbench4)
@@ -166,8 +178,9 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 				if [ "$HEADING" = "MB/sec" ]; then
 					PRINTHEADING=MB_sec
 				fi
-				eval $GRAPH_CMD --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.png --y-label $HEADING
-				echo "<td><img src=\"graph-$SUBREPORT-$PRINTHEADING.png\"></td>"
+				eval $GRAPH_PNG --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.png --y-label $HEADING
+				eval $GRAPH_PSC --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.ps  --y-label $HEADING
+				plain graph-$SUBREPORT-$PRINTHEADING
 			done
 			echo "</tr>"
 			;;
@@ -180,16 +193,18 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 				if [ "$HEADING" = "Files/sec" ]; then
 					PRINTHEADING=Files_sec
 				fi
-				eval $GRAPH_CMD --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.png
-				echo "<td><img src=\"graph-$SUBREPORT-$PRINTHEADING.png\"></td>"
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.ps
+				plain graph-$SUBREPORT-$PRINTHEADING
 			done
 			echo "</tr>"
 			;;
 		kernbench|starve)
 			echo "<tr>"
 			for HEADING in User System Elapsed CPU; do
-				eval $GRAPH_CMD --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				echo "<td><img src=\"graph-$SUBREPORT-$HEADING.png\"></td>"
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				plain graph-$SUBREPORT-$HEADING
 			done
 			echo "</tr>"
 			;;
@@ -214,9 +229,10 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		vmr-stream)
 			;;
 		*)
-			eval $GRAPH_CMD --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png
+			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png
+			eval $GRAPH_PSC --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT.png ]; then
-				echo "<tr><td><img src=\"graph-$SUBREPORT.png\"></td></tr>"
+				plain graph-$SUBREPORT
 			else
 				echo "<tr><td>No graph representation</td></tr>"
 			fi
@@ -232,51 +248,127 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		# Monitor graphs for this test
 		echo "<table class=\"monitorGraphs\">"
 		if [ `ls read-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
-			eval $GRAPH_CMD --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.png
-			eval $GRAPH_CMD --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency-smooth.png --smooth
+			eval $GRAPH_PNG --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.png
+			eval $GRAPH_PNG --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.ps
+			eval $GRAPH_PSC --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency-smooth.ps --smooth
 			smoothover graph-$SUBREPORT-read-latency
 		fi
+
 		if [ `ls vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
-			eval $GRAPH_CMD --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.png
-			eval $GRAPH_CMD --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy.png
-			eval $GRAPH_CMD --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs.png
-			eval $GRAPH_CMD --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs-smooth.png --smooth
-			eval $GRAPH_CMD --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in.png
-			eval $GRAPH_CMD --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in-smooth.png --smooth
+			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.png
+			eval $GRAPH_PSC --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.ps
+			eval $GRAPH_PNG --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy.png
+			eval $GRAPH_PSC --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy.ps
+			eval $GRAPH_PNG --title \"Wait CPU Usage\"   --print-monitor vmstat --sub-heading wa --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-wa.png
+			eval $GRAPH_PSC --title \"Wait CPU Usage\"   --print-monitor vmstat --sub-heading wa --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ay.ps
+			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us-smooth.png --smooth
+			eval $GRAPH_PSC --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us-smooth.ps  --smooth
+			eval $GRAPH_PNG --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy-smooth.png --smooth
+			eval $GRAPH_PSC --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy-smooth.ps  --smooth
+			eval $GRAPH_PNG --title \"Wait CPU Usage\"   --print-monitor vmstat --sub-heading wa --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-wa-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Wait CPU Usage\"   --print-monitor vmstat --sub-heading wa --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ay-smooth.ps  --smooth
+
+
 			echo "<tr>"
-			echo "  <td><img src=\"graph-$SUBREPORT-vmstat-us.png\"></td>"
-			echo "  <td><img src=\"graph-$SUBREPORT-vmstat-sy.png\"></td>"
+			smoothover graph-$SUBREPORT-vmstat-us
+			smoothover graph-$SUBREPORT-vmstat-sy
+			smoothover graph-$SUBREPORT-vmstat-wa
+			echo "</tr>"
+		fi
+
+		if [ `ls vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
+			eval $GRAPH_PNG --title \"Free Memory\"      --print-monitor vmstat --sub-heading free --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-free.png
+			eval $GRAPH_PSC --title \"Free Memory\"      --print-monitor vmstat --sub-heading free --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-free.ps
+			eval $GRAPH_PNG --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs.png
+			eval $GRAPH_PSC --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs.ps
+			eval $GRAPH_PNG --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in.png
+			eval $GRAPH_PSC --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in.ps
+			eval $GRAPH_PNG --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs-smooth.ps  --smooth
+			eval $GRAPH_PNG --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in-smooth.ps  --smooth
+
+			echo "<tr>"
+			plain graph-$SUBREPORT-vmstat-free
 			smoothover graph-$SUBREPORT-vmstat-cs
 			smoothover graph-$SUBREPORT-vmstat-in
 			echo "</tr>"
 		fi
-		if [ `ls top-* 2> /dev/null | wc -l` -gt 0 ] && [ `zgrep kswapd top-* | awk '{print $10}' | max | cut -d. -f1` -gt 0 ]; then
-			eval $GRAPH_CMD --title \"Free Memory\"      --print-monitor vmstat --sub-heading free --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-free.png
-			eval $GRAPH_CMD --title \"Swap Ins\"         --print-monitor vmstat --sub-heading si --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si.png
-			eval $GRAPH_CMD --title \"Swap Outs\"        --print-monitor vmstat --sub-heading so --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so.png
-			eval $GRAPH_CMD --title \"KSwapd CPU Usage\" --print-monitor top                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd.png
-			eval $GRAPH_CMD --title \"KSwapd CPU Usage\" --print-monitor top                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd-smooth.png --smooth
+		if [ `ls proc-vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
+			eval $GRAPH_PNG --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp.png
+			eval $GRAPH_PSC --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp.ps
+			eval $GRAPH_PNG --title \"Anon Pages\" --print-monitor proc-vmstat --sub-heading nr_anon_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-anon.png
+			eval $GRAPH_PSC --title \"Anon Pages\" --print-monitor proc-vmstat --sub-heading nr_anon_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-anon.ps
+			eval $GRAPH_PNG --title \"File Pages\" --print-monitor proc-vmstat --sub-heading nr_anon_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-file.png
+			eval $GRAPH_PSC --title \"File Pages\" --print-monitor proc-vmstat --sub-heading nr_anon_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-file.ps
+			eval $GRAPH_PNG --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp-smooth.png --smooth
+			eval $GRAPH_PSC --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp-smooth.ps  --smooth
+			eval $GRAPH_PNG --title \"Anon Pages\" --print-monitor proc-vmstat --sub-heading nr_anon_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-anon-smooth.png                --smooth
+			eval $GRAPH_PSC --title \"Anon Pages\" --print-monitor proc-vmstat --sub-heading nr_anon_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-anon-smooth.ps                 --smooth
+			eval $GRAPH_PNG --title \"File Pages\" --print-monitor proc-vmstat --sub-heading nr_anon_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-file-smooth.png                --smooth
+			eval $GRAPH_PSC --title \"File Pages\" --print-monitor proc-vmstat --sub-heading nr_anon_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-file-smooth.ps                 --smooth
+
 			echo "<tr>"
-			echo "  <td><img src=\"graph-$SUBREPORT-vmstat-free.png\"></td>"
-			echo "  <td><img src=\"graph-$SUBREPORT-vmstat-si.png\"></td>"
-			echo "  <td><img src=\"graph-$SUBREPORT-vmstat-so.png\"></td>"
+			smoothover graph-$SUBREPORT-proc-vmstat-thp
+			smoothover graph-$SUBREPORT-proc-vmstat-anon
+			smoothover graph-$SUBREPORT-proc-vmstat-file
+			echo "</tr>"
+
+                        eval $GRAPH_PNG --title \"Total Page IO\" --print-monitor proc-vmstat --sub-heading pgpgtotal  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgptotal.png
+                        eval $GRAPH_PSC --title \"Total Page IO\" --print-monitor proc-vmstat --sub-heading pgpgtotal  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgptotal.ps
+			eval $GRAPH_PNG --title \"Page Ins\"      --print-monitor proc-vmstat --sub-heading pgpgin     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin.png
+			eval $GRAPH_PSC --title \"Page Ins\"      --print-monitor proc-vmstat --sub-heading pgpgin     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin.ps
+			eval $GRAPH_PNG --title \"Page Outs\"     --print-monitor proc-vmstat --sub-heading pgpgout    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout.png
+			eval $GRAPH_PSC --title \"Page Outs\"     --print-monitor proc-vmstat --sub-heading pgpgout    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout.ps
+			eval $GRAPH_PNG --title \"Total Page IO\" --print-monitor proc-vmstat --sub-heading pgpgtotal  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgptotal-smooth.png  --smooth
+			eval $GRAPH_PSC --title \"Total Page IO\" --print-monitor proc-vmstat --sub-heading pgpgtotal  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgptotal-smooth.ps   --smooth
+			eval $GRAPH_PNG --title \"Page Ins\"      --print-monitor proc-vmstat --sub-heading pgpgin     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin-smooth.png  --smooth
+			eval $GRAPH_PSC --title \"Page Ins\"      --print-monitor proc-vmstat --sub-heading pgpgin     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin-smooth.ps   --smooth
+			eval $GRAPH_PNG --title \"Page Outs\"     --print-monitor proc-vmstat --sub-heading pgpgout    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Page Outs\"     --print-monitor proc-vmstat --sub-heading pgpgout    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout-smooth.ps  --smooth
+
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-proc-vmstat-pgptotal
+			smoothover graph-$SUBREPORT-proc-vmstat-pgpin
+			smoothover graph-$SUBREPORT-proc-vmstat-pgpout
+			echo "</tr>"
+		fi
+		if [ `ls proc-vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ] && [ `awk '{print $12}' vmstat-* | max` -gt 0 ]; then
+			eval $GRAPH_PNG --title \"Swap Usage\" --print-monitor vmstat --sub-heading swpd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-swpd.png
+			eval $GRAPH_PSC --title \"Swap Usage\" --print-monitor vmstat --sub-heading swpd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-swpd.ps
+			eval $GRAPH_PNG --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si.png
+			eval $GRAPH_PSC --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si.ps
+			eval $GRAPH_PNG --title \"Swap Outs\"  --print-monitor vmstat --sub-heading so   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so.png
+			eval $GRAPH_PSC --title \"Swap Outs\"  --print-monitor vmstat --sub-heading so   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so.ps
+
+			echo "<tr>"
+			plain graph-$SUBREPORT-vmstat-swpd
+			plain graph-$SUBREPORT-vmstat-si
+			plain graph-$SUBREPORT-vmstat-so
+			echo "</tr>"
+		fi
+
+		if [ `ls top-* 2> /dev/null | wc -l` -gt 0 ] && [ `zgrep kswapd top-* | awk '{print $10}' | max | cut -d. -f1` -gt 0 ]; then
+			eval $GRAPH_PNG --title \"Direct Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.png
+			eval $GRAPH_PNG --title \"KSwapd Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan.png
+			eval $GRAPH_PSC --title \"Direct Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.ps
+			eval $GRAPH_PSC --title \"KSwapd Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan.ps
+			eval $GRAPH_PNG --title \"KSwapd CPU Usage\"    --print-monitor top                                            --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd.png
+			eval $GRAPH_PSC --title \"KSwapd CPU Usage\"    --print-monitor top                                            --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd.ps
+			eval $GRAPH_PNG --title \"Direct Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan-smooth.png --smooth
+			eval $GRAPH_PNG --title \"KSwapd Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Direct Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan-smooth.ps --smooth
+			eval $GRAPH_PSC --title \"KSwapd Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"KSwapd CPU Usage\" --print-monitor top                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd-smooth.png --smooth
+			eval $GRAPH_PSC --title \"KSwapd CPU Usage\" --print-monitor top                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd-smooth.ps --smooth
+
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-proc-vmstat-direct-scan
+			smoothover graph-$SUBREPORT-proc-vmstat-kswapd-scan
 			smoothover graph-$SUBREPORT-top-kswapd
 			echo "</tr>"
 
-			eval $GRAPH_CMD --title \"Direct Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.png
-			eval $GRAPH_CMD --title \"Direct Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan-smooth.png --smooth
-			eval $GRAPH_CMD --title \"Page Ins\"            --print-monitor proc-vmstat --sub-heading pgpgin  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin.png
-			eval $GRAPH_CMD --title \"Page Ins\"            --print-monitor proc-vmstat --sub-heading pgpgin  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin-smooth.png --smooth
-			eval $GRAPH_CMD --title \"Page Outs\"           --print-monitor proc-vmstat --sub-heading pgpgout --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout.png
-			eval $GRAPH_CMD --title \"Page Outs\"           --print-monitor proc-vmstat --sub-heading pgpgout --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout-smooth.png --smooth
-			eval $GRAPH_CMD --title \"KSwapd Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan.png
-			eval $GRAPH_CMD --title \"KSwapd Reclaim Scan\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan-smooth.png --smooth
-			echo "<tr>"
-			smoothover graph-$SUBREPORT-proc-vmstat-direct-scan
-			smoothover graph-$SUBREPORT-proc-vmstat-pgpin
-			smoothover graph-$SUBREPORT-proc-vmstat-pgpout
-			smoothover graph-$SUBREPORT-proc-vmstat-kswapd-scan
-			echo "</tr>"
 		fi
 
 		echo "</table>"

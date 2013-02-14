@@ -38,7 +38,7 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	--format)
-		FORMAT_CMD="--format $2"
+		FORMAT_CMD="--format \"$2\""
 		shift 2
 		;;
 	--output)
