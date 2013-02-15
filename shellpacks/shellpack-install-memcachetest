@@ -6,6 +6,8 @@ DEFAULT_VERSION=0.01
 GIT_LOCATION=https://github.com/ingenthr/memcachetest.git
 MIRROR_LOCATION="$WEBROOT/memcachetest"
 
+install-depends libevent-devel
+
 # Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
@@ -62,4 +64,4 @@ fi
 
 echo memcachetest installed successfully
 #### Description memcachetest
-#### Details memcachetest 13
+#### Details memcachetest 14

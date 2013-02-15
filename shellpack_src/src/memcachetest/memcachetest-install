@@ -4,6 +4,8 @@
 GIT_LOCATION=https://github.com/ingenthr/memcachetest.git
 MIRROR_LOCATION="$WEBROOT/memcachetest"
 
+install-depends libevent-devel
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
