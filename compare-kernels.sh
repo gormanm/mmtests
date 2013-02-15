@@ -199,6 +199,8 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			done
 			echo "</tr>"
 			;;
+		highalloc)
+			;;
 		kernbench|starve)
 			echo "<tr>"
 			for HEADING in User System Elapsed CPU; do

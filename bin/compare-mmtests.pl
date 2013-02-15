@@ -64,7 +64,7 @@ if (!defined($opt_monitor)) {
 			$extractModules[$nrModules]->extractReport($reportDirectory, $name);
 			$extractModules[$nrModules++]->extractSummary($opt_subheading);
 		} or do {
-			printWarning("Failed to load module for benchmark $opt_benchmark, $name\n$@");
+			printWarning("Failed to load module for benchmark $opt_benchmark: $name\n$@");
 			$#extractModules -= 1;
 		}
 	};
