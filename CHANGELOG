@@ -1,3 +1,11 @@
+v0.09
+o Many small improvements to reporting, more graphs etc.
+o Increase duration of dbench benchmarks to cope better with noise
+o Add generic graph-mmtests.sh script for comparing test runs
+o Improve monitoring of processes stuck in dstate
+o Do not record top-related informtion for hackbench, too much IO, unhelpful
+o Add more configurations related to read IO starvation monitoring
+
 v0.08
 o Preliminary support for rendering HTML reports
 o specjbb configs for single JVMs
