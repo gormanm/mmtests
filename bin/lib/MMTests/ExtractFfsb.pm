@@ -44,7 +44,6 @@ sub printSummary() {
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
-	my ($user, $system, $elapsed, $cpu);
 	my $reading_totals = 0;
 
 	my $file = "$reportDir/noprofile/ffsb.log";
