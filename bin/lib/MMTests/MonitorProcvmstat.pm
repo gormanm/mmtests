@@ -179,22 +179,80 @@ sub parseVMStat($)
 	my $current_value = 0;
 	my $window = $self->{_Window};
 
+	my @mmtests_direct_scan = ("pgscan_direct_dma", "pgscan_direct_dma32",
+                          "pgscan_direct_normal", "pgscan_direct_movable",
+                          "pgscan_direct_high");
+	my @mmtests_direct_steal = ("pgsteal_dma", "pgsteal_dma32",
+			  "pgsteal_normal", "pgsteal_movable", "pgsteal_high",
+			  "pgsteal_direct_dma", "pgsteal_direct_dma32",
+			  "pgsteal_direct_normal", "pgsteal_direct_movable",
+			  "pgsteal_direct_high", "kswapd_steal");
+	my @mmtests_kswapd_scan = ("pgscan_kswapd_dma", "pgscan_kswapd_dma32",
+			 "pgscan_kswapd_normal", "pgscan_kswapd_movable",
+			 "pgscan_kswapd_high") ;
+        my @mmtests_kswapd_steal = ("kswapd_steal", "pgsteal_kswapd_dma", "pgsteal_kswapd_dma32",
+			  "pgsteal_kswapd_normal", "pgsteal_kswapd_high",
+			  "pgsteal_kswapd_movable");
+
+	my $current_scan = 0;
+	my $current_steal = 0;
+
 	foreach my $line (split(/\n/, $_[1])) {
 		my ($stat, $value) = split(/\s/, $line);
 		if ($subHeading eq "mmtests_direct_scan" ) {
-			foreach my $key ("pgscan_direct_dma", "pgscan_direct_dma32", 
-			  "pgscan_direct_normal", "pgscan_direct_movable",
-			  "pgscan_direct_high") {
+			foreach my $key (@mmtests_direct_scan) {
 				if ($stat eq $key) {
 					$current_value += $value;
 				}
 			}
+		} elsif ($subHeading eq "mmtests_direct_steal" ) {
+			foreach my $key (@mmtests_direct_steal) {
+				if ($stat eq $key) {
+					if ($key eq "kswapd_steal") {
+						$current_value -= $value;
+					} else {
+						$current_value += $value;
+					}
+				}
+			}
+		} elsif ($subHeading eq "mmtests_direct_efficiency" ) {
+			foreach my $key (@mmtests_direct_scan) {
+				if ($stat eq $key) {
+					$current_scan += $value;
+				}
+			}
+			foreach my $key (@mmtests_direct_steal) {
+				if ($stat eq $key) {
+					if ($key eq "kswapd_steal") {
+						$current_steal -= $value;
+					} else {
+						$current_steal += $value;
+					}
+				}
+			}
 		} elsif ($subHeading eq "mmtests_kswapd_scan") {
-			foreach my $key ("pgscan_kswapd_dma", "pgscan_kswapd_dma32",
-			 "pgscan_kswapd_normal", "pgscan_kswapd_movable",
-			 "pgscan_kswapd_high") {
+			foreach my $key (@mmtests_kswapd_scan) {
 				if ($stat eq $key) {
 					$current_value += $value;
+				}
+			}
+		} elsif ($subHeading eq "mmtests_kswapd_steal") {
+        		foreach my $key (@mmtests_kswapd_steal) {
+				if ($stat eq $key) {
+					$current_value += $value;
+				}
+			}
+		} elsif ($subHeading eq "mmtests_kswapd_efficiency" ) {
+			my $scan = 0;
+			my $steal = 0;
+			foreach my $key (@mmtests_kswapd_scan) {
+				if ($stat eq $key) {
+					$current_scan += $value;
+				}
+			}
+			foreach my $key (@mmtests_kswapd_steal) {
+				if ($stat eq $key) {
+					$current_steal += $value;
 				}
 			}
 		} elsif ($subHeading eq "pgpgtotal") {
@@ -210,6 +268,23 @@ sub parseVMStat($)
 
 	if ($_fieldCounters{$subHeading}) {
 		return $current_value;
+	} elsif ($subHeading eq "mmtests_direct_efficiency" ||
+		 $subHeading eq "mmtests_kswapd_efficiency") {
+		my ($delta_steal, $delta_scan);
+
+		if ($self->{_LastStealValue}) {
+			$delta_steal = $current_steal - $self->{_LastStealValue};
+			$delta_scan  = $current_scan  - $self->{_LastScanValue};
+		}
+
+		$self->{_LastStealValue} = $current_steal;
+		$self->{_LastScanValue}  = $current_scan;
+
+		if ($delta_scan) {
+			return $delta_steal * 100 / $delta_scan;
+		} else {
+			return 100;
+		}
 	} else {
 		my $delta_value;
 		if ($self->{_LastValue}) {

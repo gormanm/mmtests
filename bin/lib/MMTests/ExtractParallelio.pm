@@ -164,7 +164,7 @@ sub extractReport($$$) {
 		}
 	}
 	foreach my $ioStep (@ioSteps) {
-		push @{$self->{_ResultData}}, [ "swaptotal/out-$ioSizes[$ioStep]", $swapInOut[$ioStep] ];
+		push @{$self->{_ResultData}}, [ "swaptotal-$ioSizes[$ioStep]", $swapInOut[$ioStep] ];
 		push @{$self->{_CompareOpsRow}}, "pndiff";
 	}
 	foreach my $ioStep (@ioSteps) {
