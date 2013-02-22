@@ -54,7 +54,10 @@ if [ "$OPENMPI" = "" ]; then
 		JOBLIST="$JOBLIST dc"
 	fi
 else
-	JOBLIST="ft mg lu is ep cg"
+	JOBLIST="mg lu is ep cg"
+	if [ "$NAS_CLASS" != "D" ]; then
+		JOBLIST="$JOBLIST ft"
+	fi
 fi
 
 if [ "$RUNBITS" = "" ]; then

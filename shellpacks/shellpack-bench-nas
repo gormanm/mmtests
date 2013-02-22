@@ -80,7 +80,10 @@ if [ "$OPENMPI" = "" ]; then
 		JOBLIST="$JOBLIST dc"
 	fi
 else
-	JOBLIST="ft mg lu is ep cg"
+	JOBLIST="mg lu is ep cg"
+	if [ "$NAS_CLASS" != "D" ]; then
+		JOBLIST="$JOBLIST ft"
+	fi
 fi
 
 if [ "$RUNBITS" = "" ]; then
@@ -225,4 +228,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 38
+#### Details nas-bench 39
