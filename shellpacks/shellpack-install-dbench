@@ -7,6 +7,8 @@ GIT_LOCATION=git://git.samba.org/sahlberg/dbench.git
 WEB_LOCATION=http://samba.org/ftp/tridge/dbench/
 MIRROR_LOCATION="$WEBROOT/dbench/"
 
+install-depends popt-devel
+
 # Basic argument parser
 while [ "$1" != "" ]; do
 	case "$1" in
@@ -68,4 +70,4 @@ fi
 
 echo dbench installed successfully
 #### Description dbench
-#### Details dbench 14
+#### Details dbench 15

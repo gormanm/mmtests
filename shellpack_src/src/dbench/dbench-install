@@ -5,6 +5,8 @@ GIT_LOCATION=git://git.samba.org/sahlberg/dbench.git
 WEB_LOCATION=http://samba.org/ftp/tridge/dbench/
 MIRROR_LOCATION="$WEBROOT/dbench/"
 
+install-depends popt-devel
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 

@@ -255,6 +255,21 @@ sub parseVMStat($)
 					$current_steal += $value;
 				}
 			}
+		} elsif ($subHeading eq "mmtests_vmscan_write_file") {
+			if ($stat eq "nr_vmscan_write") {
+				$current_value += $value;
+			}
+			if ($stat eq "pswpout") {
+				$current_value -= $value;
+			}
+		} elsif ($subHeading eq "mmtests_vmscan_write_anon") {
+			if ($stat eq "pswpout") {
+				$current_value += $value;
+			}
+		} elsif ($subHeading eq "mmtests_vmscan_process_pages") {
+			if ($stat eq "nr_file_pages" || $stat eq "nr_anon_pages") {
+				$current_value += $value;
+			}
 		} elsif ($subHeading eq "pgpgtotal") {
 			foreach my $key ("pgpgin", "pgpgout") {
 				if ($stat eq $key) {
@@ -266,7 +281,7 @@ sub parseVMStat($)
 		}
 	}
 
-	if ($_fieldCounters{$subHeading}) {
+	if ($_fieldCounters{$subHeading} || $subHeading eq "mmtests_vmscan_process_pages") {
 		return $current_value;
 	} elsif ($subHeading eq "mmtests_direct_efficiency" ||
 		 $subHeading eq "mmtests_kswapd_efficiency") {
