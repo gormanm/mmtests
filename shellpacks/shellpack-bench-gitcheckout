@@ -1,0 +1,114 @@
+#!/bin/bash
+# This benchmark checks how long it takes to do cache cold or hot checkouts
+# between two kernel versions. It is somewhat metadata intensive
+#
+# Copyright Mel Gorman 2013
+P=gitcheckout-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+
+GITCHECKOUT_CACHE=hot
+GITCHECKOUT_ITERATIONS=10
+GITCHECKOUT_SOURCETAR=
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--git-tar)
+		GITCHECKOUT_SOURCETAR=$2
+		shift 2
+		;;
+	--git-source)
+		GITCHECKOUT_SOURCE=$2
+		shift 2
+		;;
+	--first-tag)
+		GITCHECKOUT_FIRST=$2
+		shift 2
+		;;
+	--second-tag)
+		GITCHECKOUT_SECOND=$2
+		shift 2
+		;;
+	--iterations)
+		GITCHECKOUT_ITERATIONS=$2
+		shift 2
+		;;
+	--cache)
+		GITCHECKOUT_CACHE=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+install-depends git-core
+
+# Get the git repository
+pushd $SHELLPACK_TEMP > /dev/null
+if [ "$GITCHECKOUT_SOURCETAR" != "" -a "$GITCHECKOUT_SOURCETAR" != "none" ]; then
+	echo Using $GITCHECKOUT_SOURCETAR
+	wget -q -O gitcheckout.tar.gz $GITCHECKOUT_SOURCETAR
+	if [ $? -ne 0 ]; then
+		rm -f gitcheckout.tar.gz
+	fi
+fi
+if [ -e gitcheckout.tar.gz ]; then
+	tar -xf gitcheckout.tar.gz
+	if [ $? -ne 0 ]; then
+		die "$P: tar xf gitcheckout.tar.gz failed"
+	fi
+	DST_DIR=`tar tf gitcheckout.tar.gz | head -n 1 | awk -F / '{print $1}'`
+	mv $DST_DIR gitcheckout
+else
+	echo Cloning $GITCHECKOUT_SOURCE
+	git clone $GITCHECKOUT_SOURCE gitcheckout || exit $SHELLPACK_ERROR
+fi
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
+fi
+
+echo Warming up
+cd $SHELLPACK_TEMP/gitcheckout   || exit $SHELLPACK_ERROR
+git checkout $GITCHECKOUT_FIRST  || exit $SHELLPACK_ERROR
+git checkout $GITCHECKOUT_SECOND || exit $SHELLPACK_ERROR
+
+# Stupid, but we cannot be certain if we're using built-in time or command time
+echo "#!/bin/bash
+git checkout $GITCHECKOUT_FIRST
+git checkout $GITCHECKOUT_SECOND
+sync" > $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh
+chmod u+x $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh
+
+for i in `seq 1 $GITCHECKOUT_ITERATIONS`; do
+	if [ "$GITCHECKOUT_CACHE" = "cold" ]; then
+		echo Dropping caches as per requested
+		sync
+		echo 3 > /proc/sys/vm/drop_caches
+	fi
+
+	echo Iteration $i/$GITCHECKOUT_ITERATIONS
+	$TIME_CMD $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$i
+	grep elapsed $LOGDIR_RESULTS/time.$i
+done
+
+# Summarise and cleanup
+popd > /dev/null
+grep elapsed $LOGDIR_RESULTS/time.* | tee $LOGDIR_RESULTS/time
+rm -rf $SHELLPACK_TEMP/gitcheckout
+
+exit $SHELLPACK_SUCCESS
+#### Description Times how long it takes to checkout git repos
+#### Details gitcheckout-bench 8
