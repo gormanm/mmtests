@@ -1,68 +1,87 @@
 #!/bin/bash
 # reaim installer
 P=reaim-install
-WEB_LOCATION=http://heanet.dl.sourceforge.net/project/re-aim-7/re-aim
-MIRROR_LOCATION="$WEBROOT/reaim/"
 DEFAULT_VERSION=7.0.1.13
 . $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION=http://heanet.dl.sourceforge.net/project/re-aim-7/re-aim
+MIRROR_LOCATION="$WEBROOT/reaim/"
+
+install-depends libaio-devel
 
 # Basic argument parser
 while [ "$1" != "" ]; do
-  case "$1" in
-    -v)
-            VERSION=$2
-	    shift 2
-	    ;;
-    *)
-            echo Unrecognised option: $1
-	    shift
-  esac
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
 done
-
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
 # Unconditionally fetch the tar to find out the real version number
+# Unconditionally fetch the tar to find out the real version number
 TARFILE=osdl-aim-${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
-
-# Building from scratch, uncompress the tar
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
-tar xf $TARFILE
+tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-  error "$P: tar xf $TARFILE failed"
-  popd > /dev/null
-  exit $SHELLPACK_ERROR
+        error "$P: tar xf osdl-aim-${VERSION}.tar.gz failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-mv $DST_DIR reaim-${VERSION}-installed
-pushd reaim-${VERSION}-installed > /dev/null || die Failed to rename tar
+mv $DST_DIR reaim-${VERSION}
+pushd reaim-${VERSION} > /dev/null || die Failed to rename tar
 
-# Configure
+# Bootstrap
 ./bootstrap
 if [ $? -ne 0 ]; then
-	error "$P: bootstreap failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+        error "$P: bootstrap failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
 fi
-LDFLAGS=-laio ./configure
+
+export LDFLAGS=-laio
+pushd $SHELLPACK_SOURCES/reaim-${VERSION} || die Failed to change to source directory
+
+# There is an off-by-one error in the handling of log directories. Patch it
+echo "--- src/drv_funcs.c.orig	2013-03-08 18:36:17.026240307 +0000
++++ src/drv_funcs.c	2013-03-08 18:35:16.516331963 +0000
+@@ -171,7 +171,7 @@
+ 
+ char *ext_strcat(char *s1, char *s2)
+ {
+-	char *stmp = (char*)malloc(strlen(s1)+strlen(s2));
++	char *stmp = (char*)malloc(strlen(s1)+strlen(s2) + 1);
+ 	stmp[0] = '\0';
+ 	strcat(stmp,s1);
+ 	strcat(stmp,s2);" | patch -p0
+
+./configure --prefix=$SHELLPACK_SOURCES/reaim-${VERSION}-installed
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
-
-# Build
-make
+make -j$NUMCPUS
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
+popd
+mv $SHELLPACK_SOURCES/reaim-${VERSION} $SHELLPACK_SOURCES/reaim-${VERSION}-installed
 
 echo reaim installed successfully
 #### Description reaim
 #### Details reaim 12
+#### Description reaim
+#### Details reaim 27

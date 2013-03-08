@@ -1,0 +1,46 @@
+#!/bin/bash
+# reaim installer
+###SHELLPACK preamble reaim-install 7.0.1.13
+WEB_LOCATION=http://heanet.dl.sourceforge.net/project/re-aim-7/re-aim
+MIRROR_LOCATION="$WEBROOT/reaim/"
+
+install-depends libaio-devel
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+# Unconditionally fetch the tar to find out the real version number
+###SHELLPACK sources_fetch osdl-aim-${VERSION}.tar.gz reaim-${VERSION}
+
+# Bootstrap
+./bootstrap
+if [ $? -ne 0 ]; then
+        error "$P: bootstrap failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
+fi
+
+export LDFLAGS=-laio
+###SHELLPACK build_start reaim-${VERSION}
+
+# There is an off-by-one error in the handling of log directories. Patch it
+echo "--- src/drv_funcs.c.orig	2013-03-08 18:36:17.026240307 +0000
++++ src/drv_funcs.c	2013-03-08 18:35:16.516331963 +0000
+@@ -171,7 +171,7 @@
+ 
+ char *ext_strcat(char *s1, char *s2)
+ {
+-	char *stmp = (char*)malloc(strlen(s1)+strlen(s2));
++	char *stmp = (char*)malloc(strlen(s1)+strlen(s2) + 1);
+ 	stmp[0] = '\0';
+ 	strcat(stmp,s1);
+ 	strcat(stmp,s2);" | patch -p0
+
+###SHELLPACK build_configure reaim-${VERSION}
+###SHELLPACK make reaim-${VERSION}
+popd
+mv $SHELLPACK_SOURCES/reaim-${VERSION} $SHELLPACK_SOURCES/reaim-${VERSION}-installed
+
+echo reaim installed successfully
+#### Description reaim
+#### Details reaim 12
