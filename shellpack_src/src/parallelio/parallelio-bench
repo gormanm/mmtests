@@ -6,50 +6,17 @@
 # measures the effect.
 #
 # Copyright Mel Gorman 2012
-P=parallelio-bench
-DEFAULT_VERSION=0
-. $SHELLPACK_INCLUDE/common.sh
+###SHELLPACK preamble parallelio-bench 0
 . $SHELLPACK_INCLUDE/include-sizes.sh
 
-# Basic argument parser
-while [ "$1" != "" ]; do
-	case "$1" in
-	-v)
-		VERSION=$2
-		shift 2
-		;;
-	--workloads)
-		PARALLELIO_WORKLOADS=$2
-		shift 2
-		;;
-	--min-io-size)
-		PARALLELIO_MIN_IOSIZE=$2
-		shift 2
-		;;
-	--max-io-size)
-		PARALLELIO_MAX_IOSIZE=$2
-		shift 2
-		;;
-	--io-load)
-		PARALLELIO_IOLOAD=$2
-		shift 2
-		;;
-	--iterations)
-		PARALLELIO_ITERATIONS=$2
-		shift 2
-		;;
-	--workload-duration)
-		PARALLELIO_WORKLOAD_DURATION=$2
-		shift 2
-		;;
-	*)
-		echo Unrecognised option: $1
-		shift
-	esac
-done
-if [ -z "$VERSION" ]; then
-	VERSION=$DEFAULT_VERSION
-fi
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --workloads   PARALLELIO_WORKLOADS
+###SHELLPACK parseargParam --min-io-size PARALLELIO_MIN_IOSIZE
+###SHELLPACK parseargParam --max-io-size PARALLELIO_MAX_IOSIZE
+###SHELLPACK parseargParam --io-load     PARALLELIO_IOLOAD
+###SHELLPACK parseargParam --iterations  PARALLELIO_ITERATIONS
+###SHELLPACK parseargParam --workload-duration PARALLELIO_WORKLOAD_DURATION
+###SHELLPACK parseargEnd
 
 # Warmup runs
 for WORKLOAD in $PARALLELIO_WORKLOADS; do
@@ -180,5 +147,3 @@ done
 
 rm -rf $SHELLPACK_TEMP
 exit $SHELLPACK_SUCCESS
-#### Description Run a workload with varying amounts of IO in the background to see the effect
-#### Details parallelio-bench 32
