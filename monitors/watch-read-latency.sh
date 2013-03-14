@@ -18,14 +18,18 @@ tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > $TEMPFILE.c
 READSIZE=
 READPAUSE=
 BUILDRAND=
+IBS=1048576
 COUNT=100
 if [ "$MONITOR_READ_LATENCY_RANDOM" = "yes" ]; then
 	BUILDRAND=-DRANDREAD
 fi
 if [ "$MONITOR_READ_LATENCY_READSIZE_MB" != "" ]; then
-	READSIZE="-DBUFFER_SIZE=$((MONITOR_READ_LATENCY_READSIZE_MB*1048576))"
-	if [ $MONITOR_READ_LATENCY_READSIZE_MB -gt $COUNT ]; then
-		COUNT=$MONITOR_READ_LATENCY_READSIZE_MB
+	IBS=$((MONITOR_READ_LATENCY_READSIZE_MB*1048576))
+	READSIZE="-DBUFFER_SIZE=$IBS"
+
+	# Bit arbitrary
+	if [ $MONITOR_READ_LATENCY_READSIZE_MB -gt 16 ]; then
+		COUNT=10
 	fi
 fi
 if [ "$MONITOR_READ_LATENCY_READPAUSE_MS" != "" ]; then
@@ -34,9 +38,8 @@ fi
 
 gcc $BUILDRAND $READSIZE $READPAUSE -O2 $TEMPFILE.c -o $TEMPFILE || exit -1
 
-
 # Build a file on local storage for the program to access
-dd if=/dev/zero of=monitor_readfile ibs=1048576 count=$COUNT > /dev/null 2> /dev/null
+dd if=/dev/zero of=monitor_readfile ibs=$IBS count=$COUNT > /dev/null 2> /dev/null
 
 # Start the reader
 $TEMPFILE monitor_readfile &
@@ -70,7 +73,6 @@ while [ 1 ]; do
 		exit -1
 	fi
 done
-
 
 ==== BEGIN C FILE ====
 #include <stdio.h>
