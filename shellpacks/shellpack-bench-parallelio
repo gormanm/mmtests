@@ -51,6 +51,9 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
 # Warmup runs
 for WORKLOAD in $PARALLELIO_WORKLOADS; do
 	echo Warmup background workload: $WORKLOAD
@@ -181,4 +184,4 @@ done
 rm -rf $SHELLPACK_TEMP
 exit $SHELLPACK_SUCCESS
 #### Description Run a workload with varying amounts of IO in the background to see the effect
-#### Details parallelio-bench 32
+#### Details parallelio-bench 33
