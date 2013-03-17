@@ -18,7 +18,7 @@ use Getopt::Long;
 use strict;
 
 my @trace_functions = (
-	"get_request_wait",
+	# "get_request_wait" is now special cased unfortunately
 	"wait_for_completion",
 	"wait_on_page_bit",
 	"wait_on_page_bit_killable",
@@ -203,9 +203,15 @@ sub log_stap {
 
 # Read kernel symbols and add conditional trace functions if they exist
 open(KALLSYMS, "/proc/kallsyms") || die("Failed to open /proc/kallsyms");
+my $found_get_request_wait = 0;
 while (<KALLSYMS>) {
 	my ($dummy, $dummy, $symbol) = split(/\s+/, $_);
 	my $conditional;
+	if ($symbol eq "get_request_wait") {
+		push(@trace_functions, $symbol);
+		$found_get_request_wait = 1;
+		next;
+	}
 	foreach $conditional (@trace_conditional) {
 		if ($symbol eq $conditional) {
 			push(@trace_functions, $symbol);
@@ -214,6 +220,9 @@ while (<KALLSYMS>) {
 	}
 }
 close(KALLSYMS);
+if (!$found_get_request_wait) {
+	push(@trace_functions, "get_request");
+}
 
 # Extract the framework script and fill in the rest
 open(SELF, "$0") || die("Failed to open running script");
