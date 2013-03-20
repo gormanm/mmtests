@@ -338,6 +338,15 @@ if [ "$STAP_USED" != "" ]; then
 		if [ ! -e /usr/share/systemtap/runtime/task_finder2.c.orig ]; then
 			cp /usr/share/systemtap/runtime/task_finder2.c /usr/share/systemtap/runtime/task_finder2.c.orig
 		fi
+		if [ ! -e /usr/share/systemtap/runtime/task_finder_vma.c.orig ]; then
+			cp /usr/share/systemtap/runtime/task_finder_vma.c /usr/share/systemtap/runtime/task_finder_vma.c.orig
+		fi
+		if [ ! -e /usr/share/systemtap/runtime/linux/task_finder_map.c.orig ]; then
+			cp /usr/share/systemtap/runtime/linux/task_finder_map.c /usr/share/systemtap/runtime/linux/task_finder_map.c.orig
+		fi
+		if [ ! -e /usr/share/systemtap/runtime/stp_utrace.c.orig ]; then
+			cp /usr/share/systemtap/runtime/stp_utrace.c /usr/share/systemtap/runtime/stp_utrace.c.orig
+		fi
 
 		# Restore original files and go through workarounds in order
 		cp /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
@@ -347,6 +356,9 @@ if [ "$STAP_USED" != "" ]; then
 		cp /usr/share/systemtap/runtime/map.c.orig /usr/share/systemtap/runtime/map.c
 		cp /usr/share/systemtap/runtime/map-stat.c.orig /usr/share/systemtap/runtime/map-stat.c
 		cp /usr/share/systemtap/runtime/task_finder2.c.orig /usr/share/systemtap/runtime/task_finder2.c
+		cp /usr/share/systemtap/runtime/task_finder_vma.c.orig /usr/share/systemtap/runtime/task_finder_vma.c
+		cp /usr/share/systemtap/runtime/linux/task_finder_map.c.orig /usr/share/systemtap/runtime/linux/task_finder_map.c
+		cp /usr/share/systemtap/runtime/stp_utrace.c.orig /usr/share/systemtap/runtime/stp_utrace.c
 
 		stap -e 'probe begin { println("validate systemtap") exit () }'
 		if [ $? != 0 ]; then
@@ -379,14 +391,31 @@ if [ "$STAP_USED" != "" ]; then
 						mv /usr/share/systemtap/runtime/task_finder2.c.tmp /usr/share/systemtap/runtime/task_finder2.c
 						stap -e 'probe begin { println("validating systemtap fix") exit () }'
 						if [ $? != 0 ]; then
-							mv /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
-							mv /usr/share/systemtap/runtime/transport/relay_v2.c.orig /usr/share/systemtap/runtime/transport/relay_v2.c
-							mv /usr/share/systemtap/runtime/transport/transport.c.orig /usr/share/systemtap/runtime/transport/transport.c
-							mv /usr/share/systemtap/runtime/stat.c.orig /usr/share/systemtap/stat.c
-							mv /usr/share/systemtap/runtime/map.c.orig /usr/share/systemtap/map.c
-							mv /usr/share/systemtap/runtime/map-stat.c.orig /usr/share/systemtap/map-stat.c
-							mv /usr/share/systemtap/runtime/task_finder2.c.orig /usr/share/systemtap/runtime/task_finder2.c
-							exit -1
+							sed /usr/share/systemtap/runtime/task_finder_vma.c \
+								-e 's/hlist_for_each_entry_safe(entry, node/hlist_for_each_entry_safe(entry/' \
+								-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/task_finder_vma.c.tmp
+							sed /usr/share/systemtap/runtime/linux/task_finder_map.c \
+								-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/linux/task_finder_map.c.tmp
+							sed /usr/share/systemtap/runtime/stp_utrace.c \
+								-e 's/hlist_for_each_entry_safe(utrace, node/hlist_for_each_entry_safe(utrace/' \
+								-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/stp_utrace.c.tmp
+							mv /usr/share/systemtap/runtime/task_finder_vma.c.tmp /usr/share/systemtap/runtime/task_finder_vma.c
+							mv /usr/share/systemtap/runtime/linux/task_finder_map.c.tmp /usr/share/systemtap/runtime/linux/task_finder_map.c
+							mv /usr/share/systemtap/runtime/stp_utrace.c.tmp /usr/share/systemtap/runtime/stp_utrace.c
+							stap -e 'probe begin { println("validating systemtap fix") exit () }'
+							if [ $? != 0 ]; then
+								mv /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
+								mv /usr/share/systemtap/runtime/transport/relay_v2.c.orig /usr/share/systemtap/runtime/transport/relay_v2.c
+								mv /usr/share/systemtap/runtime/transport/transport.c.orig /usr/share/systemtap/runtime/transport/transport.c
+								mv /usr/share/systemtap/runtime/stat.c.orig /usr/share/systemtap/stat.c
+								mv /usr/share/systemtap/runtime/map.c.orig /usr/share/systemtap/map.c
+								mv /usr/share/systemtap/runtime/map-stat.c.orig /usr/share/systemtap/map-stat.c
+								mv /usr/share/systemtap/runtime/task_finder2.c.orig /usr/share/systemtap/runtime/task_finder2.c
+								mv /usr/share/systemtap/runtime/task_finder_vma.c.orig /usr/share/systemtap/runtime/task_finder_vma.c
+								mv /usr/share/systemtap/runtime/linux/task_finder_map.c.orig /usr/share/systemtap/runtime/linux/task_finder_map.c
+								mv /usr/share/systemtap/runtime/stp_utrace.c.orig /usr/share/systemtap/runtime/stp_utrace.c
+								exit -1
+							fi
 						fi
 					fi
 				fi

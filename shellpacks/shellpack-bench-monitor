@@ -1,0 +1,19 @@
+#!/bin/bash
+P=monitor
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+
+cleanup()
+{
+	rm /tmp/mmtests-monitor.pid
+	exit
+}
+trap cleanup SIGTERM
+trap cleanup SIGINT
+
+echo $$ > /tmp/mmtests-monitor.pid
+echo Hit enter, run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
+
+read INPUT
+#### Description monitor only
+#### Details monitor-bench 5
