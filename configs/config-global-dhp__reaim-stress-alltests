@@ -53,3 +53,4 @@ export REAIM_INCREMENT=50
 export REAIM_ENDUSERS=500
 export REAIM_ITERATIONS=5
 export REAIM_WORKFILE=workfile.alltests
+export REAIM_EXCLUDE=signal_test

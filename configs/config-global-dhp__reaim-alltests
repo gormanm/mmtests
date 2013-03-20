@@ -53,3 +53,4 @@ export REAIM_INCREMENT=$((NUM_CPU/2))
 export REAIM_ENDUSERS=$((NUM_CPU*2+REAIM_INCREMENT))
 export REAIM_ITERATIONS=5
 export REAIM_WORKFILE=workfile.alltests
+export REAIM_EXCLUDE=signal_test

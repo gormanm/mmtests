@@ -19,6 +19,7 @@ REAIM_WORKFILE=workfile.fserver
 ###SHELLPACK parseargParam   --increment     REAIM_INCREMENT
 ###SHELLPACK parseargParam   --iterations    REAIM_ITERATIONS
 ###SHELLPACK parseargParam   --workfile      REAIM_WORKFILE
+###SHELLPACK parseargParam   --exclude       REAIM_EXCLUDE
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required reaim-${VERSION}
@@ -30,6 +31,13 @@ echo FILESIZE $REAIM_FILESIZE > reaim.config
 echo POOLSIZE $REAIM_POOLSIZE >> reaim.config
 echo DISKDIR $SHELLPACK_TEMP  >> reaim.config
 
+# Remove any tests that were requested to be excluded
+cp data/$REAIM_WORKFILE data/$REAIM_WORKFILE.mmtests
+for EXCLUDE in $REAIM_EXCLUDE; do
+	grep -v " $EXCLUDE$" data/$REAIM_WORKFILE.mmtests > data/$REAIM_WORKFILE.mmtests.tmp
+	mv data/$REAIM_WORKFILE.mmtests.tmp data/$REAIM_WORKFILE.mmtests
+done
+
 monitor_pre_hook $LOGDIR_RESULTS
 for ITERATION in `seq 1 $REAIM_ITERATIONS`; do
 	./src/reaim \
@@ -37,7 +45,7 @@ for ITERATION in `seq 1 $REAIM_ITERATIONS`; do
 		-e$REAIM_ENDUSERS \
 		-t \
 		-i$REAIM_INCREMENT \
-		-fdata/$REAIM_WORKFILE \
+		-fdata/$REAIM_WORKFILE.mmtests \
 		-r1 \
 		-c./reaim.config \
 		-l$LOGDIR_RESULTS/reaim.$ITERATION \
