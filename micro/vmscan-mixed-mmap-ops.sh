@@ -5,10 +5,12 @@
 #
 # Copyright Mel Gorman 2010
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
-NUM_THREADS=${MICRO_VMSCAN_MIXED_MMAP_NUM_THREADS:=$NUM_CPU}
-OUTER_ITER=${MICRO_VMSCAN_MIXED_MMAP_OPS_OUTER_ITER:=1}
+NUM_THREADS=${MICRO_VMSCAN_NUM_THREADS:=$NUM_CPU}
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 PERCENTAGE_ANON=$MICRO_VMSCAN_MIXED_ANON_PERCENTAGE
+DURATION=${MICRO_VMSCAN_DURATION:=300}
+MICRO_VMSCAN_MIXED_MMAPREAD_ITER=10
+
 SELF=$0
 READONLY=$1
 BITNESS=-m64
@@ -25,6 +27,13 @@ function create_sparse_file() {
 	dd if=/dev/zero of=$TITLE bs=4096 count=0 seek=$((SIZE/4096+1))
 }
 
+function create_populated_file() {
+	TITLE=$1
+	SIZE=$2
+
+	echo Creating populated file $TITLE
+	dd if=/dev/zero of=$TITLE bs=4096 count=0 count=$((SIZE/4096+1))
+}
 
 echo -n > vmscan-mixed-mmap-ops-$$.pids
 cd $SHELLPACK_TEMP || die Failed to cd to temporary directory
@@ -38,59 +47,89 @@ gcc $BITNESS -lpthread -O2 usemem.c -o usemem || exit -1
 
 # Adjust size for 32-bit if necessary
 if [[ `uname -m` =~ i.86 ]]; then
-	UNITSIZE=$((MICRO_VMSCAN_MIXED_MMAPREAD_SIZE / NUM_THREADS))
+	UNITSIZE=$((MICRO_VMSCAN_MIXED_MMAP_SIZE / NUM_THREADS))
 	while [ $UNITSIZE -gt 1182793728 ]; do
 		NUM_THREADS=$((NUM_THREADS+1))
-		UNITSIZE=$((MICRO_VMSCAN_MIXED_MMAPREAD_SIZE / NUM_THREADS))
+		UNITSIZE=$((MICRO_VMSCAN_MIXED_MMAP_SIZE / NUM_THREADS))
 	done
 	echo Thread count $NUM_THREADS for 32-bit
 fi
 
-MEMTOTAL_ANON=$((MICRO_VMSCAN_MIXED_MMAPREAD_SIZE*PERCENTAGE_ANON/100))
-MEMTOTAL_FILE=$((MICRO_VMSCAN_MIXED_MMAPREAD_SIZE*(100-PERCENTAGE_ANON)/100))
+MEMTOTAL_ANON=$((MICRO_VMSCAN_MIXED_MMAP_SIZE*PERCENTAGE_ANON/100))
+MEMTOTAL_FILE=$((MICRO_VMSCAN_MIXED_MMAP_SIZE*(100-PERCENTAGE_ANON)/100))
 
-ulimit -v $((MICRO_VMSCAN_MIXED_MMAPREAD_SIZE/1024))
+# If the test is for both anon and file then split the thread counts
+if [ $MEMTOTAL_ANON -gt 0 && $MEMTOTAL_FILE -gt 0 ]; then
+	NUM_THREADS=$((NUM_THREADS/2))
+	if [ $NUM_THREADS -eq 0 ]; then
+		NUM_THREADS=1
+	fi
+fi
 
-for OUTER in `seq 1 $MICRO_VMSCAN_MIXED_MMAP_OPS_OUTER_ITER`; do
-echo
-echo Total memory to consume: $MICRO_VMSCAN_MIXED_MMAPREAD_SIZE
-echo Anonymous memory: $MEMTOTAL_ANON
-echo File-backed memory: $MEMTOTAL_FILE
+ulimit -v $((MICRO_VMSCAN_MIXED_MMAP_SIZE/1024))
 
-echo Creating files
-for i in `seq 1 $NUM_THREADS`
-do
-	create_sparse_file sparse-$i $((MEMTOTAL_FILE / NUM_THREADS))
-done
+if [ $MEMTOTAL_FILE -gt 0 ]; then
+	echo Creating files
+	for THREAD in `seq 1 $NUM_THREADS`; do
+		if [ "$READONLY" != "" ]; then
+			echo create_sparse_file sparse-$THREAD $((MEMTOTAL_FILE / NUM_THREADS))
+			create_sparse_file sparse-$THREAD $((MEMTOTAL_FILE / NUM_THREADS))
+		else
+			echo create_populated_file sparse-$THREAD $((MEMTOTAL_FILE / NUM_THREADS))
+			create_populated_file sparse-$THREAD $((MEMTOTAL_FILE / NUM_THREADS))
+		fi
+	done
+fi
 
-# Fire up file mappings
-for i in `seq 1 $NUM_THREADS`
-do
-	echo ./usemem -f sparse-$i -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS))
-	./usemem -f sparse-$i -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS)) &
-	echo $! >> vmscan-mixed-mmap-ops-$$.pids
-done
+STARTTIME=`date +%s`
+ENDTIME=$((STARTTIME+300))
+CURRENT_TIME=$STARTTIME
+echo Creating threads
+for THREAD in `seq 1 $NUM_THREADS`; do
+	if [ $MEMTOTAL_FILE -gt 0 ]; then
+		echo ./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS))
+		./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS)) &
+		file_procs[$THREAD]=$!
+	fi
 
-# Fire up anonymous mappings
-for i in `seq 1 $NUM_THREADS`
-do
-	echo ./usemem -j 4096 -r $MICRO_VMSCAN_MIXED_MMAPREAD_ITER $READONLY $((MEMTOTAL_ANON / NUM_THREADS))
-	./usemem -j 4096 -r $MICRO_VMSCAN_MIXED_MMAPREAD_ITER $READONLY $((MEMTOTAL_ANON / NUM_THREADS)) &
-	echo $! >> vmscan-mixed-mmap-ops-$$.pids
-done
-
-# Wait for memory pressure programs to exit
-EXITCODE=0
-echo Waiting on helper programs to exit
-for PID in `cat vmscan-mixed-mmap-ops-$$.pids`; do
-	wait $PID
-	THISCODE=$?
-	if [ $THISCODE -ne 0 ]; then
-		EXITCODE=$THISCODE
+	if [ $MEMTOTAL_ANON -gt 0 ]; then
+		echo ./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS))
+		./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS)) &
+		anon_procs[$THREAD]=$!
 	fi
 done
 
-rm vmscan-mixed-mmap-ops-$$.pids
-rm sparse-*
+while [ $CURRENT_TIME -lt $ENDTIME ]; do
+	for THREAD in `seq 1 $NUM_THREADS`; do
+		if [ $MEMTOTAL_FILE -gt 0 ]; then
+			ps -p ${file_procs[$THREAD]} > /dev/null
+			if [ $? -ne 0 ]; then
+				echo ./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS))
+				./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS)) &
+				file_procs[$THREAD]=$!
+				MICRO_VMSCAN_MIXED_MMAPREAD_ITER=$((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2))
+			fi
+		fi
+
+		if [ $MEMTOTAL_ANON -gt 0 ]; then
+			ps -p ${anon_procs[$THREAD]} > /dev/null
+			if [ $? -ne 0 ]; then
+				echo ./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS))
+				./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS)) &
+				anon_procs[$THREAD]=$!
+				MICRO_VMSCAN_MIXED_MMAPREAD_ITER=$((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2))
+			fi
+		fi
+	done
+
+	sleep 5
+	CURRENT_TIME=`date +%s`
 done
-exit $EXITCODE
+
+for THREAD in `seq 1 $NUM_THREADS`; do
+	kill -9 ${file_procs[$THREAD]}
+	kill -9 ${anon_procs[$THREAD]}
+done
+
+rm sparse-*
+exit 0

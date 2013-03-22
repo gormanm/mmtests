@@ -84,36 +84,44 @@ for TEST in $TESTLIST; do
 			fi
 			;;
 		vmscan-file-mmap-read)
-			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-file-mmap-ops.sh"
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-mixed-mmap-ops.sh"
 			PATCH_LOCATION=
 			CC_OPTIONS=
 			LINK_OPTIONS=
 			PARAMETERA=--readonly
 			PARAMETERB=
+			export MICRO_VMSCAN_MIXED_MMAP_SIZE=MICRO_VMSCAN_ANON_MMAP_SIZE
+			export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=0
 			;;
 		vmscan-file-mmap-write)
-			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-file-mmap-ops.sh"
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-mixed-mmap-ops.sh"
 			PATCH_LOCATION=
 			CC_OPTIONS=
 			LINK_OPTIONS=
 			PARAMETERA=
 			PARAMETERB=
+			export MICRO_VMSCAN_MIXED_MMAP_SIZE=MICRO_VMSCAN_ANON_MMAP_SIZE
+			export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=0
 			;;
 		vmscan-anon-mmap-read)
-			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-anon-mmap-ops.sh"
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-mixed-mmap-ops.sh"
 			PATCH_LOCATION=
 			CC_OPTIONS=
 			LINK_OPTIONS=
 			PARAMETERA=--readonly
 			PARAMETERB=
+			export MICRO_VMSCAN_MIXED_MMAP_SIZE=MICRO_VMSCAN_FILE_MMAP_SIZE
+			export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=100
 			;;
 		vmscan-anon-mmap-write)
-			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-anon-mmap-ops.sh"
+			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-mixed-mmap-ops.sh"
 			PATCH_LOCATION=
 			CC_OPTIONS=
 			LINK_OPTIONS=
 			PARAMETERA=
 			PARAMETERB=
+			export MICRO_VMSCAN_MIXED_MMAP_SIZE=MICRO_VMSCAN_FILE_MMAP_SIZE
+			export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=100
 			;;
 		vmscan-mixed-mmap-read)
 			SOURCE_LOCATION="$SHELLPACK_TOPLEVEL/micro/vmscan-mixed-mmap-ops.sh"
