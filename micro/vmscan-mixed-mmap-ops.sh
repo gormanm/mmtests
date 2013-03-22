@@ -88,13 +88,13 @@ echo Creating threads
 for THREAD in `seq 1 $NUM_THREADS`; do
 	if [ $MEMTOTAL_FILE -gt 0 ]; then
 		echo ./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS))
-		./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS)) &
+		./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS)) 2> /dev/null &
 		file_procs[$THREAD]=$!
 	fi
 
 	if [ $MEMTOTAL_ANON -gt 0 ]; then
 		echo ./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS))
-		./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS)) &
+		./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS)) > /dev/null &
 		anon_procs[$THREAD]=$!
 	fi
 done
@@ -105,7 +105,7 @@ while [ $CURRENT_TIME -lt $ENDTIME ]; do
 			ps -p ${file_procs[$THREAD]} > /dev/null
 			if [ $? -ne 0 ]; then
 				echo ./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS))
-				./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS)) &
+				./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS)) > /dev/null &
 				file_procs[$THREAD]=$!
 				MICRO_VMSCAN_MIXED_MMAPREAD_ITER=$((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2))
 			fi
@@ -115,7 +115,7 @@ while [ $CURRENT_TIME -lt $ENDTIME ]; do
 			ps -p ${anon_procs[$THREAD]} > /dev/null
 			if [ $? -ne 0 ]; then
 				echo ./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS))
-				./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS)) &
+				./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS)) > /dev/null &
 				anon_procs[$THREAD]=$!
 				MICRO_VMSCAN_MIXED_MMAPREAD_ITER=$((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2))
 			fi
