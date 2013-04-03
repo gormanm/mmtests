@@ -1,3 +1,16 @@
+v0.10
+o Adjust stap to kernel 3.9
+o Do not log usemem output as it can block on IO for anon tests
+o Collapse some of the micro tests
+o Rework reaim benchmark
+o Remove signal_test from reaim configs as it's stupid
+o Add ability to hog memory which simplifies some NUMA tests
+o Adjust watch-dstate.pl to handle removal of get_request_wait
+o Fix top monitor to avoid duplicate output
+o Remove ft from nas tests memory requirements are excessive
+o Improve reporting script for highalloc tests
+o Fix missing dependencies for dbench and memcachetest
+
 v0.09
 o Many small improvements to reporting, more graphs etc.
 o Increase duration of dbench benchmarks to cope better with noise
