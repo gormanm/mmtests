@@ -9,7 +9,6 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 KERNEL_BASE=
 KERNEL_COMPARE=
 KERNEL_EXCLUDE=
-MONITORS_ANALYSERS="mmtests-duration read-latency mmtests-vmstat"
 
 while [ "$1" != "" ]; do
 	case $1 in
@@ -157,6 +156,26 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 	echo
 	eval $COMPARE_CMD --print-monitor mmtests-vmstat
 
+	if [ `ls read-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			echo "<table class=\"resultsGraphs\">"
+		fi
+		eval $COMPARE_CMD --print-monitor read-latency
+		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			echo "</table>"
+		fi
+	fi
+	if [ `ls write-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			echo "<table class=\"resultsGraphs\">"
+		fi
+		eval $COMPARE_CMD --print-monitor write-latency
+		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			echo "</table>"
+		fi
+	fi
+
+
 	# Graphs
 	if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
 		echo "<table class=\"resultsGraphs\">"
@@ -240,12 +259,6 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			fi
 		esac
 		echo "</table>"
-
-		if [ `ls read-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
-			echo "<table class=\"resultsGraphs\">"
-			eval $COMPARE_CMD --print-monitor read-latency
-			echo "</table>"
-		fi
 
 		# Monitor graphs for this test
 		echo "<table class=\"monitorGraphs\">"

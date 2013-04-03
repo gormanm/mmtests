@@ -81,9 +81,17 @@ sub extractReport($$$$) {
 	my $file = "$reportDir/read-latency-$testName-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
+	} elsif (-e "$file.gz") {
+		open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz: $!\n");
 	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
+		$file = "$reportDir/write-latency-$testName-$testBenchmark";
+		if (-e $file) {
+			open(INPUT, $file) || die("Failed to open $file: $!\n");
+		} elsif (-e "$file.gz") {
+			open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz: $!\n");
+		} else {
+			die("Failed to find any file for processing\n");
+		}
 	}
 
 	while (<INPUT>) {
