@@ -175,7 +175,6 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		fi
 	fi
 
-
 	# Graphs
 	if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
 		echo "<table class=\"resultsGraphs\">"
@@ -268,6 +267,13 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			eval $GRAPH_PSC --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.ps
 			eval $GRAPH_PSC --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency-smooth.ps --smooth
 			smoothover graph-$SUBREPORT-read-latency
+		fi
+		if [ `ls write-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+			eval $GRAPH_PNG --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency.png
+			eval $GRAPH_PNG --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency.ps
+			eval $GRAPH_PSC --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency-smooth.ps --smooth
+			smoothover graph-$SUBREPORT-write-latency
 		fi
 
 		if [ `ls vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
