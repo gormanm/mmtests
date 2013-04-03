@@ -8,6 +8,15 @@ STAP_FILES="/usr/share/systemtap/runtime/stack.c /usr/share/systemtap/runtime/tr
 	/usr/share/systemtap/runtime/task_finder2.c /usr/share/systemtap/runtime/task_finder_vma.c
 	/usr/share/systemtap/runtime/linux/task_finder_map.c /usr/share/systemtap/runtime/stp_utrace.c"
 
+# Check if stap is already working unless the script has been asked to
+# restore stap to its original state
+if [ "$1" != "--restore-only" ]; then
+	stap -e 'probe begin { println("validate systemtap") exit () }'
+	if [ $? == 0 ]; then
+		exit 0
+	fi
+fi
+
 # Backup original stap files before adjusting
 for STAP_FILE in $STAP_FILES; do
 	if [ ! -e $STAP_FILE.orig ]; then
