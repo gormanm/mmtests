@@ -156,20 +156,31 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 	echo
 	eval $COMPARE_CMD --print-monitor mmtests-vmstat
 
+	GRANULARITY=
 	if [ `ls read-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		if [ `cat read-latency-$KERNEL_BASE-* | wc -l` -gt 50000 ]; then
+			GRANULARITY="--sub-heading batch=100"
+		fi
 		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
 			echo "<table class=\"resultsGraphs\">"
 		fi
-		eval $COMPARE_CMD --print-monitor read-latency
+		eval $COMPARE_CMD $GRANULARITY                --print-monitor read-latency
+		echo
+		eval $COMPARE_CMD --sub-heading breakdown=100 --print-monitor read-latency
 		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
 			echo "</table>"
 		fi
 	fi
 	if [ `ls write-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		if [ `cat write-latency-$KERNEL_BASE-* | wc -l` -gt 50000 ]; then
+			GRANULARITY="--sub-heading batch=100"
+		fi
 		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
 			echo "<table class=\"resultsGraphs\">"
 		fi
-		eval $COMPARE_CMD --print-monitor write-latency
+		eval $COMPARE_CMD $GRANULARITY                --print-monitor write-latency
+		echo
+		eval $COMPARE_CMD --sub-heading breakdown=100 --print-monitor write-latency
 		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
 			echo "</table>"
 		fi
@@ -262,17 +273,17 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		# Monitor graphs for this test
 		echo "<table class=\"monitorGraphs\">"
 		if [ `ls read-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
-			eval $GRAPH_PNG --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.png
-			eval $GRAPH_PNG --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.ps
-			eval $GRAPH_PSC --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency-smooth.ps --smooth
+			eval $GRAPH_PNG $GRANULARITY --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.png
+			eval $GRAPH_PNG $GRANULARITY --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency-smooth.png --smooth
+			eval $GRAPH_PSC $GRANULARITY --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.ps
+			eval $GRAPH_PSC $GRANULARITY --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency-smooth.ps --smooth
 			smoothover graph-$SUBREPORT-read-latency
 		fi
 		if [ `ls write-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
-			eval $GRAPH_PNG --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency.png
-			eval $GRAPH_PNG --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency.ps
-			eval $GRAPH_PSC --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency-smooth.ps --smooth
+			eval $GRAPH_PNG $GRANULARITY --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency.png
+			eval $GRAPH_PNG $GRANULARITY --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency-smooth.png --smooth
+			eval $GRAPH_PSC $GRANULARITY --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency.ps
+			eval $GRAPH_PSC $GRANULARITY --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency-smooth.ps --smooth
 			smoothover graph-$SUBREPORT-write-latency
 		fi
 
