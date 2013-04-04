@@ -35,11 +35,24 @@ fi
 if [ "$MONITOR_READ_LATENCY_READPAUSE_MS" != "" ]; then
 	READPAUSE="-DBETWEENREAD_PAUSE_MS=$MONITOR_READ_LATENCY_READPAUSE_MS"
 fi
+if [ "$SHELLPACK_TEMP" != "" ]; then
+        cd $SHELLPACK_TEMP
+fi
 
-gcc $BUILDRAND $READSIZE $READPAUSE -O2 $TEMPFILE.c -o $TEMPFILE || exit -1
+if [ "$MONITOR_READ_LATENCY_MULTIFILE" != "yes" ]; then
+	# Build a file on local storage for the program to access
+	dd if=/dev/zero of=monitor_readfile ibs=$IBS count=$COUNT > /dev/null 2> /dev/null
+	MULTIFILE=
+else
+	# Build one file per expected buffer
+	for i in `seq 0 $COUNT`; do
+		dd if=/dev/zero of=monitor_readfile-$i ibs=$IBS count=1 > /dev/null 2> /dev/null
+	done
+	MULTIFILE="-DMULTIFILESLOTS=$COUNT"
+fi
 
-# Build a file on local storage for the program to access
-dd if=/dev/zero of=monitor_readfile ibs=$IBS count=$COUNT > /dev/null 2> /dev/null
+gcc $BUILDRAND $READSIZE $READPAUSE $MULTIFILE -O2 $TEMPFILE.c -o $TEMPFILE || exit -1
+
 
 # Start the reader
 $TEMPFILE monitor_readfile &
@@ -50,7 +63,7 @@ EXITING=0
 shutdown_read() {
 	kill -9 $READER_PID
 	rm $TEMPFILE
-	rm monitor_readfile
+	rm monitor_readfile*
 	EXITING=1
 	exit 0
 }
@@ -75,6 +88,7 @@ while [ 1 ]; do
 done
 
 ==== BEGIN C FILE ====
+#include <limits.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -110,6 +124,7 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+#ifndef MULTIFILESLOTS
 	/* Open file for reading */
 	fd = open(argv[1], O_RDONLY);
 	if (fd == -1) {
@@ -124,15 +139,20 @@ int main(int argc, char **argv)
 	}
 	filesize = stat_buf.st_size & ~(BUFFER_SIZE-1);
 	slots = filesize / BUFFER_SIZE;
+#else
+	filesize = 0;
+	slots = MULTIFILESLOTS;
+#endif
 
 	/* Read until interrupted */
 	while (1) {
 		ssize_t position;
 		ssize_t bytes_read;
-		ssize_t slots_read;
+		ssize_t slots_read = 0;
 		struct timeval start, end, latency;
 
-		/* First, dump the file cache so it's an actual read */
+#ifndef MULTIFILESLOTS
+		/* First, dump the file cache so it is an actual read */
 		if (posix_fadvise(fd, 0, filesize, POSIX_FADV_DONTNEED) != 0) {
 			perror("fadvise");
 			exit(EXIT_FAILURE);
@@ -145,10 +165,36 @@ int main(int argc, char **argv)
 			perror("lseek");
 			exit(EXIT_FAILURE);
 		}
+#endif
 		
 		/* Read whole file measuring the latency of each access */
 		while (slots_read++ < slots) {
-#ifdef RANDREAD
+			gettimeofday(&start, NULL);
+#ifdef MULTIFILESLOTS
+			do {
+				char filename[PATH_MAX];
+				snprintf(filename, PATH_MAX-1, "%s-%lu", argv[1], slots_read);
+
+				/* Open file for reading */
+				fd = open(filename, O_RDONLY);
+				if (fd == -1) {
+					perror("open");
+					exit(EXIT_FAILURE);
+				}
+			} while(0);
+
+			if (filesize == 0) {
+				/* Get the length stat */
+				if (fstat(fd, &stat_buf) == -1) {
+					perror("fstat");
+					exit(EXIT_FAILURE);
+				}
+				filesize = stat_buf.st_size;
+			}
+#endif
+
+
+#if defined(RANDREAD) && !defined(MULTIFILESLOTS)
 			position = BUFFER_SIZE * (rand() % slots);
 			if (lseek(fd, position, SEEK_SET) != position) {
 				perror("lseek");
@@ -156,7 +202,6 @@ int main(int argc, char **argv)
 			}
 #endif
 
-			gettimeofday(&start, NULL);
 			bytes_read = 0;
 			while (bytes_read != BUFFER_SIZE) {
 				ssize_t this_read = read(fd, buf + bytes_read, BUFFER_SIZE - bytes_read);
@@ -172,11 +217,16 @@ int main(int argc, char **argv)
 			gettimeofday(&end, NULL);
 			position += bytes_read;
 
+#ifdef MULTIFILESLOTS
+			close(fd);
+#endif
+
 			/* Print read latency in ms */
 			printf("%lu.%lu ", end.tv_sec, end.tv_usec/1000);
 			timersub(&end, &start, &latency);
 			printf("%lu\n", (latency.tv_sec * 1000) + (latency.tv_usec / 1000));
 			usleep(BETWEENREAD_PAUSE_MS * 1000);
 		}
+
 	}
 }

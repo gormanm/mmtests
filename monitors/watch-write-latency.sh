@@ -32,11 +32,23 @@ fi
 if [ "$MONITOR_WRITE_LATENCY_WRITEPAUSE_MS" != "" ]; then
 	WRITEPAUSE="-DBETWEENWRITE_PAUSE_MS=$MONITOR_WRITE_LATENCY_WRITEPAUSE_MS"
 fi
+if [ "$SHELLPACK_TEMP" != "" ]; then
+	cd $SHELLPACK_TEMP
+fi
 
-gcc $BUILDRAND $WRITESIZE $WRITEPAUSE -O2 $TEMPFILE.c -o $TEMPFILE || exit -1
+if [ "$MONITOR_WRITE_LATENCY_MULTIFILE" != "yes" ]; then
+	# Build a file on local storage for the program to access
+	dd if=/dev/zero of=monitor_writefile ibs=$IBS count=$COUNT > /dev/null 2> /dev/null
+	MULTIFILE=
+else
+	# Build one file per expected buffer
+	for i in `seq 0 $COUNT`; do
+		dd if=/dev/zero of=monitor_writefile-$i ibs=$IBS count=1 > /dev/null 2> /dev/null
+	done
+	MULTIFILE="-DMULTIFILESLOTS=$COUNT"
+fi
 
-# Build a file on local storage for the program to access
-dd if=/dev/zero of=monitor_writefile ibs=$IBS count=$COUNT > /dev/null 2> /dev/null
+gcc -Wall $BUILDRAND $WRITESIZE $WRITEPAUSE $MULTIFILE -O2 $TEMPFILE.c -o $TEMPFILE || exit -1
 
 # Start the writer
 $TEMPFILE monitor_writefile &
@@ -47,7 +59,7 @@ EXITING=0
 shutdown_write() {
 	kill -9 $WRITER_PID
 	rm $TEMPFILE
-	rm -f monitor_writefile
+	rm -f monitor_writefile*
 	EXITING=1
 	exit 0
 }
@@ -74,6 +86,7 @@ done
 
 ==== BEGIN C FILE ====
 #define _GNU_SOURCE
+#include <limits.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -111,6 +124,7 @@ int main(int argc, char **argv)
 	}
 	memset(buf, 1, BUFFER_SIZE);
 
+#ifndef MULTIFILESLOTS
 	/* Open file for writing */
 	fd = open(argv[1], O_WRONLY);
 	if (fd == -1) {
@@ -125,14 +139,19 @@ int main(int argc, char **argv)
 	}
 	filesize = stat_buf.st_size & ~(BUFFER_SIZE-1);
 	slots = filesize / BUFFER_SIZE;
+#else
+	filesize = 0;
+	slots = MULTIFILESLOTS;
+#endif
 
 	/* Write until interrupted */
 	while (1) {
 		ssize_t position;
 		ssize_t bytes_write;
-		ssize_t slots_write;
+		ssize_t slots_write = 0;
 		struct timeval start, end, latency;
 
+#ifndef MULTIFILESLOTS
 		/* Seek to the start of the file */
 		position = 0;
 		slots_write = 0;
@@ -140,18 +159,45 @@ int main(int argc, char **argv)
 			perror("lseek");
 			exit(EXIT_FAILURE);
 		}
+#endif
 		
 		/* Write whole file measuring the latency of each access */
 		while (slots_write++ < slots) {
-#ifdef RANDWRITE
+			gettimeofday(&start, NULL);
+#ifdef MULTIFILESLOTS
+			do {
+				char filename[PATH_MAX];
+				snprintf(filename, PATH_MAX-2, "%s-%lu", argv[1], slots_write);
+
+				/* Open file for writing */
+				fd = open(filename, O_WRONLY);
+				if (fd == -1) {
+					perror("open");
+					exit(EXIT_FAILURE);
+				}
+			} while (0);
+
+			if (filesize == 0) {
+				/* Get the length stat */
+				if (fstat(fd, &stat_buf) == -1) {
+					perror("fstat");
+					exit(EXIT_FAILURE);
+				}
+				filesize = stat_buf.st_size & ~(BUFFER_SIZE-1);
+			}
+#endif
+
+#if defined(RANDWRITE) && !defined(MULTIFILESLOTS)
 			position = BUFFER_SIZE * (rand() % slots);
 			if (lseek(fd, position, SEEK_SET) != position) {
 				perror("lseek");
 				exit(EXIT_FAILURE);
 			}
 #endif
+#ifdef MULTIFILESLOTS
+			position = 0;
+#endif
 
-			gettimeofday(&start, NULL);
 			bytes_write = 0;
 			while (bytes_write != BUFFER_SIZE) {
 				ssize_t this_write = write(fd, buf + bytes_write, BUFFER_SIZE - bytes_write);
@@ -172,6 +218,10 @@ int main(int argc, char **argv)
 
 			gettimeofday(&end, NULL);
 			position += bytes_write;
+
+#ifdef MULTIFILESLOTS
+			close(fd);
+#endif
 
 			/* Print write latency in ms */
 			printf("%lu.%lu ", end.tv_sec, end.tv_usec/1000);
