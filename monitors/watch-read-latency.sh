@@ -196,6 +196,12 @@ int main(int argc, char **argv)
 				}
 				filesize = stat_buf.st_size;
 			}
+
+			/* First, dump the file cache so it is an actual read */
+			if (posix_fadvise(fd, 0, filesize, POSIX_FADV_DONTNEED) != 0) {
+				perror("fadvise");
+				exit(EXIT_FAILURE);
+			}
 #endif
 
 
