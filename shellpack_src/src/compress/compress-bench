@@ -1,0 +1,116 @@
+#!/bin/bash
+# This benchmark is aimed at testing on-disk compression. While it's an IO
+# and CPU benchmark in its own right, it was initially written to try track
+# down a memory corruption error related to migration
+
+###SHELLPACK preamble compress 0
+
+COMPRESS_METHOD=pigz
+COMPRESS_SOURCE=
+COMPRESS_APPROXIMATE_SIZE_MB=0
+COMPRESS_INSTANCES=1
+
+install-depends pigz
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam  --method      COMPRESS_METHOD
+###SHELLPACK parseargParam  --source      COMPRESS_SOURCE
+###SHELLPACK parseargParam  --sourcesize  COMPRESS_APPROXIMATE_SIZE_MB
+###SHELLPACK parseargParam  --instances   COMPRESS_INSTANCES
+###SHELLPACK parseargEnd
+
+###SHELLPACK monitor_hooks
+
+if [ "$COMPRESS_SOURCE" = "" ]; then
+	die "A source file for use as compression must be specified."
+fi
+
+# Download the source file
+cd $SHELLPACK_TEMP || die Failed to change to temp directory
+echo Downloading $COMPRESS_SOURCE
+wget -O 0.gz -q $COMPRESS_SOURCE
+if [ $? -ne 0 ]; then
+	echo Failed to download a source file. A file could be created with dd
+	echo but it would not be very good example as a file for compressing.
+	die "Source file for compression must be specified"
+fi
+
+if [ "`file $0.gz | grep gzip`" = "" ]; then
+	mv 0.gz 0
+else
+	gunzip 0.gz || die Failed to decompress source file
+fi
+
+# Approximately try and meet the size requirements. Not too fussy
+SRCSIZE=`stat -c%s 0`
+NR_COPIES=$(($COMPRESS_APPROXIMATE_SIZE_MB*1048576/SRCSIZE))
+echo Copying source file $NR_COPIES times
+for i in `seq 0 $NR_COPIES`; do
+	echo o Copying $((i+1))/$((NR_COPIES+1))
+	cat 0 >> 1
+done
+rm 0
+
+# Copy the remaining instances
+if [ $COMPRESS_INSTANCES -gt 1 ]; then
+	echo Copying instances
+	for INSTANCE in `seq 2 $COMPRESS_INSTANCES`; do
+		echo o Copying $INSTANCE/$COMPRESS_INSTANCES
+		cp 1 $INSTANCE
+	done
+fi
+sync
+
+# Figure out how to use the time command
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
+fi
+
+START=`date +%s`
+ls -l
+echo
+
+# Start each of the instances
+echo -n > instances.pids
+for INSTANCE in `seq 1 $COMPRESS_INSTANCES`; do
+	case $COMPRESS_METHOD in
+	pigz)
+		echo Starting $TIME_CMD pigz $INSTANCE
+		$TIME_CMD pigz $INSTANCE 2>> $LOGDIR_RESULTS/time.$i > /dev/null &
+		echo $! >> instances.pids
+		;;
+	*)
+		die Unrecognised compression method 
+		;;
+	esac
+done
+
+EXIT_CODE=$SHELLPACK_SUCCESS
+echo Waiting on $COMPRESS_METHOD instances to finish
+for PID in `cat instances.pids`; do
+	echo -n o $PID..
+	wait $PID
+	if [ $? -ne 0 ]; then
+		echo failed
+		EXIT_CODE=$SHELLPACK_ERROR
+	else
+		echo ok
+	fi
+done
+
+echo
+ls -l
+echo
+
+END=`date +%s`
+echo $((END-START)) > $LOGDIR_RESULTS/duration
+grep elapsed $LOGDIR_RESULTS/time.* | tee $LOGDIR_RESULTS/time
+
+# Cleanup
+for INSTANCE in `seq 1 $COMPRESS_INSTANCES`; do
+	rm $INSTANCE*
+done
+
+echo $EXIT_CODE

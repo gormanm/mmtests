@@ -23,9 +23,7 @@ REAIM_WORKFILE=workfile.fserver
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required reaim-${VERSION}
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+###SHELLPACK monitor_hooks
 
 echo FILESIZE $REAIM_FILESIZE > reaim.config
 echo POOLSIZE $REAIM_POOLSIZE >> reaim.config
