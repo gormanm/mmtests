@@ -36,7 +36,8 @@ if [ "$MONITOR_READ_LATENCY_READPAUSE_MS" != "" ]; then
 	READPAUSE="-DBETWEENREAD_PAUSE_MS=$MONITOR_READ_LATENCY_READPAUSE_MS"
 fi
 if [ "$SHELLPACK_TEMP" != "" ]; then
-        cd $SHELLPACK_TEMP
+	mkdir -p $SHELLPACK_TEMP || exit -1
+        cd $SHELLPACK_TEMP || exit -1
 fi
 
 if [ "$MONITOR_READ_LATENCY_MULTIFILE" != "yes" ]; then
@@ -64,6 +65,10 @@ shutdown_read() {
 	kill -9 $READER_PID
 	rm $TEMPFILE
 	rm monitor_readfile*
+	if [ "$SHELLPACK_TEMP" != "" ]; then
+		cd /
+		rm -rf $SHELLPACK_TEMP
+	fi
 	EXITING=1
 	exit 0
 }

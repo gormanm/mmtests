@@ -33,7 +33,8 @@ if [ "$MONITOR_WRITE_LATENCY_WRITEPAUSE_MS" != "" ]; then
 	WRITEPAUSE="-DBETWEENWRITE_PAUSE_MS=$MONITOR_WRITE_LATENCY_WRITEPAUSE_MS"
 fi
 if [ "$SHELLPACK_TEMP" != "" ]; then
-	cd $SHELLPACK_TEMP
+	mkdir -p $SHELLPACK_TEMP || exit -1
+	cd $SHELLPACK_TEMP || exit -1
 fi
 
 if [ "$MONITOR_WRITE_LATENCY_MULTIFILE" != "yes" ]; then
@@ -60,6 +61,10 @@ shutdown_write() {
 	kill -9 $WRITER_PID
 	rm $TEMPFILE
 	rm -f monitor_writefile*
+	if [ "$SHELLPACK_TEMP" != "" ]; then
+		cd /
+		rm -rf $SHELLPACK_TEMP
+	fi
 	EXITING=1
 	exit 0
 }
