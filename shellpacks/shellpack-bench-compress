@@ -141,6 +141,6 @@ for INSTANCE in `seq 1 $COMPRESS_INSTANCES`; do
 	rm $INSTANCE*
 done
 
-echo $EXIT_CODE
+exit $EXIT_CODE
 #### Description compress
-#### Details compress-bench 15
+#### Details compress-bench 16

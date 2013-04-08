@@ -462,6 +462,8 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		echo Memory limit configured: `cat /cgroups/0/memory.limit_in_bytes`
 	fi
 
+	EXIT_CODE=$SHELLPACK_SUCCESS
+
 	# Run tests in single mode
 	echo start :: `date +%s` > $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	for TEST in $MMTESTS; do
@@ -491,6 +493,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		RUNNING_TEST=$TEST
 		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-$RUNNAME \
 			./run-single-test.sh $TEST
+		EXIT_CODE=$?
 
 		# Record some basic information at end of test
 		echo file end :: /proc/vmstat >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
@@ -635,3 +638,5 @@ if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 	echo Recompressing vmlinux
 	gzip /boot/vmlinux-`uname -r`
 fi
+
+exit $EXIT_CODE
