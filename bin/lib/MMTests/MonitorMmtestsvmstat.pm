@@ -1,4 +1,4 @@
-# Mmtestsvmstat.pm
+# MonitorMmtestsvmstat.pm
 package MMTests::MonitorMmtestsvmstat;
 use MMTests::Monitor;
 use VMR::Report;

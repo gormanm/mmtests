@@ -156,6 +156,14 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 	echo
 	eval $COMPARE_CMD --print-monitor mmtests-vmstat
 
+	eval $COMPARE_CMD --print-monitor iostat > /tmp/iostat-$$
+	TEST=`head -3 /tmp/iostat-$$ | tail -1 | awk '{print $3}' | cut -d. -f1`
+	if [ "$TEST" != "" ] && [ $TEST -gt 10 ]; then
+		echo
+		cat /tmp/iostat-$$
+	fi
+	rm /tmp/iostat-$$
+
 	GRANULARITY=
 	if [ `ls read-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
 		if [ `cat read-latency-$KERNEL_BASE-* | wc -l` -gt 50000 ]; then

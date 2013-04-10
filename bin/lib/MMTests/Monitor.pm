@@ -15,6 +15,7 @@ use constant MONITOR_NUMA_CONVERGENCE	=> 4;
 use constant MONITOR_NUMA_USAGE		=> 5;
 use constant MONITOR_TOP		=> 6;
 use constant MONITOR_READLATENCY	=> 7;
+use constant MONITOR_IOSTAT		=> 8;
 use strict;
 
 sub new() {
@@ -81,6 +82,7 @@ sub printReport() {
 	    $self->{_DataType} == MONITOR_PROCVMSTAT ||
 	    $self->{_DataType} == MONITOR_READLATENCY ||
 	    $self->{_DataType} == MONITOR_TOP ||
+	    $self->{_DataType} == MONITOR_IOSTAT ||
 	    $self->{_DataType} == MONITOR_VMSTAT) {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {
