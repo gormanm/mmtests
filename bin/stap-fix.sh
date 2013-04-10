@@ -6,7 +6,8 @@ STAP_FILES="/usr/share/systemtap/runtime/stack.c /usr/share/systemtap/runtime/tr
 	/usr/share/systemtap/runtime/transport/transport.c /usr/share/systemtap/runtime/stat.c
 	/usr/share/systemtap/runtime/map.c /usr/share/systemtap/runtime/map-stat.c
 	/usr/share/systemtap/runtime/task_finder2.c /usr/share/systemtap/runtime/task_finder_vma.c
-	/usr/share/systemtap/runtime/linux/task_finder_map.c /usr/share/systemtap/runtime/stp_utrace.c"
+	/usr/share/systemtap/runtime/linux/task_finder_map.c /usr/share/systemtap/runtime/linux/task_finder_map.c
+	/usr/share/systemtap/runtime/stp_utrace.c"
 
 # Check if stap is already working unless the script has been asked to
 # restore stap to its original state
@@ -88,11 +89,14 @@ sed /usr/share/systemtap/runtime/task_finder_vma.c \
 	-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/task_finder_vma.c.tmp
 sed /usr/share/systemtap/runtime/linux/task_finder_map.c \
 	-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/linux/task_finder_map.c.tmp
+sed /usr/share/systemtap/runtime/task_finder_map.c \
+	-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/task_finder_map.c.tmp
 sed /usr/share/systemtap/runtime/stp_utrace.c \
 	-e 's/hlist_for_each_entry_safe(utrace, node/hlist_for_each_entry_safe(utrace/' \
 	-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/stp_utrace.c.tmp
 mv /usr/share/systemtap/runtime/task_finder_vma.c.tmp /usr/share/systemtap/runtime/task_finder_vma.c
 mv /usr/share/systemtap/runtime/linux/task_finder_map.c.tmp /usr/share/systemtap/runtime/linux/task_finder_map.c
+mv /usr/share/systemtap/runtime/task_finder_map.c.tmp /usr/share/systemtap/runtime/task_finder_map.c
 mv /usr/share/systemtap/runtime/stp_utrace.c.tmp /usr/share/systemtap/runtime/stp_utrace.c
 stap -e 'probe begin { println("validating systemtap fix") exit () }'
 if [ $? == 0 ]; then
