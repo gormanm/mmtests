@@ -49,6 +49,7 @@ sub extractReport($$$$) {
 	my ($reading_before, $reading_after);
 	my $elapsed_time;
 	my $timestamp;
+	my $format;
 	my $start_timestamp = 0;
 
 	if ($subHeading eq "") {
@@ -80,12 +81,16 @@ sub extractReport($$$$) {
 	my $reading;
 	my $val = -1;
 	while (<INPUT>) {
-		if ($_ =~ /^time: ([0-9]+)/) {
+		if ($_ =~ /^time: ([0-9]+) ([a-z]+)/) {
 			$timestamp = $1;
+			$format = $2;
 			if ($start_timestamp == 0) {
 				$start_timestamp = $timestamp;
 			} else {
-				if ($matched == 1) {
+				if ($matched == 1 || $format eq "short") {
+					if ($format eq "short" && $val == -1) {
+						$val = 0;
+					}
 					push @{$self->{_ResultData}},
 						[ $timestamp - $start_timestamp,
 					  	$val
