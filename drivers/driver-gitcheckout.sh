@@ -8,8 +8,7 @@ run_bench() {
 	$SHELLPACK_INCLUDE/shellpack-bench-gitcheckout \
 		--git-tar    $GITCHECKOUT_SOURCETAR \
 		--git-source $GITCHECKOUT_SOURCE \
-		--first-tag  $GITCHECKOUT_FIRST \
-		--second-tag $GITCHECKOUT_SECOND \
+		--commits    $GITCHECKOUT_COMMITS \
 		--iterations $GITCHECKOUT_ITERATIONS \
 		--cache      $GITCHECKOUT_CACHE
 	return $?

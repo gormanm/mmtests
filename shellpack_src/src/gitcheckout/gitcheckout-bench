@@ -12,8 +12,7 @@ GITCHECKOUT_SOURCETAR=
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --git-tar	GITCHECKOUT_SOURCETAR
 ###SHELLPACK parseargParam --git-source	GITCHECKOUT_SOURCE
-###SHELLPACK parseargParam --first-tag	GITCHECKOUT_FIRST
-###SHELLPACK parseargParam --second-tag	GITCHECKOUT_SECOND
+###SHELLPACK parseargParam --commits	GITCHECKOUT_COMMITS
 ###SHELLPACK parseargParam --iterations GITCHECKOUT_ITERATIONS
 ###SHELLPACK parseargParam --cache      GITCHECKOUT_CACHE
 ###SHELLPACK parseargEnd
@@ -41,29 +40,34 @@ else
 	git clone $GITCHECKOUT_SOURCE gitcheckout || exit $SHELLPACK_ERROR
 fi
 
+# Stupid, but we cannot be certain if we're using built-in time or command time
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
 	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
 	TIME_CMD="time"
 fi
 
+GITCHECKOUT_COMMITS=`echo $GITCHECKOUT_COMMITS | sed -e 's/,/ /g'`
+sysctl -w vm.drop_caches=3
+
 echo Warming up
 cd $SHELLPACK_TEMP/gitcheckout   || exit $SHELLPACK_ERROR
-git checkout $GITCHECKOUT_FIRST  || exit $SHELLPACK_ERROR
-git checkout $GITCHECKOUT_SECOND || exit $SHELLPACK_ERROR
+for COMMIT in $GITCHECKOUT_COMMITS; do
+	git checkout $COMMIT || exit $SHELLPACK_ERROR
+done
 
-# Stupid, but we cannot be certain if we're using built-in time or command time
 echo "#!/bin/bash
-git checkout $GITCHECKOUT_FIRST
-git checkout $GITCHECKOUT_SECOND
-sync" > $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh
+for COMMIT in $GITCHECKOUT_COMMITS; do
+	git checkout \$COMMIT
+done
+" > $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh
 chmod u+x $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh
 
 for i in `seq 1 $GITCHECKOUT_ITERATIONS`; do
 	if [ "$GITCHECKOUT_CACHE" = "cold" ]; then
 		echo Dropping caches as per requested
 		sync
-		echo 3 > /proc/sys/vm/drop_caches
+		sysctl -w vm.drop_caches=3
 	fi
 
 	echo Iteration $i/$GITCHECKOUT_ITERATIONS

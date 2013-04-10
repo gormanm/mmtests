@@ -249,7 +249,7 @@ sub extractSummary() {
 		}
 
 		$self->{_FieldFormat} = [ "%-${fieldLength}s" ];
-		foreach my $funcName ("calc_min", "calc_mean", "calc_stddev", "calc_max") {
+		foreach my $funcName ("calc_min", "calc_mean", "calc_stddev", "calc_max", "calc_range") {
 			no strict "refs";
 			my $op = $funcName;
 			$op =~ s/calc_//;
