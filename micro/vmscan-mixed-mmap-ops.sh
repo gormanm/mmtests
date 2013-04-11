@@ -59,7 +59,7 @@ MEMTOTAL_ANON=$((MICRO_VMSCAN_MIXED_MMAP_SIZE*PERCENTAGE_ANON/100))
 MEMTOTAL_FILE=$((MICRO_VMSCAN_MIXED_MMAP_SIZE*(100-PERCENTAGE_ANON)/100))
 
 # If the test is for both anon and file then split the thread counts
-if [ $MEMTOTAL_ANON -gt 0 && $MEMTOTAL_FILE -gt 0 ]; then
+if [ $MEMTOTAL_ANON -gt 0 -a $MEMTOTAL_FILE -gt 0 ]; then
 	NUM_THREADS=$((NUM_THREADS/2))
 	if [ $NUM_THREADS -eq 0 ]; then
 		NUM_THREADS=1
