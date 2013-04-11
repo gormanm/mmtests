@@ -629,12 +629,10 @@ for TEST in $MMTESTS; do
 	rm -rf $SHELLPACK_LOG/$TEST-$RUNNAME
 	mv $SHELLPACK_LOG/$TEST $SHELLPACK_LOG/$TEST-$RUNNAME
 done
+
 # Restore system to original state
-if [ -e /usr/share/systemtap/runtime/stack.c.orig ]; then
-	mv /usr/share/systemtap/runtime/stack.c.orig /usr/share/systemtap/runtime/stack.c
-	mv /usr/share/systemtap/runtime/transport/relay_v2.c.orig /usr/share/systemtap/runtime/transport/relay_v2.c
-	mv /usr/share/systemtap/runtime/transport/transport.c.orig /usr/share/systemtap/runtime/transport/transport.c
-fi
+stap-fix.sh --restore-only
+
 if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 	echo Recompressing vmlinux
 	gzip /boot/vmlinux-`uname -r`

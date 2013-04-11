@@ -20,7 +20,7 @@ fi
 
 # Backup original stap files before adjusting
 for STAP_FILE in $STAP_FILES; do
-	if [ ! -e $STAP_FILE.orig ]; then
+	if [ -e $STAP_FILE -a ! -e $STAP_FILE.orig ]; then
 		cp $STAP_FILE $STAP_FILE.orig
 	fi
 done
@@ -84,19 +84,25 @@ if [ $? == 0 ]; then
 fi
 
 # Change in hlist API
-sed /usr/share/systemtap/runtime/task_finder_vma.c \
-	-e 's/hlist_for_each_entry_safe(entry, node/hlist_for_each_entry_safe(entry/' \
-	-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/task_finder_vma.c.tmp
-sed /usr/share/systemtap/runtime/linux/task_finder_map.c \
-	-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/linux/task_finder_map.c.tmp
-sed /usr/share/systemtap/runtime/task_finder_map.c \
-	-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/task_finder_map.c.tmp
+if [ -e /usr/share/systemtap/runtime/task_finder_vma.c ] then
+	sed /usr/share/systemtap/runtime/task_finder_vma.c \
+		-e 's/hlist_for_each_entry_safe(entry, node/hlist_for_each_entry_safe(entry/' \
+		-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/task_finder_vma.c.tmp
+	mv /usr/share/systemtap/runtime/task_finder_vma.c.tmp /usr/share/systemtap/runtime/task_finder_vma.c
+fi
+if [ -e /usr/share/systemtap/runtime/linux/task_finder_map.c ]; then
+	sed /usr/share/systemtap/runtime/linux/task_finder_map.c \
+		-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/linux/task_finder_map.c.tmp
+	mv /usr/share/systemtap/runtime/linux/task_finder_map.c.tmp /usr/share/systemtap/runtime/linux/task_finder_map.c
+fi
+if [ -e /usr/share/systemtap/runtime/task_finder_map.c ]; then
+	sed /usr/share/systemtap/runtime/task_finder_map.c \
+		-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/task_finder_map.c.tmp
+	mv /usr/share/systemtap/runtime/task_finder_map.c.tmp /usr/share/systemtap/runtime/task_finder_map.c
+fi
 sed /usr/share/systemtap/runtime/stp_utrace.c \
 	-e 's/hlist_for_each_entry_safe(utrace, node/hlist_for_each_entry_safe(utrace/' \
 	-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/stp_utrace.c.tmp
-mv /usr/share/systemtap/runtime/task_finder_vma.c.tmp /usr/share/systemtap/runtime/task_finder_vma.c
-mv /usr/share/systemtap/runtime/linux/task_finder_map.c.tmp /usr/share/systemtap/runtime/linux/task_finder_map.c
-mv /usr/share/systemtap/runtime/task_finder_map.c.tmp /usr/share/systemtap/runtime/task_finder_map.c
 mv /usr/share/systemtap/runtime/stp_utrace.c.tmp /usr/share/systemtap/runtime/stp_utrace.c
 stap -e 'probe begin { println("validating systemtap fix") exit () }'
 if [ $? == 0 ]; then
@@ -106,7 +112,9 @@ fi
 # No other workarounds available
 if [ "$STAP_FIX_LEAVE_BROKEN" != "yes" ]; then
 	for STAP_FILE in $STAP_FILES; do
-		mv $STAP_FILE.orig $STAP_FILE
+		if [ -e $STAP_FILE.orig ]; then
+			mv $STAP_FILE.orig $STAP_FILE
+		fi
 	done
 fi
 exit -1
