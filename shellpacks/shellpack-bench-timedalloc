@@ -1,0 +1,99 @@
+#!/bin/bash
+# This benchmark is intended to test how long it takes to allocate a
+# simple THP buffer. It can either fill memory with junk itself or
+# it can be configured to run after another arbitrary test.
+
+P=timedalloc-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+
+FILL_SIZE=0
+MAPPING_SIZE=0
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--alloc-size)
+		TIMEDALLOC_MAPPING_SIZE=$2
+		shift 2
+		;;
+	--fill-size)
+		FILL_SIZE=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+MAPPING_SIZE=${TIMEDALLOC_MAPPING_SIZE:=$MEMTOTAL_BYTES}
+
+# Build the mapping program
+echo Building mapping program
+TEMPFILE=`mktemp`
+LINECOUNT=`wc -l $0 | awk '{print $1}'`
+CSTART=`grep -n "BEGIN C FILE" $0 | tail -1 | awk -F : '{print $1}'`
+tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > $TEMPFILE.c
+gcc -O2 -DMAPPING_SIZE=$MAPPING_SIZE $TEMPFILE.c -o $TEMPFILE || exit -1
+
+# Fill memory with junk if requested
+if [ $FILL_SIZE -gt 0 ]; then
+	IBS=$((1048576*30))
+	NR_FILES=1
+	NR_REQUIRED=$(($FILL_SIZE/$IBS+1))
+
+	echo Writing junk files
+	while [ $FILL_SIZE -gt 0 ]; do
+		dd if=/dev/zero of=$SHELLPACK_TEMP/ddfile-$NR_FILES ibs=$IBS count=1 > /tmp/dd.$$ 2>&1
+		if [ $? -ne 0 ]; then
+			cat /tmp/dd.$$
+			die dd failed
+		fi
+		if [ $((NR_FILES % 10)) -eq 0 ]; then
+			echo o Written $NR_FILES/$NR_REQUIRED
+		fi
+
+		NR_FILES=$((NR_FILES+1))
+		FILL_SIZE=$((FILL_SIZE-$IBS))
+	done
+fi
+sync
+
+monitor_pre_hook $LOGDIR_RESULTS timedalloc
+/usr/bin/time $TEMPFILE 2>&1 | tee $LOGDIR_RESULTS/time.1
+monitor_post_hook $LOGDIR_RESULTS timedalloc
+grep elapsed $LOGDIR_RESULTS/time.1 > $LOGDIR_RESULTS/time
+
+# Cleanup
+rm $TEMPFILE $TEMPFILE.c
+rm $SHELLPACK_TEMP/ddfile*
+
+exit $SHELLPACK_SUCCESS
+==== BEGIN C FILE ====
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int main(int argc, char **argv)
+{
+	char *buf = malloc(MAPPING_SIZE);
+	if (buf == NULL) {
+		printf("Allocation failure\n");
+		exit(EXIT_FAILURE);
+	}
+
+	memset(buf, 1, MAPPING_SIZE);
+	exit(EXIT_SUCCESS);
+}
+#### Description timedalloc
+#### Details timedalloc-bench 9

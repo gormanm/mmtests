@@ -19,6 +19,10 @@ sub extractReport($$$) {
 	my ($user, $system, $elapsed, $cpu);
 	my $file = "$reportDir/noprofile/time";
 
+	if (! -e $file) {
+		$file = "$reportDir/fine-profile-timer/time";
+	}
+
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		$_ =~ tr/[a-zA-Z]%//d;

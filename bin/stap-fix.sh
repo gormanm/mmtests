@@ -104,7 +104,9 @@ if [ $? == 0 ]; then
 fi
 
 # No other workarounds available
-for STAP_FILE in $STAP_FILES; do
-	mv $STAP_FILE.orig $STAP_FILE
-done
+if [ "$STAP_FIX_LEAVE_BROKEN" != "yes" ]; then
+	for STAP_FILE in $STAP_FILES; do
+		mv $STAP_FILE.orig $STAP_FILE
+	done
+fi
 exit -1
