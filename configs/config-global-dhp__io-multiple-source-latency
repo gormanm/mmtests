@@ -55,8 +55,8 @@ export SWAP_NBD_PORT=10001
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=""
-export MONITORS_PLAIN="inbox-open"
-export MONITORS_GZIP="proc-vmstat top slabinfo blktrace dstate"
+export MONITORS_PLAIN="inbox-open blktrace"
+export MONITORS_GZIP="proc-vmstat top slabinfo dstate"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
