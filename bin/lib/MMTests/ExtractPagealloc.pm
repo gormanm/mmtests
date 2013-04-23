@@ -59,7 +59,7 @@ sub printReport() {
 	my $fieldLength = $self->{_FieldLength};
 	my $samples = scalar @{$data[0][$_orders[0]][1]};
 
-	foreach my $operation ("alloc", "free") {
+	foreach my $operation ("alloc", "free", "total") {
 		foreach my $batch (@batches) {
 			for (my $i = 0; $i < $samples; $i++) {
 				printf("%${fieldLength}s", "$operation-$batch");
@@ -80,7 +80,7 @@ sub extractSummary() {
 	my @batches = sort { $a <=> $b } keys(%_batches);
 	my $operationIndex = 0;
 
-	foreach my $operation ("alloc", "free") {
+	foreach my $operation ("alloc", "free", "total") {
 		foreach my $batch (@batches) {
 			my (@means, @stddevs);
 			my @row;
@@ -148,6 +148,23 @@ sub extractReport($$$) {
 			close INPUT;
 		}
 		$operationIndex++;
+	}
+
+	# Calculate the totals operation
+	my @batches = sort { $a <=> $b } keys(%_batches);
+	foreach my $batch (@batches) {
+		foreach my $order (@_orders) {
+			my $total = 0;
+			if (!defined($data[0][$order][$batch])) {
+				next;
+			}
+			my @allocs = @{$data[0][$order][$batch]};
+			my @frees  = @{$data[1][$order][$batch]};
+
+			for (my $i = 0; $i <= $#allocs; $i++) {
+				push @{$data[$operationIndex][$order][$batch]}, $allocs[$i] + $frees[$i];
+			}
+		}
 	}
 	$self->{_ResultData} = \@data;
 }

@@ -157,7 +157,7 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 	eval $COMPARE_CMD --print-monitor mmtests-vmstat
 
 	eval $COMPARE_CMD --print-monitor iostat > /tmp/iostat-$$
-	TEST=`head -3 /tmp/iostat-$$ | tail -1 | awk '{print $3}' | cut -d. -f1`
+	TEST=`head -4 /tmp/iostat-$$ | tail -1 | awk '{print $3}' | cut -d. -f1`
 	if [ "$TEST" != "" ] && [ $TEST -gt 10 ]; then
 		echo
 		cat /tmp/iostat-$$

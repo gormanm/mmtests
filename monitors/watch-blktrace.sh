@@ -8,7 +8,7 @@ install-depends blktrace
 # test machines
 if [ "$TESTDISK_PARTITION" = "" ]; then
 	ROOT_DEV=`mount | grep " / " | awk '{print $1}'`
-	ROOT_DRIVE=`echo $ROOT_MOUNT | sed -e 's/[0-9]//'`
+	ROOT_DRIVE=`echo $ROOT_DEV | sed -e 's/[0-9]//'`
 	if [ -e $ROOT_DRIVE ]; then
 		TESTDISK_PARTITION=$ROOT_DRIVE
 	else

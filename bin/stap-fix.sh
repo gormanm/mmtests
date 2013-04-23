@@ -84,7 +84,7 @@ if [ $? == 0 ]; then
 fi
 
 # Change in hlist API
-if [ -e /usr/share/systemtap/runtime/task_finder_vma.c ] then
+if [ -e /usr/share/systemtap/runtime/task_finder_vma.c ]; then
 	sed /usr/share/systemtap/runtime/task_finder_vma.c \
 		-e 's/hlist_for_each_entry_safe(entry, node/hlist_for_each_entry_safe(entry/' \
 		-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/task_finder_vma.c.tmp
