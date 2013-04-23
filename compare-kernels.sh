@@ -158,7 +158,7 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 
 	eval $COMPARE_CMD --print-monitor iostat > /tmp/iostat-$$
 	TEST=`head -4 /tmp/iostat-$$ | tail -1 | awk '{print $3}' | cut -d. -f1`
-	if [ "$TEST" != "" ] && [ $TEST -gt 10 ]; then
+	if [ "$TEST" != "" ] && [ "$TEST" -gt 10 ]; then
 		echo
 		cat /tmp/iostat-$$
 	fi
@@ -237,6 +237,8 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			echo "</tr>"
 			;;
 		highalloc)
+			;;
+		gitcheckout)
 			;;
 		kernbench|starve)
 			echo "<tr>"
