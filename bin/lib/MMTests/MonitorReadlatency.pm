@@ -154,20 +154,23 @@ sub extractReport($$$$) {
 	$self->{_FieldHeaders} = [ "Time", "Latency" ];
 	$self->{_FieldFormat} = [ "%${fieldLength}f", "%${fieldLength}f" ];
 
-	my $file = "$reportDir/read-latency-$testName-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} elsif (-e "$file.gz") {
-		open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz: $!\n");
-	} else {
-		$file = "$reportDir/write-latency-$testName-$testBenchmark";
-		if (-e $file) {
-			open(INPUT, $file) || die("Failed to open $file: $!\n");
-		} elsif (-e "$file.gz") {
-			open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz: $!\n");
-		} else {
-			die("Failed to find any file for processing $file\n");
+	my $file;
+	foreach my $test_file ("$reportDir/read-latency-$testName-$testBenchmark",
+			"$reportDir/read-latency-$testName-$testBenchmark.gz",
+			"$reportDir/write-latency-$testName-$testBenchmark",
+			"$reportDir/write-latency-$testName-$testBenchmark.gz",
+			"$reportDir/inbox-open-$testName-$testBenchmark",
+			"$reportDir/inbox-open-$testName-$testBenchmark.gz") {
+		if (-e $test_file) {
+			$file = $test_file;
+			last;
 		}
+	}
+
+	if ($file !~ /^.gz/) {
+		open(INPUT, $file) || die("Failed to open $file: $!\n");
+	} else {
+		open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz: $!\n");
 	}
 
 	while (<INPUT>) {

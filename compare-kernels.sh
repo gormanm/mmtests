@@ -116,6 +116,7 @@ smoothover() {
 cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
 for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
 	COMPARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
+	COMPARE_BARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
 	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
 	GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format \"postscript color solid\""
 	echo
@@ -156,11 +157,26 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 	echo
 	eval $COMPARE_CMD --print-monitor mmtests-vmstat
 
-	eval $COMPARE_CMD --print-monitor iostat > /tmp/iostat-$$
+	eval $COMPARE_BARE_CMD --print-monitor iostat > /tmp/iostat-$$
 	TEST=`head -4 /tmp/iostat-$$ | tail -1 | awk '{print $3}' | cut -d. -f1`
-	if [ "$TEST" != "" ] && [ "$TEST" -gt 10 ]; then
+	if [ "$TEST" != "" ] && [ $TEST -gt 10 ]; then
 		echo
-		cat /tmp/iostat-$$
+		eval $COMPARE_CMD --print-monitor iostat
+		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			for DEVICE in sda dm-0; do
+				echo "<table class=\"resultsGraphs\">"
+				echo "<tr>"
+				for PARAM in avgqz await r_await w_await; do
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
+					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
+					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
+					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
+				done
+				echo "</tr>"
+				echo "</table>"
+			done
+		fi
 	fi
 	rm /tmp/iostat-$$
 
@@ -296,7 +312,13 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			eval $GRAPH_PSC $GRANULARITY --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency-smooth.ps --smooth
 			smoothover graph-$SUBREPORT-write-latency
 		fi
-
+		if [ `ls inbox-open-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+			eval $GRAPH_PNG $GRANULARITY --title \"Mail Read Latency\" --print-monitor inbox-open --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-inbox-open.png
+			eval $GRAPH_PNG $GRANULARITY --title \"Mail Read Latency\" --print-monitor inbox-open --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-inbox-open-smooth.png --smooth
+			eval $GRAPH_PSC $GRANULARITY --title \"Mail Read Latency\" --print-monitor inbox-open --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-inbox-open.ps
+			eval $GRAPH_PSC $GRANULARITY --title \"Mail Read Latency\" --print-monitor inbox-open --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-inbox-open-smooth.ps --smooth
+			smoothover graph-$SUBREPORT-inbox-open
+		fi
 		if [ `ls vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
 			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.png
 			eval $GRAPH_PSC --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.ps

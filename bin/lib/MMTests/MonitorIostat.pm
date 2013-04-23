@@ -19,8 +19,14 @@ sub new() {
 
 my %devices;
 
-sub extractSummary() {
+sub printDataType() {
 	my ($self) = @_;
+
+	print "Time,Time,Await (ms)\n";
+}
+
+sub extractSummary() {
+	my ($self, $subheading) = @_;
 	my @data = @{$self->{_ResultData}};
 
 	my $fieldLength = 12;
@@ -47,13 +53,13 @@ sub extractSummary() {
 		next if $mean_avgqz < 0.01;
 
 		push @{$self->{_SummaryData}}, [ "$device-avgqz",
-					 $mean_avgqz, calc_max(@avgqz) ];
+				 $mean_avgqz, calc_max(@avgqz) ];
 		push @{$self->{_SummaryData}}, [ "$device-await",
-					 calc_mean(@await), calc_max(@await) ];
+				 calc_mean(@await), calc_max(@await) ];
 		push @{$self->{_SummaryData}}, [ "$device-r_await",
-					 calc_mean(@r_await), calc_max(@r_await) ];
+				 calc_mean(@r_await), calc_max(@r_await) ];
 		push @{$self->{_SummaryData}}, [ "$device-w_await",
-					 calc_mean(@w_await), calc_max(@w_await) ];
+				 calc_mean(@w_await), calc_max(@w_await) ];
 	}
 
 	return 1;
@@ -62,6 +68,7 @@ sub extractSummary() {
 sub extractReport($$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my $readingDevices = 0;
+	my $start_timestamp = 0;
 
 	my $file = "$reportDir/iostat-$testName-$testBenchmark";
 	if (-e $file) {
@@ -81,6 +88,10 @@ sub extractReport($$$) {
 	while (<INPUT>) {
 		my @elements = split (/\s+/, $_);
 		my $timestamp = $elements[1];
+		if ($start_timestamp == 0) {
+			$start_timestamp = $timestamp;
+		}
+		$timestamp -= $start_timestamp;
 
 		if ($elements[5] eq "Device:") {
 			$readingDevices = 1;
@@ -105,10 +116,22 @@ sub extractReport($$$) {
 
 		$devices{$elements[5]} = 1;
 
-		# Pushing time avgqu-sz await r_await w_await
-		push @{$self->{_ResultData}}, [ $elements[1], $elements[5], 
+		if ($subHeading eq "") {
+			# Pushing time avgqu-sz await r_await w_await
+			push @{$self->{_ResultData}}, [ $timestamp, $elements[5], 
 					$elements[13],
 					$elements[14], $elements[15], $elements[16] ];
+		} else {
+			if ($subHeading eq "$elements[5]-avgqz") {
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[13] ];
+			} elsif ($subHeading eq "$elements[5]-await") {
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[14] ];
+			} elsif ($subHeading eq "$elements[5]-r_await") {
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[15] ];
+			} elsif ($subHeading eq "$elements[5]-w_await") {
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[16] ];
+			}
+		}
 	}
 	close INPUT;
 }
