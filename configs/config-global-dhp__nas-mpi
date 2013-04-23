@@ -35,7 +35,7 @@ export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
 export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
 export SWAP_NBD_DEVICE=/dev/nbd0
 export SWAP_NBD_HOST=mcp
-export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
+export SWAP_NBD_PORT=10001
 
 # Optionally use a memory control group
 # export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
