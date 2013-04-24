@@ -8,8 +8,8 @@ NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 NUM_THREADS=${MICRO_VMSCAN_NUM_THREADS:=$NUM_CPU}
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 PERCENTAGE_ANON=$MICRO_VMSCAN_MIXED_ANON_PERCENTAGE
-DURATION=${MICRO_VMSCAN_DURATION:=300}
-MICRO_VMSCAN_MIXED_MMAPREAD_ITER=10
+DURATION=${MICRO_VMSCAN_DURATION:-300}
+MICRO_VMSCAN_MIXED_MMAPREAD_ITER=${MICRO_VMSCAN_MIXED_MMAPREAD_ITER:-10}
 
 SELF=$0
 READONLY=$1
@@ -99,11 +99,19 @@ for THREAD in `seq 1 $NUM_THREADS`; do
 	fi
 done
 
+EXIT_CODE=$SHELLPACK_SUCCESS
+
 while [ $CURRENT_TIME -lt $ENDTIME ]; do
 	for THREAD in `seq 1 $NUM_THREADS`; do
 		if [ $MEMTOTAL_FILE -gt 0 ]; then
 			ps -p ${file_procs[$THREAD]} > /dev/null
 			if [ $? -ne 0 ]; then
+				# Watch for errors in usemem but allow test to continue
+				# running and report it later
+				wait ${file_procs[$THREAD]} 
+				if [ $? -ne 0 ]; then
+					EXIT_CODE=$SHELLPACK_ERROR
+				fi
 				echo ./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS))
 				./usemem -f sparse-$THREAD -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER)) $READONLY $(($MEMTOTAL_FILE / NUM_THREADS)) > /dev/null &
 				file_procs[$THREAD]=$!
@@ -114,6 +122,12 @@ while [ $CURRENT_TIME -lt $ENDTIME ]; do
 		if [ $MEMTOTAL_ANON -gt 0 ]; then
 			ps -p ${anon_procs[$THREAD]} > /dev/null
 			if [ $? -ne 0 ]; then
+				# Watch for errors in usemem similar as for files
+				wait ${anon_procs[$THREAD]} 
+				if [ $? -ne 0 ]; then
+					EXIT_CODE=$SHELLPACK_ERROR
+				fi
+
 				echo ./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS))
 				./usemem -j 4096 -r $((MICRO_VMSCAN_MIXED_MMAPREAD_ITER*2)) $READONLY $((MEMTOTAL_ANON / NUM_THREADS)) > /dev/null &
 				anon_procs[$THREAD]=$!
@@ -126,10 +140,29 @@ while [ $CURRENT_TIME -lt $ENDTIME ]; do
 	CURRENT_TIME=`date +%s`
 done
 
-for THREAD in `seq 1 $NUM_THREADS`; do
-	kill -9 ${file_procs[$THREAD]}
-	kill -9 ${anon_procs[$THREAD]}
-done
+if [ "$MICRO_VMSCAN_MIXED_MMAPREAD_NOKILL" = "yes" ]; then
+	# If requested, wait for all threads to exit and check their code
+	for THREAD in `seq 1 $NUM_THREADS`; do
+		if [ $MEMTOTAL_FILE -gt 0 ]; then
+			wait ${file_procs[$THREAD]}
+			if [ $? -ne 0 ]; then
+				EXIT_CODE=$SHELLPACK_ERROR
+			fi
+		fi
+		if [ $MEMTOTAL_ANON -gt 0 ]; then
+			wait ${anon_procs[$THREAD]}
+			if [ $? -ne 0 ]; then
+				EXIT_CODE=$SHELLPACK_ERROR
+			fi
+		fi
+	done
+else
+	# Otherwise, just exit quickly as possible
+	for THREAD in `seq 1 $NUM_THREADS`; do
+		kill -9 ${file_procs[$THREAD]}
+		kill -9 ${anon_procs[$THREAD]}
+	done
+fi
 
 rm sparse-*
-exit 0
+exit $EXIT_CODE

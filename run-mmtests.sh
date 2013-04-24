@@ -196,6 +196,7 @@ fi
 # Create NFS mount
 if [ "$TESTDISK_NFS_MOUNT" != "" ]; then
 	/etc/init.d/nfs-common start
+	/etc/init.d/rpcbind start
 	mount -t nfs $TESTDISK_NFS_MOUNT $SHELLPACK_TEST_MOUNT || exit
 fi
 
@@ -237,6 +238,7 @@ NFS)
 		die "SWAP_NFS_MOUNT not specified in config"
 	fi
 
+	/etc/init.d/rpcbind start
 	MNTPNT=$SHELLPACK_TOPLEVEL/work/nfs-swapfile
 	mkdir -p $MNTPNT || die "Failed to create NFS mount for swap"
 	mount $SWAP_NFS_MOUNT $MNTPNT || die "Failed to mount NFS mount for swap"
