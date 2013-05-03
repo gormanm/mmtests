@@ -343,7 +343,7 @@ if [ "$SKIP_FINEPROFILE" = "no" -o "$SKIP_COARSEPROFILE" = "no" ]; then
 fi
 
 # Disable any inadvertent profiling going on right now
-oprofile --stop > /dev/null 2> /dev/null
+opcontrol --stop > /dev/null 2> /dev/null
 opcontrol --deinit > /dev/null 2> /dev/null
 
 # Warm up. More appropriate warmup depends on the exact test
