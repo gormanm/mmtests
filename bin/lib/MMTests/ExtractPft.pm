@@ -27,8 +27,12 @@ sub printDataType() {
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my @clients;
+	my $profile = "noprofile";
+	if (! -e "$reportDir/$profile") {
+		$profile = "fine-profile-timer";
+	}
 
-	my @files = <$reportDir/noprofile/$_pagesize/pft-*.log>;
+	my @files = <$reportDir/$profile/$_pagesize/pft-*.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-1] =~ s/.log//;
@@ -85,9 +89,13 @@ sub extractReport($$$) {
 	my ($user, $system, $wallTime, $faultsCpu, $faultsSec);
 	my $dummy;
 	my @clients = @{$self->{_Clients}};
+	my $profile = "noprofile";
+	if (! -e "$reportDir/$profile") {
+		$profile = "fine-profile-timer";
+	}
 
 	foreach my $client (@clients) {
-		my $file = "$reportDir/noprofile/$_pagesize/pft-$client.log";
+		my $file = "$reportDir/$profile/$_pagesize/pft-$client.log";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;

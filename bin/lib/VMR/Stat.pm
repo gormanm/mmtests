@@ -10,7 +10,7 @@ use VMR::Report;
 use strict;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_5trimmed_mean &calc_5trimmed_median &calc_mean &calc_median &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_5trimmed_mean &calc_trimoutlier_mean &calc_5trimmed_median &calc_mean &calc_median &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Values taken from a standard normal table
 my %za = (
@@ -142,6 +142,18 @@ sub calc_5trimmed_mean {
 
 	my @sorted = sort { $a <=> $b } @_;
 	my @trimmed = @sorted[$nr_trim..$nr_elements - $nr_trim];
+
+	return calc_mean(@trimmed);
+}
+
+sub calc_trimoutlier_mean {
+	my $nr_elements = @_;
+
+	if ($nr_elements == 1)
+		return $_[0];
+
+	my @sorted = sort { $a <=> $b } @_;
+	my @trimmed = @sorted[0..$nr_elements - 2];
 
 	return calc_mean(@trimmed);
 }
