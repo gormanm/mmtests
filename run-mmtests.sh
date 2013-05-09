@@ -489,7 +489,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		if [ -e /proc/lock_stat ]; then
 			echo 0 > /proc/lock_stat
 		fi
-		if [ "`cat /proc/sys/kernel/stack_tracer_enabled`" = "1" ]; then
+		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
 			echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		fi
@@ -505,7 +505,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		cat /proc/zoneinfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		echo file end :: /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		cat /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		if [ "`cat /proc/sys/kernel/stack_tracer_enabled`" = "1" ]; then
+		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
 			echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		fi

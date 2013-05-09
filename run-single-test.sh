@@ -75,7 +75,7 @@ fi
 fi
 
 # Fine-grained profile
-for PROFILE_HOOK in `ls $PROFILE_PATH/profile-hooks-*.sh`; do
+for PROFILE_HOOK in `ls $PROFILE_PATH/profile-hooks-*.sh 2> /dev/null`; do
 . $PROFILE_HOOK
 echo Processing profile hook $PROFILE_HOOK title $PROFILE_TITLE
 if [ "$PROFILE_TITLE" = "none" ]; then
@@ -103,7 +103,7 @@ fi
 
 # Fine-grained profile
 if [ "$SKIP_COARSEPROFILE" != "yes" ]; then
-for PROFILE_HOOK in `ls $PROFILE_PATH/profile-hooks-*.sh`; do
+for PROFILE_HOOK in `ls $PROFILE_PATH/profile-hooks-*.sh 2> /dev/null`; do
 . $PROFILE_HOOK
 echo Processing profile hook $PROFILE_HOOK title $PROFILE_TITLE
 if [ "$PROFILE_TITLE" = "none" ]; then

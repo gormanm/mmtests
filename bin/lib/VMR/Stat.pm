@@ -149,8 +149,9 @@ sub calc_5trimmed_mean {
 sub calc_trimoutlier_mean {
 	my $nr_elements = @_;
 
-	if ($nr_elements == 1)
+	if ($nr_elements == 1) {
 		return $_[0];
+	}
 
 	my @sorted = sort { $a <=> $b } @_;
 	my @trimmed = @sorted[0..$nr_elements - 2];
