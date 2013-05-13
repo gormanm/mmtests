@@ -1,0 +1,35 @@
+#!/bin/bash
+# mutilate installer
+###SHELLPACK preamble mutilate-install 0.01
+GIT_LOCATION=git://github.com/leverich/mutilate.git
+MIRROR_LOCATION="$WEBROOT/mutilate"
+
+install-depends libevent-devel scons gengetopt zeromq-devel
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch mutilate-${VERSION}.tar.gz mutilate-${VERSION}
+
+###SHELLPACK build_start mutilate-${VERSION}
+
+# Workaround a time bug, not obvious why event_base cached time lookup returned
+# really stupid values
+echo "diff --git a/mutilate.cc b/mutilate.cc
+index cacf4db..af7f734 100644
+--- a/mutilate.cc
++++ b/mutilate.cc
+@@ -942,7 +942,7 @@ void do_mutilate(const vector<string>& servers, options_t& options,
+     //    now = get_time();
+     //#else
+     struct timeval now_tv;
+-    event_base_gettimeofday_cached(base, &now_tv);
++    gettimeofday(&now_tv, NULL);
+     now = tv_to_double(&now_tv);
+     //#endif" | patch -p1 || exit $SHELLPACK_ERROR
+ 
+scons || exit $SHELLPACK_ERROR
+mkdir -p ../mutilate-${VERSION}-installed/bin
+cp mutilate ../mutilate-${VERSION}-installed/bin
+
+echo mutilate installed successfully

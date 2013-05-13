@@ -1,6 +1,6 @@
 #!/bin/bash
 # memcached installer
-###SHELLPACK preamble memcached-install 1.4.13
+###SHELLPACK preamble memcached-install 1.4.15
 WEB_LOCATION=http://memcached.googlecode.com/files
 MIRROR_LOCATION="$WEBROOT/memcached"
 

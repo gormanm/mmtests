@@ -192,6 +192,22 @@ EOC
 # Include monitor hooks
 . \$SHELLPACK_INCLUDE/include-monitor.sh
 EOC
+	} elsif ($command eq "threads_iterate_begin") {
+		my ($min_thread, $max_thread) = @details;
+		print <<EOC
+THREADS=
+START_THREAD=$min_thread
+END_THREAD=$max_thread
+if [ \$END_THREAD -gt 8 ]; then
+        THREADS=`seq \$START_THREAD 8`
+        THREADS="\$THREADS `seq 12 \$END_THREAD 4`"
+else
+        THREADS=`seq \$START_THREAD \$END_THREAD`
+fi
+for NR_THREADS in \$THREADS; do
+EOC
+	} elsif ($command eq "threads_iterate_end") {
+		print "done\n";
 	} else {
 		print "# WARNING: UNRECOGNISED command $command\n";
 		print $_;

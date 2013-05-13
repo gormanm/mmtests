@@ -1,0 +1,57 @@
+#!/bin/bash
+# This script whatevers mutilate
+###SHELLPACK preamble mutilate-bench 1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --max-threads       MUTILATE_MAX_THREADS
+###SHELLPACK parseargParam --iterations        MUTILATE_ITERATIONS
+###SHELLPACK parseargParam --duration          MUTILATE_DURATION
+###SHELLPACK parseargParam --memcached-mempool MEMCACHED_MEMPOOL
+###SHELLPACK parseargParam --value-size        MEMCACHED_VALUE_SIZE
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required mutilate-${VERSION}
+
+if [ "$MEMCACHED_MEMPOOL" = "" ]; then
+	die Must specify memcached memory pool size
+fi
+
+# Start memcached server
+$SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
+if [ $? -ne 0 ]; then
+	die Failed to start memcached server
+fi
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/mutilate-${VERSION}-installed || die Failed to cd to mutilate directory
+MUTILATE_ITEMS=$(($MEMCACHED_MEMPOOL/$MUTILATE_VALUE_SIZE))
+
+###SHELLPACK threads_iterate_begin 1 $MUTILATE_MAX_THREADS
+monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+
+for ITERATION in `seq 1 $MUTILATE_ITERATIONS`; do
+	echo Starting mutilate client $MUTILATE_CONCURRENCY
+	echo o $MEMCACHED_MEMPOOL memcached pool
+	echo o $NR_THREADS concurrent requests
+	echo o $MUTILATE_VALUE_SIZE value size
+	echo o $MUTILATE_DURATION second duration
+	echo o $MUTILATE_ITEMS items per iteration
+
+	echo Iteration:$ITERATION | tee -a $LOGDIR_RESULTS/mutilate-$NR_THREADS.log
+	./bin/mutilate \
+		-s 127.0.0.1 \
+		-T $NR_THREADS \
+		-V $MUTILATE_VALUE_SIZE \
+		-r $MUTILATE_ITEMS \
+		-t $MUTILATE_DURATION \
+		    | tee -a $LOGDIR_RESULTS/mutilate-$NR_THREADS.log
+done
+
+monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_iterate_end
+
+$SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
+
+exit $SHELLPACK_SUCCESS

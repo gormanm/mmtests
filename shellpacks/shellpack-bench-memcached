@@ -50,4 +50,4 @@ fi
 echo memcached successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description memcached installer
-#### Details memcached-bench 20
+#### Details memcached-bench 21

@@ -163,8 +163,7 @@ fi
 UPPERLIMIT=$((`grep ^MemTotal /proc/meminfo  | awk '{print $2}'`*1024*3/4))
 TOTALBUFFER_SIZE=$(($UPPERLIMIT+1))
 
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+###SHELLPACK monitor_hooks
 
 # Calculate memory requirements
 . $SHELLPACK_INCLUDE/include-hugepage.sh
