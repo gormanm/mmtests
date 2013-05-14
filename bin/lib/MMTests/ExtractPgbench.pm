@@ -16,11 +16,16 @@ sub new() {
 	return $self;
 }
 
+sub printDataType() {
+	my ($self) = @_;
+	print "Throughput,Clients,MB/sec";
+}
+
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my @clients;
 
-	my @files = <$reportDir/noprofile/base/pgbench-raw-*-1>;
+	my @files = <$reportDir/noprofile/default/pgbench-raw-*-1>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
@@ -103,7 +108,7 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		my @files = <$reportDir/noprofile/base/pgbench-raw-$client-*>;
+		my @files = <$reportDir/noprofile/default/pgbench-raw-$client-*>;
 		foreach my $file (@files) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {

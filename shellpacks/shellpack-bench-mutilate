@@ -81,7 +81,7 @@ START_THREAD=1
 END_THREAD=$MUTILATE_MAX_THREADS
 if [ $END_THREAD -gt 8 ]; then
         THREADS=`seq $START_THREAD 8`
-        THREADS="$THREADS `seq 12 $END_THREAD 4`"
+        THREADS="$THREADS `seq 12 4 $END_THREAD`"
 else
         THREADS=`seq $START_THREAD $END_THREAD`
 fi
@@ -113,4 +113,4 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 
 exit $SHELLPACK_SUCCESS
 #### Description mutilate
-#### Details mutilate-bench 10
+#### Details mutilate-bench 11

@@ -9,16 +9,20 @@ EFFECTIVE_CACHESIZE=$((756*1048576))
 SHARED_BUFFERS=$((32*1048576))
 WORK_MEM=$((32*1048576))
 MAX_TIME=
-TRANSACTIONS_CLIENT=
+MAX_TRANSACTIONS=
 MAX_ITERATIONS=5
+READONLY_ARG=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-###SHELLPACK parseargParam   --effective-cachesize EFFECTIVE_CACHESIZE
-###SHELLPACK parseargParam   --shared-buffers      SHARED_BUFFERS
-###SHELLPACK parseargParam   --work-mem            WORK_MEM
-###SHELLPACK parseargParam   --max-time            MAX_TIME
-###SHELLPACK parseargParam   --max-transactions    TRANSACTIONS_CLIENT
+###SHELLPACK parseargParam --max-threads         PGBENCH_MAX_THREADS
+###SHELLPACK parseargParam --effective-cachesize EFFECTIVE_CACHESIZE
+###SHELLPACK parseargParam --shared-buffers      SHARED_BUFFERS
+###SHELLPACK parseargParam --work-mem            WORK_MEM
+###SHELLPACK parseargParam --max-time            MAX_TIME
+###SHELLPACK parseargParam --max-transactions    MAX_TRANSACTIONS
+###SHELLPACK parseargParam --iterations          MAX_ITERATIONS
+###SHELLPACK parseargYes   --read-only           READONLY
 	--use-large-pages)
 		export LARGEPAGES=--use-large-pages
 		shift
@@ -32,8 +36,8 @@ MAX_ITERATIONS=5
 if [ "$MAX_TIME" != "" ]; then
 	MAX_TIME="-T $MAX_TIME"
 else
-	if [ "$TRANSACTIONS_CLIENT" != "" ]; then
-		TRANSACTIONS_CLIENT="-t $TRANSACTIONS_CLIENT"
+	if [ "$MAX_TRANSACTIONS" != "" ]; then
+		MAX_TRANSACTIONS="-t $MAX_TRANSACTIONS"
 	else
 		die Specify time or transactions
 	fi
@@ -41,7 +45,6 @@ fi
 
 # Install if necessary and run database. Do not use large pages or google
 # malloc as they are unnecessary at this point
-unset DATS_FUNCTIONS_SOURCED
 $SHELLPACK_INCLUDE/shellpack-install-postgresbuild \
 	-v ${VERSION} \
 	--effective_cachesize $EFFECTIVE_CACHESIZE \
@@ -68,8 +71,7 @@ fi
 UPPERLIMIT=$((`grep ^MemTotal /proc/meminfo  | awk '{print $2}'`*1024*3/4))
 TOTALBUFFER_SIZE=$(($UPPERLIMIT+1))
 
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+###SHELLPACK monitor_hooks
 
 # Calculate memory requirements
 . $SHELLPACK_INCLUDE/include-hugepage.sh
@@ -120,7 +122,6 @@ fi
 
 # Restart the database
 echo Starting DB up after configuring system
-unset DATS_FUNCTIONS_SOURCED
 $SHELLPACK_INCLUDE/shellpack-install-postgresbuild $LARGEPAGES \
 	--effective_cachesize $EFFECTIVE_CACHESIZE \
 	--shared_buffers $SHARED_BUFFERS \
@@ -154,36 +155,31 @@ fi
 echo Initialising database for pgbench
 pgbench -h $PGHOST -p $PGPORT -i pgbench || die Failed to initialise pgbench database
 
-# Work out threads
-CLIENTS=
-if [ $RUN_NUM -lt $NUMCPUS ]; then
-	CLIENTS=`seq 1 $RUN_NUM`
-else
-	CLIENTS="`seq 1 $NUMCPUS` `seq $((NUMCPUS+2)) 2 $RUN_NUM`"
+if [ "$READONLY" = "yes" ]; then
+	READONLY_ARG=-S
 fi
 
-echo Running sysbench maximum $RUN_NUM threads
-for N in $CLIENTS; do
+echo Running sysbench maximum $PGBENCH_MAX_THREADS threads
+###SHELLPACK threads_iterate_begin 1 $PGBENCH_MAX_THREADS
 	echo -n > $LOGDIR_RESULTS/samples
-	monitor_pre_hook $LOGDIR_RESULTS $N
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
-		echo -n o $N threads iter $ITER
+		echo -n o $NR_THREADS threads iter $ITER
 		pgbench -v -h $PGHOST -p $PGPORT \
-			-c $N \
-			$TRANSACTIONS_CLIENT $MAX_TIME \
-			pgbench > $LOGDIR_RESULTS/pgbench-raw-$N-$ITER
+			$READONLY_ARG -c $NR_THREADS \
+			$MAX_TRANSACTIONS $MAX_TIME \
+			pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
 		SYSRET=$?
 		if [ $SYSRET -ne 0 ]; then
-			cat $LOGDIR_RESULTS/pgbench-raw-$N-$ITER
+			cat $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
 			die pgbench failed to execute
 		fi
 	done
-	monitor_post_hook $LOGDIR_RESULTS $N
+	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
+###SHELLPACK threads_iterate_end
 
-	# Copy the log files
-	cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
-
-done
+# Copy the log files
+cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
 
 $RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
 

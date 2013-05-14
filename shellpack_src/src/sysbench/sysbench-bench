@@ -110,7 +110,6 @@ done
 
 # Install if necessary and run database. Do not use large pages or google
 # malloc as they are unnecessary at this point
-unset DATS_FUNCTIONS_SOURCED
 if [ "$DBDRIVER" = "postgres" ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild \
 		-v ${POSTGRES_VERSION} \
@@ -218,7 +217,6 @@ fi
 
 # Restart the database
 echo Starting DB up after configuring system
-unset DATS_FUNCTIONS_SOURCED
 if [ "$DBDRIVER" = "postgres" ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild $GOOGLEMALLOC $LARGEPAGES \
 		--effective_cachesize $EFFECTIVE_CACHESIZE \

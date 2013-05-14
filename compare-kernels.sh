@@ -157,8 +157,11 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 	echo
 	eval $COMPARE_CMD --print-monitor mmtests-vmstat
 
-	eval $COMPARE_BARE_CMD --print-monitor iostat > /tmp/iostat-$$
-	TEST=`head -4 /tmp/iostat-$$ | tail -1 | awk '{print $3}' | cut -d. -f1`
+	TEST=
+	if [ `ls iostat-* 2> /dev/null | wc -l` -gt 0 ]; then
+		eval $COMPARE_BARE_CMD --print-monitor iostat > /tmp/iostat-$$
+		TEST=`head -4 /tmp/iostat-$$ | tail -1 | awk '{print $3}' | cut -d. -f1`
+	fi
 	if [ "$TEST" != "" ] && [ $TEST -gt 10 ]; then
 		echo
 		eval $COMPARE_CMD --print-monitor iostat
@@ -178,7 +181,7 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			done
 		fi
 	fi
-	rm /tmp/iostat-$$
+	rm -f /tmp/iostat-$$
 
 	GRANULARITY=
 	if [ `ls read-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then

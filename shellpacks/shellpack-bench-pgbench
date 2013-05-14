@@ -11,8 +11,9 @@ EFFECTIVE_CACHESIZE=$((756*1048576))
 SHARED_BUFFERS=$((32*1048576))
 WORK_MEM=$((32*1048576))
 MAX_TIME=
-TRANSACTIONS_CLIENT=
+MAX_TRANSACTIONS=
 MAX_ITERATIONS=5
+READONLY_ARG=
 
 # Basic argument parser
 while [ "$1" != "" ]; do
@@ -28,6 +29,10 @@ while [ "$1" != "" ]; do
 	--install-force)
 		INSTALL_FORCE=yes
 		shift
+		;;
+	--max-threads)
+		PGBENCH_MAX_THREADS=$2
+		shift 2
 		;;
 	--effective-cachesize)
 		EFFECTIVE_CACHESIZE=$2
@@ -46,8 +51,16 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	--max-transactions)
-		TRANSACTIONS_CLIENT=$2
+		MAX_TRANSACTIONS=$2
 		shift 2
+		;;
+	--iterations)
+		MAX_ITERATIONS=$2
+		shift 2
+		;;
+	--read-only)
+		READONLY=yes
+		shift
 		;;
 	--use-large-pages)
 		export LARGEPAGES=--use-large-pages
@@ -69,8 +82,8 @@ fi
 if [ "$MAX_TIME" != "" ]; then
 	MAX_TIME="-T $MAX_TIME"
 else
-	if [ "$TRANSACTIONS_CLIENT" != "" ]; then
-		TRANSACTIONS_CLIENT="-t $TRANSACTIONS_CLIENT"
+	if [ "$MAX_TRANSACTIONS" != "" ]; then
+		MAX_TRANSACTIONS="-t $MAX_TRANSACTIONS"
 	else
 		die Specify time or transactions
 	fi
@@ -78,7 +91,6 @@ fi
 
 # Install if necessary and run database. Do not use large pages or google
 # malloc as they are unnecessary at this point
-unset DATS_FUNCTIONS_SOURCED
 $SHELLPACK_INCLUDE/shellpack-install-postgresbuild \
 	-v ${VERSION} \
 	--effective_cachesize $EFFECTIVE_CACHESIZE \
@@ -157,7 +169,6 @@ fi
 
 # Restart the database
 echo Starting DB up after configuring system
-unset DATS_FUNCTIONS_SOURCED
 $SHELLPACK_INCLUDE/shellpack-install-postgresbuild $LARGEPAGES \
 	--effective_cachesize $EFFECTIVE_CACHESIZE \
 	--shared_buffers $SHARED_BUFFERS \
@@ -191,36 +202,40 @@ fi
 echo Initialising database for pgbench
 pgbench -h $PGHOST -p $PGPORT -i pgbench || die Failed to initialise pgbench database
 
-# Work out threads
-CLIENTS=
-if [ $RUN_NUM -lt $NUMCPUS ]; then
-	CLIENTS=`seq 1 $RUN_NUM`
-else
-	CLIENTS="`seq 1 $NUMCPUS` `seq $((NUMCPUS+2)) 2 $RUN_NUM`"
+if [ "$READONLY" = "yes" ]; then
+	READONLY_ARG=-S
 fi
 
-echo Running sysbench maximum $RUN_NUM threads
-for N in $CLIENTS; do
+echo Running sysbench maximum $PGBENCH_MAX_THREADS threads
+THREADS=
+START_THREAD=1
+END_THREAD=$PGBENCH_MAX_THREADS
+if [ $END_THREAD -gt 8 ]; then
+        THREADS=`seq $START_THREAD 8`
+        THREADS="$THREADS `seq 12 4 $END_THREAD`"
+else
+        THREADS=`seq $START_THREAD $END_THREAD`
+fi
+for NR_THREADS in $THREADS; do
 	echo -n > $LOGDIR_RESULTS/samples
-	monitor_pre_hook $LOGDIR_RESULTS $N
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
-		echo -n o $N threads iter $ITER
+		echo -n o $NR_THREADS threads iter $ITER
 		pgbench -v -h $PGHOST -p $PGPORT \
-			-c $N \
-			$TRANSACTIONS_CLIENT $MAX_TIME \
-			pgbench > $LOGDIR_RESULTS/pgbench-raw-$N-$ITER
+			$READONLY_ARG -c $NR_THREADS \
+			$MAX_TRANSACTIONS $MAX_TIME \
+			pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
 		SYSRET=$?
 		if [ $SYSRET -ne 0 ]; then
-			cat $LOGDIR_RESULTS/pgbench-raw-$N-$ITER
+			cat $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
 			die pgbench failed to execute
 		fi
 	done
-	monitor_post_hook $LOGDIR_RESULTS $N
-
-	# Copy the log files
-	cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
-
+	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
 done
+
+# Copy the log files
+cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
 
 $RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
 
@@ -231,4 +246,4 @@ reset_hugepages
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 17
+#### Details pgbench-bench 22

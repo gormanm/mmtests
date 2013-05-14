@@ -200,7 +200,7 @@ START_THREAD=$min_thread
 END_THREAD=$max_thread
 if [ \$END_THREAD -gt 8 ]; then
         THREADS=`seq \$START_THREAD 8`
-        THREADS="\$THREADS `seq 12 \$END_THREAD 4`"
+        THREADS="\$THREADS `seq 12 4 \$END_THREAD`"
 else
         THREADS=`seq \$START_THREAD \$END_THREAD`
 fi

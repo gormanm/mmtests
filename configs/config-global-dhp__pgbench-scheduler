@@ -60,18 +60,15 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top slabinfo"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_GZIP="proc-vmstat"
+export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # pgbench
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
-if [[ `uname -m` =~ i.86 ]]; then
-        export OLTP_SHAREDBUFFERS=$((1048576*512))
-else
-        export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
-fi
-export PGBENCH_MAX_TIME=60
+export OLTP_SHAREDBUFFERS=$((256*1048576))
+export PGBENCH_MAX_TRANSACTIONS=10000
 export PGBENCH_PAGESIZES="default"
-export PGBENCH_READONLY=
-export PGBENCH_MAX_THREADS=$NUM_CPU
+export PGBENCH_READONLY=yes
+export PGBENCH_MAX_THREADS=50
+export PGBENCH_ITERATIONS=7
