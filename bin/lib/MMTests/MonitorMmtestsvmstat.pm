@@ -34,6 +34,10 @@ my %_fieldNameMap = (
 	"mmtests_direct_efficiency"	=> "Direct efficiency",
 	"mmtests_direct_velocity"	=> "Direct velocity",
 	"mmtests_direct_percentage"	=> "Percentage direct scans",
+	"mmtests_highmem_velocity"	=> "Zone highmem velocity",
+	"mmtests_normal_velocity"	=> "Zone normal velocity",
+	"mmtests_dma32_velocity"	=> "Zone dma32 velocity",
+	"mmtests_dma_velocity"		=> "Zone dma velocity",
 	"nr_vmscan_write"		=> "Page writes by reclaim",
 	"mmtests_vmscan_write_file"	=> "Page writes file",
 	"mmtests_vmscan_write_anon"	=> "Page writes anon",
@@ -102,6 +106,10 @@ my @_fieldOrder = (
         "mmtests_direct_efficiency",
         "mmtests_direct_velocity",
         "mmtests_direct_percentage",
+	"mmtests_highmem_velocity",
+	"mmtests_normal_velocity",
+	"mmtests_dma32_velocity",
+	"mmtests_dma_velocity",
         "nr_vmscan_write",
         "mmtests_vmscan_write_file",
         "mmtests_vmscan_write_anon",
@@ -139,6 +147,7 @@ sub extractReport($$$$) {
 	my (%vmstat_before, %vmstat_after, %vmstat);
 	my ($reading_test, $reading_before, $reading_after);
 	my $elapsed_time;
+	my %zones_seen;
 
 	my $file = "$reportDir/tests-timestamp-$testName";
 
@@ -214,7 +223,6 @@ sub extractReport($$$$) {
 		my $value = $vmstat_after{$key} - $vmstat_before{$key};
 		$vmstat{$key} = $value;
 		$vmstat{"mmtests_direct_steal"} += $value;
-
 	}
 	if (defined $vmstat_before{"kswapd_steal"}) {
 		$vmstat{"mmtests_direct_steal"} -= $vmstat{"mmtests_kswapd_steal"};
@@ -227,6 +235,12 @@ sub extractReport($$$$) {
 		my $value = $vmstat_after{$key} - $vmstat_before{$key};
 		$vmstat{$key} = $value;
 		$vmstat{"mmtests_kswapd_scan"} += $value;
+
+		# Record the zone being scanned
+		my @elements = split(/_/, $key);
+		my $zone = $elements[-1];
+		$vmstat{"mmtests_${zone}_scanned"} += $value;
+		$zones_seen{$zone} = 1;
 	}
 	$vmstat{"mmtests_kswapd_velocity"} = $vmstat{"mmtests_kswapd_scan"} / $elapsed_time;
 
@@ -237,8 +251,19 @@ sub extractReport($$$$) {
 		my $value = $vmstat_after{$key} - $vmstat_before{$key};
 		$vmstat{$key} = $value;
 		$vmstat{"mmtests_direct_scan"} += $value;
+
+		# Record the zone being scanned
+		my @elements = split(/_/, $key);
+		my $zone = $elements[-1];
+		$vmstat{"mmtests_${zone}_scanned"} += $value;
 	}
 	$vmstat{"mmtests_direct_velocity"} = $vmstat{"mmtests_direct_scan"} / $elapsed_time;
+
+	$vmstat{"mmtests_movable_velocity"} = $vmstat{"mmtests_movable_scanned"} / $elapsed_time;
+	$vmstat{"mmtests_highmem_velocity"} = $vmstat{"mmtests_highmem_scanned"} / $elapsed_time;
+	$vmstat{"mmtests_normal_velocity"}  = $vmstat{"mmtests_normal_scanned"}  / $elapsed_time;
+	$vmstat{"mmtests_dma32_velocity"}   = $vmstat{"mmtests_dma32_scanned"}   / $elapsed_time;
+	$vmstat{"mmtests_dma_velocity"}     = $vmstat{"mmtests_dma_scanned"}     / $elapsed_time;
 
 	# efficiency
 	if ($vmstat{"mmtests_direct_scan"}) {
@@ -360,6 +385,13 @@ key:	foreach my $key (@keys) {
 			}
 		}
 
+		foreach my $zone ("movable", "highmem", "normal", "dma32", "dma") {
+			if ($key eq "mmtests_${zone}_velocity" &&
+			    !$zones_seen{"$zone"}) {
+				next key;
+			}
+		}
+
 		if ($rowOrientated && $_fieldNameMap{$key}) {
 			$keyName = $_fieldNameMap{$key};
 		}
@@ -388,7 +420,12 @@ key:	foreach my $key (@keys) {
 			my $length = $fieldLength - 1;
 			push @format, "%${length}d%%";
 		} elsif ($key eq "mmtests_kswapd_velocity" ||
-			 $key eq "mmtests_direct_velocity") {
+			 $key eq "mmtests_direct_velocity" ||
+			 $key eq "mmtests_movable_velocity" ||
+			 $key eq "mmtests_highmem_velocity" ||
+			 $key eq "mmtests_normal_velocity" ||
+			 $key eq "mmtests_dma32_velocity" ||
+			 $key eq "mmtests_dma_velocity") {
 			push @format, "%${fieldLength}.3f";
 		} else {
 			push @format, "%${fieldLength}d";
