@@ -1,0 +1,96 @@
+#!/bin/bash
+# Run ebizzy benchmark
+
+P=ebizzy-bench
+DEFAULT_VERSION=0.3
+. $SHELLPACK_INCLUDE/common.sh
+
+EBIZZY_DURATION=30
+ITERATIONS=5
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--max-threads)
+		EBIZZY_MAX_THREADS=$2
+		shift 2
+		;;
+	--iterations)
+		EBIZZY_ITERATIONS=$2
+		shift 2
+		;;
+	--duration)
+		EBIZZY_DURATION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/ebizzy-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/ebizzy-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-ebizzy -v ${VERSION}  || die ebizzy install script returned error
+fi
+cd $SHELLPACK_SOURCES/ebizzy-${VERSION}-installed || die Failed to cd to ebizzy install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo ebizzy installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+EXIT_CODE=$SHELLPACK_SUCCESS
+
+THREADS=
+START_THREAD=1
+END_THREAD=$EBIZZY_MAX_THREADS
+if [ $END_THREAD -gt 8 ]; then
+        THREADS=`seq $START_THREAD 8`
+        THREADS="$THREADS `seq 12 4 $END_THREAD`"
+else
+        THREADS=`seq $START_THREAD $END_THREAD`
+fi
+for NR_THREADS in $THREADS; do
+monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+
+for ITERATION in `seq 1 $EBIZZY_ITERATIONS`; do
+	echo Iteration:$ITERATION Threads:$NR_THREADS/$EBIZZY_MAX_THREADS \
+		| tee -a $LOGDIR_RESULTS/ebizzy-$NR_THREADS-$ITERATION.log
+
+	save_rc $SHELLPACK_SOURCES/ebizzy-${VERSION}-installed/bin/ebizzy \
+		-S $EBIZZY_DURATION \
+		-t $NR_THREADS \
+		| tee $LOGDIR_RESULTS/ebizzy-$NR_THREADS-$ITERATION.log
+	recover_rc
+	RETVAL=$?
+	if [ $RETVAL -ne 0 ]; then
+		error ebizzy returned non-zero value with $NR_THREADS
+		EXIT_CODE=$SHELLPACK_ERROR
+	fi
+done
+
+monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+done
+
+exit $EXIT_CODE
+#### Description ebizzy
+#### Details ebizzy-bench 5

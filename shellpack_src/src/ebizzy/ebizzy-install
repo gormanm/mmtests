@@ -1,0 +1,18 @@
+#!/bin/bash
+
+###SHELLPACK preamble ebizzy-install 0.3
+WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/ebizzy"
+MIRROR_LOCATION="$WEBROOT/ebizzy"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch ebizzy-${VERSION}.tar.gz ebizzy-$VERSION
+
+###SHELLPACK build_start ebizzy-$VERSION
+###SHELLPACK build_configure
+###SHELLPACK make
+mkdir -p ../ebizzy-$VERSION-installed/bin
+cp ebizzy ../ebizzy-$VERSION-installed/bin || exit $SHELLPACK_ERROR
+
+exit $SHELLPACK_SUCCESS

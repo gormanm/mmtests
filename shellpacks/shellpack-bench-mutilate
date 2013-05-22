@@ -96,14 +96,14 @@ for ITERATION in `seq 1 $MUTILATE_ITERATIONS`; do
 	echo o $MUTILATE_DURATION second duration
 	echo o $MUTILATE_ITEMS items per iteration
 
-	echo Iteration:$ITERATION | tee -a $LOGDIR_RESULTS/mutilate-$NR_THREADS.log
+	echo Iteration:$ITERATION
 	./bin/mutilate \
 		-s 127.0.0.1 \
 		-T $NR_THREADS \
 		-V $MUTILATE_VALUE_SIZE \
 		-r $MUTILATE_ITEMS \
 		-t $MUTILATE_DURATION \
-		    | tee -a $LOGDIR_RESULTS/mutilate-$NR_THREADS.log
+		    | tee -a $LOGDIR_RESULTS/mutilate-$NR_THREADS-$ITERATION.log
 done
 
 monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
@@ -113,4 +113,4 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 
 exit $SHELLPACK_SUCCESS
 #### Description mutilate
-#### Details mutilate-bench 11
+#### Details mutilate-bench 12
