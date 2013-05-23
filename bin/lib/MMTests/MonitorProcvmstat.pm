@@ -47,9 +47,11 @@ my %_fieldCounters = (
 );
 
 my %_fieldNameMap = (
-	"pgpgtotal"			=> "Total Page IO",
-	"pgpgin"			=> "Page Ins",
-	"pgpgout"			=> "Page Outs",
+	"pgpgtotal"			=> "Total Sectors IO",
+	"pgpgin"			=> "Sector Reads",
+	"pgpgout"			=> "Sector Writes",
+	"mmtests_minor_faults"		=> "Minor Faults",
+	"pgmajfault"			=> "Major Faults",
 	"pswpin"			=> "Swap Ins",
 	"pswpout"			=> "Swap Outs",
 	"mmtests_direct_scan"		=> "Direct pages scanned",
@@ -116,9 +118,8 @@ my @_autonuma_stats = (
 
 my @_fieldOrder = (
 	"blank",
-        "pgpgtotal",
-        "pgpgin",
-        "pgpgout",
+	"mmtests_minor_faults",
+	"pgmajfault",
         "pswpin",
         "pswpout",
         "mmtests_direct_scan",
@@ -134,6 +135,9 @@ my @_fieldOrder = (
         "mmtests_vmscan_write_file",
         "mmtests_vmscan_write_anon",
         "nr_vmscan_immediate_reclaim",
+        "pgpgtotal",
+        "pgpgin",
+        "pgpgout",
         "pgrescued",
         "slabs_scanned",
         "pginodesteal",
@@ -275,6 +279,13 @@ sub parseVMStat($)
 				if ($stat eq $key) {
 					$current_value += $value;
 				}
+			}
+		} elsif ($subHeading eq "mmtests_minor_faults") {
+			if ($stat eq "pgfault") {
+				$current_value += $value;
+			}
+			if ($stat eq "pgmajfault") {
+				$current_value -= $value;
 			}
 		} elsif ($stat eq $subHeading) {
 			$current_value = $value;

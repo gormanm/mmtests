@@ -21,8 +21,10 @@ my $new_compaction_stats = 0;
 my $autonuma_enabled = 1;
 
 my %_fieldNameMap = (
-	"pgpgin"			=> "Page Ins",
-	"pgpgout"			=> "Page Outs",
+	"mmtests_minor_faults"		=> "Minor Faults",
+	"pgmajfault"			=> "Major Faults",
+	"pgpgin"			=> "Sector Reads",
+	"pgpgout"			=> "Sector Writes",
 	"pswpin"			=> "Swap Ins",
 	"pswpout"			=> "Swap Outs",
 	"mmtests_direct_scan"		=> "Direct pages scanned",
@@ -93,8 +95,8 @@ my @_autonuma_stats = (
 
 my @_fieldOrder = (
 	"blank",
-        "pgpgin",
-        "pgpgout",
+	"mmtests_minor_faults",
+	"pgmajfault",
         "pswpin",
         "pswpout",
         "mmtests_direct_scan",
@@ -114,6 +116,8 @@ my @_fieldOrder = (
         "mmtests_vmscan_write_file",
         "mmtests_vmscan_write_anon",
         "nr_vmscan_immediate_reclaim",
+        "pgpgin",
+        "pgpgout",
         "pgrescued",
         "slabs_scanned",
         "pginodesteal",
@@ -286,6 +290,7 @@ sub extractReport($$$$) {
 
 	# Flat values
 	foreach my $key ("pgpgin", "pgpgout", "pswpin", "pswpout",
+			 "pgfault", "pgmajfault",
 			 "kswapd_inodesteal", "pginodesteal", "slabs_scanned",
 			 "compact_pages_moved", "compact_pagemigrate_failed",
 			 "compact_fail", "compact_success", "compact_stall",
@@ -305,6 +310,7 @@ sub extractReport($$$$) {
 	}
 	$vmstat{"mmtests_vmscan_write_file"} = $vmstat{"nr_vmscan_write"} - $vmstat{"pswpout"};
 	$vmstat{"mmtests_vmscan_write_anon"} = $vmstat{"pswpout"};
+	$vmstat{"mmtests_minor_faults"} = $vmstat{"pgfault"} - $vmstat{"pgmajfault"};
 
 	# Compaction cost model
 	my $Ca  = 56 / 8;	# Values for x86-64
