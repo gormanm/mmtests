@@ -149,7 +149,7 @@ sub extractReport($$$$) {
 	}
 
 	# TODO: Auto-discover lengths and handle multi-column reports
-	my $fieldLength = 12;
+	my $fieldLength = 16;
 	$self->{_FieldLength} = $self->{_SummaryLength} = $fieldLength;
 	$self->{_FieldHeaders} = [ "Time", "Latency" ];
 	$self->{_FieldFormat} = [ "%${fieldLength}f", "%${fieldLength}f" ];
