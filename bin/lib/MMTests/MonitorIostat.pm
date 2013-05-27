@@ -18,6 +18,7 @@ sub new() {
 }
 
 my %devices;
+my $format_type = 1;
 
 sub printDataType() {
 	my ($self) = @_;
@@ -56,10 +57,12 @@ sub extractSummary() {
 				 $mean_avgqz, calc_max(@avgqz) ];
 		push @{$self->{_SummaryData}}, [ "$device-await",
 				 calc_mean(@await), calc_max(@await) ];
-		push @{$self->{_SummaryData}}, [ "$device-r_await",
+		if ($format_type == 1) {
+			push @{$self->{_SummaryData}}, [ "$device-r_await",
 				 calc_mean(@r_await), calc_max(@r_await) ];
-		push @{$self->{_SummaryData}}, [ "$device-w_await",
+			push @{$self->{_SummaryData}}, [ "$device-w_await",
 				 calc_mean(@w_await), calc_max(@w_await) ];
+		}
 	}
 
 	return 1;
@@ -94,6 +97,9 @@ sub extractReport($$$) {
 		$timestamp -= $start_timestamp;
 
 		if ($elements[5] eq "Device:") {
+			if ($elements[10] eq "rsec/s") {
+				$format_type = 0;
+			}
 			$readingDevices = 1;
 			next;
 		}
@@ -115,6 +121,18 @@ sub extractReport($$$) {
 		}
 
 		$devices{$elements[5]} = 1;
+		my ($avgqz, $await, $r_await, $w_await);
+		if ($format_type == 0) {
+			$avgqz = $elements[13];
+			$await = $elements[14];
+			$r_await = 0;
+			$w_await = 0;
+		} elsif ($format_type == 1) {
+			$avgqz = $elements[13];
+			$await = $elements[14];
+			$r_await = $elements[15];
+			$w_await = $elements[16];
+		}
 
 		if ($subHeading eq "") {
 			# Pushing time avgqu-sz await r_await w_await

@@ -165,11 +165,16 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 	if [ "$TEST" != "" ] && [ $TEST -gt 10 ]; then
 		echo
 		eval $COMPARE_CMD --print-monitor iostat
+		PARAM_LIST="avgqz await r_await w_await"
+		TEST=`grep Device: /tmp/iostat-$$ | grep rsec | head -1`
+		if [ "$TEST" != "" ]; then
+			PARAM_LIST="avgqz await"
+		fi
 		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
 			for DEVICE in sda; do
 				echo "<table class=\"resultsGraphs\">"
 				echo "<tr>"
-				for PARAM in avgqz await r_await w_await; do
+				for PARAM in avgqz await; do
 					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
 					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
 					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
