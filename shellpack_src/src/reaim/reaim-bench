@@ -38,7 +38,7 @@ done
 
 monitor_pre_hook $LOGDIR_RESULTS
 for ITERATION in `seq 1 $REAIM_ITERATIONS`; do
-	./src/reaim \
+	save_rc ./src/reaim \
 		-s$REAIM_STARTUSERS \
 		-e$REAIM_ENDUSERS \
 		-t \
@@ -47,8 +47,12 @@ for ITERATION in `seq 1 $REAIM_ITERATIONS`; do
 		-r1 \
 		-c./reaim.config \
 		-l$LOGDIR_RESULTS/reaim.$ITERATION \
-			2>&1 | tee $LOGDIR_RESULTS/reaim.$ITERATION.raw \
-				|| die Failed to run reaim
+			2>&1 | grep -v NSIG | tee $LOGDIR_RESULTS/reaim.$ITERATION.raw
+
+	recover_rc
+	if [ $? -ne 0 ]; then
+		die Failed to run reaim
+	fi
 done
 monitor_post_hook $LOGDIR_RESULTS
 
