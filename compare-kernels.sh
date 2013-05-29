@@ -460,13 +460,23 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			smoothover graph-$SUBREPORT-proc-vmstat-kswapd-efficiency
 			echo "</tr>"
 
-			eval $GRAPH_PNG --title \"KSwapd CPU Usage\" --print-monitor top                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd.png
-			eval $GRAPH_PSC --title \"KSwapd CPU Usage\" --print-monitor top                                            --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd.ps
-			eval $GRAPH_PNG --title \"KSwapd CPU Usage\" --print-monitor top                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd-smooth.png --smooth
-			eval $GRAPH_PSC --title \"KSwapd CPU Usage\" --print-monitor top                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"KSwapd CPU Usage\"    --print-monitor top                                                 --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd.png
+			eval $GRAPH_PSC --title \"KSwapd CPU Usage\"    --print-monitor top                                                 --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd.ps
+			eval $GRAPH_PNG --title \"KSwapd CPU Usage\"    --print-monitor top                                                 --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd-smooth.png --smooth
+			eval $GRAPH_PSC --title \"KSwapd CPU Usage\"    --print-monitor top                                                 --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"File Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_file --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-file-writes.png
+			eval $GRAPH_PSC --title \"File Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_file --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-file-writes.ps
+			eval $GRAPH_PNG --title \"File Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_file --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-file-writes-smooth.png --smooth
+			eval $GRAPH_PSC --title \"File Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_file --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-file-writes-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"Anon Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes.png
+			eval $GRAPH_PSC --title \"Anon Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes.ps
+			eval $GRAPH_PNG --title \"Anon Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Anon Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes-smooth.ps --smooth
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-top-kswapd
+			smoothover graph-$SUBREPORT-proc-vmstat-reclaim-file-writes
+			smoothover graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes
 			echo "</tr>"
 
 		fi
