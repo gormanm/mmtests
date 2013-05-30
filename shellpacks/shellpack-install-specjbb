@@ -46,4 +46,4 @@ pushd specjbb-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 exit $SHELLPACK_SUCCESS
 #### Description SPECjbb
-#### Details specjbb 21
+#### Details specjbb 23

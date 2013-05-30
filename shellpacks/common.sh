@@ -160,3 +160,43 @@ function reset_transhuge() {
 		fi
 	fi
 }
+
+MMTESTS_NUMACTL=
+function set_mmtests_numactl() {
+	local THIS_INSTANCE=$1
+	local MAX_INSTANCE=$2
+
+	if [ "$MMTESTS_NUMA_POLICY" = "" -o "$MMTESTS_NUMA_POLICY" = "none" ]; then
+		MMTESTS_NUMACTL=
+		return
+	fi
+
+	if [ "$MMTESTS_NUMA_POLICY" = "interleave" ]; then
+		MMTESTS_NUMACTL="numactl --interleave=all"
+	fi
+
+	if [ "$MMTESTS_NUMA_POLICY" = "local" ]; then
+		MMTESTS_NUMACTL="numactl -l"
+	fi
+
+	if [ "$MMTESTS_NUMA_POLICY" = "fullbind_single_instance_node" ]; then
+		local NODE_INDEX=$(($THIS_INSTANCE%$NUMNODES+1))
+		local NODE_DETAILS=`numactl --hardware | grep cpus: | head -$NODE_INDEX | tail -1`
+		local NODE_ID=`echo $NODE_DETAILS | awk '{print $2}'`
+
+		MMTESTS_NUMACTL="numactl --cpunodebind=$NODE_ID --membind=$NODE_ID"
+	fi
+
+	if [ "$MMTESTS_NUMA_POLICY" = "membind_single_instance_node" ]; then
+		local NODE_INDEX=$(($THIS_INSTANCE%$NUMNODES+1))
+		local NODE_DETAILS=`numactl --hardware | grep cpus: | head -$NODE_INDEX | tail -1`
+		local NODE_ID=`echo $NODE_DETAILS | awk '{print $2}'`
+
+		MMTESTS_NUMACTL="numactl --membind=$NODE_ID"
+	fi
+
+	if [ "$MMTESTS_NUMACTL" != "" ]; then
+		echo MMTESTS_NUMACTL: $MMTESTS_NUMACTL
+		echo Instance $THIS_INSTANCE / $MAX_INSTANCE
+	fi
+}

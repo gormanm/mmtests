@@ -183,7 +183,8 @@ for PAGES in $SPECJBB_PAGESIZES; do
 
 	# Run single or multi mode
 	if [ $INSTANCES -eq 1 ]; then
-		java $USE_HUGEPAGE $SPECJBB_MAXHEAP spec.jbb.JBBmain -propfile SPECjbb.props || exit $SHELLPACK_ERROR
+		set_mmtests_numactl $INSTANCES $INSTANCES
+		eval $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP spec.jbb.JBBmain -propfile SPECjbb.props || exit $SHELLPACK_ERROR
 	else
 		# Start controller
 		java -Xms32m -Xmx32m spec.jbb.Controller -propfile SPECjbb.props &
@@ -193,7 +194,8 @@ for PAGES in $SPECJBB_PAGESIZES; do
 		# Start the number of instances
 		echo -n > $SHELLPACK_TEMP/jvm-instances.pids
 		for INSTANCE in `seq 1 $INSTANCES`; do
-			java $USE_HUGEPAGE $SPECJBB_MAXHEAP spec.jbb.JBBmain -propfile SPECjbb.props -id $INSTANCE > $SHELLPACK_TEMP/jvm-instance-$INSTANCE.log &
+			set_mmtests_numactl $INSTANCE $INSTANCES
+			eval $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP spec.jbb.JBBmain -propfile SPECjbb.props -id $INSTANCE > $SHELLPACK_TEMP/jvm-instance-$INSTANCE.log &
 			echo $! >> $SHELLPACK_TEMP/jvm-instances.pids
 		done
 
@@ -216,4 +218,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description SPECjbb
-#### Details specjbb-bench 21
+#### Details specjbb-bench 23
