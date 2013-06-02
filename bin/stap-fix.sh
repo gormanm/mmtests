@@ -9,6 +9,10 @@ STAP_FILES="/usr/share/systemtap/runtime/stack.c /usr/share/systemtap/runtime/tr
 	/usr/share/systemtap/runtime/linux/task_finder_map.c /usr/share/systemtap/runtime/linux/task_finder_map.c
 	/usr/share/systemtap/runtime/stp_utrace.c"
 
+if [ "`whoami`" != "root" ]; then
+	exit
+fi
+
 # Check if stap is already working unless the script has been asked to
 # restore stap to its original state
 if [ "$1" != "--restore-only" ]; then

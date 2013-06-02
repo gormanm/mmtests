@@ -35,17 +35,11 @@ fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-mv $DST_DIR tiobench-${VERSION}
-pushd tiobench-${VERSION} > /dev/null || die Failed to rename tar
+mv $DST_DIR tiobench-${VERSION}-installed
+pushd tiobench-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 # Build
-pushd $SHELLPACK_SOURCES/tiobench-${VERSION} || die Failed to change to source directory
-make -j$NUMCPUS
-if [ $? -ne 0 ]; then
-	error "$P: make failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
-fi
+pushd $SHELLPACK_SOURCES/tiobench-${VERSION}-installed || die Failed to change to source directory
 
 # Patch the stupid thing for low cpu efficiency
 echo "--- tiobench.pl-orig	2012-02-17 08:51:54.915428315 +0000
@@ -66,6 +60,54 @@ echo "--- tiobench.pl-orig	2012-02-17 08:51:54.915428315 +0000
           }
        }" | patch -p0
 
+# Patch it for aligned_alloc if available
+grep -q aligned_alloc /usr/include/stdlib.h 2> /dev/null
+if [ $? -eq 0 ]; then
+	echo "--- tiotest.c.orig	2013-06-02 10:58:23.721553954 +0100
++++ tiotest.c	2013-06-02 10:58:38.015644836 +0100
+@@ -22,6 +22,7 @@
+ 
+ #include \"tiotest.h\"
+ #include \"crc32.h\"
++#include <unistd.h>
+ 
+ static const char* versionStr = \"tiotest v0.3.3 (C) 1999-2000 Mika Kuoppala <miku@iki.fi>\";
+ 
+@@ -31,16 +32,6 @@
+ */
+ ArgumentOptions args;
+ 
+-static void * aligned_alloc(ssize_t size)
+-{
+-	caddr_t a;
+-	a = mmap((caddr_t )0, size, 
+-	         PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
+-	if (a == MAP_FAILED)
+-		return NULL;
+-	return a;
+-}
+-
+ static int aligned_free(caddr_t a, ssize_t size)
+ {
+ 	return munmap(a, size);
+@@ -281,7 +272,7 @@
+ 		pthread_attr_setscope(&(d->threads[i].thread_attr),
+ 				      PTHREAD_SCOPE_SYSTEM);
+ 
+-		d->threads[i].buffer = aligned_alloc( d->threads[i].blockSize );
++		d->threads[i].buffer = aligned_alloc( getpagesize(), d->threads[i].blockSize );
+ 		if( d->threads[i].buffer == NULL )
+ 		{
+ 			perror(\"Error allocating memory\");" | patch -p0
+fi
+
+make -j$NUMCPUS
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
 echo tiobench installed successfully
 #### Description tiobench
-#### Details tiobench 4
+#### Details tiobench 9

@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="pft"
+export MMTESTS="tiobench"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -34,8 +34,10 @@ export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
 export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
 export SWAP_NBD_DEVICE=/dev/nbd0
 export SWAP_NBD_HOST=mcp
-export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
-#export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+export SWAP_NBD_PORT=10001
+
+# Optionally use a memory control group
+# export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
@@ -44,9 +46,9 @@ export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " "
 #export TESTDISK_RAID_SIZE=250019532
 #export TESTDISK_RAID_TYPE=raid0
 #export TESTDISK_PARTITION=/dev/sda6
-#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_FILESYSTEM=xfs
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
-#export TESTDISK_MOUNT_ARGS=""
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
 #
 # Test NFS disk to setup (optional)
 #export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
@@ -63,25 +65,10 @@ export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
-export MONITOR_FTRACE_EVENTS=
-export MONITOR_PERF_EVENTS=
 
-# HackBench
-export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
-
-# Page allocator microbench
-export PAGEALLOC_GFPFLAGS=GFP_KERNEL
-export PAGEALLOC_ORDER_MIN=0
-export PAGEALLOC_ORDER_MAX=4
-
-# Page Fault Test (PFT)
-export PFT_ITERATIONS=20
-export PFT_MAPPING_SIZE=$((MEMTOTAL_BYTES/5))
-export PFT_MAX_CLIENTS=$NUM_CPU
-export PFT_USE_PROCESSES=yes
-export PFT_PAGESIZES=base
-
-# STREAM
-export STREAM_BACKING_TYPE=static
-export STREAM_PAGESIZES="default"
-#export STREAM_PAGESIZES="base huge dynhuge"
+# tiobench
+export TIOBENCH_BLOCKSIZE=4096
+export TIOBENCH_SIZE=$((MEMTOTAL_BYTES*2))
+export TIOBENCH_ITERATIONS=3
+export TIOBENCH_RANDOM=0
+export TIOBENCH_MAX_CLIENTS=$((NUM_CPU*64))
