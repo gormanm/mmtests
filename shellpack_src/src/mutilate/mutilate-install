@@ -4,7 +4,7 @@
 GIT_LOCATION=git://github.com/leverich/mutilate.git
 MIRROR_LOCATION="$WEBROOT/mutilate"
 
-install-depends libevent-devel scons gengetopt zeromq-devel
+install-depends libevent-devel scons gengetopt zeromq-devel gcc-c++
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
