@@ -22,7 +22,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-WEB_LOCATION=$WEB_LOCATION/ffsb-$VERSION
+WEB_LOCATION=$WEB_LOCATION/$VERSION/ffsb-$VERSION
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=ffsb-${VERSION}.tar.bz2
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
@@ -46,7 +46,7 @@ if [ $? -ne 0 ]; then
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
-make
+make -j$NUMCPUS
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -61,4 +61,4 @@ fi
 
 echo ffsb installed successfully
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb 7
+#### Details ffsb 8

@@ -120,4 +120,4 @@ monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description fsmark
-#### Details fsmark-bench 20
+#### Details fsmark-bench 21

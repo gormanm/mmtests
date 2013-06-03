@@ -79,7 +79,7 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/ffsb-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/ffsb-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-ffsb -v ${VERSION} || die ffsb install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-ffsb -v ${VERSION}  || die ffsb install script returned error
 fi
 cd $SHELLPACK_SOURCES/ffsb-${VERSION}-installed || die Failed to cd to ffsb install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -210,4 +210,4 @@ monitor_post_hook $LOGDIR_RESULTS ffsb
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb-bench 7
+#### Details ffsb-bench 8

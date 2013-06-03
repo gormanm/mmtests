@@ -7,7 +7,7 @@ MIRROR_LOCATION="$WEBROOT/ffsb/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-WEB_LOCATION=$WEB_LOCATION/ffsb-$VERSION
+WEB_LOCATION=$WEB_LOCATION/$VERSION/ffsb-$VERSION
 ###SHELLPACK sources_fetch ffsb-${VERSION}.tar.bz2 ffsb-${VERSION}
 
 ###SHELLPACK build_start ffsb-${VERSION}

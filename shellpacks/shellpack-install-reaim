@@ -4,6 +4,7 @@ P=reaim-install
 DEFAULT_VERSION=7.0.1.13
 . $SHELLPACK_INCLUDE/common.sh
 WEB_LOCATION=http://heanet.dl.sourceforge.net/project/re-aim-7/re-aim
+             http://heanet.dl.sourceforge.net/project/re-aim-7/re-aim/7.0.1.13/osdl-aim-7.0.1.13.tar.gz
 MIRROR_LOCATION="$WEBROOT/reaim/"
 
 install-depends libaio-devel
@@ -27,7 +28,7 @@ fi
 # Unconditionally fetch the tar to find out the real version number
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=osdl-aim-${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -84,4 +85,4 @@ echo reaim installed successfully
 #### Description reaim
 #### Details reaim 12
 #### Description reaim
-#### Details reaim 30
+#### Details reaim 31
