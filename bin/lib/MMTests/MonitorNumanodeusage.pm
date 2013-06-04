@@ -2,10 +2,9 @@
 
 package MMTests::MonitorNumanodeusage;
 use MMTests::Monitor;
+use VMR::NUMA;
 our @ISA    = qw(MMTests::Monitor);
 use strict;
-
-my $windowSize = 20000;
 
 sub new() {
 	my $class = shift;
@@ -31,11 +30,23 @@ sub printReport() {
 	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 }
 
+sub printDataType() {
+	my ($self) = @_;
+
+	print "Nodestat,Time,$self->{_Heading}\n";
+}
+
 sub extractReport($$$$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading) = @_;
 	my $vmstat = "";
 	my $timestamp = 0;
 	my $start_timestamp = 0;
+
+	if ($subHeading eq "") {
+		$subHeading = "Usage";
+	}
+
+	die if $subHeading ne "Usage" && $subHeading ne "MemoryBalance";
 
 	my $file = "$reportDir/numa-meminfo-$testName-$testBenchmark";
 	if (-e $file) {
@@ -47,6 +58,8 @@ sub extractReport($$$$$) {
 
 	my $buildingHeader = 1;
 	my @row;
+	my @nodeUsage;
+	my @nodeSize;
 	my @header;
 	my @format;
 	my $fieldLength = $self->{_FieldLength};
@@ -58,9 +71,20 @@ sub extractReport($$$$$) {
 				push @format, "%${fieldLength}d";
 			}
 			$timestamp = $1;
-			if ($#row > 0) {
-				push @{$self->{_ResultData}}, [ @row ];
+			if ($#nodeUsage > 0) {
+				if ($subHeading eq "Usage") {
+					push @{$self->{_ResultData}}, [ ( @row, @nodeUsage ) ];
+				} else {
+					my @tuples;
+					for (my $i = 0; $i <= $#nodeUsage; $i++) {
+						push @tuples, $nodeUsage[$i];
+						push @tuples, $nodeSize[$i];
+					}
+					push @{$self->{_ResultData}}, [ ( @row, numa_memory_balance(@tuples) ) ];
+				}
 
+				$#nodeUsage = -1;
+				$#nodeSize  = -1;
 				$#row = -1;
 				$buildingHeader = 0;
 			}
@@ -68,11 +92,20 @@ sub extractReport($$$$$) {
 			next;
 		}
 		if ($_ =~ /^Node ([0-9]+) MemUsed:\s+([0-9]*)/) {
-			push @row, $2 * 1024;
+			push @nodeUsage, $2 * 1024;
 			if ($buildingHeader) {
-				push @header, "Node$1";
-				push @format, "%${fieldLength}d";
+				if ($subHeading eq "Usage") {
+					push @header, "Node$1";
+					push @format, "%${fieldLength}d";
+				} else {
+					push @header, "MemoryBalance";
+					push @format, "%${fieldLength}.6f";
+					$buildingHeader = 0;
+				}
 			}
+		}
+		if ($_ =~ /^Node ([0-9]+) MemTotal:\s+([0-9]*)/) {
+			push @nodeSize, $2 * 1024;
 		}
 	}
 

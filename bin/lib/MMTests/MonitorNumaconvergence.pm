@@ -34,6 +34,12 @@ sub initialise() {
 	$self->{_FieldHeaders} = [ "time", "convergence" ];
 }
 
+sub printDataType() {
+	my ($self) = @_;
+
+	print "Convergence,Time,Convergence\n";
+}
+
 sub currentConvergence()
 {
 	my ($self) = @_;

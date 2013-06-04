@@ -1,0 +1,10 @@
+#!/usr/bin/perl -wn
+use FindBin qw($Bin);
+use lib "$Bin/lib/";
+use VMR::NUMA;
+
+$x[$i++] = $_;
+END {
+        $i = 0;
+        print numa_memory_balance(@x);
+}

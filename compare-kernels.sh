@@ -493,7 +493,42 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			smoothover graph-$SUBREPORT-proc-vmstat-reclaim-file-writes
 			smoothover graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes
 			echo "</tr>"
+		fi
 
+		if [ `ls numa-meminfo-* 2> /dev/null | wc -l` -gt 0 ] && [ `zgrep ^Node numa-meminfo-* | awk '{print $2}' | sort | uniq | wc -l` -gt 1 ]; then
+			eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.png
+			eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.ps
+			eval $GRAPH_PNG --title \"Pages migrated\"      --print-monitor proc-vmstat     --sub-heading pgmigrate_success     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success.png
+			eval $GRAPH_PSC --title \"Pages migrated\"      --print-monitor proc-vmstat     --sub-heading pgmigrate_success     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success.ps
+			eval $GRAPH_PNG --title \"Pages migrated\"      --print-monitor proc-vmstat     --sub-heading pgmigrate_success     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Pages migrated\"      --print-monitor proc-vmstat     --sub-heading pgmigrate_success     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA PTE Updates\"    --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.png
+			eval $GRAPH_PSC --title \"NUMA PTE Updates\"    --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.ps
+			eval $GRAPH_PNG --title \"NUMA PTE Updates\"    --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA PTE Updates\"    --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.ps --smooth
+
+			eval $GRAPH_PNG --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.png
+			eval $GRAPH_PSC --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.ps
+			eval $GRAPH_PNG --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.png
+			eval $GRAPH_PSC --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.ps
+			eval $GRAPH_PNG --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading numa_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.png
+			eval $GRAPH_PSC --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading numa_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.ps
+			eval $GRAPH_PNG --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading numa_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading numa_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.ps --smooth
+
+
+			echo "<tr>"
+			plain      graph-$SUBREPORT-numa-memory-balance
+			smoothover graph-$SUBREPORT-proc-vmstat-pgmigrate_success
+			smoothover graph-$SUBREPORT-proc-vmstat-numa-pte-updates
+			echo "</tr>"
+			echo "<tr>"
+			plain graph-$SUBREPORT-numa-convergence
+			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-local
+			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-remote
+			echo "</tr>"
 		fi
 
 		echo "</table>"

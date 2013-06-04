@@ -10,7 +10,7 @@ use VMR::Report;
 use strict;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_5trimmed_mean &calc_trimoutlier_mean &calc_5trimmed_median &calc_mean &calc_median &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_5trimmed_mean &calc_trimoutlier_mean &calc_5trimmed_median &calc_mean &calc_geomean &calc_median &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Values taken from a standard normal table
 my %za = (
@@ -118,6 +118,28 @@ sub calc_mean {
 		return "NaN";
 	}
 	return $sum / $n;
+}
+
+sub calc_geomean {
+	my $mult = 1;
+	my $n = 0;
+	my $elements = $#_ + 1;
+	my $i;
+
+	for ($i = 0; $i < $elements; $i++) {
+		if (defined $_[$i]) {
+			if ($_[$i] !~ /^[-0-9]+/) {
+				return "NaN";
+			}
+			$mult *= $_[$i];
+			$n++;
+		}
+	}
+
+	if ($n == 0) {
+		return "NaN";
+	}
+	return $mult**(1/$n);
 }
 
 sub calc_median {

@@ -90,6 +90,7 @@ my %_fieldNameMap = (
 	"mmtests_compaction_cost"	=> "Compaction cost",
 	"numa_pte_updates"		=> "NUMA PTE updates",
 	"numa_hint_faults"		=> "NUMA hint faults",
+	"mmtests_hint_faults_remote"	=> "NUMA hint remote faults",
 	"numa_hint_faults_local"	=> "NUMA hint local faults",
 	"numa_pages_migrated"		=> "NUMA pages migrated",
 	"mmtests_autonuma_cost"		=> "AutoNUMA cost",
@@ -111,6 +112,7 @@ my @_new_migrate_stats = (
 my @_autonuma_stats = (
 	"numa_pte_updates",
 	"numa_hint_faults",
+	"numa_hint_faults_remote",
 	"numa_hint_faults_local",
 	"numa_pages_migrated",
 	"mmtests_autonuma_cost",
@@ -161,6 +163,7 @@ my @_fieldOrder = (
 	"mmtests_compaction_cost",
 	"numa_pte_updates",
 	"numa_hint_faults",
+	"numa_hint_faults_remote",
 	"numa_hint_faults_local",
 	"numa_pages_migrated",
 	"mmtests_autonuma_cost",
@@ -259,6 +262,14 @@ sub parseVMStat($)
 					$current_steal += $value;
 				}
 			}
+		} elsif ($subHeading eq "numa_hint_faults_remote") {
+			if ($stat eq "numa_hint_faults") {
+				$current_value += $value;
+			}
+
+			if ($stat eq "numa_hint_faults_local") {
+				$current_value -= $value;
+			}
 		} elsif ($subHeading eq "mmtests_vmscan_write_file") {
 			if ($stat eq "nr_vmscan_write") {
 				$current_value += $value;
@@ -317,6 +328,13 @@ sub parseVMStat($)
 			$delta_value = $current_value - $self->{_LastValue};
 		}
 		$self->{_LastValue} = $current_value;
+
+		# Due to races it is possible PSWPOUT is updated before
+		# VMSCAN_WRITE. Watch for misleading negative values for page
+		# writes
+		if ($subHeading eq "mmtests_vmscan_write_file" && $delta_value < 0) {
+			$delta_value = 0;
+		}
 
 		return $delta_value;
 	}
