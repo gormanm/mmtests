@@ -17,6 +17,11 @@ sub new() {
 	return $self;
 }
 
+sub printDataType() {
+        my ($self) = @_;
+        print "Throughput,Clients,MB/sec,candlestick";
+}
+
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my @clients;
@@ -68,10 +73,33 @@ sub _setSummaryColumn() {
 	}
 }
 
+sub printPlot() {
+	my ($self, $subHeading) = @_;
+	my $fieldLength = $self->{_FieldLength};
+	my @ops;
+
+	my ($opName, $heading, $client) = split(/-/, $subHeading);
+	if ($opName eq "" || $heading eq "" || $client eq "") {
+		die("sub-heading format it \$operation-\$heading-\$client e.g. RandRead-MB/sec-1\n");
+	}
+
+	$self->_setSummaryColumn($heading);
+	my $column = $self->{_SummariseColumn} if defined $self->{_SummariseColumn};
+	foreach my $row (@{$self->{_ResultData}}) {
+		if (@{$row}[0] =~ /$opName-$client$/) {
+			push @ops, @{$row}[$column];
+		}
+	}
+
+	 $self->_printCandlePlotData($fieldLength, @ops);
+}
+
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
 	my $column = 0;
 	my @clients = @{$self->{_Clients}};
+
+	$self->_setSummaryColumn($subHeading);
 	$column = $self->{_SummariseColumn} if defined $self->{_SummariseColumn};
 	if ($subHeading eq "") {
 		$subHeading = "MB/sec";
@@ -95,6 +123,8 @@ sub extractSummary() {
 			push @{$self->{_SummaryData}}, \@row;
 		}
 	}
+
+	return 1;
 }
 
 sub printSummary() {

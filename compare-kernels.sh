@@ -291,6 +291,21 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			;;
 		stress-highalloc)
 			;;
+		tiobench)
+			CLIENTS=`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | awk -F - '{print $3}' | sort -n | uniq`
+			for HEADING in MB/sec; do
+				PRINT_HEADING=`echo $HEADING | sed -e 's/\///'`
+				for OPERATION in SeqRead RandRead SeqWrite RandWrite; do
+					echo "<tr>"
+					for CLIENT in $CLIENTS; do
+						eval $GRAPH_PNG --title \"$OPERATION-$CLIENT\" --y-label $HEADING --sub-heading $OPERATION-$HEADING-$CLIENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$OPERATION-$PRINT_HEADING-$CLIENT.png
+						eval $GRAPH_PSC --title \"$OPERATION-$CLIENT\" --y-label $HEADING --sub-heading $OPERATION-$HEADING-$CLIENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$OPERATION-$PRINT_HEADING-$CLIENT.ps
+						plain graph-$SUBREPORT-$OPERATION-$PRINT_HEADING-$CLIENT
+					done
+					echo "</tr>"
+				done
+			done
+			;;
 		vmr-stream)
 			;;
 		*)

@@ -16,4 +16,14 @@ sub new() {
 	return $self;
 }
 
+sub extractComparison() {
+	my ($self, $subHeading, $showCompare) = @_;
+
+	if ($subHeading =~ /Latency/ ) {
+		$self->{_CompareOp} = "pndiff"
+	}
+
+	$self->SUPER::extractComparison($subHeading, $showCompare);
+}
+
 1;
