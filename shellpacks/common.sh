@@ -195,6 +195,15 @@ function set_mmtests_numactl() {
 		MMTESTS_NUMACTL="numactl --membind=$NODE_ID"
 	fi
 
+	if [ "$MMTESTS_NUMA_POLICY" = "cpubind_single_instance_node" ]; then
+		local NODE_INDEX=$(($THIS_INSTANCE%$NUMNODES+1))
+		local NODE_DETAILS=`numactl --hardware | grep cpus: | head -$NODE_INDEX | tail -1`
+		local NODE_ID=`echo $NODE_DETAILS | awk '{print $2}'`
+
+		MMTESTS_NUMACTL="numactl --cpunodebind=$NODE_ID"
+	fi
+
+
 	if [ "$MMTESTS_NUMACTL" != "" ]; then
 		echo MMTESTS_NUMACTL: $MMTESTS_NUMACTL
 		echo Instance $THIS_INSTANCE / $MAX_INSTANCE
