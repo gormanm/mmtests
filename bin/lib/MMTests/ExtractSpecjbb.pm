@@ -11,7 +11,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractSpecjbb",
-		_DataType    => DATA_SPECJBB,
+		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
 		_ResultData  => [],
 		_FieldLength => 12,
 	};
@@ -20,7 +20,7 @@ sub new() {
 }
 
 sub printDataType() {
-	print "Bops\n";
+	print "Operations,Bops,Time\n";
 }
 
 sub initialise() {
@@ -71,12 +71,26 @@ sub extractSummary() {
 
 	return 1;
 }
-#
-#sub printSummary() {
-#	my ($self) = @_;
-#
-#	$self->printReport();
-#}
+
+sub printPlot() {
+	my ($self, $subHeading) = @_;
+	my @data = @{$self->{_ResultData}};
+	my $fieldLength = $self->{_FieldLength};
+	my @instances = @{$self->{_JVMInstances}};
+
+	for (my $warehouse = 0; $warehouse < $self->{_MaxWarehouse}; $warehouse++) {
+		my @units;
+		foreach my $instance (@instances) {
+			my @instance_rows = @{$self->{_ResultData}[$instance]};
+			my @row = @{$instance_rows[$warehouse]};
+			push @units, $row[1];
+		}
+
+		printf("%-${fieldLength}d", $warehouse);
+		$self->_printSimplePlotData($fieldLength, @units);
+	}
+}
+
 
 sub printReport() {
 	my ($self, $reportDir) = @_;

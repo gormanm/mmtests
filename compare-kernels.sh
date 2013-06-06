@@ -159,7 +159,7 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 
 	TEST=
 	if [ `ls iostat-* 2> /dev/null | wc -l` -gt 0 ]; then
-		eval $COMPARE_BARE_CMD --print-monitor iostat > /tmp/iostat-$$
+		eval $COMPARE_BARE_CMD --print-monitor iostat 2> /dev/null > /tmp/iostat-$$
 		TEST=`head -4 /tmp/iostat-$$ | tail -1 | awk '{print $3}' | cut -d. -f1`
 	fi
 	if [ "$TEST" != "" ] && [ $TEST -gt 10 ]; then
