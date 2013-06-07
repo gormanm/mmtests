@@ -147,6 +147,13 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		echo $SUBREPORT Peaks
 		compare-mmtests.pl -d . -b specjbbpeak -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	tiobench)
+		echo $SUBREPORT MB/sec
+		eval $COMPARE_CMD --sub-heading MB/sec
+		echo
+		echo $SUBREPORT Maximum Latency
+		eval $COMPARE_CMD --sub-heading MaxLatency
+		;;
 	*)
 		echo $SUBREPORT
 		eval $COMPARE_CMD
@@ -293,7 +300,7 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			;;
 		tiobench)
 			CLIENTS=`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | awk -F - '{print $3}' | sort -n | uniq`
-			for HEADING in MB/sec; do
+			for HEADING in MB/sec AvgLatency MaxLatency; do
 				PRINT_HEADING=`echo $HEADING | sed -e 's/\///'`
 				for OPERATION in SeqRead RandRead SeqWrite RandWrite; do
 					echo "<tr>"
