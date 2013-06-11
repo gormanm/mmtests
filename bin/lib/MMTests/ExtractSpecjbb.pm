@@ -50,9 +50,11 @@ sub extractSummary() {
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d", "%${fieldLength}d", "%${fieldLength}d" ];
 
-	for (my $warehouse = 0; $warehouse < $self->{_MaxWarehouse}; $warehouse++) {
+	for (my $warehouse = 0;
+	     $warehouse <= $self->{_MaxWarehouse} - $self->{_MinWarehouse};
+	     $warehouse++) {
 		my @summaryRow;
-		push @summaryRow, $warehouse + 1;
+		push @summaryRow, $warehouse + $self->{_MinWarehouse};
 
 		foreach my $funcName (@funcList) {
 			no strict "refs";
@@ -103,6 +105,7 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my $jvm_instance = -1;
 	my $reading_tput = 0;
+	my $min_warehouse = -1;
 	my $max_warehouse = 0;
 	my @jvm_instances;
 	my $single_instance = 0;
@@ -155,6 +158,9 @@ sub extractReport($$$) {
 				($warehouse, $throughput) = @elements;
 				$included = "";
 			}
+			if ($min_warehouse == -1) {
+				$min_warehouse = $warehouse;
+			}
 			if ($warehouse > $max_warehouse) {
 				$max_warehouse = $warehouse;
 			}
@@ -163,6 +169,7 @@ sub extractReport($$$) {
 	}
 	$self->{_JVMSingle} = $single_instance;
 	$self->{_JVMInstances} = \@jvm_instances;
+	$self->{_MinWarehouse} = $min_warehouse;
 	$self->{_MaxWarehouse} = $max_warehouse;
 	close INPUT;
 }
