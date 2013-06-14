@@ -7,7 +7,7 @@ MIRROR_LOCATION="$WEBROOT/tiobench/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK sources_fetch tiobench-${VERSION}.tar.gz tiobench-${VERSION}-installed
+###SHELLPACK sources_fetch $VERSION/tiobench-${VERSION}.tar.gz tiobench-${VERSION}-installed
 
 # Build
 ###SHELLPACK build_start tiobench-${VERSION}-installed

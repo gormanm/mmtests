@@ -24,7 +24,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=tiobench-${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -110,4 +110,4 @@ fi
 
 echo tiobench installed successfully
 #### Description tiobench
-#### Details tiobench 9
+#### Details tiobench 10
