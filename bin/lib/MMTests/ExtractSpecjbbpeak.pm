@@ -51,13 +51,14 @@ sub extractSummary() {
 	my $fieldLength = $self->{_FieldLength} = $self->{_SummaryLength};
 	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}d" ];
 
-	for (my $warehouse = 0; $warehouse < $self->{_MaxWarehouse}; $warehouse++) {
+	my $rowIndex = 0;
+	foreach my $warehouse (@{$self->{_Warehouses}}) {
 		my @units;
 		my $printWarehouse = $warehouse + 1;
 
 		foreach my $instance (@instances) {
 			my @instance_rows = @{$self->{_ResultData}[$instance]};
-			my @row = @{$instance_rows[$warehouse]};
+			my @row = @{$instance_rows[$rowIndex]};
 			push @units, $row[1];
 		}
 		my $bops = calc_sum(@units);
@@ -69,6 +70,7 @@ sub extractSummary() {
 		if ($warehouse == $expected_peak) {
 			$expected_bops = $bops;
 		}
+		$rowIndex++;
 	}
 
 	push @{$self->{_SummaryData}}, [ "Expctd Warehouse", $expected_peak + 1 ];
@@ -92,7 +94,6 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my $jvm_instance = -1;
 	my $reading_tput = 0;
-	my $max_warehouse = 0;
 	my @jvm_instances;
 	my $specjbb_bops;
 	my $specjbb_bopsjvm;
@@ -160,17 +161,15 @@ sub extractReport($$$) {
 				($warehouse, $throughput) = @elements;
 				$included = "";
 			}
-			if ($warehouse > $max_warehouse) {
-				$max_warehouse = $warehouse;
+			if ($#jvm_instances == 1 || $single_instance) {
+				push @{$self->{_Warehouses}}, $warehouse;
 			}
 			push @{$self->{_ResultData}[$jvm_instance]}, [ $warehouse, $throughput, $included ];
 		}
 	}
 	$self->{_SpecJBBBops} = $specjbb_bops;
 	$self->{_SpecJBBBopsJVM} = $specjbb_bopsjvm;
-	$self->{_MaxWarehouse} = $max_warehouse;
 	$self->{_JVMInstances} = \@jvm_instances;
-	$self->{_MaxWarehouse} = $max_warehouse;
 	close INPUT;
 
 

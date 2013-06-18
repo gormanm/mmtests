@@ -50,11 +50,10 @@ sub extractSummary() {
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d", "%${fieldLength}d", "%${fieldLength}d" ];
 
-	for (my $warehouse = 0;
-	     $warehouse <= $self->{_MaxWarehouse} - $self->{_MinWarehouse};
-	     $warehouse++) {
+	my $rowIndex = 0;
+	foreach my $warehouse (@{$self->{_Warehouses}}) {
 		my @summaryRow;
-		push @summaryRow, $warehouse + $self->{_MinWarehouse};
+		push @summaryRow, $warehouse;
 
 		foreach my $funcName (@funcList) {
 			no strict "refs";
@@ -62,13 +61,14 @@ sub extractSummary() {
 
 			foreach my $instance (@instances) {
 				my @instance_rows = @{$self->{_ResultData}[$instance]};
-				my @row = @{$instance_rows[$warehouse]};
+				my @row = @{$instance_rows[$rowIndex]};
 				push @units, $row[1];
 			}
 			push @summaryRow, &$funcName(@units);
 		}
 
 		push @{$self->{_SummaryData}}, \@summaryRow;
+		$rowIndex++;
 	}
 
 	return 1;
@@ -80,7 +80,7 @@ sub printPlot() {
 	my $fieldLength = $self->{_FieldLength};
 	my @instances = @{$self->{_JVMInstances}};
 
-	for (my $warehouse = 0; $warehouse < $self->{_MaxWarehouse}; $warehouse++) {
+	foreach my $warehouse (@{$self->{_Warehouses}}) {
 		my @units;
 		foreach my $instance (@instances) {
 			my @instance_rows = @{$self->{_ResultData}[$instance]};
@@ -105,8 +105,6 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my $jvm_instance = -1;
 	my $reading_tput = 0;
-	my $min_warehouse = -1;
-	my $max_warehouse = 0;
 	my @jvm_instances;
 	my $single_instance = 0;
 	my $pagesize = "base";
@@ -158,19 +156,14 @@ sub extractReport($$$) {
 				($warehouse, $throughput) = @elements;
 				$included = "";
 			}
-			if ($min_warehouse == -1) {
-				$min_warehouse = $warehouse;
-			}
-			if ($warehouse > $max_warehouse) {
-				$max_warehouse = $warehouse;
+			if ($#jvm_instances == 1 || $single_instance) {
+				push @{$self->{_Warehouses}}, $warehouse;
 			}
 			push @{$self->{_ResultData}[$jvm_instance]}, [ $warehouse, $throughput, $included ];
 		}
 	}
 	$self->{_JVMSingle} = $single_instance;
 	$self->{_JVMInstances} = \@jvm_instances;
-	$self->{_MinWarehouse} = $min_warehouse;
-	$self->{_MaxWarehouse} = $max_warehouse;
 	close INPUT;
 }
 
