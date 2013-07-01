@@ -1,3 +1,24 @@
+v0.11
+o Reporting script for parallel write latency
+o Reporting script for iostat
+o Additional configs for parallel write patterns
+o Do not monitor top for specjvm configuration
+o Optionally only monitor active processes with top
+o Benchmark for on-disk compression
+o Benchmark for timed buffer allocation (relavant to THP)
+o Benchmark for mutilate, a memcached workload generator
+o Benchmark for ebizzy
+o New configuration for pgbench that is scheduler orientated
+o Suppress useless messages from reaim 
+o Report pages in/out statistics properly in vmstat
+o Monitor that enables numad
+o Monitor for NUMA memory balance
+o Fixed tiobench installation script
+o Adapt to sourceforge download links
+o Report latencies as recorded by tiobench
+o Add blktrace post-process that analyses requests completed during stalls
+o Add helper script for extracting annotated profiles
+
 v0.10
 o Adjust stap to kernel 3.9
 o Do not log usemem output as it can block on IO for anon tests
