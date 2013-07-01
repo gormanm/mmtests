@@ -21,6 +21,12 @@ my %package_map = (
 	"debian::gcc-fortran" => "gfortran",
 	"debian::gcc-c++"     => "g++",
 	"debian::diffutils"   => "diff",
+	"debian::binutils-devel" => "binutils-dev",
+	"debian::expect-devel"   => "expect-dev",
+	"debian::gcc-32bit"      => "gcc-multilib",
+	"debian::libhugetlbfs"   => "libhugetlbfs0",
+	"debian::libnuma-devel"  => "libnuma-dev",
+	"debian::xfsprogs-devel" => "xfslibs-dev",
 );
 	
 my %package_bin = (
@@ -64,7 +70,7 @@ foreach my $package (@ARGV) {
 
 	# Map the package onto the distro-equivalent name
 	if (defined($package_map{"$distro\::$package"})) {
-		$package == $package_map{"$distro\::$package"};
+		$package = $package_map{"$distro\::$package"};
 	}
 
 	# Check if the package is already installed
