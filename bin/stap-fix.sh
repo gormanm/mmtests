@@ -25,13 +25,13 @@ fi
 # Backup original stap files before adjusting
 for STAP_FILE in $STAP_FILES; do
 	if [ -e $STAP_FILE -a ! -e $STAP_FILE.orig ]; then
-		cp $STAP_FILE $STAP_FILE.orig
+		cp $STAP_FILE $STAP_FILE.orig 2> /dev/null
 	fi
 done
 
 # Restore original files and go through workarounds in order
 for STAP_FILE in $STAP_FILES; do
-	cp $STAP_FILE.orig $STAP_FILE
+	cp $STAP_FILE.orig $STAP_FILE 2> /dev/null
 done
 
 if [ "$1" == "--restore-only" ]; then
