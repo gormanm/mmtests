@@ -60,7 +60,7 @@ fi
 
 install-depends bison gcc-c++ libstdc++-devel popt-devel zlib-devel
 
-WEB_LOCATION=http://ftp.ie.postgresql.org/mirrors/ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.gz
+WEB_LOCATION=http://ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.bz2
 MIRROR_LOCATION="$WEBROOT/postgres/postgresql-${VERSION}.tar.gz"
 
 # Only updates the first occurance of the parameter
@@ -272,6 +272,9 @@ if [ "$RUNNING" = "no" ]; then
 	GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
 	echo $GROUPID > /proc/sys/vm/hugetlb_shm_group
 
+	# Record the PID file
+	update_entry_cnf external_pid_file $POSTGRES_DATADIR/postmaster.pid
+
 	# Update the memory configurations
 	update_entry_cnf work_mem $(($WORK_MEM/1048576))MB
 	update_entry_cnf random_page_cost 3.0
@@ -319,4 +322,4 @@ fi
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 24
+#### Details postgresbuild 27
