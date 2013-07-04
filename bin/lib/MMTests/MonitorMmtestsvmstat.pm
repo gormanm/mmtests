@@ -68,6 +68,7 @@ my %_fieldNameMap = (
 	"numa_pte_updates"		=> "NUMA PTE updates",
 	"numa_hint_faults"		=> "NUMA hint faults",
 	"numa_hint_faults_local"	=> "NUMA hint local faults",
+	"mmtests_hint_local"		=> "NUMA hint local percent",
 	"numa_pages_migrated"		=> "NUMA pages migrated",
 	"mmtests_autonuma_cost"		=> "AutoNUMA cost",
 );
@@ -142,6 +143,7 @@ my @_fieldOrder = (
 	"numa_pte_updates",
 	"numa_hint_faults",
 	"numa_hint_faults_local",
+	"mmtests_hint_local",
 	"numa_pages_migrated",
 	"mmtests_autonuma_cost",
 );
@@ -311,6 +313,7 @@ sub extractReport($$$$) {
 	$vmstat{"mmtests_vmscan_write_file"} = $vmstat{"nr_vmscan_write"} - $vmstat{"pswpout"};
 	$vmstat{"mmtests_vmscan_write_anon"} = $vmstat{"pswpout"};
 	$vmstat{"mmtests_minor_faults"} = $vmstat{"pgfault"} - $vmstat{"pgmajfault"};
+	$vmstat{"mmtests_hint_local"} = $vmstat{"numa_hint_faults_local"} * 100 / $vmstat{"numa_hint_faults"};
 
 	# Compaction cost model
 	my $Ca  = 56 / 8;	# Values for x86-64
@@ -422,7 +425,8 @@ key:	foreach my $key (@keys) {
 	foreach my $key (@keys) {
 		if ($key eq "mmtests_kswapd_efficiency" ||
 		    $key eq "mmtests_direct_efficiency" ||
-		    $key eq "mmtests_direct_percentage") {
+		    $key eq "mmtests_direct_percentage" ||
+		    $key eq "mmtests_hint_local") {
 			my $length = $fieldLength - 1;
 			push @format, "%${length}d%%";
 		} elsif ($key eq "mmtests_kswapd_velocity" ||
