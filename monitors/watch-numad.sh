@@ -19,7 +19,7 @@ shutdown_numad() {
 	exit 0
 }
 	
-trap shutdown_read SIGTERM
+trap shutdown_numad SIGTERM
 
 $NUMAD_BIN -i 5 || exit -1
 tail -1f /var/log/numad.log &
