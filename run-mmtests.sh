@@ -515,6 +515,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		fi
 
 		# Mark the finish of the test
+		echo test exit :: $TEST $EXIT_CODE
 		echo test end :: $TEST `date +%s` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		cat $SHELLPACK_LOG/timestamp-$RUNNAME >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		rm $SHELLPACK_LOG/timestamp-$RUNNAME
@@ -640,4 +641,5 @@ if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 	gzip /boot/vmlinux-`uname -r`
 fi
 
+echo status :: $EXIT_CODE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 exit $EXIT_CODE
