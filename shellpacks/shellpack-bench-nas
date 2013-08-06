@@ -75,9 +75,12 @@ fi
 
 # Additional test parameters
 if [ "$OPENMPI" = "" ]; then
-	JOBLIST="ft mg sp lu bt is ep cg ua"
+	JOBLIST="mg sp lu bt is ep cg ua"
 	if [ "$NAS_CLASS" != "C" ]; then
 		JOBLIST="$JOBLIST dc"
+	fi
+	if [ "$NAS_CLASS" != "D" ]; then
+		JOBLIST="$JOBLIST ft"
 	fi
 else
 	JOBLIST="mg lu is ep cg"
@@ -228,4 +231,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 39
+#### Details nas-bench 40
