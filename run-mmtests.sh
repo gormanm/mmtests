@@ -343,8 +343,10 @@ if [ "$SKIP_FINEPROFILE" = "no" -o "$SKIP_COARSEPROFILE" = "no" ]; then
 fi
 
 # Disable any inadvertent profiling going on right now
-opcontrol --stop > /dev/null 2> /dev/null
-opcontrol --deinit > /dev/null 2> /dev/null
+if [ "`lsmod | grep oprofile`" != "" ]; then
+	opcontrol --stop > /dev/null 2> /dev/null
+	opcontrol --deinit > /dev/null 2> /dev/null
+fi
 
 # Warm up. More appropriate warmup depends on the exact test
 if [ "$SKIP_WARMUP" != "yes" ]; then
@@ -525,8 +527,10 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 
 		# Reset some parameters in case tests are sloppy
 		hugeadm --pool-pages-min DEFAULT:0 2> /dev/null
-		opcontrol --stop   > /dev/null 2> /dev/null
-		opcontrol --deinit > /dev/null 2> /dev/null
+		if [ "`lsmod | grep oprofile`" != "" ]; then
+			opcontrol --stop   > /dev/null 2> /dev/null
+			opcontrol --deinit > /dev/null 2> /dev/null
+		fi
 
 		stop_monitors
 	done
