@@ -1,3 +1,10 @@
+v0.12
+o Add monitor for /proc/interrupts
+o Do not unnecessarily load oprofile
+o Timed munlock test and different NUMA binding policy
+o Record exit code
+o Do not run ft for NAS class D testing
+
 v0.11
 o Reporting script for parallel write latency
 o Reporting script for iostat
