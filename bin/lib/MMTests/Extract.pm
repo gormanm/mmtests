@@ -5,6 +5,7 @@
 
 package MMTests::Extract;
 
+use constant DATA_NONE			=> 0;
 use constant DATA_CPUTIME		=> 1;
 use constant DATA_WALLTIME		=> 2;
 use constant DATA_WALLTIME_VARIABLE	=> 3;

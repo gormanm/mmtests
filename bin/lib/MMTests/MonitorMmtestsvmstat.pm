@@ -313,7 +313,11 @@ sub extractReport($$$$) {
 	$vmstat{"mmtests_vmscan_write_file"} = $vmstat{"nr_vmscan_write"} - $vmstat{"pswpout"};
 	$vmstat{"mmtests_vmscan_write_anon"} = $vmstat{"pswpout"};
 	$vmstat{"mmtests_minor_faults"} = $vmstat{"pgfault"} - $vmstat{"pgmajfault"};
-	$vmstat{"mmtests_hint_local"} = $vmstat{"numa_hint_faults_local"} * 100 / $vmstat{"numa_hint_faults"};
+	if ($vmstat{"numa_hint_faults"}) {
+		$vmstat{"mmtests_hint_local"} = $vmstat{"numa_hint_faults_local"} * 100 / $vmstat{"numa_hint_faults"};
+	} else {
+		$vmstat{"mmtests_hint_local"} = 100;
+	}
 
 	# Compaction cost model
 	my $Ca  = 56 / 8;	# Values for x86-64
