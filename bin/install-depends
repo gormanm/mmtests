@@ -83,7 +83,7 @@ foreach my $package (@ARGV) {
 		if (!defined(which("rpm"))) {
 			die("Assumed rpm-based distro but no rpm");
 		}
-		if (system("rpm -qa $package | grep ^$package- > /dev/null") == 0) {
+		if (system("rpm -q $package >& /dev/null") == 0) {
 			next;
 		}
 	}
