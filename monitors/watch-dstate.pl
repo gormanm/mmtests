@@ -202,33 +202,41 @@ sub log_stap {
 	}
 }
 
-# Read kernel symbols and add conditional trace functions if they exist
-open(KALLSYMS, "/proc/kallsyms") || die("Failed to open /proc/kallsyms");
+# Crude as hell, do not really care
 my %found_alts;
-while (<KALLSYMS>) {
-	my ($dummy, $dummy, $symbol) = split(/\s+/, $_);
-	my $conditional;
-	if ($symbol eq "get_request_wait" || $symbol eq "shrink_zone") {
-		push(@trace_functions, $symbol);
-		$found_alts{$symbol} = 1;
-		next;
-	}
-	foreach $conditional (@trace_conditional) {
-		if ($symbol eq $conditional) {
+sub search_kallsyms {
+	my @search_symbols = @_;
+
+	# Read kernel symbols and add conditional trace functions if they exist
+	open(KALLSYMS, "/proc/kallsyms") || die("Failed to open /proc/kallsyms");
+	while (<KALLSYMS>) {
+		my ($dummy, $dummy, $symbol) = split(/\s+/, $_);
+		my $conditional;
+		if ($symbol eq "get_request_wait" || $symbol eq "shrink_zone") {
 			push(@trace_functions, $symbol);
-			last;
+			$found_alts{$symbol} = 1;
+			next;
+		}
+		foreach $conditional (@search_symbols) {
+			if ($symbol eq $conditional) {
+				push(@trace_functions, $symbol);
+				last;
+			}
 		}
 	}
+	close(KALLSYMS);
 }
-close(KALLSYMS);
+search_kallsyms(@trace_conditional);
 if ($found_alts{"get_request_wait"} != 1) {
 	push(@trace_functions, "get_request");
 }
+
 if ($found_alts{"shrink_zone"} != 1) {
-	push(@trace_functions, "shrink_zones");
-	push(@trace_functions, "kswapd_shrink_zone");
-	push(@trace_functions, "__zone_reclaim");
-	push(@trace_functions, "balance_pgdat");
+	my @alt_shrinks = ("shrink_zones",
+			"kswapd_shrink_zone",
+			"__zone_reclaim",
+			"balance_pgdat");
+	search_kallsyms(@alt_shrinks);
 }
 
 # Extract the framework script and fill in the rest
