@@ -82,7 +82,7 @@ fi
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
 monitor_pre_hook $LOGDIR_RESULTS $SIZE
-ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
+ln -s $TESTDISK_DIR /tmp/fsmark-$$
 
 if [ "$FSMARK_PARALLEL_DIRECTORIES" = "yes" ]; then
 	PARAM=
@@ -114,10 +114,10 @@ else
 			2>&1 | tee $LOGDIR_RESULTS/fsmark.log \
 					|| die Failed to run fsmark
 fi
-rm -rf $SHELLPACK_TEMP/*
+rm -rf $TESTDISK_DIR/*
 rm /tmp/fsmark-$$
 monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description fsmark
-#### Details fsmark-bench 21
+#### Details fsmark-bench 22

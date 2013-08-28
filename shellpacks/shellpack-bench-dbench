@@ -58,7 +58,7 @@ CLIENT=1
 while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
 	./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
-		-D $SHELLPACK_TEMP \
+		-D $TESTDISK_DIR \
 		-t $DBENCH_DURATION \
 		$CLIENT 2>&1 | tee $LOGDIR_RESULTS/dbench-$CLIENT.log \
 			|| die Failed to run dbench
@@ -72,4 +72,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description dbench
-#### Details dbench-bench 15
+#### Details dbench-bench 16

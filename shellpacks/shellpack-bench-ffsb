@@ -98,7 +98,7 @@ echo "time=$DURATION"				> $CONFIG
 echo "alignio=1"				>> $CONFIG
 echo						>> $CONFIG
 echo "[filesystem0]"				>> $CONFIG
-echo "	location=$SHELLPACK_TEMP"		>> $CONFIG
+echo "	location=$TESTDISK_DIR"			>> $CONFIG
 case $FILE_PROFILE in
 many-file-single-directory)
 	echo "	num_files=$NUM_FILES"		>> $CONFIG
@@ -210,4 +210,4 @@ monitor_post_hook $LOGDIR_RESULTS ffsb
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb-bench 9
+#### Details ffsb-bench 10

@@ -19,7 +19,7 @@ while [ $CLIENT -le $TIOBENCH_MAX_CLIENTS ]; do
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
 	for ITERATION in `seq 1 $TIOBENCH_ITERATIONS`; do
 		./tiobench.pl $TIOBENCH_COMMAND_RANDOM \
-			--dir     $SHELLPACK_TEMP \
+			--dir     $TESTDISK_DIR \
 			--numruns 1 \
 			--size    $((TIOBENCH_SIZE/1048576)) \
 			--block   $TIOBENCH_BLOCKSIZE \

@@ -62,7 +62,7 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	--filesize)
-		=$2
+		FILESIZE=$2
 		shift 2
 		;;
 	--max-duration)
@@ -119,11 +119,11 @@ done
 
 # DD
 echo Starting dd
-echo dd if=/dev/zero of=$SHELLPACK_TEMP/ddfile ibs=$BS count=$((FILESIZE/BS))
+echo dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$BS count=$((FILESIZE/BS))
 echo Filesize: $FILESIZE > $LOGDIR_RESULTS/dd.log
 echo BS: $BS >> $LOGDIR_RESULTS/dd.log
 START_TIME=`date +%s`
-dd if=/dev/zero of=$SHELLPACK_TEMP/ddfile ibs=$BS count=$((FILESIZE/BS)) 2>> $LOGDIR_RESULTS/dd.log &
+dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$BS count=$((FILESIZE/BS)) 2>> $LOGDIR_RESULTS/dd.log &
 DDPID=$!
 
 # Wait on dd completion or duration or whatever
@@ -153,7 +153,7 @@ END_TIME=`date +%s`
 echo "ShutdownTime: $((END_TIME-SHUTDOWN_START_TIME)) seconds" >> $LOGDIR_RESULTS/dd.log
 DIRTY=`grep "nr_dirty " /proc/vmstat | awk '{print $2}'`
 DIRTY=$((DIRTY*4096))
-WRITTEN=`stat $SHELLPACK_TEMP/ddfile | grep Size: | awk '{print $2}'`
+WRITTEN=`stat $TESTDISK_DIR/ddfile | grep Size: | awk '{print $2}'`
 ACTUALWRITTEN=$((WRITTEN-DIRTY))
 DDRUNTIME=$((END_TIME-START_TIME))
 
@@ -166,7 +166,7 @@ done
 rm $TEMPFILE $TEMPFILE.c
 echo Deleting ddfile
 DELETE_START_TIME=`date +%s`
-rm $SHELLPACK_TEMP/ddfile
+rm $TESTDISK_DIR/ddfile
 END_TIME=`date +%s`
 DELETE_TIME=$((END_TIME-$DELETE_START_TIME))
 
@@ -284,4 +284,4 @@ int main(int argc, char **argv)
 	printf("%lu.%06lu 0.000000 1\n", tv.tv_sec, tv.tv_usec);
 }
 #### Description DD residency plots delays accessing a mapping during a large dd
-#### Details ddresidency-bench 32
+#### Details ddresidency-bench 33

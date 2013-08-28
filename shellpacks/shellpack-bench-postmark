@@ -37,7 +37,7 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/postmark-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/postmark-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-postmark -v ${VERSION} || die postmark install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-postmark -v ${VERSION}  || die postmark install script returned error
 fi
 cd $SHELLPACK_SOURCES/postmark-${VERSION}-installed || die Failed to cd to postmark install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -58,7 +58,7 @@ echo "set transactions $POSTMARK_TRANSACTIONS
 set size $POSTMARK_MIN_SIZE $POSTMARK_MAX_SIZE
 set number $POSTMARK_SIMULTANEOUS_FILES
 set subdirectories $POSTMARK_SUBDIRECTORIES
-set location $SHELLPACK_TEMP
+set location $TESTDISK_DIR
 run
 quit" > $LOGDIR_RESULTS/postmark.pmrc
 
@@ -142,4 +142,4 @@ monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description postmark
-#### Details postmark-bench 16
+#### Details postmark-bench 17

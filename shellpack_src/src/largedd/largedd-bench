@@ -24,7 +24,7 @@ echo "0:Start time:$STARTTIME:0" > $LOGDIR_RESULTS/largedd.result
 monitor_pre_hook $LOGDIR_RESULTS download
 STARTTIME=`date +%s`
 echo Downloading source tar: $SRCTAR
-cd $SHELLPACK_TEMP || die Failed to change to temp directory
+cd $TESTDISK_DIR || die Failed to change to temp directory
 wget -O 0 -q $SRCTAR
 if [ $? -ne 0 ]; then
 	echo Failed to download source tar, creating dummy

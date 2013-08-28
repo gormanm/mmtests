@@ -51,7 +51,7 @@ echo "0:Start time:$STARTTIME:0" > $LOGDIR_RESULTS/largecopy.result
 monitor_pre_hook $LOGDIR_RESULTS download
 STARTTIME=`date +%s`
 echo Downloading source tar: $SRCTAR
-cd $SHELLPACK_TEMP || die Failed to change to temp directory
+cd $TESTDISK_DIR || die Failed to change to temp directory
 wget -q $SRCTAR || die Failed to download source tar
 if [ "$SRCTAR_EXTRA" != "" ]; then
 	echo Downloading extra source tar: $SRCTAR_EXTRA
@@ -162,4 +162,4 @@ echo "6:Time to expand tar:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_R
 echo Deleting work
 rm -rf $DIRECTORIES gianttar.tar.gz `basename $SRCTAR`
 #### Description Large copy and untar
-#### Details largecopy-bench 7
+#### Details largecopy-bench 8

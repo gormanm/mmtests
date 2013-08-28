@@ -26,7 +26,7 @@ echo "0:Start time:$STARTTIME:0" > $LOGDIR_RESULTS/largecopy.result
 monitor_pre_hook $LOGDIR_RESULTS download
 STARTTIME=`date +%s`
 echo Downloading source tar: $SRCTAR
-cd $SHELLPACK_TEMP || die Failed to change to temp directory
+cd $TESTDISK_DIR || die Failed to change to temp directory
 wget -q $SRCTAR || die Failed to download source tar
 if [ "$SRCTAR_EXTRA" != "" ]; then
 	echo Downloading extra source tar: $SRCTAR_EXTRA

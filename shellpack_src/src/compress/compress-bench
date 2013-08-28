@@ -26,7 +26,7 @@ if [ "$COMPRESS_SOURCE" = "" ]; then
 fi
 
 # Download the source file
-cd $SHELLPACK_TEMP || die Failed to change to temp directory
+cd $TESTDISK_DIR || die Failed to change to temp directory
 echo Downloading $COMPRESS_SOURCE
 wget -O 0.gz -q $COMPRESS_SOURCE
 if [ $? -ne 0 ]; then

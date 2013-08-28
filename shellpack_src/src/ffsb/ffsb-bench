@@ -38,7 +38,7 @@ echo "time=$DURATION"				> $CONFIG
 echo "alignio=1"				>> $CONFIG
 echo						>> $CONFIG
 echo "[filesystem0]"				>> $CONFIG
-echo "	location=$SHELLPACK_TEMP"		>> $CONFIG
+echo "	location=$TESTDISK_DIR"			>> $CONFIG
 case $FILE_PROFILE in
 many-file-single-directory)
 	echo "	num_files=$NUM_FILES"		>> $CONFIG

@@ -42,7 +42,7 @@ WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v3.0/linux-$VERSION.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS*$FACTOR))
 
-pushd $SHELLPACK_TEMP > /dev/null
+pushd $TESTDISK_DIR > /dev/null
 
 sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
 tar xf linux-$VERSION.tar.gz || die Failed to extract
@@ -74,7 +74,7 @@ done
 
 # Gather results and cleanup
 cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time
-rm -rf $SHELLPACK_TEMP
+rm -rf $TESTDISK_DIR/*
 
 # clean up the tree to save space
 popd > /dev/null
@@ -82,4 +82,4 @@ rm -rf $TMPDIR/kernbench
 
 exit 0
 #### Description Benchmark based on kernel builds
-#### Details kernbench-bench 21
+#### Details kernbench-bench 22

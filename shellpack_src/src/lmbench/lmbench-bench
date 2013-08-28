@@ -16,7 +16,7 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 	# Prepare test
 	case $LMBENCH_TEST in
 	lat_mmap)
-		dd if=/dev/zero of=$SHELLPACK_TEMP/lmbench.file ibs=4096 count=$((LMBENCH_LATMMAP_FILESIZE/4096))
+		dd if=/dev/zero of=$TESTDISK_DIR/lmbench.file ibs=4096 count=$((LMBENCH_LATMMAP_FILESIZE/4096))
 		;;
 	lat_ctx)
 		echo
@@ -34,7 +34,7 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 	lat_mmap)
 		./bin/$LMBENCH_TEST \
 			-N $LMBENCH_LATMMAP_ITERATIONS \
-			$LMBENCH_LATMMAP_FILESIZE $SHELLPACK_TEMP/lmbench.file \
+			$LMBENCH_LATMMAP_FILESIZE $TESTDISK_DIR/lmbench.file \
 				2>&1 | tee -a $LMBENCH_RESULTS
 		;;
 	lat_ctx)
@@ -56,7 +56,7 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 	esac
 	monitor_post_hook $LOGDIR_RESULTS $LMBENCH_TEST 
 
-	rm -f $SHELLPACK_TEMP/lmbench.file 2> /dev/null
+	rm -f $TESTDISK_DIR/lmbench.file 2> /dev/null
 done
 
 exit $SHELLPACK_SUCCESS
