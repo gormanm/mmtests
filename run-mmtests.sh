@@ -189,8 +189,8 @@ if [ "$TESTDISK_PARTITION" != "" ]; then
 	fi
 
 	echo Creating tmp and sources
-	mkdir $SHELLPACK_SOURCES
-	mkdir $SHELLPACK_TEMP
+	mkdir -p $SHELLPACK_SOURCES
+	mkdir -p $SHELLPACK_TEMP
 fi
 
 # Create NFS mount
@@ -461,7 +461,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	if [ "$MEMCG_SIZE" != "" ]; then
 		mkdir -p /cgroups
 		mount -t cgroup none /cgroups -o memory || die Failed to mount /cgroups
-		mkdir /cgroups/0
+		mkdir -p /cgroups/0
 		echo $MEMCG_SIZE > /cgroups/0/memory.limit_in_bytes || die Failed to set memory limit
 		echo $$ > /cgroups/0/tasks
 		echo Memory limit configured: `cat /cgroups/0/memory.limit_in_bytes`
@@ -565,7 +565,7 @@ else
 			TESTID=`grep $TEST: test.pids | tail -1 | awk -F : '{print $3}'`
 
 			if [ "$MEMCG_SIZE" != "" -a ! -e /cgroups/$NR_TEST ]; then
-				mkdir /cgroups/$NR_TEST
+				mkdir -p /cgroups/$NR_TEST
 				echo $MEMCG_SIZE > /cgroups/$NR_TEST/memory.limit_in_bytes || die Failed to set memory limit
 				echo Memory limit $NR_TEST configured: `cat /cgroups/$NR_TEST/memory.limit_in_bytes`
 			fi

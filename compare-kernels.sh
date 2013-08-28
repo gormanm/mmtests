@@ -45,7 +45,7 @@ if [ "$FORMAT" != "" ]; then
 	FORMAT_CMD="--format $FORMAT"
 fi
 if [ "$OUTPUT_DIRECTORY" != "" -a ! -e "$OUTPUT_DIRECTORY" ]; then
-	mkdir $OUTPUT_DIRECTORY
+	mkdir -p $OUTPUT_DIRECTORY
 fi
 if [ "$OUTPUT_DIRECTORY" != "" -a ! -d "$OUTPUT_DIRECTORY" ]; then
 	echo Output directory is not a directory
