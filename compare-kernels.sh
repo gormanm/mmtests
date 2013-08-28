@@ -169,7 +169,7 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		eval $COMPARE_BARE_CMD --print-monitor iostat 2> /dev/null > /tmp/iostat-$$
 		TEST=`head -4 /tmp/iostat-$$ | tail -1 | awk '{print $3}' | cut -d. -f1`
 	fi
-	if [ "$TEST" != "" ] && [ $TEST -gt 10 ]; then
+	if [ "$TEST" != "" ] && [ $TEST -gt 5 ]; then
 		echo
 		eval $COMPARE_CMD --print-monitor iostat
 		PARAM_LIST="avgqz await r_await w_await"

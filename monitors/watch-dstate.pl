@@ -22,8 +22,8 @@ my @trace_functions = (
 	"wait_for_completion",
 	"wait_on_page_bit",
 	"wait_on_page_bit_killable",
-	"try_to_free_pages",
-	"shrink_zone");
+	"try_to_free_pages"
+	);
 
 my @completion_functions=(
 	"handle_mm_fault",
@@ -40,7 +40,8 @@ my @trace_conditional = (
 	"sleep_on_buffer",
 	"try_to_compact_pages",
 	"balance_dirty_pages_ratelimited_nr",
-	"balance_dirty_pages");
+	"balance_dirty_pages",
+	);
 
 # Information on each stall is gathered and stored in a hash table for
 # dumping later. Define some constants for the table lookup to avoid
@@ -203,13 +204,13 @@ sub log_stap {
 
 # Read kernel symbols and add conditional trace functions if they exist
 open(KALLSYMS, "/proc/kallsyms") || die("Failed to open /proc/kallsyms");
-my $found_get_request_wait = 0;
+my %found_alts;
 while (<KALLSYMS>) {
 	my ($dummy, $dummy, $symbol) = split(/\s+/, $_);
 	my $conditional;
-	if ($symbol eq "get_request_wait") {
+	if ($symbol eq "get_request_wait" || $symbol eq "shrink_zone") {
 		push(@trace_functions, $symbol);
-		$found_get_request_wait = 1;
+		$found_alts{$symbol} = 1;
 		next;
 	}
 	foreach $conditional (@trace_conditional) {
@@ -220,8 +221,14 @@ while (<KALLSYMS>) {
 	}
 }
 close(KALLSYMS);
-if (!$found_get_request_wait) {
+if ($found_alts{"get_request_wait"} != 1) {
 	push(@trace_functions, "get_request");
+}
+if ($found_alts{"shrink_zone"} != 1) {
+	push(@trace_functions, "shrink_zones");
+	push(@trace_functions, "kswapd_shrink_zone");
+	push(@trace_functions, "__zone_reclaim");
+	push(@trace_functions, "balance_pgdat");
 }
 
 # Extract the framework script and fill in the rest

@@ -7,7 +7,7 @@ STAP_FILES="/usr/share/systemtap/runtime/stack.c /usr/share/systemtap/runtime/tr
 	/usr/share/systemtap/runtime/map.c /usr/share/systemtap/runtime/map-stat.c
 	/usr/share/systemtap/runtime/task_finder2.c /usr/share/systemtap/runtime/task_finder_vma.c
 	/usr/share/systemtap/runtime/linux/task_finder_map.c /usr/share/systemtap/runtime/linux/task_finder_map.c
-	/usr/share/systemtap/runtime/stp_utrace.c"
+	/usr/share/systemtap/runtime/stp_utrace.c /usr/share/systemtap/runtime/alloc.c"
 
 if [ "`whoami`" != "root" ]; then
 	exit
@@ -108,6 +108,21 @@ sed /usr/share/systemtap/runtime/stp_utrace.c \
 	-e 's/hlist_for_each_entry_safe(utrace, node/hlist_for_each_entry_safe(utrace/' \
 	-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/stp_utrace.c.tmp
 mv /usr/share/systemtap/runtime/stp_utrace.c.tmp /usr/share/systemtap/runtime/stp_utrace.c
+stap -e 'probe begin { println("validating systemtap fix") exit () }'
+if [ $? == 0 ]; then
+	exit 0
+fi
+
+# Changes in alloc header
+grep -q "include <linux/percpu.h>" /usr/share/systemtap/runtime/alloc.c
+if [ $? -eq 0 ]; then
+	START=`grep -n "include <linux/percpu.h>" /usr/share/systemtap/runtime/alloc.c | head -1 | cut -f1 -d:`
+	LENGTH=`wc -l < /usr/share/systemtap/runtime/alloc.c`
+	head -$START /usr/share/systemtap/runtime/alloc.c > /usr/share/systemtap/runtime/alloc.c.tmp
+	echo "#include <linux/slab.h>" >> /usr/share/systemtap/runtime/alloc.c.tmp
+	tail -$((LENGTH-START)) /usr/share/systemtap/runtime/alloc.c >> /usr/share/systemtap/runtime/alloc.c.tmp
+	mv /usr/share/systemtap/runtime/alloc.c.tmp /usr/share/systemtap/runtime/alloc.c
+fi
 stap -e 'probe begin { println("validating systemtap fix") exit () }'
 if [ $? == 0 ]; then
 	exit 0
