@@ -3,7 +3,7 @@
 P=ffsb-install
 DEFAULT_VERSION=6.0-rc2
 . $SHELLPACK_INCLUDE/common.sh
-WEB_LOCATION=http://heanet.dl.sourceforge.net/project/ffsb/ffsb/
+WEB_LOCATION=$WEB_LOCATION/ffsb-$VERSION
 MIRROR_LOCATION="$WEBROOT/ffsb/"
 
 # Basic argument parser
@@ -61,4 +61,4 @@ fi
 
 echo ffsb installed successfully
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb 8
+#### Details ffsb 9
