@@ -22,7 +22,7 @@ ENDTIME=$(($STARTTIME+$DURATION))
 HEARTBEAT=$(($STARTTIME+10))
 
 # Discover parittion for blktrace and initialise pid files
-TRACE_PARTITION=`df $SHELLPACK_TEMP | tail -1 | awk '{print $1}'`
+TRACE_PARTITION=`df $TESTDISK_DIR | tail -1 | awk '{print $1}'`
 for TESTTHREAD in `seq 1 $TESTTHREADS`; do
 	echo -n > $SHELLPACK_TEMP/thread-$TESTTHREAD.pid
 done
@@ -46,7 +46,7 @@ while [ `date +%s` -lt $ENDTIME ]; do
 			
 		if [ "$PID" = "" -o "$ALIVE" = "no" ]; then
 			echo Restarting thread $TESTTHREAD dd
-			dd if=/dev/zero of=$SHELLPACK_TEMP/zerofile-$TESTTHREAD bs=$DD_BLOCKSIZE count=$DD_COUNT &
+			dd if=/dev/zero of=$TESTDISK_DIR/zerofile-$TESTTHREAD bs=$DD_BLOCKSIZE count=$DD_COUNT &
 			echo $! > $PIDFILE
 		fi
 	done

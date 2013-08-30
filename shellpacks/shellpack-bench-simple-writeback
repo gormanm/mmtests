@@ -28,7 +28,7 @@ while [ "$1" != "" ]; do
 			MAX_CPU_FACTOR=$2
 			shift 2;;
 		--diskdir)
-			SHELLPACK_TEMP=$2
+			TESTDISK_DIR=$2
 			shift 2;;
 		--bs)
 			BS=$2
@@ -47,7 +47,7 @@ done
 
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-FILESYSTEM=`stat -f $SHELLPACK_TEMP | grep Namelen | awk '{print $NF}' | sed -e 's/\//_/'`
+FILESYSTEM=`stat -f $TESTDISK_DIR | grep Namelen | awk '{print $NF}' | sed -e 's/\//_/'`
 while [ $CPU_FACTOR -le $MAX_CPU_FACTOR ]; do
 	if [ $CPU_FACTOR -eq 0 ]; then
 		NR_JOBS=1
@@ -94,7 +94,7 @@ while [ $CPU_FACTOR -le $MAX_CPU_FACTOR ]; do
 		monitor_pre_hook $LOGDIR_RESULTS $SIZE
 		for JOB in `seq 1 $NR_JOBS`; do
 			/usr/bin/time -f "iteration $ITER : %U user %S system %e elapsed" \
-				dd if=/dev/zero of=$SHELLPACK_TEMP/file-$JOB ibs=$BS obs=$BS count=$FILESIZE_JOB_CHUNKS $CONV >> $LOGDIR_RESULTS/job-$JOB-of-$NR_JOBS.log 2>&1 &
+				dd if=/dev/zero of=$TESTDISK_DIR/file-$JOB ibs=$BS obs=$BS count=$FILESIZE_JOB_CHUNKS $CONV >> $LOGDIR_RESULTS/job-$JOB-of-$NR_JOBS.log 2>&1 &
 				echo $! > $LOGDIR_RESULTS/job-$JOB.pid
 		done
 
@@ -104,7 +104,7 @@ while [ $CPU_FACTOR -le $MAX_CPU_FACTOR ]; do
 			echo Job $JOBPID
 			wait $JOBPID
 			rm $LOGDIR_RESULTS/job-$JOB.pid
-			rm $SHELLPACK_TEMP/file-$JOB
+			rm $TESTDISK_DIR/file-$JOB
 		done
 	done
 	echo Re-reading vmstat

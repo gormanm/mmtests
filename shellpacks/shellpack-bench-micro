@@ -161,7 +161,7 @@ for TEST in $TESTLIST; do
 	TEST_FILENAME=`basename "$SOURCE_LOCATION"`
 	TEST_TYPE=`echo $TEST_FILENAME | awk -F . '{print $NF}'`
 
-	cd $SHELLPACK_TEMP || die Failed to cd to temporary directory
+	cd $TESTDISK_DIR || die Failed to cd to temporary directory
 	if [[ $SOURCE_LOCATION =~ ^http: ]]; then
 		wget -q -O $TEST_FILENAME "$SOURCE_LOCATION" || die Failed to download source for $TEST
 		if [ "$PATCH_LOCATION" != "" ]; then
@@ -221,7 +221,7 @@ for TEST in $TESTLIST; do
 done
 
 cd /
-rm -rf $SHELLPACK_TEMP
+rm -rf $TESTDISK_DIR/*
 if [ $EXIT_CODE -ne $SHELLPACK_SUCCESS ]; then
 	die Failed to run one of the micro benchmarks
 fi
