@@ -200,6 +200,26 @@ if [ "$TESTDISK_NFS_MOUNT" != "" ]; then
 	mount -t nfs $TESTDISK_NFS_MOUNT $SHELLPACK_TEST_MOUNT || exit
 fi
 
+# Prepared environment in a directory, does not work together with
+# TESTDISK_PARTITION and co.
+if [ "$TESTDISK_DIR" != "" ]; then
+	if [ "$SHELLPACK_TEST_MOUNT" != "" -a "$TESTDISK_PARTITION" != "" ]; then
+		die "Can't use TESTDISK_PARTITION together with TESTDISK_DIR"
+	fi
+	if ! [ -d "$TESTDISK_DIR" ]; then
+		die "Can't find TESTDISK_DIR $TESTDISK_DIR"
+	fi
+	echo "Using directory $TESTDISK_DIR for test"
+else
+	if [ "$SHELLPACK_TEST_MOUNT" != "" -a "$TESTDISK_PARTITION" != "" ]; then
+		echo "Using TESTDISK_DIR at SHELLPACK_TEST_MOUNT"
+		TESTDISK_DIR="$SHELLPACK_TEMP"
+	else
+		echo "Using default TESTDISK_DIR"
+		TESTDISK_DIR="$SHELLPACK_TEMP"
+	fi
+fi
+
 # Configure swap
 case $SWAP_CONFIGURATION in
 partitions)

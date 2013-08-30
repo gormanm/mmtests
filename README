@@ -85,6 +85,12 @@ TESTDISK_MOUNT_ARGS
 	The filesystem, mkfs parameters and mount arguments for the test
 	partitions
 
+TESTDISK_DIR
+	A directory passed to the test. If not set, defaults to
+	SHELLPACK_TEMP. The directory is supposed to contain a precreated
+	environment (eg. a specifically created filesystem mounted with desired
+	mount options).
+
 As MMTests downloads a number of benchmarks it is possible to create
 a local mirror. The location of the mirror is configured in WEBROOT in
 shellpacks/common-config.sh.  For example, kernbench tries to download
