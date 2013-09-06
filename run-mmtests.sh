@@ -217,6 +217,7 @@ else
 	else
 		echo "Using default TESTDISK_DIR"
 		TESTDISK_DIR="$SHELLPACK_TEMP"
+		mkdir -p "$SHELLPACK_TEMP"
 	fi
 fi
 
