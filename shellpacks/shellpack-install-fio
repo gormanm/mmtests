@@ -1,0 +1,53 @@
+#!/bin/bash
+# fio installer
+P=fio-install
+DEFAULT_VERSION=2.1.2
+. $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION=http://brick.kernel.dk/snaps
+MIRROR_LOCATION="$WEBROOT/fio/"
+
+install-depends glibc-devel
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=fio-${VERSION}.tar.bz2
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+        error "$P: tar xf fio-${VERSION}.tar.bz2 failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR fio-${VERSION}-installed
+pushd fio-${VERSION}-installed > /dev/null || die Failed to rename tar
+
+pushd $SHELLPACK_SOURCES/fio-${VERSION}-installed || die Failed to change to source directory
+make -j$NUMCPUS
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+echo fio installed successfully
+#### Description Flexible IO tester
+#### Details fio 1

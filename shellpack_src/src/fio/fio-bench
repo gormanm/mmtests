@@ -1,0 +1,27 @@
+#!/bin/bash
+# This script installs fio and runs a fio job
+
+###SHELLPACK preamble fio-bench 2.1.2
+FIO_CMD_OPTIONS=
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --cmdline                FIO_CMD_OPTIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required fio-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+monitor_pre_hook $LOGDIR_RESULTS $SIZE
+ln -s $TESTDISK_DIR /tmp/fio-$$
+
+./fio --directory="$TESTDISK_DIR" $FIO_CMD_OPTIONS \
+	2>&1 | tee $LOGDIR_RESULTS/fio.log \
+		|| die Failed to have fun with fio
+
+rm -rf $TESTDISK_DIR/*
+rm /tmp/fio-$$
+monitor_post_hook $LOGDIR_RESULTS $SIZE
+
+exit $SHELLPACK_SUCCESS

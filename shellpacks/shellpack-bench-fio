@@ -1,0 +1,65 @@
+#!/bin/bash
+# This script installs fio and runs a fio job
+
+P=fio-bench
+DEFAULT_VERSION=2.1.2
+. $SHELLPACK_INCLUDE/common.sh
+FIO_CMD_OPTIONS=
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--cmdline)
+		FIO_CMD_OPTIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/fio-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/fio-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-fio -v ${VERSION}  || die fio install script returned error
+fi
+cd $SHELLPACK_SOURCES/fio-${VERSION}-installed || die Failed to cd to fio install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo fio installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+monitor_pre_hook $LOGDIR_RESULTS $SIZE
+ln -s $TESTDISK_DIR /tmp/fio-$$
+
+./fio --directory="$TESTDISK_DIR" $FIO_CMD_OPTIONS \
+	2>&1 | tee $LOGDIR_RESULTS/fio.log \
+		|| die Failed to have fun with fio
+
+rm -rf $TESTDISK_DIR/*
+rm /tmp/fio-$$
+monitor_post_hook $LOGDIR_RESULTS $SIZE
+
+exit $SHELLPACK_SUCCESS
+#### Description Flexible IO tester
+#### Details fio-bench 1

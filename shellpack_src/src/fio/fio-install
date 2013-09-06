@@ -1,0 +1,17 @@
+#!/bin/bash
+# fio installer
+###SHELLPACK preamble fio-install 2.1.2
+WEB_LOCATION=http://brick.kernel.dk/snaps
+MIRROR_LOCATION="$WEBROOT/fio/"
+
+install-depends glibc-devel
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch fio-${VERSION}.tar.bz2 fio-${VERSION}-installed
+
+###SHELLPACK build_start fio-${VERSION}-installed
+###SHELLPACK make
+
+echo fio installed successfully
