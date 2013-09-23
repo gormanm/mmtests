@@ -1,0 +1,36 @@
+#!/bin/bash
+# This script installs memtester
+###SHELLPACK preamble memtester-bench 4.3.0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --instances	MEMTESTER_INSTANCES
+###SHELLPACK parseargParam --mb-usage  MEMTESTER_MEMORY_MB
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required memtester-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/memtester-${VERSION}-installed || exit $SHELLPACK_ERROR
+USAGE=$((MEMTESTER_MEMORY_MB/MEMTESTER_INSTANCES))
+for INSTANCE in `seq 1 $MEMTESTER_INSTANCES`; do
+	
+	echo Starting instance $INSTANCE usage $USAGE mb
+	./memtester $((MEMTESTER_MEMORY_MB/MEMTESTER_INSTANCES))M 1 > $LOGDIR_RESULTS/memtester-$INSTANCE.log &
+	echo $! > $SHELLPACK_TEMP/memtester-$INSTANCE.pid
+done
+
+EXIT_CODE=$SHELLPACK_SUCCESS
+for INSTANCE in `seq 1 $MEMTESTER_INSTANCES`; do
+	INSTANCE_PID=`cat $SHELLPACK_TEMP/memtester-$INSTANCE.pid`
+	echo Waiting on instance $INSTANCE pid $INSTANCE_PID
+	wait $INSTANCE_PID
+	RET=$?
+	if [ $RET -ne 0 ]; then
+		warn Instance $INSTANCE failed with exit code $RET
+		EXIT_CODE=$SHELLPACK_ERROR
+	fi
+done
+
+exit $EXIT_CODE
