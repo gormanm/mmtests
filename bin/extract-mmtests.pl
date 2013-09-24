@@ -139,6 +139,8 @@ extract-mmtest [options]
  -n, --name		Title for the series if tests given to run-mmtests.sh
  -b, --benchmark	Benchmark to extract data for
  -v, --verbose		Verbose output
+ --format=text		Output format, valid are html or text (default)
+ --print-type		Print benchmark metric type
  --print-header		Print a header
  --print-summary	Summarise the data
  --print-extra		Print secondary data collected by the benchmark
