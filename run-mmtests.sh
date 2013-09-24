@@ -37,8 +37,17 @@ begin_shutdown() {
 trap begin_shutdown SIGTERM
 trap begin_shutdown SIGINT
 
+usage() {
+	echo "$0 [-mn] [-c path_to_config] runname"
+	echo
+	echo "-m|--run-monitor Force enable monitor."
+	echo "-n|--no-monitor  Force disable monitor."
+	echo "-c|--config      Use MMTests config, default is ./config"
+	echo "-h|--help        Prints this help."
+}
+
 # Parse command-line arguments
-ARGS=`getopt -o mnc --long run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
+ARGS=`getopt -o mnch --long help,run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
 eval set -- "$ARGS"
 while true; do
 	case "$1" in
@@ -54,8 +63,13 @@ while true; do
 			export CONFIG=$2
 			shift 2
 			;;
+		-h|--help)
+			usage
+			exit $SHELLPACK_SUCCESS
+			;;
 		*)
-			break
+			usage
+			exit $SHELLPACK_ERROR
 			;;
 	esac
 done
@@ -63,6 +77,12 @@ done
 # Take the unparsed option as the parameter
 shift
 RUNNAME=$1
+
+if [ -z "$RUNNAME" ]; then
+	error "Runname parameter must be specified"
+	usage
+	exit -1
+fi
 
 # Import config
 if [ ! -e $CONFIG ]; then
