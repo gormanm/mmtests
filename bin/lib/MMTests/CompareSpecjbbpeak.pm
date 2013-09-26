@@ -8,7 +8,7 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareSpecjbbpeak",
 		_DataType    => MMTests::Compare::DATA_OPSSEC,
-		_FieldLength => 24,
+		_FieldLength => 15,
 		_ResultData  => []
 	};
 	bless $self, $class;

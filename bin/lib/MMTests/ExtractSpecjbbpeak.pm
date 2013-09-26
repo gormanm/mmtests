@@ -13,7 +13,7 @@ sub new() {
 		_ModuleName  => "ExtractSpecjbbpeak",
 		_DataType    => DATA_SPECJBB_PEAK,
 		_ResultData  => [],
-		_FieldLength => 17,
+		_FieldLength => 15,
 	};
 	bless $self, $class;
 	return $self;
@@ -32,7 +32,7 @@ sub initialise() {
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%${fieldLength}d", "%${fieldLength}s" ];
 	$self->{_FieldHeaders} = [ "JVMInstance", "Warehouses", "Bops", "Included" ];
 	$self->{_SummaryHeaders} = [ "Metric", "" ];
-	$self->{_SummaryLength} = 17;
+	$self->{_SummaryLength} = 15;
 	$self->{_TestName} = $testName;
 }
 
