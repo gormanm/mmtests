@@ -30,8 +30,10 @@ sub pdiff {
 }
 
 sub pndiff {
-	if ($_[0] == $_[1] || $_[0] == 0) {
+	if ($_[0] == $_[1]) {
 		return 0;
+	} elsif ($_[0] == 0) {
+		return 100;
 	} elsif ($_[1] == 0 && $_[0] != 0) {
 		return -99;
 	} else {
