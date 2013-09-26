@@ -143,7 +143,7 @@ fi
 echo Starting memcached server with pool $MEMCACHED_MEMPOOL MB
 $SHELLPACK_SOURCES/memcached-${VERSION}-installed/bin/memcached $USER_SWITCH \
 	-d -P $SHELLPACK_SOURCES/memcached-${VERSION}-installed/memcached.pid \
-	-m $MEMCACHED_MEMPOOL
+	-m $((MEMCACHED_MEMPOOL/1048576))
 	
 if [ $? -ne 0 ]; then
 	die Failed to start memcached server
@@ -155,4 +155,4 @@ sleep 10
 	
 echo memcached installed successfully
 #### Description memcached installer
-#### Details memcached 21
+#### Details memcached 22
