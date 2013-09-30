@@ -71,6 +71,7 @@ while true; do
 			break
 			;;
 		*)
+			echo ERROR: Unrecognised option $1
 			usage
 			exit $SHELLPACK_ERROR
 			;;
