@@ -67,6 +67,9 @@ while true; do
 			usage
 			exit $SHELLPACK_SUCCESS
 			;;
+		--)
+			break
+			;;
 		*)
 			usage
 			exit $SHELLPACK_ERROR
