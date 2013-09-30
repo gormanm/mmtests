@@ -79,7 +79,7 @@ shift
 RUNNAME=$1
 
 if [ -z "$RUNNAME" ]; then
-	error "Runname parameter must be specified"
+	echo "ERROR: Runname parameter must be specified"
 	usage
 	exit -1
 fi
