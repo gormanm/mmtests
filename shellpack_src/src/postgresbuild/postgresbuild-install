@@ -215,7 +215,7 @@ if [ "$RUNNING" = "no" ]; then
 	echo $GROUPID > /proc/sys/vm/hugetlb_shm_group
 
 	# Record the PID file
-	update_entry_cnf external_pid_file $POSTGRES_DATADIR/postmaster.pid
+	update_entry_cnf external_pid_file \'$POSTGRES_DATADIR/postmaster.pid\'
 
 	# Update the memory configurations
 	update_entry_cnf work_mem $(($WORK_MEM/1048576))MB
