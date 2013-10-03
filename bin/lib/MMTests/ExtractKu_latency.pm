@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractKu_latency",
-		_DataType    => MMTests::Extract::DATA_WALLTIME_VARIABLE,
+		_DataType    => MMTests::Extract::DATA_WALLTIME_OUTLIERS,
 		_ResultData  => [],
 		_Precision   => 6,
 		_UseTrueMean => 1,
@@ -18,7 +18,7 @@ sub new() {
 }
 
 sub printDataType() {
-	print "WalltimeVariable,TestName,Time,candlesticks\n";
+	print "WalltimeOutliers,TestName,Time\n";
 }
 
 sub initialise() {

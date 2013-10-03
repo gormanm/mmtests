@@ -8,8 +8,9 @@ package MMTests::Compare;
 use constant DATA_CPUTIME		=> 1;
 use constant DATA_WALLTIME		=> 2;
 use constant DATA_WALLTIME_VARIABLE	=> 3;
-use constant DATA_OPSSEC		=> 4;
-use constant DATA_THROUGHPUT		=> 5;
+use constant DATA_WALLTIME_OUTLIERS	=> 4;
+use constant DATA_OPSSEC		=> 5;
+use constant DATA_THROUGHPUT		=> 6;
 use VMR::Stat;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
@@ -48,7 +49,6 @@ sub initialise() {
 		$compareLength = 6;
 		@fieldHeaders = ("Time", "Procs");
 	}
-
 	if (!$self->{_FieldLength}) {
 		$self->{_FieldLength}  = $fieldLength;
 	}
