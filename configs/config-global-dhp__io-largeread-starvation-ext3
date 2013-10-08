@@ -1,0 +1,88 @@
+DIRNAME=`dirname $0`
+SCRIPTDIR=`cd "$DIRNAME" && pwd`
+MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
+
+# MM Test Parameters
+export MMTESTS="postmark largedd fsmark-threaded"
+export SKIP_WARMUP=yes
+
+# Profiling parameters
+export SKIP_NOPROFILE=no
+export SKIP_FINEPROFILE=yes
+export SKIP_COARSEPROFILE=yes
+export OPROFILE_REPORT_ANNOTATE=no
+
+# Fixups
+if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/bin:$PATH
+fi
+if [ "`which record-extfrag 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/fraganalysis:$PATH
+fi
+if [ "`which oprofile_report.sh 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/vmr/bin:$PATH
+fi
+
+# Machine configuration
+# Swap configuration can be one of default, partitions, swapfile, NFS
+#export VM_DIRTY_RATIO=20
+export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
+export SWAP_CONFIGURATION=default
+export SWAP_PARTITIONS=
+export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
+export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
+export SWAP_NBD_DEVICE=/dev/nbd0
+export SWAP_NBD_HOST=mcp
+export SWAP_NBD_PORT=10001
+#export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
+#export TESTDISK_RAID_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+export TESTDISK_PARTITION=/dev/sda6
+export TESTDISK_FILESYSTEM=ext3
+export TESTDISK_MKFS_PARAM=
+export TESTDISK_MOUNT_ARGS=barrier=0
+#
+# Test NFS disk to setup (optional)
+#export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
+#
+# Test NBD disk to setup (optional)
+#export TESTDISK_NBD_DEVICE=/dev/nbd0
+#export TESTDISK_NBD_HOST=mcp
+#export TESTDISK_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS="read-latency"
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_READ_LATENCY_READSIZE_MB=64
+
+# FS-Mark
+export FSMARK_PARALLEL_DIRECTORIES=yes
+export FSMARK_THREADS_PER_CPU=4
+export FSMARK_FILESIZE=$((30*1048576))
+export FSMARK_NR_DIRECTORIES=16
+export FSMARK_NR_FILES_PER_DIRECTORY=256
+export FSMARK_NR_FILES_PER_ITERATION=$((MEMTOTAL_BYTES/FSMARK_FILESIZE))
+export FSMARK_ITERATIONS=15
+
+# Large copy and untar
+export LARGECOPY_SRCTAR=$WEBROOT/large-tar-file-1.tar.bz2
+export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
+export LARGECOPY_THREADS=1
+
+# PostMark
+export POSTMARK_TRANSACTIONS=15000
+export POSTMARK_MIN_SIZE=3096
+export POSTMARK_MAX_SIZE=5242880
+export POSTMARK_SUBDIRECTORIES=100
+export POSTMARK_SIMULTANEOUS_FILES=$((MEMTOTAL_BYTES*4/POSTMARK_MAX_SIZE))
+export POSTMARK_BACKGROUND_MMAP=no
