@@ -27,7 +27,7 @@ sub initialise() {
 	$self->SUPER::initialise();
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f" ];
-	$self->{_FieldHeaders} = [ "Latency" ];
+	$self->{_FieldHeaders} = [ "Sample", "Latency" ];
 	$self->{_TestName} = $testName;
 }
 
@@ -45,6 +45,7 @@ sub extractReport($$$) {
 
 	my $time_kernel;
 	my $time_user;
+	my $nr_samples = 0;
 	while (<INPUT>) {
 		my $line = $_;
 		my @elements = split(/:/, $_);
@@ -60,7 +61,7 @@ sub extractReport($$$) {
 		} elsif ($name eq "Total Average") {
 			# only here we are sure that printing time_user was not interrupted in the middle
 			my $delta = ($time_user - $time_kernel) * 1000000;
-			push @{$self->{_ResultData}}, [0, $delta];
+			push @{$self->{_ResultData}}, [++$nr_samples, $delta];
 		}
 	}
 	close INPUT;
