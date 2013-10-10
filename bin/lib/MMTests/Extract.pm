@@ -59,7 +59,7 @@ sub initialise() {
 		$fieldLength = 12;
 		$plotLength = 12;
 		$summaryLength = 12;
-		if ($self->_DataType == DATA_OPSSEC) {
+		if ($self->{_DataType} == DATA_OPSSEC) {
 			@fieldHeaders = ("Unit", "Ops/sec");
 			@plotHeaders = ("Unit", "Ops/sec");
 		} else {
