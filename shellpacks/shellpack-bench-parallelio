@@ -60,7 +60,7 @@ for WORKLOAD in $PARALLELIO_WORKLOADS; do
 	cd $SHELLPACK_TOPLEVEL
 	./run-single-test.sh $WORKLOAD || die Failed to run warmup of $WORKLOAD
 	rm -rf $SHELLPACK_LOG/$WORKLOAD
-	rm -rf $TESTDIR_DIR/*
+	rm -rf $TESTDISK_DIR/*
 done
 
 # Run one test for ever size of parallel IO
@@ -132,8 +132,8 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 		if [ $IO_SIZE -gt 0 ]; then
 			case $PARALLELIO_IOLOAD in
 			dd)
-				mkdir -p $TESTDIR_DIR
-				dd if=/dev/zero of=$TESTDIR_DIR/largefile \
+				mkdir -p $TESTDISK_DIR
+				dd if=/dev/zero of=$TESTDISK_DIR/largefile \
 					bs=1M count=$((IO_SIZE/1048576)) \
 					conv=fdatasync \
 					> $LOGDIR_RESULTS/io-$IO_STEP-$ITERATION.log 2>&1
@@ -175,13 +175,13 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 
 		# Collect the data from the target workload and cleanup
 		mv $SHELLPACK_LOG/$WORKLOAD $LOGDIR_RESULTS/$WORKLOAD-$IO_STEP-$ITERATION
-		rm -rf $TESTDIR_DIR/*
+		rm -rf $TESTDISK_DIR/*
 	done
 	monitor_post_hook $LOGDIR_RESULTS $WORKLOAD-$IO_STEP
 	done
 done
 
-rm -rf $TESTDIR_DIR
+rm -rf $TESTDISK_DIR
 exit $SHELLPACK_SUCCESS
 #### Description Run a workload with varying amounts of IO in the background to see the effect
-#### Details parallelio-bench 34
+#### Details parallelio-bench 35
