@@ -519,6 +519,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	if [ "`which numactl 2> /dev/null`" != "" ]; then
 		numactl --hardware >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	fi
+	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
 	for TEST in $MMTESTS; do
 		# Configure transparent hugepage support as configured
 		reset_transhuge
@@ -530,11 +531,10 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		echo test begin :: $TEST `date +%s` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 
 		# Record some files at start of test
-		echo file start :: /proc/vmstat >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		cat /proc/vmstat >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		echo file start :: /proc/zoneinfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		cat /proc/zoneinfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		echo file start :: /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		for PROC_FILE in $PROC_FILES; do
+			echo file start :: $PROC_FILE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+			cat $PROC_FILE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		done
 		cat /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		if [ -e /proc/lock_stat ]; then
 			echo 0 > /proc/lock_stat
@@ -549,14 +549,12 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		EXIT_CODE=$?
 
 		# Record some basic information at end of test
-		echo file end :: /proc/vmstat >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		cat /proc/vmstat >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		echo file end :: /proc/zoneinfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		cat /proc/zoneinfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		echo file end :: /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		cat /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		for PROC_FILE in $PROC_FILES; do
+			echo file end :: $PROC_FILE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+			cat $PROC_FILE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		done
 		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
-			echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+			echo file end :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		fi
 		if [ -e /proc/lock_stat ]; then
