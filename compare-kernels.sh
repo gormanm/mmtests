@@ -33,6 +33,10 @@ while [ "$1" != "" ]; do
 		cd "$2" || die Result directory does not exist or is not directory
 		shift 2
 		;;
+	--sort-version)
+		SORT_VERSION=yes
+		shift
+		;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift
@@ -93,6 +97,20 @@ else
 			else
 				KERNEL_LIST="$KERNEL_LIST,$KERNEL"
 			fi
+		fi
+	done
+fi
+
+if [ "$SORT_VERSION" = "yes" ]; then
+	LIST_SORT=$KERNEL_LIST
+	KERNEL_LIST=
+	KERNEL_BASE=
+	for KERNEL in `echo $LIST_SORT | sed -e 's/,/\n/g' | sort -t . -k2 -n`; do
+		if [ "$KERNEL_BASE" = "" ]; then
+			KERNEL_BASE=$KERNEL
+			KERNEL_LIST=$KERNEL
+		else
+			KERNEL_LIST="$KERNEL_LIST,$KERNEL"
 		fi
 	done
 fi
