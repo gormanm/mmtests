@@ -413,7 +413,7 @@ sub printReport() {
 			$self->{_DataType} == DATA_THROUGHPUT) {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {
-		print "Unknown data type for reporting raw data\n";
+		print "Unknown data type for reporting extracted raw data\n";
 	}
 }
 
