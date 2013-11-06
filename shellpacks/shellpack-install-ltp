@@ -6,7 +6,7 @@ VERSION=
 DEFAULT_VERSION=full-20120104
 WEB_LOCATION=http://netcologne.dl.sourceforge.net/project/ltp/LTP%20Source/ltp-20120104/ltp-full-20120104.bz2
 MIRROR_LOCATION=$WEBROOT/ltp
-LTP_SOURCE_REPO=http://mcp/~gormanm
+LTP_SOURCE_REPO=http://mcp/mmtests-mirror
 . $SHELLPACK_INCLUDE/common.sh
 
 # Basic argument parser
@@ -51,4 +51,4 @@ make install || die install failed
 
 echo LTP installed successfully
 #### Description LTP Regression Test Suite
-#### Details ltp 19
+#### Details ltp 20

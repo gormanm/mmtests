@@ -246,4 +246,4 @@ reset_hugepages
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 22
+#### Details pgbench-bench 24

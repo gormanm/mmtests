@@ -160,7 +160,7 @@ if [ "$READONLY" = "yes" ]; then
 fi
 
 echo Running sysbench maximum $PGBENCH_MAX_THREADS threads
-###SHELLPACK threads_iterate_begin 1 $PGBENCH_MAX_THREADS
+###SHELLPACK threads_stride_begin 1 $PGBENCH_MAX_THREADS
 	echo -n > $LOGDIR_RESULTS/samples
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
@@ -176,7 +176,7 @@ echo Running sysbench maximum $PGBENCH_MAX_THREADS threads
 		fi
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
-###SHELLPACK threads_iterate_end
+###SHELLPACK threads_stride_end
 
 # Copy the log files
 cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog

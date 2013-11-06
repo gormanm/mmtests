@@ -1,0 +1,20 @@
+#!/bin/bash
+# This script installs the THP memory scaling benchmark
+###SHELLPACK preamble thpmemscale-install 0
+TARFILE=thp_memscale.tar.gz
+WEB_LOCATION="ftp://shell.sgi.com/collect/memscale"
+MIRROR_LOCATION="$WEBROOT/thpmemscale/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch $TARFILE thpmemscale-${VERSION}
+
+
+# Patch it if necessary
+pushd $SHELLPACK_SOURCES/thpmemscale-${VERSION}/thp_memscale
+###SHELLPACK make
+mkdir $SHELLPACK_SOURCES/thpmemscale-${VERSION}-installed
+cp thp_memscale $SHELLPACK_SOURCES/thpmemscale-${VERSION}-installed || exit $SHELLPACK_ERROR
+
+echo thp-memscale installed successfully
