@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="hackbench-pipes hackbench-sockets pipetest starve lmbench"
+export MMTESTS="hackbench-pipes hackbench-sockets pipetest lmbench pgbench"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -76,6 +76,15 @@ export LMBENCH_LATMMAP_ITERATIONS=500
 export LMBENCH_LATMMAP_FILESIZE=$((256*1048576))
 export LMBENCH_LATCTX_SIZE=4096
 export LMBENCH_LATCTX_MAXCLIENTS=20
+
+# pgbench
+export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
+export OLTP_SHAREDBUFFERS=$((256*1048576))
+export PGBENCH_MAX_TRANSACTIONS=10000
+export PGBENCH_PAGESIZES="default"
+export PGBENCH_READONLY=yes
+export PGBENCH_MAX_THREADS=50
+export PGBENCH_ITERATIONS=7
 
 # PipeTest
 export PIPETEST_ITERATIONS=30
