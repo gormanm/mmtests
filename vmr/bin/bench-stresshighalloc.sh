@@ -329,7 +329,6 @@ echo Deleting trees and recording more stats
 rm $BUILD_DIR/$TREE* -rf
 cat /proc/buddyinfo > buddyinfo
 
-echo 0 > /proc/sys/vm/nr_hugepages
 cat /proc/buddyinfo > buddyinfo
 cat /proc/pagetypeinfo > pagetypeinfo 2> /dev/null
 
@@ -344,11 +343,6 @@ if [ -e /proc/sys/vm/drop_caches ]; then
   echo Attempting to drop all caches
   echo 3 > /proc/sys/vm/drop_caches
 fi
-
-echo $MEMTOTAL_HUGEPAGES > /proc/sys/vm/nr_hugepages
-PAGES_AFTERDD=`cat /proc/sys/vm/nr_hugepages`
-echo HugeTLB pages after dd: $PAGES_AFTERDD
-echo 0 > /proc/sys/vm/nr_hugepages
 
 OLDMINFREE=`cat /proc/sys/vm/min_free_kbytes`
 echo 1024 > /proc/sys/vm/min_free_kbytes
