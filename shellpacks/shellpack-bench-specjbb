@@ -218,4 +218,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description SPECjbb
-#### Details specjbb-bench 23
+#### Details specjbb-bench 24

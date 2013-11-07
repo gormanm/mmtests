@@ -1,32 +1,49 @@
 #!/bin/bash
 
-P='speccpu-install'
-WEB_LOCATION="NOT_AVAILABLE"
-MIRROR_LOCATION="$WEBROOT/spec/speccpu06-1.1.tgz"
-
+P=speccpu-install
+DEFAULT_VERSION=1.2
 . $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION="NOT_AVAILABLE"
+MIRROR_LOCATION="$WEBROOT/spec"
 
-cd $SHELLPACK_SOURCES || die Sources directory does not exist
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
-sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/speccpu06-1.1.tgz
-cd $SHELLPACK_SOURCES
-tar -zxf speccpu06-1.1.tgz || die Failed to expand tarball
-rm speccpu06-1.1.tgz
-pushd speccpu2006
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=cpu2006-${VERSION}.tar.xz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+mkdir $SHELLPACK_SOURCES/speccpu-${VERSION}-installed
+cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed
+tar -xf ../$TARFILE
+if [ $? -ne 0 ]; then
+        error "$P: tar xf cpu2006-${VERSION}.tar.xz failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
+fi
+pushd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed || die Failed to change to source directory
 
-if [ "$SPECCPU_LICENSE_ACCEPTED" = "no" ]; then
-	./install.sh
-else
-	SCRIPT=`mktemp`
-	echo "spawn ./install.sh
+SCRIPT=`mktemp`
+echo "spawn ./install.sh
 expect \"Is this correct?\" {exp_send yes\r }
 while {1} {
 	expect \"Installation successful\" exit
 }" > $SCRIPT
-	expect -f $SCRIPT || die Failed to install SPECcpu 2006
-	rm $SCRIPT
-fi
+expect -f $SCRIPT || die Failed to install SPECcpu 2006
+rm $SCRIPT
 
 exit $SHELLPACK_SUCCESS
-#### Description SPECcpu
-#### Details speccpu 12
+#### Description Non-conforming speccpu benchmark
+#### Details speccpu 11

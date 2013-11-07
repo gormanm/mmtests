@@ -1,8 +1,6 @@
 #!/bin/bash
 # This is the script for running SPECcpu
-P=speccpu-bench
-DEFAULT_VERSION=1.2
-. $SHELLPACK_INCLUDE/common.sh
+###SHELLPACK preamble speccpu-bench 1.2
 
 SPECCPU_DATA_SIZE=ref
 SPECCPU_ITERATIONS=3
@@ -10,45 +8,13 @@ SPECCPU_TESTS=all
 
 install-depends dmidecode gcc gcc-c++ gcc-fortran
 
-# Basic argument parser
-while [ "$1" != "" ]; do
-	case "$1" in
-	-v)
-		VERSION=$2
-		shift 2
-		;;
-	--install-only)
-		INSTALL_ONLY=yes
-		shift
-		;;
-	--install-force)
-		INSTALL_FORCE=yes
-		shift
-		;;
-	--input-data-size)
-		SPECCPU_DATA_SIZE=$2
-		shift 2
-		;;
-	--iterations)
-		SPECCPU_ITERATIONS=$2
-		shift 2
-		;;
-	--tests)
-		SPECCPU_TESTS=$2
-		shift 2
-		;;
-	--pagesize)
-		SPECCPU_PAGESIZE=$2
-		shift 2
-		;;
-	*)
-		echo Unrecognised option: $1
-		shift
-	esac
-done
-if [ -z "$VERSION" ]; then
-	VERSION=$DEFAULT_VERSION
-fi
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --input-data-size	SPECCPU_DATA_SIZE
+###SHELLPACK parseargParam --iterations		SPECCPU_ITERATIONS
+###SHELLPACK parseargParam --tests		SPECCPU_TESTS
+###SHELLPACK parseargParam --pagesize		SPECCPU_PAGESIZE
+###SHELLPACK parseargEnd
 
 # Detect bitness
 case `uname -m` in
@@ -66,19 +32,8 @@ if [ "$TESTS" != "all" -o "$SPECCPU_ITERATIONS" = "1" -o "$SPECCPU_DATA_SIZE" !=
 	REPORTABLE=--noreportable
 fi
 
-if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/speccpu-${VERSION}
-fi
-if [ ! -d $SHELLPACK_SOURCES/speccpu-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-speccpu -v ${VERSION}  || die speccpu install script returned error
-fi
-cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed || die Failed to cd to speccpu install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo speccpu installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+###SHELLPACK check_install_required speccpu-${VERSION}
+###SHELLPACK monitor_hooks
 
 # Prepare system
 cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed > /dev/null || die Failed to cd to speccpu
@@ -110,5 +65,3 @@ RETVAL=$?
 rm -rf /tmp/OPiter*
 
 exit $RETVAL
-#### Description Non-conforming speccpu benchmark
-#### Details speccpu-bench 11

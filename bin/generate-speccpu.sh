@@ -10,7 +10,7 @@ EXIT_SUCCESS=0
 EXIT_FAILURE=-1
 
 # Default
-GCC_VERSION=4.3
+GCC_VERSION=
 GCC_OPTIMIZE="-O2"
 BITNESS=32
 ARCH=`uname -m`
@@ -31,7 +31,7 @@ generate-speccpu.sh (c) Mel Gorman 2008
 
 Usage: generate-speccpu.sh [options]
   -h, --help   Print this usage message
-  --gcc        GCC version (Default: $GCC_VERSION)
+  --gcc        GCC version (Default: default)
   --conf file  Read default configuration values from file
   --bitness    32/64 bitness (Default: $BITNESS)
   --emit-conf  Print detected values for later use by --conf
@@ -88,7 +88,6 @@ detect_base() {
 	reportable=1
 	teeout=yes
 	teerunout=yes
-	test_date=`date "+%b %Y"`
 	env_vars=1
 }
 
@@ -106,7 +105,6 @@ emit_base () {
 	echo "test_sponsor       = $test_sponsor"
 	echo "prepared_by        = $prepared_by"
 	echo "tester             = $tester"
-	echo "test_date          = $test_date"
 
 	if [ "$HUGEPAGES" != "no" ]; then
 		echo "env_vars           = $env_vars"
@@ -117,13 +115,13 @@ emit_base () {
 ##
 # emit_compiler - Print the compiler configuration
 emit_compiler() {
-	if [ "`which gcc-$GCC_VERSION`" = "" ]; then die No gcc-$GCC_VERSION; fi
-	if [ "`which g++-$GCC_VERSION`" = "" ]; then die No g++-$GCC_VERSION; fi
-	if [ "`which gfortran-$GCC_VERSION`" = "" ]; then die No gfortran-$GCC_VERSION; fi
+	if [ "`which gcc$GCC_VERSION`" = "" ]; then die No gcc$GCC_VERSION; fi
+	if [ "`which g++$GCC_VERSION`" = "" ]; then die No g++$GCC_VERSION; fi
+	if [ "`which gfortran$GCC_VERSION`" = "" ]; then die No gfortran$GCC_VERSION; fi
 	echo "## Compiler"
-	echo "CC                 = gcc-$GCC_VERSION"
-	echo "CXX                = g++-$GCC_VERSION"
-	echo "FC                 = gfortran-$GCC_VERSION"
+	echo "CC                 = gcc$GCC_VERSION"
+	echo "CXX                = g++$GCC_VERSION"
+	echo "FC                 = gfortran$GCC_VERSION"
 	echo
 }
 
@@ -273,7 +271,6 @@ detect_sconf() {
 	sw_peak_ptrsize="Not Applicable"
 	sw_state="Runlevel `cat /proc/1/cmdline | awk '{print $2}'`"
 	sw_compiler="gcc, g++ & gfortran $GCC_VERSION for $ARCH"
-	sw_auto_parallel=No
 }
 
 emit_sconf() {
@@ -284,7 +281,6 @@ emit_sconf() {
 	echo "sw_compiler        = $sw_compiler"
 	echo "sw_avail           = $sw_avail"
 	echo "sw_other           = $sw_other"
-	echo "sw_auto_parallel   = $sw_auto_parallel"
 	echo "sw_base_ptrsize    = $sw_base_ptrsize"
 	echo "sw_peak_ptrsize    = $sw_peak_ptrsize"
 	echo
