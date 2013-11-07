@@ -1,6 +1,6 @@
 #!/bin/bash
 # mutilate installer
-###SHELLPACK preamble mutilate-install 0.01
+###SHELLPACK preamble mutilate-install 1
 GIT_LOCATION=git://github.com/leverich/mutilate.git
 MIRROR_LOCATION="$WEBROOT/mutilate"
 

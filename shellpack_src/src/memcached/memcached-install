@@ -112,10 +112,11 @@ if [ `whoami` = "root" ]; then
 fi
 
 # Start new instance
-echo Starting memcached server with pool $MEMCACHED_MEMPOOL MB
+MEMCACHED_MEMPOOL_MB=$((MEMCACHED_MEMPOOL/1048576))
+echo Starting memcached server with pool $MEMCACHED_MEMPOOL_MB MB
 $SHELLPACK_SOURCES/memcached-${VERSION}-installed/bin/memcached $USER_SWITCH \
 	-d -P $SHELLPACK_SOURCES/memcached-${VERSION}-installed/memcached.pid \
-	-m $((MEMCACHED_MEMPOOL/1048576))
+	-m $MEMCACHED_MEMPOOL_MB
 	
 if [ $? -ne 0 ]; then
 	die Failed to start memcached server
