@@ -40,6 +40,21 @@ mv $DST_DIR ffsb-${VERSION}
 pushd ffsb-${VERSION} > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/ffsb-${VERSION} || die Failed to change to source directory
+echo '--- ffsb-6.0-rc2-orig/parser.c	2008-10-27 20:17:05.000000000 +0000
++++ ffsb-6.0-rc2/parser.c	2013-11-06 16:28:17.897964902 +0000
+@@ -203,9 +203,9 @@
+ 	len = strnlen(string, BUFSIZE);
+ 	sprintf(search_str, "%s=%%%ds\\n", string, BUFSIZE - len-1);
+ 	if (1 == sscanf(line, search_str, &temp)) {
+-		len = strnlen(temp, 4096);
+-		ret_buf = malloc(len);
+-		strncpy(ret_buf, temp, len);
++		len = strnlen(temp, BUFSIZE - len);
++		ret_buf = malloc(len + 1);
++		strncpy(ret_buf, temp, len + 1);
+ 		return ret_buf;
+ 		}
+ 	free(line);' | patch -p1 || exit $SHELLPACK_ERROR
 ./configure --prefix=$SHELLPACK_SOURCES/ffsb-${VERSION}-installed
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
@@ -61,4 +76,4 @@ fi
 
 echo ffsb installed successfully
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb 10
+#### Details ffsb 11

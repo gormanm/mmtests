@@ -1,12 +1,12 @@
 #!/bin/bash
 # mutilate installer
 P=mutilate-install
-DEFAULT_VERSION=0.01
+DEFAULT_VERSION=1
 . $SHELLPACK_INCLUDE/common.sh
 GIT_LOCATION=git://github.com/leverich/mutilate.git
 MIRROR_LOCATION="$WEBROOT/mutilate"
 
-install-depends libevent-devel scons gengetopt zeromq-devel gcc-c++
+install-depends libevent-devel gengetopt zeromq-devel gcc-c++ scons
 
 # Basic argument parser
 while [ "$1" != "" ]; do
@@ -63,4 +63,4 @@ cp mutilate ../mutilate-${VERSION}-installed/bin
 
 echo mutilate installed successfully
 #### Description mutilate
-#### Details mutilate 13
+#### Details mutilate 16

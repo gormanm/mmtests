@@ -4,7 +4,7 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="pgbench"
+export MMTESTS="thpmemscale"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -60,15 +60,11 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat"
-export MONITORS_WITH_LATENCY="vmstat"
+export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# pgbench
-export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
-export OLTP_SHAREDBUFFERS=$((256*1048576))
-export PGBENCH_MAX_TRANSACTIONS=10000
-export PGBENCH_PAGESIZES="default"
-export PGBENCH_READONLY=yes
-export PGBENCH_MAX_THREADS=50
-export PGBENCH_ITERATIONS=7
+# THP memory scalability
+export THPMEMSCALE_PAGESIZES=transhuge
+export THPMEMSCALE_MAX_THREADS=$((NUM_CPU))
+export THPMEMSCALE_MEMORY=$((512*1048576))

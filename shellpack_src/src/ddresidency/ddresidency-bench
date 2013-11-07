@@ -155,7 +155,7 @@ echo "ReportWriteSpeed: $((WRITTEN/DDRUNTIME)) B/sec" >> $LOGDIR_RESULTS/dd.log
 echo "ActualWriteSpeed: $((ACTUALWRITTEN/DDRUNTIME)) B/sec" >> $LOGDIR_RESULTS/dd.log
 echo "DeleteTime: $DELETE_TIME seconds" >> $LOGDIR_RESULTS/dd.log
 
-exit 0
+exit $SHELLPACK_SUCCESS
 ==== BEGIN C FILE ====
 #include <signal.h>
 #include <stdio.h>

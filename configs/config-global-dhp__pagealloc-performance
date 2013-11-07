@@ -4,8 +4,8 @@ MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="kernbench aim9 vmr-stream pagealloc pft"
-export SKIP_WARMUP=no
+export MMTESTS="kernbench aim9 vmr-stream pagealloc pft ebizzy"
+export SKIP_WARMUP=yes
 
 # Profiling parameters
 export SKIP_NOPROFILE=no
@@ -63,6 +63,11 @@ export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
+
+# EBizzy
+export EBIZZY_MAX_THREADS=$((NUM_CPU*4))
+export EBIZZY_DURATION=30
+export EBIZZY_ITERATIONS=5
 
 # Page allocator microbench
 export PAGEALLOC_GFPFLAGS=GFP_KERNEL

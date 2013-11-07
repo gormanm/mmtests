@@ -18,7 +18,7 @@ ITERATIONS=5
 
 EXIT_CODE=$SHELLPACK_SUCCESS
 
-###SHELLPACK threads_iterate_begin 1 $EBIZZY_MAX_THREADS
+###SHELLPACK threads_stride_begin 1 $EBIZZY_MAX_THREADS
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
 for ITERATION in `seq 1 $EBIZZY_ITERATIONS`; do
@@ -38,6 +38,6 @@ for ITERATION in `seq 1 $EBIZZY_ITERATIONS`; do
 done
 
 monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
-###SHELLPACK threads_iterate_end
+###SHELLPACK threads_stride_end
 
 exit $EXIT_CODE

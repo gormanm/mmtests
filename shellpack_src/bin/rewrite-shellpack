@@ -195,6 +195,13 @@ EOC
 	} elsif ($command eq "threads_iterate_begin") {
 		my ($min_thread, $max_thread) = @details;
 		print <<EOC
+for NR_THREADS in `seq $min_thread $max_thread`; do
+EOC
+	} elsif ($command eq "threads_iterate_end") {
+		print "done\n";
+	} elsif ($command eq "threads_stride_begin") {
+		my ($min_thread, $max_thread) = @details;
+		print <<EOC
 THREADS=
 START_THREAD=$min_thread
 END_THREAD=$max_thread
@@ -206,7 +213,7 @@ else
 fi
 for NR_THREADS in \$THREADS; do
 EOC
-	} elsif ($command eq "threads_iterate_end") {
+	} elsif ($command eq "threads_stride_end") {
 		print "done\n";
 	} else {
 		print "# WARNING: UNRECOGNISED command $command\n";
