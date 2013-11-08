@@ -1,0 +1,156 @@
+# ExtractEbizzy.pm
+package MMTests::ExtractEbizzy;
+use MMTests::Extract;
+use VMR::Stat;
+our @ISA = qw(MMTests::Extract); 
+use strict;
+
+sub new() {
+	my $class = shift;
+	my $self = {
+		_ModuleName  => "ExtractEbizzy",
+		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
+		_ResultData  => []
+	};
+	bless $self, $class;
+	return $self;
+}
+
+sub printDataType() {
+	my ($self) = @_;
+	print "Throughput,Clients,Records/sec";
+}
+
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
+	my @clients;
+
+	my @files = <$reportDir/noprofile/ebizzy-*-1.log>;
+	foreach my $file (@files) {
+		my @split = split /-/, $file;
+		$split[-2] =~ s/.log//;
+		push @clients, $split[-2];
+	}
+	@clients = sort { $a <=> $b } @clients;
+	$self->{_Clients} = \@clients;
+
+	$self->SUPER::initialise();
+
+	my $fieldLength = $self->{_FieldLength};
+	$self->{_TestName} = $testName;
+	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%$fieldLength.4f",
+				  "%$fieldLength.4f",  "%$fieldLength.4f", "%$fieldLength.4f" ];
+	$self->{_FieldHeaders} = [ "Client", "Iteration", "Records/sec", "User", "Sys" ];
+	$self->{_SummaryHeaders} = [ "Client", "Min", "Mean", "TrueMean", "Stddev", "Max" ];
+}
+
+sub printPlot() {
+	my ($self, $subHeading) = @_;
+	my ($self, $reportDir) = @_;
+	my @data = @{$self->{_ResultData}};
+	my @clients = @{$self->{_Clients}};
+	my $fieldLength = $self->{_FieldLength};
+	my $column = 1;
+
+	foreach my $client (@clients) {
+		my @units;
+		foreach my $row (@{$data[$client]}) {
+			push @units, @{$row}[$column];
+		}
+		printf("%-${fieldLength}d", $client);
+		$self->_printCandlePlotData($fieldLength, @units);
+	}
+}
+
+sub _setSummaryColumn() {
+	my ($self, $subHeading) = @_;
+	my @headers = @{$self->{_FieldHeaders}};
+	my $index;
+	if ($subHeading eq "") {
+		$subHeading = "Records/sec";
+	}
+
+	for ($index = 2; $index < $#headers; $index++) {
+		if ($headers[$index] eq $subHeading) {
+			$self->{_SummariseColumn} = $index;
+		}
+	}
+
+	return $subHeading;
+}
+
+sub extractSummary() {
+	my ($self, $subHeading) = @_;
+
+	my ($self, $reportDir) = @_;
+	my @data = @{$self->{_ResultData}};
+	my @clients = @{$self->{_Clients}};
+	my $fieldLength = $self->{_FieldLength};
+	my $column;
+
+	$subHeading = $self->_setSummaryColumn($subHeading);
+	$column = $self->{_SummariseColumn} if defined $self->{_SummariseColumn};
+
+	# Adjust column to take into account client is structured as array
+	$column--;
+
+	foreach my $client (@clients) {
+		my @units;
+		my @row;
+		foreach my $row (@{$data[$client]}) {
+			push @units, @{$row}[$column];
+		}
+		push @row, $client;
+		foreach my $funcName ("calc_min", "calc_mean", "calc_true_mean", "calc_stddev", "calc_max") {
+			no strict "refs";
+			push @row, &$funcName(@units);
+		}
+		push @{$self->{_SummaryData}}, \@row;
+	}
+	return 1;
+}
+
+sub printSummary() {
+	my ($self, $subHeading) = @_;
+	my $fieldLength = $self->{_FieldLength};
+	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" ];
+	$self->SUPER::printSummary($subHeading);
+}
+
+sub printReport() {
+	my ($self, $reportDir) = @_;
+	my @clients = @{$self->{_Clients}};
+
+	$self->_printClientReport($reportDir, @clients);
+}
+
+sub extractReport($$$) {
+	my ($self, $reportDir, $reportName) = @_;
+	my @clients = @{$self->{_Clients}};
+
+	foreach my $client (@clients) {
+		my $iteration = 0;
+
+		my @files = <$reportDir/noprofile/ebizzy-$client-*>;
+		foreach my $file (@files) {
+			open(INPUT, $file) || die("Failed to open $file\n");
+			my ($user, $sys, $records);
+			while (<INPUT>) {
+				if ($_ =~ /([0-9]*) records.*/) {
+					$records = $1;
+				}
+				if ($_ =~ /user ([0-9.]*).*/) {
+					$user = $1;
+				}
+				if ($_ =~ /user ([0-9.]*).*/) {
+					$sys = $1;
+				}
+			}
+			close INPUT;
+			push @{$self->{_ResultData}[$client]}, [ $iteration, $records, $user, $sys ];
+			$iteration++;
+		}
+	}
+}
+
+1;
