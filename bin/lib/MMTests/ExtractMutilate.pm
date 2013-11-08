@@ -25,11 +25,11 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my @clients;
 
-	my @files = <$reportDir/noprofile/mutilate-*.log>;
+	my @files = <$reportDir/noprofile/mutilate-*-1.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-1] =~ s/.log//;
-		push @clients, $split[-1];
+		push @clients, $split[-2];
 	}
 	@clients = sort { $a <=> $b } @clients;
 	$self->{_Clients} = \@clients;
@@ -97,16 +97,19 @@ sub extractReport($$$) {
 	my @clients = @{$self->{_Clients}};
 
 	foreach my $client (@clients) {
-		my $file = "$reportDir/noprofile/mutilate-$client.log";
-		open(INPUT, $file) || die("Failed to open $file\n");
 		my $iteration = 1;
-		while (<INPUT>) {
-			next if ($_ !~ /^Total QPS/);
-			my @elements = split(/\s+/, $_);
-			push @{$self->{_ResultData}[$client]}, [ $iteration, $elements[3] ];
+
+		my @files = <$reportDir/noprofile/mutilate-$client-*>;
+		foreach my $file (@files) {
+			open(INPUT, $file) || die("Failed to open $file\n");
+			while (<INPUT>) {
+				next if ($_ !~ /^Total QPS/);
+				my @elements = split(/\s+/, $_);
+				push @{$self->{_ResultData}[$client]}, [ $iteration, $elements[3] ];
+			}
+			close INPUT;
 			$iteration++;
 		}
-		close INPUT;
 	}
 }
 
