@@ -566,6 +566,13 @@ while [ "$1" != "" ]; do
 		CLEANUP_FILES="$CLEANUP_FILES $PLOTFILE"
 	fi
 
+	# Some versions of gnuplot spaz out smooting two data points
+	SMOOTH_ACTUAL=$SMOOTH
+	DATA_POINTS=`cat $PLOTFILE | wc -l`
+	if [ $DATA_POINTS -le 2 ]; then
+		SMOOTH_ACTUAL=
+	fi
+
 	# Work out an individual plot string
 	case $PLOTCOMMAND in
 	standard)
@@ -574,13 +581,13 @@ while [ "$1" != "" ]; do
 			ESCAPED=`echo "$PLOTFILE" | sed -e 's/\//\\\\\//g'`
 			PLOTSTRING="\"`echo $AWK_FORMAT | sed -e "s/@@PLOT@@/$ESCAPED/"`\""
 		fi
-		echo -n "$PLOTSTRING $USING_COMMAND $SMOOTH $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
+		echo -n "$PLOTSTRING $USING_COMMAND $SMOOTH_ACTUAL $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
 		;;
 	residency)
 		STARTTIME=`zcat $PLOTFILE | head -1 | awk '{print $1}'`
 		zcat $PLOTFILE | perl -e "\$last=0; while (<>) {(\$time,\$latency) = split(/ /); \$time -= $STARTTIME; \$latency += \$time-\$last; \$last=\$time; print \"\$time \$latency\n\"}" > $PLOTFILE.tmp
 		CLEANUP_FILES="$CLEANUP_FILES $PLOTFILE.tmp"
-		echo -n "'$PLOTFILE.tmp' $USING_COMMAND $SMOOTH $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
+		echo -n "'$PLOTFILE.tmp' $USING_COMMAND $SMOOTH_ACTUAL $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
 		;;
 	cpuusage)
 		PLOTSTRING="'$PLOTFILE'"

@@ -47,7 +47,7 @@ usage() {
 }
 
 # Parse command-line arguments
-ARGS=`getopt -o mnch --long help,run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
+ARGS=`getopt -o mnc:h --long help,run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
 eval set -- "$ARGS"
 while true; do
 	case "$1" in

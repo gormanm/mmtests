@@ -7,12 +7,6 @@ MIRROR_LOCATION="$WEBROOT/spec"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-export PATH=$SPECJBB_JRE:$PATH
-
-. $SHELLPACK_INCLUDE/common.sh
-
-cd $SHELLPACK_SOURCES || die Sources directory does not exist
-
 ###SHELLPACK sources_fetch SPECjbb${VERSION}.tar.gz specjbb-${VERSION}-installed
 
 exit $SHELLPACK_SUCCESS

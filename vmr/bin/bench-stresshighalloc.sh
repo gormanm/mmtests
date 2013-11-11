@@ -14,6 +14,7 @@ gethugetlb_order	# Sets HUGETLB_ORDER
 getmemtotals		# Sets MEMTOTAL_BYTES and MEMTOTAL_PAGES
 HIGHALLOC_ORDER=$HUGETLB_ORDER
 HIGHALLOC_COUNT=0
+HIGHALLOC_GFPFLAGS="GFP_HIGHUSER_MOVABLE"
 SEQ=6
 
 # Print usage of command
@@ -46,13 +47,14 @@ usage() {
   echo "    --percent N    Only try and allocation N% of memory"
   echo "    --ms-delay     Milliseconds to delay between allocations (default: 100)"
   echo "    --mb-per-sec   Delay allocations to that the given MB-per-second is scheduled for IO"
+  echo "    --gfp-flags    GFP allocation flags to use in allocation (default: $HIGHALLOC_GFPFLAGS)"
   echo "    -h, --help     Print this help message"
   echo
   exit 1
 }
 
 # Parse command line arguements
-ARGS=`getopt -o hf:k:t:b:r:e:s:c:ozv: --long help,freemem:,kernels:,tar:,build:,result:,extra:,order:,count:,oprofile,highmem,vmr:,ms-delay:,mb-per-sec:,percent: -n bench-stresshighalloc.sh -- "$@"`
+ARGS=`getopt -o hf:k:t:b:r:e:s:c:ozv: --long help,freemem:,kernels:,tar:,build:,result:,extra:,order:,count:,oprofile,highmem,vmr:,ms-delay:,mb-per-sec:,percent:,gfp-flags: -n bench-stresshighalloc.sh -- "$@"`
 
 # Cycle through arguements
 eval set -- "$ARGS"
@@ -71,6 +73,7 @@ while true ; do
 	-c|--count)  export HIGHALLOC_COUNT="$2"; shift 2;;
 	--ms-delay)  export MS_DELAY="$2"; shift 2;;
 	--mb-per-sec) export MB_PER_SEC="$2"; shift 2;;
+	--gfp-flags) export HIGHALLOC_GFPFLAGS="$2"; shift 2;;
 	--percent)    export HIGHALLOC_PERCENT="$2"; shift 2;;
         -h|--help) usage;;
         *) shift 1; break;;
@@ -140,6 +143,7 @@ echo "High alloc count: $HIGHALLOC_COUNT"
 cat $SHELLPACK_STAP/highalloc.stp | sed \
 	-e "s/define PARAM_MSDELAY.*/define PARAM_MSDELAY $MS_DELAY/" \
 	-e "s/define PARAM_ALLOCS.*/define PARAM_ALLOCS $HIGHALLOC_COUNT/" \
+	-e "s/define PARAM_GFPFLAGS.*/define PARAM_GFPFLAGS $HIGHALLOC_GFPFLAGS/" \
 	-e "s/define PARAM_ORDER.*/define PARAM_ORDER $HUGETLB_ORDER/" > /tmp/highalloc.stp
 
 # Setup results directory
@@ -329,7 +333,6 @@ echo Deleting trees and recording more stats
 rm $BUILD_DIR/$TREE* -rf
 cat /proc/buddyinfo > buddyinfo
 
-echo 0 > /proc/sys/vm/nr_hugepages
 cat /proc/buddyinfo > buddyinfo
 cat /proc/pagetypeinfo > pagetypeinfo 2> /dev/null
 
@@ -344,11 +347,6 @@ if [ -e /proc/sys/vm/drop_caches ]; then
   echo Attempting to drop all caches
   echo 3 > /proc/sys/vm/drop_caches
 fi
-
-echo $MEMTOTAL_HUGEPAGES > /proc/sys/vm/nr_hugepages
-PAGES_AFTERDD=`cat /proc/sys/vm/nr_hugepages`
-echo HugeTLB pages after dd: $PAGES_AFTERDD
-echo 0 > /proc/sys/vm/nr_hugepages
 
 OLDMINFREE=`cat /proc/sys/vm/min_free_kbytes`
 echo 1024 > /proc/sys/vm/min_free_kbytes

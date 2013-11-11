@@ -99,6 +99,27 @@ DST_DIR=`tar tf \$TARFILE | head -n 1 | awk -F / '{print \$1}'`
 mv \$DST_DIR $srcdir
 pushd $srcdir > /dev/null || die Failed to rename tar
 EOC
+	} elsif ($command eq "sources_fetch_p0") {
+		my ($tarfile, $srcdir) = @details;
+		my $versionDir = "";
+		if ($tarfile =~ /\//) {
+			($versionDir,$tarfile) = split(/\//, $tarfile);
+			$versionDir="$versionDir/";
+		}
+
+		print <<EOC
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=$tarfile
+sources_fetch \$WEB_LOCATION/$versionDir\$TARFILE \$MIRROR_LOCATION/\$TARFILE \$SHELLPACK_SOURCES/\$TARFILE
+mkdir \$SHELLPACK_SOURCES/$srcdir
+cd \$SHELLPACK_SOURCES/$srcdir
+tar -xf ../\$TARFILE
+if [ \$? -ne 0 ]; then
+        error "\$P: tar xf $tarfile failed"
+        popd > /dev/null
+        exit \$SHELLPACK_ERROR
+fi
+EOC
 	} elsif ($command eq "git_fetch") {
 		my ($tarfile, $srcdir) = @details;
 		my $versionDir = "";

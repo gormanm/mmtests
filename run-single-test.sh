@@ -5,7 +5,10 @@ FAILED=no
 P="run-single-test"
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
-. $SCRIPTDIR/config
+
+if [ "$MMTESTS" = "" ]; then
+	. $SCRIPTDIR/config
+fi
 
 function die() {
         echo "FATAL: $@"

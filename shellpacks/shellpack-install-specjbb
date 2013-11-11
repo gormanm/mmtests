@@ -22,12 +22,6 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-export PATH=$SPECJBB_JRE:$PATH
-
-. $SHELLPACK_INCLUDE/common.sh
-
-cd $SHELLPACK_SOURCES || die Sources directory does not exist
-
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=SPECjbb${VERSION}.tar.gz
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
@@ -46,4 +40,4 @@ pushd specjbb-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 exit $SHELLPACK_SUCCESS
 #### Description SPECjbb
-#### Details specjbb 23
+#### Details specjbb 24

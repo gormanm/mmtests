@@ -6,6 +6,7 @@ run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-stress-highalloc \
 		--mb-per-sec $HIGHALLOC_ALLOC_RATE \
 		--percent $HIGHALLOC_PERCENTAGE \
+		--gfp-flags $HIGHALLOC_GFPFLAGS \
 		-z
 	return $?
 }

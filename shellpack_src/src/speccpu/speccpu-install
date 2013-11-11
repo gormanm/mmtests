@@ -1,0 +1,22 @@
+#!/bin/bash
+
+###SHELLPACK preamble speccpu-install 1.2
+WEB_LOCATION="NOT_AVAILABLE"
+MIRROR_LOCATION="$WEBROOT/spec"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch_p0 cpu2006-${VERSION}.tar.xz speccpu-${VERSION}-installed
+###SHELLPACK build_start speccpu-${VERSION}-installed
+
+SCRIPT=`mktemp`
+echo "spawn ./install.sh
+expect \"Is this correct?\" {exp_send yes\r }
+while {1} {
+	expect \"Installation successful\" exit
+}" > $SCRIPT
+expect -f $SCRIPT || die Failed to install SPECcpu 2006
+rm $SCRIPT
+
+exit $SHELLPACK_SUCCESS
