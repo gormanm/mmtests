@@ -12,13 +12,14 @@ sub new() {
 		_DataType    => DATA_STRESSHIGHALLOC,
 		_ResultData  => [],
 		_ExtraData   => [],
+		_PlotData    => [],
 	};
 	bless $self, $class;
 	return $self;
 }
 
 sub printDataType() {
-	print "PercentageAllocated";
+	print "PercentageAllocated,Attempt,Latency (cycles),stress-highalloc";
 }
 
 sub initialise() {
@@ -37,10 +38,39 @@ sub initialise() {
 	$self->{_ExtraFormat} = [ "%-${fieldLength}d", "%-${fieldLength}d", "%${fieldLength}s" , "%${fieldLength}d" ];
 }
 
+sub _setSummaryPass() {
+	my ($self, $subHeading) = @_;
+	
+	if ($subHeading =~ /latency/) {
+		my @elements = split(/-/, $subHeading);
+		my $pass = $elements[1];
+		$self->{_SummarisePass} = $pass;
+	} else {
+		die("Unrecognised summarise header '$subHeading' for stress-highalloc");
+	}
+}
+
 sub extractSummary() {
 	my ($self) = @_;
 	$self->{_SummaryData} = $self->{_ResultData};
 	return 1;
+}
+
+sub printPlot() {
+	my ($self, $subHeading) = @_;
+	my $fieldLength = $self->{_PlotLength};
+
+	$self->_setSummaryPass($subHeading);
+
+	# Extract the data
+	foreach my $row (@{$self->{_ExtraData}}) {
+		my @rowArray = @{$row};
+		if ($rowArray[0] == $self->{_SummarisePass}) {
+			push @{$self->{_PlotData}}, [ $rowArray[3] ];
+		}
+	}
+
+	$self->{_PrintHandler}->printRow($self->{_PlotData}, $self->{_FieldLength}, "%-${fieldLength}d");
 }
 
 sub printSummary() {
@@ -79,6 +109,7 @@ sub extractReport($$$) {
 			if ($2 eq "success" || $2 eq "failure") {
 				push @{$self->{_ExtraData}}, [ $pass, $1, $2, $3 ];
 			}
+			next;
 		}
 
 		if ($_ =~ /% Success/) {

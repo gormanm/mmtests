@@ -315,6 +315,13 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		specjvm)
 			;;
 		stress-highalloc)
+			echo "<tr>"
+			for HEADING in latency-1 latency-2 latency-3; do
+				eval $GRAPH_PNG --logY --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				eval $GRAPH_PSC --logY --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				plain graph-$SUBREPORT-$HEADING
+			done
+			echo "</tr>"
 			;;
 		tiobench)
 			CLIENTS=`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | awk -F - '{print $3}' | sort -n | uniq`
