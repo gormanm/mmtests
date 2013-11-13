@@ -54,7 +54,7 @@ while [ "$1" != "" ]; do
 		shift
 		;;
 	--logY)
-		LOGy=--logY
+		LOGY=--logY
 		shift
 		;;
 	--x-label)
