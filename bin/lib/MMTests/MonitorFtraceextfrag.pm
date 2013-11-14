@@ -11,8 +11,6 @@ use constant PAGE_ALLOC_EXTFRAG_UNMOVABLE	=> 3;
 use constant PAGE_ALLOC_EXTFRAG_UNMOVABLE_MOVE	=> 4;
 use constant EVENT_UNKNOWN			=> 5;
 
-my @ftraceCounters;
-
 # Defaults for dynamically discovered regex's
 my $regex_mm_page_alloc_extfrag_default = 'page=([0-9a-f]*) pfn=([0-9]*) alloc_order=([0-9]*) fallback_order=([0-9]*) pageblock_order=([0-9]*) alloc_migratetype=([0-9]*) fallback_migratetype=([0-9]*) fragmenting=([0-9]*) change_ownership=([0-9]*)';
 
@@ -42,10 +40,14 @@ sub ftraceInit {
 		"page", "pfn", "alloc_order", "fallback_order", "pageblock_order", "alloc_migratetype", "fallback_migratetype", "fragmenting", "change_ownership");
 
 	$self->{_FieldLength} = 16;
+
+	my @ftraceCounters;
+	$self->{_FtraceCounters} = \@ftraceCounters;
 }
 
 sub ftraceCallback {
 	my ($self, $timestamp, $pid, $process, $tracepoint, $details) = @_;
+	my $ftraceCounterRef = $self->{_FtraceCounters};
 
 	if ($tracepoint eq "mm_page_alloc_extfrag") {
 		if ($details !~ /$regex_mm_page_alloc_extfrag/p) {
@@ -60,18 +62,18 @@ sub ftraceCallback {
 		# 7: fallback_migratetype
 		# 8: fragmenting
 
-		$ftraceCounters[PAGE_ALLOC_EXTFRAG]++;
+		@$ftraceCounterRef[PAGE_ALLOC_EXTFRAG]++;
 		if ($6 == 0) {
-			$ftraceCounters[PAGE_ALLOC_EXTFRAG_UNMOVABLE]++;
+			@$ftraceCounterRef[PAGE_ALLOC_EXTFRAG_UNMOVABLE]++;
 		}
 		if ($6 == 0 && $7 == 2) {
-			$ftraceCounters[PAGE_ALLOC_EXTFRAG_UNMOVABLE_MOVE]++;
+			@$ftraceCounterRef[PAGE_ALLOC_EXTFRAG_UNMOVABLE_MOVE]++;
 		}
 		if ($8 != 0) {
-			$ftraceCounters[PAGE_ALLOC_EXTFRAG_BAD]++;
+			@$ftraceCounterRef[PAGE_ALLOC_EXTFRAG_BAD]++;
 		}
 	} else {
-		$ftraceCounters[EVENT_UNKNOWN]++;
+		@$ftraceCounterRef[EVENT_UNKNOWN]++;
 	}
 }
 
@@ -79,6 +81,7 @@ sub ftraceReport {
 	my ($self, $rowOrientated) = @_;
 	my $i;
 	my (@headers, @fields, @format);
+	my $ftraceCounterRef = $self->{_FtraceCounters};
 
 	push @headers, "Unit";
 	push @fields, 0;
@@ -95,7 +98,7 @@ sub ftraceReport {
 		}
 
 		push @headers, $keyName;
-		push @fields, $ftraceCounters[$key];
+		push @fields, @$ftraceCounterRef[$key];
 		push @format, "%12d";
 	}
 
