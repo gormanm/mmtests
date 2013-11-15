@@ -17,8 +17,6 @@ use constant SCHED_MOVE_LOCAL			=> 9;
 use constant SCHED_MOVE_REMOTE			=> 10;
 use constant EVENT_UNKNOWN			=> 11;
 
-my @ftraceCounters;
-
 # Defaults for dynamically discovered regex's
 my $regex_mm_numa_migrate_ratelimit_default = 'comm=([a-zA-Z0-9-]*) pid=([0-9]*) dst_nid=([0-9]) nr_pages=([0-9]*)';
 my $regex_sched_stick_numa_default = 'pid=([0-9]*) tgid=([0-9]*) ngid=([0-9]*) src_cpu=([0-9]*) src_nid=([0-9]*) dst_cpu=([0-9]*) dst_nid=([0-9])';
@@ -84,10 +82,14 @@ sub ftraceInit {
 		"src_pid", "src_tgid", "src_ngid", "src_cpu", "src_nid", "dst_pid", "dst_tgid", "dst_ngid", "dst_cpu", "dst_nid");
 
 	$self->{_FieldLength} = 16;
+
+	my @ftraceCounters;
+	$self->{_FtraceCounters} = \@ftraceCounters;
 }
 
 sub ftraceCallback {
 	my ($self, $timestamp, $pid, $process, $tracepoint, $details) = @_;
+	my @ftraceCounters = @{$self->{_FtraceCounters}};
 
 	if ($tracepoint eq "mm_numa_migrate_ratelimit") {
 		if ($details !~ /$regex_mm_numa_migrate_ratelimit/p) {
@@ -97,8 +99,8 @@ sub ftraceCallback {
 			return;
 		}
 
-		$ftraceCounters[NUMA_MIGRATE_RATELIMITS]++;
-		$ftraceCounters[NUMA_MIGRATE_PAGES_RATELIMITED] += $4;
+		@$ftraceCounterRef[NUMA_MIGRATE_RATELIMITS]++;
+		@$ftraceCounterRef[NUMA_MIGRATE_PAGES_RATELIMITED] += $4;
 	} elsif ($tracepoint eq "sched_move_task") {
 		if ($details !~ /$regex_sched_move_task/p) {
 			print "WARNING: Failed to parse sched_move_task as expected\n";
@@ -108,9 +110,9 @@ sub ftraceCallback {
 		}
 
 		if ($5 == $7) {
-			$ftraceCounters[SCHED_MOVE_LOCAL]++;
+			@$ftraceCounterRef[SCHED_MOVE_LOCAL]++;
 		} else {
-			$ftraceCounters[SCHED_MOVE_REMOTE]++;
+			@$ftraceCounterRef[SCHED_MOVE_REMOTE]++;
 		}
 
 	} elsif ($tracepoint eq "sched_stick_numa") {
@@ -121,7 +123,7 @@ sub ftraceCallback {
 			return;
 		}
 
-		$ftraceCounters[TASK_MIGRATE_STUCK]++;
+		@$ftraceCounterRef[TASK_MIGRATE_STUCK]++;
 
 	} elsif ($tracepoint eq "sched_move_numa") {
 		if ($details !~ /$regex_sched_move_numa/p) {
@@ -131,7 +133,7 @@ sub ftraceCallback {
 			return;
 		}
 
-		$ftraceCounters[TASK_MIGRATE_IDLE]++;
+		@$ftraceCounterRef[TASK_MIGRATE_IDLE]++;
 
 	} elsif ($tracepoint eq "sched_swap_numa") {
 		if ($details !~ /$regex_sched_swap_numa/p) {
@@ -141,22 +143,22 @@ sub ftraceCallback {
 			return;
 		}
 
-		$ftraceCounters[TASK_MIGRATE_SWAP]++;
+		@$ftraceCounterRef[TASK_MIGRATE_SWAP]++;
 
 		my $src_ngid = $3;
 		my $dst_ngid = $8;
 		my $src_nid = $5;
 		my $dst_nid = $10;
 		if ($src_nid == $dst_nid) {
-			$ftraceCounters[NUMA_MOVE_LOCAL]++;
+			@$ftraceCounterRef[NUMA_MOVE_LOCAL]++;
 		} else {
-			$ftraceCounters[NUMA_MOVE_REMOTE]++;
+			@$ftraceCounterRef[NUMA_MOVE_REMOTE]++;
 		}
 		if ($src_ngid > 0 && $src_ngid == $dst_ngid) {
-			$ftraceCounters[NUMA_SWAP_GROUP]++;
+			@$ftraceCounterRef[NUMA_SWAP_GROUP]++;
 		}
 	} else {
-		$ftraceCounters[EVENT_UNKNOWN]++;
+		@$ftraceCounterRef[EVENT_UNKNOWN]++;
 	}
 }
 
@@ -164,6 +166,7 @@ sub ftraceReport {
 	my ($self, $rowOrientated) = @_;
 	my $i;
 	my (@headers, @fields, @format);
+	my $ftraceCounterRef = $self->{_FtraceCounters};
 
 	push @headers, "Unit";
 	push @fields, 0;
@@ -180,7 +183,7 @@ sub ftraceReport {
 		}
 
 		push @headers, $keyName;
-		push @fields, $ftraceCounters[$key];
+		push @fields, @$ftraceCounterRef[$key];
 		push @format, "%12d";
 	}
 

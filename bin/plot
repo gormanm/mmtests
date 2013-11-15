@@ -230,6 +230,10 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			LOGX=yes
 			shift
 			;;
+		--stress-highalloc)
+			PLOTTYPE="points"
+			shift
+			;;
 		--plottype)
 			PLOTTYPE=$2
 			shift 2

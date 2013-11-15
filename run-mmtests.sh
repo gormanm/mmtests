@@ -111,7 +111,7 @@ done
 # Install packages that are generally needed by a large number of tests
 install-depends autoconf automake binutils-devel bzip2 dosfstools expect \
 	expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch \
-	recode systemtap xfsprogs xfsprogs-devel psmisc
+	recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs
 
 # Check monitoring
 if [ "$FORCE_RUN_MONITOR" != "" ]; then
