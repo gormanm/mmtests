@@ -46,7 +46,7 @@ export SWAP_NBD_PORT=10001
 #export TESTDISK_RAID_TYPE=raid0
 export TESTDISK_PARTITION=/dev/sda6
 export TESTDISK_FILESYSTEM=btrfs
-export TESTDISK_MKFS_PARAM=
+export TESTDISK_MKFS_PARAM="-f"
 export TESTDISK_MOUNT_ARGS=
 #
 # Test NFS disk to setup (optional)

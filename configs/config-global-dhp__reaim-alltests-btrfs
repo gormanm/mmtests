@@ -34,7 +34,7 @@ fi
 #export TESTDISK_RAID_TYPE=raid0
 export TESTDISK_PARTITION=/dev/sda6
 export TESTDISK_FILESYSTEM=btrfs
-export TESTDISK_MKFS_PARAM=
+export TESTDISK_MKFS_PARAM="-f"
 export TESTDISK_MOUNT_ARGS=
 
 # Swap configuration can be one of default, partitions, swapfile, NFS
