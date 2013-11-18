@@ -36,7 +36,7 @@ run_bench() {
 			;;
 		esac
 
-		export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/$PAGESIZE
+		export LOGDIR_RESULTS=$LOGDIR_RESULTS/$PAGESIZE
 		mkdir -p $LOGDIR_RESULTS
 		$SCRIPTDIR/shellpacks/shellpack-bench-speccpu \
 			--input-data-size $SPECCPU_DATA_SIZE \

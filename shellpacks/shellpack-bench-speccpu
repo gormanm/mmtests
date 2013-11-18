@@ -93,7 +93,6 @@ GENSPECSH="generate-speccpu.sh --bitness ${RUNBITS}"
 HLINK=--hugepages-newrelink
 
 mkdir -p config
-mkdir -p $LOGDIR_RESULTS/$SPECCPU_PAGESIZE
 $GENSPECSH > config/gen-m${RUNBITS}base.cfg || die Failed to generate base spec config file
 $GENSPECSH > config/gen-m${RUNBITS}default.cfg || die Failed to generate default spec config file
 $GENSPECSH > config/gen-m${RUNBITS}transhuge || die Failed to generate transhuge spec config file
@@ -113,4 +112,4 @@ mv result/* $LOGDIR_RESULTS/
 
 exit $RETVAL
 #### Description Non-conforming speccpu benchmark
-#### Details speccpu-bench 13
+#### Details speccpu-bench 15

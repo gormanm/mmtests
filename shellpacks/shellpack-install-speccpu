@@ -46,4 +46,4 @@ rm $SCRIPT
 
 exit $SHELLPACK_SUCCESS
 #### Description Non-conforming speccpu benchmark
-#### Details speccpu 13
+#### Details speccpu 15
