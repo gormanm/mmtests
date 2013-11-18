@@ -48,12 +48,13 @@ GENSPECSH="generate-speccpu.sh --bitness ${RUNBITS}"
 HLINK=--hugepages-newrelink
 
 mkdir -p config
+mkdir -p $LOGDIR_RESULTS/$SPECCPU_PAGESIZE
 $GENSPECSH > config/gen-m${RUNBITS}base.cfg || die Failed to generate base spec config file
 $GENSPECSH > config/gen-m${RUNBITS}default.cfg || die Failed to generate default spec config file
 $GENSPECSH > config/gen-m${RUNBITS}transhuge || die Failed to generate transhuge spec config file
 $GENSPECSH --hugepages-heaponly > config/gen-m${RUNBITS}huge-heap.cfg || die Failed to generate huge-heap spec config file
 $GENSPECSH $HLINK > config/gen-m${RUNBITS}huge-all.cfg || die Failed to generate huge-all spec config file
-cp config/gen-m${RUNBITS}base.cfg config/gen-m${RUNBITS}huge-*.cfg $LOGDIR_RESULT
+cp config/gen-m${RUNBITS}base.cfg config/gen-m${RUNBITS}huge-*.cfg $LOGDIR_RESULTS/$SPECCPU_PAGESIZE
 
 $MMTESTS_HUGECTL runspec -c gen-m${RUNBITS}${SPECCPU_PAGESIZE}.cfg \
 	$REPORTABLE \
@@ -63,5 +64,6 @@ $MMTESTS_HUGECTL runspec -c gen-m${RUNBITS}${SPECCPU_PAGESIZE}.cfg \
 	$SPECCPU_TESTS
 RETVAL=$?
 rm -rf /tmp/OPiter*
+mv result/* $LOGDIR_RESULTS/$SPECCPU_PAGESIZE
 
 exit $RETVAL
