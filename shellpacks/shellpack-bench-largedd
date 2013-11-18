@@ -79,7 +79,7 @@ DIRECTORIES=`seq 0 $((NR_COPIES-1))`
 echo Making $NR_COPIES copies via dd, source size ${SRCSIZE}M
 while [ $IN_PROGRESS -lt $NR_COPIES ]; do
 	NR_ACTIVE=0
-	for PID in `cat dd.pids`; do
+	for PID in `cat dd.pids 2> /dev/null`; do
 		if [ "`ps h --pid $PID`" != "" ]; then
 			NR_ACTIVE=$((NR_ACTIVE+1))
 		fi
@@ -115,4 +115,4 @@ monitor_post_hook $LOGDIR_RESULTS deletesource
 CURRENTTIME=`date +%s`
 echo "5:Time to delete source:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_RESULTS/largedd.result
 #### Description Large dd
-#### Details largedd-bench 11
+#### Details largedd-bench 12
