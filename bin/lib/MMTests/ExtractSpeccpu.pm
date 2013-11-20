@@ -55,7 +55,6 @@ sub extractReport($$$) {
 	}
 
 	my $size = "test";
-	print "DEBUG: $reportDir/noprofile/$pagesize/CINT2006.001.test.txt\n";
 	if (! -e "$reportDir/noprofile/$pagesize/CINT2006.001.test.txt") {
 		$size = "ref";
 	}
