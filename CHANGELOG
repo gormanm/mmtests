@@ -1,3 +1,14 @@
+v0.13
+o Allow monitor-only mode logs to be compared
+o Fix URL for ffsb
+o Remove obsolete starve benchmark, replace with ebizzy
+o Many cosmetic reporting issues
+o Add basic analysis scripts for ftrace logs
+o Add abiliity to report some results as quartiles
+o Add fio benchmark
+o Add ku-latency benchmark
+o Re-add speccpu benchmark and reporting script
+
 v0.12
 o Add monitor for /proc/interrupts
 o Do not unnecessarily load oprofile
