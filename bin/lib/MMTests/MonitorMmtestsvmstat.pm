@@ -65,7 +65,9 @@ my %_fieldNameMap = (
 	"compact_pages_moved"		=> "Compaction pages moved",
 	"compact_pagemigrate_failed"	=> "Compaction move failure",
 	"mmtests_compaction_cost"	=> "Compaction cost",
-	"numa_pte_updates"		=> "NUMA PTE updates",
+	"numa_pte_updates"		=> "NUMA page range updates",
+	"numa_huge_pte_updates"		=> "NUMA huge PMD updates",
+	"mmtests_numa_pte_updates"	=> "NUMA PTE updates",
 	"numa_hint_faults"		=> "NUMA hint faults",
 	"numa_hint_faults_local"	=> "NUMA hint local faults",
 	"mmtests_hint_local"		=> "NUMA hint local percent",
@@ -141,6 +143,8 @@ my @_fieldOrder = (
         "compact_free_scanned",
 	"mmtests_compaction_cost",
 	"numa_pte_updates",
+	"numa_huge_pte_updates",
+	"mmtests_numa_pte_updates",
 	"numa_hint_faults",
 	"numa_hint_faults_local",
 	"mmtests_hint_local",
@@ -302,7 +306,8 @@ sub extractReport($$$$) {
 			 "compact_blocks_moved",
         		 "compact_isolated", "compact_migrate_scanned",
         		 "compact_free_scanned",
-        		 "numa_pte_updates", "numa_hint_faults",
+        		 "numa_pte_updates", "numa_huge_pte_updates",
+			 "numa_hint_faults",
         		 "numa_hint_faults_local", "numa_pages_migrated",
 			 "thp_fault_alloc", "thp_collapse_alloc",
 			 "thp_split", "thp_fault_fallback",
@@ -317,6 +322,10 @@ sub extractReport($$$$) {
 		$vmstat{"mmtests_hint_local"} = $vmstat{"numa_hint_faults_local"} * 100 / $vmstat{"numa_hint_faults"};
 	} else {
 		$vmstat{"mmtests_hint_local"} = 100;
+	}
+	$vmstat{"mmtests_numa_pte_updates"} =  $vmstat{"numa_pte_updates"};
+	if (defined $vmstat{"numa_huge_pte_updates"}) {
+		$vmstat{"mmtests_numa_pte_updates"} -= $vmstat{"numa_huge_pte_updates"} * 511;
 	}
 
 	# Compaction cost model
