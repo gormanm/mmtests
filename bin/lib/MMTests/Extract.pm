@@ -15,6 +15,7 @@ use constant DATA_THROUGHPUT		=> 6;
 use VMR::Stat;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
+use List::Util ();
 use strict;
 
 sub new() {
@@ -359,6 +360,48 @@ sub extractSummary() {
 	}
 
 	return 1;
+}
+
+sub extractSummaryR() {
+	my ($self, $subHeading, $RstatsFile) = @_;
+	my @formatList;
+	my $fieldLength = $self->{_FieldLength};
+	if (defined $self->{_FieldFormat}) {
+		@formatList = @{$self->{_FieldFormat}};
+	}
+
+	open(INPUT, $RstatsFile) || die("Failed to open $RstatsFile\n");
+
+	my @row;
+	my @rowNames;
+	
+	# TODO: This might depend on the data type?
+	push @row, "Time";
+	push @rowNames, "Unit";
+
+	# find the position of our test in the table header
+	my $testName = $self->{_TestName};
+	my $header = readline INPUT;
+	chomp $header;
+
+	my @tests = split(/;/, $header);
+	my $testIndex = List::Util::first { $tests[$_] eq $testName } 0..$#tests;
+	die ("Test $testName not found in $RstatsFile\n") unless defined $testIndex;
+
+	# the following rows with values have an extra column in the beginning
+	$testIndex++;
+
+	while (<INPUT>) {
+		my $line = $_;
+		chomp $line;
+		my @values = split(/;/, $line);
+		push @rowNames, $values[0];
+		push @row, $values[$testIndex];
+	}
+	close INPUT;
+
+	push @{$self->{_SummaryData}}, \@row;
+	$self->{_SummaryHeaders} = \@rowNames;
 }
 
 sub printSummary() {

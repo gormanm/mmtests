@@ -37,6 +37,10 @@ while [ "$1" != "" ]; do
 		SORT_VERSION=yes
 		shift
 		;;
+	--R)
+		USE_R="--R"
+		shift
+		;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift
@@ -137,6 +141,7 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 	COMPARE_BARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
 	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
 	GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format \"postscript color solid\""
+	COMPARE_R_CMD="compare-mmtests-R.sh -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
 	echo
 	case $SUBREPORT in
 	dbench3)
@@ -184,8 +189,12 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		;;
 	*)
 		echo $SUBREPORT
-		eval $COMPARE_CMD
-		;;
+		# Try R if requested, fallback to perl when datatype is unsupported
+		if [ "$USE_R" != "" ]; then
+			eval $COMPARE_R_CMD
+		else
+			false
+		fi || eval $COMPARE_CMD
 	esac
 	echo
 	eval $COMPARE_CMD --print-monitor duration
