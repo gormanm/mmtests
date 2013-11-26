@@ -41,6 +41,10 @@ while [ "$1" != "" ]; do
 		USE_R="--R"
 		shift
 		;;
+	--plot-details)
+		PLOT_DETAILS="yes"
+		shift
+		;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift
@@ -390,6 +394,15 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 				fi
 			else
 				echo "<tr><td>No graph representation</td></tr>"
+			fi
+			if [ "$PLOT_DETAILS" != "" ]; then
+				eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest --plottype run-sequence --separate-tests
+				eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest --plottype run-sequence --separate-tests --smooth
+				for TEST_PLOT in $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest-*.png; do
+					[[ $TEST_PLOT =~ "-smooth.png" ]] && continue
+					dest=`basename $TEST_PLOT .png`
+					smoothover $dest
+				done
 			fi
 		esac
 		echo "</table>"

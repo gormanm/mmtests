@@ -52,6 +52,10 @@ while [ "$1" != "" ]; do
 		PLOTTYPE_OVERRIDE="$2"
 		shift 2
 		;;
+	--separate-tests)
+		SEPARATE_TESTS="$1"
+		shift
+		;;
 	--output)
 		OUTPUT_CMD="--output \"$2\""
 		shift 2
@@ -120,6 +124,10 @@ if [ "$PLOTTYPE_OVERRIDE" != "" ]; then
 		exit 1
 	fi
 fi
+if [ "$SEPARATE_TESTS" != "" ] && [ "$USE_R" == "" ]; then
+	echo "--separate-tests only supported together with --R" >&2
+	exit 1
+fi
 
 # This is far from ideal...
 R_SUPPORTED_PLOTTYPES="boxplot candlestick candlesticks run-sequence"
@@ -165,7 +173,7 @@ PLOTSCRIPTS="plot"
 [ "$TITLES" == "" ] && exit 0
 
 for PLOTSCRIPT in $PLOTSCRIPTS; do
-	eval $SCRIPTDIR/$PLOTSCRIPT $TITLE $PLOTTYPE $SMOOTH $FORMAT_CMD $OUTPUT_CMD $OUTPUT \
+	eval $SCRIPTDIR/$PLOTSCRIPT $TITLE $PLOTTYPE $SEPARATE_TESTS $SMOOTH $FORMAT_CMD $OUTPUT_CMD $OUTPUT \
 		$LOGX $LOGY $SUBREPORT_ARGS \
 		--xlabel \"$XLABEL\" \
 		--ylabel \"$YLABEL\" \
