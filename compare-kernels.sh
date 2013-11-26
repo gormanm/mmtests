@@ -48,6 +48,22 @@ while [ "$1" != "" ]; do
 	esac
 done
 
+
+# Do Not Litter
+cleanup() {
+	if [ "$R_TMPDIR" != "" -a -d $R_TMPDIR ]; then
+		rm -rf $R_TMPDIR
+	fi
+	exit
+}
+
+if [ "$USE_R" != "" ]; then
+	export R_TMPDIR="`mktemp -d`"
+	trap cleanup EXIT
+	trap cleanup INT
+	trap cleanup TERM
+fi
+
 FORMAT_CMD=
 if [ "$FORMAT" != "" ]; then
 	FORMAT_CMD="--format $FORMAT"
@@ -139,9 +155,9 @@ cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
 for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
 	COMPARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
 	COMPARE_BARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
-	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
-	GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format \"postscript color solid\""
 	COMPARE_R_CMD="compare-mmtests-R.sh -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
+	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format png"
+	GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format \"postscript color solid\""
 	echo
 	case $SUBREPORT in
 	dbench3)
@@ -362,8 +378,16 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		*)
 			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png
 			eval $GRAPH_PSC --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps
+			if [ "$USE_R" != "" ]; then
+				eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.png --smooth
+				eval $GRAPH_PSC --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.ps --smooth
+			fi
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT.png ]; then
-				plain graph-$SUBREPORT
+				if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.png ]; then
+					smoothover graph-$SUBREPORT
+				else
+					plain graph-$SUBREPORT
+				fi
 			else
 				echo "<tr><td>No graph representation</td></tr>"
 			fi
