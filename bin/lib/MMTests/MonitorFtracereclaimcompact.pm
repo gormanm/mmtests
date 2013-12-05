@@ -32,20 +32,22 @@ use constant VMSCAN_SLAB_SHRINK_DIRECT_TIME_STALLED		=>24;
 use constant VMSCAN_SLAB_SHRINK_KSWAPD_TIME_STALLED		=>25;
 use constant VMSCAN_DIRECT_RECLAIM_TIME_STALLED			=>26;
 use constant VMSCAN_KSWAPD_TIME_AWAKE				=>27;
+use constant COMPACTION_DIRECT_STALLED				=>28;
+use constant COMPACTION_KSWAPD_STALLED				=>29;
 
-use constant EVENT_UNKNOWN			=> 26;
+use constant EVENT_UNKNOWN			=> 30;
 
 # Defaults for dynamically discovered regex's
 my $regex_writeback_congestion_wait_default    = 'usec_timeout=([0-9]*) usec_delayed=([0-9]*)';
 my $regex_writeback_wait_iff_congested_default = 'usec_timeout=([0-9]*) usec_delayed=([0-9]*)';
 my $regex_vmscan_lru_shrink_inactive_default   = 'nid=([0-9]*) zid=([0-9]*) nr_scanned=([0-9]*) nr_reclaimed=([0-9]*) priority=([0-9]*) flags=([0-9]*)';
-my $regex_vmscan_shrink_slab_start_default     = '([0-9a-fx]+)F (([0-9a-fx]): objects to shrink ([0-9]*) gfp_flags ([A-Z|_]+) pgs_scanned ([0-9]*) lru_pgs ([0-9]*) cache items ([0-9]*) delta ([0-9]*) total_scan ([0-9]*)';
-my $regex_vmscan_shrink_slab_end_default       = '([0-9a-fx]+)F (([0-9a-fx]): unused scan count ([0-9]*) new scan count ([0-9]*) total_scan ([0-9]*) last shrinker return val ([0-9]*)"';
+my $regex_vmscan_shrink_slab_start_default     = '([0-9a-z+_/]+) ([0-9a-fx]+): objects to shrink ([0-9]*) gfp_flags ([A-Z|_]+) pgs_scanned ([0-9]*) lru_pgs ([0-9]*) cache items ([0-9]*) delta ([0-9]*) total_scan ([0-9]*)';
+my $regex_vmscan_shrink_slab_end_default       = '([0-9a-z+_/]+) ([0-9a-fx]+): unused scan count ([0-9]*) new scan count ([0-9]*) total_scan ([-0-9]*) last shrinker return val ([0-9]*)';
 my $regex_vmscan_direct_reclaim_begin_default  = 'order=([0-9]*) may_writepage=([0-9]*) gfp_flags=([A-Z_|]+)';
 my $regex_vmscan_direct_reclaim_end_default    = 'nr_reclaimed=([0-9]*)';
 my $regex_vmscan_kswapd_wake_default           = 'nid=([0-9]*) order=([0-9]*)';
 my $regex_vmscan_kswapd_sleep_default          = 'nid=([0-9]*)';
-my $regex_compaction_begin_default             = 'zone_start=([0-9]*) migrate_start=([0-9]*) zone_end=([0-9]*) free_start=([0-9]*)';
+my $regex_compaction_begin_default             = 'zone_start=([0-9]*) migrate_start=([0-9]*) free_start=([0-9]*) zone_end=([0-9]*)';
 my $regex_compaction_end_default               = 'status=([0-9]*)';
 
 # Dynamically discovered regex
@@ -96,7 +98,7 @@ my %_fieldNameMap = (
 	"vmscan_slab_shrink_direct"			=> "Direct reclaimed Slab pages",
 	"vmscan_lru_shrink_kswapd"			=> "Kswapd reclaimed LRU pages",
 	"vmscan_slab_shrink_kswapd"			=> "Kswapd reclaimed Slab pages",
-	"vmscan_lru_reclaimed_ration"			=> "Ratio LRU/Slab",
+	"vmscan_lru_reclaimed_ratio"			=> "Ratio LRU/Slab",
 	"vmscan_direct_reclaim_time_stalled"            => "Time direct reclaim stalled",
         "vmscan_slab_shrink_direct_time_stalled"	=> "Time direct slab shrink",
         "vmscan_slab_shrink_kswapd_time_stalled"	=> "Time kswapd slab shrink",
@@ -144,7 +146,7 @@ sub ftraceInit {
 	$regex_compaction_begin = $self->generate_traceevent_regex(
 		"compaction/mm_compaction_begin",
 		$regex_compaction_begin_default,
-		"zone_start", "migrate_start", "zone_end", "free_start");
+		"zone_start", "migrate_start", "free_start", "zone_end");
 	$regex_compaction_end = $self->generate_traceevent_regex(
 		"compaction/mm_compaction_end",
 		$regex_compaction_end_default,
@@ -167,20 +169,11 @@ sub ftraceInit {
 	%compactionState = ();
 }
 
-# Convert sec.usec timestamp format
-sub timestamp_to_ms($) {
-	my $timestamp = $_[0];
-
-	my ($sec, $usec) = split (/\./, $timestamp);
-	return ($sec * 1000) + ($usec / 1000);
-}
-
 sub ftraceCallback {
-	my ($self, $timestamp, $pid, $process, $tracepoint, $details) = @_;
+	my ($self, $timestamp_ms, $pid, $process, $tracepoint, $details) = @_;
 	my $ftraceCounterRef = $self->{_FtraceCounters};
 	my $perprocessRef = $self->{_PerProcessStats};
 	my $pidprocess = "$pid-$process";
-	my $timestamp_ms = timestamp_to_ms($timestamp);
 
 	if ($tracepoint eq "writeback_congestion_wait") {
 		if ($details !~ /$regex_writeback_congestion_wait/p) {
@@ -194,14 +187,15 @@ sub ftraceCallback {
 
 		# Fields (look at the regex)
 		# $2 == usec_delayed
-		@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED] += $2;
-		$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED} += $2;
-		if ($process =~ /kswapd[0-9]+-/) {
-			@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED_KSWAPD] += $2;
-			$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED_KSWAPD} += $2;
+		my $usec_delayed = $2;
+		@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED] += $usec_delayed;
+		$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED} += $usec_delayed;
+		if ($process =~ /kswapd[0-9]+/) {
+			@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED_KSWAPD] += $usec_delayed;
+			$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED_KSWAPD} += $usec_delayed;
 		} else {
-			@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED_DIRECT] += $2;
-			$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED_DIRECT} += $2;
+			@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED_DIRECT] += $usec_delayed;
+			$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED_DIRECT} += $usec_delayed;
 		}
 
 	} elsif ($tracepoint eq "writeback_wait_iff_congested") {
@@ -215,14 +209,15 @@ sub ftraceCallback {
 		@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED]++;
 
 		# Fields (look at the regex)
-		@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED] += $2;
-		$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED} += $2;
-		if ($process =~ /kswapd[0-9]+-/) {
-			@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_KSWAPD] += $2;
-			$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_KSWAPD} += $2;
+		my $usec_delayed = $2;
+		@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED] += $usec_delayed;
+		$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED} += $usec_delayed;
+		if ($process =~ /kswapd[0-9]+/) {
+			@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_KSWAPD] += $usec_delayed;
+			$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_KSWAPD} += $usec_delayed;
 		} else {
-			@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_DIRECT] += $2;
-			$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_DIRECT} += $2;
+			@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_DIRECT] += $usec_delayed;
+			$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_DIRECT} += $usec_delayed;
 		}
 	} elsif ($tracepoint eq "mm_vmscan_lru_shrink_inactive") {
 		if ($details !~ /$regex_vmscan_lru_shrink_inactive/p) {
@@ -231,12 +226,13 @@ sub ftraceCallback {
 			print "	 $regex_vmscan_lru_shrink_inactive\n";
 			return;
 		}
+		my $shrunk = $4;
 
 		# Fields (look at the regex)
-		if ($process =~ /kswapd[0-9]+-/) {
-			@$ftraceCounterRef[VMSCAN_LRU_SHRINK_KSWAPD] += $4;
+		if ($process =~ /kswapd([0-9]+)/) {
+			@$ftraceCounterRef[VMSCAN_LRU_SHRINK_KSWAPD] += $shrunk;
 		} else {
-			@$ftraceCounterRef[VMSCAN_LRU_SHRINK_DIRECT] += $4;
+			@$ftraceCounterRef[VMSCAN_LRU_SHRINK_DIRECT] += $shrunk;
 		}
 	} elsif ($tracepoint eq "mm_vmscan_kswapd_wake") {
 		if ($details !~ /$regex_vmscan_kswapd_wake/p) {
@@ -246,7 +242,9 @@ sub ftraceCallback {
 			return;
 		}
 
-		$kswapdState{$pidprocess} = $timestamp_ms;
+		if ($kswapdState{$pidprocess} == 0) {
+			$kswapdState{$pidprocess} = $timestamp_ms;
+		}
 
 		# Fields (look at the regex)
 	} elsif ($tracepoint eq "mm_vmscan_kswapd_sleep") {
@@ -257,12 +255,13 @@ sub ftraceCallback {
 			return;
 		}
 
+
 		# Check how long the process was stalled
 		my $delayed = 0;
 		if ($kswapdState{$pidprocess}) {
-			$delayed = $kswapdState{$pidprocess} - $timestamp_ms;
+			$delayed = $timestamp_ms - $kswapdState{$pidprocess};
 		}
-		$directReclaimState{$pidprocess} = 0;
+		$kswapdState{$pidprocess} = 0;
 
 		# Fields (look at the regex)
 		@$ftraceCounterRef[VMSCAN_KSWAPD_TIME_AWAKE] += $delayed;
@@ -289,7 +288,7 @@ sub ftraceCallback {
 		# Check how long the process was stalled
 		my $delayed = 0;
 		if ($directReclaimState{$pidprocess}) {
-			$delayed = $directReclaimState{$pidprocess} - $timestamp_ms;
+			$delayed = $timestamp_ms - $directReclaimState{$pidprocess};
 		}
 		$directReclaimState{$pidprocess} = 0;
 
@@ -307,26 +306,27 @@ sub ftraceCallback {
 
 		# Fields (look at the regex)
 	} elsif ($tracepoint eq "mm_shrink_slab_end") {
-		if ($details !~ /$/p) {
+		if ($details !~ /$regex_vmscan_shrink_slab_end/p) {
 			print "WARNING: Failed to parse mm_shrink_slab_end as expected\n";
 			print "	 $details\n";
 			print "	 $regex_vmscan_shrink_slab_end\n";
 			return;
 		}
+		# Fields (look at the regex)
+		my $shrunk = $6;
 
 		# Check how long the process was stalled
 		my $delayed = 0;
 		if ($shrinkSlabState{$pidprocess}) {
-			$delayed = $shrinkSlabState{$pidprocess} - $timestamp_ms;
+			$delayed = $timestamp_ms - $shrinkSlabState{$pidprocess};
 		}
 		$shrinkSlabState{$pidprocess} = 0;
 
-		# Fields (look at the regex)
-		if ($process =~ /kswapd[0-9]+-/) {
-			@$ftraceCounterRef[VMSCAN_SLAB_SHRINK_KSWAPD] += $6;
+		if ($process =~ /kswapd[0-9]+/) {
+			@$ftraceCounterRef[VMSCAN_SLAB_SHRINK_KSWAPD] += $shrunk;
 			@$ftraceCounterRef[VMSCAN_SLAB_SHRINK_KSWAPD_TIME_STALLED] += $delayed;
 		} else {
-			@$ftraceCounterRef[VMSCAN_SLAB_SHRINK_DIRECT] += $6;
+			@$ftraceCounterRef[VMSCAN_SLAB_SHRINK_DIRECT] += $shrunk;
 			@$ftraceCounterRef[VMSCAN_SLAB_SHRINK_DIRECT_TIME_STALLED] += $delayed;
 		}
 	} elsif ($tracepoint eq "mm_compaction_begin") {
@@ -337,7 +337,7 @@ sub ftraceCallback {
 			return;
 		}
 
-		$directReclaimState{$pidprocess} = $timestamp_ms;
+		$compactionState{$pidprocess} = $timestamp_ms;
 
 		# Fields (look at the regex)
 	} elsif ($tracepoint eq "mm_compaction_end") {
@@ -351,7 +351,7 @@ sub ftraceCallback {
 		# Check how long the process was stalled
 		my $delayed = 0;
 		if ($compactionState{$pidprocess}) {
-			$delayed = $compactionState{$pidprocess} - $timestamp_ms;
+			$delayed = $timestamp_ms - $compactionState{$pidprocess};
 		}
 		$compactionState{$pidprocess} = 0;
 
@@ -363,7 +363,12 @@ sub ftraceCallback {
 
 	my $lru_pages_shrink  = @$ftraceCounterRef[VMSCAN_LRU_SHRINK_DIRECT]  + @$ftraceCounterRef[VMSCAN_LRU_SHRINK_KSWAPD];
 	my $slab_pages_shrink = @$ftraceCounterRef[VMSCAN_SLAB_SHRINK_DIRECT] + @$ftraceCounterRef[VMSCAN_SLAB_SHRINK_KSWAPD];
-	@$ftraceCounterRef[VMSCAN_LRU_RECLAIMED_RATIO] = $lru_pages_shrink / ($lru_pages_shrink + $slab_pages_shrink);
+	my $ratio = 1;
+
+	if ($lru_pages_shrink + $slab_pages_shrink > 0) {
+		$ratio = ($lru_pages_shrink / ($lru_pages_shrink + $slab_pages_shrink) * 1000);
+	}
+	@$ftraceCounterRef[VMSCAN_LRU_RECLAIMED_RATIO] = $ratio;
 }
 
 sub ftraceReport { 
