@@ -18,7 +18,7 @@ use constant SCHED_MOVE_REMOTE			=> 10;
 use constant EVENT_UNKNOWN			=> 11;
 
 # Defaults for dynamically discovered regex's
-my $regex_mm_numa_migrate_ratelimit_default = 'comm=([a-zA-Z0-9-]*) pid=([0-9]*) dst_nid=([0-9]) nr_pages=([0-9]*)';
+my $regex_mm_numa_migrate_ratelimit_default = 'comm=([a-zA-Z0-9-.]*) pid=([0-9]*) dst_nid=([0-9]) nr_pages=([0-9]*)';
 my $regex_sched_stick_numa_default = 'pid=([0-9]*) tgid=([0-9]*) ngid=([0-9]*) src_cpu=([0-9]*) src_nid=([0-9]*) dst_cpu=([0-9]*) dst_nid=([0-9])';
 my $regex_sched_move_numa_default = 'pid=([0-9]*) tgid=([0-9]*) ngid=([0-9]*) src_cpu=([0-9]*) src_nid=([0-9]*) dst_cpu=([0-9]*) dst_nid=([0-9])';
 my $regex_sched_swap_numa_default = 'src_pid=([0-9]*) src_tgid=([0-9]*) src_ngid=([0-9]*) src_cpu=([0-9]*) src_nid=([0-9]*) dst_pid=([0-9]*) dst_tgid=([0-9]*) dst_ngid=([0-9]*) dst_cpu=([0-9]*) dst_nid=([0-9]*)';
