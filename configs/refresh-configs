@@ -92,7 +92,6 @@ for CONFIG in $LIMITMEM_CONFIGS; do
 done
 
 TMPFS_CONFIGS="
-config-global-dhp__io-compress
 "
 
 for CONFIG in $TMPFS_CONFIGS; do
