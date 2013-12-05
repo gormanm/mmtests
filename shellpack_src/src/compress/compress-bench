@@ -9,6 +9,7 @@ COMPRESS_METHOD=pigz
 COMPRESS_SOURCE=
 COMPRESS_APPROXIMATE_SIZE_MB=0
 COMPRESS_INSTANCES=1
+COMPRESS_THREADS=$NUM_CPU
 
 install-depends pigz
 
@@ -17,6 +18,7 @@ install-depends pigz
 ###SHELLPACK parseargParam  --source      COMPRESS_SOURCE
 ###SHELLPACK parseargParam  --sourcesize  COMPRESS_APPROXIMATE_SIZE_MB
 ###SHELLPACK parseargParam  --instances   COMPRESS_INSTANCES
+###SHELLPACK parseargParam  --threads     COMPRESS_THREADS_PER_INSTANCE
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK monitor_hooks
@@ -35,25 +37,35 @@ if [ $? -ne 0 ]; then
 	die "Source file for compression must be specified"
 fi
 
-if [ "`file $0.gz | grep gzip`" = "" ]; then
+if [ "`file 0.gz | grep gzip`" = "" ]; then
+	echo Source file already uncompressed
 	mv 0.gz 0
 else
+	echo Uncompressing source file
 	gunzip 0.gz || die Failed to decompress source file
 fi
 
 # Approximately try and meet the size requirements. Not too fussy
 SRCSIZE=`stat -c%s 0`
 NR_COPIES=$(($COMPRESS_APPROXIMATE_SIZE_MB*1048576/SRCSIZE))
-echo Copying source file $NR_COPIES times
-for i in `seq 0 $NR_COPIES`; do
-	echo o Copying $((i+1))/$((NR_COPIES+1))
-	cat 0 >> 1
-done
-rm 0
+echo Source size: $((SRCSIZE/1048576)) MB
+echo Approximate required size: $COMPRESS_APPROXIMATE_SIZE_MB MB
+
+if [ $NR_COPIES -le 1 ]; then
+	echo Source file meets minimum size requirements
+	mv 0 1
+else
+	echo Concatenate source file $NR_COPIES times to make approximate size
+	for i in `seq 0 $NR_COPIES`; do
+		echo o Concatenate $((i+1))/$((NR_COPIES+1))
+		cat 0 >> 1
+	done
+	rm 0
+fi
 
 # Copy the remaining instances
 if [ $COMPRESS_INSTANCES -gt 1 ]; then
-	echo Copying instances
+	echo Copying file for $COMPRESS_INSTANCES instance
 	for INSTANCE in `seq 2 $COMPRESS_INSTANCES`; do
 		echo o Copying $INSTANCE/$COMPRESS_INSTANCES
 		cp 1 $INSTANCE
@@ -77,8 +89,8 @@ echo -n > instances.pids
 for INSTANCE in `seq 1 $COMPRESS_INSTANCES`; do
 	case $COMPRESS_METHOD in
 	pigz)
-		echo Starting $TIME_CMD pigz $INSTANCE
-		$TIME_CMD pigz $INSTANCE 2>> $LOGDIR_RESULTS/time.$i > /dev/null &
+		echo Starting $TIME_CMD pigz $INSTANCE, $COMPRESS_THREADS_PER_INSTANCE threads
+		$TIME_CMD pigz -p $COMPRESS_THREADS_PER_INSTANCE $INSTANCE 2>> $LOGDIR_RESULTS/time.$INSTANCE > /dev/null &
 		echo $! >> instances.pids
 		;;
 	*)

@@ -6,6 +6,7 @@ run_bench() {
 		--method	$COMPRESS_METHOD \
 		--source	$COMPRESS_SOURCE \
 		--sourcesize	$COMPRESS_APPROXIMATE_SIZE_MB \
-		--instances	$COMPRESS_INSTANCES
+		--instances	$COMPRESS_INSTANCES \
+		--threads	$COMPRESS_THREADS_PER_INSTANCE
 	return $?
 }
