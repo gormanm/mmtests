@@ -46,7 +46,7 @@ export SWAP_NBD_PORT=10001
 export TESTDISK_PARTITION=none
 export TESTDISK_FILESYSTEM=tmpfs
 export TESTDISK_MKFS_PARAM=
-export TESTDISK_MOUNT_ARGS="size=$((MEMTOTAL_BYTES*4/5))
+export TESTDISK_MOUNT_ARGS="size=$((MEMTOTAL_BYTES*4/5))"
 
 # List of monitors
 export RUN_MONITOR=yes
