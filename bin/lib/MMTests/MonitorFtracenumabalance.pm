@@ -89,7 +89,7 @@ sub ftraceInit {
 
 sub ftraceCallback {
 	my ($self, $timestamp, $pid, $process, $tracepoint, $details) = @_;
-	my @ftraceCounters = @{$self->{_FtraceCounters}};
+	my $ftraceCounterRef = $self->{_FtraceCounters};
 
 	if ($tracepoint eq "mm_numa_migrate_ratelimit") {
 		if ($details !~ /$regex_mm_numa_migrate_ratelimit/p) {
