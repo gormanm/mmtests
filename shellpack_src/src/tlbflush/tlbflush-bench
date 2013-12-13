@@ -1,0 +1,59 @@
+#!/bin/bash
+# Run tlbflush benchmark
+
+###SHELLPACK preamble tlbflush-bench 0
+
+TLBFLUSH_MAX_THREADS=8
+TLBFLUSH_MAX_ENTRIES=512
+TLBFLUSH_ITERATIONS=200
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --max-threads       TLBFLUSH_MAX_THREADS
+###SHELLPACK parseargParam --max-entries       TLBFLUSH_MAX_ENTRIES
+###SHELLPACK parseargParam --iterations        TLBFLUSH_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required tlbflush-${VERSION}
+###SHELLPACK monitor_hooks
+
+EXIT_CODE=$SHELLPACK_SUCCESS
+
+###SHELLPACK threads_fib_begin 1 $TLBFLUSH_MAX_THREADS
+monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+
+NR_ENTRIES=$((RANDOM%TLBFLUSH_MAX_ENTRIES))
+for ITERATION in `seq 1 $TLBFLUSH_ITERATIONS`; do
+
+	THIS_MAX_ENTRIES=$TLBFLUSH_MAX_ENTRIES
+	
+	# Select a range of entries to randomly select from. This is to ensure
+	# an evenish spread of entries to be tested
+	NR_SECTION=$((ITERATION%8))
+	RANGE=$((TLBFLUSH_MAX_ENTRIES/8))
+	THIS_MIN_ENTRIES=$((RANGE*NR_SECTION+1))
+	THIS_MAX_ENTRIES=$((THIS_MIN_ENTRIES+RANGE))
+
+	NR_ENTRIES=$((THIS_MIN_ENTRIES+(RANDOM%RANGE)))
+	if [ $NR_ENTRIES -gt $THIS_MAX_ENTRIES ]; then
+		NR_ENTRIES=$THIS_MAX_ENTRIES
+	fi
+	
+	if [ $((ITERATION%10)) -eq 0 ]; then
+		echo Iteration:$ITERATION Threads:$NR_THREADS/$TLBFLUSH_MAX_THREADS
+	fi
+
+	RESULT=`$SHELLPACK_SOURCES/tlbflush-${VERSION}-installed/tlbflush -n $NR_ENTRIES -t $NR_THREADS 2>&1`
+	RETVAL=$?
+	if [ $RETVAL -ne 0 ]; then
+		error tlbflush returned non-zero value with $NR_THREADS
+		exit $SHELLPACK_ERROR
+	fi
+	echo $RESULT nr_entries $NR_ENTRIES | tee -a $LOGDIR_RESULTS/tlbflush-$NR_THREADS.log
+	sync
+done
+
+monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_fib_end
+
+exit $EXIT_CODE

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+P=tlbflush-install
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+mkdir -p $SHELLPACK_SOURCES/tlbflush-${VERSION}-installed
+cd $SHELLPACK_SOURCES/tlbflush-${VERSION}-installed || die Failed to create install directory
+wget -O tlbflush.c.in "http://marc.info/?l=linux-kernel&m=133727348217113&q=raw" || die Failed to download source code
+
+START_LINE=`grep -n ^---$ tlbflush.c.in | cut -f1 -d:`
+END_LINE=`grep -n ^--$ tlbflush.c.in | cut -f1 -d:`
+head -$((END_LINE-1)) tlbflush.c.in | tail -$((END_LINE-START_LINE-1)) | grep -v "define FILE_SIZE" > tlbflush.c
+gcc -DFILE_SIZE=$((128*1048576)) -O2 tlbflush.c -lpthread -o tlbflush || die Failed to build tlbflush binary
+
+exit $SHELLPACK_SUCCESS
+#### Description Alex Shis tlb range flush benchmark
+#### Details tlbflush 25
