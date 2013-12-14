@@ -38,6 +38,82 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR ebizzy-$VERSION
 pushd ebizzy-$VERSION > /dev/null || die Failed to rename tar
 
+echo 'diff --git a/ebizzy.c b/ebizzy.c
+index 76c7492..3e7644f 100644
+--- a/ebizzy.c
++++ b/ebizzy.c
+@@ -83,7 +83,7 @@ static char **hole_mem;
+ static unsigned int page_size;
+ static time_t start_time;
+ static volatile int threads_go;
+-static unsigned int records_read;
++static unsigned int *thread_records_read;
+ 
+ static void
+ usage(void)
+@@ -436,6 +436,7 @@ search_mem(void)
+ static void *
+ thread_run(void *arg)
+ {
++	unsigned int *records = (unsigned int *)arg;
+ 
+ 	if (verbose > 1)
+ 		printf("Thread started\n");
+@@ -444,7 +445,7 @@ thread_run(void *arg)
+ 
+ 	while (threads_go == 0);
+ 
+-	records_read += search_mem();
++	*records = search_mem();
+ 
+ 	if (verbose > 1)
+ 		printf("Thread finished, %f seconds\n",
+@@ -471,12 +472,19 @@ start_threads(void)
+ 	struct rusage start_ru, end_ru;
+ 	struct timeval usr_time, sys_time;
+ 	int err;
++	unsigned int total_records = 0;
+ 
+ 	if (verbose)
+ 		printf("Threads starting\n");
+ 
++	thread_records_read = calloc(threads, sizeof(unsigned int));
++	if (!thread_records_read) {
++		fprintf(stderr, "Error allocating thread_records_read\n");
++		exit(1);
++	}
++
+ 	for (i = 0; i < threads; i++) {
+-		err = pthread_create(&thread_array[i], NULL, thread_run, NULL);
++		err = pthread_create(&thread_array[i], NULL, thread_run, &thread_records_read[i]);
+ 		if (err) {
+ 			fprintf(stderr, "Error creating thread %d\n", i);
+ 			exit(1);
+@@ -505,13 +513,21 @@ start_threads(void)
+ 			fprintf(stderr, "Error joining thread %d\n", i);
+ 			exit(1);
+ 		}
++		total_records += thread_records_read[i];
+ 	}
+ 
+ 	if (verbose)
+ 		printf("Threads finished\n");
+ 
+-	printf("%u records/s\n",
+-	       (unsigned int) (((double) records_read)/elapsed));
++	printf("%u records/s",
++	       (unsigned int) (((double) total_records)/elapsed));
++
++	for (i = 0; i < threads; i++) {
++		printf(" %u", (unsigned int) (((double) thread_records_read[i])/elapsed));
++	}
++	printf("\n");
++
++	free(thread_records_read);
+ 
+ 	usr_time = difftimeval(&end_ru.ru_utime, &start_ru.ru_utime);
+ 	sys_time = difftimeval(&end_ru.ru_stime, &start_ru.ru_stime);' | patch -p1 || exit $SHELLPACK_ERROR
+
 pushd $SHELLPACK_SOURCES/ebizzy-$VERSION || die Failed to change to source directory
 ./configure --prefix=$SHELLPACK_SOURCES/-installed
 if [ $? -ne 0 ]; then
@@ -56,4 +132,4 @@ cp ebizzy ../ebizzy-$VERSION-installed/bin || exit $SHELLPACK_ERROR
 
 exit $SHELLPACK_SUCCESS
 #### Description ebizzy
-#### Details ebizzy 7
+#### Details ebizzy 10
