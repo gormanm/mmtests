@@ -1,5 +1,5 @@
-# ExtractEbizzy.pm
-package MMTests::ExtractEbizzy;
+# ExtractEbizzythread.pm
+package MMTests::ExtractEbizzythread;
 use MMTests::Extract;
 use VMR::Stat;
 our @ISA = qw(MMTests::Extract); 
@@ -8,7 +8,7 @@ use strict;
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ExtractEbizzy",
+		_ModuleName  => "ExtractEbizzythread",
 		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
 		_ResultData  => []
 	};
@@ -25,6 +25,8 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my @clients;
 
+	$reportDir =~ s/ebizzythread/ebizzy/;
+
 	my @files = <$reportDir/noprofile/ebizzy-*-1.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
@@ -39,8 +41,8 @@ sub initialise() {
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_TestName} = $testName;
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%$fieldLength.4f",
-				  "%$fieldLength.4f",  "%$fieldLength.4f", "%$fieldLength.4f" ];
-	$self->{_FieldHeaders} = [ "Client", "Iteration", "Records/sec", "User", "Sys" ];
+				  "%$fieldLength.4f" ];
+	$self->{_FieldHeaders} = [ "Client", "Sample", "ThreadRecords/sec" ];
 	$self->{_SummaryHeaders} = [ "Client", "Min", "Mean", "Range", "Stddev", "Max" ];
 }
 
@@ -128,28 +130,25 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my @clients = @{$self->{_Clients}};
 
+	$reportDir =~ s/ebizzythread/ebizzy/;
+
 	foreach my $client (@clients) {
-		my $iteration = 0;
+		my $sample = 0;
 
 		my @files = <$reportDir/noprofile/ebizzy-$client-*>;
 		foreach my $file (@files) {
 			open(INPUT, $file) || die("Failed to open $file\n");
-			my ($user, $sys, $records);
 			while (<INPUT>) {
 				my $line = $_;
 				if ($line =~ /([0-9]*) records.*/) {
-					$records = $1;
-				}
-				if ($line =~ /user\s+([0-9.]*).*/) {
-					$user = $1;
-				}
-				if ($line =~ /sys\s+([0-9.]*).*/) {
-					$sys = $1;
+					my @elements = split(/\s+/, $line);
+					for (my $i = 2; $i <= $#elements; $i++) {
+						push @{$self->{_ResultData}[$client]}, [ $sample, $elements[$i] ];
+					$sample++;
+					}
 				}
 			}
 			close INPUT;
-			push @{$self->{_ResultData}[$client]}, [ $iteration, $records, $user, $sys ];
-			$iteration++;
 		}
 	}
 }

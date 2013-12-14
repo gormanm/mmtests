@@ -1,5 +1,5 @@
-# ExtractEbizzy.pm
-package MMTests::ExtractEbizzy;
+# ExtractTlbflush.pm
+package MMTests::ExtractTlbflush;
 use MMTests::Extract;
 use VMR::Stat;
 our @ISA = qw(MMTests::Extract); 
@@ -8,7 +8,7 @@ use strict;
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ExtractEbizzy",
+		_ModuleName  => "ExtractTlbflush",
 		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
 		_ResultData  => []
 	};
@@ -25,11 +25,11 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my @clients;
 
-	my @files = <$reportDir/noprofile/ebizzy-*-1.log>;
+	my @files = <$reportDir/noprofile/tlbflush-*.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
-		$split[-2] =~ s/.log//;
-		push @clients, $split[-2];
+		$split[-1] =~ s/.log//;
+		push @clients, $split[-1];
 	}
 	@clients = sort { $a <=> $b } @clients;
 	$self->{_Clients} = \@clients;
@@ -41,7 +41,7 @@ sub initialise() {
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%$fieldLength.4f",
 				  "%$fieldLength.4f",  "%$fieldLength.4f", "%$fieldLength.4f" ];
 	$self->{_FieldHeaders} = [ "Client", "Iteration", "Records/sec", "User", "Sys" ];
-	$self->{_SummaryHeaders} = [ "Client", "Min", "Mean", "Range", "Stddev", "Max" ];
+	$self->{_SummaryHeaders} = [ "Client", "Min", "Mean", "TrueMean", "Stddev", "Max" ];
 }
 
 sub printPlot() {
@@ -101,7 +101,7 @@ sub extractSummary() {
 			push @units, @{$row}[$column];
 		}
 		push @row, $client;
-		foreach my $funcName ("calc_min", "calc_mean", "calc_range", "calc_stddev", "calc_max") {
+		foreach my $funcName ("calc_min", "calc_mean", "calc_true_mean", "calc_stddev", "calc_max") {
 			no strict "refs";
 			push @row, &$funcName(@units);
 		}
@@ -129,28 +129,18 @@ sub extractReport($$$) {
 	my @clients = @{$self->{_Clients}};
 
 	foreach my $client (@clients) {
-		my $iteration = 0;
+		my $iteration = 1;
 
-		my @files = <$reportDir/noprofile/ebizzy-$client-*>;
-		foreach my $file (@files) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			my ($user, $sys, $records);
-			while (<INPUT>) {
-				my $line = $_;
-				if ($line =~ /([0-9]*) records.*/) {
-					$records = $1;
-				}
-				if ($line =~ /user\s+([0-9.]*).*/) {
-					$user = $1;
-				}
-				if ($line =~ /sys\s+([0-9.]*).*/) {
-					$sys = $1;
-				}
+		my $file = "$reportDir/noprofile/tlbflush-$client.log";
+		open(INPUT, $file) || die("Failed to open $file\n");
+		my ($user, $sys, $records);
+		while (<INPUT>) {
+			if ($_ =~ /.*, cost ([0-9]*)ns.*/) {
+				push @{$self->{_ResultData}[$client]}, [ $iteration, $1 ];
+				$iteration++;
 			}
-			close INPUT;
-			push @{$self->{_ResultData}[$client]}, [ $iteration, $records, $user, $sys ];
-			$iteration++;
 		}
+		close INPUT;
 	}
 }
 
