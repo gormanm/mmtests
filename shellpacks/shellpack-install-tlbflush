@@ -30,7 +30,7 @@ head -$((END_LINE-1)) tlbflush.c.in | tail -$((END_LINE-START_LINE-1)) | grep -v
 
 echo '--- tlbflush.c.orig	2013-12-15 11:05:08.813821030 +0000
 +++ tlbflush.c	2013-12-15 11:04:46.504926426 +0000
-@@ -67,13 +67,14 @@
+@@ -67,13 +67,17 @@
  	char x;
  	int i, k;
  	int randn[PAGE_SIZE];
@@ -42,8 +42,11 @@ echo '--- tlbflush.c.orig	2013-12-15 11:05:08.813821030 +0000
  	actimes = malloc(sizeof(long));
  
 -	while (*threadstart == 0 )
-+	while (*threadstart == 0 && count++ < 1000000)
++	while (*threadstart == 0) {
++		if (++count > 1000000)
++			break;
  		usleep(1);
++	}
  
  	if (d->rw == 0)
 @@ -180,6 +181,7 @@
@@ -60,4 +63,4 @@ gcc -DFILE_SIZE=$((128*1048576)) -g -O2 tlbflush.c -lpthread -o tlbflush || die 
 
 exit $SHELLPACK_SUCCESS
 #### Description Alex Shis tlb range flush benchmark
-#### Details tlbflush 26
+#### Details tlbflush 29

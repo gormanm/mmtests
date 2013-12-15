@@ -149,6 +149,16 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		echo $SUBREPORT Latency
 		eval $COMPARE_CMD --sub-heading Latency
 		;;
+	ebizzy)
+		echo $SUBREPORT
+		$COMPARE_CMD
+		echo
+		echo $SUBREPORT Per-thread
+		compare-mmtests.pl -d . -b ebizzythread -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		echo $SUBREPORT Thread spread
+		compare-mmtests.pl -d . -b ebizzyrange -n $KERNEL_LIST $FORMAT_CMD
+		;;
 	fsmark-single|fsmark-threaded)
 		echo $SUBREPORT Files/sec
 		eval $COMPARE_CMD --sub-heading Files/sec

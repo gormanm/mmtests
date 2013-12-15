@@ -9,7 +9,7 @@ sub new() {
 		_ModuleName  => "CompareTlbflush",
 		_DataType    => MMTests::Compare::DATA_THROUGHPUT,
 		_FieldLength => 12,
-		_CompareOps  => [ "none", "pndiff", "pndiff", "pndiff", "pdiff", "pndiff", "pndiff" ],
+		_CompareOps  => [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pdiff", "pndiff", "pndiff" ],
 		_ResultData  => []
 	};
 	bless $self, $class;
