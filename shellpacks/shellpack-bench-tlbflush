@@ -111,4 +111,4 @@ done
 
 exit $EXIT_CODE
 #### Description Alex Shis tlb range flush benchmark
-#### Details tlbflush-bench 25
+#### Details tlbflush-bench 26

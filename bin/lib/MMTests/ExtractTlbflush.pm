@@ -41,7 +41,7 @@ sub initialise() {
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%$fieldLength.4f",
 				  "%$fieldLength.4f",  "%$fieldLength.4f", "%$fieldLength.4f" ];
 	$self->{_FieldHeaders} = [ "Client", "Iteration", "Records/sec", "User", "Sys" ];
-	$self->{_SummaryHeaders} = [ "Client", "Min", "Mean", "TrueMean", "Stddev", "Max" ];
+	$self->{_SummaryHeaders} = [ "Client", "Min", "Mean", "Range", "Stddev", "Max" ];
 }
 
 sub printPlot() {
@@ -101,7 +101,7 @@ sub extractSummary() {
 			push @units, @{$row}[$column];
 		}
 		push @row, $client;
-		foreach my $funcName ("calc_min", "calc_mean", "calc_true_mean", "calc_stddev", "calc_max") {
+		foreach my $funcName ("calc_min", "calc_mean", "calc_range", "calc_stddev", "calc_max") {
 			no strict "refs";
 			push @row, &$funcName(@units);
 		}
