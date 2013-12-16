@@ -1,3 +1,10 @@
+v0.14
+o Report per-thread performance on ebizzy
+o Add tlbflush microbenchmark
+o Add pigz as a potential scheduler benchmark
+o Alter compress configuration file to avoid logging useless data
+o Add ftrace analysis scripts
+
 v0.13
 o Allow monitor-only mode logs to be compared
 o Fix URL for ffsb
