@@ -86,6 +86,6 @@ export PFT_USE_PROCESSES=yes
 export PFT_PAGESIZES=base
 
 # Alex Shi's tlbflush microbenchmark
-export TLBFLUSH_MAX_THREADS=$NUM_CPU
-export TLBFLUSH_MAX_ENTRIES=256
+export TLBFLUSH_MAX_THREADS=$((NUM_CPU*2))
+export TLBFLUSH_MAX_ENTRIES=512
 export TLBFLUSH_ITERATIONS=320
