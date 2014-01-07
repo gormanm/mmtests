@@ -1,3 +1,8 @@
+v0.15
+o Use .xz for kernel taballs
+o Remove patch rejections files
+o Increase range of parameters tested for tlbflush microbenchmark
+
 v0.14
 o Report per-thread performance on ebizzy
 o Add tlbflush microbenchmark

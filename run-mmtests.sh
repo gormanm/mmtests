@@ -113,6 +113,9 @@ install-depends autoconf automake binutils-devel bzip2 dosfstools expect \
 	expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch \
 	recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz
 
+# Following packages only interesting when running virtual machines
+#install-depends libvirt-daemon-driver-qemu libvirt-daemon-qemu qemu virt-manager
+
 # Check monitoring
 if [ "$FORCE_RUN_MONITOR" != "" ]; then
 	RUN_MONITOR=$FORCE_RUN_MONITOR
