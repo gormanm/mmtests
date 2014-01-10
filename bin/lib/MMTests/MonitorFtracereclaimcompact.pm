@@ -355,8 +355,11 @@ sub ftraceCallback {
 		}
 		$compactionState{$pidprocess} = 0;
 
-		# Fields (look at the regex)
-		@$ftraceCounterRef[COMPACTION_DIRECT_STALLED] += $delayed;
+		if ($process =~ /kswapd[0-9]+/) {
+			@$ftraceCounterRef[COMPACTION_KSWAPD_STALLED] += $delayed;
+		} else {
+			@$ftraceCounterRef[COMPACTION_DIRECT_STALLED] += $delayed;
+		}
 	} else {
 		@$ftraceCounterRef[EVENT_UNKNOWN]++;
 	}
