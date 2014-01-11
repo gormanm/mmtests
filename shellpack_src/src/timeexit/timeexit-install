@@ -1,6 +1,6 @@
 #!/bin/bash
 ###SHELLPACK preamble timeexit-install 0
-WEB_LOCATION="http://cache.gmane.org//gmane/linux/kernel/mm/93394-001.bin"
+WEB_LOCATION="http://marc.info/?l=linux-mm&m=135827340713374&q=p3"
 MIRROR_LOCATION="$WEBROOT/timeexit/timeexit.c"
 
 ###SHELLPACK parseargBegin

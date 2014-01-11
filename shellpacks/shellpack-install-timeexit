@@ -2,7 +2,7 @@
 P=timeexit-install
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
-WEB_LOCATION="http://cache.gmane.org//gmane/linux/kernel/mm/93394-001.bin"
+WEB_LOCATION="http://marc.info/?l=linux-mm&m=135827340713374&q=p3"
 MIRROR_LOCATION="$WEBROOT/timeexit/timeexit.c"
 
 # Basic argument parser
@@ -34,4 +34,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description Timed exit microbenchmark
-#### Details timeexit 3
+#### Details timeexit 4

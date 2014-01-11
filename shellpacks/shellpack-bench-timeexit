@@ -74,4 +74,4 @@ monitor_post_hook $LOGDIR_RESULTS $group
 
 exit $RETVAL
 #### Description Timed exit microbenchmark
-#### Details timeexit-bench 3
+#### Details timeexit-bench 4
