@@ -69,9 +69,9 @@ my %_fieldNameMap = (
 	"numa_miss"			=> "NUMA alloc miss",
 	"numa_interleave"		=> "NUMA interleave hit",
 	"numa_local"			=> "NUMA alloc local",
-	"numa_pte_updates"		=> "NUMA page range updates",
+	"numa_pte_updates"		=> "NUMA base PTE updates",
 	"numa_huge_pte_updates"		=> "NUMA huge PMD updates",
-	"mmtests_numa_pte_updates"	=> "NUMA PTE updates",
+	"mmtests_numa_pte_updates"	=> "NUMA page range updates",
 	"numa_hint_faults"		=> "NUMA hint faults",
 	"numa_hint_faults_local"	=> "NUMA hint local faults",
 	"mmtests_hint_local"		=> "NUMA hint local percent",
@@ -334,7 +334,7 @@ sub extractReport($$$$) {
 	}
 	$vmstat{"mmtests_numa_pte_updates"} =  $vmstat{"numa_pte_updates"};
 	if (defined $vmstat{"numa_huge_pte_updates"}) {
-		$vmstat{"mmtests_numa_pte_updates"} -= $vmstat{"numa_huge_pte_updates"} * 511;
+		$vmstat{"mmtests_numa_pte_updates"} += $vmstat{"numa_huge_pte_updates"} * 512;
 	}
 
 	# Compaction cost model
