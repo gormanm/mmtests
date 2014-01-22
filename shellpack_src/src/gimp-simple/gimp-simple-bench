@@ -1,0 +1,62 @@
+#!/bin/bash
+# This script does a basic open of an image with gimp. It was intended to
+# track down a potential address space exhaustion bug
+# https://bugzilla.kernel.org/show_bug.cgi?id=67651
+#
+###SHELLPACK preamble gimp-simple-bench 0
+
+install-depends xorg-x11-server xinit gimp
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam -i GIMP_SIMPLE_IMAGE_LOCATION
+###SHELLPACK parseargEnd
+
+if [ "$SHELLPACK_TEMP" = "" ]; then
+	die SHELLPACK_TEMP not refined
+fi
+
+# Write the gimp script
+cd $SHELLPACK_TEMP || die Failed to cd to $SHELLPACK_TEMP
+mkdir -p ~/.gimp-2.8/scripts/ || die Failed to create gimp script directory
+echo "(define (mmtests-open-image filename)
+  (let* 
+    (
+      (*catch 'errobj
+          (image    (car (gimp-file-load RUN-NONINTERACTIVE filename filename)))
+          (if (not (null? errobj))
+              (gimp-quit 1)
+          )
+      )
+      (drawable (car (gimp-image-get-active-layer image)))
+    )
+  (gimp-image-delete image)
+  )
+)" > ~/.gimp-2.8/scripts/mmtests-open-image.scm
+
+FILENAME=`basename $GIMP_SIMPLE_IMAGE_LOCATION`
+wget $GIMP_SIMPLE_IMAGE_LOCATION -O $FILENAME || die Failed to download image from $GIMP_SIMPLE_IMAGE_LOCATION
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Build a wrapper script to launch gimp
+cat > gimp-launch.sh << EOF
+/usr/bin/gimp -i -b "(open-image \"$FILENAME\")" -b "(gimp-quit 0)" > $LOGDIR_RESULTS/gimp-out.1 2>&1
+echo \$? > gimp-exit-code
+EOF
+chmod u+x gimp-launch.sh
+
+$TIME_CMD xinit ./gimp-launch.sh 2> $LOGDIR_RESULTS/time.1
+RETVAL=`cat gimp-exit-code`
+rm $FILENAME
+cd /
+
+if [ "$RETVAL" != "0" ]; then
+	exit $SHELLPACK_ERROR
+fi
+
+exit $SHELLPACK_SUCCESS

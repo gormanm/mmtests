@@ -1,0 +1,5 @@
+#!/bin/bash
+
+exit $SHELLPACK_SUCCESS
+#### Description Simple gimp manipulation
+#### Details gimp-simple 3
