@@ -45,7 +45,8 @@ fi
 
 # Build a wrapper script to launch gimp
 cat > gimp-launch.sh << EOF
-/usr/bin/gimp -i -b "(open-image \"$FILENAME\")" -b "(gimp-quit 0)" > $LOGDIR_RESULTS/gimp-out.1 2>&1
+/usr/bin/gimp -i -b "(mmtests-:q
+open-image \"$FILENAME\")" -b "(gimp-quit 0)" > $LOGDIR_RESULTS/gimp-out.1 2>&1
 echo \$? > gimp-exit-code
 EOF
 chmod u+x gimp-launch.sh
