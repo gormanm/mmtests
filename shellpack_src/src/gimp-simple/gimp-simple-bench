@@ -27,10 +27,10 @@ echo "(define (mmtests-open-image filename)
           (if (not (null? errobj))
               (gimp-quit 1)
           )
+          (drawable (car (gimp-image-get-active-layer image)))
+          (gimp-image-delete image)
       )
-      (drawable (car (gimp-image-get-active-layer image)))
     )
-  (gimp-image-delete image)
   )
 )" > ~/.gimp-2.8/scripts/mmtests-open-image.scm
 
@@ -45,8 +45,7 @@ fi
 
 # Build a wrapper script to launch gimp
 cat > gimp-launch.sh << EOF
-/usr/bin/gimp -i -b "(mmtests-:q
-open-image \"$FILENAME\")" -b "(gimp-quit 0)" > $LOGDIR_RESULTS/gimp-out.1 2>&1
+/usr/bin/gimp -i -b "(mmtests-open-image \"$FILENAME\")" -b "(gimp-quit 0)" > $LOGDIR_RESULTS/gimp-out.1 2>&1
 echo \$? > gimp-exit-code
 EOF
 chmod u+x gimp-launch.sh
