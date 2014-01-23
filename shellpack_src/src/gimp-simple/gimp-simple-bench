@@ -22,14 +22,9 @@ mkdir -p ~/.gimp-2.8/scripts/ || die Failed to create gimp script directory
 echo "(define (mmtests-open-image filename)
   (let* 
     (
-      (*catch 'errobj
-          (image    (car (gimp-file-load RUN-NONINTERACTIVE filename filename)))
-          (if (not (null? errobj))
-              (gimp-quit 1)
-          )
-          (drawable (car (gimp-image-get-active-layer image)))
-          (gimp-image-delete image)
-      )
+      (image    (car (gimp-file-load RUN-NONINTERACTIVE filename filename)))
+      (drawable (car (gimp-image-get-active-layer image)))
+      (gimp-image-delete image)
     )
   )
 )" > ~/.gimp-2.8/scripts/mmtests-open-image.scm
