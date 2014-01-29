@@ -70,26 +70,23 @@ sub extractSummary() {
 		push @summaryHeaders, $wss_size;
 	}
 	$self->{_SummaryHeaders} = \@summaryHeaders;
-	
-	my $operationIndex = 0;
+
 	foreach my $operation ("Add", "Copy", "Scale", "Triad") {
 		my @compareRow;
 		push @compareRow, "$operation";
 		foreach my $wss_size (sort {$a <=> $b} keys %wss_sizes) {
 			my @samples;
 
-
-			foreach my $row (@{$data[$operationIndex]}) {
+			foreach my $row (grep(@{$_}[0] eq $operation, @data)) {
 				my @rowArray = @$row;
-				if ($wss_size == $rowArray[0][0]) {
-					push @samples, $rowArray[1];
+				if ($wss_size == $rowArray[1]) {
+					push @samples, $rowArray[2];
 				}
 			}
 
 			push @compareRow, calc_true_mean(@samples);
 		}
 		push @{$self->{_SummaryData}}, \@compareRow;
-		$operationIndex++;
 	}
 
 	return 1;
@@ -100,58 +97,42 @@ sub printSummary() {
 	my $fieldLength = $self->{_FieldLength};
 	my @data = @{$self->{_ResultData}};
 	my %wss_sizes = %{$self->{_WssSizes}};
-	
-	my $operationIndex = 0;
+
 	foreach my $operation ("Add", "Copy", "Scale", "Triad") {
 		foreach my $wss_size (sort {$a <=> $b} keys %wss_sizes) {
 			my @samples;
 
-			foreach my $row (@{$data[$operationIndex]}) {
+			foreach my $row (grep(@{$_}[0] eq $operation, @data)) {
 				my @rowArray = @$row;
-				if ($wss_size == $rowArray[0][0]) {
-					push @samples, $rowArray[1];
+				if ($wss_size == $rowArray[1]) {
+					push @samples, $rowArray[2];
 				}
 			}
 
 			printf("%-26s %${fieldLength}d %${fieldLength}.2f\n",
 				$operation, $wss_size, calc_true_mean(@samples));
 		}
-		$operationIndex++;
 	}
 }
 
 sub printReport() {
 	my ($self) = @_;
-	my $fieldLength = $self->{_FieldLength};
-	my @data = @{$self->{_ResultData}};
-
-	my $operationIndex = 0;
-	foreach my $operation ("Add", "Copy", "Scale", "Triad") {
-		foreach my $row (@{$data[$operationIndex]}) {
-			my @rowArray = @$row;
-			printf("%-26s %${fieldLength}d %${fieldLength}.2f\n",
-				$operation, $rowArray[0], $rowArray[1]);
-		}
-		$operationIndex++;
-	}
+	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 }
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
-	my ($user, $system, $elapsed, $cpu);
 	my @pagesize_types = @{$self->{_PagesizeTypes}};
 
 	foreach my $pagesize_type (@pagesize_types) {
-		my $operationIndex = 0;
 		foreach my $operation ("Add", "Copy", "Scale", "Triad") {
 			my $file = "$reportDir/noprofile/default/$pagesize_type/stream-$operation.instances";
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				my @elements = split(/\s+/, $_);
-				push @{$self->{_ResultData}[$operationIndex]}, [[$elements[0]], $elements[1]];
+				push @{$self->{_ResultData}}, [$operation, $elements[0], $elements[1]];
 			}
 			close INPUT;
-			$operationIndex++;
 		}
 	}
 }
