@@ -41,9 +41,10 @@ sub extractReport($$$) {
 
 	my $file = "$reportDir/noprofile/pipetest.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
+	my $iteration = 0;
 	while (<INPUT>) {
 		my @elements = split(/\s/);
-		push @{$self->{_ResultData}}, [1, $elements[0]];
+		push @{$self->{_ResultData}}, [++$iteration, $elements[0]];
 	}
 	close INPUT;
 }
