@@ -694,8 +694,8 @@ for POWERSTEP in `seq $(($MINIMUM_POWER*$INCREMENT)) $(($LARGEST_POWER*$INCREMEN
 		# Build the tool
 		echo Building stream
 		case "$TLANG" in 
-			c)	echo gcc $MODEL -DN=$ARRAY_SIZE -DOFFSET=$(($ARR_OFFSET+$OFFSET)) $LINK_OPTIONS stream.c -o stream
-					gcc $MODEL -DN=$ARRAY_SIZE -DOFFSET=$(($ARR_OFFSET+$OFFSET)) $LINK_OPTIONS stream.c -o stream || die Failed to compile stream
+			c)	echo gcc $MODEL -DSTREAM_ARRAY_SIZE=$ARRAY_SIZE -DOFFSET=$(($ARR_OFFSET+$OFFSET)) $LINK_OPTIONS stream.c -o stream
+					gcc $MODEL -DSTREAM_ARRAY_SIZE=$ARRAY_SIZE -DOFFSET=$(($ARR_OFFSET+$OFFSET)) $LINK_OPTIONS stream.c -o stream || die Failed to compile stream
 					;;
 			f)	gcc -c mysecond.c || die Failed to compile mysecond.o
 					g77 -c stream.f	 || die Failed to compile stream.f
