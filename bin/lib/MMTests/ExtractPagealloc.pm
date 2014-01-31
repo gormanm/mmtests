@@ -34,12 +34,13 @@ sub initialise() {
 	my $fieldLength = 17;
 	$self->{_FieldLength} = $fieldLength;
 	$self->{_FieldHeaders} = ["Oper-Batch"];
+	$self->{_FieldFormat} = [ "%${fieldLength}s" ];
 	foreach my $order (@orders) {
 		push @{$self->{_FieldHeaders}}, "order-$order";
+		push @{$self->{_FieldFormat}}, "%${fieldLength}d";
 	}
 
 	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s" ];
 	$self->{_SummaryLength} = $fieldLength;
 	$self->{_SummaryHeaders} = $self->{_FieldHeaders};
 	$self->{_PlotLength} = $fieldLength;
@@ -62,16 +63,18 @@ sub printReport() {
 	foreach my $operation ("alloc", "free", "total") {
 		foreach my $batch (@batches) {
 			for (my $i = 0; $i < $samples; $i++) {
-				printf("%${fieldLength}s", "$operation-$batch");
+				my @row;
+				push @row, "$operation-$batch";
+
 				foreach my $order (@orders) {
-					printf("%${fieldLength}d",
-						$data[$operationIndex][$order][$batch][$i]);
+					push @row, $data[$operationIndex][$order][$batch][$i];
 				}
-				print "\n";
+				push @{$self->{_FlatResultData}}, \@row;
 			}
 		}
 		$operationIndex++;
 	}
+	$self->{_PrintHandler}->printRow($self->{_FlatResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 }
 
 sub extractSummary() {
