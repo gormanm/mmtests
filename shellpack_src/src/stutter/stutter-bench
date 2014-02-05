@@ -59,7 +59,7 @@ fi
 # Calibrate the expected time to complete
 echo Calibrating IO speeds
 $TIME_CMD -o $LOGDIR_RESULTS/calibrate.time \
-	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((104857600/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/calibrate.log
+	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((1024*1048576/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/calibrate.log
 rm $TESTDISK_DIR/ddfile
 
 # Dump all existing cache for full IO effect
