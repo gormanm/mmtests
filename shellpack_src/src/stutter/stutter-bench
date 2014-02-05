@@ -91,10 +91,10 @@ kill $LATENCY_PID
 kill $MEMHOG_PID
 
 # Cleanup
-if [ "$MEMFAULT_TMPFS" = "yes" ]; then
-	umount mnt
-fi
 cd /
+if [ "$MEMFAULT_TMPFS" = "yes" ]; then
+	umount $SHELLPACK_TEMP/mnt
+fi
 rm -rf $SHELLPACK_TEMP
 
 exit $SHELLPACK_SUCCESS

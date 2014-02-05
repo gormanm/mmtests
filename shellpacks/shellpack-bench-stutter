@@ -118,10 +118,10 @@ kill $LATENCY_PID
 kill $MEMHOG_PID
 
 # Cleanup
-if [ "$MEMFAULT_TMPFS" = "yes" ]; then
-	umount mnt
-fi
 cd /
+if [ "$MEMFAULT_TMPFS" = "yes" ]; then
+	umount $SHELLPACK_TEMP/mnt
+fi
 rm -rf $SHELLPACK_TEMP
 
 exit $SHELLPACK_SUCCESS
@@ -248,4 +248,4 @@ int main(int argc, char **argv)
 }
 ==== END MEMHOG FILE ====
 #### Description This test measures system stutter for a mix of anon usage and a large copy
-#### Details stutter-bench 15
+#### Details stutter-bench 16
