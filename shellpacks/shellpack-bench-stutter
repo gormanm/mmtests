@@ -1,0 +1,213 @@
+#!/bin/bash
+# This benchmark simualtes a simple workload. One part uses a lot of anonymous
+# memory, a second measures mmap latency and a third copies a large file. In
+# an ideal world the latency application would never notice but there are times
+# when this regresses and the benchmark catches that
+
+P=stutter-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+
+MEMFAULT_SIZE=${STUTTER_MEMFAULT_SIZE:=$MEMTOTAL_BYTES}
+DD_FILESIZE=${STUTTER_FILESIZE:=$MEMTOTAL_BYTES}
+DD_BLOCKSIZE=${STUTTER_BLOCKSIZE:=4096}
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--memfault-size)
+		MEMFAULT_SIZE=$2
+		shift 2
+		;;
+	--filesize)
+		DD_FILESIZE=$2
+		shift 2
+		;;
+	--blocksize)
+		DD_BLOCKSIZE=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Figure out how to use the time cmd
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
+fi
+
+# Build the latency program
+cd $SHELLPACK_TEMP || die Failed to change to temporary directory
+echo Building latency program
+LATENCY_FILE=`mktemp`
+if [ "$LATENCY_FILE" = "" ]; then
+	die Failed to create temporary latency file
+fi
+CSTART=`grep -n "BEGIN LATENCY FILE" $0 | tail -1 | awk -F : '{print $1}'`
+CEND=`grep -n "END LATENCY FILE" $0 | tail -1 | awk -F : '{print $1}'`
+sed -n $((CSTART+1)),$((CEND-1))p $0 > ${LATENCY_FILE}.c
+gcc -O2 -lm ${LATENCY_FILE}.c -o ${LATENCY_FILE} || exit $SHELLPACK_ERROR
+
+# Build the memhog program
+echo Building memhog program
+MEMHOG_FILE=`mktemp`
+if [ "$MEMHOG_FILE" = "" ]; then
+	die Failed to create temporary memhog file
+fi
+CSTART=`grep -n "BEGIN MEMHOG FILE" $0 | tail -1 | awk -F : '{print $1}'`
+CEND=`grep -n "END MEMHOG FILE" $0 | tail -1 | awk -F : '{print $1}'`
+sed -n $((CSTART+1)),$((CEND-1))p $0 > ${MEMHOG_FILE}.c
+gcc -DMEMFAULT_SIZE=$MEMFAULT_SIZE -O2 ${MEMHOG_FILE}.c -o ${MEMHOG_FILE} || exit $SHELLPACK_ERROR
+
+# Dump all existing cache for full IO effect
+echo Dropping caches, inodes and dentries
+sync
+echo 3 > /proc/sys/vm/drop_caches
+
+# Start the latency monitor
+echo Starting mapping latency monitor
+echo Logging: $LOGDIR_RESULTS/mmap-latency.log
+$LATENCY_FILE > $LOGDIR_RESULTS/mmap-latency.log &
+LATENCY_PID=$!
+
+# Start the memhog
+echo Starting memhog
+$MEMHOG_FILE &
+MEMHOG_PID=$!
+
+# DD
+echo Starting dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE))
+echo $DD_BLOCKSIZE > $LOGDIR_RESULTS/dd.blocksize
+echo $DD_FILESIZE > $LOGDIR_RESULTS/dd.filesize
+$TIME_CMD -o $LOGDIR_RESULTS/time.1 \
+	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) 2>&1 | tee $LOGDIR_RESULTS/dd-1.log
+rm $TESTDIR_DIR/ddfile
+
+# Shutdown monitors
+kill $LATENCY_PID
+kill $MEMHOG_PID
+
+# Cleanup
+rm $SHELLPACK_TEMP
+
+exit $SHELLPACK_SUCCESS
+==== BEGIN LATENCY FILE ====
+#include <math.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
+#include <sys/mman.h>
+
+#ifndef NR_MAP_PAGES
+#define NR_MAP_PAGES	4
+#endif
+#ifndef MSECS_DELAY
+#define MSECS_DELAY	10
+#endif
+#define PRINT_THRESHOLD	(5000 / MSECS_DELAY)
+
+int exiting = 0;
+void sigterm_handler(int sig)
+{
+	exiting = 1;
+}
+
+int main(int argc, char **argv)
+{
+	struct timespec intv_ts = {
+		.tv_sec  = MSECS_DELAY / 1000,
+		.tv_nsec =  (MSECS_DELAY % 1000) * 1000000,
+	};
+	struct timespec ts;
+	unsigned long long time0, time1;
+	unsigned long pagesize = getpagesize();
+	const size_t map_size = NR_MAP_PAGES * pagesize;
+	int c = 0;
+
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	time1 = ts.tv_sec * 1000000000LLU + ts.tv_nsec;
+
+	signal(SIGTERM, sigterm_handler);
+	while (!exiting) {
+		void *map, *p;
+		int latency;
+
+		nanosleep(&intv_ts, NULL);
+		map = mmap(NULL, map_size, PROT_READ | PROT_WRITE,
+			   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (map == MAP_FAILED) {
+			perror("mmap");
+			exit(EXIT_FAILURE);
+		}
+
+		for (p = map; p < map + map_size; p += pagesize)
+			*(unsigned long long *)p = time1;
+
+		munmap(map, map_size);
+
+		time0 = time1;
+		clock_gettime(CLOCK_MONOTONIC, &ts);
+		time1 = ts.tv_sec * 1000000000LLU + ts.tv_nsec;
+
+		latency = (time1 - time0) / MSECS_DELAY / 1000000;
+		if (log2(latency) <= 1) {
+			if (++c == PRINT_THRESHOLD) {
+				printf("%d %d\n", c, 0);
+				c = 0;
+			}
+		} else {
+			printf("%d %d\n", c, 0);
+			printf("1 %llu\n", (time1 - time0 - MSECS_DELAY) / 1000000);
+			c = 0;
+		}
+	}
+
+	fflush(NULL);
+	exit(EXIT_SUCCESS);
+}
+==== END LATENCY FILE ====
+==== BEGIN MEMHOG FILE ====
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+int main(int argc, char **argv)
+{
+	void *p, *map;
+	int flags, fd = 0;
+	int stride = getpagesize();
+
+	flags = MAP_ANONYMOUS | MAP_PRIVATE;
+	map = mmap(NULL, MEMFAULT_SIZE, PROT_READ | PROT_WRITE,
+		   flags, fd, 0);
+	if (map == MAP_FAILED) {
+		perror("mmap");
+		exit(EXIT_FAILURE);
+	}
+
+	for (p = map; p < (map + MEMFAULT_SIZE); p += stride)
+		*(unsigned long *)p = (unsigned long)p;
+
+	pause();
+	exit(EXIT_SUCCESS);
+}
+==== END MEMHOG FILE ====
+#### Description This test measures system stutter for a mix of anon usage and a large copy
+#### Details stutter-bench 10
