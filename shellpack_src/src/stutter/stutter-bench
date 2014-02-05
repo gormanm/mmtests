@@ -7,13 +7,15 @@
 ###SHELLPACK preamble stutter-bench 0
 
 MEMFAULT_SIZE=${STUTTER_MEMFAULT_SIZE:=$MEMTOTAL_BYTES}
+MEMFAULT_TMPFS=no
 DD_FILESIZE=${STUTTER_FILESIZE:=$MEMTOTAL_BYTES}
 DD_BLOCKSIZE=${STUTTER_BLOCKSIZE:=4096}
 
 ###SHELLPACK parseargBegin
-###SHELLPACK parseargParam --memfault-size MEMFAULT_SIZE
-###SHELLPACK parseargParam --filesize      DD_FILESIZE
-###SHELLPACK parseargParam --blocksize     DD_BLOCKSIZE
+###SHELLPACK parseargParam --memfault-size  MEMFAULT_SIZE
+###SHELLPACK parseargParam --memfault-tmpfs MEMFAULT_TMPFS
+###SHELLPACK parseargParam --filesize       DD_FILESIZE
+###SHELLPACK parseargParam --blocksize      DD_BLOCKSIZE
 ###SHELLPACK parseargEnd
 
 # Figure out how to use the time cmd
@@ -46,6 +48,20 @@ CEND=`grep -n "END MEMHOG FILE" $0 | tail -1 | awk -F : '{print $1}'`
 sed -n $((CSTART+1)),$((CEND-1))p $0 > ${MEMHOG_FILE}.c
 gcc -DMEMFAULT_SIZE=$MEMFAULT_SIZE -O2 ${MEMHOG_FILE}.c -o ${MEMHOG_FILE} || exit $SHELLPACK_ERROR
 
+# Prepare the tmpfs mount if requested
+MEMFAULT_FILE=
+if [ "$MEMFAULT_TMPFS" = "yes" ]; then
+	mkdir mnt
+	mount -t tmpfs none mnt -o size=$((MEMFAULT_SIZE+(2*1048576)))
+	MEMFAULT_FILE="mnt/tmpfs_file"
+fi
+
+# Calibrate the expected time to complete
+echo Calibrating IO speeds
+$TIME_CMD -o $LOGDIR_RESULTS/calibrate.time \
+	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((104857600/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/calibrate.log
+rm $TESTDISK_DIR/ddfile
+
 # Dump all existing cache for full IO effect
 echo Dropping caches, inodes and dentries
 sync
@@ -59,15 +75,15 @@ LATENCY_PID=$!
 
 # Start the memhog
 echo Starting memhog
-$MEMHOG_FILE &
+$MEMHOG_FILE $MEMFAULT_FILE &
 MEMHOG_PID=$!
 
 # DD
-echo Starting dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE))
+echo Starting dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
 echo $DD_BLOCKSIZE > $LOGDIR_RESULTS/dd.blocksize
 echo $DD_FILESIZE > $LOGDIR_RESULTS/dd.filesize
 $TIME_CMD -o $LOGDIR_RESULTS/time.1 \
-	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) 2>&1 | tee $LOGDIR_RESULTS/dd-1.log
+	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-1.log
 rm $TESTDIR_DIR/ddfile
 
 # Shutdown monitors
@@ -75,6 +91,9 @@ kill $LATENCY_PID
 kill $MEMHOG_PID
 
 # Cleanup
+if [ "$MEMFAULT_TMPFS" = "yes" ]; then
+	umount mnt
+fi
 rm $SHELLPACK_TEMP
 
 exit $SHELLPACK_SUCCESS
@@ -158,11 +177,11 @@ int main(int argc, char **argv)
 ==== BEGIN MEMHOG FILE ====
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/mman.h>
-#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+#include <fcntl.h>
 
 int main(int argc, char **argv)
 {
@@ -171,6 +190,21 @@ int main(int argc, char **argv)
 	int stride = getpagesize();
 
 	flags = MAP_ANONYMOUS | MAP_PRIVATE;
+	if (argc >= 2) {
+		fd = open(argv[1], O_CREAT|O_TRUNC|O_RDWR, S_IRWXU);
+		if (fd < 0) {
+			perror("open");
+			exit(EXIT_FAILURE);
+		}
+
+		if (ftruncate(fd, MEMFAULT_SIZE)) {
+			perror("ftruncate");
+			exit(EXIT_FAILURE);
+		}
+		flags = MAP_SHARED;
+		unlink(argv[1]);
+	}
+
 	map = mmap(NULL, MEMFAULT_SIZE, PROT_READ | PROT_WRITE,
 		   flags, fd, 0);
 	if (map == MAP_FAILED) {
