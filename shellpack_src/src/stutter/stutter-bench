@@ -84,7 +84,7 @@ echo $DD_BLOCKSIZE > $LOGDIR_RESULTS/dd.blocksize
 echo $DD_FILESIZE > $LOGDIR_RESULTS/dd.filesize
 $TIME_CMD -o $LOGDIR_RESULTS/time.1 \
 	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-1.log
-rm $TESTDIR_DIR/ddfile
+rm $TESTDISK_DIR/ddfile
 
 # Shutdown monitors
 kill $LATENCY_PID
@@ -94,7 +94,8 @@ kill $MEMHOG_PID
 if [ "$MEMFAULT_TMPFS" = "yes" ]; then
 	umount mnt
 fi
-rm $SHELLPACK_TEMP
+cd /
+rm -rf $SHELLPACK_TEMP
 
 exit $SHELLPACK_SUCCESS
 ==== BEGIN LATENCY FILE ====
