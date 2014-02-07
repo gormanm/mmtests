@@ -32,10 +32,10 @@ sub initialise() {
 
 sub extractSummary() {
         my ($self) = @_;
-        my @data = @{$self->{_MmapDelayData}};
+        my @data = @{$self->{_ResultData}};
         my @opList = ("min", "mean", "stddev", "max");
 
-	push @{$self->{_SummaryData}}, [ "Mmap Delays", $self->{_DelayedSamples} ];
+	push @{$self->{_SummaryData}}, [ ">5ms Delays", $self->{_DelayedSamples} ];
 	foreach my $opName (@opList) {
 		no strict "refs";
 
@@ -46,6 +46,13 @@ sub extractSummary() {
 
 		push @{$self->{_SummaryData}}, \@summaryRow;
 	}
+
+	my $quartiles = calc_quartiles(@samples);
+	push @{$self->{_SummaryData}}, [ "Mmap 90%", $$quartiles[90] ];
+	push @{$self->{_SummaryData}}, [ "Mmap 93%", $$quartiles[93] ];
+	push @{$self->{_SummaryData}}, [ "Mmap 95%", $$quartiles[95] ];
+	push @{$self->{_SummaryData}}, [ "Mmap 99%", $$quartiles[99] ];
+
 	push @{$self->{_SummaryData}}, [ "Ideal  Tput", $self->{_BestThroughput} ];
 	push @{$self->{_SummaryData}}, [ "Actual Tput", $self->{_TestThroughput} ];
 	push @{$self->{_SummaryData}}, [ "%age   Tput", $self->{_TestThroughput} * 100 / $self->{_BestThroughput} ];
@@ -63,8 +70,7 @@ sub extractReport($$$) {
 	while (<INPUT>) {
 		my ($instances, $latency) = split(/ /);
 		for (my $i = 0; $i < $instances; $i++) {
-			if ($latency > 0) {
-				push @{$self->{_MmapDelayData}}, $latency;
+			if ($latency > 5000000) {
 				$nr_delayed++
 			}
 			push @{$self->{_ResultData}}, [$nr_samples++, $latency];
