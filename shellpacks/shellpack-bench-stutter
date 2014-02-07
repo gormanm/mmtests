@@ -12,6 +12,7 @@ MEMFAULT_SIZE=${STUTTER_MEMFAULT_SIZE:=$MEMTOTAL_BYTES}
 MEMFAULT_TMPFS=no
 DD_FILESIZE=${STUTTER_FILESIZE:=$MEMTOTAL_BYTES}
 DD_BLOCKSIZE=${STUTTER_BLOCKSIZE:=4096}
+USE_DD_ZERO=no
 
 # Basic argument parser
 while [ "$1" != "" ]; do
@@ -35,6 +36,10 @@ while [ "$1" != "" ]; do
 	--blocksize)
 		DD_BLOCKSIZE=$2
 		shift 2
+		;;
+	--use-dd)
+		USE_DD_ZERO=yes
+		shift
 		;;
 	*)
 		echo Unrecognised option: $1
@@ -89,6 +94,12 @@ $TIME_CMD -o $LOGDIR_RESULTS/calibrate.time \
 	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((1024*1048576/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/calibrate.log
 rm $TESTDISK_DIR/ddfile
 
+# Create source file if necessary
+if [ "$USE_DD_ZERO" = "no" ]; then
+	echo Creating source file on local disk: $SHELLPACK_TOPLEVEL/stutter-source-file
+	dd if=/dev/zero of=$SHELLPACK_TOPLEVEL/stutter-source-file bs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
+fi
+
 # Dump all existing cache for full IO effect
 echo Dropping caches, inodes and dentries
 sync
@@ -105,12 +116,25 @@ echo Starting memhog
 $MEMHOG_FILE $MEMFAULT_FILE &
 MEMHOG_PID=$!
 
-# DD
-echo Starting dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
-echo $DD_BLOCKSIZE > $LOGDIR_RESULTS/dd.blocksize
-echo $DD_FILESIZE > $LOGDIR_RESULTS/dd.filesize
-$TIME_CMD -o $LOGDIR_RESULTS/time.1 \
-	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-1.log
+if [ "$USE_DD_ZERO" = "no" ]; then
+	# CP
+	echo Starting cp $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+	echo "#!/bin/bash
+cp $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+sync" > cp-script.sh
+	chmod u+x cp-script.sh
+	$TIME_CMD -o $LOGDIR_RESULTS/time.1 \
+		./cp-script.sh 2>&1 | tee $LOGDIR_RESULTS/dd-1.log
+	rm cp-script.sh
+	rm $SHELLPACK_TOPLEVEL/stutter-source-file
+else
+	# DD
+	echo Starting dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
+	echo $DD_BLOCKSIZE > $LOGDIR_RESULTS/dd.blocksize
+	echo $DD_FILESIZE > $LOGDIR_RESULTS/dd.filesize
+	$TIME_CMD -o $LOGDIR_RESULTS/time.1 \
+		dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-1.log
+fi
 rm $TESTDISK_DIR/ddfile
 
 # Shutdown monitors
@@ -248,4 +272,4 @@ int main(int argc, char **argv)
 }
 ==== END MEMHOG FILE ====
 #### Description This test measures system stutter for a mix of anon usage and a large copy
-#### Details stutter-bench 17
+#### Details stutter-bench 18
