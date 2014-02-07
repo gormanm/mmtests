@@ -12,6 +12,7 @@ MEMFAULT_SIZE=${STUTTER_MEMFAULT_SIZE:=$MEMTOTAL_BYTES}
 MEMFAULT_TMPFS=no
 DD_FILESIZE=${STUTTER_FILESIZE:=$MEMTOTAL_BYTES}
 DD_BLOCKSIZE=${STUTTER_BLOCKSIZE:=4096}
+ITERATIONS=5
 USE_DD_ZERO=no
 
 # Basic argument parser
@@ -119,24 +120,27 @@ MEMHOG_PID=$!
 # Begin the copy or dd
 echo $DD_BLOCKSIZE > $LOGDIR_RESULTS/dd.blocksize
 echo $DD_FILESIZE > $LOGDIR_RESULTS/dd.filesize
-if [ "$USE_DD_ZERO" = "no" ]; then
-	# CP
-	echo Starting cp $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
-	echo "#!/bin/bash
-cp $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
-sync" > cp-script.sh
-	chmod u+x cp-script.sh
-	$TIME_CMD -o $LOGDIR_RESULTS/time.1 \
-		./cp-script.sh 2>&1 | tee $LOGDIR_RESULTS/dd-1.log
-	rm cp-script.sh
-	rm $SHELLPACK_TOPLEVEL/stutter-source-file
-else
-	# DD
-	echo Starting dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
-	$TIME_CMD -o $LOGDIR_RESULTS/time.1 \
-		dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-1.log
-fi
-rm $TESTDISK_DIR/ddfile
+for ITERATION in `seq 1 $ITERATIONS`; do
+	echo Iteration $ITERATION/$ITERATIONS
+	if [ "$USE_DD_ZERO" = "no" ]; then
+		# CP
+		echo Starting cp $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+		echo "#!/bin/bash
+	cp $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+	sync" > cp-script.sh
+		chmod u+x cp-script.sh
+		$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
+			./cp-script.sh 2>&1 | tee $LOGDIR_RESULTS/dd-$ITERATION.log
+		rm cp-script.sh
+		rm $SHELLPACK_TOPLEVEL/stutter-source-file
+	else
+		# DD
+		echo Starting dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
+		$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
+			dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-$ITERATION.log
+	fi
+	rm $TESTDISK_DIR/ddfile
+done
 
 # Shutdown monitors
 kill $LATENCY_PID
@@ -213,7 +217,11 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_MONOTONIC, &ts);
 		time1 = ts.tv_sec * 1000000000LLU + ts.tv_nsec;
 
-		latency = (time1 - time0) - NSECS_DELAY;
+		latency = (time1 - time0);
+		if (latency < NSECS_DELAY)
+			latency = 0;
+		else
+			latency -= NSECS_DELAY;
 		sum_latency += latency;
 		if (latency < NSECS_DELAY) {
 			if (++c == PRINT_THRESHOLD) {
@@ -280,4 +288,4 @@ int main(int argc, char **argv)
 }
 ==== END MEMHOG FILE ====
 #### Description This test measures system stutter for a mix of anon usage and a large copy
-#### Details stutter-bench 19
+#### Details stutter-bench 20

@@ -4,6 +4,7 @@ use MMTests::Extract;
 use VMR::Stat;
 our @ISA = qw(MMTests::Extract); 
 
+use strict;
 my @_threads;
 
 sub new() {
@@ -32,7 +33,8 @@ sub initialise() {
 
 sub extractSummary() {
         my ($self) = @_;
-        my @data = @{$self->{_ResultData}};
+        my @latencyData = @{$self->{_LatencyData}};
+        my @tputData = @{$self->{_ThroughputData}};
         my @opList = ("min", "mean", "stddev", "max");
 
 	push @{$self->{_SummaryData}}, [ ">5ms Delays", $self->{_DelayedSamples} ];
@@ -42,20 +44,29 @@ sub extractSummary() {
 		my @summaryRow;
 		my $funcName = "calc_$opName";
 		push @summaryRow, "Mmap $opName";
-		push @summaryRow, &$funcName(@data);
+		push @summaryRow, &$funcName(@latencyData);
 
 		push @{$self->{_SummaryData}}, \@summaryRow;
 	}
 
-	my $quartiles = calc_quartiles(@samples);
+	my $quartiles = calc_quartiles(@latencyData);
 	push @{$self->{_SummaryData}}, [ "Mmap 90%", $$quartiles[90] ];
 	push @{$self->{_SummaryData}}, [ "Mmap 93%", $$quartiles[93] ];
 	push @{$self->{_SummaryData}}, [ "Mmap 95%", $$quartiles[95] ];
 	push @{$self->{_SummaryData}}, [ "Mmap 99%", $$quartiles[99] ];
 
 	push @{$self->{_SummaryData}}, [ "Ideal  Tput", $self->{_BestThroughput} ];
-	push @{$self->{_SummaryData}}, [ "Actual Tput", $self->{_TestThroughput} ];
-	push @{$self->{_SummaryData}}, [ "%age   Tput", $self->{_TestThroughput} * 100 / $self->{_BestThroughput} ];
+	foreach my $opName (@opList) {
+		no strict "refs";
+
+		my @summaryRow;
+		my $funcName = "calc_$opName";
+		push @summaryRow, "Tput $opName";
+		push @summaryRow, &$funcName(@tputData);
+
+		push @{$self->{_SummaryData}}, \@summaryRow;
+	}
+	return 1;
 }
 
 sub extractReport($$$) {
@@ -70,10 +81,11 @@ sub extractReport($$$) {
 	while (<INPUT>) {
 		my ($instances, $latency) = split(/ /);
 		for (my $i = 0; $i < $instances; $i++) {
-			if ($latency > 5000000) {
-				$nr_delayed++
-			}
 			push @{$self->{_ResultData}}, [$nr_samples++, $latency];
+			push @{$self->{_LatencyData}}, $latency / 1000000;
+		}
+		if ($latency > 5000000) {
+			$nr_delayed += $instances;
 		}
 	}
 	close(INPUT);
@@ -94,11 +106,13 @@ sub extractReport($$$) {
 	close(INPUT);
 
 	# Extract calibration write test throughput
-	my $file = "$reportDir/noprofile/time.1";
-	open(INPUT, $file) || die("Failed to open $file\n");
-	my @elements = split(/ /, <INPUT>);
-	@elements = split(/:/, $elements[2]);
-	$self->{_TestThroughput} = $self->{_FileSize} / 1048576 / ($elements[0] * 60 + $elements[1]);
-	close(INPUT);
+	my @files = <$reportDir/noprofile/time.*>;
+	foreach my $file (@files) {
+		open(INPUT, $file) || die("Failed to open $file\n");
+		my @elements = split(/ /, <INPUT>);
+		@elements = split(/:/, $elements[2]);
+		push @{$self->{_ThroughputData}}, $self->{_FileSize} / 1048576 / ($elements[0] * 60 + $elements[1]);
+		close(INPUT);
+	}
 }
 1;
