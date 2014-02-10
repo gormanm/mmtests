@@ -170,7 +170,7 @@ exit $SHELLPACK_SUCCESS
 #include <sys/mman.h>
 
 #ifndef NR_MAP_PAGES
-#define NR_MAP_PAGES	2048
+#define NR_MAP_PAGES	32768
 #endif
 #ifndef MSECS_DELAY
 #define MSECS_DELAY	5
@@ -293,4 +293,4 @@ int main(int argc, char **argv)
 }
 ==== END MEMHOG FILE ====
 #### Description This test measures system stutter for a mix of anon usage and a large copy
-#### Details stutter-bench 24
+#### Details stutter-bench 25
