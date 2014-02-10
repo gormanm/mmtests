@@ -28,6 +28,9 @@ if [ "$TIME_CMD" = "" ]; then
 	TIME_CMD="time"
 fi
 
+# Align the fault size
+MEMFAULT_SIZE=$((MEMFAULT_SIZE&~1048575))
+
 # Build the latency program
 cd $SHELLPACK_TEMP || die Failed to change to temporary directory
 echo Building latency program
@@ -82,39 +85,41 @@ echo Logging: $LOGDIR_RESULTS/mmap-latency.log
 $LATENCY_FILE > $LOGDIR_RESULTS/mmap-latency.log &
 LATENCY_PID=$!
 
-# Start the memhog
-echo Starting memhog
-$MEMHOG_FILE $MEMFAULT_FILE &
-MEMHOG_PID=$!
 
 # Begin the copy or dd
 echo $DD_BLOCKSIZE > $LOGDIR_RESULTS/dd.blocksize
 echo $DD_FILESIZE > $LOGDIR_RESULTS/dd.filesize
 for ITERATION in `seq 1 $ITERATIONS`; do
 	echo Iteration $ITERATION/$ITERATIONS
+
+	# Start the memhog
+	echo Starting memhog
+	$MEMHOG_FILE $MEMFAULT_FILE &
+	MEMHOG_PID=$!
+
 	if [ "$USE_DD_ZERO" = "no" ]; then
 		# CP
 		echo Starting cp $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
 		echo "#!/bin/bash
-	cp $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
-	sync" > cp-script.sh
+cp $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+sync" > cp-script.sh
 		chmod u+x cp-script.sh
 		$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
 			./cp-script.sh 2>&1 | tee $LOGDIR_RESULTS/dd-$ITERATION.log
 		rm cp-script.sh
-		rm $SHELLPACK_TOPLEVEL/stutter-source-file
 	else
 		# DD
 		echo Starting dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
 		$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
 			dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-$ITERATION.log
 	fi
-	rm $TESTDISK_DIR/ddfile
+
+	kill $MEMHOG_PID
 done
+rm $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
 
 # Shutdown monitors
 kill $LATENCY_PID
-kill $MEMHOG_PID
 
 # Cleanup
 cd /
@@ -251,7 +256,7 @@ int main(int argc, char **argv)
 	}
 
 	for (p = map; p < (map + MEMFAULT_SIZE); p += stride)
-		*(unsigned long *)p = (unsigned long)p;
+		*(volatile unsigned long *)p = (unsigned long)p;
 
 	pause();
 	exit(EXIT_SUCCESS);
