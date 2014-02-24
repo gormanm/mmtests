@@ -359,7 +359,7 @@ for MONITOR in $MONITORS_ALWAYS $MONITORS_PLAIN $MONITORS_GZIP $MONITORS_WITH_LA
 	fi
 done
 if [ "$STAP_USED" != "" ]; then
-	if [ `which stap` = "" ]; then
+	if [ "`which stap`" = "" ]; then
 		echo ERROR: systemtap required for $STAP_USED but not installed
 		exit -1
 	fi
