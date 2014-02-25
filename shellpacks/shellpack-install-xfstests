@@ -41,8 +41,7 @@ mv $DST_DIR xfstests-${VERSION}-installed
 pushd xfstests-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 # Edit some of the tests
-cat 180 | sed -e 's/$i -lt 1000/$i -lt $XFSTESTS_180_NR_FILES/' > 180.tmp; mv 180.tmp 180
-
+sed -i -e 's/$i -lt 1000/$i -lt $XFSTESTS_180_NR_FILES/' 180.tmp
 make || die Failed to build xfstests
 
 echo xfstests installed successfully

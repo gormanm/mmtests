@@ -13,7 +13,7 @@ while [ $# -gt 0 ]; do
 		shift 2
 		;;
 	*)
-		echo Unrecognised commane-line parameter $1
+		echo Unrecognised command-line parameter $1
 		usage
 		exit $SHELLPACK_ERROR
 	esac
@@ -39,8 +39,7 @@ done
 monitor_post_hook $LOGDIR_RESULTS
 
 # Cleanup log for easier use
-sed -e 's/ //g' $LOGDIR_RESULTS/sharepagetest.log > $LOGDIR_RESULTS/sharepagetest.log.tmp
-mv $LOGDIR_RESULTS/sharepagetest.log.tmp $LOGDIR_RESULTS/sharepagetest.log
+sed -i -e 's/ //g' $LOGDIR_RESULTS/sharepagetest.log > $LOGDIR_RESULTS/sharepagetest.log
 
 exit $RETVAL
 #### Description Tests fault contention on a single page

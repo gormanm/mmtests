@@ -130,9 +130,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 
 	esac
 
-	cat SPECjbb.props | sed -e "s/config.sw.command_line=.*/config.sw.command_line=java $USE_HUGEPAGE $SPECJBB_MAXHEAP spec.jbb.JBBmain -propfile SPECjbb.props/" > SPECjbb.props.tmp
-	mv SPECjbb.props.tmp SPECjbb.props
-
+	sed -i -e "s/config.sw.command_line=.*/config.sw.command_line=java $USE_HUGEPAGE $SPECJBB_MAXHEAP spec.jbb.JBBmain -propfile SPECjbb.props/" SPECjbb.props
 	record_procs before-$PAGES
 	monitor_pre_hook $LOGDIR_RESULTS specjbb
 
