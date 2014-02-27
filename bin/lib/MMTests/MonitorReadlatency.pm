@@ -160,7 +160,8 @@ sub extractReport($$$$) {
 			"$reportDir/write-latency-$testName-$testBenchmark",
 			"$reportDir/write-latency-$testName-$testBenchmark.gz",
 			"$reportDir/inbox-open-$testName-$testBenchmark",
-			"$reportDir/inbox-open-$testName-$testBenchmark.gz") {
+			"$reportDir/inbox-open-$testName-$testBenchmark.gz",
+			"$reportDir/mmap-access-latency-$testName-$testBenchmark") {
 		if (-e $test_file) {
 			$file = $test_file;
 			last;
