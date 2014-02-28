@@ -63,7 +63,11 @@ sub extractSummaryBreakdown() {
 	my $quartiles = calc_quartiles(@samples);
 
 	push @{$self->{_SummaryData}}, [ "Percentage <$min_latency ms", $min_samples * 100 / $#samples ];
-	push @{$self->{_SummaryData}}, [ "Seconds Stalled Longer", $stalled / 1000 ];
+	if ($self->{_Units} eq "usec") {
+		push @{$self->{_SummaryData}}, [ "Seconds Stalled Longer", $stalled / 100000000 ];
+	} else {
+		push @{$self->{_SummaryData}}, [ "Seconds Stalled Longer", $stalled / 1000 ];
+	}
 	push @{$self->{_SummaryData}}, [ "Average bad stall", $stalled / ($#samples - $min_samples) ];
 	push @{$self->{_SummaryData}}, [ "Latency 90%", $$quartiles[90] ];
 	push @{$self->{_SummaryData}}, [ "Latency 93%", $$quartiles[93] ];
@@ -85,8 +89,8 @@ sub extractSummaryPercentages() {
 	$self->{_SummaryHeaders} = [ "Latency", "Percentage" ];
 
 	# Build bin sizes
-	$binSizes[0] = 10;
-	$binSizes[1] = 20;
+	$binSizes[0] = 1000;
+	$binSizes[1] = 2000;
 	for (my $i = 2; $i < $nr_binsizes; $i++) {
 		$binSizes[$i] = $binSizes[$i-1] + $binSizes[$i-2];
 	}
@@ -166,6 +170,10 @@ sub extractReport($$$$) {
 			$file = $test_file;
 			last;
 		}
+	}
+
+	if ($file =~ /mmap-access-latency/) {
+		$self->{_Units} = "usec";
 	}
 
 	if ($file !~ /^.gz/) {
