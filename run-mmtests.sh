@@ -81,6 +81,7 @@ done
 # Take the unparsed option as the parameter
 shift
 RUNNAME=$1
+export MMTEST_ITERATION=$2
 
 if [ -z "$RUNNAME" ]; then
 	echo "ERROR: Runname parameter must be specified"
@@ -95,6 +96,9 @@ if [ ! -e $CONFIG ]; then
 fi
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
+if [ -n "$MMTEST_ITERATION" ]; then
+	export SHELLPACK_LOG="$SHELLPACK_LOG/$MMTEST_ITERATION"
+fi
 . $CONFIG
 
 # Create directories that must exist
