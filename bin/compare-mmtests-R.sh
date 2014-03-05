@@ -55,7 +55,7 @@ for TEST in $TEST_LIST; do
 done
 
 # This is far from ideal...
-SUPPORTED_DATATYPES="WalltimeOutliers"
+SUPPORTED_DATATYPES="WalltimeOutliers PercentageAllocated"
 [[ $SUPPORTED_DATATYPES =~ $DATATYPE ]] || exit 1
 
 echo "source (\"$SCRIPTDIR/lib/R/stats.R\")"					>> $TEMP
@@ -63,14 +63,13 @@ echo "results <- list()"							>> $TEMP
 
 TITLES=
 for TEST in $TEST_LIST; do
-		$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-header > $TMPDIR/$TEST || exit
+	$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-header > $TMPDIR/$TEST || exit
 	if [ `wc -l $TMPDIR/$TEST | awk '{print $1}'` -eq 0 ]; then
 		continue
 	fi
 	RESULTS="$TMPDIR/$TEST"
 	
 	echo "results[[\"$TEST\"]] <- read.table(\"$RESULTS\", header=TRUE)"	>> $TEMP
-	
 done
 
 echo "stats <- calc.stats(results, \"$DATATYPE\")"				>> $TEMP

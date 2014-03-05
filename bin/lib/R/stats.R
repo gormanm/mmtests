@@ -1,6 +1,7 @@
 
 datatypeToStatsFunction <- list(
-  WalltimeOutliers = "calc.quartiles"
+	WalltimeOutliers = "calc.quartiles",
+	PercentageAllocated = "calc.percentageAllocated"
 );
 
 meanhighestX <- function(data, X) {
@@ -9,7 +10,7 @@ meanhighestX <- function(data, X) {
 
 calc.quartiles <- function(results) {
 	values <- lapply(results, FUN=function(x) { return (x[[2]]);} )
-	
+
 	output <- sapply(values, quantile, c(0,0.25,0.50,0.75,0.90,0.95,0.99,1))
 
 	output <- rbind (output, sapply (values, FUN=meanhighestX, 0.90))
@@ -20,6 +21,13 @@ calc.quartiles <- function(results) {
 
 	return (output)
 }
+
+calc.percentageAllocated <- function(results) {
+	values <- sapply(results, FUN=function(x) { return (x[[2]]);} )
+	rownames(values) <- c("Success 1", "Success 2", "Success 3")
+	return (values)
+}
+
 
 calc.stats <- function (results, datatype) {
 	fun <- datatypeToStatsFunction[[datatype]]
