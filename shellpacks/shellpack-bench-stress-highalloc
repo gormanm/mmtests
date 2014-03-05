@@ -3,8 +3,8 @@
 P='stress-highalloc'
 . $SHELLPACK_INCLUDE/common.sh
 KERNEL_VERSION=3.0
-WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v3.0/linux-$KERNEL_VERSION.tar.gz
-MIRROR_LOCATION=$WEBROOT/kernbench/linux-$KERNEL_VERSION.tar.gz
+WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v3.0/linux-${KERNEL_VERSION}.tar.gz
+MIRROR_LOCATION=$WEBROOT/kernbench/linux-${KERNEL_VERSION}.tar.gz
 
 NUM_KERNELS=0
 while [ $# -gt 0 ]; do
@@ -34,17 +34,17 @@ fi
 # Setup a build directory
 mkdir -p $SHELLPACK_TEMP/build
 cd $SHELLPACK_TEMP || die Failed to cd to temp directory
-sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_TEMP/linux-$KERNEL_VERSION.tar.gz
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_TEMP/linux-${KERNEL_VERSION}.tar.gz
 
 # Begin the test
 echo "Kernels to build:      $NUM_KERNELS"
-echo "Kernel source:         $SHELLPACK_TEMP/linux-$KERNEL_VERSION.tar.bz2"
+echo "Kernel source:         $SHELLPACK_TEMP/linux-${KERNEL_VERSION}.tar.gz"
 echo "Build directory:       $SHELLPACK_TEMP/build"
 echo
 $SHELLPACK_TOPLEVEL/vmr/bin/bench-stresshighalloc.sh $@ \
 	-k $NUM_KERNELS \
 	--vmr $SHELLPACK_TOPLEVEL/vmr \
-	-t $SHELLPACK_TEMP/linux-$KERNEL_VERSION.tar.gz \
+	-t $SHELLPACK_TEMP/linux-${KERNEL_VERSION}.tar.gz \
 	-b $SHELLPACK_TEMP/build \
 	-r $LOGDIR_RESULTS/ | tee $LOGDIR_RESULTS/highallocout
 

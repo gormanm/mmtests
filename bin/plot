@@ -289,6 +289,10 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			YRANGE=$2
 			shift 2
 			;;
+		--subreport)
+			SUBREPORT=$2
+			shift 2
+			;;
 		*)
 			FINISHED="yes"
 			;;

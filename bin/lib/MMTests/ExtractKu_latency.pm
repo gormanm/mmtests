@@ -18,7 +18,7 @@ sub new() {
 }
 
 sub printDataType() {
-	print "WalltimeOutliers,TestName,Time\n";
+	print "WalltimeOutliers,TestName,Time,candlesticks\n";
 }
 
 sub initialise() {

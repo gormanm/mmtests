@@ -9,7 +9,7 @@ sub new() {
 		_ModuleName  => "CompareEbizzy",
 		_DataType    => MMTests::Compare::DATA_THROUGHPUT,
 		_FieldLength => 12,
-		_CompareOps  => [ "none", "pdiff", "pdiff", "pdiff", "pndiff", "pdiff", "pdiff" ],
+		_CompareOps  => [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff", "pdiff" ],
 		_ResultData  => []
 	};
 	bless $self, $class;

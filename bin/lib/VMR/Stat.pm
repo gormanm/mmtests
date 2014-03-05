@@ -10,7 +10,7 @@ use VMR::Report;
 use strict;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_5trimmed_mean &calc_trimoutlier_mean &calc_5trimmed_median &calc_worst10_mean &calc_worst5_mean &calc_worst1_mean &calc_mean &calc_geomean &calc_median &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_5trimmed_mean &calc_10trimmed_mean &calc_trimoutlier_mean &calc_5trimmed_median &calc_worst10_mean &calc_worst5_mean &calc_worst1_mean &calc_mean &calc_geomean &calc_median &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Values taken from a standard normal table
 my %za = (
@@ -169,6 +169,21 @@ sub calc_5trimmed_mean {
 
 	return calc_mean(@trimmed);
 }
+
+sub calc_10trimmed_mean {
+	my $nr_elements = @_;
+	my $nr_trim = int ($nr_elements * 5 / 100);
+
+	if ($nr_trim == 0 || $nr_trim * 2 > $nr_elements) {
+		return calc_mean(@_);
+	}
+
+	my @sorted = sort { $a <=> $b } @_;
+	my @trimmed = @sorted[$nr_trim..$nr_elements - $nr_trim];
+
+	return calc_mean(@trimmed);
+}
+
 
 sub calc_worst10_mean {
 	my $nr_elements = @_;

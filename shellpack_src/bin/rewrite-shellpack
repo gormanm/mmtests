@@ -213,6 +213,24 @@ EOC
 # Include monitor hooks
 . \$SHELLPACK_INCLUDE/include-monitor.sh
 EOC
+	} elsif ($command eq "threads_fib_begin") {
+		my ($min_thread, $max_thread) = @details;
+		print <<EOC
+NR_THREADS=1
+LAST_NR_THREADS=0
+while [ \$NR_THREADS -lt $max_thread ]; do
+	TMP_NR_THREADS=\$LAST_NR_THREADS
+	LAST_NR_THREADS=\$NR_THREADS
+	NR_THREADS=\$((NR_THREADS+TMP_NR_THREADS))
+	if [ \$NR_THREADS -lt $min_thread ]; then
+		continue
+	fi
+	if [ \$NR_THREADS -gt $max_thread ]; then
+		NR_THREADS=$max_thread
+	fi
+EOC
+	} elsif ($command eq "threads_fib_end") {
+		print "done\n";
 	} elsif ($command eq "threads_iterate_begin") {
 		my ($min_thread, $max_thread) = @details;
 		print <<EOC

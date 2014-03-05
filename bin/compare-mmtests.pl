@@ -27,6 +27,7 @@ my ($opt_printHeader, $opt_printExtra);
 my ($opt_subheading, $opt_format);
 my ($opt_names, $opt_benchmark);
 my ($opt_monitor, $opt_hideCompare);
+my ($opt_Rsummary);
 GetOptions(
 	'verbose|v'		=> \$opt_verbose,
 	'help|h'		=> \$opt_help,
@@ -36,6 +37,7 @@ GetOptions(
 	'--no-compare'		=> \$opt_hideCompare,
 	'--sub-heading=s'	=> \$opt_subheading,
 	'--format=s'		=> \$opt_format,
+	'--R-summary|R=s'	=> \$opt_Rsummary,
 	'n|names=s'		=> \$opt_names,
 	'b|benchmark=s'		=> \$opt_benchmark,
 	'manual'		=> \$opt_manual,
@@ -61,8 +63,12 @@ if (!defined($opt_monitor)) {
 		eval {
 			my $reportDirectory = "$opt_reportDirectory/$opt_benchmark-$name";
 			$extractModules[$nrModules] = $extractFactory->loadModule($opt_benchmark, $reportDirectory, $name);
-			$extractModules[$nrModules]->extractReport($reportDirectory, $name);
-			$extractModules[$nrModules++]->extractSummary($opt_subheading);
+			if ($opt_Rsummary) {
+				$extractModules[$nrModules++]->extractSummaryR($opt_subheading, $opt_Rsummary);
+			} else {
+				$extractModules[$nrModules]->extractReport($reportDirectory, $name);
+				$extractModules[$nrModules++]->extractSummary($opt_subheading);
+			}
 		} or do {
 			printWarning("Failed to load module for benchmark $opt_benchmark: $name\n$@");
 			$#extractModules -= 1;
@@ -120,6 +126,7 @@ compare-mmtests.pl [options]
  -d, --directory	Work log directory to extract data from
  -n, --names		Titles for the series if tests given to run-mmtests.sh
  -b, --benchmark	Benchmark to extract data for
+ -R, --R-summary	Read summary data from a table pre-calculated by R
  -v, --verbose		Verbose output
  --format		Output format
  --print-header		Print a header
@@ -146,6 +153,12 @@ been a kernel version for example.
 The name of the benchmark to extract data from. For example, if a given
 test ran kernbench and sysbench and the sysbench results were required
 then specify "-b sysbench".
+
+=item B<R, --R-summary>
+
+Path to a file containing table with summary produced by R, as produced
+by compare-mmtests-R.sh. Summarization by perl modules is skipped in the
+presence of R-based results.
 
 =item B<--format>
 

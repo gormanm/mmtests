@@ -37,12 +37,36 @@ while [ "$1" != "" ]; do
 		SORT_VERSION=yes
 		shift
 		;;
+	--R)
+		USE_R="--R"
+		shift
+		;;
+	--plot-details)
+		PLOT_DETAILS="yes"
+		shift
+		;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift
 		;;
 	esac
 done
+
+
+# Do Not Litter
+cleanup() {
+	if [ "$R_TMPDIR" != "" -a -d $R_TMPDIR ]; then
+		rm -rf $R_TMPDIR
+	fi
+	exit
+}
+
+if [ "$USE_R" != "" ]; then
+	export R_TMPDIR="`mktemp -d`"
+	trap cleanup EXIT
+	trap cleanup INT
+	trap cleanup TERM
+fi
 
 FORMAT_CMD=
 if [ "$FORMAT" != "" ]; then
@@ -135,8 +159,9 @@ cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
 for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
 	COMPARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
 	COMPARE_BARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
-	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
-	GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format \"postscript color solid\""
+	COMPARE_R_CMD="compare-mmtests-R.sh -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
+	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format png"
+	GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format \"postscript color solid\""
 	echo
 	case $SUBREPORT in
 	dbench3)
@@ -148,6 +173,16 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		eval $COMPARE_CMD --sub-heading MB/sec
 		echo $SUBREPORT Latency
 		eval $COMPARE_CMD --sub-heading Latency
+		;;
+	ebizzy)
+		echo $SUBREPORT
+		$COMPARE_CMD
+		echo
+		echo $SUBREPORT Per-thread
+		compare-mmtests.pl -d . -b ebizzythread -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		echo $SUBREPORT Thread spread
+		compare-mmtests.pl -d . -b ebizzyrange -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	fsmark-single|fsmark-threaded)
 		echo $SUBREPORT Files/sec
@@ -174,8 +209,12 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		;;
 	*)
 		echo $SUBREPORT
-		eval $COMPARE_CMD
-		;;
+		# Try R if requested, fallback to perl when datatype is unsupported
+		if [ "$USE_R" != "" ]; then
+			eval $COMPARE_R_CMD
+		else
+			false
+		fi || eval $COMPARE_CMD
 	esac
 	echo
 	eval $COMPARE_CMD --print-monitor duration
@@ -343,10 +382,27 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 		*)
 			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png
 			eval $GRAPH_PSC --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps
+			if [ "$USE_R" != "" ]; then
+				eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.png --smooth
+				eval $GRAPH_PSC --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.ps --smooth
+			fi
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT.png ]; then
-				plain graph-$SUBREPORT
+				if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.png ]; then
+					smoothover graph-$SUBREPORT
+				else
+					plain graph-$SUBREPORT
+				fi
 			else
 				echo "<tr><td>No graph representation</td></tr>"
+			fi
+			if [ "$PLOT_DETAILS" != "" ]; then
+				eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest --plottype run-sequence --separate-tests
+				eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest --plottype run-sequence --separate-tests --smooth
+				for TEST_PLOT in $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest-*.png; do
+					[[ $TEST_PLOT =~ "-smooth.png" ]] && continue
+					dest=`basename $TEST_PLOT .png`
+					smoothover $dest
+				done
 			fi
 		esac
 		echo "</table>"
@@ -458,13 +514,17 @@ for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{pri
 			eval $GRAPH_PSC --title \"Swap Usage\" --print-monitor vmstat --sub-heading swpd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-swpd.ps
 			eval $GRAPH_PNG --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si.png
 			eval $GRAPH_PSC --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si.ps
+			eval $GRAPH_PNG --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si-smooth.ps --smooth
 			eval $GRAPH_PNG --title \"Swap Outs\"  --print-monitor vmstat --sub-heading so   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so.png
 			eval $GRAPH_PSC --title \"Swap Outs\"  --print-monitor vmstat --sub-heading so   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so.ps
+			eval $GRAPH_PNG --title \"Swap Outs\"  --print-monitor vmstat --sub-heading so   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Swap Outs\"  --print-monitor vmstat --sub-heading so   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so-smooth.ps --smooth
 
 			echo "<tr>"
 			plain graph-$SUBREPORT-vmstat-swpd
-			plain graph-$SUBREPORT-vmstat-si
-			plain graph-$SUBREPORT-vmstat-so
+			smoothover graph-$SUBREPORT-vmstat-si
+			smoothover graph-$SUBREPORT-vmstat-so
 			echo "</tr>"
 		fi
 

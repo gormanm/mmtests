@@ -27,6 +27,8 @@ my %package_map = (
 	"debian::libhugetlbfs"   => "libhugetlbfs0",
 	"debian::libnuma-devel"  => "libnuma-dev",
 	"debian::xfsprogs-devel" => "xfslibs-dev",
+	"debian::btrfsprogs"     => "btrfs-tools",
+	"debian::xz"             => "xz-utils",
 );
 	
 my %package_bin = (

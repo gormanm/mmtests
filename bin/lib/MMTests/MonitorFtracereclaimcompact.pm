@@ -41,8 +41,8 @@ use constant EVENT_UNKNOWN			=> 30;
 my $regex_writeback_congestion_wait_default    = 'usec_timeout=([0-9]*) usec_delayed=([0-9]*)';
 my $regex_writeback_wait_iff_congested_default = 'usec_timeout=([0-9]*) usec_delayed=([0-9]*)';
 my $regex_vmscan_lru_shrink_inactive_default   = 'nid=([0-9]*) zid=([0-9]*) nr_scanned=([0-9]*) nr_reclaimed=([0-9]*) priority=([0-9]*) flags=([0-9]*)';
-my $regex_vmscan_shrink_slab_start_default     = '([0-9a-z+_/]+) ([0-9a-fx]+): objects to shrink ([0-9]*) gfp_flags ([A-Z|_]+) pgs_scanned ([0-9]*) lru_pgs ([0-9]*) cache items ([0-9]*) delta ([0-9]*) total_scan ([0-9]*)';
-my $regex_vmscan_shrink_slab_end_default       = '([0-9a-z+_/]+) ([0-9a-fx]+): unused scan count ([0-9]*) new scan count ([0-9]*) total_scan ([-0-9]*) last shrinker return val ([0-9]*)';
+my $regex_vmscan_shrink_slab_start_default     = '([0-9a-z+_/]+) (?:\[[A-Za-z0-9_-]+\] )?([0-9a-fx]+): objects to shrink ([0-9]*) gfp_flags ([A-Z0-9x|_]+) pgs_scanned ([0-9]*) lru_pgs ([0-9]*) cache items ([0-9]*) delta ([0-9]*) total_scan ([0-9]*)';
+my $regex_vmscan_shrink_slab_end_default       = '([0-9a-z+_/]+) (?:\[[A-Za-z0-9_-]+\] )?([0-9a-fx]+): unused scan count ([0-9]*) new scan count ([0-9]*) total_scan ([-0-9]*) last shrinker return val ([0-9]*)';
 my $regex_vmscan_direct_reclaim_begin_default  = 'order=([0-9]*) may_writepage=([0-9]*) gfp_flags=([A-Z_|]+)';
 my $regex_vmscan_direct_reclaim_end_default    = 'nr_reclaimed=([0-9]*)';
 my $regex_vmscan_kswapd_wake_default           = 'nid=([0-9]*) order=([0-9]*)';
@@ -355,8 +355,11 @@ sub ftraceCallback {
 		}
 		$compactionState{$pidprocess} = 0;
 
-		# Fields (look at the regex)
-		@$ftraceCounterRef[COMPACTION_DIRECT_STALLED] += $delayed;
+		if ($process =~ /kswapd[0-9]+/) {
+			@$ftraceCounterRef[COMPACTION_KSWAPD_STALLED] += $delayed;
+		} else {
+			@$ftraceCounterRef[COMPACTION_DIRECT_STALLED] += $delayed;
+		}
 	} else {
 		@$ftraceCounterRef[EVENT_UNKNOWN]++;
 	}

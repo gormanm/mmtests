@@ -65,9 +65,13 @@ my %_fieldNameMap = (
 	"compact_pages_moved"		=> "Compaction pages moved",
 	"compact_pagemigrate_failed"	=> "Compaction move failure",
 	"mmtests_compaction_cost"	=> "Compaction cost",
-	"numa_pte_updates"		=> "NUMA page range updates",
+	"numa_hit"			=> "NUMA alloc hit",
+	"numa_miss"			=> "NUMA alloc miss",
+	"numa_interleave"		=> "NUMA interleave hit",
+	"numa_local"			=> "NUMA alloc local",
+	"numa_pte_updates"		=> "NUMA base PTE updates",
 	"numa_huge_pte_updates"		=> "NUMA huge PMD updates",
-	"mmtests_numa_pte_updates"	=> "NUMA PTE updates",
+	"mmtests_numa_pte_updates"	=> "NUMA page range updates",
 	"numa_hint_faults"		=> "NUMA hint faults",
 	"numa_hint_faults_local"	=> "NUMA hint local faults",
 	"mmtests_hint_local"		=> "NUMA hint local percent",
@@ -142,6 +146,10 @@ my @_fieldOrder = (
         "compact_migrate_scanned",
         "compact_free_scanned",
 	"mmtests_compaction_cost",
+	"numa_hit",
+	"numa_miss",
+	"numa_interleave",
+	"numa_local",
 	"numa_pte_updates",
 	"numa_huge_pte_updates",
 	"mmtests_numa_pte_updates",
@@ -306,6 +314,7 @@ sub extractReport($$$$) {
 			 "compact_blocks_moved",
         		 "compact_isolated", "compact_migrate_scanned",
         		 "compact_free_scanned",
+			 "numa_hit", "numa_miss", "numa_interleave", "numa_local",
         		 "numa_pte_updates", "numa_huge_pte_updates",
 			 "numa_hint_faults",
         		 "numa_hint_faults_local", "numa_pages_migrated",
@@ -325,7 +334,7 @@ sub extractReport($$$$) {
 	}
 	$vmstat{"mmtests_numa_pte_updates"} =  $vmstat{"numa_pte_updates"};
 	if (defined $vmstat{"numa_huge_pte_updates"}) {
-		$vmstat{"mmtests_numa_pte_updates"} -= $vmstat{"numa_huge_pte_updates"} * 511;
+		$vmstat{"mmtests_numa_pte_updates"} += $vmstat{"numa_huge_pte_updates"} * 512;
 	}
 
 	# Compaction cost model

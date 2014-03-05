@@ -4,7 +4,6 @@ P=reaim-install
 DEFAULT_VERSION=7.0.1.13
 . $SHELLPACK_INCLUDE/common.sh
 WEB_LOCATION=http://heanet.dl.sourceforge.net/project/re-aim-7/re-aim
-             http://heanet.dl.sourceforge.net/project/re-aim-7/re-aim/7.0.1.13/osdl-aim-7.0.1.13.tar.gz
 MIRROR_LOCATION="$WEBROOT/reaim/"
 
 install-depends libaio-devel

@@ -1,0 +1,93 @@
+#!/bin/bash
+P=arraysmash-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+
+LANGUAGE=perl
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--language)
+		LANGUAGE=$2
+		shift 2
+		;;
+	--arraysize)
+		ARRAYSIZE=$2
+		shift 2
+		;;
+	--arraymem)
+		ARRAYMEM=$2
+		shift 2
+		;;
+	--iterations)
+		ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Sanity check
+if [ "$ARRAYSIZE" = "" ]; then
+	if [ "$ARRAYMEM" = "" ]; then
+		echo Specified neither ARRAYSIZE or ARRAYMEM
+		exit $SHELLPACK_ERROR
+	fi
+fi
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+echo Dumping existing cache
+sync
+echo 3 > /proc/sys/vm/drop_caches 2> /dev/null
+sync
+
+for i in `seq 1 $ITERATIONS`; do
+	echo o Iteration $i/$ITERATIONS
+	case $LANGUAGE in
+	perl)
+		if [ "$ARRAYSIZE" = "" ]; then
+			INTSIZE=`perl -e 'use Config; print (($Config{nvsize}+$Config{ptrsize})*4)'`
+			ARRAYSIZE=$((ARRAYMEM/INTSIZE))
+		fi
+		$TIME_CMD perl -e "\$num=$ARRAYSIZE;
+			@a=(0..\$num);
+			foreach \$j (0..4) {
+				\$a[\$_] = \$_ foreach (0..\$num);
+				\$|=1;
+			}" 2>&1 | tee $LOGDIR_RESULTS/time.$i
+		;;
+	*)
+		echo Unrecognised language $LANGUAGE
+		exit $SHELLPACK_ERROR
+		;;
+	esac
+done
+
+cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time
+
+exit $RETVAL
+#### Description Iterates arrays in different languages
+#### Details arraysmash-bench 21

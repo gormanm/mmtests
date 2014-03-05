@@ -1,3 +1,27 @@
+### kernbench is a simple average of five kernel compiles of the vmlinux binary
+### image.
+### 
+### aim9 is a number of micro-benchmarks. The results of this are very sensitive
+### to a number of factors but it can be useful early warning system. Results
+### tend to be difficult if not impossible to bisect but can sometimes be
+### correlated with degradations in other benchmarks.
+### 
+### vmr-stream is the STREAM memory benchmark and variations in it can be
+### indicative of problems with cache coloring and usage.
+### 
+### pagealloc is a page allocator microbenchmark run via SystemTap. The page
+### allocator is rarely a major component of a workloads time but it can
+### be a source of slow degrataion of overall performance.
+### 
+### pft is a microbenchmark for page fault rates.
+### 
+### hackbench is usually used for scheduler comparisons but it can sometimes
+### highlight problems in the page allocator as well.
+###
+### ebizzy is intended to simulate the backend of a database backend but it
+### is not IO intensive. Instead it is both scheduler and allocator intensive.
+### Regressions here can indicate a regression in either area.
+
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`

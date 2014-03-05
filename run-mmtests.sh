@@ -111,7 +111,10 @@ done
 # Install packages that are generally needed by a large number of tests
 install-depends autoconf automake binutils-devel bzip2 dosfstools expect \
 	expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch \
-	recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs
+	recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz
+
+# Following packages only interesting when running virtual machines
+#install-depends libvirt-daemon-driver-qemu libvirt-daemon-qemu qemu virt-manager
 
 # Check monitoring
 if [ "$FORCE_RUN_MONITOR" != "" ]; then
@@ -356,7 +359,7 @@ for MONITOR in $MONITORS_ALWAYS $MONITORS_PLAIN $MONITORS_GZIP $MONITORS_WITH_LA
 	fi
 done
 if [ "$STAP_USED" != "" ]; then
-	if [ `which stap` = "" ]; then
+	if [ "`which stap`" = "" ]; then
 		echo ERROR: systemtap required for $STAP_USED but not installed
 		exit -1
 	fi
