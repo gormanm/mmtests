@@ -23,34 +23,13 @@
 #define PARAM_GFPFLAGS GFP_HIGHUSER_MOVABLE
 #define PARAM_ALLOCS 100
 #define PARAM_ORDER 5
-
-#ifdef CONFIG_X86
-/**
- * rdtsc: Read the current number of clock cycles that have passed
- */
-inline unsigned long long read_clockcycles(void)
-{
-	unsigned long low_time, high_time;
-	asm volatile( 
-		"rdtsc \n\t" 
-			: "=a" (low_time),
-			  "=d" (high_time));
-        return ((unsigned long long)high_time << 32) | (low_time);
-}
-#else
-#warning read_clockcycles not implemented for this arch
-inline unsigned long long read_clockcycles(void)
-{
-	return jiffies;
-}
-#endif /* CONFIG_X86 */
 %}
 
 function alloc_runtest() %{
 	unsigned long order;		/* Order of pages */
 	unsigned long numpages;		/* Number of pages to allocate */
-	struct page **pages;		/* Pages that were allocated */
-	unsigned long attempts=0;
+	struct page **pages = NULL;	/* Pages that were allocated */
+	unsigned long attempts=0, printed=0;
 	unsigned long alloced=0;
 	unsigned long nextjiffies = jiffies;
 	unsigned long lastjiffies = jiffies;
@@ -58,12 +37,14 @@ function alloc_runtest() %{
 	unsigned long fail=0;
 	unsigned long resched_count=0;
 	unsigned long aborted=0;
-	unsigned long long start_cycles, cycles;
 	unsigned long page_dma=0, page_dma32=0, page_normal=0, page_highmem=0, page_easyrclm=0;
 	struct zone *zone;
 	char finishString[60];
 	int timing_pages, pages_required;
 	bool enabled_preempt = false;
+	ktime_t start_ktime;
+	ktime_t * alloc_latencies = NULL;
+	bool * alloc_outcomes = NULL;
 
 	/* Get the parameters */
 	order = PARAM_ORDER;
@@ -94,7 +75,23 @@ function alloc_runtest() %{
 			PAGE_KERNEL);
 	if (pages == NULL) {
 		_stp_printf("Failed to allocate space to store page pointers\n");
-		preempt_disable();
+		goto out_preempt;
+	}
+	/*
+	 * Allocate arrays for storing allocation outcomes and latencies
+	 */
+	alloc_latencies = __vmalloc((numpages+1) * sizeof(ktime_t),
+			GFP_KERNEL|__GFP_HIGHMEM,
+			PAGE_KERNEL);
+	if (alloc_latencies == NULL) {
+		_stp_printf("Failed to allocate space to store allocation latencies\n");
+		goto out_preempt;
+	}
+	alloc_outcomes = __vmalloc((numpages+1) * sizeof(bool),
+			GFP_KERNEL|__GFP_HIGHMEM,
+			PAGE_KERNEL);
+	if (alloc_outcomes == NULL) {
+		_stp_printf("Failed to allocate space to store allocation outcomes\n");
 		goto out_preempt;
 	}
 
@@ -108,7 +105,7 @@ function alloc_runtest() %{
 	/*
 	 * Attempt to allocate the requested number of pages
 	 */
-	while (attempts++ != numpages) {
+	while (attempts != numpages) {
 		struct page *page;
 		if (lastjiffies > jiffies)
 			nextjiffies = jiffies;
@@ -123,23 +120,23 @@ function alloc_runtest() %{
 		/* Print message if this is taking a long time */
 		if (jiffies - lastjiffies > HZ) {
 			printk("High order alloc test attempts: %lu (%lu)\n",
-					attempts-1, alloced);
+					attempts, alloced);
 		}
 
 		/* Print out a message every so often anyway */
-		if (attempts > 1 && (attempts-1) % 10 == 0) {
+		if (attempts > 0 && attempts % 10 == 0) {
 			printk("High order alloc test attempts: %lu (%lu)\n",
-					attempts-1, alloced);
+					attempts, alloced);
 		}
 
 		lastjiffies = jiffies;
 
-		start_cycles = read_clockcycles();
+		start_ktime = ktime_get_real();
 		page = alloc_pages(PARAM_GFPFLAGS | __GFP_NOWARN, order);
-		cycles = read_clockcycles() - start_cycles;
+		alloc_latencies[attempts] = ktime_sub (ktime_get_real(), start_ktime);
 
 		if (page) {
-			_stp_printf("%d success %lu\n", attempts - 1, cycles);
+			alloc_outcomes[attempts] = true;
 			//_stp_printf(testinfo, HIGHALLOC_BUDDYINFO, attempts, 1);
 			success++;
 			pages[alloced++] = page;
@@ -156,25 +153,38 @@ function alloc_runtest() %{
 			/* Give up if it takes more than 60 seconds to allocate */
 			if (jiffies - lastjiffies > HZ * 600) {
 				printk("Took more than 600 seconds to allocate a block, giving up");
-				aborted = attempts;
+				aborted = attempts + 1;
 				attempts = numpages;
 				break;
 			}
 
 		} else {
-			_stp_printf("%d failure %lu\n", attempts - 1, cycles);
+			alloc_outcomes[attempts] = false;
 			//printp_buddyinfo(testinfo, HIGHALLOC_BUDDYINFO, attempts, 0);
 			fail++;
 
 			/* Give up if it takes more than 30 seconds to fail */
 			if (jiffies - lastjiffies > HZ * 1200) {
 				printk("Took more than 1200 seconds and still failed to allocate, giving up");
-				aborted = attempts;
+				aborted = attempts + 1;
 				attempts = numpages;
 				break;
 			}
 		}
+		attempts++;
 	}
+
+	/* Disable preempt now to make sure everthing is actually printed */
+	if (enabled_preempt) {
+		preempt_disable();
+		enabled_preempt = false;
+	}
+
+	for (printed = 0; printed < attempts; printed++) 
+		_stp_printf("%d %s %lu\n",
+			printed,
+			alloc_outcomes[printed] ? "success" : "failure",
+			ktime_to_ns(alloc_latencies[printed]));
 
 	/* Re-enable OOM Killer state */
 #ifdef OOM_DISABLED
@@ -208,7 +218,6 @@ function alloc_runtest() %{
 			if (pages[alloced] != NULL)
 				__free_pages(pages[alloced], order);
 		} while (alloced != 0);
-		vfree(pages);
 	}
 	
 	if (aborted == 0)
@@ -221,6 +230,13 @@ function alloc_runtest() %{
 out_preempt:
 	if (enabled_preempt)
 		preempt_disable();
+
+	if (alloc_latencies)
+		vfree(alloc_latencies);
+	if (alloc_outcomes)
+		vfree(alloc_outcomes);
+	if (pages)
+		vfree(pages);
 	
 	return;
 %}
