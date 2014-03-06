@@ -1,0 +1,103 @@
+#!/bin/bash
+
+P=bonnie-bench
+DEFAULT_VERSION=1.03a
+. $SHELLPACK_INCLUDE/common.sh
+
+DATASET_SIZE=$((2*1048576))
+NR_FILES=1024
+NR_DIRECTORIES=1
+MACHINE=`hostname`
+ITERATIONS=3
+FSYNC=no
+FSYNC_PARAM=
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--dataset)
+		DATASET_SIZE=$2
+		shift 2
+		;;
+	--nr_files)
+		NR_FILES=$2
+		shift 2
+		;;
+	--nr_directories)
+		NR_DIRECTORIES=$2
+		shift 2
+		;;
+	--iterations)
+		ITERATIONS=$2
+		shift 2
+		;;
+	--sync)
+		FSYNC=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/bonnie-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/bonnie-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-bonnie -v ${VERSION}  || die bonnie install script returned error
+fi
+cd $SHELLPACK_SOURCES/bonnie-${VERSION}-installed || die Failed to cd to bonnie install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo bonnie installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+DIRECTORY_SIZE=$((DATASET_SIZE/NR_FILES))
+NR_FILES=$((NR_FILES/1024))
+DATASET_SIZE=$((DATASET_SIZE/1048576))
+if [ $NR_FILES -eq 0 ]; then
+	NR_FILES=1
+fi
+if [ "$FSYNC" = "yes" ]; then
+	FSYNC_PARAM=-b
+fi
+
+cd $SHELLPACK_SOURCES/bonnie-${VERSION}-installed
+
+echo ./sbin/bonnie++ $FSYNC_PARAM \
+	-d $TESTDISK_DIR \
+	-s $DATASET_SIZE \
+	-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES \
+	-m $MACHINE | tee $LOGDIR_RESULTS/bonnie-params
+for ITERATION in `seq 1 $ITERATIONS`; do
+	echo Starting iteration $ITERATION
+	save_rc ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
+		-d $TESTDISK_DIR \
+		-s $DATASET_SIZE \
+		-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES \
+		-m $MACHINE \
+		2>&1 | tee $LOGDIR_RESULTS/bonnie.$ITERATION
+
+	recover_rc
+	if [ $? -ne 0 ]; then
+		die Failed to run bonnie
+	fi
+done
+#### Description bonnie
+#### Details bonnie-bench 22
