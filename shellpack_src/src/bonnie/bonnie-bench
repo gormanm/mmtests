@@ -1,0 +1,54 @@
+#!/bin/bash
+
+###SHELLPACK preamble bonnie-bench 1.03a
+
+DATASET_SIZE=$((2*1048576))
+NR_FILES=1024
+NR_DIRECTORIES=1
+MACHINE=`hostname`
+ITERATIONS=3
+FSYNC=no
+FSYNC_PARAM=
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --dataset		DATASET_SIZE
+###SHELLPACK parseargParam --nr_files		NR_FILES
+###SHELLPACK parseargParam --nr_directories	NR_DIRECTORIES
+###SHELLPACK parseargParam --iterations		ITERATIONS
+###SHELLPACK parseargYes   --sync		FSYNC
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required bonnie-${VERSION}
+
+DIRECTORY_SIZE=$((DATASET_SIZE/NR_FILES))
+NR_FILES=$((NR_FILES/1024))
+DATASET_SIZE=$((DATASET_SIZE/1048576))
+if [ $NR_FILES -eq 0 ]; then
+	NR_FILES=1
+fi
+if [ "$FSYNC" = "yes" ]; then
+	FSYNC_PARAM=-b
+fi
+
+cd $SHELLPACK_SOURCES/bonnie-${VERSION}-installed
+
+echo ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
+	-d $TESTDISK_DIR \
+	-s $DATASET_SIZE \
+	-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES \
+	-m $MACHINE | tee $LOGDIR_RESULTS/bonnie-params
+for ITERATION in `seq 1 $ITERATIONS`; do
+	echo Starting iteration $ITERATION
+	save_rc ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
+		-d $TESTDISK_DIR \
+		-s $DATASET_SIZE \
+		-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES \
+		-m $MACHINE \
+		2>&1 | tee $LOGDIR_RESULTS/bonnie.$ITERATION
+
+	recover_rc
+	if [ $? -ne 0 ]; then
+		die Failed to run bonnie
+	fi
+done

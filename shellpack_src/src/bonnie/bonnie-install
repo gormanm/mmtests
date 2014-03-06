@@ -1,0 +1,30 @@
+#!/bin/bash
+
+###SHELLPACK preamble aim9-install 1.03a
+WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/aimbench"
+WEB_LOCATION="http://switch.dl.sourceforge.net/project/bonnie/Bonnie%2B%2B/"
+MIRROR_LOCATION="$WEBROOT/bonnie"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+rm -rf $SHELLPACK_SOURCES/bonnie-${VERSION}
+###SHELLPACK sources_fetch ${VERSION}/bonnie%2B%2B-${VERSION}.tgz bonnie-$VERSION
+
+###SHELLPACK build_start bonnie-$VERSION
+echo "diff --git a/zcav.cpp b/zcav.cpp
+index c08994e..fa278e0 100644
+--- a/zcav.cpp
++++ b/zcav.cpp
+@@ -9,6 +9,7 @@ using namespace std;
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <stdlib.h>
++#include <string.h>
+ #include \"bonnie.h\"
+ #ifdef HAVE_VECTOR
+ #include <vector>" | patch -p1 || exit $SHELLPACK_ERROR
+###SHELLPACK build_configure bonnie-${VERSION}
+###SHELLPACK make_make_install
+
+exit $SHELLPACK_SUCCESS
