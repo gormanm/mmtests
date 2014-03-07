@@ -108,6 +108,29 @@ for DIRNAME in $SHELLPACK_SOURCES $SHELLPACK_LOG; do
 	fi
 done
 
+# Mount the log directory on the requested partition if requested
+if [ "$LOGDISK_PARTITION" != "" ]; then
+	echo Unmounting log partition: $SHELLPACK_LOG
+	umount $SHELLPACK_LOG
+
+	echo $LOGDISK_PARTITION | grep \/ram
+	if [ $? -eq 0 ]; then
+		modprobe brd
+	fi
+
+	if [ "$LOGDISK_FILESYSTEM" != "" -a "$LOGDISK_FILESYSTEM" != "tmpfs" ]; then
+		echo Formatting log disk: $LOGDISK_FILESYSTEM
+		mkfs.$LOGDISK_FILESYSTEM $LOGDISK_MKFS_PARAM $LOGDISK_PARTITION || exit
+	fi
+
+	echo Mounting log disk
+	if [ "$LOGDISK_MOUNT_ARGS" = "" ]; then
+		mount -t $LOGDISK_FILESYSTEM $LOGDISK_PARTITION $SHELLPACK_LOG || exit
+	else
+		mount -t $LOGDISK_FILESYSTEM $LOGDISK_PARTITION $SHELLPACK_LOG -o $LOGDISK_MOUNT_ARGS || exit
+	fi
+fi
+
 # Install packages that are generally needed by a large number of tests
 install-depends autoconf automake binutils-devel bzip2 dosfstools expect \
 	expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch \

@@ -37,6 +37,12 @@ export SWAP_NBD_HOST=mcp
 export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
 #export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
 
+# Log disk to setup (optional)
+#export LOGDISK_PARTITION=/dev/ram0
+#export LOGDISK_FILESYSTEM=ext3
+#export LOGDISK_MKFS_PARAM=""
+#export LOGDISK_MOUNT_ARGS=""
+
 # Test disk to setup (optional)
 #export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
 #export TESTDISK_RAID_DEVICE=/dev/md0
@@ -45,7 +51,7 @@ export SWAP_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " "
 #export TESTDISK_RAID_TYPE=raid0
 #export TESTDISK_PARTITION=/dev/sda6
 #export TESTDISK_FILESYSTEM=ext3
-#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MKFS_PARAM=""
 #export TESTDISK_MOUNT_ARGS=""
 #
 # Test NFS disk to setup (optional)
