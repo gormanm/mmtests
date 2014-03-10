@@ -31,6 +31,11 @@ if [ "$FSYNC" = "yes" ]; then
 	FSYNC_PARAM=-b
 fi
 
+USER_PARAM=
+if [ "`whoami`" = "root" ]; then
+	USER_PARAM="-u root"
+fi
+
 cd $SHELLPACK_SOURCES/bonnie-${VERSION}-installed
 
 echo ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
@@ -40,7 +45,7 @@ echo ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
 	-m $MACHINE | tee $LOGDIR_RESULTS/bonnie-params
 for ITERATION in `seq 1 $ITERATIONS`; do
 	echo Starting iteration $ITERATION
-	save_rc ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
+	save_rc ./sbin/bonnie++ $FSYNC_PARAM $USER_PARAM -r 0 \
 		-d $TESTDISK_DIR \
 		-s $DATASET_SIZE \
 		-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES \
