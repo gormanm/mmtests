@@ -73,6 +73,11 @@ sub extractReport($$$) {
 			}
 
 			my @elements = split(/,/, $line);
+			for (my $i = 0; $i <= $#elements; $i++) {
+				if ($elements[$i] =~ /^\+/) {
+					$elements[$i] = -1;
+				}
+			}
 
 			# element breakdown
 			# 0	hostname
