@@ -25,7 +25,7 @@ fi
 rm $TMPDIR
 mkdir $TMPDIR
 
-TEMP=`mktemp`
+TEMP=`mktemp --tmpdir=$TMPDIR`
 
 while [ "$1" != "" ]; do
 	case "$1" in
@@ -39,6 +39,10 @@ while [ "$1" != "" ]; do
 		FORMAT_CMD="--format $FORMAT"
 		shift 2
 		;;
+	--iterations)
+		ITERATIONS=$2
+		shift 2
+		;;
 	*)
 		EXTRACT_ARGS="$EXTRACT_ARGS $1"
 		shift
@@ -46,6 +50,7 @@ while [ "$1" != "" ]; do
 	esac
 done
 
+[[ -n "$ITERATIONS" ]] && pushd 1 > /dev/null
 # for cycle used just to get the first test easily, breaks after first iteration
 for TEST in $TEST_LIST; do
 	# Read graph information as described by extract-mmtests.pl
@@ -53,28 +58,53 @@ for TEST in $TEST_LIST; do
 	DATATYPE=`echo $TYPE | cut -d, -f1`
 	break
 done
+[[ -n "$ITERATIONS" ]] && popd > /dev/null
 
 # This is far from ideal...
-SUPPORTED_DATATYPES="WalltimeOutliers"
+SUPPORTED_DATATYPES="WalltimeOutliers PercentageAllocated"
 [[ $SUPPORTED_DATATYPES =~ $DATATYPE ]] || exit 1
 
 echo "source (\"$SCRIPTDIR/lib/R/stats.R\")"					>> $TEMP
 echo "results <- list()"							>> $TEMP
 
 TITLES=
-for TEST in $TEST_LIST; do
-		$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-header > $TMPDIR/$TEST || exit
-	if [ `wc -l $TMPDIR/$TEST | awk '{print $1}'` -eq 0 ]; then
-		continue
-	fi
-	RESULTS="$TMPDIR/$TEST"
+if [[ -z "$ITERATIONS" ]]; then
+	for TEST in $TEST_LIST; do
+		RESULTS="$TMPDIR/$TEST"
+		$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-header > $RESULTS || exit
+		if [ `wc -l $RESULTS | awk '{print $1}'` -eq 0 ]; then
+			continue
+		fi
 	
-	echo "results[[\"$TEST\"]] <- read.table(\"$RESULTS\", header=TRUE)"	>> $TEMP
-	
-done
+		echo "results[[\"$TEST\"]] <- read.table(\"$RESULTS\", header=TRUE)"	>> $TEMP
+	done
+else for I in `seq 1 $ITERATIONS`; do
+	pushd $I > /dev/null
+	for TEST in $TEST_LIST; do
+		if [[ $I == 1 ]]; then
+			echo "results[[\"$TEST\"]] <- data.frame()"			>> $TEMP
+		fi
+
+		RESULTS="$TMPDIR/$TEST-$I"
+		$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-header > $RESULTS || exit
+		if [ `wc -l $RESULTS | awk '{print $1}'` -eq 0 ]; then
+			continue
+		fi
+
+		echo "temp <- read.table(\"$RESULTS\", header=TRUE)"			>> $TEMP
+		echo "temp[[\"Iteration\"]] <- $I"					>> $TEMP
+		echo "results[[\"$TEST\"]] <- rbind(results[[\"$TEST\"]], temp)"	>> $TEMP
+	done
+	popd > /dev/null
+done; fi
 
 echo "stats <- calc.stats(results, \"$DATATYPE\")"				>> $TEMP
 echo "write.table(stats, \"$TMPDIR/Rstats\", sep=';', quote=FALSE)"		>> $TEMP
 
 cat $TEMP | R --vanilla > $TMPDIR/Rlog
+[[ -n "$ITERATIONS" ]] && pushd 1 > /dev/null
+pwd
 compare-mmtests.pl -d . $EXTRACT_ARGS $FORMAT_CMD -n $KERNEL_LIST --R-summary=$TMPDIR/Rstats
+[[ -n "$ITERATIONS" ]] && popd > /dev/null
+
+exit 0

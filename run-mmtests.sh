@@ -81,6 +81,7 @@ done
 # Take the unparsed option as the parameter
 shift
 RUNNAME=$1
+export MMTEST_ITERATION=$2
 
 if [ -z "$RUNNAME" ]; then
 	echo "ERROR: Runname parameter must be specified"
@@ -95,6 +96,9 @@ if [ ! -e $CONFIG ]; then
 fi
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
+if [ -n "$MMTEST_ITERATION" ]; then
+	export SHELLPACK_LOG="$SHELLPACK_LOG/$MMTEST_ITERATION"
+fi
 . $CONFIG
 
 # Create directories that must exist
@@ -107,6 +111,29 @@ for DIRNAME in $SHELLPACK_SOURCES $SHELLPACK_LOG; do
 		mkdir -p "$DIRNAME"
 	fi
 done
+
+# Mount the log directory on the requested partition if requested
+if [ "$LOGDISK_PARTITION" != "" ]; then
+	echo Unmounting log partition: $SHELLPACK_LOG
+	umount $SHELLPACK_LOG
+
+	echo $LOGDISK_PARTITION | grep \/ram
+	if [ $? -eq 0 ]; then
+		modprobe brd
+	fi
+
+	if [ "$LOGDISK_FILESYSTEM" != "" -a "$LOGDISK_FILESYSTEM" != "tmpfs" ]; then
+		echo Formatting log disk: $LOGDISK_FILESYSTEM
+		mkfs.$LOGDISK_FILESYSTEM $LOGDISK_MKFS_PARAM $LOGDISK_PARTITION || exit
+	fi
+
+	echo Mounting log disk
+	if [ "$LOGDISK_MOUNT_ARGS" = "" ]; then
+		mount -t $LOGDISK_FILESYSTEM $LOGDISK_PARTITION $SHELLPACK_LOG || exit
+	else
+		mount -t $LOGDISK_FILESYSTEM $LOGDISK_PARTITION $SHELLPACK_LOG -o $LOGDISK_MOUNT_ARGS || exit
+	fi
+fi
 
 # Install packages that are generally needed by a large number of tests
 install-depends autoconf automake binutils-devel bzip2 dosfstools expect \

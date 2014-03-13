@@ -376,7 +376,7 @@ sub extractSummaryR() {
 	my @rowNames;
 	
 	# TODO: This might depend on the data type?
-	push @row, "Time";
+	push @row, "";
 	push @rowNames, "Unit";
 
 	# find the position of our test in the table header

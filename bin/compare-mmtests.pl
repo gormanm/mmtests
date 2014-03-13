@@ -109,6 +109,10 @@ eval {
 };
 printVerbose("Loaded $nrModules compare modules\n");
 
+if ($opt_Rsummary) {
+	$compareModule->prepareForRSummary();
+}
+
 $compareModule->extractComparison($opt_subheading, !$opt_hideCompare);
 $compareModule->printComparison();
 

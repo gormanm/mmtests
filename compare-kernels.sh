@@ -45,6 +45,11 @@ while [ "$1" != "" ]; do
 		PLOT_DETAILS="yes"
 		shift
 		;;
+	--iterations)
+		ITERATIONS="$1 $2"
+		FIRST_ITERATION_PREFIX="1/"
+		shift 2
+		;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift
@@ -80,16 +85,16 @@ if [ "$OUTPUT_DIRECTORY" != "" -a ! -d "$OUTPUT_DIRECTORY" ]; then
 	exit -1
 fi
 
-if [ `ls tests-timestamp-* 2> /dev/null | wc -l` -eq 0 ]; then
+if [ `ls "$FIRST_ITERATION_PREFIX"tests-timestamp-* 2> /dev/null | wc -l` -eq 0 ]; then
 	die This does not look like a mmtests results directory
 fi
 
 # Only include kernels we have results for
-if [ ! -e tests-timestamp-$KERNEL_BASE ]; then
+if [ ! -e "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL_BASE ]; then
 	TEMP_KERNEL_BASE=
 	TEMP_KERNEL_COMPARE=
 	for KERNEL in $KERNEL_COMPARE; do
-		if [ -e tests-timestamp-$KERNEL ]; then
+		if [ -e "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL ]; then
 			if [ "$TEMP_KERNEL_BASE" = "" ]; then
 				TEMP_KERNEL_BASE=$KERNEL
 			fi
@@ -107,6 +112,7 @@ if [ "$KERNEL_BASE" != "" ]; then
 		KERNEL_LIST=$KERNEL_LIST,$KERNEL
 	done
 else
+	[ -n "$ITERATIONS" ] && pushd $FIRST_ITERATION_PREFIX > /dev/null
 	for KERNEL in `grep -H ^start tests-timestamp-* | awk -F : '{print $4" "$1}' | sort -n | awk '{print $2}' | sed -e 's/tests-timestamp-//'`; do
 		EXCLUDE=no
 		for TEST_KERNEL in $KERNEL_EXCLUDE; do
@@ -123,6 +129,7 @@ else
 			fi
 		fi
 	done
+	[ -n "$ITERATIONS" ] && popd > /dev/null
 fi
 
 if [ "$SORT_VERSION" = "yes" ]; then
@@ -156,10 +163,10 @@ smoothover() {
 }
 
 cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
-for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
+for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
 	COMPARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
 	COMPARE_BARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
-	COMPARE_R_CMD="compare-mmtests-R.sh -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
+	COMPARE_R_CMD="compare-mmtests-R.sh -d . $ITERATIONS -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
 	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format png"
 	GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format \"postscript color solid\""
 	echo

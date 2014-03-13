@@ -19,4 +19,11 @@ sub new() {
 	return $self;
 }
 
+sub prepareForRSummary($) {
+	my ($self) = @_;
+	# override _CompareOps, first column is not treated specially in R
+	$self->{_CompareOp} = "pndiff";
+	undef($self->{_CompareOps});
+}
+
 1;
