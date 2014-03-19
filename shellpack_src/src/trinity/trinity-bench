@@ -6,57 +6,16 @@ GROUP=
 SYSCALL=
 
 
-P=trinity-bench
-DEFAULT_VERSION=0
-. $SHELLPACK_INCLUDE/common.sh
+###SHELLPACK preamble trinity-bench 0
 
-# Basic argument parser
-while [ "$1" != "" ]; do
-	case "$1" in
-	-v)
-		VERSION=$2
-		shift 2
-		;;
-	--install-only)
-		INSTALL_ONLY=yes
-		shift
-		;;
-	--install-force)
-		INSTALL_FORCE=yes
-		shift
-		;;
-	--duration)
-		DURATION=$2
-		shift 2
-		;;
-	--group)
-		GROUP=$2
-		shift 2
-		;;
-	--syscall)
-		SYSCALL=$2
-		shift 2
-		;;
-	*)
-		echo Unrecognised option: $1
-		shift
-	esac
-done
-if [ -z "$VERSION" ]; then
-	VERSION=$DEFAULT_VERSION
-fi
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --duration	DURATION
+###SHELLPACK parseargParam   --group    GROUP
+###SHELLPACK parseargParam   --syscall  SYSCALL
+###SHELLPACK parseargEnd
 
-if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/trinity-${VERSION}
-fi
-if [ ! -d $SHELLPACK_SOURCES/trinity-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-trinity -v ${VERSION}  || die trinity install script returned error
-fi
-cd $SHELLPACK_SOURCES/trinity-${VERSION}-installed || die Failed to cd to trinity install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo trinity installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
+###SHELLPACK check_install_required trinity-${VERSION}
 
 GROUP_PARAM=
 if [ "$GROUP" != "" ]; then
@@ -105,5 +64,3 @@ echo
 shutdown_pid trinity $TRINITY_PID
 
 exit $SHELLPACK_SUCCESS
-#### Description trinity fuzzing tool
-#### Details trinity-bench 3
