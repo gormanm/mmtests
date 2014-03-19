@@ -44,6 +44,13 @@ while {1} {
 expect -f $SCRIPT || die Failed to install SPECcpu 2006
 rm $SCRIPT
 
+# Patch gamess because it's retarded and gcc chokes on it
+cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed/benchspec/CPU2006/416.gamess/src
+for FILE in `ls *.f *.F`; do
+	sed -i -e '/FMCOM/s/1/80000000/' -e '/FMCOM/s/CX80000000/CX1/' $FILE
+done
+cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed
+
 exit $SHELLPACK_SUCCESS
 #### Description Non-conforming speccpu benchmark
-#### Details speccpu 15
+#### Details speccpu 18

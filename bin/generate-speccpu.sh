@@ -283,6 +283,9 @@ emit_sconf() {
 	echo "sw_other           = $sw_other"
 	echo "sw_base_ptrsize    = $sw_base_ptrsize"
 	echo "sw_peak_ptrsize    = $sw_peak_ptrsize"
+
+	# Required because of the patching of gamess
+	echo "strict_rundir_verify = 0"
 	echo
 
 	if [ "$HUGEPAGES" = "no" ]; then

@@ -112,4 +112,4 @@ mv result/* $LOGDIR_RESULTS/
 
 exit $RETVAL
 #### Description Non-conforming speccpu benchmark
-#### Details speccpu-bench 15
+#### Details speccpu-bench 18

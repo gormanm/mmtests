@@ -1,38 +1,35 @@
 #!/bin/bash
-# trinity installer
 P=trinity-install
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
 GIT_LOCATION=git://git.codemonkey.org.uk/trinity.git
 MIRROR_LOCATION="$WEBROOT/trinity/"
-DEFAULT_VERSION=1
-. $SHELLPACK_INCLUDE/common.sh
 
 # Basic argument parser
 while [ "$1" != "" ]; do
-  case "$1" in
-    -v)
-            VERSION=$2
-	    shift 2
-	    ;;
-    *)
-            echo Unrecognised option: $1
-	    shift
-  esac
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
 done
-
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=trinity-${VERSION}.tar.gz
-git_fetch $GIT_LOCATION trinity-$VERSION $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
-
+git_fetch $GIT_LOCATION trinity-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-	error "$P: tar xf trinity-${VERSION}.tar.gz failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+        error "$P: tar xf trinity-${VERSION}.tar.gz failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -40,61 +37,17 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR trinity-${VERSION}-installed
 pushd trinity-${VERSION}-installed > /dev/null || die Failed to rename tar
 
-# Build
-make
+pushd $SHELLPACK_SOURCES/trinity-${VERSION}-installed || die Failed to change to source directory
+git checkout $VERSION
+./configure.sh || die Failed to run configure.sh
+make -j$NUMCPUS
 if [ $? -ne 0 ]; then
-	echo "diff -ru trinity-1/syscalls/sendmsg.c trinity-1-installed/syscalls/sendmsg.c
---- trinity-1/syscalls/sendmsg.c	2012-05-22 04:26:59.000000000 +0100
-+++ trinity-1-installed/syscalls/sendmsg.c	2012-05-22 10:28:50.342284113 +0100
-@@ -52,7 +52,10 @@
- 				MSG_TRUNC, MSG_DONTWAIT, MSG_EOR,
- 				MSG_WAITALL, MSG_FIN, MSG_SYN, MSG_CONFIRM,
- 				MSG_RST, MSG_ERRQUEUE, MSG_NOSIGNAL, MSG_MORE,
--				MSG_WAITFORONE, MSG_CMSG_CLOEXEC, MSG_CMSG_COMPAT },
-+#ifdef MSG_WAITFORONE
-+				MSG_WAITFORONE,
-+#endif
-+				MSG_CMSG_CLOEXEC, MSG_CMSG_COMPAT },
- 	},
- 	.sanitise = sanitise_sendmsg,
- };
-diff -ru trinity-1/syscalls/socket.c trinity-1-installed/syscalls/socket.c
---- trinity-1/syscalls/socket.c	2012-05-22 04:26:59.000000000 +0100
-+++ trinity-1-installed/syscalls/socket.c	2012-05-22 10:27:37.227803971 +0100
-@@ -3,9 +3,9 @@
-  */
- 
- #include <stdlib.h>
--#include <linux/in.h>
- #include <sys/types.h>
- #include <sys/socket.h>
-+#include <linux/in.h>
- 
- #include \"trinity.h\"
- #include \"sanitise.h\"
-diff -ru trinity-1/syscalls/socketcall.c trinity-1-installed/syscalls/socketcall.c
---- trinity-1/syscalls/socketcall.c	2012-05-22 04:26:59.000000000 +0100
-+++ trinity-1-installed/syscalls/socketcall.c	2012-05-22 10:28:23.498108152 +0100
-@@ -57,10 +57,14 @@
- 		break;
- 	case SYS_ACCEPT4:
- 		break;
-+#ifdef SYS_RECVMMSG
- 	case SYS_RECVMMSG:
- 		break;
-+#endif
-+#ifdef SYS_SENDMMSG
- 	case SYS_SENDMMSG:
- 		break;
-+#endif
- 	default:
- 		break;
- 	}
-" | patch -p1 || die Failed to patch
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
-make || die Failed to build
 chmod a+w .
 
 echo trinity installed successfully
 #### Description trinity fuzzing tool
-#### Details trinity 10
+#### Details trinity 4
