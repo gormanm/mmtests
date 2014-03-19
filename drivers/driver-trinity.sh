@@ -12,7 +12,12 @@ run_bench() {
 		SYSCALL_PARAM="--syscall $TRINITY_SYSCALL"
 	fi
 
-	$SHELLPACK_INCLUDE/shellpack-bench-trinity $SYSCALL_PARAM $GROUP_PARAM \
+	VERSION_PARAM=
+	if [ "$TRINITY_VERSION" != "" ]; then
+		VERSION_PARAM="-v $TRINITY_VERSION"
+	fi
+
+	$SHELLPACK_INCLUDE/shellpack-bench-trinity $SYSCALL_PARAM $GROUP_PARAM $VERSION_PARAM \
 		--duration $TRINITY_DURATION
 	return $?
 }

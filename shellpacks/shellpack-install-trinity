@@ -38,6 +38,7 @@ mv $DST_DIR trinity-${VERSION}-installed
 pushd trinity-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/trinity-${VERSION}-installed || die Failed to change to source directory
+git checkout $VERSION
 ./configure.sh || die Failed to run configure.sh
 make -j$NUMCPUS
 if [ $? -ne 0 ]; then
@@ -49,4 +50,4 @@ chmod a+w .
 
 echo trinity installed successfully
 #### Description trinity fuzzing tool
-#### Details trinity 3
+#### Details trinity 4
