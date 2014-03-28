@@ -1,3 +1,6 @@
+### The bonnie IO benchmark generates a number of basic IO patterns simulating
+### the operations of a busy file server. The dataset size of 2*RAM with 1024
+### files and the IO is asynchronous.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`

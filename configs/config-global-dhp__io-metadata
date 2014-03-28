@@ -1,10 +1,16 @@
+### dbench3 is used here as an in-memory metadata intensitive benchmark.
+### It's important to note that it is not guaranteed to do any IO to disk
+### and may do all modifications in memory stressing a variety of locks.
+###
+### fsmark-single creates a very large number of zero-length files from
+### one thread.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="dbench3 fsmark-single fsmark-threaded"
+export MMTESTS="dbench3 fsmark-single"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -67,7 +73,7 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # DBench
-export DBENCH_DURATION=$((15*60))
+export DBENCH_DURATION=$((5*60))
 export DBENCH_OSYNC=no
 export DBENCH_SYNC_DIRECTORY=no
 export DBENCH_FSYNC=no
@@ -80,4 +86,4 @@ export FSMARK_FILESIZE=0
 export FSMARK_NR_DIRECTORIES=225
 export FSMARK_NR_FILES_PER_DIRECTORY=22500
 export FSMARK_NR_FILES_PER_ITERATION=50000
-export FSMARK_ITERATIONS=15
+export FSMARK_ITERATIONS=45

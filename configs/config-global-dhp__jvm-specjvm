@@ -1,3 +1,5 @@
+### This is a standard specjvm run using a single JVM with a maximum heap
+### size of 80% of memory.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`

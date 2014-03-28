@@ -1,3 +1,5 @@
+### specjbb is executed with one JVM running per-NUMA node in the system
+### and a total heap size configured to be 80% of memory.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
@@ -57,3 +59,8 @@ export SPECJBB_MAXHEAP=-Xmx$(($SPECJBB_MAXHEAP_TOTAL_MB/$SPECJBB_JVM_INSTANCES))
 export SPECJBB_PAGESIZES="default"
 #export SPECJBB_PAGESIZES="base huge"
 export SPECJBB_HUGESWITCH=-Xlp
+
+if [ $NUMNODES -eq 1 ]; then
+	echo Skipping multi-JVM test configuration on single node machine
+	exit $SHELLPACK_SUCCESS
+fi

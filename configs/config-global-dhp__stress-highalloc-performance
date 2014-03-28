@@ -1,3 +1,6 @@
+### stress-highalloc is the only benchmark of interest here. Check the
+### allocation success rates and the amount of disruption it causes in
+### the system.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`

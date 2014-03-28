@@ -1,3 +1,13 @@
+### netperf-udp is a UDP_STREAM netperf run on a loopback device. As
+### this benchmark is very sensitive to scheduling when running in
+### loopback mode, the client and server are bound to the first two
+### CPUs in the system in an attempt to give consistent results.
+###
+### netperf-tcp is a TCP_STREAM netperf run on a loopback device. The
+### client and server are bound to CPUs similar to the netperf-udp
+### benchmark.
+###
+### tbench4 is the network portion of the dbench4 benchmark.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
@@ -65,10 +75,6 @@ export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
-
-# Monitor-specific settings
-export MONITOR_INTERACTIVE_APPS="evolution akregator gnome-terminal xchat firefox konqueror"
-export MONITOR_INTERACTIVE_APPS_STACKIGNORE="poll_schedule_timeout do_wait"
 
 # DBench
 export DBENCH_DURATION=$((7*60))

@@ -1,3 +1,7 @@
+### reaim in this case has been configured to use the workfile workfile.alltests
+### but for a very large number of clients that will stress the system. The
+### performance figures for large numbers of client will be unusable and the
+### intent of the configuration is to see if the system survives.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
