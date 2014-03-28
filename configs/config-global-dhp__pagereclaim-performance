@@ -1,3 +1,21 @@
+### postmark is an old filesystem benchmark that originally designed to
+### simulate a mail server but is often considered unreliable. Results
+### with postmark rarely publish the parmaters and by default it is
+### too short-lived to be an IO benchmark. In this case, postmark is
+### doing 15000 transactions for files ranging from 3K to 5120K split
+### over 100 directories. The number of simulataneous files is selected
+### so the total expected size is 4*RAM
+###
+### largedd copies one large file to another using dd. The size of the file
+### dd'd is 8*RAM
+###
+### fsmark-single runs fsmark in single-threaded mode. 30M files are created
+### across a number of directories with the number of files created related
+### to the size of memory.
+###
+### micro cyclically references linear arrays consisting of a mix of 30%
+### anonymous memory and 70% file-backed with the total amount of mappings
+### being twice the size of memory.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`

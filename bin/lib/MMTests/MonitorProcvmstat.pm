@@ -203,6 +203,8 @@ sub parseVMStat($)
 
 	my $current_scan = 0;
 	my $current_steal = 0;
+	my $nr_anon = 0;
+	my $nr_thp_anon = 0;
 
 	foreach my $line (split(/\n/, $_[1])) {
 		my ($stat, $value) = split(/\s/, $line);
@@ -211,6 +213,13 @@ sub parseVMStat($)
 				if ($stat eq $key) {
 					$current_value += $value;
 				}
+			}
+		} elsif ($subHeading eq "mmtests_total_anon") {
+			if ($stat eq "nr_anon_pages") {
+				$nr_anon = $value;
+			}
+			if ($stat eq "nr_anon_transparent_hugepages") {
+				$nr_thp_anon = $value;
 			}
 		} elsif ($subHeading eq "mmtests_direct_steal" ) {
 			foreach my $key (@mmtests_direct_steal) {
@@ -305,6 +314,12 @@ sub parseVMStat($)
 
 	if ($_fieldCounters{$subHeading} || $subHeading eq "mmtests_vmscan_process_pages") {
 		return $current_value;
+	} elsif ($subHeading eq "mmtests_total_anon") {
+		$nr_thp_anon <<= 9;
+		if ($nr_anon > $nr_thp_anon) {
+			return $nr_anon;
+		}
+		return $nr_anon + $nr_thp_anon;
 	} elsif ($subHeading eq "mmtests_direct_efficiency" ||
 		 $subHeading eq "mmtests_kswapd_efficiency") {
 		my ($delta_steal, $delta_scan);
