@@ -47,7 +47,11 @@ if [ "$TIOBENCH_RANDOM" = "" -o "$TIOBENCH_RANDOM" != "0" ]; then
 	TIOBENCH_COMMAND_RANDOM="--random $TIOBENCH_RANDOM"
 fi
 
-CLIENT=1
+if [ "$TIOBENCH_MIN_CLIENTS" != "" ]; then
+	CLIENT=$TIOBENCH_MIN_CLIENTS
+else
+	CLIENT=1
+fi
 while [ $CLIENT -le $TIOBENCH_MAX_CLIENTS ]; do
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
 	for ITERATION in `seq 1 $TIOBENCH_ITERATIONS`; do
@@ -66,4 +70,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description tiobench
-#### Details tiobench-bench 11
+#### Details tiobench-bench 12
