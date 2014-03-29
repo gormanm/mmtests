@@ -46,7 +46,6 @@ sub initialise() {
 
 sub printPlot() {
 	my ($self, $subHeading) = @_;
-	my ($self, $reportDir) = @_;
 	my @data = @{$self->{_ResultData}};
 	my @clients = @{$self->{_Clients}};
 	my $fieldLength = $self->{_FieldLength};

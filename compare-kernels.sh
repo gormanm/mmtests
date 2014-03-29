@@ -296,6 +296,24 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		case $SUBREPORT in
 		aim9)
 			;;
+		bonnie)
+			echo "<tr>"
+			COUNT=0
+			for HEADING in "SeqOut Char" "SeqOut Block" "SeqOut Rewrite" "SeqIn Char" "SeqIn Block" "Random seeks"; do
+				if [ $((COUNT%3)) -eq 0 ]; then
+					echo "<tr>"
+				fi
+				SUBHEADING=`echo $HEADING | sed -e 's/ //g'`
+
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $SUBHEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUBHEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $SUBHEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUBHEADING.ps
+				plain graph-$SUBREPORT-$SUBHEADING
+				COUNT=$((COUNT+1))
+				if [ $((COUNT%3)) -eq 0 ]; then
+					echo "</tr>"
+				fi
+			done
+			;;
 		dbench3)
 			echo "<tr>"
 			eval $GRAPH_PNG --logX --title \"$SUBREPORT $HEADING\" --sub-heading MB/sec --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-MB_sec.png
