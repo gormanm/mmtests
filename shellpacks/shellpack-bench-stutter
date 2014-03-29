@@ -124,12 +124,12 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 
 	# Start the memhog
 	RUNNING=-1
-	while [ $RUNNING -ne 0 ] do
+	while [ $RUNNING -ne 0 ]; do
 		echo Starting memhog
 		$MEMHOG_FILE $MEMFAULT_FILE &
 		MEMHOG_PID=$!
 
-		sleep 5
+		sleep 10
 
 		# Make sure it's running
 	        ps -p $MEMHOG_PID > /dev/null
@@ -159,6 +159,7 @@ sync" > cp-script.sh
 	fi
 
 	kill $MEMHOG_PID
+	sleep 5
 done
 rm $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
 
@@ -307,4 +308,4 @@ int main(int argc, char **argv)
 }
 ==== END MEMHOG FILE ====
 #### Description This test measures system stutter for a mix of anon usage and a large copy
-#### Details stutter-bench 26
+#### Details stutter-bench 28
