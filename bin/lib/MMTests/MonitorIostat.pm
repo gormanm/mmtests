@@ -111,10 +111,6 @@ sub extractReport($$$) {
 			next;
 		}
 
-		if ($elements[13] > 7200 || $elements[14] > 7200) {
-			next;
-		}
-
 		if ($elements[5] == 0 && $elements[13] == 0 &&
 		    $elements[14] == 0 && $elements[15] == 0) {
 			next;

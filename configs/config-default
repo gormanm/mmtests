@@ -1,7 +1,5 @@
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
 export MMTESTS="kernbench reaim postmark aim9 vmr-stream vmr-cacheeffects vmr-createdelete iozone fsmark-single hackbench-sockets hackbench-pipes netperf-tcp netperf-udp sysbench simple-writeback ltp micro specjvm nas-ser nas-omp rsyncresidency specomp speccpu stress-highalloc stress-blktrace lmbench"
@@ -72,7 +70,7 @@ export DBENCH_DURATION=$((7*60))
 export DBENCH_OSYNC=no
 export DBENCH_SYNC_DIRECTORY=no
 export DBENCH_FSYNC=no
-export DBENCH_MAX_CLIENTS=$((NUM_CPU*64))
+export DBENCH_MAX_CLIENTS=$((NUMCPUS*64))
 
 # FFSB
 export FFSB_DURATION=300
@@ -156,7 +154,7 @@ export MICRO_TESTLIST=vmscan-file-mmap-read,vmscan-file-mmap-write
 export MICRO_MAPPED_FILE_STREAM_FORCESIZE=
 export MICRO_VMSCAN_DEVICE_COPY=/dev/sda1
 export MICRO_VMSCAN_DEVICE_COPY_LIMIT_MB=8192
-export MICRO_VMSCAN_NUM_THREADS=$NUM_CPU
+export MICRO_VMSCAN_NUM_THREADS=$NUMCPUS
 export MICRO_VMSCAN_DURATION=300
 export MICRO_VMSCAN_ANON_MMAP_SIZE=$((3 * MEMTOTAL_BYTES / 2))
 export MICRO_VMSCAN_FILE_MMAP_SIZE=$((10 * MEMTOTAL_BYTES))
@@ -165,7 +163,7 @@ export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=30
 
 # MultiBuild
 export MULTIBUILD_NUM_SIMULTANEOUS=$((MEMTOTAL_BYTES/450/1048576))
-export MULTIBUILD_NUM_THREADS=$NUM_CPU
+export MULTIBUILD_NUM_THREADS=$NUMCPUS
 export MULTIBUILD_NUM_COPIES=$((MULTIBUILD_NUM_SIMULTANEOUS*5))
 
 # NAS Parallel Benchmark
@@ -194,9 +192,9 @@ export POSTMARK_BACKGROUND_MMAP=no
 # Re-aim
 export REAIM_FILESIZE=10k
 export REAIM_POOLSIZE=1m
-export REAIM_STARTUSERS=$NUM_CPU
-export REAIM_ENDUSERS=$((NUM_CPU*4))
-export REAIM_INCREMENT=$((NUM_CPU/2))
+export REAIM_STARTUSERS=$NUMCPUS
+export REAIM_ENDUSERS=$((NUMCPUS*4))
+export REAIM_INCREMENT=$((NUMCPUS/2))
 export REAIM_JOBS_PER_USER=100
 export REAIM_ITERATIONS=3
 export REAIM_WORKFILE=workfile.fserver
@@ -278,7 +276,7 @@ export TIOBENCH_BLOCKSIZE=4096
 export TIOBENCH_SIZE=$((MEMTOTAL_BYTES*2))
 export TIOBENCH_ITERATIONS=7
 export TIOBENCH_RANDOM=0
-export TIOBENCH_MAX_CLIENTS=$((NUM_CPU*64))
+export TIOBENCH_MAX_CLIENTS=$((NUMCPUS*64))
 
 # THP availability basic
 export THP_AVAILABILITY_READ_DEVICE=/dev/sda

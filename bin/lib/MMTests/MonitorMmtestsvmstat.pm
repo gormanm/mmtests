@@ -160,6 +160,11 @@ my @_fieldOrder = (
 	"mmtests_autonuma_cost",
 );
 
+my $padded_compat = 0;
+if ($ENV{"MMTESTS_PADDED_COMPAT"} ne "") {
+	$padded_compat = 1;
+}
+
 sub extractReport($$$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my (%vmstat_before, %vmstat_after, %vmstat);
@@ -277,8 +282,12 @@ sub extractReport($$$$) {
 	}
 	$vmstat{"mmtests_direct_velocity"} = $vmstat{"mmtests_direct_scan"} / $elapsed_time;
 
-	$vmstat{"mmtests_movable_velocity"} = $vmstat{"mmtests_movable_scanned"} / $elapsed_time;
-	$vmstat{"mmtests_highmem_velocity"} = $vmstat{"mmtests_highmem_scanned"} / $elapsed_time;
+	if (defined $vmstat{"mmtests_movable_scanned"}) {
+		$vmstat{"mmtests_movable_velocity"} = $vmstat{"mmtests_movable_scanned"} / $elapsed_time;
+	}
+	if (defined $vmstat{"mmtests_highmem_scanned"}) {
+		$vmstat{"mmtests_highmem_velocity"} = $vmstat{"mmtests_highmem_scanned"} / $elapsed_time;
+	}
 	$vmstat{"mmtests_normal_velocity"}  = $vmstat{"mmtests_normal_scanned"}  / $elapsed_time;
 	$vmstat{"mmtests_dma32_velocity"}   = $vmstat{"mmtests_dma32_scanned"}   / $elapsed_time;
 	$vmstat{"mmtests_dma_velocity"}     = $vmstat{"mmtests_dma_scanned"}     / $elapsed_time;
@@ -321,6 +330,7 @@ sub extractReport($$$$) {
 			 "thp_fault_alloc", "thp_collapse_alloc",
 			 "thp_split", "thp_fault_fallback",
 			 "thp_collapse_alloc_failed") {
+		
 		my $value = $vmstat_after{$key} - $vmstat_before{$key};
 		$vmstat{$key} = $value;
 	}
@@ -337,6 +347,10 @@ sub extractReport($$$$) {
 		$vmstat{"mmtests_numa_pte_updates"} += $vmstat{"numa_huge_pte_updates"} * 512;
 	}
 
+	if ($padded_compat) {
+		$autonuma_enabled = 1;
+	}
+
 	# Compaction cost model
 	my $Ca  = 56 / 8;	# Values for x86-64
 	my $Cpagerw = ($Ca + (4096 / 8));
@@ -345,14 +359,18 @@ sub extractReport($$$$) {
 	my $Ci  = $Ca + 12;	# 4 for list operations, 8 for locks
 	my $Csm = $Ca;
 	my $Csf = $Ca;
-	if ($new_compaction_stats ) {
+	if ($padded_compat) {
+		$vmstat{"mmtests_compaction_cost"} = -1;
+	}
+	if (defined $vmstat_before{"compact_migrate_scanned"} ) {
 		$vmstat{"mmtests_compaction_cost"} =
 			$Csm * $vmstat{"compact_migrate_scanned"} +
 			$Csf * $vmstat{"compact_migrate_free"} +
 			$Ci  * $vmstat{"compact_isolated"} +
 			$Cmc * $vmstat{"pgmigrate_success"} +
 			$Cmf * $vmstat{"pgmigrate_fail"};
-	} else {
+	}
+	if (defined $vmstat_before{"compact_blocks_moved"}) {
 		$vmstat{"mmtests_compaction_cost"} =
 			$Csm * $vmstat{"compact_blocks_moved"} * 16384 +
 			$Cmc * $vmstat{"compact_pages_moved"} +
@@ -375,7 +393,39 @@ sub extractReport($$$$) {
 		$vmstat{"mmtests_autonuma_cost"} /= 1000000;
 	}
 
+	if ($padded_compat) {
+		foreach my $key ("compact_stall", "compact_success",
+				 "compact_fail",
+				 "pgmigrate_success", "pgmigrate_failure",
+				 "compact_isolated",
+				 "compact_migrate_scanned",
+				 "compact_free_scanned",
+				 "compact_pages_moved",
+				 "compact_pagemigrate_failed",
+				 "numa_hit", "numa_miss", "numa_interleave",
+				 "numa_local", "numa_pte_updates",
+				 "numa_huge_pte_updates", "numa_hint_faults",
+				 "numa_hint_faults_local",
+				 "numa_pages_migrated") {
+			if (!defined($vmstat_before{$key})) {
+				$vmstat{$key} = -1;
+			}
+		}
 
+		if (!defined($vmstat_before{"compact_migrate_scanned"}) &&
+		    !defined($vmstat_before{"compact_blocks_moved"})) {
+			$vmstat{"mmtests_compaction_cost"} = -1;
+		}
+		if (!defined($vmstat_before{"numa_pte_updates"})) { 
+			$vmstat{"mmtests_numa_pte_updates"} = -1;
+		}
+		if (!defined($vmstat_before{"numa_pte_updates"})) {
+			$vmstat{"mmtests_numa_pte_updates"} = -1;
+			$vmstat{"mmtests_hint_local"} = -1;
+			$vmstat{"mmtests_autonuma_cost"} = -1;
+		}
+
+	}
 
 	# Pick order to display keys in
 	my @keys;
@@ -393,33 +443,35 @@ key:	foreach my $key (@keys) {
 		my $suppress = 0;
 
 		# Some stats for migration may have changed
-		if ($new_compaction_stats) {
-			foreach my $compareKey (@_old_migrate_stats) {
-				if ($compareKey eq $key) {
-					next key;
+		if (!$padded_compat) {
+			if ($new_compaction_stats) {
+				foreach my $compareKey (@_old_migrate_stats) {
+					if ($compareKey eq $key) {
+						next key;
+					}
+				}
+			} else {
+				foreach my $compareKey (@_new_migrate_stats) {
+					if ($compareKey eq $key) {
+						next key;
+					}
 				}
 			}
-		} else {
-			foreach my $compareKey (@_new_migrate_stats) {
-				if ($compareKey eq $key) {
-					next key;
-				}
-			}
-		}
 
-		# AutoNUMA may not be available
-		if (!$autonuma_enabled) {
-			foreach my $compareKey (@_autonuma_stats) {
-				if ($compareKey eq $key) {
-					next key;
+			# AutoNUMA may not be available
+			if (!$autonuma_enabled) {
+				foreach my $compareKey (@_autonuma_stats) {
+					if ($compareKey eq $key) {
+						next key;
+					}
 				}
 			}
-		}
 
-		foreach my $zone ("movable", "highmem", "normal", "dma32", "dma") {
-			if ($key eq "mmtests_${zone}_velocity" &&
-			    !$zones_seen{"$zone"}) {
-				next key;
+			foreach my $zone ("movable", "highmem", "normal", "dma32", "dma") {
+				if ($key eq "mmtests_${zone}_velocity" &&
+				    !$zones_seen{"$zone"}) {
+					next key;
+				}
 			}
 		}
 
@@ -448,7 +500,8 @@ key:	foreach my $key (@keys) {
 		if ($key eq "mmtests_kswapd_efficiency" ||
 		    $key eq "mmtests_direct_efficiency" ||
 		    $key eq "mmtests_direct_percentage" ||
-		    $key eq "mmtests_hint_local") {
+		    $key eq "mmtests_hint_local" ||
+		    $key eq "numa_hint_faults_local") {
 			my $length = $fieldLength - 1;
 			push @format, "%${length}d%%";
 		} elsif ($key eq "mmtests_kswapd_velocity" ||

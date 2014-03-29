@@ -1,8 +1,5 @@
-### reaim in this case has been configured to use the workfile workfile.compute
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
 export MMTESTS="reaim"
@@ -27,6 +24,17 @@ if [ "`which oprofile_report.sh 2> /dev/null`" = "" ]; then
 fi
 
 # Machine configuration
+# Test disk to setup (optional)
+#export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
+#export TESTDISK_RAID_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=""
+
 # Swap configuration can be one of default, partitions, swapfile, NFS
 #export VM_DIRTY_RATIO=20
 export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
@@ -49,8 +57,9 @@ export MONITOR_UPDATE_FREQUENCY=10
 # Re-aim
 export REAIM_FILESIZE=10k
 export REAIM_POOLSIZE=1m
-export REAIM_STARTUSERS=1
-export REAIM_INCREMENT=$((NUM_CPU/2))
-export REAIM_ENDUSERS=$((NUM_CPU*2+REAIM_INCREMENT))
+export REAIM_STARTUSERS=50
+export REAIM_INCREMENT=100
+export REAIM_ENDUSERS=550
 export REAIM_ITERATIONS=5
-export REAIM_WORKFILE=workfile.compute
+export REAIM_WORKFILES="workfile.compute"
+export REAIM_EXCLUDE=signal_test

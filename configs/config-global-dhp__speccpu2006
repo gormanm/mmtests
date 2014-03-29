@@ -1,7 +1,10 @@
+### This is a non-compliant run of SPECcpu2006. It is non-complaint as
+### gamess is patched to fix a buffer overflow problem that recent
+### versions of gcc optimise in such a way that the application produces
+### unexpected output. This unexpected output is not considered a gcc
+### bug as the application is broken.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
 export MMTESTS="speccpu"

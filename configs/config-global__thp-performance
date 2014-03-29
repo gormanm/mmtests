@@ -1,10 +1,8 @@
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="gitcheckout"
+export MMTESTS="speccpu specomp specjvm"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -27,7 +25,7 @@ fi
 # Machine configuration
 # Swap configuration can be one of default, partitions, swapfile, NFS
 #export VM_DIRTY_RATIO=20
-export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
+export VM_TRANSPARENT_HUGEPAGES_DEFAULT=always
 export SWAP_CONFIGURATION=default
 export SWAP_PARTITIONS=
 export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
@@ -35,7 +33,6 @@ export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
 export SWAP_NBD_DEVICE=/dev/nbd0
 export SWAP_NBD_HOST=mcp
 export SWAP_NBD_PORT=10001
-#export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
@@ -43,6 +40,10 @@ export SWAP_NBD_PORT=10001
 #export TESTDISK_RAID_OFFSET=63
 #export TESTDISK_RAID_SIZE=250019532
 #export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS="size=$((MEMTOTAL_BYTES))"
 #
 # Test NFS disk to setup (optional)
 #export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
@@ -54,19 +55,33 @@ export SWAP_NBD_PORT=10001
 
 # List of monitors
 export RUN_MONITOR=yes
-export MONITORS_ALWAYS=""
-export MONITORS_PLAIN="inbox-open blktrace"
-export MONITORS_GZIP="proc-vmstat top slabinfo dstate"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP=
+export MONITORS_WITH_LATENCY=
 export MONITOR_UPDATE_FREQUENCY=10
 
-# Specify just one of the following. MAILDIR is preferred
-export MONITOR_INBOX_OPEN_SOURCE=$WEBROOT/maildir.tar.gz
-#export MONITOR_INBOX_OPEN_MAILDIR=/home/mel/crypt/mail-offline/mgorman_inbox_test
+# SPECcpu
+export SPECCPU_LICENSE_ACCEPTED=no
+export SPECCPU_DEFAULT_SIZE=ref
+export SPECCPU_DEFAULT_ITER=3
+export SPECCPU_PAGESIZES="base huge-all transhuge"
 
-# Git checkout
-export GITCHECKOUT_SOURCETAR=none
-export GITCHECKOUT_SOURCE=$SSHROOT/linux-2.6
-export GITCHECKOUT_COMMITS=v2.6.14,v3.2,v2.6.16,v3.4,v2.6.18
-export GITCHECKOUT_ITERATIONS=5
-export GITCHECKOUT_CACHE=cold
+# SPECjvm
+export SPECJVM_JRE=/opt/java/jre/bin
+export SPECJVM_DEFAULT_ITERATION_TIME=300
+export SPECJVM_DEFAULT_WARMUP_TIME=120
+export SPECJVM_DEFAULT_TERATIONS=1
+export SPECJVM_MAXHEAP=-Xmx756m
+export SPECJVM_PAGESIZES="base huge transhuge"
+export SPECJVM_HUGESWITCH=-Xlp
+if [[ `uname -m` =~ i.86 ]]; then
+	# Sun JRE which works better on x86 uses this switch
+	export SPECJVM_HUGESWITCH=-XX:+UseLargePages
+fi
+
+# SPEComp
+export SPECOMP_LICENSE_ACCEPTED=no
+export SPECOMP_DEFAULT_SIZE=ref
+export SPECOMP_DEFAULT_ITER=3
+export SPECOMP_PAGESIZES="base huge-all transhuge"
