@@ -51,8 +51,8 @@ while [ "$1" != "" ]; do
 		REAIM_ITERATIONS=$2
 		shift 2
 		;;
-	--workfile)
-		REAIM_WORKFILE=$2
+	--workfiles)
+		REAIM_WORKFILES=$2
 		shift 2
 		;;
 	--exclude)
@@ -82,37 +82,40 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-echo FILESIZE $REAIM_FILESIZE > reaim.config
-echo POOLSIZE $REAIM_POOLSIZE >> reaim.config
-echo DISKDIR $TESTDISK_DIR  >> reaim.config
+for REAIM_WORKFILE in $REAIM_WORKFILES; do
+	echo FILESIZE $REAIM_FILESIZE > reaim.config
+	echo POOLSIZE $REAIM_POOLSIZE >> reaim.config
+	echo DISKDIR $TESTDISK_DIR  >> reaim.config
 
-# Remove any tests that were requested to be excluded
-cp data/$REAIM_WORKFILE data/$REAIM_WORKFILE.mmtests
-for EXCLUDE in $REAIM_EXCLUDE; do
-	grep -v " $EXCLUDE$" data/$REAIM_WORKFILE.mmtests > data/$REAIM_WORKFILE.mmtests.tmp
-	mv data/$REAIM_WORKFILE.mmtests.tmp data/$REAIM_WORKFILE.mmtests
+	# Remove any tests that were requested to be excluded
+	cp data/$REAIM_WORKFILE data/$REAIM_WORKFILE.mmtests
+	for EXCLUDE in $REAIM_EXCLUDE; do
+		grep -v " $EXCLUDE$" data/$REAIM_WORKFILE.mmtests > data/$REAIM_WORKFILE.mmtests.tmp
+		mv data/$REAIM_WORKFILE.mmtests.tmp data/$REAIM_WORKFILE.mmtests
+	done
+	mkdir $LOGDIR_RESULTS/$REAIM_WORKFILE
+
+	monitor_pre_hook $LOGDIR_RESULTS
+	for ITERATION in `seq 1 $REAIM_ITERATIONS`; do
+		save_rc ./src/reaim \
+			-s$REAIM_STARTUSERS \
+			-e$REAIM_ENDUSERS \
+			-t \
+			-i$REAIM_INCREMENT \
+			-fdata/$REAIM_WORKFILE.mmtests \
+			-r1 \
+			-c./reaim.config \
+			-l$LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.$ITERATION \
+				2>&1 | grep -v NSIG | tee $LOGDIR_RESULTS/reaim.$ITERATION.raw
+
+		recover_rc
+		if [ $? -ne 0 ]; then
+			die Failed to run reaim
+		fi
+	done
+	monitor_post_hook $LOGDIR_RESULTS
 done
-
-monitor_pre_hook $LOGDIR_RESULTS
-for ITERATION in `seq 1 $REAIM_ITERATIONS`; do
-	save_rc ./src/reaim \
-		-s$REAIM_STARTUSERS \
-		-e$REAIM_ENDUSERS \
-		-t \
-		-i$REAIM_INCREMENT \
-		-fdata/$REAIM_WORKFILE.mmtests \
-		-r1 \
-		-c./reaim.config \
-		-l$LOGDIR_RESULTS/reaim.$ITERATION \
-			2>&1 | grep -v NSIG | tee $LOGDIR_RESULTS/reaim.$ITERATION.raw
-
-	recover_rc
-	if [ $? -ne 0 ]; then
-		die Failed to run reaim
-	fi
-done
-monitor_post_hook $LOGDIR_RESULTS
 
 exit $SHELLPACK_SUCCESS
 #### Description reaim
-#### Details reaim-bench 32
+#### Details reaim-bench 33

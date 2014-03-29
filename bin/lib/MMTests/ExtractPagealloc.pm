@@ -103,7 +103,11 @@ sub extractSummary() {
 			push @row, "$operation-$batch+-%age";
 
 			foreach my $order (@orders) {
-				push @row, ($stddevs[$order]*100)/$means[$order];
+				if ($means[$order] == 0) {
+					push @row, 0;
+				} else {
+					push @row, ($stddevs[$order]*100)/$means[$order];
+				}
 			}
 			push @{$self->{_SummaryData}}, \@row;
 		}

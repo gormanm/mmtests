@@ -8,12 +8,16 @@ use strict;
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ExtractPostmark",
+		_ModuleName  => "ExtractBonnie",
 		_DataType    => MMTests::Extract::DATA_OPSSEC,
 		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;
+}
+
+sub printDataType() {
+	print "Operations/sec,TestName,Latency,candlesticks";
 }
 
 sub initialise() {
@@ -28,13 +32,44 @@ sub initialise() {
 
 	$self->{_SummaryLength} = 16;
 	$self->{_SummaryHeaders} = [ "Op", "Min", "Mean", "Stddev", "Max" ];
+	$self->{_SummariseColumn} = 2;
 	$self->{_TestName} = $testName;
 }
 
+sub printPlot() {
+	my ($self, $subHeading) = @_;
+	my @data = @{$self->{_ResultData}};
+	my $fieldLength = $self->{_FieldLength};
+	my $column = 1;
+
+	if ($subHeading eq "") {
+		$subHeading = "SeqOut Block";
+	}
+	$subHeading =~ s/\s+//g;
+
+	my @units;
+	my @row;
+	my $iterations = 0;
+	foreach my $row (@data) {
+		@{$row}[0] =~ s/\s+//g;
+		if (@{$row}[0] eq $subHeading) {
+			push @units, @{$row}[2];
+			$iterations++;
+		}
+	}
+	$self->_printCandlePlotData($fieldLength, @units);
+}
+
+
 sub extractSummary() {
-	my ($self) = @_;
+	my ($self, $subHeading) = @_;
 	my @_operations = @{$self->{_Operations}};
 	my @data = @{$self->{_ResultData}};
+
+	if ($subHeading ne "") {
+		$#_operations = 0;
+		$_operations[0] = $subHeading;
+	}
 
 	foreach my $operation (@_operations) {
 		my @units;

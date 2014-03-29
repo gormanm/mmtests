@@ -1,7 +1,5 @@
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
 export MMTESTS="rsyncresidency"
