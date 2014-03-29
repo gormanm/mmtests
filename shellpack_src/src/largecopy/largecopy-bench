@@ -7,9 +7,9 @@
 SRCTAR=
 SRCTAR_EXTRA=
 TARGETSIZE_MB=
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
+NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 if [ "$LARGECOPY_THREADS" = "" ]; then
-	LARGECOPY_THREADS=$NUM_CPU
+	LARGECOPY_THREADS=$NUMCPUS
 fi
 
 ###SHELLPACK parseargBegin

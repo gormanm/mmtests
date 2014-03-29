@@ -2,7 +2,7 @@
 # This is the script for running the sharepagetest benchmark
 P='sharepagetest'
 ITERATIONS=600
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
+NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 . $SHELLPACK_INCLUDE/common.sh
 
 # Process the arguments
@@ -34,7 +34,7 @@ RETVAL=0
 echo -n > $LOGDIR_RESULTS/sharepagetest.log
 monitor_pre_hook $LOGDIR_RESULTS
 for ITER in `seq 1 $ITERATIONS`; do
-	./sharepage-test $NUM_CPU | tee -a $LOGDIR_RESULTS/sharepagetest.log
+	./sharepage-test $NUMCPUS | tee -a $LOGDIR_RESULTS/sharepagetest.log
 done
 monitor_post_hook $LOGDIR_RESULTS
 

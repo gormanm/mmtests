@@ -2,7 +2,7 @@
 # This script installs libreoffice and builds it
 P=libreofficebuild-bench
 VERSION=20110725
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
+NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 . $SHELLPACK_INCLUDE/common.sh
 
 # Basic args parser
@@ -24,7 +24,7 @@ cd $SHELLPACK_SOURCES/libreofficebuild-${VERSION}-source || die Failed to cd to 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-./autogen.sh --with-num-cpus=$NUM_CPU --with-max-jobs=$((NUM_CPU*4)) || die Failed to run autogen
+./autogen.sh --with-num-cpus=$NUMCPUS --with-max-jobs=$((NUMCPUS*4)) || die Failed to run autogen
 make || die Failed to build libreoffice
 
 make clean
