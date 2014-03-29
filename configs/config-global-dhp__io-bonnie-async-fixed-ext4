@@ -1,7 +1,11 @@
+### The bonnie IO benchmark generates a number of basic IO patterns simulating
+### the operations of a busy file server. The dataset size is 1G with 1024
+### files and the IO is asynchronous. Note that the fixed dataset size is
+### smaller than most servers memory meaning that the benchmark may run
+### entirely in memory. Some aspects of the test may be so short-lived that
+### the results are inconclusive.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
 export MMTESTS="bonnie"

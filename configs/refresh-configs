@@ -6,24 +6,19 @@ config-global-dhp__io-threaded-fixed
 config-global-dhp__io-metadata
 config-global-dhp__io-dbench4-async
 config-global-dhp__io-dbench4-fsync
-config-global-dhp__io-mailserver
 config-global-dhp__io-sysbench-large-rw
 config-global-dhp__io-sysbench-large-ro
-config-global-dhp__io-gitcheckout-performance
-config-global-dhp__io-gitcheckout-read-starvation
-config-global-dhp__io-gitcheckout-randread-starvation
-config-global-dhp__io-gitcheckout-write-starvation
-config-global-dhp__io-gitcheckout-randwrite-starvation
 config-global-dhp__pagereclaim-performance
-config-global-dhp__reaim-alltests
-config-global-dhp__reaim-stress-alltests
+config-global-dhp__reaim-io
 config-global-dhp__stress-highalloc-performance
-config-global-dhp__io-interactive-performance
 config-global-dhp__io-largeread-starvation
 config-global-dhp__io-randread-starvation
-config-global-dhp__background-highalloc-thp-performance
-config-global-dhp__background-highalloc-hugetlbfs-performance
 config-global-dhp__parallelio-memcachetest
+config-global-dhp__io-bonnie-async
+config-global-dhp__io-bonnie-fsync
+config-global-dhp__io-bonnie-async-fixed
+config-global-dhp__io-bonnie-fsync-fixed
+config-global-dhp__io-compress
 "
 for CONFIG in $FSCONFIGS; do
 	cat $CONFIG | sed \
@@ -57,7 +52,6 @@ for CONFIG in $FSCONFIGS; do
 done
 
 LIMITMEM_CONFIGS="
-config-global-dhp__largecopytar-performance
 "
 for CONFIG in $LIMITMEM_CONFIGS; do
 	DESTCONFIG=`echo $CONFIG | sed -e 's/dhp__/dhp-2048M__/'`

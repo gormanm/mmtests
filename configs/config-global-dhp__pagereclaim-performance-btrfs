@@ -1,10 +1,30 @@
+### postmark is an old filesystem benchmark that originally designed to
+### simulate a mail server but is often considered unreliable. Results
+### with postmark rarely publish the parmaters and by default it is
+### too short-lived to be an IO benchmark. In this case, postmark is
+### doing 15000 transactions for files ranging from 3K to 5120K split
+### over 100 directories. The number of simulataneous files is selected
+### so the total expected size is 4*RAM
+###
+### ffsb is run with a configuration that is expected to simulate the
+### behaviour of a mail server and provides a point of comparison with
+### postmark.
+###
+### largedd copies one large file to another using dd. The size of the file
+### dd'd is 8*RAM
+###
+### fsmark-single runs fsmark in single-threaded mode. 30M files are created
+### across a number of directories with the number of files created related
+### to the size of memory.
+###
+### stutter simulates a simple workload. One part uses a lot of anonymous
+### memory, a second measures mmap latency and a third copies a large file.
+### The primary metric is checking for mmap latency.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
-export MMTESTS="postmark largedd fsmark-single micro"
+export MMTESTS="postmark ffsb largedd fsmark-single stutter"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -64,6 +84,15 @@ export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
+# FFSB mailserver simulator. Create 5 files per 1M of memory.
+export FFSB_DURATION=900
+export FFSB_NUM_FILES=$((MEMTOTAL_BYTES*5/1048576))
+export FFSB_NUM_DIRECTORIES=1000
+export FFSB_NUM_THREADS=$NUM_CPU
+export FFSB_FILE_PROFILE=many-file-many-directory
+export FFSB_FILESIZE_PROFILE=weight-mailserver
+export FFSB_OPERATIONS_PROFILE=mailserver
+
 # FS-Mark
 export FSMARK_PARALLEL_DIRECTORIES=yes
 export FSMARK_THREADS_PER_CPU=4
@@ -94,3 +123,9 @@ export POSTMARK_MIN_SIZE=3096
 export POSTMARK_MAX_SIZE=5242880
 export POSTMARK_SUBDIRECTORIES=100
 export POSTMARK_SIMULTANEOUS_FILES=$((MEMTOTAL_BYTES*4/POSTMARK_MAX_SIZE))
+
+# stutter
+export STUTTER_MEMFAULT_SIZE=$((MEMTOTAL_BYTES*3/4))
+export STUTTER_MEMFAULT_TMPFS=no
+export STUTTER_FILESIZE=$(($MEMTOTAL_BYTES*2))
+export STUTTER_BLOCKSIZE=$((2*1048576))

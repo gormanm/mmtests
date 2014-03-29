@@ -1,7 +1,16 @@
+### This benchmark configuration measures the impact of IO on the
+### performance of an in-memory workload. The primary worklod
+### in-memory workload. The primary workload is a memcached server with
+### a memcachetest client tuned to use 80% of memory. The test runs
+### multiple times starting with no parallel IO and then doing IO with
+### dd to a file sized to be  10% of physical memory and finishing with
+### a file 80% of physical memory. The metrics of the test are how much
+### performance is lost by running the IO in parallel and checking if
+### it prematurely pushed to swap. A positive swapout figure is not
+### necessarily bad but high swaptotals imply that the in-memory workload
+### is thrashing.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
 export MMTESTS="parallelio"
