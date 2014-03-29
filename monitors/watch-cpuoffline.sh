@@ -2,8 +2,8 @@
 
 # Assumes sequential ordering of CPUs. This is not always true but
 # sufficient for the test in mind
-NUM_CPU=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
-MAX_CPU_INDEX=$((NUM_CPU-1))
+NUMCPUS=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
+MAX_CPU_INDEX=$((NUMCPUS-1))
 
 while [ 1 ]; do
 	OFFLINED=0
@@ -24,6 +24,6 @@ while [ 1 ]; do
 		fi
 	done
 
-	echo cpuhotplug $NUM_CPU $OFFLINED $ONLINED
+	echo cpuhotplug $NUMCPUS $OFFLINED $ONLINED
 	sleep $MONITOR_UPDATE_FREQUENCY 2> /dev/null
 done

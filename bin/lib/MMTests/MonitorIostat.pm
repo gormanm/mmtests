@@ -111,12 +111,19 @@ sub extractReport($$$) {
 			next;
 		}
 
-		if ($elements[5] == 0 && $elements[13] == 0 &&
+		# Filter out completely idle devices
+		if ($elements[13] == 0 &&
 		    $elements[14] == 0 && $elements[15] == 0) {
 			next;
 		}
+		if ($elements[13] > 1) {
+			$devices{$elements[5]} = 1;
+		}
+		if (!$devices{$elements[5]}) {
+			next;
+		}
 
-		$devices{$elements[5]} = 1;
+		# Record times
 		my ($avgqz, $await, $r_await, $w_await);
 		if ($format_type == 0) {
 			$avgqz = $elements[13];

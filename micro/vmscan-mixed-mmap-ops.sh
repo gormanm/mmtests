@@ -4,8 +4,8 @@
 # NR_FREE_PAGES under memory pressure
 #
 # Copyright Mel Gorman 2010
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
-NUM_THREADS=${MICRO_VMSCAN_NUM_THREADS:=$NUM_CPU}
+NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
+NUM_THREADS=${MICRO_VMSCAN_NUM_THREADS:=$NUMCPUS}
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 PERCENTAGE_ANON=$MICRO_VMSCAN_MIXED_ANON_PERCENTAGE
 DURATION=${MICRO_VMSCAN_DURATION:-300}
