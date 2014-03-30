@@ -24,7 +24,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="postmark ffsb largedd fsmark-single stutter"
+export MMTESTS="postmark ffsb largedd largecopy fsmark-single stutter"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
