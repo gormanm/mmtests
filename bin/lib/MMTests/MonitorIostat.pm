@@ -137,6 +137,14 @@ sub extractReport($$$) {
 			$w_await = $elements[16];
 		}
 
+		# Filter out insane values
+		if ($avgqz > 1000000 ||
+		    $await > 3600000 ||
+		    $r_await > 3600000 ||
+		    $w_await > 3600000) {
+			next;
+		}
+
 		if ($subHeading eq "") {
 			# Pushing time avgqu-sz await r_await w_await
 			push @{$self->{_ResultData}}, [ $timestamp, $elements[5], 
