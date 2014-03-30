@@ -158,7 +158,7 @@ sync" > cp-script.sh
 			dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-$ITERATION.log
 	fi
 
-	shutdown_pid $MEMHOG_PID
+	shutdown_pid memhog $MEMHOG_PID
 done
 rm $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
 
@@ -307,4 +307,4 @@ int main(int argc, char **argv)
 }
 ==== END MEMHOG FILE ====
 #### Description This test measures system stutter for a mix of anon usage and a large copy
-#### Details stutter-bench 29
+#### Details stutter-bench 30
