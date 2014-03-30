@@ -63,6 +63,7 @@ done
 " > $TESTDISK_DIR/gitcheckout/gitcheckout.sh
 chmod u+x $TESTDISK_DIR/gitcheckout/gitcheckout.sh
 
+mkdir -p $LOGDIR_RESULTS
 for i in `seq 1 $GITCHECKOUT_ITERATIONS`; do
 	if [ "$GITCHECKOUT_CACHE" = "cold" ]; then
 		echo Dropping caches as per requested
