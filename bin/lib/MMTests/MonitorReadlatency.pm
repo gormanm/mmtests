@@ -115,7 +115,11 @@ sub extractSummaryPercentages() {
 
 	my $percentage = 0;
 	for (my $i = 0; $i < $nr_binsizes; $i++) {
-		$percentage += $bins[$i] * 100 / $nr_values;
+		if (!$nr_values) {
+			$percentage = 100;
+		} else {
+			$percentage += $bins[$i] * 100 / $nr_values;
+		}
 		push @{$self->{_SummaryData}}, [ $binSizes[$i], $percentage ];
 	}
 	return 1;
