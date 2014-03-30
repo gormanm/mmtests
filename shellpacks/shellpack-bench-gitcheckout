@@ -112,4 +112,4 @@ rm -rf $TESTDISK_DIR/gitcheckout
 
 exit $SHELLPACK_SUCCESS
 #### Description Times how long it takes to checkout git repos
-#### Details gitcheckout-bench 10
+#### Details gitcheckout-bench 11
