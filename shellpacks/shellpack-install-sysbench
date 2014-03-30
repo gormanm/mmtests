@@ -6,7 +6,7 @@ MYSQL_VERSION=5.0.51a
 POSTGRES_VERSION=9.2.1
 DBUSER=root
 DBPASSWORD=shellpack-mysqlbench
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
+NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 DBDRIVER=postgres
 . $SHELLPACK_INCLUDE/common.sh
 
@@ -75,7 +75,7 @@ if [ ! -e sysbench$DBDRIVER-${VERSION}-installed ]; then
 " | patch -p0 || exit -1
 
 	echo Building sysbench
-	make -j$NUM_CPU || die "Failed to build sysbench"
+	make -j$NUMCPUS || die "Failed to build sysbench"
 
 	echo Installing sysbench
 	make install || die "Failed to install sysbench"

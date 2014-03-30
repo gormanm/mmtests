@@ -1,7 +1,5 @@
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
 export MMTESTS="pft"
@@ -75,6 +73,6 @@ export MONITOR_PERF_EVENTS=
 # Page Fault Test (PFT)
 export PFT_ITERATIONS=20
 export PFT_MAPPING_SIZE=$((MEMTOTAL_BYTES/5))
-export PFT_MAX_CLIENTS=$NUM_CPU
+export PFT_MAX_CLIENTS=$NUMCPUS
 export PFT_USE_PROCESSES=yes
 export PFT_PAGESIZES=base

@@ -6,8 +6,8 @@ POSTGRES_VERSION=9.2.1
 VERSION=0.4.12
 DBUSER=nobody
 DBPASSWORD=shellpack-mysqlbench
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
-RUN_NUM=$(($NUM_CPU*2))
+NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
+RUN_NUM=$(($NUMCPUS*2))
 
 # 10,000,000 is around 8G of data
 OLTP_TABLESIZE=10000000
@@ -208,7 +208,7 @@ if [ "$LARGEPAGES" != "" ]; then
 		echo Adjusted for larger pages required hugepages: $REQUIRED_HUGEPAGES
 	fi
 
-	if [ $NUM_CPU -gt 32 ]; then
+	if [ $NUMCPUS -gt 32 ]; then
 		REQUIRED_HUGEPAGES=$(($REQUIRED_HUGEPAGES*4))
 		echo Adjusted for number cpus required hugepages: $REQUIRED_HUGEPAGES
 	fi
@@ -288,16 +288,16 @@ sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS --num-threads=$RUN_NUM run > $LOGDIR_RE
 # the test running in a semi-reasonable amount of time.
 START_CPU=1
 CPU_STRIDE=1
-if [ $NUM_CPU -gt 8 ]; then
+if [ $NUMCPUS -gt 8 ]; then
 	CLIENTS=`seq $START_CPU 10`
 	START_CPU=12
 	CPU_STRIDE=4
 	CLIENTS="$CLIENTS "
 fi
-if [ $RUN_NUM -lt $NUM_CPU ]; then
+if [ $RUN_NUM -lt $NUMCPUS ]; then
 	CLIENTS="$CLIENTS`seq $START_CPU $CPU_STRIDE $RUN_NUM`"
 else
-	CLIENTS="$CLIENTS`seq $START_CPU $CPU_STRIDE $NUM_CPU` `seq $((NUM_CPU+2)) $((CPU_STRIDE*2)) $RUN_NUM`"
+	CLIENTS="$CLIENTS`seq $START_CPU $CPU_STRIDE $NUMCPUS` `seq $((NUMCPUS+2)) $((CPU_STRIDE*2)) $RUN_NUM`"
 fi
 
 echo Running sysbench maximum $RUN_NUM threads
@@ -316,7 +316,7 @@ for N in $CLIENTS; do
 		if [ $SYSRET -ne 0 ]; then
 			# Decide whether to die or not
 			FAILCHECK=`grep "MySQL client ran out of memory" $LOGDIR_RESULTS/sysbench-raw-$N`
-			if [ "$FAILCHECK" != "" -a $N -gt $(($NUM_CPU*2)) ]; then
+			if [ "$FAILCHECK" != "" -a $N -gt $(($NUMCPUS*2)) ]; then
 				echo WARNING: Client ran out of memory at run $N. Enough information available to be still useful | tee -a $LOGDIR/summary
 				break
 			else

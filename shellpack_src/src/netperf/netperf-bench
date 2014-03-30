@@ -29,7 +29,7 @@ TASKSET_CLIENT=
 		;;
 	--bind-firstlast)
 		TASKSET_SERVER="taskset -c 0"
-		TASKSET_CLIENT="taskset -c $(($NUM_CPU-1))"
+		TASKSET_CLIENT="taskset -c $(($NUMCPUS-1))"
 		shift
 		;;
 	--buffer-sizes)

@@ -7,7 +7,7 @@
 #
 # NUMA01
 #   Two processes
-#   NUM_CPUS/2 number of threads so all CPUs are in use
+#   NUMCPUSS/2 number of threads so all CPUs are in use
 #   
 #   On startup, the process forks
 #   Each process mallocs a 3G buffer but there is no communication
@@ -34,7 +34,7 @@
 #
 # NUMA01_THREADLOCAL
 #   Two processes
-#   NUM_CPUS/2 number of threads so all CPUs are in use
+#   NUMCPUSS/2 number of threads so all CPUs are in use
 #
 #   On startup, the process forks
 #   Each process mallocs a 3G buffer but there is no communication

@@ -45,8 +45,8 @@ fi
 
 # Fire this sucker up
 MEMSLAP_THREADS=$MEMSLAP_CONCURRENCY
-NUM_CPU=$(grep -c '^processor' /proc/cpuinfo)
-MAX_CPU=$((NUM_CPU-1))
+NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
+MAX_CPU=$((NUMCPUS-1))
 if [ $MEMSLAP_THREADS -gt $MAX_CPU ]; then
 	MEMSLAP_THREADS=$MAX_CPU
 fi
