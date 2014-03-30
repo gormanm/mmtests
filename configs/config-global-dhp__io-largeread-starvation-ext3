@@ -9,10 +9,6 @@
 ### largecopy is copying a number of files, creating a tar and untarring
 ### it again as if it was a large backup-like process
 ###
-### gimp-simple just opens an image with gimp. As well as checking
-### application startup times in the presence of parallel IO, it will
-### also catch any problems with address space exhaustion.
-###
 ### gitcheckout checks out different branches of the kernel tree multple
 ### times as it has been observed that large checkouts has stalled the
 ### system at various times in the past
@@ -25,7 +21,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="largedd largecopy gitcheckout gimp-simple stutter"
+export MMTESTS="largedd largecopy gitcheckout stutter"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -96,7 +92,7 @@ export LARGECOPY_THREADS=1
 export GIMP_SIMPLE_IMAGE_LOCATION=$WEBROOT/gimp-simple/large-image.tif
 
 # Git checkout
-export GITCHECKOUT_SOURCETAR=$WEBROOT/linux-2.6.tar.gz
+export GITCHECKOUT_SOURCETAR=$WEBROOT/gitcheckout/linux-2.6.tar.gz
 export GITCHECKOUT_SOURCE=$SSHROOT/linux-2.6
 export GITCHECKOUT_COMMITS=v2.6.14,v3.2,v2.6.16,v3.4,v2.6.18
 export GITCHECKOUT_ITERATIONS=15
