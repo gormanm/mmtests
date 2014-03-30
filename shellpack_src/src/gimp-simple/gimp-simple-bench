@@ -16,9 +16,16 @@ if [ "$SHELLPACK_TEMP" = "" ]; then
 	die SHELLPACK_TEMP not refined
 fi
 
+GIMP_DATA_DIR=$HOME/.gimp-2.8
+
+# Create directories gimp expects
+for NAME in brushes dynamics patterns gradients palettes; do
+	mkdir $GIMP_DATA_DIR/$NAME
+done
+
 # Write the gimp script
 cd $SHELLPACK_TEMP || die Failed to cd to $SHELLPACK_TEMP
-mkdir -p ~/.gimp-2.8/scripts/ || die Failed to create gimp script directory
+mkdir -p $GIMP_DATA_DIR/scripts/ || die Failed to create gimp script directory
 echo "(define (mmtests-open-image filename)
   (let* 
     (
@@ -27,7 +34,7 @@ echo "(define (mmtests-open-image filename)
       (gimp-image-delete image)
     )
   )
-)" > ~/.gimp-2.8/scripts/mmtests-open-image.scm
+)" > $GIMP_DATA_DIR/scripts/mmtests-open-image.scm
 
 FILENAME=`basename $GIMP_SIMPLE_IMAGE_LOCATION`
 wget $GIMP_SIMPLE_IMAGE_LOCATION -O $FILENAME || die Failed to download image from $GIMP_SIMPLE_IMAGE_LOCATION
@@ -51,7 +58,11 @@ rm $FILENAME
 cd /
 
 if [ "$RETVAL" != "0" ]; then
-	exit $SHELLPACK_ERROR
+	die gimp exited with error
+fi
+grep -q "batch command executed successfully" $LOGDIR_RESULTS/gimp-out.1
+if [ $? -ne 0 ]; then
+	die gimp output does not match expectations
 fi
 
 exit $SHELLPACK_SUCCESS
