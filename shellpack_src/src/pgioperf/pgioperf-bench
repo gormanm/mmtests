@@ -1,0 +1,415 @@
+#!/bin/bash
+###SHELLPACK preamble pgioperf-bench 0
+
+NUM_RANDOM_READERS=16
+DATA_SIZE=$((2*1024*1048576))
+WAL_SIZE=$((1*1024*1048576))
+READ_REPORT_INTERVAL=10000
+WAL_REPORT_INTERVAL=1000
+COMMIT_REPORT_INTERVAL=500
+DURATION=180
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --data-size			DATA_SIZE
+###SHELLPACK parseargParam --wal-size			WAL_SIZE
+###SHELLPACK parseargParam --random-readers		NUM_RANDOM_READERS
+###SHELLPACK parseargParam --read-report-interval	READ_REPORT_INTERVAL
+###SHELLPACK parseargParam --wal-report-interval	WAL_REPORT_INTERVAL
+###SHELLPACK parseargParam --commit-report-interval	COMMIT_REPORT_INTERVAL
+###SHELLPACK parseargParam --duration			DURATION
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+# Build the mapping program
+echo Building pgioperf program
+TEMPFILE=`mktemp`
+LINECOUNT=`wc -l $0 | awk '{print $1}'`
+CSTART=`grep -n "BEGIN C FILE" $0 | tail -1 | awk -F : '{print $1}'`
+tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > $TEMPFILE.c
+gcc -std=c99 -Wall					\
+	-DDATA_SIZE=$DATA_SIZE				\
+	-DWAL_SIZE=$WAL_SIZE				\
+	-DNUM_RANDOM_READERS=$NUM_RANDOM_READERS	\
+	-DREAD_REPORT_INTERVAL=$READ_REPORT_INTERVAL	\
+	-DWAL_REPORT_INTERVAL=$WAL_REPORT_INTERVAL	\
+	-DCOMMIT_REPORT_INTERVAL=$COMMIT_REPORT_INTERVAL\
+		$TEMPFILE.c -o $TEMPFILE || exit $SHELLPACK_ERROR
+
+monitor_pre_hook $LOGDIR_RESULTS
+TIME_START=`date +%s`
+TIME_CURRENT=$TIME_START
+TIME_END=$((TIME_START+$DURATION))
+echo Executing pgioperf
+cd $SHELLPACK_TEMP
+$TEMPFILE 2>&1 > $LOGDIR_RESULTS/pgioperf.log &
+PGIOPERF_PID=$!
+while [ $TIME_CURRENT -lt $TIME_END ]; do
+	sleep 1
+	TIME_CURRENT=`date +%s`
+done
+shutdown_pid pgioperf $PGIOPERF_PID
+rm $SHELLPACK_TEMP/wal
+rm $SHELLPACK_TEMP/data
+
+monitor_post_hook $LOGDIR_RESULTS
+rm $TEMPFILE $TEMPFILE.c
+
+exit $SHELLPACK_SUCCESS
+==== BEGIN C FILE ====
+/*
+ * Portions Copyright (c) 2014, PostgreSQL Global Development Group
+ *
+ * Permission to use, copy, modify, and distribute this software and its
+ * documentation for any purpose, without fee, and without a written agreement
+ * is hereby granted, provided that the above copyright notice and this
+ * paragraph appear in all copies.
+ *
+ * Test program roughly simulating postgres' IO.
+ *
+ * Parameters will need need to be changed to reproduce the problem on
+ * individual systems.
+ *
+ * Author: Andres Freund, andres@2ndquadrant.com, andres@anarazel.de
+ */
+#define _POSIX_C_SOURCE 200809L
+#define _XOPEN_SOURCE 800
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include <signal.h>
+#include <unistd.h>
+
+#include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <time.h>
+
+int exiting = 0;
+void sigterm_handler(int sig)
+{
+	exiting = 1;
+}
+
+/*
+ * CHANGE: set to memory size * 2 or so.
+ *
+ * Remove the 'data', 'wal' files after changing.
+ */
+static const size_t data_size = DATA_SIZE;
+
+/* probably ok this way */
+static const size_t wal_size = WAL_SIZE;
+
+/* after how many iterations should stuff get reported */
+static const uint64_t read_report_interval = READ_REPORT_INTERVAL;
+static const uint64_t wal_report_interval = WAL_REPORT_INTERVAL;
+static const uint64_t commit_report_interval = COMMIT_REPORT_INTERVAL;
+
+
+/* internal data */
+static const char initdata[8192];
+static pid_t readers[NUM_RANDOM_READERS];
+
+struct timing
+{
+	uint64_t iter;
+	uint64_t period_total;
+	uint64_t total;
+	uint64_t period_max;
+
+	struct timespec t_before;
+	struct timespec t_after;
+};
+
+static void
+fatal_error(int e)
+{
+	if (!exiting)
+		fprintf(stderr, "frak me: %d: %s\n", e, strerror(e));
+	_exit(0);
+}
+
+static void
+nsleep(int64_t s)
+{
+	struct timespec d;
+	d.tv_sec = 0;
+	d.tv_nsec = s;
+	if (nanosleep(&d, NULL) < 0)
+		fatal_error(errno);
+}
+
+static off_t
+random_block(size_t end)
+{
+	return (((double) random())/RAND_MAX) * (end - 1);
+}
+
+static int64_t
+nsec_diff(const struct timespec *a, const struct timespec *b)
+{
+	return ((int64_t)(a->tv_sec - b->tv_sec) * 1000000000)
+		+ (a->tv_nsec - b->tv_nsec);
+}
+
+static void
+timing_init(struct timing *t)
+{
+	t->iter = 0;
+	t->total = 0;
+	t->period_total = 0;
+	t->period_max = 0;
+}
+
+static void
+timing_before_action(struct timing *t)
+{
+	clock_gettime(CLOCK_MONOTONIC, &t->t_before);
+}
+
+
+static void
+timing_after_action(struct timing *t, const char *ctx, int64_t report_interval)
+{
+	uint64_t dur;
+
+	clock_gettime(CLOCK_MONOTONIC, &t->t_after);
+
+	dur = nsec_diff(&t->t_after, &t->t_before);
+
+	t->iter++;
+	t->period_total += dur;
+	t->period_max = t->period_max < dur ? dur : t->period_max;
+
+	if ((t->iter % report_interval) == 0)
+	{
+		fprintf(stdout, "%s[%d]: avg: %.1f msec; max: %.1f msec\n",
+				ctx, getpid(),
+				(double) (t->period_total / read_report_interval) / 1000000,
+				(double) t->period_max / 1000000);
+		t->total += t->period_total;
+		t->period_total = 0;
+		t->period_max = 0;
+	}
+}
+
+static void
+do_wal_writes(void)
+{
+	int fd;
+	off_t pos = 0;
+	int64_t iter = 0;
+
+	struct timing wal_timing;
+	struct timing commit_timing;
+
+	timing_init(&wal_timing);
+	timing_init(&commit_timing);
+
+	fd = open("wal", O_RDWR, S_IRUSR|S_IWUSR);
+	if (fd < 0)
+		fatal_error(errno);
+
+	while(!exiting)
+	{
+		bool is_commit = (iter++ % 5) == 0;
+
+		if (lseek(fd, pos, SEEK_SET) < 0)
+			fatal_error(errno);
+
+		timing_before_action(&wal_timing);
+		if (is_commit)
+			timing_before_action(&commit_timing);
+
+		if (write(fd, initdata, 8192) < 0)
+			fatal_error(errno);
+
+		timing_after_action(&wal_timing, "wal", wal_report_interval);
+
+		if (is_commit)
+		{
+
+			if (fdatasync(fd) < 0)
+				fatal_error(errno);
+			timing_after_action(&commit_timing, "commit", commit_report_interval);
+		}
+
+		pos += 8192;
+
+		if (pos + 8192 >= wal_size)
+			pos = 0;
+
+		nsleep(1000000);
+	}
+}
+
+static void
+do_checkpointer_writes(void)
+{
+	int fd;
+	int64_t writes = 0;
+
+	fd = open("data", O_RDWR, S_IRUSR|S_IWUSR);
+	if (fd < 0)
+		fatal_error(errno);
+
+	while(!exiting)
+	{
+		off_t pos = random_block(data_size);
+
+		if (lseek(fd, pos, SEEK_SET) < 0)
+			fatal_error(errno);
+
+		if (write(fd, initdata, 8192) < 0)
+			fatal_error(errno);
+
+		if ((++writes % 100000) == 0)
+		{
+			fprintf(stdout, "starting fsync() of files\n");
+
+			if (fsync(fd) < 0)
+				fatal_error(errno);
+
+			fprintf(stdout, "finished fsync() of files\n");
+		}
+
+		nsleep(200000);
+	}
+}
+
+static void
+do_random_reads(void)
+{
+	int fd;
+	struct timing timing;
+
+	timing_init(&timing);
+
+	fd = open("data", O_RDWR, S_IRUSR|S_IWUSR);
+	if (fd < 0)
+		fatal_error(errno);
+
+	while(!exiting)
+	{
+		char data[8192];
+		off_t pos = random_block(data_size);
+
+		if (lseek(fd, pos, SEEK_SET) < 0)
+			fatal_error(errno);
+
+		timing_before_action(&timing);
+
+		if (read(fd, data, 8192) < 0)
+			fatal_error(errno);
+
+		timing_after_action(&timing, "read", read_report_interval);
+	}
+}
+
+static void
+initialize_files(void)
+{
+	int fd;
+	ssize_t data_size_written = 0;
+	ssize_t wal_size_written = 0;
+
+	/* initialize data file */
+	fd = open("data", O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
+	if (fd < 0 && errno == EEXIST)
+		;
+	else if (fd < 0)
+		fatal_error(errno);
+	else
+	{
+		while (data_size_written <= data_size)
+		{
+			ssize_t ret = write(fd, initdata, sizeof(initdata));
+			if (ret == -1)
+				fatal_error(errno);
+			data_size_written += ret;
+		}
+		if (fsync(fd) < 0)
+			fatal_error(errno);
+		close(fd);
+	}
+
+	/* initialize wal file */
+	fd = open("wal", O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
+	if (fd < 0 && errno == EEXIST)
+		;
+	else if (fd < 0)
+		fatal_error(errno);
+	else
+	{
+		while (wal_size_written <= wal_size)
+		{
+			ssize_t ret = write(fd, initdata, sizeof(initdata));
+			if (ret == -1)
+				fatal_error(errno);
+			wal_size_written += ret;
+		}
+		fsync(fd);
+		close(fd);
+	}
+}
+
+static pid_t
+start_subprocess(void (*sub)(void))
+{
+	pid_t pid;
+
+	pid = fork();
+	if (pid == -1)
+		fatal_error(errno);
+	else if (pid == 0) {
+		signal(SIGTERM, sigterm_handler);
+		sub();
+		exit(EXIT_SUCCESS);
+	}
+
+	return pid;
+}
+
+int
+main(int argc, char **argv)
+{
+	int status;
+	pid_t checkpointer_pid, wal_pid;
+
+	/*
+	 * Dont want to hit the same, already cached, pages after restarting.
+	 */
+	srandom((int)time(NULL));
+	signal(SIGTERM, sigterm_handler);
+
+	initialize_files();
+
+	checkpointer_pid = start_subprocess(do_checkpointer_writes);
+	wal_pid = start_subprocess(do_wal_writes);
+
+	/* start all reader processes */
+	for (int i = 0; i < NUM_RANDOM_READERS; i++)
+		readers[i] = start_subprocess(do_random_reads);
+
+	/* Wait for a signal then propogate it to children */
+	pause();
+	for (int i = 0; i < NUM_RANDOM_READERS; i++)
+		kill(readers[i], SIGTERM);
+	kill(checkpointer_pid, SIGTERM);
+	kill(wal_pid, SIGTERM);
+
+	/* return if all subprocesses decided to die */
+	for (int i = 0; i < NUM_RANDOM_READERS; i++)
+		waitpid(readers[i], &status, 0);
+
+	waitpid(checkpointer_pid, &status, 0);
+	waitpid(wal_pid, &status, 0);
+
+	return 0;
+}
