@@ -61,5 +61,5 @@ export REAIM_STARTUSERS=50
 export REAIM_INCREMENT=100
 export REAIM_ENDUSERS=550
 export REAIM_ITERATIONS=5
-export REAIM_WORKFILES="workfile.compute"
+export REAIM_WORKFILES="workfile.alltests"
 export REAIM_EXCLUDE=signal_test

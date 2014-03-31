@@ -61,5 +61,5 @@ export REAIM_STARTUSERS=1
 export REAIM_INCREMENT=$((NUMCPUS/2))
 export REAIM_ENDUSERS=$((NUMCPUS*2+REAIM_INCREMENT))
 export REAIM_ITERATIONS=5
-export REAIM_WORKFILES="workfile.alltests"
+export REAIM_WORKFILES="workfile.new_dbase workfile.new_fserver workfile.shared"
 export REAIM_EXCLUDE=signal_test
