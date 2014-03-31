@@ -12,6 +12,7 @@ DD_FILESIZE=${STUTTER_FILESIZE:=$MEMTOTAL_BYTES}
 DD_BLOCKSIZE=${STUTTER_BLOCKSIZE:=4096}
 ITERATIONS=5
 USE_DD_ZERO=no
+USE_LOCAL=no
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --memfault-size  MEMFAULT_SIZE
@@ -19,6 +20,7 @@ USE_DD_ZERO=no
 ###SHELLPACK parseargParam --filesize       DD_FILESIZE
 ###SHELLPACK parseargParam --blocksize      DD_BLOCKSIZE
 ###SHELLPACK parseargYes   --use-dd         USE_DD_ZERO
+###SHELLPACK parseargYes   --source-local   USE_LOCAL
 ###SHELLPACK parseargEnd
 
 # Figure out how to use the time cmd
@@ -68,10 +70,29 @@ $TIME_CMD -o $LOGDIR_RESULTS/calibrate.time \
 	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((1024*1048576/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/calibrate.log
 rm $TESTDISK_DIR/ddfile
 
+# Determine where the source file should be
+SOURCEFILE_TOPLEVEL=
+DISK_FREE=`df --block-size=1 $SHELLPACK_TOPLEVEL | tail -1 | awk '{print $4}'`
+DISK_NEEDED=$((DD_FILESIZE/10*11))
+if [ "$USE_LOCAL" = "yes" ]; then
+	SOURCEFILE_TOPLEVEL=$SHELLPACK_TOPLEVEL
+	if [ $DISK_NEEDED -ge $DISK_FREE ]; then
+		die "Insufficient space free on local partition for test to run"
+	fi
+else
+	if [ $DISK_NEEDED -lt $DISK_FREE ]; then
+		echo Using local disk: $((DISK_FREE/1048576))MB free for $((DISK_NEEDED/1048576))MB required
+		SOURCEFILE_TOPLEVEL=$SHELLPACK_TOPLEVEL
+	else
+		echo Using test partion for source file
+		SOURCEFILE_TOPLEVEL=$TESTDISK_DIR
+	fi
+fi
+
 # Create source file if necessary
 if [ "$USE_DD_ZERO" = "no" ]; then
-	echo Creating source file on local disk: $SHELLPACK_TOPLEVEL/stutter-source-file
-	dd if=/dev/zero of=$SHELLPACK_TOPLEVEL/stutter-source-file bs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
+	echo Creating source file: $SOURCEFILE_TOPLEVEL/stutter-source-file
+	dd if=/dev/zero of=$SOURCEFILE_TOPLEVEL/stutter-source-file bs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
 fi
 
 # Dump all existing cache for full IO effect
@@ -84,7 +105,6 @@ echo Starting mapping latency monitor
 echo Logging: $LOGDIR_RESULTS/mmap-latency.log
 $LATENCY_FILE > $LOGDIR_RESULTS/mmap-latency.log &
 LATENCY_PID=$!
-
 
 # Begin the copy or dd
 echo $DD_BLOCKSIZE > $LOGDIR_RESULTS/dd.blocksize
@@ -113,9 +133,9 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 
 	if [ "$USE_DD_ZERO" = "no" ]; then
 		# CP
-		echo Starting cp $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+		echo Starting cp $SOURCEFILE_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
 		echo "#!/bin/bash
-cp $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+cp $SOURCEFILE_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
 sync" > cp-script.sh
 		chmod u+x cp-script.sh
 		$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
@@ -130,7 +150,7 @@ sync" > cp-script.sh
 
 	shutdown_pid memhog $MEMHOG_PID
 done
-rm $SHELLPACK_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+rm $SOURCEFILE_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
 
 # Shutdown monitors
 kill $LATENCY_PID

@@ -11,7 +11,7 @@ run_bench() {
 		--startusers    $REAIM_STARTUSERS \
 		--endusers      $REAIM_ENDUSERS \
 		--increment     $REAIM_INCREMENT \
-		--workfiles     $REAIM_WORKFILES \
+		--workfiles     "$REAIM_WORKFILES" \
 		--exclude       $REAIM_EXCLUDE \
 		--iterations    $REAIM_ITERATIONS
 	return $?

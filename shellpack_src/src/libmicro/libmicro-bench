@@ -1,0 +1,35 @@
+#!/bin/bash
+###SHELLPACK preamble libmicro-bench 1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required libmicro-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/libmicro-${VERSION}-installed || die Failed to cd to libmicro directory
+
+COMMON="-E -C 200 -L -S -W"
+
+while read A B C; do
+	monitor_pre_hook $LOGDIR_RESULTS $B
+	if [ -f bin/$A ]; then
+		eval bin/$A $COMMON -N "$B" $C 2>&1 > $LOGDIR_RESULTS/$B.log
+	fi
+	monitor_post_hook $LOGDIR_RESULTS $B
+done <<EOT
+memset	memset_10	-s 10  -I 10 
+memset	memset_256	-s 256 -I 20
+memset	memset_256_u	-s 256 -I 20  -a 1
+memset	memset_1k	-s 1k  -I 100
+memset	memset_4k	-s 4k  -I 250
+memset	memset_4k_uc	-s 4k  -I 400 -u
+memset	memset_10k	-s 10k -I 600   
+memset	memset_1m	-s 1m  -I 200000
+memset	memset_10m	-s 10m -I 2000000 
+memset	memsetP2_10m	-s 10m -I 2000000 -P 2
+EOT
+
+exit $SHELLPACK_SUCCESS

@@ -1,10 +1,8 @@
-### This configuration runs ffsb with a profile reported to simulate the
-### activity of a mail server.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="ffsb"
+export MMTESTS="libmicro"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -61,14 +59,6 @@ export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top slabinfo"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
-
-# FFSB mailserver simulator. Create 5 files per 1M of memory.
-export FFSB_DURATION=900
-export FFSB_NUM_FILES=$((MEMTOTAL_BYTES*5/1048576))
-export FFSB_NUM_DIRECTORIES=1000
-export FFSB_NUM_THREADS=$NUMCPUS
-export FFSB_FILE_PROFILE=many-file-many-directory
-export FFSB_FILESIZE_PROFILE=weight-mailserver
-export FFSB_OPERATIONS_PROFILE=mailserver
+export MONITOR_TOP_ACTIVEONLY=yes
