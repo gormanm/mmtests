@@ -38,7 +38,7 @@ for REAIM_WORKFILE in $REAIM_WORKFILES; do
 	done
 	mkdir $LOGDIR_RESULTS/$REAIM_WORKFILE
 
-	monitor_pre_hook $REAIM_WORKFILE
+	monitor_pre_hook $LOGDIR_RESULTS $REAIM_WORKFILE
 	for ITERATION in `seq 1 $REAIM_ITERATIONS`; do
 		save_rc ./src/reaim \
 			-s$REAIM_STARTUSERS \
@@ -56,7 +56,7 @@ for REAIM_WORKFILE in $REAIM_WORKFILES; do
 			die Failed to run reaim
 		fi
 	done
-	monitor_post_hook $REAIM_WORKFILE
+	monitor_post_hook $LOGDIR_RESULTS $REAIM_WORKFILE
 done
 
 exit $SHELLPACK_SUCCESS
