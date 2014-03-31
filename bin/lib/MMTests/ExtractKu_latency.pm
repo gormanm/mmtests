@@ -45,6 +45,7 @@ sub extractReport($$$) {
 
 	my $time_kernel;
 	my $time_user;
+	my $nr_samples = 0;
 	while (<INPUT>) {
 		my $line = $_;
 		my @elements = split(/:/, $_);

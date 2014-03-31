@@ -1,10 +1,10 @@
-### This configuration runs ffsb with a profile reported to simulate the
-### activity of a mail server.
+### tiobench is executed in this configuration for up to 16 threads.
+### It is executed three times to estimate variance.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="ffsb"
+export MMTESTS="tiobench"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -35,7 +35,9 @@ export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
 export SWAP_NBD_DEVICE=/dev/nbd0
 export SWAP_NBD_HOST=mcp
 export SWAP_NBD_PORT=10001
-#export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+
+# Optionally use a memory control group
+# export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
@@ -43,10 +45,10 @@ export SWAP_NBD_PORT=10001
 #export TESTDISK_RAID_OFFSET=63
 #export TESTDISK_RAID_SIZE=250019532
 #export TESTDISK_RAID_TYPE=raid0
-#export TESTDISK_PARTITION=/dev/sda6
-#export TESTDISK_FILESYSTEM=ext3
-#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
-#export TESTDISK_MOUNT_ARGS=""
+export TESTDISK_PARTITION=/dev/sda6
+export TESTDISK_FILESYSTEM=btrfs
+export TESTDISK_MKFS_PARAM="-f"
+export TESTDISK_MOUNT_ARGS=
 #
 # Test NFS disk to setup (optional)
 #export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
@@ -64,11 +66,9 @@ export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# FFSB mailserver simulator. Create 5 files per 1M of memory.
-export FFSB_DURATION=900
-export FFSB_NUM_FILES=$((MEMTOTAL_BYTES*5/1048576))
-export FFSB_NUM_DIRECTORIES=1000
-export FFSB_NUM_THREADS=$NUMCPUS
-export FFSB_FILE_PROFILE=many-file-many-directory
-export FFSB_FILESIZE_PROFILE=weight-mailserver
-export FFSB_OPERATIONS_PROFILE=mailserver
+# tiobench
+export TIOBENCH_BLOCKSIZE=4096
+export TIOBENCH_SIZE=$((MEMTOTAL_BYTES*2))
+export TIOBENCH_ITERATIONS=3
+export TIOBENCH_RANDOM=0
+export TIOBENCH_MAX_CLIENTS=16
