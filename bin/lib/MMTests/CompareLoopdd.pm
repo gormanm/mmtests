@@ -8,9 +8,9 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareLoopdd",
 		_DataType    => MMTests::Compare::DATA_OPSSEC,
-		_CompareOp   => "pndiff",
+		_CompareOp   => "pdiff",
 		_Precision   => 4,
-		_CompareOp   => "pndiff",
+		_CompareOp   => "pdiff",
 		_ResultData  => []
 	};
 	bless $self, $class;
