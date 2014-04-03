@@ -46,36 +46,47 @@ fi
 STARTTIME=`date +%s`
 echo "0:Start time:$STARTTIME:0" > $LOGDIR_RESULTS/largedd.result
 
-monitor_pre_hook $LOGDIR_RESULTS download
-STARTTIME=`date +%s`
-echo Downloading source tar: $SRCTAR
-cd $TESTDISK_DIR || die Failed to change to temp directory
-wget -O 0 -q $SRCTAR
-if [ $? -ne 0 ]; then
-	echo Failed to download source tar, creating dummy
+if [ "$SRCTAR" != "/dev/zero" ]; then
+	monitor_pre_hook $LOGDIR_RESULTS download
+	STARTTIME=`date +%s`
+	echo Downloading source tar: $SRCTAR
+	cd $TESTDISK_DIR || die Failed to change to temp directory
+	wget -O 0 -q $SRCTAR
+	if [ $? -ne 0 ]; then
+		echo Failed to download source tar, creating dummy
 
-	# This will create a file that will need 32 copies
-	dd if=/dev/zero of=0 ibs=4096 count=$((TARGETSIZE_MB*8)) ||
-		die Failed to create dummy source file
-fi
+		# This will create a file that will need 32 copies
+		dd if=/dev/zero of=0 ibs=4096 count=$((TARGETSIZE_MB*8)) ||
+			die Failed to create dummy source file
+	fi
 
-# Download extra source tar if available
-if [ "$SRCTAR_EXTRA" != "" ]; then
-	echo Downloading extra source tar: $SRCTAR_EXTRA
-	wget -O 1 -q $SRCTAR_EXTRA || die Failed to download source tar
-	cat 0 1 > 0.tmp
-	mv 0.tmp 0
+	# Download extra source tar if available
+	if [ "$SRCTAR_EXTRA" != "" ]; then
+		echo Downloading extra source tar: $SRCTAR_EXTRA
+		wget -O 1 -q $SRCTAR_EXTRA || die Failed to download source tar
+		cat 0 1 > 0.tmp
+		mv 0.tmp 0
+	fi
+	monitor_post_hook $LOGDIR_RESULTS download
+	CURRENTTIME=`date +%s`
+	echo "1:Time to download tar:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_RESULTS/largedd.result
+else
+	echo Using /dev/zero as source file
 fi
-monitor_post_hook $LOGDIR_RESULTS download
-CURRENTTIME=`date +%s`
-echo "1:Time to download tar:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_RESULTS/largedd.result
 
 monitor_pre_hook $LOGDIR_RESULTS copy
 STARTTIME=`date +%s`
-SRCSIZE=`du -BM 0 | tail -1 | awk '{print $1}' | sed -e 's/M//'`
-NR_COPIES=$((TARGETSIZE_MB/SRCSIZE))
-IN_PROGRESS=1
+DIRECTORIES=
+if [ "$SRCTAR" != "/dev/zero" ]; then
+	SRCSIZE=`du -BM 0 | tail -1 | awk '{print $1}' | sed -e 's/M//'`
+	NR_COPIES=$((TARGETSIZE_MB/SRCSIZE))
+else
+	SRCSIZE=$((TARGETSIZE_MB/LARGECOPY_THREADS))
+	NR_COPIES=$((LARGECOPY_THREADS+1))
+fi
+
 DIRECTORIES=`seq 0 $((NR_COPIES-1))`
+IN_PROGRESS=1
 echo Making $NR_COPIES copies via dd, source size ${SRCSIZE}M
 while [ $IN_PROGRESS -lt $NR_COPIES ]; do
 	NR_ACTIVE=0
@@ -86,7 +97,11 @@ while [ $IN_PROGRESS -lt $NR_COPIES ]; do
 	done
 
 	if [ $NR_ACTIVE -lt $LARGECOPY_THREADS ]; then
-		dd if=0 of=$IN_PROGRESS &
+		if [ "$SRCTAR" != "/dev/zero" ]; then
+			dd if=0 of=$IN_PROGRESS &
+		else
+			dd if=/dev/zero of=$IN_PROGRESS bs=1M count=$((SRCSIZE/LARGECOPY_THREADS)) &
+		fi
 		PID=$!
 		echo $PID >> dd.pids
 		IN_PROGRESS=$((IN_PROGRESS+1))
@@ -114,5 +129,7 @@ rm -rf $DIRECTORIES
 monitor_post_hook $LOGDIR_RESULTS deletesource
 CURRENTTIME=`date +%s`
 echo "5:Time to delete source:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_RESULTS/largedd.result
+
+exit $SHELLPACK_SUCCESS
 #### Description Large dd
-#### Details largedd-bench 12
+#### Details largedd-bench 15

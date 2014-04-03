@@ -1,0 +1,96 @@
+#!/bin/bash
+P=loopdd-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+SRCTAR=
+SRCTAR_EXTRA=
+TARGETSIZE_MB=
+NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
+ITERATIONS=5
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--srctar)
+		SRCTAR=$2
+		shift 2
+		;;
+	--srctar-extra)
+		SRCTAR_EXTRA=$2
+		shift 2
+		;;
+	--targetsize)
+		TARGETSIZE_MB=$2
+		shift 2
+		;;
+	--iterations)
+		ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+STARTTIME=`date +%s`
+cd $TESTDISK_DIR || die Failed to change to temp directory
+if [ "$SRCTAR" != "/dev/zero" ]; then
+	STARTTIME=`date +%s`
+	echo Downloading source tar: $SRCTAR
+	wget -O 0 -q $SRCTAR
+	if [ $? -ne 0 ]; then
+		echo Failed to download source tar, creating dummy
+
+		# This will create a file that will need 32 copies
+		dd if=/dev/zero of=0 ibs=4096 count=$((TARGETSIZE_MB*8)) ||
+			die Failed to create dummy source file
+	fi
+
+	# Download extra source tar if available
+	if [ "$SRCTAR_EXTRA" != "" ]; then
+		echo Downloading extra source tar: $SRCTAR_EXTRA
+		wget -O 1 -q $SRCTAR_EXTRA || die Failed to download source tar
+		cat 0 1 > 0.tmp
+		mv 0.tmp 0
+	fi
+	CURRENTTIME=`date +%s`
+else
+	echo Using /dev/zero as source file
+fi
+
+if [ "$SRCTAR" != "/dev/zero" ]; then
+	SRCSIZE=`du -BM 0 | tail -1 | awk '{print $1}' | sed -e 's/M//'`
+	NR_COPIES=$((TARGETSIZE_MB/SRCSIZE))
+else
+	SRCSIZE=$((TARGETSIZE_MB))
+	NR_COPIES=$((LARGECOPY_THREADS+1))
+fi
+
+monitor_pre_hook $LOGDIR_RESULTS dd
+for ITERATION in `seq 1 $ITERATIONS`; do
+	for i in `seq 1 $NR_COPIES`; do
+		echo o Iteration $ITERATION copy $i
+		if [ "$SRCTAR" != "/dev/zero" ]; then
+			dd if=0 of=$i 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
+		else
+			dd if=/dev/zero of=$i bs=1M count=$SRCSIZE 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
+		fi
+	done
+done
+monitor_post_hook $LOGDIR_RESULTS dd
+rm -f `seq 0 $((NR_COPIES-1))`
+
+exit $SHELLPACK_SUCCESS
+#### Description Loop dd
+#### Details loopdd-bench 19
