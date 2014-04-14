@@ -76,7 +76,11 @@ fi
 CSTART=`grep -n "BEGIN LATENCY FILE" $0 | tail -1 | awk -F : '{print $1}'`
 CEND=`grep -n "END LATENCY FILE" $0 | tail -1 | awk -F : '{print $1}'`
 sed -n $((CSTART+1)),$((CEND-1))p $0 > ${LATENCY_FILE}.c
-gcc -O2 -lm ${LATENCY_FILE}.c -o ${LATENCY_FILE} || exit $SHELLPACK_ERROR
+gcc -O2 -lm ${LATENCY_FILE}.c -o ${LATENCY_FILE}
+if [ $? -ne 0 ]; then
+	echo Rebuilding latency program with lrt
+	gcc -O2 -lm -lrt ${LATENCY_FILE}.c -o ${LATENCY_FILE} || exit $SHELLPACK_ERROR
+fi
 
 # Build the memhog program
 echo Building memhog program
@@ -330,4 +334,4 @@ int main(int argc, char **argv)
 }
 ==== END MEMHOG FILE ====
 #### Description This test measures system stutter for a mix of anon usage and a large copy
-#### Details stutter-bench 33
+#### Details stutter-bench 34
