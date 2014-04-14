@@ -6,9 +6,6 @@
 ###
 ### largedd is just dding a large file.
 ###
-### largecopy is copying a number of files, creating a tar and untarring
-### it again as if it was a large backup-like process
-###
 ### gitcheckout checks out different branches of the kernel tree multple
 ### times as it has been observed that large checkouts has stalled the
 ### system at various times in the past
@@ -21,7 +18,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="largedd largecopy gitcheckout stutter"
+export MMTESTS="largedd gitcheckout stutter"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
