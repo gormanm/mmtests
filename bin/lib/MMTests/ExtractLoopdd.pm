@@ -29,8 +29,37 @@ sub initialise() {
 	my $fieldLength = $self->{_FieldLength} = 12;
 	$self->{_TestName} = $testName;
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%-${fieldLength}d", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders} = [ "Copy", "Throughput" ];
+	$self->{_FieldHeaders} = [ "Copy", "Throughput", "Time" ];
 	$self->{_SummariseColumn} = 1;
+}
+
+sub _setSummaryColumn() {
+	my ($self, $subHeading) = @_;
+	$self->{_SummariseColumn} = 1;
+
+	if ($subHeading eq "time") {
+		$self->{_SummariseColumn} = 2;
+	}
+}
+
+sub printPlot() {
+	my ($self, $subHeading) = @_;
+
+	$self->_setSummaryColumn($subHeading);
+	$self->SUPER::printPlot();
+}
+
+sub extractSummary() {
+	my ($self, $subHeading) = @_;
+	$self->_setSummaryColumn($subHeading);
+	$self->SUPER::extractSummary($subHeading);
+}
+
+sub printSummary() {
+	my ($self, $subHeading) = @_;
+
+	$self->_setSummaryColumn($subHeading);
+	$self->SUPER::printSummary($subHeading);
 }
 
 sub extractReport($$$) {
@@ -63,7 +92,7 @@ sub extractReport($$$) {
 				die("Unrecognised tput rate '$elements[7]'");
 			}
 
-			push $self->{_ResultData}, [ ++$nr_copies, $tput_value ];
+			push $self->{_ResultData}, [ ++$nr_copies, $tput_value, $time_value ];
 		}
 
 		close(INPUT);
