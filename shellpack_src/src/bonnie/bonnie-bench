@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble bonnie-bench 1.03a
+###SHELLPACK preamble bonnie-bench 1.03e
 
 DATASET_SIZE=$((2*1048576))
 NR_FILES=1024

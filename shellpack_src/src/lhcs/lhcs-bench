@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble lhcs-bench 1.5
+###SHELLPACK preamble lhcs-bench 1.6
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall

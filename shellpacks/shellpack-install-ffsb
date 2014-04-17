@@ -3,7 +3,6 @@
 P=ffsb-install
 DEFAULT_VERSION=6.0-rc2
 . $SHELLPACK_INCLUDE/common.sh
-WEB_LOCATION=$WEB_LOCATION/ffsb-$VERSION
 MIRROR_LOCATION="$WEBROOT/ffsb/"
 
 # Basic argument parser
@@ -22,7 +21,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-WEB_LOCATION=$WEB_LOCATION/$VERSION/ffsb-$VERSION
+WEB_LOCATION=http://sunet.dl.sourceforge.net/project/ffsb/ffsb/ffsb-${VERSION}
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=ffsb-${VERSION}.tar.bz2
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
@@ -76,4 +75,4 @@ fi
 
 echo ffsb installed successfully
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb 11
+#### Details ffsb 17

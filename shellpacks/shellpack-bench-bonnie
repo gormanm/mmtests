@@ -1,7 +1,7 @@
 #!/bin/bash
 
 P=bonnie-bench
-DEFAULT_VERSION=1.03a
+DEFAULT_VERSION=1.03e
 . $SHELLPACK_INCLUDE/common.sh
 
 DATASET_SIZE=$((2*1048576))
@@ -105,4 +105,4 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	fi
 done
 #### Description bonnie
-#### Details bonnie-bench 23
+#### Details bonnie-bench 28
