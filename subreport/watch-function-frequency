@@ -28,14 +28,14 @@ for my $funcName (@ARGV) {
 	print $handle <<EOF
 probe kernel.function("$funcName") {
 	p = pid()
-	printf("ping %d %s\n", p, execname())
+	printf("ping %d %s\\n", p, execname())
 	print_syms(backtrace())
 }
 EOF
 }
 
 # Fire up the stap script
-$stappid = open(STAP, "stap $stapscript|");
+$stappid = open(STAP, "stap -v -d ext4 -d jbd2 -DSTP_NO_OVERLOAD $stapscript|");
 if (!defined($stappid)) {
 	die("Failed to execute stap script");
 }
@@ -46,7 +46,7 @@ my $nr_events =0;
 my %unique_event_counts;
 my ($process, $function, $event);
 my ($stall_details, $trace, $first_trace, $reading_trace);
-while (!$exiting && !eof(STAP) && $nr_events < 1000) {
+while (!$exiting && !eof(STAP)) {
 	my $line = <STAP>;
 	# Watch for the beginning of a new stack trace
 	if ($line =~ /^ping/) {
