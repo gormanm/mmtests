@@ -74,7 +74,7 @@ if [ "$SRCTAR" != "/dev/zero" ]; then
 	NR_COPIES=$((TARGETSIZE_MB/SRCSIZE))
 else
 	SRCSIZE=$((TARGETSIZE_MB))
-	NR_COPIES=$((LARGECOPY_THREADS+1))
+	NR_COPIES=$((LARGECOPY_THREADS))
 fi
 
 monitor_pre_hook $LOGDIR_RESULTS dd
@@ -93,4 +93,4 @@ rm -f `seq 0 $((NR_COPIES-1))`
 
 exit $SHELLPACK_SUCCESS
 #### Description Loop dd
-#### Details loopdd-bench 19
+#### Details loopdd-bench 20
