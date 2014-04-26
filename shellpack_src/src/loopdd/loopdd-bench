@@ -60,9 +60,11 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	for i in `seq 1 $NR_COPIES`; do
 		echo o Iteration $ITERATION copy $i
 		if [ "$SRCTAR" != "/dev/zero" ]; then
-			dd if=0 of=$i 2> $LOGDIR_RESULTS/time.$ITERATION | tee -a $LOGDIR_RESULTS/dd.$ITERATION
+			$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
+				dd if=0 of=$i 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
 		else
-			dd if=/dev/zero of=$i bs=1M count=$SRCSIZE 2> $LOGDIR_RESULTS/time.$ITERATION | tee -a $LOGDIR_RESULTS/dd.$ITERATION
+			$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
+				dd if=/dev/zero of=$i bs=1M count=$SRCSIZE 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
 		fi
 	done
 done
