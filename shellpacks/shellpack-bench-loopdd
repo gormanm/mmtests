@@ -77,14 +77,20 @@ else
 	NR_COPIES=$((LARGECOPY_THREADS))
 fi
 
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
 monitor_pre_hook $LOGDIR_RESULTS dd
 for ITERATION in `seq 1 $ITERATIONS`; do
 	for i in `seq 1 $NR_COPIES`; do
 		echo o Iteration $ITERATION copy $i
 		if [ "$SRCTAR" != "/dev/zero" ]; then
-			dd if=0 of=$i 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
+			dd if=0 of=$i 2> $LOGDIR_RESULTS/time.$ITERATION | tee -a $LOGDIR_RESULTS/dd.$ITERATION
 		else
-			dd if=/dev/zero of=$i bs=1M count=$SRCSIZE 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
+			dd if=/dev/zero of=$i bs=1M count=$SRCSIZE 2> $LOGDIR_RESULTS/time.$ITERATION | tee -a $LOGDIR_RESULTS/dd.$ITERATION
 		fi
 	done
 done
@@ -93,4 +99,4 @@ rm -f `seq 0 $((NR_COPIES-1))`
 
 exit $SHELLPACK_SUCCESS
 #### Description Loop dd
-#### Details loopdd-bench 20
+#### Details loopdd-bench 21
