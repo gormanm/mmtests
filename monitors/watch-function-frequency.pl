@@ -7,10 +7,8 @@ use File::Temp qw/mkstemp/;
 
 my @func_list;
 if ($#ARGV != -1) {
-	print "ARGV\n";
 	@func_list = @ARGV;
 } else {
-	print "ENV\n";
 	my $envList = $ENV{MONITOR_FUNCTION_FREQUENCY};
 	@func_list = split(/\s+/, $envList);
 }
@@ -48,8 +46,14 @@ probe kernel.function("$funcName") {
 EOF
 }
 
+# Add modules that also need to be traced if requested
+my $stapMods = "";
+for my $modName (split(/\s+/, $ENV{MONITOR_TRACE_MODULES})) {
+	$stapMods .= "-d $modName ";
+}
+
 # Fire up the stap script
-$stappid = open(STAP, "stap -v -d ext4 -d jbd2 -DSTP_NO_OVERLOAD $stapscript|");
+$stappid = open(STAP, "stap -v $stapMods -DSTP_NO_OVERLOAD $stapscript|");
 if (!defined($stappid)) {
 	die("Failed to execute stap script");
 }
