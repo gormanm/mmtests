@@ -28,8 +28,8 @@ sub initialise() {
 
 	my $fieldLength = $self->{_FieldLength} = 12;
 	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%-${fieldLength}d", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders} = [ "Copy", "Throughput", "Time" ];
+	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%-${fieldLength}d", "%$fieldLength.2f", "%$fieldLength.2f" ];
+	$self->{_FieldHeaders} = [ "Copy", "Throughput", "DDTime", "Elapsed" ];
 	$self->{_SummariseColumn} = 1;
 }
 
@@ -37,8 +37,11 @@ sub _setSummaryColumn() {
 	my ($self, $subHeading) = @_;
 	$self->{_SummariseColumn} = 1;
 
-	if ($subHeading eq "time") {
+	if ($subHeading eq "ddtime") {
 		$self->{_SummariseColumn} = 2;
+	}
+	if ($subHeading eq "elapsed") {
+		$self->{_SummariseColumn} = 3;
 	}
 }
 
@@ -70,9 +73,19 @@ sub extractReport($$$) {
 
 	my $nr_copies = 0;
 	for (my $i = 1; $i <= $iterations; $i++) {
+		my $elapsed;
+
+		open(INPUT, "$reportDir/noprofile/time.$i") ||
+			die("Failed to open $reportDir/noprofile/time.$i");
+		while (!eof(INPUT)) {
+			my $line = <INPUT>;
+			next if $line !~ /elapsed/;
+			$elapsed = $self->_time_to_elapsed($line);
+		}
+		close(INPUT);
+
 		open(INPUT, "$reportDir/noprofile/dd.$i") ||
 			die("Failed to open $reportDir/noprofile/dd.$i");
-
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;
 			next if $line !~ /copied/;
@@ -92,7 +105,7 @@ sub extractReport($$$) {
 				die("Unrecognised tput rate '$elements[7]'");
 			}
 
-			push $self->{_ResultData}, [ ++$nr_copies, $tput_value, $time_value ];
+			push $self->{_ResultData}, [ ++$nr_copies, $tput_value, $time_value, $elapsed ];
 		}
 
 		close(INPUT);

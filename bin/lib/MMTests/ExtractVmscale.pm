@@ -48,22 +48,6 @@ sub extractSummary() {
 	return 1;
 }
 
-sub time_to_elapsed {
-	my $line = $_[0];
-	my ($user, $system, $elapsed, $cpu) = split(/\s/, $line);
-	my @elements = split(/:/, $elapsed);
-	my ($hours, $minutes, $seconds);
-	if ($#elements == 1) {
-		$hours = 0;
-		($minutes, $seconds) = @elements;
-	} else {
-		($hours, $minutes, $seconds) = @elements;
-	}
-	$elapsed = $hours * 60 * 60 + $minutes * 60 + $seconds;
-
-	return $elapsed;
-}
-
 sub c2s($$) {
 	return sprintf "%18s %10s", $_[0], $_[1];
 }
@@ -78,7 +62,7 @@ sub extractReport($$$) {
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;
 			next if $line !~ /elapsed/;
-			push $self->{_ResultData}, [ c2s($case, "elapsed"), time_to_elapsed($line) ];
+			push $self->{_ResultData}, [ c2s($case, "elapsed"), $self->_time_to_elapsed($line) ];
 		}
 		close(INPUT);
 
@@ -90,7 +74,7 @@ sub extractReport($$$) {
 			while (!eof(INPUT)) {
 				my $line = <INPUT>;
 				next if $line !~ /elapsed/;
-				push @values, time_to_elapsed($line);
+				push @values, $self->_time_to_elapsed($line);
 			}
 			push $self->{_ResultData}, [ c2s($case, "time_range"),  calc_range(@values) ];
 			push $self->{_ResultData}, [ c2s($case, "time_stddv"), calc_stddev(@values) ];

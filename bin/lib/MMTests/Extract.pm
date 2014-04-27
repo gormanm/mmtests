@@ -208,6 +208,22 @@ sub _printCandlePlot() {
 	$self->_printCandlePlotData($fieldLength, @data);
 }
 
+sub _time_to_elapsed {
+	my ($self, $line) = @_;
+	my ($user, $system, $elapsed, $cpu) = split(/\s/, $line);
+	my @elements = split(/:/, $elapsed);
+	my ($hours, $minutes, $seconds);
+	if ($#elements == 1) {
+		$hours = 0;
+		($minutes, $seconds) = @elements;
+	} else {
+		($hours, $minutes, $seconds) = @elements;
+	}
+	$elapsed = $hours * 60 * 60 + $minutes * 60 + $seconds;
+
+	return $elapsed;
+}
+
 sub printPlot() {
 	my ($self, $subheading) = @_;
 	my $fieldLength = $self->{_PlotLength};
