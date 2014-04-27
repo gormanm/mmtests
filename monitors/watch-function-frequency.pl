@@ -5,7 +5,17 @@
 use strict;
 use File::Temp qw/mkstemp/;
 
-die("Specify list of functions to trace") if ($#ARGV == -1);
+my @func_list;
+if ($#ARGV != -1) {
+	print "ARGV\n";
+	@func_list = @ARGV;
+} else {
+	print "ENV\n";
+	my $envList = $ENV{MONITOR_FUNCTION_FREQUENCY};
+	@func_list = split(/\s+/, $envList);
+}
+
+die("Specify list of functions to trace") if ($#func_list == -1);
 
 # Handle cleanup of temp files
 my $stappid;
@@ -18,13 +28,17 @@ sub cleanup {
 	unlink($stapscript);
 }
 sub sigint_handler {
-	$exiting = 0;
+	if (defined($stappid)) {
+		kill INT => $stappid;
+	}
+	$exiting = 1;
 }
 $SIG{INT} = "sigint_handler";
+$SIG{TERM} = "sigint_handler";
 
 # Create the stap script
 my ($handle, $stapscript) = mkstemp("/tmp/stapdXXXXX");
-for my $funcName (@ARGV) {
+for my $funcName (@func_list) {
 	print $handle <<EOF
 probe kernel.function("$funcName") {
 	p = pid()
