@@ -53,9 +53,15 @@ for my $modName (split(/\s+/, $ENV{MONITOR_TRACE_MODULES})) {
 }
 
 # Fire up the stap script
-$stappid = open(STAP, "stap -v $stapMods -DSTP_NO_OVERLOAD $stapscript|");
+$stappid = open(STAP, "stap $stapMods -DSTP_NO_OVERLOAD $stapscript|");
 if (!defined($stappid)) {
 	die("Failed to execute stap script");
+}
+
+if ($ENV{MONITOR_PID} ne "") {
+	open OUTPUT, ">$ENV{MONITOR_PID}" || die "Failed to open $ENV{MONITOR_PID}";
+	print OUTPUT $stappid;
+	close OUTPUT;
 }
 
 # Read the raw output of the script
@@ -98,10 +104,19 @@ while (!$exiting && !eof(STAP)) {
 }
 close(STAP);
 
+if ($ENV{MONITOR_LOG} ne "") {
+	open OUTPUT, ">$ENV{MONITOR_LOG}" || die "Failed to open output log $ENV{MONITOR_LOG}";
+}
+
 # Dump the unique traces
 foreach my $trace (sort {$unique_event_counts{$b} <=> $unique_event_counts{$a}} keys %unique_event_counts) {
-	printf "Event count:		%8d\n", $unique_event_counts{$trace};
-	print "$trace\n";
+	if ($ENV{MONITOR_LOG} ne "") {
+		printf OUTPUT "Event count:		%8d\n", $unique_event_counts{$trace};
+		print  OUTPUT "$trace\n";
+	} else {
+		printf "Event count:		%8d\n", $unique_event_counts{$trace};
+		print "$trace\n";
+	}
 }
 
 cleanup();
