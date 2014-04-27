@@ -40,7 +40,7 @@ for my $funcName (@func_list) {
 	print $handle <<EOF
 probe kernel.function("$funcName") {
 	p = pid()
-	printf("ping %d %s\\n", p, execname())
+	printf("ping $funcName %d %s\\n", p, execname())
 	print_syms(backtrace())
 }
 EOF
@@ -84,8 +84,10 @@ while (!$exiting && !eof(STAP)) {
 		$reading_trace = 0;
 		$nr_events++;
 
+		my @elements = split(/ /, $line);
+
 		$first_trace = "";
-		$trace = "";
+		$trace = "fired $elements[1]\n";
 	}
 
 	# If we have reached a trace, blindly read it
