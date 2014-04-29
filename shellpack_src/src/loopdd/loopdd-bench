@@ -5,15 +5,21 @@ SRCTAR_EXTRA=
 TARGETSIZE_MB=
 NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 ITERATIONS=5
+CONV=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --srctar       SRCTAR
 ###SHELLPACK parseargParam --srctar-extra SRCTAR_EXTRA
 ###SHELLPACK parseargParam --targetsize   TARGETSIZE_MB
 ###SHELLPACK parseargParam --iterations   ITERATIONS
+###SHELLPACK parseargYes   --sync	  SYNC
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK monitor_hooks
+
+if [ "$SYNC" != "" ]; then
+	CONV="conv=fsync"
+fi
 
 STARTTIME=`date +%s`
 cd $TESTDISK_DIR || die Failed to change to temp directory
@@ -61,10 +67,10 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 		echo o Iteration $ITERATION copy $i
 		if [ "$SRCTAR" != "/dev/zero" ]; then
 			$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-				dd if=0 of=$i 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
+				dd if=0 of=$i $CONV 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
 		else
 			$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-				dd if=/dev/zero of=$i bs=1M count=$SRCSIZE 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
+				dd if=/dev/zero of=$i bs=1M count=$SRCSIZE $CONV 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
 		fi
 	done
 done
