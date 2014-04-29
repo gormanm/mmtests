@@ -3,7 +3,7 @@
 P=pft-install
 DEFAULT_VERSION=0.12x
 . $SHELLPACK_INCLUDE/common.sh
-WEB_LOCATION="http://free.linux.hp.com/~lts/Tools"
+GIT_LOCATION=https://github.com/gormanm/pft
 MIRROR_LOCATION="$WEBROOT/pft/$TARFILE"
 
 # Basic argument parser
@@ -24,7 +24,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=pft-${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+git_fetch $GIT_LOCATION pft-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -139,4 +139,4 @@ fi
 
 echo pft installed successfully
 #### Description pft
-#### Details pft 7
+#### Details pft 8
