@@ -10,7 +10,7 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractLoopdd",
 		_DataType    => MMTests::Extract::DATA_OPSSEC,
-		_ResultData  => []
+		_ResultData  => [],
 	};
 	bless $self, $class;
 	return $self;
@@ -28,7 +28,7 @@ sub initialise() {
 
 	my $fieldLength = $self->{_FieldLength} = 12;
 	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%-${fieldLength}d", "%$fieldLength.2f", "%$fieldLength.2f" ];
+	$self->{_FieldFormat} = [ "%${fieldLength}d", "%${fieldLength}d", "%$fieldLength.2f", "%$fieldLength.2f" ];
 	$self->{_FieldHeaders} = [ "Copy", "Throughput", "DDTime", "Elapsed" ];
 	$self->{_SummariseColumn} = 1;
 }
