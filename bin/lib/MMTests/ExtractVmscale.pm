@@ -1,4 +1,3 @@
-ExtractVmscale.pm
 package MMTests::ExtractVmscale;
 use MMTests::Extract;
 use VMR::Stat;

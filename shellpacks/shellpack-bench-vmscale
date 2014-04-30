@@ -70,4 +70,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description vm scalability test suite
-#### Details vmscale-bench 15
+#### Details vmscale-bench 18
