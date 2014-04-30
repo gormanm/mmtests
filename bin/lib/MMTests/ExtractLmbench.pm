@@ -36,12 +36,19 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 
-	my $file = "$reportDir/noprofile/lmbench-lat_ctx.log";
-	open(INPUT, $file) || die("Failed to open $file\n");
+	my ($file, $case);
+	my @candidates = ( "lat_mmap", "lat_ctx" );
+
+	foreach $case (@candidates) {
+		$file = "$reportDir/noprofile/lmbench-$case.log";
+		open(INPUT, $file) && last;
+	}
+	die("Failed to open any of @candidates") if (tell(INPUT) == -1) ;
 	while (<INPUT>) {
 		my $line = $_;
 		if ($line =~ /^[0-9].*/) {
 			my @elements = split(/\s+/, $_);
+			$elements[0] =~ s/\..*/M/;
 			push @{$self->{_ResultData}}, [ $elements[0], $elements[1] ];
 			next;
 		}
