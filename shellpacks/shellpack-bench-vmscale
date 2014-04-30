@@ -54,7 +54,7 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 echo -n > $LOGDIR_RESULTS/cases
-for CASE in lru-file-readonce lru-file-ddspread; do
+for CASE in lru-file-readonce lru-file-readtwice lru-file-ddspread; do
 
 	# Prepare for compatability with how vmscale works without using the
 	# run script as it does more setup than mmtests needs to deal with
@@ -70,4 +70,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description vm scalability test suite
-#### Details vmscale-bench 13
+#### Details vmscale-bench 14
