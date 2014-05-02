@@ -29,6 +29,7 @@ for REAIM_WORKFILE in $REAIM_WORKFILES; do
 	echo FILESIZE $REAIM_FILESIZE > reaim.config
 	echo POOLSIZE $REAIM_POOLSIZE >> reaim.config
 	echo DISKDIR $TESTDISK_DIR  >> reaim.config
+	mkdir $TESTDIR_DIR
 
 	# Remove any tests that were requested to be excluded
 	cp data/$REAIM_WORKFILE data/$REAIM_WORKFILE.mmtests
