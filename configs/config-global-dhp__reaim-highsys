@@ -61,5 +61,5 @@ export REAIM_STARTUSERS=1
 export REAIM_INCREMENT=$((NUMCPUS/2))
 export REAIM_ENDUSERS=$((NUMCPUS*8+REAIM_INCREMENT))
 export REAIM_ITERATIONS=5
-export REAIM_WORKFILES="workfile.compute workfile.high_systime"
+export REAIM_WORKFILES="workfile.high_systime"
 export REAIM_EXCLUDE=signal_test
