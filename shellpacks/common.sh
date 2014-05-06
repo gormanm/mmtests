@@ -85,9 +85,11 @@ function sources_fetch() {
 	MIRROR=$2
 	OUTPUT=$3
 
-	echo "$P: Fetching from mirror $MIRROR"
-	wget -q -O $OUTPUT $MIRROR
-	if [ $? -ne 0 ]; then
+	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
+		echo "$P: Fetching from mirror $MIRROR"
+		wget -q -O $OUTPUT $MIRROR
+	fi
+	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$WEB" = "NOT_AVAILABLE" ]; then
 			die Benchmark is not publicly available. You must make it available from a local mirror
 		fi
@@ -108,9 +110,12 @@ function git_fetch() {
 
 	install-depends git-core
 
-	echo "$P: Fetching from mirror $MIRROR"
-	wget -q -O $OUTPUT $MIRROR
-	if [ $? -ne 0 ]; then
+	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
+		echo "$P: Fetching from mirror $MIRROR"
+		wget -q -O $OUTPUT $MIRROR
+	fi
+
+	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$GIT" = "NOT_AVAILABLE" ]; then
 			die Benchmark is not publicly available. You must make it available from a local mirror
 		fi

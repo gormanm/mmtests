@@ -1,13 +1,12 @@
 #!/bin/bash
 # ffsb installer
 ###SHELLPACK preamble ffsb-install 6.0-rc2
-WEB_LOCATION=$WEB_LOCATION/ffsb-$VERSION
 MIRROR_LOCATION="$WEBROOT/ffsb/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-WEB_LOCATION=$WEB_LOCATION/$VERSION/ffsb-$VERSION
+WEB_LOCATION=http://sunet.dl.sourceforge.net/project/ffsb/ffsb/ffsb-${VERSION}
 ###SHELLPACK sources_fetch ffsb-${VERSION}.tar.bz2 ffsb-${VERSION}
 
 ###SHELLPACK build_start ffsb-${VERSION}

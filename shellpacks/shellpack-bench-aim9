@@ -54,6 +54,10 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo aim9 installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
+if [ "$MMTESTS_DOWNLOAD_ONLY" = "yes" ]; then
+	echo aim9 downloaded only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Create expect script
 EXPECT=`which expect`
@@ -78,4 +82,4 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	$EXPECT -f $EXPECT_SCRIPT | tee $LOGDIR_RESULTS/aim9-$ITERATION
 done
 #### Description AIM9 benchmark
-#### Details aim9-bench 8
+#### Details aim9-bench 16

@@ -1,10 +1,9 @@
 #!/bin/bash
 
-P=aim9-install
-DEFAULT_VERSION=1.03a
+P=bonnie-install
+DEFAULT_VERSION=1.03e
 . $SHELLPACK_INCLUDE/common.sh
-WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/aimbench"
-WEB_LOCATION="http://switch.dl.sourceforge.net/project/bonnie/Bonnie%2B%2B/"
+WEB_LOCATION="http://www.coker.com.au/bonnie++"
 MIRROR_LOCATION="$WEBROOT/bonnie"
 
 # Basic argument parser
@@ -26,7 +25,7 @@ fi
 rm -rf $SHELLPACK_SOURCES/bonnie-${VERSION}
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=bonnie%2B%2B-${VERSION}.tgz
-sources_fetch $WEB_LOCATION/${VERSION}/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -41,18 +40,6 @@ mv $DST_DIR bonnie-$VERSION
 pushd bonnie-$VERSION > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/bonnie-$VERSION || die Failed to change to source directory
-echo "diff --git a/zcav.cpp b/zcav.cpp
-index c08994e..fa278e0 100644
---- a/zcav.cpp
-+++ b/zcav.cpp
-@@ -9,6 +9,7 @@ using namespace std;
- #include <sys/stat.h>
- #include <fcntl.h>
- #include <stdlib.h>
-+#include <string.h>
- #include \"bonnie.h\"
- #ifdef HAVE_VECTOR
- #include <vector>" | patch -p1 || exit $SHELLPACK_ERROR
 ./configure --prefix=$SHELLPACK_SOURCES/bonnie-${VERSION}-installed
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
@@ -74,4 +61,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description bonnie
-#### Details bonnie 23
+#### Details bonnie 28

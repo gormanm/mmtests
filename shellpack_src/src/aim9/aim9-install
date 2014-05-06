@@ -5,6 +5,7 @@ WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/aimbench"
 MIRROR_LOCATION="$WEBROOT/aim9"
 
 ###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK sources_fetch s${VERSION}.tar.Z aim9-$VERSION-installed

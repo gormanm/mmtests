@@ -197,6 +197,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Latency
 		eval $COMPARE_CMD --sub-heading Overhead
 		;;
+	loopdd)
+		echo $SUBREPORT Throughput
+		eval $COMPARE_CMD
+		echo
+		echo $SUBREPORT DD-Time
+		eval $COMPARE_CMD --sub-heading ddtime
+		echo
+		echo $SUBREPORT CPU-Time
+		eval $COMPARE_CMD --sub-heading elapsed
+		;;
 	specjvm)
 		echo $SUBREPORT
 		eval $COMPARE_CMD

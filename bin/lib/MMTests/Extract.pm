@@ -67,7 +67,7 @@ sub initialise() {
 			@fieldHeaders = ("Unit", "Time");
 			@plotHeaders = ("Unit", "Time");
 		}
-		@summaryHeaders = ("Unit", "Min", "Mean", "TrueMean", "Stddev", "Max");
+		@summaryHeaders = ("Unit", "Min", "Mean", "TrimMean", "Stddev", "Max");
 	} elsif ($self->{_DataType} == DATA_WALLTIME_OUTLIERS) {
 		$fieldLength = 12;
 		$plotLength = 12;
@@ -81,7 +81,7 @@ sub initialise() {
 		$summaryLength = 12;
 		@fieldHeaders = ("Unit", "Throughput");
 		@plotHeaders = ("Unit", "Throughput");
-		@summaryHeaders = ("Min", "Mean", "TrueMean", "Stddev", "Max");
+		@summaryHeaders = ("Min", "Mean", "TrimMean", "Stddev", "Max");
 	} else {
 		$fieldLength = 18;
 		@fieldHeaders = ("UnknownType");
@@ -208,6 +208,22 @@ sub _printCandlePlot() {
 	$self->_printCandlePlotData($fieldLength, @data);
 }
 
+sub _time_to_elapsed {
+	my ($self, $line) = @_;
+	my ($user, $system, $elapsed, $cpu) = split(/\s/, $line);
+	my @elements = split(/:/, $elapsed);
+	my ($hours, $minutes, $seconds);
+	if ($#elements == 1) {
+		$hours = 0;
+		($minutes, $seconds) = @elements;
+	} else {
+		($hours, $minutes, $seconds) = @elements;
+	}
+	$elapsed = $hours * 60 * 60 + $minutes * 60 + $seconds;
+
+	return $elapsed;
+}
+
 sub printPlot() {
 	my ($self, $subheading) = @_;
 	my $fieldLength = $self->{_PlotLength};
@@ -287,7 +303,7 @@ sub extractSummary() {
 
 		push @row, "Time";
 		foreach my $unit (sort {$a <=> $b} (keys %units)) {
-			foreach my $funcName ("calc_min", "calc_mean", "calc_true_mean", "calc_stddev", "calc_max") {
+			foreach my $funcName ("calc_min", "calc_mean", "calc_5trimmed_mean", "calc_stddev", "calc_max") {
 				no strict "refs";
 				push @row, &$funcName(@{$walltimes[$unit]});
 			}

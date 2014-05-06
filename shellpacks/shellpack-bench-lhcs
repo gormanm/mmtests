@@ -1,6 +1,6 @@
 #!/bin/bash
 P=lhcs-bench
-DEFAULT_VERSION=1.5
+DEFAULT_VERSION=1.6
 . $SHELLPACK_INCLUDE/common.sh
 
 # Basic argument parser
@@ -45,4 +45,4 @@ cd $SHELLPACK_SOURCES/lhcs-${VERSION}-installed || die Failed to cd to lhcs dire
 
 exit $SHELLPACK_SUCCESS
 #### Description Linux Hotplug CPU Support
-#### Details lhcs-bench 7
+#### Details lhcs-bench 11

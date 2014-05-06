@@ -1,13 +1,13 @@
 #!/bin/bash
 # This script installs the page fault test
 ###SHELLPACK preamble pft-install 0.12x
-WEB_LOCATION="http://free.linux.hp.com/~lts/Tools"
+GIT_LOCATION=https://github.com/gormanm/pft
 MIRROR_LOCATION="$WEBROOT/pft/$TARFILE"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK sources_fetch pft-${VERSION}.tar.gz pft-${VERSION}-installed
+###SHELLPACK git_fetch pft-${VERSION}.tar.gz pft-${VERSION}-installed
 
 install-depends libnuma-devel
 

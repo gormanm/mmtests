@@ -9,7 +9,8 @@ use strict;
 
 my $vmlinux = $ARGV[0];
 my $readingProfile;
-my %fileMap;
+my %percentageMap;
+my %sampleMap;
 my %fileList;
 my %funcMap;
 my %symbolMap;
@@ -45,21 +46,27 @@ while (<STDIN>) {
 			last;
 		}
 
-		open (ADDR, "addr2line -e $vmlinux $symbolMap{$elements[3]}|") || die ("Failed to run addr2line");
+		my $offset = 0;
+		if ($elements[3] =~ /^vmlinux/) {
+			$offset = 1;
+		}
+
+		open (ADDR, "addr2line -e $vmlinux $symbolMap{$elements[3+$offset]}|") || die ("Failed to run addr2line");
 		my $location = <ADDR>;
 		close ADDR;
 		chomp $location;
 		$location =~ s/:[0-9]+$//;
-		$fileMap{$location} += $elements[1];
-		$funcMap{$elements[4]} = $elements[1];
+		$sampleMap{$location} += $elements[0];
+		$percentageMap{$location} += $elements[1];
+		$funcMap{$elements[3+$offset]} = $elements[1];
 
-		my $buffer = sprintf("  %-58s %10s %10.4f\n", $elements[3], "", $elements[1]);
+		my $buffer = sprintf("  %-66s %8s %6.3f%% %8d\n", $elements[3+$offset], "", $elements[1], $elements[0]);
 		$fileList{$location} .= $buffer;
 	}
 }
 
-foreach my $loc (sort {$fileMap{$b} <=> $fileMap{$a} } keys %fileMap)
+foreach my $loc (sort {$percentageMap{$b} <=> $percentageMap{$a} } keys %percentageMap)
 {
-	printf "%-60s %10.4f\n", $loc, $fileMap{$loc};
+	printf "%-66s %8.4f %8d\n", $loc, $percentageMap{$loc}, $sampleMap{$loc};
 	print $fileList{$loc};
 }

@@ -3,7 +3,7 @@
 P=lhcs-install
 DEFAULT_VERSION=1.6
 . $SHELLPACK_INCLUDE/common.sh
-WEB_LOCATION=https://github.com/autotest/autotest/raw/master/client/tests/cpu_hotplug/
+WEB_LOCATION=https://raw.githubusercontent.com/autotest/autotest-client-tests/master/cpu_hotplug
 MIRROR_LOCATION="$WEBROOT/lhcs/"
 
 # Basic argument parser
@@ -23,12 +23,12 @@ if [ -z "$VERSION" ]; then
 fi
 
 # Unconditionally fetch the tar to find out the real version number
-TARFILE=lhcs_regression-${VERSION}.tar.gz
+TARFILE=lhcs_regression-${VERSION}.tgz
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf lhcs_regression-${VERSION}.tar.gz failed"
+        error "$P: tar xf lhcs_regression-${VERSION}.tgz failed"
         popd > /dev/null
         exit $SHELLPACK_ERROR
 fi
@@ -40,4 +40,4 @@ pushd lhcs-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 echo lhcs installed successfully
 #### Description Linux Hotplug CPU Support
-#### Details lhcs 7
+#### Details lhcs 11

@@ -374,16 +374,24 @@ if [ "$CFQ_LOW_LATENCY" != "" ]; then
 fi
 
 # Validate systemtap installation if it exists
+TESTS_STAP="stress-highalloc pagealloc highalloc"
+MONITORS_STAP="dstate stap-highorder-atomic function-frequency"
 STAP_USED=
+MONITOR_STAP=
 for TEST in $MMTESTS; do
-	if [ "$TEST" = "stress-highalloc" -o "$TEST" = "pagealloc" -o "$TEST" = "highalloc" ]; then
-		STAP_USED=test-$TEST
-	fi
+	for CHECK in $TESTS_STAP; do
+		if [ "$TEST" = "$CHECK" ]; then
+			STAP_USED=test-$TEST
+		fi
+	done
 done
 for MONITOR in $MONITORS_ALWAYS $MONITORS_PLAIN $MONITORS_GZIP $MONITORS_WITH_LATENCY $MONITORS_TRACER; do
-	if [ "$MONITOR" = "dstate" -o "$MONITOR" = "stap-highorder-atomic" ]; then
-		STAP_USED=monitor-$MONITOR
-	fi
+	for CHECK in $MONITORS_STAP; do
+		if [ "$MONITOR" = "$CHECK" ]; then
+			STAP_USED=monitor-$MONITOR
+			MONITOR_STAP=monitor-$MONITOR
+		fi
+	done
 done
 if [ "$STAP_USED" != "" ]; then
 	if [ "`which stap`" = "" ]; then
@@ -506,6 +514,11 @@ function start_monitors() {
 		echo $PID1 >> monitor.pids
 		echo Started monitor $MONITOR tracer pid $PID1
 	done
+
+	if [ "$MONITOR_STAP" != "" ]; then
+		echo Sleeping 30 seconds to give stap monitors change to load
+		sleep 30
+	fi
 }
 
 function stop_monitors() {
