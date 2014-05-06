@@ -10,6 +10,7 @@ sub new() {
 		_DataType    => MMTests::Compare::DATA_OPSSEC,
 		_Precision   => 4,
 		_CompareOp   => "pdiff",
+		_FieldLength => 12,
 		_ResultData  => []
 	};
 	bless $self, $class;

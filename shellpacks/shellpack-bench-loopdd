@@ -7,6 +7,7 @@ SRCTAR_EXTRA=
 TARGETSIZE_MB=
 NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 ITERATIONS=5
+CONV=
 
 # Basic argument parser
 while [ "$1" != "" ]; do
@@ -31,6 +32,10 @@ while [ "$1" != "" ]; do
 		ITERATIONS=$2
 		shift 2
 		;;
+	--sync)
+		SYNC=yes
+		shift
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -42,6 +47,10 @@ fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
+
+if [ "$SYNC" != "" ]; then
+	CONV="conv=fsync"
+fi
 
 STARTTIME=`date +%s`
 cd $TESTDISK_DIR || die Failed to change to temp directory
@@ -89,10 +98,10 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 		echo o Iteration $ITERATION copy $i
 		if [ "$SRCTAR" != "/dev/zero" ]; then
 			$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-				dd if=0 of=$i 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
+				dd if=0 of=$i $CONV 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
 		else
 			$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-				dd if=/dev/zero of=$i bs=1M count=$SRCSIZE 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
+				dd if=/dev/zero of=$i bs=1M count=$SRCSIZE $CONV 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
 		fi
 	done
 done
@@ -101,4 +110,4 @@ rm -f `seq 0 $((NR_COPIES-1))`
 
 exit $SHELLPACK_SUCCESS
 #### Description Loop dd
-#### Details loopdd-bench 22
+#### Details loopdd-bench 23

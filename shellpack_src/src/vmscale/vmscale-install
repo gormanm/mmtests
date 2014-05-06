@@ -30,7 +30,7 @@ exit $SHELLPACK_SUCCESS
 
 ==== BEGIN PATCH FILE ====
 diff --git a/case-lru-file-ddspread b/case-lru-file-ddspread
-new file mode 100755
+new file mode 100644
 index 0000000..faff47c
 --- /dev/null
 +++ b/case-lru-file-ddspread
@@ -50,18 +50,42 @@ index 0000000..faff47c
 +
 +rm `seq -f $SPARSE_FILE-%g 1 $nr_cpu`
 diff --git a/case-lru-file-readonce b/case-lru-file-readonce
-index 5a3cabd..bb127e4 100755
+index 5a3cabd..19f4539 100755
 --- a/case-lru-file-readonce
 +++ b/case-lru-file-readonce
-@@ -11,7 +11,7 @@ source ./hw_vars
+@@ -11,9 +11,11 @@ source ./hw_vars
  for i in `seq 1 $nr_cpu`
  do
  	create_sparse_file $SPARSE_FILE-$i $((10 * mem / nr_cpu))
 -	cp $SPARSE_FILE-$i /dev/null &
-+	$TIME_CMD cp $SPARSE_FILE-$i /dev/null 2>&1 &
++	$TIME_CMD -o /tmp/vmscale-$$-$i cp $SPARSE_FILE-$i /dev/null 2>&1 &
  done
  
  wait
++cat /tmp/vmscale-$$-*
++rm /tmp/vmscale-$$-*
+ 
+ rm `seq -f $SPARSE_FILE-%g 1 $nr_cpu`
+diff --git a/case-lru-file-readtwice b/case-lru-file-readtwice
+index 3e2f9f0..853d004 100755
+--- a/case-lru-file-readtwice
++++ b/case-lru-file-readtwice
+@@ -18,10 +18,13 @@ source ./hw_vars
+ for i in `seq 1 $nr_cpu`
+ do
+ 	create_sparse_file $SPARSE_FILE-$i $((10 * mem / nr_cpu))
+-	cp $SPARSE_FILE-$i /dev/null &
+-	cp $SPARSE_FILE-$i /dev/null &
++	$TIME_CMD -o /tmp/vmscale-$$-$i-1 cp $SPARSE_FILE-$i /dev/null 2>&1 &
++	$TIME_CMD -o /tmp/vmscale-$$-$i-2 cp $SPARSE_FILE-$i /dev/null 2>&1 &
+ done
+ 
+ wait
+ 
++cat /tmp/vmscale-$$-*
++rm /tmp/vmscale-$$-*
++
+ rm `seq -f $SPARSE_FILE-%g 1 $nr_cpu`
 diff --git a/hw_vars b/hw_vars
 index 758d32c..138bf84 100755
 --- a/hw_vars

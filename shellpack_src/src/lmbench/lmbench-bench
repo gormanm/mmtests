@@ -16,7 +16,6 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 	# Prepare test
 	case $LMBENCH_TEST in
 	lat_mmap)
-		dd if=/dev/zero of=$TESTDISK_DIR/lmbench.file ibs=4096 count=$((LMBENCH_LATMMAP_FILESIZE/4096))
 		;;
 	lat_ctx)
 		echo
@@ -32,10 +31,16 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 
 	case $LMBENCH_TEST in
 	lat_mmap)
-		./bin/$LMBENCH_TEST \
-			-N $LMBENCH_LATMMAP_ITERATIONS \
-			$LMBENCH_LATMMAP_FILESIZE $TESTDISK_DIR/lmbench.file \
-				2>&1 | tee -a $LMBENCH_RESULTS
+		STRIDE=$(((LMBENCH_LATMMAP_MAX_FILESIZE-LMBENCH_LATMMAP_MIN_FILESIZE)/20))
+		for FILESIZE in `seq $LMBENCH_LATMMAP_MIN_FILESIZE $STRIDE $LMBENCH_LATMMAP_MAX_FILESIZE` $LMBENCH_LATMMAP_MAX_FILESIZEZE; do
+			FILESIZE=$((FILESIZE&~4095))
+			dd if=/dev/zero of=$TESTDISK_DIR/lmbench.file ibs=4096 count=$((FILESIZE/4096)) conv=sync 2> /dev/null
+			./bin/$LMBENCH_TEST \
+				-N $LMBENCH_LATMMAP_ITERATIONS \
+				$FILESIZE $TESTDISK_DIR/lmbench.file \
+					2>&1 | tee -a $LMBENCH_RESULTS
+		done
+		rm $TESTDISK_DIR/lmbench.file
 		;;
 	lat_ctx)
 		CLIENT=1

@@ -1,4 +1,3 @@
-# ExtractVmscale.pm
 package MMTests::ExtractVmscale;
 use MMTests::Extract;
 use VMR::Stat;
@@ -69,7 +68,7 @@ sub extractReport($$$) {
 		open(INPUT, "$reportDir/noprofile/$case.log") ||
 			die("Failed to open $reportDir/noprofile/$case.log");
 
-		if ($case eq "lru-file-readonce") {
+		if ($case eq "lru-file-readonce" || $case eq "lru-file-readtwice") {
 			my @values;
 			while (!eof(INPUT)) {
 				my $line = <INPUT>;
