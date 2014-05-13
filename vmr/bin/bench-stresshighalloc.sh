@@ -286,7 +286,7 @@ cat /proc/buddyinfo >> $RESULTS
 echo >> $RESULTS
 
 STARTALLOC=`date +%s`
-stap -g /tmp/highalloc.stp | tee /tmp/highalloc.out
+stap -DSTAP_OVERRIDE_STUCK_CONTEXT -g /tmp/highalloc.stp | tee /tmp/highalloc.out
 ENDALLOC=`date +%s`
 sleep 5
 
@@ -298,7 +298,7 @@ grep -A 15 "Test completed" /tmp/highalloc.out
 echo Duration alloctest pass 1: $(($ENDALLOC-$STARTALLOC)) >> $RESULTS
 
 STARTALLOC=`date +%s`
-stap -g /tmp/highalloc.stp | tee /tmp/highalloc.out
+stap -DSTAP_OVERRIDE_STUCK_CONTEXT -g /tmp/highalloc.stp | tee /tmp/highalloc.out
 ENDALLOC=`date +%s`
 sleep 5
 
@@ -356,7 +356,7 @@ echo >> $RESULTS
 echo HighAlloc Test Results while Rested >> $RESULTS
 echo ----------------------------------- >> $RESULTS
 STARTALLOC=`date +%s`
-stap -g /tmp/highalloc.stp | tee /tmp/highalloc.out
+stap -DSTAP_OVERRIDE_STUCK_CONTEXT -g /tmp/highalloc.stp | tee /tmp/highalloc.out
 ENDALLOC=`date +%s`
 
 cat /tmp/highalloc.out >> $RESULTS
