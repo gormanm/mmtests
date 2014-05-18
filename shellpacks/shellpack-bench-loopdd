@@ -103,6 +103,7 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 			$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
 				dd if=/dev/zero of=$i bs=1M count=$SRCSIZE $CONV 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION
 		fi
+		sync
 	done
 done
 monitor_post_hook $LOGDIR_RESULTS dd
@@ -110,4 +111,4 @@ rm -f `seq 0 $((NR_COPIES-1))`
 
 exit $SHELLPACK_SUCCESS
 #### Description Loop dd
-#### Details loopdd-bench 23
+#### Details loopdd-bench 24
