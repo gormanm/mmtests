@@ -27,6 +27,7 @@ my %_fieldNameMap = (
 	"pgpgout"			=> "Sector Writes",
 	"pswpin"			=> "Swap Ins",
 	"pswpout"			=> "Swap Outs",
+	"allocstall"			=> "Allocation stalls",
 	"mmtests_direct_scan"		=> "Direct pages scanned",
 	"mmtests_kswapd_scan"		=> "Kswapd pages scanned",
 	"mmtests_kswapd_steal"		=> "Kswapd pages reclaimed",
@@ -106,6 +107,7 @@ my @_fieldOrder = (
 	"pgmajfault",
         "pswpin",
         "pswpout",
+	"allocstall",
         "mmtests_direct_scan",
         "mmtests_kswapd_scan",
         "mmtests_kswapd_steal",
@@ -313,7 +315,7 @@ sub extractReport($$$$) {
 
 	# Flat values
 	foreach my $key ("pgpgin", "pgpgout", "pswpin", "pswpout",
-			 "pgfault", "pgmajfault",
+			 "pgfault", "pgmajfault", "allocstall",
 			 "kswapd_inodesteal", "pginodesteal", "slabs_scanned",
 			 "compact_pages_moved", "compact_pagemigrate_failed",
 			 "compact_fail", "compact_success", "compact_stall",
