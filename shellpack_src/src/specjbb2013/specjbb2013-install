@@ -1,0 +1,17 @@
+#!/bin/bash
+
+###SHELLPACK preamble specjbb2013-install 2013
+WEB_LOCATION="NOT_AVAILABLE"
+MIRROR_LOCATION="$WEBROOT/spec"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+mkdir -p $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/specjbb${VERSION}.jar $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/specjbb${VERSION}.jar
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/specjbb2013.props $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config/specjbb2013.props.orig
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/template-C.raw $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config/template-C.raw
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/template-D.raw $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config/template-D.raw
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/template-M.raw $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config/template-M.raw
+
+exit $SHELLPACK_SUCCESS

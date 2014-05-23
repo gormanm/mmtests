@@ -1,0 +1,144 @@
+#!/bin/bash
+# This is the script for running SPECjbb2013
+
+###SHELLPACK preamble specjbb2013-bench 2013
+. $SHELLPACK_INCLUDE/common-detect.sh
+
+install-depends dmidecode
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --instances	INSTANCES
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required specjbb-${VERSION}
+###SHELLPACK monitor_hooks
+
+export PATH=$SPECJBB_JRE:$PATH
+STARTING_HUGEPAGES=`cat /proc/sys/vm/nr_hugepages`
+
+# Ensure everything is where it is expected to be
+pushd $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed > /dev/null || die Failed to cd to specjbb
+[ ! -e specjbb2013.jar ] && die No specjbb2013.jar available
+
+# Run the actual test
+for PAGES in $SPECJBB_PAGESIZES; do
+	USE_HUGEPAGE=
+	case $PAGES in
+		default)
+			echo Using default pagesize configuration
+			;;
+		base)
+			hugeadm --pool-pages-min DEFAULT:0
+			hugeadm --pool-pages-max DEFAULT:0
+			USE_HUGEPAGE=
+			disable_transhuge
+			;;
+		huge)
+			hugeadm --hard --pool-pages-min DEFAULT:4096M
+			USE_HUGEPAGE=$SPECJBB_HUGESWITCH
+			disable_transhuge
+			;;
+		transhuge)
+			hugeadm --pool-pages-min DEFAULT:0
+			hugeadm --pool-pages-max DEFAULT:0
+			USE_HUGEPAGE=
+			if [ "$TRANSHUGE_AVAILABLE" = "yes" ]; then
+				enable_transhuge
+			else
+				echo THP support unavailable for transhuge
+				continue
+			fi
+			;;
+
+	esac
+
+	monitor_pre_hook $LOGDIR_RESULTS specjbb
+	mkdir $LOGDIR_RESULTS/$PAGES
+
+	# Use default configuration
+	cp config/specjbb2013.props.orig config/specjbb2013.props
+	# echo "specjbb.customerDriver.threads=128" >> config/specjbb2013.props
+	# echo "specjbb.customerDriver.threads.probe=128" >> config/specjbb2013.props
+
+	# Run single or multi mode
+	EXIT_CODE=$SHELLPACK_SUCCESS
+	if [ $INSTANCES -eq 1 ]; then
+		set_mmtests_numactl $INSTANCES $INSTANCES
+		eval save_rc $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP -jar specjbb2013.jar -m COMPOSITE 2> $LOGDIR_RESULTS/$PAGES/specjbb2013.err | tee $LOGDIR_RESULTS/$PAGES/specjbb2013.log
+		recover_rc
+		if [ $EXIT_CODE -ne 0 ]; then
+			echo ERROR: java exited with an error
+			cat $LOGDIR_RESULTS/$PAGES/specjbb2013.err
+			EXIT_CODE=$SHELLPACK_ERROR
+		fi
+	else
+		TEST_CONTROLLER=`echo $SPECJBB_HEAP_CONTROLLER | sed 's/[^0-9]//g'`
+		TEST_BACKEND=`echo $SPECJBB_HEAP_BACKEND | sed 's/[^0-9]//g'`
+		TEST_TXI=`echo $SPECJBB_HEAP_TXI | sed 's/[^0-9]//g'`
+		TEST_MAX=`echo $SPECJBB_MAXHEAP | sed 's/[^0-9]//g'`
+
+		HEAP_TOTAL=$((TEST_CONTROLLER))
+		HEAP_TOTAL=$((HEAP_TOTAL+TEST_BACKEND))
+		HEAP_TOTAL=$((HEAP_TOTAL+TEST_TXI*SPECJBB_TXI_PER_INSTANCE))
+		TEST_MAX=$((TEST_MAX))
+
+		if [ $HEAP_TOTAL -gt $TEST_MAX ]; then
+			echo Required total heaps of $HEAP_TOTAL exceeds per-group maximum configured heap of $TEST_MAX
+			exit $SHELLPACK_ERROR
+		fi
+
+		SPEC_OPTS="-Dspecjbb.group.count=$INSTANCES -Dspecjbb.txi.pergroup.count=$SPECJBB_TXI_PER_INSTANCE"
+		
+		# Start controller
+		java $SPECJBB_HEAP_CONTROLLER $SPEC_OPTS -jar specjbb2013.jar -m MULTICONTROLLER 2> $LOGDIR_RESULTS/$PAGES/specjbb2013.err | tee $LOGDIR_RESULTS/$PAGES/specjbb2013.log &
+		CONTROLLER_PID=`jobs -p`
+		echo $CONTROLLER_PID > $SHELLPACK_TEMP/jvm-instances.pids
+		echo Started controller pid: $CONTROLLER_PID
+		sleep 10
+
+		# Start the number of instances
+		for INSTANCE in `seq 1 $INSTANCES`; do
+			set_mmtests_numactl $INSTANCE $INSTANCES
+
+			GROUPID=Group$INSTANCE
+			echo Starting JVMs from $GROUPID
+
+			# TXI instances
+			for TXI_INSTANCE in `seq 1 $SPECJBB_TXI_PER_INSTANCE`; do
+				JVMID=txiJVM$TXI_INSTANCE
+				eval $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_HEAP_TXI -jar specjbb2013.jar \
+					-m TXINJECTOR \
+					-G=$GROUPID \
+					-J=$JVMID 2> $LOGDIR_RESULTS/$PAGES/txi-${GROUPID}-${JVMID}.err > $LOGDIR_RESULTS/$PAGES/txi-${GROUPID}-${JVMID}.log &
+				TXI_PID=$!
+				echo $TXI_PID >> $SHELLPACK_TEMP/jvm-instances.pids
+				echo o TXI instance $GROUPID $JVMID: $TXI_PID
+			done
+
+			JVMID=beJVM
+			eval $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_HEAP_BACKEND -jar specjbb2013.jar \
+					-m BACKEND \
+					-G=$GROUPID \
+					-J=$JVMID \
+					2> $LOGDIR_RESULTS/$PAGES/backend-${GROUPID}.err > $LOGDIR_RESULTS/$PAGES/backend-${GROUPID}.log &
+			BE_PID=$!
+			echo o BE instance $GROUPID: $BE_PID
+			echo $BE_PID >> $SHELLPACK_TEMP/jvm-instances.pids
+		done
+
+		for INSTANCE_PID in `cat $SHELLPACK_TEMP/jvm-instances.pids`; do
+			echo Waiting on pid $INSTANCE_PID to finish.
+			wait $INSTANCE_PID
+			if [ $? -ne 0 ]; then
+				echo WARNING: PID $INSTANCE_PID exited with error
+				EXIT_CODE=$SHELLPACK_ERROR
+			fi
+		done
+	fi
+
+	monitor_post_hook $LOGDIR_RESULTS specjbb
+	mv result $LOGDIR_RESULTS/$PAGES/
+done
+
+exit $EXIT_CODE
