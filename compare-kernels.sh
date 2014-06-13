@@ -207,6 +207,15 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT CPU-Time
 		eval $COMPARE_CMD --sub-heading elapsed
 		;;
+	preaddd)
+		echo $SUBREPORT Throughput
+		eval $COMPARE_CMD
+		echo
+		echo $SUBREPORT DD-Time
+		eval $COMPARE_CMD --sub-heading ddtime
+		echo
+		;;
+
 	specjvm)
 		echo $SUBREPORT
 		eval $COMPARE_CMD
