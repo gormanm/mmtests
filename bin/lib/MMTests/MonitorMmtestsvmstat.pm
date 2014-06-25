@@ -62,7 +62,7 @@ my %_fieldNameMap = (
 	"compact_stall"			=> "Compaction stalls",
 	"compact_success"		=> "Compaction success",
 	"pgmigrate_success"		=> "Page migrate success",
-	"pgmigrate_failure"		=> "Page migrate failure",
+	"pgmigrate_fail"		=> "Page migrate failure",
 	"compact_isolated"		=> "Compaction pages isolated",
 	"compact_migrate_scanned"	=> "Compaction migrate scanned",
 	"compact_free_scanned"		=> "Compaction free scanned",
@@ -94,7 +94,7 @@ my @_new_migrate_stats = (
 	"compact_free_scanned",
 	"compact_isolated",
 	"pgmigrate_success",
-	"pgmigrate_failure",
+	"pgmigrate_fail",
 );
 
 my @_autonuma_stats = (
@@ -149,7 +149,7 @@ my @_fieldOrder = (
         "compact_success",
         "compact_fail",
         "pgmigrate_success",
-        "pgmigrate_failure",
+        "pgmigrate_fail",
         "compact_pages_moved",
         "compact_pagemigrate_failed",
         "compact_isolated",
@@ -330,7 +330,7 @@ sub extractReport($$$$) {
 			 "compact_fail", "compact_success", "compact_stall",
 			 "nr_vmscan_write", "kswapd_skip_congestion_wait",
 			 "nr_vmscan_immediate_reclaim", "pgrescued",
-        		 "pgmigrate_success", "pgmigrate_failure",
+        		 "pgmigrate_success", "pgmigrate_fail",
 			 "compact_blocks_moved",
         		 "compact_isolated", "compact_migrate_scanned",
         		 "compact_free_scanned",
@@ -407,7 +407,7 @@ sub extractReport($$$$) {
 	if ($padded_compat) {
 		foreach my $key ("compact_stall", "compact_success",
 				 "compact_fail",
-				 "pgmigrate_success", "pgmigrate_failure",
+				 "pgmigrate_success", "pgmigrate_fail",
 				 "compact_isolated",
 				 "compact_migrate_scanned",
 				 "compact_free_scanned",
