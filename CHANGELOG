@@ -1,3 +1,12 @@
+v0.16
+o Multiple reporting corrects
+o Avoid getting stuck in highalloc
+o Add vmscale benchmark
+o Multiple corrections to loopdd benchmark
+o Multiple corrections to stutter benchmark
+o Extended iostat reporting
+o Optionally specify min number of tiobench clients
+
 v0.15
 o Use .xz for kernel taballs
 o Remove patch rejections files
