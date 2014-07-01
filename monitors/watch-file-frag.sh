@@ -21,7 +21,7 @@ while [ 1 ]; do
 
 	for FILE in `find -type f`; do
 		NR_FILE=$((NR_FILE+1))
-		NR_EXTENT=`filefrag "$FILE" | awk '{print $(NF-2)}'`
+		NR_EXTENT=`filefrag "$FILE" | awk -F : '{print $2}' | awk '{print $1}'`
 		if [ $NR_EXTENT -gt $MAX_EXTENTS ]; then
 			MAX_EXTENTS=$NR_EXTENT
 			MAX_EXTENT_FILE=$FILE
