@@ -29,6 +29,6 @@ while [ 1 ]; do
 		NR_EXTENTS=$((NR_EXTENTS+NR_EXTENT))
 	done
 		
-	echo `date +%s` $NR_EXTENTS $MAX_EXTENTS $MAX_EXTENT_FILE
+	echo `date +%s` $NR_FILE $NR_EXTENTS $MAX_EXTENTS $MAX_EXTENT_FILE
 	sleep $MONITOR_UPDATE_FREQUENCY
 done
