@@ -105,6 +105,8 @@ sub extractSummary() {
 		$subHeading = "MB/sec";
 	}
 
+	push @{$self->{_SummaryData}}, [ "PotentialReadSpeed", $self->{_MaxReadSpeed}, $self->{_MaxReadSpeed}, 0, $self->{_MaxReadSpeed} ];
+
 	# Yeah, not the most efficient. Not big enough structure to care
 	foreach my $opName ("SeqRead", "RandRead", "SeqWrite", "RandWrite") {
 		foreach my $client (@clients) {
@@ -139,6 +141,14 @@ sub extractReport($$$) {
 	my @clients = @{$self->{_Clients}};
 	my $op;
 	my $reading = 0;
+	my $max_read = -1;
+
+	if (open(INPUT, "$reportDir/noprofile/disk-read.speed")) {
+		$max_read = <INPUT>;
+		close(INPUT);
+	}
+	$self->{_MaxReadSpeed} = $max_read;
+
 
 	foreach my $client (@clients) {
 		my @files = <$reportDir/noprofile/tiobench-$client-*.log>;
