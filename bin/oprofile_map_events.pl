@@ -30,6 +30,7 @@ $map_event_name{"i386##p4##l2cache_miss"} = "BSQ_CACHE_REFERENCE:3000:0x300";
 $map_event_name{"i386##p4-ht##timer"} = "GLOBAL_POWER_EVENTS:6000:0x01";
 $map_event_name{"i386##p4-ht##dtlb_miss"} = "PAGE_WALK_TYPE:3000:0x01";
 $map_event_name{"i386##p4-ht##l2cache_miss"} = "BSQ_CACHE_REFERENCE:6000:0x300";
+$map_event_name{"i386##arch_perfmon##l2cache_miss"} = "LLC_MISSES:6000:0x41";
 $map_event_name{"i386##core##timer"} = "CPU_CLK_UNHALTED:6000";
 $map_event_name{"i386##core##dtlb_miss"} = "DTLB_MISS:500";
 $map_event_name{"i386##core##instructions"} = "INST_RETIRED:6000";

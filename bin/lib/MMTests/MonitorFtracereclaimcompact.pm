@@ -23,19 +23,28 @@ use constant WRITEBACK_CONGESTION_WAIT_TIME_WAITED_KSWAPD	=>15;
 use constant WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED		=>16;
 use constant WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_DIRECT	=>17;
 use constant WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_KSWAPD	=>18;
-use constant VMSCAN_LRU_SHRINK_DIRECT				=>19;
-use constant VMSCAN_SLAB_SHRINK_DIRECT				=>20;
-use constant VMSCAN_LRU_SHRINK_KSWAPD				=>21;
-use constant VMSCAN_SLAB_SHRINK_KSWAPD				=>22;
-use constant VMSCAN_LRU_RECLAIMED_RATIO				=>23;
-use constant VMSCAN_SLAB_SHRINK_DIRECT_TIME_STALLED		=>24;
-use constant VMSCAN_SLAB_SHRINK_KSWAPD_TIME_STALLED		=>25;
-use constant VMSCAN_DIRECT_RECLAIM_TIME_STALLED			=>26;
-use constant VMSCAN_KSWAPD_TIME_AWAKE				=>27;
-use constant COMPACTION_DIRECT_STALLED				=>28;
-use constant COMPACTION_KSWAPD_STALLED				=>29;
+use constant VMSCAN_LRU_SCAN_ANON_DIRECT			=>19;
+use constant VMSCAN_LRU_SCAN_FILE_DIRECT			=>20;
+use constant VMSCAN_LRU_SHRINK_ANON_DIRECT			=>21;
+use constant VMSCAN_LRU_SHRINK_FILE_DIRECT			=>22;
+use constant VMSCAN_LRU_SHRINK_DIRECT				=>23;
+use constant VMSCAN_SLAB_SHRINK_DIRECT				=>24;
+use constant VMSCAN_LRU_SCAN_ANON_KSWAPD			=>25;
+use constant VMSCAN_LRU_SCAN_FILE_KSWAPD			=>26;
+use constant VMSCAN_LRU_SHRINK_ANON_KSWAPD			=>27;
+use constant VMSCAN_LRU_SHRINK_FILE_KSWAPD			=>28;
+use constant VMSCAN_LRU_SHRINK_KSWAPD				=>29;
+use constant VMSCAN_SLAB_SHRINK_KSWAPD				=>30;
+use constant VMSCAN_LRU_FILE_ANON_SCAN_RATIO			=>31;
+use constant VMSCAN_LRU_SLAB_RECLAIMED_RATIO			=>32;
+use constant VMSCAN_SLAB_SHRINK_DIRECT_TIME_STALLED		=>33;
+use constant VMSCAN_SLAB_SHRINK_KSWAPD_TIME_STALLED		=>34;
+use constant VMSCAN_DIRECT_RECLAIM_TIME_STALLED			=>35;
+use constant VMSCAN_KSWAPD_TIME_AWAKE				=>36;
+use constant COMPACTION_DIRECT_STALLED				=>37;
+use constant COMPACTION_KSWAPD_STALLED				=>38;
 
-use constant EVENT_UNKNOWN			=> 30;
+use constant EVENT_UNKNOWN			=> 39;
 
 # Defaults for dynamically discovered regex's
 my $regex_writeback_congestion_wait_default    = 'usec_timeout=([0-9]*) usec_delayed=([0-9]*)';
@@ -72,11 +81,20 @@ $_fieldIndexMap[WRITEBACK_WAIT_IFF_CONGESTED]			= "writeback_wait_iff_congested"
 $_fieldIndexMap[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED]	= "writeback_wait_iff_congested_time";
 $_fieldIndexMap[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_DIRECT]= "writeback_wait_iff_congested_time_direct";
 $_fieldIndexMap[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_KSWAPD]= "writeback_wait_iff_congested_time_kswapd";
+$_fieldIndexMap[VMSCAN_LRU_SCAN_ANON_DIRECT] =                    "vmscan_lru_scan_anon_direct";
+$_fieldIndexMap[VMSCAN_LRU_SCAN_FILE_DIRECT] =                    "vmscan_lru_scan_file_direct";
+$_fieldIndexMap[VMSCAN_LRU_SHRINK_ANON_DIRECT] =                  "vmscan_lru_shrink_anon_direct";
+$_fieldIndexMap[VMSCAN_LRU_SHRINK_FILE_DIRECT] =                  "vmscan_lru_shrink_file_direct";
+$_fieldIndexMap[VMSCAN_LRU_SCAN_ANON_KSWAPD] =                    "vmscan_lru_scan_anon_kswapd";
+$_fieldIndexMap[VMSCAN_LRU_SCAN_FILE_KSWAPD] =                    "vmscan_lru_scan_file_kswapd";
+$_fieldIndexMap[VMSCAN_LRU_SHRINK_ANON_KSWAPD] =                  "vmscan_lru_shrink_anon_kswapd";
+$_fieldIndexMap[VMSCAN_LRU_SHRINK_FILE_KSWAPD] =                  "vmscan_lru_shrink_file_kswapd";
 $_fieldIndexMap[VMSCAN_LRU_SHRINK_DIRECT] =                       "vmscan_lru_shrink_direct";
 $_fieldIndexMap[VMSCAN_SLAB_SHRINK_DIRECT] =                      "vmscan_slab_shrink_direct";
 $_fieldIndexMap[VMSCAN_LRU_SHRINK_KSWAPD] =                       "vmscan_lru_shrink_kswapd";
 $_fieldIndexMap[VMSCAN_SLAB_SHRINK_KSWAPD] =                      "vmscan_slab_shrink_kswapd";
-$_fieldIndexMap[VMSCAN_LRU_RECLAIMED_RATIO] =                     "vmscan_lru_reclaimed_ratio";
+$_fieldIndexMap[VMSCAN_LRU_FILE_ANON_SCAN_RATIO] =                "vmscan_lru_file_anon_scan_ratio";
+$_fieldIndexMap[VMSCAN_LRU_SLAB_RECLAIMED_RATIO] =                "vmscan_lru_slab_reclaimed_ratio";
 $_fieldIndexMap[VMSCAN_SLAB_SHRINK_DIRECT_TIME_STALLED] =         "vmscan_slab_shrink_direct_time_stalled";
 $_fieldIndexMap[VMSCAN_SLAB_SHRINK_KSWAPD_TIME_STALLED] =         "vmscan_slab_shrink_kswapd_time_stalled";
 $_fieldIndexMap[VMSCAN_DIRECT_RECLAIM_TIME_STALLED] =             "vmscan_direct_reclaim_time_stalled";
@@ -94,11 +112,20 @@ my %_fieldNameMap = (
 	"writeback_wait_iff_congested_time"		=> "CondCongest time waited",
 	"writeback_wait_iff_congested_time_direct"	=> "CondCongest direct waited",
 	"writeback_wait_iff_congested_time_kswapd"	=> "CondCongest kswapd waited",
+	"vmscan_lru_scan_anon_direct"			=> "Direct scanned anon pages",
+	"vmscan_lru_scan_file_direct"			=> "Direct scanned file pages",
+	"vmscan_lru_shrink_anon_direct"			=> "Direct reclaimed anon pages",
+	"vmscan_lru_shrink_file_direct"			=> "Direct reclaimed file pages",
 	"vmscan_lru_shrink_direct"                      => "Direct reclaimed LRU pages",
 	"vmscan_slab_shrink_direct"			=> "Direct reclaimed Slab pages",
+	"vmscan_lru_scan_anon_kswapd"			=> "Kswapd scanned anon pages",
+	"vmscan_lru_scan_file_kswapd"			=> "Kswapd scanned file pages",
+	"vmscan_lru_shrink_anon_kswapd"			=> "Kswapd reclaimed anon pages",
+	"vmscan_lru_shrink_file_kswapd"			=> "Kswapd reclaimed file pages",
 	"vmscan_lru_shrink_kswapd"			=> "Kswapd reclaimed LRU pages",
 	"vmscan_slab_shrink_kswapd"			=> "Kswapd reclaimed Slab pages",
-	"vmscan_lru_reclaimed_ratio"			=> "Ratio LRU/Slab",
+	"vmscan_lru_file_anon_scan_ratio"		=> "Scanned ratio File/Anon",
+	"vmscan_lru_slab_reclaimed_ratio"		=> "Reclaim ratio LRU/Slab",
 	"vmscan_direct_reclaim_time_stalled"            => "Time direct reclaim stalled",
         "vmscan_slab_shrink_direct_time_stalled"	=> "Time direct slab shrink",
         "vmscan_slab_shrink_kswapd_time_stalled"	=> "Time kswapd slab shrink",
@@ -226,13 +253,33 @@ sub ftraceCallback {
 			print "	 $regex_vmscan_lru_shrink_inactive\n";
 			return;
 		}
+		my $scanned = $3;
 		my $shrunk = $4;
+		my $anon = 0;
+		if ($6 =~ /RECLAIM_WB_ANON/) {
+			$anon = 1;
+		}
 
 		# Fields (look at the regex)
 		if ($process =~ /kswapd([0-9]+)/) {
 			@$ftraceCounterRef[VMSCAN_LRU_SHRINK_KSWAPD] += $shrunk;
+			if ($anon) {
+				@$ftraceCounterRef[VMSCAN_LRU_SCAN_ANON_KSWAPD] += $scanned;
+				@$ftraceCounterRef[VMSCAN_LRU_SHRINK_ANON_KSWAPD] += $shrunk;
+			} else {
+				@$ftraceCounterRef[VMSCAN_LRU_SCAN_FILE_KSWAPD] += $scanned;
+				@$ftraceCounterRef[VMSCAN_LRU_SHRINK_FILE_KSWAPD] += $shrunk;
+			}
 		} else {
 			@$ftraceCounterRef[VMSCAN_LRU_SHRINK_DIRECT] += $shrunk;
+			if ($anon) {
+				@$ftraceCounterRef[VMSCAN_LRU_SCAN_ANON_DIRECT] += $scanned;
+				@$ftraceCounterRef[VMSCAN_LRU_SHRINK_ANON_DIRECT] += $shrunk;
+			} else {
+				@$ftraceCounterRef[VMSCAN_LRU_SCAN_FILE_DIRECT] += $scanned;
+				@$ftraceCounterRef[VMSCAN_LRU_SHRINK_FILE_DIRECT] += $shrunk;
+			}
+
 		}
 	} elsif ($tracepoint eq "mm_vmscan_kswapd_wake") {
 		if ($details !~ /$regex_vmscan_kswapd_wake/p) {
@@ -369,9 +416,19 @@ sub ftraceCallback {
 	my $ratio = 1;
 
 	if ($lru_pages_shrink + $slab_pages_shrink > 0) {
-		$ratio = ($lru_pages_shrink / ($lru_pages_shrink + $slab_pages_shrink) * 1000);
+		$ratio = $lru_pages_shrink $slab_pages_shrink;
 	}
-	@$ftraceCounterRef[VMSCAN_LRU_RECLAIMED_RATIO] = $ratio;
+	@$ftraceCounterRef[VMSCAN_LRU_SLAB_RECLAIMED_RATIO] = $ratio;
+
+	my $anon_pages_scanned = @$ftraceCounterRef[VMSCAN_LRU_SCAN_ANON_DIRECT] + @$ftraceCounterRef[VMSCAN_LRU_SCAN_ANON_KSWAPD];
+	my $file_pages_scanned = @$ftraceCounterRef[VMSCAN_LRU_SCAN_FILE_DIRECT] + @$ftraceCounterRef[VMSCAN_LRU_SCAN_FILE_KSWAPD];
+	$ratio = 1
+
+	if ($anon_pages_scanned + $file_pages_scanned > 0) {
+		$ratio = $file_pages_scanned $anon_pages_scanned;
+	}
+	@$ftraceCounterRef[VMSCAN_LRU_FILE_ANON_SCAN_RATIO] = $ratio;
+
 }
 
 sub ftraceReport { 

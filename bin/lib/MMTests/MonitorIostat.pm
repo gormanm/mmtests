@@ -37,24 +37,29 @@ sub extractSummary() {
 	# Yes, this could be done as one pass. Could not be arsed as I'm
 	# playing settlers in 10 minutes.
 	foreach my $device (sort keys %devices) {
-		my (@avgqz, @await, @r_await, @w_await);
+		my (@avgqusz, @avgrqsz, @await, @r_await, @w_await, @rrqm, @wrqm);
 
 		foreach my $rowRef (@data) {
 			my @row = @{$rowRef};
 
 			next if ($row[1] ne $device);
 
-			push @avgqz,   $row[2];
+			push @avgqusz, $row[2];
 			push @await,   $row[3];
 			push @r_await, $row[4];
 			push @w_await, $row[5];
+			push @avgrqsz, $row[6];
+			push @rrqm,    $row[7];
+			push @wrqm,    $row[8];
 		}
 
-		my $mean_avgqz = calc_mean(@avgqz);
-		next if $mean_avgqz < 0.01;
+		my $mean_avgqusz = calc_mean(@avgqusz);
+		next if $mean_avgqusz < 0.01;
 
-		push @{$self->{_SummaryData}}, [ "$device-avgqz",
-				 $mean_avgqz, calc_max(@avgqz) ];
+		push @{$self->{_SummaryData}}, [ "$device-avgqusz",
+				 $mean_avgqusz, calc_max(@avgqusz) ];
+		push @{$self->{_SummaryData}}, [ "$device-avgrqsz",
+				 calc_mean(@avgrqsz), calc_max(@avgrqsz) ];
 		push @{$self->{_SummaryData}}, [ "$device-await",
 				 calc_mean(@await), calc_max(@await) ];
 		if ($format_type == 1) {
@@ -63,6 +68,10 @@ sub extractSummary() {
 			push @{$self->{_SummaryData}}, [ "$device-w_await",
 				 calc_mean(@w_await), calc_max(@w_await) ];
 		}
+		push @{$self->{_SummaryData}}, [ "$device-rrqm",
+				 calc_mean(@rrqm), calc_max(@rrqm) ];
+		push @{$self->{_SummaryData}}, [ "$device-wrqm",
+				 calc_mean(@wrqm), calc_max(@wrqm) ];
 	}
 
 	return 1;
@@ -83,10 +92,12 @@ sub extractReport($$$) {
 
 	my $fieldLength = 12;
         $self->{_FieldLength} = $fieldLength;
-        $self->{_FieldHeaders} = [ "Time", "Device", "Queue", "AWait", "R_AWait", "W_AWait" ];
+        $self->{_FieldHeaders} = [ "Time", "Device", "AvgQueueSz", "AWait", "R_AWait", "W_AWait", "AvgRqSz", "Rrqm", "Wrqm" ];
         $self->{_FieldFormat} = [ "%${fieldLength}.4f", "%${fieldLength}s",
 				  "%${fieldLength}.2f", "%${fieldLength}.2f",
-				  "%${fieldLength}.2f", "%${fieldLength}.2f" ];
+				  "%${fieldLength}.2f", "%${fieldLength}.2f",
+				  "%${fieldLength}.2f", "%${fieldLength}.2f",
+				  "%${fieldLength}.2f", ];
 
 	while (<INPUT>) {
 		my @elements = split (/\s+/, $_);
@@ -124,21 +135,27 @@ sub extractReport($$$) {
 		}
 
 		# Record times
-		my ($avgqz, $await, $r_await, $w_await);
+		my ($avgqusz, $avgrqsz, $await, $r_await, $w_await, $rrqm, $wrqm);
 		if ($format_type == 0) {
-			$avgqz = $elements[13];
+			$rrqm = $elements[6];
+			$wrqm = $elements[7];
+			$avgrqsz = $elements[12];
+			$avgqusz = $elements[13];
 			$await = $elements[14];
 			$r_await = 0;
 			$w_await = 0;
 		} elsif ($format_type == 1) {
-			$avgqz = $elements[13];
+			$rrqm = $elements[6];
+			$wrqm = $elements[7];
+			$avgrqsz = $elements[12];
+			$avgqusz = $elements[13];
 			$await = $elements[14];
 			$r_await = $elements[15];
 			$w_await = $elements[16];
 		}
 
 		# Filter out insane values
-		if ($avgqz > 1000000 ||
+		if ($avgqusz > 1000000 ||
 		    $await > 3600000 ||
 		    $r_await > 3600000 ||
 		    $w_await > 3600000) {
@@ -146,23 +163,28 @@ sub extractReport($$$) {
 		}
 
 		if ($subHeading eq "") {
-			# Pushing time avgqu-sz await r_await w_await
-			push @{$self->{_ResultData}}, [ $timestamp, $elements[5], 
-					$elements[13],
-					$elements[14], $elements[15], $elements[16] ];
+			# Pushing time avgqu-sz await r_await w_await push
+			push @{$self->{_ResultData}}, [ $timestamp, $elements[5],
+					$avgqusz, $await, $r_await, $w_await,
+					$avgrqsz, $rrqm, $wrqm ];
 		} else {
-			if ($subHeading eq "$elements[5]-avgqz") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[13] ];
+			if ($subHeading eq "$elements[5]-avgqusz") {
+				push @{$self->{_ResultData}}, [ $timestamp, $avgqusz ];
+			} elsif ($subHeading eq "$elements[5]-avgrqsz") {
+				push @{$self->{_ResultData}}, [ $timestamp, $avgrqsz ];
 			} elsif ($subHeading eq "$elements[5]-await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[14] ];
+				push @{$self->{_ResultData}}, [ $timestamp, $await ];
 			} elsif ($subHeading eq "$elements[5]-r_await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[15] ];
+				push @{$self->{_ResultData}}, [ $timestamp, $r_await ];
 			} elsif ($subHeading eq "$elements[5]-w_await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[16] ];
+				push @{$self->{_ResultData}}, [ $timestamp, $w_await ];
+			} elsif ($subHeading eq "$elements[5]-rrqm") {
+				push @{$self->{_ResultData}}, [ $timestamp, $rrqm ];
+			} elsif ($subHeading eq "$elements[5]-wrqm") {
+				push @{$self->{_ResultData}}, [ $timestamp, $wrqm ];
 			}
 		}
-	}
-	close INPUT;
+	} close INPUT;
 }
 
 1;

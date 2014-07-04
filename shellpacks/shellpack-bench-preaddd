@@ -1,0 +1,68 @@
+#!/bin/bash
+P=preaddd-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+SRCTAR=
+SRCTAR_EXTRA=
+TARGETSIZE_MB=
+NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
+ITERATIONS=5
+CONV=
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--min-instances)
+		INSTANCES=$2
+		shift 2
+		;;
+	--iterations)
+		ITERATIONS=$2
+		shift 2
+		;;
+	--targetsize)
+		TOTAL_FILESIZE=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+cd $TESTDISK_DIR || die Failed to change to temp directory
+FILESIZE=$((TOTAL_FILESIZE/INSTANCES))
+
+echo Creating source files
+echo o Total filesize $TOTAL_FILESIZE MB
+echo o Process filesize $FILESIZE MB
+for i in `seq 1 $INSTANCES`; do
+	dd if=/dev/zero of=zerofile-$i ibs=4096 count=$((FILESIZE*1048576/4096)) 2>&1 &
+	wait
+done
+
+sync
+echo Reading files back
+monitor_pre_hook $LOGDIR_RESULTS $INSTANCES
+for ITERATION in `seq 1 $ITERATIONS`; do
+	for i in `seq 1 $INSTANCES`; do
+		dd if=zerofile-$i of=/dev/null 2>&1 | tee -a $LOGDIR_RESULTS/dd.$ITERATION-$i &
+	done
+	wait
+done
+monitor_post_hook $LOGDIR_RESULTS $INSTANCES
+rm zerofile-*
+
+exit $SHELLPACK_SUCCESS
+#### Description Loop dd
+#### Details preaddd-bench 8

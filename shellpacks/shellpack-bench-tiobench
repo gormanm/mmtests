@@ -39,9 +39,16 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo tiobench installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
+install-depends hdparm
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
+
+echo Recording max expected speed for reads
+PARTITION=`df -T $TESTDISK_DIR | tail -1 | awk '{print $1}'`
+SPEED=`hdparm -t $PARTITION | grep Timing | awk '{print $(NF-1)}'`
+echo $SPEED > $LOGDIR_RESULTS/disk-read.speed
+echo Expected speed $SPEED
 
 if [ "$TIOBENCH_RANDOM" = "" -o "$TIOBENCH_RANDOM" != "0" ]; then
 	TIOBENCH_COMMAND_RANDOM="--random $TIOBENCH_RANDOM"
@@ -70,4 +77,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description tiobench
-#### Details tiobench-bench 12
+#### Details tiobench-bench 14

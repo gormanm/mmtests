@@ -7,8 +7,15 @@
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required tiobench-${VERSION}
+install-depends hdparm
 
 ###SHELLPACK monitor_hooks
+
+echo Recording max expected speed for reads
+PARTITION=`df -T $TESTDISK_DIR | tail -1 | awk '{print $1}'`
+SPEED=`hdparm -t $PARTITION | grep Timing | awk '{print $(NF-1)}'`
+echo $SPEED > $LOGDIR_RESULTS/disk-read.speed
+echo Expected speed $SPEED
 
 if [ "$TIOBENCH_RANDOM" = "" -o "$TIOBENCH_RANDOM" != "0" ]; then
 	TIOBENCH_COMMAND_RANDOM="--random $TIOBENCH_RANDOM"

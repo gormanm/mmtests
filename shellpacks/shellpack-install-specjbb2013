@@ -1,0 +1,34 @@
+#!/bin/bash
+
+P=specjbb2013-install
+DEFAULT_VERSION=2013
+. $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION="NOT_AVAILABLE"
+MIRROR_LOCATION="$WEBROOT/spec"
+
+# Basic argument parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+mkdir -p $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/specjbb${VERSION}.jar $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/specjbb${VERSION}.jar
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/specjbb2013.props $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config/specjbb2013.props.orig
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/template-C.raw $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config/template-C.raw
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/template-D.raw $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config/template-D.raw
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/template-M.raw $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config/template-M.raw
+
+exit $SHELLPACK_SUCCESS
+#### Description SPECjbb2013
+#### Details specjbb2013 19
