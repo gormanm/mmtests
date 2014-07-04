@@ -14,6 +14,7 @@ MAX_TIME=
 MAX_TRANSACTIONS=
 MAX_ITERATIONS=5
 READONLY_ARG=
+SCALE_FACTOR=1
 
 # Basic argument parser
 while [ "$1" != "" ]; do
@@ -36,6 +37,10 @@ while [ "$1" != "" ]; do
 		;;
 	--effective-cachesize)
 		EFFECTIVE_CACHESIZE=$2
+		shift 2
+		;;
+	--scale-factor)
+		SCALE_FACTOR=$2
 		shift 2
 		;;
 	--shared-buffers)
@@ -89,6 +94,9 @@ else
 	fi
 fi
 
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
 # Install if necessary and run database. Do not use large pages or google
 # malloc as they are unnecessary at this point
 $SHELLPACK_INCLUDE/shellpack-install-postgresbuild \
@@ -99,30 +107,22 @@ $SHELLPACK_INCLUDE/shellpack-install-postgresbuild \
 	|| die Failed to get a usable postgres installation
 export PGHOST=/var/run/postgresql
 export PGPORT=5432
-
-# Set paths and libraries
 export PATH=$SHELLPACK_SOURCES/postgres-${VERSION}-installed/bin:$PATH
 export LD_LIBRARY_PATH=postgres-${VERSION}-installed/lib
-
-echo Copying database configuration
-cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
-
 if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo
 	echo pgbench install-only successfully completed
 	exit $SHELLPACK_SUCCESS
 fi
 
-# Calculate memory usage upper-limit as 75% phys memory
-UPPERLIMIT=$((`grep ^MemTotal /proc/meminfo  | awk '{print $2}'`*1024*3/4))
-TOTALBUFFER_SIZE=$(($UPPERLIMIT+1))
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+echo Copying database configuration
+cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
 
 # Calculate memory requirements
 . $SHELLPACK_INCLUDE/include-hugepage.sh
 gethugepagesize
+UPPERLIMIT=$((`grep ^MemTotal /proc/meminfo  | awk '{print $2}'`*1024*3/4))
+TOTALBUFFER_SIZE=$(($UPPERLIMIT+1))
 while [ $TOTALBUFFER_SIZE -ge $UPPERLIMIT ]; do
 	TOTALBUFFER_SIZE=$(($EFFECTIVE_CACHESIZE))
 
@@ -199,8 +199,16 @@ if [ $? -ne 0 ]; then
 	$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
 fi
 
+# Figure out how to use the time command
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
 echo Initialising database for pgbench
-pgbench -h $PGHOST -p $PGPORT -i pgbench || die Failed to initialise pgbench database
+$TIME_CMD pgbench -h $PGHOST -p $PGPORT -i pgbench -s $SCALE_FACTOR \
+	2>> $LOGDIR_RESULTS/load.time | tee $LOGDIR_RESULTS/load.log
 
 if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
@@ -246,4 +254,4 @@ reset_hugepages
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 24
+#### Details pgbench-bench 25
