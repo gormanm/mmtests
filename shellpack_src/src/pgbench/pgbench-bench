@@ -170,10 +170,11 @@ echo Running sysbench maximum $PGBENCH_MAX_THREADS threads
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
 		echo -n o $NR_THREADS threads iter $ITER
-		pgbench -v -h $PGHOST -p $PGPORT \
-			$READONLY_ARG -c $NR_THREADS \
-			$MAX_TRANSACTIONS $MAX_TIME \
-			pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
+		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS.$ITER \
+			pgbench -v -h $PGHOST -p $PGPORT \
+				$READONLY_ARG -c $NR_THREADS \
+				$MAX_TRANSACTIONS $MAX_TIME \
+				pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
 		SYSRET=$?
 		if [ $SYSRET -ne 0 ]; then
 			cat $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
