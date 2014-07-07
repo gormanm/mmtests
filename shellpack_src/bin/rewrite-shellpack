@@ -279,7 +279,11 @@ EOC
 THREADS=
 START_THREAD=$min_thread
 END_THREAD=$max_thread
-if [ \$END_THREAD -gt 8 ]; then
+if [ \$END_THREAD -gt 32 ]; then
+        THREADS=`seq \$START_THREAD 8`
+        THREADS="\$THREADS `seq 12 4 32`"
+        THREADS="\$THREADS `seq 48 16 \$END_THREAD`"
+elif [ \$END_THREAD -gt 8 ]; then
         THREADS=`seq \$START_THREAD 8`
         THREADS="\$THREADS `seq 12 4 \$END_THREAD`"
 else

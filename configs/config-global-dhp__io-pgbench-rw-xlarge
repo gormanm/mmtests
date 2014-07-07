@@ -69,7 +69,7 @@ export PGBENCH_PAGESIZES="default"
 export PGBENCH_MAX_TRANSACTIONS=100000
 export PGBENCH_READONLY=
 export PGBENCH_MAX_THREADS=$((NUMCPUS*8))
-export PGBENCH_ITERATIONS=7
+export PGBENCH_ITERATIONS=3
 
 # The baseline database size is approximately 30MB. Each unit of scaling
 # factor adds approximately 15M of data to the table. Tune accordingly.

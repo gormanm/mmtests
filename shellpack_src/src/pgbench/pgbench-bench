@@ -164,7 +164,7 @@ if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
 fi
 
-echo Running sysbench maximum $PGBENCH_MAX_THREADS threads
+echo Running pgbench maximum $PGBENCH_MAX_THREADS threads
 ###SHELLPACK threads_stride_begin 1 $PGBENCH_MAX_THREADS
 	echo -n > $LOGDIR_RESULTS/samples
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
