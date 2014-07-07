@@ -68,7 +68,7 @@ export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/4))
 export PGBENCH_PAGESIZES="default"
 export PGBENCH_MAX_TRANSACTIONS=100000
 export PGBENCH_READONLY=
-export PGBENCH_MAX_THREADS=$((NUMCPUS*8))
+export PGBENCH_MAX_THREADS=$((NUMCPUS*4))
 export PGBENCH_ITERATIONS=3
 
 # The baseline database size is approximately 30MB. Each unit of scaling
