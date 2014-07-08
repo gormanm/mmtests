@@ -206,9 +206,10 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 
-echo Initialising database for pgbench
-$TIME_CMD pgbench -h $PGHOST -p $PGPORT -i pgbench -s $SCALE_FACTOR \
-	2>> $LOGDIR_RESULTS/load.time | tee $LOGDIR_RESULTS/load.log
+echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
+$TIME_CMD -o $LOGDIR_RESULTS/load.time \
+	pgbench -h $PGHOST -p $PGPORT -i pgbench -s $SCALE_FACTOR 2>&1 \
+		| tee $LOGDIR_RESULTS/load.log
 
 if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
@@ -259,4 +260,4 @@ reset_hugepages
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 29
+#### Details pgbench-bench 31
