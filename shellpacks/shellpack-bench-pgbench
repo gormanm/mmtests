@@ -200,6 +200,7 @@ echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
 $TIME_CMD -o $LOGDIR_RESULTS/load.time \
 	pgbench -h $PGHOST -p $PGPORT -i pgbench -s $SCALE_FACTOR 2>&1 \
 		| tee $LOGDIR_RESULTS/load.log
+sync
 
 if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
@@ -244,6 +245,7 @@ else
 fi
 for NR_THREADS in $THREADS; do
 	echo -n > $LOGDIR_RESULTS/samples
+	sync
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
 	# Work out max time or max transactions commands
@@ -287,4 +289,4 @@ reset_hugepages
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 33
+#### Details pgbench-bench 34

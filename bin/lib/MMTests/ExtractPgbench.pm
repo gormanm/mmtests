@@ -72,6 +72,7 @@ sub extractSummary() {
 		$self->{_SummaryHeaders} = [ "Action", "Time" ];
 
 		push @{$self->{_SummaryData}}, [ "DBLoadTime", $self->{_LoadTime} ];
+		push @{$self->{_SummaryData}}, [ "DBWarmupTime", $self->{_WarmupTime} ];
 		return 1;
 	}
 
@@ -142,6 +143,17 @@ sub extractReport($$$) {
 		}
 		close INPUT;
 	}
+
+	# Extract warmup time if available
+	$self->{_WarmupTime} = -1;
+	if (open(INPUT, "$reportDir/noprofile/default/warmup.time")) {
+		while (<INPUT>) {
+			next if $_ !~ /elapsed/;
+			$self->{_WarmupTime} =  $self->_time_to_elapsed($_);
+		}
+		close INPUT;
+	}
+
 
 	# Extract per-client transaction information
 	my @clients = @{$self->{_Clients}};
