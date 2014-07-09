@@ -221,17 +221,17 @@ if [ "$RUNNING" = "no" ]; then
 	update_entry_cnf shared_buffers $((SHARED_BUFFERS/1048576))MB
 	update_entry_cnf effective_cache_size $(($EFFECTIVE_CACHESIZE/1048576))MB
 
-	# Do not checkpoint or synchronise frequently
+	# Do not checkpoint frequently
 	# Checkpoints are in 16MB segments so this tuning is to checkpoint
 	# when roughly quarter of the shared bufffers have been updated.
 	update_entry_cnf checkpoint_segments $((SHARED_BUFFERS/1048576/4))
-	update_entry_cnf synchronous_commit off
+	update_entry_cnf synchronous_commit on
 
 	# Use unix domain sockets
 	mkdir -p /var/run/postgresql/
 	chown $POSTGRES_USER /var/run/postgresql/
 	chmod a+rwx /var/run/postgresql/
-	update_entry_cnf unix_socket_directory \'/var/run/postgresql/\'
+	update_entry_cnf unix_socket_directories \'/var/run/postgresql/\'
 	update_entry_cnf unix_socket_group $GROUPID
 	update_entry_cnf unix_socket_permissions 0777
 
