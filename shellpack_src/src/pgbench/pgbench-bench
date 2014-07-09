@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble pgbench-bench 9.2.1
+###SHELLPACK preamble pgbench-bench 9.3.4
 
 ROLE=`whoami`
 DBUSER=nobody
@@ -154,6 +154,29 @@ $TIME_CMD -o $LOGDIR_RESULTS/load.time \
 if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
 fi
+
+# Work out max time or max transactions commands
+NR_THREADS=$((NUMCPUS/2))
+MAX_TIME_COMMAND=
+MAX_TRANSACTIONS_COMMAND=
+if [ "$MAX_TIME" != "" ]; then
+	MAX_TIME_COMMAND="-T $MAX_TIME"
+else
+	if [ "$MAX_TRANSACTIONS" != "" ]; then
+		MAX_TRANSACTIONS_COMMAND="-t $((MAX_TRANSACTIONS*10/NR_THREADS))"
+	else
+		die Specify time or transactions
+	fi
+fi
+
+echo Running warmup routine
+echo o $NR_THREADS threads
+echo o Using $READONLY_ARG -c $NR_THREADS $MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND
+$TIME_CMD -o $LOGDIR_RESULTS/warmup.time \
+	pgbench -v -h $PGHOST -p $PGPORT -r \
+		$READONLY_ARG -c $NR_THREADS \
+		$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
+		pgbench > $LOGDIR_RESULTS/warmup.log
 
 echo Running pgbench maximum $PGBENCH_MAX_THREADS threads
 ###SHELLPACK threads_stride_begin 1 $PGBENCH_MAX_THREADS

@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
-###SHELLPACK preamble postgres-install 9.2.1
+###SHELLPACK preamble postgres-install 9.3.4
 
 LIBHUGETLBFS_VERSION=2.9
 POSTGRES_USER=nobody
@@ -87,10 +87,8 @@ if [ -e unconfigured ]; then
 	$PSQL "bin/initdb -D $POSTGRES_DATADIR" || die Failed to init DB
 
 	# Update the max connection count if necessary
-	if [ $NUMCPUS -gt 24 ]; then
-		echo o Setting max_connections: $(($NUMCPUS*6))
-		update_entry_cnf max_connections $(($NUMCPUS*6))
-	fi
+	echo o Setting max_connections: $(($NUMCPUS*6))
+	update_entry_cnf max_connections $(($NUMCPUS*6))
 
 	# This option just wastes time
 	update_entry_cnf update_process_title off
@@ -223,9 +221,10 @@ if [ "$RUNNING" = "no" ]; then
 	update_entry_cnf shared_buffers $((SHARED_BUFFERS/1048576))MB
 	update_entry_cnf effective_cache_size $(($EFFECTIVE_CACHESIZE/1048576))MB
 
-	# Do not checkpoint or syncronise frequently
-	update_entry_cnf checkpoint_segments 512
-	update_entry_cnf fsync off
+	# Do not checkpoint or synchronise frequently
+	# Checkpoints are in 16MB segments so this tuning is to checkpoint
+	# when roughly quarter of the shared bufffers have been updated.
+	update_entry_cnf checkpoint_segments $((SHARED_BUFFERS/1048576/4))
 	update_entry_cnf synchronous_commit off
 
 	# Use unix domain sockets

@@ -207,6 +207,17 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT CPU-Time
 		eval $COMPARE_CMD --sub-heading elapsed
 		;;
+	pgbench)
+		echo $SUBREPORT Initialisation
+		eval $COMPARE_CMD --sub-heading LoadTime
+		echo
+		echo $SUBREPORT Transactions
+		eval $COMPARE_CMD
+		echo
+		echo $SUBREPORT Time
+		eval $COMPARE_CMD --sub-heading TransTime
+		echo
+		;;
 	preaddd)
 		echo $SUBREPORT Throughput
 		eval $COMPARE_CMD

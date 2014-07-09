@@ -1,7 +1,7 @@
 #!/bin/bash
 
 P=pgbench-bench
-DEFAULT_VERSION=9.2.1
+DEFAULT_VERSION=9.3.4
 . $SHELLPACK_INCLUDE/common.sh
 
 ROLE=`whoami`
@@ -205,6 +205,29 @@ if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
 fi
 
+# Work out max time or max transactions commands
+NR_THREADS=$((NUMCPUS/2))
+MAX_TIME_COMMAND=
+MAX_TRANSACTIONS_COMMAND=
+if [ "$MAX_TIME" != "" ]; then
+	MAX_TIME_COMMAND="-T $MAX_TIME"
+else
+	if [ "$MAX_TRANSACTIONS" != "" ]; then
+		MAX_TRANSACTIONS_COMMAND="-t $((MAX_TRANSACTIONS*10/NR_THREADS))"
+	else
+		die Specify time or transactions
+	fi
+fi
+
+echo Running warmup routine
+echo o $NR_THREADS threads
+echo o Using $READONLY_ARG -c $NR_THREADS $MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND
+$TIME_CMD -o $LOGDIR_RESULTS/warmup.time \
+	pgbench -v -h $PGHOST -p $PGPORT -r \
+		$READONLY_ARG -c $NR_THREADS \
+		$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
+		pgbench > $LOGDIR_RESULTS/warmup.log
+
 echo Running pgbench maximum $PGBENCH_MAX_THREADS threads
 THREADS=
 START_THREAD=1
@@ -264,4 +287,4 @@ reset_hugepages
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 32
+#### Details pgbench-bench 33
