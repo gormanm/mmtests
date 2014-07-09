@@ -214,12 +214,11 @@ if [ "$MAX_TIME" != "" ]; then
 	MAX_TIME_COMMAND="-T $MAX_TIME"
 else
 	if [ "$MAX_TRANSACTIONS" != "" ]; then
-		MAX_TRANSACTIONS_COMMAND="-t $((MAX_TRANSACTIONS*10/NR_THREADS))"
+		MAX_TRANSACTIONS_COMMAND="-t $((MAX_TRANSACTIONS/NR_THREADS))"
 	else
 		die Specify time or transactions
 	fi
 fi
-
 echo Running warmup routine
 echo o $NR_THREADS threads
 echo o Using $READONLY_ARG -c $NR_THREADS $MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND
@@ -289,4 +288,4 @@ reset_hugepages
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 34
+#### Details pgbench-bench 35
