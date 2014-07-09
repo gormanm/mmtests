@@ -41,11 +41,6 @@ if [ $? -ne 0 ]; then
         exit $SHELLPACK_ERROR
 fi
 
-if [ "$MMTESTS_DOWNLOAD_ONLY" = "yes" ]; then
-	echo "$P: download successful"
-	exit $SHELLPACK_SUCCESS
-fi
-
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR aim9-$VERSION-installed
@@ -69,7 +64,7 @@ fi
 cp s9workfile s9workfile-full
 echo "# @(#) s9workfile:1.2 1/22/96 00:00:00
 # AIM Independent Resource Benchmark - Suite IX Workfile
-FILESIZE: 5M >> s9workfile-short
+FILESIZE: 5M
 page_test
 brk_test
 exec_test
@@ -77,4 +72,4 @@ fork_test" >> s9workfile-short
 
 exit $SHELLPACK_SUCCESS
 #### Description AIM9 benchmark
-#### Details aim9 16
+#### Details aim9 20

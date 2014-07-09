@@ -23,7 +23,7 @@ cat aim9.configure | ./S9setup || die Failed to configure aim9
 cp s9workfile s9workfile-full
 echo "# @(#) s9workfile:1.2 1/22/96 00:00:00
 # AIM Independent Resource Benchmark - Suite IX Workfile
-FILESIZE: 5M >> s9workfile-short
+FILESIZE: 5M
 page_test
 brk_test
 exec_test

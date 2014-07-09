@@ -2,6 +2,21 @@ FINEGRAINED_SUPPORTED=no
 NAMEEXTRA=
 
 run_bench() {
-	$SHELLPACK_INCLUDE/shellpack-bench-aim9
+	AIM9_FULL_COMMAND=
+	AIM9_TESTLIST_COMMAND=
+	AIM9_TESTTIME_COMMAND=
+
+	if [ "$AIM9_FULL" = "yes" ]; then
+		AIM9_FULL_COMMAND=--full
+	fi
+	if [ "$AIM9_TESTLIST" != "" ]; then
+		AIM9_TESTLIST_COMMAND="--test-list $AIM9_TESTLIST"
+	fi
+	if [ "$AIM9_TESTTIME" != "" ]; then
+		AIM9_TESTTIME_COMMAND="--time $AIM9_TESTTIME"
+	fi
+	eval $SHELLPACK_INCLUDE/shellpack-bench-aim9 \
+		$AIM9_FULL_COMMAND $AIM9_TESTLIST_COMMAND $AIM9_TESTTIME_COMMAND
+
 	return $?
 }
