@@ -84,16 +84,6 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-if [ "$MAX_TIME" != "" ]; then
-	MAX_TIME="-T $MAX_TIME"
-else
-	if [ "$MAX_TRANSACTIONS" != "" ]; then
-		MAX_TRANSACTIONS="-t $MAX_TRANSACTIONS"
-	else
-		die Specify time or transactions
-	fi
-fi
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
@@ -232,12 +222,26 @@ fi
 for NR_THREADS in $THREADS; do
 	echo -n > $LOGDIR_RESULTS/samples
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+
+	# Work out max time or max transactions commands
+	MAX_TIME_COMMAND=
+	MAX_TRANSACTIONS_COMMAND=
+	if [ "$MAX_TIME" != "" ]; then
+		MAX_TIME_COMMAND="-T $MAX_TIME"
+	else
+		if [ "$MAX_TRANSACTIONS" != "" ]; then
+			MAX_TRANSACTIONS_COMMAND="-t $((MAX_TRANSACTIONS/NR_THREADS))"
+		else
+			die Specify time or transactions
+		fi
+	fi
+
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
 		echo -n o $NR_THREADS threads iter $ITER
 		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS.$ITER \
-			pgbench -v -h $PGHOST -p $PGPORT \
+			pgbench -v -h $PGHOST -p $PGPORT -r \
 				$READONLY_ARG -c $NR_THREADS \
-				$MAX_TRANSACTIONS $MAX_TIME \
+				$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
 				pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
 		SYSRET=$?
 		if [ $SYSRET -ne 0 ]; then
@@ -260,4 +264,4 @@ reset_hugepages
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 31
+#### Details pgbench-bench 32
