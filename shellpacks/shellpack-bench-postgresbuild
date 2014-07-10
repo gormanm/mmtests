@@ -49,4 +49,4 @@ fi
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild-bench 30
+#### Details postgresbuild-bench 32

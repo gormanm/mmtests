@@ -15,6 +15,7 @@ MAX_TRANSACTIONS=
 MAX_ITERATIONS=5
 READONLY_ARG=
 SCALE_FACTOR=1
+VACUUM_ARG=-n
 
 # Basic argument parser
 while [ "$1" != "" ]; do
@@ -218,7 +219,8 @@ for NR_THREADS in $THREADS; do
 
 	echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
 	$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
-		pgbench -h $PGHOST -p $PGPORT -i pgbench -s $SCALE_FACTOR \
+		pgbench -h $PGHOST -p $PGPORT \
+			-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
 			> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
 
 	# Work out max time or max transactions commands
@@ -236,10 +238,10 @@ for NR_THREADS in $THREADS; do
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
-		echo -n o $NR_THREADS threads iter $ITER
+		echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads iteration $ITER
 		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS.$ITER \
 			pgbench -v -h $PGHOST -p $PGPORT -r \
-				$READONLY_ARG -c $NR_THREADS \
+				$VACUUM_ARG $READONLY_ARG -c $NR_THREADS \
 				$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
 				pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
 		SYSRET=$?
@@ -263,4 +265,4 @@ reset_hugepages
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 41
+#### Details pgbench-bench 43

@@ -227,6 +227,9 @@ if [ "$RUNNING" = "no" ]; then
 	update_entry_cnf checkpoint_segments $((SHARED_BUFFERS/1048576/4))
 	update_entry_cnf synchronous_commit on
 
+	# AutoVacumn
+	update_entry_cnf autovacuum on
+
 	# Use unix domain sockets
 	mkdir -p /var/run/postgresql/
 	chown $POSTGRES_USER /var/run/postgresql/

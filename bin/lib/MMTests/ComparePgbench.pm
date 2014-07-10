@@ -19,7 +19,7 @@ sub extractComparison() {
 	my ($self, $subHeading, $showCompare) = @_;
 
 	if ($subHeading eq "LoadTime") {
-		$self->{_CompareOps} = [ "none", "pndiff" ],
+		$self->{_CompareOps} = [ "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
 	} elsif ($subHeading eq "TransTime") {
 		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
 	} else {
