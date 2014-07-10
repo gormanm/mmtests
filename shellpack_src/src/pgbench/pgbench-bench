@@ -2,6 +2,8 @@
 
 ###SHELLPACK preamble pgbench-bench 9.3.4
 
+install-depends gnuplot
+
 ROLE=`whoami`
 DBUSER=nobody
 DBPASSWORD=shellpack-mysqlbench
@@ -78,6 +80,41 @@ while [ $TOTALBUFFER_SIZE -ge $UPPERLIMIT ]; do
 	fi
 done
 
+if [ "$MAX_TRANSACTIONS" = "auto" ]; then
+	CEILING=3000000
+	FLOOR=5000
+	WORKLOAD_SIZE=$((SCALE_FACTOR*15*1048576+30*1048576))
+	WEIGHT_MAINMEMORY=5
+	WEIGHT_DISK=80
+	cat > /tmp/points <<EOF
+0 $((CEILING/2))
+$SHARED_BUFFERS $CEILING
+$EFFECTIVE_CACHESIZE $((CEILING/WEIGHT_MAINMEMORY*5/4))
+$MEMTOTAL_BYTES $((CEILING/WEIGHT_MAINMEMORY))
+$((MEMTOTAL_BYTES*4/3)) $((CEILING/WEIGHT_MAINMEMORY/2))
+$((MEMTOTAL_BYTES*2)) $((CEILING/WEIGHT_DISK))
+$((MEMTOTAL_BYTES*8)) $((CEILING/WEIGHT_DISK*2))
+EOF
+
+	cat > /tmp/gnuplot.script <<EOF
+set terminal dumb
+set table "/tmp/coordinates"
+plot '/tmp/points' smooth cspline
+EOF
+	cat /tmp/gnuplot.script | gnuplot > /dev/null
+
+        MAX_TRANSACTIONS=`awk "{ if (\\$1 >= \$WORKLOAD_SIZE) print \\$2 }" /tmp/coordinates | head -1`
+	MAX_TRANSACTIONS=`perl -e "print $MAX_TRANSACTIONS"`
+	if [ "$MAX_TRANSACTIONS" = "" ]; then
+		MAX_TRANSACTIONS=$FLOOR
+	fi
+	if [ $MAX_TRANSACTIONS -lt $FLOOR ]; then
+		MAX_TRANSACTIONS=$FLOOR
+	fi
+	mv /tmp/points $LOGDIR_RESULTS/pgbench-auto-points
+	mv /tmp/coordinates $LOGDIR_RESULTS/pgbench-auto-coordinates
+fi
+
 echo Shutting down DB to reconfigure system
 $SHELLPACK_INCLUDE/shellpack-install-postgresbuild --shutdown
 
@@ -113,8 +150,8 @@ fi
 # Figure out how to use the time command
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
-        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-        TIME_CMD="time"
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
 fi
 
 if [ "$READONLY" = "yes" ]; then
@@ -123,9 +160,11 @@ fi
 
 echo Running pgbench
 echo o maximum $PGBENCH_MAX_THREADS threads
-echo o scale factor: $SCALE_FACTOR
+echo o scale factor: $SCALE_FACTOR 
+echo o transactions: $MAX_TRANSACTIONS
+echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 
-###SHELLPACK threads_stride_begin 1 $PGBENCH_MAX_THREADS
+###SHELLPACK threads_large_stride_begin 1 $PGBENCH_MAX_THREADS
 	echo -n > $LOGDIR_RESULTS/samples
 
 	# Restart the database
@@ -165,12 +204,14 @@ echo o scale factor: $SCALE_FACTOR
 	MAX_TRANSACTIONS_COMMAND=
 	if [ "$MAX_TIME" != "" ]; then
 		MAX_TIME_COMMAND="-T $MAX_TIME"
+		echo $MAX_TIME > $LOGDIR_RESULTS/pgbench-time
 	else
 		if [ "$MAX_TRANSACTIONS" != "" ]; then
 			MAX_TRANSACTIONS_COMMAND="-t $((MAX_TRANSACTIONS/NR_THREADS))"
 		else
 			die Specify time or transactions
 		fi
+		echo $((MAX_TRANSACTIONS/NR_THREADS)) > $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS
 	fi
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
