@@ -131,17 +131,17 @@ dbench3
 	writeback or journalling takes place. High throughput figures may
 	depend on the operations completing in memory before processes
 	like kjournald (where applicable) or flushers kick in. If dbench
-	does most of its work in memory then the throughput is artifically
+	does most of its work in memory then the throughput is artificially
 	high. Running the benchmark in synchronous mode can offset this.
 
 	Alterations to hold times of i_mutex can adversely affect dbench
-	figures because in some cases long hold times can give an artifical
+	figures because in some cases long hold times can give an artificial
 	boost to metadata modifications in memory without the results ever
 	hitting the disk.
 
 	Interpreting dbench3 figures can be a pain due to these limitations.
 	However, it can still be useful as an early warning system. If
-	dbench3 throws up something anomolous it is worth finding out the
+	dbench3 throws up something anomalous it is worth finding out the
 	root cause and correlating it with other results.
 
 dbench4
@@ -152,7 +152,7 @@ dbench4
 ffsb
 	The ffsb benchmark takes a workfile to simulate various different
 	workloads. Support is there to generate profiles similar to what
-	is used for evaulating btrfs.
+	is used for evaluating btrfs.
 
 vmr-stream
 	Runs the STREAM benchmark a number of times for varying sizes. An
