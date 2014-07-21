@@ -54,20 +54,22 @@ sub generate_traceevent_regex {
 	# Can't handle the print_flags stuff but in the context of this
 	# script, it really doesn't matter
 	$regex =~ s/\(REC.*\) \? __print_flags.*//;
+	my @expected_list = split(/\s/, $default);
 
 	# Verify fields are in the right order
 	my $tuple;
 	foreach $tuple (split /\s/, $regex) {
 		my ($key, $value) = split(/=/, $tuple);
-		my $expected = shift;
+		my $expected = shift @expected_list;
+		$expected =~ s/=.*//;
 		if ($key ne $expected) {
 			print("WARNING: Format not as expected for event $event '$key' != '$expected'\n");
 			$regex =~ s/$key=\((.*)\)/$key=$1/;
 		}
 	}
 
-	if (defined shift) {
-		die("Fewer fields than expected in format");
+	if (defined shift @expected_list) {
+		die("Fewer fields than expected in format for $event");
 	}
 
 	return $regex;
