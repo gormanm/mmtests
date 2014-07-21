@@ -111,6 +111,9 @@ EOF
 	if [ $MAX_TRANSACTIONS -lt $FLOOR ]; then
 		MAX_TRANSACTIONS=$FLOOR
 	fi
+	if [ "$READONLY" != "yes" ]; then
+		MAX_TRANSACTIONS=$((MAX_TRANSACTIONS/8))
+	fi
 	mv /tmp/points $LOGDIR_RESULTS/pgbench-auto-points
 	mv /tmp/coordinates $LOGDIR_RESULTS/pgbench-auto-coordinates
 fi
