@@ -36,8 +36,6 @@ sleep 2
 
 echo $PROTOCOLS > $LOGDIR_RESULTS/protocols
 for PROTOCOL in $PROTOCOLS; do
-	echo -n > $LOGDIR_RESULTS/netperf-$PROTOCOL.result
-
 	EXTRA=
 	if [ "$PROTOCOL" = "UDP_STREAM" ]; then
 		EXTRA="-P 15895 -s 32768 -S 32768"

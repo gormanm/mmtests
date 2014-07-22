@@ -1,11 +1,7 @@
 #!/bin/bash
 # This script runs tbench for varying numbers of clients
-P=tbench-bench
+P=dbench-bench
 DEFAULT_VERSION=4.0
-. $SHELLPACK_INCLUDE/common.sh
-
-P=tbench-bench
-VERSION=4.0
 . $SHELLPACK_INCLUDE/common.sh
 
 # Basic argument parser
@@ -48,11 +44,11 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/dbench-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/dbench-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-tbench -v ${VERSION}  || die tbench install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-dbench -v ${VERSION}  || die dbench install script returned error
 fi
-cd $SHELLPACK_SOURCES/tbench-${VERSION}-installed || die Failed to cd to tbench install directory
+cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die Failed to cd to dbench install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo tbench installed only as requested.
+	echo dbench installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
 
@@ -88,4 +84,4 @@ exit $SHELLPACK_SUCCESS
 #### Description tbench
 #### Details tbench-bench 4
 #### Description tbench
-#### Details tbench-bench 3
+#### Details tbench-bench 4

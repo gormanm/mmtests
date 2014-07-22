@@ -1,10 +1,6 @@
 #!/bin/bash
 # This script runs tbench for varying numbers of clients
-###SHELLPACK preamble tbench-bench 4.0
-
-P=tbench-bench
-VERSION=4.0
-. $SHELLPACK_INCLUDE/common.sh
+###SHELLPACK preamble dbench-bench 4.0
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
