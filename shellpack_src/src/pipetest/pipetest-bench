@@ -5,6 +5,7 @@ ITERATIONS=30
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
 ###SHELLPACK parseargParam -i ITERATIONS
 ###SHELLPACK parseargEnd
 
@@ -23,7 +24,7 @@ RETVAL=0
 monitor_pre_hook $LOGDIR_RESULTS
 
 pushd $SHELLPACK_SOURCES/pipetest-${VERSION}-installed > /dev/null
-$EXPECT_UNBUFFER ./pipe-test | tee $LOGDIR_RESULTS/pipetest.log &
+$TASKSET_SERVER $EXPECT_UNBUFFER ./pipe-test | tee $LOGDIR_RESULTS/pipetest.log &
 PID_TEE=$!
 PID_PIPETEST=`$SHELLPACK_TOPLEVEL/bin/piping-pid.sh $PID_TEE`
 echo pipetest pid $PID_PIPETEST

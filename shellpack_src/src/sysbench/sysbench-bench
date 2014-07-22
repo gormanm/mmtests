@@ -2,7 +2,7 @@
 
 P=sysbench-bench
 MYSQL_VERSION=5.0.51b
-POSTGRES_VERSION=9.2.1
+POSTGRES_VERSION=9.3.4
 VERSION=0.4.12
 DBUSER=nobody
 DBPASSWORD=shellpack-mysqlbench

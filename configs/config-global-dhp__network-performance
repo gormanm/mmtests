@@ -83,7 +83,7 @@ export DBENCH_MAX_CLIENTS=$((NUMCPUS*64))
 
 # NetPerf
 export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
-export NETPERF_BINDING=firstsecond
+export NETPERF_BINDING=cross-socket
 
 # TBench
 export TBENCH_DURATION=$((3*60))

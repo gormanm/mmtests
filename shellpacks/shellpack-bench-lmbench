@@ -66,10 +66,8 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 	lat_mmap)
 		STRIDE=$(((LMBENCH_LATMMAP_MAX_FILESIZE-LMBENCH_LATMMAP_MIN_FILESIZE)/20))
 		for FILESIZE in `seq $LMBENCH_LATMMAP_MIN_FILESIZE $STRIDE $LMBENCH_LATMMAP_MAX_FILESIZE` $LMBENCH_LATMMAP_MAX_FILESIZEZE; do
-			echo -n o $((FILESIZE/1024))K
 			FILESIZE=$((FILESIZE&~4095))
 			dd if=/dev/zero of=$TESTDISK_DIR/lmbench.file ibs=4096 count=$((FILESIZE/4096)) conv=sync 2> /dev/null
-			echo .
 			./bin/$LMBENCH_TEST \
 				-N $LMBENCH_LATMMAP_ITERATIONS \
 				$FILESIZE $TESTDISK_DIR/lmbench.file \
@@ -78,17 +76,24 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 		rm $TESTDISK_DIR/lmbench.file
 		;;
 	lat_ctx)
-		CLIENT=1
-		while [ $CLIENT -lt $LMBENCH_LATCTX_MAXCLIENTS ]; do
+THREADS=
+START_THREAD=1
+END_THREAD=$LMBENCH_LATCTX_MAXCLIENTS
+if [ $END_THREAD -gt 32 ]; then
+        THREADS=`seq $START_THREAD 2 8`
+        THREADS="$THREADS `seq 12 6 32`"
+        THREADS="$THREADS `seq 48 18 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+        THREADS=`seq $START_THREAD 2 8`
+        THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+        THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+for NR_THREADS in $THREADS; do
 			./bin/$LMBENCH_TEST \
 				-s $LMBENCH_LATCTX_SIZE \
-				$CLIENT 2>&1 | tee -a $LMBENCH_RESULTS
-			if [ $CLIENT -lt $NUMCPUS ]; then
-				CLIENT=$((CLIENT+1))
-			else
-				CLIENT=$((CLIENT+2))
-			fi
-		done
+				$NR_THREADS 2>&1 | tee -a $LMBENCH_RESULTS
+done
 		;;
 	*)
 		die "Unrecognised test $LMBENCH_TEST for execution"
@@ -101,4 +106,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description lmbench
-#### Details lmbench-bench 23
+#### Details lmbench-bench 24

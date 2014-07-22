@@ -8,6 +8,7 @@ HOSTNAME=`hostname`
 RELEASE=`uname -r`
 TESTTIME=15
 ITERATIONS=12
+TESTLIST=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -15,8 +16,12 @@ ITERATIONS=12
 			WORKFILE=s9workfile-full
 			shift
 			;;
+		--test-list)
+			TESTLIST=$2
+			shift 2
+			;;
 		--time)
-			TESTTIME="-t $2"
+			TESTTIME=$2
 			shift 2
 			;;
 ###SHELLPACK parseargEnd
@@ -39,7 +44,20 @@ EOF
 chmod u+x $EXPECT_SCRIPT
 
 cd $SHELLPACK_SOURCES/aim9-${VERSION}-installed
-cp $WORKFILE s9workfile
+if [ "$TESTLIST" != "" ]; then
+	rm -f s9workfile
+	echo "# @(#) s9workfile:1.2 1/22/96 00:00:00
+# AIM Independent Resource Benchmark - Suite IX Workfile
+FILESIZE: 5M" >> s9workfile
+	TIFS=$IFS
+	IFS=,
+	for TESTNAME in $TESTLIST; do
+		echo $TESTNAME >> s9workfile
+	done
+	IFS=$TIFS
+else
+	cp $WORKFILE s9workfile
+fi
 
 for ITERATION in `seq 1 $ITERATIONS`; do
 	echo Starting iteration $ITERATION

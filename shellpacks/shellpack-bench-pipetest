@@ -6,6 +6,9 @@ DEFAULT_VERSION=0
 ITERATIONS=30
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -20,8 +23,39 @@ while [ "$1" != "" ]; do
 		INSTALL_FORCE=yes
 		shift
 		;;
+	--bind-pinned)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUA"
+		shift
+		;;
+	--bind-cross-node)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`numactl --hardware | grep ^node | grep cpus: | tail -1 | awk '{print $NF}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
+	--bind-cross-socket)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`list-cpu-siblings.pl $CPUA cores | awk -F , '{print $1}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
+	--bind-cross-ht)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`list-cpu-siblings.pl $CPUA threads | awk -F , '{print $1}'`
+		if [ "$CPUB" = "" ]; then
+			echo ERROR: Could not identify HT thread for CPU $CPUA
+			exit $SHELLPACK_ERROR
+		fi
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
 	-i)
-		iterations=$2
+		ITERATIONS=$2
 		shift 2
 		;;
 	*)
@@ -29,6 +63,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -37,7 +75,7 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/pipetest
 fi
 if [ ! -d $SHELLPACK_SOURCES/pipetest-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-pipetest -v ${VERSION} || die pipetest install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-pipetest -v ${VERSION}  || die pipetest install script returned error
 fi
 cd $SHELLPACK_SOURCES/pipetest-${VERSION}-installed || die Failed to cd to pipetest install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -59,7 +97,7 @@ RETVAL=0
 monitor_pre_hook $LOGDIR_RESULTS
 
 pushd $SHELLPACK_SOURCES/pipetest-${VERSION}-installed > /dev/null
-$EXPECT_UNBUFFER ./pipe-test | tee $LOGDIR_RESULTS/pipetest.log &
+$TASKSET_SERVER $EXPECT_UNBUFFER ./pipe-test | tee $LOGDIR_RESULTS/pipetest.log &
 PID_TEE=$!
 PID_PIPETEST=`$SHELLPACK_TOPLEVEL/bin/piping-pid.sh $PID_TEE`
 echo pipetest pid $PID_PIPETEST
@@ -87,4 +125,4 @@ monitor_post_hook $LOGDIR_RESULTS
 
 exit $RETVAL
 #### Description Run the pipe-test benchmark
-#### Details pipetest-bench 12
+#### Details pipetest-bench 14

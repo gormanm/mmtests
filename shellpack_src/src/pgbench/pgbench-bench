@@ -1,6 +1,8 @@
 #!/bin/bash
 
-###SHELLPACK preamble pgbench-bench 9.2.1
+###SHELLPACK preamble pgbench-bench 9.3.4
+
+install-depends gnuplot
 
 ROLE=`whoami`
 DBUSER=nobody
@@ -12,11 +14,14 @@ MAX_TIME=
 MAX_TRANSACTIONS=
 MAX_ITERATIONS=5
 READONLY_ARG=
+SCALE_FACTOR=1
+VACUUM_ARG=-n
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --max-threads         PGBENCH_MAX_THREADS
 ###SHELLPACK parseargParam --effective-cachesize EFFECTIVE_CACHESIZE
+###SHELLPACK parseargParam --scale-factor        SCALE_FACTOR
 ###SHELLPACK parseargParam --shared-buffers      SHARED_BUFFERS
 ###SHELLPACK parseargParam --work-mem            WORK_MEM
 ###SHELLPACK parseargParam --max-time            MAX_TIME
@@ -33,15 +38,7 @@ READONLY_ARG=
 		;;
 ###SHELLPACK parseargEnd
 
-if [ "$MAX_TIME" != "" ]; then
-	MAX_TIME="-T $MAX_TIME"
-else
-	if [ "$MAX_TRANSACTIONS" != "" ]; then
-		MAX_TRANSACTIONS="-t $MAX_TRANSACTIONS"
-	else
-		die Specify time or transactions
-	fi
-fi
+###SHELLPACK monitor_hooks
 
 # Install if necessary and run database. Do not use large pages or google
 # malloc as they are unnecessary at this point
@@ -51,31 +48,26 @@ $SHELLPACK_INCLUDE/shellpack-install-postgresbuild \
 	--shared_buffers $SHARED_BUFFERS \
 	--work_mem $WORK_MEM \
 	|| die Failed to get a usable postgres installation
-export PGHOST=/var/run/postgresql
-export PGPORT=5432
-
-# Set paths and libraries
-export PATH=$SHELLPACK_SOURCES/postgres-${VERSION}-installed/bin:$PATH
-export LD_LIBRARY_PATH=postgres-${VERSION}-installed/lib
-
-echo Copying database configuration
-cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
-
 if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo
 	echo pgbench install-only successfully completed
 	exit $SHELLPACK_SUCCESS
 fi
 
-# Calculate memory usage upper-limit as 75% phys memory
-UPPERLIMIT=$((`grep ^MemTotal /proc/meminfo  | awk '{print $2}'`*1024*3/4))
-TOTALBUFFER_SIZE=$(($UPPERLIMIT+1))
-
-###SHELLPACK monitor_hooks
+echo Copying database configuration
+cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
+export PGHOST=localhost
+export PGPORT=5432
+export PATH=$SHELLPACK_SOURCES/postgres-${VERSION}-installed/bin:$PATH
+export LD_LIBRARY_PATH=postgres-${VERSION}-installed/lib
+PSQL=$SHELLPACK_SOURCES/postgres-${VERSION}-installed/bin/psql
+RUNDBUSER="su -s /bin/bash $DBUSER -c"
 
 # Calculate memory requirements
 . $SHELLPACK_INCLUDE/include-hugepage.sh
 gethugepagesize
+UPPERLIMIT=$((`grep ^MemTotal /proc/meminfo  | awk '{print $2}'`*1024*3/4))
+TOTALBUFFER_SIZE=$(($UPPERLIMIT+1))
 while [ $TOTALBUFFER_SIZE -ge $UPPERLIMIT ]; do
 	TOTALBUFFER_SIZE=$(($EFFECTIVE_CACHESIZE))
 
@@ -87,6 +79,44 @@ while [ $TOTALBUFFER_SIZE -ge $UPPERLIMIT ]; do
 		KEYBUFFER_SIZE=$(($KEYBUFFER_SIZE-$KEYBUFFER_SIZE/10))
 	fi
 done
+
+if [ "$MAX_TRANSACTIONS" = "auto" ]; then
+	CEILING=3000000
+	FLOOR=5000
+	WORKLOAD_SIZE=$((SCALE_FACTOR*15*1048576+30*1048576))
+	WEIGHT_MAINMEMORY=5
+	WEIGHT_DISK=80
+	cat > /tmp/points <<EOF
+0 $((CEILING/2))
+$SHARED_BUFFERS $CEILING
+$EFFECTIVE_CACHESIZE $((CEILING/WEIGHT_MAINMEMORY*5/4))
+$MEMTOTAL_BYTES $((CEILING/WEIGHT_MAINMEMORY))
+$((MEMTOTAL_BYTES*4/3)) $((CEILING/WEIGHT_MAINMEMORY/2))
+$((MEMTOTAL_BYTES*2)) $((CEILING/WEIGHT_DISK))
+$((MEMTOTAL_BYTES*8)) $((CEILING/WEIGHT_DISK*2))
+EOF
+
+	cat > /tmp/gnuplot.script <<EOF
+set terminal dumb
+set table "/tmp/coordinates"
+plot '/tmp/points' smooth cspline
+EOF
+	cat /tmp/gnuplot.script | gnuplot > /dev/null
+
+        MAX_TRANSACTIONS=`awk "{ if (\\$1 >= \$WORKLOAD_SIZE) print \\$2 }" /tmp/coordinates | head -1`
+	MAX_TRANSACTIONS=`perl -e "print $MAX_TRANSACTIONS"`
+	if [ "$MAX_TRANSACTIONS" = "" ]; then
+		MAX_TRANSACTIONS=$FLOOR
+	fi
+	if [ $MAX_TRANSACTIONS -lt $FLOOR ]; then
+		MAX_TRANSACTIONS=$FLOOR
+	fi
+	if [ "$READONLY" != "yes" ]; then
+		MAX_TRANSACTIONS=$((MAX_TRANSACTIONS/8))
+	fi
+	mv /tmp/points $LOGDIR_RESULTS/pgbench-auto-points
+	mv /tmp/coordinates $LOGDIR_RESULTS/pgbench-auto-coordinates
+fi
 
 echo Shutting down DB to reconfigure system
 $SHELLPACK_INCLUDE/shellpack-install-postgresbuild --shutdown
@@ -120,55 +150,81 @@ if [ "$LARGEPAGES" != "" ]; then
 	reserve_hugepages $USE_DYNAMIC_POOL $REQUIRED_HUGEPAGES
 fi
 
-# Restart the database
-echo Starting DB up after configuring system
-$SHELLPACK_INCLUDE/shellpack-install-postgresbuild $LARGEPAGES \
-	--effective_cachesize $EFFECTIVE_CACHESIZE \
-	--shared_buffers $SHARED_BUFFERS \
-	--work_mem $WORK_MEM \
-	-v ${VERSION} \
-	|| die Failed to get a usable mysql installation
-export PGHOST=localhost
-export PGPORT=5432
-
-# Create database
-echo Creating database
-PSQL=$SHELLPACK_SOURCES/postgres-${VERSION}-installed/bin/psql
-RUNDBUSER="su -s /bin/bash $DBUSER -c"
-
-$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
-if [ $? -ne 0 ]; then
-	echo " o Database create returned $?"
-	echo " o Dumping previous runs database"
-	$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
-	echo " o Re-creating database"
-	$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
+# Figure out how to use the time command
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
 fi
-
-$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'"
-if [ $? -ne 0 ]; then
-	echo " o Role create returned $?"
-	$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-	$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
-fi
-
-echo Initialising database for pgbench
-pgbench -h $PGHOST -p $PGPORT -i pgbench || die Failed to initialise pgbench database
 
 if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
 fi
 
-echo Running sysbench maximum $PGBENCH_MAX_THREADS threads
-###SHELLPACK threads_stride_begin 1 $PGBENCH_MAX_THREADS
+echo Running pgbench
+echo o maximum $PGBENCH_MAX_THREADS threads
+echo o scale factor: $SCALE_FACTOR 
+echo o transactions: $MAX_TRANSACTIONS
+echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
+
+###SHELLPACK threads_large_stride_begin 1 $PGBENCH_MAX_THREADS
 	echo -n > $LOGDIR_RESULTS/samples
+
+	# Restart the database
+	echo Starting DB cold
+	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild $LARGEPAGES \
+		--effective_cachesize $EFFECTIVE_CACHESIZE \
+		--shared_buffers $SHARED_BUFFERS \
+		--work_mem $WORK_MEM \
+		-v ${VERSION} \
+		|| die Failed to get a usable mysql installation
+
+	echo Creating database for thread count $NR_THREADS
+	$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
+	if [ $? -ne 0 ]; then
+		echo " o Database create returned $?"
+		echo " o Dumping previous runs database"
+		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+		echo " o Re-creating database"
+		$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
+	fi
+
+	$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'"
+	if [ $? -ne 0 ]; then
+		echo " o Role create returned $?"
+		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
+	fi
+
+	echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
+	$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
+		pgbench -h $PGHOST -p $PGPORT \
+			-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
+			> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
+
+	# Work out max time or max transactions commands
+	MAX_TIME_COMMAND=
+	MAX_TRANSACTIONS_COMMAND=
+	if [ "$MAX_TIME" != "" ]; then
+		MAX_TIME_COMMAND="-T $MAX_TIME"
+		echo $MAX_TIME > $LOGDIR_RESULTS/pgbench-time
+	else
+		if [ "$MAX_TRANSACTIONS" != "" ]; then
+			MAX_TRANSACTIONS_COMMAND="-t $((MAX_TRANSACTIONS/NR_THREADS))"
+		else
+			die Specify time or transactions
+		fi
+		echo $((MAX_TRANSACTIONS/NR_THREADS)) > $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS
+	fi
+
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
-		echo -n o $NR_THREADS threads iter $ITER
-		pgbench -v -h $PGHOST -p $PGPORT \
-			$READONLY_ARG -c $NR_THREADS \
-			$MAX_TRANSACTIONS $MAX_TIME \
-			pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
+		echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads iteration $ITER
+		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS.$ITER \
+			pgbench -v -h $PGHOST -p $PGPORT -r \
+				$VACUUM_ARG $READONLY_ARG -c $NR_THREADS \
+				$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
+				pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
 		SYSRET=$?
 		if [ $SYSRET -ne 0 ]; then
 			cat $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
@@ -176,15 +232,15 @@ echo Running sysbench maximum $PGBENCH_MAX_THREADS threads
 		fi
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
+	$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+	$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild --shutdown
 ###SHELLPACK threads_stride_end
 
 # Copy the log files
 cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
 
-$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
-
 # Shutdown server
-$SHELLPACK_INCLUDE/shellpack-install-postgresbuild --shutdown
 reset_hugepages
 
 echo pgbench successfully completed

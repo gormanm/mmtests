@@ -124,8 +124,8 @@ my %_fieldNameMap = (
 	"vmscan_lru_shrink_file_kswapd"			=> "Kswapd reclaimed file pages",
 	"vmscan_lru_shrink_kswapd"			=> "Kswapd reclaimed LRU pages",
 	"vmscan_slab_shrink_kswapd"			=> "Kswapd reclaimed Slab pages",
-	"vmscan_lru_file_anon_scan_ratio"		=> "Scanned ratio File/Anon",
-	"vmscan_lru_slab_reclaimed_ratio"		=> "Reclaim ratio LRU/Slab",
+	"vmscan_lru_file_anon_scan_ratio"		=> "%age scanned file/anon",
+	"vmscan_lru_slab_reclaimed_ratio"		=> "%age reclaimed LRU/Slab",
 	"vmscan_direct_reclaim_time_stalled"            => "Time direct reclaim stalled",
         "vmscan_slab_shrink_direct_time_stalled"	=> "Time direct slab shrink",
         "vmscan_slab_shrink_kswapd_time_stalled"	=> "Time kswapd slab shrink",
@@ -143,11 +143,11 @@ my %compactionState;
 sub ftraceInit {
 	my $self = $_[0];
 	$regex_writeback_congestion_wait = $self->generate_traceevent_regex(
-		"kmem/writeback_congestion_wait",
+		"writeback/writeback_congestion_wait",
 		$regex_writeback_congestion_wait_default,
 		"usec_timeout", "usec_delayed");
 	$regex_writeback_wait_iff_congested = $self->generate_traceevent_regex(
-		"kmem/writeback_wait_iff_congested",
+		"writeback/writeback_wait_iff_congested",
 		$regex_writeback_wait_iff_congested_default,
 		"usec_timeout", "usec_delayed");
 	$regex_vmscan_lru_shrink_inactive = $self->generate_traceevent_regex(
@@ -214,15 +214,15 @@ sub ftraceCallback {
 
 		# Fields (look at the regex)
 		# $2 == usec_delayed
-		my $usec_delayed = $2;
-		@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED] += $usec_delayed;
-		$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED} += $usec_delayed;
+		my $msec_delayed = $2 / 1000;
+		@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED] += $msec_delayed;
+		$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED} += $msec_delayed;
 		if ($process =~ /kswapd[0-9]+/) {
-			@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED_KSWAPD] += $usec_delayed;
-			$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED_KSWAPD} += $usec_delayed;
+			@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED_KSWAPD] += $msec_delayed;
+			$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED_KSWAPD} += $msec_delayed;
 		} else {
-			@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED_DIRECT] += $usec_delayed;
-			$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED_DIRECT} += $usec_delayed;
+			@$ftraceCounterRef[WRITEBACK_CONGESTION_WAIT_TIME_WAITED_DIRECT] += $msec_delayed;
+			$perprocessRef->{$process}->{WRITEBACK_CONGESTION_WAIT_TIME_WAITED_DIRECT} += $msec_delayed;
 		}
 
 	} elsif ($tracepoint eq "writeback_wait_iff_congested") {
@@ -236,15 +236,15 @@ sub ftraceCallback {
 		@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED]++;
 
 		# Fields (look at the regex)
-		my $usec_delayed = $2;
-		@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED] += $usec_delayed;
-		$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED} += $usec_delayed;
+		my $msec_delayed = $2 / 1000;
+		@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED] += $msec_delayed;
+		$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED} += $msec_delayed;
 		if ($process =~ /kswapd[0-9]+/) {
-			@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_KSWAPD] += $usec_delayed;
-			$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_KSWAPD} += $usec_delayed;
+			@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_KSWAPD] += $msec_delayed;
+			$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_KSWAPD} += $msec_delayed;
 		} else {
-			@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_DIRECT] += $usec_delayed;
-			$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_DIRECT} += $usec_delayed;
+			@$ftraceCounterRef[WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_DIRECT] += $msec_delayed;
+			$perprocessRef->{$process}->{WRITEBACK_WAIT_IFF_CONGESTED_TIME_WAITED_DIRECT} += $msec_delayed;
 		}
 	} elsif ($tracepoint eq "mm_vmscan_lru_shrink_inactive") {
 		if ($details !~ /$regex_vmscan_lru_shrink_inactive/p) {
@@ -413,21 +413,21 @@ sub ftraceCallback {
 
 	my $lru_pages_shrink  = @$ftraceCounterRef[VMSCAN_LRU_SHRINK_DIRECT]  + @$ftraceCounterRef[VMSCAN_LRU_SHRINK_KSWAPD];
 	my $slab_pages_shrink = @$ftraceCounterRef[VMSCAN_SLAB_SHRINK_DIRECT] + @$ftraceCounterRef[VMSCAN_SLAB_SHRINK_KSWAPD];
-	my $ratio = 1;
+	my $percentage = 100;
 
-	if ($lru_pages_shrink + $slab_pages_shrink > 0) {
-		$ratio = $lru_pages_shrink $slab_pages_shrink;
+	if ($slab_pages_shrink > 0) {
+		$percentage = $lru_pages_shrink * 100 / ($lru_pages_shrink + $slab_pages_shrink);
 	}
-	@$ftraceCounterRef[VMSCAN_LRU_SLAB_RECLAIMED_RATIO] = $ratio;
+	@$ftraceCounterRef[VMSCAN_LRU_SLAB_RECLAIMED_RATIO] = $percentage;
 
 	my $anon_pages_scanned = @$ftraceCounterRef[VMSCAN_LRU_SCAN_ANON_DIRECT] + @$ftraceCounterRef[VMSCAN_LRU_SCAN_ANON_KSWAPD];
 	my $file_pages_scanned = @$ftraceCounterRef[VMSCAN_LRU_SCAN_FILE_DIRECT] + @$ftraceCounterRef[VMSCAN_LRU_SCAN_FILE_KSWAPD];
-	$ratio = 1
+	$percentage = 100;
 
-	if ($anon_pages_scanned + $file_pages_scanned > 0) {
-		$ratio = $file_pages_scanned $anon_pages_scanned;
+	if ($anon_pages_scanned > 0) {
+		$percentage = $file_pages_scanned * 100 / ($anon_pages_scanned + $file_pages_scanned);
 	}
-	@$ftraceCounterRef[VMSCAN_LRU_FILE_ANON_SCAN_RATIO] = $ratio;
+	@$ftraceCounterRef[VMSCAN_LRU_FILE_ANON_SCAN_RATIO] = $percentage;
 
 }
 

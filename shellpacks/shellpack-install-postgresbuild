@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
 P=postgres-install
-DEFAULT_VERSION=9.2.1
+DEFAULT_VERSION=9.3.4
 . $SHELLPACK_INCLUDE/common.sh
 
 LIBHUGETLBFS_VERSION=2.9
@@ -145,10 +145,8 @@ if [ -e unconfigured ]; then
 	$PSQL "bin/initdb -D $POSTGRES_DATADIR" || die Failed to init DB
 
 	# Update the max connection count if necessary
-	if [ $NUMCPUS -gt 24 ]; then
-		echo o Setting max_connections: $(($NUMCPUS*6))
-		update_entry_cnf max_connections $(($NUMCPUS*6))
-	fi
+	echo o Setting max_connections: $(($NUMCPUS*6))
+	update_entry_cnf max_connections $(($NUMCPUS*6))
 
 	# This option just wastes time
 	update_entry_cnf update_process_title off
@@ -281,16 +279,20 @@ if [ "$RUNNING" = "no" ]; then
 	update_entry_cnf shared_buffers $((SHARED_BUFFERS/1048576))MB
 	update_entry_cnf effective_cache_size $(($EFFECTIVE_CACHESIZE/1048576))MB
 
-	# Do not checkpoint or syncronise frequently
-	update_entry_cnf checkpoint_segments 512
-	update_entry_cnf fsync off
-	update_entry_cnf synchronous_commit off
+	# Do not checkpoint frequently
+	# Checkpoints are in 16MB segments so this tuning is to checkpoint
+	# when roughly quarter of the shared bufffers have been updated.
+	update_entry_cnf checkpoint_segments $((SHARED_BUFFERS/1048576/4))
+	update_entry_cnf synchronous_commit on
+
+	# AutoVacumn
+	update_entry_cnf autovacuum on
 
 	# Use unix domain sockets
 	mkdir -p /var/run/postgresql/
 	chown $POSTGRES_USER /var/run/postgresql/
 	chmod a+rwx /var/run/postgresql/
-	update_entry_cnf unix_socket_directory \'/var/run/postgresql/\'
+	update_entry_cnf unix_socket_directories \'/var/run/postgresql/\'
 	update_entry_cnf unix_socket_group $GROUPID
 	update_entry_cnf unix_socket_permissions 0777
 
@@ -322,4 +324,4 @@ fi
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 28
+#### Details postgresbuild 32

@@ -1,22 +1,8 @@
-### hackbench a general scheduler benchmark and stress test that is
-### sensitive to regressions in the scheduler fast-path. It creates groups
-### of threads or processes (depending on configuration) that communicate
-### via pipes or sockets (depending on configuration).
-###
-### pipetest is a scheduler ping-pong test that measures context switch latency.
-###
-### lmbench is just running the lat_ctx test and is another measure of context
-### switch latency.
-###
-### pgbench is a Postgres-based benchmarking tool. In this configuration it
-### is using a small in-memory read-only database. As well as being a general
-### scheduler benchmark it is particularly sensitive to how affine tasks are
-### scheduled on sibling cores.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="hackbench-pipes hackbench-sockets pipetest lmbench pgbench"
+export MMTESTS="pgbench"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -72,32 +58,21 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat slabinfo"
+export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# HackBench
-export HACKBENCH_GROUPS=1,3,8,13,27,62,168,360
-if [[ `uname -m` =~ i.86 ]]; then
-	export HACKBENCH_GROUPS=1,4,8,13,16,20,27,40,72,104
-fi
-
-# LMBench
-export LMBENCH_TESTS=lat_ctx
-export LMBENCH_LATMMAP_ITERATIONS=500
-export LMBENCH_LATMMAP_MIN_FILESIZE=$((64*1024))
-export LMBENCH_LATMMAP_MAX_FILESIZE=$((2048*1048576))
-export LMBENCH_LATCTX_SIZE=4096
-export LMBENCH_LATCTX_MAXCLIENTS=20
-
 # pgbench
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
-export OLTP_SHAREDBUFFERS=$((256*1048576))
-export PGBENCH_MAX_TRANSACTIONS=10000
+export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/4))
 export PGBENCH_PAGESIZES="default"
-export PGBENCH_READONLY=yes
-export PGBENCH_MAX_THREADS=50
-export PGBENCH_ITERATIONS=7
+export PGBENCH_MAX_TRANSACTIONS=auto
+export PGBENCH_READONLY=
+export PGBENCH_MAX_THREADS=$((NUMCPUS*2))
+export PGBENCH_ITERATIONS=3
 
-# PipeTest
-export PIPETEST_ITERATIONS=30
+# The baseline database size is approximately 30MB. Each unit of scaling
+# factor adds approximately 15M of data to the table. Tune accordingly.
+export TARGET_WORKLOAD_SIZE=$((OLTP_SHAREDBUFFERS*4/5))
+export PGBENCH_SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)/(15*1048576)))
+

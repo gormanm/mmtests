@@ -1,0 +1,30 @@
+#!/bin/bash
+# This script runs tbench for varying numbers of clients
+###SHELLPACK preamble dbench-bench 4.0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --max-clients         TBENCH_MAX_CLIENTS
+###SHELLPACK parseargEnd
+
+install-depends popt-devel
+###SHELLPACK check_install_required dbench-${VERSION}
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+###SHELLPACK threads_powertwo_begin 1 $TBENCH_MAX_CLIENTS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	./bin/tbench_srv &
+	PID_SERVER=$!
+	./bin/tbench \
+		-t $TBENCH_DURATION \
+		$NR_THREADS localhost 2>&1 | tee $LOGDIR_RESULTS/tbench-$NR_THREADS.log \
+			|| die Failed to run tbench
+	kill -9 $PID_SERVER
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_powertwo_end
+
+exit $SHELLPACK_SUCCESS
+#### Description tbench
+#### Details tbench-bench 4

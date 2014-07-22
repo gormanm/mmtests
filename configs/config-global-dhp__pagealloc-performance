@@ -86,6 +86,10 @@ export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
+# AIM9
+export AIM9_TESTTIME=15
+export AIM9_TESTLIST=page_test,brk_test,exec_test,fork_test
+
 # EBizzy
 export EBIZZY_MAX_THREADS=$((NUMCPUS*4))
 export EBIZZY_DURATION=30

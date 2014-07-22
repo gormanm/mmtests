@@ -3,7 +3,7 @@
 P=sysbench-install
 VERSION=0.4.12
 MYSQL_VERSION=5.0.51a
-POSTGRES_VERSION=9.2.1
+POSTGRES_VERSION=9.3.4
 DBUSER=root
 DBPASSWORD=shellpack-mysqlbench
 NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)

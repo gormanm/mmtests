@@ -23,7 +23,7 @@ sub extractComparison() {
 		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
 	}
 
-	$self->SUPER::extractComparison($self, $subHeading, $showCompare);
+	$self->SUPER::extractComparison($subHeading, $showCompare);
 }
 
 1;

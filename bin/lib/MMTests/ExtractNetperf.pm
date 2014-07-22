@@ -58,24 +58,44 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 
-	my $file = "$reportDir/noprofile/netperf-$_netperf_type.result";
-	open(INPUT, $file) || die("Failed to open $file\n");
-	while (<INPUT>) {
-		my @elements = split(/\s+/, $_);
-		my $confidenceLimit = 1;
+	open (INPUT, "$reportDir/noprofile/protocols");
+	my $protocol = <INPUT>;
+	chomp($protocol);
+	close(INPUT);
 
-		open(LOG, "$reportDir/noprofile/$_netperf_type-$elements[0].log") ||
-			die("Failed to open raw log for netperf $_netperf_type-$elements[0]");
-		while (<LOG>) {
+	my @sizes;
+	my @files = <$reportDir/noprofile/$protocol-*.log>;
+	foreach my $file (@files) {
+		my @elements = split (/-/, $file);
+		my $size = $elements[-1];
+		$size =~ s/.log//;
+		push @sizes, $size;
+	}
+	@sizes = sort {$a <=> $b} @sizes;
+
+	foreach my $size (@sizes) {
+		my $file = "$reportDir/noprofile/$protocol-$size.log";
+		my $confidenceLimit;
+		my $throughput;
+
+		open(INPUT, $file) || die("Failed to open $file\n");
+		while (<INPUT>) {
+			my @elements = split(/\s+/, $_);
 			if ($_ =~ /Confidence intervals: Throughput/) {
 				my @subelements = split(/\s+/, $_);
 				$confidenceLimit = $subelements[5];
+				next;
+			}
+			if ($_ =~ /[a-zA-Z]/ || $_ =~ /^$/) {
+				next;
+			}
+			my @elements = split(/\s+/, $_);
+			if ($#elements > 3) {
+				$throughput = $elements[-1];
 			}
 		}
-		close LOG;
-
-		push @{$self->{_ResultData}}, [ $elements[0], $elements[1], $confidenceLimit ];
-		next;
+		close(INPUT);
+		push @{$self->{_ResultData}}, [ $size, $throughput, $confidenceLimit ];
 	}
 	close INPUT;
 }

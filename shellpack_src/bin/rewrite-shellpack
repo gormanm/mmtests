@@ -29,6 +29,9 @@ EOC
 	} elsif ($command eq "parseargBegin") {
 		print <<EOC
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "\$1" != "" ]; do
 	case "\$1" in
 	-v)
@@ -63,6 +66,41 @@ EOC
 		shift
 		;;
 EOC
+	} elsif ($command eq "parseargBindings") {
+		print <<EOC
+	--bind-pinned)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print \$4}'`
+		TASKSET_SERVER="taskset -c \$CPUA"
+		TASKSET_CLIENT="taskset -c \$CPUA"
+		shift
+		;;
+	--bind-cross-node)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print \$4}'`
+		CPUB=`numactl --hardware | grep ^node | grep cpus: | tail -1 | awk '{print \$NF}'`
+		TASKSET_SERVER="taskset -c \$CPUA"
+		TASKSET_CLIENT="taskset -c \$CPUB"
+		shift
+		;;
+	--bind-cross-socket)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print \$4}'`
+		CPUB=`list-cpu-siblings.pl \$CPUA cores | awk -F , '{print \$1}'`
+		TASKSET_SERVER="taskset -c \$CPUA"
+		TASKSET_CLIENT="taskset -c \$CPUB"
+		shift
+		;;
+	--bind-cross-ht)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print \$4}'`
+		CPUB=`list-cpu-siblings.pl \$CPUA threads | awk -F , '{print \$1}'`
+		if [ "\$CPUB" = "" ]; then
+			echo ERROR: Could not identify HT thread for CPU \$CPUA
+			exit \$SHELLPACK_ERROR
+		fi
+		TASKSET_SERVER="taskset -c \$CPUA"
+		TASKSET_CLIENT="taskset -c \$CPUB"
+		shift
+		;;
+EOC
+
 	} elsif ($command eq "parseargEnd") {
 		print <<EOC
 	*)
@@ -70,6 +108,10 @@ EOC
 		shift
 	esac
 done
+if [ "\$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: \$TASKSET_SERVER
+	echo TASKSET_CLIENT: \$TASKSET_CLIENT
+fi
 if [ -z "\$VERSION" ]; then
 	VERSION=\$DEFAULT_VERSION
 fi
@@ -266,6 +308,21 @@ while [ \$NR_THREADS -lt $max_thread ]; do
 EOC
 	} elsif ($command eq "threads_fib_end") {
 		print "done\n";
+	} elsif ($command eq "threads_powertwo_begin") {
+		my ($min_thread, $max_thread) = @details;
+		print <<EOC
+NR_THREADS=$min_thread
+while [ \$NR_THREADS -lt $max_thread ]; do
+	if [ \$NR_THREADS -gt $max_thread ]; then
+		NR_THREADS=$max_thread
+	fi
+EOC
+	} elsif ($command eq "threads_powertwo_end") {
+		print <<EOC
+NR_THREADS=\$((NR_THREADS*2))
+done
+EOC
+
 	} elsif ($command eq "threads_iterate_begin") {
 		my ($min_thread, $max_thread) = @details;
 		print <<EOC
@@ -279,7 +336,11 @@ EOC
 THREADS=
 START_THREAD=$min_thread
 END_THREAD=$max_thread
-if [ \$END_THREAD -gt 8 ]; then
+if [ \$END_THREAD -gt 32 ]; then
+        THREADS=`seq \$START_THREAD 8`
+        THREADS="\$THREADS `seq 12 4 32`"
+        THREADS="\$THREADS `seq 48 16 \$END_THREAD`"
+elif [ \$END_THREAD -gt 8 ]; then
         THREADS=`seq \$START_THREAD 8`
         THREADS="\$THREADS `seq 12 4 \$END_THREAD`"
 else
@@ -287,6 +348,25 @@ else
 fi
 for NR_THREADS in \$THREADS; do
 EOC
+	} elsif ($command eq "threads_large_stride_begin") {
+		my ($min_thread, $max_thread) = @details;
+		print <<EOC
+THREADS=
+START_THREAD=$min_thread
+END_THREAD=$max_thread
+if [ \$END_THREAD -gt 32 ]; then
+        THREADS=`seq \$START_THREAD 2 8`
+        THREADS="\$THREADS `seq 12 6 32`"
+        THREADS="\$THREADS `seq 48 18 \$END_THREAD`"
+elif [ \$END_THREAD -gt 8 ]; then
+        THREADS=`seq \$START_THREAD 2 8`
+        THREADS="\$THREADS `seq 12 6 \$END_THREAD`"
+else
+        THREADS=`seq \$START_THREAD 2 \$END_THREAD`
+fi
+for NR_THREADS in \$THREADS; do
+EOC
+
 	} elsif ($command eq "threads_stride_end") {
 		print "done\n";
 	} else {

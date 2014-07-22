@@ -1,45 +1,79 @@
 #!/bin/bash
 # This script runs tbench for varying numbers of clients
-P=tbench-bench
-VERSION=3.04
+P=dbench-bench
+DEFAULT_VERSION=4.0
 . $SHELLPACK_INCLUDE/common.sh
 
-install-depends popt-devel
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
 
-# Basic args parser
 while [ "$1" != "" ]; do
 	case "$1" in
-		-v)
-			VERSION=$2
-			shift 2;;
-		*)	echo Unrecognised option: $1; shift
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--max-clients)
+		TBENCH_MAX_CLIENTS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
 
-# Install if necessary
+install-depends popt-devel
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/dbench-${VERSION}
+fi
 if [ ! -d $SHELLPACK_SOURCES/dbench-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-dbench -v ${VERSION} || die dbench install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-dbench -v ${VERSION}  || die dbench install script returned error
 fi
 cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die Failed to cd to dbench install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo dbench installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-TBENCH_CLIENTS=`echo $TBENCH_CLIENTS | tr ',' ' '`
-CLIENT=1
-while [ $CLIENT -le $TBENCH_MAX_CLIENTS ]; do
-	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
+NR_THREADS=1
+while [ $NR_THREADS -lt $TBENCH_MAX_CLIENTS ]; do
+	if [ $NR_THREADS -gt $TBENCH_MAX_CLIENTS ]; then
+		NR_THREADS=$TBENCH_MAX_CLIENTS
+	fi
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	./bin/tbench_srv &
 	PID_SERVER=$!
 	./bin/tbench \
 		-t $TBENCH_DURATION \
-		$CLIENT localhost 2>&1 | tee $LOGDIR_RESULTS/tbench-$CLIENT.log \
+		$NR_THREADS localhost 2>&1 | tee $LOGDIR_RESULTS/tbench-$NR_THREADS.log \
 			|| die Failed to run tbench
 	kill -9 $PID_SERVER
-	monitor_post_hook $LOGDIR_RESULTS $CLIENT
-	CLIENT=$((CLIENT*2))
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+NR_THREADS=$((NR_THREADS*2))
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description tbench
 #### Details tbench-bench 4
+#### Description tbench
+#### Details tbench-bench 6
