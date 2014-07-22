@@ -1,45 +1,91 @@
 #!/bin/bash
 # This script runs tbench for varying numbers of clients
 P=tbench-bench
-VERSION=3.04
+DEFAULT_VERSION=4.0
 . $SHELLPACK_INCLUDE/common.sh
 
-install-depends popt-devel
+P=tbench-bench
+VERSION=4.0
+. $SHELLPACK_INCLUDE/common.sh
 
-# Basic args parser
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
-		-v)
-			VERSION=$2
-			shift 2;;
-		*)	echo Unrecognised option: $1; shift
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--max-clients)
+		TBENCH_MAX_CLIENTS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
 	esac
 done
-
-# Install if necessary
-if [ ! -d $SHELLPACK_SOURCES/dbench-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-dbench -v ${VERSION} || die dbench install script returned error
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
 fi
-cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die Failed to cd to dbench install directory
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+install-depends popt-devel
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/dbench-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/dbench-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-tbench -v ${VERSION}  || die tbench install script returned error
+fi
+cd $SHELLPACK_SOURCES/tbench-${VERSION}-installed || die Failed to cd to tbench install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo tbench installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-TBENCH_CLIENTS=`echo $TBENCH_CLIENTS | tr ',' ' '`
-CLIENT=1
-while [ $CLIENT -le $TBENCH_MAX_CLIENTS ]; do
-	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
+THREADS=
+START_THREAD=1
+END_THREAD=$TBENCH_MAX_CLIENTS
+if [ $END_THREAD -gt 32 ]; then
+        THREADS=`seq $START_THREAD 2 8`
+        THREADS="$THREADS `seq 12 6 32`"
+        THREADS="$THREADS `seq 48 18 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+        THREADS=`seq $START_THREAD 2 8`
+        THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+        THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+for NR_THREADS in $THREADS; do
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	./bin/tbench_srv &
 	PID_SERVER=$!
 	./bin/tbench \
 		-t $TBENCH_DURATION \
-		$CLIENT localhost 2>&1 | tee $LOGDIR_RESULTS/tbench-$CLIENT.log \
+		$NR_THREADS localhost 2>&1 | tee $LOGDIR_RESULTS/tbench-$NR_THREADS.log \
 			|| die Failed to run tbench
 	kill -9 $PID_SERVER
-	monitor_post_hook $LOGDIR_RESULTS $CLIENT
-	CLIENT=$((CLIENT*2))
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description tbench
 #### Details tbench-bench 4
+#### Description tbench
+#### Details tbench-bench 3
