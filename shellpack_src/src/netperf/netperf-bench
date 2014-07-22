@@ -14,6 +14,10 @@ TASKSET_CLIENT=
 		PROTOCOLS=`echo $2 | sed -e 's/,/ /g'`
 		shift 2
 		;;
+	--buffer-sizes)
+		BUFFER_SIZES=`echo $2 | sed -e 's/,/ /g'`
+		shift 2
+		;;
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required netperf-${VERSION}

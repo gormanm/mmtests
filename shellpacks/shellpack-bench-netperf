@@ -58,6 +58,10 @@ while [ "$1" != "" ]; do
 		PROTOCOLS=`echo $2 | sed -e 's/,/ /g'`
 		shift 2
 		;;
+	--buffer-sizes)
+		BUFFER_SIZES=`echo $2 | sed -e 's/,/ /g'`
+		shift 2
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -126,4 +130,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 15
+#### Details netperf-bench 20
