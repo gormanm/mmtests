@@ -43,17 +43,11 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 		rm $TESTDISK_DIR/lmbench.file
 		;;
 	lat_ctx)
-		CLIENT=1
-		while [ $CLIENT -lt $LMBENCH_LATCTX_MAXCLIENTS ]; do
+		###SHELLPACK threads_large_stride_begin 1 $LMBENCH_LATCTX_MAXCLIENTS
 			./bin/$LMBENCH_TEST \
 				-s $LMBENCH_LATCTX_SIZE \
-				$CLIENT 2>&1 | tee -a $LMBENCH_RESULTS
-			if [ $CLIENT -lt $NUMCPUS ]; then
-				CLIENT=$((CLIENT+1))
-			else
-				CLIENT=$((CLIENT+2))
-			fi
-		done
+				$NR_THREADS 2>&1 | tee -a $LMBENCH_RESULTS
+		###SHELLPACK threads_stride_end
 		;;
 	*)
 		die "Unrecognised test $LMBENCH_TEST for execution"
