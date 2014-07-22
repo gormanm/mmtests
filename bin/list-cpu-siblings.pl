@@ -7,7 +7,9 @@ die if !defined $ARGV[1];
 my @ht_list;
 my @sibling_list;
 
-open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/topology/thread_siblings_list") || die("Failed to open core topology file for CPU $ARGV[0]");
+open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/topology/thread_siblings_list") ||
+	open(INPUT, "/sys/devices/system/cpu/cpu$ARGV[0]/topology/thread_siblings_list") ||
+ 	die("Failed to open core topology file for CPU $ARGV[0]");
 while (!eof(INPUT)) {
 	my $line = <INPUT>;
 
@@ -31,7 +33,9 @@ while (!eof(INPUT)) {
 }
 close INPUT;
 
-open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/topology/core_siblings_list") || die("Failed to open core topology file for CPU $ARGV[0]");
+open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/topology/core_siblings_list") ||
+	open(INPUT, "/sys/devices/system/cpu/cpu$ARGV[0]/topology/core_siblings_list") ||
+	die("Failed to open core topology file for CPU $ARGV[0]");
 while (!eof(INPUT)) {
 	my $line = <INPUT>;
 
