@@ -55,20 +55,11 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-THREADS=
-START_THREAD=1
-END_THREAD=$TBENCH_MAX_CLIENTS
-if [ $END_THREAD -gt 32 ]; then
-        THREADS=`seq $START_THREAD 2 8`
-        THREADS="$THREADS `seq 12 6 32`"
-        THREADS="$THREADS `seq 48 18 $END_THREAD`"
-elif [ $END_THREAD -gt 8 ]; then
-        THREADS=`seq $START_THREAD 2 8`
-        THREADS="$THREADS `seq 12 6 $END_THREAD`"
-else
-        THREADS=`seq $START_THREAD 2 $END_THREAD`
-fi
-for NR_THREADS in $THREADS; do
+NR_THREADS=1
+while [ $NR_THREADS -lt $TBENCH_MAX_CLIENTS ]; do
+	if [ $NR_THREADS -gt $TBENCH_MAX_CLIENTS ]; then
+		NR_THREADS=$TBENCH_MAX_CLIENTS
+	fi
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	./bin/tbench_srv &
 	PID_SERVER=$!
@@ -78,10 +69,11 @@ for NR_THREADS in $THREADS; do
 			|| die Failed to run tbench
 	kill -9 $PID_SERVER
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+NR_THREADS=$((NR_THREADS*2))
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description tbench
 #### Details tbench-bench 4
 #### Description tbench
-#### Details tbench-bench 4
+#### Details tbench-bench 5

@@ -304,6 +304,21 @@ while [ \$NR_THREADS -lt $max_thread ]; do
 EOC
 	} elsif ($command eq "threads_fib_end") {
 		print "done\n";
+	} elsif ($command eq "threads_powertwo_begin") {
+		my ($min_thread, $max_thread) = @details;
+		print <<EOC
+NR_THREADS=$min_thread
+while [ \$NR_THREADS -lt $max_thread ]; do
+	if [ \$NR_THREADS -gt $max_thread ]; then
+		NR_THREADS=$max_thread
+	fi
+EOC
+	} elsif ($command eq "threads_powertwo_end") {
+		print <<EOC
+NR_THREADS=\$((NR_THREADS*2))
+done
+EOC
+
 	} elsif ($command eq "threads_iterate_begin") {
 		my ($min_thread, $max_thread) = @details;
 		print <<EOC
