@@ -29,6 +29,9 @@ EOC
 	} elsif ($command eq "parseargBegin") {
 		print <<EOC
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "\$1" != "" ]; do
 	case "\$1" in
 	-v)
@@ -63,6 +66,37 @@ EOC
 		shift
 		;;
 EOC
+	} elsif ($command eq "parseargBindings") {
+		print <<EOC
+	--bind-pinned)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print \$4}'`
+		TASKSET_SERVER="taskset -c \$CPUA"
+		TASKSET_CLIENT="taskset -c \$CPUA"
+		shift
+		;;
+	--bind-cross-node)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print \$4}'`
+		CPUB=`numactl --hardware | grep ^node | grep cpus: | tail -1 | awk '{print \$NF}'`
+		TASKSET_SERVER="taskset -c \$CPUA"
+		TASKSET_CLIENT="taskset -c \$CPUB"
+		shift
+		;;
+	--bind-cross-socket)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print \$4}'`
+		CPUB=`list-cpu-siblings.pl \$CPUA cores | awk -F , '{print \$1}'`
+		TASKSET_SERVER="taskset -c \$CPUA"
+		TASKSET_CLIENT="taskset -c \$CPUB"
+		shift
+		;;
+	--bind-cross-ht)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print \$4}'`
+		CPUB=`list-cpu-siblings.pl \$CPUA threads | awk -F , '{print \$1}'`
+		TASKSET_SERVER="taskset -c \$CPUA"
+		TASKSET_CLIENT="taskset -c \$CPUB"
+		shift
+		;;
+EOC
+
 	} elsif ($command eq "parseargEnd") {
 		print <<EOC
 	*)
@@ -70,6 +104,10 @@ EOC
 		shift
 	esac
 done
+if [ "\$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: \$TASKSET_SERVER
+	echo TASKSET_CLIENT: \$TASKSET_CLIENT
+fi
 if [ -z "\$VERSION" ]; then
 	VERSION=\$DEFAULT_VERSION
 fi

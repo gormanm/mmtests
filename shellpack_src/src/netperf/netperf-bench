@@ -9,27 +9,9 @@ TASKSET_CLIENT=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
 	--protocols)
 		PROTOCOLS=`echo $2 | sed -e 's/,/ /g'`
-		shift 2
-		;;
-	--bind-same)
-		TASKSET_SERVER="taskset -c 0"
-		TASKSET_CLIENT="taskset -c 0"
-		shift
-		;;
-	--bind-firstsecond)
-		TASKSET_SERVER="taskset -c 0"
-		TASKSET_CLIENT="taskset -c 1"
-		shift
-		;;
-	--bind-firstlast)
-		TASKSET_SERVER="taskset -c 0"
-		TASKSET_CLIENT="taskset -c $(($NUMCPUS-1))"
-		shift
-		;;
-	--buffer-sizes)
-		BUFFER_SIZES=`echo $2 | tr ',' ' '`
 		shift 2
 		;;
 ###SHELLPACK parseargEnd
@@ -48,6 +30,7 @@ NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed
 $TASKSET_SERVER $NETROOT/bin/netserver || die Failed to start netserver
 sleep 2
 
+echo $PROTOCOLS > $LOGDIR_RESULTS/protocols
 for PROTOCOL in $PROTOCOLS; do
 	echo -n > $LOGDIR_RESULTS/netperf-$PROTOCOL.result
 
@@ -68,15 +51,9 @@ for PROTOCOL in $PROTOCOLS; do
 			$EXTRA \
 			-m $SIZE \
 			-M $SIZE \
-				2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-$SIZE.log \
+				2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.log \
 				|| die Failed to run netperf
 		monitor_post_hook $LOGDIR_RESULTS $SIZE
-		if [ "$PROTOCOL" = "UDP_STREAM" ]; then
-			echo -n "$SIZE " >> $LOGDIR_RESULTS/netperf-$PROTOCOL.result
-			grep -v '[a-zA-Z]' $LOGDIR_RESULTS/$PROTOCOL-$SIZE.log | grep -v '^$' | tail -1 | awk '{print $4}' >> $LOGDIR_RESULTS/netperf-$PROTOCOL.result
-		else
-			grep -v '[a-zA-Z]' $LOGDIR_RESULTS/$PROTOCOL-$SIZE.log | grep -v '^$' | head -1 | awk '{print $3" "$5}' >> $LOGDIR_RESULTS/netperf-$PROTOCOL.result
-		fi
 	done
 done
 killall netserver
