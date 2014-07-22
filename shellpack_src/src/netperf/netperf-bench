@@ -9,13 +9,9 @@ TASKSET_CLIENT=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-	--udp-only)
-		PROTOCOLS=UDP_STREAM
-		shift
-		;;
-	--tcp-only)
-		PROTOCOLS=TCP_STREAM
-		shift
+	--protocols)
+		PROTOCOLS=`echo $2 | sed -e 's/,/ /g'`
+		shift 2
 		;;
 	--bind-same)
 		TASKSET_SERVER="taskset -c 0"
