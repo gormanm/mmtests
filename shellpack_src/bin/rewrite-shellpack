@@ -91,6 +91,10 @@ EOC
 	--bind-cross-ht)
 		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print \$4}'`
 		CPUB=`list-cpu-siblings.pl \$CPUA threads | awk -F , '{print \$1}'`
+		if [ "\$CPUB" = "" ]; then
+			echo ERROR: Could not identify HT thread for CPU \$CPUA
+			exit \$SHELLPACK_ERROR
+		fi
 		TASKSET_SERVER="taskset -c \$CPUA"
 		TASKSET_CLIENT="taskset -c \$CPUB"
 		shift

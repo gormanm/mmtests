@@ -50,6 +50,10 @@ while [ "$1" != "" ]; do
 	--bind-cross-ht)
 		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
 		CPUB=`list-cpu-siblings.pl $CPUA threads | awk -F , '{print $1}'`
+		if [ "$CPUB" = "" ]; then
+			echo ERROR: Could not identify HT thread for CPU $CPUA
+			exit $SHELLPACK_ERROR
+		fi
 		TASKSET_SERVER="taskset -c $CPUA"
 		TASKSET_CLIENT="taskset -c $CPUB"
 		shift
@@ -102,8 +106,6 @@ sleep 2
 
 echo $PROTOCOLS > $LOGDIR_RESULTS/protocols
 for PROTOCOL in $PROTOCOLS; do
-	echo -n > $LOGDIR_RESULTS/netperf-$PROTOCOL.result
-
 	EXTRA=
 	if [ "$PROTOCOL" = "UDP_STREAM" ]; then
 		EXTRA="-P 15895 -s 32768 -S 32768"
@@ -129,4 +131,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 20
+#### Details netperf-bench 21
