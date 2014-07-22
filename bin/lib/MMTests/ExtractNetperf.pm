@@ -90,7 +90,9 @@ sub extractReport($$$) {
 				next;
 			}
 			my @elements = split(/\s+/, $_);
-			$throughput = $elements[-1];
+			if ($#elements > 3) {
+				$throughput = $elements[-1];
+			}
 		}
 		close(INPUT);
 		push @{$self->{_ResultData}}, [ $size, $throughput, $confidenceLimit ];
