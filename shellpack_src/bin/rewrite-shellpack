@@ -233,9 +233,9 @@ if [ \$? -ne 0 ]; then
 fi
 EOC
 	} elsif ($command eq "make") {
-		my ($srcdir) = @details;
+		my $opts = join(" ", @details);
 		print <<EOC
-make -j\$NUMCPUS
+make -j\$NUMCPUS $opts
 if [ \$? -ne 0 ]; then
 	error "\$P: make failed"
 	popd > /dev/null
@@ -243,7 +243,6 @@ if [ \$? -ne 0 ]; then
 fi
 EOC
 	} elsif ($command eq "make_clean") {
-		my ($srcdir) = @details;
 		print <<EOC
 make clean
 if [ \$? -ne 0 ]; then
@@ -253,9 +252,9 @@ if [ \$? -ne 0 ]; then
 fi
 EOC
 	} elsif ($command eq "make_make_install") {
-		my ($srcdir) = @details;
+		my $opts = join(" ", @details);
 		print <<EOC
-make -j\$NUMCPUS
+make -j\$NUMCPUS $opts
 if [ \$? -ne 0 ]; then
 	error "\$P: make failed"
 	popd > /dev/null
