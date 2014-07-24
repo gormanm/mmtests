@@ -126,7 +126,9 @@ export FSMARK_ITERATIONS=35
 export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
 
 # IOzone
-export IOZONE_SIZE=--fastest
+export IOZONE_MAX_SIZE=$((MEMTOTAL_BYTES*2))
+export IOZONE_MIN_SIZE=$((MEMTOTAL_BYTES/16))
+export IOZONE_ITERATIONS=5
 
 # Large copy and untar
 export LARGECOPY_SRCTAR=$WEBROOT/large-tar-file-1.tar.bz2

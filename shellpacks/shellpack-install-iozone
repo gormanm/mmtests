@@ -1,81 +1,62 @@
 #!/bin/bash
-# IOZone installer
+# iozone installer
 P=iozone-install
-WEB_LOCATION=http://www.iozone.org/src/current/
-DEFAULT_VERSION=3_327
+DEFAULT_VERSION=3_428
 . $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION=http://www.iozone.org/src/current/
+MIRROR_LOCATION="$WEBROOT/iozone/"
 
 # Basic argument parser
-while [ "$1" != "" ]; do
-  case "$1" in
-    -v)
-            VERSION=$2
-	    shift 2
-	    ;;
-    *)
-            echo Unrecognised option: $1
-	    shift
-  esac
-done
+TASKSET_SERVER=
+TASKSET_CLIENT=
 
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
 # Unconditionally fetch the tar to find out the real version number
-echo "$P: Fetching iozone from $WEB_LOCATION"
-pushd $SHELLPACK_SOURCES > /dev/null
 TARFILE=iozone${VERSION}.tar
-wget -q $WEB_LOCATION/$TARFILE -O $TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-	die "$P: Could not download the source from $WEB_LOCATION"
-	exit $SHELLPACK_ERROR
-fi
-
-# Building from scratch, uncompress the tar
-tar xf $TARFILE
-if [ $? -ne 0 ]; then
-	die "$P: tar xf iozone${VERSION}.tar failed"
+        error "$P: tar xf iozone${VERSION}.tar failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-if [ "$DST_DIR" != "iozone-${VERSION}" ]; then
-	echo Moving $DST_DIR to iozone-${VERSION}
-	mv $DST_DIR iozone-${VERSION}
-fi
-
-# Build the library
-pushd iozone-${VERSION} > /dev/null
-
-# Configure
-INSTALLPATH=$SHELLPACK_SOURCES/iozone-${VERSION}-installed
-rm -rf $INSTALLPATH
+mv $DST_DIR iozone-${VERSION}-installed
+pushd iozone-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 # Build
+pushd $SHELLPACK_SOURCES/iozone-${VERSION}-installed || die Failed to change to source directory
+
 cd src/current
-case `uname -m` in
-	i?86)
-		make linux
-		;;
-	x86_64)
-		make linux-AMD64
-		;;
-	ppc64)
-		make linux-powerpc64
-		;;
-esac
+
+make -j$NUMCPUS linux
 if [ $? -ne 0 ]; then
-	die "$P: make failed"
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
-# Install
-mkdir -p $INSTALLPATH/bin
-cp iozone $INSTALLPATH/bin
-if [ $? -ne 0 ]; then
-	die "$P: installation failed"
-fi
-
-echo IOZone installed successfully
-#### Description IOZone benchmark
-#### Details iozone 10
+echo iozone installed successfully
+#### Description iozone
+#### Details iozone 7
