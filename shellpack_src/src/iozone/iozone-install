@@ -1,0 +1,19 @@
+#!/bin/bash
+# iozone installer
+###SHELLPACK preamble iozone-install 3_428
+WEB_LOCATION=http://www.iozone.org/src/current/
+MIRROR_LOCATION="$WEBROOT/iozone/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch iozone${VERSION}.tar iozone-${VERSION}-installed
+
+# Build
+###SHELLPACK build_start iozone-${VERSION}-installed
+
+cd src/current
+
+###SHELLPACK make linux
+
+echo iozone installed successfully

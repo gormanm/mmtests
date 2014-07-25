@@ -1,0 +1,41 @@
+#!/bin/bash
+# This script installs iozone and whatever
+###SHELLPACK preamble iozone-bench 3_428
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required iozone-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+if [ -z "$IOZONE_MAX_SIZE" ]; then
+	IOZONE_MAX_SIZE=$((MEMTOTAL_BYTES*2))
+fi
+
+if [ -z "$IOZONE_MIN_SIZE" ]; then
+	IOZONE_MIN_SIZE=$((IOZONE_MAX_SIZE/16))
+fi
+
+if [ -z "$IOZONE_MIN_BLK_SIZE" ]; then
+	if [ -z "$IOZONE_MAX_BLK_SIZE" ]; then
+		IOZONE_MAX_BLK_SIZE=4096
+	fi
+	IOZONE_MIN_BLK_SIZE="$IOZONE_MAX_BLK_SIZE"
+elif [ -z "$IOZONE_MAX_BLK_SIZE" ]; then
+	IOZONE_MAX_BLK_SIZE="$IOZONE_MIN_BLK_SIZE"
+fi
+
+monitor_pre_hook $LOGDIR_RESULTS
+for (( ITERATION = 1; ITERATION <= IOZONE_ITERATIONS; ITERATION++ )); do
+	src/current/iozone -a -n $((IOZONE_MIN_SIZE/1024)) \
+		-g $((IOZONE_MAX_SIZE/1024)) -y $IOZONE_MIN_BLK_SIZE \
+		-q $IOZONE_MAX_BLK_SIZE -i 0 -i 1 -i 2 -i 3 \
+		-f $TESTDISK_DIR/iozone_file 2>&1 | \
+		tee $LOGDIR_RESULTS/iozone-$ITERATION.log ||
+		die "Failed to run iozone"
+done
+monitor_post_hook $LOGDIR_RESULTS
+
+exit $SHELLPACK_SUCCESS
