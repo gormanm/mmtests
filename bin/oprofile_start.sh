@@ -27,6 +27,15 @@ CALLGRAPH=0
 export PATH=$SCRIPTROOT:$PATH
 ARGS=`getopt -o h --long help,event:,vmlinux:,systemmap:,callgraph:,sample-event-factor:,sample-cycle-factor: -n oprofile_start.sh -- "$@"`
 
+echo $VMLINUX | grep -q +
+VMLINUX_LINK=
+if [ $? -eq 0 ]; then
+	echo Linking $VMLINUX /boot/vmlinux-oprofile_start
+	ln -s $VMLINUX /boot/vmlinux-oprofile_start 
+	VMLINUX=/boot/vmlinux-oprofile_start
+	VMLINUX_LINK=/boot/vmlinux-oprofile_start
+fi
+
 # Cycle through arguements
 eval set -- "$ARGS"
 while true ; do
@@ -88,6 +97,11 @@ bash opcontrol --start
 if [ $? -ne 0 ]; then
 	echo opcontrol --start returned failure
 	exit -1
+fi
+
+if [ "$VMLINUX_LINK" != "" ]; then
+	echo Cleaning $VMLINUX_LINK
+	rm $VMLINUX_LINK
 fi
 
 exit 0
