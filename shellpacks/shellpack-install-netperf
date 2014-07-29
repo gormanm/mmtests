@@ -55,7 +55,7 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 
-make -j$NUMCPUS
+make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -70,4 +70,4 @@ fi
 
 echo Netperf installed successfully
 #### Description Netperf benchmark
-#### Details netperf 21
+#### Details netperf 23

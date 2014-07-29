@@ -40,18 +40,25 @@ for PROTOCOL in $PROTOCOLS; do
 	if [ "$PROTOCOL" = "UDP_STREAM" ]; then
 		EXTRA="-P 15895 -s 32768 -S 32768"
 	fi
-	
+
 	for SIZE in $BUFFER_SIZES; do
+		SIZE_OPT=
+		if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
+			SIZE_OPT="-m $SIZE -M $SIZE"
+		fi
+		if [ "$PROTOCOL" = "UDP_RR" -o "$PROTOCOL" = "TCP_RR" ]; then
+			SIZE_OPT="-r $SIZE"
+		fi
+	
 		echo Running test $PROTOCOL 
 		monitor_pre_hook $LOGDIR_RESULTS $SIZE
-		$TASKSET_CLIENT $NETROOT/bin/netperf \
+		eval $TASKSET_CLIENT $NETROOT/bin/netperf \
 			-t $PROTOCOL \
 			-i 30,6 -I 99,1 \
 			-H 127.0.0.1 \
 			-- \
+			$SIZE_OPT \
 			$EXTRA \
-			-m $SIZE \
-			-M $SIZE \
 				2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.log \
 				|| die Failed to run netperf
 		monitor_post_hook $LOGDIR_RESULTS $SIZE
