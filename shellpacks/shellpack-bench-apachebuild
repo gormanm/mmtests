@@ -1,0 +1,68 @@
+#!/bin/bash
+P=apachebuild-bench
+DEFAULT_VERSION=2.4.10
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--start)
+		SERVER_START=yes
+		shift
+		;;
+	--stop)
+		SERVER_STOP=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/apachebuild-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-apachebuild -v ${VERSION}  || die apachebuild install script returned error
+fi
+cd $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed || die Failed to cd to apachebuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo apachebuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+if [ "$SERVER_START" = "yes" ]; then
+	$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/bin/apachectl -k start || die Failed to start apache as requested
+fi
+
+if [ "$SERVER_STOP" = "yes" ]; then
+	$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/bin/apachectl -k stop || die Failed to stop apache as requested
+fi
+
+echo Apache httpd successfully installed
+exit $SHELLPACK_SUCCESS
+#### Description apachebuild
+#### Details apachebuild-bench 4

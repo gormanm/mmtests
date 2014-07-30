@@ -1,0 +1,52 @@
+#!/bin/bash
+P=pcrebuild-bench
+DEFAULT_VERSION=8.35
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/pcrebuild-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/pcrebuild-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-pcrebuild -v ${VERSION}  || die pcrebuild install script returned error
+fi
+cd $SHELLPACK_SOURCES/pcrebuild-${VERSION}-installed || die Failed to cd to pcrebuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo pcrebuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+echo pcrebuild successfully installed
+exit $SHELLPACK_SUCCESS
+#### Description pcrebuild
+#### Details pcrebuild-bench 5

@@ -1,0 +1,21 @@
+#!/bin/bash
+###SHELLPACK preamble apachebuild-bench 2.4.10
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargYes	--start		SERVER_START
+###SHELLPACK parseargYes	--stop		SERVER_STOP
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required apachebuild-${VERSION}
+
+if [ "$SERVER_START" = "yes" ]; then
+	$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/bin/apachectl -k start || die Failed to start apache as requested
+fi
+
+if [ "$SERVER_STOP" = "yes" ]; then
+	$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/bin/apachectl -k stop || die Failed to stop apache as requested
+fi
+
+echo Apache httpd successfully installed
+exit $SHELLPACK_SUCCESS

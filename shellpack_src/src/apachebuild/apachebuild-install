@@ -1,0 +1,30 @@
+#!/bin/bash
+# apache httpd installer
+###SHELLPACK preamble apachebuild-install 2.4.10
+
+APR_VERSION=1.5.1
+PCRE_VERSION=8.35
+
+WEB_LOCATION=http://ftp.heanet.ie/mirrors/www.apache.org/dist/httpd
+MIRROR_LOCATION="$WEBROOT/apache/"
+
+install-depends gcc gcc-c++
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch httpd-${VERSION}.tar.gz apachebuild-${VERSION}
+if [ ! -e $SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-aprbuild -v ${APR_VERSION} || die Failed to install apr and apr-utils
+fi
+if [ ! -e $SHELLPACK_SOURCES/pcre-${PCRE_VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-pcrebuild -v ${PCRE_VERSION} || die Failed to install pcre
+fi
+
+# Build
+export CFLAGS="-O2"
+###SHELLPACK build_start apachebuild-${VERSION}
+###SHELLPACK build_configure apachebuild-${VERSION} --with-apr=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-apr-util=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-pcre=$SHELLPACK_SOURCES/pcre-${PCRE_VERSION}-installed
+###SHELLPACK make_make_install
+
+echo httpd installed successfully

@@ -223,9 +223,10 @@ EOC
 EOC
 
 	} elsif ($command eq "build_configure") {
-		my ($srcdir) = @details;
+		my $srcdir = @details[0];
+		shift @details;
 		print <<EOC
-./configure --prefix=\$SHELLPACK_SOURCES/$srcdir-installed
+./configure --prefix=\$SHELLPACK_SOURCES/$srcdir-installed @details
 if [ \$? -ne 0 ]; then
 	error "\$P: configure failed"
 	popd > /dev/null
