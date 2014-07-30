@@ -1,0 +1,11 @@
+#!/bin/bash
+###SHELLPACK preamble pcrebuild-bench 8.35
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required pcrebuild-${VERSION}
+
+echo pcrebuild successfully installed
+exit $SHELLPACK_SUCCESS

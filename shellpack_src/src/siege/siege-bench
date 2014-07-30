@@ -1,0 +1,57 @@
+#!/bin/bash
+###SHELLPACK preamble siege-bench 3.0.5
+
+ITER_REPS=150
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --max-users         MAX_USERS
+###SHELLPACK parseargParam --iterations        ITERATIONS
+###SHELLPACK parseargParam --reps-per-iter     ITER_REPS
+###SHELLPACK parseargParam --time-per-iter     ITER_TIME
+###SHELLPACK parseargEnd
+        
+###SHELLPACK monitor_hooks
+###SHELLPACK check_install_required siege-${VERSION}
+
+echo Shutting down apache server...
+$SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die Failed to shutdown apache http server for restart.
+echo Starting apache server...
+$SHELLPACK_INCLUDE/shellpack-bench-apachebuild --start || die Failed to start apache http server.
+sleep 5
+
+ITER_ARG=
+if [ "$ITER_TIME" != "" ]; then
+	ITER_ARG="-t $ITER_TIME"
+else
+	ITER_ARG="-r $ITER_REPS"
+fi
+
+echo Enabling tcp_tw_recycle
+sysctl -w net.ipv4.tcp_tw_recycle=1
+echo Setting files limit $((MAX_USERS*1000))
+ulimit -n $((MAX_USERS*1000))
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
+fi
+
+echo Running up to $MAX_USERS users, $ITERATIONS iterations per user
+###SHELLPACK threads_powertwo_begin 1 $MAX_USERS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	for ITER in `seq 1 $ITERATIONS`; do
+		echo Running $ITER/$ITERATIONS: siege -b $ITER_ARG -c $NR_THREADS
+		$TIME_CMD -o $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.time \
+			./bin/siege -q -b $ITER_ARG \
+				-c $NR_THREADS \
+					http://localhost/siege \
+					2>&1 | tee $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.log \
+					|| die Failed to run siege
+	done
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_powertwo_end
+
+echo siege completed successfully
+exit $SHELLPACK_SUCCESS

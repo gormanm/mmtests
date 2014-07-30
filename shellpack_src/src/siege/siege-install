@@ -1,0 +1,88 @@
+#!/bin/bash
+# siege installer
+###SHELLPACK preamble siege-install 3.0.5
+
+
+APACHE_VERSION=2.4.10
+
+APR_VERSION=1.5.1
+PCRE_VERSION=8.35
+
+WEB_LOCATION=http://download.joedog.org/siege
+
+MIRROR_LOCATION="$WEBROOT/siege/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch siege-${VERSION}.tar.gz siege-${VERSION}
+if [ ! -e $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}-installed ]; then
+	echo Installing apache server
+	$SHELLPACK_INCLUDE/shellpack-install-apachebuild -v ${APACHE_VERSION} || die Failed to install apache httpd
+	echo Apache server successfully installed.
+fi
+
+# Build
+export CFLAGS="-O2"
+###SHELLPACK build_start siege-${VERSION}
+###SHELLPACK build_configure siege-${VERSION}
+###SHELLPACK make_make_install
+
+echo Creating static test page
+LINECOUNT=`wc -l $0 | awk '{print $1}'`
+HTMLSTART=`grep -n "BEGIN HTML FILE" $0 | tail -1 | awk -F : '{print $1}'`
+tail -$(($LINECOUNT-$HTMLSTART)) $0 | grep -v "^###" > $SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/htdocs/siege.html
+
+cat > $HOME/.siegerc << EOF
+verbose = false
+quiet = true
+gmethod = HEAD
+show-logfile = true
+logging = false
+protocol = HTTP/1.1
+chunked = true
+cache = false
+connection = close
+concurrent = 500
+file = $SHELLPACK_SOURCES/siege-${VERSION}-installed/etc/urls.txt
+delay = 1
+timeout = 40
+failures = 10
+internet = false
+benchmark = false
+user-agent = MMTests
+accept-encoding = gzip
+url-escaping = true
+spinner = true
+unique = true
+EOF
+
+echo siege successfully
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN HTML FILE ====
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>siege dummy tester</title>
+</head>
+<body>
+<h1>siege dummy tester</h1>
+
+This is a basic HTML page with no useful information and serves as a static
+web page for testing siege. Obviously more complex tests of the software
+stack would require pages that exercise the system of interest.
+
+Here is a text to bring the page size up to 1K.
+Here is a text to bring the page size up to 1K.
+Here is a text to bring the page size up to 1K.
+Here is a bunch of text to bring the page size up to 1K.
+Here is a bunch of text to bring the page size up to 1K.
+Here is a bunch of text to bring the page size up to 1K.
+Here is a bunch of text to bring the page size up to 1K.
+Here is a bunch of text to bring the page size up to 1K.
+Here is a bunch of text to bring the page size up to 1K.
+<img src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Transitional" height="31" width="88">
+</p>
+</body>
+</html>

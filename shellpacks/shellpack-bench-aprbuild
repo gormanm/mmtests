@@ -1,0 +1,53 @@
+#!/bin/bash
+# This script installs apr and leaves it ready for use building Apache httpd
+P=aprbuild-bench
+DEFAULT_VERSION=1.5.1
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/aprbuild-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/aprbuild-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-aprbuild -v ${VERSION}  || die aprbuild install script returned error
+fi
+cd $SHELLPACK_SOURCES/aprbuild-${VERSION}-installed || die Failed to cd to aprbuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo aprbuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+echo apr and apr-util successfully installed
+exit $SHELLPACK_SUCCESS
+#### Description aprbuild
+#### Details aprbuild-bench 3

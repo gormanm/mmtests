@@ -1,22 +1,8 @@
-### hackbench a general scheduler benchmark and stress test that is
-### sensitive to regressions in the scheduler fast-path. It creates groups
-### of threads or processes (depending on configuration) that communicate
-### via pipes or sockets (depending on configuration).
-###
-### pipetest is a scheduler ping-pong test that measures context switch latency.
-###
-### lmbench is just running the lat_ctx test and is another measure of context
-### switch latency.
-###
-### pgbench is a Postgres-based benchmarking tool. In this configuration it
-### is using a small in-memory read-only database. As well as being a general
-### scheduler benchmark it is particularly sensitive to how affine tasks are
-### scheduled on sibling cores.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="pipetest netperf-udp-rr netperf-tcp-rr"
+export MMTESTS="siege"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -46,8 +32,14 @@ export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
 export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
 export SWAP_NBD_DEVICE=/dev/nbd0
 export SWAP_NBD_HOST=mcp
-export SWAP_NBD_PORT=10001
+export SWAP_NBD_PORT=
 #export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+
+# Log disk to setup (optional)
+#export LOGDISK_PARTITION=/dev/ram0
+#export LOGDISK_FILESYSTEM=ext3
+#export LOGDISK_MKFS_PARAM=""
+#export LOGDISK_MOUNT_ARGS=""
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
@@ -57,7 +49,7 @@ export SWAP_NBD_PORT=10001
 #export TESTDISK_RAID_TYPE=raid0
 #export TESTDISK_PARTITION=/dev/sda6
 #export TESTDISK_FILESYSTEM=ext3
-#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MKFS_PARAM=""
 #export TESTDISK_MOUNT_ARGS=""
 #
 # Test NFS disk to setup (optional)
@@ -72,14 +64,13 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat slabinfo"
+export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_FTRACE_EVENTS=
+export MONITOR_PERF_EVENTS=
 
-# NetPerf
-export NETPERF_BUFFER_SIZES=1,64,128,256,1024,2048,3312,4096,8192,16384
-export NETPERF_BINDING=cross-socket
-
-# PipeTest
-export PIPETEST_ITERATIONS=30
-export PIPETEST_BINDING=cross-socket
+# Siege
+export SIEGE_MAX_USERS=$((NUMCPUS*8))
+export SIEGE_ITERATIONS=6
+export SIEGE_ITER_TIME=10s

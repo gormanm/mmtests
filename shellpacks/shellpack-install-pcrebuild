@@ -1,10 +1,11 @@
 #!/bin/bash
-# Netperf installer
-P=netperf-install
-DEFAULT_VERSION=2.4.5
+# Perl Compatible RE installer for Apache httpd
+P=pcrebuild-install
+DEFAULT_VERSION=8.35
 . $SHELLPACK_INCLUDE/common.sh
-WEB_LOCATION=ftp://ftp.netperf.org/netperf/archive
-MIRROR_LOCATION="$WEBROOT/netperf/"
+
+WEB_LOCATION=ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre
+MIRROR_LOCATION="$WEBROOT/apache/"
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -29,32 +30,30 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+# PCRE, use pcre naming to limit extra junk
+export CFLAGS="-O2"
 # Unconditionally fetch the tar to find out the real version number
-TARFILE=netperf-${VERSION}.tar.gz
+TARFILE=pcre-${VERSION}.tar.bz2
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf netperf-${VERSION}.tar.gz failed"
+        error "$P: tar xf pcre-${VERSION}.tar.bz2 failed"
         popd > /dev/null
         exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-mv $DST_DIR netperf-${VERSION}
-pushd netperf-${VERSION} > /dev/null || die Failed to rename tar
-
-pushd $SHELLPACK_SOURCES/netperf-${VERSION} || die Failed to change to source directory
-INSTALLPATH=$SHELLPACK_SOURCES/netperf-${VERSION}-installed
-rm -rf $INSTALLPATH
-CFLAGS="-O2" ./configure --prefix=$INSTALLPATH
+mv $DST_DIR pcrebuild-${VERSION}
+pushd pcrebuild-${VERSION} > /dev/null || die Failed to rename tar
+pushd $SHELLPACK_SOURCES/pcrebuild-${VERSION} || die Failed to change to source directory
+./configure --prefix=$SHELLPACK_SOURCES/pcrebuild-${VERSION}-installed 
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
-
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -68,6 +67,6 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 
-echo Netperf installed successfully
-#### Description Netperf benchmark
-#### Details netperf 23
+echo pcrebuild installed successfully
+#### Description pcrebuild
+#### Details pcrebuild 5
