@@ -27,7 +27,7 @@ sub initialise() {
 	$self->SUPER::initialise();
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f" ];
-	$self->{_FieldHeaders} = [ "Instances", "Time" ];
+	$self->{_FieldHeaders} = [ "Instances", "Iteration", "Time" ];
 	$self->{_TestName} = $testName;
 }
 
@@ -44,7 +44,7 @@ sub extractReport($$$) {
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my @elements = split(/\s+/);
-		push @{$self->{_ResultData}}, [$elements[0], $elements[1]];
+		push @{$self->{_ResultData}}, [$elements[0], 1, $elements[1]];
 	}
 	close INPUT;
 }
