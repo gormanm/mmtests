@@ -25,7 +25,7 @@ sub initialise() {
 
 	$self->SUPER::initialise();
 	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" ];
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}d", "%$fieldLength.2f" ];
 	$self->{_FieldHeaders}[0] = "PipePairs";
 	$self->{_TestName} = $testName;
 }
@@ -44,7 +44,7 @@ sub extractReport($$$) {
 	my $iteration = 0;
 	while (<INPUT>) {
 		my @elements = split(/\s/);
-		push @{$self->{_ResultData}}, [++$iteration, $elements[0]];
+		push @{$self->{_ResultData}}, ["Time", ++$iteration, $elements[0]];
 	}
 	close INPUT;
 }

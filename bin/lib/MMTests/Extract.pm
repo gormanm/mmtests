@@ -61,10 +61,10 @@ sub initialise() {
 		$plotLength = 12;
 		$summaryLength = 12;
 		if ($self->{_DataType} == DATA_OPSSEC) {
-			@fieldHeaders = ("Unit", "Ops/sec");
+			@fieldHeaders = ("Unit", "Iteration", "Ops/sec");
 			@plotHeaders = ("Unit", "Ops/sec");
 		} else {
-			@fieldHeaders = ("Unit", "Time");
+			@fieldHeaders = ("Unit", "Iteration", "Time");
 			@plotHeaders = ("Unit", "Time");
 		}
 		@summaryHeaders = ("Unit", "Min", "Mean", "TrimMean", "Stddev", "Max");
@@ -298,7 +298,7 @@ sub extractSummary() {
 		foreach my $row (@{$self->{_ResultData}}) {
 			my @rowArray = @{$row};
 			$units{$rowArray[0]} = 1;
-			push @{$walltimes[$rowArray[0]]}, $rowArray[1];
+			push @{$walltimes[$rowArray[0]]}, $rowArray[2];
 		}
 
 		push @row, "Time";
