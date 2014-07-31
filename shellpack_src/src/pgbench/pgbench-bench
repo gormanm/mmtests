@@ -6,7 +6,6 @@ install-depends gnuplot
 
 ROLE=`whoami`
 DBUSER=nobody
-DBPASSWORD=shellpack-mysqlbench
 EFFECTIVE_CACHESIZE=$((756*1048576))
 SHARED_BUFFERS=$((32*1048576))
 WORK_MEM=$((32*1048576))
@@ -19,70 +18,37 @@ VACUUM_ARG=-n
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-###SHELLPACK parseargParam --max-threads         PGBENCH_MAX_THREADS
 ###SHELLPACK parseargParam --effective-cachesize EFFECTIVE_CACHESIZE
-###SHELLPACK parseargParam --scale-factor        SCALE_FACTOR
 ###SHELLPACK parseargParam --shared-buffers      SHARED_BUFFERS
 ###SHELLPACK parseargParam --work-mem            WORK_MEM
+
+###SHELLPACK parseargParam --max-threads         PGBENCH_MAX_THREADS
+###SHELLPACK parseargParam --scale-factor        SCALE_FACTOR
 ###SHELLPACK parseargParam --max-time            MAX_TIME
 ###SHELLPACK parseargParam --max-transactions    MAX_TRANSACTIONS
 ###SHELLPACK parseargParam --iterations          MAX_ITERATIONS
 ###SHELLPACK parseargYes   --read-only           READONLY
-	--use-large-pages)
-		export LARGEPAGES=--use-large-pages
-		shift
-		;;
-	--use-dynamic-pool)
-		export USE_DYNAMIC_POOL=--use-dynamic-pool
-		shift
-		;;
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK monitor_hooks
 
-# Install if necessary and run database. Do not use large pages or google
-# malloc as they are unnecessary at this point
-$SHELLPACK_INCLUDE/shellpack-install-postgresbuild \
-	-v ${VERSION} \
-	--effective_cachesize $EFFECTIVE_CACHESIZE \
-	--shared_buffers $SHARED_BUFFERS \
-	--work_mem $WORK_MEM \
-	|| die Failed to get a usable postgres installation
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo
-	echo pgbench install-only successfully completed
-	exit $SHELLPACK_SUCCESS
-fi
-
 echo Copying database configuration
-cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
+cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
 export PGHOST=localhost
 export PGPORT=5432
-export PATH=$SHELLPACK_SOURCES/postgres-${VERSION}-installed/bin:$PATH
-export LD_LIBRARY_PATH=postgres-${VERSION}-installed/lib
-PSQL=$SHELLPACK_SOURCES/postgres-${VERSION}-installed/bin/psql
+export PATH=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin:$PATH
+export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/lib
+PSQL=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin/psql
 RUNDBUSER="su -s /bin/bash $DBUSER -c"
 
-# Calculate memory requirements
-. $SHELLPACK_INCLUDE/include-hugepage.sh
-gethugepagesize
-UPPERLIMIT=$((`grep ^MemTotal /proc/meminfo  | awk '{print $2}'`*1024*3/4))
-TOTALBUFFER_SIZE=$(($UPPERLIMIT+1))
-while [ $TOTALBUFFER_SIZE -ge $UPPERLIMIT ]; do
-	TOTALBUFFER_SIZE=$(($EFFECTIVE_CACHESIZE))
-
-	if [ $TOTALBUFFER_SIZE -ge $UPPERLIMIT ]; then
-		echo Shrinking memory requirements \($TOTALBUFFER_SIZE ge $UPPERLIMIT\)
-		EFFECTIVE_CACHESIZE=$(($EFFECTIVE_CACHESIZE-$EFFECTIVE_CACHESIZE/10))
-		SHARED_BUFFERS=$(($SHARED_BUFFERS-$SHARED_BUFFERS/10))
-		WORK_MEM=$(($WORK_MEM-$WORK_MEM/10))
-		KEYBUFFER_SIZE=$(($KEYBUFFER_SIZE-$KEYBUFFER_SIZE/10))
-	fi
-done
-
 if [ "$MAX_TRANSACTIONS" = "auto" ]; then
-	CEILING=3000000
-	FLOOR=5000
+	if [ "$READONLY" = "yes" ]; then
+		CEILING=1000000
+		FLOOR=5000
+	else
+		CEILING=50000
+		FLOOR=5000
+	fi
 	WORKLOAD_SIZE=$((SCALE_FACTOR*15*1048576+30*1048576))
 	WEIGHT_MAINMEMORY=5
 	WEIGHT_DISK=80
@@ -118,38 +84,6 @@ EOF
 	mv /tmp/coordinates $LOGDIR_RESULTS/pgbench-auto-coordinates
 fi
 
-echo Shutting down DB to reconfigure system
-$SHELLPACK_INCLUDE/shellpack-install-postgresbuild --shutdown
-
-# Configure shmem parameters
-getpagesize
-echo $TOTALBUFFER_SIZE > /proc/sys/kernel/shmmax
-echo $(($TOTALBUFFER_SIZE*2/$PAGESIZE)) > /proc/sys/kernel/shmall
-ulimit -l $TOTALBUFFER_SIZE
-GROUPNAME=`groups $POSTGRES_USER | awk '{print $3}'`
-if [ "$GROUPNAME" = "" ]; then
-	GROUPNAME=`groups $POSTGRES_USER`
-fi
-GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
-echo $GROUPID > /proc/sys/vm/hugetlb_shm_group
-
-# Reserve the required hugepages if necessary
-if [ "$LARGEPAGES" != "" ]; then
-	# Reserve the hugepages
-	REQUIRED_HUGEPAGES=$(($TOTALBUFFER_SIZE/$HUGE_PAGESIZE))
-	echo Required hugepages: $REQUIRED_HUGEPAGES
-	if [ $HUGE_PAGESIZE -gt 4194304 ]; then
-		REQUIRED_HUGEPAGES=$(($REQUIRED_HUGEPAGES+$REQUIRED_HUGEPAGES/4))
-		echo Adjusted for larger pages required hugepages: $REQUIRED_HUGEPAGES
-	fi
-
-	if [ $NUMCPUS -gt 32 ]; then
-		REQUIRED_HUGEPAGES=$(($REQUIRED_HUGEPAGES*4))
-		echo Adjusted for number cpus required hugepages: $REQUIRED_HUGEPAGES
-	fi
-	reserve_hugepages $USE_DYNAMIC_POOL $REQUIRED_HUGEPAGES
-fi
-
 # Figure out how to use the time command
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -171,13 +105,12 @@ echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 	echo -n > $LOGDIR_RESULTS/samples
 
 	# Restart the database
-	echo Starting DB cold
-	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild $LARGEPAGES \
+	echo 
+	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
 		--effective_cachesize $EFFECTIVE_CACHESIZE \
 		--shared_buffers $SHARED_BUFFERS \
 		--work_mem $WORK_MEM \
-		-v ${VERSION} \
-		|| die Failed to get a usable mysql installation
+		-v ${VERSION} || die Failed to get a usable postgres installation
 
 	echo Creating database for thread count $NR_THREADS
 	$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
@@ -234,14 +167,11 @@ echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
 	$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
 	$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild --shutdown
+	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
 ###SHELLPACK threads_stride_end
 
 # Copy the log files
-cp $SHELLPACK_SOURCES/postgres-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
-
-# Shutdown server
-reset_hugepages
+cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
 
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS

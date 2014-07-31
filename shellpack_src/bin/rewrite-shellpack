@@ -233,6 +233,18 @@ if [ \$? -ne 0 ]; then
 	exit \$SHELLPACK_ERROR
 fi
 EOC
+	} elsif ($command eq "build_cmake") {
+		my $srcdir = @details[0];
+		shift @details;
+		print <<EOC
+cmake . -DCMAKE_INSTALL_PREFIX=\$SHELLPACK_SOURCES/$srcdir-installed @details
+if [ \$? -ne 0 ]; then
+	error "\$P: cmake failed"
+	popd > /dev/null
+	exit \$SHELLPACK_ERROR
+fi
+EOC
+
 	} elsif ($command eq "make") {
 		my $opts = join(" ", @details);
 		print <<EOC
