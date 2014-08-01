@@ -10,6 +10,9 @@ MIRROR_LOCATION="$WEBROOT/reaim/"
 install-depends libaio-devel
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -21,6 +24,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -66,13 +73,15 @@ echo "--- src/drv_funcs.c.orig	2013-03-08 18:36:17.026240307 +0000
  	strcat(stmp,s1);
  	strcat(stmp,s2);" | patch -p0
 
-./configure --prefix=$SHELLPACK_SOURCES/reaim-${VERSION}-installed
+export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=$SHELLPACK_SOURCES/reaim-${VERSION}-installed 
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
-make -j$NUMCPUS
+unset CFLAGS
+make -j$NUMCPUS reaim-${VERSION}
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -85,4 +94,4 @@ echo reaim installed successfully
 #### Description reaim
 #### Details reaim 12
 #### Description reaim
-#### Details reaim 37
+#### Details reaim 38

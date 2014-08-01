@@ -13,6 +13,9 @@ if [ "$LARGECOPY_THREADS" = "" ]; then
 fi
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -36,6 +39,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -132,4 +139,4 @@ echo "5:Time to delete source:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDI
 
 exit $SHELLPACK_SUCCESS
 #### Description Large dd
-#### Details largedd-bench 15
+#### Details largedd-bench 16

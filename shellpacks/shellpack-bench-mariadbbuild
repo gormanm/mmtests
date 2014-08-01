@@ -5,6 +5,8 @@ DEFAULT_VERSION=10.0.12
 . $SHELLPACK_INCLUDE/common.sh
 MARIADB_USER=nobody
 MARIADB_GROUP=nogroup
+MARIADB_ADMIN_USER=root
+MARIADB_ADMIN_PASSWORD=mmtests-default
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -26,6 +28,14 @@ while [ "$1" != "" ]; do
 		;;
 	--mariadb-user)
 		MARIADB_USER=$2
+		shift 2
+		;;
+	--effective_cachesize)
+		IGNORED_A=$2
+		shift 2
+		;;
+	--work_mem)
+		IGNORED_B=$2
 		shift 2
 		;;
 	--shared_buffers)
@@ -71,6 +81,7 @@ getpagesize
 MARIADB_DATADIR=$SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/data
 MARIADB_PIDFILE=$SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/data/mariadbd.pid
 MARIADB_PID=`cat $MARIADB_PIDFILE 2>&1`
+MYSQLADMIN="bin/mysqladmin -u $MARIADB_ADMIN_USER -p$MARIADB_ADMIN_PASSWORD"
 cd $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed
 
 # Only updates the first occurance of the parameter
@@ -97,7 +108,7 @@ update_entry_cnf() {
 mariadb_shutdown() {
 	if [ -e $MARIADB_PIDFILE ]; then
 		echo Shutting down server
-		./bin/mysqladmin shutdown
+		eval $MYSQLADMIN shutdown
 		wait_on_pid_exit $MARIADB_PID
 		rm $MARIADB_PIDFILE 2>/dev/null
 	fi
@@ -133,9 +144,10 @@ if [ "$SERVER_START" = "yes" ]; then
 	./support-files/mysql.server start --pid-file=$MARIADB_PIDFILE
 	wait_on_pid_file $MARIADB_PIDFILE
 	MARIADB_PID=`cat $MARIADB_PIDFILE 2>&1`
+	./bin/mysqladmin -u $MARIADB_ADMIN_USER password $MARIADB_ADMIN_PASSWORD
 fi
 
 echo mariadb operation successful
 exit $SHELLPACK_SUCCESS
 #### Description mariadbbuild
-#### Details mariadbbuild-bench 17
+#### Details mariadbbuild-bench 26

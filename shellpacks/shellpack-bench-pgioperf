@@ -12,6 +12,9 @@ COMMIT_REPORT_INTERVAL=500
 DURATION=180
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -51,6 +54,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -451,4 +458,4 @@ main(int argc, char **argv)
 	return 0;
 }
 #### Description Postgres IO performance microbenchmark
-#### Details pgioperf-bench 17
+#### Details pgioperf-bench 18

@@ -6,6 +6,9 @@ DEFAULT_VERSION=6.0-rc2
 MIRROR_LOCATION="$WEBROOT/ffsb/"
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -17,6 +20,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -54,13 +61,15 @@ echo '--- ffsb-6.0-rc2-orig/parser.c	2008-10-27 20:17:05.000000000 +0000
  		return ret_buf;
  		}
  	free(line);' | patch -p1 || exit $SHELLPACK_ERROR
-./configure --prefix=$SHELLPACK_SOURCES/ffsb-${VERSION}-installed
+export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=$SHELLPACK_SOURCES/ffsb-${VERSION}-installed 
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
-make -j$NUMCPUS
+unset CFLAGS
+make -j$NUMCPUS ffsb-${VERSION}
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -75,4 +84,4 @@ fi
 
 echo ffsb installed successfully
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb 17
+#### Details ffsb 18

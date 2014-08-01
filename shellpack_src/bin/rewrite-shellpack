@@ -221,17 +221,24 @@ EOC
 		print <<EOC
 ./autogen.sh || die Failed to run autogen
 EOC
-
+	} elsif ($command eq "build_autoreconf") {
+		print <<EOC
+touch NEWS
+touch AUTHORS
+autoreconf -f -i || die Failed to run autoreconf
+EOC
 	} elsif ($command eq "build_configure") {
 		my $srcdir = @details[0];
 		shift @details;
 		print <<EOC
-./configure --prefix=\$SHELLPACK_SOURCES/$srcdir-installed @details
+export CFLAGS="-O2 \$CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=\$SHELLPACK_SOURCES/$srcdir-installed @details
 if [ \$? -ne 0 ]; then
 	error "\$P: configure failed"
 	popd > /dev/null
 	exit \$SHELLPACK_ERROR
 fi
+unset CFLAGS
 EOC
 	} elsif ($command eq "build_cmake") {
 		my $srcdir = @details[0];

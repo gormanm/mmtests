@@ -16,6 +16,9 @@ MIN_FILESIZE=$((32*1048576))
 MAX_FILESIZE=$((32*1048576))
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -71,6 +74,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -210,4 +217,4 @@ monitor_post_hook $LOGDIR_RESULTS ffsb
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb-bench 17
+#### Details ffsb-bench 18

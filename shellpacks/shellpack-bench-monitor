@@ -16,4 +16,4 @@ echo Hit enter, run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish m
 
 read INPUT
 #### Description monitor only
-#### Details monitor-bench 5
+#### Details monitor-bench 6

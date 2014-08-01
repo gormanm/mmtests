@@ -52,7 +52,8 @@ function wait_on_pid_exit() {
 function wait_on_pid_file() {
 	PIDFILE=$1
 
-	echo -n "Waiting on pidfile `basename $PIDFILE` "
+	sleep 1
+	echo -n "Waiting on pidfile \"`basename $PIDFILE`\" "
 	while [ ! -e $PIDFILE ]; do
 		echo -n O
 		sleep 1

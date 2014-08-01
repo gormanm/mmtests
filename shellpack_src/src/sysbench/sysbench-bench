@@ -1,359 +1,162 @@
 #!/bin/bash
+#!/bin/bash
+###SHELLPACK preamble sysbench-bench 0.4.12
+install-depends gnuplot
 
-P=sysbench-bench
-MYSQL_VERSION=5.0.51b
-POSTGRES_VERSION=9.3.4
-VERSION=0.4.12
+DBDRIVER=postgres
 DBUSER=nobody
-DBPASSWORD=shellpack-mysqlbench
-NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
-RUN_NUM=$(($NUMCPUS*2))
-
-# 10,000,000 is around 8G of data
-OLTP_TABLESIZE=10000000
-KEYBUFFER_SIZE=$((64*1048576))
-CONNBUFFER_SIZE=$((4*1048576))
-SORTBUFFER_SIZE=$((2*1048576))
 EFFECTIVE_CACHESIZE=$((756*1048576))
 SHARED_BUFFERS=$((32*1048576))
 WORK_MEM=$((32*1048576))
-DBDRIVER=postgres
-TABLE_DRIVER=innodb
+MARIADB_VERSION=10.0.12
+POSTGRES_VERSION=9.3.4
+MARIADB_ADMIN_USER=root
+MARIADB_ADMIN_PASSWORD=mmtests-default
+
+MARIADB_TABLE_DRIVER=innodb
 OLTP_TESTTYPE=complex
-MIN_ITERATIONS=5
-MAX_ITERATIONS=9
-MAX_TIME=120
-CONFIDENCE_LEVEL=99
-CONFIDENCE_LIMIT=2
-OLTP_TRANSTYPE=
-. $SHELLPACK_INCLUDE/common.sh
 
-# Basic args parser
-while [ "$1" != "" ]; do
-	case "$1" in
-		-v)	export VERSION=$2; shift 2;;
-		--cnf)	export CNF_FILE=$2; shift 2;;
-		--fastest)
-			MAX_TIME=20
-			OLTP_TABLESIZE=100000
-			shift;;
-		--faster)
-			MAX_TIME=60
-			OLTP_TABLESIZE=1000000
-			shift;;
-		--slower)
-			MAX_TIME=180
-			OLTP_TABLESIZE=50000000
-			shift;;
-		--max-threads) export RUN_NUM=$2; shift 2;;
-		--less-confident)
-			export MIN_ITERATIONS=3
-			export MAX_ITERATIONS=5
-			shift;;
-		--confidence-limit)
-			export CONFIDENCE_LIMIT=$2
-			shift 2
-			;;
-		--use-google-malloc)
-			export GOOGLEMALLOC=--use-google-malloc
-			shift;;
-		--use-large-pages)
-			export LARGEPAGES=--use-large-pages
-			shift;;
-		--use-dynamic-pool)
-			export USE_DYNAMIC_POOL=--use-dynamic-pool
-			shift ;;
-		--use-postgres)
-			export DBDRIVER=postgres
-			export DBUSER=nobody
-			shift;;
-		--use-mysql)
-			export DBDRIVER=mysql
-			export DBUSER=root
-			shift;;
-		--read-only)
-			export OLTP_TRANSTYPE=--oltp-read-only
-			shift;;
-		--level-select-updates)
-			export OLTP_TRANSTYPE="--oltp-point-selects --oltp-non-index-updates --oltp-index-updates --oltp-sum-ranges"
-			shift;;
-		--install-only)
-			export INSTALL_ONLY=yes; shift;;
-		--effective_cachesize)
-			export EFFECTIVE_CACHESIZE=$2
-			shift 2;;
-		--shared_buffers)
-			export SHARED_BUFFERS=$2
-			shift 2;;
-		--oltp-testtype)
-			export OLTP_TESTTYPE=$2
-			shift 2;;
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --effective-cachesize EFFECTIVE_CACHESIZE
+###SHELLPACK parseargParam --shared-buffers      SHARED_BUFFERS
+###SHELLPACK parseargParam --work-mem            WORK_MEM
+###SHELLPACK parseargParam --dbdriver            DBDRIVER
+###SHELLPACK parseargParam --max-threads         MAX_THREADS
+###SHELLPACK parseargParam --max-time            MAX_TIME
+###SHELLPACK parseargParam --max-transactions    MAX_TRANSACTIONS
+###SHELLPACK parseargParam --iterations          MAX_ITERATIONS
+###SHELLPACK parseargParam --workload-size       WORKLOAD_SIZE
+###SHELLPACK parseargYes   --read-only           READONLY
+###SHELLPACK parseargEnd
 
-		# These parameters are postgres specific
-		--work_mem)
-			export WORK_MEM=$2
-			shift 2;;
-
-		# These parameters are mysql specific
-		--key-buffer-size)
-			export KEYBUFFER_SIZE=$2
-			shift 2;;
-		--connection-buffer-size)
-			export CONNBUFFER_SIZE=$2
-			shift 2;;
-		--sort-buffer-size)
-			export SORTBUFFER_SIZE=$2
-			shift 2;;
-		*)	echo Unrecognised option: $1; shift
-	esac
-done
-
-# Install if necessary and run database. Do not use large pages or google
-# malloc as they are unnecessary at this point
-if [ "$DBDRIVER" = "postgres" ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild \
-		-v ${POSTGRES_VERSION} \
-		--effective_cachesize $EFFECTIVE_CACHESIZE \
-		--shared_buffers $SHARED_BUFFERS \
-		--work_mem $WORK_MEM \
-		|| die Failed to get a usable mysql installation
-	export PGHOST=/var/run/postgresql
-	export PGPORT=5432
-else
-	$SHELLPACK_INCLUDE/shellpack-install-mysqlbuild \
-		-v ${MYSQL_VERSION} \
-		--key-buffer-size $KEYBUFFER_SIZE \
-		--connection-buffer-size $CONNBUFFER_SIZE \
-		--sort-buffer-size $SORTBUFFER_SIZE \
-		|| die Failed to get a usable mysql installation
-fi
-
-# Set paths and libraries
-export PATH=$SHELLPACK_SOURCES/mysql-${MYSQL_VERSION}-installed/bin:$SHELLPACK_SOURCES/postgres-${POSTGRES_VERSION}-installed/bin:$SHELLPACK_SOURCES/sysbench$DBDRIVER-${VERSION}-installed/bin:$PATH
-export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/mysql-${MYSQL_VERSION}-installed/lib/mysql:$SHELLPACK_SOURCES/postgres-${POSTGRES_VERSION}-installed/lib:$SHELLPACK_SOURCES/postgres-${POSTGRES_VERSION}-installed/lib64
-
-# Install sysbench if necessary
-if [ ! -d $SHELLPACK_SOURCES/sysbench$DBDRIVER-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-sysbench -v ${VERSION} --use-$DBDRIVER || die Failed to get a usable sysbench installation
-fi
-
-echo Copying database configuration
-if [ "$DBDRIVER" = "postgres" ]; then
-	cp $SHELLPACK_SOURCES/postgres-${POSTGRES_VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
-else
-	cp /etc/my.cnf $LOGDIR_RESULTS/
-fi
-
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo
-	echo sysbench install-only successfully completed
-	exit $SHELLPACK_SUCCESS
-fi
-
-# Cope with small-memory machines
-if [ `grep ^MemTotal /proc/meminfo  | awk '{print $2}'` -lt 1500000 ]; then
-	echo Shrinking memory requirements
-	EFFECTIVE_CACHESIZE=$(($EFFECTIVE_CACHESIZE*1/5))
-	SHARED_BUFFERS=$(($SHARED_BUFFERS*1/5))
-	WORK_MEM=$(($WORK_MEM*1/5))
-fi
-
-# Calculate memory usage upper-limit as 75% phys memory
-UPPERLIMIT=$((`grep ^MemTotal /proc/meminfo  | awk '{print $2}'`*1024*3/4))
-TOTALBUFFER_SIZE=$(($UPPERLIMIT+1))
-
+###SHELLPACK check_install_required sysbench-${VERSION} --dbdriver ${DBDRIVER}
 ###SHELLPACK monitor_hooks
 
-# Calculate memory requirements
-. $SHELLPACK_INCLUDE/include-hugepage.sh
-gethugepagesize
-while [ $TOTALBUFFER_SIZE -ge $UPPERLIMIT ]; do
-	if [ "$DBDRIVER" = "postgres" ]; then
-		TOTALBUFFER_SIZE=$(($EFFECTIVE_CACHESIZE))
+# Calculate OLTP tablesize. 1 megabyte is around 4500 rows
+OLTP_TABLESIZE=$((WORKLOAD_SIZE/1048576*4500))
+
+# Set transaction type
+OLTP_TRANSTYPE=
+if [ "$READONLY" = "yes" ]; then
+	OLTP_TRANSTYPE=--oltp-read-only
+fi
+
+# Automatically calculate number of transactions if requested
+if [ "$MAX_TRANSACTIONS" = "auto" ]; then
+	if [ "$READONLY" = "yes" ]; then
+		CEILING=200000
+		FLOOR=1000
 	else
-		TOTALBUFFER_SIZE=$(((($SORTBUFFER_SIZE+$CONNBUFFER_SIZE+$KEYBUFFER_SIZE+32)*$RUN_NUM)+$EFFECTIVE_CACHESIZE))
+		CEILING=10000
+		FLOOR=1000
 	fi
+	WEIGHT_MAINMEMORY=5
+	WEIGHT_DISK=80
+	cat > /tmp/points <<EOF
+0 $((CEILING/2))
+$SHARED_BUFFERS $CEILING
+$EFFECTIVE_CACHESIZE $((CEILING/WEIGHT_MAINMEMORY*5/4))
+$MEMTOTAL_BYTES $((CEILING/WEIGHT_MAINMEMORY))
+$((MEMTOTAL_BYTES*4/3)) $((CEILING/WEIGHT_MAINMEMORY/2))
+$((MEMTOTAL_BYTES*2)) $((CEILING/WEIGHT_DISK))
+$((MEMTOTAL_BYTES*8)) $((CEILING/WEIGHT_DISK*2))
+EOF
 
-	if [ $TOTALBUFFER_SIZE -ge $UPPERLIMIT ]; then
-		echo Shrinking memory requirements \($TOTALBUFFER_SIZE ge $UPPERLIMIT\)
-		EFFECTIVE_CACHESIZE=$(($EFFECTIVE_CACHESIZE-$EFFECTIVE_CACHESIZE/10))
-		SHARED_BUFFERS=$(($SHARED_BUFFERS-$SHARED_BUFFERS/10))
-		WORK_MEM=$(($WORK_MEM-$WORK_MEM/10))
-		KEYBUFFER_SIZE=$(($KEYBUFFER_SIZE-$KEYBUFFER_SIZE/10))
+	cat > /tmp/gnuplot.script <<EOF
+set terminal dumb
+set table "/tmp/coordinates"
+plot '/tmp/points' smooth cspline
+EOF
+	cat /tmp/gnuplot.script | gnuplot > /dev/null
+
+        MAX_TRANSACTIONS=`awk "{ if (\\$1 >= \$WORKLOAD_SIZE) print \\$2 }" /tmp/coordinates | head -1`
+	MAX_TRANSACTIONS=`perl -e "print int $MAX_TRANSACTIONS"`
+	if [ "$MAX_TRANSACTIONS" = "" ]; then
+		MAX_TRANSACTIONS=$FLOOR
 	fi
-done
-
-echo Shutting down DB to reconfigure system
-$SHELLPACK_INCLUDE/shellpack-install-${DBDRIVER}build --shutdown
-
-# Configure shmem parameters
-getpagesize
-echo $TOTALBUFFER_SIZE > /proc/sys/kernel/shmmax
-echo $(($TOTALBUFFER_SIZE*2/$PAGESIZE)) > /proc/sys/kernel/shmall
-ulimit -l $TOTALBUFFER_SIZE
-GROUPNAME=`groups $POSTGRES_USER | awk '{print $3}'`
-if [ "$GROUPNAME" = "" ]; then
-	GROUPNAME=`groups $POSTGRES_USER`
-fi
-GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
-echo $GROUPID > /proc/sys/vm/hugetlb_shm_group
-
-# Reserve the required hugepages if necessary
-if [ "$LARGEPAGES" != "" ]; then
-	# Reserve the hugepages
-	REQUIRED_HUGEPAGES=$(($TOTALBUFFER_SIZE/$HUGE_PAGESIZE))
-	echo Required hugepages: $REQUIRED_HUGEPAGES
-	if [ $HUGE_PAGESIZE -gt 4194304 ]; then
-		REQUIRED_HUGEPAGES=$(($REQUIRED_HUGEPAGES+$REQUIRED_HUGEPAGES/4))
-		echo Adjusted for larger pages required hugepages: $REQUIRED_HUGEPAGES
+	if [ $MAX_TRANSACTIONS -lt $FLOOR ]; then
+		MAX_TRANSACTIONS=$FLOOR
 	fi
-
-	if [ $NUMCPUS -gt 32 ]; then
-		REQUIRED_HUGEPAGES=$(($REQUIRED_HUGEPAGES*4))
-		echo Adjusted for number cpus required hugepages: $REQUIRED_HUGEPAGES
+	if [ "$READONLY" != "yes" ]; then
+		MAX_TRANSACTIONS=$((MAX_TRANSACTIONS/8))
 	fi
-	reserve_hugepages $USE_DYNAMIC_POOL $REQUIRED_HUGEPAGES
+	mv /tmp/points $LOGDIR_RESULTS/sysbench-auto-points
+	mv /tmp/coordinates $LOGDIR_RESULTS/sysbench-auto-coordinates
 fi
 
-# Restart the database
-echo Starting DB up after configuring system
+# Initialise database
+SYSBENCH_DB_OPTIONS=
+export PATH=$SHELLPACK_SOURCES/sysbench-${VERSION}-installed/bin:$PATH
+echo Configuring paths for $DBDRIVER
 if [ "$DBDRIVER" = "postgres" ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild $GOOGLEMALLOC $LARGEPAGES \
-		--effective_cachesize $EFFECTIVE_CACHESIZE \
-		--shared_buffers $SHARED_BUFFERS \
-		--work_mem $WORK_MEM \
-		-v ${POSTGRES_VERSION} \
-		|| die Failed to get a usable mysql installation
+	SYSBENCH_DB_OPTIONS="--db-driver=pgsql --pgsql-db=pgtest"
+	PSQL=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/bin/psql
+	RUNDBUSER="su -s /bin/bash $DBUSER -c"
+	export PATH=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/bin:$PATH
+	export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/lib
 	export PGHOST=/var/run/postgresql
 	export PGPORT=5432
 else
-	$SHELLPACK_INCLUDE/shellpack-install-mysqlbuild $GOOGLEMALLOC $LARGEPAGES \
-		-v ${MYSQL_VERSION} \
-		--key-buffer-size $KEYBUFFER_SIZE \
-		--connection-buffer-size $CONNBUFFER_SIZE \
-		--sort-buffer-size $SORTBUFFER_SIZE \
-		|| die Failed to get a usable mysql installation
+	MYSQLADMIN="mysqladmin -u $MARIADB_ADMIN_USER -p$MARIADB_ADMIN_PASSWORD"
+	SYSBENCH_DB_OPTIONS="--mysql-user=$MARIADB_ADMIN_USER --mysql-password=$MARIADB_ADMIN_PASSWORD --mysql-db=sbtest --mysql-socket=/tmp/mysql.sock --mysql-table-engine=innodb"
+	export PATH=$SHELLPACK_SOURCES/mariadbbuild-${MARIADB_VERSION}-installed/bin:$PATH
+	export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/mariadbbuild-${MARIADB_VERSION}-installed/lib
 fi
 
-echo Creating database for $DBDRIVER
-cd $SHELLPACK_SOURCES/sysbench$DBDRIVER-${VERSION}-installed || die Failed to cd to sysbench install directory
-if [ "$DBDRIVER" = "postgres" ]; then
-	SYSBENCH_DB_OPTIONS="--db-driver=pgsql --pgsql-db=pgtest"
-	PSQL=$SHELLPACK_SOURCES/postgres-${POSTGRES_VERSION}-installed/bin/psql
-	RUNDBUSER="su -s /bin/bash $DBUSER -c"
-
-	$PSQL "template1 -c 'CREATE DATABASE pgtest;'"
-	if [ $? -ne 0 ]; then
-		echo " o Database create returned $?"
-		echo " o Dumping previous runs database"
-		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgtest;'"
-		echo " o Re-creating database"
-		$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgtest;'" || die Failed to setup database
-	fi
-
-	$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE sbtest with LOGIN;'"
-	if [ $? -ne 0 ]; then
-		echo " o Role create returned $?"
-		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE sbtest;'"
-		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE sbtest with LOGIN;'" || die Failed to create sbtest role
-	fi
-
-else
-	MYSQL_OPTIONS="-u $DBUSER -p$DBPASSWORD"
-	SYSBENCH_DB_OPTIONS="--mysql-user=$DBUSER --mysql-password=$DBPASSWORD --mysql-db=sbtest --mysql-socket=/tmp/mysql.sock --mysql-table-engine=$TABLE_DRIVER"
-	mysqladmin $MYSQL_OPTIONS create sbtest
-	if [ $? -ne 0 ]; then
-		echo " o Database create returned $?"
-		echo " o Dumping previous runs database"
-		sysbench $SYSBENCH_DB_OPTIONS --test=oltp cleanup
-		mysqladmin -f $MYSQL_OPTIONS drop sbtest
-		echo " o Re-creating database"
-		mysqladmin $MYSQL_OPTIONS create sbtest || die Failed to setup database
-	fi
+# Figure out how to use the time command
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
 fi
 
-SYSBENCH_OPTIONS="--max-time=$MAX_TIME --max-requests=0 $SYSBENCH_DB_OPTIONS"
+SYSBENCH_OPTIONS="$MAX_TIME_COMMAND $MAX_TRANSACTIONS_COMMAND $SYSBENCH_DB_OPTIONS"
 OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 		--oltp-test-mode=$OLTP_TESTTYPE \
 		--oltp-table-size=$OLTP_TABLESIZE"
-echo Preparing database
-sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS prepare  || die Failed to prepare database
+###SHELLPACK threads_large_stride_begin 1 $MAX_THREADS
+	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
+		--effective_cachesize $EFFECTIVE_CACHESIZE \
+		--shared_buffers $SHARED_BUFFERS \
+		--work_mem $WORK_MEM || die Failed to get usable database installation
 
-mkdir -p $LOGDIR_RESULTS/dblog/
-echo Warming up with $SYSBENCH_OPTIONS $OLTP_OPTIONS --num-threads=$RUN_NUM run
-sync
-sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS --num-threads=$RUN_NUM run > $LOGDIR_RESULTS/sysbench-raw-warmup
+	echo Preparing database
+	if [ "$DBDRIVER" = "postgres" ]; then
+		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgtest;'"
+		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE sbtest;'"
+		$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgtest;'" || die Failed to setup database
+		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE sbtest with LOGIN;'" || die Failed to create sbtest role
+		cp $SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
+	else
+		eval $MYSQLADMIN -f drop sbtest
+		eval $MYSQLADMIN create sbtest || die Failed to setup database
+		cp /etc/my.cnf $LOGDIR_RESULTS
+	fi
+	echo Preparing database: $SYSBENCH_OPTIONS $OLTP_OPTIONS
+	$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
+		sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS prepare \
+		> $LOGDIR_RESULTS/load-${NR_THREADS}.log
 
-# Work out threads. For large numbers of CPUs be prepared to skip a lot to keep
-# the test running in a semi-reasonable amount of time.
-START_CPU=1
-CPU_STRIDE=1
-if [ $NUMCPUS -gt 8 ]; then
-	CLIENTS=`seq $START_CPU 10`
-	START_CPU=12
-	CPU_STRIDE=4
-	CLIENTS="$CLIENTS "
-fi
-if [ $RUN_NUM -lt $NUMCPUS ]; then
-	CLIENTS="$CLIENTS`seq $START_CPU $CPU_STRIDE $RUN_NUM`"
-else
-	CLIENTS="$CLIENTS`seq $START_CPU $CPU_STRIDE $NUMCPUS` `seq $((NUMCPUS+2)) $((CPU_STRIDE*2)) $RUN_NUM`"
-fi
-
-echo Running sysbench maximum $RUN_NUM threads
-for N in $CLIENTS; do
-
-	echo -n > $LOGDIR_RESULTS/samples
-	monitor_pre_hook $LOGDIR_RESULTS $N
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
-		echo -n o $N threads iter $ITER
-		sysbench $SYSBENCH_OPTIONS \
-			$OLTP_OPTIONS \
-			--num-threads=$N \
-			run > $LOGDIR_RESULTS/sysbench-raw-$N-$ITER
+		echo Running $NR_THREADS threads Iteration $ITER/$MAX_ITERATIONS
+		echo sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS --num-threads=$NR_THREADS run | tee $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITER
+		eval $TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITER} \
+			sysbench $SYSBENCH_OPTIONS \
+				$OLTP_OPTIONS \
+				--num-threads=$NR_THREADS \
+				run >> $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITER
 		SYSRET=$?
-
 		if [ $SYSRET -ne 0 ]; then
-			# Decide whether to die or not
-			FAILCHECK=`grep "MySQL client ran out of memory" $LOGDIR_RESULTS/sysbench-raw-$N`
-			if [ "$FAILCHECK" != "" -a $N -gt $(($NUMCPUS*2)) ]; then
-				echo WARNING: Client ran out of memory at run $N. Enough information available to be still useful | tee -a $LOGDIR/summary
-				break
-			else
-				die sysbench exited abnormally after an insufficient number or runs
-			fi
-		fi
-
-		RWOPS=$(grep "write requests:" $LOGDIR_RESULTS/sysbench-raw-$N-$ITER 2> /dev/null | cut -f 2 -d '(' | cut -f 1 -d ' ')
-		OOPS=$(grep "other operations:" $LOGDIR_RESULTS/sysbench-raw-$N-$ITER 2> /dev/null | cut -f 2 -d '(' | cut -f 1 -d ' ')
-		TPS=`perl -e "print $RWOPS+$OOPS"`
-		echo -n " $TPS "
-
-		echo $TPS >> $LOGDIR_RESULTS/samples
-		if [ $ITER -lt $MIN_ITERATIONS ]; then
-			echo min_iterations not reached
-		else
-			cat $LOGDIR_RESULTS/samples | check-confidence.pl --confidence-level $CONFIDENCE_LEVEL --limit $CONFIDENCE_LIMIT
-			if [ $? -eq 0 ]; then
-				echo confident
-				break
-			else
-				echo not confident
-			fi
+			cat $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITER
+			die sysbench exited abnormally
 		fi
 	done
-	monitor_post_hook $LOGDIR_RESULTS $N
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
 
-	# Copy the log files
-	if [ "$DBDRIVER" = "postgres" ]; then
-		cp $SHELLPACK_SOURCES/postgres-${POSTGRES_VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
-	else
-		cp $SHELLPACK_SOURCES/mysql-${MYSQL_VERSION}-installed/var/*.err $LOGDIR_RESULTS/dblog
-	fi
-
-done
-
-echo Cleaning database
+echo Cleaning database: sysbench $SYSBENCH_OPTIONS --test=oltp $OLTP_OPTIONS cleanup
 sysbench $SYSBENCH_OPTIONS --test=oltp $OLTP_OPTIONS cleanup
 
 echo Dropping database
@@ -361,32 +164,11 @@ if [ "$DBDRIVER" = "postgres" ]; then
 	$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgtest;'"
 	$RUNDBUSER "$PSQL template1 -c 'DROP ROLE sbtest;'"
 else
-	mysqladmin -f $MYSQL_OPTIONS drop sbtest
+	eval $MYSQLADMIN -f drop sbtest
 fi
 
-echo Gathering results
-cd $LOGDIR_RESULTS
-echo -n > sysbench.log
-for N in $CLIENTS; do
-	ITERATIONS=`ls sysbench-raw-$N-* | wc -l`
-	echo -n > sysbench-$N.log
-	for ITER in `seq 1 $ITERATIONS`; do
-		RWOPS=$(grep "write requests" sysbench-raw-$N-$ITER 2> /dev/null | cut -f 2 -d '(' | cut -f 1 -d ' ')
-		OOPS=$(grep "other operations:" sysbench-raw-$N-$ITER 2> /dev/null | cut -f 2 -d '(' | cut -f 1 -d ' ')
-		TPS=`perl -e "print $RWOPS+$OOPS"`
-		if [ "$TPS" != "" ]; then
-			echo $N $TPS >> sysbench-$N.log
-		fi
-	done
-	MEAN_TPS=`cat sysbench-$N.log | awk '{print $2}' | check-confidence.pl --print-mean`
-	echo $N $MEAN_TPS >> sysbench.log
-done
-
-cd -
-
 # Shutdown server
-$SHELLPACK_INCLUDE/shellpack-install-${DBDRIVER}build --shutdown
-reset_hugepages
+$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS

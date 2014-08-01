@@ -23,7 +23,6 @@ if [ ! -e $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}-installed ]; then
 fi
 
 # Build
-export CFLAGS="-O2"
 ###SHELLPACK build_start siege-${VERSION}
 ###SHELLPACK build_configure siege-${VERSION}
 ###SHELLPACK make_make_install

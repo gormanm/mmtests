@@ -9,6 +9,9 @@ MIRROR_LOCATION="$WEBROOT/memcachetest"
 install-depends libevent-devel
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -20,6 +23,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -43,13 +50,15 @@ pushd memcachetest-${VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/memcachetest-${VERSION} || die Failed to change to source directory
 echo "m4_define([VERSION_NUMBER], [0.8.3_6_g35fd1b9])" > m4/version.m4
 ./config/autorun.sh || die Failed to generate configure script
-./configure --prefix=$SHELLPACK_SOURCES/memcachetest-${VERSION}-installed
+export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=$SHELLPACK_SOURCES/memcachetest-${VERSION}-installed 
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
-make -j$NUMCPUS
+unset CFLAGS
+make -j$NUMCPUS memcachetest-${VERSION}
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -64,4 +73,4 @@ fi
 
 echo memcachetest installed successfully
 #### Description memcachetest
-#### Details memcachetest 14
+#### Details memcachetest 15

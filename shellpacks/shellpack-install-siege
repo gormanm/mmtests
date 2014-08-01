@@ -59,14 +59,15 @@ if [ ! -e $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}-installed ]; then
 fi
 
 # Build
-export CFLAGS="-O2"
 pushd $SHELLPACK_SOURCES/siege-${VERSION} || die Failed to change to source directory
-./configure --prefix=$SHELLPACK_SOURCES/siege-${VERSION}-installed 
+export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=$SHELLPACK_SOURCES/siege-${VERSION}-installed 
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
+unset CFLAGS
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -139,4 +140,4 @@ Here is a bunch of text to bring the page size up to 1K.
 </body>
 </html>
 #### Description siege
-#### Details siege 23
+#### Details siege 25

@@ -15,4 +15,4 @@ java -jar SPECjvm2008_1_00_setup.jar -DUSER_INSTALL_DIR=`pwd`/specjvm -i silent 
 
 exit $SHELLPACK_SUCCESS
 #### Description SPECjvm
-#### Details specjvm 12
+#### Details specjvm 13

@@ -15,6 +15,9 @@ HIGHALLOC_COUNT=0
 HIGHALLOC_GFPFLAGS=GFP_ALLOC_LIKE_HUGETLB
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -42,6 +45,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -125,4 +132,4 @@ stap -g /tmp/highalloc.stp | tee $LOGDIR_RESULTS/highalloc-at-end.log
 rm -rf $SHELLPACK_TEMP
 exit $SHELLPACK_SUCCESS
 #### Description Run a highorder allocation test in the background of any test
-#### Details highalloc-bench 22
+#### Details highalloc-bench 23

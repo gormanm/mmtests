@@ -65,10 +65,10 @@ export MONITOR_UPDATE_FREQUENCY=10
 # pgbench
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
 export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/4))
-export PGBENCH_PAGESIZES="default"
+export OLTP_PAGESIZES="default"
 export PGBENCH_MAX_TRANSACTIONS=auto
-export PGBENCH_READONLY=
-export PGBENCH_MAX_THREADS=$((NUMCPUS/2))
+export PGBENCH_READONLY=yes
+export PGBENCH_MAX_THREADS=$((NUMCPUS*2))
 export PGBENCH_ITERATIONS=3
 
 # The baseline database size is approximately 30MB. Each unit of scaling

@@ -80,4 +80,4 @@ monitor_post_hook $LOGDIR_RESULTS
 
 exit $SHELLPACK_SUCCESS
 #### Description iozone
-#### Details iozone-bench 7
+#### Details iozone-bench 8

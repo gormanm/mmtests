@@ -11,6 +11,9 @@ SPECCPU_TESTS=all
 install-depends dmidecode gcc gcc-c++ gcc-fortran
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -46,6 +49,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -112,4 +119,4 @@ mv result/* $LOGDIR_RESULTS/
 
 exit $RETVAL
 #### Description Non-conforming speccpu benchmark
-#### Details speccpu-bench 18
+#### Details speccpu-bench 19

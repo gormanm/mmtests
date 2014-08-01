@@ -6,6 +6,9 @@ DEFAULT_VERSION=full-20120104
 LTP_RUN_TESTS="controllers"
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -37,6 +40,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -98,4 +105,4 @@ done
 echo
 exit $SHELLPACK_SUCCESS
 #### Description LTP Regression Test Suite
-#### Details ltp-bench 20
+#### Details ltp-bench 21

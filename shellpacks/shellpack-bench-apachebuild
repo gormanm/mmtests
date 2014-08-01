@@ -65,4 +65,4 @@ fi
 echo Apache httpd successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description apachebuild
-#### Details apachebuild-bench 4
+#### Details apachebuild-bench 6

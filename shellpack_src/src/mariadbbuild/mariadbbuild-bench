@@ -3,10 +3,14 @@
 ###SHELLPACK preamble mariadbbuild-bench 10.0.12
 MARIADB_USER=nobody
 MARIADB_GROUP=nogroup
+MARIADB_ADMIN_USER=root
+MARIADB_ADMIN_PASSWORD=mmtests-default
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --mariadb-user	 MARIADB_USER
+###SHELLPACK parseargParam --effective_cachesize IGNORED_A
+###SHELLPACK parseargParam --work_mem            IGNORED_B
 ###SHELLPACK parseargParam --shared_buffers      SHARED_BUFFERS
 ###SHELLPACK parseargYes   --start		 SERVER_START
 ###SHELLPACK parseargYes   --stop		 SERVER_STOP
@@ -20,6 +24,7 @@ getpagesize
 MARIADB_DATADIR=$SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/data
 MARIADB_PIDFILE=$SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/data/mariadbd.pid
 MARIADB_PID=`cat $MARIADB_PIDFILE 2>&1`
+MYSQLADMIN="bin/mysqladmin -u $MARIADB_ADMIN_USER -p$MARIADB_ADMIN_PASSWORD"
 cd $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed
 
 # Only updates the first occurance of the parameter
@@ -46,7 +51,7 @@ update_entry_cnf() {
 mariadb_shutdown() {
 	if [ -e $MARIADB_PIDFILE ]; then
 		echo Shutting down server
-		./bin/mysqladmin shutdown
+		eval $MYSQLADMIN shutdown
 		wait_on_pid_exit $MARIADB_PID
 		rm $MARIADB_PIDFILE 2>/dev/null
 	fi
@@ -82,6 +87,7 @@ if [ "$SERVER_START" = "yes" ]; then
 	./support-files/mysql.server start --pid-file=$MARIADB_PIDFILE
 	wait_on_pid_file $MARIADB_PIDFILE
 	MARIADB_PID=`cat $MARIADB_PIDFILE 2>&1`
+	./bin/mysqladmin -u $MARIADB_ADMIN_USER password $MARIADB_ADMIN_PASSWORD
 fi
 
 echo mariadb operation successful

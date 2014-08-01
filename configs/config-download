@@ -1,0 +1,288 @@
+DIRNAME=`dirname $0`
+SCRIPTDIR=`cd "$DIRNAME" && pwd`
+
+# MM Test Parameters
+export MMTESTS_IGNORE_MIRROR=yes
+export MMTESTS="aim9"
+export SKIP_WARMUP=yes
+
+# Profiling parameters
+export SKIP_NOPROFILE=no
+export SKIP_FINEPROFILE=yes
+export SKIP_COARSEPROFILE=yes
+export OPROFILE_REPORT_ANNOTATE=no
+export OPROFILE_REPORT_CALLGRAPH=
+
+# Fixups
+if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/bin:$PATH
+fi
+if [ "`which record-extfrag 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/fraganalysis:$PATH
+fi
+if [ "`which oprofile_report.sh 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/vmr/bin:$PATH
+fi
+
+# Machine configuration
+# Swap configuration can be one of default, partitions, swapfile, NFS
+#export VM_DIRTY_RATIO=20
+export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
+export SWAP_CONFIGURATION=default
+export SWAP_PARTITIONS=
+export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
+export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
+export SWAP_NBD_DEVICE=/dev/nbd0
+export SWAP_NBD_HOST=mcp
+export SWAP_NBD_PORT=10001
+
+# Optionally use a memory control group
+# export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
+#export TESTDISK_RAID_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+#
+# Test NFS disk to setup (optional)
+#export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
+#
+# Test NBD disk to setup (optional)
+#export TESTDISK_NBD_DEVICE=/dev/nbd0
+#export TESTDISK_NBD_HOST=mcp
+#export TESTDISK_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# DBench
+export DBENCH_DURATION=$((7*60))
+export DBENCH_OSYNC=no
+export DBENCH_SYNC_DIRECTORY=no
+export DBENCH_FSYNC=no
+export DBENCH_MAX_CLIENTS=$((NUMCPUS*64))
+
+# FFSB
+export FFSB_DURATION=300
+export FFSB_NUM_THREADS=1
+
+# FFSB sequential reads
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=seq-read
+
+# FFSB large files create
+#export FFSB_MIN_FILESIZE=$((128*1048576))
+#export FFSB_MAX_FILESIZE=$((128*1048576))
+#export FFSB_FILE_PROFILE=single-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=file-create
+
+# FFSB random reads
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=random-read
+
+# FFSB random writes
+#export FFSB_NUM_FILES=1024
+#export FFSB_MIN_FILESIZE=$((32*1048576))
+#export FFSB_MAX_FILESIZE=$((32*1048576))
+#export FFSB_FILE_PROFILE=many-file-single-directory
+#export FFSB_FILESIZE_PROFILE=min-max
+#export FFSB_OPERATIONS_PROFILE=random-write
+
+# FFSB mailserver simulator
+#export FFSB_NUM_FILES=500000
+#export FFSB_NUM_DIRECTORIES=1000
+#export FFSB_FILE_PROFILE=many-file-many-directory
+#export FFSB_FILESIZE_PROFILE=weight-mailserver
+#export FFSB_OPERATIONS_PROFILE=mailserver
+
+# FS-Mark
+export FSMARK_THREADS_PER_CPU=1
+export FSMARK_FILESIZE=0
+export FSMARK_NR_DIRECTORIES=225
+export FSMARK_NR_FILES_PER_DIRECTORY=22500
+export FSMARK_NR_FILES_PER_ITERATION=50000
+export FSMARK_ITERATIONS=35
+
+# HackBench
+export HACKBENCH_GROUPS=1,4,8,12,16,20,24,28,32,36,40
+
+# IOzone
+export IOZONE_SIZE=--fastest
+
+# Large copy and untar
+export LARGECOPY_SRCTAR=$WEBROOT/large-tar-file-1.tar.bz2
+#export LARGECOPY_SRCTAR_EXTRA=$WEBROOT/large-tar-file-2.tar.bz2
+export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*8/1048576))
+export LARGECOPY_THREADS=1
+
+# LMBench
+export LMBENCH_TESTS=lat_mmap
+export LMBENCH_ITERATIONS=500
+export LMBENCH_LATMMAP_FILESIZE=$((256*1048576))
+
+# LTP
+export LTP_RUN_TESTS="controllers"
+
+# LTP Pounder
+export LTP_POUNDER_RUNTIME=$((3600*7))
+#export LTP_POUNDER_NFS_LOGDIR=/exports/pounder
+#export LTP_POUNDER_NFS_LOGSERVER=10.0.0.7
+export LTP_POUNDER_NFS_LOGGING=0
+export LTP_POUNDER_DO_X_TESTS=0
+
+# Micro benchmarks
+export MICRO_TESTLIST=vmscan-file-mmap-read,vmscan-file-mmap-write
+export MICRO_MAPPED_FILE_STREAM_FORCESIZE=
+export MICRO_VMSCAN_DEVICE_COPY=/dev/sda1
+export MICRO_VMSCAN_DEVICE_COPY_LIMIT_MB=8192
+export MICRO_VMSCAN_NUM_THREADS=$NUMCPUS
+export MICRO_VMSCAN_DURATION=300
+export MICRO_VMSCAN_ANON_MMAP_SIZE=$((3 * MEMTOTAL_BYTES / 2))
+export MICRO_VMSCAN_FILE_MMAP_SIZE=$((10 * MEMTOTAL_BYTES))
+export MICRO_VMSCAN_MIXED_MMAP_SIZE=$(($MEMTOTAL_BYTES*3))
+export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=30
+
+# MultiBuild
+export MULTIBUILD_NUM_SIMULTANEOUS=$((MEMTOTAL_BYTES/450/1048576))
+export MULTIBUILD_NUM_THREADS=$NUMCPUS
+export MULTIBUILD_NUM_COPIES=$((MULTIBUILD_NUM_SIMULTANEOUS*5))
+
+# NAS Parallel Benchmark
+export NAS_CLASS=C
+export NAS_PAGESIZES="base huge-heap huge-all"
+
+# NetPerf
+export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
+
+# Page allocator microbench
+export PAGEALLOC_GFPFLAGS=GFP_KERNEL
+export PAGEALLOC_ORDER_MIN=0
+export PAGEALLOC_ORDER_MAX=4
+
+# PipeTest
+export PIPETEST_ITERATIONS=30
+
+# PostMark
+export POSTMARK_TRANSACTIONS=30000
+export POSTMARK_MIN_SIZE=5120
+export POSTMARK_MAX_SIZE=524288
+export POSTMARK_SUBDIRECTORIES=100
+export POSTMARK_SIMULTANEOUS_FILES=5000
+export POSTMARK_BACKGROUND_MMAP=no
+
+# Re-aim
+export REAIM_FILESIZE=10k
+export REAIM_POOLSIZE=1m
+export REAIM_STARTUSERS=$NUMCPUS
+export REAIM_ENDUSERS=$((NUMCPUS*4))
+export REAIM_INCREMENT=$((NUMCPUS/2))
+export REAIM_JOBS_PER_USER=100
+export REAIM_ITERATIONS=3
+export REAIM_WORKFILE=workfile.fserver
+export REAIM_QUICK=no
+
+# Rsync residenty delay
+export RSYNC_RESIDENCY_SOURCE=root@mcp:/var/www/rsyncsource
+export RSYNC_RESIDENCY_DESTINATION=$SHELLPACK_TEMP
+export RSYNC_RESIDENCY_MAPPING_SIZE=$((MEMTOTAL_BYTES*6/10))
+
+# Shared page parallel faulting test
+export SHAREPAGETEST_ITERATIONS=600
+
+# Simple Writeback (parallel dd writer)
+# NR_JOBS = NR_CPUS * CPU_FACTOR
+export SIMPLE_WRITEBACK_FILESIZE=$((MEMTOTAL_BYTES*4))
+export SIMPLE_WRITEBACK_MIN_CPU_FACTOR=1
+export SIMPLE_WRITEBACK_MAX_CPU_FACTOR=64
+export SIMPLE_WRITEBACK_BS=1048576
+export SIMPLE_WRITEBACK_CONV=
+
+# SPECcpu
+export SPECCPU_LICENSE_ACCEPTED=no
+export SPECCPU_DEFAULT_SIZE=ref
+export SPECCPU_DEFAULT_ITER=3
+export SPECCPU_PAGESIZES="base huge-heap huge-all"
+
+# SPECjvm
+export SPECJVM_JRE=/opt/java/jre/bin
+export SPECJVM_DEFAULT_ITERATION_TIME=300
+export SPECJVM_DEFAULT_WARMUP_TIME=120
+export SPECJVM_DEFAULT_TERATIONS=1
+export SPECJVM_MAXHEAP=-Xmx756m
+export SPECJVM_PAGESIZES="base huge"
+export SPECJVM_HUGESWITCH=-Xlp
+if [[ `uname -m` =~ i.86 ]]; then
+	# Sun JRE which works better on x86 uses this switch
+	export SPECJVM_HUGESWITCH=-XX:+UseLargePages
+fi
+
+# SPEComp
+export SPECOMP_LICENSE_ACCEPTED=no
+export SPECOMP_DEFAULT_SIZE=ref
+export SPECOMP_DEFAULT_ITER=3
+export SPECOMP_PAGESIZES="base huge-heap huge-all"
+
+# SysBench
+export OLTP_TESTTYPE=complex
+export OLTP_READONLY=--read-only
+export OLTP_SIZE=--faster
+export OLTP_CONFIDENCE=
+export OLTP_PAGESIZES="default"
+if [[ `uname -m` =~ i.86 ]]; then
+	export OLTP_SHAREDBUFFERS=$((1048576*512))
+else
+	export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
+fi
+export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
+#export OLTP_PAGESIZES="base huge dynhuge"
+#export OLTP_MAX_THREADS="--max-threads N"
+#
+
+# STREAM
+export STREAM_BACKING_TYPE=static
+export STREAM_PAGESIZES="default"
+#export STREAM_PAGESIZES="base huge dynhuge"
+
+# Stress blktrace
+export STRESS_BLKTRACE_DURATION=300
+export STRESS_BLKTRACE_FILESIZE=$((MEMTOTAL_BYTES))
+export STRESS_BLKTRACE_THREADS=1
+
+# Stress High-Alloc
+export HIGHALLOC_ALLOC_RATE=16
+export HIGHALLOC_PERCENTAGE=95
+
+# tiobench
+export TIOBENCH_BLOCKSIZE=4096
+export TIOBENCH_SIZE=$((MEMTOTAL_BYTES*2))
+export TIOBENCH_ITERATIONS=7
+export TIOBENCH_RANDOM=0
+export TIOBENCH_MAX_CLIENTS=$((NUMCPUS*64))
+
+# THP availability basic
+export THP_AVAILABILITY_READ_DEVICE=/dev/sda
+# export THP_AVAILABILITY_READ_FILE=$SHELLPACK_TEMP/zero
+export THP_AVAILABILITY_WRITE_DEVICE=/dev/sdf1
+export THP_AVAILABILITY_WRITE_FILESYSTEM=vfat
+export THP_AVAILABILITY_ITERATIONS=10
+

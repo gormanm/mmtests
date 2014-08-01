@@ -7,6 +7,9 @@ GIT_LOCATION=https://github.com/aristeu/vm-scalability
 MIRROR_LOCATION="$WEBROOT/vmscale"
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -18,6 +21,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -132,4 +139,4 @@ index 758d32c..138bf84 100755
  # sparse files won't work as expected on tmpfs/nfs
  create_sparse_root () {
 #### Description vm scalability test suite
-#### Details vmscale 18
+#### Details vmscale 19

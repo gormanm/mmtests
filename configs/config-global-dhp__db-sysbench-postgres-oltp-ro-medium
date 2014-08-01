@@ -2,7 +2,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="pgbench"
+export MMTESTS="sysbench"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -62,17 +62,13 @@ export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# pgbench
+# sysbench
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
 export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/4))
-export PGBENCH_PAGESIZES="default"
-export PGBENCH_MAX_TRANSACTIONS=auto
-export PGBENCH_READONLY=
-export PGBENCH_MAX_THREADS=$(NUMCPUS/2))
-export PGBENCH_ITERATIONS=3
-
-# The baseline database size is approximately 30MB. Each unit of scaling
-# factor adds approximately 15M of data to the table. Tune accordingly.
-export TARGET_WORKLOAD_SIZE=$((MEMTOTAL_BYTES*3/4))
-export PGBENCH_SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)/(15*1048576)))
-
+export OLTP_PAGESIZES="default"
+export SYSBENCH_DRIVER=postgres
+export SYSBENCH_MAX_TRANSACTIONS=auto
+export SYSBENCH_READONLY=yes
+export SYSBENCH_MAX_THREADS=$((NUMCPUS*4))
+export SYSBENCH_ITERATIONS=3
+export SYSBENCH_WORKLOAD_SIZE=$((MEMTOTAL_BYTES*3/4))

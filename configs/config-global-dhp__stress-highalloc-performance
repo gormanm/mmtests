@@ -6,7 +6,7 @@ SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
 # Not recommended if mem > 4G as the number of kerel builds cause problems
-export MMTESTS="kernbench vmr-stream sysbench stress-highalloc"
+export MMTESTS="kernbench vmr-stream stress-highalloc"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -65,21 +65,6 @@ export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
-
-# SysBench
-export OLTP_TESTTYPE=complex
-export OLTP_READONLY=--read-only
-export OLTP_SIZE=--faster
-export OLTP_CONFIDENCE=
-export OLTP_PAGESIZES="default"
-if [[ `uname -m` =~ i.86 ]]; then
-        export OLTP_SHAREDBUFFERS=$((1048576*512))
-else
-        export OLTP_SHAREDBUFFERS=$(($MEMTOTAL_BYTES/4))
-fi
-export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
-#export OLTP_PAGESIZES="base huge dynhuge"
-#export OLTP_MAX_THREADS="--max-threads N"
 
 # STREAM
 export STREAM_BACKING_TYPE=static

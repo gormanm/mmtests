@@ -7,6 +7,9 @@ ITERATIONS=5
 FACTOR=1
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -34,6 +37,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -82,4 +89,4 @@ rm -rf $TMPDIR/kernbench
 
 exit 0
 #### Description Benchmark based on kernel builds
-#### Details kernbench-bench 22
+#### Details kernbench-bench 23

@@ -5,6 +5,9 @@ DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -33,6 +36,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -57,7 +64,11 @@ cd $SHELLPACK_SOURCES/thpmemscale-${VERSION}-installed || die Failed to cd to th
 THREADS=
 START_THREAD=1
 END_THREAD=$THPMEMSCALE_MAX_THREADS
-if [ $END_THREAD -gt 8 ]; then
+if [ $END_THREAD -gt 32 ]; then
+        THREADS=`seq $START_THREAD 8`
+        THREADS="$THREADS `seq 12 4 32`"
+        THREADS="$THREADS `seq 48 16 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
         THREADS=`seq $START_THREAD 8`
         THREADS="$THREADS `seq 12 4 $END_THREAD`"
 else
@@ -73,4 +84,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description THP memory scaling benchmark from SGI
-#### Details thpmemscale-bench 6
+#### Details thpmemscale-bench 7

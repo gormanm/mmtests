@@ -32,8 +32,6 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-export CFLAGS="-O2"
-
 # APR
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=apr-${VERSION}.tar.bz2
@@ -51,12 +49,14 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR aprbuild-${VERSION}
 pushd aprbuild-${VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/aprbuild-${VERSION} || die Failed to change to source directory
-./configure --prefix=$SHELLPACK_SOURCES/aprbuild-${VERSION}-installed 
+export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=$SHELLPACK_SOURCES/aprbuild-${VERSION}-installed 
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
+unset CFLAGS
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -88,12 +88,14 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR aprbuild-${VERSION}
 pushd aprbuild-${VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/aprbuild-${VERSION} || die Failed to change to source directory
-./configure --prefix=$SHELLPACK_SOURCES/aprbuild-${VERSION}-installed --with-apr=$SHELLPACK_SOURCES/aprbuild-${VERSION}-installed
+export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=$SHELLPACK_SOURCES/aprbuild-${VERSION}-installed --with-apr=$SHELLPACK_SOURCES/aprbuild-${VERSION}-installed
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
+unset CFLAGS
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -109,4 +111,4 @@ fi
 
 echo apr and apr-util installed successfully
 #### Description aprbuild
-#### Details aprbuild 3
+#### Details aprbuild 5

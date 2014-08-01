@@ -1,7 +1,5 @@
 #!/bin/bash
-
 ###SHELLPACK preamble pgbench-bench 9.3.4
-
 install-depends gnuplot
 
 ROLE=`whoami`
@@ -22,7 +20,7 @@ VACUUM_ARG=-n
 ###SHELLPACK parseargParam --shared-buffers      SHARED_BUFFERS
 ###SHELLPACK parseargParam --work-mem            WORK_MEM
 
-###SHELLPACK parseargParam --max-threads         PGBENCH_MAX_THREADS
+###SHELLPACK parseargParam --max-threads         MAX_THREADS
 ###SHELLPACK parseargParam --scale-factor        SCALE_FACTOR
 ###SHELLPACK parseargParam --max-time            MAX_TIME
 ###SHELLPACK parseargParam --max-transactions    MAX_TRANSACTIONS
@@ -70,7 +68,7 @@ EOF
 	cat /tmp/gnuplot.script | gnuplot > /dev/null
 
         MAX_TRANSACTIONS=`awk "{ if (\\$1 >= \$WORKLOAD_SIZE) print \\$2 }" /tmp/coordinates | head -1`
-	MAX_TRANSACTIONS=`perl -e "print $MAX_TRANSACTIONS"`
+	MAX_TRANSACTIONS=`perl -e "print int $MAX_TRANSACTIONS"`
 	if [ "$MAX_TRANSACTIONS" = "" ]; then
 		MAX_TRANSACTIONS=$FLOOR
 	fi
@@ -96,12 +94,12 @@ if [ "$READONLY" = "yes" ]; then
 fi
 
 echo Running pgbench
-echo o maximum $PGBENCH_MAX_THREADS threads
+echo o maximum $MAX_THREADS threads
 echo o scale factor: $SCALE_FACTOR 
 echo o transactions: $MAX_TRANSACTIONS
 echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 
-###SHELLPACK threads_large_stride_begin 1 $PGBENCH_MAX_THREADS
+###SHELLPACK threads_large_stride_begin 1 $MAX_THREADS
 	echo -n > $LOGDIR_RESULTS/samples
 
 	# Restart the database
@@ -153,7 +151,7 @@ echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
 		echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads iteration $ITER
-		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS.$ITER \
+		$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITER} \
 			pgbench -v -h $PGHOST -p $PGPORT -r \
 				$VACUUM_ARG $READONLY_ARG -c $NR_THREADS \
 				$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \

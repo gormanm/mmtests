@@ -59,7 +59,7 @@ update_entry_cnf() {
 	mv ${CONF}.tmp $CONF
 }
 
-export CFLAGS="-O2 -pipe"
+CFLAGS_MMTESTS_EXTRA="-pipe"
 WEB_LOCATION=http://ftp.postgresql.org/pub/source/v${VERSION}/
 MIRROR_LOCATION=$WEBROOT/postgres/
 if [ ! -e /usr/lib/libncurses.so ]; then
@@ -81,12 +81,14 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR postgresbuild-${VERSION}
 pushd postgresbuild-${VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/postgresbuild-${VERSION} || die Failed to change to source directory
-./configure --prefix=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed --enable-thread-safety --without-krb5 --without-readline --enable-assembler
+export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed --enable-thread-safety --without-krb5 --without-readline --enable-assembler
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
+unset CFLAGS
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -164,4 +166,4 @@ update_entry_cnf password_encryption off
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 42
+#### Details postgresbuild 47

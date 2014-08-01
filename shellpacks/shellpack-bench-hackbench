@@ -11,6 +11,9 @@ conn_type=
 num_groups=
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -45,6 +48,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -102,4 +109,4 @@ done
 
 exit $RETVAL
 #### Description Run the HackBench benchmark
-#### Details hackbench-bench 19
+#### Details hackbench-bench 20

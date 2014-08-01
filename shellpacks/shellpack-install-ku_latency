@@ -6,6 +6,9 @@ WEB_LOCATION="https://vilimpoc.org/research/ku-latency/"
 MIRROR_LOCATION="$WEBROOT/ku-latency/"
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -17,6 +20,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -36,4 +43,4 @@ gcc -o send-data send-data.c -O2 -lrt -Wall || die "$P: Failed to build send-dat
 
 exit $SHELLPACK_SUCCESS
 #### Description Kernel network packet receive latency
-#### Details ku_latency 32
+#### Details ku_latency 33

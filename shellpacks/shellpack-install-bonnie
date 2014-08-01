@@ -7,6 +7,9 @@ WEB_LOCATION="http://www.coker.com.au/bonnie++"
 MIRROR_LOCATION="$WEBROOT/bonnie"
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -18,6 +21,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -40,13 +47,15 @@ mv $DST_DIR bonnie-$VERSION
 pushd bonnie-$VERSION > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/bonnie-$VERSION || die Failed to change to source directory
-./configure --prefix=$SHELLPACK_SOURCES/bonnie-${VERSION}-installed
+export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=$SHELLPACK_SOURCES/bonnie-${VERSION}-installed 
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
-make -j$NUMCPUS
+unset CFLAGS
+make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -61,4 +70,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description bonnie
-#### Details bonnie 28
+#### Details bonnie 29

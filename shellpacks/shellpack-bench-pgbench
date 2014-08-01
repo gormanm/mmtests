@@ -1,9 +1,7 @@
 #!/bin/bash
-
 P=pgbench-bench
 DEFAULT_VERSION=9.3.4
 . $SHELLPACK_INCLUDE/common.sh
-
 install-depends gnuplot
 
 ROLE=`whoami`
@@ -50,7 +48,7 @@ while [ "$1" != "" ]; do
 		;;
 
 	--max-threads)
-		PGBENCH_MAX_THREADS=$2
+		MAX_THREADS=$2
 		shift 2
 		;;
 	--scale-factor)
@@ -127,7 +125,7 @@ EOF
 	cat /tmp/gnuplot.script | gnuplot > /dev/null
 
         MAX_TRANSACTIONS=`awk "{ if (\\$1 >= \$WORKLOAD_SIZE) print \\$2 }" /tmp/coordinates | head -1`
-	MAX_TRANSACTIONS=`perl -e "print $MAX_TRANSACTIONS"`
+	MAX_TRANSACTIONS=`perl -e "print int $MAX_TRANSACTIONS"`
 	if [ "$MAX_TRANSACTIONS" = "" ]; then
 		MAX_TRANSACTIONS=$FLOOR
 	fi
@@ -153,14 +151,14 @@ if [ "$READONLY" = "yes" ]; then
 fi
 
 echo Running pgbench
-echo o maximum $PGBENCH_MAX_THREADS threads
+echo o maximum $MAX_THREADS threads
 echo o scale factor: $SCALE_FACTOR 
 echo o transactions: $MAX_TRANSACTIONS
 echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 
 THREADS=
 START_THREAD=1
-END_THREAD=$PGBENCH_MAX_THREADS
+END_THREAD=$MAX_THREADS
 if [ $END_THREAD -gt 32 ]; then
         THREADS=`seq $START_THREAD 2 8`
         THREADS="$THREADS `seq 12 6 32`"
@@ -223,7 +221,7 @@ for NR_THREADS in $THREADS; do
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
 		echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads iteration $ITER
-		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS.$ITER \
+		$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITER} \
 			pgbench -v -h $PGHOST -p $PGPORT -r \
 				$VACUUM_ARG $READONLY_ARG -c $NR_THREADS \
 				$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
@@ -246,4 +244,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 61
+#### Details pgbench-bench 69
