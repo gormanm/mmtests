@@ -11,7 +11,7 @@ NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
 ###SHELLPACK parseargParam --mariadb-user	 MARIADB_USER
 ###SHELLPACK parseargEnd
 
-install-depends bison gcc-c++ libstdc++-devel zlib-devel bzr ncurses-devel libncurses5 libtool automake autoconf cmake libxml2-devel
+install-depends bison gcc-c++ libstdc++-devel zlib-devel bzr ncurses-devel libncurses5 libtool automake autoconf cmake libxml2-devel boost-devel libopenssl-devel
 MARIADB_CONF=/etc/my.cnf
 
 # Only updates the first occurance of the parameter
