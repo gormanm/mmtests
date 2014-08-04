@@ -97,6 +97,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo Initialising database for user $MARIADB_USER
+chmod a+x $HOME
 cd $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed || die Failed to change to installation directory.
 mkdir -p $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/etc
 cp support-files/my-huge.cnf $MARIADB_CONF || die Failed to copy support-files/my-huge.cnf template
@@ -116,4 +117,4 @@ mv ${MARIADB_CONF}.tmp $MARIADB_CONF
 echo mariadb successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description mariadbbuild
-#### Details mariadbbuild 27
+#### Details mariadbbuild 28

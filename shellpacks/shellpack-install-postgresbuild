@@ -151,6 +151,7 @@ update_entry_cnf autovacuum on
 mkdir -p /var/run/postgresql/
 chown $POSTGRES_USER /var/run/postgresql/
 chmod a+rwx /var/run/postgresql/
+chmod a+x $HOME
 update_entry_cnf unix_socket_directories \'/var/run/postgresql/\'
 update_entry_cnf unix_socket_group $GROUPID
 update_entry_cnf unix_socket_permissions 0777
@@ -166,4 +167,4 @@ update_entry_cnf password_encryption off
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 47
+#### Details postgresbuild 48

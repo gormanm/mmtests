@@ -42,6 +42,7 @@ MIRROR_LOCATION=$WEBROOT/mariadb/
 ###SHELLPACK make_make_install
 
 echo Initialising database for user $MARIADB_USER
+chmod a+x $HOME
 cd $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed || die Failed to change to installation directory.
 mkdir -p $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/etc
 cp support-files/my-huge.cnf $MARIADB_CONF || die Failed to copy support-files/my-huge.cnf template
