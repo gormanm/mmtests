@@ -2,7 +2,7 @@
 P=trinity-install
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
-GIT_LOCATION=git://git.codemonkey.org.uk/trinity.git
+GIT_LOCATION=https://github.com/kernelslacker/trinity
 MIRROR_LOCATION="$WEBROOT/trinity/"
 
 # Basic argument parser
@@ -57,4 +57,4 @@ chmod a+w .
 
 echo trinity installed successfully
 #### Description trinity fuzzing tool
-#### Details trinity 5
+#### Details trinity 6

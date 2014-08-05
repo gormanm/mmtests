@@ -113,4 +113,4 @@ shutdown_pid trinity $TRINITY_PID
 
 exit $SHELLPACK_SUCCESS
 #### Description trinity fuzzing tool
-#### Details trinity-bench 5
+#### Details trinity-bench 6
