@@ -36,7 +36,9 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-install-depends bison gcc-c++ libstdc++-devel zlib-devel bzr ncurses-devel libncurses5 libtool automake autoconf cmake libxml2-devel boost-devel libopenssl-devel
+for PACKAGE in bison gcc-c++ libstdc++-devel zlib-devel ncurses-devel libncurses5 libtool automake autoconf cmake libxml2-devel boost-devel bzr libopenssl-devel; do
+	install-depends $PACKAGE
+done
 MARIADB_CONF=/etc/my.cnf
 
 # Only updates the first occurance of the parameter
@@ -117,4 +119,4 @@ mv ${MARIADB_CONF}.tmp $MARIADB_CONF
 echo mariadb successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description mariadbbuild
-#### Details mariadbbuild 29
+#### Details mariadbbuild 30
