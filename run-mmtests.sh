@@ -228,6 +228,22 @@ if [ "$TESTDISK_NBD_DEVICE" != "" ]; then
 	export TESTDISK_PARTITION=$TESTDISK_NBD_DEVICE
 fi
 
+# Create ram disk
+if [ "$TESTDISK_RD_SIZE" != "" ]; then
+	if [ -e /dev/ram0 ]; then
+		umount /dev/ram0 &>/dev/null
+		rmmod brd
+	fi
+	modprobe brd rd_size=$((TESTDISK_RD_SIZE/1024))
+	export TESTDISK_PARTITION=/dev/ram0
+	if [ "$TESTDISK_RD_PREALLOC" == "yes" ]; then
+		if [ "$TESTDISK_RD_PREALLOC_NODE" != "" ]; then
+			tmp_prealloc_cmd="numactl -N $TESTDISK_RD_PREALLOC_NODE"
+		fi
+		$tmp_prealloc_cmd dd if=/dev/zero of=$TESTDISK_PARTITION bs=1M &>/dev/null
+	fi
+fi
+
 # Create test disk
 if [ "$TESTDISK_PARTITION" != "" ]; then
 	if [ "$TESTDISK_FILESYSTEM" != "" -a "$TESTDISK_FILESYSTEM" != "tmpfs" ]; then

@@ -27,12 +27,21 @@ elif [ -z "$IOZONE_MAX_BLK_SIZE" ]; then
 	IOZONE_MAX_BLK_SIZE="$IOZONE_MIN_BLK_SIZE"
 fi
 
+if [ "$IOZONE_FSYNC" = "yes" ]; then
+	IOZONE_FSYNC_PARAM="-e"
+fi
+
+if [ -n "$IOZONE_NODE" ]; then
+	MMTESTS_NUMA_POLICY=fullbind_single_instance_node
+	set_mmtests_numactl $IOZONE_NODE $NUMNODES
+fi
+
 monitor_pre_hook $LOGDIR_RESULTS
 for (( ITERATION = 1; ITERATION <= IOZONE_ITERATIONS; ITERATION++ )); do
-	src/current/iozone -a -n $((IOZONE_MIN_SIZE/1024)) \
-		-g $((IOZONE_MAX_SIZE/1024)) -y $IOZONE_MIN_BLK_SIZE \
-		-q $IOZONE_MAX_BLK_SIZE -i 0 -i 1 -i 2 -i 3 \
-		-f $TESTDISK_DIR/iozone_file 2>&1 | \
+	$MMTESTS_NUMACTL src/current/iozone -a -n $((IOZONE_MIN_SIZE/1024)) \
+		-g $((IOZONE_MAX_SIZE/1024)) -y $((IOZONE_MIN_BLK_SIZE/1024)) \
+		-q $((IOZONE_MAX_BLK_SIZE/1024)) -i 0 -i 1 -i 2 -i 3 \
+		$IOZONE_FSYNC_PARAM -f $TESTDISK_DIR/iozone_file 2>&1 | \
 		tee $LOGDIR_RESULTS/iozone-$ITERATION.log ||
 		die "Failed to run iozone"
 done
