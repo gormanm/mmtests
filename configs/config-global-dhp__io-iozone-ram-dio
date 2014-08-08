@@ -1,0 +1,99 @@
+### iozone is executed in this configuration with ramdisk as a backing device
+### to make any regression in CPU usage within IO stack visible. In this test
+### we excercise direct IO submission path.
+### We use file size of at most 80% of ramdisk size to avoid cornercases of
+### block allocators. Also this is about the upper bound suggested for fs use
+### if you want to see reasonable performance from it.
+### Test block sizes between 1k and 1m to both excercise code for sub-blocks
+### writes and test workloads where syscall overhead isn't that noticeable.
+### It is executed five times to estimate variance.
+DIRNAME=`dirname $0`
+SCRIPTDIR=`cd "$DIRNAME" && pwd`
+
+. $SHELLPACK_INCLUDE/include-sizes.sh
+
+get_numa_details	# Sets MMTESTS_NODE_SIZE MMTESTS_NODE_ID_BY_SIZE
+
+# MM Test Parameters
+export MMTESTS="iozone"
+export SKIP_WARMUP=yes
+
+# Profiling parameters
+export SKIP_NOPROFILE=no
+export SKIP_FINEPROFILE=yes
+export SKIP_COARSEPROFILE=yes
+export OPROFILE_REPORT_ANNOTATE=no
+
+# Fixups
+if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/bin:$PATH
+fi
+if [ "`which record-extfrag 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/fraganalysis:$PATH
+fi
+if [ "`which oprofile_report.sh 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/vmr/bin:$PATH
+fi
+
+# Machine configuration
+# Swap configuration can be one of default, partitions, swapfile, NFS
+#export VM_DIRTY_RATIO=20
+export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
+export SWAP_CONFIGURATION=default
+export SWAP_PARTITIONS=
+export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
+export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
+export SWAP_NBD_DEVICE=/dev/nbd0
+export SWAP_NBD_HOST=mcp
+export SWAP_NBD_PORT=10001
+
+# Optionally use a memory control group
+# export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
+#export TESTDISK_RAID_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+# Use 1/5 of NUMA node size to leave space for pagecache and other stuff
+# Also note we may be on UMA machine after all
+export TESTDISK_RD_PREALLOC=yes
+export TESTDISK_RD_PREALLOC_NODE=${MMTESTS_NODE_ID_BY_SIZE[$((NUMNODES-1))]}
+export TESTDISK_RD_SIZE=$((${MMTESTS_NODE_SIZE[$TESTDISK_RD_PREALLOC_NODE]}/5))
+export TESTDISK_FILESYSTEM=xfs
+
+#
+# Test NFS disk to setup (optional)
+#export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
+#
+# Test NBD disk to setup (optional)
+#export TESTDISK_NBD_DEVICE=/dev/nbd0
+#export TESTDISK_NBD_HOST=mcp
+#export TESTDISK_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# iozone
+if [ "$NUMNODES" -gt 1 ]; then
+	# Pick second largest node for benchmark execution
+	export IOZONE_NODE=${MMTESTS_NODE_ID_BY_SIZE[$((NUMNODES-2))]}
+fi
+size=$((TESTDISK_RD_SIZE*4/5))
+export IOZONE_MIN_SIZE=$((size/4))
+export IOZONE_MAX_SIZE=$size
+export IOZONE_MIN_BLK_SIZE=1024
+export IOZONE_MAX_BLK_SIZE=1048576
+export IOZONE_ITERATIONS=5
+export IOZONE_DIO=yes
+export IOZONE_FSYNC=yes
