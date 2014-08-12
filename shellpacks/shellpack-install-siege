@@ -68,6 +68,90 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 unset CFLAGS
+echo '
+--- src/client.c.orig	2014-08-12 12:53:53.082570615 +0000
++++ src/client.c	2014-08-12 12:55:04.162458115 +0000
+@@ -209,7 +209,6 @@
+   int      code, fail;  
+   float    etime; 
+   clock_t  start, stop;
+-  struct   tms t_start, t_stop; 
+   HEADERS  *head; 
+ #ifdef  HAVE_LOCALTIME_R
+   struct   tm keepsake;
+@@ -250,7 +249,7 @@
+   }
+ 
+   /* record transaction start time */
+-  start = times(&t_start);  
++  start = clock();
+ 
+   if (! __init_connection(C, U, client)) return FALSE;
+   
+@@ -290,7 +289,7 @@
+     echo ("%s:%d zero bytes back from server", __FILE__, __LINE__);
+     return FALSE; 
+   } 
+-  stop     =  times(&t_stop); 
++  stop     =  clock(); 
+   etime    =  elapsed_time(stop - start);  
+   code     =  (head->code <  400 || head->code == 401 || head->code == 407) ? 1 : 0;
+   fail     =  (head->code >= 400 && head->code != 401 && head->code != 407) ? 1 : 0; 
+@@ -484,7 +483,6 @@
+   CONN    *D    = NULL;  // FTP data connection 
+   size_t  bytes = 0;     // bytes from server   
+   clock_t start, stop;
+-  struct  tms t_start, t_stop; 
+ 
+   D = xcalloc(sizeof(CONN), 1);
+   D->sock = -1;
+@@ -498,7 +496,7 @@
+     return FALSE;
+   }
+ 
+-  start = times(&t_start);
++  start = clock();
+   if (C->sock < 0) {
+     NOTIFY (
+       ERROR, "%s:%d connection failed %s:%d",
+@@ -561,7 +559,7 @@
+ 
+   pass  = (bytes == C->ftp.size) ? 1 : 0;
+   fail  = (pass  == 0) ? 1 : 0; 
+-  stop  =  times(&t_stop);
++  stop  =  clock();
+   etime =  elapsed_time(stop - start);
+   client->bytes += bytes;
+   client->time  += etime;
+--- src/data.c.orig	2014-08-12 12:55:15.150439763 +0000
++++ src/data.c	2014-08-12 12:56:23.270283678 +0000
+@@ -51,8 +51,6 @@
+   float    elapsed;
+   clock_t  start;   
+   clock_t  stop;      
+-  struct   tms  t_start; 
+-  struct   tms  t_stop;
+   unsigned int  code;
+   unsigned int  count;
+   unsigned int  ok200;
+@@ -130,14 +128,14 @@
+ void
+ data_set_start(DATA this)
+ {
+-  this->start = times(&this->t_start);
++  this->start = clock();
+   return;
+ }
+ 
+ void
+ data_set_stop(DATA this)
+ {
+-  this->stop = times(&this->t_stop);
++  this->stop = clock();
+   return;
+ }
+' | patch -p0 || die Failed to patch siege
+
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -140,4 +224,4 @@ Here is a bunch of text to bring the page size up to 1K.
 </body>
 </html>
 #### Description siege
-#### Details siege 25
+#### Details siege 28
