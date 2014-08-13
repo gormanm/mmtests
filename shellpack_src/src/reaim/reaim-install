@@ -38,7 +38,7 @@ echo "--- src/drv_funcs.c.orig	2013-03-08 18:36:17.026240307 +0000
  	strcat(stmp,s2);" | patch -p0
 
 ###SHELLPACK build_configure reaim-${VERSION}
-###SHELLPACK make reaim-${VERSION}
+###SHELLPACK make
 popd
 mv $SHELLPACK_SOURCES/reaim-${VERSION} $SHELLPACK_SOURCES/reaim-${VERSION}-installed
 

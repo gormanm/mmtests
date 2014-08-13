@@ -81,7 +81,7 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 unset CFLAGS
-make -j$NUMCPUS reaim-${VERSION}
+make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -94,4 +94,4 @@ echo reaim installed successfully
 #### Description reaim
 #### Details reaim 12
 #### Description reaim
-#### Details reaim 38
+#### Details reaim 39
