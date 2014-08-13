@@ -59,6 +59,7 @@ if [ ! -e $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}-installed ]; then
 fi
 
 # Build
+export LDFLAGS=-lrt
 pushd $SHELLPACK_SOURCES/siege-${VERSION} || die Failed to change to source directory
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/siege-${VERSION}-installed 
@@ -315,4 +316,4 @@ Here is a bunch of text to bring the page size up to 1K.
 </body>
 </html>
 #### Description siege
-#### Details siege 34
+#### Details siege 36

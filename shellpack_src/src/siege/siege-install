@@ -23,6 +23,7 @@ if [ ! -e $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}-installed ]; then
 fi
 
 # Build
+export LDFLAGS=-lrt
 ###SHELLPACK build_start siege-${VERSION}
 ###SHELLPACK build_configure siege-${VERSION}
 echo '
