@@ -1,0 +1,153 @@
+#!/bin/bash
+# This script installs mariadb and leaves it ready for benchmarking
+P=mariadbbuild-bench
+DEFAULT_VERSION=10.0.12
+. $SHELLPACK_INCLUDE/common.sh
+MARIADB_USER=nobody
+MARIADB_GROUP=nogroup
+MARIADB_ADMIN_USER=root
+MARIADB_ADMIN_PASSWORD=mmtests-default
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--mariadb-user)
+		MARIADB_USER=$2
+		shift 2
+		;;
+	--effective_cachesize)
+		IGNORED_A=$2
+		shift 2
+		;;
+	--work_mem)
+		IGNORED_B=$2
+		shift 2
+		;;
+	--shared_buffers)
+		SHARED_BUFFERS=$2
+		shift 2
+		;;
+	--start)
+		SERVER_START=yes
+		shift
+		;;
+	--stop)
+		SERVER_STOP=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/mariadbbuild-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-mariadbbuild -v ${VERSION}  || die mariadbbuild install script returned error
+fi
+cd $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed || die Failed to cd to mariadbbuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo mariadbbuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+. $SHELLPACK_INCLUDE/include-libhugetlbfs.sh
+. $SHELLPACK_INCLUDE/include-hugepage.sh
+getpagesize
+
+MARIADB_DATADIR=$SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/data
+MARIADB_PIDFILE=$SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/data/mariadbd.pid
+MARIADB_PID=`cat $MARIADB_PIDFILE 2>&1`
+MYSQLADMIN="bin/mysqladmin -u $MARIADB_ADMIN_USER -p$MARIADB_ADMIN_PASSWORD"
+cd $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed
+
+# Only updates the first occurance of the parameter
+update_entry_cnf() {
+	PARAMETER=$1
+	VALUE=$2
+	MARIADB_CONF=/etc/my.cnf
+
+	LINE=`grep -n "^$PARAMETER" $MARIADB_CONF | cut -d: -f1 | head -1`
+	if [ "$LINE" = "" ]; then
+		LINE=`grep -n "^#$PARAMETER" $MARIADB_CONF | cut -d: -f1 | head -1`
+		if [ "$LINE" = "" ]; then
+			die Failed to locate parameter $PARAMETER
+		fi
+	fi
+	LINEC=`wc -l $MARIADB_CONF | awk '{print $1}'`
+	head -$(($LINE-1)) $MARIADB_CONF > ${MARIADB_CONF}.tmp
+	echo $PARAMETER = $VALUE >> ${MARIADB_CONF}.tmp
+	tail -$(($LINEC-$LINE)) $MARIADB_CONF >> ${MARIADB_CONF}.tmp
+
+	mv ${MARIADB_CONF}.tmp $MARIADB_CONF
+}
+
+mariadb_shutdown() {
+	if [ -e $MARIADB_PIDFILE ]; then
+		echo Shutting down server
+		eval $MYSQLADMIN shutdown
+		wait_on_pid_exit $MARIADB_PID
+		rm $MARIADB_PIDFILE 2>/dev/null
+	fi
+}
+
+if [ "$SERVER_STOP" = "yes" ]; then
+	mariadb_shutdown
+fi
+
+if [ "$SERVER_START" = "yes" ]; then
+	mariadb_shutdown
+
+	# Configure group parameters
+	echo $SHARED_BUFFERS > /proc/sys/kernel/shmmax
+	echo $(($SHARED_BUFFERS*2/4096)) > /proc/sys/kernel/shmall
+	ulimit -l $SHARED_BUFFERS
+	GROUPNAME=`groups $MARIADB_USER | awk '{print $3}'`
+	if [ "$GROUPNAME" = "" ]; then
+		GROUPNAME=`groups $MARIADB_USER`
+	fi
+	GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
+	echo $GROUPID > /proc/sys/vm/hugetlb_shm_group
+
+	# Update the memory configurations
+	update_entry_cnf key_buffer_size $SHARED_BUFFERS
+
+	# Configure shmem parameters
+	echo $SHARED_BUFFERS > /proc/sys/kernel/shmmax
+	echo $(($SHARED_BUFFERS*2/$PAGESIZE)) > /proc/sys/kernel/shmall
+	ulimit -l $SHARED_BUFFERS
+
+	echo Starting mariadb
+	./support-files/mysql.server start --pid-file=$MARIADB_PIDFILE
+	wait_on_pid_file $MARIADB_PIDFILE
+	MARIADB_PID=`cat $MARIADB_PIDFILE 2>&1`
+	./bin/mysqladmin -u $MARIADB_ADMIN_USER password $MARIADB_ADMIN_PASSWORD
+fi
+
+echo mariadb operation successful
+exit $SHELLPACK_SUCCESS
+#### Description mariadbbuild
+#### Details mariadbbuild-bench 30

@@ -8,6 +8,9 @@ WEB_LOCATION="ftp://shell.sgi.com/collect/memscale"
 MIRROR_LOCATION="$WEBROOT/thpmemscale/"
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -19,6 +22,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -42,7 +49,7 @@ pushd thpmemscale-${VERSION} > /dev/null || die Failed to rename tar
 
 # Patch it if necessary
 pushd $SHELLPACK_SOURCES/thpmemscale-${VERSION}/thp_memscale
-make -j$NUMCPUS
+make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -53,4 +60,4 @@ cp thp_memscale $SHELLPACK_SOURCES/thpmemscale-${VERSION}-installed || exit $SHE
 
 echo thp-memscale installed successfully
 #### Description THP memory scaling benchmark from SGI
-#### Details thpmemscale 6
+#### Details thpmemscale 7

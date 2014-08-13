@@ -6,6 +6,9 @@ WEB_LOCATION="http://marc.info/?l=linux-mm&m=135827340713374&q=p3"
 MIRROR_LOCATION="$WEBROOT/timeexit/timeexit.c"
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -17,6 +20,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -34,4 +41,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description Timed exit microbenchmark
-#### Details timeexit 4
+#### Details timeexit 5

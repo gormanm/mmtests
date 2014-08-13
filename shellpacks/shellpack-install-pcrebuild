@@ -31,7 +31,6 @@ if [ -z "$VERSION" ]; then
 fi
 
 # PCRE, use pcre naming to limit extra junk
-export CFLAGS="-O2"
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=pcre-${VERSION}.tar.bz2
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
@@ -48,12 +47,14 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR pcrebuild-${VERSION}
 pushd pcrebuild-${VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/pcrebuild-${VERSION} || die Failed to change to source directory
-./configure --prefix=$SHELLPACK_SOURCES/pcrebuild-${VERSION}-installed 
+export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=$SHELLPACK_SOURCES/pcrebuild-${VERSION}-installed 
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
+unset CFLAGS
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -69,4 +70,4 @@ fi
 
 echo pcrebuild installed successfully
 #### Description pcrebuild
-#### Details pcrebuild 5
+#### Details pcrebuild 7

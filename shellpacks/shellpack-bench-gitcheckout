@@ -12,6 +12,9 @@ GITCHECKOUT_ITERATIONS=10
 GITCHECKOUT_SOURCETAR=
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -43,6 +46,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -113,4 +120,4 @@ rm -rf $TESTDISK_DIR/gitcheckout
 
 exit $SHELLPACK_SUCCESS
 #### Description Times how long it takes to checkout git repos
-#### Details gitcheckout-bench 12
+#### Details gitcheckout-bench 13

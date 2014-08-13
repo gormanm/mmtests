@@ -72,6 +72,9 @@ AUTONUMA_TESTS="NUMA01 NUMA02 NUMA01_THEADLOCAL NUMA02_SMT"
 install-depends numactl libnuma-devel gnuplot
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -91,6 +94,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -151,4 +158,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description AutoNUMA Benchmark
-#### Details autonumabench-bench 10
+#### Details autonumabench-bench 11

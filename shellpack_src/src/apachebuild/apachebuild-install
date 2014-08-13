@@ -22,7 +22,6 @@ if [ ! -e $SHELLPACK_SOURCES/pcre-${PCRE_VERSION}-installed ]; then
 fi
 
 # Build
-export CFLAGS="-O2"
 ###SHELLPACK build_start apachebuild-${VERSION}
 ###SHELLPACK build_configure apachebuild-${VERSION} --with-apr=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-apr-util=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-pcre=$SHELLPACK_SOURCES/pcre-${PCRE_VERSION}-installed
 ###SHELLPACK make_make_install

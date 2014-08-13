@@ -6,6 +6,9 @@ WEB_LOCATION=http://ozlabs.org/~cyeoh/cma
 MIRROR_LOCATION="$WEBROOT/cmattach/"
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -25,6 +28,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -104,11 +111,11 @@ index 408e373..16b8e47 100644
        sleep(1);
 " | patch -p1 || die Failed to patch cma-test
 
-make -j$NUMCPUS
+make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
 #### Description This is a basic functional test of cross-memory-attach
-#### Details cmattach-test 2
+#### Details cmattach-test 3

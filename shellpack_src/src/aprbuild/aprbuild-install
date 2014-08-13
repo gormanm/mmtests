@@ -10,8 +10,6 @@ APRUTIL_VERSION=1.5.3
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-export CFLAGS="-O2"
-
 # APR
 ###SHELLPACK sources_fetch apr-${VERSION}.tar.bz2 aprbuild-${VERSION}
 ###SHELLPACK build_start aprbuild-${VERSION}

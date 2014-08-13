@@ -7,6 +7,9 @@ WEB_LOCATION="NOT_AVAILABLE"
 MIRROR_LOCATION="$WEBROOT/spec"
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -18,6 +21,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -31,4 +38,4 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/template-M.raw $SHELLPACK_
 
 exit $SHELLPACK_SUCCESS
 #### Description SPECjbb2013
-#### Details specjbb2013 19
+#### Details specjbb2013 20

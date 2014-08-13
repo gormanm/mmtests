@@ -15,6 +15,9 @@ if [ "$LARGECOPY_THREADS" = "" ]; then
 fi
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -38,6 +41,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -162,4 +169,4 @@ echo "6:Time to expand tar:$CURRENTTIME:$((CURRENTTIME-STARTTIME))" >> $LOGDIR_R
 echo Deleting work
 rm -rf $DIRECTORIES gianttar.tar.gz `basename $SRCTAR`
 #### Description Large copy and untar
-#### Details largecopy-bench 8
+#### Details largecopy-bench 9

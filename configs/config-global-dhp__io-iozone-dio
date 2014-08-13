@@ -1,8 +1,11 @@
+### iozone is executed in this configuration with fsync included in timings
+### and using direct IO.
+### It is executed five times to estimate variance.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="pgbench"
+export MMTESTS="iozone"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -33,7 +36,9 @@ export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
 export SWAP_NBD_DEVICE=/dev/nbd0
 export SWAP_NBD_HOST=mcp
 export SWAP_NBD_PORT=10001
-#export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+
+# Optionally use a memory control group
+# export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
@@ -42,9 +47,9 @@ export SWAP_NBD_PORT=10001
 #export TESTDISK_RAID_SIZE=250019532
 #export TESTDISK_RAID_TYPE=raid0
 #export TESTDISK_PARTITION=/dev/sda6
-#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_FILESYSTEM=xfs
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
-#export TESTDISK_MOUNT_ARGS=""
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
 #
 # Test NFS disk to setup (optional)
 #export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
@@ -62,17 +67,11 @@ export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# pgbench
-export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*6/10))
-export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/4))
-export PGBENCH_PAGESIZES="default"
-export PGBENCH_MAX_TRANSACTIONS=auto
-export PGBENCH_READONLY=yes
-export PGBENCH_MAX_THREADS=$((NUMCPUS*2))
-export PGBENCH_ITERATIONS=3
-
-# The baseline database size is approximately 30MB. Each unit of scaling
-# factor adds approximately 15M of data to the table. Tune accordingly.
-export TARGET_WORKLOAD_SIZE=$((MEMTOTAL_BYTES*6/5))
-export PGBENCH_SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)/(15*1048576)))
-
+# iozone
+export IOZONE_MIN_SIZE=$((MEMTOTAL_BYTES/4))
+export IOZONE_MAX_SIZE=$((MEMTOTAL_BYTES*2))
+export IOZONE_MIN_BLK_SIZE=4096
+export IOZONE_MAX_BLK_SIZE=4096
+export IOZONE_ITERATIONS=5
+export IOZONE_FSYNC=yes
+export IOZONE_DIO=yes

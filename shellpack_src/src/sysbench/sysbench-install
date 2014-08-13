@@ -1,67 +1,48 @@
 #!/bin/bash
+###SHELLPACK preamble sysbench-install 0.4.12
 
-P=sysbench-install
 VERSION=0.4.12
-MYSQL_VERSION=5.0.51a
-POSTGRES_VERSION=9.3.4
 DBUSER=root
 DBPASSWORD=shellpack-mysqlbench
-NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 DBDRIVER=postgres
-. $SHELLPACK_INCLUDE/common.sh
 
-# Basic args parser
-while [ "$1" != "" ]; do
-	case "$1" in
-		-v)	export VERSION=$2; shift 2;;
-		--use-mysql)
-			export DBDRIVER=mysql
-			shift;;
-		--use-postgres)
-			export DBDRIVER=postgres
-			shift;;
-		*)	echo Unrecognised option: $1; shift
-	esac
-done
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam	--dbdriver	DBDRIVER
+###SHELLPACK parseargEnd
 
-WEB_LOCATION=http://surfnet.dl.sourceforge.net/sourceforge/sysbench/sysbench-${VERSION}.tar.gz
-MIRROR_LOCATION="$WEBROOT/sysbench/sysbench-${VERSION}.tar.gz"
+WEB_LOCATION=http://surfnet.dl.sourceforge.net/sourceforge/sysbench
+MIRROR_LOCATION=$WEBROOT/sysbench
 
-pushd $SHELLPACK_SOURCES > /dev/null
+# Select database driver
+case $DBDRIVER in
+mariadb)
+	echo Checking mariadb installation
+	DBDRIVER_VERSION=10.0.12
+	CONFIGURE_ARGS=
+	;;
+postgres)
+	echo Checking postgres installation
+	DBDRIVER_VERSION=9.3.4
+	CONFIGURE_ARGS="--without-mysql --with-pgsql"
+	;;
+*)
+	die Unrecognised dbdriver $DBDRIVER
+	;;
+esac
 
-# Set path of necessary
-if [ "`echo $PATH | grep $DBDRIVER`" = "" ]; then
-	export PATH=$SHELLPACK_SOURCES/mysql-${MYSQL_VERSION}-installed/bin:$SHELLPACK_SOURCES/postgres-${POSTGRES_VERSION}-installed/bin:$SHELLPACK_SOURCES/sysbench$DBDRIVER-${VERSION}-installed/bin:$PATH
-fi
+# Build database and start it for sysbench config
+$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
+        --effective_cachesize $((MEMTOTAL_BYTES*6/10)) \
+        --shared_buffers $((MEMTOTAL_BYTES/4)) \
+        --work_mem $((16*1048576)) || die Failed to get usable database installation
 
-if [ ! -e sysbench$DBDRIVER-${VERSION}-installed ]; then
-	sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/sysbench-${VERSION}.tar.gz
-
-	DST_DIR=`tar tf sysbench-${VERSION}.tar.gz | head -n 1`
-	tar xf sysbench-${VERSION}.tar.gz
-	if [ $? -ne 0 ]; then
-		die "$P: tar zxf sysbench-${VERSION}.tar.gz failed"
-	fi
-	[ "$DST_DIR" != "sysbench$DBDRIVER-${VERSION}/" ] && mv $DST_DIR sysbench$DBDRIVER-${VERSION}
-	cd sysbench$DBDRIVER-${VERSION}
-	
-	# Configure sysbench
-	if [ "$DBDRIVER" = "postgres" ]; then
-		CONFIGURE_ARGS="--without-mysql --with-pgsql"
-	fi
-
-	echo Running autoreconf
-	touch NEWS
-	touch AUTHORS
-	autoreconf -f  -i
-
-	CFLAGS="-O2" \
-		./configure $CONFIGURE_ARGS \
-		  --prefix=$SHELLPACK_SOURCES/sysbench$DBDRIVER-$VERSION-installed \
-			|| die "Failed to configure"
-
-	# Patch sysbench to properly insert tables
-	echo "--- sysbench/drivers/pgsql/drv_pgsql.c.orig	2010-12-03 14:14:59.000000000 +0000
+echo Building sysbench for $DBDRIVER
+export PATH=$SHELLPACK_SOURCES/${DBDRIVER}build-${DBDRIVER_VERSION}-installed/bin:$PATH
+###SHELLPACK sources_fetch sysbench-${VERSION}.tar.gz sysbench-${VERSION}
+###SHELLPACK build_start sysbench-${VERSION}
+###SHELLPACK build_autoreconf
+# Patch sysbench to properly insert tables
+echo "--- sysbench/drivers/pgsql/drv_pgsql.c.orig	2010-12-03 14:14:59.000000000 +0000
 +++ sysbench/drivers/pgsql/drv_pgsql.c	2010-12-03 14:15:23.000000000 +0000
 @@ -84,7 +84,7 @@
  
@@ -72,14 +53,9 @@ if [ ! -e sysbench$DBDRIVER-${VERSION}-installed ]; then
    1,
    1,
    0,
-" | patch -p0 || exit -1
-
-	echo Building sysbench
-	make -j$NUMCPUS || die "Failed to build sysbench"
-
-	echo Installing sysbench
-	make install || die "Failed to install sysbench"
-fi
+" | patch -p0
+###SHELLPACK build_configure sysbench-${VERSION} $CONFIGURE_ARGS
+###SHELLPACK make_make_install
 
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS

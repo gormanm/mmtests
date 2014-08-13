@@ -10,15 +10,7 @@ MIRROR_LOCATION="$WEBROOT/netperf/"
 ###SHELLPACK sources_fetch netperf-${VERSION}.tar.gz netperf-${VERSION}
 
 ###SHELLPACK build_start netperf-${VERSION}
-INSTALLPATH=$SHELLPACK_SOURCES/netperf-${VERSION}-installed
-rm -rf $INSTALLPATH
-CFLAGS="-O2" ./configure --prefix=$INSTALLPATH
-if [ $? -ne 0 ]; then
-	error "$P: configure failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
-fi
-
+###SHELLPACK build_configure netperf-${VERSION}
 ###SHELLPACK make_make_install
 
 echo Netperf installed successfully

@@ -125,4 +125,4 @@ monitor_post_hook $LOGDIR_RESULTS
 
 exit $RETVAL
 #### Description Run the pipe-test benchmark
-#### Details pipetest-bench 14
+#### Details pipetest-bench 15

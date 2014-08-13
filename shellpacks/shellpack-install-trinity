@@ -2,10 +2,13 @@
 P=trinity-install
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
-GIT_LOCATION=git://git.codemonkey.org.uk/trinity.git
+GIT_LOCATION=https://github.com/kernelslacker/trinity
 MIRROR_LOCATION="$WEBROOT/trinity/"
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -17,6 +20,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -40,7 +47,7 @@ pushd trinity-${VERSION}-installed > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/trinity-${VERSION}-installed || die Failed to change to source directory
 git checkout $VERSION
 ./configure.sh || die Failed to run configure.sh
-make -j$NUMCPUS
+make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -50,4 +57,4 @@ chmod a+w .
 
 echo trinity installed successfully
 #### Description trinity fuzzing tool
-#### Details trinity 4
+#### Details trinity 6

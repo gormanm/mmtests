@@ -1,6 +1,6 @@
 #!/bin/bash
 ###SHELLPACK preamble trinity-install 0
-GIT_LOCATION=git://git.codemonkey.org.uk/trinity.git
+GIT_LOCATION=https://github.com/kernelslacker/trinity
 MIRROR_LOCATION="$WEBROOT/trinity/"
 
 ###SHELLPACK parseargBegin

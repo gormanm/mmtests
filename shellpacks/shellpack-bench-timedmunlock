@@ -10,6 +10,9 @@ ALLOC_GB=0
 ITERATIONS=10
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -29,6 +32,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -190,4 +197,4 @@ int main(int argc, char **argv)
 	return (0);
 }
 #### Description Time the call of munlock() on mmapped area of given size.
-#### Details timedmunlock-bench 1
+#### Details timedmunlock-bench 2

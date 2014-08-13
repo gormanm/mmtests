@@ -7,6 +7,9 @@ GIT_LOCATION=https://github.com/gormanm/pft
 MIRROR_LOCATION="$WEBROOT/pft/$TARFILE"
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -18,6 +21,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -130,7 +137,7 @@ index 2ea0986..5544803 100644
 " | patch -p1 || exit -1
 fi
 
-make -j$NUMCPUS
+make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -139,4 +146,4 @@ fi
 
 echo pft installed successfully
 #### Description pft
-#### Details pft 8
+#### Details pft 9

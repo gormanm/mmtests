@@ -119,3 +119,38 @@ getmemtotals() {
 	export MEMTOTAL_PAGES=$(($MEMTOTAL_BYTES/$PAGESIZE))
 	export MEMTOTAL_HUGEPAGES=$(($MEMTOTAL_BYTES/$HUGE_PAGESIZE))
 }
+
+##
+# Get dirty limit in ppm (1/1e6)
+get_dirtiable_fraction() {
+	if [ "$DIRTY_RATIO_PPM" != "" ]; then
+		return
+	fi
+
+	local tmp_dirty_ratio=$(cat /proc/sys/vm/dirty_ratio)
+	if [ "$tmp_dirty_ratio" -eq "0" ]; then
+		getmemtotals
+		export DIRTY_RATIO_PPM=$(($(cat /proc/sys/vm/dirty_bytes)/(MEMTOTAL_BYTES/1000000)))
+	else
+		export DIRTY_RATIO_PPM=$((tmp_dirty_ratio*10000))
+	fi
+}
+
+##
+# Get size and id of the largest NUMA node
+get_numa_details() {
+	if [ "${MMTESTS_NODE_SIZE[0]}" != "" ]; then
+		return
+	fi
+	local tmp nodeid nodesize i
+	while read tmp nodeid tmp nodesize tmp; do
+		MMTESTS_NODE_SIZE[$nodeid]=$((nodesize*1024*1024))
+	done <<< "$(numactl --hardware | grep "size:")"
+	i=0
+	while read tmp nodeid tmp tmp tmp; do
+		MMTESTS_NODE_ID_BY_SIZE[$i]=$nodeid
+		i=$((i+1))
+	done <<< "$(numactl --hardware | grep "size:" | sort -n -k4)"
+	export MMTESTS_NODE_SIZE
+	export MMTESTS_NODE_ID_BY_SIZE
+}

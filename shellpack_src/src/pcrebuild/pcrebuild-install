@@ -9,7 +9,6 @@ MIRROR_LOCATION="$WEBROOT/apache/"
 ###SHELLPACK parseargEnd
 
 # PCRE, use pcre naming to limit extra junk
-export CFLAGS="-O2"
 ###SHELLPACK sources_fetch pcre-${VERSION}.tar.bz2 pcrebuild-${VERSION}
 ###SHELLPACK build_start pcrebuild-${VERSION}
 ###SHELLPACK build_configure pcrebuild-${VERSION}

@@ -6,10 +6,104 @@ POSTGRES_GROUP=nogroup
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-###SHELLPACK parseargParam --postgres-user POSTGRES_USER
+###SHELLPACK parseargParam --postgres-user	 POSTGRES_USER
+###SHELLPACK parseargParam --use-hugetlbfs	 USE_HUGETLBFS
+###SHELLPACK parseargParam --effective_cachesize EFFECTIVE_CACHESIZE
+###SHELLPACK parseargParam --shared_buffers      SHARED_BUFFERS
+###SHELLPACK parseargParam --work_mem            WORK_MEM
+###SHELLPACK parseargYes   --start		 SERVER_START
+###SHELLPACK parseargYes   --stop		 SERVER_STOP
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required postgres-${VERSION}
+###SHELLPACK check_install_required postgresbuild-${VERSION}
+. $SHELLPACK_INCLUDE/include-libhugetlbfs.sh
+. $SHELLPACK_INCLUDE/include-hugepage.sh
+getpagesize
+PSQL="su -s /bin/bash $POSTGRES_USER -c"
+POSTGRES_DATADIR=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data
+POSTGRES_PIDFILE=$POSTGRES_DATADIR/postmaster.pid
+POSTGRES_PID=`cat $POSTGRES_PIDFILE 2>&1`
+cd $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed
 
-echo postgres successfully installed
+# Only updates the first occurance of the parameter
+update_entry_cnf() {
+	PARAMETER=$1
+	VALUE=$2
+	CONF=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data/postgresql.conf
+
+	LINE=`grep -n "^$PARAMETER" $CONF | cut -d: -f1 | head -1`
+	if [ "$LINE" = "" ]; then
+		LINE=`grep -n "^#$PARAMETER" $CONF | cut -d: -f1 | head -1`
+		if [ "$LINE" = "" ]; then
+			die Failed to locate parameter $PARAMETER
+		fi
+	fi
+	LINEC=`wc -l $CONF | awk '{print $1}'`
+	head -$(($LINE-1)) $CONF > ${CONF}.tmp
+	echo $PARAMETER = $VALUE >> ${CONF}.tmp
+	tail -$(($LINEC-$LINE)) $CONF >> ${CONF}.tmp
+
+	mv ${CONF}.tmp $CONF
+}
+
+postgres_shutdown() {
+	if [ -e $POSTGRES_PIDFILE ]; then
+		echo Shutting down server
+		$PSQL "bin/pg_ctl -D $POSTGRES_DATADIR -l logfile stop"
+		sleep 2
+		wait_on_pid_exit $POSTGRES_PID
+		rm $POSTGRES_PIDFILE 2>/dev/null
+	fi
+}
+
+if [ "$SERVER_STOP" = "yes" ]; then
+	postgres_shutdown
+fi
+
+if [ "$SERVER_START" = "yes" ]; then
+	postgres_shutdown
+
+	# Configure group parameters
+	GROUPNAME=`groups $POSTGRES_USER | awk '{print $3}'`
+	if [ "$GROUPNAME" = "" ]; then
+		GROUPNAME=`groups $POSTGRES_USER`
+	fi
+	GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
+	echo $GROUPID > /proc/sys/vm/hugetlb_shm_group
+
+	# Update the memory configurations
+	TOTALBUFFER_SIZE=$(($EFFECTIVE_CACHESIZE+$WORK_MEM))
+	update_entry_cnf work_mem $(($WORK_MEM/1048576))MB
+	update_entry_cnf shared_buffers $((SHARED_BUFFERS/1048576))MB
+	update_entry_cnf effective_cache_size $(($EFFECTIVE_CACHESIZE/1048576))MB
+
+	# Do not checkpoint frequently
+	# Checkpoints are in 16MB segments so this tuning is to checkpoint
+	# when roughly quarter of the shared bufffers have been updated.
+	update_entry_cnf checkpoint_segments $((SHARED_BUFFERS/1048576/4))
+	update_entry_cnf synchronous_commit on
+
+	# Configure shmem parameters
+	echo $TOTALBUFFER_SIZE > /proc/sys/kernel/shmmax
+	echo $(($TOTALBUFFER_SIZE*2/$PAGESIZE)) > /proc/sys/kernel/shmall
+	ulimit -l $TOTALBUFFER_SIZE
+
+	echo Starting postgres
+	rm logfile 2> /dev/null
+	$HUGECTL $PSQL "$SHELLPACK_INCLUDE/run_background bin/pg_ctl -D $POSTGRES_DATADIR -l logfile start"
+	wait_on_pid_file $POSTGRES_PIDFILE
+	POSTGRES_PID=`cat $POSTGRES_PIDFILE 2>&1`
+
+	echo -n Waiting on postgres to accept commands
+	$PSQL "$SHELLPACK_INCLUDE/run_background bin/pg_ctl -D $POSTGRES_DATADIR status"
+	RETVAL=?
+	while [ $RETVAL != 0 ]; do
+		echo -n .
+		RETVAL=$?
+		sleep 1
+	done
+	echo
+fi
+
+echo postgres operation successful
 exit $SHELLPACK_SUCCESS

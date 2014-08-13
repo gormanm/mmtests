@@ -23,9 +23,184 @@ if [ ! -e $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}-installed ]; then
 fi
 
 # Build
-export CFLAGS="-O2"
+export LDFLAGS=-lrt
 ###SHELLPACK build_start siege-${VERSION}
 ###SHELLPACK build_configure siege-${VERSION}
+echo '
+diff --git a/src/client.c b/src/client.c
+index e70bbcb..981a9d4 100644
+--- a/src/client.c
++++ b/src/client.c
+@@ -39,6 +39,10 @@
+ #define SIGNAL_CLIENT_PLATFORM
+ #endif
+ 
++#ifndef CLOCK_REALTIME_COARSE
++#define CLOCK_REALTIME_COARSE 5
++#endif
++
+ /**
+  * local prototypes
+  */
+@@ -196,6 +200,21 @@ __request(CONN *C, URL U, CLIENT *client) {
+   }
+ }
+ 
++float elapsed_timespec(struct timespec start, struct timespec end)
++{
++	time_t sec;
++	long nsec;
++
++        if ((end.tv_nsec - start.tv_nsec) < 0) {
++                sec = end.tv_sec - start.tv_sec - 1;
++                nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
++        } else {
++                sec = end.tv_sec - start.tv_sec;
++                nsec = end.tv_nsec - start.tv_nsec;
++        }
++	return (float)sec + nsec / 1000000000.0;
++}
++
+ /**
+  * HTTP client request.
+  * The protocol is executed in http.c 
+@@ -208,8 +227,7 @@ __http(CONN *C, URL U, CLIENT *client)
+   unsigned long bytes  = 0;
+   int      code, fail;  
+   float    etime; 
+-  clock_t  start, stop;
+-  struct   tms t_start, t_stop; 
++  struct timespec  start, stop;
+   HEADERS  *head; 
+ #ifdef  HAVE_LOCALTIME_R
+   struct   tm keepsake;
+@@ -250,7 +268,10 @@ __http(CONN *C, URL U, CLIENT *client)
+   }
+ 
+   /* record transaction start time */
+-  start = times(&t_start);  
++  if (clock_gettime(CLOCK_REALTIME_COARSE, &start)) {
++    NOTIFY (ERROR, "Failed to get starting clock CLOCK_REALTIME_COARSE");
++    return FALSE;
++  }
+ 
+   if (! __init_connection(C, U, client)) return FALSE;
+   
+@@ -290,8 +311,11 @@ __http(CONN *C, URL U, CLIENT *client)
+     echo ("%s:%d zero bytes back from server", __FILE__, __LINE__);
+     return FALSE; 
+   } 
+-  stop     =  times(&t_stop); 
+-  etime    =  elapsed_time(stop - start);  
++  if (clock_gettime(CLOCK_REALTIME_COARSE, &stop)) {
++    NOTIFY (ERROR, "Failed to get ending clock CLOCK_REALTIME_COARSE");
++    return FALSE;
++  }
++  etime    =  elapsed_timespec(start, stop);
+   code     =  (head->code <  400 || head->code == 401 || head->code == 407) ? 1 : 0;
+   fail     =  (head->code >= 400 && head->code != 401 && head->code != 407) ? 1 : 0; 
+   /**
+@@ -483,8 +507,7 @@ __ftp(CONN *C, URL U, CLIENT *client)
+   float   etime;         // elapsed time
+   CONN    *D    = NULL;  // FTP data connection 
+   size_t  bytes = 0;     // bytes from server   
+-  clock_t start, stop;
+-  struct  tms t_start, t_stop; 
++  struct timespec start, stop;
+ 
+   D = xcalloc(sizeof(CONN), 1);
+   D->sock = -1;
+@@ -498,7 +521,11 @@ __ftp(CONN *C, URL U, CLIENT *client)
+     return FALSE;
+   }
+ 
+-  start = times(&t_start);
++  if (clock_gettime(CLOCK_REALTIME_COARSE, &start)) {
++    NOTIFY (ERROR, "Failed to get starting clock CLOCK_REALTIME_COARSE");
++    return FALSE;
++  }
++
+   if (C->sock < 0) {
+     NOTIFY (
+       ERROR, "%s:%d connection failed %s:%d",
+@@ -561,8 +588,11 @@ __ftp(CONN *C, URL U, CLIENT *client)
+ 
+   pass  = (bytes == C->ftp.size) ? 1 : 0;
+   fail  = (pass  == 0) ? 1 : 0; 
+-  stop  =  times(&t_stop);
+-  etime =  elapsed_time(stop - start);
++  if (clock_gettime(CLOCK_REALTIME_COARSE, &stop)) {
++    NOTIFY (ERROR, "Failed to get stopping clock CLOCK_REALTIME_COARSE");
++    return FALSE;
++  }
++  etime =  elapsed_timespec(start, stop);
+   client->bytes += bytes;
+   client->time  += etime;
+   client->code  += pass;
+diff --git a/src/data.c b/src/data.c
+index baa370e..3e2bb9d 100644
+--- a/src/data.c
++++ b/src/data.c
+@@ -40,6 +40,9 @@
+ # endif/*HAVE_SYS_TIME_H   */
+ #endif /*TIME_WITH_SYS_TIME*/
+ 
++#ifndef CLOCK_REALTIME_COARSE
++#define CLOCK_REALTIME_COARSE 5
++#endif
+ 
+ struct DATA_T
+ {
+@@ -49,10 +52,8 @@ struct DATA_T
+   float    lowest;
+   float    highest;
+   float    elapsed;
+-  clock_t  start;   
+-  clock_t  stop;      
+-  struct   tms  t_start; 
+-  struct   tms  t_stop;
++  struct timespec start;
++  struct timespec stop;
+   unsigned int  code;
+   unsigned int  count;
+   unsigned int  ok200;
+@@ -130,14 +131,14 @@ data_increment_ok200(DATA this, int ok200)
+ void
+ data_set_start(DATA this)
+ {
+-  this->start = times(&this->t_start);
++  clock_gettime(CLOCK_REALTIME_COARSE, &this->start);
+   return;
+ }
+ 
+ void
+ data_set_stop(DATA this)
+ {
+-  this->stop = times(&this->t_stop);
++  clock_gettime(CLOCK_REALTIME_COARSE, &this->stop);
+   return;
+ }
+ 
+@@ -217,15 +218,12 @@ data_get_megabytes(DATA this)
+   return (float)this->bytes/(1024.0*1024.0);
+ }
+ 
++float elapsed_timespec(struct timespec start, struct timespec end);
++
+ float
+ data_get_elapsed(DATA this)
+ {
+-  long    tps;
+-  clock_t time;
+-
+-  time = this->stop - this->start;
+-  tps  = sysconf(_SC_CLK_TCK);
+-  this->elapsed = (float)time/tps;
++  this->elapsed = elapsed_timespec(this->start, this->stop);
+   return this->elapsed;
+ }
+' | patch -p1 || die Failed to patch siege
+
 ###SHELLPACK make_make_install
 
 echo Creating static test page

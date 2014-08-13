@@ -9,6 +9,9 @@ EBIZZY_DURATION=30
 ITERATIONS=5
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -40,6 +43,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -97,4 +104,4 @@ done
 
 exit $EXIT_CODE
 #### Description ebizzy
-#### Details ebizzy-bench 11
+#### Details ebizzy-bench 12

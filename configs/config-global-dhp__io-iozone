@@ -1,5 +1,6 @@
-### tiobench is executed in this configuration for up to 16 threads.
-### It is executed three times to estimate variance.
+### iozone is executed in this configuration with fsync included in timings
+### so that we avoid any artifacts of dirty throttling.
+### It is executed five times to estimate variance.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
@@ -67,8 +68,9 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # iozone
-export IOZONE_MIN_SIZE=$((MEMTOTAL_BYTES/16))
+export IOZONE_MIN_SIZE=$((MEMTOTAL_BYTES/4))
 export IOZONE_MAX_SIZE=$((MEMTOTAL_BYTES*2))
 export IOZONE_MIN_BLK_SIZE=4096
 export IOZONE_MAX_BLK_SIZE=4096
 export IOZONE_ITERATIONS=5
+export IOZONE_FSYNC=yes

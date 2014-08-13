@@ -1,2 +1,2 @@
 #### Description Time the call of munlock() on mmapped area of given size.
-#### Details timedmunlock 1
+#### Details timedmunlock 2

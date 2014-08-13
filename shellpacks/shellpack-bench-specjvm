@@ -100,4 +100,4 @@ for PAGES in $SPECJVM_PAGESIZES; do
 	mv results $LOGDIR_RESULTS/$PAGES
 done
 #### Description SPECjvm
-#### Details specjvm-bench 12
+#### Details specjvm-bench 13

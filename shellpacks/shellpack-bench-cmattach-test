@@ -4,6 +4,9 @@ DEFAULT_VERSION=20110718
 . $SHELLPACK_INCLUDE/common.sh
 
 # Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
@@ -23,6 +26,10 @@ while [ "$1" != "" ]; do
 		shift
 	esac
 done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
 if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
@@ -77,4 +84,4 @@ for TEST in process_vm_readv_simple process_vm_writev process_vm_readv_iovec; do
 	echo $STATUS
 done
 #### Description This is a basic functional test of cross-memory-attach
-#### Details cmattach-test-bench 2
+#### Details cmattach-test-bench 3

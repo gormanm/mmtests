@@ -36,6 +36,44 @@ function warn() {
 	echo "WARNING${TAG}: $@"
 }
 
+function wait_on_pid_exit() {
+	WAITPID=$1
+
+	if [ "$WAITPID" != "" ]; then
+		echo -n Waiting on pid $WAITPID to shutdown
+		while [ "`ps h --pid $WAITPID`" != "" ]; do
+			echo -n .
+			sleep 1
+		done
+		echo
+	fi
+}
+
+function wait_on_pid_file() {
+	PIDFILE=$1
+
+	sleep 1
+	echo -n "Waiting on pidfile \"`basename $PIDFILE`\" "
+	while [ ! -e $PIDFILE ]; do
+		echo -n O
+		sleep 1
+	done
+
+	PIDWAIT=`cat $PIDFILE`
+	while [ "$PIDWAIT" = "" ]; do
+		echo -n o
+		sleep 1
+		PIDWAIT=`cat $PIDFILE`
+	done
+
+	while [ "`ps h --pid $PIDWAIT 2>/dev/null`" = "" ]; do
+		echo -n .
+		sleep 1
+		PIDWAIT=`cat $PIDFILE`
+	done
+	echo
+}
+
 function shutdown_pid() {
 	TITLE=$1
 	SHUTDOWN_PID=$2
