@@ -27,10 +27,21 @@ fi
 ###SHELLPACK build_configure siege-${VERSION}
 echo '
 diff --git a/src/client.c b/src/client.c
-index e70bbcb..deb50ca 100644
+index e70bbcb..981a9d4 100644
 --- a/src/client.c
 +++ b/src/client.c
-@@ -196,6 +196,21 @@ __request(CONN *C, URL U, CLIENT *client) {
+@@ -39,6 +39,10 @@
+ #define SIGNAL_CLIENT_PLATFORM
+ #endif
+ 
++#ifndef CLOCK_REALTIME_COARSE
++#define CLOCK_REALTIME_COARSE 5
++#endif
++
+ /**
+  * local prototypes
+  */
+@@ -196,6 +200,21 @@ __request(CONN *C, URL U, CLIENT *client) {
    }
  }
  
@@ -52,7 +63,7 @@ index e70bbcb..deb50ca 100644
  /**
   * HTTP client request.
   * The protocol is executed in http.c 
-@@ -208,8 +223,7 @@ __http(CONN *C, URL U, CLIENT *client)
+@@ -208,8 +227,7 @@ __http(CONN *C, URL U, CLIENT *client)
    unsigned long bytes  = 0;
    int      code, fail;  
    float    etime; 
@@ -62,7 +73,7 @@ index e70bbcb..deb50ca 100644
    HEADERS  *head; 
  #ifdef  HAVE_LOCALTIME_R
    struct   tm keepsake;
-@@ -250,7 +264,10 @@ __http(CONN *C, URL U, CLIENT *client)
+@@ -250,7 +268,10 @@ __http(CONN *C, URL U, CLIENT *client)
    }
  
    /* record transaction start time */
@@ -74,7 +85,7 @@ index e70bbcb..deb50ca 100644
  
    if (! __init_connection(C, U, client)) return FALSE;
    
-@@ -290,8 +307,11 @@ __http(CONN *C, URL U, CLIENT *client)
+@@ -290,8 +311,11 @@ __http(CONN *C, URL U, CLIENT *client)
      echo ("%s:%d zero bytes back from server", __FILE__, __LINE__);
      return FALSE; 
    } 
@@ -88,7 +99,7 @@ index e70bbcb..deb50ca 100644
    code     =  (head->code <  400 || head->code == 401 || head->code == 407) ? 1 : 0;
    fail     =  (head->code >= 400 && head->code != 401 && head->code != 407) ? 1 : 0; 
    /**
-@@ -483,8 +503,7 @@ __ftp(CONN *C, URL U, CLIENT *client)
+@@ -483,8 +507,7 @@ __ftp(CONN *C, URL U, CLIENT *client)
    float   etime;         // elapsed time
    CONN    *D    = NULL;  // FTP data connection 
    size_t  bytes = 0;     // bytes from server   
@@ -98,7 +109,7 @@ index e70bbcb..deb50ca 100644
  
    D = xcalloc(sizeof(CONN), 1);
    D->sock = -1;
-@@ -498,7 +517,11 @@ __ftp(CONN *C, URL U, CLIENT *client)
+@@ -498,7 +521,11 @@ __ftp(CONN *C, URL U, CLIENT *client)
      return FALSE;
    }
  
@@ -111,7 +122,7 @@ index e70bbcb..deb50ca 100644
    if (C->sock < 0) {
      NOTIFY (
        ERROR, "%s:%d connection failed %s:%d",
-@@ -561,8 +584,11 @@ __ftp(CONN *C, URL U, CLIENT *client)
+@@ -561,8 +588,11 @@ __ftp(CONN *C, URL U, CLIENT *client)
  
    pass  = (bytes == C->ftp.size) ? 1 : 0;
    fail  = (pass  == 0) ? 1 : 0; 
@@ -126,10 +137,20 @@ index e70bbcb..deb50ca 100644
    client->time  += etime;
    client->code  += pass;
 diff --git a/src/data.c b/src/data.c
-index baa370e..aa0bfea 100644
+index baa370e..3e2bb9d 100644
 --- a/src/data.c
 +++ b/src/data.c
-@@ -49,10 +49,8 @@ struct DATA_T
+@@ -40,6 +40,9 @@
+ # endif/*HAVE_SYS_TIME_H   */
+ #endif /*TIME_WITH_SYS_TIME*/
+ 
++#ifndef CLOCK_REALTIME_COARSE
++#define CLOCK_REALTIME_COARSE 5
++#endif
+ 
+ struct DATA_T
+ {
+@@ -49,10 +52,8 @@ struct DATA_T
    float    lowest;
    float    highest;
    float    elapsed;
@@ -142,7 +163,7 @@ index baa370e..aa0bfea 100644
    unsigned int  code;
    unsigned int  count;
    unsigned int  ok200;
-@@ -130,14 +128,14 @@ data_increment_ok200(DATA this, int ok200)
+@@ -130,14 +131,14 @@ data_increment_ok200(DATA this, int ok200)
  void
  data_set_start(DATA this)
  {
@@ -159,7 +180,7 @@ index baa370e..aa0bfea 100644
    return;
  }
  
-@@ -217,15 +215,12 @@ data_get_megabytes(DATA this)
+@@ -217,15 +218,12 @@ data_get_megabytes(DATA this)
    return (float)this->bytes/(1024.0*1024.0);
  }
  
