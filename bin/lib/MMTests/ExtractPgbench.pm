@@ -183,7 +183,7 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		my @files = <$reportDir/noprofile/default/time-$client.*>;
+		my @files = <$reportDir/noprofile/default/time-$client-*>;
 		foreach my $file (@files) {
 
 
