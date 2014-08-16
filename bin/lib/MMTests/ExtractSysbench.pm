@@ -25,11 +25,10 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my @clients;
 
-	my @files = <$reportDir/noprofile/default/sysbench-*.log>;
+	my @files = <$reportDir/noprofile/default/sysbench-raw-*-1>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
-		$split[-1] =~ s/.log//;
-		push @clients, $split[-1];
+		push @clients, $split[-2];
 	}
 	@clients = sort { $a <=> $b } @clients;
 	$self->{_Clients} = \@clients;
@@ -98,15 +97,21 @@ sub extractReport($$$) {
 	my @clients = @{$self->{_Clients}};
 
 	foreach my $client (@clients) {
-		my $iteration = 0;
-		my $file = "$reportDir/noprofile/default/sysbench-$client.log";
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
-			my @elements = split(/\s+/, $_);
-			push @{$self->{_ResultData}[$client]}, [ $iteration, $elements[1] ];
-			$iteration++;
+		my $iteration = 1;
+		my @files = <$reportDir/noprofile/default/sysbench-raw-$client-*>;
+		foreach my $file (@files) {
+			open(INPUT, $file) || die("Failed to open $file\n");
+			while (!eof(INPUT)) {
+				my $line = <INPUT>;
+				next if $line !~ /.*transactions:.*per sec/;
+				my @elements = split(/\s+/, $line);
+				my $ops = $elements[3];
+				$ops =~ s/\(//;
+				push @{$self->{_ResultData}[$client]}, [ $iteration, $ops ];
+				$iteration++;
+			}
+			close INPUT;
 		}
-		close INPUT;
 	}
 }
 
