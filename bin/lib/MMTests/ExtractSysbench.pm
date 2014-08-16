@@ -28,6 +28,7 @@ sub initialise() {
 	my @files = <$reportDir/noprofile/default/sysbench-raw-*-1>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
+		$split[-2] =~ s/.log//;
 		push @clients, $split[-2];
 	}
 	@clients = sort { $a <=> $b } @clients;
@@ -37,9 +38,6 @@ sub initialise() {
 
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders} = [ "Client", "Iteration", "MB/sec" ];
-	$self->{_SummaryHeaders} = [ "Client", "Min", "Mean", "TrimMean", "Stddev", "Max" ];
 }
 
 sub printPlot() {
@@ -64,11 +62,56 @@ sub extractSummary() {
 	my ($self, $subHeading) = @_;
 
 	my ($self, $reportDir) = @_;
-	my @data = @{$self->{_ResultData}};
 	my @clients = @{$self->{_Clients}};
 	my $fieldLength = $self->{_FieldLength};
 	my $column = 1;
 
+	if ($subHeading eq "LoadTime") {
+		my @data = @{$self->{_LoadTimeData}};
+
+		$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%$fieldLength.2f" ];
+		$self->{_FieldHeaders} = [ "Client", "Time" ];
+		$self->{_SummaryHeaders} = [ "Client", "Min", "Mean", "TrimMean", "Stddev", "Max" ];
+		$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%$fieldLength.2f" ];
+
+		my @units;
+		my @row;
+		foreach my $row (@{$data[0]}) {
+			push @units, @{$row}[1];
+		}
+		push @row, 1;
+		foreach my $funcName ("calc_min", "calc_mean", "calc_5trimmed_mean", "calc_stddev", "calc_max") {
+			no strict "refs";
+			push @row, &$funcName(@units);
+		}
+		push @{$self->{_SummaryData}}, \@row;
+		return 1;
+	}
+
+	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%$fieldLength.2f" ];
+	$self->{_SummaryHeaders} = [ "Client", "Min", "Mean", "TrimMean", "Stddev", "Max" ];
+
+	if ($subHeading eq "TransTime") {
+		my @data = @{$self->{_ResultTimeData}};
+		$self->{_FieldHeaders} = [ "Client", "Iteration", "Time" ];
+		foreach my $client (@clients) {
+			my @units;
+			my @row;
+			foreach my $row (@{$data[$client]}) {
+				push @units, @{$row}[$column];
+			}
+			push @row, $client;
+			foreach my $funcName ("calc_min", "calc_mean", "calc_5trimmed_mean", "calc_stddev", "calc_max") {
+				no strict "refs";
+				push @row, &$funcName(@units);
+			}
+			push @{$self->{_SummaryData}}, \@row;
+		}
+		return 1;
+	}
+
+	my @data = @{$self->{_ResultData}};
+	$self->{_FieldHeaders} = [ "Client", "Iteration", "Transactions/sec" ];
 	foreach my $client (@clients) {
 		my @units;
 		my @row;
@@ -85,6 +128,13 @@ sub extractSummary() {
 	return 1;
 }
 
+sub printSummary() {
+	my ($self, $subHeading) = @_;
+	my $fieldLength = $self->{_FieldLength};
+	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" ];
+	$self->SUPER::printSummary($subHeading);
+}
+
 sub printReport() {
 	my ($self, $reportDir) = @_;
 	my @clients = @{$self->{_Clients}};
@@ -94,10 +144,26 @@ sub printReport() {
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
+	my ($tm, $tput, $latency);
 	my @clients = @{$self->{_Clients}};
+	my $iteration;
 
+	# Extract load times if available
+	$iteration = 0;
 	foreach my $client (@clients) {
-		my $iteration = 1;
+		if (open (INPUT, "$reportDir/noprofile/default/load-$client.time")) {
+			while (<INPUT>) {
+				next if $_ !~ /elapsed/;
+				push @{$self->{_LoadTimeData}[0]}, [ $iteration, $self->_time_to_elapsed($_) ];
+			}
+			close INPUT;
+		}
+	}
+
+	# Extract per-client transaction information
+	foreach my $client (@clients) {
+		$iteration = 0;
+
 		my @files = <$reportDir/noprofile/default/sysbench-raw-$client-*>;
 		foreach my $file (@files) {
 			open(INPUT, $file) || die("Failed to open $file\n");
@@ -111,6 +177,24 @@ sub extractReport($$$) {
 				$iteration++;
 			}
 			close INPUT;
+		}
+	}
+
+	# Extract per-client timing information
+	my @clients = @{$self->{_Clients}};
+	foreach my $client (@clients) {
+		my $iteration = 0;
+
+		my @files = <$reportDir/noprofile/default/time-$client-*>;
+		foreach my $file (@files) {
+
+
+			open(INPUT, $file) || die("Failed to open $file\n");
+			while (<INPUT>) {
+				next if $_ !~ /elapsed/;
+				push @{$self->{_ResultTimeData}[$client]}, [ $iteration, $self->_time_to_elapsed($_) ];
+			}
+			close(INPUT);
 		}
 	}
 }
