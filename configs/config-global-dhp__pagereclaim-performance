@@ -24,7 +24,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="postmark ffsb largedd fsmark-single stutter"
+export MMTESTS="postmark ffsb largedd gitcheckout fsmark-single stutter"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -101,6 +101,13 @@ export FSMARK_NR_DIRECTORIES=16
 export FSMARK_NR_FILES_PER_DIRECTORY=256
 export FSMARK_NR_FILES_PER_ITERATION=$((MEMTOTAL_BYTES/FSMARK_FILESIZE))
 export FSMARK_ITERATIONS=15
+
+# Git checkout
+export GITCHECKOUT_SOURCETAR=$WEBROOT/gitcheckout/linux-2.6.tar.gz
+export GITCHECKOUT_SOURCE=$SSHROOT/linux-2.6
+export GITCHECKOUT_COMMITS=v2.6.14,v3.2,v2.6.16,v3.4,v2.6.18
+export GITCHECKOUT_ITERATIONS=15
+export GITCHECKOUT_CACHE=hot
 
 # Large copy and untar
 export LARGECOPY_SRCTAR=$WEBROOT/large-tar-file-1.tar.bz2

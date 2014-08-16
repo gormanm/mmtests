@@ -1,5 +1,13 @@
-### tiobench is executed in this configuration for up to 16 threads.
-### It is executed three times to estimate variance.
+### tiobench is executed in this configuration for up to 16 threads and
+### executed thress times to estimate variance. It is known that tiobench
+### has some flaws that make it unsuitable as an IO benchmark except for
+### historical reasons. The primary problem is that the read portion of
+### the benchmark takes place after the write without dumping the cache.
+### The performance is then related to how much data is still in the page
+### cache. Older kernels had a bug whereby old pages were artifically
+### preserved in memory which boosted this benchmarks figures even though
+### the kernel was buggy. If this happens, it tends to be visible as
+### read performance that is higher than the physical capability of the disk.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

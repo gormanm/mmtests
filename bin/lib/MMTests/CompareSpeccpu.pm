@@ -7,9 +7,10 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareSpeccpu",
-		_DataType    => MMTests::Compare::DATA_OPSSEC,
+		_DataType    => MMTests::Compare::DATA_WALLTIME,
 		_FieldLength => 13,
-		_ResultData  => []
+		_ResultData  => [],
+		_CompareOp => 'pndiff',
 	};
 	bless $self, $class;
 	return $self;
