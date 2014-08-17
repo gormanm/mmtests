@@ -99,17 +99,19 @@ sub extractSummary() {
 			}
 			push @{$self->{_SummaryData}}, \@row;
 
-			my @row;
-			push @row, "$operation-$batch+-%age";
+			if ($ENV{"MMTESTS_PAGEALLOC_PERCENTAGE"} ne "") {
+				my @row;
+				push @row, "$operation-$batch+-%age";
 
-			foreach my $order (@orders) {
-				if ($means[$order] == 0) {
-					push @row, 0;
-				} else {
-					push @row, ($stddevs[$order]*100)/$means[$order];
+				foreach my $order (@orders) {
+					if ($means[$order] == 0) {
+						push @row, 0;
+					} else {
+						push @row, ($stddevs[$order]*100)/$means[$order];
+					}
 				}
+				push @{$self->{_SummaryData}}, \@row;
 			}
-			push @{$self->{_SummaryData}}, \@row;
 		}
 		$operationIndex++;
 	}

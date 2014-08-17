@@ -1,5 +1,5 @@
-### pigz compresses a large file that is approximately twice the size of
-### memory with multiple threads.
+### This benchmark uses pigz to compress a large file that is approximately
+### twice the size of memory with multiple threads.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

@@ -73,7 +73,7 @@ else
 	export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/noprofile
 
 	setup_dirs
-	save_rc run_bench | tee /tmp/mmtests-$$.log
+	save_rc run_bench 2>&1 | tee /tmp/mmtests-$$.log
 	mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
 	recover_rc
 	check_status $NAME "returned failure, unable to continue"
@@ -99,7 +99,7 @@ else
 	export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/fine-profile-$PROFILE_TITLE
 
 	setup_dirs
-	save_rc run_bench | tee /tmp/mmtests-$$.log
+	save_rc run_bench 2>&1 | tee /tmp/mmtests-$$.log
 	mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
 	./monitor-reset
 	recover_rc
@@ -128,7 +128,7 @@ else
 
 	setup_dirs
 	./monitor-pre-hook || die Failed to start profiler
-	save_rc run_bench | tee /tmp/mmtests-$$.log
+	save_rc run_bench 2>&1 | tee /tmp/mmtests-$$.log
 	mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
 	./monitor-post-hook $LOGDIR_RESULTS $NAME || die Failed to stop profiler
 	./monitor-reset

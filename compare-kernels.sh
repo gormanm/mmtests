@@ -237,6 +237,18 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Peaks
 		compare-mmtests.pl -d . -b specjbbpeak -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	sysbench)
+		echo $SUBREPORT Initialisation
+		eval $COMPARE_CMD --sub-heading LoadTime
+		echo
+		echo $SUBREPORT Transactions
+		eval $COMPARE_CMD
+		echo
+		echo $SUBREPORT Time
+		eval $COMPARE_CMD --sub-heading TransTime
+		echo
+		;;
+
 	tiobench)
 		echo $SUBREPORT MB/sec
 		eval $COMPARE_CMD --sub-heading MB/sec
@@ -386,6 +398,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.ps
 				plain graph-$SUBREPORT-$PRINTHEADING
 			done
+			echo "</tr>"
+			;;
+		hackbench-pipes|hackbench-sockets)
+			echo "<tr>"
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png --y-label latency
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps  --y-label latency
+			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
 		highalloc)
