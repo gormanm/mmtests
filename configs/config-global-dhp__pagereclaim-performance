@@ -21,7 +21,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="postmark ffsb gitcheckout fsmark-single stutter"
+export MMTESTS="postmark ffsb gitcheckout fsmark-single vmscale stutter"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
