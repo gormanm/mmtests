@@ -69,7 +69,7 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 unset CFLAGS
-make -j$NUMCPUS ffsb-${VERSION}
+make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -84,4 +84,4 @@ fi
 
 echo ffsb installed successfully
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb 18
+#### Details ffsb 19

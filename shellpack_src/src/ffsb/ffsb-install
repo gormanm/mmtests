@@ -26,6 +26,6 @@ echo '--- ffsb-6.0-rc2-orig/parser.c	2008-10-27 20:17:05.000000000 +0000
  		}
  	free(line);' | patch -p1 || exit $SHELLPACK_ERROR
 ###SHELLPACK build_configure ffsb-${VERSION}
-###SHELLPACK make_make_install ffsb-${VERSION}
+###SHELLPACK make_make_install
 
 echo ffsb installed successfully

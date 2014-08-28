@@ -2,7 +2,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="multibuild largecopy largedd"
+export MMTESTS="multibuild largecopy"
 export SKIP_WARMUP=yes
 
 # Profiling parameters

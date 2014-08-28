@@ -217,4 +217,4 @@ monitor_post_hook $LOGDIR_RESULTS ffsb
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb-bench 18
+#### Details ffsb-bench 19

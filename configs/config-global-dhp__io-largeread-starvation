@@ -4,8 +4,6 @@
 ### reads. Poor results in these areas tend to manifest as poor
 ### interactivity experiences
 ###
-### largedd is just dding a large file.
-###
 ### gitcheckout checks out different branches of the kernel tree multple
 ### times as it has been observed that large checkouts has stalled the
 ### system at various times in the past
@@ -18,7 +16,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="largedd gitcheckout stutter"
+export MMTESTS="gitcheckout stutter"
 export SKIP_WARMUP=yes
 
 # Profiling parameters

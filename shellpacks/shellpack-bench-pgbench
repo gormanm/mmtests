@@ -133,7 +133,7 @@ EOF
 		MAX_TRANSACTIONS=$FLOOR
 	fi
 	if [ "$READONLY" != "yes" ]; then
-		MAX_TRANSACTIONS=$((MAX_TRANSACTIONS/8))
+		MAX_TRANSACTIONS=$((MAX_TRANSACTIONS/4))
 	fi
 	mv /tmp/points $LOGDIR_RESULTS/pgbench-auto-points
 	mv /tmp/coordinates $LOGDIR_RESULTS/pgbench-auto-coordinates
@@ -244,4 +244,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 70
+#### Details pgbench-bench 71
