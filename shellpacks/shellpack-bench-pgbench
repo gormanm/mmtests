@@ -101,8 +101,8 @@ if [ "$MAX_TRANSACTIONS" = "auto" ]; then
 		CEILING=2000000
 		FLOOR=5000
 	else
-		CEILING=50000
-		FLOOR=5000
+		CEILING=750000
+		FLOOR=75000
 	fi
 	WORKLOAD_SIZE=$((SCALE_FACTOR*15*1048576+30*1048576))
 	WEIGHT_MAINMEMORY=2
@@ -137,6 +137,12 @@ EOF
 	fi
 	mv /tmp/points $LOGDIR_RESULTS/pgbench-auto-points
 	mv /tmp/coordinates $LOGDIR_RESULTS/pgbench-auto-coordinates
+fi
+
+if [ "$PGBENCH_DEBUG_AUTO_TRANSACTIONS" = "yes" ]; then
+	cat $LOGDIR_RESULTS/pgbench-auto-points
+	echo MAX_TRANSACTIONS = $MAX_TRANSACTIONS
+	exit $SHELLPACK_SUCCESS
 fi
 
 # Figure out how to use the time command
@@ -244,4 +250,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 71
+#### Details pgbench-bench 74
