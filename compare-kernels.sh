@@ -436,6 +436,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		specjvm)
 			;;
+		siege)
+			echo "<tr>"
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			plain graph-$SUBREPORT
+			echo "</tr>"
+			;;
 		stress-highalloc)
 			echo "<tr>"
 			for HEADING in latency-1 latency-2 latency-3; do
