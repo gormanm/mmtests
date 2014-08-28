@@ -27,7 +27,7 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 
 	# Run test
 	monitor_pre_hook $LOGDIR_RESULTS $LMBENCH_TEST
-	LMBENCH_RESULTS=$LOGDIR_RESULTS/lmbench-$LMBENCH_TEST.log
+	LMBENCH_RESULTS=$LOGDIR_RESULTS/lmbench-${LMBENCH_TEST}.log
 
 	case $LMBENCH_TEST in
 	lat_mmap)
@@ -43,10 +43,21 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 		rm $TESTDISK_DIR/lmbench.file
 		;;
 	lat_ctx)
-		###SHELLPACK threads_large_stride_begin 1 $LMBENCH_LATCTX_MAXCLIENTS
-			./bin/$LMBENCH_TEST \
-				-s $LMBENCH_LATCTX_SIZE \
-				$NR_THREADS 2>&1 | tee -a $LMBENCH_RESULTS
+		LMBENCH_LATCTX_SIZE=`echo $LMBENCH_LATCTX_SIZE | tr ',' ' '`
+		###SHELLPACK threads_huge_stride_begin 2 $LMBENCH_LATCTX_MAXCLIENTS
+			for SIZE in $LMBENCH_LATCTX_SIZE; do
+				echo mmtests-size:$SIZE >> ${LMBENCH_RESULTS}
+
+				for ITERATION in `seq 1 $LMBENCH_LATCTX_ITERATIONS`; do
+					echo Running with $NR_THREADS threads size $SIZE iter $ITERATION/$LMBENCH_LATCTX_ITERATIONS
+					./bin/$LMBENCH_TEST \
+						-s $SIZE \
+						$NR_THREADS 2>&1 | tee -a ${LMBENCH_RESULTS}-${SIZE}-${NR_THREADS}-${ITERATION}.raw
+				done
+				MIN_ITER=`grep ^[0-9] ${LMBENCH_RESULTS}-${SIZE}-${NR_THREADS}-*.raw | sort -n -k 2 | head -1 | awk -F : '{print $1}'`
+				echo min: $MIN_ITER
+				cat $MIN_ITER | tee -a ${LMBENCH_RESULTS}
+			done
 		###SHELLPACK threads_stride_end
 		;;
 	*)

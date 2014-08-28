@@ -1,17 +1,7 @@
-### hackbench a general scheduler benchmark and stress test that is
-### sensitive to regressions in the scheduler fast-path. It creates groups
-### of threads or processes (depending on configuration) that communicate
-### via pipes or sockets (depending on configuration).
-###
 ### pipetest is a scheduler ping-pong test that measures context switch latency.
 ###
-### lmbench is just running the lat_ctx test and is another measure of context
-### switch latency.
-###
-### pgbench is a Postgres-based benchmarking tool. In this configuration it
-### is using a small in-memory read-only database. As well as being a general
-### scheduler benchmark it is particularly sensitive to how affine tasks are
-### scheduled on sibling cores.
+### netperf-*-rr is running the round-robin tests for netperf and acts as a
+### scheduler ping-pong test between a server and client.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

@@ -22,7 +22,7 @@ sub initialise() {
 	$self->SUPER::initialise($format, $extractModulesRef);
 
 	my @extractModules = @{$self->{_ExtractModules}};
-	$extractModules[0]->{_SummaryHeaders} = [ "Time", "Procs" ];
+	$extractModules[0]->{_SummaryHeaders} = [ "Time", "Proc-Size" ];
 }
 
 1;

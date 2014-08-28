@@ -1,7 +1,7 @@
-# ExtractCputime.pm
+# ExtractAutonumabench.pm
 package MMTests::ExtractAutonumabench;
-use MMTests::Extract;
-our @ISA = qw(MMTests::Extract); 
+use MMTests::ExtractSummarisePlain;
+our @ISA = qw(MMTests::ExtractSummarisePlain); 
 
 sub new() {
 	my $class = shift;
@@ -23,12 +23,6 @@ sub initialise() {
 	$self->{_TestName} = $testName;
 	$self->{_FieldFormat} = [ "%-${fieldLength}s" ];
 	$self->{_FieldHeaders} = [ "Binding", "User", "System", "Elapsed", "CPU" ];
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-	$self->{_SummaryData} = $self->{_ResultData};
-	return 1;
 }
 
 sub extractReport($$$) {
