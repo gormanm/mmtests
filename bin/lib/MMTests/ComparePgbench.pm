@@ -23,7 +23,7 @@ sub extractComparison() {
 	} elsif ($subHeading eq "TransTime") {
 		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
 	} else {
-		$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pdiff", "pdiff", "pdiff" ];
+		$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pdiff", "pndiff", "pdiff", "pdiff" ];
 	}
 
 	return $self->SUPER::extractComparison($subHeading, $showCompare);
