@@ -108,8 +108,12 @@ for NR_THREADS in $THREADS; do
 						$NR_THREADS 2>&1 | tee -a ${LMBENCH_RESULTS}-${SIZE}-${NR_THREADS}-${ITERATION}.raw
 				done
 				MIN_ITER=`grep ^[0-9] ${LMBENCH_RESULTS}-${SIZE}-${NR_THREADS}-*.raw | sort -n -k 2 | head -1 | awk -F : '{print $1}'`
-				echo min: $MIN_ITER
-				cat $MIN_ITER | tee -a ${LMBENCH_RESULTS}
+				if [ "$MIN_ITER" != "" ]; then
+					echo min: $MIN_ITER
+					cat $MIN_ITER | tee -a ${LMBENCH_RESULTS}
+				else
+					echo mmtests-no-samples: $NR_THREADS $SIZE | tee -a ${LMBENCH_RESULTS}
+				fi
 			done
 done
 		;;
@@ -124,4 +128,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description lmbench
-#### Details lmbench-bench 43
+#### Details lmbench-bench 44
