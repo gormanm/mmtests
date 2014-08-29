@@ -287,6 +287,9 @@ function set_mmtests_numactl() {
 		MMTESTS_NUMACTL="numactl --cpunodebind=$NODE_ID"
 	fi
 
+	if [ "$MMTESTS_NUMA_POLICY" = "cpubind_specific_node" ]; then
+		MMTESTS_NUMACTL="numactl --cpunodebind=$MMTESTS_NODE_ID"
+	fi
 
 	if [ "$MMTESTS_NUMACTL" != "" ]; then
 		echo MMTESTS_NUMACTL: $MMTESTS_NUMACTL

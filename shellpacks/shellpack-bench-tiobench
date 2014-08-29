@@ -51,6 +51,8 @@ install-depends hdparm
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
+set_mmtests_numactl 0 0
+
 echo Recording max expected speed for reads
 PARTITION=`df -T $TESTDISK_DIR | tail -1 | awk '{print $1}'`
 SPEED=`hdparm -t $PARTITION | grep Timing | awk '{print $(NF-1)}'`
@@ -69,7 +71,7 @@ fi
 while [ $CLIENT -le $TIOBENCH_MAX_CLIENTS ]; do
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
 	for ITERATION in `seq 1 $TIOBENCH_ITERATIONS`; do
-		./tiobench.pl $TIOBENCH_COMMAND_RANDOM \
+		eval $MMTESTS_NUMACTL ./tiobench.pl $TIOBENCH_COMMAND_RANDOM \
 			--dir     $TESTDISK_DIR \
 			--numruns 1 \
 			--size    $((TIOBENCH_SIZE/1048576)) \
@@ -84,4 +86,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description tiobench
-#### Details tiobench-bench 15
+#### Details tiobench-bench 16
