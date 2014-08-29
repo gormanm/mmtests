@@ -101,8 +101,8 @@ if [ "$MAX_TRANSACTIONS" = "auto" ]; then
 		CEILING=2000000
 		FLOOR=5000
 	else
-		CEILING=750000
-		FLOOR=75000
+		CEILING=950000
+		FLOOR=95000
 	fi
 	WORKLOAD_SIZE=$((SCALE_FACTOR*15*1048576+30*1048576))
 	WEIGHT_MAINMEMORY=2
@@ -250,4 +250,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 75
+#### Details pgbench-bench 76
