@@ -38,8 +38,10 @@ fi
 
 if [ -n "$IOZONE_NODE" ]; then
 	MMTESTS_NUMA_POLICY=fullbind_single_instance_node
-	set_mmtests_numactl $IOZONE_NODE $NUMNODES
+else
+	MMTESTS_NUMA_POLICY=interleave
 fi
+set_mmtests_numactl $IOZONE_NODE $NUMNODES
 
 monitor_pre_hook $LOGDIR_RESULTS
 for (( ITERATION = 1; ITERATION <= IOZONE_ITERATIONS; ITERATION++ )); do

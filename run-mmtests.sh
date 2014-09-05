@@ -239,6 +239,8 @@ if [ "$TESTDISK_RD_SIZE" != "" ]; then
 	if [ "$TESTDISK_RD_PREALLOC" == "yes" ]; then
 		if [ "$TESTDISK_RD_PREALLOC_NODE" != "" ]; then
 			tmp_prealloc_cmd="numactl -N $TESTDISK_RD_PREALLOC_NODE"
+		else
+			tmp_prealloc_cmd="numactl -i all"
 		fi
 		$tmp_prealloc_cmd dd if=/dev/zero of=$TESTDISK_PARTITION bs=1M &>/dev/null
 	fi
