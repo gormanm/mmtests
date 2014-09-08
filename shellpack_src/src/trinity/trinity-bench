@@ -33,6 +33,9 @@ fi
 
 # Run trinity in the background
 echo Launching trinity
+cd $SHELLPACK_TEMP || die "Failed to cd to $SHELLPACK_TEMP"
+mkdir tmp
+chmod 777 tmp
 TAINT=`cat /proc/sys/kernel/tainted`
 STARTTIME=`date +%s`
 ENDTIME=$((STARTTIME+$DURATION))
