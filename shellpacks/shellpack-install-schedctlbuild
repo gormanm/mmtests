@@ -1,0 +1,45 @@
+#!/bin/bash
+P=schedctl-install
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION="https://groups.google.com/group/fa.linux.kernel/attach/9112ab460ea4182e/schedctl.c?part=0.1&authuser=0"
+MIRROR_LOCATION="$WEBROOT/schedctl/schedctl.c"
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf schedctl-${VERSION}-installed
+mkdir -p schedctl-${VERSION}-installed
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/schedctl-${VERSION}-installed/schedctl.c
+cd $SHELLPACK_SOURCES/schedctl-${VERSION}-installed
+gcc -O2 schedctl.c -o schedctl
+if [ $? -ne 0 ]; then
+	die "$P: Failed to build schedctl"
+fi
+cp schedctl $SHELLPACK_TOPLEVEL/bin
+
+exit $SHELLPACK_SUCCESS
+#### Description Tool for setting scheduler policies
+#### Details schedctlbuild 2

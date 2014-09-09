@@ -1,0 +1,9 @@
+###SHELLPACK preamble schedctl-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required schedctlbuild
+
+exit $RETVAL
