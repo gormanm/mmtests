@@ -162,6 +162,37 @@ smoothover() {
 	echo -n "  <td><a href=\"$IMG_SMOOTH.ps\"><img src=\"$IMG_SRC.png\" onmouseover=\"this.src='$IMG_SMOOTH.png'\" onmouseout=\"this.src='$IMG_SRC.png'\"></a></td>"
 }
 
+generate_latency_table() {
+	LATTYPE="$1"
+	if [ `ls $LATTYPE-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		if [ `cat $LATTYPE-$KERNEL_BASE-* | wc -l` -gt 50000 ]; then
+			GRANULARITY="--sub-heading batch=100"
+		fi
+		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			echo "<table class=\"resultsGraphs\">"
+		fi
+		eval $COMPARE_CMD $GRANULARITY                --print-monitor $LATTYPE
+		echo
+		eval $COMPARE_CMD --sub-heading breakdown=100 --print-monitor $LATTYPE
+		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			echo "</table>"
+		fi
+	fi
+}
+
+generate_latency_graph()
+{
+	LATTYPE="$1"
+	LATSTRING="$2"
+	if [ `ls $LATTYPE-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		eval $GRAPH_PNG $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE.png
+		eval $GRAPH_PNG $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE-smooth.png --smooth
+		eval $GRAPH_PSC $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE.ps
+		eval $GRAPH_PSC $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE-smooth.ps --smooth
+		smoothover graph-$SUBREPORT-$LATTYPE
+	fi
+}
+
 cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
 for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
 	COMPARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
@@ -311,34 +342,8 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	rm -f /tmp/iostat-$$
 
 	GRANULARITY=
-	if [ `ls read-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
-		if [ `cat read-latency-$KERNEL_BASE-* | wc -l` -gt 50000 ]; then
-			GRANULARITY="--sub-heading batch=100"
-		fi
-		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			echo "<table class=\"resultsGraphs\">"
-		fi
-		eval $COMPARE_CMD $GRANULARITY                --print-monitor read-latency
-		echo
-		eval $COMPARE_CMD --sub-heading breakdown=100 --print-monitor read-latency
-		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			echo "</table>"
-		fi
-	fi
-	if [ `ls write-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
-		if [ `cat write-latency-$KERNEL_BASE-* | wc -l` -gt 50000 ]; then
-			GRANULARITY="--sub-heading batch=100"
-		fi
-		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			echo "<table class=\"resultsGraphs\">"
-		fi
-		eval $COMPARE_CMD $GRANULARITY                --print-monitor write-latency
-		echo
-		eval $COMPARE_CMD --sub-heading breakdown=100 --print-monitor write-latency
-		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			echo "</table>"
-		fi
-	fi
+	generate_latency_table "read-latency"
+	generate_latency_table "write-latency"
 
 	# Graphs
 	if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
@@ -499,27 +504,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 
 		# Monitor graphs for this test
 		echo "<table class=\"monitorGraphs\">"
-		if [ `ls read-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
-			eval $GRAPH_PNG $GRANULARITY --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.png
-			eval $GRAPH_PNG $GRANULARITY --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency-smooth.png --smooth
-			eval $GRAPH_PSC $GRANULARITY --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.ps
-			eval $GRAPH_PSC $GRANULARITY --title \"Read Latency\" --print-monitor read-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency-smooth.ps --smooth
-			smoothover graph-$SUBREPORT-read-latency
-		fi
-		if [ `ls write-latency-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
-			eval $GRAPH_PNG $GRANULARITY --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency.png
-			eval $GRAPH_PNG $GRANULARITY --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency-smooth.png --smooth
-			eval $GRAPH_PSC $GRANULARITY --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency.ps
-			eval $GRAPH_PSC $GRANULARITY --title \"Write Latency\" --print-monitor write-latency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency-smooth.ps --smooth
-			smoothover graph-$SUBREPORT-write-latency
-		fi
-		if [ `ls inbox-open-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
-			eval $GRAPH_PNG $GRANULARITY --title \"Mail Read Latency\" --print-monitor inbox-open --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-inbox-open.png
-			eval $GRAPH_PNG $GRANULARITY --title \"Mail Read Latency\" --print-monitor inbox-open --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-inbox-open-smooth.png --smooth
-			eval $GRAPH_PSC $GRANULARITY --title \"Mail Read Latency\" --print-monitor inbox-open --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-inbox-open.ps
-			eval $GRAPH_PSC $GRANULARITY --title \"Mail Read Latency\" --print-monitor inbox-open --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-inbox-open-smooth.ps --smooth
-			smoothover graph-$SUBREPORT-inbox-open
-		fi
+		generate_latency_graph "read-latency" '"Read Latency"'
+		generate_latency_graph "write-latency" '"Write Latency"'
+		generate_latency_graph "inbox-open" '"Mail Read Latency"'
+
 		if [ `ls vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
 			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.png
 			eval $GRAPH_PSC --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.ps
