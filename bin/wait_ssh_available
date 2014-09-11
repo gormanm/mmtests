@@ -1,0 +1,50 @@
+#!/bin/bash
+# Waits until a particular machine is running ssh and is available
+# Author: Mel Gorman <mgorman@suse.de>
+# Copyright: SUSE Labs 2013
+
+EXPECT_SCRIPT=
+function cleanup() {
+	if [ "$EXPECT_SCRIPT" != "" ]; then
+		rm $EXPECT_SCRIPT
+	fi
+}
+trap cleanup EXIT
+
+if [ "$1" = "" ]; then
+	echo Specify a host
+	exit -1
+fi
+MACHINE=$1
+PORT=$2
+
+PORT_PARAM=
+if [ "$PORT" != "" ]; then
+	PORT_PARAM="-p $PORT"
+fi
+	
+
+EXPECT_SCRIPT=`mktemp`
+cat > $EXPECT_SCRIPT <<EOF
+spawn ssh $PORT_PARAM root@$MACHINE echo mmtests
+expect {
+	mmtests			{ exit   1 }
+        Password                { exit   1 }
+        "continue connecting"   { exp_send yes\\r; exp_continue }
+}
+EOF
+
+expect -f $EXPECT_SCRIPT 2>&1 > /dev/null
+RET=$?
+if [ $RET -eq 1 ]; then
+	exit $RET
+fi
+
+echo -n Waiting for ssh to be available
+while [ $RET -ne 1 ]; do
+        expect -f $EXPECT_SCRIPT 2>&1 > /dev/null
+        RET=$?
+        echo -n .
+        sleep 5
+done
+echo
