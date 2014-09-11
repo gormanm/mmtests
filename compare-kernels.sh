@@ -344,6 +344,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	GRANULARITY=
 	generate_latency_table "read-latency"
 	generate_latency_table "write-latency"
+	generate_latency_table "sync-latency"
 
 	# Graphs
 	if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
@@ -507,6 +508,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		generate_latency_graph "read-latency" '"Read Latency"'
 		generate_latency_graph "write-latency" '"Write Latency"'
 		generate_latency_graph "inbox-open" '"Mail Read Latency"'
+		generate_latency_graph "sync-latency" '"Sync Latency"'
 
 		if [ `ls vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
 			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.png
