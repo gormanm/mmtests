@@ -14,7 +14,7 @@ use constant MONITOR_PROCVMSTAT		=> 3;
 use constant MONITOR_NUMA_CONVERGENCE	=> 4;
 use constant MONITOR_NUMA_USAGE		=> 5;
 use constant MONITOR_TOP		=> 6;
-use constant MONITOR_READLATENCY	=> 7;
+use constant MONITOR_LATENCY		=> 7;
 use constant MONITOR_IOSTAT		=> 8;
 use constant MONITOR_FTRACE		=> 9;
 use strict;
@@ -81,7 +81,7 @@ sub printReport() {
 	my ($self) = @_;
 	if ($self->{_DataType} == MONITOR_CPUTIME_SINGLE ||
 	    $self->{_DataType} == MONITOR_PROCVMSTAT ||
-	    $self->{_DataType} == MONITOR_READLATENCY ||
+	    $self->{_DataType} == MONITOR_LATENCY ||
 	    $self->{_DataType} == MONITOR_TOP ||
 	    $self->{_DataType} == MONITOR_FTRACE ||
 	    $self->{_DataType} == MONITOR_IOSTAT ||
