@@ -89,20 +89,16 @@ if [ `ls "$FIRST_ITERATION_PREFIX"tests-timestamp-* 2> /dev/null | wc -l` -eq 0 
 	die This does not look like a mmtests results directory
 fi
 
-# Only include kernels we have results for
-if [ ! -e "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL_BASE ]; then
-	TEMP_KERNEL_BASE=
-	TEMP_KERNEL_COMPARE=
-	for KERNEL in $KERNEL_COMPARE; do
-		if [ -e "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL ]; then
-			if [ "$TEMP_KERNEL_BASE" = "" ]; then
-				TEMP_KERNEL_BASE=$KERNEL
-			fi
-			TEMP_KERNEL_COMPARE="$TEMP_KERNEL_COMPARE $KERNEL"
+if [ -n "$KERNEL_BASE" ]; then
+	for KERNEL in $KERNEL_COMPARE $KERNEL_BASE; do
+		if [ ! -e "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL ]; then
+			die "Cannot find results for kernel '$KERNEL'."
 		fi
-		KERNEL_BASE=$TEMP_KERNEL_BASE
-		KERNEL_COMPARE=$TEMP_KERNEL_COMPARE
 	done
+else
+	if [ -n "$KERNEL_COMPARE" ]; then
+		die "Specifying --compare without --baseline is invalid!"
+	fi
 fi
 
 # Build a list of kernels
