@@ -167,6 +167,7 @@ if [ "$KVM" = "yes" ]; then
 	RETVAL=$?
 	echo Copying KVM logs
 	scp -r -P 30022 "root@localhost:$SHELLPACK_LOG/*" "$SHELLPACK_LOG/"
+	scp -r -P 30022 "root@localhost:$SHELLPACK_TOPLEVEL/kvm-console.log" "$SHELLPACK_LOG/kvm-console.log-$RUNNAME"
 
 	echo Shutting down KVM
 	$RCMD shutdown -h now
