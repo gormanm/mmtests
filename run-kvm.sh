@@ -17,6 +17,15 @@ if [ "$MMTESTS_KVM_DISKIMAGE" = "" ]; then
 	exit -1
 fi
 
+cd $SHELLPACK_TOPLEVEL
+QEMU_PID=`cat qemu.pid 2> /dev/null`
+if [ "$QEMU_PID" != "" ]; then
+	if [ "`ps -h --pid $QEMU_PID`" != "" ]; then
+		echo QEMU pid $QEMU_PID already appears to be running
+		exit -1
+	fi
+fi
+
 # Download image if necessary
 if [ ! -e $MMTESTS_KVM_IMAGEDIR/mmtests-root.img ]; then
 	echo Downloading root image
@@ -37,11 +46,14 @@ if [ ! -e $MMTESTS_KVM_IMAGEDIR/mmtests-swap.img ]; then
 fi
 
 # Mount device for copying files
-losetup -fv $MMTESTS_KVM_IMAGEDIR/mmtests-root.img || exit -1
 LOOP_DEVICE=`losetup -j $MMTESTS_KVM_IMAGEDIR/mmtests-root.img | head -1 | awk '{print $1}' | sed -e 's/://'`
-if [ ! -e $LOOP_DEVICE ]; then
-	echo Loop device $LOOP_DEVICE does not exist as expected
-	exit -1
+if [ "$LOOP_DEVICE" = "" -o ! -e "$LOOP_DEVICE" ]; then
+	losetup -fv $MMTESTS_KVM_IMAGEDIR/mmtests-root.img || exit -1
+	LOOP_DEVICE=`losetup -j $MMTESTS_KVM_IMAGEDIR/mmtests-root.img | head -1 | awk '{print $1}' | sed -e 's/://'`
+	if [ "$LOOP_DEVICE" = "" -o ! -e "$LOOP_DEVICE" ]; then
+		echo Loop device \"$LOOP_DEVICE\" does not exist as expected
+		exit -1
+	fi
 fi
 echo Loop device: $LOOP_DEVICE
 PART_DEVICE=/dev/mapper/`kpartx -av /dev/loop0 | head -1 | awk '{print $3}'`
@@ -62,7 +74,7 @@ MODULES_DIRECTORY=/lib/modules
 if [ "$INSTALL_KERNEL_DESTINATION" != "" ]; then
 	MODULES_DIRECTORY=$INSTALL_KERNEL_DESTINATION
 fi
-if [ -d /lib/modules/$MMTESTS_KVM_KERNEL_VERSION/ ]; then
+if [ -d $MODULES_DIRECTORY/$MMTESTS_KVM_KERNEL_VERSION/ ]; then
 	echo Copying modules across for $MMTESTS_KVM_KERNEL_VERSION
 	if [ ! -d /tmp/mnt-mmtests/lib/modules ]; then
 		echo Modules directory /tmp/mnt-mmtests/lib/modules does not exist as expected
@@ -75,12 +87,18 @@ if [ -d /lib/modules/$MMTESTS_KVM_KERNEL_VERSION/ ]; then
 		if [ "$STALE" != "" ]; then
 			echo Removing /lib/modules/$STALE
 			rm -rf /tmp/mnt-mmtests/lib/modules/$STALE
+			if [ $? -ne 0 ]; then
+				umount /tmp/mnt-mmtests
+				exit -1
+			fi
 		fi
 		rm /tmp/mnt-mmtests/lib/modules/kvm-stale
 	fi
-	echo Copying /lib/modules/$MMTESTS_KVM_KERNEL_VERSION
-	cp -r /lib/modules/$MMTESTS_KVM_KERNEL_VERSION /tmp/mnt-mmtests/lib/modules
+	echo Copying $MODULES_DIRECTORY/$MMTESTS_KVM_KERNEL_VERSION
+	cp -r $MODULES_DIRECTORY/$MMTESTS_KVM_KERNEL_VERSION /tmp/mnt-mmtests/lib/modules
 	echo $MMTESTS_KVM_KERNEL_VERSION > /tmp/mnt-mmtests/lib/modules/kvm-stale
+else
+	echo WARNING: modules directory $MODULES_DIRECTORY/$MMTESTS_KVM_KERNEL_VERSION does not exist
 fi
 
 # Copy mmtests across
@@ -102,6 +120,7 @@ if [ "$SANITY" != "" ]; then
 	echo Something still has $PART_DEVICE open, not safe
 	exit -1
 fi
+dmsetup remove $PART_DEVICE
 losetup -d $LOOP_DEVICE
 
 NUMCPUS=$((NUMCPUS-4))
@@ -133,7 +152,7 @@ $@ &
 QEMU_PID=$!
 echo $QEMU_PID > $SHELLPACK_TOPLEVEL/qemu.pid
 
-sleep 5
+sleep 20
 if [ "$MMTESTS_KVM_SERIAL_VISIBLE" = "yes" ]; then
 	telnet localhost 2000 | tee kvm-console.log &
 else
@@ -142,6 +161,4 @@ fi
 
 echo Waiting on KVM instance $QEMU_PID to reach ssh
 wait_ssh_available localhost 30022
-
-exit 0
-
+exit $?

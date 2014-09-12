@@ -40,11 +40,20 @@ if [ $RET -eq 1 ]; then
 	exit $RET
 fi
 
+COUNT=0
 echo -n Waiting for ssh to be available
 while [ $RET -ne 1 ]; do
         expect -f $EXPECT_SCRIPT 2>&1 > /dev/null
         RET=$?
         echo -n .
         sleep 5
+	COUNT=$((COUNT+1))
+	if [ $COUNT -gt 120 ]; then
+		echo
+		reset
+		echo KVM instance failed to start after 10 minutes
+		exit -1
+	fi
 done
 echo
+exit 0
