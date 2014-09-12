@@ -150,11 +150,11 @@ fi
 if [ "$KVM" = "yes" ]; then
 	echo Launching KVM
 	$SHELLPACK_TOPLEVEL/run-kvm.sh
-	reset
 	if [ $? -ne 0 ]; then
 		echo KVM failed to start properly
 		exit -1
 	fi
+	reset
 	cd $SHELLPACK_TOPLEVEL
 	rm -rf work/log/*-$RUNNAME
 
