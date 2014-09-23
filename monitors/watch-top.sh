@@ -16,7 +16,7 @@ else
 		$filter =~ s/^\s+//;
 
 		my @elements = split(/\s+/, $filter);
-		if ($elements[0] !~ /[0-9]+/ || $elements[8] ne "0.0") {
+		if ($elements[0] !~ /[0-9]+/ || $elements[8] != 0) {
 			print $line;
 		}
 	}'
