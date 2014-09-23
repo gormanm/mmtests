@@ -1,6 +1,10 @@
 #!/bin/bash
 while [ 1 ]; do
 	echo time: `date +%s`
-	mpstat -P ALL -u
-	sleep $MONITOR_UPDATE_FREQUENCY
+	exec mpstat -P ALL -u $MONITOR_UPDATE_FREQUENCY | perl -e 'while (<>) {
+		print $_;
+		if ($_ =~ /^$/) {
+			print "time: " . time . "\n";
+		}
+	}'
 done
