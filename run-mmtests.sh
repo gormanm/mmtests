@@ -222,34 +222,52 @@ if [ "$VM_DIRTY_RATIO" != "" ]; then
 fi
 
 # Create RAID setup
-if [ "$TESTDISK_RAID_PARTITIONS" != "" ]; then
-	if [ -e $TESTDISK_RAID_DEVICE ]; then
-		mdadm --stop $TESTDISK_RAID_DEVICE || exit
+if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
+	if [ -e $TESTDISK_RAID_MD_DEVICE ]; then
+		vgremove mmtests-raid
+		mdadm --stop --scan $TESTDISK_RAID_MD_DEVICE
 	fi
+
+	# Convert to megabytes
+	TESTDISK_RAID_OFFSET=$((TESTDISK_RAID_OFFSET/1048576))
+	TESTDISK_RAID_SIZE=$((TESTDISK_RAID_SIZE/1048576))
 
 	echo "# partition table of /dev/sdb
 unit: sectors
 
-/dev/sdb1 : start=       $TESTDISK_RAID_OFFSET, size=  $TESTDISK_RAID_SIZE, Id=83
-/dev/sdb2 : start=        0, size=        0, Id= 0
-/dev/sdb3 : start=        0, size=        0, Id= 0
-/dev/sdb4 : start=        0, size=        0, Id= 0" > /tmp/partition-table
+/dev/sdb1 : start=	0, size=	0, Id= 0
+/dev/sdb2 : start=	0, size=	0, Id= 0
+/dev/sdb3 : start=	0, size=	0, Id= 0
+/dev/sdb4 : start=	0, size=	0, Id= 0" > /tmp/partition-table
 
 	NR_DEVICES=0
-	for PARTITION in $TESTDISK_RAID_PARTITIONS; do
-		DISK=`echo $PARTITION | sed -e 's/[0-9]//'`
-		sfdisk $DISK < /tmp/partition-table || die Failed to setup partition
+	for DISK in $TESTDISK_RAID_DEVICES; do
+		echo
+		echo Deleting partitions on disk $DISK
+		partprobe $DISK
+		sfdisk $DISK < /tmp/partition-table
+
+		echo
+		echo Probing disk after deletion $DISK
+		partprobe $DISK || die Failed to probe disk after deletion
+
+		echo Creating partitions on $DISK
+		parted -s --align optimal $DISK mkpart primary $TESTDISK_RAID_OFFSET $TESTDISK_RAID_SIZE || die Failed to create aligned partition with parted
+
+		echo Probing disk after creation $DISK
+		partprobe $DISK || die Failed to probe disk after creation
 		NR_DEVICES=$(($NR_DEVICES+1))
 	done
 
+	echo Creating RAID device $TESTDISK_RAID_MD_DEVICE $TESTDISK_RAID_TYPE
 	modprobe $TESTDISK_RAID_TYPE
-	mdadm --create $TESTDISK_RAID_DEVICE -f -R -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS || exit
+	mdadm --create $TESTDISK_RAID_MD_DEVICE -f -R -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_DEVICES || exit
 
 	# Create LVM device of a fixed name. This is in case the blktrace
 	# monitor is in use. For reasons I did not bother tracking down,
 	# blktrace does not capture events from MD devices properly on
 	# at least kernel 3.0
-	yes y | pvcreate -ff $TESTDISK_RAID_DEVICE || exit
+	yes y | pvcreate -ff $TESTDISK_RAID_MD_DEVICE || exit
 	vgcreate mmtests-raid /dev/md0 || exit
 	SIZE=`vgdisplay mmtests-raid | grep Free | grep PE | awk '{print $5}'`
 	if [ "$SIZE" = "" ]; then
@@ -259,7 +277,6 @@ unit: sectors
 
 	# Consider the test partition to be the LVM volume
 	export TESTDISK_PARTITION=/dev/mmtests-raid/lvm0
-
 fi
 
 # Create NBD device

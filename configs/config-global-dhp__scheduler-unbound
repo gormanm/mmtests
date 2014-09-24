@@ -50,8 +50,8 @@ export SWAP_NBD_PORT=10001
 #export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
 
 # Test disk to setup (optional)
-#export TESTDISK_RAID_PARTITIONS="/dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1"
-#export TESTDISK_RAID_DEVICE=/dev/md0
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
 #export TESTDISK_RAID_OFFSET=63
 #export TESTDISK_RAID_SIZE=250019532
 #export TESTDISK_RAID_TYPE=raid0
