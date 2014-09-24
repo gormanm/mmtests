@@ -223,28 +223,40 @@ fi
 
 # Create RAID setup
 if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
-	if [ -e $TESTDISK_RAID_MD_DEVICE ]; then
-		vgremove mmtests-raid
+	DEVICE=`echo $TESTDISK_RAID_DEVICES | awk '{print $1}'`
+	BASE_DEVICE=`basename $DEVICE`
+	MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat | awk '{print $1}'`
+
+	if [ "$MD_DEVICE" != "" ]; then
+		echo Cleaning up old device
+		vgremove -f mmtests-raid
 		mdadm --stop --scan $TESTDISK_RAID_MD_DEVICE
+		mdadm --stop --scan /dev/$MD_DEVICE
+		mdadm --zero-superblock $TESTDISK_RAID_MD_DEVICE
+		mdadm --remove $TESTDISK_RAID_MD_DEVICE
+		mdadm --remove /dev/$MD_DEVICE
 	fi
 
 	# Convert to megabytes
 	TESTDISK_RAID_OFFSET=$((TESTDISK_RAID_OFFSET/1048576))
 	TESTDISK_RAID_SIZE=$((TESTDISK_RAID_SIZE/1048576))
+	TESTDISK_RAID_PARTITIONS=
 
 	echo "# partition table of /dev/sdb
 unit: sectors
 
-/dev/sdb1 : start=	0, size=	0, Id= 0
-/dev/sdb2 : start=	0, size=	0, Id= 0
-/dev/sdb3 : start=	0, size=	0, Id= 0
-/dev/sdb4 : start=	0, size=	0, Id= 0" > /tmp/partition-table
+/dev/sdb1 : start=      0, size=	0, Id= 0
+/dev/sdb2 : start=      0, size=	0, Id= 0
+/dev/sdb3 : start=      0, size=	0, Id= 0
+/dev/sdb4 : start=      0, size=	0, Id= 0" > /tmp/partition-table
 
 	NR_DEVICES=0
 	for DISK in $TESTDISK_RAID_DEVICES; do
 		echo
 		echo Deleting partitions on disk $DISK
 		partprobe $DISK
+		dd if=/dev/zero of=$DISK ibs=1048576 count=1
+		sync
 		sfdisk $DISK < /tmp/partition-table
 
 		echo
@@ -257,11 +269,20 @@ unit: sectors
 		echo Probing disk after creation $DISK
 		partprobe $DISK || die Failed to probe disk after creation
 		NR_DEVICES=$(($NR_DEVICES+1))
+		TESTDISK_RAID_PARTITIONS="$TESTDISK_RAID_PARTITIONS ${DISK}1"
 	done
 
+	echo Dumping current md state
+	cat /proc/mdstat
+
 	echo Creating RAID device $TESTDISK_RAID_MD_DEVICE $TESTDISK_RAID_TYPE
-	modprobe $TESTDISK_RAID_TYPE
-	mdadm --create $TESTDISK_RAID_MD_DEVICE -f -R -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_DEVICES || exit
+	echo mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+	mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS || exit
+	mdadm --start $TESTDISK_RAID_MD_DEVICE
+	mdadm --monitor
+
+	echo Dumping final md state
+	cat /proc/mdstat
 
 	# Create LVM device of a fixed name. This is in case the blktrace
 	# monitor is in use. For reasons I did not bother tracking down,
