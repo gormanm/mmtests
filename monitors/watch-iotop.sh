@@ -1,4 +1,5 @@
 #!/bin/bash
+install-depends iotop
 exec iotop -k -b -d $MONITOR_UPDATE_FREQUENCY 2>&1 | perl -e 'while (<>) {
 	my $line = $_;
 	if ($line =~ /^Total /) {
