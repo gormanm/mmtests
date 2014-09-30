@@ -17,6 +17,7 @@ use constant MONITOR_TOP		=> 6;
 use constant MONITOR_LATENCY		=> 7;
 use constant MONITOR_IOSTAT		=> 8;
 use constant MONITOR_FTRACE		=> 9;
+use constant MONITOR_IOTOP		=> 10;
 use strict;
 
 sub new() {
@@ -83,6 +84,7 @@ sub printReport() {
 	    $self->{_DataType} == MONITOR_PROCVMSTAT ||
 	    $self->{_DataType} == MONITOR_LATENCY ||
 	    $self->{_DataType} == MONITOR_TOP ||
+	    $self->{_DataType} == MONITOR_IOTOP ||
 	    $self->{_DataType} == MONITOR_FTRACE ||
 	    $self->{_DataType} == MONITOR_IOSTAT ||
 	    $self->{_DataType} == MONITOR_VMSTAT) {
