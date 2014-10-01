@@ -268,13 +268,52 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 		TESTDISK_RAID_PARTITIONS="$TESTDISK_RAID_PARTITIONS ${DISK}1"
 	done
 
+	echo Creation start: `date`
 	echo Creating RAID device $TESTDISK_RAID_MD_DEVICE $TESTDISK_RAID_TYPE
-	echo mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
-	mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS || exit
-	mdadm --monitor
+	case $TESTDISK_RAID_TYPE in
+	raid1)
+		# Force use with just two disks
+		NR_DEVICES=0
+		SUBSET=
+		for PART in $TESTDISK_RAID_PARTITIONS; do
+			if [ $NR_DEVICES -eq 2 ]; then
+				continue
+			fi
+			if [ "$SUBSET" = "" ]; then
+				SUBSET=$PART
+			else
+				SUBSET="$SUBSET $PART"
+			fi
+			NR_DEVICES=$((NR_DEVICES+1))
+		done
+		export TESTDISK_RAID_PARTITIONS=$SUBSET
+		echo mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+		EXPECT_SCRIPT=`mktemp`
+		cat > $EXPECT_SCRIPT <<EOF
+spawn mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+expect {
+	"Continue creating array?" { send yes\\r; exp_continue}
+}
+EOF
+		expect -f $EXPECT_SCRIPT || exit -1
+		rm $EXPECT_SCRIPT
+		;;
+	raid5)
+		echo mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+		mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS || exit
+		;;
+	*)
+		echo mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+		mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS || exit
+		;;
+	esac
+
+	echo Waiting on sync to finish
+	mdadm --misc --wait $TESTDISK_RAID_MD_DEVICE
 
 	echo Dumping final md state
-	cat /proc/mdstat
+	cat /proc/mdstat			| tee    md-stat-$RUNNAME
+	mdadm --detail $TESTDISK_RAID_MD_DEVICE | tee -a md-stat-$RUNNAME
 
 	# Create LVM device of a fixed name. This is in case the blktrace
 	# monitor is in use. For reasons I did not bother tracking down,
