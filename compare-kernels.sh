@@ -510,31 +510,31 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		generate_latency_graph "sync-latency" '"Sync Latency"'
 
 		if [ `ls iotop-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
-			mkdir /tmp/iotop-mmtests
+			mkdir /tmp/iotop-mmtests-$$
 			for OP in Read Write; do
 				echo "<tr>"
 				for KERNEL in $KERNEL_LIST_ITER; do
-					eval $EXTRACT_CMD -n $KERNEL --print-monitor iotop --sub-heading $OP > /tmp/iotop-mmtests/$KERNEL-data
+					eval $EXTRACT_CMD -n $KERNEL --print-monitor iotop --sub-heading $OP > /tmp/iotop-mmtests-$$/$KERNEL-data
 					PROCESS_LIST=
 					TITLE_LIST=
-					for PROCESS in `awk '{print $2}' /tmp/iotop-mmtests/$KERNEL-data | sort | uniq | sed -e 's/\[//g' -e 's/\]//g'`; do
-						PROCESS_LIST="$PROCESS_LIST /tmp/iotop-mmtests/$PROCESS"
+					for PROCESS in `awk '{print $2}' /tmp/iotop-mmtests-$$/$KERNEL-data | sort | uniq | sed -e 's/\[//g' -e 's/\]//g'`; do
+						PROCESS_LIST="$PROCESS_LIST /tmp/iotop-mmtests-$$/$PROCESS"
 						if [ "$TITLE_LIST" = "" ]; then
 							TITLE_LIST=$PROCESS
 						else
 							TITLE_LIST="$TITLE_LIST,$PROCESS"
 						fi
-						grep " $PROCESS " /tmp/iotop-mmtests/$KERNEL-data | awk '{print $1" "$3}' > /tmp/iotop-mmtests/$PROCESS
+						grep " $PROCESS " /tmp/iotop-mmtests-$$/$KERNEL-data | awk '{print $1" "$3}' > /tmp/iotop-mmtests-$$/$PROCESS
 					done
-					echo plot --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.png $PROCESS_LIST > /tmp/iotop-mmtests/cmd
+					echo plot --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.png $PROCESS_LIST > /tmp/iotop-mmtests-$$/cmd
 					eval plot --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.png $PROCESS_LIST
 					eval plot --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.ps $PROCESS_LIST
 					plain graph-$SUBREPORT-iotop-$OP-$KERNEL
-					rm -rf /tmp/iotop-mmtests/*
+					rm -rf /tmp/iotop-mmtests-$$/*
 				done
 				echo "</tr>"
 			done
-			rmdir /tmp/iotop-mmtests
+			rmdir /tmp/iotop-mmtests-$$
 		fi
 
 		if [ `ls vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
