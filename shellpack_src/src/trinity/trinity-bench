@@ -39,7 +39,7 @@ chmod 777 tmp
 TAINT=`cat /proc/sys/kernel/tainted`
 STARTTIME=`date +%s`
 ENDTIME=$((STARTTIME+$DURATION))
-su -s /bin/bash nobody -c "$SHELLPACK_SOURCES/trinity-$VERSION-installed/trinity -q $SYSCALL_PARAM $GROUP_PARAM" > $LOGDIR_RESULTS/trinity.log 2>&1 &
+su -s /bin/bash nobody -c "$SHELLPACK_SOURCES/trinity-$VERSION-installed/trinity -q $SYSCALL_PARAM $GROUP_PARAM" 2>&1 | tee $LOGDIR_RESULTS/trinity.log &
 TRINITY_PID=$!
 
 echo -n Waiting for trinity to exit, $DURATION seconds or a kernel taint
@@ -58,8 +58,8 @@ while [ $CURRENTTIME -lt $ENDTIME ]; do
 		die Unable to continue due to taint
 	fi
 
-	echo -n .
-	sleep 5
+	echo MARK: Approximately $((($ENDTIME - $CURRENTTIME)/60)) minutes to go
+	sleep 60
 	CURRENTTIME=`date +%s`
 done
 echo
