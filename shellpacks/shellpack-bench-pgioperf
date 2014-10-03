@@ -70,7 +70,7 @@ TEMPFILE=`mktemp`
 LINECOUNT=`wc -l $0 | awk '{print $1}'`
 CSTART=`grep -n "BEGIN C FILE" $0 | tail -1 | awk -F : '{print $1}'`
 tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > $TEMPFILE.c
-gcc -std=c99 -Wall					\
+gcc -lrt -std=c99 -Wall					\
 	-DDATA_SIZE=$DATA_SIZE				\
 	-DWAL_SIZE=$WAL_SIZE				\
 	-DNUM_RANDOM_READERS=$NUM_RANDOM_READERS	\
@@ -85,7 +85,7 @@ TIME_CURRENT=$TIME_START
 TIME_END=$((TIME_START+$DURATION))
 echo Executing pgioperf
 cd $SHELLPACK_TEMP
-$TEMPFILE 2>&1 > $LOGDIR_RESULTS/pgioperf.log &
+$TEMPFILE 2>&1 | tee $LOGDIR_RESULTS/pgioperf.log &
 PGIOPERF_PID=$!
 while [ $TIME_CURRENT -lt $TIME_END ]; do
 	sleep 1
@@ -458,4 +458,4 @@ main(int argc, char **argv)
 	return 0;
 }
 #### Description Postgres IO performance microbenchmark
-#### Details pgioperf-bench 18
+#### Details pgioperf-bench 19
