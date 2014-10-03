@@ -22,10 +22,10 @@ DURATION=180
 
 # Build the mapping program
 echo Building pgioperf program
-TEMPFILE=`mktemp`
+cd $SHELLPACK_TEMP
 LINECOUNT=`wc -l $0 | awk '{print $1}'`
 CSTART=`grep -n "BEGIN C FILE" $0 | tail -1 | awk -F : '{print $1}'`
-tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > $TEMPFILE.c
+tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > pgioperf.c
 gcc -lrt -std=c99 -Wall					\
 	-DDATA_SIZE=$DATA_SIZE				\
 	-DWAL_SIZE=$WAL_SIZE				\
@@ -33,26 +33,30 @@ gcc -lrt -std=c99 -Wall					\
 	-DREAD_REPORT_INTERVAL=$READ_REPORT_INTERVAL	\
 	-DWAL_REPORT_INTERVAL=$WAL_REPORT_INTERVAL	\
 	-DCOMMIT_REPORT_INTERVAL=$COMMIT_REPORT_INTERVAL\
-		$TEMPFILE.c -o $TEMPFILE || exit $SHELLPACK_ERROR
+		pgioperf.c -o pgioperf || exit $SHELLPACK_ERROR
 
 monitor_pre_hook $LOGDIR_RESULTS
 TIME_START=`date +%s`
 TIME_CURRENT=$TIME_START
 TIME_END=$((TIME_START+$DURATION))
 echo Executing pgioperf
-cd $SHELLPACK_TEMP
-$TEMPFILE 2>&1 | tee $LOGDIR_RESULTS/pgioperf.log &
+cp pgioperf /tmp/
+./pgioperf > $LOGDIR_RESULTS/pgioperf.log 2>&1 &
 PGIOPERF_PID=$!
+COUNT=0
 while [ $TIME_CURRENT -lt $TIME_END ]; do
 	sleep 1
 	TIME_CURRENT=`date +%s`
+	if [ $((COUNT%60)) -eq 0 ]; then
+		echo $(((TIME_END-TIME_CURRENT))) seconds remaining
+	fi
+	COUNT=$((COUNT+1))
 done
 shutdown_pid pgioperf $PGIOPERF_PID
 rm $SHELLPACK_TEMP/wal
 rm $SHELLPACK_TEMP/data
 
 monitor_post_hook $LOGDIR_RESULTS
-rm $TEMPFILE $TEMPFILE.c
 
 exit $SHELLPACK_SUCCESS
 ==== BEGIN C FILE ====
