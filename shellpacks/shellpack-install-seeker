@@ -119,7 +119,7 @@ exit $SHELLPACK_SUCCESS
 -	int fd, retval;
 +	int retval;
  	unsigned long numblocks;
-+	blksize_t blocksize;
++	unsigned long blocksize;
  	off64_t offset;
 +	int open_flags = O_RDONLY;
 +	int rw = 0;
@@ -213,4 +213,4 @@ exit $SHELLPACK_SUCCESS
  	}
  	/* notreached */
 #### Description Block device seeker microbenchmark
-#### Details seeker 3
+#### Details seeker 4
