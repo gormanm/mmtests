@@ -97,7 +97,7 @@ exit $SHELLPACK_SUCCESS
 -	int fd, retval;
 +	int retval;
  	unsigned long numblocks;
-+	unsigned long blocksize;
++	int blocksize;
  	off64_t offset;
 +	int open_flags = O_RDONLY;
 +	int rw = 0;
@@ -150,11 +150,11 @@ exit $SHELLPACK_SUCCESS
 +
 +	buffer = malloc(blocksize);
 +	if (!buffer) {
-+		printf("Malloc failed of buffer size %lu\n", blocksize);
++		printf("Malloc failed of buffer size %d\n", blocksize);
 +		exit(EXIT_FAILURE);
 +	}
 +
-+	printf("Benchmarking %s %s %s [%luMB] blocks %lu blksize %lu, duration %d seconds\n",
++	printf("Benchmarking %s %s %s [%luMB] blocks %lu blksize %d, duration %d seconds\n",
 +		argv[1], argv[2], argv[3],
 +		numblocks * blocksize / 1048576,
 +		numblocks, blocksize,
@@ -186,7 +186,7 @@ exit $SHELLPACK_SUCCESS
 +			sync_file_range(fd, offset, blocksize, SYNC_FILE_RANGE_WRITE|SYNC_FILE_RANGE_WAIT_AFTER);
 +		}
 +		if (retval!= blocksize)
-+			printf("Truncated IO count %u remain %lu\n", count, blocksize - retval);
++			printf("Truncated IO count %u remain %d\n", count, blocksize - retval);
  		count++;
  	}
  	/* notreached */
