@@ -1,0 +1,121 @@
+#!/bin/bash
+P=seeker-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+
+SEEKER_IO=read
+SEEKER_TYPE=block
+SEEKER_SIZE=$((MEMTOTAL_BYTES*2))
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--io)
+		SEEKER_IO=$2
+		shift 2
+		;;
+	--type)
+		SEEKER_TYPE=$2
+		shift 2
+		;;
+	--size)
+		SEEKER_SIZE=$2
+		shift 2
+		;;
+	--device)
+		SEEKER_DEVICE=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/seeker
+fi
+if [ ! -d $SHELLPACK_SOURCES/seeker-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-seeker -v ${VERSION}  || die seeker install script returned error
+fi
+cd $SHELLPACK_SOURCES/seeker-${VERSION}-installed || die Failed to cd to seeker install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo seeker installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+pushd $SHELLPACK_SOURCES/seeker-${VERSION}-installed > /dev/null || die Benchmark not installed
+RESULTSLOG=$LOGDIR_RESULTS/seeker
+
+# Create input file if requested
+SEEKER_FILE=
+case $SEEKER_TYPE in
+file)
+	if [ "$SEEKER_SIZE" = "" -o $SEEKER_SIZE -eq 0 ]; then
+		die Must specify proper SEEKER_SIZE
+	fi
+	echo Creating file of size $SEEKER_SIZE filled with garbage
+	dd if=/dev/urandom of=$SHELLPACK_TEMP/seeker_file ibs=1048576 count=$((SEEKER_SIZE/1048576)) conv=fdatasync
+	SEEKER_FILE="$SHELLPACK_TEMP/seeker_file"
+	;;
+block)
+	if [ "$SEEKER_DEVICE" = "" ]; then
+		die Must specify device file
+	fi
+	SEEKER_FILE=$SEEKER_DEVICE
+	;;
+*)
+	die Unrecognised device param $SEEKER_TYPE
+	;;
+esac
+
+
+case $SEEKER_IO in
+read)
+	save_rc
+	./seeker $SEEKER_TYPE read "$SEEKER_FILE" 2>&1 | tee -a $LOGDIR_RESULTS/seeker.log
+	recover_rc
+	RETVAL=$?
+	;;
+write)
+	save_rc
+	./seeker $SEEKER_TYPE write "$SEEKER_FILE" 2>&1 | tee -a $LOGDIR_RESULTS/seeker.log
+	recover_rc
+	RETVAL=$?
+	;;
+*)
+	die Unrecognised IO param $SEEKER_IO
+	;;
+esac
+
+if [ $RETVAL -ne 0 ]; then
+	exit $SHELLPACK_FAILURE
+fi
+exit $SHELLPACK_SUCCESS
+#### Description Block device seeker microbenchmark
+#### Details seeker-bench 3

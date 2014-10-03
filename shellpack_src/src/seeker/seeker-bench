@@ -1,0 +1,67 @@
+#!/bin/bash
+###SHELLPACK preamble seeker-bench 0
+
+SEEKER_IO=read
+SEEKER_TYPE=block
+SEEKER_SIZE=$((MEMTOTAL_BYTES*2))
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --io	SEEKER_IO
+###SHELLPACK parseargParam   --type	SEEKER_TYPE
+###SHELLPACK parseargParam   --size	SEEKER_SIZE
+###SHELLPACK parseargParam   --device	SEEKER_DEVICE
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required seeker
+
+###SHELLPACK monitor_hooks
+
+pushd $SHELLPACK_SOURCES/seeker-${VERSION}-installed > /dev/null || die Benchmark not installed
+RESULTSLOG=$LOGDIR_RESULTS/seeker
+
+# Create input file if requested
+SEEKER_FILE=
+case $SEEKER_TYPE in
+file)
+	if [ "$SEEKER_SIZE" = "" -o $SEEKER_SIZE -eq 0 ]; then
+		die Must specify proper SEEKER_SIZE
+	fi
+	echo Creating file of size $SEEKER_SIZE filled with garbage
+	dd if=/dev/urandom of=$SHELLPACK_TEMP/seeker_file ibs=1048576 count=$((SEEKER_SIZE/1048576)) conv=fdatasync
+	SEEKER_FILE="$SHELLPACK_TEMP/seeker_file"
+	;;
+block)
+	if [ "$SEEKER_DEVICE" = "" ]; then
+		die Must specify device file
+	fi
+	SEEKER_FILE=$SEEKER_DEVICE
+	;;
+*)
+	die Unrecognised device param $SEEKER_TYPE
+	;;
+esac
+
+
+case $SEEKER_IO in
+read)
+	save_rc
+	./seeker $SEEKER_TYPE read "$SEEKER_FILE" 2>&1 | tee -a $LOGDIR_RESULTS/seeker.log
+	recover_rc
+	RETVAL=$?
+	;;
+write)
+	save_rc
+	./seeker $SEEKER_TYPE write "$SEEKER_FILE" 2>&1 | tee -a $LOGDIR_RESULTS/seeker.log
+	recover_rc
+	RETVAL=$?
+	;;
+*)
+	die Unrecognised IO param $SEEKER_IO
+	;;
+esac
+
+if [ $RETVAL -ne 0 ]; then
+	exit $SHELLPACK_FAILURE
+fi
+exit $SHELLPACK_SUCCESS
