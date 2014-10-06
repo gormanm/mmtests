@@ -1,5 +1,5 @@
 #!/bin/bash
-CONFIG=config
+DEFAULT_CONFIG=config
 DIRNAME=`dirname $0`
 export SCRIPTDIR=`cd "$DIRNAME" && pwd`
 RUNNING_TEST=
@@ -44,13 +44,15 @@ usage() {
 	echo "-k|--kvm         Run inside KVM instance"
 	echo "-m|--run-monitor Force enable monitor."
 	echo "-n|--no-monitor  Force disable monitor."
-	echo "-c|--config      Use MMTests config, default is ./config"
+	echo "-c|--config      Use MMTests config, default is ./config, more than one can be specified"
 	echo "-h|--help        Prints this help."
 }
 
 # Parse command-line arguments
 ARGS=`getopt -o kmnc:h --long kvm,help,run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
 KVM_ARGS=
+declare -a CONFIGS
+export CONFIGS
 eval set -- "$ARGS"
 while true; do
 	case "$1" in
@@ -69,7 +71,8 @@ while true; do
 			shift
 			;;
 		-c|--config)
-			export CONFIG=$2
+			DEFAULT_CONFIG=
+			CONFIGS+=( "$2" )
 			KVM_ARGS="$KVM_ARGS $1 $2"
 			shift 2
 			;;
@@ -89,6 +92,10 @@ while true; do
 	esac
 done
 
+if ! [ -z $DEFAULT_CONFIG ]; then
+	CONFIGS=( "$DEFAULT_CONFIG" )
+fi
+
 # Take the unparsed option as the parameter
 shift
 RUNNAME=$1
@@ -100,17 +107,24 @@ if [ -z "$RUNNAME" ]; then
 	exit -1
 fi
 
-# Import config
-if [ ! -e $CONFIG ]; then
-	echo "A config must be in the current directory or specified with --config"
-	exit -1
-fi
+# Import configs
+for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
+	if [ ! -e "${CONFIGS[$i]}" ]; then
+		echo "A config must be in the current directory or specified with --config"
+		echo "File ${CONFIGS[$i]} not found"
+		exit -1
+	fi
+done
+
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 if [ -n "$MMTEST_ITERATION" ]; then
 	export SHELLPACK_LOG="$SHELLPACK_LOG/$MMTEST_ITERATION"
 fi
-. $CONFIG
+
+for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
+	source "${CONFIGS[$i]}"
+done
 
 # Create directories that must exist
 cd $SHELLPACK_TOPLEVEL
