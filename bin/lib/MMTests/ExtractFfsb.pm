@@ -1,7 +1,7 @@
 # ExtractFfsb.pm
 package MMTests::ExtractFfsb;
-use MMTests::Extract;
-our @ISA = qw(MMTests::Extract); 
+use MMTests::SummariseSingleops;
+our @ISA = qw(MMTests::SummariseSingleops); 
 use strict;
 
 sub new() {
@@ -13,33 +13,6 @@ sub new() {
 	};
 	bless $self, $class;
 	return $self;
-}
-
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-
-	$self->SUPER::initialise();
-
-	$self->{_FieldLength} = 13;
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders}[0] = "Benchmark";
-	$self->{_FieldHeaders}[1] = "Ops/sec";
-	$self->{_PlotHeaders}[0] = "Benchmark";
-	$self->{_SummaryHeaders} = $self->{_FieldHeaders};
-	$self->{_TestName} = $testName;
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-	$self->{_SummaryData} = $self->{_ResultData};
-	return 1;
-}
-
-sub printSummary() {
-	my ($self) = @_;
-
-	$self->printReport();
 }
 
 sub extractReport($$$) {

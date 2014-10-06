@@ -1,7 +1,7 @@
 # ExtractParallelio.pm
 package MMTests::ExtractParallelio;
-use MMTests::Extract;
-our @ISA = qw(MMTests::Extract); 
+use MMTests::SummariseMultiops;
+our @ISA = qw(MMTests::SummariseMultiops); 
 use strict;
 
 sub new() {
@@ -15,38 +15,11 @@ sub new() {
 	return $self;
 }
 
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-
-	$self->SUPER::initialise();
-
-	$self->{_FieldLength} = 18;
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}d" ];
-	$self->{_FieldHeaders}[0] = "Operation";
-	$self->{_FieldHeaders}[1] = "Ops";
-	$self->{_SummaryHeaders} = $self->{_FieldHeaders};
-	$self->{_TestName} = $testName;
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-	$self->{_SummaryData} = $self->{_ResultData};
-	return 1;
-}
-
-sub printSummary() {
-	my ($self) = @_;
-
-	$self->printReport();
-}
-
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my $lastIOStep = -1;
 	my @ioSteps;
 	my @ioSizes;
-	my @ioMinIteration;
 	my $workload;
 	
 	# Read the IO steps and workload type
@@ -77,7 +50,6 @@ sub extractReport($$$) {
 		foreach my $ioStep (@ioSteps) {
 			my @reportDirs = <$reportDir/noprofile/memcachetest-$ioStep-*>;
 			my $minOps = -1;
-			my $minIteration;
 			my $iteration = 0;
 
 			foreach my $reportDir (@reportDirs) {
@@ -94,16 +66,9 @@ sub extractReport($$$) {
 				close(INPUT);
 
 				$iteration++;
-				if ($minOps == -1 || $ops < $minOps) {
-					$minOps = $ops;
-					$minIteration = $iteration;
-				}
+				push @{$self->{_ResultData}}, [ "memcachetest-$ioSizes[$ioStep]", $iteration, $ops ];
 			}
-
-			die("Unable to find minops") if $minOps == -1;
-			push @{$self->{_ResultData}}, [ "memcachetest-$ioSizes[$ioStep]", $minOps ];
-			push @{$self->{_CompareOpsRow}}, "pdiff";
-			$ioMinIteration[$ioStep] = $minIteration;
+			push @{$self->{_Operations}}, "memcachetest-$ioSizes[$ioStep]";
 		}
 	} else {
 		die("Unable to handle parallel workload memcachetest");
@@ -115,69 +80,68 @@ sub extractReport($$$) {
 	while (<INPUT>) {
 		my @elements = split(/\s/);
 
-		if ($ioMinIteration[$elements[0]] == $elements[2]) {
-			push @{$self->{_ResultData}}, [ "io-duration-$ioSizes[$elements[0]]", $elements[3] ];
-			push @{$self->{_CompareOpsRow}}, "pndiff";
+		push @{$self->{_ResultData}}, [ "io-duration-$ioSizes[$elements[0]]", $elements[2], $elements[3] ];
+		if ($elements[2] == 1) {
+			push @{$self->{_Operations}}, "io-duration-$ioSizes[$elements[0]]";
 		}
 	}
 	close(INPUT);
 
 	# Read the VM Stats
-	my (@swapInOut, @swapIns, @minorFaults, @majorFaults);
 	foreach my $ioStep (@ioSteps) {
 		my $readingBefore;
 
-		my $file = "$reportDir/noprofile/vmstat-$workload-$ioStep-$ioMinIteration[$ioStep].log";
-		open(INPUT, $file) || die("Failed to open $file");
-		while (!eof(INPUT)) {
-			my $line = <INPUT>;
+		my @files = <$reportDir/noprofile/vmstat-$workload-$ioStep-*.log>;
+		my $minOps = -1;
+		my $iteration = 0;
 
-			if ($line =~ /^start:/) {
-				$readingBefore = 1;
-				next;
+		foreach my $file (@files) {
+
+			my ($swapInOut, $swapIns, $minorFaults, $majorFaults);
+			open(INPUT, $file) || die("Failed to open $file");
+			while (!eof(INPUT)) {
+				my $line = <INPUT>;
+
+				if ($line =~ /^start:/) {
+					$readingBefore = 1;
+					next;
+				}
+
+				if ($line =~ /^end:/) {
+					$readingBefore = 0;
+					next;
+				}
+
+				my @elements = split(/\s/, $line);
+				if ($readingBefore) {
+					$elements[1] = -$elements[1];
+				}
+
+				if ($elements[0] eq "pswpin") {
+					$swapInOut += $elements[1];
+					$swapIns += $elements[1];
+				}
+				if ($elements[0] eq "pswpout") {
+					$swapInOut += $elements[1];
+				}
+				if ($elements[0] eq "pgmajfault") {
+					$majorFaults += $elements[1];
+					$minorFaults -= $elements[1];
+				}
+				if ($elements[0] eq "pgfault") {
+					$minorFaults += $elements[1];
+				}
 			}
 
-			if ($line =~ /^end:/) {
-				$readingBefore = 0;
-				next;
-			}
-
-			my @elements = split(/\s/, $line);
-			if ($readingBefore) {
-				$elements[1] = -$elements[1];
-			}
-
-			if ($elements[0] eq "pswpin") {
-				$swapInOut[$ioStep] += $elements[1];
-				$swapIns[$ioStep] += $elements[1];
-			}
-			if ($elements[0] eq "pswpout") {
-				$swapInOut[$ioStep] += $elements[1];
-			}
-			if ($elements[0] eq "pgmajfault") {
-				$majorFaults[$ioStep] += $elements[1];
-				$minorFaults[$ioStep] -= $elements[1];
-			}
-			if ($elements[0] eq "pgfault") {
-				$minorFaults[$ioStep] += $elements[1];
+			$iteration++;
+			push @{$self->{_ResultData}}, [ "swaptotal-$ioSizes[$ioStep]",      $iteration, $swapInOut ];
+			push @{$self->{_ResultData}}, [ "swapin-$ioSizes[$ioStep]",      $iteration, $swapIns ];
+			push @{$self->{_ResultData}}, [ "minorfaults-$ioSizes[$ioStep]", $iteration, $minorFaults ];
+			push @{$self->{_ResultData}}, [ "majorfaults-$ioSizes[$ioStep]", $iteration, $majorFaults ];
+			if ($iteration == 1) {
+				push @{$self->{_Operations}}, "swaptotal-$ioSizes[$ioStep]";
 			}
 		}
-	}
-	foreach my $ioStep (@ioSteps) {
-		push @{$self->{_ResultData}}, [ "swaptotal-$ioSizes[$ioStep]", $swapInOut[$ioStep] ];
-		push @{$self->{_CompareOpsRow}}, "pndiff";
-	}
-	foreach my $ioStep (@ioSteps) {
-		push @{$self->{_ResultData}}, [ "swapin-$ioSizes[$ioStep]", $swapIns[$ioStep] ];
-		push @{$self->{_CompareOpsRow}}, "pndiff";
-	}
-	foreach my $ioStep (@ioSteps) {
-		push @{$self->{_ResultData}}, [ "minorfaults-$ioSizes[$ioStep]", $minorFaults[$ioStep] ];
-		push @{$self->{_CompareOpsRow}}, "pndiff";
-	}
-	foreach my $ioStep (@ioSteps) {
-		push @{$self->{_ResultData}}, [ "majorfaults-$ioSizes[$ioStep]", $majorFaults[$ioStep] ];
-		push @{$self->{_CompareOpsRow}}, "pndiff";
 	}
 }
 

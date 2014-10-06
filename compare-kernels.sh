@@ -221,12 +221,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Thread spread
 		compare-mmtests.pl -d . -b ebizzyrange -n $KERNEL_LIST $FORMAT_CMD
 		;;
-	fsmark-single|fsmark-threaded)
-		echo $SUBREPORT Files/sec
-		eval $COMPARE_CMD --sub-heading Files/sec
-		echo $SUBREPORT Latency
-		eval $COMPARE_CMD --sub-heading Overhead
-		;;
 	loopdd)
 		echo $SUBREPORT Throughput
 		eval $COMPARE_CMD

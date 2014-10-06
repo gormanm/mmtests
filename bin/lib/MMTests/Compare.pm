@@ -133,6 +133,9 @@ sub _generateComparisonTable() {
 				defined $extractModules[0]->{_CompareOpsRow}[$row]) {
 				$compareOp = $extractModules[0]->{_CompareOpsRow}[$row];
 			}
+			if (defined $extractModules[0]->{_CompareLookup}{$baseline[$row][0]}) {
+				$compareOp = $extractModules[0]->{_CompareLookup}{$baseline[$row][0]};
+			}
 			for (my $module = 0; $module <= $#extractModules; $module++) {
 				no strict "refs";
 				my $summaryRef = $extractModules[$module]->{_SummaryData};

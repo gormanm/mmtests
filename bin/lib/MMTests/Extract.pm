@@ -48,18 +48,12 @@ sub initialise() {
 		@fieldHeaders = ("Unit", "WallTime");
 		@summaryHeaders = ("Time", "Unit");
 		@plotHeaders = ("Unit", "WallTime");
-	} elsif ($self->{_DataType} == DATA_OPSSEC ||
-		 $self->{_DataType} == DATA_WALLTIME_VARIABLE) {
+	} elsif ($self->{_DataType} == DATA_WALLTIME_VARIABLE) {
 		$fieldLength = 12;
 		$plotLength = 12;
 		$summaryLength = 12;
-		if ($self->{_DataType} == DATA_OPSSEC) {
-			@fieldHeaders = ("Unit", "Iteration", "Ops/sec");
-			@plotHeaders = ("Unit", "Ops/sec");
-		} else {
-			@fieldHeaders = ("Unit", "Iteration", "Time");
-			@plotHeaders = ("Unit", "Time");
-		}
+		@fieldHeaders = ("Unit", "Iteration", "Time");
+		@plotHeaders = ("Unit", "Time");
 		@summaryHeaders = ("Unit", "Min", "Mean", "TrimMean", "Stddev", "Max");
 	} elsif ($self->{_DataType} == DATA_WALLTIME_OUTLIERS) {
 		$fieldLength = 12;
@@ -106,8 +100,6 @@ sub printDataType() {
 		print "WallTimeVariable";
 	} elsif ($self->{_DataType} == DATA_THROUGHPUT) {
 		print "Throughput";
-	} elsif ($self->{_DataType} == DATA_OPSSEC) {
-		print "Operations/sec";
 	} else {
 		print "Unknown";
 	}
@@ -221,10 +213,6 @@ sub printPlot() {
 
 	if ($self->{_DataType} == DATA_WALLTIME) {
 		$self->printSummary();
-	} elsif ($self->{_DataType} == DATA_OPSSEC) {
-		my $column = 0;
-		$column = $self->{_SummariseColumn} if defined $self->{_SummariseColumn};
-		$self->_printCandlePlot($fieldLength, $column);
 	} elsif ($self->{_DataType} == DATA_THROUGHPUT) {
 		my $column = 0;
 		$column = $self->{_SummariseColumn} if defined $self->{_SummariseColumn};
@@ -307,21 +295,6 @@ sub extractSummary() {
 			}
 			push @{$self->{_SummaryData}}, [$unit, $mean];
 		}
-	} elsif ($self->{_DataType} == DATA_OPSSEC) {
-		my @ops;
-		my @row;
-		my $column = 0;
-		$column = $self->{_SummariseColumn} if defined $self->{_SummariseColumn};
-
-		foreach my $row (@{$self->{_ResultData}}) {
-			push @ops, @{$row}[$column];
-		}
-		push @row, $subHeading;
-		foreach my $funcName ("calc_min", "calc_mean", "calc_true_mean", "calc_stddev", "calc_max") {
-			no strict "refs";
-			push @row, &$funcName(@ops)
-		}
-		push @{$self->{_SummaryData}}, \@row;
 	} else {
 		print "Unknown data type for summarising\n";
 	}
@@ -418,7 +391,6 @@ sub printReport() {
 	if ($self->{_DataType} == DATA_WALLTIME ||
 			$self->{_DataType} == DATA_WALLTIME_VARIABLE ||
 			$self->{_DataType} == DATA_WALLTIME_OUTLIERS ||
-			$self->{_DataType} == DATA_OPSSEC ||
 			$self->{_DataType} == DATA_THROUGHPUT) {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {
