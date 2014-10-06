@@ -41,14 +41,7 @@ sub initialise() {
 	my (@fieldHeaders, @plotHeaders, @summaryHeaders);
 	my ($fieldLength, $plotLength, $summaryLength);
 
-	if ($self->{_DataType} == DATA_CPUTIME) {
-		$fieldLength = 12;
-		$summaryLength = 12;
-		$plotLength = 12;
-		@fieldHeaders = ("User", "System", "Elapsed", "CPU");
-		@summaryHeaders = ("Operation", "User", "System", "Elapsed", "CPU");
-		@plotHeaders = ("LowStddev", "Min", "Max", "HighStddev", "Mean");
-	} elsif ($self->{_DataType} == DATA_WALLTIME) {
+	if ($self->{_DataType} == DATA_WALLTIME) {
 		$fieldLength = 12;
 		$summaryLength = 12;
 		$plotLength = 12;
@@ -107,9 +100,7 @@ sub setFormat() {
 
 sub printDataType() {
 	my ($self) = @_;
-	if ($self->{_DataType} == DATA_CPUTIME) {
-		print "CPUTime,TestName,Time,candlesticks";
-	} elsif ($self->{_DataType} == DATA_WALLTIME) {
+	if ($self->{_DataType} == DATA_WALLTIME) {
 		print "WallTime";
 	} elsif ($self->{_DataType} == DATA_WALLTIME_VARIABLE) {
 		print "WallTimeVariable";
@@ -228,24 +219,7 @@ sub printPlot() {
 	my ($self, $subheading) = @_;
 	my $fieldLength = $self->{_PlotLength};
 
-	if ($self->{_DataType} == DATA_CPUTIME) {
-		my $column;
-
-		# Figure out which column we need
-		if ($subheading eq "User") {
-			$column = 0;
-		} elsif ($subheading eq "System") {
-			$column = 1;
-		} elsif ($subheading eq "Elapsed") {
-			$column = 2;
-		} elsif ($subheading eq "CPU") {
-			$column = 3;
-		} else {
-			print("Unknown sub-heading '$subheading', specify --sub-heading\n");
-			return;
-		}
-		$self->_printCandlePlot($fieldLength - 1, $column);
-	} elsif ($self->{_DataType} == DATA_WALLTIME) {
+	if ($self->{_DataType} == DATA_WALLTIME) {
 		$self->printSummary();
 	} elsif ($self->{_DataType} == DATA_OPSSEC) {
 		my $column = 0;
@@ -268,30 +242,7 @@ sub extractSummary() {
 		@formatList = @{$self->{_FieldFormat}};
 	}
 
-	if ($self->{_DataType} == DATA_CPUTIME) {
-		my (@user, @sys, @elapsed, @cpu);
-
-		foreach my $row (@{$self->{_ResultData}}) {
-			my @rowArray = @{$row};
-			push @user,    $rowArray[0];
-			push @sys,     $rowArray[1];
-			push @elapsed, $rowArray[2];
-			push @cpu,     $rowArray[3];
-		}
-
-		$self->{_FieldFormat} = [ "%-${fieldLength}s" ];
-		foreach my $funcName ("calc_min", "calc_mean", "calc_stddev", "calc_max", "calc_range") {
-			no strict "refs";
-			my $op = $funcName;
-			$op =~ s/calc_//;
-
-			push @{$self->{_SummaryData}}, [$op,
-							&$funcName(@user),
-							&$funcName(@sys),
-							&$funcName(@elapsed),
-							&$funcName(@cpu) ];
-		}
-	} elsif ($self->{_DataType} == DATA_WALLTIME_VARIABLE) {
+	if ($self->{_DataType} == DATA_WALLTIME_VARIABLE) {
 		my (%units, @walltimes);
 		@walltimes = [];
 		my @row;
@@ -464,8 +415,7 @@ sub printExtra() {
 
 sub printReport() {
 	my ($self) = @_;
-	if ($self->{_DataType} == DATA_CPUTIME ||
-			$self->{_DataType} == DATA_WALLTIME ||
+	if ($self->{_DataType} == DATA_WALLTIME ||
 			$self->{_DataType} == DATA_WALLTIME_VARIABLE ||
 			$self->{_DataType} == DATA_WALLTIME_OUTLIERS ||
 			$self->{_DataType} == DATA_OPSSEC ||

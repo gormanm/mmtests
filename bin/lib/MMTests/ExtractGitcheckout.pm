@@ -1,6 +1,6 @@
 # ExtractGitcheckout.pm
 package MMTests::ExtractGitcheckout;
-use MMTests::ExtractCputime;
-our @ISA = qw(MMTests::ExtractCputime); 
+use MMTests::SummariseCputime;
+our @ISA = qw(MMTests::SummariseCputime); 
 
 1;
