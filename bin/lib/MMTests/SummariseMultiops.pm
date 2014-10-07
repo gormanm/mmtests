@@ -23,7 +23,7 @@ sub initialise() {
 		$opName = $self->{_Opname};
 	}
 
-	$self->SUPER::initialise();
+	$self->SUPER::initialise($reportDir, $testName);
 
 	$self->{_FieldLength} = 12;
 	my $fieldLength = $self->{_FieldLength};

@@ -1,8 +1,8 @@
 # ExtractLmbench.pm
 package MMTests::ExtractLmbench;
-use MMTests::ExtractSummarisePlain;
+use MMTests::SummariseMultiops;
 use VMR::Stat;
-our @ISA = qw(MMTests::ExtractSummarisePlain); 
+our @ISA = qw(MMTests::SummariseMultiops); 
 use strict;
 
 sub new() {
@@ -14,22 +14,6 @@ sub new() {
 	};
 	bless $self, $class;
 	return $self;
-}
-
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-	my @clients;
-
-	$self->SUPER::initialise();
-
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}.2f" ];
-	$self->{_FieldHeaders} = [ "Proc-Size", "Latency" ];
-}
-
-sub printDataType() {
-	print "WalltimeVariable,Processes,Context Switch Time\n";
 }
 
 sub extractReport($$$) {
@@ -45,20 +29,27 @@ sub extractReport($$$) {
 		open(INPUT, $file) && last;
 	}
 	die("Failed to open any of @candidates") if (tell(INPUT) == -1) ;
+	my $nr_samples = 0;
+	my @ops;
 	while (<INPUT>) {
 		my $line = $_;
 		if ($line =~ /^mmtests-size:([0-9]+)/) {
 			$size = $1;
+			$nr_samples = 0;
 			next;
 		}
 		if ($line =~ /^[0-9].*/) {
 			my @elements = split(/\s+/, $_);
 			$elements[0] =~ s/\..*/M/;
-			push @{$self->{_ResultData}}, [ "$elements[0]-$size",  $elements[1] ];
+			push @{$self->{_ResultData}}, [ "$elements[0]-$size", ++$nr_samples, $elements[1] ];
+			if ($nr_samples == 1) {
+				push @ops, "$elements[0]-$size";
+			}
 			next;
 		}
 	}
 	close INPUT;
+	$self->{_Operations} = \@ops;
 }
 
 1;

@@ -23,7 +23,7 @@ sub initialise() {
 		$opName = $self->{_Opname};
 	}
 
-	$self->SUPER::initialise();
+	$self->SUPER::initialise($reportDir, $testName);
 
 	$self->{_FieldLength} = 12;
 	my $fieldLength = $self->{_FieldLength};
@@ -31,7 +31,7 @@ sub initialise() {
 	$self->{_FieldHeaders} = [ "Type", "Sample", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
 
 	$self->{_SummaryLength} = 16;
-	$self->{_SummaryHeaders} = [ "Type", "Ops"  ];
+	$self->{_SummaryHeaders} = [ "Type", $self->{_Opname} ? $self->{_Opname} : "Ops"  ];
 	$self->{_SummariseColumn} = 2;
 	$self->{_TestName} = $testName;
 }

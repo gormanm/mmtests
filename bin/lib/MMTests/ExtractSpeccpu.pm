@@ -1,7 +1,7 @@
 # ExtractSpeccpu.pm
 package MMTests::ExtractSpeccpu;
-use MMTests::Extract;
-our @ISA = qw(MMTests::Extract); 
+use MMTests::SummariseSingleops;
+our @ISA = qw(MMTests::SummariseSingleops); 
 use strict;
 
 sub new() {
@@ -17,29 +17,8 @@ sub new() {
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-
-	$self->SUPER::initialise();
-
-	$self->{_FieldLength} = 27;
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders}[0] = "Benchmark";
-	$self->{_FieldHeaders}[1] = "RunTime";
-	$self->{_PlotHeaders}[0] = "Benchmark";
-	$self->{_SummaryHeaders} = $self->{_FieldHeaders};
-	$self->{_TestName} = $testName;
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-	$self->{_SummaryData} = $self->{_ResultData};
-	return 1;
-}
-
-sub printSummary() {
-	my ($self) = @_;
-
-	$self->printReport();
+	$self->{_Opname} = "Time";
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {

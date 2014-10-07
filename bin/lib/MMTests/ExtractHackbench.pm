@@ -1,8 +1,8 @@
 # ExtractHackbench.pm
 package MMTests::ExtractHackbench;
-use MMTests::Extract;
+use MMTests::SummariseMultiops;
 use VMR::Report;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::SummariseMultiops); 
 
 my @_threads;
 
@@ -18,44 +18,32 @@ sub new() {
 	return $self;
 }
 
-sub printDataType() {
-	my ($self) = @_;
-	print "WallTime,Threads,Time"
-}
-
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-
-	my @files = <$reportDir/noprofile/hackbench.*>;
-	foreach my $file (@files) {
-		my @split = split /\./, $file;
-		push @_threads, $split[-1];
-	}
-	@_threads = sort { $a <=> $b} @_threads;
-
-	$self->SUPER::initialise($reportDir, $testName);
-	my $fieldLengthA = $self->{_FieldLength};
-	my $fieldLengthB = $self->{_FieldLength} - 1;
-	$self->{_FieldFormat} = [ "%-${fieldLengthA}d", "%$fieldLengthB.3f" ];
-	$self->{_FieldHeaders}[0] = "Threads";
-	$self->{_PlotHeaders}[0] = "Threads";
-}
-
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my ($user, $system, $elapsed, $cpu);
 
-	foreach my $thread (@_threads) {
+	my @files = <$reportDir/noprofile/hackbench.*>;
+	my @threads;
+	foreach my $file (@files) {
+		my @split = split /\./, $file;
+		push @threads, $split[-1];
+	}
+	@threads = sort { $a <=> $b} @threads;
+
+	foreach my $thread (@threads) {
 		my $file = "$reportDir/noprofile/hackbench.$thread";
+		my $nr_samples = 0;
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			if ($_ !~ /^Time: (.*)/) {
 				next;
 			}
 			my $walltime = $1;
-			push @{$self->{_ResultData}}, [$thread, $walltime];
+			push @{$self->{_ResultData}}, [$thread, ++$nr_samples, $walltime];
 		}
 		close INPUT;
 	}
+
+	$self->{_Operations} = \@threads;
 }
 1;

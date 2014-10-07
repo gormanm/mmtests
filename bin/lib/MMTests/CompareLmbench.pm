@@ -17,12 +17,4 @@ sub new() {
 	return $self;
 }
 
-sub initialise() {
-	my ($self, $format, $extractModulesRef) = @_;
-	$self->SUPER::initialise($format, $extractModulesRef);
-
-	my @extractModules = @{$self->{_ExtractModules}};
-	$extractModules[0]->{_SummaryHeaders} = [ "Time", "Proc-Size" ];
-}
-
 1;
