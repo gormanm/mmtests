@@ -405,6 +405,12 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			done
 			echo "</tr>"
 			;;
+		futexbench-hash)
+			;;
+		futexbench-requeue)
+			;;
+		futexbench-wake)
+			;;
 		hackbench-pipes|hackbench-sockets)
 			echo "<tr>"
 			eval $GRAPH_PNG --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png --y-label latency
