@@ -2,7 +2,8 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="kernbench reaim postmark aim9 vmr-stream vmr-cacheeffects vmr-createdelete iozone fsmark-single hackbench-sockets hackbench-pipes netperf-tcp netperf-udp sysbench simple-writeback ltp micro specjvm nas-ser nas-omp rsyncresidency specomp speccpu stress-highalloc stress-blktrace lmbench"
+export MMTESTS="kernbench reaim postmark aim9 vmr-stream vmr-cacheeffects vmr-createdelete iozone fsmark-single hackbench-sockets hackbench-pipes netperf-tcp netperf-udp 
+sysbench simple-writeback ltp futexbench-common micro specjvm nas-ser nas-omp rsyncresidency specomp speccpu stress-highalloc stress-blktrace lmbench"
 export SKIP_WARMUP=yes
 
 # Profiling parameters

@@ -1,0 +1,69 @@
+#!/bin/bash
+
+P=futexbench-install
+# TODO: bump up this file to incorporate latest
+# futex bench changes as they reach mainline.
+DEFAULT_VERSION="3.16.3"
+. $SHELLPACK_INCLUDE/common.sh
+
+WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/v3.x"
+MIRROR_LOCATION="$WEBROOT/linux/"
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+TARFILE=linux-${VERSION}.tar.xz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf linux-${VERSION}.tar.xv failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR linux-$VERSION-installed
+pushd linux-$VERSION-installed > /dev/null || die Failed to rename tar
+
+# Here goes the building...
+PERF_DIR=tools/perf/
+make -C $PERF_DIR
+if [ $? -ne 0 ]; then
+	error "$P: make -C ${PERF_DIR} failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+exit $SHELLPACK_SUCCESS
+#### Description perf-bench futex
+#### Details futexbench 3.16.3

@@ -283,6 +283,12 @@ xfstests (untested)
 	This is still at prototype level and aimed at running testcase 180
 	initially to reproduce some figures provided by the filesystems people.
 
+futexbench-*
+	Collection of programs to measure a number of core futex operations
+	related to the overall architecture. Specifically: (i) hash, (ii) wake,
+	and (iii) requeue operations.  Built on-top of the perf-bench
+	infrastructure.
+
 Reporting
 =========
 

@@ -1,0 +1,72 @@
+#!/bin/bash
+
+P=futexbench
+DEFAULT_VERSION=3.16.3
+. $SHELLPACK_INCLUDE/common.sh
+WORKLOADS="hash wake requeue"
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--workloads)
+		WORKLOADS=`echo $2 | sed -e 's/,/ /g'`
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/futexbench-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/futexbench-${VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-futexbench -v ${VERSION}  || die futexbench install script returned error
+fi
+cd $SHELLPACK_SOURCES/linux-${VERSION}-installed || die Failed to cd to futexbench install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo futexbench installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+PERF_DIR=tools/perf/
+PERF_CMD=${PERF_DIR}/perf
+NR_THREADS=`grep -c ^processor /proc/cpuinfo`
+
+echo $WORKLOADS > $LOGDIR_RESULTS/workloads
+for WORKLOAD in $WORKLOADS; do
+    echo Running test $WORKLOAD
+    monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+    $PERF_CMD bench futex $WORKLOAD 2>&1 | \
+	tee $LOGDIR_RESULTS/$WORKLOAD-$NR_THREADS.log \
+	|| die Failed ro run perf-bench futex
+    monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description perf-bench futex
+#### Details futexbench 3.16.3

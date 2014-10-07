@@ -1,0 +1,19 @@
+#!/bin/bash
+
+###SHELLPACK preamble futexbench-install 3.16.3
+WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/v3.x"
+MIRROR_LOCATION="$WEBROOT/linux/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+### SHELLPACK sources_fetch linux-${VERSION}.tar.xz linux-${VERSION}-installed
+### SHELLPACK DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+### SHELLPACK mv $DST_DIR linux-$VERSION-installed
+### SHELLPACK PERF_DIR=tools/perf/
+### SHELLPACK make -C $PERF_DIR
+
+exit $SHELLPACK_SUCCESS
+#### Description perf-bench futex
+#### Details futexbench 3.16.3
