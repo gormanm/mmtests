@@ -45,8 +45,8 @@ sub extractSummary() {
 }
 
 sub uniq {
-    my %seen;
-    grep !$seen{$_}++, @_;
+	my %seen;
+	grep !$seen{$_}++, @_;
 }
 
 sub extractReport($$$) {
@@ -60,55 +60,56 @@ sub extractReport($$$) {
 
 	my @threads;
 	foreach my $wl (@workloads) {
-	    chomp($wl);
-	    my @files = <$reportDir/noprofile/$wl-*.log>;
-	    foreach my $file (@files) {
-		my @elements = split (/-/, $file);
-		my $thr = $elements[-1];
-		$thr =~ s/.log//;
-		push @threads, $thr;
-	     }
+		chomp($wl);
+		my @files = <$reportDir/noprofile/$wl-*.log>;
+		foreach my $file (@files) {
+			my @elements = split (/-/, $file);
+			my $thr = $elements[-1];
+			$thr =~ s/.log//;
+			push @threads, $thr;
+		}
 	}
 	@threads = sort {$a <=> $b} @threads;
 	@threads = uniq(@threads);
 
 	foreach my $nthr (@threads) {
-	    foreach my $wl (@workloads) {
-		my $file = "$reportDir/noprofile/$wl-$nthr.log";
+		foreach my $wl (@workloads) {
+			my $file = "$reportDir/noprofile/$wl-$nthr.log";
 
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
-		    my $line = $_;
-		    my @tmp = split(/\s+/, $line);
+			open(INPUT, $file) || die("Failed to open $file\n");
+			while (<INPUT>) {
+				my $line = $_;
+				my @tmp = split(/\s+/, $line);
 
-		    if ($line =~ /Averaged/) {
-			$tp = $tmp[1];
-			last;
-		    }
+				if ($line =~ /Averaged/) {
+					$tp = $tmp[1];
+					last;
+				}
 
-		    if ($line =~ /Wokeup/) {
-			if ($line =~ /%/) {
-			    $tp = $tmp[6];
-			    last;
+				if ($line =~ /Wokeup/) {
+					if ($line =~ /%/) {
+						$tp = $tmp[6];
+						last;
+					}
+				}
+
+				if ($line =~ /Requeued/) {
+					if ($line =~ /%/) {
+						$tp = $tmp[6];
+						last;
+					}
+				}
 			}
-		    }
 
-		    if ($line =~ /Requeued/) {
-			if ($line =~ /%/) {
-			    $tp = $tmp[6];
-			    last;
-			}
-		    }
+			close INPUT;
+			push @{$self->{_ResultData}}, [ "$wl ($nthr threads)", $tp ];
 		}
-		close INPUT;
-		push @{$self->{_ResultData}}, [ "$wl ($nthr threads)", $tp ];
-	    }
 	}
 }
 
 sub printSummary() {
-    my ($self, $subHeading) = @_;
-    my $fieldLength = $self->{_FieldLength};
-    $self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" ];
-    $self->SUPER::printSummary($subHeading);
+	my ($self, $subHeading) = @_;
+	my $fieldLength = $self->{_FieldLength};
+	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" ];
+	$self->SUPER::printSummary($subHeading);
 }
