@@ -1,11 +1,8 @@
 #!/bin/bash
 
 P=futexbench-install
-# TODO: bump up this file to incorporate latest
-# futex bench changes as they reach mainline.
-DEFAULT_VERSION="3.16.3"
+DEFAULT_VERSION=3.16.3
 . $SHELLPACK_INCLUDE/common.sh
-
 WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/v3.x"
 MIRROR_LOCATION="$WEBROOT/linux/"
 
@@ -40,30 +37,29 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+# Unconditionally fetch the tar to find out the real version number
 TARFILE=linux-${VERSION}.tar.xz
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-	error "$P: tar xf linux-${VERSION}.tar.xv failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+        error "$P: tar xf linux-${VERSION}.tar.xz failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-mv $DST_DIR linux-$VERSION-installed
-pushd linux-$VERSION-installed > /dev/null || die Failed to rename tar
-
-# Here goes the building...
-PERF_DIR=tools/perf/
-make -C $PERF_DIR
+mv $DST_DIR futexbench-${VERSION}-installed
+pushd futexbench-${VERSION}-installed > /dev/null || die Failed to rename tar
+pushd $SHELLPACK_SOURCES/futexbench-${VERSION}-installed/tools/perf || die Failed to change to source directory
+make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
-	error "$P: make -C ${PERF_DIR} failed"
+	error "$P: make failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
 
 exit $SHELLPACK_SUCCESS
 #### Description perf-bench futex
-#### Details futexbench 3.16.3
+#### Details futexbench 3

@@ -1,27 +1,32 @@
 #!/bin/bash
 # Run perf-bench futex benchmark
 
-###SHELLPACK preamble futexbench 3.16.3
+###SHELLPACK preamble futexbench-bench 3.16.3
 TESTTIME=15
 ITERATIONS=12
 TESTLIST=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --workloads	WORKLOADS
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required futexbench-${VERSION}
 
-PERF_DIR=tools/perf/
-PERF_CMD=${PERF_DIR}/perf
-NR_THREADS=`grep -c ^processor /proc/cpuinfo`
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
 
-# Plain and simple, run all futex tests. Note that
-# each one (ie: wake, requeue, hash) include their
-# own default number of runs.
-monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-$PERF_CMD bench futex all 2>&1 | tee $LOGDIR_RESULTS/futexbench-$NR_THREADS.log \
-    || die Failed ro run perf-bench futex
-monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+PERF_DIR=$SHELLPACK_SOURCES/futexbench-${VERSION}-installed/tools/perf/
+PERF_CMD=${PERF_DIR}/perf
+
+echo $WORKLOADS > $LOGDIR_RESULTS/workloads
+for WORKLOAD in $WORKLOADS; do
+	echo Running test $WORKLOAD
+	monitor_pre_hook $LOGDIR_RESULTS $NUMCPUS
+	$PERF_CMD bench futex $WORKLOAD 2>&1 | \
+		tee $LOGDIR_RESULTS/$WORKLOAD-${NUMCPUS}.log \
+			|| die Failed ro run perf-bench futex
+	monitor_post_hook $LOGDIR_RESULTS $NUMCPUS
+done
 
 exit $SHELLPACK_SUCCESS

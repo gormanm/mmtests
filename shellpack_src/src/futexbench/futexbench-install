@@ -8,12 +8,8 @@ MIRROR_LOCATION="$WEBROOT/linux/"
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
 
-### SHELLPACK sources_fetch linux-${VERSION}.tar.xz linux-${VERSION}-installed
-### SHELLPACK DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-### SHELLPACK mv $DST_DIR linux-$VERSION-installed
-### SHELLPACK PERF_DIR=tools/perf/
-### SHELLPACK make -C $PERF_DIR
+###SHELLPACK sources_fetch linux-${VERSION}.tar.xz futexbench-${VERSION}-installed
+###SHELLPACK build_start futexbench-${VERSION}-installed/tools/perf
+###SHELLPACK make
 
 exit $SHELLPACK_SUCCESS
-#### Description perf-bench futex
-#### Details futexbench 3.16.3
