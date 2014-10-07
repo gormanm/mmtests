@@ -48,20 +48,6 @@ sub initialise() {
 		@fieldHeaders = ("Unit", "WallTime");
 		@summaryHeaders = ("Time", "Unit");
 		@plotHeaders = ("Unit", "WallTime");
-	} elsif ($self->{_DataType} == DATA_WALLTIME_VARIABLE) {
-		$fieldLength = 12;
-		$plotLength = 12;
-		$summaryLength = 12;
-		@fieldHeaders = ("Unit", "Iteration", "Time");
-		@plotHeaders = ("Unit", "Time");
-		@summaryHeaders = ("Unit", "Min", "Mean", "TrimMean", "Stddev", "Max");
-	} elsif ($self->{_DataType} == DATA_WALLTIME_OUTLIERS) {
-		$fieldLength = 12;
-		$plotLength = 12;
-		$summaryLength = 12;
-		@fieldHeaders = ("Unit", "Time");
-		@plotHeaders = ("Unit", "Time");
-		@summaryHeaders = ("Unit", "1st", "2nd", "3rd", "90%", "93%", "95%", "99%", "Max", "Worst10%Mean", "Worst5%Mean", "Worst1%Mean");
 	} elsif ($self->{_DataType} == DATA_THROUGHPUT) {
 		$fieldLength = 12;
 		$plotLength = 12;
@@ -96,8 +82,6 @@ sub printDataType() {
 	my ($self) = @_;
 	if ($self->{_DataType} == DATA_WALLTIME) {
 		print "WallTime";
-	} elsif ($self->{_DataType} == DATA_WALLTIME_VARIABLE) {
-		print "WallTimeVariable";
 	} elsif ($self->{_DataType} == DATA_THROUGHPUT) {
 		print "Throughput";
 	} else {
@@ -230,54 +214,7 @@ sub extractSummary() {
 		@formatList = @{$self->{_FieldFormat}};
 	}
 
-	if ($self->{_DataType} == DATA_WALLTIME_VARIABLE) {
-		my (%units, @walltimes);
-		@walltimes = [];
-		my @row;
-		foreach my $row (@{$self->{_ResultData}}) {
-			my @rowArray = @{$row};
-			$units{$rowArray[0]} = 1;
-			push @{$walltimes[$rowArray[0]]}, $rowArray[2];
-		}
-
-		push @row, "Time";
-		foreach my $unit (sort {$a <=> $b} (keys %units)) {
-			foreach my $funcName ("calc_min", "calc_mean", "calc_5trimmed_mean", "calc_stddev", "calc_max") {
-				no strict "refs";
-				push @row, &$funcName(@{$walltimes[$unit]});
-			}
-		}
-		push @{$self->{_SummaryData}}, \@row;
-	} elsif ($self->{_DataType} == DATA_WALLTIME_OUTLIERS) {
-		my (%units, @walltimes);
-		@walltimes = [];
-		my @row;
-		foreach my $row (@{$self->{_ResultData}}) {
-			my @rowArray = @{$row};
-			$units{$rowArray[0]} = 1;
-			push @{$walltimes[$rowArray[0]]}, $rowArray[1];
-		}
-
-		push @row, "Time";
-		foreach my $unit (sort {$a <=> $b} (keys %units)) {
-			my $quartilesRef = calc_quartiles(@{$walltimes[$unit]});
-			my @quartiles = @{$quartilesRef};
-
-			push @row, $quartiles[1];
-			push @row, $quartiles[2];
-			push @row, $quartiles[3];
-			push @row, $quartiles[90];
-			push @row, $quartiles[93];
-			push @row, $quartiles[95];
-			push @row, $quartiles[99];
-			push @row, $quartiles[4];
-			push @row, calc_worst10_mean(@{$walltimes[$unit]});
-			push @row, calc_worst5_mean(@{$walltimes[$unit]});
-			push @row, calc_worst1_mean(@{$walltimes[$unit]});
-		}
-		push @{$self->{_SummaryData}}, \@row;
-
-	} elsif ($self->{_DataType} == DATA_WALLTIME) {
+	if ($self->{_DataType} == DATA_WALLTIME) {
 		my (%units, @walltimes);
 		@walltimes = [];
 		foreach my $row (@{$self->{_ResultData}}) {
@@ -389,8 +326,6 @@ sub printExtra() {
 sub printReport() {
 	my ($self) = @_;
 	if ($self->{_DataType} == DATA_WALLTIME ||
-			$self->{_DataType} == DATA_WALLTIME_VARIABLE ||
-			$self->{_DataType} == DATA_WALLTIME_OUTLIERS ||
 			$self->{_DataType} == DATA_THROUGHPUT) {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {
