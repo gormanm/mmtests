@@ -10,7 +10,7 @@ use VMR::Report;
 use strict;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_5trimmed_mean &calc_10trimmed_mean &calc_trimoutlier_mean &calc_5trimmed_median &calc_worst10_mean &calc_worst5_mean &calc_worst1_mean &calc_mean &calc_geomean &calc_median &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_5trimmed_mean &calc_10trimmed_mean &calc_trimoutlier_mean &calc_5trimmed_median &calc_worst10_mean &calc_worst5_mean &calc_worst1_mean &calc_mean &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Values taken from a standard normal table
 my %za = (
@@ -142,6 +142,28 @@ sub calc_geomean {
 		return "NaN";
 	}
 	return $mult**(1/$n);
+}
+
+sub calc_harmmean {
+	my $sum = 0;
+	my $n = 0;
+	my $elements = $#_ + 1;
+	my $i;
+
+	for ($i = 0; $i < $elements; $i++) {
+		if (defined $_[$i]) {
+			if ($_[$i] !~ /^[-0-9]+/) {
+				return "NaN";
+			}
+			$sum += 1/$_[$i];
+			$n++;
+		}
+	}
+
+	if ($n == 0) {
+		return "NaN";
+	}
+	return $n/$sum;
 }
 
 sub calc_median {
@@ -333,6 +355,17 @@ sub calc_stddev {
 	}
 
 	return sqrt($diff / $n);
+}
+
+sub calc_coeffvar {
+	my $stddev = calc_stddev(@_);
+	my $mean = calc_mean(@_);
+
+	if ($mean) {
+		return ($stddev * 100) / $mean;
+	} else {
+		return 0;
+	}
 }
 
 sub calc_quartiles {

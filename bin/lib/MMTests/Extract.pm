@@ -6,12 +6,24 @@
 package MMTests::Extract;
 
 use constant DATA_NONE			=> 0;
-use constant DATA_CPUTIME		=> 1;
-use constant DATA_WALLTIME		=> 2;
-use constant DATA_WALLTIME_VARIABLE	=> 3;
-use constant DATA_WALLTIME_OUTLIERS	=> 4;
-use constant DATA_OPSSEC		=> 5;
-use constant DATA_THROUGHPUT		=> 6;
+use constant DATA_TIME_SECONDS		=> 1;
+use constant DATA_TIME_NSECONDS		=> 2;
+use constant DATA_TIME_USECONDS		=> 3;
+use constant DATA_TIME_MSECONDS		=> 4;
+use constant DATA_ACTIONS               => 5;
+use constant DATA_ACTIONS_PER_SECOND    => 6;
+use constant DATA_ACTIONS_PER_MINUTE    => 7;
+use constant DATA_OPS_PER_SECOND        => 8;
+use constant DATA_RECORDS_PER_SECOND    => 9;
+use constant DATA_MBITS_PER_SECOND	=> 10;
+use constant DATA_MBYTES_PER_SECOND	=> 11;
+use constant DATA_TRANS_PER_SECOND	=> 12;
+use constant DATA_SUCCESS_PERCENT	=> 13;
+use constant DATA_WALLTIME		=> 14;
+use constant DATA_WALLTIME_VARIABLE	=> 15;
+use constant DATA_WALLTIME_OUTLIERS	=> 16;
+use constant DATA_OPSSEC		=> 17;
+use constant DATA_THROUGHPUT		=> 18;
 use VMR::Stat;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
@@ -36,45 +48,63 @@ sub getModuleName() {
 	return $self->{_ModuleName};
 }
 
+sub printDataType() {
+	my ($self) = @_;
+	my $yaxis = "UNKNOWN AXIS";
+	my $units = "Time";
+
+	if ($self->{_DataType} == DATA_TIME_USECONDS) {
+		$yaxis = "Time (usec)";
+	} elsif ($self->{_DataType} == DATA_TIME_NSECONDS) {
+		$yaxis = "Time (nanosec)";
+	} elsif ($self->{_DataType} == DATA_TIME_MSECONDS) {
+		$yaxis = "Time (msec)";
+	} elsif ($self->{_DataType} == DATA_TIME_SECONDS) {
+		$yaxis = "Time (seconds)";
+	} elsif ($self->{_DataType} == DATA_ACTIONS) {
+		$yaxis = "Actions";
+		$units = "VarAction";
+	} elsif ($self->{_DataType} == DATA_ACTIONS_PER_SECOND) {
+		$yaxis = "Actions/sec";
+		$units = "Actions";
+	} elsif ($self->{_DataType} == DATA_ACTIONS_PER_MINUTE) {
+		$yaxis = "Actions/minute";
+		$units = "Actions";
+	} elsif ($self->{_DataType} == DATA_OPS_PER_SECOND) {
+		$yaxis = "Ops/sec";
+		$units = "Operations";
+	} elsif ($self->{_DataType} == DATA_RECORDS_PER_SECOND) {
+		$yaxis = "Records/sec";
+		$units = "RecordTrans";
+	} elsif ($self->{_DataType} == DATA_TRANS_PER_SECOND) {
+		$yaxis = "Transactions/sec";
+		$units = "Transactions";
+	} elsif ($self->{_DataType} == DATA_MBITS_PER_SECOND) {
+		$yaxis = "MBits/sec";
+		$units = "Throughput";
+	} elsif ($self->{_DataType} == DATA_MBYTES_PER_SECOND) {
+		$yaxis = "MBytes/sec";
+		$units = "Throughput";
+	} elsif ($self->{_DataType} == DATA_SUCCESS_PERCENT) {
+		$yaxis = "Percentage";
+		$units = "Success";
+	}
+
+	print "$units,TestName,$yaxis,UNKNOWN";
+}
+
 sub initialise() {
 	my ($self, $reportDir, $testName, $format) = @_;
 	my (@fieldHeaders, @plotHeaders, @summaryHeaders);
 	my ($fieldLength, $plotLength, $summaryLength);
 
-	if ($self->{_DataType} == DATA_CPUTIME) {
-		$fieldLength = 12;
-		$summaryLength = 12;
-		$plotLength = 12;
-		@fieldHeaders = ("User", "System", "Elapsed", "CPU");
-		@summaryHeaders = ("Operation", "User", "System", "Elapsed", "CPU");
-		@plotHeaders = ("LowStddev", "Min", "Max", "HighStddev", "Mean");
-	} elsif ($self->{_DataType} == DATA_WALLTIME) {
+	if ($self->{_DataType} == DATA_WALLTIME) {
 		$fieldLength = 12;
 		$summaryLength = 12;
 		$plotLength = 12;
 		@fieldHeaders = ("Unit", "WallTime");
 		@summaryHeaders = ("Time", "Unit");
 		@plotHeaders = ("Unit", "WallTime");
-	} elsif ($self->{_DataType} == DATA_OPSSEC ||
-		 $self->{_DataType} == DATA_WALLTIME_VARIABLE) {
-		$fieldLength = 12;
-		$plotLength = 12;
-		$summaryLength = 12;
-		if ($self->{_DataType} == DATA_OPSSEC) {
-			@fieldHeaders = ("Unit", "Iteration", "Ops/sec");
-			@plotHeaders = ("Unit", "Ops/sec");
-		} else {
-			@fieldHeaders = ("Unit", "Iteration", "Time");
-			@plotHeaders = ("Unit", "Time");
-		}
-		@summaryHeaders = ("Unit", "Min", "Mean", "TrimMean", "Stddev", "Max");
-	} elsif ($self->{_DataType} == DATA_WALLTIME_OUTLIERS) {
-		$fieldLength = 12;
-		$plotLength = 12;
-		$summaryLength = 12;
-		@fieldHeaders = ("Unit", "Time");
-		@plotHeaders = ("Unit", "Time");
-		@summaryHeaders = ("Unit", "1st", "2nd", "3rd", "90%", "93%", "95%", "99%", "Max", "Worst10%Mean", "Worst5%Mean", "Worst1%Mean");
 	} elsif ($self->{_DataType} == DATA_THROUGHPUT) {
 		$fieldLength = 12;
 		$plotLength = 12;
@@ -107,16 +137,10 @@ sub setFormat() {
 
 sub printDataType() {
 	my ($self) = @_;
-	if ($self->{_DataType} == DATA_CPUTIME) {
-		print "CPUTime,TestName,Time,candlesticks";
-	} elsif ($self->{_DataType} == DATA_WALLTIME) {
+	if ($self->{_DataType} == DATA_WALLTIME) {
 		print "WallTime";
-	} elsif ($self->{_DataType} == DATA_WALLTIME_VARIABLE) {
-		print "WallTimeVariable";
 	} elsif ($self->{_DataType} == DATA_THROUGHPUT) {
 		print "Throughput";
-	} elsif ($self->{_DataType} == DATA_OPSSEC) {
-		print "Operations/sec";
 	} else {
 		print "Unknown";
 	}
@@ -228,29 +252,8 @@ sub printPlot() {
 	my ($self, $subheading) = @_;
 	my $fieldLength = $self->{_PlotLength};
 
-	if ($self->{_DataType} == DATA_CPUTIME) {
-		my $column;
-
-		# Figure out which column we need
-		if ($subheading eq "User") {
-			$column = 0;
-		} elsif ($subheading eq "System") {
-			$column = 1;
-		} elsif ($subheading eq "Elapsed") {
-			$column = 2;
-		} elsif ($subheading eq "CPU") {
-			$column = 3;
-		} else {
-			print("Unknown sub-heading '$subheading', specify --sub-heading\n");
-			return;
-		}
-		$self->_printCandlePlot($fieldLength - 1, $column);
-	} elsif ($self->{_DataType} == DATA_WALLTIME) {
+	if ($self->{_DataType} == DATA_WALLTIME) {
 		$self->printSummary();
-	} elsif ($self->{_DataType} == DATA_OPSSEC) {
-		my $column = 0;
-		$column = $self->{_SummariseColumn} if defined $self->{_SummariseColumn};
-		$self->_printCandlePlot($fieldLength, $column);
 	} elsif ($self->{_DataType} == DATA_THROUGHPUT) {
 		my $column = 0;
 		$column = $self->{_SummariseColumn} if defined $self->{_SummariseColumn};
@@ -268,77 +271,7 @@ sub extractSummary() {
 		@formatList = @{$self->{_FieldFormat}};
 	}
 
-	if ($self->{_DataType} == DATA_CPUTIME) {
-		my (@user, @sys, @elapsed, @cpu);
-
-		foreach my $row (@{$self->{_ResultData}}) {
-			my @rowArray = @{$row};
-			push @user,    $rowArray[0];
-			push @sys,     $rowArray[1];
-			push @elapsed, $rowArray[2];
-			push @cpu,     $rowArray[3];
-		}
-
-		$self->{_FieldFormat} = [ "%-${fieldLength}s" ];
-		foreach my $funcName ("calc_min", "calc_mean", "calc_stddev", "calc_max", "calc_range") {
-			no strict "refs";
-			my $op = $funcName;
-			$op =~ s/calc_//;
-
-			push @{$self->{_SummaryData}}, [$op,
-							&$funcName(@user),
-							&$funcName(@sys),
-							&$funcName(@elapsed),
-							&$funcName(@cpu) ];
-		}
-	} elsif ($self->{_DataType} == DATA_WALLTIME_VARIABLE) {
-		my (%units, @walltimes);
-		@walltimes = [];
-		my @row;
-		foreach my $row (@{$self->{_ResultData}}) {
-			my @rowArray = @{$row};
-			$units{$rowArray[0]} = 1;
-			push @{$walltimes[$rowArray[0]]}, $rowArray[2];
-		}
-
-		push @row, "Time";
-		foreach my $unit (sort {$a <=> $b} (keys %units)) {
-			foreach my $funcName ("calc_min", "calc_mean", "calc_5trimmed_mean", "calc_stddev", "calc_max") {
-				no strict "refs";
-				push @row, &$funcName(@{$walltimes[$unit]});
-			}
-		}
-		push @{$self->{_SummaryData}}, \@row;
-	} elsif ($self->{_DataType} == DATA_WALLTIME_OUTLIERS) {
-		my (%units, @walltimes);
-		@walltimes = [];
-		my @row;
-		foreach my $row (@{$self->{_ResultData}}) {
-			my @rowArray = @{$row};
-			$units{$rowArray[0]} = 1;
-			push @{$walltimes[$rowArray[0]]}, $rowArray[1];
-		}
-
-		push @row, "Time";
-		foreach my $unit (sort {$a <=> $b} (keys %units)) {
-			my $quartilesRef = calc_quartiles(@{$walltimes[$unit]});
-			my @quartiles = @{$quartilesRef};
-
-			push @row, $quartiles[1];
-			push @row, $quartiles[2];
-			push @row, $quartiles[3];
-			push @row, $quartiles[90];
-			push @row, $quartiles[93];
-			push @row, $quartiles[95];
-			push @row, $quartiles[99];
-			push @row, $quartiles[4];
-			push @row, calc_worst10_mean(@{$walltimes[$unit]});
-			push @row, calc_worst5_mean(@{$walltimes[$unit]});
-			push @row, calc_worst1_mean(@{$walltimes[$unit]});
-		}
-		push @{$self->{_SummaryData}}, \@row;
-
-	} elsif ($self->{_DataType} == DATA_WALLTIME) {
+	if ($self->{_DataType} == DATA_WALLTIME) {
 		my (%units, @walltimes);
 		@walltimes = [];
 		foreach my $row (@{$self->{_ResultData}}) {
@@ -356,21 +289,6 @@ sub extractSummary() {
 			}
 			push @{$self->{_SummaryData}}, [$unit, $mean];
 		}
-	} elsif ($self->{_DataType} == DATA_OPSSEC) {
-		my @ops;
-		my @row;
-		my $column = 0;
-		$column = $self->{_SummariseColumn} if defined $self->{_SummariseColumn};
-
-		foreach my $row (@{$self->{_ResultData}}) {
-			push @ops, @{$row}[$column];
-		}
-		push @row, $subHeading;
-		foreach my $funcName ("calc_min", "calc_mean", "calc_true_mean", "calc_stddev", "calc_max") {
-			no strict "refs";
-			push @row, &$funcName(@ops)
-		}
-		push @{$self->{_SummaryData}}, \@row;
 	} else {
 		print "Unknown data type for summarising\n";
 	}
@@ -464,11 +382,7 @@ sub printExtra() {
 
 sub printReport() {
 	my ($self) = @_;
-	if ($self->{_DataType} == DATA_CPUTIME ||
-			$self->{_DataType} == DATA_WALLTIME ||
-			$self->{_DataType} == DATA_WALLTIME_VARIABLE ||
-			$self->{_DataType} == DATA_WALLTIME_OUTLIERS ||
-			$self->{_DataType} == DATA_OPSSEC ||
+	if ($self->{_DataType} == DATA_WALLTIME ||
 			$self->{_DataType} == DATA_THROUGHPUT) {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {

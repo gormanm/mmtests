@@ -5,7 +5,6 @@
 
 package MMTests::Compare;
 
-use constant DATA_CPUTIME		=> 1;
 use constant DATA_WALLTIME		=> 2;
 use constant DATA_WALLTIME_VARIABLE	=> 3;
 use constant DATA_WALLTIME_OUTLIERS	=> 4;
@@ -40,11 +39,7 @@ sub initialise() {
 	my ($fieldLength, $plotLength, $summaryLength);
 	my $compareLength = 6;
 
-	if ($self->{_DataType} == DATA_CPUTIME) {
-		$fieldLength = 12;
-		$compareLength = 6;
-		@fieldHeaders = ("User", "System", "Elapsed", "CPU");
-	} elsif ($self->{_DataType} == DATA_WALLTIME) {
+	if ($self->{_DataType} == DATA_WALLTIME) {
 		$fieldLength = 12;
 		$compareLength = 6;
 		@fieldHeaders = ("Time", "Procs");
@@ -132,6 +127,9 @@ sub _generateComparisonTable() {
 			if (defined $extractModules[0]->{_CompareOpsRow} &&
 				defined $extractModules[0]->{_CompareOpsRow}[$row]) {
 				$compareOp = $extractModules[0]->{_CompareOpsRow}[$row];
+			}
+			if (defined $extractModules[0]->{_CompareLookup}{$baseline[$row][0]}) {
+				$compareOp = $extractModules[0]->{_CompareLookup}{$baseline[$row][0]};
 			}
 			for (my $module = 0; $module <= $#extractModules; $module++) {
 				no strict "refs";
@@ -337,8 +335,7 @@ sub printComparison() {
 
 sub printReport() {
 	my ($self) = @_;
-	if ($self->{_DataType} == DATA_CPUTIME ||
-			$self->{_DataType} == DATA_WALLTIME ||
+	if ($self->{_DataType} == DATA_WALLTIME ||
 			$self->{_DataType} == DATA_OPSSEC ||
 			$self->{_DataType} == DATA_THROUGHPUT) {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});

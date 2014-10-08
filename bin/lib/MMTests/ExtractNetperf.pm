@@ -1,57 +1,25 @@
 # ExtractNetperf.pm
 package MMTests::ExtractNetperf;
-use MMTests::Extract;
+use MMTests::SummariseSingleops;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::SummariseSingleops); 
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractNetperf",
-		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
+		_DataType    => MMTests::Extract::DATA_MBITS_PER_SECOND,
 		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;
 }
 
-my $_netperf_type;
-
-sub printDataType() {
-	print "Throughput,Packet Size (bytes),Throughput (Mbits/sec),netperf\n";
-}
-
-sub printPlot() {
-	my ($self, $subheading) = @_;
-	$self->printSummary();
-}
-
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-
-	my @files = <$reportDir/noprofile/netperf-*.result>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-1] =~ s/.result//;
-		if ($_netperf_type != "") {
-			die("Unable to handle more than 1 netperf test");
-		}
-		$_netperf_type = $split[-1];
-	}
-
-	$self->SUPER::initialise();
-
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
-	$self->{_FieldHeaders} = [ "Size", "Throughput", "Limit" ];
-	$self->{_SummaryHeaders} = [ "Unit", "Tput" ];
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-	$self->{_SummaryData} = $self->{_ResultData};
+	$self->{_Opname} = "Tput";
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {
@@ -95,7 +63,7 @@ sub extractReport($$$) {
 			}
 		}
 		close(INPUT);
-		push @{$self->{_ResultData}}, [ $size, $throughput, $confidenceLimit ];
+		push @{$self->{_ResultData}}, [ $size, $throughput ];
 	}
 	close INPUT;
 }

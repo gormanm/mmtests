@@ -1,45 +1,18 @@
 # ExtractFfsb.pm
 package MMTests::ExtractFfsb;
-use MMTests::Extract;
-our @ISA = qw(MMTests::Extract); 
+use MMTests::SummariseSingleops;
+our @ISA = qw(MMTests::SummariseSingleops); 
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractFfsb",
-		_DataType    => MMTests::Extract::DATA_OPSSEC,
+		_DataType    => MMTests::Extract::DATA_ACTIONS_PER_SECOND,
 		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;
-}
-
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-
-	$self->SUPER::initialise();
-
-	$self->{_FieldLength} = 13;
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders}[0] = "Benchmark";
-	$self->{_FieldHeaders}[1] = "Ops/sec";
-	$self->{_PlotHeaders}[0] = "Benchmark";
-	$self->{_SummaryHeaders} = $self->{_FieldHeaders};
-	$self->{_TestName} = $testName;
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-	$self->{_SummaryData} = $self->{_ResultData};
-	return 1;
-}
-
-sub printSummary() {
-	my ($self) = @_;
-
-	$self->printReport();
 }
 
 sub extractReport($$$) {
@@ -64,13 +37,13 @@ sub extractReport($$$) {
 			$reading_totals = 2;
 		}
 		if ($reading_totals == 2 && $line =~ /([0-9.]+) Transactions per Second/) {
-			push @{$self->{_ResultData}}, [ "Transactions", $1 ];
+			push @{$self->{_ResultData}}, [ "Trans/sec", $1 ];
 		}
 		if ($reading_totals == 2 && $line =~ /Read Throughput: ([0-9.]+)MB\/sec/) {
-			push @{$self->{_ResultData}}, [ "Read", $1 ];
+			push @{$self->{_ResultData}}, [ "ReadMB/sec", $1 ];
 		}
 		if ($reading_totals == 2 && $line =~ /Write Throughput: ([0-9.]+)MB\/sec/) {
-			push @{$self->{_ResultData}}, [ "Write", $1 ];
+			push @{$self->{_ResultData}}, [ "WriteMB/sec", $1 ];
 			$reading_totals = 0;
 		}
 	}

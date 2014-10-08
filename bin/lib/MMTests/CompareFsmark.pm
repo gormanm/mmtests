@@ -17,15 +17,4 @@ sub new() {
 	return $self;
 }
 
-
-sub extractComparison() {
-	my ($self, $subHeading, $showCompare) = @_;
-
-	if ($subHeading eq "Overhead" ) {
-		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
-	}
-
-	$self->SUPER::extractComparison($self, $subHeading, $showCompare);
-}
-
 1;

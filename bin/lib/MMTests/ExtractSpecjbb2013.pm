@@ -1,49 +1,19 @@
 # ExtractSpecjbb2013.pm
 package MMTests::ExtractSpecjbb2013;
-use MMTests::Extract;
+use MMTests::SummariseSingleops;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::SummariseSingleops); 
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractSpecjbb2013",
-		_DataType    => MMTests::Extract::DATA_OPSSEC,
+		_DataType    => MMTests::Extract::DATA_ACTIONS,
 		_ResultData  => [],
 	};
 	bless $self, $class;
 	return $self;
-}
-
-sub printDataType() {
-	print "NrWarehouses\n";
-}
-
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-
-	$self->SUPER::initialise();
-
-	my $fieldLength = $self->{_FieldLength} = 15;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}d" ];
-	$self->{_FieldHeaders}[0] = "";
-	$self->{_PlotHeaders}[0] = "";
-	$self->{_SummaryHeaders} = $self->{_FieldHeaders};
-	$self->{_TestName} = $testName;
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-	$self->{_SummaryData} = $self->{_ResultData};
-	return 1;
-}
-
-sub printSummary() {
-	my ($self) = @_;
-
-	$self->{_FieldHeaders}[0] = "";
-	$self->printReport();
 }
 
 sub extractReport($$$) {

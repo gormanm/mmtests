@@ -201,18 +201,8 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format \"postscript color solid\""
 	echo
 	case $SUBREPORT in
-	dbench3)
-		echo $SUBREPORT MB/sec
-		eval $COMPARE_CMD --sub-heading MB/sec
-		;;
-	dbench4|tbench4)
-		echo $SUBREPORT MB/sec
-		eval $COMPARE_CMD --sub-heading MB/sec
-		echo $SUBREPORT Latency
-		eval $COMPARE_CMD --sub-heading Latency
-		;;
 	ebizzy)
-		echo $SUBREPORT
+		echo $SUBREPORT Overall Throughput
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Per-thread
@@ -220,12 +210,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo
 		echo $SUBREPORT Thread spread
 		compare-mmtests.pl -d . -b ebizzyrange -n $KERNEL_LIST $FORMAT_CMD
-		;;
-	fsmark-single|fsmark-threaded)
-		echo $SUBREPORT Files/sec
-		eval $COMPARE_CMD --sub-heading Files/sec
-		echo $SUBREPORT Latency
-		eval $COMPARE_CMD --sub-heading Overhead
 		;;
 	loopdd)
 		echo $SUBREPORT Throughput
@@ -277,14 +261,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Time
 		eval $COMPARE_CMD --sub-heading TransTime
 		echo
-		;;
-
-	tiobench)
-		echo $SUBREPORT MB/sec
-		eval $COMPARE_CMD --sub-heading MB/sec
-		echo
-		echo $SUBREPORT Maximum Latency
-		eval $COMPARE_CMD --sub-heading MaxLatency
 		;;
 	*)
 		echo $SUBREPORT

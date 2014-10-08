@@ -1,40 +1,20 @@
 # ExtractTimeexit.pm
 package MMTests::ExtractKu_latency;
-use MMTests::Extract;
+use MMTests::SummariseVariabletime;
 use VMR::Report;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::SummariseVariabletime); 
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractKu_latency",
-		_DataType    => MMTests::Extract::DATA_WALLTIME_OUTLIERS,
+		_DataType    => DATA_TIME_USECONDS;
 		_ResultData  => [],
 		_Precision   => 6,
 		_UseTrueMean => 1,
 	};
 	bless $self, $class;
 	return $self;
-}
-
-sub printDataType() {
-	print "WalltimeOutliers,TestName,Time,candlesticks\n";
-}
-
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-
-	$self->SUPER::initialise();
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f", "%$fieldLength.6f" ];
-	$self->{_FieldHeaders} = [ "Clients", "Latency" ];
-	$self->{_TestName} = $testName;
-}
-
-sub printPlot() {
-	my ($self, $subheading) = @_;
-
-	$self->_printCandlePlot($self->{_FieldLength}, 1);
 }
 
 sub extractReport($$$) {
@@ -61,7 +41,7 @@ sub extractReport($$$) {
 		} elsif ($name eq "Total Average") {
 			# only here we are sure that printing time_user was not interrupted in the middle
 			my $delta = ($time_user - $time_kernel) * 1000000;
-			push @{$self->{_ResultData}}, [1, $delta];
+			push @{$self->{_ResultData}}, ["Time", ++$nr_samples, $delta];
 		}
 	}
 	close INPUT;

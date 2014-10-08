@@ -1,44 +1,18 @@
 # ExtractPostmark.pm
 package MMTests::ExtractPostmark;
-use MMTests::Extract;
-our @ISA = qw(MMTests::Extract); 
+use MMTests::SummariseSingleops;
+our @ISA = qw(MMTests::SummariseSingleops); 
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractPostmark",
-		_DataType    => MMTests::Extract::DATA_OPSSEC,
+		_DataType    => MMTests::Extract::DATA_ACTIONS_PER_SECOND,
 		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;
-}
-
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-
-	$self->SUPER::initialise();
-
-	$self->{_FieldLength} = 12;
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders}[0] = "Operation";
-	$self->{_PlotHeaders}[0] = "Operation";
-	$self->{_SummaryHeaders} = $self->{_FieldHeaders};
-	$self->{_TestName} = $testName;
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-	$self->{_SummaryData} = $self->{_ResultData};
-	return 1;
-}
-
-sub printSummary() {
-	my ($self) = @_;
-
-	$self->printReport();
 }
 
 sub extractReport($$$) {
