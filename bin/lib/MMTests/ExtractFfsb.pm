@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractFfsb",
-		_DataType    => MMTests::Extract::DATA_OPSSEC,
+		_DataType    => MMTests::Extract::DATA_ACTIONS_PER_SECOND,
 		_ResultData  => []
 	};
 	bless $self, $class;
@@ -37,13 +37,13 @@ sub extractReport($$$) {
 			$reading_totals = 2;
 		}
 		if ($reading_totals == 2 && $line =~ /([0-9.]+) Transactions per Second/) {
-			push @{$self->{_ResultData}}, [ "Transactions", $1 ];
+			push @{$self->{_ResultData}}, [ "Trans/sec", $1 ];
 		}
 		if ($reading_totals == 2 && $line =~ /Read Throughput: ([0-9.]+)MB\/sec/) {
-			push @{$self->{_ResultData}}, [ "Read", $1 ];
+			push @{$self->{_ResultData}}, [ "ReadMB/sec", $1 ];
 		}
 		if ($reading_totals == 2 && $line =~ /Write Throughput: ([0-9.]+)MB\/sec/) {
-			push @{$self->{_ResultData}}, [ "Write", $1 ];
+			push @{$self->{_ResultData}}, [ "WriteMB/sec", $1 ];
 			$reading_totals = 0;
 		}
 	}

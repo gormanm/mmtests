@@ -9,11 +9,15 @@ use constant DATA_NONE			=> 0;
 use constant DATA_TIME_SECONDS		=> 1;
 use constant DATA_TIME_USECONDS		=> 2;
 use constant DATA_TIME_MSECONDS		=> 3;
-use constant DATA_WALLTIME		=> 4;
-use constant DATA_WALLTIME_VARIABLE	=> 5;
-use constant DATA_WALLTIME_OUTLIERS	=> 6;
-use constant DATA_OPSSEC		=> 7;
-use constant DATA_THROUGHPUT		=> 8;
+use constant DATA_ACTIONS               => 4;
+use constant DATA_ACTIONS_PER_SECOND    => 5;
+use constant DATA_MBITS_PER_SECOND	=> 6;
+use constant DATA_SUCCESS_PERCENT	=> 7;
+use constant DATA_WALLTIME		=> 10;
+use constant DATA_WALLTIME_VARIABLE	=> 11;
+use constant DATA_WALLTIME_OUTLIERS	=> 12;
+use constant DATA_OPSSEC		=> 13;
+use constant DATA_THROUGHPUT		=> 14;
 use VMR::Stat;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
@@ -36,6 +40,34 @@ sub new() {
 sub getModuleName() {
 	my ($self) = @_;
 	return $self->{_ModuleName};
+}
+
+sub printDataType() {
+	my ($self) = @_;
+	my $yaxis = "UNKNOWN AXIS";
+	my $units = "Time";
+
+	if ($self->{_DataType} == DATA_TIME_USECONDS) {
+		$yaxis = "Time (usec)";
+	} elsif ($self->{_DataType} == DATA_TIME_MSECONDS) {
+		$yaxis = "Time (msec)";
+	} elsif ($self->{_DataType} == DATA_TIME_SECONDS) {
+		$yaxis = "Time (seconds)";
+	} elsif ($self->{_DataType} == DATA_ACTIONS) {
+		$yaxis = "Actions";
+		$units = "VarAction";
+	} elsif ($self->{_DataType} == DATA_ACTIONS_PER_SECOND) {
+		$yaxis = "Actions/sec";
+		$units = "Actions";
+	} elsif ($self->{_DataType} == DATA_MBITS_PER_SECOND) {
+		$yaxis = "MBits/sec";
+		$units = "Throughput";
+	} elsif ($self->{_DataType} == DATA_SUCCESS_PERCENT) {
+		$yaxis = "Percentage";
+		$units = "Success";
+	}
+
+	print "$units,TestName,$yaxis,UNKNOWN";
 }
 
 sub initialise() {

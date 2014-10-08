@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractLibmicro",
-		_DataType    => MMTests::Extract::DATA_WALLTIME,
+		_DataType    => MMTests::Extract::DATA_TIME_USECONDS,
 		_ResultData  => [],
 		_UseTrueMean => 1,
 	};

@@ -9,7 +9,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractNetperf",
-		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
+		_DataType    => MMTests::Extract::DATA_MBITS_PER_SECOND,
 		_ResultData  => []
 	};
 	bless $self, $class;

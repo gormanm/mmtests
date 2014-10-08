@@ -5,9 +5,6 @@ use VMR::Stat;
 our @ISA = qw(MMTests::Extract); 
 use strict;
 
-use constant DATA_TIME_VARTIME_SECONDS => 201;
-use constant DATA_TIME_VARTIME_
-
 sub new() {
 	my $class = shift;
 	my $self = {
@@ -16,21 +13,6 @@ sub new() {
 	};
 	bless $self, $class;
 	return $self;
-}
-
-sub printDataType() {
-
-	my $yaxis = "UNKNOWN AXIS UNIT";
-
-        if ($self->{_DataType} = DATA_TIME_USECONDS) {
-		$yaxis = "Time (usec)";
-        elsif ($self->{_DataType} = DATA_TIME_MSECONDS) {
-		$yaxis = "Time (msec)";
-	elsif ($self->{_DataType} = DATA_TIME_SECONDS) {
-		$yaxis = "Time (seconds)";
-	}
-
-        print "CPUTime,TestName,$yaxis,UNKNOWN";
 }
 
 sub initialise() {
