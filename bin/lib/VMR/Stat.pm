@@ -155,8 +155,12 @@ sub calc_harmmean {
 			if ($_[$i] !~ /^[-0-9]+/) {
 				return "NaN";
 			}
-			$sum += 1/$_[$i];
-			$n++;
+			if ($_[$i] > 0) {
+				$sum += 1/$_[$i];
+				$n++;
+			} else {
+				return -1;
+			}
 		}
 	}
 
