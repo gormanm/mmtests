@@ -1,14 +1,14 @@
 # ExtractTimeexit.pm
 package MMTests::ExtractTimeexit;
-use MMTests::SummariseVariableops;
+use MMTests::SummariseVariabletime;
 use VMR::Report;
-our @ISA = qw(MMTests::SummariseVariableops); 
+our @ISA = qw(MMTests::SummariseVariabletime); 
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractTimeexit",
-		_DataType    => MMTests::Extract::DATA_WALLTIME_VARIABLE,
+		_DataType    => MMTests::Extract::DATA_TIME_MSECONDS,
 		_ResultData  => [],
 		_Precision   => 6,
 		_UseTrueMean => 1,

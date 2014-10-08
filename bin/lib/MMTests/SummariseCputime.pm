@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "SummariseCputime",
-		_DataType    => MMTests::Extract::DATA_UNIT_CPUTIME_SECONDS,
+		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
 		_ResultData  => []
 	};
 	bless $self, $class;

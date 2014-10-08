@@ -1,14 +1,14 @@
 # ExtractPipetest.pm
 package MMTests::ExtractPipetest;
-use MMTests::SummariseVariableops;
+use MMTests::SummariseVariabletime;
 use VMR::Report;
-our @ISA = qw(MMTests::SummariseVariableops); 
+our @ISA = qw(MMTests::SummariseVariabletime); 
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractPipetest",
-		_DataType    => MMTests::Extract::DATA_WALLTIME_VARIABLE,
+		_DataType    => MMTests::Extract::DATA_TIME_USECONDS,
 		_ResultData  => [],
 		_UseTrueMean => 1,
 	};

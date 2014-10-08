@@ -1,14 +1,14 @@
 # ExtractTimeexit.pm
 package MMTests::ExtractKu_latency;
-use MMTests::SummariseVariableops;
+use MMTests::SummariseVariabletime;
 use VMR::Report;
-our @ISA = qw(MMTests::SummariseVariableops); 
+our @ISA = qw(MMTests::SummariseVariabletime); 
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractKu_latency",
-		_DataType    => MMTests::Extract::DATA_WALLTIME_OUTLIERS,
+		_DataType    => DATA_TIME_USECONDS;
 		_ResultData  => [],
 		_Precision   => 6,
 		_UseTrueMean => 1,

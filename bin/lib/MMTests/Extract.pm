@@ -6,12 +6,14 @@
 package MMTests::Extract;
 
 use constant DATA_NONE			=> 0;
-use constant DATA_UNIT_CPUTIME_SECONDS	=> 1;
-use constant DATA_WALLTIME		=> 2;
-use constant DATA_WALLTIME_VARIABLE	=> 3;
-use constant DATA_WALLTIME_OUTLIERS	=> 4;
-use constant DATA_OPSSEC		=> 5;
-use constant DATA_THROUGHPUT		=> 6;
+use constant DATA_TIME_SECONDS		=> 1;
+use constant DATA_TIME_USECONDS		=> 2;
+use constant DATA_TIME_MSECONDS		=> 3;
+use constant DATA_WALLTIME		=> 4;
+use constant DATA_WALLTIME_VARIABLE	=> 5;
+use constant DATA_WALLTIME_OUTLIERS	=> 6;
+use constant DATA_OPSSEC		=> 7;
+use constant DATA_THROUGHPUT		=> 8;
 use VMR::Stat;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
