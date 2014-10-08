@@ -1,13 +1,14 @@
 # ExtractAutonumabench.pm
 package MMTests::ExtractAutonumabench;
-use MMTests::ExtractSummarisePlain;
-our @ISA = qw(MMTests::ExtractSummarisePlain); 
+use MMTests::SummariseSingleops;
+our @ISA = qw(MMTests::SummariseSingleops); 
+use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractAutonumabench",
-		_DataType    => MMTests::Extract::DATA_CPUTIME,
+		_DataType    => MMTests::Extract::DATA_WALLTIME,
 		_ResultData  => []
 	};
 	bless $self, $class;
@@ -16,13 +17,8 @@ sub new() {
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-
-	$self->SUPER::initialise();
-
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s" ];
-	$self->{_FieldHeaders} = [ "Binding", "User", "System", "Elapsed", "CPU" ];
+	$self->{_Opname} = "Time";
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {
@@ -34,10 +30,12 @@ sub extractReport($$$) {
 	if (!@files) {
 		die("Failed to open any time files\n")
 	}
+
+	my %times;
+
 	foreach my $file (@files) {
 		my @split = split /\./, $file;
 		my $bindType = $split[-1];
-		push @bindTypes, $bindType;
 
 		open(INPUT, $file) || die("Failed to open $file\n");
 		$_ = <INPUT>;
@@ -45,11 +43,22 @@ sub extractReport($$$) {
 		($user, $system, $elapsed, $cpu) = split(/\s/, $_);
 		my ($minutes, $seconds) = split(/:/, $elapsed);
 		$elapsed = $minutes * 60 + $seconds;
-		
-		push @{$self->{_ResultData}}, [ $bindType, $user, $system, $elapsed, $cpu ];
+
+		$times{"User-$bindType"} = $user;
+		$times{"System-$bindType"} = $system;
+		$times{"Elapsed-$bindType"} = $elapsed;
+		$times{"CPU-$bindType"} = $cpu;
+
 		close INPUT;
 	}
-	$self->{_BindTypes} = \@bindTypes;
+
+	foreach my $heading ("User", "System", "Elapsed", "CPU") {
+		foreach my $key (sort(keys %times)) {
+			if ($key =~ /$heading-/) {
+				push @{$self->{_ResultData}}, [ $key, $times{$key} ];
+			}
+		}
+	}
 }
 
 1;
