@@ -10,7 +10,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractHackbench",
-		_DataType    => MMTests::Extract::DATA_WALLTIME,
+		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
 		_ResultData  => [],
 		_UseTrueMean => 1,
 	};

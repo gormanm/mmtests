@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractSeeker",
-		_DataType    => MMTests::Extract::DATA_OPSSEC,
+		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
 		_ResultData  => [],
 		_SummariseColumn => 2,
 		_UseTrueMean => 1,

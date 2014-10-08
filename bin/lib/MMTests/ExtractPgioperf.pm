@@ -9,7 +9,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractPgioperf",
-		_DataType    => MMTests::Extract::DATA_OPSSEC,
+		_DataType    => MMTests::Extract::DATA_TIME_MSECONDS,
 		_ResultData  => []
 	};
 	bless $self, $class;

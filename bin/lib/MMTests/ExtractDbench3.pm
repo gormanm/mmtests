@@ -9,7 +9,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractDbench3",
-		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
+		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
 		_ResultData  => []
 	};
 	bless $self, $class;

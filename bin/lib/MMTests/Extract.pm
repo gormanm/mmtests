@@ -7,17 +7,23 @@ package MMTests::Extract;
 
 use constant DATA_NONE			=> 0;
 use constant DATA_TIME_SECONDS		=> 1;
-use constant DATA_TIME_USECONDS		=> 2;
-use constant DATA_TIME_MSECONDS		=> 3;
-use constant DATA_ACTIONS               => 4;
-use constant DATA_ACTIONS_PER_SECOND    => 5;
-use constant DATA_MBITS_PER_SECOND	=> 6;
-use constant DATA_SUCCESS_PERCENT	=> 7;
-use constant DATA_WALLTIME		=> 10;
-use constant DATA_WALLTIME_VARIABLE	=> 11;
-use constant DATA_WALLTIME_OUTLIERS	=> 12;
-use constant DATA_OPSSEC		=> 13;
-use constant DATA_THROUGHPUT		=> 14;
+use constant DATA_TIME_NSECONDS		=> 2;
+use constant DATA_TIME_USECONDS		=> 3;
+use constant DATA_TIME_MSECONDS		=> 4;
+use constant DATA_ACTIONS               => 5;
+use constant DATA_ACTIONS_PER_SECOND    => 6;
+use constant DATA_ACTIONS_PER_MINUTE    => 7;
+use constant DATA_OPS_PER_SECOND        => 8;
+use constant DATA_RECORDS_PER_SECOND    => 9;
+use constant DATA_MBITS_PER_SECOND	=> 10;
+use constant DATA_MBYTES_PER_SECOND	=> 11;
+use constant DATA_TRANS_PER_SECOND	=> 12;
+use constant DATA_SUCCESS_PERCENT	=> 13;
+use constant DATA_WALLTIME		=> 14;
+use constant DATA_WALLTIME_VARIABLE	=> 15;
+use constant DATA_WALLTIME_OUTLIERS	=> 16;
+use constant DATA_OPSSEC		=> 17;
+use constant DATA_THROUGHPUT		=> 18;
 use VMR::Stat;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
@@ -49,6 +55,8 @@ sub printDataType() {
 
 	if ($self->{_DataType} == DATA_TIME_USECONDS) {
 		$yaxis = "Time (usec)";
+	} elsif ($self->{_DataType} == DATA_TIME_NSECONDS) {
+		$yaxis = "Time (nanosec)";
 	} elsif ($self->{_DataType} == DATA_TIME_MSECONDS) {
 		$yaxis = "Time (msec)";
 	} elsif ($self->{_DataType} == DATA_TIME_SECONDS) {
@@ -59,8 +67,23 @@ sub printDataType() {
 	} elsif ($self->{_DataType} == DATA_ACTIONS_PER_SECOND) {
 		$yaxis = "Actions/sec";
 		$units = "Actions";
+	} elsif ($self->{_DataType} == DATA_ACTIONS_PER_MINUTE) {
+		$yaxis = "Actions/minute";
+		$units = "Actions";
+	} elsif ($self->{_DataType} == DATA_OPS_PER_SECOND) {
+		$yaxis = "Ops/sec";
+		$units = "Operations";
+	} elsif ($self->{_DataType} == DATA_RECORDS_PER_SECOND) {
+		$yaxis = "Records/sec";
+		$units = "RecordTrans";
+	} elsif ($self->{_DataType} == DATA_TRANS_PER_SECOND) {
+		$yaxis = "Transactions/sec";
+		$units = "Transactions";
 	} elsif ($self->{_DataType} == DATA_MBITS_PER_SECOND) {
 		$yaxis = "MBits/sec";
+		$units = "Throughput";
+	} elsif ($self->{_DataType} == DATA_MBYTES_PER_SECOND) {
+		$yaxis = "MBytes/sec";
 		$units = "Throughput";
 	} elsif ($self->{_DataType} == DATA_SUCCESS_PERCENT) {
 		$yaxis = "Percentage";

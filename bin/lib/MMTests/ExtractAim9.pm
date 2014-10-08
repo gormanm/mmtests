@@ -5,8 +5,12 @@ use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops); 
 use strict;
 
-use constant DATA_AIM9 => 600;
-
+sub new() {
+        my $class = shift;
+        my $self = {
+		_ModuleName => "ExtractAim9",
+		_DataType   => MMTests::Extract::DATA_OPS_PER_SECOND,
+}
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;

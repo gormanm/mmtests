@@ -9,7 +9,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "SummariseMultiops",
-		_DataType    => MMTests::Extract::DATA_OPSSEC,
 		_ResultData  => []
 	};
 	bless $self, $class;
@@ -23,6 +22,17 @@ sub initialise() {
 		$opName = $self->{_Opname};
 	}
 
+	$self->{_MeanOp} = "calc_harmmean";
+	$self->{_MeanName} = "Hmean";
+
+	if ($self->{_DataType} == MMTests::Extract::DATA_TIME_SECONDS ||
+	    $self->{_DataType} == MMTests::Extract::DATA_TIME_NSECONDS ||
+	    $self->{_DataType} == MMTests::Extract::DATA_TIME_MSECONDS ||
+	    $self->{_DataType} == MMTests::Extract::DATA_TIME_USECONDS) {
+		$self->{_MeanOp} = "calc_mean";
+		$self->{_MeanName} = "Amean";
+	}
+
 	$self->SUPER::initialise($reportDir, $testName);
 
 	$self->{_FieldLength} = 12;
@@ -31,7 +41,7 @@ sub initialise() {
 	$self->{_FieldHeaders} = [ "Type", "Sample", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
 
 	$self->{_SummaryLength} = 16;
-	$self->{_SummaryHeaders} = [ "Op", "Min", "Mean", "Stddev", "CoeffVar", "Max" ];
+	$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max" ];
 	$self->{_SummariseColumn} = 2;
 	$self->{_TestName} = $testName;
 }
@@ -90,7 +100,7 @@ sub extractSummary() {
 			}
 		}
 		push @row, $operation;
-		foreach my $funcName ("calc_min", "calc_mean", "calc_stddev", "calc_coeffvar", "calc_max") {
+		foreach my $funcName ("calc_min", $self->{_MeanOp}, "calc_stddev", "calc_coeffvar", "calc_max") {
 			no strict "refs";
 			push @row, &$funcName(@units);
 		}
