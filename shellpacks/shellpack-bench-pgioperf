@@ -80,6 +80,8 @@ gcc -lrt -std=c99 -Wall					\
 		pgioperf.c -o pgioperf || exit $SHELLPACK_ERROR
 
 monitor_pre_hook $LOGDIR_RESULTS
+sntp -P no -r pool.ntp.org
+sleep 10
 TIME_START=`date +%s`
 TIME_CURRENT=$TIME_START
 TIME_END=$((TIME_START+$DURATION))
@@ -462,4 +464,4 @@ main(int argc, char **argv)
 	return 0;
 }
 #### Description Postgres IO performance microbenchmark
-#### Details pgioperf-bench 22
+#### Details pgioperf-bench 23

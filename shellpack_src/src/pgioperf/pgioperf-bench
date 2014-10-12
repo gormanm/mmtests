@@ -36,6 +36,8 @@ gcc -lrt -std=c99 -Wall					\
 		pgioperf.c -o pgioperf || exit $SHELLPACK_ERROR
 
 monitor_pre_hook $LOGDIR_RESULTS
+sntp -P no -r pool.ntp.org
+sleep 10
 TIME_START=`date +%s`
 TIME_CURRENT=$TIME_START
 TIME_END=$((TIME_START+$DURATION))
