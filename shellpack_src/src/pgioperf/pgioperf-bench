@@ -38,21 +38,17 @@ gcc -lrt -std=c99 -Wall					\
 monitor_pre_hook $LOGDIR_RESULTS
 sntp -P no -r pool.ntp.org
 sleep 10
-TIME_START=`date +%s`
-TIME_CURRENT=$TIME_START
-TIME_END=$((TIME_START+$DURATION))
 echo Executing pgioperf
 cp pgioperf /tmp/
 ./pgioperf > $LOGDIR_RESULTS/pgioperf.log 2>&1 &
 PGIOPERF_PID=$!
 COUNT=0
-while [ $TIME_CURRENT -lt $TIME_END ]; do
-	sleep 1
-	TIME_CURRENT=`date +%s`
+while [ $COUNT -lt $DURATION ]; do
 	if [ $((COUNT%60)) -eq 0 ]; then
-		echo $(((TIME_END-TIME_CURRENT))) seconds remaining
+		echo $(((DURATION-COUNT))) seconds remaining
 	fi
-	COUNT=$((COUNT+1))
+	sleep 10
+	COUNT=$((COUNT+10))
 done
 shutdown_pid pgioperf $PGIOPERF_PID
 rm $SHELLPACK_TEMP/wal
