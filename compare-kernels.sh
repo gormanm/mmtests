@@ -263,13 +263,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		;;
 	sysbench)
 		echo $SUBREPORT Initialisation
-		eval $COMPARE_CMD --sub-heading LoadTime
+		compare-mmtests.pl -d . -b sysbenchloadtime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
 		echo
 		echo $SUBREPORT Time
-		eval $COMPARE_CMD --sub-heading TransTime
+		compare-mmtests.pl -d . -b sysbenchexectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	tiobench)

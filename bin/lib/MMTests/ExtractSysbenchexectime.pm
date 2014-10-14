@@ -1,5 +1,5 @@
-# ExtractSysbench.pm
-package MMTests::ExtractSysbench;
+# ExtractSysbenchexectime.pm
+package MMTests::ExtractSysbenchexectime;
 use MMTests::SummariseMultiops;
 use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
@@ -8,8 +8,8 @@ use strict;
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ExtractSysbench",
-		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
+		_ModuleName  => "ExtractSysbenchexectime",
+		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
 		_ResultData  => []
 	};
 	bless $self, $class;
@@ -20,6 +20,7 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
+	$reportDir =~ s/sysbenchexectime/sysbench/;
 
 	my @clients;
 	my @files = <$reportDir/noprofile/default/sysbench-raw-*-1>;
@@ -30,23 +31,20 @@ sub extractReport($$$) {
 	}
 	@clients = sort { $a <=> $b } @clients;
 
-	# Extract per-client transaction information
+	# Extract per-client timing information
 	foreach my $client (@clients) {
-		$iteration = 0;
+		my $iteration = 0;
 
-		my @files = <$reportDir/noprofile/default/sysbench-raw-$client-*>;
+		my @files = <$reportDir/noprofile/default/time-$client-*>;
 		foreach my $file (@files) {
+
+
 			open(INPUT, $file) || die("Failed to open $file\n");
-			while (!eof(INPUT)) {
-				my $line = <INPUT>;
-				next if $line !~ /.*transactions:.*per sec/;
-				my @elements = split(/\s+/, $line);
-				my $ops = $elements[3];
-				$ops =~ s/\(//;
-				push @{$self->{_ResultData}}, [ $client, $iteration, $ops ];
-				$iteration++;
+			while (<INPUT>) {
+				next if $_ !~ /elapsed/;
+				push @{$self->{_ResultData}}, [ $client, ++$iteration, $self->_time_to_elapsed($_) ];
 			}
-			close INPUT;
+			close(INPUT);
 		}
 	}
 

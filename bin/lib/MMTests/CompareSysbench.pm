@@ -16,18 +16,4 @@ sub new() {
 	return $self;
 }
 
-sub extractComparison() {
-	my ($self, $subHeading, $showCompare) = @_;
-
-	if ($subHeading eq "LoadTime") {
-		$self->{_CompareOps} = [ "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
-	} elsif ($subHeading eq "TransTime") {
-		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
-	} else {
-		$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pdiff", "pndiff", "pdiff", "pdiff" ];
-	}
-
-	return $self->SUPER::extractComparison($subHeading, $showCompare);
-}
-
 1;
