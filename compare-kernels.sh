@@ -275,6 +275,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Peaks
 		compare-mmtests.pl -d . -b specjbbpeak -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	stutter)
+		echo $SUBREPORT
+		$COMPARE_CMD
+		echo
+		echo $SUBREPORT estimated write speed
+		compare-mmtests.pl -d . -b stuttercalibrate -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		echo $SUBREPORT parallel write throughput
+		compare-mmtests.pl -d . -b stutterthroughput -n $KERNEL_LIST $FORMAT_CMD
+		;;
 	sysbench)
 		echo $SUBREPORT Initialisation
 		compare-mmtests.pl -d . -b sysbenchloadtime -n $KERNEL_LIST $FORMAT_CMD
