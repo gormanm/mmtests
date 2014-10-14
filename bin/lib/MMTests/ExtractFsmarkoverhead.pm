@@ -1,13 +1,13 @@
-# ExtractFsmark.pm
-package MMTests::ExtractFsmark;
+# ExtractFsmarkoverhead.pm
+package MMTests::ExtractFsmarkoverhead;
 use MMTests::SummariseMultiops;
 our @ISA = qw(MMTests::SummariseMultiops);
 
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ExtractFsmark",
-		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
+		_ModuleName  => "ExtractFsmarkoverhead",
+		_DataType    => MMTests::Extract::DATA_TIME_USECONDS,
 		_ResultData  => []
 	};
 	bless $self, $class;
@@ -21,6 +21,7 @@ sub printDataType() {
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my ($user, $system, $elapsed, $cpu);
+	$reportDir =~ s/overhead//;
 	my $file = "$reportDir/noprofile/fsmark.log";
 	my $preamble = 1;
 	my $iteration = 1;
@@ -42,11 +43,11 @@ sub extractReport($$$) {
 		}
 
 		my @elements = split(/\s+/, $_);
-		push @{$self->{_ResultData}}, [ "files/sec", ++$iteration, $elements[4] ];
+		push @{$self->{_ResultData}}, [ "overhead",  ++$iteration, $elements[5] ];
 	}
 	close INPUT;
 
-	$self->{_Operations} = [ "files/sec" ];
+	$self->{_Operations} = [ "overhead" ];
 }
 
 1;
