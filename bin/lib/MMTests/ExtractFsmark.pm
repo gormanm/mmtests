@@ -3,19 +3,14 @@ package MMTests::ExtractFsmark;
 use MMTests::SummariseMultiops;
 our @ISA = qw(MMTests::SummariseMultiops);
 
-sub new() {
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractFsmark",
-		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
-}
+	$self->{_ModuleName} = "ExtractFsmark";
+	$self->{_DataType}   = MMTests::Extract::DATA_OPS_PER_SECOND;
+	$self->{_PlotType}   = "single-candlesticks";
 
-sub printDataType() {
-	print "Operations/sec,TestName,Latency,candlesticks";
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {
@@ -25,10 +20,10 @@ sub extractReport($$$) {
 	my $preamble = 1;
 	my $iteration = 1;
 
-        $self->{_CompareLookup} = {
-                "files/sec" => "pdiff",
-                "overhead"  => "pndiff"
-        };
+	$self->{_CompareLookup} = {
+		"files/sec" => "pdiff",
+		"overhead"  => "pndiff"
+	};
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {

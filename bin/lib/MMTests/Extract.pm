@@ -14,16 +14,17 @@ use constant DATA_ACTIONS               => 5;
 use constant DATA_ACTIONS_PER_SECOND    => 6;
 use constant DATA_ACTIONS_PER_MINUTE    => 7;
 use constant DATA_OPS_PER_SECOND        => 8;
-use constant DATA_RECORDS_PER_SECOND    => 9;
-use constant DATA_MBITS_PER_SECOND	=> 10;
-use constant DATA_MBYTES_PER_SECOND	=> 11;
-use constant DATA_TRANS_PER_SECOND	=> 12;
-use constant DATA_SUCCESS_PERCENT	=> 13;
-use constant DATA_WALLTIME		=> 14;
-use constant DATA_WALLTIME_VARIABLE	=> 15;
-use constant DATA_WALLTIME_OUTLIERS	=> 16;
-use constant DATA_OPSSEC		=> 17;
-use constant DATA_THROUGHPUT		=> 18;
+use constant DATA_OPS_PER_MINUTE        => 9;
+use constant DATA_RECORDS_PER_SECOND    => 10;
+use constant DATA_MBITS_PER_SECOND	=> 11;
+use constant DATA_MBYTES_PER_SECOND	=> 12;
+use constant DATA_TRANS_PER_SECOND	=> 13;
+use constant DATA_SUCCESS_PERCENT	=> 14;
+use constant DATA_WALLTIME		=> 15;
+use constant DATA_WALLTIME_VARIABLE	=> 16;
+use constant DATA_WALLTIME_OUTLIERS	=> 17;
+use constant DATA_OPSSEC		=> 18;
+use constant DATA_THROUGHPUT		=> 19;
 use VMR::Stat;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
@@ -73,6 +74,9 @@ sub printDataType() {
 	} elsif ($self->{_DataType} == DATA_OPS_PER_SECOND) {
 		$yaxis = "Ops/sec";
 		$units = "Operations";
+	} elsif ($self->{_DataType} == DATA_OPS_PER_MINUTE) {
+		$yaxis = "Ops/minute";
+		$units = "Operations";
 	} elsif ($self->{_DataType} == DATA_RECORDS_PER_SECOND) {
 		$yaxis = "Records/sec";
 		$units = "RecordTrans";
@@ -90,7 +94,17 @@ sub printDataType() {
 		$units = "Success";
 	}
 
-	print "$units,TestName,$yaxis,UNKNOWN";
+	my $xaxis = "TestName";
+	if (defined($self->{_PlotXaxis})) {
+		$xaxis = $self->{_PlotXaxis};
+	}
+
+	my $plotType = "UNKNOWN";
+	if (defined($self->{_PlotType})) {
+		$plotType = $self->{_PlotType};
+	}
+
+	print "$units,$xaxis,$yaxis,$plotType";
 }
 
 sub initialise() {
@@ -132,17 +146,6 @@ sub setFormat() {
 		$self->{_PrintHandler} = MMTests::PrintHtml->new();
 	} else {
 		$self->{_PrintHandler} = MMTests::PrintGeneric->new();
-	}
-}
-
-sub printDataType() {
-	my ($self) = @_;
-	if ($self->{_DataType} == DATA_WALLTIME) {
-		print "WallTime";
-	} elsif ($self->{_DataType} == DATA_THROUGHPUT) {
-		print "Throughput";
-	} else {
-		print "Unknown";
 	}
 }
 
@@ -218,6 +221,16 @@ sub _printCandlePlotData() {
 
 	printf("%${fieldLength}.3f %${fieldLength}.3f %${fieldLength}.3f %${fieldLength}.3f %${fieldLength}.3f	# stddev=%-${fieldLength}.3f\n", $low_stddev, $min, $max, $high_stddev, $mean, $stddev);
 }
+
+sub _printErrorBarData() {
+	my ($self, $fieldLength, @data) = @_;
+
+	my $stddev = calc_stddev(@data);
+	my $mean = calc_mean(@data);
+
+	printf("%${fieldLength}.3f %${fieldLength}.3f\n", $mean, $stddev);
+}
+
 
 sub _printCandlePlot() {
 	my ($self, $fieldLength, $column) = @_;

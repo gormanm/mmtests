@@ -2,24 +2,16 @@
 package MMTests::ExtractNas;
 use MMTests::SummariseSingleops;
 our @ISA = qw(MMTests::SummariseSingleops);
-
 use VMR::Stat;
 use strict;
 
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractNas",
-		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
-}
-
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	$self->{_Opname} = "Time";
+	$self->{_ModuleName} = "ExtractNas";
+	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
+	$self->{_PlotType}   = "histogram";
+	$self->{_Opname}     = "Time";
+
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

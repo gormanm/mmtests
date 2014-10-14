@@ -5,15 +5,12 @@ use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractTiobench",
-		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
+	$self->{_ModuleName} = "ExtractTiobench";
+	$self->{_DataType}   = MMTests::Extract::DATA_MBYTES_PER_SECOND;
+	$self->{_PlotType}   = "operation-candlesticks";
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {

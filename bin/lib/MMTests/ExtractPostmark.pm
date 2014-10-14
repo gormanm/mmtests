@@ -4,15 +4,15 @@ use MMTests::SummariseSingleops;
 our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
-sub new() {
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractPostmark",
-		_DataType    => MMTests::Extract::DATA_ACTIONS_PER_SECOND,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
+	$self->{_ModuleName} = "ExtractPostmark";
+	$self->{_DataType}   = MMTests::Extract::DATA_TRANS_PER_SECOND;
+	$self->{_PlotType}   = "histogram";
+	$self->{_Opname}     = "Time";
+
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {

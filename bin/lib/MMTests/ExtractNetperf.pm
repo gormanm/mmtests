@@ -5,20 +5,14 @@ use VMR::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractNetperf",
-		_DataType    => MMTests::Extract::DATA_MBITS_PER_SECOND,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
-}
-
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	$self->{_Opname} = "Tput";
+	my $class = shift;
+	$self->{_ModuleName} = "ExtractNetperf";
+	$self->{_DataType}   = MMTests::Extract::DATA_MBITS_PER_SECOND;
+	$self->{_PlotType}   = "linespoint";
+	$self->{_Opname}     = "Tput";
+
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

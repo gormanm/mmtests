@@ -6,15 +6,15 @@ our @ISA = qw(MMTests::SummariseMultiops);
 use VMR::Stat;
 use strict;
 
-sub new() {
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractPft",
-		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
+	$self->{_ModuleName} = "ExtractPft";
+	$self->{_DataType}   = MMTests::Extract::DATA_OPS_PER_SECOND;
+	$self->{_PlotType}   = "client-errorlines";
+	$self->{_PlotXaxis}  = "Clients";
+
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 my $_pagesize = "base";
@@ -30,13 +30,13 @@ sub extractReport($$$) {
 	}
 
 	my @clients;
-        my @files = <$reportDir/$profile/$_pagesize/pft-*.log>;
-        foreach my $file (@files) {
-                my @split = split /-/, $file;
-                $split[-1] =~ s/.log//;
-                push @clients, $split[-1];
-        }
-        @clients = sort { $a <=> $b } @clients;
+	my @files = <$reportDir/$profile/$_pagesize/pft-*.log>;
+	foreach my $file (@files) {
+		my @split = split /-/, $file;
+		$split[-1] =~ s/.log//;
+		push @clients, $split[-1];
+	}
+	@clients = sort { $a <=> $b } @clients;
 
 	foreach my $client (@clients) {
 		my $nr_samples = 0;

@@ -4,20 +4,15 @@ use MMTests::SummariseSingleops;
 our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractAutonumabench",
-		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
-}
-
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	$self->{_Opname} = "Time";
+	my $class = shift;
+	$self->{_ModuleName} = "ExtractDbench4";
+	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
+	$self->{_PlotType}   = "histogram";
+	$self->{_Opname}     = "Time";
+	$self->{_FieldLength}= 25;
+
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

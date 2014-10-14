@@ -4,18 +4,15 @@ use MMTests::SummariseMultiops;
 use VMR::Report;
 our @ISA = qw(MMTests::SummariseMultiops);
 
-my @_threads;
-
-sub new() {
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractHackbench",
-		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
-		_ResultData  => [],
-		_UseTrueMean => 1,
-	};
-	bless $self, $class;
-	return $self;
+	$self->{_ModuleName} = "ExtractHackbench";
+	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
+	$self->{_PlotType}   = "client-errorlines";
+	$self->{_PlotXaxis}  = "Clients";
+
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {

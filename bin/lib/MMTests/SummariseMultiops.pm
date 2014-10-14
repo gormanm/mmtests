@@ -9,7 +9,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "SummariseMultiops",
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;
@@ -17,10 +16,16 @@ sub new() {
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
+	my $plotType = "candlesticks";
 	my $opName = "Ops";
 	if (defined $self->{_Opname}) {
 		$opName = $self->{_Opname};
 	}
+	if (defined $self->{_PlotType}) {
+		$plotType = $self->{_PlotType};
+	}
+	$self->{_Opname} = $opName;
+	$self->{_PlotType} = $plotType;
 
 	$self->{_MeanOp} = "calc_harmmean";
 	$self->{_MeanName} = "Hmean";
@@ -46,32 +51,61 @@ sub initialise() {
 	$self->{_TestName} = $testName;
 }
 
-sub printDataType() {
-	print "Operations/sec";
-}
-
 sub printPlot() {
 	my ($self, $subHeading) = @_;
 	my @data = @{$self->{_ResultData}};
+	my @_operations = @{$self->{_Operations}};
 	my $fieldLength = $self->{_FieldLength};
 	my $column = 1;
 
-	if ($subHeading eq "") {
-		$subHeading = "SeqOut Block";
-	}
-	$subHeading =~ s/\s+//g;
-
-	my @units;
-	my @row;
-	my $samples = 0;
-	foreach my $row (@data) {
-		@{$row}[0] =~ s/\s+//g;
-		if (@{$row}[0] eq $subHeading) {
-			push @units, @{$row}[2];
-			$samples++;
+	if ($subHeading ne "") {
+		my $index = 0;
+		while ($index <= $#_operations) {
+			if ($_operations[$index] =~ /^$subHeading.*/) {
+				$index++;
+				next;
+			}
+			splice(@_operations, $index, 1);
 		}
 	}
-	$self->_printCandlePlotData($fieldLength, @units);
+
+	my $nr_headings = 0;
+	foreach my $heading (@_operations) {
+		my @units;
+		my @row;
+		my $samples = 0;
+		$heading =~ s/\s//g;
+		foreach my $row (@data) {
+			@{$row}[0] =~ s/\s+//g;
+			if (@{$row}[0] eq $heading) {
+				push @units, @{$row}[2];
+				$samples++;
+			}
+		}
+
+		$nr_headings++;
+		if ($self->{_PlotType} eq "candlesticks") {
+			printf "%-${fieldLength}s ", $heading;
+			$self->_printCandlePlotData($fieldLength, @units);
+		} elsif ($self->{_PlotType} eq "operation-candlesticks") {
+			printf "%d %-${fieldLength}s ", $nr_headings, $heading;
+			$self->_printCandlePlotData($fieldLength, @units);
+		} elsif ($self->{_PlotType} eq "client-candlesticks") {
+			$heading =~ s/.*-//;
+			printf "%-${fieldLength}s ", $heading;
+			$self->_printCandlePlotData($fieldLength, @units);
+		} elsif ($self->{_PlotType} eq "single-candlesticks") {
+			$self->_printCandlePlotData($fieldLength, @units);
+		} elsif ($self->{_PlotType} eq "client-errorbars") {
+			$heading =~ s/.*-//;
+			printf "%-${fieldLength}s ", $heading;
+			$self->_printErrorBarData($fieldLength, @units);
+		} elsif ($self->{_PlotType} eq "client-errorlines") {
+			$heading =~ s/.*-//;
+			printf "%-${fieldLength}s ", $heading;
+			$self->_printErrorBarData($fieldLength, @units);
+		}
+	}
 }
 
 sub printReport() {
@@ -85,8 +119,14 @@ sub extractSummary() {
 	my @data = @{$self->{_ResultData}};
 
 	if ($subHeading ne "") {
-		$#_operations = 0;
-		$_operations[0] = $subHeading;
+		my $index = 0;
+		while ($index <= $#_operations) {
+			if ($_operations[$index] =~ /^$subHeading.*/) {
+				$index++;
+				next;
+			}
+			splice(@_operations, $index, 1);
+		}
 	}
 
 	foreach my $operation (@_operations) {

@@ -3,19 +3,17 @@ package MMTests::ExtractStutterthroughput;
 use MMTests::SummariseMultiops;
 use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
-
 use strict;
-my @_threads;
 
-sub new() {
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractStutter",
-		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
-		_ResultData  => [],
-	};
-	bless $self, $class;
-	return $self;
+	$self->{_ModuleName} = "ExtractStutterthroughput";
+	$self->{_DataType}   = MMTests::Extract::DATA_MBYTES_PER_SECOND;
+	$self->{_PlotType}   = "client-errorlines";
+	$self->{_PlotXaxis}  = "Clients";
+
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {

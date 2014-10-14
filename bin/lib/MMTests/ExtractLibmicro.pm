@@ -4,16 +4,15 @@ use MMTests::SummariseSingleops;
 use VMR::Report;
 our @ISA = qw(MMTests::SummariseSingleops);
 
-sub new() {
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractLibmicro",
-		_DataType    => MMTests::Extract::DATA_TIME_USECONDS,
-		_ResultData  => [],
-		_UseTrueMean => 1,
-	};
-	bless $self, $class;
-	return $self;
+	$self->{_ModuleName} = "ExtractLibmicro";
+	$self->{_DataType}   = MMTests::Extract::DATA_TIME_USECONDS;
+	$self->{_PlotType}   = "histogram";
+	$self->{_Opname}     = "Time";
+
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {

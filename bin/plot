@@ -26,12 +26,6 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			cat $2 >> $TEMP
 			shift 2
 			;;
-		--specplot)
-			SPECPLOT=yes
-			USING="3:xtic(1)"
-			PLOTTYPE="histogram"
-			shift
-			;;
 		--stream)
 			STREAM=yes
 			shift
@@ -44,51 +38,56 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			YLABEL="$2"
 			shift 2
 			;;
-		--candlestick|--candlesticks)
+		--linespoint)
+			PLOTTYPE="linespoint"
+			shift
+			;;
+		--operation-candlesticks)
+			OPER_CANDLESTICKS="yes"
+			PLOTTYPE="candlesticks"
+			USING="1:3:4:5:6:xtic(2)"
+			shift
+			;;
+		--client-candlesticks)
+			CLIENT_CANDLESTICKS="yes"
+			PLOTTYPE="candlesticks"
+			USING="1:2:3:4:5"
+			shift
+			;;
+		--client-errorbars)
+			CLIENT_ERRORBARS="yes"
+			PLOTTYPE="errorbars"
+			shift
+			;;
+		--client-errorlines)
+			CLIENT_ERRORLINES="yes"
+			PLOTTYPE="errorlines"
+			shift
+			;;
+		--single-candlesticks)
+			SINGLE_CANDLESTICKS="yes"
+			PLOTTYPE="candlesticks"
+			USING="1:2:3:4:5"
+			shift
+			;;
+		--candlesticks)
 			CANDLESTICKS="yes"
 			PLOTTYPE="candlesticks"
-			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"
 			USING="1:2:3:4:5"
+			shift
+			;;
+		--histogram)
+			HISTOGRAM="yes"
+			USING="2:xtic(1)"
+			PLOTTYPE="histogram"
 			shift
 			;;
 		--cacheeffects)
 			CACHEEFFECTS=yes
 			shift
 			;;
-		--createdelete)
-			CREATEDELETE=yes
-			shift
-			;;
-		--dbench)
-			DBENCH=yes
-			shift
-			;;
-		--dbench-candle)
-			DBENCH_CANDLE=yes
-			PLOTTYPE="candlesticks"
-			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"
-			USING="1:2:3:4:5"
-			shift
-			;;
-		--fsmark-candle)
-			FSMARK_CANDLE=yes
-			PLOTTYPE="candlesticks"
-			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"
-			USING="1:2:3:4:5"
-			shift
-			;;
 		--netperf)
 			NETPERF=yes
-			shift
-			;;
-		--tiobench)
-			TIOBENCH=yes
-			LOGX=yes
-			shift
-			;;
-		--tiobench-ratio)
-			TIOBENCH_RATIO=yes
-			LOGX=yes
 			shift
 			;;
 		--irqsoff)
@@ -138,21 +137,9 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			UNUSABLE_INDEX=yes
 			shift
 			;;
-		--fragmentation-index)
-			FRAGMENTATION_INDEX=yes
-			PLOTTYPE="points"
-			shift
-			;;
 		--timeplot)
 			AWK_FORMAT="<awk '{print \$1/60,\$2}' @@PLOT@@"
 			XLABEL="Time Elapsed (minutes)"
-			shift
-			;;
-		--specthesis)
-			SPECPLOT=yes
-			SPECTHESIS=yes
-			USING="2:xtic(1)"
-			PLOTTYPE="linespoints"
 			shift
 			;;
 		--kernbench)
@@ -206,28 +193,6 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			HIGHORDER_LATENCY=yes
 			PLOTTYPE=points
 			USING="1:3"
-			shift
-			;;
-		--hackbench)
-			HACKBENCH=yes
-			shift
-			;;
-		--hackbench-ratio)
-			HACKBENCH_RATIO=yes
-			shift
-			;;
-		--lmbench)
-			LMBENCH=yes
-			shift
-			;;
-		--lmbench-ratio)
-			LMBENCH_RATIO=yes
-			shift
-			;;
-		--pagealloc)
-			PAGEALLOC=yes
-			PLOTTYPE="linespoints"
-			LOGX=yes
 			shift
 			;;
 		--stress-highalloc)
@@ -305,33 +270,6 @@ if [ "$SHRINK" != "" ]; then
 	echo $SHRINK >> $TEMP
 fi
 
-if [ "$SPECPLOT" = "yes" ]; then
-#	IFS="
-#"
-	echo "set xtic rotate by -45" >> $TEMP
-#	echo -n "set xtics (" >> $TEMP
-#	for LINE in `cat $1`; do
-#		TITLE=`echo $LINE | awk '{print $1}'`
-#		OFFSET=`echo $LINE | awk '{print $2}'`
-#		XRANGE=$(($XRANGE+1))
-#		if [ "$FIRST" = "no" ]; then
-#			echo -n ", " >> $TEMP
-#		fi
-#		FIRST=no
-#		echo -n \"$TITLE\" $OFFSET\ >> $TEMP
-#	done
-#	echo ")" >> $TEMP
-#	echo "set xrange [0:$XRANGE]" >> $TEMP
-
-	if [ "$SPECTHESIS" = "yes" ]; then
-		TITLES="Speed-Up"
-		YLABEL="Ratio of Base to Superpages"
-		echo "set multiplot" >> $TEMP
-		echo "set ytics nomirror" >> $TEMP
-		echo "f(x)=1" >> $TEMP
-	fi
-	echo "set style fill solid border -1" >> $TEMP
-fi
 if [ "$STREAM" = "yes" ]; then
 	echo set ylabel \"MB/s Throughput\" >> $TEMP
 	echo set xlabel \"Working Set Size \(bytes\)\" >> $TEMP
@@ -358,43 +296,9 @@ if [ "$CACHEEFFECTS" = "yes" ]; then
 	echo set format x \"2**%g\" >> $TEMP
 	echo set xtics 5 >> $TEMP
 fi
-if [ "$CREATEDELETE" = "yes" ]; then
-	echo set ylabel \"Time in Seconds\" >> $TEMP
-	echo set xlabel \"Working Set Size \(bytes\)\" >> $TEMP
-	echo set format x \"2**%g\" >> $TEMP
-	echo set xtics 5 >> $TEMP
-fi
-if [ "$DBENCH" = "yes" ]; then
-	echo set ylabel \"Throughput MB/sec\" >> $TEMP
-	echo set xlabel \"Threads\" >> $TEMP
-fi
-if [ "$FSMARK" = "yes" ]; then
-	echo set ylabel \"Files/sec\" >> $TEMP
-	echo set xlabel \"Threads\" >> $TEMP
-fi
 if [ "$HIGHORDER_LATENCY" = "yes" ]; then
 	echo set xlabel \"Timestamp\" >> $TEMP
 	echo set ylabel \"Latency\" >> $TEMP
-fi
-if [ "$HACKBENCH" = "yes" ]; then
-	echo set ylabel \"Time in Seconds\" >> $TEMP
-	echo set xlabel \"Number of Processes\" >> $TEMP
-fi
-if [ "$HACKBENCH_RATIO" = "yes" ]; then
-	echo set ylabel \"Time Ratio\" >> $TEMP
-	echo set xlabel \"Number of Processes\" >> $TEMP
-fi
-if [ "$LMBENCH" = "yes" ]; then
-	echo set ylabel \"Context Switch Latency\" >> $TEMP
-	echo set xlabel \"Number of Processes\" >> $TEMP
-fi
-if [ "$LMBENCH_RATIO" = "yes" ]; then
-	echo set ylabel \"Context Switch Latency Ratio\" >> $TEMP
-	echo set xlabel \"Number of Processes\" >> $TEMP
-fi
-if [ "$PAGEALLOC" = "yes" ]; then
-	echo set ylabel \"Latency \(clock cycles\)\" >> $TEMP
-	echo set xlabel \"Number of Pages\" >> $TEMP
 fi
 if [ "$UNUSABLE_INDEX" = "yes" ]; then
 	echo set ylabel \"Unusable Free Space Index\" >> $TEMP
@@ -429,14 +333,6 @@ if [ "$PARALLELIO_IODURATION" = "yes" ]; then
 	echo set xlabel \"Parallel IO Size MB\" >> $TEMP
 	AWK_FORMAT="<awk '{print \$1/1048576,\$2}' @@PLOT@@"
 fi
-if [ "$TIOBENCH" = "yes" ]; then
-	echo set ylabel \"Throughput MB/sec\" >> $TEMP
-	echo set xlabel \"Threads\" >> $TEMP
-fi
-if [ "$TIOBENCH_RATIO" = "yes" ]; then
-	echo set ylabel \"Throughput Ratio\" >> $TEMP
-	echo set xlabel \"Threads\" >> $TEMP
-fi
 if [ "$THP" = "yes" ]; then
 	echo set ylabel \"Transparent Huge Pages\" >> $TEMP
 	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
@@ -460,29 +356,22 @@ if [ "$IOSTAT_RATES" = "yes" ]; then
 	AWK_FORMAT="<awk '{print \$1/60,\$@@FIELD@@}' @@PLOT@@"
 	PLOTCOMMAND=iostat-rates
 fi
-if [ "$FRAGMENTATION_INDEX" = "yes" ]; then
-	echo set ylabel \"Fragmentation Index\" >> $TEMP
-	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
-fi
-if [ "$DBENCH_CANDLE" = "yes" ]; then
-	echo "set noxtics" >> $TEMP
-	echo "set xrange[-0.5:$#.5]" >> $TEMP
+if [ "$KERNBENCH" = "yes" -o "$CANDLESTICKS" = "yes" -o "$SINGLE_CANDLESTICKS" ]; then
 	echo set style fill pattern 6 border  >> $TEMP
-	echo set boxwidth 1 >> $TEMP
+	echo set boxwidth 0.2 >> $TEMP
 fi
-if [ "$FSMARK_CANDLE" = "yes" ]; then
-	echo "set noxtics" >> $TEMP
-	echo "set xrange[-0.5:$#.5]" >> $TEMP
-	echo set style fill pattern 6 border  >> $TEMP
-	echo set boxwidth 1 >> $TEMP
+if [ "$CLIENT_CANDLESTICKS" = "yes" -o "$CLIENT_ERRORBARS" = "yes" ]; then
+	echo set boxwidth 0.2 >> $TEMP
 fi
-if [ "$KERNBENCH" = "yes" -o "$CANDLESTICKS" = "yes" ]; then
-	#echo set ylabel \"Time Elapsed \(seconds\)\" >> $TEMP
-	#echo "set xtics ('2.6.32' 1)" >> $TEMP
-	echo "set noxtics" >> $TEMP
-	echo "set xrange[-0.5:$#.5]" >> $TEMP
-	echo set style fill pattern 6 border  >> $TEMP
-	echo set boxwidth 1 >> $TEMP
+if [ "$HISTOGRAM" = "yes" ]; then
+	echo set style data histogram       >> $TEMP
+	echo set xtic rotate by -45         >> $TEMP
+	echo set style fill solid border -1 >> $TEMP
+fi
+
+if [ "$OPER_CANDLESTICKS" = "yes" ]; then
+	echo "set xtic rotate by -45" >> $TEMP
+	echo set boxwidth 0.2 >> $TEMP
 fi
 if [ "$STACKED_HISTOGRAM" = "yes" ]; then
 	echo set style histogram rowstacked >> $TEMP
@@ -562,7 +451,7 @@ while [ "$1" != "" ]; do
 	fi
 
 	# Add index information for candlesticks if necessary
-	if [ "$PLOTTYPE" = "candlesticks" ]; then
+	if [ "$CANDLESTICKS" = "yes" -o "$SINGLE_CANDLESTICKS" = "yes" ]; then
 		DATACOUNT=`cat $PLOTFILE | wc -l`
 		if [ $DATACOUNT -eq 1 ]; then
 			DATA=`cat $PLOTFILE`
@@ -637,16 +526,7 @@ while [ "$1" != "" ]; do
 	COUNT=$(($COUNT+1))
 done
 echo >> $TEMP
-if [ "$SPECTHESIS" = "yes" ]; then
-	echo "set nokey" >> $TEMP
-	echo "set size 0.5,0.5" >> $TEMP
-	echo "replot f(x)" >> $TEMP
-	echo
-fi
 
-if [ "$DUMP" = "yes" ]; then
-	cat $TEMP
-fi
 cat $TEMP | gnuplot -name gnuplot -persist
 rm $TEMP
 if [ "$CLEANUP_FILES" != "" ]; then

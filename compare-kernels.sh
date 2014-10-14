@@ -241,7 +241,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	pft)
 		echo $SUBREPORT timings
 		compare-mmtests.pl -d . -b pfttime -n $KERNEL_LIST $FORMAT_CMD
-
+		echo
 		echo $SUBREPORT faults
 		eval $COMPARE_CMD
 		;;
@@ -256,15 +256,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		compare-mmtests.pl -d . -b pgbenchexectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	preaddd)
-		echo $SUBREPORT Throughput
-		eval $COMPARE_CMD
-		echo
-		echo $SUBREPORT DD-Time
-		eval $COMPARE_CMD --sub-heading ddtime
-		echo
-		;;
-
 	specjvm)
 		echo $SUBREPORT
 		eval $COMPARE_CMD
@@ -367,59 +358,27 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo "<table class=\"resultsGraphs\">"
 
 		case $SUBREPORT in
-		aim9)
-			;;
-		bonnie)
+		autonumabench)
 			echo "<tr>"
-			COUNT=0
-			for HEADING in "SeqOut Char" "SeqOut Block" "SeqOut Rewrite" "SeqIn Char" "SeqIn Block" "Random seeks"; do
-				if [ $((COUNT%3)) -eq 0 ]; then
-					echo "<tr>"
-				fi
-				SUBHEADING=`echo $HEADING | sed -e 's/ //g'`
-
-				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $SUBHEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUBHEADING.png
-				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $SUBHEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUBHEADING.ps
-				plain graph-$SUBREPORT-$SUBHEADING
-				COUNT=$((COUNT+1))
-				if [ $((COUNT%3)) -eq 0 ]; then
-					echo "</tr>"
-				fi
+			for HEADING in User System Elapsed; do
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				plain graph-$SUBREPORT-$HEADING
 			done
+			echo "</tr>"
 			;;
 		dbench3)
 			echo "<tr>"
-			eval $GRAPH_PNG --logX --title \"$SUBREPORT $HEADING\" --sub-heading MB/sec --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-MB_sec.png
-			eval $GRAPH_PSC --logX --title \"$SUBREPORT $HEADING\" --sub-heading MB/sec --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-MB_sec.ps
-			plain graph-$SUBREPORT-MB_sec
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-mbsec.png
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-mbsec.ps
+			plain graph-$SUBREPORT-mbsec
 			echo "</tr>"
 			;;
 		dbench4|tbench4)
 			echo "<tr>"
-			for HEADING in MB/sec Latency; do
-				PRINTHEADING=$HEADING
-				if [ "$HEADING" = "MB/sec" ]; then
-					PRINTHEADING=MB_sec
-				fi
-				eval $GRAPH_PNG --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.png --y-label $HEADING
-				eval $GRAPH_PSC --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.ps  --y-label $HEADING
-				plain graph-$SUBREPORT-$PRINTHEADING
-			done
-			echo "</tr>"
-			;;
-		ffsb)
-			;;
-		fsmark-single|fsmark-threaded)
-			echo "<tr>"
-			for HEADING in Files/sec Overhead; do
-				PRINTHEADING=$HEADING
-				if [ "$HEADING" = "Files/sec" ]; then
-					PRINTHEADING=Files_sec
-				fi
-				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.png
-				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$PRINTHEADING.ps
-				plain graph-$SUBREPORT-$PRINTHEADING
-			done
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-mbsec.png
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-mbsec.ps
+			plain graph-$SUBREPORT-mbsec
 			echo "</tr>"
 			;;
 		futexbench-hash)
@@ -448,21 +407,64 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			done
 			echo "</tr>"
 			;;
-		largedd)
+		ku_latency)
+			;;
+		libmicro)
+			;;
+		mutilate)
 			;;
 		micro)
 			;;
-		nas-mpi)
+		nas-mpi|nas-ser)
+			echo "<tr>"
+			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png
+			eval $GRAPH_PSC --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps
+			plain graph-$SUBREPORT
+			echo "</tr>"
 			;;
-		nas-ser)
+		parallelio)
 			;;
 		pagealloc)
 			;;
+		pipetest)
+			;;
 		pft)
+			echo "<tr>"
+			eval $GRAPH_PNG --title \"$SUBREPORT faults/cpu\" --sub-heading faults/cpu --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultscpu.png
+			eval $GRAPH_PSC --title \"$SUBREPORT faults/cpu\" --sub-heading faults/cpu --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultscpu.ps
+			eval $GRAPH_PNG --title \"$SUBREPORT faults/sec\" --sub-heading faults/sec --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultssec.png
+			eval $GRAPH_PSC --title \"$SUBREPORT faults/sec\" --sub-heading faults/sec --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultssec.ps
+			plain graph-$SUBREPORT-faultscpu
+			plain graph-$SUBREPORT-faultssec
+			echo "</tr>"
+			;;
+		pgioperf)
+			;;
+		pgbench)
+			echo "<tr>"
+			eval $GRAPH_PNG        -b pgbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.png
+			eval $GRAPH_PSC        -b pgbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.ps
+			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			eval $GRAPH_PNG --logX -b pgbenchexectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.png
+			eval $GRAPH_PSC --logX -b pgbenchexectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.ps
+			plain graph-$SUBREPORT-loadtime
+			plain graph-$SUBREPORT
+			plain graph-$SUBREPORT-exectime
+			echo "</tr>"
 			;;
 		postmark)
+			echo "<tr>"
+			eval $GRAPH_PNG --logY --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --logY --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			plain graph-$SUBREPORT
+			echo "</tr>"
 			;;
-		specjvm)
+		reaim)
+			;;
+		seeker)
+			;;
+		specjbb2013)
 			;;
 		siege)
 			echo "<tr>"
@@ -480,20 +482,31 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			done
 			echo "</tr>"
 			;;
+		stutter)
+			;;
+		sysbench)
+			echo "<tr>"
+			eval $GRAPH_PNG        -b sysbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.png
+			eval $GRAPH_PSC        -b sysbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.ps
+			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			eval $GRAPH_PNG --logX -b sysbenchexectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.png
+			eval $GRAPH_PSC --logX -b sysbenchexectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.ps
+			plain graph-$SUBREPORT-loadtime
+			plain graph-$SUBREPORT
+			plain graph-$SUBREPORT-exectime
+			echo "</tr>"
+			;;
+		timeexit)
+			;;
 		tiobench)
-			CLIENTS=`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | awk -F - '{print $3}' | sort -n | uniq`
-			for HEADING in MB/sec AvgLatency MaxLatency; do
-				PRINT_HEADING=`echo $HEADING | sed -e 's/\///'`
-				for OPERATION in SeqRead RandRead SeqWrite RandWrite; do
-					echo "<tr>"
-					for CLIENT in $CLIENTS; do
-						eval $GRAPH_PNG --title \"$OPERATION-$CLIENT $HEADING\" --y-label $HEADING --sub-heading $OPERATION-$HEADING-$CLIENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$OPERATION-$PRINT_HEADING-$CLIENT.png
-						eval $GRAPH_PSC --title \"$OPERATION-$CLIENT $HEADING\" --y-label $HEADING --sub-heading $OPERATION-$HEADING-$CLIENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$OPERATION-$PRINT_HEADING-$CLIENT.ps
-						plain graph-$SUBREPORT-$OPERATION-$PRINT_HEADING-$CLIENT
-					done
-					echo "</tr>"
-				done
+			echo "<tr>"
+			for HEADING in SeqRead SeqWrite RandRead RandWrite ; do
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				plain graph-$SUBREPORT-$HEADING
 			done
+			echo "</tr>"
 			;;
 		vmr-stream)
 			;;
