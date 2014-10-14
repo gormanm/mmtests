@@ -1,5 +1,5 @@
-# ExtractDbench4
-package MMTests::ExtractDbench4;
+# ExtractDbench4latency
+package MMTests::ExtractDbench4latency;
 use MMTests::SummariseMultiops;
 use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops); 
@@ -8,8 +8,8 @@ use strict;
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "Dbench4",
-		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
+		_ModuleName  => "Dbench4latency.pm",
+		_DataType    => MMTests::Extract::DATA_TIME_MSECONDS,
 		_ResultData  => []
 	};
 	bless $self, $class;
@@ -19,6 +19,7 @@ sub new() {
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my @clients;
+	$reportDir =~ s/4latency/4/;
 
 	my @files = <$reportDir/noprofile/dbench-*.log>;
 	if ($files[0] eq "") {
@@ -44,7 +45,7 @@ sub extractReport($$$) {
 				my @elements = split(/\s+/, $_);
 
 				$nr_samples++;
-				push @{$self->{_ResultData}}, [ "mb/sec-$client", $nr_samples, $elements[3] ];
+				push @{$self->{_ResultData}}, [ "latency-$client", $nr_samples, $elements[9] ];
 
 				next;
 			}
@@ -54,7 +55,7 @@ sub extractReport($$$) {
 
 	my @ops;
 	foreach my $client (@clients) {
-		push @ops, "mb/sec-$client";
+		push @ops, "latency-$client";
 	}
 
 	$self->{_Operations} = \@ops;

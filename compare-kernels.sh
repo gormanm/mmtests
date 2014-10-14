@@ -201,6 +201,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format \"postscript color solid\""
 	echo
 	case $SUBREPORT in
+	dbench4)
+		echo $SUBREPORT Overall Throughput
+		$COMPARE_CMD
+		echo
+		echo $SUBREPORT Latency
+		compare-mmtests.pl -d . -b dbench4latency -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		echo $SUBREPORT Per-VFS Operation latency Latency
+		compare-mmtests.pl -d . -b dbench4opslatency -n $KERNEL_LIST $FORMAT_CMD
+		;;
 	ebizzy)
 		echo $SUBREPORT Overall Throughput
 		$COMPARE_CMD
