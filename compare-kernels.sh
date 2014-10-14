@@ -231,6 +231,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT CPU-Time
 		eval $COMPARE_CMD --sub-heading elapsed
 		;;
+	pft)
+		echo $SUBREPORT timings
+		compare-mmtests.pl -d . -b pfttime -n $KERNEL_LIST $FORMAT_CMD
+
+		echo $SUBREPORT faults
+		eval $COMPARE_CMD
+		;;
 	pgbench)
 		echo $SUBREPORT Initialisation
 		compare-mmtests.pl -d . -b pgbenchloadtime -n $KERNEL_LIST $FORMAT_CMD

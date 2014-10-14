@@ -1,5 +1,5 @@
-# ExtractPft.pm
-package MMTests::ExtractPft;
+# ExtractPfttime.pm
+package MMTests::ExtractPfttime;
 use MMTests::SummariseMultiops;
 our @ISA = qw(MMTests::SummariseMultiops);
 
@@ -9,8 +9,8 @@ use strict;
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ExtractPft",
-		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
+		_ModuleName  => "ExtractPfttime",
+		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
 		_ResultData  => []
 	};
 	bless $self, $class;
@@ -56,14 +56,14 @@ sub extractReport($$$) {
 		 	$faultsCpu, $faultsSec) = split(/\s+/, $line);
 
 			$nr_samples++;
-			push @{$self->{_ResultData}}, [ "faults/cpu-$client",   $nr_samples, $faultsCpu ];
-			push @{$self->{_ResultData}}, [ "faults/sec-$client", $nr_samples, $faultsSec ];
+			push @{$self->{_ResultData}}, [ "system-$client", $nr_samples, $system ];
+			push @{$self->{_ResultData}}, [ "elapsed-$client", $nr_samples, $wallTime ];
 		}
 		close INPUT;
 	}
 
 	my @ops;
-	foreach my $heading ("faults/cpu", "faults/sec") {
+	foreach my $heading ("system", "elapsed") {
 		foreach my $client (@clients) {
 			push @ops, "$heading-$client";
 		}
