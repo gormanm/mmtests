@@ -1,7 +1,7 @@
 # ExtractParallelio.pm
 package MMTests::ExtractParallelio;
 use MMTests::SummariseMultiops;
-our @ISA = qw(MMTests::SummariseMultiops); 
+our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub new() {
@@ -21,7 +21,7 @@ sub extractReport($$$) {
 	my @ioSteps;
 	my @ioSizes;
 	my $workload;
-	
+
 	# Read the IO steps and workload type
 	my $file = "$reportDir/noprofile/workload-durations.log";
 	open(INPUT, $file) || die("Failed to open $file\n");

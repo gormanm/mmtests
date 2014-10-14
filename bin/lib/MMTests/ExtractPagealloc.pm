@@ -1,7 +1,7 @@
 # ExtractPagealloc.pm
 package MMTests::ExtractPagealloc;
 use MMTests::Extract;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::Extract);
 
 use constant DATA_PAGEALLOC	=> 100;
 use VMR::Stat;

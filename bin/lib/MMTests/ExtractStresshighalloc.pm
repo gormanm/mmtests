@@ -1,7 +1,7 @@
 # ExtractStresshighalloc.pm
 package MMTests::ExtractStresshighalloc;
 use MMTests::SummariseSingleops;
-our @ISA = qw(MMTests::SummariseSingleops); 
+our @ISA = qw(MMTests::SummariseSingleops);
 
 use constant DATA_STRESSHIGHALLOC	=> 400;
 

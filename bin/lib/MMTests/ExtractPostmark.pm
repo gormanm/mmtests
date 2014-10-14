@@ -1,7 +1,7 @@
 # ExtractPostmark.pm
 package MMTests::ExtractPostmark;
 use MMTests::SummariseSingleops;
-our @ISA = qw(MMTests::SummariseSingleops); 
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub new() {

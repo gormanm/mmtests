@@ -1,7 +1,7 @@
 # ExtractMonitor.pm
 package MMTests::ExtractMonitor;
 use MMTests::Extract;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::Extract);
 
 sub new() {
 	my $class = shift;

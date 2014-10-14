@@ -1,7 +1,7 @@
 # ExtractPft.pm
 package MMTests::ExtractPft;
 use MMTests::Extract;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::Extract);
 
 use constant DATA_PFT		=> 200;
 use VMR::Stat;

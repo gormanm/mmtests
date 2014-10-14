@@ -1,7 +1,7 @@
 # CompareMutilate.pm
 package MMTests::CompareMutilate;
 use MMTests::Compare;
-our @ISA = qw(MMTests::Compare); 
+our @ISA = qw(MMTests::Compare);
 
 sub new() {
 	my $class = shift;

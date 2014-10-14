@@ -2,7 +2,7 @@
 package MMTests::ExtractSeeker;
 use MMTests::SummariseMultiops;
 use VMR::Report;
-our @ISA = qw(MMTests::SummariseMultiops); 
+our @ISA = qw(MMTests::SummariseMultiops);
 
 sub new() {
 	my $class = shift;

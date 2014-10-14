@@ -1,7 +1,7 @@
 # CompareHighalloc.pm
 package MMTests::CompareHighalloc;
 use MMTests::Compare;
-our @ISA = qw(MMTests::Compare); 
+our @ISA = qw(MMTests::Compare);
 
 use constant DATA_HIGHALLOC => 500;
 

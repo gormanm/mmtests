@@ -2,7 +2,7 @@
 package MMTests::MonitorTop;
 use MMTests::Monitor;
 use VMR::Report;
-our @ISA = qw(MMTests::Monitor); 
+our @ISA = qw(MMTests::Monitor);
 use strict;
 
 sub new() {

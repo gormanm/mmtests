@@ -2,7 +2,7 @@
 package MMTests::ExtractKu_latency;
 use MMTests::SummariseVariabletime;
 use VMR::Report;
-our @ISA = qw(MMTests::SummariseVariabletime); 
+our @ISA = qw(MMTests::SummariseVariabletime);
 
 sub new() {
 	my $class = shift;

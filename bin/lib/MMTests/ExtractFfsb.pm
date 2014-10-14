@@ -1,7 +1,7 @@
 # ExtractFfsb.pm
 package MMTests::ExtractFfsb;
 use MMTests::SummariseSingleops;
-our @ISA = qw(MMTests::SummariseSingleops); 
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub new() {

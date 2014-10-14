@@ -1,7 +1,7 @@
 # CompareSpecjbb.pm
 package MMTests::CompareSpecjbb;
 use MMTests::Compare;
-our @ISA = qw(MMTests::Compare); 
+our @ISA = qw(MMTests::Compare);
 
 sub new() {
 	my $class = shift;

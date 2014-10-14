@@ -2,7 +2,7 @@
 package MMTests::SummariseSingleops;
 use MMTests::Extract;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::Extract);
 use strict;
 
 sub new() {

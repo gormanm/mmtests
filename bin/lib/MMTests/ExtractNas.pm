@@ -1,7 +1,7 @@
 # ExtractNas.pm
 package MMTests::ExtractNas;
 use MMTests::SummariseSingleops;
-our @ISA = qw(MMTests::SummariseSingleops); 
+our @ISA = qw(MMTests::SummariseSingleops);
 
 use VMR::Stat;
 use strict;

@@ -3,7 +3,7 @@ package MMTests::MonitorRcugp;
 use MMTests::Monitor;
 use VMR::Report;
 use VMR::Stat;
-our @ISA = qw(MMTests::Monitor); 
+our @ISA = qw(MMTests::Monitor);
 use strict;
 
 sub new() {

@@ -1,7 +1,7 @@
 package MMTests::ExtractVmscale;
 use MMTests::Extract;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::Extract);
 use strict;
 
 sub new() {
@@ -23,7 +23,7 @@ sub printDataType() {
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my @cases;
-	
+
 	open(INPUT, "$reportDir/noprofile/cases") || die "Failed to open cases file";
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;

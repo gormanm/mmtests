@@ -1,7 +1,7 @@
 # ExtractSpecjvm.pm
 package MMTests::ExtractSpecjvm;
 use MMTests::SummariseSingleops;
-our @ISA = qw(MMTests::SummariseSingleops); 
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub new() {

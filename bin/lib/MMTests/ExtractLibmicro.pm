@@ -2,7 +2,7 @@
 package MMTests::ExtractLibmicro;
 use MMTests::SummariseSingleops;
 use VMR::Report;
-our @ISA = qw(MMTests::SummariseSingleops); 
+our @ISA = qw(MMTests::SummariseSingleops);
 
 sub new() {
 	my $class = shift;

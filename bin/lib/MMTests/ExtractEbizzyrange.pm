@@ -2,7 +2,7 @@
 package MMTests::ExtractEbizzyrange;
 use MMTests::SummariseMultiops;
 use VMR::Stat;
-our @ISA = qw(MMTests::SummariseMultiops); 
+our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub new() {

@@ -1,7 +1,7 @@
 # ExtractTimedmunlock.pm
 package MMTests::ExtractTimedmunlock;
 use MMTests::Extract;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::Extract);
 
 sub new() {
 	my $class = shift;

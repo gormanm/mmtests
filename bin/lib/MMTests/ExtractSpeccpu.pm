@@ -1,7 +1,7 @@
 # ExtractSpeccpu.pm
 package MMTests::ExtractSpeccpu;
 use MMTests::SummariseSingleops;
-our @ISA = qw(MMTests::SummariseSingleops); 
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub new() {

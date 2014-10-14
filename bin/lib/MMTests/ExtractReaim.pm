@@ -2,7 +2,7 @@
 package MMTests::ExtractReaim;
 use MMTests::SummariseMultiops;
 use VMR::Stat;
-our @ISA = qw(MMTests::SummariseMultiops); 
+our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub new() {
@@ -39,7 +39,7 @@ sub extractReport($$$) {
 					last;
 				}
 			}
-		
+
 			$iteration++;
 			while (<INPUT>) {
 				my $line = $_;

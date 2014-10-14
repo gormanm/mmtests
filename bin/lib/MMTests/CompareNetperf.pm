@@ -1,7 +1,7 @@
 # CompareNetperf.pm
 package MMTests::CompareNetperf;
 use MMTests::Compare;
-our @ISA = qw(MMTests::Compare); 
+our @ISA = qw(MMTests::Compare);
 
 sub new() {
 	my $class = shift;

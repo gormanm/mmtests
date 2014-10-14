@@ -1,7 +1,7 @@
 # ComparePft.pm
 package MMTests::ComparePft;
 use MMTests::Compare;
-our @ISA = qw(MMTests::Compare); 
+our @ISA = qw(MMTests::Compare);
 
 use constant DATA_PFT           => 200;
 

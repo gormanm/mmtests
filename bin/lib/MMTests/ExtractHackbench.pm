@@ -2,7 +2,7 @@
 package MMTests::ExtractHackbench;
 use MMTests::SummariseMultiops;
 use VMR::Report;
-our @ISA = qw(MMTests::SummariseMultiops); 
+our @ISA = qw(MMTests::SummariseMultiops);
 
 my @_threads;
 

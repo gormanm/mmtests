@@ -2,7 +2,7 @@
 package MMTests::MonitorMmtestsvmstat;
 use MMTests::Monitor;
 use VMR::Report;
-our @ISA = qw(MMTests::Monitor); 
+our @ISA = qw(MMTests::Monitor);
 use strict;
 
 sub new() {
@@ -278,7 +278,7 @@ sub extractReport($$$$) {
 	$vmstat{"mmtests_kswapd_velocity"} = $vmstat{"mmtests_kswapd_scan"} / $elapsed_time;
 
 	# direct scan
-	foreach my $key ("pgscan_direct_dma", "pgscan_direct_dma32", 
+	foreach my $key ("pgscan_direct_dma", "pgscan_direct_dma32",
 			  "pgscan_direct_normal", "pgscan_direct_movable",
 			  "pgscan_direct_high") {
 		my $value = $vmstat_after{$key} - $vmstat_before{$key};
@@ -341,7 +341,7 @@ sub extractReport($$$$) {
 			 "thp_fault_alloc", "thp_collapse_alloc",
 			 "thp_split", "thp_fault_fallback",
 			 "thp_collapse_alloc_failed") {
-		
+
 		my $value = $vmstat_after{$key} - $vmstat_before{$key};
 		$vmstat{$key} = $value;
 	}
@@ -427,7 +427,7 @@ sub extractReport($$$$) {
 		    !defined($vmstat_before{"compact_blocks_moved"})) {
 			$vmstat{"mmtests_compaction_cost"} = -1;
 		}
-		if (!defined($vmstat_before{"numa_pte_updates"})) { 
+		if (!defined($vmstat_before{"numa_pte_updates"})) {
 			$vmstat{"mmtests_numa_pte_updates"} = -1;
 		}
 		if (!defined($vmstat_before{"numa_pte_updates"})) {

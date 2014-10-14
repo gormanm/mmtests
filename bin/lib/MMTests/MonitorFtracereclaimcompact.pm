@@ -431,7 +431,7 @@ sub ftraceCallback {
 
 }
 
-sub ftraceReport { 
+sub ftraceReport {
 	my ($self, $rowOrientated) = @_;
 	my $i;
 	my (@headers, @fields, @format);

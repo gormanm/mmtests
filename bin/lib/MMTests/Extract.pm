@@ -308,7 +308,7 @@ sub extractSummaryR() {
 
 	my @row;
 	my @rowNames;
-	
+
 	# TODO: This might depend on the data type?
 	push @row, "";
 	push @rowNames, "Unit";

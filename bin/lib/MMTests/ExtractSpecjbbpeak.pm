@@ -2,7 +2,7 @@
 package MMTests::ExtractSpecjbbpeak;
 use MMTests::Extract;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::Extract);
 use strict;
 
 use constant DATA_SPECJBB_PEAK     => 900;

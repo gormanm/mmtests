@@ -1,7 +1,7 @@
 # ExtractFsmark.pm
 package MMTests::ExtractFsmark;
 use MMTests::SummariseMultiops;
-our @ISA = qw(MMTests::SummariseMultiops); 
+our @ISA = qw(MMTests::SummariseMultiops);
 
 sub new() {
 	my $class = shift;

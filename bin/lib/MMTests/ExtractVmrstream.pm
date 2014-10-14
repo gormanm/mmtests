@@ -2,7 +2,7 @@
 package MMTests::ExtractVmrstream;
 use MMTests::Extract;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::Extract);
 use strict;
 
 use constant DATA_STREAMTHROUGHPUT	=> 300;
@@ -42,7 +42,7 @@ sub initialise() {
 		$wss_sizes{$elements[0]} = 1;
 	}
 	close INPUT;
-	
+
 	$self->SUPER::initialise();
 
 	my $fieldLength = $self->{_FieldLength};

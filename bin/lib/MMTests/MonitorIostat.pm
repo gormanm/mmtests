@@ -2,7 +2,7 @@
 package MMTests::MonitorIostat;
 use MMTests::Monitor;
 use VMR::Stat;
-our @ISA = qw(MMTests::Monitor); 
+our @ISA = qw(MMTests::Monitor);
 
 use strict;
 

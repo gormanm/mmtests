@@ -1,7 +1,7 @@
 # ComparePagealloc.pm
 package MMTests::ComparePagealloc;
 use MMTests::Compare;
-our @ISA = qw(MMTests::Compare); 
+our @ISA = qw(MMTests::Compare);
 
 use constant DATA_PAGEALLOC     => 100;
 

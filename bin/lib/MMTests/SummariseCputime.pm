@@ -2,7 +2,7 @@
 package MMTests::SummariseCputime;
 use MMTests::Extract;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract); 
+our @ISA = qw(MMTests::Extract);
 
 sub new() {
 	my $class = shift;
@@ -120,7 +120,7 @@ sub extractReport($$$) {
 			($hours, $minutes, $seconds) = @elements;
 		}
 		$elapsed = $hours * 60 * 60 + $minutes * 60 + $seconds;
-		
+
 		push @{$self->{_ResultData}}, [ $user, $system, $elapsed, $cpu ];
 	}
 	close INPUT;

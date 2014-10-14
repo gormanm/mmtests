@@ -1,7 +1,7 @@
 # CompareDbench4latency.pM
 package MMTests::CompareDbench4latency;
 use MMTests::Compare;
-our @ISA = qw(MMTests::Compare); 
+our @ISA = qw(MMTests::Compare);
 
 sub new() {
 	my $class = shift;

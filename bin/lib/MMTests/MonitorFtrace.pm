@@ -1,7 +1,7 @@
 # MonitorFtrace.pm
 package MMTests::MonitorFtrace;
 use MMTests::Monitor;
-our @ISA = qw(MMTests::Monitor); 
+our @ISA = qw(MMTests::Monitor);
 use strict;
 
 sub new() {

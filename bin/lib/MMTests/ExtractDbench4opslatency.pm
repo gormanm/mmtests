@@ -2,7 +2,7 @@
 package MMTests::ExtractDbench4opslatency;
 use MMTests::SummariseSingleops;
 use VMR::Stat;
-our @ISA = qw(MMTests::SummariseSingleops); 
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub new() {

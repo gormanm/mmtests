@@ -1,7 +1,7 @@
 # CompareAim9.pm
 package MMTests::CompareAim9;
 use MMTests::Compare;
-our @ISA = qw(MMTests::Compare); 
+our @ISA = qw(MMTests::Compare);
 
 use constant DATA_AIM9 => 600;
 

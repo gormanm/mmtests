@@ -1,7 +1,7 @@
 # CompareFfsb.pm
 package MMTests::CompareFfsb;
 use MMTests::Compare;
-our @ISA = qw(MMTests::Compare); 
+our @ISA = qw(MMTests::Compare);
 
 sub new() {
 	my $class = shift;

@@ -1,7 +1,7 @@
 # CompareTimeexit.pm
 package MMTests::CompareKu_latency;
 use MMTests::Compare;
-our @ISA = qw(MMTests::Compare); 
+our @ISA = qw(MMTests::Compare);
 
 sub new() {
 	my $class = shift;

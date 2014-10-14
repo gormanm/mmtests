@@ -1,7 +1,7 @@
 # MonitorSynclatency.pm
 package MMTests::MonitorSynclatency;
 use MMTests::MonitorLatency;
-our @ISA = qw(MMTests::MonitorLatency); 
+our @ISA = qw(MMTests::MonitorLatency);
 use strict;
 
 sub new() {

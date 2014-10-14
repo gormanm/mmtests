@@ -1,5 +1,5 @@
 # MonitorLatency.pm
-# 
+#
 # Generic module for monitoring latency. It expects input data in format:
 # float              float
 # <timestamp-in-sec> <latency>
@@ -13,7 +13,7 @@ package MMTests::MonitorLatency;
 use MMTests::Monitor;
 use VMR::Report;
 use VMR::Stat;
-our @ISA = qw(MMTests::Monitor); 
+our @ISA = qw(MMTests::Monitor);
 use strict;
 
 sub new() {
