@@ -18,7 +18,6 @@ sub new() {
 }
 
 my %devices;
-my $format_type = 1;
 
 sub printDataType() {
 	my ($self) = @_;
@@ -37,7 +36,7 @@ sub extractSummary() {
 	# Yes, this could be done as one pass. Could not be arsed as I'm
 	# playing settlers in 10 minutes.
 	foreach my $device (sort keys %devices) {
-		my (@avgqusz, @avgrqsz, @await, @r_await, @w_await, @rrqm, @wrqm);
+		my (@avgqusz, @avgrqsz, @await, @r_await, @w_await, @svctm, @rrqm, @wrqm);
 
 		foreach my $rowRef (@data) {
 			my @row = @{$rowRef};
@@ -48,9 +47,11 @@ sub extractSummary() {
 			push @await,   $row[3];
 			push @r_await, $row[4];
 			push @w_await, $row[5];
-			push @avgrqsz, $row[6];
-			push @rrqm,    $row[7];
-			push @wrqm,    $row[8];
+			push @svctm,   $row[6];
+			push @avgrqsz, $row[7];
+			push @rrqm,    $row[8];
+			push @wrqm,    $row[9];
+
 		}
 
 		my $mean_avgqusz = calc_mean(@avgqusz);
@@ -62,12 +63,12 @@ sub extractSummary() {
 				 calc_mean(@avgrqsz), calc_max(@avgrqsz) ];
 		push @{$self->{_SummaryData}}, [ "$device-await",
 				 calc_mean(@await), calc_max(@await) ];
-		if ($format_type == 1) {
-			push @{$self->{_SummaryData}}, [ "$device-r_await",
-				 calc_mean(@r_await), calc_max(@r_await) ];
-			push @{$self->{_SummaryData}}, [ "$device-w_await",
-				 calc_mean(@w_await), calc_max(@w_await) ];
-		}
+		push @{$self->{_SummaryData}}, [ "$device-r_await",
+			 calc_mean(@r_await), calc_max(@r_await) ];
+		push @{$self->{_SummaryData}}, [ "$device-w_await",
+			 calc_mean(@w_await), calc_max(@w_await) ];
+		push @{$self->{_SummaryData}}, [ "$device-svctm",
+				 calc_mean(@svctm), calc_max(@svctm) ];
 		push @{$self->{_SummaryData}}, [ "$device-rrqm",
 				 calc_mean(@rrqm), calc_max(@rrqm) ];
 		push @{$self->{_SummaryData}}, [ "$device-wrqm",
@@ -81,6 +82,7 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my $readingDevices = 0;
 	my $start_timestamp = 0;
+	my $format_type = 1;
 
 	my $file = "$reportDir/iostat-$testName-$testBenchmark";
 	if (-e $file) {
@@ -92,12 +94,14 @@ sub extractReport($$$) {
 
 	my $fieldLength = 12;
         $self->{_FieldLength} = $fieldLength;
-        $self->{_FieldHeaders} = [ "Time", "Device", "AvgQueueSz", "AWait", "R_AWait", "W_AWait", "AvgRqSz", "Rrqm", "Wrqm" ];
+        $self->{_FieldHeaders} = [ "Time", "Device", "AvgQueueSz", "AWait", "R_AWait", "W_AWait", "SVCtm", "AvgRqSz", "Rrqm", "Wrqm" ];
         $self->{_FieldFormat} = [ "%${fieldLength}.4f", "%${fieldLength}s",
 				  "%${fieldLength}.2f", "%${fieldLength}.2f",
 				  "%${fieldLength}.2f", "%${fieldLength}.2f",
 				  "%${fieldLength}.2f", "%${fieldLength}.2f",
 				  "%${fieldLength}.2f", ];
+
+	my %samples;
 
 	while (<INPUT>) {
 		my @elements = split (/\s+/, $_);
@@ -135,15 +139,16 @@ sub extractReport($$$) {
 		}
 
 		# Record times
-		my ($avgqusz, $avgrqsz, $await, $r_await, $w_await, $rrqm, $wrqm);
+		my ($avgqusz, $avgrqsz, $await, $r_await, $w_await, $svctm, $rrqm, $wrqm);
 		if ($format_type == 0) {
 			$rrqm = $elements[6];
 			$wrqm = $elements[7];
 			$avgrqsz = $elements[12];
 			$avgqusz = $elements[13];
 			$await = $elements[14];
-			$r_await = 0;
-			$w_await = 0;
+			$r_await = -1;
+			$w_await = -1;
+			$svctm = $elements[15];
 		} elsif ($format_type == 1) {
 			$rrqm = $elements[6];
 			$wrqm = $elements[7];
@@ -152,6 +157,7 @@ sub extractReport($$$) {
 			$await = $elements[14];
 			$r_await = $elements[15];
 			$w_await = $elements[16];
+			$svctm = $elements[17];
 		}
 
 		# Filter out insane values
@@ -162,11 +168,16 @@ sub extractReport($$$) {
 			next;
 		}
 
+		$samples{$elements[5]}++;
+		if ($samples{$elements[5]} == 1) {
+			next;
+		}
+
 		if ($subHeading eq "") {
 			# Pushing time avgqu-sz await r_await w_await push
 			push @{$self->{_ResultData}}, [ $timestamp, $elements[5],
 					$avgqusz, $await, $r_await, $w_await,
-					$avgrqsz, $rrqm, $wrqm ];
+					$svctm, $avgrqsz, $rrqm, $wrqm ];
 		} else {
 			if ($subHeading eq "$elements[5]-avgqusz") {
 				push @{$self->{_ResultData}}, [ $timestamp, $avgqusz ];
@@ -178,6 +189,8 @@ sub extractReport($$$) {
 				push @{$self->{_ResultData}}, [ $timestamp, $r_await ];
 			} elsif ($subHeading eq "$elements[5]-w_await") {
 				push @{$self->{_ResultData}}, [ $timestamp, $w_await ];
+			} elsif ($subHeading eq "$elements[5]-svctm") {
+				push @{$self->{_ResultData}}, [ $timestamp, $svctm ];
 			} elsif ($subHeading eq "$elements[5]-rrqm") {
 				push @{$self->{_ResultData}}, [ $timestamp, $rrqm ];
 			} elsif ($subHeading eq "$elements[5]-wrqm") {
