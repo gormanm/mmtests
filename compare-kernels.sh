@@ -233,13 +233,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		;;
 	pgbench)
 		echo $SUBREPORT Initialisation
-		eval $COMPARE_CMD --sub-heading LoadTime
+		compare-mmtests.pl -d . -b pgbenchloadtime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
 		echo
 		echo $SUBREPORT Time
-		eval $COMPARE_CMD --sub-heading TransTime
+		compare-mmtests.pl -d . -b pgbenchexectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	preaddd)
