@@ -1,5 +1,5 @@
-# CompareTiobench.pm
-package MMTests::CompareTiobench;
+# CompareTiobenchlatency.pm
+package MMTests::CompareTiobenchlatency;
 use MMTests::Compare;
 our @ISA = qw(MMTests::Compare);
 
@@ -9,7 +9,7 @@ sub new() {
 		_ModuleName  => "CompareTiobench",
 		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
 		_FieldLength => 12,
-		_CompareOp   => "pdiff",
+		_CompareOp   => "pndiff",
 		_ResultData  => []
 	};
 	bless $self, $class;
