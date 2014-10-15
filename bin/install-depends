@@ -29,6 +29,13 @@ my %package_map = (
 	"debian::xfsprogs-devel" => "xfslibs-dev",
 	"debian::btrfsprogs"     => "btrfs-tools",
 	"debian::xz"             => "xz-utils",
+	"redhat::libnurses5"	 => "ncurses",
+	"redhat::gcc-fortran"    => "gcc-gfortran",
+	"redhat::libnuma-devel"  => "numactl-devel",
+	"redhat::gcc-32bit"      => "libgcc.i686",
+	"redhat::openmpi-32bit"  => "openmpi.i686",
+	"redhat::openmpi-32bit"  => "openmpi.i686",
+	"redhat::btrfsprogs"     => "btrfs-progs",
 );
 	
 my %package_bin = (

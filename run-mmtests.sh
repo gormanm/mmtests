@@ -194,7 +194,8 @@ fi
 # Install packages that are generally needed by a large number of tests
 install-depends autoconf automake binutils-devel bzip2 dosfstools expect \
 	expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch \
-	recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz
+	recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz wget \
+	perl-Time-HiRes time
 install-depends kpartx util-linux
 
 # Following packages only interesting when running virtual machines
