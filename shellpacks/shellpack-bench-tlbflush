@@ -56,7 +56,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/tlbflush-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/tlbflush-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-tlbflush -v ${VERSION}  || die tlbflush install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/tlbflush-${VERSION}-installed || die Failed to cd to tlbflush install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -80,11 +82,12 @@ while [ $NR_THREADS -lt $TLBFLUSH_MAX_THREADS ]; do
 	if [ $NR_THREADS -gt $TLBFLUSH_MAX_THREADS ]; then
 		NR_THREADS=$TLBFLUSH_MAX_THREADS
 	fi
+	mmtests_activity process $NR_THREADS/$TLBFLUSH_MAX_THREADS
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
 NR_ENTRIES=$((RANDOM%TLBFLUSH_MAX_ENTRIES))
-for ITERATION in `seq 1 $TLBFLUSH_ITERATIONS`; do
-
+for ITERATION in `seq 1 $TLBFLUSH_ITERATIONS;`; do
+	mmtests_activity iteration $ITERATION
 	THIS_MAX_ENTRIES=$TLBFLUSH_MAX_ENTRIES
 	
 	# Select a range of entries to randomly select from. This is to ensure
@@ -118,4 +121,4 @@ done
 
 exit $EXIT_CODE
 #### Description Alex Shis tlb range flush benchmark
-#### Details tlbflush-bench 30
+#### Details tlbflush-bench 31

@@ -93,7 +93,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/sysbench-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/sysbench-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-sysbench -v ${VERSION} --dbdriver ${DBDRIVER} || die sysbench install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/sysbench-${VERSION}-installed || die Failed to cd to sysbench install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -199,6 +201,7 @@ else
         THREADS=`seq $START_THREAD 2 $END_THREAD`
 fi
 for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
 	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
 		--effective_cachesize $EFFECTIVE_CACHESIZE \
 		--shared_buffers $SHARED_BUFFERS \
@@ -256,4 +259,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 62
+#### Details sysbench-bench 63

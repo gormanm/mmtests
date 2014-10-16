@@ -51,6 +51,7 @@ GITCHECKOUT_COMMITS=`echo $GITCHECKOUT_COMMITS | sed -e 's/,/ /g'`
 sysctl -w vm.drop_caches=3
 
 echo Warming up
+mmtests_activity warmup
 cd $TESTDISK_DIR/gitcheckout   || exit $SHELLPACK_ERROR
 for COMMIT in $GITCHECKOUT_COMMITS; do
 	git checkout $COMMIT || exit $SHELLPACK_ERROR
@@ -64,7 +65,7 @@ done
 chmod u+x $TESTDISK_DIR/gitcheckout/gitcheckout.sh
 
 mkdir -p $LOGDIR_RESULTS
-for i in `seq 1 $GITCHECKOUT_ITERATIONS`; do
+###SHELLPACK iteration_begin $GITCHECKOUT_ITERATIONS
 	if [ "$GITCHECKOUT_CACHE" = "cold" ]; then
 		echo Dropping caches as per requested
 		sync
@@ -74,7 +75,7 @@ for i in `seq 1 $GITCHECKOUT_ITERATIONS`; do
 	echo Iteration $i/$GITCHECKOUT_ITERATIONS
 	$TIME_CMD $TESTDISK_DIR/gitcheckout/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$i
 	grep elapsed $LOGDIR_RESULTS/time.$i
-done
+###SHELLPACK iteration_end
 
 # Summarise and cleanup
 popd > /dev/null

@@ -70,4 +70,4 @@ gcc -DFILE_SIZE=$((128*1048576)) -g -O2 tlbflush.c -lpthread -o tlbflush || die 
 
 exit $SHELLPACK_SUCCESS
 #### Description Alex Shis tlb range flush benchmark
-#### Details tlbflush 30
+#### Details tlbflush 31

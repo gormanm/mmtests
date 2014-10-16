@@ -59,7 +59,7 @@ else
 	cp $WORKFILE s9workfile
 fi
 
-for ITERATION in `seq 1 $ITERATIONS`; do
+###SHELLPACK iteration_begin $ITERATIONS
 	echo Starting iteration $ITERATION
 	$EXPECT -f $EXPECT_SCRIPT | tee $LOGDIR_RESULTS/aim9-$ITERATION
-done
+###SHELLPACK iteration_end $ITERATIONS

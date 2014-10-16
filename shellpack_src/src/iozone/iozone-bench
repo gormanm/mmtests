@@ -45,6 +45,7 @@ set_mmtests_numactl $IOZONE_NODE $NUMNODES
 
 monitor_pre_hook $LOGDIR_RESULTS
 for (( ITERATION = 1; ITERATION <= IOZONE_ITERATIONS; ITERATION++ )); do
+	mmtests_activity iteration $ITERATION/$IOZONE_ITERATIONS
 	$MMTESTS_NUMACTL src/current/iozone -a -n $((IOZONE_MIN_SIZE/1024)) \
 		-g $((IOZONE_MAX_SIZE/1024)) -y $((IOZONE_MIN_BLK_SIZE/1024)) \
 		-q $((IOZONE_MAX_BLK_SIZE/1024)) -i 0 -i 1 -i 2 -i 3 \

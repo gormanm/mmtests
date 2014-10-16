@@ -23,25 +23,19 @@ if [ "$TIOBENCH_RANDOM" = "" -o "$TIOBENCH_RANDOM" != "0" ]; then
 	TIOBENCH_COMMAND_RANDOM="--random $TIOBENCH_RANDOM"
 fi
 
-if [ "$TIOBENCH_MIN_CLIENTS" != "" ]; then
-	CLIENT=$TIOBENCH_MIN_CLIENTS
-else
-	CLIENT=1
-fi
-while [ $CLIENT -le $TIOBENCH_MAX_CLIENTS ]; do
-	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
+###SHELLPACK threads_powertwo_begin $TIOBENCH_MIN_CLIENTS $TIOBENCH_MAX_CLIENTS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITERATION in `seq 1 $TIOBENCH_ITERATIONS`; do
 		eval $MMTESTS_NUMACTL ./tiobench.pl $TIOBENCH_COMMAND_RANDOM \
 			--dir     $TESTDISK_DIR \
 			--numruns 1 \
 			--size    $((TIOBENCH_SIZE/1048576)) \
 			--block   $TIOBENCH_BLOCKSIZE \
-			--threads $CLIENT \
-			2>&1 | tee $LOGDIR_RESULTS/tiobench-$CLIENT-$ITERATION.log \
+			--threads $NR_THREADS \
+			2>&1 | tee $LOGDIR_RESULTS/tiobench-$NR_THREADS-$ITERATION.log \
 				|| die Failed to run tiobench
 	done
-	monitor_post_hook $LOGDIR_RESULTS $CLIENT
-	CLIENT=$((CLIENT*2))
-done
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_powertwo_end
 
 exit $SHELLPACK_SUCCESS

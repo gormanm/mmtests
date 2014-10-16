@@ -42,6 +42,7 @@ for PROTOCOL in $PROTOCOLS; do
 	fi
 
 	for SIZE in $BUFFER_SIZES; do
+		mmtests_activity size $SIZE
 		SIZE_OPT=
 		if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
 			SIZE_OPT="-m $SIZE -M $SIZE"

@@ -58,7 +58,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/siege-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/siege-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-siege -v ${VERSION}  || die siege install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/siege-${VERSION}-installed || die Failed to cd to siege install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -92,10 +94,14 @@ fi
 
 echo Running up to $MAX_USERS users, $ITERATIONS iterations per user
 NR_THREADS=1
-while [ $NR_THREADS -lt $MAX_USERS ]; do
+if [ "$NR_THREADS" = "" ]; then
+	NR_THREADS=1
+fi
+while [ $NR_THREADS -le $MAX_USERS ]; do
 	if [ $NR_THREADS -gt $MAX_USERS ]; then
 		NR_THREADS=$MAX_USERS
 	fi
+	mmtests_activity process $NR_THREADS/$MAX_USERS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $ITERATIONS`; do
 		echo Running $ITER/$ITERATIONS: siege -b $ITER_ARG -c $NR_THREADS
@@ -113,4 +119,4 @@ done
 echo siege completed successfully
 exit $SHELLPACK_SUCCESS
 #### Description siege
-#### Details siege-bench 36
+#### Details siege-bench 37

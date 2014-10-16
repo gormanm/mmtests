@@ -689,6 +689,10 @@ function stop_monitors() {
 	rm monitor.pids
 }
 
+export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity-$RUNNAME"
+rm -f $SHELLPACK_ACTIVITY 2> /dev/null
+echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
+
 if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	# Create memory control group if requested
 	if [ "$MEMCG_SIZE" != "" ]; then
@@ -881,5 +885,6 @@ if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 	gzip /boot/vmlinux-`uname -r`
 fi
 
+echo `date +%s` run-mmtests: End >> $SHELLPACK_ACTIVITY
 echo status :: $EXIT_CODE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 exit $EXIT_CODE

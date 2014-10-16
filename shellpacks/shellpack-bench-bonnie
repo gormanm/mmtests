@@ -67,7 +67,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/bonnie-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/bonnie-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-bonnie -v ${VERSION}  || die bonnie install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/bonnie-${VERSION}-installed || die Failed to cd to bonnie install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -98,6 +100,7 @@ echo ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
 	-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES \
 	-m $MACHINE | tee $LOGDIR_RESULTS/bonnie-params
 for ITERATION in `seq 1 $ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
 	echo Starting iteration $ITERATION
 	save_rc ./sbin/bonnie++ $FSYNC_PARAM $USER_PARAM -r 0 \
 		-d $TESTDISK_DIR \
@@ -112,4 +115,4 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	fi
 done
 #### Description bonnie
-#### Details bonnie-bench 29
+#### Details bonnie-bench 31

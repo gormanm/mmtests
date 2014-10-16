@@ -21,6 +21,7 @@ PERF_CMD=${PERF_DIR}/perf
 
 echo $WORKLOADS > $LOGDIR_RESULTS/workloads
 for WORKLOAD in $WORKLOADS; do
+	mmtests_activity $WORKLOAD
 	echo Running test $WORKLOAD
 	monitor_pre_hook $LOGDIR_RESULTS $NUMCPUS
 	$PERF_CMD bench futex $WORKLOAD 2>&1 | \

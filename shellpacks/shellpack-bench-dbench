@@ -38,7 +38,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/dbench-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/dbench-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-dbench -v ${VERSION}  || die dbench install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die Failed to cd to dbench install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -63,6 +65,7 @@ DBENCH_CLIENTS=`echo $DBENCH_CLIENTS | tr ',' ' '`
 
 CLIENT=1
 while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
+	mmtests_activity client $CLIENT/$DBENCH_MAX_CLIENTS
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
 	./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
 		-D $TESTDISK_DIR \
@@ -79,4 +82,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description dbench
-#### Details dbench-bench 17
+#### Details dbench-bench 18

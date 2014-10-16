@@ -31,7 +31,7 @@ MUTILATE_ITEMS=$(($MEMCACHED_MEMPOOL/$MUTILATE_VALUE_SIZE))
 ###SHELLPACK threads_stride_begin 1 $MUTILATE_MAX_THREADS
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
-for ITERATION in `seq 1 $MUTILATE_ITERATIONS`; do
+###SHELLPACK iteration_begin $MUTILATE_ITERATIONS
 	echo Starting mutilate client $MUTILATE_CONCURRENCY
 	echo o $MEMCACHED_MEMPOOL memcached pool
 	echo o $NR_THREADS concurrent requests
@@ -47,7 +47,7 @@ for ITERATION in `seq 1 $MUTILATE_ITERATIONS`; do
 		-r $MUTILATE_ITEMS \
 		-t $MUTILATE_DURATION \
 		    | tee -a $LOGDIR_RESULTS/mutilate-$NR_THREADS-$ITERATION.log
-done
+###SHELLPACK iteration_end
 
 monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end

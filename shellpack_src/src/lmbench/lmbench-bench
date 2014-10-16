@@ -33,6 +33,7 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 	lat_mmap)
 		STRIDE=$(((LMBENCH_LATMMAP_MAX_FILESIZE-LMBENCH_LATMMAP_MIN_FILESIZE)/20))
 		for FILESIZE in `seq $LMBENCH_LATMMAP_MIN_FILESIZE $STRIDE $LMBENCH_LATMMAP_MAX_FILESIZE` $LMBENCH_LATMMAP_MAX_FILESIZEZE; do
+			mmtests_activity filesize $FILESIZE
 			FILESIZE=$((FILESIZE&~4095))
 			dd if=/dev/zero of=$TESTDISK_DIR/lmbench.file ibs=4096 count=$((FILESIZE/4096)) conv=sync 2> /dev/null
 			./bin/$LMBENCH_TEST \
@@ -46,6 +47,7 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 		LMBENCH_LATCTX_SIZE=`echo $LMBENCH_LATCTX_SIZE | tr ',' ' '`
 		###SHELLPACK threads_huge_stride_begin 2 $LMBENCH_LATCTX_MAXCLIENTS
 			for SIZE in $LMBENCH_LATCTX_SIZE; do
+				mmtests_activity size $SIZE
 				echo mmtests-size:$SIZE >> ${LMBENCH_RESULTS}
 
 				for ITERATION in `seq 1 $LMBENCH_LATCTX_ITERATIONS`; do

@@ -167,6 +167,7 @@ for PAGES in $NAS_PAGESIZES; do
 	esac
 
 	for JOB in $JOBLIST; do
+		mmtests_activity $JOB
 		if [ "$RUNBITS" = "32" -a ! -x ./bin/$JOB.$NAS_CLASS ]; then
 			echo Skipping $JOB.$NAS_CLASS for $PAGES - no exist
 			continue

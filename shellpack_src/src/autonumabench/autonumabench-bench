@@ -86,6 +86,7 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 for TESTTYPE in $AUTONUMA_TESTS; do
+	mmtests_activity $TESTTYPE
 	SWITCH=
 	case $TESTTYPE in
 	NUMA01)

@@ -59,7 +59,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/mutilate-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/mutilate-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-mutilate -v ${VERSION}  || die mutilate install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/mutilate-${VERSION}-installed || die Failed to cd to mutilate install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -97,9 +99,11 @@ else
         THREADS=`seq $START_THREAD $END_THREAD`
 fi
 for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
 for ITERATION in `seq 1 $MUTILATE_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
 	echo Starting mutilate client $MUTILATE_CONCURRENCY
 	echo o $MEMCACHED_MEMPOOL memcached pool
 	echo o $NR_THREADS concurrent requests
@@ -124,4 +128,4 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 
 exit $SHELLPACK_SUCCESS
 #### Description mutilate
-#### Details mutilate-bench 17
+#### Details mutilate-bench 18

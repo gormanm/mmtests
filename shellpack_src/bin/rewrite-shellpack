@@ -296,7 +296,9 @@ if [ "\$INSTALL_FORCE" = "yes" ]; then
 	rm -rf \$SHELLPACK_SOURCES/$srcdir
 fi
 if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
+	mmtests_activity source-install
 	\$SHELLPACK_INCLUDE/shellpack-install-$shellpack -v \${VERSION} @other || die $shellpack install script returned error
+	mmtests_activity source-installed
 fi
 cd \$SHELLPACK_SOURCES/$shellpack-\${VERSION}-installed || die Failed to cd to $shellpack install directory
 if [ "\$INSTALL_ONLY" = "yes" ]; then
@@ -309,6 +311,14 @@ EOC
 # Include monitor hooks
 . \$SHELLPACK_INCLUDE/include-monitor.sh
 EOC
+	} elsif ($command eq "iteration_begin") {
+		my ($iterations) = @details;
+		print <<EOC
+for ITERATION in `seq 1 $iterations`; do
+	mmtests_activity iteration \$ITERATION
+EOC
+	} elsif ($command eq "iteration_end") {
+		print "done\n";
 	} elsif ($command eq "threads_fib_begin") {
 		my ($min_thread, $max_thread) = @details;
 		print <<EOC
@@ -324,6 +334,7 @@ while [ \$NR_THREADS -lt $max_thread ]; do
 	if [ \$NR_THREADS -gt $max_thread ]; then
 		NR_THREADS=$max_thread
 	fi
+	mmtests_activity process \$NR_THREADS/$max_thread
 EOC
 	} elsif ($command eq "threads_fib_end") {
 		print "done\n";
@@ -331,10 +342,14 @@ EOC
 		my ($min_thread, $max_thread) = @details;
 		print <<EOC
 NR_THREADS=$min_thread
-while [ \$NR_THREADS -lt $max_thread ]; do
+if [ "\$NR_THREADS" = "" ]; then
+	NR_THREADS=1
+fi
+while [ \$NR_THREADS -le $max_thread ]; do
 	if [ \$NR_THREADS -gt $max_thread ]; then
 		NR_THREADS=$max_thread
 	fi
+	mmtests_activity process \$NR_THREADS/$max_thread
 EOC
 	} elsif ($command eq "threads_powertwo_end") {
 		print <<EOC
@@ -346,6 +361,7 @@ EOC
 		my ($min_thread, $max_thread) = @details;
 		print <<EOC
 for NR_THREADS in `seq $min_thread $max_thread`; do
+	mmtests_activity process \$NR_THREADS/$max_thread
 EOC
 	} elsif ($command eq "threads_iterate_end") {
 		print "done\n";
@@ -366,6 +382,7 @@ else
         THREADS=`seq \$START_THREAD \$END_THREAD`
 fi
 for NR_THREADS in \$THREADS; do
+	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC
 	} elsif ($command eq "threads_large_stride_begin") {
 		my ($min_thread, $max_thread) = @details;
@@ -384,6 +401,7 @@ else
         THREADS=`seq \$START_THREAD 2 \$END_THREAD`
 fi
 for NR_THREADS in \$THREADS; do
+	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC
 	} elsif ($command eq "threads_huge_stride_begin") {
 		my ($min_thread, $max_thread) = @details;
@@ -402,6 +420,7 @@ else
         THREADS=`seq \$START_THREAD 2 \$END_THREAD`
 fi
 for NR_THREADS in \$THREADS; do
+	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC
 	} elsif ($command eq "threads_stride_end") {
 		print "done\n";

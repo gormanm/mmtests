@@ -88,6 +88,7 @@ GITCHECKOUT_COMMITS=`echo $GITCHECKOUT_COMMITS | sed -e 's/,/ /g'`
 sysctl -w vm.drop_caches=3
 
 echo Warming up
+mmtests_activity warmup
 cd $TESTDISK_DIR/gitcheckout   || exit $SHELLPACK_ERROR
 for COMMIT in $GITCHECKOUT_COMMITS; do
 	git checkout $COMMIT || exit $SHELLPACK_ERROR
@@ -101,7 +102,8 @@ done
 chmod u+x $TESTDISK_DIR/gitcheckout/gitcheckout.sh
 
 mkdir -p $LOGDIR_RESULTS
-for i in `seq 1 $GITCHECKOUT_ITERATIONS`; do
+for ITERATION in `seq 1 $GITCHECKOUT_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
 	if [ "$GITCHECKOUT_CACHE" = "cold" ]; then
 		echo Dropping caches as per requested
 		sync
@@ -120,4 +122,4 @@ rm -rf $TESTDISK_DIR/gitcheckout
 
 exit $SHELLPACK_SUCCESS
 #### Description Times how long it takes to checkout git repos
-#### Details gitcheckout-bench 13
+#### Details gitcheckout-bench 14

@@ -18,6 +18,7 @@ fi
 cd $SHELLPACK_SOURCES/pft-${VERSION}-installed || die Failed to cd to pft directory
 CLIENT=1
 while [ $CLIENT -le $PFT_MAX_CLIENTS ]; do
+	mmtests_activity client $CLIENT
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
 	echo -n > $LOGDIR_RESULTS/pft-$CLIENT.log
 	for ITER in `seq 1 $PFT_ITERATIONS`; do

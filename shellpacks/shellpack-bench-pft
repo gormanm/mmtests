@@ -39,7 +39,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/pft-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/pft-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-pft -v ${VERSION}  || die pft install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/pft-${VERSION}-installed || die Failed to cd to pft install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -58,6 +60,7 @@ fi
 cd $SHELLPACK_SOURCES/pft-${VERSION}-installed || die Failed to cd to pft directory
 CLIENT=1
 while [ $CLIENT -le $PFT_MAX_CLIENTS ]; do
+	mmtests_activity client $CLIENT
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
 	echo -n > $LOGDIR_RESULTS/pft-$CLIENT.log
 	for ITER in `seq 1 $PFT_ITERATIONS`; do
@@ -73,4 +76,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description pft
-#### Details pft-bench 9
+#### Details pft-bench 10

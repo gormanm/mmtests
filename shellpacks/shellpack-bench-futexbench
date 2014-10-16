@@ -47,7 +47,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/futexbench-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/futexbench-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-futexbench -v ${VERSION}  || die futexbench install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/futexbench-${VERSION}-installed || die Failed to cd to futexbench install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -63,6 +65,7 @@ PERF_CMD=${PERF_DIR}/perf
 
 echo $WORKLOADS > $LOGDIR_RESULTS/workloads
 for WORKLOAD in $WORKLOADS; do
+	mmtests_activity $WORKLOAD
 	echo Running test $WORKLOAD
 	monitor_pre_hook $LOGDIR_RESULTS $NUMCPUS
 	$PERF_CMD bench futex $WORKLOAD 2>&1 | \
@@ -73,4 +76,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description perf-bench futex
-#### Details futexbench-bench 3
+#### Details futexbench-bench 4

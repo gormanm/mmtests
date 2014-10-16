@@ -236,6 +236,18 @@ function reset_transhuge() {
 	fi
 }
 
+function mmtests_activity() {
+	if [ "$SHELLPACK_ACTIVITY" != "" -a -f "$SHELLPACK_ACTIVITY" ]; then
+		NAME=
+		if [ "$P" = "" ]; then
+			NAME=$0
+		else
+			NAME=$P
+		fi
+		echo `date +%s` $NAME: $@ >> $SHELLPACK_ACTIVITY
+	fi
+}
+
 MMTESTS_NUMACTL=
 function set_mmtests_numactl() {
 	local THIS_INSTANCE=$1

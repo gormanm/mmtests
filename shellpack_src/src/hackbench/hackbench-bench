@@ -40,6 +40,7 @@ RETVAL=0
 IFS=,
 echo -n > $RESULTSLOG
 for group in $num_groups; do
+	mmtests_activity groups $group
 	IFS=$TIFS
 	echo -n > $RESULTSLOG.$group
 	monitor_pre_hook $LOGDIR_RESULTS $group

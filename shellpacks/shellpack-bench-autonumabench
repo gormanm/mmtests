@@ -106,7 +106,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/autonumabench-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/autonumabench-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-autonumabench -v ${VERSION}  || die autonumabench install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/autonumabench-${VERSION}-installed || die Failed to cd to autonumabench install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -126,6 +128,7 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 for TESTTYPE in $AUTONUMA_TESTS; do
+	mmtests_activity $TESTTYPE
 	SWITCH=
 	case $TESTTYPE in
 	NUMA01)
@@ -158,4 +161,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description AutoNUMA Benchmark
-#### Details autonumabench-bench 11
+#### Details autonumabench-bench 12

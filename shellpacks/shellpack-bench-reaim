@@ -79,7 +79,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/reaim-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/reaim-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-reaim -v ${VERSION}  || die reaim install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/reaim-${VERSION}-installed || die Failed to cd to reaim install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -90,6 +92,7 @@ fi
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
 for REAIM_WORKFILE in $REAIM_WORKFILES; do
+	mmtests_activity $REAIM_WORKFILE
 	echo FILESIZE $REAIM_FILESIZE > reaim.config
 	echo POOLSIZE $REAIM_POOLSIZE >> reaim.config
 	echo DISKDIR $TESTDISK_DIR  >> reaim.config
@@ -126,4 +129,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description reaim
-#### Details reaim-bench 39
+#### Details reaim-bench 40

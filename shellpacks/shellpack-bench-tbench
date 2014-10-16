@@ -44,7 +44,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/dbench-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/dbench-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-dbench -v ${VERSION}  || die dbench install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die Failed to cd to dbench install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -56,10 +58,14 @@ fi
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
 NR_THREADS=1
-while [ $NR_THREADS -lt $TBENCH_MAX_CLIENTS ]; do
+if [ "$NR_THREADS" = "" ]; then
+	NR_THREADS=1
+fi
+while [ $NR_THREADS -le $TBENCH_MAX_CLIENTS ]; do
 	if [ $NR_THREADS -gt $TBENCH_MAX_CLIENTS ]; then
 		NR_THREADS=$TBENCH_MAX_CLIENTS
 	fi
+	mmtests_activity process $NR_THREADS/$TBENCH_MAX_CLIENTS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	./bin/tbench_srv &
 	PID_SERVER=$!
@@ -76,4 +82,4 @@ exit $SHELLPACK_SUCCESS
 #### Description tbench
 #### Details tbench-bench 4
 #### Description tbench
-#### Details tbench-bench 7
+#### Details tbench-bench 8

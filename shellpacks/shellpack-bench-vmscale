@@ -39,7 +39,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/vmscale-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/vmscale-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-vmscale -v ${VERSION}  || die vmscale install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/vmscale-${VERSION}-installed || die Failed to cd to vmscale install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -62,6 +64,7 @@ fi
 
 echo -n > $LOGDIR_RESULTS/cases
 for CASE in lru-file-readonce lru-file-readtwice lru-file-ddspread; do
+	mmtests_activity $CASE
 
 	# Prepare for compatability with how vmscale works without using the
 	# run script as it does more setup than mmtests needs to deal with
@@ -77,4 +80,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description vm scalability test suite
-#### Details vmscale-bench 19
+#### Details vmscale-bench 20

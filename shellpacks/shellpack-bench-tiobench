@@ -39,7 +39,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/tiobench-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/tiobench-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-tiobench -v ${VERSION}  || die tiobench install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/tiobench-${VERSION}-installed || die Failed to cd to tiobench install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -63,27 +65,30 @@ if [ "$TIOBENCH_RANDOM" = "" -o "$TIOBENCH_RANDOM" != "0" ]; then
 	TIOBENCH_COMMAND_RANDOM="--random $TIOBENCH_RANDOM"
 fi
 
-if [ "$TIOBENCH_MIN_CLIENTS" != "" ]; then
-	CLIENT=$TIOBENCH_MIN_CLIENTS
-else
-	CLIENT=1
+NR_THREADS=$TIOBENCH_MIN_CLIENTS
+if [ "$NR_THREADS" = "" ]; then
+	NR_THREADS=1
 fi
-while [ $CLIENT -le $TIOBENCH_MAX_CLIENTS ]; do
-	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
+while [ $NR_THREADS -le $TIOBENCH_MAX_CLIENTS ]; do
+	if [ $NR_THREADS -gt $TIOBENCH_MAX_CLIENTS ]; then
+		NR_THREADS=$TIOBENCH_MAX_CLIENTS
+	fi
+	mmtests_activity process $NR_THREADS/$TIOBENCH_MAX_CLIENTS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITERATION in `seq 1 $TIOBENCH_ITERATIONS`; do
 		eval $MMTESTS_NUMACTL ./tiobench.pl $TIOBENCH_COMMAND_RANDOM \
 			--dir     $TESTDISK_DIR \
 			--numruns 1 \
 			--size    $((TIOBENCH_SIZE/1048576)) \
 			--block   $TIOBENCH_BLOCKSIZE \
-			--threads $CLIENT \
-			2>&1 | tee $LOGDIR_RESULTS/tiobench-$CLIENT-$ITERATION.log \
+			--threads $NR_THREADS \
+			2>&1 | tee $LOGDIR_RESULTS/tiobench-$NR_THREADS-$ITERATION.log \
 				|| die Failed to run tiobench
 	done
-	monitor_post_hook $LOGDIR_RESULTS $CLIENT
-	CLIENT=$((CLIENT*2))
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+NR_THREADS=$((NR_THREADS*2))
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description tiobench
-#### Details tiobench-bench 16
+#### Details tiobench-bench 19

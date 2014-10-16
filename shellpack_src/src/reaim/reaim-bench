@@ -26,6 +26,7 @@ REAIM_WORKFILE=workfile.fserver
 ###SHELLPACK monitor_hooks
 
 for REAIM_WORKFILE in $REAIM_WORKFILES; do
+	mmtests_activity $REAIM_WORKFILE
 	echo FILESIZE $REAIM_FILESIZE > reaim.config
 	echo POOLSIZE $REAIM_POOLSIZE >> reaim.config
 	echo DISKDIR $TESTDISK_DIR  >> reaim.config

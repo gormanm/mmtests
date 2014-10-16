@@ -23,8 +23,7 @@ EXIT_CODE=$SHELLPACK_SUCCESS
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
 NR_ENTRIES=$((RANDOM%TLBFLUSH_MAX_ENTRIES))
-for ITERATION in `seq 1 $TLBFLUSH_ITERATIONS`; do
-
+###SHELLPACK iteration_begin $TLBFLUSH_ITERATIONS; do
 	THIS_MAX_ENTRIES=$TLBFLUSH_MAX_ENTRIES
 	
 	# Select a range of entries to randomly select from. This is to ensure
@@ -51,7 +50,7 @@ for ITERATION in `seq 1 $TLBFLUSH_ITERATIONS`; do
 	fi
 	echo $RESULT nr_entries $NR_ENTRIES | tee -a $LOGDIR_RESULTS/tlbflush-$NR_THREADS.log
 	sync
-done
+###SHELLPACK iteration_end
 
 monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_fib_end

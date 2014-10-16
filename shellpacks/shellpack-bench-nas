@@ -69,7 +69,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/nas-3.3
 fi
 if [ ! -d $SHELLPACK_SOURCES/nas-3.3-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-nas -v ${VERSION}  || die nas install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/nas-${VERSION}-installed || die Failed to cd to nas install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -200,6 +202,7 @@ for PAGES in $NAS_PAGESIZES; do
 	esac
 
 	for JOB in $JOBLIST; do
+		mmtests_activity $JOB
 		if [ "$RUNBITS" = "32" -a ! -x ./bin/$JOB.$NAS_CLASS ]; then
 			echo Skipping $JOB.$NAS_CLASS for $PAGES - no exist
 			continue
@@ -238,4 +241,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 41
+#### Details nas-bench 42

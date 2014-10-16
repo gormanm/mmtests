@@ -55,7 +55,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/ebizzy-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/ebizzy-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-ebizzy -v ${VERSION}  || die ebizzy install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/ebizzy-${VERSION}-installed || die Failed to cd to ebizzy install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -81,6 +83,7 @@ else
         THREADS=`seq $START_THREAD $END_THREAD`
 fi
 for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
 for ITERATION in `seq 1 $EBIZZY_ITERATIONS`; do
@@ -104,4 +107,4 @@ done
 
 exit $EXIT_CODE
 #### Description ebizzy
-#### Details ebizzy-bench 12
+#### Details ebizzy-bench 13

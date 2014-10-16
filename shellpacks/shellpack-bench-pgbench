@@ -176,6 +176,7 @@ else
         THREADS=`seq $START_THREAD 2 $END_THREAD`
 fi
 for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
 	echo -n > $LOGDIR_RESULTS/samples
 
 	# Restart the database
@@ -250,4 +251,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 76
+#### Details pgbench-bench 77

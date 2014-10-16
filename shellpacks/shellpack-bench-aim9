@@ -59,7 +59,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/aim9-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/aim9-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-aim9 -v ${VERSION}  || die aim9 install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/aim9-${VERSION}-installed || die Failed to cd to aim9 install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -99,8 +101,9 @@ else
 fi
 
 for ITERATION in `seq 1 $ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
 	echo Starting iteration $ITERATION
 	$EXPECT -f $EXPECT_SCRIPT | tee $LOGDIR_RESULTS/aim9-$ITERATION
 done
 #### Description AIM9 benchmark
-#### Details aim9-bench 21
+#### Details aim9-bench 22

@@ -67,6 +67,7 @@ fi
 
 # Download the source file
 cd $TESTDISK_DIR || die Failed to change to temp directory
+mmtests_activity Downloading
 echo Downloading $COMPRESS_SOURCE
 wget -O 0.gz -q $COMPRESS_SOURCE
 if [ $? -ne 0 ]; then
@@ -89,6 +90,7 @@ NR_COPIES=$(($COMPRESS_APPROXIMATE_SIZE_MB*1048576/SRCSIZE))
 echo Source size: $((SRCSIZE/1048576)) MB
 echo Approximate required size: $COMPRESS_APPROXIMATE_SIZE_MB MB
 
+mmtests_activity Copying
 if [ $NR_COPIES -le 1 ]; then
 	echo Source file meets minimum size requirements
 	mv 0 1
@@ -123,6 +125,7 @@ ls -l
 echo
 
 # Start each of the instances
+mmtests_activity Compressing
 echo -n > instances.pids
 for INSTANCE in `seq 1 $COMPRESS_INSTANCES`; do
 	case $COMPRESS_METHOD in
@@ -165,4 +168,4 @@ done
 
 exit $EXIT_CODE
 #### Description compress
-#### Details compress-bench 24
+#### Details compress-bench 25

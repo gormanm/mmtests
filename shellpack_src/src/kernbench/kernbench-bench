@@ -36,14 +36,14 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 # Build pass
-for i in `seq 1 $ITERATIONS`; do
-	echo Pass $i
+###SHELLPACK iteration_begin $ITERATIONS
+	echo Pass $ITERATION
 	sync
 
-	$TIME_CMD make -j$THREADS vmlinux 2>> $LOGDIR_RESULTS/time.$i > /dev/null
-	grep elapsed $LOGDIR_RESULTS/time.$i
+	$TIME_CMD make -j$THREADS vmlinux 2>> $LOGDIR_RESULTS/time.$ITERATION > /dev/null
+	grep elapsed $LOGDIR_RESULTS/time.$ITERATION
 	make clean >/dev/null
-done
+###SHELLPACK iteration_end
 
 # Gather results and cleanup
 cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time

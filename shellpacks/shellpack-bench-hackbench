@@ -60,7 +60,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/hackbench
 fi
 if [ ! -d $SHELLPACK_SOURCES/hackbench-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-hackbench -v ${VERSION}  || die hackbench install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/hackbench-${VERSION}-installed || die Failed to cd to hackbench install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -83,6 +85,7 @@ RETVAL=0
 IFS=,
 echo -n > $RESULTSLOG
 for group in $num_groups; do
+	mmtests_activity groups $group
 	IFS=$TIFS
 	echo -n > $RESULTSLOG.$group
 	monitor_pre_hook $LOGDIR_RESULTS $group
@@ -109,4 +112,4 @@ done
 
 exit $RETVAL
 #### Description Run the HackBench benchmark
-#### Details hackbench-bench 20
+#### Details hackbench-bench 21

@@ -31,6 +31,7 @@ done
 
 # Run one test for ever size of parallel IO
 for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
+	mmtests_activitry io-step $IO_STEP
 	if [ $IO_STEP -eq 0 ]; then
 		IO_SIZE=0
 	else
@@ -46,8 +47,8 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 	# Cycle through each of the requested workloads
 	for WORKLOAD in $PARALLELIO_WORKLOADS; do
 	monitor_pre_hook $LOGDIR_RESULTS $WORKLOAD-$IO_STEP
-	for ITERATION in `seq 1 $PARALLELIO_ITERATIONS`; do
-	echo Starting $WORKLOAD iteration $ITERATION
+	###SHELLPACK iteration_begin $PARALLELIO_ITERATIONS
+		echo Starting $WORKLOAD iteration $ITERATION
 		cd $SHELLPACK_TOPLEVEL
 		mkdir -p $LOGDIR_RESULTS
 
@@ -142,7 +143,7 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 		# Collect the data from the target workload and cleanup
 		mv $SHELLPACK_LOG/$WORKLOAD $LOGDIR_RESULTS/$WORKLOAD-$IO_STEP-$ITERATION
 		rm -rf $TESTDISK_DIR/*
-	done
+	###SHELLPACK iteration_end
 	monitor_post_hook $LOGDIR_RESULTS $WORKLOAD-$IO_STEP
 	done
 done
