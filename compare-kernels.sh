@@ -381,6 +381,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT-mbsec
 			echo "</tr>"
 			;;
+		ebizzy)
+			echo "<tr>"
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			plain graph-$SUBREPORT
+			echo "</tr>"
+			;;
 		futexbench-hash)
 			;;
 		futexbench-requeue)
