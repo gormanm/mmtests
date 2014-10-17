@@ -1,0 +1,126 @@
+#!/bin/bash
+# Run perf-bench numa mem benchmark
+
+P=perfnuma-bench
+DEFAULT_VERSION=3.17
+. $SHELLPACK_INCLUDE/common.sh
+TESTTIME=15
+ITERATIONS=12
+TESTLIST=
+MAX_THREADS=$NUMCPUS
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--nr-processes)
+		PERFNUMA_NR_PROCESSES=$2
+		shift 2
+		;;
+	--nr-threads)
+		PERFNUMA_NR_THREADS=$2
+		shift 2
+		;;
+	--process-wss)
+		PERFNUMA_PROCESS_WSS=$2
+		shift 2
+		;;
+	--workloads)
+		PERFNUMA_WORKLOADS=$2
+		shift 2
+		;;
+	--iterations)
+		PERFNUMA_ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/perfbuild-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/perfbuild-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-perfbuild -v ${VERSION}  || die perfbuild install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/perfbuild-${VERSION}-installed || die Failed to cd to perfbuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo perfbuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
+PERF_CMD=${PERF_DIR}/perf
+
+echo $PERFNUMA_WORKLOADS > $LOGDIR_RESULTS/workloads
+
+PERFNUMA_PROCESS_WSS=$((PERFNUMA_PROCESS_WSS/1048576))
+
+for WORKLOAD in $PERFNUMA_WORKLOADS; do
+for ITERATION in `seq 1 $PERFNUMA_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+	echo Running workload $WORKLOAD iteration $ITERATION/$PERFNUMA_ITERATIONS
+	mmtests_activity $WORKLOAD-$ITERATION
+	case $WORKLOAD in
+	light_converge)
+		NR_THREADS=$((PERFNUMA_NR_THREADS/2))
+		$PERF_CMD bench numa mem -m -0 \
+			-p $PERFNUMA_NR_PROCESSES	\
+			-t $NR_THREADS			\
+			-P $PERFNUMA_PROCESS_WSS	\
+			2>&1 | tee $LOGDIR_RESULTS/${WORKLOAD}-${ITERATION}.log
+		;;
+	standard_converge)
+		NR_THREADS=$PERFNUMA_NR_THREADS
+		$PERF_CMD bench numa mem -m -0 \
+			-p $PERFNUMA_NR_PROCESSES	\
+			-t $NR_THREADS			\
+			-P $PERFNUMA_PROCESS_WSS	\
+			2>&1 | tee $LOGDIR_RESULTS/${WORKLOAD}-${ITERATION}.log
+		;;
+	oversubscribe_converge)
+		NR_THREADS=$((PERFNUMA_NR_THREADS*2))
+		$PERF_CMD bench numa mem -m -0 \
+			-p $PERFNUMA_NR_PROCESSES	\
+			-t $NR_THREADS			\
+			-P $PERFNUMA_PROCESS_WSS	\
+			2>&1 | tee $LOGDIR_RESULTS/${WORKLOAD}-${ITERATION}.log
+		;;
+	*)
+		die Unrecognised workload $WORKLOAD
+		;;
+	esac
+done
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description perfnuma
+#### Details perfnuma-bench 6

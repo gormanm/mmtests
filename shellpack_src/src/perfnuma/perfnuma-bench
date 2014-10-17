@@ -1,0 +1,67 @@
+#!/bin/bash
+# Run perf-bench numa mem benchmark
+
+###SHELLPACK preamble perfnuma-bench 3.17
+TESTTIME=15
+ITERATIONS=12
+TESTLIST=
+MAX_THREADS=$NUMCPUS
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --nr-processes   PERFNUMA_NR_PROCESSES
+###SHELLPACK parseargParam   --nr-threads     PERFNUMA_NR_THREADS
+###SHELLPACK parseargParam   --process-wss    PERFNUMA_PROCESS_WSS
+###SHELLPACK parseargParam   --workloads      PERFNUMA_WORKLOADS
+###SHELLPACK parseargParam   --iterations     PERFNUMA_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_external_install_required perfbuild perfbuild-${VERSION}
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
+PERF_CMD=${PERF_DIR}/perf
+
+echo $PERFNUMA_WORKLOADS > $LOGDIR_RESULTS/workloads
+
+PERFNUMA_PROCESS_WSS=$((PERFNUMA_PROCESS_WSS/1048576))
+
+for WORKLOAD in $PERFNUMA_WORKLOADS; do
+###SHELLPACK iteration_begin $PERFNUMA_ITERATIONS
+	echo Running workload $WORKLOAD iteration $ITERATION/$PERFNUMA_ITERATIONS
+	mmtests_activity $WORKLOAD-$ITERATION
+	case $WORKLOAD in
+	light_converge)
+		NR_THREADS=$((PERFNUMA_NR_THREADS/2))
+		$PERF_CMD bench numa mem -m -0 \
+			-p $PERFNUMA_NR_PROCESSES	\
+			-t $NR_THREADS			\
+			-P $PERFNUMA_PROCESS_WSS	\
+			2>&1 | tee $LOGDIR_RESULTS/${WORKLOAD}-${ITERATION}.log
+		;;
+	standard_converge)
+		NR_THREADS=$PERFNUMA_NR_THREADS
+		$PERF_CMD bench numa mem -m -0 \
+			-p $PERFNUMA_NR_PROCESSES	\
+			-t $NR_THREADS			\
+			-P $PERFNUMA_PROCESS_WSS	\
+			2>&1 | tee $LOGDIR_RESULTS/${WORKLOAD}-${ITERATION}.log
+		;;
+	oversubscribe_converge)
+		NR_THREADS=$((PERFNUMA_NR_THREADS*2))
+		$PERF_CMD bench numa mem -m -0 \
+			-p $PERFNUMA_NR_PROCESSES	\
+			-t $NR_THREADS			\
+			-P $PERFNUMA_PROCESS_WSS	\
+			2>&1 | tee $LOGDIR_RESULTS/${WORKLOAD}-${ITERATION}.log
+		;;
+	*)
+		die Unrecognised workload $WORKLOAD
+		;;
+	esac
+###SHELLPACK iteration_end
+done
+
+exit $SHELLPACK_SUCCESS

@@ -1,8 +1,10 @@
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
+. $SHELLPACK_INCLUDE/include-sizes.sh
+get_numa_details
 
 # MM Test Parameters
-export MMTESTS="autonumabench"
+export MMTESTS="perfnuma"
 export SKIP_WARMUP=yes
 
 # Profiling parameters
@@ -66,3 +68,10 @@ export MONITORS_GZIP="proc-vmstat top slabinfo numa-numastat numa-meminfo numa-c
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 export MONITOR_PERF_EVENTS=node-load-misses,node-store-misses
+
+# PerfNUMA
+export PERFNUMA_NR_PROCESSES=$NUMNODES
+export PERFNUMA_NR_THREADS=$((NUMCPUS/NUMNODES))
+export PERFNUMA_PROCESS_WSS=${MMTESTS_NODE_ID_BY_SIZE[0]*4/5}
+export PERFNUMA_WORKLOADS="light_converge standard_converge oversubscribe_converge"
+export PERFNUMA_ITERATIONS=10
