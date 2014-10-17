@@ -12,8 +12,10 @@ run_bench() {
 		VERSION_PARAM="-v $FUTEXBENCH_VERSION"
 	fi
 
-	$SHELLPACK_INCLUDE/shellpack-bench-futexbench $VERSION_PARAM \
-	    --workloads $FUTEXBENCH_WORKLOADS
+	$SHELLPACK_INCLUDE/shellpack-bench-futexbench $VERSION_PARAM	\
+		--min-threads $FUTEXBENCH_MIN_THREADS			\
+		--max-threads $FUTEXBENCH_MAX_THREADS			\
+		--workloads $FUTEXBENCH_WORKLOADS
 
 	return $?
 }

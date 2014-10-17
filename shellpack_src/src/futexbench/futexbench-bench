@@ -5,10 +5,13 @@
 TESTTIME=15
 ITERATIONS=12
 TESTLIST=
+MAX_THREADS=$NUMCPUS
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-###SHELLPACK parseargParam   --workloads	WORKLOADS
+###SHELLPACK parseargParam   --min-threads      FUTEXBENCH_MIN_THREADS
+###SHELLPACK parseargParam   --max-threads      FUTEXBENCH_MAX_THREADS
+###SHELLPACK parseargParam   --workloads	FUTEXBENCH_WORKLOADS
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required futexbench-${VERSION}
@@ -18,19 +21,19 @@ TESTLIST=
 
 PERF_DIR=$SHELLPACK_SOURCES/futexbench-${VERSION}-installed/tools/perf/
 PERF_CMD=${PERF_DIR}/perf
-FUTEX_THREADS="64 128 256 512 1024"
 
-echo $WORKLOADS > $LOGDIR_RESULTS/workloads
-for THREADS in $FUTEX_THREADS; do
-	for WORKLOAD in $WORKLOADS; do
-		mmtests_activity $WORKLOAD-$THREADS
+echo $FUTEXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
+
+###SHELLPACK threads_stride_begin $FUTEXBENCH_MIN_THREADS $FUTEXBENCH_MAX_THREADS
+	for WORKLOAD in $FUTEXBENCH_WORKLOADS; do
+		mmtests_activity $WORKLOAD-$NR_THREADS
 		echo Running test $WORKLOAD
-		monitor_pre_hook $LOGDIR_RESULTS $THREADS
-		$PERF_CMD bench futex $WORKLOAD -t $THREADS 2>&1 | \
-			tee $LOGDIR_RESULTS/$WORKLOAD-${THREADS}.log \
+		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+		$PERF_CMD bench futex $WORKLOAD -t $NR_THREADS 2>&1 | \
+			tee $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log \
 			|| die Failed ro run perf-bench futex
-		monitor_post_hook $LOGDIR_RESULTS $THREADS
+		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	done
-done
+###SHELLPACK threads_stride_end
 
 exit $SHELLPACK_SUCCESS

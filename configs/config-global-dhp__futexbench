@@ -66,3 +66,7 @@ export MONITORS_GZIP="proc-vmstat top slabinfo numa-numastat numa-meminfo numa-c
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 export MONITOR_PERF_EVENTS=node-load-misses,node-store-misses
+
+# futexbench
+export FUTEXBENCH_MIN_THREADS=2
+export FUTEXBENCH_MAX_THREADS=$((NUMCPUS*64))
