@@ -31,7 +31,7 @@ done
 
 # Run one test for ever size of parallel IO
 for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
-	mmtests_activitry io-step $IO_STEP
+	mmtests_activity io-step $IO_STEP
 	if [ $IO_STEP -eq 0 ]; then
 		IO_SIZE=0
 	else
