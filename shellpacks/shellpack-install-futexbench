@@ -62,4 +62,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description perf-bench futex
-#### Details futexbench 8
+#### Details futexbench 9
