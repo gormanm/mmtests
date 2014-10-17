@@ -2,7 +2,7 @@
 # Run perf-bench futex benchmark
 
 P=futexbench-bench
-DEFAULT_VERSION=3.16.3
+DEFAULT_VERSION=3.17
 . $SHELLPACK_INCLUDE/common.sh
 TESTTIME=15
 ITERATIONS=12
@@ -53,23 +53,23 @@ if [ -z "$VERSION" ]; then
 fi
 
 if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/futexbench-${VERSION}
+	rm -rf $SHELLPACK_SOURCES/perfbuild-${VERSION}
 fi
-if [ ! -d $SHELLPACK_SOURCES/futexbench-${VERSION}-installed ]; then
+if [ ! -d $SHELLPACK_SOURCES/perfbuild-${VERSION}-installed ]; then
 	mmtests_activity source-install
-	$SHELLPACK_INCLUDE/shellpack-install-futexbench -v ${VERSION}  || die futexbench install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-perfbuild -v ${VERSION}  || die perfbuild install script returned error
 	mmtests_activity source-installed
 fi
-cd $SHELLPACK_SOURCES/futexbench-${VERSION}-installed || die Failed to cd to futexbench install directory
+cd $SHELLPACK_SOURCES/perfbuild-${VERSION}-installed || die Failed to cd to perfbuild install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo futexbench installed only as requested.
+	echo perfbuild installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-PERF_DIR=$SHELLPACK_SOURCES/futexbench-${VERSION}-installed/tools/perf/
+PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf
 
 echo $FUTEXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
@@ -102,4 +102,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description perf-bench futex
-#### Details futexbench-bench 10
+#### Details futexbench-bench 13

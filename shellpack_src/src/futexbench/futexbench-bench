@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run perf-bench futex benchmark
 
-###SHELLPACK preamble futexbench-bench 3.16.3
+###SHELLPACK preamble futexbench-bench 3.17
 TESTTIME=15
 ITERATIONS=12
 TESTLIST=
@@ -14,12 +14,12 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargParam   --workloads	FUTEXBENCH_WORKLOADS
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required futexbench-${VERSION}
+###SHELLPACK check_external_install_required perfbuild perfbuild-${VERSION}
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-PERF_DIR=$SHELLPACK_SOURCES/futexbench-${VERSION}-installed/tools/perf/
+PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf
 
 echo $FUTEXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
