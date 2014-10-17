@@ -75,11 +75,16 @@ sub extractReport($$$) {
 	foreach my $nthr (@threads) {
 		foreach my $wl (@workloads) {
 			my $file = "$reportDir/noprofile/$wl-$nthr.log";
+			my $futexType = "private";
 
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				my $line = $_;
 				my @tmp = split(/\s+/, $line);
+
+				if ($line =~ /shared/) {
+					$futexType = "shared";
+				}
 
 				if ($line =~ /Averaged/) {
 					$tp = $tmp[1];
@@ -102,7 +107,7 @@ sub extractReport($$$) {
 			}
 
 			close INPUT;
-			push @{$self->{_ResultData}}, [ "$wl ($nthr threads)", $tp ];
+			push @{$self->{_ResultData}}, [ "$wl ($futexType futex) ($nthr threads)", $tp ];
 		}
 	}
 }
