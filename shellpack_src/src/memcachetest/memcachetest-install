@@ -15,6 +15,6 @@ install-depends libevent-devel
 echo "m4_define([VERSION_NUMBER], [0.8.3_6_g35fd1b9])" > m4/version.m4
 ./config/autorun.sh || die Failed to generate configure script
 ###SHELLPACK build_configure memcachetest-${VERSION}
-###SHELLPACK make_make_install memcachetest-${VERSION}
+###SHELLPACK make_make_install
 
 echo memcachetest installed successfully

@@ -55,7 +55,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/memcachetest-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/memcachetest-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-memcachetest -v ${VERSION}  || die memcachetest install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/memcachetest-${VERSION}-installed || die Failed to cd to memcachetest install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -96,4 +98,4 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 
 exit $SHELLPACK_SUCCESS
 #### Description memcachetest
-#### Details memcachetest-bench 15
+#### Details memcachetest-bench 16

@@ -58,7 +58,7 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 unset CFLAGS
-make -j$NUMCPUS memcachetest-${VERSION}
+make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -73,4 +73,4 @@ fi
 
 echo memcachetest installed successfully
 #### Description memcachetest
-#### Details memcachetest 15
+#### Details memcachetest 16
