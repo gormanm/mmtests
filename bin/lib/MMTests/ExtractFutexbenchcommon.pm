@@ -1,22 +1,10 @@
 # ExtractFutexbench.pm
 package MMTests::ExtractFutexbenchcommon;
-use MMTests::Extract;
+use MMTests::SummariseMultiops;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract);
+our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 use Data::Dumper qw(Dumper);
-
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractFutexbenchcommon",
-		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
-		_ResultData  => [],
-		_FieldLength => 16,
-	};
-	bless $self, $class;
-	return $self;
-}
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
@@ -28,20 +16,6 @@ sub initialise() {
 	$self->{_SummaryLength} = $fieldLength;
 	$self->{_TestName} = $testName;
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
-	$self->{_FieldHeaders} = [ "Threads", "Tput", ];
-	$self->{_SummaryHeaders} =[ "Unit", "Tput" ];
-}
-
-sub printPlot() {
-	my ($self, $subheading) = @_;
-	$self->printSummary();
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-
-	$self->{_SummaryData} = $self->{_ResultData};
-	return 1;
 }
 
 sub uniq {
@@ -71,11 +45,13 @@ sub extractReport($$$) {
 	}
 	@threads = sort {$a <=> $b} @threads;
 	@threads = uniq(@threads);
+	my %futexTypesSeen;
 
 	foreach my $nthr (@threads) {
 		foreach my $wl (@workloads) {
 			my $file = "$reportDir/noprofile/$wl-$nthr.log";
 			my $futexType = "private";
+			my $nr_samples = 0;
 
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
@@ -86,35 +62,31 @@ sub extractReport($$$) {
 					$futexType = "shared";
 				}
 
-				if ($line =~ /Averaged/) {
-					$tp = $tmp[1];
-					last;
+				if ($line =~ /.*futexes:.* \[ ([0-9]+) ops\/sec.*/) {
+					$tp = $1;
+				} elsif ($line =~ /.*: Requeued.* in ([0-9.]+) ms/) {
+					$tp = $1;
+				} elsif ($line =~ /.*: Wokeup.* in ([0-9.]+) ms/) {
+					$tp = $1;
+				} else {
+					next;
 				}
 
-				if ($line =~ /Wokeup/) {
-					if ($line =~ /%/) {
-						$tp = $tmp[6];
-						last;
-					}
-				}
-
-				if ($line =~ /Requeued/) {
-					if ($line =~ /%/) {
-						$tp = $tmp[6];
-						last;
-					}
-				}
+				$futexTypesSeen{$futexType} = 1;
+				push @{$self->{_ResultData}}, [ "$wl-$futexType-$nthr", ++$nr_samples, $tp ];
 			}
 
 			close INPUT;
-			push @{$self->{_ResultData}}, [ "$wl ($futexType futex) ($nthr threads)", $tp ];
 		}
 	}
-}
 
-sub printSummary() {
-	my ($self, $subHeading) = @_;
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" ];
-	$self->SUPER::printSummary($subHeading);
+	my @ops;
+	foreach my $futexType (keys %futexTypesSeen) {
+		foreach my $wl (@workloads) {
+			foreach my $nthr (@threads) {
+				push @ops, "$wl-$futexType-$nthr"
+			}
+		}
+	}
+	$self->{_Operations} = \@ops;
 }
