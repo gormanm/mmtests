@@ -72,6 +72,10 @@ while [ "$1" != "" ]; do
 		LOGY=--logY
 		shift
 		;;
+	--wide)
+		WIDE=--wide
+		shift
+		;;
 	--x-label)
 		FORCE_X_LABEL="$2"
 		shift 2
@@ -174,7 +178,7 @@ PLOTSCRIPTS="plot"
 
 for PLOTSCRIPT in $PLOTSCRIPTS; do
 	eval $SCRIPTDIR/$PLOTSCRIPT $TITLE $PLOTTYPE $SEPARATE_TESTS $SMOOTH $FORMAT_CMD $OUTPUT_CMD $OUTPUT \
-		$LOGX $LOGY $SUBREPORT_ARGS \
+		$LOGX $LOGY $WIDE $SUBREPORT_ARGS \
 		--xlabel \"$XLABEL\" \
 		--ylabel \"$YLABEL\" \
 		--titles $TITLES \

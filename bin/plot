@@ -76,6 +76,11 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			USING="1:2:3:4:5"
 			shift
 			;;
+		--wide)
+			echo set term $FORMAT size 1200,600 >> $TEMP
+			WIDE="yes"
+			shift
+			;;
 		--histogram)
 			HISTOGRAM="yes"
 			USING="2:xtic(1)"
@@ -368,7 +373,6 @@ if [ "$HISTOGRAM" = "yes" ]; then
 	echo set xtic rotate by -45         >> $TEMP
 	echo set style fill solid border -1 >> $TEMP
 fi
-
 if [ "$OPER_CANDLESTICKS" = "yes" ]; then
 	echo "set xtic rotate by -45" >> $TEMP
 	echo set boxwidth 0.2 >> $TEMP
