@@ -62,18 +62,21 @@ fi
 
 PERF_DIR=$SHELLPACK_SOURCES/futexbench-${VERSION}-installed/tools/perf/
 PERF_CMD=${PERF_DIR}/perf
+FUTEX_THREADS="64 128 256 512 1024"
 
 echo $WORKLOADS > $LOGDIR_RESULTS/workloads
-for WORKLOAD in $WORKLOADS; do
-	mmtests_activity $WORKLOAD
+for THREADS in $FUTEX_THREADS; do
+    for WORKLOAD in $WORKLOADS; do
+	mmtests_activity $WORKLOAD-$THREADS
 	echo Running test $WORKLOAD
-	monitor_pre_hook $LOGDIR_RESULTS $NUMCPUS
-	$PERF_CMD bench futex $WORKLOAD 2>&1 | \
-		tee $LOGDIR_RESULTS/$WORKLOAD-${NUMCPUS}.log \
-			|| die Failed ro run perf-bench futex
-	monitor_post_hook $LOGDIR_RESULTS $NUMCPUS
+	monitor_pre_hook $LOGDIR_RESULTS $THREADS
+	$PERF_CMD bench futex $WORKLOAD -t $THREADS 2>&1 | \
+	    tee $LOGDIR_RESULTS/$WORKLOAD-${THREADS}.log \
+	    || die Failed ro run perf-bench futex
+	monitor_post_hook $LOGDIR_RESULTS $THREADS
+    done
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description perf-bench futex
-#### Details futexbench-bench 4
+#### Details futexbench-bench 8
