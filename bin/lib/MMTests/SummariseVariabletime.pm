@@ -28,6 +28,7 @@ sub initialise() {
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
 	$self->{_FieldHeaders} = [ "Type", "Sample", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
+	$self->{_RatioPreferred} = "Lower";
 
 	$self->{_SummaryLength} = 16;
 	$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Mid-90%", "Mid-93%", "Mid-95%", "Mid-99%", "Max", "Worst10%Mean", "Worst5%Mean", "Worst1%Mean" ];
@@ -111,5 +112,41 @@ sub extractSummary() {
 	return 1;
 
 }
+
+sub extractRatioSummary() {
+	my ($self, $subHeading) = @_;
+	my @_operations = @{$self->{_Operations}};
+	my @data = @{$self->{_ResultData}};
+
+	if ($subHeading ne "") {
+		$#_operations = 0;
+		$_operations[0] = $subHeading;
+	}
+
+	$self->{_SummaryHeaders} = [ "Time", "Ratio" ];
+
+	foreach my $operation (@_operations) {
+
+		my @units;
+		my @row;
+		my $samples = 0;
+		foreach my $row (@data) {
+			if (@{$row}[0] eq "$operation") {
+				push @units, @{$row}[2];
+				$samples++;
+			}
+		}
+		my $quartilesRef = calc_quartiles(@units);
+		my @quartiles = @{$quartilesRef};
+		push @row, $operation;
+		push @row, $quartiles[95];
+
+		push @{$self->{_SummaryData}}, \@row;
+	}
+
+	return 1;
+
+}
+
 
 1;

@@ -107,6 +107,7 @@ sub _generateComparisonTable() {
 	my ($self, $subHeading, $showCompare) = @_;
 	my @resultsTable;
 	my @compareTable;
+	my @compareRatioTable;
 
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
@@ -117,6 +118,7 @@ sub _generateComparisonTable() {
 		for (my $row = 0; $row <= $#baseline; $row++) {
 			my @data;
 			my @compare;
+			my @ratio;
 			my $compareOp = "pdiff";
 			if (defined $self->{_CompareOp}) {
 				$compareOp = $self->{_CompareOp};
@@ -136,18 +138,32 @@ sub _generateComparisonTable() {
 				my $summaryRef = $extractModules[$module]->{_SummaryData};
 				my @summary = @{$summaryRef};
 				if ($subHeading eq "ratio") {
-					push @data, rdiff($summary[$row][$column], $baseline[$row][$column]);
 				} else {
 					push @data, $summary[$row][$column];
 					push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
+					push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
 				}
 			}
 			push @resultsTable, [@data];
 			push @compareTable, [@compare];
+			push @compareRatioTable, [@ratio];
+		}
+	}
+
+	my @geomean;
+	for (my $column = 1; $column <= $#summaryHeaders; $column++) {
+		for (my $module = 0; $module <= $#extractModules; $module++) {
+			my @units;
+			for (my $row = 0; $row <= $#baseline; $row++) {
+				push @units, $compareRatioTable[$row][$module];
+			}
+			push @geomean, calc_geomean(@units);
 		}
 	}
 
 	$self->{_ResultsTable} = \@resultsTable;
+	$self->{_ResultsRatioTable} = \@compareRatioTable;
+	$self->{_GeometricMeanTable} = \@geomean;
 
 	if ($showCompare) {
 		$self->{_CompareTable} = \@compareTable;
@@ -195,6 +211,99 @@ sub _generateHeaderTable() {
 	}
 	$self->{_HeaderTable} = \@headerTable;
 	$self->{_HeaderFormat} = \@headerFormat;
+}
+
+# Construct final table for printing
+sub _generateRenderRatioTable() {
+	my ($self) = @_;
+	my @finalTable;
+	my @formatTable;
+	my @compareTable;
+
+	my @titleTable = @{$self->{_TitleTable}};
+	my @resultsTable = @{$self->{_ResultsRatioTable}};
+	my $fieldLength = $self->{_FieldLength};
+	my $compareLength = 0;
+	my $precision = 2;
+	if ($self->{_Precision}) {
+		$precision = $self->{_Precision};
+	}
+	my @compareTable;
+	if (defined $self->{_CompareTable}) {
+		@compareTable = @{$self->{_CompareTable}};
+		$compareLength = $self->{_CompareLength};
+	}
+
+	my @extractModules = @{$self->{_ExtractModules}};
+	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
+	my $baselineRef = $extractModules[0]->{_SummaryData};
+	my @baseline = @{$baselineRef};
+
+	# Format string for columns
+	my $maxLength = 0;
+	for (my $column = 1; $column <= $#summaryHeaders; $column++) {
+		my $len = length($summaryHeaders[$column]);
+		if ($len > $maxLength) {
+			$maxLength = $len;
+		}
+	}
+	push @formatTable, "%-${maxLength}s";
+	$self->{_OperationLength} = $maxLength;
+
+	# Format string for source table rows
+	$maxLength = 0;
+	for (my $row = 0; $row <= $#baseline; $row++) {
+		my $length = length($baseline[$row][0]);
+		if ($length > $maxLength) {
+			$maxLength = $length;
+		}
+	}
+	push @formatTable, " %-${maxLength}s";
+	$self->{_OperationLength} += $maxLength + 1;
+
+	# Build column format table
+	for (my $i = 0; $i <= $#{$resultsTable[0]}; $i++) {
+		my $fieldFormat = "%${fieldLength}.${precision}f";
+		if (defined $self->{_CompareTable}) {
+			push @formatTable, ($fieldFormat, " (%${compareLength}.2f%%)");
+		} else {
+			push @formatTable, ($fieldFormat, "");
+		}
+	}
+
+	# Final comparison table
+	for (my $row = 0; $row <= $#titleTable; $row++) {
+		my @row;
+		foreach my $elements ($titleTable[$row]) {
+			foreach my $element (@{$elements}) {
+				push @row, $element;
+			}
+		}
+		for (my $i = 0; $i <= $#{$resultsTable[$row]}; $i++) {
+			push @row, $resultsTable[$row][$i];
+			if (defined $self->{_CompareTable}) {
+				push @row, $compareTable[$row][$i];
+			} else {
+				push @row, [""];
+			}
+		}
+		push @finalTable, [@row];
+	}
+
+	# Geometric mean table
+	my @geomeanTable = $self->{_GeometricMeanTable};
+	my @extractModules = @{$self->{_ExtractModules}};
+	my @rowLine;
+	push @rowLine, "Gmean";
+	push @rowLine, $extractModules[0]->{_RatioPreferred};
+	for (my $i = 0; $i <= $#{$geomeanTable[0]}; $i++) {
+		push @rowLine, $geomeanTable[0][$i];
+		push @rowLine, -1;
+	}
+	push @finalTable, [@rowLine];
+
+	$self->{_RenderTable} = \@finalTable;
+	$self->{_FieldFormat} = \@formatTable;
 }
 
 # Construct final table for printing
@@ -265,21 +374,21 @@ sub _generateRenderTable() {
 
 	# Final comparison table
 	for (my $row = 0; $row <= $#titleTable; $row++) {
-		my @row;
+		my @rowLine;
 		foreach my $elements ($titleTable[$row]) {
 			foreach my $element (@{$elements}) {
-				push @row, $element;
+				push @rowLine, $element;
 			}
 		}
 		for (my $i = 0; $i <= $#{$resultsTable[$row]}; $i++) {
-			push @row, $resultsTable[$row][$i];
+			push @rowLine, $resultsTable[$row][$i];
 			if (defined $self->{_CompareTable}) {
-				push @row, $compareTable[$row][$i];
+				push @rowLine, $compareTable[$row][$i];
 			} else {
-				push @row, [""];
+				push @rowLine, [""];
 			}
 		}
-		push @finalTable, [@row];
+		push @finalTable, [@rowLine];
 	}
 
 	$self->{_RenderTable} = \@finalTable;
@@ -310,7 +419,7 @@ sub _printComparisonRow() {
 }
 
 sub printComparison() {
-	my ($self) = @_;
+	my ($self, $printRatio) = @_;
 	my @extractModules = @{$self->{_ExtractModules}};
 
 	if ($extractModules[0]->{_RowOrientated}) {
@@ -320,7 +429,11 @@ sub printComparison() {
 		return;
 	}
 
-	$self->_generateRenderTable(0);
+	if ($printRatio) {
+		$self->_generateRenderRatioTable();
+	} else {
+		$self->_generateRenderTable(0);
+	}
 	$self->_generateHeaderTable();
 
 	$self->{_PrintHandler}->printTop();

@@ -309,6 +309,10 @@ sub extractSummary() {
 	return 1;
 }
 
+sub extractRatioSummary() {
+	print "Unsupported\n";
+}
+
 sub extractSummaryR() {
 	my ($self, $subHeading, $RstatsFile) = @_;
 	my @formatList;

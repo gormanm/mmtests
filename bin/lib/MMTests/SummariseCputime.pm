@@ -24,6 +24,7 @@ sub initialise() {
 	$self->{_SummaryLength} = 12;
         $self->{_PlotLength} = 12;
 	$self->{_FieldHeaders} = [ "User", "System", "Elapsed", "CPU" ];
+	$self->{_RatioPreferred} = "Lower";
 
 	$self->{_SummaryHeaders} = [ "Operation", "User", "System", "Elapsed", "CPU" ];
         $self->{_PlotHeaders} = [ "LowStddev", "Min", "Max", "HighStddev", "Mean" ];
@@ -92,6 +93,34 @@ sub extractSummary() {
 
 	return 1;
 }
+
+sub extractRatioSummary() {
+	my ($self, $subHeading) = @_;
+	my @formatList;
+	my $fieldLength = $self->{_FieldLength};
+	if (defined $self->{_FieldFormat}) {
+		@formatList = @{$self->{_FieldFormat}};
+	}
+
+	$self->{_SummaryHeaders} = [ "Time", "Ratio" ];
+
+	my (@elapsed);
+
+	foreach my $row (@{$self->{_ResultData}}) {
+		my @rowArray = @{$row};
+		push @elapsed, $rowArray[2];
+	}
+
+	$self->{_FieldFormat} = [ "%-${fieldLength}s" ];
+	foreach my $funcName ("calc_mean") {
+		no strict "refs";
+
+		push @{$self->{_SummaryData}}, ["Elapsed", &$funcName(@elapsed) ];
+	}
+
+	return 1;
+}
+
 
 sub printReport() {
 	my ($self) = @_;

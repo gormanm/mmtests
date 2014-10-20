@@ -27,6 +27,7 @@ sub initialise() {
 	$self->{_Opname} = $opName;
 	$self->{_PlotType} = $plotType;
 
+	$self->{_RatioPreferred} = "Higher";
 	$self->{_MeanOp} = "calc_harmmean";
 	$self->{_MeanName} = "Hmean";
 
@@ -36,6 +37,7 @@ sub initialise() {
 	    $self->{_DataType} == MMTests::Extract::DATA_TIME_USECONDS) {
 		$self->{_MeanOp} = "calc_mean";
 		$self->{_MeanName} = "Amean";
+		$self->{_RatioPreferred} = "Lower";
 	}
 
 	$self->SUPER::initialise($reportDir, $testName);
@@ -149,7 +151,46 @@ sub extractSummary() {
 	}
 
 	return 1;
+}
 
+sub extractRatioSummary() {
+	my ($self, $subHeading) = @_;
+	my @_operations = @{$self->{_Operations}};
+	my @data = @{$self->{_ResultData}};
+
+	$self->{_SummaryHeaders} = [ "Op", "Ratio" ];
+
+	if ($subHeading ne "") {
+		my $index = 0;
+		while ($index <= $#_operations) {
+			if ($_operations[$index] =~ /^$subHeading.*/) {
+				$index++;
+				next;
+			}
+			splice(@_operations, $index, 1);
+		}
+	}
+
+	foreach my $operation (@_operations) {
+		my @units;
+		my @row;
+		my $samples = 0;
+		foreach my $row (@data) {
+			if (@{$row}[0] eq "$operation") {
+				push @units, @{$row}[2];
+				$samples++;
+			}
+		}
+		push @row, $operation;
+		foreach my $funcName ($self->{_MeanOp}) {
+			no strict "refs";
+			push @row, &$funcName(@units);
+		}
+		push @{$self->{_SummaryData}}, \@row;
+
+	}
+
+	return 1;
 }
 
 1;

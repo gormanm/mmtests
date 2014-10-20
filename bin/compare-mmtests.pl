@@ -23,7 +23,7 @@ use strict;
 my ($opt_verbose);
 my ($opt_help, $opt_manual);
 my ($opt_reportDirectory);
-my ($opt_printHeader, $opt_printExtra);
+my ($opt_printHeader, $opt_printExtra, $opt_printRatio);
 my ($opt_subheading, $opt_format);
 my ($opt_names, $opt_benchmark);
 my ($opt_monitor, $opt_hideCompare);
@@ -33,6 +33,7 @@ GetOptions(
 	'help|h'		=> \$opt_help,
 	'--print-header'	=> \$opt_printHeader,
 	'--print-extra'		=> \$opt_printExtra,
+	'--print-ratio'		=> \$opt_printRatio,
 	'--print-monitor=s'	=> \$opt_monitor,
 	'--no-compare'		=> \$opt_hideCompare,
 	'--sub-heading=s'	=> \$opt_subheading,
@@ -65,6 +66,9 @@ if (!defined($opt_monitor)) {
 			$extractModules[$nrModules] = $extractFactory->loadModule($opt_benchmark, $reportDirectory, $name);
 			if ($opt_Rsummary) {
 				$extractModules[$nrModules++]->extractSummaryR($opt_subheading, $opt_Rsummary);
+			} elsif ($opt_printRatio) {
+				$extractModules[$nrModules]->extractReport($reportDirectory, $name);
+				$extractModules[$nrModules++]->extractRatioSummary($opt_subheading);
 			} else {
 				$extractModules[$nrModules]->extractReport($reportDirectory, $name);
 				$extractModules[$nrModules++]->extractSummary($opt_subheading);
@@ -114,7 +118,7 @@ if ($opt_Rsummary) {
 }
 
 $compareModule->extractComparison($opt_subheading, !$opt_hideCompare);
-$compareModule->printComparison();
+$compareModule->printComparison($opt_printRatio);
 
 # Below this line is help and manual page information
 __END__
