@@ -110,9 +110,9 @@ for ITERATION in `seq 1 $GITCHECKOUT_ITERATIONS`; do
 		sysctl -w vm.drop_caches=3
 	fi
 
-	echo Iteration $i/$GITCHECKOUT_ITERATIONS
-	$TIME_CMD $TESTDISK_DIR/gitcheckout/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$i
-	grep elapsed $LOGDIR_RESULTS/time.$i
+	echo Iteration $ITERATION/$GITCHECKOUT_ITERATIONS
+	$TIME_CMD $TESTDISK_DIR/gitcheckout/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$ITERATION
+	grep elapsed $LOGDIR_RESULTS/time.$ITERATION
 done
 
 # Summarise and cleanup
@@ -122,4 +122,4 @@ rm -rf $TESTDISK_DIR/gitcheckout
 
 exit $SHELLPACK_SUCCESS
 #### Description Times how long it takes to checkout git repos
-#### Details gitcheckout-bench 14
+#### Details gitcheckout-bench 15

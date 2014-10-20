@@ -72,9 +72,9 @@ mkdir -p $LOGDIR_RESULTS
 		sysctl -w vm.drop_caches=3
 	fi
 
-	echo Iteration $i/$GITCHECKOUT_ITERATIONS
-	$TIME_CMD $TESTDISK_DIR/gitcheckout/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$i
-	grep elapsed $LOGDIR_RESULTS/time.$i
+	echo Iteration $ITERATION/$GITCHECKOUT_ITERATIONS
+	$TIME_CMD $TESTDISK_DIR/gitcheckout/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$ITERATION
+	grep elapsed $LOGDIR_RESULTS/time.$ITERATION
 ###SHELLPACK iteration_end
 
 # Summarise and cleanup
