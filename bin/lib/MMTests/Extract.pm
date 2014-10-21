@@ -149,16 +149,6 @@ sub setFormat() {
 	}
 }
 
-sub printExtraHeaders() {
-	my ($self) = @_;
-	if (!defined $self->{_ExtraLength}) {
-		return;
-	}
-	$self->{_PrintHandler}->printHeaders(
-		$self->{_ExtraLength}, $self->{_ExtraHeaders},
-		$self->{_FieldHeaderFormat});
-}
-
 sub printReportTop() {
 	my ($self) = @_;
 	$self->{_PrintHandler}->printTop();
@@ -375,26 +365,6 @@ sub _printClientReport() {
 	foreach my $client (@clients) {
 		$self->{_PrintHandler}->printRow($data[$client], $fieldLength, $self->{_FieldFormat}, "%-${fieldLength}d", $client);
 	}
-}
-
-sub _printClientExtra() {
-	my ($self, $reportDir, @clients) = @_;
-	my @data = @{$self->{_ExtraData}};
-
-	my $fieldLength = $self->{_ExtraLength};
-	foreach my $client (@clients) {
-		$self->{_PrintHandler}->printRow($data[$client], $fieldLength, $self->{_ExtraFormat}, "%-${fieldLength}d", $client);
-	}
-}
-
-sub printExtra() {
-	my ($self) = @_;
-	my @formatList;
-	if (!defined $self->{_ExtraData}) {
-		return;
-	}
-
-	$self->{_PrintHandler}->printRow($self->{_ExtraData}, $self->{_ExtraLength}, $self->{_ExtraFormat});
 }
 
 sub printReport() {

@@ -23,7 +23,7 @@ use strict;
 my ($opt_verbose);
 my ($opt_help, $opt_manual);
 my ($opt_reportDirectory);
-my ($opt_printHeader, $opt_printExtra, $opt_printRatio);
+my ($opt_printHeader, $opt_printRatio);
 my ($opt_subheading, $opt_format);
 my ($opt_names, $opt_benchmark);
 my ($opt_monitor, $opt_hideCompare);
@@ -32,7 +32,6 @@ GetOptions(
 	'verbose|v'		=> \$opt_verbose,
 	'help|h'		=> \$opt_help,
 	'--print-header'	=> \$opt_printHeader,
-	'--print-extra'		=> \$opt_printExtra,
 	'--print-ratio'		=> \$opt_printRatio,
 	'--print-monitor=s'	=> \$opt_monitor,
 	'--no-compare'		=> \$opt_hideCompare,
@@ -138,7 +137,6 @@ compare-mmtests.pl [options]
  -v, --verbose		Verbose output
  --format		Output format
  --print-header		Print a header
- --print-extra		Print secondary data collected by the benchmark
  --sub-heading		Analyse just a sub-heading of the data, see manual page
  --manual		Print manual page
  --help			Print help message
@@ -176,14 +174,6 @@ the formatting is in plain text.
 =item B<--print-header>
 
 Print a header that briefly describes what each of the fields are.
-
-=item B<--print-extra>
-
-Print additional information collected by the benchmark. Some benchmarks
-like dbench4 have a primary set of data such as throughput and latency
-while running the benchmark. It also reports the average and max latency
-of the commands sent to the server but this cannot be sanely represented
-with the main data. Use --print-extra in cases like this to see.
 
 =item B<--sub-heading>
 

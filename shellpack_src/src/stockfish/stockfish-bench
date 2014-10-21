@@ -1,0 +1,52 @@
+#!/bin/bash
+# Run stockfish benchmark
+
+###SHELLPACK preamble stockfish-bench 0
+
+ITERATIONS=12
+TESTLIST=
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-threads	STOCKFISH_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads	STOCKFISH_MAX_THREADS
+###SHELLPACK parseargParam	--iterations	STOCKFISH_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required stockfish-${VERSION}
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Create expect script
+EXPECT=`which expect`
+EXPECT_SCRIPT=$SHELLPACK_TEMP/stockfish-expect
+
+if [ $STOCKFISH_MAX_THREADS -gt 128 ]; then
+	STOCKFISH_MAX_THREADS=128
+fi
+
+###SHELLPACK threads_huge_stride_begin $STOCKFISH_MIN_THREADS $STOCKFISH_MAX_THREADS
+cat > $EXPECT_SCRIPT <<EOF
+spawn $SHELLPACK_SOURCES/stockfish-${VERSION}-installed/bin/stockfish
+expect "Stockfish"             {
+exp_send "uci\\r"
+exp_send "setoption name Threads value $NR_THREADS\\r"
+exp_send "setoption name Hash value 1024\\r"
+exp_send "position fen rnbq1rk1/pppnbppp/4p3/3pP1B1/3P3P/2N5/PPP2PP1/R2QKBNR w KQ - 0 7\\r"
+exp_send "go wtime 7200000 winc 30000 btime 7200000 binc 30000\\r"
+}
+while {1} {
+  expect bestmove exit
+}
+EOF
+chmod u+x $EXPECT_SCRIPT
+###SHELLPACK iteration_begin $STOCKFISH_ITERATIONS
+	echo Starting iteration $ITERATION threads $NR_THREADS
+	$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION \
+		$EXPECT -f $EXPECT_SCRIPT > $LOGDIR_RESULTS/stockfish-$NR_THREADS-$ITERATION
+###SHELLPACK iteration_end $ITERATIONS
+###SHELLPACK threads_stride_end

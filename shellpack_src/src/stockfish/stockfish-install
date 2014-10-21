@@ -1,0 +1,17 @@
+#!/bin/bash
+###SHELLPACK preamble stockfish-install 0
+GIT_LOCATION=https://github.com/mcostalba/Stockfish.git
+MIRROR_LOCATION="$WEBROOT/stockfish/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch stockfish-${VERSION}.tar.gz stockfish-${VERSION}
+
+###SHELLPACK build_start stockfish-${VERSION}/src
+git checkout 54f8a9cb138a1bc0b0054b98f911fafd8d1b03ad
+ARCH=`uname -m | sed -e 's/_/-/'`
+make build ARCH=$ARCH PREFIX=$SHELLPACK_SOURCES/stockfish-${VERSION}-installed || die Failed to run make build
+make install ARCH=$ARCH PREFIX=$SHELLPACK_SOURCES/stockfish-${VERSION}-installed || die Failed to run make install
+
+echo stockfish installed successfully

@@ -26,7 +26,7 @@ use strict;
 my ($opt_verbose);
 my ($opt_help, $opt_manual);
 my ($opt_reportDirectory, $opt_monitor);
-my ($opt_printHeader, $opt_printPlot, $opt_printSummary, $opt_printType, $opt_printExtra);
+my ($opt_printHeader, $opt_printPlot, $opt_printSummary, $opt_printType);
 my ($opt_subheading, $opt_format);
 my ($opt_name, $opt_benchmark);
 GetOptions(
@@ -37,7 +37,6 @@ GetOptions(
 	'--print-header'	=> \$opt_printHeader,
 	'--print-plot'		=> \$opt_printPlot,
 	'--print-summary'	=> \$opt_printSummary,
-	'--print-extra'		=> \$opt_printExtra,
 	'--print-monitor=s'	=> \$opt_monitor,
 	'--sub-heading=s'	=> \$opt_subheading,
 	'n|name=s'		=> \$opt_name,
@@ -111,9 +110,6 @@ $extractModule->printReportTop();
 if ($opt_printPlot) {
 	$extractModule->printPlotHeaders() if $opt_printHeader;
 	$extractModule->printPlot($opt_subheading);
-} elsif ($opt_printExtra) {
-	$extractModule->printExtraHeaders() if $opt_printHeader;
-	$extractModule->printExtra($opt_subheading);
 } elsif ($opt_printSummary) {
 	$extractModule->setSummaryLength($opt_subheading);
 	$extractModule->printSummaryHeaders() if $opt_printHeader;
@@ -143,7 +139,6 @@ extract-mmtest [options]
  --print-type		Print benchmark metric type
  --print-header		Print a header
  --print-summary	Summarise the data
- --print-extra		Print secondary data collected by the benchmark
  --print-monitor	Print information related to a monitor
  --print-plot		Print in a format suitable for consumption by gnuplot
  --sub-heading		Analyse just a sub-heading of the data, see manual page
@@ -187,14 +182,6 @@ Print a header that briefly describes what each of the fields are.
 Summarise the data depending on the type. For CPUTime data for example it
 will print the four columns User, Sys, Elapsed and CPU with four rows for
 the min, mean, stddev and max values for each of those columns.
-
-=item B<--print-extra>
-
-Print additional information collected by the benchmark. Some benchmarks
-like dbench4 have a primary set of data such as throughput and latency
-while running the benchmark. It also reports the average and max latency
-of the commands sent to the server but this cannot be sanely represented
-with the main data. Use --print-extra in cases like this to see.
 
 =item B<--print-monitor>
 
