@@ -266,6 +266,15 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Peaks
 		compare-mmtests.pl -d . -b specjbbpeak -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	stockfish)
+		echo $SUBREPORT Nodes/sec
+		compare-mmtests.pl -d . -b stockfish -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		echo $SUBREPORT Execution time
+		compare-mmtests.pl -d . -b stockfishtime -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		;;
+
 	stutter)
 		echo $SUBREPORT
 		$COMPARE_CMD
@@ -313,7 +322,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		eval $COMPARE_BARE_CMD --print-monitor iostat 2> /dev/null > /tmp/iostat-$$
 		TEST=`head -4 /tmp/iostat-$$ | tail -1 | awk '{print $3}' | cut -d. -f1`
 	fi
-	if [ "$TEST" != "" ] && [ $TEST -gt 5 ]; then
+	if [ "$TEST" != "" ] && [ "$TEST" != "nan" ] && [ $TEST -gt 5 ]; then
 		echo
 		eval $COMPARE_CMD --print-monitor iostat
 		PARAM_LIST="avgqz await r_await w_await"
@@ -474,6 +483,17 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		specjbb2013)
 			;;
+		stockfish)
+			echo "<tr>"
+			eval $GRAPH_PNG        -b stockfish     --title \"$SUBREPORT nodes/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC        -b stockfish     --title \"$SUBREPORT nodes/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			eval $GRAPH_PNG        -b stockfishtime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-time.png
+			eval $GRAPH_PSC        -b stockfishtime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-time.ps
+			plain graph-$SUBREPORT
+			plain graph-$SUBREPORT-time
+			echo "</tr>"
+			;;
+
 		siege)
 			echo "<tr>"
 			eval $GRAPH_PNG --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
