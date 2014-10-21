@@ -9,6 +9,7 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractSpecjvm";
 	$self->{_DataType}   = MMTests::Extract::DATA_OPS_PER_MINUTE;
 	$self->{_PlotType}   = "histogram";
+	$self->{_SingleType} = 1;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
