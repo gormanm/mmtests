@@ -178,8 +178,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					DELTA=$((-DELTA))
 				fi
 
-				echo HERE: $DELTA
-
 				if [ $DELTA -lt 100 ]; then
 					DESCRIPTION="Neutral"
 					COLOUR=$NEUTRAL_COLOUR
