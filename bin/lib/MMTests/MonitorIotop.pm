@@ -2,6 +2,7 @@
 package MMTests::MonitorIotop;
 use MMTests::Monitor;
 use VMR::Report;
+use VMR::Stat;
 our @ISA = qw(MMTests::Monitor);
 use strict;
 
@@ -48,10 +49,20 @@ sub extractReport($$$$) {
 	my $format;
 	my $start_timestamp = 0;
 
-	if (!defined $_colMap{$subHeading}) {
+	my ($subOp, $subCalc) = split(/-/, $subHeading);
+	if ($subCalc ne "") {
+		if ($subCalc eq "mean") {
+			$subCalc = "calc_harmmean";
+		} elsif ($subCalc eq "stddev") {
+			$subCalc = "calc_stddev";
+		} else {
+			die("Unrecognised subcalc $subCalc");
+		}
+	}
+	if (!defined $_colMap{$subOp}) {
 		die("Unrecognised heading");
 	}
-	my $headingIndex = $_colMap{$subHeading};
+	my $headingIndex = $_colMap{$subOp};
 	$self->{_HeadingIndex} = $headingIndex;
 
 	# TODO: Auto-discover lengths and handle multi-column reports
@@ -69,16 +80,25 @@ sub extractReport($$$$) {
 	}
 
 	my $reading;
+	my @vals;
 	while (<INPUT>) {
 		my $line = $_;
 		$line =~ s/^\s+//;
 
 		if ($line =~ /^time: ([0-9]+)/) {
-			$timestamp = $1;
 			if ($start_timestamp == 0) {
+				$timestamp = $1;
 				$start_timestamp = $timestamp;
+			} else {
+				if ($subCalc ne "" && $#vals >= 0) {
+					no strict "refs";
+					push @{$self->{_ResultData}},
+						[ $timestamp - $start_timestamp, "threads", &$subCalc(@vals) ];
+				}
+				$timestamp = $1;
 			}
 			$reading = 0;
+			$#vals = -1;
 			next;
 		}
 		if ($reading == 0 && $line =~ /^TID/) {
@@ -94,9 +114,11 @@ sub extractReport($$$$) {
 			my $val = $elements[$headingIndex];
 
 			if ($val > 5) {
-				# printf("%15d %20s %12.2f\n", $timestamp, $shortTask, $val);
-				push @{$self->{_ResultData}},
-					[ $timestamp - $start_timestamp, $shortTask, $val ];
+				if ($subCalc eq "") {
+					push @{$self->{_ResultData}},
+						[ $timestamp - $start_timestamp, $shortTask, $val ];
+				}
+				push @vals, $val;
 			}
 		}
 	}

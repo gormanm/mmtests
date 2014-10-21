@@ -587,25 +587,60 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					fi
 				done
 				for KERNEL in $KERNEL_LIST_ITER; do
+
+					# Per-thread graph
 					PROCESS_LIST=
 					TITLE_LIST=
 					eval $EXTRACT_CMD -n $KERNEL --print-monitor iotop --sub-heading $OP > /tmp/iotop-mmtests-$$/$KERNEL-data
-					for PROCESS in `awk '{print $2}' /tmp/iotop-mmtests-$$/$KERNEL-data | sort | uniq | sed -e 's/\[//g' -e 's/\]//g'`; do
-						PROCESS_LIST="$PROCESS_LIST /tmp/iotop-mmtests-$$/$PROCESS"
+					for PROCESS in `awk '{print $2}' /tmp/iotop-mmtests-$$/$KERNEL-data | sort | uniq`; do
+						PRETTY=`echo $PROCESS | sed -e 's/\[//g' -e 's/\]//g' -e 's/\.\///' -e 's/\//__/'`
+						grep " $PROCESS " /tmp/iotop-mmtests-$$/$KERNEL-data | awk '{print $1" "$3}' > /tmp/iotop-mmtests-$$/$PRETTY
+						PROCESS_LIST="$PROCESS_LIST /tmp/iotop-mmtests-$$/$PRETTY"
 						if [ "$TITLE_LIST" = "" ]; then
-							TITLE_LIST=$PROCESS
+							TITLE_LIST=$PRETTY
 						else
-							TITLE_LIST="$TITLE_LIST,$PROCESS"
+							TITLE_LIST="$TITLE_LIST,$PRETTY"
 						fi
-						grep " $PROCESS " /tmp/iotop-mmtests-$$/$KERNEL-data | awk '{print $1" "$3}' > /tmp/iotop-mmtests-$$/$PROCESS
 					done
 					eval plot --yrange 0:$MAX --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.png $PROCESS_LIST
 					eval plot --yrange 0:$MAX --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.ps $PROCESS_LIST
 					plain graph-$SUBREPORT-iotop-$OP-$KERNEL
+
 					rm -rf /tmp/iotop-mmtests-$$/*
 				done
 				echo "</tr>"
+
 			done
+
+			# IO threads mean
+			for OP in Read Write; do
+				echo "<tr>"
+				for CALC in mean stddev; do
+					PLOT_LIST=
+					TITLE_LIST=
+					for KERNEL in $KERNEL_LIST_ITER; do
+						eval $EXTRACT_CMD -n $KERNEL --print-monitor iotop --sub-heading $OP-$CALC | awk '{print $1" "$3}' > /tmp/iotop-mmtests-$$/$KERNEL-data
+						if [ "$TITLE_LIST" = "" ]; then
+							TITLE_LIST=$KERNEL
+						else
+							TITLE_LIST="$TITLE_LIST,$KERNEL"
+						fi
+						if [ "$PLOT_LIST" = "" ]; then
+							PLOT_LIST="/tmp/iotop-mmtests-$$/$KERNEL-data"
+						else
+							PLOT_LIST="$PLOT_LIST /tmp/iotop-mmtests-$$/$KERNEL-data"
+						fi
+					done
+
+					eval plot --logY --title \"$KERNEL thread-$CALC $OP\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC.png $PLOT_LIST
+					eval plot --logY --title \"$KERNEL thread-$CALC $OP\" --plottype points --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC.ps $PLOT_LIST
+					eval plot --title \"$KERNEL thread-$CALC $OP\" --plottype lines --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC-smooth.png --smooth bezier $PLOT_LIST 
+					eval plot --title \"$KERNEL thread-$CALC $OP\" --plottype lines --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC-smooth.ps --smooth bezier $PLOT_LIST
+					smoothover graph-$SUBREPORT-iotop-$OP-$CALC
+				done
+				echo "</tr>"
+			done
+
 			rmdir /tmp/iotop-mmtests-$$
 		fi
 
