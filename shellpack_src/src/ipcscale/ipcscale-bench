@@ -1,0 +1,26 @@
+#!/bin/bash
+# Run ipcscale benchmark
+
+###SHELLPACK preamble ipcscale-bench 0
+
+ITERATIONS=12
+TESTLIST=
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--iterations	IPCSCALE_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required ipcscale-${VERSION}
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+###SHELLPACK iteration_begin $IPCSCALE_ITERATIONS
+	echo Starting iteration $ITERATION
+	$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
+	./sem-scalebench > $LOGDIR_RESULTS/semscale.$ITERATION
+###SHELLPACK iteration_end $ITERATIONS

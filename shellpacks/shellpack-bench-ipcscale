@@ -1,0 +1,73 @@
+#!/bin/bash
+# Run ipcscale benchmark
+
+P=ipcscale-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+
+ITERATIONS=12
+TESTLIST=
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--iterations)
+		IPCSCALE_ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/ipcscale-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/ipcscale-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-ipcscale -v ${VERSION}  || die ipcscale install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/ipcscale-${VERSION}-installed || die Failed to cd to ipcscale install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo ipcscale installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+for ITERATION in `seq 1 $IPCSCALE_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+	echo Starting iteration $ITERATION
+	$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
+	./sem-scalebench > $LOGDIR_RESULTS/semscale.$ITERATION
+done
+#### Description ipcscale
+#### Details ipcscale-bench 4

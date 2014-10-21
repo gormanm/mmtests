@@ -1,0 +1,14 @@
+#!/bin/bash
+###SHELLPACK preamble ipcscale-install 0
+GIT_LOCATION=https://github.com/manfred-colorfu/ipcscale.git
+MIRROR_LOCATION="$WEBROOT/ipcscale/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch ipcscale-${VERSION}.tar.gz ipcscale-${VERSION}-installed
+
+###SHELLPACK build_start ipcscale-${VERSION}-installed
+###SHELLPACK make
+
+echo ipcscale installed successfully
