@@ -51,12 +51,36 @@ sub initialise() {
 	$self->{_SummaryLength} = 16;
 	$self->{_SummaryHeaders} = [ "Type", $self->{_Opname} ? $self->{_Opname} : "Ops"  ];
 	$self->{_SummariseColumn} = 2;
+	$self->{_RatioPreferred} = "Higher";
 	$self->{_TestName} = $testName;
 }
 
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
 	$self->{_SummaryData} = $self->{_ResultData};
+	return 1;
+}
+
+sub extractRatioSummary() {
+	my ($self, $subHeading) = @_;
+	my @data = @{$self->{_ResultData}};
+
+	if (!defined $self->{_SingleType}) {
+		print "Unsupported\n";
+		return 1;
+	}
+
+	$self->{_SummaryHeaders} = [ "Op", "Ratio" ];
+
+	foreach my $rowLine (@data) {
+		my @units;
+		my @row;
+		my $samples = 0;
+		push @row, @{$rowLine}[0];
+		push @row, @{$rowLine}[1];
+		push @{$self->{_SummaryData}}, \@row;
+	}
+
 	return 1;
 }
 

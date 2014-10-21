@@ -1,108 +1,24 @@
 # ExtractSpecjbb.pm
 package MMTests::ExtractSpecjbb;
-use MMTests::Extract;
+use MMTests::SummariseMultiops;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract);
+our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
-
-use constant DATA_SPECJBB     => 800;
-
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractSpecjbb",
-		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
-		_ResultData  => [],
-		_FieldLength => 12,
-	};
-	bless $self, $class;
-	return $self;
-}
-
-sub printDataType() {
-	print "Operations,Bops,Time\n";
-}
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
-	$self->SUPER::initialise();
+	$self->{_ModuleName} = "ExtractSpecjbb";
+	$self->{_DataType}   = MMTests::Extract::DATA_OPS_PER_SECOND;
+	$self->{_PlotType}   = "client-errorlines";
+	$self->{_PlotXaxis}  = "Clients";
 
-	my $fieldLength = $self->{_FieldLength} = 12;
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%${fieldLength}d", "%${fieldLength}s" ];
-	$self->{_FieldHeaders} = [ "JVMInstance", "Warehouses", "Bops", "Included" ];
-	$self->{_SummaryHeaders} = [ "Warehouse", "Min", "Mean", "Stddev", "Max", "TPut" ];
-	$self->{_SummaryLength} = $fieldLength;
-	$self->{_TestName} = $testName;
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-	my @data = @{$self->{_ResultData}};
-	my @instances = @{$self->{_JVMInstances}};
-	my @funcList = ("calc_min", "calc_mean", "calc_stddev", "calc_max", "calc_sum");
-	if ($self->{_JVMSingle}) {
-		@funcList = ("calc_sum");
-		$self->{_SummaryHeaders} = [ "Warehouse", "TPut" ];
-	}
-
-	# Bodge
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d", "%${fieldLength}d", "%${fieldLength}d" ];
-
-	my $rowIndex = 0;
-	foreach my $warehouse (@{$self->{_Warehouses}}) {
-		my @summaryRow;
-		push @summaryRow, $warehouse;
-
-		foreach my $funcName (@funcList) {
-			no strict "refs";
-			my @units;
-
-			foreach my $instance (@instances) {
-				my @instance_rows = @{$self->{_ResultData}[$instance]};
-				my @row = @{$instance_rows[$rowIndex]};
-				push @units, $row[1];
-			}
-			push @summaryRow, &$funcName(@units);
-		}
-
-		push @{$self->{_SummaryData}}, \@summaryRow;
-		$rowIndex++;
-	}
-
-	return 1;
-}
-
-sub printPlot() {
-	my ($self, $subHeading) = @_;
-	my @data = @{$self->{_ResultData}};
-	my $fieldLength = $self->{_FieldLength};
-	my @instances = @{$self->{_JVMInstances}};
-
-	foreach my $warehouse (@{$self->{_Warehouses}}) {
-		my @units;
-		foreach my $instance (@instances) {
-			my @instance_rows = @{$self->{_ResultData}[$instance]};
-			my @row = @{$instance_rows[$warehouse]};
-			push @units, $row[1];
-		}
-
-		printf("%-${fieldLength}d", $warehouse);
-		$self->_printSimplePlotData($fieldLength, @units);
-	}
-}
-
-
-sub printReport() {
-	my ($self, $reportDir) = @_;
-	my @jvm_instances = @{$self->{_JVMInstances}};
-
-	$self->_printClientReport($reportDir, @jvm_instances);
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
+	my %warehouses;
 	my $jvm_instance = -1;
 	my $reading_tput = 0;
 	my @jvm_instances;
@@ -146,6 +62,7 @@ sub extractReport($$$) {
 			next;
 		}
 
+		my $nr_samples = 0;
 		if ($reading_tput) {
 			my ($included, $warehouse, $throughput);
 			my @elements = split(/\s+/, $line);
@@ -156,14 +73,16 @@ sub extractReport($$$) {
 				($warehouse, $throughput) = @elements;
 				$included = "";
 			}
-			if ($#jvm_instances == 1 || $single_instance) {
-				push @{$self->{_Warehouses}}, $warehouse;
-			}
-			push @{$self->{_ResultData}[$jvm_instance]}, [ $warehouse, $throughput, $included ];
+			$warehouses{$warehouse}++;
+			push @{$self->{_ResultData}}, [ "tput-$warehouse", $warehouses{$warehouse}, $throughput ];
 		}
 	}
-	$self->{_JVMSingle} = $single_instance;
-	$self->{_JVMInstances} = \@jvm_instances;
+
+	my @ops;
+	foreach my $warehouse (sort {$a <=> $b} (keys %warehouses)) {
+		push @ops, "tput-$warehouse";
+	}
+	$self->{_Operations} = \@ops;
 	close INPUT;
 }
 
