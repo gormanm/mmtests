@@ -183,6 +183,7 @@ if [ "$TIME_CMD" = "" ]; then
 	TIME_CMD="time"
 fi
 
+FIRST_TIME=yes
 SYSBENCH_OPTIONS="$MAX_TIME_COMMAND $MAX_TRANSACTIONS_COMMAND $SYSBENCH_DB_OPTIONS"
 OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 		--oltp-test-mode=$OLTP_TESTTYPE \
@@ -207,22 +208,25 @@ for NR_THREADS in $THREADS; do
 		--shared_buffers $SHARED_BUFFERS \
 		--work_mem $WORK_MEM || die Failed to get usable database installation
 
-	echo Preparing database
-	if [ "$DBDRIVER" = "postgres" ]; then
-		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgtest;'"
-		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE sbtest;'"
-		$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgtest;'" || die Failed to setup database
-		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE sbtest with LOGIN;'" || die Failed to create sbtest role
-		cp $SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
-	else
-		eval $MYSQLADMIN -f drop sbtest
-		eval $MYSQLADMIN create sbtest || die Failed to setup database
-		cp /etc/my.cnf $LOGDIR_RESULTS
+	if [ "$MMTESTS_LARGE_MACHINE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
+		echo Preparing database
+		if [ "$DBDRIVER" = "postgres" ]; then
+			$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgtest;'"
+			$RUNDBUSER "$PSQL template1 -c 'DROP ROLE sbtest;'"
+			$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgtest;'" || die Failed to setup database
+			$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE sbtest with LOGIN;'" || die Failed to create sbtest role
+			cp $SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
+		else
+			eval $MYSQLADMIN -f drop sbtest
+			eval $MYSQLADMIN create sbtest || die Failed to setup database
+			cp /etc/my.cnf $LOGDIR_RESULTS
+		fi
+		echo Preparing database: $SYSBENCH_OPTIONS $OLTP_OPTIONS
+		$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
+			sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS prepare \
+			> $LOGDIR_RESULTS/load-${NR_THREADS}.log
 	fi
-	echo Preparing database: $SYSBENCH_OPTIONS $OLTP_OPTIONS
-	$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
-		sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS prepare \
-		> $LOGDIR_RESULTS/load-${NR_THREADS}.log
+	FIRST_TIME=no
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
@@ -240,6 +244,10 @@ for NR_THREADS in $THREADS; do
 		fi
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+
+	if [ "$MMTESTS_LARGE_MACHINE" = "yes" ]; then
+		echo 3 > /proc/sys/vm/drop_caches
+	fi
 done
 
 echo Cleaning database: sysbench $SYSBENCH_OPTIONS --test=oltp $OLTP_OPTIONS cleanup
@@ -259,4 +267,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 63
+#### Details sysbench-bench 64

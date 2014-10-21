@@ -41,13 +41,10 @@ sub initialise() {
 	}
 
 	$self->SUPER::initialise($reportDir, $testName);
-
-	$self->{_FieldLength} = 12;
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
 	$self->{_FieldHeaders} = [ "Type", "Sample", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
-
-	$self->{_SummaryLength} = 16;
+	$self->{_SummaryLength} = $self->{_FieldLength} + 4 if !defined $self->{_SummaryLength};
 	$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max" ];
 	$self->{_SummariseColumn} = 2;
 	$self->{_TestName} = $testName;

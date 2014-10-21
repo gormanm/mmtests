@@ -105,6 +105,8 @@ echo o scale factor: $SCALE_FACTOR
 echo o transactions: $MAX_TRANSACTIONS
 echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 
+FIRST_TIME=yes
+
 ###SHELLPACK threads_large_stride_begin 1 $MAX_THREADS
 	echo -n > $LOGDIR_RESULTS/samples
 
@@ -116,28 +118,31 @@ echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 		--work_mem $WORK_MEM \
 		-v ${VERSION} || die Failed to get a usable postgres installation
 
-	echo Creating database for thread count $NR_THREADS
-	$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
-	if [ $? -ne 0 ]; then
-		echo " o Database create returned $?"
-		echo " o Dumping previous runs database"
-		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
-		echo " o Re-creating database"
-		$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
-	fi
+	if [ "$MMTESTS_LARGE_MACHINE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
+		echo Creating database for thread count $NR_THREADS
+		$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
+		if [ $? -ne 0 ]; then
+			echo " o Database create returned $?"
+			echo " o Dumping previous runs database"
+			$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+			echo " o Re-creating database"
+			$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
+		fi
 
-	$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'"
-	if [ $? -ne 0 ]; then
-		echo " o Role create returned $?"
-		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
-	fi
+		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'"
+		if [ $? -ne 0 ]; then
+			echo " o Role create returned $?"
+			$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+			$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
+		fi
 
-	echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
-	$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
-		pgbench -h $PGHOST -p $PGPORT \
-			-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
-			> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
+		echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
+		$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
+			pgbench -h $PGHOST -p $PGPORT \
+				-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
+				> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
+	fi
+	FIRST_TIME=no
 
 	# Work out max time or max transactions commands
 	MAX_TIME_COMMAND=
@@ -169,9 +174,14 @@ echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 		fi
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
-	$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
-	$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
+	if [ "$MMTESTS_LARGE_MACHINE" != "yes" ]; then
+		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
+	else
+		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
+		echo 3 > /proc/sys/vm/drop_caches
+	fi
 ###SHELLPACK threads_stride_end
 
 # Copy the log files

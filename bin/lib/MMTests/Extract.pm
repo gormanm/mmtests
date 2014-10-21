@@ -130,6 +130,8 @@ sub initialise() {
 		$fieldLength = 18;
 		@fieldHeaders = ("UnknownType");
 	}
+	$fieldLength = $self->{_FieldLength}   if defined $self->{_FieldLength};
+	$fieldLength = $self->{_SummaryLength} if defined $self->{_SummaryLength};
 
 	$self->{_TestName} = $testName;
 	$self->{_FieldLength}  = $fieldLength;
