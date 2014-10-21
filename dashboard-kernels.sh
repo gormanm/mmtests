@@ -178,6 +178,8 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					DELTA=$((-DELTA))
 				fi
 
+				echo HERE: $DELTA
+
 				if [ $DELTA -lt 100 ]; then
 					DESCRIPTION="Neutral"
 					COLOUR=$NEUTRAL_COLOUR
@@ -192,23 +194,23 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					else
 						INDEX=3
 					fi
-				fi
 
-				if [ "$GOODNESS" = "Higher" ]; then
-					if [ $RATIO_ADJUSTED -gt 10000 ]; then
-						DESCRIPTION=${GOOD_STRINGS[$INDEX]}
-						COLOUR=${GOOD_COLOURS[$INDEX]}
+					if [ "$GOODNESS" = "Higher" ]; then
+						if [ $RATIO_ADJUSTED -gt 10000 ]; then
+							DESCRIPTION=${GOOD_STRINGS[$INDEX]}
+							COLOUR=${GOOD_COLOURS[$INDEX]}
+						else
+							DESCRIPTION=${BAD_STRINGS[$INDEX]}
+							COLOUR=${BAD_COLOURS[$INDEX]}
+						fi
 					else
-						DESCRIPTION=${BAD_STRINGS[$INDEX]}
-						COLOUR=${BAD_COLOURS[$INDEX]}
-					fi
-				else
-					if [ $RATIO_ADJUSTED -lt 10000 ]; then
-						DESCRIPTION=${GOOD_STRINGS[$INDEX]}
-						COLOUR=${GOOD_COLOURS[$INDEX]}
-					else
-						DESCRIPTION=${BAD_STRINGS[$INDEX]}
-						COLOUR=${BAD_COLOURS[$INDEX]}
+						if [ $RATIO_ADJUSTED -lt 10000 ]; then
+							DESCRIPTION=${GOOD_STRINGS[$INDEX]}
+							COLOUR=${GOOD_COLOURS[$INDEX]}
+						else
+							DESCRIPTION=${BAD_STRINGS[$INDEX]}
+							COLOUR=${BAD_COLOURS[$INDEX]}
+						fi
 					fi
 				fi
 			fi
