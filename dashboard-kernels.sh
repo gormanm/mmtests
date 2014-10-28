@@ -168,58 +168,79 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		COLOUR=$UNKNOWN_COLOUR
 		RATIO=0
 		DESCRIPTION=Unknown
+		OUTPUT=
 		if [ "$GMEAN" != "" ]; then
 			GOODNESS=`echo $GMEAN | awk '{print $2}'`
-			RATIO=`echo $GMEAN | awk '{print $NF}'`
-			if [ "$RATIO" != "nan" ]; then
-				RATIO_ADJUSTED=`perl -e "print (($RATIO*10000))"`
-				DELTA=$((RATIO_ADJUSTED-10000))
-				if [ $DELTA -lt 0 ]; then
-					DELTA=$((-DELTA))
+			NR_FIELDS=`echo $GMEAN | awk '{print NF}'`
+			if [ $NR_FIELDS -gt 3 ]; then
+				FIELD_LIST=`seq 4 $NR_FIELDS`
+			else
+				FIELD_LIST=3
+			fi
+			for FIELD in $FIELD_LIST; do
+				RATIO=`echo $GMEAN | awk "{print \\$$FIELD}"`
+				if [ "$RATIO" != "nan" ]; then
+					RATIO_ADJUSTED=`perl -e "print (($RATIO*10000))"`
+					DELTA=$((RATIO_ADJUSTED-10000))
+					if [ $DELTA -lt 0 ]; then
+						DELTA=$((-DELTA))
+					fi
+
+					if [ $DELTA -lt 100 ]; then
+						DESCRIPTION="Neutral"
+						COLOUR=$NEUTRAL_COLOUR
+					else
+						INDEX=
+						if [ $DELTA -lt 200 ]; then
+							INDEX=0
+						elif [ $DELTA -le 500 ]; then
+							INDEX=1
+						elif [ $DELTA -le 1000 ]; then
+							INDEX=2
+						else
+							INDEX=3
+						fi
+
+						if [ "$GOODNESS" = "Higher" ]; then
+							if [ $RATIO_ADJUSTED -gt 10000 ]; then
+								DESCRIPTION=${GOOD_STRINGS[$INDEX]}
+								COLOUR=${GOOD_COLOURS[$INDEX]}
+							else
+								DESCRIPTION=${BAD_STRINGS[$INDEX]}
+								COLOUR=${BAD_COLOURS[$INDEX]}
+							fi
+						else
+							if [ $RATIO_ADJUSTED -lt 10000 ]; then
+								DESCRIPTION=${GOOD_STRINGS[$INDEX]}
+								COLOUR=${GOOD_COLOURS[$INDEX]}
+							else
+								DESCRIPTION=${BAD_STRINGS[$INDEX]}
+								COLOUR=${BAD_COLOURS[$INDEX]}
+							fi
+						fi
+					fi
 				fi
 
-				if [ $DELTA -lt 100 ]; then
-					DESCRIPTION="Neutral"
-					COLOUR=$NEUTRAL_COLOUR
+				if [ "$FORMAT" != "html" ]; then
+					OUTPUT+=`printf "%8.4f %-15s " $RATIO $DESCRIPTION`
 				else
-					INDEX=
-					if [ $DELTA -lt 200 ]; then
-						INDEX=0
-					elif [ $DELTA -le 500 ]; then
-						INDEX=1
-					elif [ $DELTA -le 1000 ]; then
-						INDEX=2
-					else
-						INDEX=3
-					fi
-
-					if [ "$GOODNESS" = "Higher" ]; then
-						if [ $RATIO_ADJUSTED -gt 10000 ]; then
-							DESCRIPTION=${GOOD_STRINGS[$INDEX]}
-							COLOUR=${GOOD_COLOURS[$INDEX]}
-						else
-							DESCRIPTION=${BAD_STRINGS[$INDEX]}
-							COLOUR=${BAD_COLOURS[$INDEX]}
-						fi
-					else
-						if [ $RATIO_ADJUSTED -lt 10000 ]; then
-							DESCRIPTION=${GOOD_STRINGS[$INDEX]}
-							COLOUR=${GOOD_COLOURS[$INDEX]}
-						else
-							DESCRIPTION=${BAD_STRINGS[$INDEX]}
-							COLOUR=${BAD_COLOURS[$INDEX]}
-						fi
-					fi
+					OUTPUT+="<td bgcolor=\"$COLOUR\"><font size=1>$AOPEN$RATIO$ACLOSE</font></td>"
 				fi
+			done
+		else
+			if [ "$FORMAT" != "html" ]; then
+				OUTPUT+=`printf "%8.4f %-15s " 0 Unknown`
+			else
+				OUTPUT+="<td bgcolor=\"$COLOUR\"><font size=1>$AOPEN$RATIO$ACLOSE</font></td>"
 			fi
 		fi
 
 		if [ "$FORMAT" != "html" ]; then
-			printf "%-20s %-8s %8.4f %-15s\n" $SUBREPORT $GOODNESS $RATIO $DESCRIPTION
+			printf "%-20s %-8s %s" $SUBREPORT $GOODNESS $OUTPUT
 		else
 			echo "<tr>"
 			echo "<td bgcolor=\"$COLOUR\"><font size=1>$SUBREPORT</font></td>"
-			echo "<td bgcolor=\"$COLOUR\"><font size=1>$AOPEN$RATIO$ACLOSE</font></td>"
+			echo $OUTPUT
 			echo "</tr>"
 		fi
 	esac
