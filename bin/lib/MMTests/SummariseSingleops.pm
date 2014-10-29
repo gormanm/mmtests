@@ -64,10 +64,14 @@ sub extractSummary() {
 sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
 	my @data = @{$self->{_ResultData}};
+	my %includeOps;
 
 	if (!defined $self->{_SingleType}) {
 		print "Unsupported\n";
 		return 1;
+	}
+	if (defined $self->{_SingleInclude}) {
+		%includeOps = %{$self->{_SingleInclude}};
 	}
 
 	$self->{_SummaryHeaders} = [ "Op", "Ratio" ];
@@ -76,6 +80,9 @@ sub extractRatioSummary() {
 		my @units;
 		my @row;
 		my $samples = 0;
+		if (defined %includeOps && $includeOps{@{$rowLine}[0]} != 1) {
+			next;
+		}
 		push @row, @{$rowLine}[0];
 		push @row, @{$rowLine}[1];
 		push @{$self->{_SummaryData}}, \@row;

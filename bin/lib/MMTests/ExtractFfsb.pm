@@ -11,6 +11,7 @@ sub initialise() {
 	$self->{_DataType}   = MMTests::Extract::DATA_TRANS_PER_SECOND;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Time";
+	$self->{_SingleType} = 1;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

@@ -236,7 +236,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		fi
 
 		if [ "$FORMAT" != "html" ]; then
-			printf "%-20s %-8s %s" $SUBREPORT $GOODNESS $OUTPUT
+			printf "%-20s %-8s %s\n" $SUBREPORT $GOODNESS "$OUTPUT"
 		else
 			echo "<tr>"
 			echo "<td bgcolor=\"$COLOUR\"><font size=1>$SUBREPORT</font></td>"

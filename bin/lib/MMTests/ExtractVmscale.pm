@@ -61,7 +61,7 @@ sub extractReport($$$) {
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;
 			next if $line !~ /elapsed/;
-			push $self->{_ResultData}, [ c2s($case, "elapsed"), $self->_time_to_elapsed($line) ];
+			push @{$self->{_ResultData}}, [ c2s($case, "elapsed"), $self->_time_to_elapsed($line) ];
 		}
 		close(INPUT);
 
@@ -75,8 +75,8 @@ sub extractReport($$$) {
 				next if $line !~ /elapsed/;
 				push @values, $self->_time_to_elapsed($line);
 			}
-			push $self->{_ResultData}, [ c2s($case, "time_range"),  calc_range(@values) ];
-			push $self->{_ResultData}, [ c2s($case, "time_stddv"), calc_stddev(@values) ];
+			push @{$self->{_ResultData}}, [ c2s($case, "time_range"),  calc_range(@values) ];
+			push @{$self->{_ResultData}}, [ c2s($case, "time_stddv"), calc_stddev(@values) ];
 		}
 
 		if ($case eq "lru-file-ddspread") {
@@ -105,10 +105,10 @@ sub extractReport($$$) {
 				push @tput_values, $tput_value;
 
 			}
-			push $self->{_ResultData}, [ c2s($case, "time_range"), calc_range(@time_values) ];
-			push $self->{_ResultData}, [ c2s($case, "time_stddv"), calc_stddev(@time_values) ];
-			push $self->{_ResultData}, [ c2s($case, "tput_range"), calc_range(@tput_values) ];
-			push $self->{_ResultData}, [ c2s($case, "tput_stddv"), calc_stddev(@tput_values) ];
+			push @{$self->{_ResultData}}, [ c2s($case, "time_range"), calc_range(@time_values) ];
+			push @{$self->{_ResultData}}, [ c2s($case, "time_stddv"), calc_stddev(@time_values) ];
+			push @{$self->{_ResultData}}, [ c2s($case, "tput_range"), calc_range(@tput_values) ];
+			push @{$self->{_ResultData}}, [ c2s($case, "tput_stddv"), calc_stddev(@tput_values) ];
 		}
 
 		close(INPUT);
