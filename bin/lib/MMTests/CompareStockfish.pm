@@ -8,9 +8,7 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareStockfish",
 		_DataType    => MMTests::Compare::DATA_WALLTIME,
-		_CompareOps  => [ "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
 		_FieldLength => 12,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;
