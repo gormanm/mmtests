@@ -79,38 +79,6 @@ sub extractReport($$$) {
 			push @{$self->{_ResultData}}, [ c2s($case, "time_stddv"), calc_stddev(@values) ];
 		}
 
-		if ($case eq "lru-file-ddspread") {
-			my @time_values;
-			my @tput_values;
-
-			while (!eof(INPUT)) {
-				my $line = <INPUT>;
-				next if $line !~ /copied/;
-
-				my @elements = split(/\s+/, $line);
-				my $time_value = $elements[5];
-				if ($elements[6] ne "s,") {
-					die("Unexpected time format '$elements[6]'");
-				}
-				push @time_values, $elements[5];
-
-				my $tput_value;
-				if ($elements[8] eq "MB/s") {
-					$tput_value = $elements[7];
-				} elsif ($elements[8] eq "GB/s") {
-					$tput_value = $elements[7] * 1024;
-				} else {
-					die("Unrecognised tput rate '$elements[7]'");
-				}
-				push @tput_values, $tput_value;
-
-			}
-			push @{$self->{_ResultData}}, [ c2s($case, "time_range"), calc_range(@time_values) ];
-			push @{$self->{_ResultData}}, [ c2s($case, "time_stddv"), calc_stddev(@time_values) ];
-			push @{$self->{_ResultData}}, [ c2s($case, "tput_range"), calc_range(@tput_values) ];
-			push @{$self->{_ResultData}}, [ c2s($case, "tput_stddv"), calc_stddev(@tput_values) ];
-		}
-
 		close(INPUT);
 	}
 }
