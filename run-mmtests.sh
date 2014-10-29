@@ -577,18 +577,17 @@ if [ "`lsmod | grep oprofile`" != "" ]; then
 fi
 
 # Warm up. More appropriate warmup depends on the exact test
-if [ "$SKIP_WARMUP" != "yes" ]; then
+if [ "$RUN_WARMUP" != "" ]; then
 	echo Entering warmup
-	RUNNING_TEST=kernbench
-	./run-single-test.sh kernbench
+	RUNNING_TEST=$RUN_WARMUP
+	./run-single-test.sh $RUN_WARMUP
 	RUNNING_TEST=
-	rm -rf $SHELLPACK_LOG/kernbench
+	rm -rf $SHELLPACK_LOG/$RUN_WARMUP
 	echo Warmup complete, beginning tests
 else
 	echo Skipping warmup run
 fi
-echo
-
+	
 function discover_script() {
 	MONITOR_SCRIPT=./monitors/watch-$MONITOR
 	if [ ! -e $MONITOR_SCRIPT ]; then

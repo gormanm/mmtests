@@ -5,7 +5,7 @@ NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
 export MMTESTS="monitor"
-export SKIP_WARMUP=yes
+export RUN_WARMUP=
 
 # Profiling parameters
 export SKIP_NOPROFILE=no

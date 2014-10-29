@@ -12,7 +12,7 @@ SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
 export MMTESTS="pft ebizzy tlbflush"
-export SKIP_WARMUP=yes
+export RUN_WARMUP=
 
 # Profiling parameters
 export SKIP_NOPROFILE=no

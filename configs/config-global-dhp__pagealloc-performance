@@ -27,7 +27,7 @@ SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
 export MMTESTS="kernbench aim9 vmr-stream pagealloc pft ebizzy"
-export SKIP_WARMUP=yes
+export RUN_WARMUP=
 
 # Profiling parameters
 export SKIP_NOPROFILE=no

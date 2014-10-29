@@ -8,7 +8,7 @@ SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
 export MMTESTS="speccpu"
-export SKIP_WARMUP=yes
+export RUN_WARMUP=
 
 # Profiling parameters
 export SKIP_NOPROFILE=no

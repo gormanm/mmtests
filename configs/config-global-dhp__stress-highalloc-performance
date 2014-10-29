@@ -7,7 +7,7 @@ SCRIPTDIR=`cd "$DIRNAME" && pwd`
 # MM Test Parameters
 # Not recommended if mem > 4G as the number of kerel builds cause problems
 export MMTESTS="kernbench vmr-stream stress-highalloc"
-export SKIP_WARMUP=yes
+export RUN_WARMUP=
 
 # Profiling parameters
 export SKIP_NOPROFILE=no

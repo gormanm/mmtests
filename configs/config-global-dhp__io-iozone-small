@@ -12,7 +12,7 @@ get_numa_details	# Sets MMTESTS_NODE_SIZE MMTESTS_NODE_ID_BY_SIZE
 
 # MM Test Parameters
 export MMTESTS="iozone"
-export SKIP_WARMUP=yes
+export RUN_WARMUP=
 
 # Profiling parameters
 export SKIP_NOPROFILE=no
