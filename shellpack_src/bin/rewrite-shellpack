@@ -307,7 +307,7 @@ if [ "\$INSTALL_ONLY" = "yes" ]; then
 fi
 EOC
 	} elsif ($command eq "check_external_install_required") {
-		my ($externalpack, $srcdir, @other) = @details;
+		my ($externalpack, $srcdir, $version, @other) = @details;
 		my $dstdir = "$srcdir-installed";
 
 		print <<EOC
@@ -316,10 +316,10 @@ if [ "\$INSTALL_FORCE" = "yes" ]; then
 fi
 if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
 	mmtests_activity source-install
-	\$SHELLPACK_INCLUDE/shellpack-install-$externalpack -v \${VERSION} @other || die $externalpack install script returned error
+	\$SHELLPACK_INCLUDE/shellpack-install-$externalpack -v $version @other || die $externalpack install script returned error
 	mmtests_activity source-installed
 fi
-cd \$SHELLPACK_SOURCES/$externalpack-\${VERSION}-installed || die Failed to cd to $externalpack install directory
+cd \$SHELLPACK_SOURCES/$externalpack-$version-installed || die Failed to cd to $externalpack install directory
 if [ "\$INSTALL_ONLY" = "yes" ]; then
 	echo $externalpack installed only as requested.
 	exit \$SHELLPACK_SUCCESS

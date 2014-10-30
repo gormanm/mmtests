@@ -6,6 +6,8 @@ DEFAULT_VERSION=3.17
 WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/v3.x"
 MIRROR_LOCATION="$WEBROOT/linux/"
 
+install-depends python3-devel
+
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -68,4 +70,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description perfbuild
-#### Details perfbuild 2
+#### Details perfbuild 3

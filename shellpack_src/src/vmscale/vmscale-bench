@@ -4,13 +4,20 @@
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --cases	VMSCALE_CASES
+###SHELLPACK parseargYes     --use-perf VMSCALE_USE_PERF
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required vmscale-${VERSION}
+if [ "$VMSCALE_USE_PERF" = "yes" ]; then
+	###SHELLPACK check_external_install_required perfbuild perfbuild-3.17 3.17
+	export PATH=$SHELLPACK_SOURCES/perfbuild-3.17-installed/bin:$PATH
+fi
 
 ###SHELLPACK monitor_hooks
 
 cd $SHELLPACK_SOURCES/vmscale-${VERSION}-installed || die Failed to cd to vmscale directory
+VMSCALE_CASES=`echo $VMSCALE_CASES | sed -e 's/,/ /g'`
 
 install-depends coreutils
 
@@ -21,7 +28,7 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 echo -n > $LOGDIR_RESULTS/cases
-for CASE in lru-file-readonce lru-file-readtwice; do
+for CASE in $VMSCALE_CASES; do
 	mmtests_activity $CASE
 
 	# Prepare for compatability with how vmscale works without using the
@@ -32,7 +39,12 @@ for CASE in lru-file-readonce lru-file-readtwice; do
 
 	echo $CASE | tee -a $LOGDIR_RESULTS/cases
 	monitor_pre_hook  $LOGDIR_RESULTS $CASE
-	$TIME_CMD "./case-$CASE" 2>$LOGDIR_RESULTS/$CASE.time | tee $LOGDIR_RESULTS/$CASE.log
+	if [ "$VMSCALE_USE_PERF" = "yes" ]; then
+		$TIME_CMD "./run case-$CASE" 2>$LOGDIR_RESULTS/$CASE.time | tee $LOGDIR_RESULTS/${CASE}.log
+		mv `hostname`-* $LOGDIR_RESULTS/$CASE-raw
+	else
+		$TIME_CMD "./case-$CASE" 2>$LOGDIR_RESULTS/$CASE.time | tee $LOGDIR_RESULTS/${CASE}.log
+	fi
 	monitor_post_hook $LOGDIR_RESULTS $CASE
 done
 

@@ -44,8 +44,118 @@ fi
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR vmscale-${VERSION}-installed
 pushd vmscale-${VERSION}-installed > /dev/null || die Failed to rename tar
+pushd $SHELLPACK_SOURCES/vmscale-${VERSION}-installed || die Failed to change to source directory
+
+TEMPFILE=`mktemp`
+LINECOUNT=`wc -l $0 | awk '{print $1}'`
+CSTART=`grep -n "BEGIN PATCH FILE" $0 | tail -1 | awk -F : '{print $1}'`
+tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > $TEMPFILE.patch
+
+cat $TEMPFILE.patch | patch -p1
+RETVAL=$?
+rm $TEMPFILE $TEMPFILE.patch
+if [ $RETVAL -ne 0 ]; then
+	exit $SHELLPACK_ERROR
+fi
+
+make -j$NUMCPUS 
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
 
 echo vmscale installed successfully
 exit $SHELLPACK_SUCCESS
+
+==== BEGIN PATCH FILE ====
+diff --git a/case-lru-file-mmap-read b/case-lru-file-mmap-read
+index 680c902..417355b 100755
+--- a/case-lru-file-mmap-read
++++ b/case-lru-file-mmap-read
+@@ -11,9 +11,11 @@ source ./hw_vars
+ for i in `seq 1 $nr_cpu`
+ do
+ 	create_sparse_file $SPARSE_FILE-$i $((10 * mem / nr_cpu))
+-	$USEMEM -f $SPARSE_FILE-$i --readonly $((10 * mem / nr_cpu)) &
++	$TIME_CMD -o /tmp/vmscale-$$-$i $USEMEM -f $SPARSE_FILE-$i --readonly $((10 * mem / nr_cpu)) 2>&1 &
+ done
+ 
+ wait
++cat /tmp/vmscale-$$-*
++rm /tmp/vmscale-$$-*
+ 
+ rm `seq -f $SPARSE_FILE-%g 1 $nr_cpu`
+diff --git a/case-lru-file-mmap-read-rand b/case-lru-file-mmap-read-rand
+index 1cd4dca..308722c 100755
+--- a/case-lru-file-mmap-read-rand
++++ b/case-lru-file-mmap-read-rand
+@@ -11,9 +11,12 @@ source ./hw_vars
+ for i in `seq 1 $nr_cpu`
+ do
+ 	create_sparse_file $SPARSE_FILE-$i $((10 * mem / nr_cpu))
+-	$USEMEM -f $SPARSE_FILE-$i --readonly --random $((10 * mem / nr_cpu)) &
++	$TIME_CMD -o /tmp/vmscale-$$-$i $USEMEM -f $SPARSE_FILE-$i --readonly --random $((10 * mem / nr_cpu)) 2>&1 &
+ done
+ 
+ wait
+ 
++cat /tmp/vmscale-$$-*
++rm /tmp/vmscale-$$-*
++
+ rm `seq -f $SPARSE_FILE-%g 1 $nr_cpu`
+diff --git a/case-lru-file-readonce b/case-lru-file-readonce
+index 5a3cabd..19f4539 100755
+--- a/case-lru-file-readonce
++++ b/case-lru-file-readonce
+@@ -11,9 +11,11 @@ source ./hw_vars
+ for i in `seq 1 $nr_cpu`
+ do
+ 	create_sparse_file $SPARSE_FILE-$i $((10 * mem / nr_cpu))
+-	cp $SPARSE_FILE-$i /dev/null &
++	$TIME_CMD -o /tmp/vmscale-$$-$i cp $SPARSE_FILE-$i /dev/null 2>&1 &
+ done
+ 
+ wait
++cat /tmp/vmscale-$$-*
++rm /tmp/vmscale-$$-*
+ 
+ rm `seq -f $SPARSE_FILE-%g 1 $nr_cpu`
+diff --git a/case-lru-file-readtwice b/case-lru-file-readtwice
+index 3e2f9f0..853d004 100755
+--- a/case-lru-file-readtwice
++++ b/case-lru-file-readtwice
+@@ -18,10 +18,13 @@ source ./hw_vars
+ for i in `seq 1 $nr_cpu`
+ do
+ 	create_sparse_file $SPARSE_FILE-$i $((10 * mem / nr_cpu))
+-	cp $SPARSE_FILE-$i /dev/null &
+-	cp $SPARSE_FILE-$i /dev/null &
++	$TIME_CMD -o /tmp/vmscale-$$-$i-1 cp $SPARSE_FILE-$i /dev/null 2>&1 &
++	$TIME_CMD -o /tmp/vmscale-$$-$i-2 cp $SPARSE_FILE-$i /dev/null 2>&1 &
+ done
+ 
+ wait
+ 
++cat /tmp/vmscale-$$-*
++rm /tmp/vmscale-$$-*
++
+ rm `seq -f $SPARSE_FILE-%g 1 $nr_cpu`
+diff --git a/hw_vars b/hw_vars
+index 758d32c..138bf84 100755
+--- a/hw_vars
++++ b/hw_vars
+@@ -12,6 +12,11 @@ SPARSE_FILE=$SPARSE_ROOT/sparse-${0/.*case-/}
+ 
+ PIDFILE=$SPARSE_ROOT/${0/.*case-/}.pid
+ 
++TIME_CMD=`which time`
++if [ "$TIME_CMD" = "" ]; then
++	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
++	TIME_CMD="time"
++fi
+ 
+ # sparse files won't work as expected on tmpfs/nfs
+ create_sparse_root () {
 #### Description vm scalability test suite
-#### Details vmscale 21
+#### Details vmscale 29

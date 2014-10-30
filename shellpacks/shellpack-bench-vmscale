@@ -22,6 +22,14 @@ while [ "$1" != "" ]; do
 		INSTALL_FORCE=yes
 		shift
 		;;
+	--cases)
+		VMSCALE_CASES=$2
+		shift 2
+		;;
+	--use-perf)
+		VMSCALE_USE_PERF=yes
+		shift
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -48,11 +56,28 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo vmscale installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
+if [ "$VMSCALE_USE_PERF" = "yes" ]; then
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/perfbuild-3.17
+fi
+if [ ! -d $SHELLPACK_SOURCES/perfbuild-3.17-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-perfbuild -v 3.17  || die perfbuild install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/perfbuild-3.17-installed || die Failed to cd to perfbuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo perfbuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+	export PATH=$SHELLPACK_SOURCES/perfbuild-3.17-installed/bin:$PATH
+fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
 cd $SHELLPACK_SOURCES/vmscale-${VERSION}-installed || die Failed to cd to vmscale directory
+VMSCALE_CASES=`echo $VMSCALE_CASES | sed -e 's/,/ /g'`
 
 install-depends coreutils
 
@@ -63,7 +88,7 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 echo -n > $LOGDIR_RESULTS/cases
-for CASE in lru-file-readonce lru-file-readtwice; do
+for CASE in $VMSCALE_CASES; do
 	mmtests_activity $CASE
 
 	# Prepare for compatability with how vmscale works without using the
@@ -74,10 +99,15 @@ for CASE in lru-file-readonce lru-file-readtwice; do
 
 	echo $CASE | tee -a $LOGDIR_RESULTS/cases
 	monitor_pre_hook  $LOGDIR_RESULTS $CASE
-	$TIME_CMD "./case-$CASE" 2>$LOGDIR_RESULTS/$CASE.time | tee $LOGDIR_RESULTS/$CASE.log
+	if [ "$VMSCALE_USE_PERF" = "yes" ]; then
+		$TIME_CMD "./run case-$CASE" 2>$LOGDIR_RESULTS/$CASE.time | tee $LOGDIR_RESULTS/${CASE}.log
+		mv `hostname`-* $LOGDIR_RESULTS/$CASE-raw
+	else
+		$TIME_CMD "./case-$CASE" 2>$LOGDIR_RESULTS/$CASE.time | tee $LOGDIR_RESULTS/${CASE}.log
+	fi
 	monitor_post_hook $LOGDIR_RESULTS $CASE
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description vm scalability test suite
-#### Details vmscale-bench 21
+#### Details vmscale-bench 29

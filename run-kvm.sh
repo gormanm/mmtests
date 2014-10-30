@@ -152,7 +152,7 @@ $@ &
 QEMU_PID=$!
 echo $QEMU_PID > $SHELLPACK_TOPLEVEL/qemu.pid
 
-sleep 20
+sleep 5
 if [ "$MMTESTS_KVM_SERIAL_VISIBLE" = "yes" ]; then
 	telnet localhost 2000 | tee kvm-console.log &
 else

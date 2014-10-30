@@ -4,6 +4,8 @@
 WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/v3.x"
 MIRROR_LOCATION="$WEBROOT/linux/"
 
+install-depends python3-devel
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
