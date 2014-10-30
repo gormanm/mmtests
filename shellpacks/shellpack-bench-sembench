@@ -74,15 +74,19 @@ THREADS=
 START_THREAD=$SEMBENCH_MIN_THREADS
 END_THREAD=$SEMBENCH_MAX_THREADS
 if [ $END_THREAD -gt 32 ]; then
-        THREADS=`seq $START_THREAD 8`
-        THREADS="$THREADS `seq 12 4 32`"
-        THREADS="$THREADS `seq 48 16 $END_THREAD`"
+        THREADS=`seq $START_THREAD 3 8`
+        THREADS="$THREADS `seq 12 9 32`"
+        THREADS="$THREADS `seq 48 31 $END_THREAD`"
 elif [ $END_THREAD -gt 8 ]; then
-        THREADS=`seq $START_THREAD 8`
-        THREADS="$THREADS `seq 12 4 $END_THREAD`"
+        THREADS=`seq $START_THREAD 2 8`
+        THREADS="$THREADS `seq 12 6 $END_THREAD`"
 else
-        THREADS=`seq $START_THREAD $END_THREAD`
+        THREADS=`seq $START_THREAD 2 $END_THREAD`
 fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
 for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	if [ $NR_THREADS -gt 128 ]; then
@@ -117,4 +121,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description sembench
-#### Details sembench-bench 9
+#### Details sembench-bench 10
