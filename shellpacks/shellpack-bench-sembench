@@ -1,0 +1,120 @@
+#!/bin/bash
+# Run sembench benchmark
+
+P=sembench-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TESTLIST=
+MAX_THREADS=$NUMCPUS
+RUNTIME=30
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--min-threads)
+		SEMBENCH_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		SEMBENCH_MAX_THREADS=$2
+		shift 2
+		;;
+	--workloads)
+		SEMBENCH_WORKLOADS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/sembench-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/sembench-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-sembench -v ${VERSION}  || die sembench install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/sembench-${VERSION}-installed || die Failed to cd to sembench install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo sembench installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+echo $SEMBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
+
+THREADS=
+START_THREAD=$SEMBENCH_MIN_THREADS
+END_THREAD=$SEMBENCH_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 8`
+	THREADS="$THREADS `seq 12 4 32`"
+	THREADS="$THREADS `seq 48 16 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 8`
+	THREADS="$THREADS `seq 12 4 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD $END_THREAD`
+fi
+for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -gt 128 ]; then
+		WAKEUP_FACTOR=8
+	elif [ $NR_THREADS -gt 64 ]; then
+		WAKEUP_FACTOR=4
+	else
+		WAKEUP_FACTOR=2
+	fi
+
+	NR_WAKEUPS=$(($NR_THREADS / $WAKEUP_FACTOR))
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	for WORKLOAD in $SEMBENCH_WORKLOADS; do
+		if [ $WORKLOAD = "sem" ]; then
+			WORKLOAD_NUM=0
+		fi
+		if [ $WORKLOAD = "nanosleep" ]; then
+			WORKLOAD_NUM=1
+		fi
+		if [ $WORKLOAD = "futex" ]; then
+			WORKLOAD_NUM=2
+		fi
+
+		mmtests_activity $WORKLOAD-$NR_THREADS
+		echo Running test $WORKLOAD
+		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+		./sembench -r $RUNTIME -o $WORKLOAD_NUM -t $NR_THREADS -w $NR_WAKEUPS 2>&1 | \
+			tee $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log \
+			|| die Failed ro run sembench
+		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+	done
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description sembench
+#### Details sembench 3

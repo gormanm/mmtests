@@ -1,0 +1,14 @@
+#!/bin/bash
+###SHELLPACK preamble sembench-install 3
+GIT_LOCATION=https://github.com/davidlohr/sembench-ng.git
+MIRROR_LOCATION="$WEBROOT/sembench-ng/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch sembench-${VERSION}.tar.gz sembench-${VERSION}-installed
+
+###SHELLPACK build_start sembench-${VERSION}-installed
+###SHELLPACK make
+
+echo sembench installed successfully

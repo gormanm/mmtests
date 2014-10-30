@@ -1,0 +1,65 @@
+#!/bin/bash
+# Run sembench benchmark
+
+###SHELLPACK preamble sembench-install 3
+TESTLIST=
+MAX_THREADS=$NUMCPUS
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --min-threads      SEMBENCH_MIN_THREADS
+###SHELLPACK parseargParam   --max-threads      SEMBENCH_MAX_THREADS
+###SHELLPACK parseargParam   --workloads	SEMBENCH_WORKLOADS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required sembench-${VERSION}
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+echo $SEMBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
+
+THREADS=
+START_THREAD=$SEMBENCH_MIN_THREADS
+END_THREAD=$SEMBENCH_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 8`
+	THREADS="$THREADS `seq 12 4 32`"
+	THREADS="$THREADS `seq 48 16 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 8`
+	THREADS="$THREADS `seq 12 4 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD $END_THREAD`
+fi
+for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -gt 128 ]; then
+		WAKEUP_FACTOR=8
+	elif [ $NR_THREADS -gt 64 ]; then
+		WAKEUP_FACTOR=4
+	else
+		WAKEUP_FACTOR=2
+	fi
+
+	NR_WAKEUPS=$(($NR_THREADS / $WAKEUP_FACTOR))
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	for WORKLOAD in $SEMBENCH_WORKLOADS; do
+		if [ $WORKLOAD = "sem" ]; then
+			WORKLOAD_NUM=0
+		fi
+		if [ $WORKLOAD = "nanosleep" ]; then
+			WORKLOAD_NUM=1
+		fi
+		if [ $WORKLOAD = "futex" ]; then
+			WORKLOAD_NUM=2
+		fi
+
+		mmtests_activity $WORKLOAD-$NR_THREADS
+		echo Running test $WORKLOAD
+		./sembench -r $RUNTIME -o $WORKLOAD_NUM -t $NR_THREADS -w $NR_WAKEUPS 2>&1 | \
+			tee $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log \
+			|| die Failed ro run sembench
+	done
+done
+
+exit $SHELLPACK_SUCCESS
