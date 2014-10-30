@@ -420,6 +420,10 @@ elif [ \$END_THREAD -gt 8 ]; then
 else
         THREADS=`seq \$START_THREAD 2 \$END_THREAD`
 fi
+if [ `echo \$THREADS | awk '{print \$NF}'` -ne \$END_THREAD ]; then
+	THREADS="\$THREADS \$END_THREAD"
+fi
+
 for NR_THREADS in \$THREADS; do
 	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC
@@ -439,6 +443,10 @@ elif [ \$END_THREAD -gt 8 ]; then
 else
         THREADS=`seq \$START_THREAD 2 \$END_THREAD`
 fi
+if [ `echo \$THREADS | awk '{print \$NF}'` -ne \$END_THREAD ]; then
+	THREADS="\$THREADS \$END_THREAD"
+fi
+
 for NR_THREADS in \$THREADS; do
 	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC

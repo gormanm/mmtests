@@ -16,7 +16,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="hackbench-pipes hackbench-sockets pipetest lmbench pgbench"
+export MMTESTS="hackbench-pipes hackbench-sockets pipetest lmbench pgbench stockfish"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -72,8 +72,9 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat slabinfo"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_GZIP="proc-vmstat"
+export MONITORS_WITH_LATENCY="vmstat perf-time-stat"
+export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # HackBench
@@ -102,3 +103,8 @@ export PGBENCH_ITERATIONS=7
 
 # PipeTest
 export PIPETEST_ITERATIONS=120
+
+# Stockfish
+export STOCKFISH_MIN_THREADS=1
+export STOCKFISH_MAX_THREADS=$((NUMCPUS*2))
+export STOCKFISH_ITERATIONS=3
