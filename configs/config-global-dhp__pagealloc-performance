@@ -1,6 +1,3 @@
-### kernbench is a simple average of five kernel compiles of the vmlinux binary
-### image.
-### 
 ### aim9 is a number of micro-benchmarks. The results of this are very sensitive
 ### to a number of factors but it can be useful early warning system. Results
 ### tend to be difficult if not impossible to bisect but can sometimes be
@@ -21,12 +18,14 @@
 ### ebizzy is intended to simulate the backend of a database backend but it
 ### is not IO intensive. Instead it is both scheduler and allocator intensive.
 ### Regressions here can indicate a regression in either area.
+###
+### libmicro runs a few basic memset benchmarks
 
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="kernbench aim9 vmr-stream pagealloc pft ebizzy"
+export MMTESTS="aim9 vmr-stream pagealloc pft ebizzy libmicro"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -82,7 +81,7 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_GZIP="proc-vmstat top"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
