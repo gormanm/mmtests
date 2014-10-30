@@ -20,20 +20,7 @@ RUNTIME=30
 
 echo $SEMBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 
-THREADS=
-START_THREAD=$SEMBENCH_MIN_THREADS
-END_THREAD=$SEMBENCH_MAX_THREADS
-if [ $END_THREAD -gt 32 ]; then
-	THREADS=`seq $START_THREAD 8`
-	THREADS="$THREADS `seq 12 4 32`"
-	THREADS="$THREADS `seq 48 16 $END_THREAD`"
-elif [ $END_THREAD -gt 8 ]; then
-	THREADS=`seq $START_THREAD 8`
-	THREADS="$THREADS `seq 12 4 $END_THREAD`"
-else
-	THREADS=`seq $START_THREAD $END_THREAD`
-fi
-for NR_THREADS in $THREADS; do
+###SHELLPACK threads_stride_begin $SEMBENCH_MIN_THREADS $SEMBENCH_MAX_THREADS
 	if [ $NR_THREADS -gt 128 ]; then
 		WAKEUP_FACTOR=8
 	elif [ $NR_THREADS -gt 64 ]; then
@@ -43,8 +30,8 @@ for NR_THREADS in $THREADS; do
 	fi
 
 	NR_WAKEUPS=$(($NR_THREADS / $WAKEUP_FACTOR))
-	mmtests_activity process $NR_THREADS/$END_THREAD
 	for WORKLOAD in $SEMBENCH_WORKLOADS; do
+		mmtests_activity $WORKLOAD $NR_THREADS
 		if [ $WORKLOAD = "sem" ]; then
 			WORKLOAD_NUM=0
 		fi
@@ -55,7 +42,6 @@ for NR_THREADS in $THREADS; do
 			WORKLOAD_NUM=2
 		fi
 
-		mmtests_activity $WORKLOAD-$NR_THREADS
 		echo Running test $WORKLOAD
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 		./sembench -r $RUNTIME -o $WORKLOAD_NUM -t $NR_THREADS -w $NR_WAKEUPS 2>&1 | \
@@ -63,6 +49,6 @@ for NR_THREADS in $THREADS; do
 			|| die Failed ro run sembench
 		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	done
-done
+###SHELLPACK threads_stride_end
 
 exit $SHELLPACK_SUCCESS
