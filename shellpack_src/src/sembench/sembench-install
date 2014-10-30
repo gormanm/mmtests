@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble sembench-install 3
 GIT_LOCATION=https://github.com/davidlohr/sembench-ng.git
-MIRROR_LOCATION="$WEBROOT/sembench-ng/"
+MIRROR_LOCATION="$WEBROOT/sembench/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

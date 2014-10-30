@@ -1,9 +1,10 @@
 #!/bin/bash
 # Run sembench benchmark
 
-###SHELLPACK preamble sembench-install 3
+###SHELLPACK preamble sembench-bench 3
 TESTLIST=
 MAX_THREADS=$NUMCPUS
+RUNTIME=30
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -56,9 +57,11 @@ for NR_THREADS in $THREADS; do
 
 		mmtests_activity $WORKLOAD-$NR_THREADS
 		echo Running test $WORKLOAD
+		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 		./sembench -r $RUNTIME -o $WORKLOAD_NUM -t $NR_THREADS -w $NR_WAKEUPS 2>&1 | \
 			tee $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log \
 			|| die Failed ro run sembench
+		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	done
 done
 

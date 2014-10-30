@@ -2,7 +2,7 @@
 # Run sembench benchmark
 
 P=sembench-bench
-DEFAULT_VERSION=0
+DEFAULT_VERSION=3
 . $SHELLPACK_INCLUDE/common.sh
 TESTLIST=
 MAX_THREADS=$NUMCPUS
@@ -117,4 +117,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description sembench
-#### Details sembench 3
+#### Details sembench-bench 8
