@@ -141,4 +141,4 @@ cp ebizzy ../ebizzy-$VERSION-installed/bin || exit $SHELLPACK_ERROR
 
 exit $SHELLPACK_SUCCESS
 #### Description ebizzy
-#### Details ebizzy 13
+#### Details ebizzy 14
