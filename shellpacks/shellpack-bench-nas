@@ -36,6 +36,7 @@ while [ "$1" != "" ]; do
 		;;
 	--type)
 		NAS_TYPE=$2
+		MPIOPT="-mca btl ^openib,udapl"
 		if [ "$NAS_TYPE" = "OMP" ]; then
 			OPENMP=--openmp
 		fi
@@ -49,7 +50,7 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	--cma)
-		CMAOPT="--mca btl btl_sm_use_cma 1"
+		MPIOPT="-mca btl btl_sm_use_cma 1"
 		shift
 		;;
 	*)
@@ -220,7 +221,7 @@ for PAGES in $NAS_PAGESIZES; do
 			if [ "$OPENMPI" = "" ]; then
 				$HUGECTL ./bin/$JOB.$NAS_CLASS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 			else
-				$HUGECTL mpirun $CMAOPT -np $MPICPUS ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
+				eval $HUGECTL mpirun $MPIOPT -np $MPICPUS ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 			fi
 
 			if [ $? -eq 0 ]; then
@@ -241,4 +242,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 42
+#### Details nas-bench 49

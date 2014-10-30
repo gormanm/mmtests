@@ -1,20 +1,12 @@
-### kernbench is a simple average of five kernel compiles of the vmlinux binary
-### image.
-### postmark is an old filesystem benchmark that originally designed to
-### simulate a mail server but is often considered unreliable. Results
-### with postmark rarely publish the parmaters and by default it is
-### too short-lived to be an IO benchmark. In this case, postmark is
-### doing 15000 transactions for files ranging from 3K to 5120K split
-### over 100 directories. The number of simulataneous files is selected
-### so the total expected size is 4*RAM
-###
-### ffsb is run with a configuration that is expected to simulate the
-### behaviour of a mail server and provides a point of comparison with
-### postmark.
-###
-### fsmark-single runs fsmark in single-threaded mode. 30M files are created
-### across a number of directories with the number of files created related
-### to the size of memory.
+### parallelio measures the impact of IO on the performance of an in-memory
+### workload. The primary worklod in-memory workload. The primary workload
+### is a memcached server with a memcachetest client tuned to use 80% of
+### memory. The test runs multiple times starting with no parallel IO and
+### then doing IO with dd to a file sized to be  10% of physical memory and
+### finishing with a file 80% of physical memory. The metrics of the test are
+### how much performance is lost by running the IO in parallel and checking if
+### it prematurely pushed to swap. A positive swapout figure is not necessarily
+### bad but high swaptotals imply that the in-memory workload is thrashing.
 ###
 ### stutter simulates a simple workload. One part uses a lot of anonymous
 ### memory, a second measures mmap latency and a third copies a large file.
@@ -23,7 +15,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="kernbench postmark ffsb gitcheckout fsmark-single vmscale stutter"
+export MMTESTS="vmscale parallelio lmbench stutter"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -79,59 +71,37 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_GZIP="proc-vmstat top iotop"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# FFSB mailserver simulator. Create 5 files per 1M of memory.
-export FFSB_DURATION=900
-export FFSB_NUM_FILES=$((MEMTOTAL_BYTES*5/1048576))
-export FFSB_NUM_DIRECTORIES=1000
-export FFSB_NUM_THREADS=$NUMCPUS
-export FFSB_FILE_PROFILE=many-file-many-directory
-export FFSB_FILESIZE_PROFILE=weight-mailserver
-export FFSB_OPERATIONS_PROFILE=mailserver
+# LMBench
+export LMBENCH_TESTS=lat_mmap
+export LMBENCH_LATMMAP_ITERATIONS=60
+export LMBENCH_LATMMAP_MIN_FILESIZE=$((64*1024))
+export LMBENCH_LATMMAP_MAX_FILESIZE=$((2048*1048576))
 
-# FS-Mark
-export FSMARK_PARALLEL_DIRECTORIES=yes
-export FSMARK_THREADS_PER_CPU=4
-export FSMARK_FILESIZE=$((30*1048576))
-export FSMARK_NR_DIRECTORIES=16
-export FSMARK_NR_FILES_PER_DIRECTORY=256
-export FSMARK_NR_FILES_PER_ITERATION=$((MEMTOTAL_BYTES/FSMARK_FILESIZE))
-export FSMARK_ITERATIONS=15
+# Memcache Test
+export MEMCACHETEST_CONCURRENCY=1
+export MEMCACHETEST_DURATION=200
+export MEMCACHETEST_VALUE_SIZE=16384
+export MEMCACHED_MEMPOOL=$((MEMTOTAL_BYTES*4/5))
 
-# Git checkout
-export GITCHECKOUT_SOURCETAR=$WEBROOT/gitcheckout/linux-2.6.tar.gz
-export GITCHECKOUT_SOURCE=$SSHROOT/linux-2.6
-export GITCHECKOUT_COMMITS=v2.6.14,v3.2,v2.6.16,v3.4,v2.6.18
-export GITCHECKOUT_ITERATIONS=15
-export GITCHECKOUT_CACHE=hot
-
-# Large copy and untar
-export LARGECOPY_SRCTAR=$WEBROOT/large-tar-file-1.tar.bz2
-export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*4/1048576))
-export LARGECOPY_THREADS=1
-
-# Micro benchmarks
-export MICRO_TESTLIST=vmscan-mixed-mmap-write
-export MICRO_MAPPED_FILE_STREAM_FORCESIZE=
-export MICRO_VMSCAN_DEVICE_COPY=/dev/sda1
-export MICRO_VMSCAN_DEVICE_COPY_LIMIT_MB=8192
-export MICRO_VMSCAN_NUM_THREADS=$NUMCPUS
-export MICRO_VMSCAN_DURATION=600
-export MICRO_VMSCAN_MIXED_MMAP_SIZE=$(($MEMTOTAL_BYTES*2))
-export MICRO_VMSCAN_MIXED_ANON_PERCENTAGE=30
-
-# PostMark
-export POSTMARK_TRANSACTIONS=15000
-export POSTMARK_MIN_SIZE=3096
-export POSTMARK_MAX_SIZE=5242880
-export POSTMARK_SUBDIRECTORIES=100
-export POSTMARK_SIMULTANEOUS_FILES=$((MEMTOTAL_BYTES*4/POSTMARK_MAX_SIZE))
+# Parallel IO
+export PARALLELIO_WORKLOAD_DURATION=$MEMCACHETEST_DURATION
+export PARALLELIO_TARGETLOAD_SIZE=$MEMCACHED_MEMPOOL
+export PARALLELIO_WORKLOADS="memcachetest"
+export PARALLELIO_IOLOAD="dd"
+export PARALLELIO_MIN_IOSIZE=$(((MEMTOTAL_BYTES-PARALLELIO_TARGETLOAD_SIZE)/2))
+export PARALLELIO_MAX_IOSIZE=$(((MEMTOTAL_BYTES-PARALLELIO_TARGETLOAD_SIZE)*4))
+export PARALLELIO_INCREMENTS=3
+export PARALLELIO_ITERATIONS=5
 
 # stutter
 export STUTTER_MEMFAULT_SIZE=$((MEMTOTAL_BYTES*3/4))
 export STUTTER_MEMFAULT_TMPFS=no
 export STUTTER_FILESIZE=$(($MEMTOTAL_BYTES*2))
 export STUTTER_BLOCKSIZE=$((2*1048576))
+
+# VMScale
+export VMSCALE_CASES="lru-file-mmap-read,file-readonce,lru-file-readtwice,lru-memcg"
