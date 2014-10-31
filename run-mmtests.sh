@@ -556,7 +556,7 @@ fi
 # available and that there is a unable vmlinux file in the expected
 # place
 export EXPANDED_VMLINUX=no
-if [ "$SKIP_FINEPROFILE" = "no" -o "$SKIP_COARSEPROFILE" = "no" ]; then
+if [ "$RUN_FINEPROFILE" = "yes" -o "$RUN_COARSEPROFILE" = "yes" ]; then
 	VMLINUX=/boot/vmlinux-`uname -r`
 	if [ ! -e $VMLINUX -a -e $VMLINUX.gz ]; then
 		echo Expanding vmlinux.gz file

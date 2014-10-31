@@ -45,10 +45,10 @@ cd $LOGDIR_TOPLEVEL
 # Force the running of a coarse-grained profile if a fine-grained
 # profile is requested but the underlying test does not support
 # the necessary hooks
-if [ "$SKIP_FINEPROFILE" != "yes" ]; then
+if [ "$RUN_FINEPROFILE" = "yes" ]; then
 	if [ "$FINEGRAINED_SUPPORTED" = "no" ]; then
-		SKIP_FINEPROFILE=yes
-		SKIP_COARSEPROFILE=no
+		RUN_FINEPROFILE=no
+		RUN_COARSEPROFILE=yes
 	fi
 fi
 
@@ -61,7 +61,7 @@ function setup_dirs() {
 }
 
 # no-profile run
-if [ "$SKIP_NOPROFILE" != "yes" ]; then
+if [ "$RUN_NOPROFILE" = "yes" ]; then
 unset PROFILE_EVENTS
 unset MONITOR_PRE_HOOK
 unset MONITOR_POST_HOOK
@@ -88,7 +88,7 @@ if [ "$PROFILE_TITLE" = "none" ]; then
 	continue
 fi
 
-if [ "$SKIP_FINEPROFILE" != "yes" ]; then
+if [ "$RUN_FINEPROFILE" = "yes" ]; then
 export MONITOR_PRE_HOOK=`pwd`/monitor-pre-hook
 export MONITOR_POST_HOOK=`pwd`/monitor-post-hook
 export MONITOR_CLEANUP_HOOK=`pwd`/monitor-cleanup-hook
@@ -108,7 +108,7 @@ fi
 fi
 
 # Fine-grained profile
-if [ "$SKIP_COARSEPROFILE" != "yes" ]; then
+if [ "$RUN_COARSEPROFILE" = "yes" ]; then
 for PROFILE_HOOK in `ls $PROFILE_PATH/profile-hooks-*.sh 2> /dev/null`; do
 . $PROFILE_HOOK
 echo Processing profile hook $PROFILE_HOOK title $PROFILE_TITLE

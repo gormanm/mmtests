@@ -8,9 +8,9 @@ export MMTESTS="perfnuma"
 export RUN_WARMUP=
 
 # Profiling parameters
-export SKIP_NOPROFILE=no
-export SKIP_FINEPROFILE=yes
-export SKIP_COARSEPROFILE=yes
+export RUN_NOPROFILE=yes
+export RUN_FINEPROFILE=no
+export RUN_COARSEPROFILE=no
 #export OPROFILE_REPORT_ANNOTATE=yes
 #export OPROFILE_REPORT_CALLGRAPH=8
 
