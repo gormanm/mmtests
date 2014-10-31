@@ -33,14 +33,16 @@ sub extractReport($$$) {
 	}
 	die("Failed to open any of @candidates") if (tell(INPUT) == -1) ;
 	my $nr_samples = 0;
+	my %sampleSizes;
 	my @ops;
 	while (<INPUT>) {
 		my $line = $_;
 		if ($caseName eq "lat_mmap") {
-			print "DEBUG: $caseName\n";
 			my @elements = split(/\s+/, $_);
-			push @{$self->{_ResultData}}, [ "$elements[0]", 1, $elements[1] ];
-			push @ops, "$elements[0]";
+			push @{$self->{_ResultData}}, [ "$elements[0]", ++$sampleSizes{$elements[0]}, $elements[1] ];
+			if ($sampleSizes{$elements[0]} == 1) {
+				push @ops, "$elements[0]";
+			}
 		} else {
 			if ($line =~ /^mmtests-size:([0-9]+)/) {
 				$size = $1;
