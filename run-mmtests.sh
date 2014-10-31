@@ -230,11 +230,23 @@ else
 	fi
 fi
 
-# Configure system parameters
-echo Tuning the system for run: $RUNNAME monitor: $RUN_MONITOR
-if [ "$VM_DIRTY_RATIO" != "" ]; then
-	sysctl -w vm.dirty_ratio=$VM_DIRTY_RATIO
-fi
+function discover_script() {
+	DISCOVERED_SCRIPT=$1
+	if [ ! -e $DISCOVERED_SCRIPT ]; then
+		DISCOVERED_SCRIPT=$1.sh
+		if [ ! -e $DISCOVERED_SCRIPT ]; then
+			DISCOVERED_SCRIPT=$1.pl
+		fi
+	fi
+}
+
+# Run tunings
+echo Tuning the system before running: $RUNNAME
+for T in $RUN_TUNINGS; do
+	discover_script ./tunings/tuning-$T
+	export TUNING_LOG=$SHELLPACK_LOG/$T-$RUNNAME-$TEST
+	$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $TUNING_LOG
+done
 
 # Create RAID setup
 if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
@@ -588,37 +600,28 @@ else
 	echo Skipping warmup run
 fi
 	
-function discover_script() {
-	MONITOR_SCRIPT=./monitors/watch-$MONITOR
-	if [ ! -e $MONITOR_SCRIPT ]; then
-		MONITOR_SCRIPT=./monitors/watch-$MONITOR.sh
-		if [ ! -e $MONITOR_SCRIPT ]; then
-			MONITOR_SCRIPT=./monitors/watch-$MONITOR.pl
-		fi
-	fi
-}
-
 function start_monitors() {
+	MONITOR_PREFIX=./monitors/watch
 	echo Starting monitors
 	echo -n > monitor.pids
 	for MONITOR in $MONITORS_ALWAYS; do
-		discover_script
+		discover_script $MONITOR_PREFIX-$MONITOR
 		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
-		$EXPECT_UNBUFFER $MONITOR_SCRIPT > $MONITOR_LOG &
+		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $MONITOR_LOG &
 		echo $! >> monitor.pids
 		echo Started monitor $MONITOR always pid `tail -1 monitor.pids`
 	done
 	for MONITOR in $MONITORS_PLAIN; do
-		discover_script
+		discover_script $MONITOR_PREFIX-$MONITOR
 		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
-		$EXPECT_UNBUFFER $MONITOR_SCRIPT > $MONITOR_LOG &
+		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $MONITOR_LOG &
 		echo $! >> monitor.pids
 		echo Started monitor $MONITOR plain pid `tail -1 monitor.pids`
 	done
 	for MONITOR in $MONITORS_GZIP; do
-		discover_script
+		discover_script $MONITOR_PREFIX-$MONITOR
 		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
-		$EXPECT_UNBUFFER $MONITOR_SCRIPT | tee | gzip -c > $MONITOR_LOG.gz &
+		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT | tee | gzip -c > $MONITOR_LOG.gz &
 		PID1=$!
 		sleep 5
 		PID2=`./bin/piping-pid.sh $PID1`
@@ -628,9 +631,9 @@ function start_monitors() {
 		echo Started monitor $MONITOR gzip pid $PID3,$PID1
 	done
 	for MONITOR in $MONITORS_WITH_LATENCY; do
-		discover_script
+		discover_script $MONITOR_PREFIX-$MONITOR
 		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
-		$EXPECT_UNBUFFER $MONITOR_SCRIPT | ./monitors/latency-output > $MONITOR_LOG &
+		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT | ./monitors/latency-output > $MONITOR_LOG &
 		PID1=$!
 		sleep 5
 		PID2=`ps aux | grep watch-$MONITOR.sh | grep -v grep | grep -v expect | awk '{print $2}'`
@@ -639,10 +642,10 @@ function start_monitors() {
 		echo Started monitor $MONITOR latency pid $PID2,$PID1
 	done
 	for MONITOR in $MONITORS_TRACER; do
-		discover_script
+		discover_script $MONITOR_PREFIX-$MONITOR
 		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
 		export MONITOR_PID=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST.pid
-		$EXPECT_UNBUFFER $MONITOR_SCRIPT &
+		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT &
 
 		ATTEMPT=1
 		while [ ! -e $MONITOR_PID ]; do

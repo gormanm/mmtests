@@ -87,6 +87,9 @@ if [ "$TIME_CMD" = "" ]; then
 	TIME_CMD="time"
 fi
 
+echo Unlimiting virtual memory usage
+ulimit -v unlimited
+
 echo -n > $LOGDIR_RESULTS/cases
 for CASE in $VMSCALE_CASES; do
 	mmtests_activity $CASE
@@ -110,4 +113,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description vm scalability test suite
-#### Details vmscale-bench 29
+#### Details vmscale-bench 30

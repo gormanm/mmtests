@@ -27,6 +27,9 @@ if [ "$TIME_CMD" = "" ]; then
 	TIME_CMD="time"
 fi
 
+echo Unlimiting virtual memory usage
+ulimit -v unlimited
+
 echo -n > $LOGDIR_RESULTS/cases
 for CASE in $VMSCALE_CASES; do
 	mmtests_activity $CASE
