@@ -1,0 +1,140 @@
+#!/bin/bash
+
+P=filebench-bench
+DEFAULT_VERSION=1.4.9.1
+. $SHELLPACK_INCLUDE/common.sh
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--personality)
+		FILEBENCH_PERSONALITY=$2
+		shift 2
+		;;
+	--iterations)
+		FILEBENCH_ITERATIONS=$2
+		shift 2
+		;;
+	--working-set)
+		FILEBENCH_WORKING_SET=$2
+		shift 2
+		;;
+	--min-threads)
+		FILEBENCH_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		FILEBENCH_MAX_THREADS=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/filebench-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/filebench-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-filebench -v ${VERSION}  || die filebench install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/filebench-${VERSION}-installed || die Failed to cd to filebench install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo filebench installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+echo Disabling VA randomisation as recommended by benchmark
+echo 0 > /proc/sys/kernel/randomize_va_space
+
+echo Setting virtual space and stack space use to unlimited
+ulimit -u unlimited
+ulimit -s unlimited
+
+echo $FILEBENCH_PERSONALITY > $LOGDIR_RESULTS/model
+
+echo -n > $LOGDIR_RESULTS/filebench.script
+case $FILEBENCH_PERSONALITY in
+varmail)
+	MEANFILESIZE=$((16*1024))
+	NR_FILES=$((FILEBENCH_WORKING_SET/MEANFILESIZE))
+	DURATION=$((FILEBENCH_WORKING_SET/(60*1048576)))
+	echo "Mean file size: $MEANFILESIZE"
+	echo "Number files:   $NR_FILES"
+	echo "Duration:       $DURATION"
+	echo "Iterations:     $ITERATIONS"
+THREADS=
+START_THREAD=$FILEBENCH_MIN_THREADS
+END_THREAD=$FILEBENCH_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+        THREADS=`seq $START_THREAD 3 8`
+        THREADS="$THREADS `seq 12 9 32`"
+        THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+        THREADS=`seq $START_THREAD 2 8`
+        THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+        THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
+for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	cat > $LOGDIR_RESULTS/filebench.script << EOF
+	load $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/varmail
+	set \$dir=$SHELLPACK_TEMP
+	set \$meanfilesize=$MEANFILESIZE
+	set \$nfiles=$NR_FILES
+	set \$nthreads=$NR_THREADS
+	run $DURATION
+EOF
+	monitor_pre_hook $LOGDIR_RESULTS varmail-$NR_THREADS
+for ITERATION in `seq 1 $FILEBENCH_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+		echo Running filebench threads $NR_THREADS/$FILEBENCH_MAX_THREADS iter $ITERATION/$FILEBENCH_ITERATIONS
+		save_rc ./bin/filebench -f $LOGDIR_RESULTS/filebench.script 2>&1 \
+			| tee $LOGDIR_RESULTS/varmail-$NR_THREADS.$ITERATION
+		recover_rc
+		if [ $? -ne 0 ]; then
+			die Failed to run filebench
+		fi
+done
+	monitor_post_hook $LOGDIR_RESULTS varmail-$NR_THREADS
+
+done
+	;;
+*)
+	die Unrecognised model $FILEBENCH_PERSONALITY
+	;;
+esac
+#### Description filebench
+#### Details filebench-bench 4

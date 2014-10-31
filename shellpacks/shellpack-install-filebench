@@ -1,0 +1,73 @@
+#!/bin/bash
+
+P=filebench-install
+DEFAULT_VERSION=1.4.9.1
+. $SHELLPACK_INCLUDE/common.sh
+WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/filebench"
+MIRROR_LOCATION="$WEBROOT/filebench"
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+rm -rf $SHELLPACK_SOURCES/filebench-${VERSION}
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=filebench-${VERSION}.tar.gz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+        error "$P: tar xf filebench-${VERSION}.tar.gz failed"
+        popd > /dev/null
+        exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR filebench-$VERSION
+pushd filebench-$VERSION > /dev/null || die Failed to rename tar
+
+pushd $SHELLPACK_SOURCES/filebench-$VERSION || die Failed to change to source directory
+export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=$SHELLPACK_SOURCES/filebench-${VERSION}-installed 
+if [ $? -ne 0 ]; then
+	error "$P: configure failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+unset CFLAGS
+make -j$NUMCPUS CFLAGS=-O2
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+make install
+if [ $? -ne 0 ]; then
+	error "$P: make install failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+exit $SHELLPACK_SUCCESS
+#### Description filebench
+#### Details filebench 4

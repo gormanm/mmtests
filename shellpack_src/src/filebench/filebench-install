@@ -1,0 +1,17 @@
+#!/bin/bash
+
+###SHELLPACK preamble filebench-install 1.4.9.1
+WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/filebench"
+MIRROR_LOCATION="$WEBROOT/filebench"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+rm -rf $SHELLPACK_SOURCES/filebench-${VERSION}
+###SHELLPACK sources_fetch filebench-${VERSION}.tar.gz filebench-$VERSION
+
+###SHELLPACK build_start filebench-$VERSION
+###SHELLPACK build_configure filebench-${VERSION}
+###SHELLPACK make_make_install CFLAGS=-O2
+
+exit $SHELLPACK_SUCCESS

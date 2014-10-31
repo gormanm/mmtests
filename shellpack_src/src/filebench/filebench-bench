@@ -1,0 +1,62 @@
+#!/bin/bash
+
+###SHELLPACK preamble filebench-bench 1.4.9.1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam	--personality	FILEBENCH_PERSONALITY
+###SHELLPACK parseargParam	--iterations	FILEBENCH_ITERATIONS
+###SHELLPACK parseargParam	--working-set	FILEBENCH_WORKING_SET
+###SHELLPACK parseargParam	--min-threads	FILEBENCH_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads	FILEBENCH_MAX_THREADS
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required filebench-${VERSION}
+###SHELLPACK monitor_hooks
+
+echo Disabling VA randomisation as recommended by benchmark
+echo 0 > /proc/sys/kernel/randomize_va_space
+
+echo Setting virtual space and stack space use to unlimited
+ulimit -u unlimited
+ulimit -s unlimited
+
+echo $FILEBENCH_PERSONALITY > $LOGDIR_RESULTS/model
+
+echo -n > $LOGDIR_RESULTS/filebench.script
+case $FILEBENCH_PERSONALITY in
+varmail)
+	MEANFILESIZE=$((16*1024))
+	NR_FILES=$((FILEBENCH_WORKING_SET/MEANFILESIZE))
+	DURATION=$((FILEBENCH_WORKING_SET/(60*1048576)))
+	echo "Mean file size: $MEANFILESIZE"
+	echo "Number files:   $NR_FILES"
+	echo "Duration:       $DURATION"
+	echo "Iterations:     $ITERATIONS"
+	###SHELLPACK threads_huge_stride_begin $FILEBENCH_MIN_THREADS $FILEBENCH_MAX_THREADS
+	cat > $LOGDIR_RESULTS/filebench.script << EOF
+	load $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/varmail
+	set \$dir=$SHELLPACK_TEMP
+	set \$meanfilesize=$MEANFILESIZE
+	set \$nfiles=$NR_FILES
+	set \$nthreads=$NR_THREADS
+	run $DURATION
+EOF
+	monitor_pre_hook $LOGDIR_RESULTS varmail-$NR_THREADS
+	###SHELLPACK iteration_begin $FILEBENCH_ITERATIONS
+		echo Running filebench threads $NR_THREADS/$FILEBENCH_MAX_THREADS iter $ITERATION/$FILEBENCH_ITERATIONS
+		save_rc ./bin/filebench -f $LOGDIR_RESULTS/filebench.script 2>&1 \
+			| tee $LOGDIR_RESULTS/varmail-$NR_THREADS.$ITERATION
+		recover_rc
+		if [ $? -ne 0 ]; then
+			die Failed to run filebench
+		fi
+	###SHELLPACK iteration_end $ITERATIONS
+	monitor_post_hook $LOGDIR_RESULTS varmail-$NR_THREADS
+
+	###SHELLPACK threads_stride_end
+	;;
+*)
+	die Unrecognised model $FILEBENCH_PERSONALITY
+	;;
+esac
