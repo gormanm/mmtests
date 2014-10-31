@@ -1,3 +1,7 @@
+### stutter simulates a simple workload. One part uses a lot of anonymous
+### memory, a second measures mmap latency and a third copies a large file.
+### The primary metric is checking for mmap latency.
+###
 ### parallelio measures the impact of IO on the performance of an in-memory
 ### workload. The primary worklod in-memory workload. The primary workload
 ### is a memcached server with a memcachetest client tuned to use 80% of
@@ -7,15 +11,12 @@
 ### how much performance is lost by running the IO in parallel and checking if
 ### it prematurely pushed to swap. A positive swapout figure is not necessarily
 ### bad but high swaptotals imply that the in-memory workload is thrashing.
-###
-### stutter simulates a simple workload. One part uses a lot of anonymous
-### memory, a second measures mmap latency and a third copies a large file.
-### The primary metric is checking for mmap latency.
+
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="vmscale parallelio lmbench stutter"
+export MMTESTS="vmscale lmbench stutter parallelio"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -95,7 +96,7 @@ export PARALLELIO_IOLOAD="dd"
 export PARALLELIO_MIN_IOSIZE=$(((MEMTOTAL_BYTES-PARALLELIO_TARGETLOAD_SIZE)/2))
 export PARALLELIO_MAX_IOSIZE=$(((MEMTOTAL_BYTES-PARALLELIO_TARGETLOAD_SIZE)*4))
 export PARALLELIO_INCREMENTS=3
-export PARALLELIO_ITERATIONS=5
+export PARALLELIO_ITERATIONS=3
 
 # stutter
 export STUTTER_MEMFAULT_SIZE=$((MEMTOTAL_BYTES*3/4))
