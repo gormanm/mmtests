@@ -24,6 +24,7 @@ fi
 
 # Machine configuration
 # Swap configuration can be one of default, partitions, swapfile, NFS
+#export RUN_TUNINGS="$RUN_TUNINGS sysctl"
 #export VM_DIRTY_RATIO=20
 export VM_TRANSPARENT_HUGEPAGES_DEFAULT=always
 export SWAP_CONFIGURATION=default
