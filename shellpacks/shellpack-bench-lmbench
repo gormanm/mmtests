@@ -78,10 +78,13 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 			mmtests_activity filesize $FILESIZE
 			FILESIZE=$((FILESIZE&~4095))
 			dd if=/dev/zero of=$TESTDISK_DIR/lmbench.file ibs=4096 count=$((FILESIZE/4096)) conv=sync 2> /dev/null
-			./bin/$LMBENCH_TEST \
-				-N $LMBENCH_LATMMAP_ITERATIONS \
-				$FILESIZE $TESTDISK_DIR/lmbench.file \
-					2>&1 | tee -a $LMBENCH_RESULTS
+			for ITERATION in `seq 1 $LMBENCH_LATMMAP_ITERATIONS`; do
+				echo Running iteration $ITERATION/$LMBENCH_LATMMAP_ITERATIONS
+				./bin/$LMBENCH_TEST \
+					-N 30 \
+					$FILESIZE $TESTDISK_DIR/lmbench.file \
+						2>&1 | tee -a $LMBENCH_RESULTS
+			done
 		done
 		rm $TESTDISK_DIR/lmbench.file
 		;;
@@ -100,6 +103,10 @@ elif [ $END_THREAD -gt 8 ]; then
 else
         THREADS=`seq $START_THREAD 2 $END_THREAD`
 fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
 for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
 			for SIZE in $LMBENCH_LATCTX_SIZE; do
@@ -133,4 +140,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description lmbench
-#### Details lmbench-bench 45
+#### Details lmbench-bench 46
