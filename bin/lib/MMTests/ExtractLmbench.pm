@@ -21,31 +21,41 @@ sub extractReport($$$) {
 	my ($tm, $tput, $latency);
 	my $size = 0;
 
-	my ($file, $case);
+	my ($file, $case, $caseName);
 	my @candidates = ( "lat_mmap", "lat_ctx" );
 
 	foreach $case (@candidates) {
 		$file = "$reportDir/noprofile/lmbench-$case.log";
-		open(INPUT, $file) && last;
+		if (open(INPUT, $file)) {
+			$caseName = $case;
+			last;
+		}
 	}
 	die("Failed to open any of @candidates") if (tell(INPUT) == -1) ;
 	my $nr_samples = 0;
 	my @ops;
 	while (<INPUT>) {
 		my $line = $_;
-		if ($line =~ /^mmtests-size:([0-9]+)/) {
-			$size = $1;
-			$nr_samples = 0;
-			next;
-		}
-		if ($line =~ /^[0-9].*/) {
+		if ($caseName eq "lat_mmap") {
+			print "DEBUG: $caseName\n";
 			my @elements = split(/\s+/, $_);
-			$elements[0] =~ s/\..*/M/;
-			push @{$self->{_ResultData}}, [ "$elements[0]-$size", ++$nr_samples, $elements[1] ];
-			if ($nr_samples == 1) {
-				push @ops, "$elements[0]-$size";
+			push @{$self->{_ResultData}}, [ "$elements[0]", 1, $elements[1] ];
+			push @ops, "$elements[0]";
+		} else {
+			if ($line =~ /^mmtests-size:([0-9]+)/) {
+				$size = $1;
+				$nr_samples = 0;
+				next;
 			}
-			next;
+			if ($line =~ /^[0-9].*/) {
+				my @elements = split(/\s+/, $_);
+				$elements[0] =~ s/\..*/M/;
+				push @{$self->{_ResultData}}, [ "$elements[0]-$size", ++$nr_samples, $elements[1] ];
+				if ($nr_samples == 1) {
+					push @ops, "$elements[0]-$size";
+				}
+				next;
+			}
 		}
 	}
 	close INPUT;
