@@ -70,4 +70,4 @@ cp mutilate ../mutilate-${VERSION}-installed/bin
 
 echo mutilate installed successfully
 #### Description mutilate
-#### Details mutilate 18
+#### Details mutilate 19
