@@ -50,9 +50,9 @@ sub extractReport($$$) {
 				}
 
 				if ($line =~ /[0-9]+: ([0-9.]+): IO Summary:\s+([0-9]+) ops, ([0-9.]+) ops.*/) {
-					push @{$self->{_ResultData}}, [ "varmail-$client", ++$iteration, $2 ];
+					push @{$self->{_ResultData}}, [ "$case-$client", ++$iteration, $2 ];
 					if ($iteration == 1) {
-						push @ops, "varmail-$client";
+						push @ops, "$case-$client";
 					}
 				}
 			}

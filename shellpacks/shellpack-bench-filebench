@@ -34,6 +34,10 @@ while [ "$1" != "" ]; do
 		FILEBENCH_MAX_THREADS=$2
 		shift 2
 		;;
+	--direct-io)
+		FILEBENCH_DIRECT_IO=yes
+		shift
+		;;
 	--install-only)
 		INSTALL_ONLY=yes
 		shift
@@ -82,14 +86,48 @@ echo $FILEBENCH_PERSONALITY > $LOGDIR_RESULTS/model
 
 echo -n > $LOGDIR_RESULTS/filebench.script
 case $FILEBENCH_PERSONALITY in
-varmail)
+oltp)
+	FILESIZE=$((FILEBENCH_WORKING_SET/10))
+	DURATION=$((FILEBENCH_WORKING_SET/(60*1048576)))
+	if [ "$FILEBENCH_DIRECT_IO" = "yes" ]; then
+		DIRECT_IO_PARAM=1
+	else
+		DIRECT_IO_PARAM=0
+	fi
+
+	echo "File size:      $FILESIZE"
+	echo "Duration:       $DURATION"
+	echo "Iterations:     $FILEBENCH_ITERATIONS"
+	cat $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/oltp.f | \
+		sed -e 's/,useism//' > $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/oltp-noism.f
+	cat > $LOGDIR_RESULTS/filebench.script << EOF
+	load $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/oltp-noism
+	set \$dir=$SHELLPACK_TEMP
+	set \$filesize=$FILESIZE
+	set \$directio=$DIRECT_IO_PARAM
+	run $DURATION
+EOF
+	monitor_pre_hook $LOGDIR_RESULTS oltp-$NR_THREADS
+for ITERATION in `seq 1 $FILEBENCH_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+		echo Running filebench iter $ITERATION/$FILEBENCH_ITERATIONS
+		save_rc ./bin/filebench -f $LOGDIR_RESULTS/filebench.script 2>&1 \
+			| tee $LOGDIR_RESULTS/oltp-1.$ITERATION
+		recover_rc
+		if [ $? -ne 0 ]; then
+			die Failed to run filebench
+		fi
+done
+	monitor_post_hook $LOGDIR_RESULTS oltp-$NR_THREADS
+	;;
+varmail|webserver|webproxy)
 	MEANFILESIZE=$((16*1024))
 	NR_FILES=$((FILEBENCH_WORKING_SET/MEANFILESIZE))
-	DURATION=$((FILEBENCH_WORKING_SET/(60*1048576)))
+	DURATION=$((FILEBENCH_WORKING_SET/(30*1048576)))
 	echo "Mean file size: $MEANFILESIZE"
 	echo "Number files:   $NR_FILES"
 	echo "Duration:       $DURATION"
-	echo "Iterations:     $ITERATIONS"
+	echo "Iterations:     $FILEBENCH_ITERATIONS"
 THREADS=
 START_THREAD=$FILEBENCH_MIN_THREADS
 END_THREAD=$FILEBENCH_MAX_THREADS
@@ -110,25 +148,25 @@ fi
 for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	cat > $LOGDIR_RESULTS/filebench.script << EOF
-	load $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/varmail
+	load $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/$FILEBENCH_PERSONALITY
 	set \$dir=$SHELLPACK_TEMP
 	set \$meanfilesize=$MEANFILESIZE
 	set \$nfiles=$NR_FILES
 	set \$nthreads=$NR_THREADS
 	run $DURATION
 EOF
-	monitor_pre_hook $LOGDIR_RESULTS varmail-$NR_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $FILEBENCH_PERSONALITY-$NR_THREADS
 for ITERATION in `seq 1 $FILEBENCH_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 		echo Running filebench threads $NR_THREADS/$FILEBENCH_MAX_THREADS iter $ITERATION/$FILEBENCH_ITERATIONS
 		save_rc ./bin/filebench -f $LOGDIR_RESULTS/filebench.script 2>&1 \
-			| tee $LOGDIR_RESULTS/varmail-$NR_THREADS.$ITERATION
+			| tee $LOGDIR_RESULTS/$FILEBENCH_PERSONALITY-$NR_THREADS.$ITERATION
 		recover_rc
 		if [ $? -ne 0 ]; then
 			die Failed to run filebench
 		fi
 done
-	monitor_post_hook $LOGDIR_RESULTS varmail-$NR_THREADS
+	monitor_post_hook $LOGDIR_RESULTS $FILEBENCH_PERSONALITY-$NR_THREADS
 
 done
 	;;
@@ -137,4 +175,4 @@ done
 	;;
 esac
 #### Description filebench
-#### Details filebench-bench 4
+#### Details filebench-bench 10
