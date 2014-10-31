@@ -79,7 +79,6 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 			FILESIZE=$((FILESIZE&~4095))
 			dd if=/dev/zero of=$TESTDISK_DIR/lmbench.file ibs=4096 count=$((FILESIZE/4096)) conv=sync 2> /dev/null
 			for ITERATION in `seq 1 $LMBENCH_LATMMAP_ITERATIONS`; do
-				echo Running iteration $ITERATION/$LMBENCH_LATMMAP_ITERATIONS
 				./bin/$LMBENCH_TEST \
 					-N 30 \
 					$FILESIZE $TESTDISK_DIR/lmbench.file \
@@ -140,4 +139,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description lmbench
-#### Details lmbench-bench 46
+#### Details lmbench-bench 47
