@@ -11,7 +11,31 @@ rm -rf $SHELLPACK_SOURCES/filebench-${VERSION}
 ###SHELLPACK sources_fetch filebench-${VERSION}.tar.gz filebench-$VERSION
 
 ###SHELLPACK build_start filebench-$VERSION
+
+# Patch benchmark with fix for direct IO
+TEMPFILE=`mktemp`
+LINECOUNT=`wc -l $0 | awk '{print $1}'`
+PATCHSTART=`grep -n "BEGIN PATCH FILE" $0 | tail -1 | awk -F : '{print $1}'`
+tail -$(($LINECOUNT-$PATCHSTART)) $0 | grep -v "^###" > $TEMPFILE
+cat $TEMPFILE | patch -p1 || exit $SHELLPACK_FAILURE
+rm $TEMPFILE
+
 ###SHELLPACK build_configure filebench-${VERSION}
 ###SHELLPACK make_make_install CFLAGS=-O2
 
 exit $SHELLPACK_SUCCESS
+
+=== BEGIN PATCH FILE ===
+diff --git a/flowop_library.c b/flowop_library.c
+index 634897e..85ac02a 100644
+--- a/flowop_library.c
++++ b/flowop_library.c
+@@ -491,7 +491,7 @@ flowoplib_iobufsetup(threadflow_t *threadflow, flowop_t *flowop,
+ 	}
+ 
+ 	if (flowoplib_fileattrs(flowop) & FLOW_ATTR_DIRECTIO)
+-		*iobufp = (caddr_t)((((unsigned long)(*iobufp)) / 512) * 512);
++		*iobufp = (caddr_t)((((unsigned long)(*iobufp) + 512) / 512) * 512);
+ 
+ 	return (FILEBENCH_OK);
+ }

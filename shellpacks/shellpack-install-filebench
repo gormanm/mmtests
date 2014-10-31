@@ -47,6 +47,15 @@ mv $DST_DIR filebench-$VERSION
 pushd filebench-$VERSION > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/filebench-$VERSION || die Failed to change to source directory
+
+# Patch benchmark with fix for direct IO
+TEMPFILE=`mktemp`
+LINECOUNT=`wc -l $0 | awk '{print $1}'`
+PATCHSTART=`grep -n "BEGIN PATCH FILE" $0 | tail -1 | awk -F : '{print $1}'`
+tail -$(($LINECOUNT-$PATCHSTART)) $0 | grep -v "^###" > $TEMPFILE
+cat $TEMPFILE | patch -p1 || exit $SHELLPACK_FAILURE
+rm $TEMPFILE
+
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/filebench-${VERSION}-installed 
 if [ $? -ne 0 ]; then
@@ -69,5 +78,20 @@ if [ $? -ne 0 ]; then
 fi
 
 exit $SHELLPACK_SUCCESS
+
+=== BEGIN PATCH FILE ===
+diff --git a/flowop_library.c b/flowop_library.c
+index 634897e..85ac02a 100644
+--- a/flowop_library.c
++++ b/flowop_library.c
+@@ -491,7 +491,7 @@ flowoplib_iobufsetup(threadflow_t *threadflow, flowop_t *flowop,
+ 	}
+ 
+ 	if (flowoplib_fileattrs(flowop) & FLOW_ATTR_DIRECTIO)
+-		*iobufp = (caddr_t)((((unsigned long)(*iobufp)) / 512) * 512);
++		*iobufp = (caddr_t)((((unsigned long)(*iobufp) + 512) / 512) * 512);
+ 
+ 	return (FILEBENCH_OK);
+ }
 #### Description filebench
-#### Details filebench 10
+#### Details filebench 12
