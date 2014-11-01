@@ -11,6 +11,7 @@ sub initialise() {
 	$self->{_DataType}   = MMTests::Extract::DATA_TIME_USECONDS;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Time";
+	$self->{_SingleType} = 1;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
@@ -28,9 +29,9 @@ sub extractReport($$$) {
 
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
-			if ($_ =~ /^$testname /) {
+			if ($_ =~ /^#\s+mean of 95.*/) {
 				my @elements = split(/\s+/);
-				push @{$self->{_ResultData}}, [$testname, $elements[3]];
+				push @{$self->{_ResultData}}, [$testname, $elements[4]];
 				push @ops, $testname;
 			}
 		}
