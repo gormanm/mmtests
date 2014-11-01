@@ -106,4 +106,4 @@ export STUTTER_FILESIZE=$(($MEMTOTAL_BYTES*2))
 export STUTTER_BLOCKSIZE=$((2*1048576))
 
 # VMScale
-export VMSCALE_CASES="lru-file-mmap-read,file-readonce,lru-file-readtwice,lru-memcg"
+export VMSCALE_CASES="lru-file-mmap-read,lru-file-readonce,lru-file-readtwice,lru-memcg"

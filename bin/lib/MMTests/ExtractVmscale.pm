@@ -1,27 +1,25 @@
 package MMTests::ExtractVmscale;
-use MMTests::Extract;
+use MMTests::SummariseSingleops;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract);
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
-
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractVmscale",
-		_DataType    => MMTests::Extract::DATA_WALLTIME,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
-}
-
-sub printDataType() {
-	my ($self) = @_;
-	print "Operations,Test,Variable";
-}
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
+
+	my $fieldLength = $self->{_FieldLength} = 30;
+	$self->{_ModuleName} = "ExtractVmscale";
+	$self->{_DataType} = MMTests::Extract::DATA_TIME_SECONDS;
+	$self->{_TestName} = $testName;
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%$fieldLength.2f" ];
+	$self->{_FieldHeaders} = [ "Test", "Metric", "Value" ];
+	$self->{_SingleType} = 1;
+
+	$self->SUPER::initialise($reportDir, $testName);
+}
+
+sub extractReport($$$) {
+	my ($self, $reportDir, $reportName) = @_;
 	my @cases;
 
 	open(INPUT, "$reportDir/noprofile/cases") || die "Failed to open cases file";
@@ -32,28 +30,7 @@ sub initialise() {
 	}
 	close(INPUT);
 	$self->{_Cases} = \@cases;
-
-	$self->SUPER::initialise();
-
-	my $fieldLength = $self->{_FieldLength} = 30;
-	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders} = [ "Test", "Metric", "Value" ];
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-	$self->{_SummaryData} = $self->{_ResultData};
-	return 1;
-}
-
-sub c2s($$) {
-	return sprintf "%18s %10s", $_[0], $_[1];
-}
-
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
-	my @cases = @{$self->{_Cases}};
+	my %ops;
 
 	foreach my $case (@cases) {
 		open(INPUT, "$reportDir/noprofile/$case.time") ||
@@ -61,7 +38,8 @@ sub extractReport($$$) {
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;
 			next if $line !~ /elapsed/;
-			push @{$self->{_ResultData}}, [ c2s($case, "elapsed"), $self->_time_to_elapsed($line) ];
+			push @{$self->{_ResultData}}, [ "$case-elapsed", $self->_time_to_elapsed($line) ];
+			$ops{"$case-elapsed"} = 1;
 		}
 		close(INPUT);
 
@@ -75,12 +53,13 @@ sub extractReport($$$) {
 				next if $line !~ /elapsed/;
 				push @values, $self->_time_to_elapsed($line);
 			}
-			push @{$self->{_ResultData}}, [ c2s($case, "time_range"),  calc_range(@values) ];
-			push @{$self->{_ResultData}}, [ c2s($case, "time_stddv"), calc_stddev(@values) ];
+			push @{$self->{_ResultData}}, [ "$case-time_range",  calc_range(@values) ];
+			push @{$self->{_ResultData}}, [ "$case-time_stddv", calc_stddev(@values) ];
 		}
 
 		close(INPUT);
 	}
+	$self->{_SingleInclude} = \%ops;
 }
 
 1;

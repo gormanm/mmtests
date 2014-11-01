@@ -8,9 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareVmscale",
 		_DataType    => MMTests::Compare::DATA_WALLTIME,
-		_CompareOp   => "pndiff",
-		_Precision   => 4,
-		_CompareOp   => "pndiff",
 		_ResultData  => []
 	};
 	bless $self, $class;
