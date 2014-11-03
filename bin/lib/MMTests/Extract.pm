@@ -10,21 +10,22 @@ use constant DATA_TIME_SECONDS		=> 1;
 use constant DATA_TIME_NSECONDS		=> 2;
 use constant DATA_TIME_USECONDS		=> 3;
 use constant DATA_TIME_MSECONDS		=> 4;
-use constant DATA_ACTIONS               => 5;
-use constant DATA_ACTIONS_PER_SECOND    => 6;
-use constant DATA_ACTIONS_PER_MINUTE    => 7;
-use constant DATA_OPS_PER_SECOND        => 8;
-use constant DATA_OPS_PER_MINUTE        => 9;
-use constant DATA_RECORDS_PER_SECOND    => 10;
-use constant DATA_MBITS_PER_SECOND	=> 11;
-use constant DATA_MBYTES_PER_SECOND	=> 12;
-use constant DATA_TRANS_PER_SECOND	=> 13;
-use constant DATA_SUCCESS_PERCENT	=> 14;
-use constant DATA_WALLTIME		=> 15;
-use constant DATA_WALLTIME_VARIABLE	=> 16;
-use constant DATA_WALLTIME_OUTLIERS	=> 17;
-use constant DATA_OPSSEC		=> 18;
-use constant DATA_THROUGHPUT		=> 19;
+use constant DATA_TIME_CYCLES		=> 5;
+use constant DATA_ACTIONS               => 6;
+use constant DATA_ACTIONS_PER_SECOND    => 7;
+use constant DATA_ACTIONS_PER_MINUTE    => 8;
+use constant DATA_OPS_PER_SECOND        => 9;
+use constant DATA_OPS_PER_MINUTE        => 10;
+use constant DATA_RECORDS_PER_SECOND    => 11;
+use constant DATA_MBITS_PER_SECOND	=> 12;
+use constant DATA_MBYTES_PER_SECOND	=> 13;
+use constant DATA_TRANS_PER_SECOND	=> 14;
+use constant DATA_SUCCESS_PERCENT	=> 15;
+use constant DATA_WALLTIME		=> 16;
+use constant DATA_WALLTIME_VARIABLE	=> 17;
+use constant DATA_WALLTIME_OUTLIERS	=> 18;
+use constant DATA_OPSSEC		=> 19;
+use constant DATA_THROUGHPUT		=> 20;
 use VMR::Stat;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
@@ -62,6 +63,8 @@ sub printDataType() {
 		$yaxis = "Time (msec)";
 	} elsif ($self->{_DataType} == DATA_TIME_SECONDS) {
 		$yaxis = "Time (seconds)";
+	} elsif ($self->{_DataType} == DATA_TIME_CYCLES) {
+		$yaxis = "Time (cpu cycles)";
 	} elsif ($self->{_DataType} == DATA_ACTIONS) {
 		$yaxis = "Actions";
 		$units = "VarAction";

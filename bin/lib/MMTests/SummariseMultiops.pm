@@ -34,7 +34,8 @@ sub initialise() {
 	if ($self->{_DataType} == MMTests::Extract::DATA_TIME_SECONDS ||
 	    $self->{_DataType} == MMTests::Extract::DATA_TIME_NSECONDS ||
 	    $self->{_DataType} == MMTests::Extract::DATA_TIME_MSECONDS ||
-	    $self->{_DataType} == MMTests::Extract::DATA_TIME_USECONDS) {
+	    $self->{_DataType} == MMTests::Extract::DATA_TIME_USECONDS ||
+	    $self->{_DataType} == MMTests::Extract::DATA_TIME_CYCLES) {
 		$self->{_MeanOp} = "calc_mean";
 		$self->{_MeanName} = "Amean";
 		$self->{_RatioPreferred} = "Lower";
@@ -141,9 +142,14 @@ sub extractSummary() {
 		push @row, $operation;
 		foreach my $funcName ("calc_min", $self->{_MeanOp}, "calc_stddev", "calc_coeffvar", "calc_max") {
 			no strict "refs";
-			push @row, &$funcName(@units);
+			my $value = &$funcName(@units);
+			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
+				push @row, $value;
+			}
 		}
-		push @{$self->{_SummaryData}}, \@row;
+		if ($#row > 1) {
+			push @{$self->{_SummaryData}}, \@row;
+		}
 
 	}
 
@@ -181,10 +187,14 @@ sub extractRatioSummary() {
 		push @row, $operation;
 		foreach my $funcName ($self->{_MeanOp}) {
 			no strict "refs";
-			push @row, &$funcName(@units);
+			my $value = &$funcName(@units);
+			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
+				push @row, $value;
+			}
 		}
-		push @{$self->{_SummaryData}}, \@row;
-
+		if ($#row > 0) {
+			push @{$self->{_SummaryData}}, \@row;
+		}
 	}
 
 	return 1;
