@@ -1,25 +1,26 @@
 # ExtractVmrstream.pm
 package MMTests::ExtractVmrstream;
-use MMTests::Extract;
+use MMTests::SummariseMultiops;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract);
+our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
-
-use constant DATA_STREAMTHROUGHPUT	=> 300;
-
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractVmrstream",
-		_DataType    => DATA_STREAMTHROUGHPUT,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
-}
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
+
+	$self->SUPER::initialise();
+
+	my $fieldLength = $self->{_FieldLength};
+	$self->{_DataType} = MMTests::Extract::DATA_MBYTES_PER_SECOND;
+	$self->{_PlotXaxis}   = "MemSize";
+	$self->{_PlotType} = "client-errorlines";
+	$self->{_TestName} = $testName;
+
+	$self->SUPER::initialise($reportDir, $testName);
+}
+
+sub extractReport($$$) {
+	my ($self, $reportDir, $reportName) = @_;
 	my @pagesize_types;
 	my %wss_sizes;
 
@@ -43,98 +44,25 @@ sub initialise() {
 	}
 	close INPUT;
 
-	$self->SUPER::initialise();
-
-	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldHeaderFormat} = [ "%-26s", "%${fieldLength}s", "%${fieldLength}s" ];
-	$self->{_FieldFormat} = [ "%-26s", "%-${fieldLength}s", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders} = [ "Operation", "MemSize", "MB/sec" ];
-	$self->{_PlotHeaders} = [ "MemSize", "MB/sec" ];
-	$self->{_PagesizeTypes} = \@pagesize_types;
-	$self->{_WssSizes} = \%wss_sizes;
-	$self->{_TestName} = $testName;
-}
-
-sub extractSummary() {
-	my ($self, $subHeading) = @_;
-	my $fieldLength = $self->{_FieldLength};
-	my @data = @{$self->{_ResultData}};
-	my %wss_sizes = %{$self->{_WssSizes}};
-
-	# In actuality, this is only used internally by the compare module
-	# The printSummary handler for this prints multiple rows rather
-	# than using a large number of columns that do not fit on the
-	# screen.
-	my @summaryHeaders = ("Operation");
-	foreach my $wss_size (sort {$a <=> $b} keys %wss_sizes) {
-		push @summaryHeaders, $wss_size;
-	}
-	$self->{_SummaryHeaders} = \@summaryHeaders;
-
-	foreach my $operation ("Add", "Copy", "Scale", "Triad") {
-		my @compareRow;
-		push @compareRow, "$operation";
-		foreach my $wss_size (sort {$a <=> $b} keys %wss_sizes) {
-			my @samples;
-
-			foreach my $row (grep(@{$_}[0] eq $operation, @data)) {
-				my @rowArray = @$row;
-				if ($wss_size == $rowArray[1]) {
-					push @samples, $rowArray[2];
-				}
-			}
-
-			push @compareRow, calc_true_mean(@samples);
-		}
-		push @{$self->{_SummaryData}}, \@compareRow;
-	}
-
-	return 1;
-}
-
-sub printSummary() {
-	my ($self) = @_;
-	my $fieldLength = $self->{_FieldLength};
-	my @data = @{$self->{_ResultData}};
-	my %wss_sizes = %{$self->{_WssSizes}};
-
-	foreach my $operation ("Add", "Copy", "Scale", "Triad") {
-		foreach my $wss_size (sort {$a <=> $b} keys %wss_sizes) {
-			my @samples;
-
-			foreach my $row (grep(@{$_}[0] eq $operation, @data)) {
-				my @rowArray = @$row;
-				if ($wss_size == $rowArray[1]) {
-					push @samples, $rowArray[2];
-				}
-			}
-
-			printf("%-26s %${fieldLength}d %${fieldLength}.2f\n",
-				$operation, $wss_size, calc_true_mean(@samples));
-		}
-	}
-}
-
-sub printReport() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
-}
-
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
-	my @pagesize_types = @{$self->{_PagesizeTypes}};
-
+	my %samples;
+	my @ops;
 	foreach my $pagesize_type (@pagesize_types) {
 		foreach my $operation ("Add", "Copy", "Scale", "Triad") {
 			my $file = "$reportDir/noprofile/default/$pagesize_type/stream-$operation.instances";
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				my @elements = split(/\s+/, $_);
-				push @{$self->{_ResultData}}, [$operation, $elements[0], $elements[1]];
+				my $size = int ($elements[0] / 1024);
+				my $op = "$operation-${size}K";
+				push @{$self->{_ResultData}}, [$op, ++$samples{$op}, $elements[1]];
+				if ($samples{$op} == 1) {
+					push @ops, $op;
+				}
 			}
 			close INPUT;
 		}
 	}
+	$self->{_Operations} = \@ops;
 }
 
 1;

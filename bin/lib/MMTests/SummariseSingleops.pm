@@ -80,7 +80,7 @@ sub extractRatioSummary() {
 		my @units;
 		my @row;
 		my $samples = 0;
-		if (defined %includeOps && $includeOps{@{$rowLine}[0]} != 1) {
+		if (%includeOps && $includeOps{@{$rowLine}[0]} != 1) {
 			next;
 		}
 		push @row, @{$rowLine}[0];

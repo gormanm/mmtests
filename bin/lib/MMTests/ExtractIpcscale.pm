@@ -5,23 +5,9 @@ use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractIpcscale",
-		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
-}
-
-sub printDataType() {
-	print "Operations/sec,TestName,Latency,candlesticks";
-}
-
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
+	$self->{_DataType}  == MMTests::Extract::DATA_OPS_PER_SECOND;
 	$self->{_Opname} = "Latency";
 	$self->SUPER::initialise();
 }
