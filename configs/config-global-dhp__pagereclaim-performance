@@ -1,3 +1,11 @@
+### vmscale is the VM scalability benchmarks from Intel and running just
+### the test cases that exercise LRU rotations and reclaim by running
+### one process per CPU to hit the page reclaim paths.
+###
+### lmbench is running  the lat_mmap tests to track how quickly maps of
+### different sizes can be created. The expectation is that this has
+### little or no impact on page reclaim but it needs to be verified.
+###
 ### stutter simulates a simple workload. One part uses a lot of anonymous
 ### memory, a second measures mmap latency and a third copies a large file.
 ### The primary metric is checking for mmap latency.
