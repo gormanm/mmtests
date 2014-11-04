@@ -61,6 +61,7 @@ export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top iotop perf-time-stat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # sysbench
