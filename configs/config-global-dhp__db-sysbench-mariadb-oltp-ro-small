@@ -59,7 +59,7 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_GZIP="proc-vmstat top iotop perf-time-stat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
@@ -70,6 +70,6 @@ export OLTP_PAGESIZES="default"
 export SYSBENCH_DRIVER=mariadb
 export SYSBENCH_MAX_TRANSACTIONS=auto
 export SYSBENCH_READONLY=yes
-export SYSBENCH_MAX_THREADS=$((NUMCPUS*4))
+export SYSBENCH_MAX_THREADS=$((NUMCPUS*2))
 export SYSBENCH_ITERATIONS=3
 export SYSBENCH_WORKLOAD_SIZE=$((OLTP_SHAREDBUFFERS*4/5))

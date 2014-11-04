@@ -59,7 +59,7 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_GZIP="proc-vmstat top iotop perf-time-stat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
@@ -69,7 +69,7 @@ export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/4))
 export OLTP_PAGESIZES="default"
 export PGBENCH_MAX_TRANSACTIONS=auto
 export PGBENCH_READONLY=yes
-export PGBENCH_MAX_THREADS=$((NUMCPUS*4))
+export PGBENCH_MAX_THREADS=$((NUMCPUS*2))
 export PGBENCH_ITERATIONS=3
 
 # The baseline database size is approximately 30MB. Each unit of scaling

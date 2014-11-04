@@ -71,9 +71,9 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf postgresql-${VERSION}.tar.bz2 failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf postgresql-${VERSION}.tar.bz2 failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -167,4 +167,4 @@ update_entry_cnf password_encryption off
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 48
+#### Details postgresbuild 49

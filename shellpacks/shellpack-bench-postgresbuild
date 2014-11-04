@@ -69,7 +69,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/postgresbuild-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-postgresbuild -v ${VERSION}  || die postgresbuild install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed || die Failed to cd to postgresbuild install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -109,7 +111,7 @@ update_entry_cnf() {
 postgres_shutdown() {
 	if [ -e $POSTGRES_PIDFILE ]; then
 		echo Shutting down server
-		$PSQL "bin/pg_ctl -D $POSTGRES_DATADIR -l logfile stop"
+		$PSQL "bin/pg_ctl -D $POSTGRES_DATADIR -l logfile stop -m fast"
 		sleep 2
 		wait_on_pid_exit $POSTGRES_PID
 		rm $POSTGRES_PIDFILE 2>/dev/null
@@ -168,4 +170,4 @@ fi
 echo postgres operation successful
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild-bench 48
+#### Details postgresbuild-bench 49

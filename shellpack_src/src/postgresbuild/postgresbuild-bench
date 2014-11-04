@@ -49,7 +49,7 @@ update_entry_cnf() {
 postgres_shutdown() {
 	if [ -e $POSTGRES_PIDFILE ]; then
 		echo Shutting down server
-		$PSQL "bin/pg_ctl -D $POSTGRES_DATADIR -l logfile stop"
+		$PSQL "bin/pg_ctl -D $POSTGRES_DATADIR -l logfile stop -m fast"
 		sleep 2
 		wait_on_pid_exit $POSTGRES_PID
 		rm $POSTGRES_PIDFILE 2>/dev/null
