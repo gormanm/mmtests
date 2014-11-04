@@ -47,7 +47,7 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 		;;
 	lat_ctx)
 		LMBENCH_LATCTX_SIZE=`echo $LMBENCH_LATCTX_SIZE | tr ',' ' '`
-		###SHELLPACK threads_huge_stride_begin 2 $LMBENCH_LATCTX_MAXCLIENTS
+		###SHELLPACK threads_large_stride_begin 2 $LMBENCH_LATCTX_MAXCLIENTS
 			for SIZE in $LMBENCH_LATCTX_SIZE; do
 				mmtests_activity size $SIZE
 				echo mmtests-size:$SIZE >> ${LMBENCH_RESULTS}

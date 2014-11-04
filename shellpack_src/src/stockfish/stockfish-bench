@@ -29,7 +29,7 @@ if [ $STOCKFISH_MAX_THREADS -gt 128 ]; then
 	STOCKFISH_MAX_THREADS=128
 fi
 
-###SHELLPACK threads_huge_stride_begin $STOCKFISH_MIN_THREADS $STOCKFISH_MAX_THREADS
+###SHELLPACK threads_large_stride_begin $STOCKFISH_MIN_THREADS $STOCKFISH_MAX_THREADS
 cat > $EXPECT_SCRIPT <<EOF
 spawn $SHELLPACK_SOURCES/stockfish-${VERSION}-installed/bin/stockfish
 expect "Stockfish"             {
