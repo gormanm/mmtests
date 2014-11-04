@@ -681,6 +681,19 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			rmdir /tmp/iotop-mmtests-$$
 		fi
 
+		if [ `ls perf-time-stat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
+			EVENTS=`$EXTRACT_CMD -n $KERNEL_BASE --print-monitor perf-time-stat --print-header | head -1`
+			echo "<tr>"
+			for EVENT in $EVENTS; do
+				eval $GRAPH_PNG --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT.png
+				eval $GRAPH_PSC --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT.ps
+				eval $GRAPH_PNG --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT-smooth.png --smooth
+				eval $GRAPH_PSC --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT-smooth.ps --smooth
+				smoothover graph-$SUBREPORT-perf-time-stat-$EVENT
+			done
+			echo "</tr>"
+		fi
+
 		if [ `ls vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
 			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.png
 			eval $GRAPH_PSC --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.ps
