@@ -36,9 +36,9 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf filebench-${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf filebench-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -47,6 +47,11 @@ mv $DST_DIR filebench-$VERSION
 pushd filebench-$VERSION > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/filebench-$VERSION || die Failed to change to source directory
+
+if [ $MEMTOTAL_BYTES -gt $((8192*1048576)) ]; then
+	echo Increasing shared region for larger machine
+	sed -i -e 's/#define\sFILEBENCH_NFILESETENTRIES.*/#define FILEBENCH_NFILESETENTRIES (1024*1024*2)/' ipc.h
+fi
 
 # Patch benchmark with fix for direct IO
 TEMPFILE=`mktemp`
@@ -94,4 +99,4 @@ index 634897e..85ac02a 100644
  	return (FILEBENCH_OK);
  }
 #### Description filebench
-#### Details filebench 12
+#### Details filebench 13
