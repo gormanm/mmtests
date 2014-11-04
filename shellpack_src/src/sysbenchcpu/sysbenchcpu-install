@@ -1,0 +1,20 @@
+#!/bin/bash
+###SHELLPACK preamble sysbenchcpu-install 0.4.12
+
+VERSION=0.4.12
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+WEB_LOCATION=http://surfnet.dl.sourceforge.net/sourceforge/sysbench
+MIRROR_LOCATION=$WEBROOT/sysbench
+
+echo Building sysbench cpu
+###SHELLPACK sources_fetch sysbench-${VERSION}.tar.gz sysbenchcpu-${VERSION}
+###SHELLPACK build_start sysbenchcpu-${VERSION}
+###SHELLPACK build_autoreconf
+###SHELLPACK build_configure sysbenchcpu-${VERSION} --without-mysql
+###SHELLPACK make_make_install
+
+echo sysbenchcpu successfully installed
+exit $SHELLPACK_SUCCESS
