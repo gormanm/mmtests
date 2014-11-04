@@ -42,6 +42,14 @@ while [ "$1" != "" ]; do
 		fi
 		if [ "$NAS_TYPE" = "MPI" ]; then
 			OPENMPI=--openmpi
+			case $NAS_CLASS in
+			C)
+				if [ $MEMTOTAL_MBYTES -lt 6144 ]; then
+					echo INFO: Machine has too little memory to be useful
+					exit $SHELLPACK_SUCCESS
+				fi
+				;;
+			*)
 		fi
 		shift 2
 		;;
@@ -242,4 +250,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 49
+#### Details nas-bench 50
