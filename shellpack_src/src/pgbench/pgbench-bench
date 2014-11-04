@@ -107,7 +107,7 @@ echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 
 FIRST_TIME=yes
 
-###SHELLPACK threads_large_stride_begin 1 $MAX_THREADS
+###SHELLPACK threads_huge_stride_begin 1 $MAX_THREADS
 	echo -n > $LOGDIR_RESULTS/samples
 
 	# Restart the database

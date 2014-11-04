@@ -131,9 +131,9 @@ sources_fetch \$WEB_LOCATION/$versionDir\$TARFILE \$MIRROR_LOCATION/\$TARFILE \$
 cd \$SHELLPACK_SOURCES
 tar -xf \$TARFILE
 if [ \$? -ne 0 ]; then
-        error "\$P: tar xf $tarfile failed"
-        popd > /dev/null
-        exit \$SHELLPACK_ERROR
+	error "\$P: tar xf $tarfile failed"
+	popd > /dev/null
+	exit \$SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -157,9 +157,9 @@ mkdir \$SHELLPACK_SOURCES/$srcdir
 cd \$SHELLPACK_SOURCES/$srcdir
 tar -xf ../\$TARFILE
 if [ \$? -ne 0 ]; then
-        error "\$P: tar xf $tarfile failed"
-        popd > /dev/null
-        exit \$SHELLPACK_ERROR
+	error "\$P: tar xf $tarfile failed"
+	popd > /dev/null
+	exit \$SHELLPACK_ERROR
 fi
 EOC
 	} elsif ($command eq "git_fetch") {
@@ -177,9 +177,9 @@ git_fetch \$GIT_LOCATION $srcdir \$MIRROR_LOCATION/\$TARFILE \$SHELLPACK_SOURCES
 cd \$SHELLPACK_SOURCES
 tar -xf \$TARFILE
 if [ \$? -ne 0 ]; then
-        error "\$P: tar xf $tarfile failed"
-        popd > /dev/null
-        exit \$SHELLPACK_ERROR
+	error "\$P: tar xf $tarfile failed"
+	popd > /dev/null
+	exit \$SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -202,9 +202,9 @@ hg_fetch \$HG_LOCATION $srcdir \$MIRROR_LOCATION/\$TARFILE \$SHELLPACK_SOURCES/\
 cd \$SHELLPACK_SOURCES
 tar -xf \$TARFILE
 if [ \$? -ne 0 ]; then
-        error "\$P: tar xf $tarfile failed"
-        popd > /dev/null
-        exit \$SHELLPACK_ERROR
+	error "\$P: tar xf $tarfile failed"
+	popd > /dev/null
+	exit \$SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -392,14 +392,14 @@ THREADS=
 START_THREAD=$min_thread
 END_THREAD=$max_thread
 if [ \$END_THREAD -gt 32 ]; then
-        THREADS=`seq \$START_THREAD 8`
-        THREADS="\$THREADS `seq 12 4 32`"
-        THREADS="\$THREADS `seq 48 16 \$END_THREAD`"
+	THREADS=`seq \$START_THREAD 8`
+	THREADS="\$THREADS `seq 12 4 32`"
+	THREADS="\$THREADS `seq 48 16 \$END_THREAD`"
 elif [ \$END_THREAD -gt 8 ]; then
-        THREADS=`seq \$START_THREAD 8`
-        THREADS="\$THREADS `seq 12 4 \$END_THREAD`"
+	THREADS=`seq \$START_THREAD 8`
+	THREADS="\$THREADS `seq 12 4 \$END_THREAD`"
 else
-        THREADS=`seq \$START_THREAD \$END_THREAD`
+	THREADS=`seq \$START_THREAD \$END_THREAD`
 fi
 for NR_THREADS in \$THREADS; do
 	mmtests_activity process \$NR_THREADS/\$END_THREAD
@@ -411,19 +411,41 @@ THREADS=
 START_THREAD=$min_thread
 END_THREAD=$max_thread
 if [ \$END_THREAD -gt 32 ]; then
-        THREADS=`seq \$START_THREAD 3 8`
-        THREADS="\$THREADS `seq 12 9 32`"
-        THREADS="\$THREADS `seq 48 31 \$END_THREAD`"
+	THREADS=`seq \$START_THREAD 3 8`
+	THREADS="\$THREADS `seq 12 9 32`"
+	THREADS="\$THREADS `seq 48 31 \$END_THREAD`"
 elif [ \$END_THREAD -gt 8 ]; then
-        THREADS=`seq \$START_THREAD 2 8`
-        THREADS="\$THREADS `seq 12 6 \$END_THREAD`"
+	THREADS=`seq \$START_THREAD 2 8`
+	THREADS="\$THREADS `seq 12 6 \$END_THREAD`"
 else
-        THREADS=`seq \$START_THREAD 2 \$END_THREAD`
+	THREADS=`seq \$START_THREAD 2 \$END_THREAD`
 fi
 if [ `echo \$THREADS | awk '{print \$NF}'` -ne \$END_THREAD ]; then
 	THREADS="\$THREADS \$END_THREAD"
 fi
 
+for NR_THREADS in \$THREADS; do
+	mmtests_activity process \$NR_THREADS/\$END_THREAD
+EOC
+	} elsif ($command eq "threads_huge_stride_begin") {
+		my ($min_thread, $max_thread) = @details;
+		print <<EOC
+THREADS=
+START_THREAD=$min_thread
+END_THREAD=$max_thread
+if [ \$END_THREAD -ge 32 ]; then
+	THREADS=`seq \$START_THREAD 4 8`
+	THREADS="\$THREADS `seq 12 9 32`"
+	THREADS="\$THREADS `seq 48 31 \$END_THREAD`"
+elif [ \$END_THREAD -ge 8 ]; then
+	THREADS=`seq \$START_THREAD 3 8`
+	THREADS="\$THREADS `seq 12 6 \$END_THREAD`"
+else
+	THREADS=`seq \$START_THREAD 2 \$END_THREAD`
+fi
+if [ `echo \$THREADS | awk '{print \$NF}'` -ne \$END_THREAD ]; then
+	THREADS="\$THREADS \$END_THREAD"
+fi
 for NR_THREADS in \$THREADS; do
 	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC
