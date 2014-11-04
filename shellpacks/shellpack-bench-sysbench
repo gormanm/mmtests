@@ -212,7 +212,7 @@ for NR_THREADS in $THREADS; do
 		--shared_buffers $SHARED_BUFFERS \
 		--work_mem $WORK_MEM || die Failed to get usable database installation
 
-	if [ "$MMTESTS_LARGE_MACHINE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
+	if [ "$SYSBENCH_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
 		echo Preparing database
 		if [ "$DBDRIVER" = "postgres" ]; then
 			$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgtest;'"
@@ -249,7 +249,7 @@ for NR_THREADS in $THREADS; do
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 
-	if [ "$MMTESTS_LARGE_MACHINE" = "yes" ]; then
+	if [ "$SYSBENCH_INIT_ONCE" = "yes" ]; then
 		echo 3 > /proc/sys/vm/drop_caches
 	fi
 done
@@ -271,4 +271,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 65
+#### Details sysbench-bench 67

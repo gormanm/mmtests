@@ -193,7 +193,7 @@ for NR_THREADS in $THREADS; do
 		--work_mem $WORK_MEM \
 		-v ${VERSION} || die Failed to get a usable postgres installation
 
-	if [ "$MMTESTS_LARGE_MACHINE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
+	if [ "$PGBENCH_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
 		echo Creating database for thread count $NR_THREADS
 		$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
 		if [ $? -ne 0 ]; then
@@ -249,7 +249,7 @@ for NR_THREADS in $THREADS; do
 		fi
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
-	if [ "$MMTESTS_LARGE_MACHINE" != "yes" ]; then
+	if [ "$PGBENCH_INIT_ONCE" != "yes" ]; then
 		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
 		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
 		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
@@ -265,4 +265,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 79
+#### Details pgbench-bench 81
