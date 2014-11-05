@@ -39,6 +39,9 @@ fi
 				fi
 				;;
 			*)
+				echo Machine has sufficient memory for testing.
+				;;
+			esac
 		fi
 		shift 2
 		;;
