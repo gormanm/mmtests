@@ -67,7 +67,7 @@ varmail|webserver|webproxy)
 	echo "Number files:   $NR_FILES"
 	echo "Duration:       $DURATION"
 	echo "Iterations:     $FILEBENCH_ITERATIONS"
-	###SHELLPACK threads_large_stride_begin $FILEBENCH_MIN_THREADS $FILEBENCH_MAX_THREADS
+	###SHELLPACK threads_stride_fixed_begin $FILEBENCH_MIN_THREADS $FILEBENCH_MAX_THREADS 4
 	cat > $LOGDIR_RESULTS/filebench.script << EOF
 	load $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/$FILEBENCH_PERSONALITY
 	set \$dir=$SHELLPACK_TEMP

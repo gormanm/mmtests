@@ -128,23 +128,16 @@ varmail|webserver|webproxy)
 	echo "Number files:   $NR_FILES"
 	echo "Duration:       $DURATION"
 	echo "Iterations:     $FILEBENCH_ITERATIONS"
-THREADS=
-START_THREAD=$FILEBENCH_MIN_THREADS
-END_THREAD=$FILEBENCH_MAX_THREADS
-if [ $END_THREAD -gt 32 ]; then
-	THREADS=`seq $START_THREAD 3 8`
-	THREADS="$THREADS `seq 12 9 32`"
-	THREADS="$THREADS `seq 48 31 $END_THREAD`"
-elif [ $END_THREAD -gt 8 ]; then
-	THREADS=`seq $START_THREAD 2 8`
-	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+THREADS="$FILEBENCH_MIN_THREADS"
+THREAD_DIFF=$(($FILEBENCH_MAX_THREADS-$FILEBENCH_MIN_THREADS))
+if [ "$THREAD_DIFF" -lt 4 ]; then
+	THREADS=`seq $FILEBENCH_MIN_THREADS $FILEBENCH_MAX_THREADS`
 else
-	THREADS=`seq $START_THREAD 2 $END_THREAD`
+	for ITER in `seq 2 $((4-1))`; do
+		THREADS="$THREADS $((THREAD_DIFF/4*$ITER))"
+	done
+	THREADS="$THREADS $FILEBENCH_MAX_THREADS"
 fi
-if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
-	THREADS="$THREADS $END_THREAD"
-fi
-
 for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	cat > $LOGDIR_RESULTS/filebench.script << EOF
@@ -175,4 +168,4 @@ done
 	;;
 esac
 #### Description filebench
-#### Details filebench-bench 14
+#### Details filebench-bench 15

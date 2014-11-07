@@ -365,7 +365,16 @@ NR_THREADS=$min_thread
 if [ "\$NR_THREADS" = "" ]; then
 	NR_THREADS=1
 fi
+THREADS=\$NR_THREADS
+NR_THREADS=\$((NR_THREADS*2))
 while [ \$NR_THREADS -le $max_thread ]; do
+	THREADS="\$THREADS \$NR_THREADS"
+	NR_THREADS=\$((NR_THREADS*2))
+done
+if [ `echo \$THREADS | awk '{print \$NF}'` -ne $max_thread ]; then
+	THREADS="\$THREADS $max_thread"
+fi
+for NR_THREADS in \$THREADS; do
 	if [ \$NR_THREADS -gt $max_thread ]; then
 		NR_THREADS=$max_thread
 	fi
@@ -373,7 +382,6 @@ while [ \$NR_THREADS -le $max_thread ]; do
 EOC
 	} elsif ($command eq "threads_powertwo_end") {
 		print <<EOC
-NR_THREADS=\$((NR_THREADS*2))
 done
 EOC
 
@@ -449,6 +457,23 @@ fi
 for NR_THREADS in \$THREADS; do
 	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC
+	} elsif ($command eq "threads_stride_fixed_begin") {
+		my ($min_thread, $max_thread, $samples) = @details;
+		print <<EOC
+THREADS="$min_thread"
+THREAD_DIFF=\$(($max_thread-$min_thread))
+if [ "\$THREAD_DIFF\" -lt $samples ]; then
+	THREADS=`seq $min_thread $max_thread`
+else
+	for ITER in `seq 2 \$(($samples-1))`; do
+		THREADS="\$THREADS \$((THREAD_DIFF/$samples*\$ITER))"
+	done
+	THREADS="\$THREADS $max_thread"
+fi
+for NR_THREADS in \$THREADS; do
+	mmtests_activity process \$NR_THREADS/\$END_THREAD
+EOC
+
 	} elsif ($command eq "threads_stride_end") {
 		print "done\n";
 	} else {
