@@ -12,9 +12,10 @@ rm -rf $SHELLPACK_SOURCES/filebench-${VERSION}
 
 ###SHELLPACK build_start filebench-$VERSION
 
-if [ $MEMTOTAL_BYTES -gt $((8192*1048576)) ]; then
-	echo Increasing shared region for larger machine
-	sed -i -e 's/#define\sFILEBENCH_NFILESETENTRIES.*/#define FILEBENCH_NFILESETENTRIES (1024*1024*2)/' ipc.h
+if [ $MEMTOTAL_BYTES -gt $((8000*1048576)) ]; then
+	FACTOR=$((MEMTOTAL_BYTES/(7500*1048576)+1))
+	echo Increasing shared region for larger machine by factor of $FACTOR
+	sed -i -e "s/#define\sFILEBENCH_NFILESETENTRIES.*/#define FILEBENCH_NFILESETENTRIES (1024*1024*$FACTOR)/" ipc.h
 fi
 
 # Patch benchmark with fix for direct IO

@@ -48,9 +48,10 @@ pushd filebench-$VERSION > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/filebench-$VERSION || die Failed to change to source directory
 
-if [ $MEMTOTAL_BYTES -gt $((8192*1048576)) ]; then
-	echo Increasing shared region for larger machine
-	sed -i -e 's/#define\sFILEBENCH_NFILESETENTRIES.*/#define FILEBENCH_NFILESETENTRIES (1024*1024*2)/' ipc.h
+if [ $MEMTOTAL_BYTES -gt $((8000*1048576)) ]; then
+	FACTOR=$((MEMTOTAL_BYTES/(7500*1048576)+1))
+	echo Increasing shared region for larger machine by factor of $FACTOR
+	sed -i -e "s/#define\sFILEBENCH_NFILESETENTRIES.*/#define FILEBENCH_NFILESETENTRIES (1024*1024*$FACTOR)/" ipc.h
 fi
 
 # Patch benchmark with fix for direct IO
@@ -99,4 +100,4 @@ index 634897e..85ac02a 100644
  	return (FILEBENCH_OK);
  }
 #### Description filebench
-#### Details filebench 13
+#### Details filebench 14
