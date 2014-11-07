@@ -238,6 +238,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT CPU-Time
 		eval $COMPARE_CMD --sub-heading elapsed
 		;;
+	parallelio)
+		echo $SUBREPORT Transactions
+		eval $COMPARE_CMD
+		echo
+		echo $SUBREPORT Background IO
+		compare-mmtests.pl -d . -b parallelioio -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		echo $SUBREPORT Swap totals
+		compare-mmtests.pl -d . -b parallelioswap -n $KERNEL_LIST $FORMAT_CMD
+		;;
 	pft)
 		echo $SUBREPORT timings
 		compare-mmtests.pl -d . -b pfttime -n $KERNEL_LIST $FORMAT_CMD
@@ -445,8 +455,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			eval $GRAPH_PSC --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps
 			plain graph-$SUBREPORT
 			echo "</tr>"
-			;;
-		parallelio)
 			;;
 		pagealloc)
 			;;

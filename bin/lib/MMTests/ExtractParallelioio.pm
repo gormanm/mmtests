@@ -1,5 +1,5 @@
 # ExtractParallelio.pm
-package MMTests::ExtractParallelio;
+package MMTests::ExtractParallelioio;
 use MMTests::SummariseMultiops;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
@@ -7,8 +7,8 @@ use strict;
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ExtractParallelio",
-		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
+		_ModuleName  => "ExtractParallelioio",
+		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
 		_ResultData  => []
 	};
 	bless $self, $class;
@@ -21,6 +21,7 @@ sub extractReport($$$) {
 	my @ioSteps;
 	my @ioSizes;
 	my $workload;
+	$reportDir =~ s/parallelioio/parallelio/;
 
 	# Read the IO steps and workload type
 	my $file = "$reportDir/noprofile/workload-durations.log";
@@ -45,34 +46,18 @@ sub extractReport($$$) {
 	}
 	close(INPUT);
 
-	# Read the workload performance data
-	if ($workload eq "memcachetest") {
-		foreach my $ioStep (@ioSteps) {
-			my @reportDirs = <$reportDir/noprofile/memcachetest-$ioStep-*>;
-			my $minOps = -1;
-			my $iteration = 0;
+	# Read the IO durations
+	$file = "$reportDir/noprofile/io-durations.log";
+	open(INPUT, $file) || die("Failed to open $file\n");
+	while (<INPUT>) {
+		my @elements = split(/\s/);
 
-			foreach my $reportDir (@reportDirs) {
-				my $ops;
-
-				my $file = "$reportDir/noprofile/mmtests.log";
-				open(INPUT, $file) || die("Failed to open $file");
-				while (!eof(INPUT)) {
-					my $line = <INPUT>;
-					if ($line =~ /ops\/sec: ([0-9]+)/) {
-						$ops = $1;
-					}
-				}
-				close(INPUT);
-
-				$iteration++;
-				push @{$self->{_ResultData}}, [ "memcachetest-$ioSizes[$ioStep]", $iteration, $ops ];
-			}
-			push @{$self->{_Operations}}, "memcachetest-$ioSizes[$ioStep]";
+		push @{$self->{_ResultData}}, [ "io-duration-$ioSizes[$elements[0]]", $elements[2], $elements[3] ];
+		if ($elements[2] == 1) {
+			push @{$self->{_Operations}}, "io-duration-$ioSizes[$elements[0]]";
 		}
-	} else {
-		die("Unable to handle parallel workload memcachetest");
 	}
+	close(INPUT);
 }
 
 1;

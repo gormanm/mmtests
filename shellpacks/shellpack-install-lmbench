@@ -34,9 +34,9 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf lmbench${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf lmbench${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -61,4 +61,4 @@ cp ../bin/*/* ../bin/
 
 echo lmbench installed successfully
 #### Description lmbench
-#### Details lmbench 47
+#### Details lmbench 48

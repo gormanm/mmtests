@@ -39,9 +39,10 @@ sub extractReport($$$) {
 		my $line = $_;
 		if ($caseName eq "lat_mmap") {
 			my @elements = split(/\s+/, $_);
-			push @{$self->{_ResultData}}, [ "$elements[0]", ++$sampleSizes{$elements[0]}, $elements[1] ];
+			my $size = (int $elements[0]) . "M";
+			push @{$self->{_ResultData}}, [ "$size", ++$sampleSizes{$elements[0]}, $elements[1] ];
 			if ($sampleSizes{$elements[0]} == 1) {
-				push @ops, "$elements[0]";
+				push @ops, "$size";
 			}
 		} else {
 			if ($line =~ /^mmtests-size:([0-9]+)/) {

@@ -1,5 +1,5 @@
-# CompareParallelio.pm
-package MMTests::CompareParallelio;
+# CompareParallelioio.pm
+package MMTests::CompareParallelioio;
 use VMR::Stat;
 use MMTests::Compare;
 our @ISA = qw(MMTests::Compare);
@@ -7,8 +7,8 @@ our @ISA = qw(MMTests::Compare);
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "CompareParallelio",
-		_DataType    => MMTests::Compare::DATA_OPS_PER_SECOND,
+		_ModuleName  => "CompareParallelioio",
+		_DataType    => MMTests::Compare::DATA_TIME_SECONDS,
 		_FieldLength => 18,
 		_ResultData  => []
 	};

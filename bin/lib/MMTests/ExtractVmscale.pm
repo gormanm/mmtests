@@ -16,6 +16,7 @@ sub initialise() {
 	$self->{_SingleType} = 1;
 
 	$self->SUPER::initialise($reportDir, $testName);
+	$self->{_RatioPreferred} = "Lower";
 }
 
 sub extractReport($$$) {
