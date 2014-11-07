@@ -5,11 +5,28 @@
 
 package MMTests::Compare;
 
-use constant DATA_WALLTIME		=> 2;
-use constant DATA_WALLTIME_VARIABLE	=> 3;
-use constant DATA_WALLTIME_OUTLIERS	=> 4;
-use constant DATA_OPSSEC		=> 5;
-use constant DATA_THROUGHPUT		=> 6;
+use constant DATA_NONE                  => 0;
+use constant DATA_TIME_SECONDS          => 1;
+use constant DATA_TIME_NSECONDS         => 2;
+use constant DATA_TIME_USECONDS         => 3;
+use constant DATA_TIME_MSECONDS         => 4;
+use constant DATA_TIME_CYCLES           => 5;
+use constant DATA_ACTIONS               => 6;
+use constant DATA_ACTIONS_PER_SECOND    => 7;
+use constant DATA_ACTIONS_PER_MINUTE    => 8;
+use constant DATA_OPS_PER_SECOND        => 9;
+use constant DATA_OPS_PER_MINUTE        => 10;
+use constant DATA_RECORDS_PER_SECOND    => 11;
+use constant DATA_MBITS_PER_SECOND      => 12;
+use constant DATA_MBYTES_PER_SECOND     => 13;
+use constant DATA_TRANS_PER_SECOND      => 14;
+use constant DATA_SUCCESS_PERCENT       => 15;
+
+use constant DATA_WALLTIME		=> 50;
+use constant DATA_WALLTIME_VARIABLE	=> 51;
+use constant DATA_WALLTIME_OUTLIERS	=> 52;
+use constant DATA_OPSSEC		=> 53;
+use constant DATA_THROUGHPUT		=> 54;
 use VMR::Stat;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
@@ -38,11 +55,21 @@ sub initialise() {
 	my (@fieldHeaders, @plotHeaders, @summaryHeaders);
 	my ($fieldLength, $plotLength, $summaryLength);
 	my $compareLength = 6;
+	$fieldLength = 12;
 
-	if ($self->{_DataType} == DATA_WALLTIME) {
-		$fieldLength = 12;
+	if ($self->{_DataType} == DATA_WALLTIME ||
+	    $self->{_DataType} == DATA_TIME_SECONDS ||
+	    $self->{_DataType} == DATA_TIME_NSECONDS ||
+	    $self->{_DataType} == DATA_TIME_USECONDS ||
+	    $self->{_DataType} == DATA_TIME_MSECONDS ||
+	    $self->{_DataType} == DATA_TIME_CYCLES) {
 		$compareLength = 6;
 		@fieldHeaders = ("Time", "Procs");
+	}
+	if ($self->{_DataType} == DATA_OPS_PER_SECOND) {
+		if (!defined $self->{_CompareOps}) {
+			$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff" ];
+		}
 	}
 	if (!$self->{_FieldLength}) {
 		$self->{_FieldLength}  = $fieldLength;
@@ -120,6 +147,14 @@ sub _generateComparisonTable() {
 			my @compare;
 			my @ratio;
 			my $compareOp = "pdiff";
+
+			if ($self->{_DataType} == DATA_TIME_SECONDS ||
+			    $self->{_DataType} == DATA_TIME_NSECONDS ||
+			    $self->{_DataType} == DATA_TIME_USECONDS ||
+			    $self->{_DataType} == DATA_TIME_MSECONDS ||
+			    $self->{_DataType} == DATA_TIME_CYCLES) {
+				$compareOp = "pndiff";
+			}
 			if (defined $self->{_CompareOp}) {
 				$compareOp = $self->{_CompareOp};
 			}

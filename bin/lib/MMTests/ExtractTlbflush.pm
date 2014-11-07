@@ -1,8 +1,8 @@
 # ExtractTlbflush.pm
 package MMTests::ExtractTlbflush;
-use MMTests::SummariseMultiops;
+use MMTests::SummariseVariabletime;
 use VMR::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
+our @ISA = qw(MMTests::SummariseVariabletime);
 use strict;
 
 sub initialise() {

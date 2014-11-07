@@ -42,6 +42,7 @@ echo "#!/bin/bash" > monitor-post-hook
 echo 'kill `cat /tmp/mmtests.perf.pid`' >> monitor-post-hook
 echo "sleep 5" >> monitor-post-hook
 echo "perf report -i \$1/oprofile-\$2-report-${PROFILE_TITLE}.data > \$1/oprofile-\$2-report-${PROFILE_TITLE}.txt" >> monitor-post-hook
+echo "gzip \$1/oprofile-\$2-report-${PROFILE_TITLE}.data" >> monitor-post-hook
 
 echo "#!/bin/bash" > monitor-cleanup-hook
 
