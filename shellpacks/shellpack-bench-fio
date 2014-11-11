@@ -107,9 +107,10 @@ if [ "$FIO_CMD_OPTIONS" != "" ]; then
 	monitor_pre_hook $LOGDIR_RESULTS $SIZE
 	ln -s $TESTDISK_DIR /tmp/fio-$$
 
-	./fio --directory="$TESTDISK_DIR" $FIO_CMD_OPTIONS \
-		2>&1 | tee $LOGDIR_RESULTS/fio.log \
-			|| die Failed to have fun with fio
+	./fio --directory="$TESTDISK_DIR" --minimal \
+		--write_lat_log $LOGDIR_RESULTS/fio $FIO_CMD_OPTIONS 2>&1 |
+		tee $LOGDIR_RESULTS/fio.log || \
+		die Failed to have fun with fio
 
 	rm -rf $TESTDISK_DIR/*
 	rm /tmp/fio-$$
@@ -153,4 +154,4 @@ esac
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible IO tester
-#### Details fio-bench 5
+#### Details fio-bench 10

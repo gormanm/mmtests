@@ -1,0 +1,108 @@
+###
+### Compare competing sync writes and reads
+###
+### Run 1 writer thread doing random 4k writes with fdatasync
+### Run 1 reader thread doing random 4k reads from 20 different files
+###
+### This fio workload simulates application startup by reading randomly 4k
+### chunks from 20 different files. We also run a writer thread doing random
+### 4k writes and using fdatasync. This is to see whether reads & sync writes
+### don't easily starve each other.
+###
+DIRNAME=`dirname $0`
+SCRIPTDIR=`cd "$DIRNAME" && pwd`
+
+# MM Test Parameters
+export MMTESTS="fio"
+export RUN_WARMUP=
+
+# Profiling parameters
+export RUN_NOPROFILE=yes
+export RUN_FINEPROFILE=no
+export RUN_COARSEPROFILE=no
+export OPROFILE_REPORT_ANNOTATE=no
+
+# Fixups
+if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/bin:$PATH
+fi
+if [ "`which record-extfrag 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/fraganalysis:$PATH
+fi
+if [ "`which oprofile_report.sh 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/vmr/bin:$PATH
+fi
+
+# Machine configuration
+# Swap configuration can be one of default, partitions, swapfile, NFS
+#export VM_DIRTY_RATIO=20
+export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
+export SWAP_CONFIGURATION=default
+export SWAP_PARTITIONS=
+export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
+export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
+export SWAP_NBD_DEVICE=/dev/nbd0
+export SWAP_NBD_HOST=mcp
+export SWAP_NBD_PORT=10001
+
+# Optionally use a memory control group
+# export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+#
+# Test NFS disk to setup (optional)
+#export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
+#
+# Test NBD disk to setup (optional)
+#export TESTDISK_NBD_DEVICE=/dev/nbd0
+#export TESTDISK_NBD_HOST=mcp
+#export TESTDISK_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# fio
+JOBFILE="/tmp/fio-jobfile-$$"
+export FIO_CMD_OPTIONS="$JOBFILE"
+
+cat >$JOBFILE <<END
+[global]
+direct=0
+ioengine=sync
+runtime=300
+time_based
+invalidate=1
+blocksize=4096
+size=10g	# Just random value, we are running time based workload
+log_avg_msec=10
+group_reporting=1
+
+[writer]
+nrfiles=1
+filesize=1g
+fdatasync=1
+readwrite=randwrite
+
+[reader]
+# Simulate random reading from different files, switching to different file
+# after 16 ios. This somewhat simulates application startup.
+new_group
+filesize=100m
+nrfiles=20
+file_service_type=random:16
+readwrite=randread
+END

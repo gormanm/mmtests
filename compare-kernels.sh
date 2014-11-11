@@ -395,6 +395,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT average and max operation latencies
 		compare-mmtests.pl -d . -b tiobenchlatency -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	fio)
+		echo $SUBREPORT Throughput
+		$COMPARE_CMD
+		echo
+		echo $SUBREPORT Latency
+		compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST $FORMAT_CMD
+		;;
 	*)
 		echo $SUBREPORT
 		# Try R if requested, fallback to perl when datatype is unsupported

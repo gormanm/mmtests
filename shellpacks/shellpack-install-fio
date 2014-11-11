@@ -75,4 +75,4 @@ fi
 
 echo fio installed successfully
 #### Description Flexible IO tester
-#### Details fio 5
+#### Details fio 10
