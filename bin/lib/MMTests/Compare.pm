@@ -172,9 +172,15 @@ sub _generateComparisonTable() {
 				no strict "refs";
 				my $summaryRef = $extractModules[$module]->{_SummaryData};
 				my @summary = @{$summaryRef};
-				push @data, $summary[$row][$column];
-				push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
-				push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
+				if ($summary[$row][$column] != -1 && $baseline[$row][$column] != -1) {
+					push @data, $summary[$row][$column];
+					push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
+					push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
+				} else {
+					push @data, 0;
+					push @compare, 0;
+					push @ratio, 1;
+				}
 			}
 			push @resultsTable, [@data];
 			push @compareTable, [@compare];
