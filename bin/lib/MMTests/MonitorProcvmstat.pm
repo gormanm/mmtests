@@ -271,7 +271,7 @@ sub parseVMStat($)
 					$current_steal += $value;
 				}
 			}
-		} elsif ($subHeading eq "numa_hint_faults_remote") {
+		} elsif ($subHeading eq "mmtests_hint_faults_remote") {
 			if ($stat eq "numa_hint_faults") {
 				$current_value += $value;
 			}
