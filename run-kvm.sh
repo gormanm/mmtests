@@ -71,8 +71,12 @@ mount $PART_DEVICE /tmp/mnt-mmtests || exit -1
 
 # Copy modules across if running a kernel
 MODULES_DIRECTORY=/lib/modules
-if [ "$INSTALL_KERNEL_DESTINATION" != "" ]; then
-	MODULES_DIRECTORY=$INSTALL_KERNEL_DESTINATION
+if [ ! -d $MODULES_DIRECTORY/$MMTESTS_KVM_KERNEL_VERSION ]; then
+	if [ "$INSTALL_KERNEL_DESTINATION" != "" ]; then
+		MODULES_DIRECTORY=$INSTALL_KERNEL_DESTINATION
+	else
+		MODULES_DIRECTORY=`pwd`/kernel-images
+	fi
 fi
 if [ -d $MODULES_DIRECTORY/$MMTESTS_KVM_KERNEL_VERSION/ ]; then
 	echo Copying modules across for $MMTESTS_KVM_KERNEL_VERSION
@@ -153,12 +157,16 @@ QEMU_PID=$!
 echo $QEMU_PID > $SHELLPACK_TOPLEVEL/qemu.pid
 
 sleep 5
-if [ "$MMTESTS_KVM_SERIAL_VISIBLE" = "yes" ]; then
-	telnet localhost 2000 | tee kvm-console.log &
+if [ "$MMTESTS_KVM_FOREGROUND" = "yes" ]; then
+	telnet localhost 2000
 else
-	telnet localhost 2000 > kvm-console.log &
-fi
+	if [ "$MMTESTS_KVM_SERIAL_VISIBLE" = "yes" ]; then
+		telnet localhost 2000 | tee kvm-console.log &
+	else
+		telnet localhost 2000 > kvm-console.log &
+	fi
 
-echo Waiting on KVM instance $QEMU_PID to reach ssh
-wait_ssh_available localhost 30022
+	echo Waiting on KVM instance $QEMU_PID to reach ssh
+	wait_ssh_available localhost 30022
+fi
 exit $?
