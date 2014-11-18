@@ -7,6 +7,6 @@ export SHELLPACK_TEMP=$SHELLPACK_TEST_MOUNT/tmp/$$
 export SHELLPACK_INCLUDE=$SCRIPTDIR/shellpacks
 export SHELLPACK_LOG=$SCRIPTDIR/work/log
 export LINUX_GIT=/home/mel/git-public/linux-2.6
-export WEBROOT=http://laplace.suse.de/mmtests-mirror
+export WEBROOT=http://mcp/mmtests-mirror
 export SSHROOT=`echo $WEBROOT | sed -e 's/http:\/\//ssh:\/\/root@/'`/public_html
 export TESTDISK_DIR
