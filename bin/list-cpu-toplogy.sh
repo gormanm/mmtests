@@ -1,5 +1,6 @@
 #!/bin/bash
-SCRIPTDIR=`cd "$DIRNAME" && pwd`
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 
 # Read list of nodes
 while read tmp NID tmp tmp tmp; do
