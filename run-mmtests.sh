@@ -245,7 +245,7 @@ echo Tuning the system before running: $RUNNAME
 for T in $RUN_TUNINGS; do
 	discover_script ./tunings/tuning-$T
 	export TUNING_LOG=$SHELLPACK_LOG/$T-$RUNNAME-$TEST
-	$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $TUNING_LOG
+	$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $TUNING_LOG || exit $SHELLPACK_ERROR
 done
 
 # Create RAID setup
