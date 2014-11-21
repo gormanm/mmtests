@@ -1,0 +1,15 @@
+#!/bin/bash
+# This script installs getpidbench and whatever
+###SHELLPACK preamble getpidbench-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required getpidbench
+###SHELLPACK monitor_hooks
+
+monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+eval $MMTESTS_NUMACTL ./getpidbench 2>&1
+monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+exit $SHELLPACK_SUCCESS

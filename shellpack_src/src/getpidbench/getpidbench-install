@@ -1,0 +1,16 @@
+#!/bin/bash
+# getpidbench install
+###SHELLPACK preamble getpidbench-install 0
+WEB_LOCATION=http://mq.ucw.cz/pub/getpidbench/
+MIRROR_LOCATION="$WEBROOT/getpidbench/getpidbench.tgz"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch getpidbench.tgz getpidbench-$VERSION-installed
+
+# Build
+###SHELLPACK build_start getpidbench-$VERSION-installed
+###SHELLPACK make
+
+echo getpidbench installed successfully
