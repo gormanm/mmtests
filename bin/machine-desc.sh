@@ -92,5 +92,5 @@ CPU Topology
 EOF
 
 echo
-printf "%-16s %4s %5s %8s %5s\n" hostname cpus sockt mem nodes
-printf "%-16s %4d %5d %8s %5d\n" `hostname` $hw_cpus $hw_sockets ${hw_memory} $NUMNODES
+printf "%-16s %4s %5s %8s %5s %3s\n" hostname cpus sockt mem nodes cpu
+printf "%-16s %4d %5d %8s %5d %s\n" `hostname` $hw_cpus $hw_sockets ${hw_memory} $NUMNODES "$hw_cpu_name"
