@@ -12,6 +12,13 @@ sub initialise() {
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Time";
 	$self->{_FieldLength}= 25;
+	$self->{_SingleType} = 1;
+	$self->{_SingleInclude}  = {
+		"Elapsed-NUMA01" => 1,
+		"Elapsed-NUMA01_THEADLOCAL"  => 1,
+		"Elapsed-NUMA02" => 1,
+		"Elapsed-NUMA02_SMT" => 1,
+	};
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
