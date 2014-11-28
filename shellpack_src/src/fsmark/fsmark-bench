@@ -2,69 +2,64 @@
 # This script installs fsmark and runs the regression tests
 
 ###SHELLPACK preamble fsmark-bench 3.3
-NUM_THREADS=1
-NUMCPUS_THREADS=1
+MIN_THREADS=1
+MAX_THREADS=1
 NUM_DIRECTORIES=100
 NUM_FILES_PER_DIRECTORY=25000
 NUM_FILES_PER_ITERATION=50000
 NUM_ITERATIONS=63
 FILESIZE=0
-CPU_FACTOR=1
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-###SHELLPACK parseargParam --threads                NUM_THREADS
+###SHELLPACK parseargParam --min-threads            MIN_THREADS
+###SHELLPACK parseargParam --max-threads            MAX_THREADS
 ###SHELLPACK parseargParam --filesize               FILESIZE
 ###SHELLPACK parseargParam --nr-files-per-iteration NUM_FILES_PER_ITERATION
 ###SHELLPACK parseargParam --nr-files-per-directory NUM_FILES_PER_DIRECTORY
 ###SHELLPACK parseargParam --nr-directories         NUM_DIRECTORIES
 ###SHELLPACK parseargParam --iterations             NUM_ITERATIONS
-	--threads-per-cpu)
-		NUMCPUS_THREADS=$2
-		NUM_THREADS=$(($NUMCPUS_THREADS*$NUMCPUS))
-		shift 2
-		;;
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required fsmark-${VERSION}
 
 ###SHELLPACK monitor_hooks
 
-monitor_pre_hook $LOGDIR_RESULTS $SIZE
 ln -s $TESTDISK_DIR /tmp/fsmark-$$
 
-if [ "$FSMARK_PARALLEL_DIRECTORIES" = "yes" ]; then
+###SHELLPACK threads_large_stride_begin $MIN_THREADS $MAX_THREADS
 	PARAM=
-	for THREAD in `seq 1 $NUM_THREADS`; do
-		mkdir -p /tmp/fsmark-$$/$THREAD
-		PARAM="$PARAM -d /tmp/fsmark-$$/$THREAD"
+	for THREAD in `seq 1 $NR_THREADS`; do
+		mkdir -p /tmp/fsmark-$$/$NR_THREADS
+		PARAM="$PARAM -d /tmp/fsmark-$$/$NR_THREADS"
 	done
 
-	./fs_mark \
+	echo ./fs_mark \
 		$PARAM \
 		-D $NUM_DIRECTORIES \
 		-N $NUM_FILES_PER_DIRECTORY \
-		-n $(($NUM_FILES_PER_ITERATION/$NUM_THREADS)) \
+		-n $(($NUM_FILES_PER_ITERATION/$NR_THREADS)) \
 		-L $NUM_ITERATIONS \
+		-t $NR_THREADS \
 		-S0 \
-		-s $FILESIZE \
-			2>&1 | tee $LOGDIR_RESULTS/fsmark.log \
-					|| die Failed to run fsmark
-else
-	./fs_mark \
-		-d /tmp/fsmark-$$ \
+		-s $FILESIZE | tee $LOGDIR_RESULTS/fsmark-cmd-${NR_THREADS}.log
+
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	eval ./fs_mark \
+		$PARAM \
 		-D $NUM_DIRECTORIES \
 		-N $NUM_FILES_PER_DIRECTORY \
-		-n $(($NUM_FILES_PER_ITERATION/$NUM_THREADS)) \
+		-n $(($NUM_FILES_PER_ITERATION/$NR_THREADS)) \
 		-L $NUM_ITERATIONS \
-		-t $NUM_THREADS \
+		-t $NR_THREADS \
 		-S0 \
 		-s $FILESIZE \
-			2>&1 | tee $LOGDIR_RESULTS/fsmark.log \
-					|| die Failed to run fsmark
-fi
-rm -rf $TESTDISK_DIR/*
+			2>&1 | tee $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log \
+				|| die Failed to run fsmark
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+	rm -rf $TESTDISK_DIR/*
+###SHELLPACK threads_stride_end
+
 rm /tmp/fsmark-$$
-monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS

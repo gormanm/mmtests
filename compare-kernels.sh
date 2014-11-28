@@ -414,6 +414,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
+		fsmark-threaded|fsmark-single)
+			eval $GRAPH_PNG        -b $SUBREPORT --title \"$SUBREPORT files/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC        -b $SUBREPORT --title \"$SUBREPORT files/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			eval $GRAPH_PNG        -b ${SUBREPORT}overhead --title \"$SUBREPORT overhead\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-overhead.png
+			eval $GRAPH_PSC        -b ${SUBREPORT}overhead --title \"$SUBREPORT overhead\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-overhead.ps
+			echo "<tr>"
+			plain graph-$SUBREPORT
+			plain graph-$SUBREPORT-overhead
+			echo "</tr>"
+			;;
 		sembench-sem|sembench-nanosleep|sembench-futex)
 			echo "<tr>"
 			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label ops/sec
