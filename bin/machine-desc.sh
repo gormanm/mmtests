@@ -10,8 +10,7 @@ export PATH=$SCRIPTDIR/bin:$PATH
 ARCH=`uname -m`
 get_numa_details
 
-install-depends dmidecode
-
+install-depends dmidecode 2>&1 > /dev/null
 ##
 # cpuinfo_val - Output the given value of a cpuinfo field
 cpuinfo_val() {
@@ -36,16 +35,18 @@ detect_dmidecode() {
 
 	case "$ARCH" in
 		i?86|x86_64|ia64)
-
-			if [ "`which dmidecode`" = "" ]; then
-				warning dmidecode is not in path, very limited info
+			if [ "`which dmidecode 2>1`" != "" ]; then
+				hw_manu=`dmidecode -s baseboard-manufacturer`
+				hw_prod=`dmidecode -s baseboard-product-name`
+				hw_vers=`dmidecode -s baseboard-version`
+				hw_model="$hw_manu $hw_prod $hw_vers"
+			else
+				hw_manu="dmidecode unavailable"
+				hw_prod="dmidecode unavailable"
+				hw_vers="dmidecode unavailable"
+				hw_model="dmidecode unavailable"
 			fi
 
-			hw_manu=`dmidecode -s baseboard-manufacturer`
-			hw_prod=`dmidecode -s baseboard-product-name`
-			hw_vers=`dmidecode -s baseboard-version`
-
-			hw_model="$hw_manu $hw_prod $hw_vers"
 			hw_cpu_name=`cpuinfo_val "model name"`
 			hw_cpu_mhz=`cpuinfo_val "cpu MHz"`
 			hw_ncoresperchip=`cpuinfo_val "cpu cores"`
@@ -67,7 +68,7 @@ detect_dmidecode
 cat <<EOF
 `hostname`
 
-Basic Details
+Basic Details$WARNING_MSG
 -------------
 hw_model         : $hw_model
 hw_prod          : $hw_prod
