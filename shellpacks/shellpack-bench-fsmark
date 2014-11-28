@@ -136,11 +136,11 @@ for NR_THREADS in $THREADS; do
 			2>&1 | tee $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log \
 				|| die Failed to run fsmark
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
-	rm -rf $TESTDISK_DIR/*
+	rm -rf $SHELLPACK_TEMP/*
 done
 
 rm /tmp/fsmark-$$
 
 exit $SHELLPACK_SUCCESS
 #### Description fsmark
-#### Details fsmark-bench 30
+#### Details fsmark-bench 31
