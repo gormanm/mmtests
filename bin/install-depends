@@ -36,7 +36,8 @@ my %package_map = (
 	"redhat::openmpi-32bit"  => "openmpi.i686",
 	"redhat::openmpi-32bit"  => "openmpi.i686",
 	"redhat::btrfsprogs"     => "btrfs-progs",
-	"redhat::libopenssl-devel"	 => "openssl-devel",
+	"redhat::glibc-devel-static-32bit" => "glibc-static.i686",
+	"redhat::libopenssl-devel"	   => "openssl-devel",
 );
 	
 my %package_bin = (
