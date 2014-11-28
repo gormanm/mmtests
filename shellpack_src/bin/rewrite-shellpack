@@ -25,6 +25,11 @@ while (<>) {
 P=$name
 DEFAULT_VERSION=$version
 . \$SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "\$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 EOC
 	} elsif ($command eq "parseargBegin") {
 		print <<EOC

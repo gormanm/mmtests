@@ -3,6 +3,11 @@
 P=fsmark-install
 DEFAULT_VERSION=3.3
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION=http://heanet.dl.sourceforge.net/project/fsmark/fsmark/
 MIRROR_LOCATION="$WEBROOT/fsmark/"
 
@@ -57,4 +62,4 @@ fi
 
 echo fsmark installed successfully
 #### Description fsmark
-#### Details fsmark 27
+#### Details fsmark 30

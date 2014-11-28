@@ -4,8 +4,7 @@
 ###SHELLPACK preamble fsmark-bench 3.3
 MIN_THREADS=1
 MAX_THREADS=1
-NUM_DIRECTORIES=100
-NUM_FILES_PER_DIRECTORY=25000
+NUM_SUB_DIRECTORIES=100
 NUM_FILES_PER_ITERATION=50000
 NUM_ITERATIONS=63
 FILESIZE=0
@@ -16,8 +15,7 @@ FILESIZE=0
 ###SHELLPACK parseargParam --max-threads            MAX_THREADS
 ###SHELLPACK parseargParam --filesize               FILESIZE
 ###SHELLPACK parseargParam --nr-files-per-iteration NUM_FILES_PER_ITERATION
-###SHELLPACK parseargParam --nr-files-per-directory NUM_FILES_PER_DIRECTORY
-###SHELLPACK parseargParam --nr-directories         NUM_DIRECTORIES
+###SHELLPACK parseargParam --nr-sub-directories     NUM_SUB_DIRECTORIES
 ###SHELLPACK parseargParam --iterations             NUM_ITERATIONS
 ###SHELLPACK parseargEnd
 
@@ -25,19 +23,18 @@ FILESIZE=0
 
 ###SHELLPACK monitor_hooks
 
-ln -s $TESTDISK_DIR /tmp/fsmark-$$
+ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
 
 ###SHELLPACK threads_large_stride_begin $MIN_THREADS $MAX_THREADS
 	PARAM=
 	for THREAD in `seq 1 $NR_THREADS`; do
-		mkdir -p /tmp/fsmark-$$/$NR_THREADS
-		PARAM="$PARAM -d /tmp/fsmark-$$/$NR_THREADS"
+		mkdir -p /tmp/fsmark-$$/$THREAD
+		PARAM="$PARAM -d /tmp/fsmark-$$/$THREAD"
 	done
 
 	echo ./fs_mark \
 		$PARAM \
-		-D $NUM_DIRECTORIES \
-		-N $NUM_FILES_PER_DIRECTORY \
+		-D $NUM_SUB_DIRECTORIES \
 		-n $(($NUM_FILES_PER_ITERATION/$NR_THREADS)) \
 		-L $NUM_ITERATIONS \
 		-t $NR_THREADS \
@@ -47,8 +44,7 @@ ln -s $TESTDISK_DIR /tmp/fsmark-$$
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	eval ./fs_mark \
 		$PARAM \
-		-D $NUM_DIRECTORIES \
-		-N $NUM_FILES_PER_DIRECTORY \
+		-D $NUM_SUB_DIRECTORIES \
 		-n $(($NUM_FILES_PER_ITERATION/$NR_THREADS)) \
 		-L $NUM_ITERATIONS \
 		-t $NR_THREADS \

@@ -1,13 +1,12 @@
-### fsmark-threaded creates a number of small files from varying numbers
-### of threads. The total number of files created is related to the size
-### of memory but it's tuned such that later iterations of the test should
-### start pushing reclaim. The intent is to catch when page reclaim and
-### slab shrinking starts being a problem.
+### xfsrepair creates a sparse file, mounts it, creates 50 million zero-sized
+### inodes, umounts and then runs xfs_repair on the filesystem image. This
+### drives an extremely large number of read IOPS through multiple threads
+### using direct IO.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="fsmark-threaded"
+export MMTESTS="xfsrepair"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -70,10 +69,6 @@ export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# FS-Mark
-export FSMARK_FILESIZE=$((4096*4))
-export FSMARK_MIN_THREADS=1
-export FSMARK_MAX_THREADS=$NUMCPUS
-export FSMARK_NR_SUB_DIRECTORIES=10000
-export FSMARK_NR_FILES_PER_ITERATION=125000
-export FSMARK_ITERATIONS=$((MEMTOTAL_BYTES*3/2/(FSMARK_FILESIZE-1024)/FSMARK_NR_FILES_PER_ITERATION))
+# XFS repair
+export XFSREPAIR_THREADS=4
+export XFSREPAIR_ITERATIONS=3

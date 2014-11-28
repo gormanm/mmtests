@@ -4,10 +4,14 @@
 P=fsmark-bench
 DEFAULT_VERSION=3.3
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 MIN_THREADS=1
 MAX_THREADS=1
-NUM_DIRECTORIES=100
-NUM_FILES_PER_DIRECTORY=25000
+NUM_SUB_DIRECTORIES=100
 NUM_FILES_PER_ITERATION=50000
 NUM_ITERATIONS=63
 FILESIZE=0
@@ -46,12 +50,8 @@ while [ "$1" != "" ]; do
 		NUM_FILES_PER_ITERATION=$2
 		shift 2
 		;;
-	--nr-files-per-directory)
-		NUM_FILES_PER_DIRECTORY=$2
-		shift 2
-		;;
-	--nr-directories)
-		NUM_DIRECTORIES=$2
+	--nr-sub-directories)
+		NUM_SUB_DIRECTORIES=$2
 		shift 2
 		;;
 	--iterations)
@@ -88,7 +88,7 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-ln -s $TESTDISK_DIR /tmp/fsmark-$$
+ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
 
 THREADS=
 START_THREAD=$MIN_THREADS
@@ -111,14 +111,13 @@ for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	PARAM=
 	for THREAD in `seq 1 $NR_THREADS`; do
-		mkdir -p /tmp/fsmark-$$/$NR_THREADS
-		PARAM="$PARAM -d /tmp/fsmark-$$/$NR_THREADS"
+		mkdir -p /tmp/fsmark-$$/$THREAD
+		PARAM="$PARAM -d /tmp/fsmark-$$/$THREAD"
 	done
 
 	echo ./fs_mark \
 		$PARAM \
-		-D $NUM_DIRECTORIES \
-		-N $NUM_FILES_PER_DIRECTORY \
+		-D $NUM_SUB_DIRECTORIES \
 		-n $(($NUM_FILES_PER_ITERATION/$NR_THREADS)) \
 		-L $NUM_ITERATIONS \
 		-t $NR_THREADS \
@@ -128,8 +127,7 @@ for NR_THREADS in $THREADS; do
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	eval ./fs_mark \
 		$PARAM \
-		-D $NUM_DIRECTORIES \
-		-N $NUM_FILES_PER_DIRECTORY \
+		-D $NUM_SUB_DIRECTORIES \
 		-n $(($NUM_FILES_PER_ITERATION/$NR_THREADS)) \
 		-L $NUM_ITERATIONS \
 		-t $NR_THREADS \
@@ -145,4 +143,4 @@ rm /tmp/fsmark-$$
 
 exit $SHELLPACK_SUCCESS
 #### Description fsmark
-#### Details fsmark-bench 27
+#### Details fsmark-bench 30
