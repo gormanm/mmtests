@@ -1,0 +1,14 @@
+#!/bin/bash
+###SHELLPACK preamble futexwait-install 1
+GIT_LOCATION=git://git.kernel.org/pub/scm/linux/kernel/git/dvhart/futextest.git
+MIRROR_LOCATION="$WEBROOT/futexwait/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch futexwait-${VERSION}.tar.gz futexwait-${VERSION}-installed
+
+###SHELLPACK build_start futexwait-${VERSION}-installed
+###SHELLPACK make
+
+echo futexwait installed successfully

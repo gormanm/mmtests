@@ -1,0 +1,37 @@
+#!/bin/bash
+# futexwait
+
+###SHELLPACK preamble futexwait-bench 1
+TESTTIME=15
+ITERATIONS=12
+TESTLIST=
+MAX_THREADS=$NUMCPUS
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --min-threads      FUTEXWAIT_MIN_THREADS
+###SHELLPACK parseargParam   --max-threads      FUTEXWAIT_MAX_THREADS
+###SHELLPACK parseargParam   --iterations	FUTEXWAIT_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required futexwait-${VERSION}
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+FUTEXWAIT_DIR=$SHELLPACK_SOURCES/futexwait-${VERSION}-installed/performance
+FUTEXWAIT_CMD=${PERF_DIR}/futex_wait
+
+
+###SHELLPACK threads_large_stride_begin $FUTEXWAIT_MIN_THREADS $FUTEXWAIT_MAX_THREADS $FUTEXWAIT_ITERATIONS
+mmtests_activity $NR_THREADS
+monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+
+echo Starting iteration $ITERATION
+$FUTEXWAIT_CMD -n $NR_THREADS 2>&1 | \
+    tee $LOGDIR_RESULTS/futexwait-${NR_THREADS}.log \
+    || die Failed ro run futexwait
+
+monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+exit $SHELLPACK_SUCCESS

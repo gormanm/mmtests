@@ -1,0 +1,104 @@
+#!/bin/bash
+# Run futexwait benchmark
+
+P=futexwait-bench
+DEFAULT_VERSION=1
+. $SHELLPACK_INCLUDE/common.sh
+ITERATIONS=12
+TESTLIST=
+MAX_THREADS=$NUMCPUS
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--min-threads)
+		FUTEXWAIT_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		FUTEXWAIT_MAX_THREADS=$2
+		shift 2
+		;;
+	--iterations)
+		FUTEXWAIT_ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/futexwait-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/futexwait-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-futexwait -v ${VERSION}  || die futexwait install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/futexwait-${VERSION}-installed || die Failed to cd to futexwait install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo futexwait installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+FUTEXWAIT_DIR=$SHELLPACK_SOURCES/futexwait-${VERSION}-installed/performance/
+FUTEXWAIT_CMD=${FUTEXWAIT_DIR}/futex_wait
+
+THREADS=
+START_THREAD=$FUTEXWAIT_MIN_THREADS
+END_THREAD=$FUTEXWAIT_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 2 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
+for ITERATION in `seq 1 $IPCSCALE_ITERATIONS`; do
+    echo Starting iteration $ITERATION
+    for NR_THREADS in $THREADS; do
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	$FUTEXWAIT_CMD -n $NR_THREADS 2>&1 | \
+	    tee $LOGDIR_RESULTS/futexwait-${NR_THREADS}-${ITERATION}.log \
+	    || die Failed ro run futexwait
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+    done
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description futexwait
+#### Details futexwait-bench 1

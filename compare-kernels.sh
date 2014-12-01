@@ -438,6 +438,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
+		futexwait)
+			echo "<tr>"
+			eval $GRAPH_PNG --logX --wide --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label Kiter/sec
+			eval $GRAPH_PSC --logX --wide --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps --y-label Kiter/sec
+			plain graph-$SUBREPORT
+			echo "</tr>"
+			;;
 		highalloc)
 			;;
 		gitcheckout)
