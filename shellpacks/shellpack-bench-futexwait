@@ -1,12 +1,16 @@
 #!/bin/bash
-# Run futexwait benchmark
+# futexwait
 
 P=futexwait-bench
 DEFAULT_VERSION=1
 . $SHELLPACK_INCLUDE/common.sh
-ITERATIONS=12
-TESTLIST=
-MAX_THREADS=$NUMCPUS
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+FUTEXWAIT_ITERATIONS=12
+FUTEXWAIT_MAX_THREADS=$NUMCPUS
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -88,17 +92,21 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 	THREADS="$THREADS $END_THREAD"
 fi
 
-for ITERATION in `seq 1 $IPCSCALE_ITERATIONS`; do
-    echo Starting iteration $ITERATION
-    for NR_THREADS in $THREADS; do
+for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	$FUTEXWAIT_CMD -n $NR_THREADS 2>&1 | \
-	    tee $LOGDIR_RESULTS/futexwait-${NR_THREADS}-${ITERATION}.log \
-	    || die Failed ro run futexwait
-	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
-    done
+for ITERATION in `seq 1 $FUTEXWAIT_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+		echo Starting threads $NR_THREADS/$FUTEXWAIT_MAX_THREADS iteration $ITERATION/$FUTEXWAIT_ITERATIONS
+		save_rc $FUTEXWAIT_CMD -n $NR_THREADS 2>&1 | \
+			tee $LOGDIR_RESULTS/futexwait-${NR_THREADS}-${ITERATION}.log
+		recover_rc
+		if [ $? -ne 0 ]; then
+			die Failed to run futexwait
+		fi
 done
-
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+done
 exit $SHELLPACK_SUCCESS
 #### Description futexwait
-#### Details futexwait-bench 1
+#### Details futexwait-bench 8

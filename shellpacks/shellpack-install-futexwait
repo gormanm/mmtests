@@ -2,6 +2,11 @@
 P=futexwait-install
 DEFAULT_VERSION=1
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 GIT_LOCATION=git://git.kernel.org/pub/scm/linux/kernel/git/dvhart/futextest.git
 MIRROR_LOCATION="$WEBROOT/futexwait/"
 
@@ -34,9 +39,9 @@ git_fetch $GIT_LOCATION futexwait-${VERSION}-installed $MIRROR_LOCATION/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf futexwait-${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf futexwait-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -54,4 +59,4 @@ fi
 
 echo futexwait installed successfully
 #### Description futexwait
-#### Details futexwait 1
+#### Details futexwait 8

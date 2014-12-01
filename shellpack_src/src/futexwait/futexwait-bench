@@ -2,10 +2,8 @@
 # futexwait
 
 ###SHELLPACK preamble futexwait-bench 1
-TESTTIME=15
-ITERATIONS=12
-TESTLIST=
-MAX_THREADS=$NUMCPUS
+FUTEXWAIT_ITERATIONS=12
+FUTEXWAIT_MAX_THREADS=$NUMCPUS
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -19,19 +17,20 @@ MAX_THREADS=$NUMCPUS
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-FUTEXWAIT_DIR=$SHELLPACK_SOURCES/futexwait-${VERSION}-installed/performance
-FUTEXWAIT_CMD=${PERF_DIR}/futex_wait
-
+FUTEXWAIT_DIR=$SHELLPACK_SOURCES/futexwait-${VERSION}-installed/performance/
+FUTEXWAIT_CMD=${FUTEXWAIT_DIR}/futex_wait
 
 ###SHELLPACK threads_large_stride_begin $FUTEXWAIT_MIN_THREADS $FUTEXWAIT_MAX_THREADS $FUTEXWAIT_ITERATIONS
-mmtests_activity $NR_THREADS
-monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-
-echo Starting iteration $ITERATION
-$FUTEXWAIT_CMD -n $NR_THREADS 2>&1 | \
-    tee $LOGDIR_RESULTS/futexwait-${NR_THREADS}.log \
-    || die Failed ro run futexwait
-
-monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	###SHELLPACK iteration_begin $FUTEXWAIT_ITERATIONS
+		echo Starting threads $NR_THREADS/$FUTEXWAIT_MAX_THREADS iteration $ITERATION/$FUTEXWAIT_ITERATIONS
+		save_rc $FUTEXWAIT_CMD -n $NR_THREADS 2>&1 | \
+			tee $LOGDIR_RESULTS/futexwait-${NR_THREADS}-${ITERATION}.log
+		recover_rc
+		if [ $? -ne 0 ]; then
+			die Failed to run futexwait
+		fi
+	###SHELLPACK iteration_end
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
 exit $SHELLPACK_SUCCESS
