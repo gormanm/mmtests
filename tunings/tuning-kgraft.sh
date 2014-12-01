@@ -11,8 +11,13 @@ install-depends kernel-source
 
 export MMTESTS_IGNORE_MIRROR=yes
 
-KERN_FLAVOR=$(uname -r | sed 's/^.*-//')
-KERN_ARCH=$(uname -m)
+if [ -z "$KERN_BUILD_DIR" ]; then
+	KERN_BUILD_DIR=/lib/modules/$(uname -r)/build/
+fi
+
+if [ ! -d "$KERN_BUILD_DIR" ]; then
+	die "Current kernel's headers not found at $KERN_BUILD_DIR."
+fi
 
 for PATCH in $TUNING_KGRAFT_PATCHES; do
 	sources_fetch $PATCH "" patch.tgz
@@ -25,7 +30,7 @@ for PATCH in $TUNING_KGRAFT_PATCHES; do
 		die Module $KGRAFT_MODULE_NAME already inserted
 	fi
 
-	make -C /usr/src/linux-obj/$KERN_ARCH/$KERN_FLAVOR M="$TMPDIR/$KGRAFT_MODULE_DIR" O="$TMPDIR/$KGRAFT_MODULE_DIR" || die "Couldn't make the kgraft patch"
+	make -C $KERN_BUILD_DIR M="$TMPDIR/$KGRAFT_MODULE_DIR" O="$TMPDIR/$KGRAFT_MODULE_DIR" || die "Couldn't make the kgraft patch"
 
 	insmod $TMPDIR/$KGRAFT_MODULE_DIR/$KGRAFT_MODULE_NAME.ko
 
