@@ -7,8 +7,6 @@ TMPDIR=$(readlink -m $SHELLPACK_TEMP/tuning-kgraft)
 mkdir -p $TMPDIR
 cd $TMPDIR
 
-install-depends kernel-source
-
 export MMTESTS_IGNORE_MIRROR=yes
 
 if [ -z "$KERN_BUILD_DIR" ]; then
@@ -19,7 +17,7 @@ if [ ! -d "$KERN_BUILD_DIR" ]; then
 	die "Current kernel's headers not found at $KERN_BUILD_DIR."
 fi
 
-for PATCH in $TUNING_KGRAFT_PATCHES; do
+function insert_patch() {
 	sources_fetch $PATCH "" patch.tgz
 	tar xzf patch.tgz
 
@@ -38,7 +36,9 @@ for PATCH in $TUNING_KGRAFT_PATCHES; do
 		echo "kGraft sys directory not touched, aborting"
 		exit 1
 	fi
+}
 
+function wait_for_patch() {
 	KGRAFT_IN_PROGRESS_COUNTER=0
 	while [ "$(cat /sys/kernel/kgraft/in_progress)" -ne 0 ]; do
 		for PROC in /proc/[0-9]*; do
@@ -61,5 +61,14 @@ for PATCH in $TUNING_KGRAFT_PATCHES; do
 			die "Timed out while waiting for kGraft to finish patching."
 		fi
 	done
+}
+
+for PATCH in $TUNING_KGRAFT_PATCHES; do
+	insert_patch
+	wait_for_patch
+done
+
+for PATCH in $TUNING_KGRAFT_PATCHES_NOWAIT; do
+	insert_patch
 done
 
