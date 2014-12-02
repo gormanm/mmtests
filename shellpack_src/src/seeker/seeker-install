@@ -89,7 +89,7 @@ exit $SHELLPACK_SUCCESS
  }
  
  void handle(const char *string, int error)
-@@ -45,40 +52,86 @@
+@@ -45,40 +52,89 @@
  
  int main(int argc, char **argv)
  {
@@ -102,6 +102,8 @@ exit $SHELLPACK_SUCCESS
 +	int open_flags = O_RDONLY;
 +	int rw = 0;
 +	char *buffer;
++	int page_mask = getpagesize() - 1;
++	int fadvise_size;
  
  	setvbuf(stdout, NULL, _IONBF, 0);
  
@@ -147,6 +149,7 @@ exit $SHELLPACK_SUCCESS
 +		numblocks = sb.st_size;
 +		blocksize = sb.st_blksize;
 +	}
++	fadvise_size = (blocksize + getpagesize() - 1) & ~page_mask;
 +
 +	buffer = malloc(blocksize);
 +	if (!buffer) {
@@ -154,10 +157,10 @@ exit $SHELLPACK_SUCCESS
 +		exit(EXIT_FAILURE);
 +	}
 +
-+	printf("Benchmarking %s %s %s [%luMB] blocks %lu blksize %d, duration %d seconds\n",
++	printf("Benchmarking %s %s %s [%luMB] blocks %lu blksize %d fadvise_size %d, duration %d seconds\n",
 +		argv[1], argv[2], argv[3],
 +		numblocks * blocksize / 1048576,
-+		numblocks, blocksize,
++		numblocks, blocksize, fadvise_size,
 +		TIMEOUT);
  
  	time(&start);
@@ -177,13 +180,13 @@ exit $SHELLPACK_SUCCESS
 -		handle("read", retval < 0);
 +
 +		if (rw == 0) {
-+			posix_fadvise(fd, offset, blocksize, POSIX_FADV_DONTNEED);
++			posix_fadvise(fd, offset & ~page_mask, fadvise_size, POSIX_FADV_DONTNEED);
 +			retval= read(fd, buffer, blocksize);
 +			handle("read", retval < 0);
 +		} else {
 +			retval = write(fd, buffer, blocksize);
 +			handle("write", retval < 0);
-+			sync_file_range(fd, offset, blocksize, SYNC_FILE_RANGE_WRITE|SYNC_FILE_RANGE_WAIT_AFTER);
++			sync_file_range(fd, offset & ~page_mask, fadvise_size, SYNC_FILE_RANGE_WRITE|SYNC_FILE_RANGE_WAIT_AFTER);
 +		}
 +		if (retval!= blocksize)
 +			printf("Truncated IO count %u remain %d\n", count, blocksize - retval);

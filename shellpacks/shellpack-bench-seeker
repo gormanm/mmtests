@@ -2,6 +2,11 @@
 P=seeker-bench
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 SEEKER_IO=read
 SEEKER_TYPE=block
@@ -58,7 +63,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/seeker
 fi
 if [ ! -d $SHELLPACK_SOURCES/seeker-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-seeker -v ${VERSION}  || die seeker install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/seeker-${VERSION}-installed || die Failed to cd to seeker install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -118,4 +125,4 @@ if [ $RETVAL -ne 0 ]; then
 fi
 exit $SHELLPACK_SUCCESS
 #### Description Block device seeker microbenchmark
-#### Details seeker-bench 5
+#### Details seeker-bench 9
