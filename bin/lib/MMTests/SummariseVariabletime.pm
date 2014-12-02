@@ -5,16 +5,6 @@ use VMR::Stat;
 our @ISA = qw(MMTests::Extract);
 use strict;
 
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "SummariseVariabletime",
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
-}
-
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $opName = "Ops";
@@ -22,6 +12,7 @@ sub initialise() {
 		$opName = $self->{_Opname};
 	}
 
+	$self->{_ModuleName} = "SummariseVariabletime";
 	$self->SUPER::initialise();
 
 	$self->{_FieldLength} = 12;
@@ -46,9 +37,7 @@ sub printPlot() {
 	my $fieldLength = $self->{_FieldLength};
 	my $column = 1;
 
-	if ($subHeading eq "") {
-		$subHeading = "SeqOut Block";
-	}
+	$subHeading = $self->{_DefaultPlot} if $subHeading eq "";
 	$subHeading =~ s/\s+//g;
 
 	my @units;

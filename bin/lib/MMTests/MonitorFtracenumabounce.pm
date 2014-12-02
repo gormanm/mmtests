@@ -9,7 +9,7 @@ use constant NUMA_MIGRATE_PAGE			=> 1;
 use constant EVENT_UNKNOWN			=> 10;
 
 # Defaults for dynamically discovered regex's
-my $regex_mm_numab_migrate_page_default = 'comm=([a-zA-Z0-9-.]*) pid=([0-9]*) mmid=(0x[0-9a-fA-F]*) address=(0x[0-9a-fA-F]*) src_nid=([0-9]*) dst_nid=([0-9]) nr_pages=([0-9]*) flags=([a-zA-Z]*)';
+my $regex_mm_numab_migrate_page_default = 'comm=([a-zA-Z0-9-._]*) pid=([0-9]*) mmid=(0x[0-9a-fA-F]*) address=(0x[0-9a-fA-F]*) src_nid=([0-9]*) dst_nid=([0-9]) nr_pages=([0-9]*) flags=([a-zA-Z]*)';
 
 # Dynamically discovered regex
 my $regex_mm_numab_migrate_page;
@@ -35,13 +35,20 @@ sub ftraceCallback {
 
 	if ($tracepoint eq "mm_numab_migrate_page") {
 		if ($details !~ /$regex_mm_numab_migrate_page/p) {
-			print "WARNING: Failed to parse mm_numa_migrate_ratelimit as expected\n";
+			print "WARNING: Failed to parse mm_numab_migrate_page as expected\n";
 			print "	 $details\n";
 			print "	 $regex_mm_numab_migrate_page\n";
 			return;
 		}
 
-		@$ftraceCounterRef[NUMA_MIGRATE_PAGE]->{"$1-$2-mmid$3-addr$4-$8-$7"}++;
+		my $addr = $4;
+		if ($7 == 1) {
+			$addr =~ s/...$/xxx/;
+		} else {
+			$addr =~ s/.....$/xxxxx/;
+		}
+
+		@$ftraceCounterRef[NUMA_MIGRATE_PAGE]->{"$1-$2-mmid$3-addr$addr-$8-$7"}++;
 	} else {
 		@$ftraceCounterRef[EVENT_UNKNOWN]++;
 	}
@@ -55,9 +62,7 @@ sub ftraceReport {
 	my %pageCounter = %{@$ftraceCounterRef[NUMA_MIGRATE_PAGE]};
 
 	foreach my $key (sort { $pageCounter{$b} <=> $pageCounter{$a} } keys %pageCounter) {
-		if ($pageCounter{$key} > 1) {
-			printf("%-64s %8d\n", $key, $pageCounter{$key})
-		}
+		printf("%-64s %8d\n", $key, $pageCounter{$key})
 	}
 }
 

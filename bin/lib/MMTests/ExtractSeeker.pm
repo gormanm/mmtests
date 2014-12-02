@@ -1,14 +1,15 @@
 # ExtractSeeker.pm
 package MMTests::ExtractSeeker;
-use MMTests::SummariseMultiops;
+use MMTests::SummariseVariableops;
 use VMR::Report;
-our @ISA = qw(MMTests::SummariseMultiops);
+our @ISA = qw(MMTests::SummariseVariableops);
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_ModuleName} = "ExtractSeeker";
 	$self->{_DataType}   = MMTests::Extract::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "operation-candlesticks";
+	$self->{_DefaultPlot} = "Seeks";
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

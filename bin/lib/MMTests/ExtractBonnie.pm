@@ -10,6 +10,7 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractBonnie";
 	$self->{_DataType}   = MMTests::Extract::DATA_ACTIONS_PER_SECOND;
 	$self->{_PlotType}   = "operation-candlesticks";
+	$self->{_DefaultPlot} = "SeqOut Block";
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
