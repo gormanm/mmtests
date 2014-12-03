@@ -19,10 +19,31 @@ sub new() {
 
 my %devices;
 
-sub printDataType() {
-	my ($self) = @_;
+my %plotMap = (
+	"avgqusz" => "Average Queue Size (requests)",
+	"await"   => "Average Wait Time (ms)",
+	"r_await" => "Average Read Wait Time (ms)",
+	"w_await" => "Average Write Wait Time (ms)",
+	"avgrqsz" => "Average Request Size (sectors)",
+	"rrqm"    => "Read Requests Merged/sec (req/sec)",
+	"wrqm"    => "Write Requests Merged/sec (req/sec)",
+);
 
-	print "Time,Time,Await (ms)\n";
+sub printDataType() {
+	my ($self, $subHeading) = @_;
+	my $yLabel;
+
+	if (!defined $subHeading) {
+		$yLabel = "Await (ms)";
+	} else {
+		$yLabel = $plotMap{$subHeading};
+		if ($yLabel eq "") {
+			my @elements = split(/-/, $subHeading);
+			$yLabel = $plotMap{$elements[-1]};
+		}
+	}
+
+	print "Time,Time,$yLabel\n";
 }
 
 sub extractSummary() {

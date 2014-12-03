@@ -68,7 +68,7 @@ if (defined $opt_monitor) {
 
 	# Just print the type if asked
 	if ($opt_printType) {
-		$monitorModule->printDataType();
+		$monitorModule->printDataType($opt_subheading);
 		exit;
 	}
 
