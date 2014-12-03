@@ -1,8 +1,8 @@
 # ExtractSeeker.pm
 package MMTests::ExtractSeeker;
-use MMTests::SummariseVariableops;
+use MMTests::SummariseMultiops;
 use VMR::Report;
-our @ISA = qw(MMTests::SummariseVariableops);
+our @ISA = qw(MMTests::SummariseMultiops);
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
