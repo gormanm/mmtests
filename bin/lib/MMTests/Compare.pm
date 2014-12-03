@@ -71,6 +71,11 @@ sub initialise() {
 			$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff" ];
 		}
 	}
+	if ($self->{_DataType} == DATA_TRANS_PER_SECOND && $self->{_Variable} != 1) {
+		if (!defined $self->{_CompareOps}) {
+			$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff" ];
+		}
+	}
 	if (!$self->{_FieldLength}) {
 		$self->{_FieldLength}  = $fieldLength;
 	}

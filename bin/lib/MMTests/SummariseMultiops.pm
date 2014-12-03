@@ -46,7 +46,11 @@ sub initialise() {
 	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
 	$self->{_FieldHeaders} = [ "Type", "Sample", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
 	$self->{_SummaryLength} = $self->{_FieldLength} + 4 if !defined $self->{_SummaryLength};
-	$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max" ];
+	if ($self->{_Variable} == 1) {
+        	$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-93%", "Max-95%", "Max-99%", "Max", "Highest10%Mean", "Highest5%Mean", "Highest1%Mean" ];
+	} else {
+		$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max" ];
+	}
 	$self->{_SummariseColumn} = 2;
 	$self->{_TestName} = $testName;
 }
@@ -139,18 +143,38 @@ sub extractSummary() {
 				$samples++;
 			}
 		}
-		push @row, $operation;
-		foreach my $funcName ("calc_min", $self->{_MeanOp}, "calc_stddev", "calc_coeffvar", "calc_max") {
-			no strict "refs";
-			my $value = &$funcName(@units);
-			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-				push @row, $value;
+
+		if ($self->{_Variable} == 1) {
+                	my $quartilesRef = calc_quartiles(@units);
+                	my @quartiles = @{$quartilesRef};
+                	push @row, $operation;
+                	push @row, calc_min(@units);
+                	push @row, $quartiles[1];
+                	push @row, $quartiles[2];
+                	push @row, $quartiles[3];
+                	push @row, $quartiles[90];
+                	push @row, $quartiles[93];
+                	push @row, $quartiles[95];
+                	push @row, $quartiles[99];
+                	push @row, $quartiles[4];
+                	push @row, calc_worst10_mean(@units);
+                	push @row, calc_worst5_mean(@units);
+                	push @row, calc_worst1_mean(@units);
+
+                	push @{$self->{_SummaryData}}, \@row;
+		} else {
+			push @row, $operation;
+			foreach my $funcName ("calc_min", $self->{_MeanOp}, "calc_stddev", "calc_coeffvar", "calc_max") {
+				no strict "refs";
+				my $value = &$funcName(@units);
+				if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
+					push @row, $value;
+				}
+			}
+			if ($#row > 1) {
+				push @{$self->{_SummaryData}}, \@row;
 			}
 		}
-		if ($#row > 1) {
-			push @{$self->{_SummaryData}}, \@row;
-		}
-
 	}
 
 	return 1;

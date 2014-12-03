@@ -66,12 +66,11 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # pgbench
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES/2))
-export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/4))
+export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/5))
 export OLTP_PAGESIZES="default"
 export PGBENCH_MAX_TRANSACTIONS=auto
 export PGBENCH_READONLY=yes
 export PGBENCH_MAX_THREADS=$((NUMCPUS))
-export PGBENCH_ITERATIONS=3
 
 # The baseline database size is approximately 30MB. Each unit of scaling
 # factor adds approximately 15M of data to the table. Tune accordingly.

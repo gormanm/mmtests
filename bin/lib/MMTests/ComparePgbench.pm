@@ -7,9 +7,9 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ComparePgbench",
-		_DataType    => MMTests::Compare::DATA_THROUGHPUT,
+		_DataType    => MMTests::Compare::DATA_TRANS_PER_SECOND,
+		_Variable    => 1,
 		_FieldLength => 12,
-		_CompareOps  => [ "none", "pdiff", "pdiff", "pdiff", "pndiff", "pdiff", "pdiff" ],
 		_ResultData  => []
 	};
 	bless $self, $class;

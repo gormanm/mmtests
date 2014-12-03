@@ -22,11 +22,11 @@ sub extractReport($$$) {
 	my @clients;
 	$reportDir =~ s/pgbenchloadtime/pgbench/;
 
-	my @files = <$reportDir/noprofile/default/pgbench-raw-*-1>;
+	my @files = <$reportDir/noprofile/default/pgbench-raw-*>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
-		push @clients, $split[-2];
+		push @clients, $split[-1];
 	}
 	@clients = sort { $a <=> $b } @clients;
 

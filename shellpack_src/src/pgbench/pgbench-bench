@@ -9,7 +9,6 @@ SHARED_BUFFERS=$((32*1048576))
 WORK_MEM=$((32*1048576))
 MAX_TIME=
 MAX_TRANSACTIONS=
-MAX_ITERATIONS=5
 READONLY_ARG=
 SCALE_FACTOR=1
 VACUUM_ARG=-n
@@ -24,7 +23,6 @@ VACUUM_ARG=-n
 ###SHELLPACK parseargParam --scale-factor        SCALE_FACTOR
 ###SHELLPACK parseargParam --max-time            MAX_TIME
 ###SHELLPACK parseargParam --max-transactions    MAX_TRANSACTIONS
-###SHELLPACK parseargParam --iterations          MAX_ITERATIONS
 ###SHELLPACK parseargYes   --read-only           READONLY
 ###SHELLPACK parseargEnd
 
@@ -40,13 +38,8 @@ PSQL=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin/psql
 RUNDBUSER="su -s /bin/bash $DBUSER -c"
 
 if [ "$MAX_TRANSACTIONS" = "auto" ]; then
-	if [ "$READONLY" = "yes" ]; then
-		CEILING=2000000
-		FLOOR=5000
-	else
-		CEILING=950000
-		FLOOR=95000
-	fi
+	CEILING=500000
+	FLOOR=5000
 	WORKLOAD_SIZE=$((SCALE_FACTOR*15*1048576+30*1048576))
 	WEIGHT_MAINMEMORY=2
 	WEIGHT_DISK=80
@@ -54,10 +47,10 @@ if [ "$MAX_TRANSACTIONS" = "auto" ]; then
 0 $((CEILING/2))
 $SHARED_BUFFERS $CEILING
 $EFFECTIVE_CACHESIZE $((CEILING/WEIGHT_MAINMEMORY*3/2))
-$MEMTOTAL_BYTES $((CEILING/WEIGHT_MAINMEMORY))
-$((MEMTOTAL_BYTES*4/3)) $((CEILING/WEIGHT_MAINMEMORY/2))
+$((MEMTOTAL_BYTES)) $((CEILING/WEIGHT_MAINMEMORY))
 $((MEMTOTAL_BYTES*2)) $((CEILING/WEIGHT_DISK))
-$((MEMTOTAL_BYTES*8)) $((CEILING/WEIGHT_DISK*2))
+$((MEMTOTAL_BYTES*4)) $((CEILING/WEIGHT_DISK*2))
+$((MEMTOTAL_BYTES*6)) $((CEILING/WEIGHT_DISK*4))
 EOF
 
 	cat > /tmp/gnuplot.script <<EOF
@@ -102,24 +95,20 @@ fi
 echo Running pgbench
 echo o maximum $MAX_THREADS threads
 echo o scale factor: $SCALE_FACTOR 
-echo o transactions: $MAX_TRANSACTIONS
 echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 
 FIRST_TIME=yes
 
 ###SHELLPACK threads_huge_stride_begin 1 $MAX_THREADS
-	echo -n > $LOGDIR_RESULTS/samples
-
-	# Restart the database
-	echo 
-	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
-		--effective_cachesize $EFFECTIVE_CACHESIZE \
-		--shared_buffers $SHARED_BUFFERS \
-		--work_mem $WORK_MEM \
-		-v ${VERSION} || die Failed to get a usable postgres installation
-
 	if [ "$PGBENCH_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
 		echo Creating database for thread count $NR_THREADS
+		# Start the database
+		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
+			--effective_cachesize $EFFECTIVE_CACHESIZE \
+			--shared_buffers $SHARED_BUFFERS \
+			--work_mem $WORK_MEM \
+			-v ${VERSION} || die Failed to get a usable postgres installation
+
 		$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
 		if [ $? -ne 0 ]; then
 			echo " o Database create returned $?"
@@ -141,8 +130,17 @@ FIRST_TIME=yes
 			pgbench -h $PGHOST -p $PGPORT \
 				-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
 				> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
+		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
 	fi
 	FIRST_TIME=no
+
+	echo Discarding database cache
+	echo 3 > /proc/sys/vm/drop_caches
+	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
+		--effective_cachesize $EFFECTIVE_CACHESIZE \
+		--shared_buffers $SHARED_BUFFERS \
+		--work_mem $WORK_MEM \
+		-v ${VERSION} || die Failed to get a usable postgres installation
 
 	# Work out max time or max transactions commands
 	MAX_TIME_COMMAND=
@@ -156,32 +154,29 @@ FIRST_TIME=yes
 		else
 			die Specify time or transactions
 		fi
-		echo $((MAX_TRANSACTIONS/NR_THREADS)) > $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS
+		echo $((MAX_TRANSACTIONS/NR_THREADS)) > $LOGDIR_RESULTS/pgbench-nr-transactions-$NR_THREADS
 	fi
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	for ITER in `seq 1 $MAX_ITERATIONS`; do
-		echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads iteration $ITER
-		$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITER} \
-			pgbench -v -h $PGHOST -p $PGPORT -r \
-				$VACUUM_ARG $READONLY_ARG -c $NR_THREADS \
-				$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
-				pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
-		SYSRET=$?
-		if [ $SYSRET -ne 0 ]; then
-			cat $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS-$ITER
-			die pgbench failed to execute
-		fi
-	done
+	echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions
+	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS} \
+		pgbench -v -h $PGHOST -p $PGPORT -r \
+			-l --aggregate-interval=1 \
+			$VACUUM_ARG $READONLY_ARG -c $NR_THREADS \
+			$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
+			pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS
+	SYSRET=$?
+	if [ $SYSRET -ne 0 ]; then
+		cat $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS
+		die pgbench failed to execute
+	fi
+	mv pgbench_log.* $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
 	if [ "$PGBENCH_INIT_ONCE" != "yes" ]; then
 		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
 		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
-	else
-		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
-		echo 3 > /proc/sys/vm/drop_caches
 	fi
+	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
 ###SHELLPACK threads_stride_end
 
 # Copy the log files

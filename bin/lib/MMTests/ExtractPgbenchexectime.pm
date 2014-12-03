@@ -1,8 +1,8 @@
 # ExtractPgbenchexectime.pm
 package MMTests::ExtractPgbenchexectime;
-use MMTests::SummariseMultiops;
+use MMTests::SummariseSingleops;
 use VMR::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub initialise() {
@@ -11,6 +11,7 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractPgbenchexectime";
 	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "client-errorlines";
+	$self->{_Opname}     = "ExecTime";
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
@@ -22,11 +23,11 @@ sub extractReport($$$) {
 	my @clients;
 	$reportDir =~ s/pgbenchexectime/pgbench/;
 
-	my @files = <$reportDir/noprofile/default/pgbench-raw-*-1>;
+	my @files = <$reportDir/noprofile/default/pgbench-raw-*>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
-		push @clients, $split[-2];
+		push @clients, $split[-1];
 	}
 	@clients = sort { $a <=> $b } @clients;
 
@@ -34,20 +35,16 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		my @files = <$reportDir/noprofile/default/time-$client-*>;
-		foreach my $file (@files) {
-
-
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
-				next if $_ !~ /elapsed/;
-				push @{$self->{_ResultData}}, [ $client, ++$iteration, $self->_time_to_elapsed($_) ];
-			}
-			close(INPUT);
+		my $file = "$reportDir/noprofile/default/time-$client";
+		open(INPUT, $file) || die("Failed to open $file\n");
+		while (<INPUT>) {
+			next if $_ !~ /elapsed/;
+			push @{$self->{_ResultData}}, [ $client, $self->_time_to_elapsed($_) ];
 		}
+		close(INPUT);
 	}
 
-	$self->{_Operations} = \@clients;
+	$self->{_SingleInclude} = \@clients;
 }
 
 1;
