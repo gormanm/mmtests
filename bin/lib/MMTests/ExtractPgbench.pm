@@ -11,7 +11,7 @@ sub initialise() {
 	$self->{_DataType}   = MMTests::Extract::DATA_TRANS_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
-	$self->{_Variable}   = 1;
+	# $self->{_Variable}   = 1;
 	$self->{_DefaultPlot} = "1";
 
 	$self->SUPER::initialise($reportDir, $testName);
@@ -39,7 +39,10 @@ sub extractReport($$$) {
 		while (<INPUT>) {
 			# time num_of_transactions latency_sum latency_2_sum min_latency max_latency
 			my @elements = split(/\s+/, $_);
-			push @{$self->{_ResultData}}, [ $client, ++$sample, $elements[1] ];
+			$sample++;
+			if ($sample > 2) {
+				push @{$self->{_ResultData}}, [ $client, ++$sample, $elements[1] ];
+			}
 		}
 		close INPUT;
 	}

@@ -19,6 +19,7 @@ MAX_TRANSACTIONS=
 READONLY_ARG=
 SCALE_FACTOR=1
 VACUUM_ARG=-n
+CACHE_HOT=no
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -71,6 +72,10 @@ while [ "$1" != "" ]; do
 		READONLY=yes
 		shift
 		;;
+	--cache-hot)
+		CACHE_HOT=yes
+		shift
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -96,20 +101,33 @@ export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/lib
 PSQL=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin/psql
 RUNDBUSER="su -s /bin/bash $DBUSER -c"
 
+MID=$(((MEMTOTAL_BYTES-EFFECTIVE_CACHESIZE-SHARED_BUFFERS)/2))
+if [ $MID -lt 0 ]; then
+	MID=0
+fi
+
 if [ "$MAX_TRANSACTIONS" = "auto" ]; then
-	CEILING=500000
-	FLOOR=5000
+	if [ "$READONLY" = "yes" ]; then
+		CEILING=5000000
+		WEIGHT_MAINMEMORY=2
+		WEIGHT_DISK=600
+	else
+		CEILING=1500000
+		WEIGHT_MAINMEMORY=2
+		WEIGHT_DISK=300
+	fi
+	FLOOR=15000
 	WORKLOAD_SIZE=$((SCALE_FACTOR*15*1048576+30*1048576))
-	WEIGHT_MAINMEMORY=2
-	WEIGHT_DISK=80
 	cat > /tmp/points <<EOF
-0 $((CEILING/2))
-$SHARED_BUFFERS $CEILING
-$EFFECTIVE_CACHESIZE $((CEILING/WEIGHT_MAINMEMORY*3/2))
-$((MEMTOTAL_BYTES)) $((CEILING/WEIGHT_MAINMEMORY))
-$((MEMTOTAL_BYTES*2)) $((CEILING/WEIGHT_DISK))
-$((MEMTOTAL_BYTES*4)) $((CEILING/WEIGHT_DISK*2))
-$((MEMTOTAL_BYTES*6)) $((CEILING/WEIGHT_DISK*4))
+$SHARED_BUFFERS          $CEILING
+$EFFECTIVE_CACHESIZE     $((CEILING/WEIGHT_MAINMEMORY))
+$((EFFECTIVE_CACHESIZE+SHARED_BUFFERS))  $((CEILING/WEIGHT_MAINMEMORY/8))
+$((MEMTOTAL_BYTES-MID))	 $((CEILING/WEIGHT_MAINMEMORY/32))
+$MEMTOTAL_BYTES 	 $((CEILING/WEIGHT_MAINMEMORY/16))
+$((MEMTOTAL_BYTES*3/2))  $((CEILING/WEIGHT_DISK*4))
+$((MEMTOTAL_BYTES*3)) $((CEILING/WEIGHT_DISK))
+$((MEMTOTAL_BYTES*4)) $((CEILING/WEIGHT_DISK*48))
+$((MEMTOTAL_BYTES*8)) $((CEILING/WEIGHT_DISK*96))
 EOF
 
 	cat > /tmp/gnuplot.script <<EOF
@@ -126,9 +144,6 @@ EOF
 	fi
 	if [ $MAX_TRANSACTIONS -lt $FLOOR ]; then
 		MAX_TRANSACTIONS=$FLOOR
-	fi
-	if [ "$READONLY" != "yes" ]; then
-		MAX_TRANSACTIONS=$((MAX_TRANSACTIONS/4))
 	fi
 	mv /tmp/points $LOGDIR_RESULTS/pgbench-auto-points
 	mv /tmp/coordinates $LOGDIR_RESULTS/pgbench-auto-coordinates
@@ -156,8 +171,6 @@ echo o maximum $MAX_THREADS threads
 echo o scale factor: $SCALE_FACTOR 
 echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 
-FIRST_TIME=yes
-
 THREADS=
 START_THREAD=1
 END_THREAD=$MAX_THREADS
@@ -176,47 +189,48 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
-	if [ "$PGBENCH_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
-		echo Creating database for thread count $NR_THREADS
-		# Start the database
-		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
-			--effective_cachesize $EFFECTIVE_CACHESIZE \
-			--shared_buffers $SHARED_BUFFERS \
-			--work_mem $WORK_MEM \
-			-v ${VERSION} || die Failed to get a usable postgres installation
-
-		$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
-		if [ $? -ne 0 ]; then
-			echo " o Database create returned $?"
-			echo " o Dumping previous runs database"
-			$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
-			echo " o Re-creating database"
-			$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
-		fi
-
-		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'"
-		if [ $? -ne 0 ]; then
-			echo " o Role create returned $?"
-			$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-			$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
-		fi
-
-		echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
-		$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
-			pgbench -h $PGHOST -p $PGPORT \
-				-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
-				> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
-		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
-	fi
-	FIRST_TIME=no
-
-	echo Discarding database cache
-	echo 3 > /proc/sys/vm/drop_caches
+	echo Creating database for thread count $NR_THREADS
+	# Start the database
 	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
 		--effective_cachesize $EFFECTIVE_CACHESIZE \
 		--shared_buffers $SHARED_BUFFERS \
 		--work_mem $WORK_MEM \
 		-v ${VERSION} || die Failed to get a usable postgres installation
+
+	$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
+	if [ $? -ne 0 ]; then
+		echo " o Database create returned $?"
+		echo " o Dumping previous runs database"
+		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+		echo " o Re-creating database"
+		$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
+	fi
+
+	$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'"
+	if [ $? -ne 0 ]; then
+		echo " o Role create returned $?"
+		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
+	fi
+
+	echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
+	$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
+		pgbench -h $PGHOST -p $PGPORT \
+			-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
+			> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
+
+	if [ "$CACHE_HOT" != "yes" ]; then
+		echo Discarding database cache for cold startup
+		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
+		echo 3 > /proc/sys/vm/drop_caches
+
+		# Starting database
+		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
+			--effective_cachesize $EFFECTIVE_CACHESIZE \
+			--shared_buffers $SHARED_BUFFERS \
+			--work_mem $WORK_MEM \
+			-v ${VERSION} || die Failed to get a usable postgres installation
+	fi
 
 	# Work out max time or max transactions commands
 	MAX_TIME_COMMAND=
@@ -248,10 +262,9 @@ for NR_THREADS in $THREADS; do
 	fi
 	mv pgbench_log.* $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
-	if [ "$PGBENCH_INIT_ONCE" != "yes" ]; then
-		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
-		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-	fi
+	$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+	$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+
 	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
 done
 
@@ -261,4 +274,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 93
+#### Details pgbench-bench 136
