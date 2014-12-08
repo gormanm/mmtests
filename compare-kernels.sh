@@ -261,6 +261,14 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
+		compare-mmtests.pl -d . -b pgbenchstalls -n $KERNEL_LIST $FORMAT_CMD > /tmp/pgbench-$$
+		TEST=`grep MinStall-1 /tmp/pgbench-$$ | grep -v nan`
+		if [ "$TEST" != "" ]; then
+			echo
+			echo $SUBREPORT Stalls
+			cat /tmp/pgbench-$$
+		fi
+		rm /tmp/pgbench-$$
 		echo
 		echo $SUBREPORT Time
 		compare-mmtests.pl -d . -b pgbenchexectime -n $KERNEL_LIST $FORMAT_CMD

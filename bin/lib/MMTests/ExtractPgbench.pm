@@ -29,19 +29,44 @@ sub extractReport($$$) {
 		push @clients, $split[-1];
 	}
 	@clients = sort { $a <=> $b } @clients;
+	my $stallStart = 0;
 
 	# Extract per-client transaction information
 	foreach my $client (@clients) {
 		my $sample = 0;
+		my $stallStart = 0;
+		my $stallThreshold = 0;
+		my @values;
 
 		my $file = "$reportDir/noprofile/default/pgbench-transactions-$client";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
+			my @elements = split(/\s+/, $_);
+			push @values, $elements[1];
+			my $nrTransactions = $elements[1];
+		}
+		close(INPUT);
+		$stallThreshold = int (calc_mean(@values) / 4);
+
+		open(INPUT, $file) || die("Failed to open $file\n");
+		while (<INPUT>) {
 			# time num_of_transactions latency_sum latency_2_sum min_latency max_latency
 			my @elements = split(/\s+/, $_);
+			my $nrTransactions = $elements[1];
 			$sample++;
 			if ($sample > 2) {
-				push @{$self->{_ResultData}}, [ $client, ++$sample, $elements[1] ];
+				if ($nrTransactions < $stallThreshold) {
+					if ($stallStart == 0) {
+						$stallStart = $elements[0];
+					}
+				} else {
+					if ($stallStart) {
+						my $stallDuration = $elements[0] - $stallStart;
+						$nrTransactions /= $stallDuration;
+						$stallStart = 0;
+					}
+					push @{$self->{_ResultData}}, [ $client, ++$sample, $nrTransactions ];
+				}
 			}
 		}
 		close INPUT;
