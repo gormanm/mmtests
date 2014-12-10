@@ -37,16 +37,44 @@ sub extractReport($$$) {
 		my $stallStart = 0;
 		my $stallThreshold = 0;
 		my @values;
+		my $startSamples = 0;
+		my $endSamples = 0;
 
 		my $file = "$reportDir/noprofile/default/pgbench-transactions-$client";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my @elements = split(/\s+/, $_);
 			push @values, $elements[1];
-			my $nrTransactions = $elements[1];
+			$endSamples++;
 		}
 		close(INPUT);
 		$stallThreshold = int (calc_mean(@values) / 4);
+
+		# Find where the shutdown cutoff is where transactions start to taper
+		if ($endSamples > 15) {
+
+			# Find where we should stop recording samples
+			my $maxIndex = $endSamples - 15;
+			my $maxValue = $values[$maxIndex];
+			for (my $i = $endSamples - 15; $i < $endSamples; $i++) {
+				if ($values[$i] >= $maxValue) {
+					$maxIndex = $i;
+					$maxValue = $values[$i];
+				}
+			}
+			$endSamples = $maxIndex;
+
+			# Find where we should start recording samples
+			$maxIndex = 0;
+			$maxValue = $values[$maxIndex];
+			for (my $i = 0; $i < 15; $i++) {
+				if ($values[$i] >= $maxValue) {
+					$maxIndex = $i;
+					$maxValue = $values[$i];
+				}
+			}
+			$startSamples = $maxIndex;
+		}
 
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
@@ -54,7 +82,7 @@ sub extractReport($$$) {
 			my @elements = split(/\s+/, $_);
 			my $nrTransactions = $elements[1];
 			$sample++;
-			if ($sample > 2) {
+			if ($sample > $startSamples && $sample <= $endSamples) {
 				if ($nrTransactions < $stallThreshold) {
 					if ($stallStart == 0) {
 						$stallStart = $elements[0];

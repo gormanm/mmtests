@@ -57,17 +57,15 @@ sub extractReport($$$) {
 			my @elements = split(/\s+/, $_);
 			my $nrTransactions = $elements[1];
 			$sample++;
-			if ($sample > 2) {
-				if ($nrTransactions < $stallThreshold) {
-					if ($stallStart == 0) {
-						$stallStart = $elements[0];
-					}
-				} else {
-					if ($stallStart) {
-						my $stallDuration = $elements[0] - $stallStart;
-						$stallStart = 0;
-						push @values, $stallDuration;
-					}
+			if ($nrTransactions < $stallThreshold) {
+				if ($stallStart == 0) {
+					$stallStart = $elements[0];
+				}
+			} else {
+				if ($stallStart) {
+					my $stallDuration = $elements[0] - $stallStart;
+					$stallStart = 0;
+					push @values, $stallDuration;
 				}
 			}
 		}
