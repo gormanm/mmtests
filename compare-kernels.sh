@@ -509,6 +509,26 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			plain graph-$SUBREPORT-exectime
 			echo "</tr>"
+
+			COUNT=0
+			for CLIENT in `$COMPARE_BARE_CMD | grep ^Hmean | awk '{print $2}' | sort -n | uniq`; do
+				if [ $((COUNT%3)) -eq 0 ]; then
+					echo "<tr>"
+				fi
+				if [ "$CLIENT" = "1" ]; then
+					LABEL="$SUBREPORT transactions $CLIENT client"
+				else
+					LABEL="$SUBREPORT transactions $CLIENT clients"
+				fi
+				eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT}.png
+				eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT}-smooth.png --smooth
+				eval $GRAPH_PSC --sub-heading $CLIENT --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT}-smooth.ps  --smooth
+				smoothover graph-${SUBREPORT}-trans-${CLIENT}
+				if [ $((COUNT%3)) -eq 2 ]; then
+					echo "</tr>"
+				fi
+				COUNT=$((COUNT+1))
+			done
 			;;
 		postmark)
 			echo "<tr>"

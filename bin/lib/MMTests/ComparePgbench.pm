@@ -8,8 +8,8 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ComparePgbench",
 		_DataType    => MMTests::Compare::DATA_TRANS_PER_SECOND,
+		_CompareOps  => [ "pndiff", "pdiff", "pdiff", "pndiff", "pdiff", "pdiff" ],
 		_Variable    => 1,
-		_FieldLength => 12,
 		_ResultData  => []
 	};
 	bless $self, $class;

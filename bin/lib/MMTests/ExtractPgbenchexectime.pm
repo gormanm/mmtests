@@ -12,6 +12,7 @@ sub initialise() {
 	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_Opname}     = "ExecTime";
+	$self->{_FieldLength} = 12;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

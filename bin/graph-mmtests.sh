@@ -123,10 +123,6 @@ done
 
 if [ "$PLOTTYPE_OVERRIDE" != "" ]; then
 	PLOTTYPE="--plottype $PLOTTYPE_OVERRIDE"
-	if [ "$USE_R" == "" ]; then
-		echo "--plottype only supported together with --R" >&2
-		exit 1
-	fi
 fi
 if [ "$SEPARATE_TESTS" != "" ] && [ "$USE_R" == "" ]; then
 	echo "--separate-tests only supported together with --R" >&2

@@ -65,9 +65,17 @@ sub printPlot() {
 	if ($subHeading ne "") {
 		my $index = 0;
 		while ($index <= $#_operations) {
-			if ($_operations[$index] =~ /^$subHeading.*/) {
-				$index++;
-				next;
+			if ($self->{_ExactSubheading} == 1) {
+				$self->{_PlotType} = $self->{_ExactPlottype};
+				if ($_operations[$index] eq "$subHeading") {
+					$index++;
+					next;
+				}
+			} else {
+				if ($_operations[$index] =~ /^$subHeading.*/) {
+					$index++;
+					next;
+				}
 			}
 			splice(@_operations, $index, 1);
 		}
@@ -75,6 +83,7 @@ sub printPlot() {
 
 	my $nr_headings = 0;
 	foreach my $heading (@_operations) {
+		my @index;
 		my @units;
 		my @row;
 		my $samples = 0;
@@ -82,13 +91,19 @@ sub printPlot() {
 		foreach my $row (@data) {
 			@{$row}[0] =~ s/\s+//g;
 			if (@{$row}[0] eq $heading) {
+				push @index, @{$row}[1];
 				push @units, @{$row}[2];
 				$samples++;
 			}
 		}
 
 		$nr_headings++;
-		if ($self->{_PlotType} eq "candlesticks") {
+		if ($self->{_PlotType} eq "simple") {
+			my @data = @{$self->{_ResultData}};
+			for ($samples = 0; $samples <= $#index; $samples++) {
+				printf("%-${fieldLength}d %${fieldLength}.3f\n", $index[$samples] - $index[0], $units[$samples]);
+			}
+		} elsif ($self->{_PlotType} eq "candlesticks") {
 			printf "%-${fieldLength}s ", $heading;
 			$self->_printCandlePlotData($fieldLength, @units);
 		} elsif ($self->{_PlotType} eq "operation-candlesticks") {

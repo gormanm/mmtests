@@ -11,6 +11,9 @@ sub initialise() {
 	$self->{_DataType}   = MMTests::Extract::DATA_TRANS_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
+	$self->{_FieldLength} = 12;
+	$self->{_ExactSubheading} = 1;
+	$self->{_ExactPlottype} = "simple";
 	# $self->{_Variable}   = 1;
 	$self->{_DefaultPlot} = "1";
 
@@ -51,12 +54,11 @@ sub extractReport($$$) {
 		$stallThreshold = int (calc_mean(@values) / 4);
 
 		# Find where the shutdown cutoff is where transactions start to taper
-		if ($endSamples > 15) {
-
+		if ($endSamples > 60) {
 			# Find where we should stop recording samples
-			my $maxIndex = $endSamples - 15;
+			my $maxIndex = $endSamples - 30;
 			my $maxValue = $values[$maxIndex];
-			for (my $i = $endSamples - 15; $i < $endSamples; $i++) {
+			for (my $i = $endSamples - 30; $i < $endSamples; $i++) {
 				if ($values[$i] >= $maxValue) {
 					$maxIndex = $i;
 					$maxValue = $values[$i];
@@ -67,7 +69,7 @@ sub extractReport($$$) {
 			# Find where we should start recording samples
 			$maxIndex = 0;
 			$maxValue = $values[$maxIndex];
-			for (my $i = 0; $i < 15; $i++) {
+			for (my $i = 0; $i < 30; $i++) {
 				if ($values[$i] >= $maxValue) {
 					$maxIndex = $i;
 					$maxValue = $values[$i];
@@ -76,11 +78,15 @@ sub extractReport($$$) {
 			$startSamples = $maxIndex;
 		}
 
+		my $testStart = 0;
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			# time num_of_transactions latency_sum latency_2_sum min_latency max_latency
 			my @elements = split(/\s+/, $_);
 			my $nrTransactions = $elements[1];
+			if ($testStart == 0) {
+				$testStart = $elements[0];
+			}
 			$sample++;
 			if ($sample > $startSamples && $sample <= $endSamples) {
 				if ($nrTransactions < $stallThreshold) {
@@ -93,7 +99,7 @@ sub extractReport($$$) {
 						$nrTransactions /= $stallDuration;
 						$stallStart = 0;
 					}
-					push @{$self->{_ResultData}}, [ $client, ++$sample, $nrTransactions ];
+					push @{$self->{_ResultData}}, [ $client, $elements[0] - $testStart, $nrTransactions ];
 				}
 			}
 		}

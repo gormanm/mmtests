@@ -199,10 +199,11 @@ sub printSummaryHeaders() {
 
 sub _printSimplePlotData() {
 	my ($self, $fieldLength, @data) = @_;
+	my $nrSample = 1;
 
-	my $mean = calc_mean(@data);
-
-	printf("%${fieldLength}.3f\n", $mean);
+	foreach my $value (@data) {
+		printf("%-${fieldLength}d %${fieldLength}.3f\n", $nrSample++, $value);
+	}
 }
 
 sub _printCandlePlotData() {

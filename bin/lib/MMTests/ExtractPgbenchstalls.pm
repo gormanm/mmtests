@@ -11,6 +11,7 @@ sub initialise() {
 	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
+	$self->{_FieldLength} = 12;
 	# $self->{_Variable}   = 1;
 	$self->{_DefaultPlot} = "1";
 
