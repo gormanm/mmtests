@@ -149,7 +149,11 @@ if [ "$LOGDISK_PARTITION" != "" ]; then
 
 	if [ "$LOGDISK_FILESYSTEM" != "" -a "$LOGDISK_FILESYSTEM" != "tmpfs" ]; then
 		echo Formatting log disk: $LOGDISK_FILESYSTEM
-		mkfs.$LOGDISK_FILESYSTEM $LOGDISK_MKFS_PARAM $LOGDISK_PARTITION || exit
+		mkfs.$LOGDISK_FILESYSTEM $LOGDISK_MKFS_PARAM $LOGDISK_PARTITION
+		if [ $? -ne 0 ]; then
+			echo Forcing creating of filesystem if possible
+			mkfs.$LOGDISK_FILESYSTEM -F $LOGDISK_MKFS_PARAM $LOGDISK_PARTITION || exit
+		fi
 	fi
 
 	echo Mounting log disk
