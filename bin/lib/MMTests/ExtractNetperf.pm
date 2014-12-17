@@ -12,6 +12,7 @@ sub initialise() {
 	$self->{_DataType}   = MMTests::Extract::DATA_MBITS_PER_SECOND;
 	$self->{_PlotType}   = "linespoint";
 	$self->{_Opname}     = "Tput";
+	$self->{_FieldLength} = 12;
 	$self->{_SingleType} = 1;
 
 	$self->SUPER::initialise($reportDir, $testName);

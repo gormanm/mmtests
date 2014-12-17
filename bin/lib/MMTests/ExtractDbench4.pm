@@ -12,6 +12,7 @@ sub initialise() {
 	$self->{_DataType}   = MMTests::Extract::DATA_MBYTES_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
+	$self->{_FieldLength} = 12;
 
         $self->SUPER::initialise($reportDir, $testName);
 }
