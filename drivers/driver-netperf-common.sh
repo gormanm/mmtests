@@ -10,6 +10,7 @@ run_bench() {
 		NETPERF_PROTOCOLS=UDP_STREAM
 	fi
 	$SCRIPTDIR/shellpacks/shellpack-bench-netperf $BIND_SWITCH \
+		--iterations $NETPERF_ITERATIONS \
 		--protocols $NETPERF_PROTOCOLS \
 		--buffer-sizes $NETPERF_BUFFER_SIZES
 	return $?

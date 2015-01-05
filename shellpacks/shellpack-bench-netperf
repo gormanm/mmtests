@@ -3,6 +3,11 @@
 P=netperf-bench
 DEFAULT_VERSION=2.4.5
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 PROTOCOLS="UDP_STREAM TCP_STREAM"
 BUFFER_SIZES="64 128 256 1024 2048 3312 4096 6144 8192 10240 12288 14336 16384"
 
@@ -26,6 +31,10 @@ while [ "$1" != "" ]; do
 	--install-force)
 		INSTALL_FORCE=yes
 		shift
+		;;
+	--iterations)
+		ITERATIONS=$2
+		shift 2
 		;;
 	--bind-pinned)
 		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
@@ -114,6 +123,8 @@ for PROTOCOL in $PROTOCOLS; do
 	fi
 
 	for SIZE in $BUFFER_SIZES; do
+for ITERATION in `seq 1 $ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
 		mmtests_activity size $SIZE
 		SIZE_OPT=
 		if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
@@ -123,22 +134,23 @@ for PROTOCOL in $PROTOCOLS; do
 			SIZE_OPT="-r $SIZE"
 		fi
 	
-		echo Running test $PROTOCOL 
+		echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE
 		monitor_pre_hook $LOGDIR_RESULTS $SIZE
 		eval $TASKSET_CLIENT $NETROOT/bin/netperf \
 			-t $PROTOCOL \
-			-i 30,6 -I 99,1 \
+			-i 15,3 -I 99,5 \
 			-H 127.0.0.1 \
 			-- \
 			$SIZE_OPT \
 			$EXTRA \
-				2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.log \
+				2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
 				|| die Failed to run netperf
 		monitor_post_hook $LOGDIR_RESULTS $SIZE
+done
 	done
 done
 killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 26
+#### Details netperf-bench 27

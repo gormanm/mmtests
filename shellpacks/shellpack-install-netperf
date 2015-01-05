@@ -3,6 +3,11 @@
 P=netperf-install
 DEFAULT_VERSION=2.4.5
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION=ftp://ftp.netperf.org/netperf/archive
 MIRROR_LOCATION="$WEBROOT/netperf/"
 
@@ -35,9 +40,9 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf netperf-${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf netperf-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -69,4 +74,4 @@ fi
 
 echo Netperf installed successfully
 #### Description Netperf benchmark
-#### Details netperf 26
+#### Details netperf 27

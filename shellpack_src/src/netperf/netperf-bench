@@ -9,6 +9,7 @@ TASKSET_CLIENT=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
+###SHELLPACK parseargParam    --iterations ITERATIONS
 ###SHELLPACK parseargBindings
 	--protocols)
 		PROTOCOLS=`echo $2 | sed -e 's/,/ /g'`
@@ -42,6 +43,7 @@ for PROTOCOL in $PROTOCOLS; do
 	fi
 
 	for SIZE in $BUFFER_SIZES; do
+	###SHELLPACK iteration_begin $ITERATIONS
 		mmtests_activity size $SIZE
 		SIZE_OPT=
 		if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
@@ -51,18 +53,19 @@ for PROTOCOL in $PROTOCOLS; do
 			SIZE_OPT="-r $SIZE"
 		fi
 	
-		echo Running test $PROTOCOL 
+		echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE
 		monitor_pre_hook $LOGDIR_RESULTS $SIZE
 		eval $TASKSET_CLIENT $NETROOT/bin/netperf \
 			-t $PROTOCOL \
-			-i 30,6 -I 99,1 \
+			-i 12,3 -I 99,5 \
 			-H 127.0.0.1 \
 			-- \
 			$SIZE_OPT \
 			$EXTRA \
-				2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.log \
+				2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
 				|| die Failed to run netperf
 		monitor_post_hook $LOGDIR_RESULTS $SIZE
+	###SHELLPACK iteration_end
 	done
 done
 killall netserver
