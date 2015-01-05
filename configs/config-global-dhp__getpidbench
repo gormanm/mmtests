@@ -59,8 +59,3 @@ export SWAP_NBD_PORT=10001
 # List of monitors
 export RUN_MONITOR=no
 
-# Tunings to involve
-export RUN_TUNINGS=kgraft
-export TUNING_KGRAFT_PATCHES="http://mq.ucw.cz/pub/kgraft_dummy_getpid_patch.tgz"
-export KGRAFT_MAX_WAIT=600
-
