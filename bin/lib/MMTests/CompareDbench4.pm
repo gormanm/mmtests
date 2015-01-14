@@ -9,7 +9,7 @@ sub new() {
 		_ModuleName  => "CompareDbench4",
 		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
 		_FieldLength => 12,
-		_CompareOps  => [ "none", "pdiff", "pdiff", "pdiff", "pndiff", "pdiff" ],
+		_CompareOps  => [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff", "pdiff" ],
 		_ResultData  => []
 	};
 	bless $self, $class;
