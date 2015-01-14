@@ -9,7 +9,7 @@ sub new() {
 		_ModuleName  => "CompareNetperf",
 		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
 		_FieldLength => 12,
-		_CompareOp   => "pdiff",
+		_CompareOps  => [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff", "pdiff" ],
 		_ResultData  => []
 	};
 	bless $self, $class;
