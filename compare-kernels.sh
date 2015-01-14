@@ -422,6 +422,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
+		unixbench-dhry2reg|unixbench-syscall|unixbench-pipe|unixbench-spawn|unixbench-execl)
+			echo "<tr>"
+			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			plain graph-$SUBREPORT
+			echo "</tr>"
+			;;
 		fsmark-threaded|fsmark-single)
 			eval $GRAPH_PNG        -b $SUBREPORT --title \"$SUBREPORT files/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
 			eval $GRAPH_PSC        -b $SUBREPORT --title \"$SUBREPORT files/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
