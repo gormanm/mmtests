@@ -195,7 +195,11 @@ LAST_THREAD=0
 		cat $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS
 		die pgbench failed to execute
 	fi
-	mv pgbench_log.* $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS
+	COUNT=1
+	for FILE in `ls pgbench_log.*`; do
+		mv $FILE $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS-$COUNT
+		COUNT=$((COUNT+1))
+	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
 	$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
 	$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
