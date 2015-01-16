@@ -41,7 +41,7 @@ sub extractReport($$$) {
 		my $stallThreshold = 0;
 		my @values;
 
-		my $file = "$reportDir/noprofile/default/pgbench-transactions-$client";
+		my $file = "$reportDir/noprofile/default/pgbench-transactions-$client.processed";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my @elements = split(/\s+/, $_);

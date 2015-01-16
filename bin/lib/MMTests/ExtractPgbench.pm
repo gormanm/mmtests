@@ -20,6 +20,43 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
+sub aggregateTransactions($)
+{
+	my $root = @_[0];
+	my $processed = $root . ".processed";
+
+	local *OUTPUT;
+	my @inputs;
+
+	if (open(INPUT, $root)) {
+		push @inputs, *INPUT;
+	} else {
+		foreach my $file (<$root-*>) {
+			local *INPUT;
+			if (open(INPUT, $file)) {
+				push @inputs, *INPUT;
+			}
+		}
+	}
+
+	open(OUTPUT, ">$processed") || die("Failed to open $processed for write");
+
+	while (!eof($inputs[0])) {
+		my $timestamp;
+		my $transactions = 0;
+		foreach my $handle (@inputs) {
+			my $line = <$handle>;
+			my @elements = split(/\s+/, $line);
+			if ($elements[0] ne "") {
+				$timestamp = $elements[0];
+				$transactions += $elements[1];
+			}
+		}
+		print OUTPUT "$timestamp $transactions\n";
+	}
+	close OUTPUT;
+}
+
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
@@ -43,7 +80,9 @@ sub extractReport($$$) {
 		my $startSamples = 0;
 		my $endSamples = 0;
 
-		my $file = "$reportDir/noprofile/default/pgbench-transactions-$client";
+		aggregateTransactions("$reportDir/noprofile/default/pgbench-transactions-$client");
+
+		my $file = "$reportDir/noprofile/default/pgbench-transactions-$client.processed";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my @elements = split(/\s+/, $_);
