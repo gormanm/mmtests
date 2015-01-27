@@ -154,7 +154,7 @@ fi
 AOPEN=
 ACLOSE=
 if [ "$REPORTROOT" != "" ]; then
-	AOPEN="<a href=\"$REPORTROOT\">"
+	AOPEN="<a href=\"$REPORTROOT\" title="$KERNEL_LIST">"
 	ACLOSE="</a>"
 fi
 
