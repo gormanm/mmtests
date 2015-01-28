@@ -3,8 +3,12 @@
 P=reaim-install
 DEFAULT_VERSION=7.0.1.13
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION=http://heanet.dl.sourceforge.net/project/re-aim-7/re-aim
-             http://heanet.dl.sourceforge.net/project/re-aim-7/re-aim/7.0.1.13/osdl-aim-7.0.1.13.tar.gz
 MIRROR_LOCATION="$WEBROOT/reaim/"
 
 install-depends libaio-devel
@@ -39,9 +43,9 @@ sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPA
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf osdl-aim-${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf osdl-aim-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -94,4 +98,4 @@ echo reaim installed successfully
 #### Description reaim
 #### Details reaim 12
 #### Description reaim
-#### Details reaim 40
+#### Details reaim 41

@@ -781,6 +781,20 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			smoothover graph-$SUBREPORT-vmstat-sy
 			smoothover graph-$SUBREPORT-vmstat-wa
 			echo "</tr>"
+
+			echo DEBUG: $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.png > /tmp/a
+			eval $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.png
+			eval $GRAPH_PSC --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.ps
+			eval $GRAPH_PNG --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu.png
+			eval $GRAPH_PSC --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu.ps
+			eval $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy-smooth.png --smooth
+			eval $GRAPH_PSC --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu-smooth.ps --smooth
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-vmstat-ussy
+			smoothover graph-$SUBREPORT-vmstat-totalcpu
+			echo "</tr>"
 		fi
 
 		if [ `ls vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then

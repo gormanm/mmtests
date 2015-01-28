@@ -3,6 +3,11 @@
 P=reaim-bench
 DEFAULT_VERSION=7.0.1.13
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 REAIM_FILESIZE=10k
 REAIM_POOLSIZE=1m
@@ -129,4 +134,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description reaim
-#### Details reaim-bench 40
+#### Details reaim-bench 41

@@ -35,6 +35,8 @@ my %_colMap = (
 	"id"	=> 14,
 	"wa"	=> 15,
 	"st"	=> 16,
+	"ussy"      => 17,
+	"totalcpu"  => 18,
 );
 
 sub printDataType() {
@@ -61,6 +63,10 @@ sub printDataType() {
 		print "CPUUsage,Time,%age CPU Idle\n";
 	} elsif ($headingIndex == 15) {
 		print "CPUUsage,Time,%age CPU Blocked\n";
+	} elsif ($headingIndex == 17) {
+		print "CPUUsage,Time,User/Kernel Ratio\n";
+	} elsif ($headingIndex == 18) {
+		print "CPUUsage,Time,Total CPU Usage\n";
 	} else {
 		print "Unknown\n";
 	}
@@ -86,7 +92,12 @@ sub extractReport($$$$) {
 	my $fieldLength = 12;
 	$self->{_FieldLength} = $fieldLength;
 	$self->{_FieldHeaders} = [ "time", $subHeading ];
-	$self->{_FieldFormat} = [ "%${fieldLength}f", "%${fieldLength}d" ];
+
+	if ($subHeading eq "ussy") {
+		$self->{_FieldFormat} = [ "%${fieldLength}f", "%${fieldLength}f" ];
+	} else {
+		$self->{_FieldFormat} = [ "%${fieldLength}f", "%${fieldLength}d" ];
+	}
 
 	my $file = "$reportDir/vmstat-$testName-$testBenchmark";
 	if (-e $file) {
@@ -118,10 +129,27 @@ sub extractReport($$$$) {
 		}
 
 		my @fields = split(/\s+/, $details);
-		my $val = $fields[$headingIndex];
-		if ($headingIndex == 3) {
-			$val /= 1024;
+
+		my $val;
+		if ($subHeading eq "ussy") {
+			# User/Kernel ratio
+			my $userCPU = $fields[$_colMap{"us"}];
+			my $sysCPU = $fields[$_colMap{"sy"}];
+
+			if ($sysCPU == 0 && $userCPU == 0) {
+				$val = 0;
+			} else {
+				$val = $userCPU / ($userCPU + $sysCPU);
+			}
+		} elsif ($subHeading eq "totalcpu") {
+			$val = $fields[$_colMap{"us"}] + $fields[$_colMap{"sy"}];
+		} else {
+			$val = $fields[$headingIndex];
+			if ($headingIndex == 3) {
+				$val /= 1024;
+			}
 		}
+
 		push @{$self->{_ResultData}},
 			[ $timestamp - $start_timestamp,
 		  	  $val
