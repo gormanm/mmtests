@@ -1,0 +1,40 @@
+#!/bin/bash
+# Run dedup benchmark
+
+###SHELLPACK preamble dedup-bench 0
+
+ITERATIONS=12
+TESTLIST=
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-threads	DEDUP_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads	DEDUP_MAX_THREADS
+###SHELLPACK parseargParam	--iterations	DEDUP_ITERATIONS
+###SHELLPACK parseargParam	--file          DEDUP_FILE
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required dedup-${VERSION}
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
+fi
+
+###SHELLPACK threads_large_stride_begin $DEDUP_MIN_THREADS $DEDUP_MAX_THREADS $DEDUP_ITERATIONS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	###SHELLPACK iteration_begin $DEDUP_ITERATIONS
+		echo Starting threads $NR_THREADS/$DEDUP_MAX_THREADS iteration $ITERATION/$DEDUP_ITERATIONS
+		$TIME_CMD -o $LOGDIR_RESULTS/dedup-${NR_THREADS}-$ITERATION.time \
+		    ./dedup -v -c -p -t $NR_THREADS -i $DEDUP_FILE -o tmp.file 2>&1 \
+		    tee $LOGDIR_RESULTS/dedup-${NR_THREADS}-${ITERATION}.log || die Failed to run dedup
+		rm tmp.file #cleanup
+
+	###SHELLPACK iteration_end $ITERATIONS
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+exit $SHELLPACK_SUCCESS
