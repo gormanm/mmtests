@@ -101,13 +101,13 @@ for ITERATION in `seq 1 $DEDUP_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 		echo Starting threads $NR_THREADS/$DEDUP_MAX_THREADS iteration $ITERATION/$DEDUP_ITERATIONS
 		$TIME_CMD -o $LOGDIR_RESULTS/dedup-${NR_THREADS}-$ITERATION.time \
-		    ./dedup -v -c -p -t $NR_THREADS -i $DEDUP_FILE -o tmp.file 2>&1 \
+		    ./dedup -v -c -p -t $NR_THREADS -i $DEDUP_FILE -o $SHELLPACK_TEMP/tmp.file 2>&1 \
 		    tee $LOGDIR_RESULTS/dedup-${NR_THREADS}-${ITERATION}.log || die Failed to run dedup
-		rm tmp.file #cleanup
+		rm $SHELLPACK_TEMP/tmp.file #cleanup
 
 done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
 exit $SHELLPACK_SUCCESS
 #### Description dedup
-#### Details dedup-bench 5
+#### Details dedup-bench 7
