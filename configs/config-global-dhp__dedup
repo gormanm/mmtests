@@ -62,5 +62,4 @@ export MONITOR_UPDATE_FREQUENCY=10
 export DEDUP_ITERATIONS=4
 export DEDUP_MIN_THREADS=2
 export DEDUP_MAX_THREADS=$((NUMCPUS*4))
-# set the input image file to be used be set, ie:
-# export DEDUP_FILE="/home/dave/imgs/linux-kernel-dev.qcow2"
+export DEDUP_FILE=$WEBROOT/compress/vm-image.gz
