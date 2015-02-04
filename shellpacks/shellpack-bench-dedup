@@ -77,12 +77,6 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
-
 THREADS=
 START_THREAD=$DEDUP_MIN_THREADS
 END_THREAD=$DEDUP_MAX_THREADS
@@ -116,4 +110,4 @@ done
 done
 exit $SHELLPACK_SUCCESS
 #### Description dedup
-#### Details dedup-bench 4
+#### Details dedup-bench 5
