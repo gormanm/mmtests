@@ -52,6 +52,15 @@ mv $DST_DIR dedup-${VERSION}-installed
 pushd dedup-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/dedup-${VERSION}-installed || die Failed to change to source directory
+
+# Patch benchmark to make it a ro/rw IO benchmark
+TEMPFILE=`mktemp`
+LINECOUNT=`wc -l $0 | awk '{print $1}'`
+PATCHSTART=`grep -n "BEGIN PATCH FILE" $0 | tail -1 | awk -F : '{print $1}'`
+tail -$(($LINECOUNT-$PATCHSTART)) $0 | grep -v "^###" > $TEMPFILE
+cat $TEMPFILE | patch -p1 || exit $SHELLPACK_FAILURE
+rm $TEMPFILE
+
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -60,5 +69,21 @@ if [ $? -ne 0 ]; then
 fi
 
 echo dedup installed successfully
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN PATCH FILE ====
+diff --git a/encoder.c b/encoder.c
+index 3b86743e8f81..58314d6d3936 100644
+--- a/encoder.c
++++ b/encoder.c
+@@ -163,7 +163,7 @@ static void print_stats(stats_t *s) {
+ 
+   //determine most suitable unit to use
+   for(unit_idx=0; unit_idx<unit_str_size; unit_idx++) {
+-    unsigned int unit_div_next = unit_div * 1024;
++    size_t unit_div_next = unit_div * 1024;
+ 
+     if(s->total_input / unit_div_next <= 0) break;
+     if(s->total_dedup / unit_div_next <= 0) break;
 #### Description dedup
-#### Details dedup 9
+#### Details dedup 11
