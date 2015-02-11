@@ -1,0 +1,20 @@
+#!/bin/bash
+###SHELLPACK preamble freqmine-install 0
+GIT_LOCATION=https://github.com/davidlohr/freqmine.git
+MIRROR_LOCATION="$WEBROOT/freqmine/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch freqmine-${VERSION}.tar.gz freqmine-${VERSION}-installed
+
+###SHELLPACK build_start freqmine-${VERSION}-installed
+
+###SHELLPACK make
+echo untaring input data sets
+TARFILE=inputsdat.tar.xz
+cd $SHELLPACK_SOURCES/freqmine-${VERSION}-installed/inputs
+tar xf $TARFILE
+
+echo freqmine installed successfully
+exit $SHELLPACK_SUCCESS

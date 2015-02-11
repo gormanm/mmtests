@@ -1,0 +1,68 @@
+#!/bin/bash
+P=freqmine-install
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+GIT_LOCATION=https://github.com/davidlohr/freqmine.git
+MIRROR_LOCATION="$WEBROOT/freqmine/"
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=freqmine-${VERSION}.tar.gz
+git_fetch $GIT_LOCATION freqmine-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf freqmine-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR freqmine-${VERSION}-installed
+pushd freqmine-${VERSION}-installed > /dev/null || die Failed to rename tar
+
+pushd $SHELLPACK_SOURCES/freqmine-${VERSION}-installed || die Failed to change to source directory
+
+make -j$NUMCPUS 
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+echo untaring input data sets
+TARFILE=inputsdat.tar.xz
+cd $SHELLPACK_SOURCES/freqmine-${VERSION}-installed/inputs
+tar xf $TARFILE
+
+echo freqmine installed successfully
+exit $SHELLPACK_SUCCESS
+#### Description freqmine
+#### Details freqmine 1
