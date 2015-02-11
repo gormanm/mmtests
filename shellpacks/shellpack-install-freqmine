@@ -65,4 +65,4 @@ tar xf $TARFILE
 echo freqmine installed successfully
 exit $SHELLPACK_SUCCESS
 #### Description freqmine
-#### Details freqmine 1
+#### Details freqmine 2

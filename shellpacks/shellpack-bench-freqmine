@@ -97,7 +97,7 @@ fi
 for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	for SIZE in $FREQMINE_SIZE; do
-		print "Running $SIZE workload";
+		echo "Running $SIZE workload";
 		#
 		# IN_FILE and MIN_SUP are the benchmark input parameters.
 		# Calculate the input data based on size of the run.
@@ -139,4 +139,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description freqmine
-#### Details freqmine-bench 1
+#### Details freqmine-bench 2

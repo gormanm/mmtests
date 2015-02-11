@@ -21,7 +21,7 @@ TESTLIST=
 
 ###SHELLPACK threads_large_stride_begin $FREQMINE_MIN_THREADS $FREQMINE_MAX_THREADS $FREQMINE_ITERATIONS
 	for SIZE in $FREQMINE_SIZE; do
-		print "Running $SIZE workload";
+		echo "Running $SIZE workload";
 		#
 		# IN_FILE and MIN_SUP are the benchmark input parameters.
 		# Calculate the input data based on size of the run.
