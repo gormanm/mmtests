@@ -75,7 +75,7 @@ exit $SHELLPACK_SUCCESS
 
 ==== BEGIN PATCH FILE ====
 diff --git a/buffer.cpp b/buffer.cpp
-index c76043b..ad2346c 100644
+index c76043b..9784028 100644
 --- a/buffer.cpp
 +++ b/buffer.cpp
 @@ -34,6 +34,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
@@ -94,5 +94,13 @@ index c76043b..ad2346c 100644
  	start[0] = buffer[0];
  	markbuf = buffer[0];
  	markcount = 0;
+@@ -152,6 +154,7 @@ int memory::switchbuf(unsigned int i)  // creates a new buffer with size >= i
+ 		delete this;
+ //		freebuf(); 
+ 	}
++	memset(buffer[bufcount], 0, sizeof(char) * rest[bufcount]);
+ 	start[bufcount] = buffer[bufcount]; 
+ 	return bufcount;
+ } // switchbuf 
 #### Description freqmine
-#### Details freqmine 3
+#### Details freqmine 4
