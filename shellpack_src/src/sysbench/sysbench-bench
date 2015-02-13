@@ -104,13 +104,6 @@ else
 	export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/mariadbbuild-${MARIADB_VERSION}-installed/lib
 fi
 
-# Figure out how to use the time command
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
-
 FIRST_TIME=yes
 SYSBENCH_OPTIONS="$MAX_TIME_COMMAND $MAX_TRANSACTIONS_COMMAND $SYSBENCH_DB_OPTIONS"
 OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \

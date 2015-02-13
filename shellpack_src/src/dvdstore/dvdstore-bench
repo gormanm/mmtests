@@ -1,0 +1,190 @@
+#!/bin/bash
+###SHELLPACK preamble dvdstore-bench 21
+install-depends gnuplot
+
+DBDRIVER=postgres
+DBUSER=nobody
+EFFECTIVE_CACHESIZE=$((756*1048576))
+SHARED_BUFFERS=$((32*1048576))
+WORK_MEM=$((32*1048576))
+POSTGRES_VERSION=9.3.4
+MARIADB_ADMIN_USER=root
+MARIADB_ADMIN_PASSWORD=mmtests-default
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --effective-cachesize EFFECTIVE_CACHESIZE
+###SHELLPACK parseargParam --shared-buffers      SHARED_BUFFERS
+###SHELLPACK parseargParam --work-mem            WORK_MEM
+###SHELLPACK parseargParam --dbdriver            DBDRIVER
+###SHELLPACK parseargParam --workload-size       WORKLOAD_SIZE
+###SHELLPACK parseargParam --warmup-time         WARMUP_TIME
+###SHELLPACK parseargParam --run-time            RUN_TIME
+###SHELLPACK parseargParam --max-threads         MAX_THREADS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required dvdstore-${VERSION} --dbdriver ${DBDRIVER}
+###SHELLPACK monitor_hooks
+
+# Initialise database
+SYSBENCH_DB_OPTIONS=
+export PATH=$SHELLPACK_SOURCES/sysbench-${VERSION}-installed/bin:$PATH
+echo Configuring paths for $DBDRIVER
+if [ "$DBDRIVER" = "postgres" ]; then
+	EXPECT=`which expect`
+	EXPECT_SCRIPT=$SHELLPACK_TEMP/dvdstore-expect
+	cat > $EXPECT_SCRIPT <<EOF
+spawn perl ./Install_DVDStore.pl
+expect "Please enter database size"                               { exp_send $((WORKLOAD_SIZE/1048576))\\r }
+expect "Please enter whether above database size is in"           { exp_send MB\\r  }
+expect "Please enter database type"                               { exp_send PGSQL\\r }
+expect "Please enter system type on which DB Server is installed" { exp_send LINUX\\r }
+expect eof
+EOF
+	$EXPECT -f $EXPECT_SCRIPT > $LOGDIR_RESULTS/scriptinit.log 2>&1
+	if [ $? -ne 0 ]; then
+		cat $LOGDIR_RESULTS/scriptinit.log
+		die Failed to create database initialisation scripts
+	fi
+
+	cat > $EXPECT_SCRIPT <<EOF
+spawn perl ./CreateConfigFile.pl
+expect "Please enter target host"                          { exp_send 127.0.0.1\\r }
+expect "Please enter database size"                        { exp_send $((WORKLOAD_SIZE/1048576))MB\\r  }
+expect "Please enter target hostname for perfmon"          { exp_send \\r }
+expect "Please enter <username>:<password>:<IP Address>"   { exp_send \\r }
+expect "Please enter if you want detailed view of runtime" { exp_send Y\\r }
+expect eof
+EOF
+	$EXPECT -f $EXPECT_SCRIPT >> $LOGDIR_RESULTS/scriptinit.log 2>&1
+	if [ $? -ne 0 ]; then
+		cat $LOGDIR_RESULTS/scriptinit.log
+		die Failed to create database initialisation scripts
+	fi
+
+	PSQL=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/bin/psql
+	RUNDBUSER="su -s /bin/bash $DBUSER -c"
+	export PATH=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/bin:$PATH
+	export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/lib
+	export PGHOST=/var/run/postgresql
+	export PGPORT=5432
+
+	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
+	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
+		--effective_cachesize $EFFECTIVE_CACHESIZE \
+		--shared_buffers $SHARED_BUFFERS \
+		--work_mem $WORK_MEM || die Failed to get usable database installation
+
+else
+	echo Unknown database driver
+	exit $SHELLPACK_ERROR
+fi
+
+# Figure out how to use the time command
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
+fi
+
+FIRST_TIME=yes
+SYSBENCH_OPTIONS="$MAX_TIME_COMMAND $MAX_TRANSACTIONS_COMMAND $SYSBENCH_DB_OPTIONS"
+OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
+		--oltp-test-mode=$OLTP_TESTTYPE \
+		--oltp-table-size=$OLTP_TABLESIZE"
+###SHELLPACK threads_huge_stride_begin 1 $MAX_THREADS
+	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
+	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
+		--effective_cachesize $EFFECTIVE_CACHESIZE \
+		--shared_buffers $SHARED_BUFFERS \
+		--work_mem $WORK_MEM || die Failed to get usable database installation
+
+	if [ "$DBDRIVER" = "postgres" ]; then
+		echo Creating database and roles
+		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgdata;'"
+		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE ds2;'"
+		$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgdata;'" || die Failed to setup database
+		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE ds2 with LOGIN;'" || die Failed to create sbtest role
+		cp $SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
+		cd $SHELLPACK_SOURCES/dvdstore-${VERSION}-installed/pgsqlds2
+
+		echo Executing pgsqlds2_create_all.sh
+		sed -i -e "s/SYSDBA=.*/SYSDBA=$DBUSER/" pgsqlds2_create_all.sh
+		bash ./pgsqlds2_create_all.sh > $LOGDIR_RESULTS/dbinit.log 2>&1
+		if [ $? -ne 0 ]; then
+			cat $LOGDIR_RESULTS/dbinit-${NR_THREADS}.log
+			die pgsqlds2_create_all.sh failed
+		fi
+	fi
+
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	cd $SHELLPACK_SOURCES/dvdstore-${VERSION}-installed
+	sed -i -e "s/n_threads=.*/n_threads=$NR_THREADS/"      DriverConfig.txt
+	sed -i -e "s/warmup_time=.*/warmup_time=$WARMUP_TIME/" DriverConfig.txt
+	sed -i -e "s/run_time=.*/run_time=$RUN_TIME/"          DriverConfig.txt
+
+	echo "#!/bin/bash
+$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS} \
+	mono ./pgsqlds2/ds2pgsqldrivermono.exe --config_file=DriverConfig.txt &
+DVDSTORE_PID=\$!
+echo \$DVDSTORE_PID > $SHELLPACK_TEMP/dvdstore.pid
+wait \$DVDSTORE_PID" > $SHELLPACK_TEMP/dvdstore.sh
+	chmod a+x $SHELLPACK_TEMP/dvdstore.sh
+
+	NR_FAILED=0
+	RETRY=1
+	while [ $RETRY -ne 0 ]; do
+		echo Running with $NR_THREADS/$MAX_THREADS threads, fail count $NR_FAILED
+		STARTTIME=`date +%s`
+		MAX_RUNTIME=$(((WARMUP_TIME+RUN_TIME)*60*3/2))
+		RETRY=0
+		$SHELLPACK_TEMP/dvdstore.sh 2>&1 \
+				| grep -v "already exists" \
+				| tee $LOGDIR_RESULTS/dvdstore-${NR_THREADS}.log &
+		sleep 5
+		DVDSTORE_PID=`cat $SHELLPACK_TEMP/dvdstore.pid`
+
+		# Monitor PID to make sure it does not have a crashed thread or infinte loop
+		PID_CHECK=0
+		while [ $PID_CHECK -eq 0 ]; do
+			CURRENTTIME=`date +%s`
+			RUNNING=$((CURRENTTIME-STARTTIME))
+			echo TICK: `date`: PID $DVDSTORE_PID Running $RUNNING max $MAX_RUNTIME
+			if [ $RUNNING -ge $MAX_RUNTIME ]; then
+				echo Process crapped out, retrying
+				kill -9 $DVDSTORE_PID
+				wait
+				NR_FAILED=$((NR_FAILED+1))
+			fi
+			ps -p $DVDSTORE_PID > /dev/null
+			PID_CHECK=$?
+			sleep 10
+		done
+
+		# Check if any exceptions were caught that forced a premature exit
+		if [ $RETRY -eq 0 ]; then
+			grep -q "Unhandled Exception" $LOGDIR_RESULTS/dvdstore-${NR_THREADS}.log
+			if [ $? -eq 0 ]; then
+				RETRY=1
+				NR_FAILED=$((NR_FAILED+1))
+			fi
+		fi
+
+		if [ $RETRY -eq 1 ]; then
+			cp $LOGDIR_RESULTS/dvdstore-${NR_THREADS}.log    $LOGDIR_RESULTS/dvdstore-${NR_THREADS}.failed
+			echo $NR_FAILED                               >> $LOGDIR_RESULTS/dvdstore-${NR_THREADS}.failed
+		fi
+
+		if [ $NR_FAILED -eq 4 ]; then
+			echo Giving up trying to get a clean run
+			RETRY=0
+		fi
+	done
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+
+# Shutdown server
+$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
+
+echo dvdstore successfully completed
+exit $SHELLPACK_SUCCESS

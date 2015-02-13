@@ -20,7 +20,8 @@ use constant DATA_RECORDS_PER_SECOND    => 11;
 use constant DATA_MBITS_PER_SECOND      => 12;
 use constant DATA_MBYTES_PER_SECOND     => 13;
 use constant DATA_TRANS_PER_SECOND      => 14;
-use constant DATA_SUCCESS_PERCENT       => 15;
+use constant DATA_TRANS_PER_MINUTE      => 15;
+use constant DATA_SUCCESS_PERCENT       => 16;
 
 use constant DATA_WALLTIME		=> 50;
 use constant DATA_WALLTIME_VARIABLE	=> 51;
@@ -71,7 +72,7 @@ sub initialise() {
 			$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff" ];
 		}
 	}
-	if ($self->{_DataType} == DATA_TRANS_PER_SECOND && $self->{_Variable} != 1) {
+	if (($self->{_DataType} == DATA_TRANS_PER_SECOND || $self->{_DataType} == DATA_TRANS_PER_MINUTE) && $self->{_Variable} != 1) {
 		if (!defined $self->{_CompareOps}) {
 			$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff" ];
 		}

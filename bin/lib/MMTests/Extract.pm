@@ -21,12 +21,13 @@ use constant DATA_KBYTES_PER_SECOND	=> 12;
 use constant DATA_MBYTES_PER_SECOND	=> 13;
 use constant DATA_MBITS_PER_SECOND	=> 14;
 use constant DATA_TRANS_PER_SECOND	=> 15;
-use constant DATA_SUCCESS_PERCENT	=> 16;
-use constant DATA_WALLTIME		=> 17;
-use constant DATA_WALLTIME_VARIABLE	=> 18;
-use constant DATA_WALLTIME_OUTLIERS	=> 19;
-use constant DATA_OPSSEC		=> 20;
-use constant DATA_THROUGHPUT		=> 21;
+use constant DATA_TRANS_PER_MINUTE	=> 16;
+use constant DATA_SUCCESS_PERCENT	=> 17;
+use constant DATA_WALLTIME		=> 18;
+use constant DATA_WALLTIME_VARIABLE	=> 19;
+use constant DATA_WALLTIME_OUTLIERS	=> 20;
+use constant DATA_OPSSEC		=> 21;
+use constant DATA_THROUGHPUT		=> 22;
 use VMR::Stat;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
@@ -86,6 +87,9 @@ sub printDataType() {
 		$units = "RecordTrans";
 	} elsif ($self->{_DataType} == DATA_TRANS_PER_SECOND) {
 		$yaxis = "Transactions/sec";
+		$units = "Transactions";
+	} elsif ($self->{_DataType} == DATA_TRANS_PER_MINUTE) {
+		$yaxis = "Transactions/minute";
 		$units = "Transactions";
 	} elsif ($self->{_DataType} == DATA_MBITS_PER_SECOND) {
 		$yaxis = "MBits/sec";

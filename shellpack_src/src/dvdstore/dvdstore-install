@@ -1,0 +1,71 @@
+#!/bin/bash
+###SHELLPACK preamble dvdstore-install 21
+
+VERSION=21
+DBUSER=root
+DBDRIVER=postgres
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam	--dbdriver	DBDRIVER
+###SHELLPACK parseargEnd
+
+install-depends mono
+install-depends unzip
+
+WEB_LOCATION=http://linux.dell.com/dvdstore/
+MIRROR_LOCATION=$WEBROOT/dvdstore
+
+# Select database driver
+case $DBDRIVER in
+postgres)
+	echo Checking postgres installation
+	DBDRIVER_VERSION=9.3.4
+	DVDSTORE_DBDRIVER=postgresql
+	;;
+*)
+	die Unrecognised dbdriver $DBDRIVER
+	;;
+esac
+
+# Build database and start it for dvdstore config
+$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
+        --effective_cachesize $((MEMTOTAL_BYTES*6/10)) \
+        --shared_buffers $((MEMTOTAL_BYTES/4)) \
+        --work_mem $((16*1048576)) || die Failed to get usable database installation
+
+echo Building dvdstore for $DBDRIVER
+export PATH=$SHELLPACK_SOURCES/${DBDRIVER}build-${DBDRIVER_VERSION}-installed/bin:$PATH
+###SHELLPACK sources_fetch ds${VERSION}.tar.gz dvdstore-${VERSION}-installed
+###SHELLPACK sources_fetch ds${VERSION}_${DVDSTORE_DBDRIVER}.tar.gz dvdstore_$DVDSTOREDRIVER-${VERSION}
+###SHELLPACK build_start dvdstore-${VERSION}-installed
+mv $SHELLPACK_SOURCES/dvdstore_$DVDSTOREDRIVER-${VERSION}/* .
+rmdir $SHELLPACK_SOURCES/dvdstore_$DVDSTOREDRIVER-${VERSION}
+
+###SHELLPACK build_start dvdstore-${VERSION}-installed
+cd pgsqlds2
+file_fetch https://github.com/npgsql/npgsql/releases/download/v2.2.4.1/Npgsql-2.2.4.1-net35.zip \
+	$MIRROR_LOCATION/Npgsql-2.2.4.1-net35.zip \
+	Npgsql.zip
+unzip Npgsql.zip
+if [ $? -ne 0 ]; then
+	die Unable to fetch Npgsql-2.2.4.1-net35.zip
+fi
+
+echo Rebuilding ds2pgsqldrivermono.exe
+gmcs ds2pgsqlfns.cs ../drivers/ds2xdriver.cs /out:ds2pgsqldrivermono.exe /r:/usr/lib/mono/gac/System.Data/2.0.0.0__b77a5c561934e089/System.Data.dll /r:Npgsql.dll
+if [ $? -ne 0 ]; then
+	die Failed to rebuild ds2pgsqldrivermono.exe
+fi
+
+#file_fetch http://pgfoundry.org/frs/download.php/3582/Npgsql2.0.14.3-bin-mono2.0.zip \
+#	$MIRROR_LOCATION/Npgsql2.0.14.3-bin-mono2.0.zip \
+#	Npgsql.zip
+#unzip Npgsql.zip
+#if [ $? -ne 0 ]; then
+#	die Unable to fetch Npgsql2.0.14.3-bin-mono2.0.zip
+#fi
+#cp Npgsql2.0.14.3/Mono2.0/bin/Npgsql.dll            pgsqlds2 || die Failed to copy Npgsql.dll
+#cp Npgsql2.0.14.3/Mono2.0/bin/policy.2.0.Npgsql.dll pgsqlds2 || die Failed to copy policy.2.0.Npgsql.dll
+
+echo dvdstore for $DBDRIVER successfully installed
+exit $SHELLPACK_SUCCESS

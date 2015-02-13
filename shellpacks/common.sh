@@ -118,6 +118,28 @@ function recover_rc() {
 	( exit $EXIT_CODE )
 }
 
+function file_fetch() {
+	WEB=$1
+	MIRROR=$2
+	OUTPUT=$3
+
+	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
+		echo "$P: Fetching from mirror $MIRROR"
+		wget -q -O $OUTPUT $MIRROR
+	fi
+	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
+		if [ "$WEB" = "NOT_AVAILABLE" ]; then
+			die Benchmark is not publicly available. You must make it available from a local mirror
+		fi
+
+		echo "$P: Fetching from internet $WEB"
+		wget -q -O $OUTPUT $WEB
+		if [ $? -ne 0 ]; then
+			die "$P: Could not download $WEB"
+		fi
+	fi
+}
+
 function sources_fetch() {
 	WEB=$1
 	MIRROR=$2

@@ -2,6 +2,11 @@
 P=sysbench-install
 DEFAULT_VERSION=0.4.12
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 VERSION=0.4.12
 DBUSER=root
@@ -119,4 +124,4 @@ fi
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench 69
+#### Details sysbench 70
