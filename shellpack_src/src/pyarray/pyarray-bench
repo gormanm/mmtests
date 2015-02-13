@@ -1,0 +1,41 @@
+#!/bin/bash
+###SHELLPACK preamble pyarray-bench 0
+ITERATIONS=30
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargParam -i ITERATIONS
+###SHELLPACK parseargEnd
+
+install-depends python python-numpy
+
+###SHELLPACK monitor_hooks
+
+echo 'import numpy as np
+def f():
+    d = np.arange(1000000.) / 2
+    d[::10] = np.nan
+    c2 = ~np.isnan(d)
+    for needle in range(1000):
+        d[c2]
+
+import threading
+t = [threading.Thread(target=f) for x in range(2)]
+for x in t:
+    x.start()
+for x in t:
+    x.join()' > $SHELLPACK_TEMP/pyarray.py
+
+# Run the benchmark
+RETVAL=0
+monitor_pre_hook $LOGDIR_RESULTS
+###SHELLPACK iteration_begin $ITERATIONS
+$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
+	python $SHELLPACK_TEMP/pyarray.py
+cat $LOGDIR_RESULTS/time.$ITERATION
+###SHELLPACK iteration_end $ITERATIONS
+monitor_post_hook $LOGDIR_RESULTS
+cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time
+
+exit $RETVAL

@@ -1,0 +1,112 @@
+#!/bin/bash
+P=pyarray-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+ITERATIONS=30
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--bind-pinned)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUA"
+		shift
+		;;
+	--bind-cross-node)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`numactl --hardware | grep ^node | grep cpus: | tail -1 | awk '{print $NF}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
+	--bind-cross-socket)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`list-cpu-siblings.pl $CPUA cores | awk -F , '{print $1}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
+	--bind-cross-ht)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`list-cpu-siblings.pl $CPUA threads | awk -F , '{print $1}'`
+		if [ "$CPUB" = "" ]; then
+			echo ERROR: Could not identify HT thread for CPU $CPUA
+			exit $SHELLPACK_ERROR
+		fi
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
+	-i)
+		ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+install-depends python python-numpy
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+echo 'import numpy as np
+def f():
+    d = np.arange(1000000.) / 2
+    d[::10] = np.nan
+    c2 = ~np.isnan(d)
+    for needle in range(1000):
+        d[c2]
+
+import threading
+t = [threading.Thread(target=f) for x in range(2)]
+for x in t:
+    x.start()
+for x in t:
+    x.join()' > $SHELLPACK_TEMP/pyarray.py
+
+# Run the benchmark
+RETVAL=0
+monitor_pre_hook $LOGDIR_RESULTS
+for ITERATION in `seq 1 $ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
+	python $SHELLPACK_TEMP/pyarray.py
+cat $LOGDIR_RESULTS/time.$ITERATION
+done
+monitor_post_hook $LOGDIR_RESULTS
+cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time
+
+exit $RETVAL
+#### Description pyarray
+#### Details pyarray-bench 3
