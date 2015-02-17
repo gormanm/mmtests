@@ -26,7 +26,6 @@ sub sigint_handler {
 	exit(0);
 }
 $SIG{INT} = "sigint_handler";
-print "DEBUG: $stapscript\n";
 
 my $monitorInterval = $ENV{"MONITOR_UPDATE_FREQUENCY"};
 if ($monitorInterval == 0) {
