@@ -215,11 +215,8 @@ for NR_THREADS in $THREADS; do
 	sed -i -e "s/run_time=.*/run_time=$RUN_TIME/"          DriverConfig.txt
 
 	echo "#!/bin/bash
-$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS} \
-	mono ./pgsqlds2/ds2pgsqldrivermono.exe --config_file=DriverConfig.txt &
-DVDSTORE_PID=\$!
-echo \$DVDSTORE_PID > $SHELLPACK_TEMP/dvdstore.pid
-wait \$DVDSTORE_PID" > $SHELLPACK_TEMP/dvdstore.sh
+echo \$\$ > $SHELLPACK_TEMP/dvdstore.pid
+exec mono ./pgsqlds2/ds2pgsqldrivermono.exe --config_file=DriverConfig.txt" > $SHELLPACK_TEMP/dvdstore.sh
 	chmod a+x $SHELLPACK_TEMP/dvdstore.sh
 
 	NR_FAILED=0
@@ -229,9 +226,10 @@ wait \$DVDSTORE_PID" > $SHELLPACK_TEMP/dvdstore.sh
 		STARTTIME=`date +%s`
 		MAX_RUNTIME=$(((WARMUP_TIME+RUN_TIME)*60*3/2))
 		RETRY=0
-		$SHELLPACK_TEMP/dvdstore.sh 2>&1 \
-				| grep -v "already exists" \
-				| tee $LOGDIR_RESULTS/dvdstore-${NR_THREADS}.log &
+		$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS} \
+			$SHELLPACK_TEMP/dvdstore.sh 2>&1 \
+					| grep -v "already exists" \
+					| tee $LOGDIR_RESULTS/dvdstore-${NR_THREADS}.log &
 		sleep 5
 		DVDSTORE_PID=`cat $SHELLPACK_TEMP/dvdstore.pid`
 
@@ -244,16 +242,17 @@ wait \$DVDSTORE_PID" > $SHELLPACK_TEMP/dvdstore.sh
 			if [ $RUNNING -ge $MAX_RUNTIME ]; then
 				echo Process crapped out, retrying
 				kill -9 $DVDSTORE_PID
-				sleep 1
+				sleep 5
 				killall -KILL mono
-				killall -KILL dvdstore.sh
-				wait
+				RETRY=1
 				NR_FAILED=$((NR_FAILED+1))
 			fi
 			ps -p $DVDSTORE_PID > /dev/null
 			PID_CHECK=$?
 			sleep 10
 		done
+		echo Cleaning up remaining processes
+		wait
 
 		# Check if any exceptions were caught that forced a premature exit
 		if [ $RETRY -eq 0 ]; then
@@ -283,4 +282,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 echo dvdstore successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description dvdstore
-#### Details dvdstore-bench 17
+#### Details dvdstore-bench 19
