@@ -156,6 +156,9 @@ wait \$DVDSTORE_PID" > $SHELLPACK_TEMP/dvdstore.sh
 			if [ $RUNNING -ge $MAX_RUNTIME ]; then
 				echo Process crapped out, retrying
 				kill -9 $DVDSTORE_PID
+				sleep 1
+				killall -KILL mono
+				killall -KILL dvdstore.sh
 				wait
 				NR_FAILED=$((NR_FAILED+1))
 			fi
