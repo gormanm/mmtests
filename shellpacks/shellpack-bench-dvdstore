@@ -97,6 +97,9 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
+WARMUP_TIME=$((WARMUP_TIME/60))
+RUN_TIME=$((RUN_TIME/60))
+
 # Initialise database
 SYSBENCH_DB_OPTIONS=
 export PATH=$SHELLPACK_SOURCES/sysbench-${VERSION}-installed/bin:$PATH
@@ -277,4 +280,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 echo dvdstore successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description dvdstore
-#### Details dvdstore-bench 14
+#### Details dvdstore-bench 16

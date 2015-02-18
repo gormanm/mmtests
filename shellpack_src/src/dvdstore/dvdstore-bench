@@ -26,6 +26,9 @@ MARIADB_ADMIN_PASSWORD=mmtests-default
 ###SHELLPACK check_install_required dvdstore-${VERSION} --dbdriver ${DBDRIVER}
 ###SHELLPACK monitor_hooks
 
+WARMUP_TIME=$((WARMUP_TIME/60))
+RUN_TIME=$((RUN_TIME/60))
+
 # Initialise database
 SYSBENCH_DB_OPTIONS=
 export PATH=$SHELLPACK_SOURCES/sysbench-${VERSION}-installed/bin:$PATH
