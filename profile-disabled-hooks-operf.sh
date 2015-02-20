@@ -44,6 +44,7 @@ echo 'OPERFPID=`cat operf.pid`' >> monitor-post-hook
 echo "kill -SIGINT \$OPERFPID" >> monitor-post-hook
 echo "while [[ -f operf.pid ]]; do sleep 1; done" >> monitor-post-hook
 echo "oprofile_report.sh > \$1/oprofile-\$2-report-$PROFILE_TITLE.txt" >> monitor-post-hook
+echo "rm -rf oprofile_data" >> monitor-post-hook
 
 echo "#!/bin/bash" > monitor-cleanup-hook
 echo "rm \$1/oprofile-\$2-report-$PROFILE_TITLE.txt" >> monitor-cleanup-hook
