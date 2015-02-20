@@ -13,6 +13,7 @@ usage() {
 	echo "    --sample-cycle-factor Factor which to slow down CPU cycle sampling by"
 	echo "    --sample-event-factor Factor which to slow down event sampling by"
 	echo "    --callgraph N         Call graph depth"
+	echo "    --pid N               PID to monitor (system-wide if unspecified)"
 	echo "    --systemmap           Guess"
 	echo "    -h, --help            Print this help message"
 	echo
@@ -26,10 +27,12 @@ VMLINUX=/boot/vmlinux-`uname -r`
 SYSTEMMAP=/boot/System.map-`uname -r`
 FACTOR=
 CALLGRAPH=0
+PIDSWITCH=--system-wide
+ATTACHPID=
 export PATH=$SCRIPTROOT:$PATH
 ARGS=`getopt -o h --long help,event:,vmlinux:,systemmap:,callgraph:,sample-event-factor:,sample-cycle-factor:,pid: -n oprofile_start.sh -- "$@"`
 
-# Cycle through arguements
+# Cycle through arguments
 eval set -- "$ARGS"
 while true ; do
   case "$1" in
@@ -39,16 +42,15 @@ while true ; do
 	--sample-event-factor) EVENT_FACTOR="--sample-event-factor $2"; shift 2;;
 	--callgraph)           CALLGRAPH=$2; shift 2;;
 	--systemmap)           SYSTEMMAP=$2; shift 2;;
-	--pid)		       ATTACHPID=$2; shift 2;;
+	--pid)
+			       ATTACHPID=$2
+			       PIDSWITCH=--pid
+			       shift 2
+			       ;;
         -h|--help) usage;;
         *) shift 1; break;;
   esac
 done
-if [[ -z $ATTACHPID ]]; then
-    echo "No pid specified!"
-    usage
-    exit -1
-fi
 
 # Map the events
 for EVENT in $EVENTS; do
@@ -76,8 +78,8 @@ echo Starting up operf
 echo High-level event: $EVENTS
 echo Low-level event: `echo $LOWLEVEL_EVENT | sed -e 's/--event //'`
 echo vmlinux: $VMLINUX
-echo operf $CALLGRAPH_SWITCH $LOWLEVEL_EVENT -a --vmlinux=$VMLINUX --pid $ATTACHPID
-operf $CALLGRAPH_SWITCH $LOWLEVEL_EVENT -a --vmlinux=$VMLINUX --pid $ATTACHPID &
+echo operf $CALLGRAPH_SWITCH $LOWLEVEL_EVENT -a --vmlinux=$VMLINUX $PIDSWITCH $ATTACHPID
+operf $CALLGRAPH_SWITCH $LOWLEVEL_EVENT -a --vmlinux=$VMLINUX $PIDSWITCH $ATTACHPID &
 OPERFPID=$!
 echo $OPERFPID >> operf.pid
 

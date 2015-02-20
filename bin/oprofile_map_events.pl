@@ -92,7 +92,9 @@ if ($opt_event eq "" || $opt_event eq "default") {
 }
 
 # Run --list-events to setup devices
-open (SETUP, "opcontrol --list-events|") || die("Failed to exec opcontrol");
+if (!open(SETUP, "opcontrol --list-events|")) {
+	open (SETUP, "ophelp|") || die("Failed to exec opcontrol");
+}
 printVerbose("$p\::init list-events\n");
 while (!eof(SETUP)) {
 	$_ = <SETUP>;
@@ -100,11 +102,22 @@ while (!eof(SETUP)) {
 close(SETUP);
 
 # Read the arch and CPU type
-open (CPUTYPE, "/proc/sys/dev/oprofile/cpu_type") ||
-	open (CPUTYPE, "/dev/oprofile/cpu_type") ||
-		die("Failed to open cpu_type oprofile device");
+my $mounted = 0;
+if (!open(CPUTYPE, "/proc/sys/dev/oprofile/cpu_type")) {
+	mkdir("/tmp/oprofilefs")|| die("Failed to create oprofilefs");
+	system("mount -t oprofilefs none /tmp/oprofilefs");
+	if (! -e "/tmp/oprofilefs/cpu_type" || !open (CPUTYPE, "/tmp/oprofilefs/cpu_type")) {
+		die("Failed to create cpu_type from oprofilefs");
+		system("umount -t oprofilefs none /tmp/oprofilefs");
+	}
+	$mounted = 1;
+}
 ($arch, $cputype) = split(/\//, <CPUTYPE>);
 close CPUTYPE;
+if ($mounted) {
+	system("umount /tmp/oprofilefs");
+	rmdir("/tmp/oprofilefs");
+}
 printVerbose("$p\::arch = $arch\n");
 printVerbose("$p\::cputype = $cputype\n");
 printVerbose("$p\::event = $opt_event\n");
@@ -140,7 +153,9 @@ if ($opt_cycle_factor != 1 || $opt_event_factor != 1) {
 }
 
 # Verify opcontrol agrees
-open (VERIFY, "opcontrol --list-events|") || die("Failed to exec opcontrol");
+if (!open(VERIFY, "opcontrol --list-events|")) {
+	open (VERIFY, "ophelp|") || die("Failed to exec opcontrol or ophelp");
+}
 my ($oprofile_event_name) = split(/:/, $oprofile_event);
 printVerbose("$p\::checking $oprofile_event_name\n");
 while (!eof(VERIFY)) {
