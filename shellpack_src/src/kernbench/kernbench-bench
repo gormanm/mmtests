@@ -29,12 +29,6 @@ echo Warming run
 make -j$THREADS vmlinux > /dev/null 2>&1 || die Failed to build vmlinux
 make clean >/dev/null
 
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-        TIME_CMD="time"
-fi
-
 # Build pass
 ###SHELLPACK iteration_begin $ITERATIONS
 	echo Pass $ITERATION

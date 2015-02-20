@@ -1,0 +1,37 @@
+#!/bin/bash
+###SHELLPACK preamble poundtime-bench 0
+
+ITERATIONS=12
+TESTLIST=
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-threads	POUNDTIME_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads	POUNDTIME_MAX_THREADS
+###SHELLPACK parseargParam	--iterations	POUNDTIME_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required poundtime-${VERSION}
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+###SHELLPACK threads_large_stride_begin $POUNDTIME_MIN_THREADS $POUNDTIME_MAX_THREADS
+	for FILE in pound_times pound_clock_gettime; do
+		gcc -O2 -lpthread -DNUM_THREADS=$NR_THREADS \
+				$SHELLPACK_SOURCES/poundtime-${VERSION}-installed/${FILE}.c \
+				-o $SHELLPACK_TEMP/$FILE || \
+			die Failed to build ${FILE}.c thread count $NR_THREADS
+	done
+
+	for FILE in pound_times pound_clock_gettime; do
+		monitor_pre_hook $LOGDIR_RESULTS $FILE-$NR_THREADS
+		###SHELLPACK iteration_begin $POUNDTIME_ITERATIONS
+			echo Starting $FILE $NR_THREADS/$POUNDTIME_MAX_THREADS iteration $ITERATION/$POUNDTIME_ITERATIONS
+				$TIME_CMD -o $LOGDIR_RESULTS/$FILE-${NR_THREADS}-${ITERATION}.time \
+					$SHELLPACK_TEMP/$FILE 2>&1 | tee $LOGDIR_RESULTS/$FILE-${NR_THREADS}-${ITERATION}.log
+		###SHELLPACK iteration_end $POUNDTIME_ITERATIONS
+		monitor_post_hook $LOGDIR_RESULTS $FILE-$NR_THREADS
+	done
+###SHELLPACK threads_stride_end
+exit $SHELLPACK_SUCCESS

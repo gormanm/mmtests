@@ -245,6 +245,21 @@ if [ \$? -ne 0 ]; then
 fi
 unset CFLAGS
 EOC
+	} elsif ($command eq "self_extract") {
+		my $selffile = @details[0];
+		shift @details;
+		print <<EOC
+LINESTART=`grep -n "==== BEGIN $selffile" \$0 | tail -1 | awk -F : '{print \$1}'`
+LINEEND=`grep -n "==== END $selffile" \$0 | tail -1 | awk -F : '{print \$1}'`
+if [ "\$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l \$0 | awk '{print \$1}'`
+fi
+if [ "\$LINESTART" = "" ]; then
+	die Failed to find start of file $selffile
+fi
+echo Extracting \$SHELLPACK_TEMP/$selffile
+sed -n \$((LINESTART+1)),\$((LINEEND-1))p \$0 > \$SHELLPACK_TEMP/$selffile
+EOC
 	} elsif ($command eq "build_cmake") {
 		my $srcdir = @details[0];
 		shift @details;

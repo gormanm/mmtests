@@ -1,0 +1,113 @@
+#!/bin/bash
+P=poundtime-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+ITERATIONS=12
+TESTLIST=
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--min-threads)
+		POUNDTIME_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		POUNDTIME_MAX_THREADS=$2
+		shift 2
+		;;
+	--iterations)
+		POUNDTIME_ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/poundtime-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/poundtime-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-poundtime -v ${VERSION}  || die poundtime install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/poundtime-${VERSION}-installed || die Failed to cd to poundtime install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo poundtime installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+THREADS=
+START_THREAD=$POUNDTIME_MIN_THREADS
+END_THREAD=$POUNDTIME_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 2 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
+for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	for FILE in pound_times pound_clock_gettime; do
+		gcc -O2 -lpthread -DNUM_THREADS=$NR_THREADS \
+				$SHELLPACK_SOURCES/poundtime-${VERSION}-installed/${FILE}.c \
+				-o $SHELLPACK_TEMP/$FILE || \
+			die Failed to build ${FILE}.c thread count $NR_THREADS
+	done
+
+	for FILE in pound_times pound_clock_gettime; do
+		monitor_pre_hook $LOGDIR_RESULTS $FILE-$NR_THREADS
+for ITERATION in `seq 1 $POUNDTIME_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+			echo Starting $FILE $NR_THREADS/$POUNDTIME_MAX_THREADS iteration $ITERATION/$POUNDTIME_ITERATIONS
+				$TIME_CMD -o $LOGDIR_RESULTS/$FILE-${NR_THREADS}-${ITERATION}.time \
+					$SHELLPACK_TEMP/$FILE 2>&1 | tee $LOGDIR_RESULTS/$FILE-${NR_THREADS}-${ITERATION}.log
+done
+		monitor_post_hook $LOGDIR_RESULTS $FILE-$NR_THREADS
+	done
+done
+exit $SHELLPACK_SUCCESS
+#### Description poundtime
+#### Details poundtime-bench 3

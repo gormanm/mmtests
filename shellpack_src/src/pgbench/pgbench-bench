@@ -93,13 +93,6 @@ if [ "$PGBENCH_DEBUG_AUTO_TRANSACTIONS" = "yes" ]; then
 	exit $SHELLPACK_SUCCESS
 fi
 
-# Figure out how to use the time command
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
-
 if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
 fi

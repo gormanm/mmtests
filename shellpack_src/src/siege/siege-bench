@@ -32,12 +32,6 @@ sysctl -w net.ipv4.tcp_tw_recycle=1
 echo Setting files limit $((MAX_USERS*1000))
 ulimit -n $((MAX_USERS*1000))
 
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
-
 echo Running up to $MAX_USERS users, $ITERATIONS iterations per user
 ###SHELLPACK threads_powertwo_begin 1 $MAX_USERS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
