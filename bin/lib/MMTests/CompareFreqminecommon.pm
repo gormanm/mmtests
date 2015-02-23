@@ -7,9 +7,8 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareFreqminecommon",
-		_DataType    => MMTests::Compare::DATA_THROUGHPUT,
+		_DataType    => MMTests::Compare::DATA_TIME_SECONDS,
 		_FieldLength => 12,
-		_CompareOp   => "pdiff",
 		_ResultData  => []
 	};
 	bless $self, $class;
