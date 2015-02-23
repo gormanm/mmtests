@@ -22,9 +22,11 @@ sleep 5
 
 ITER_ARG=
 if [ "$ITER_TIME" != "" ]; then
-	ITER_ARG="-t $ITER_TIME"
+	ITER_ARG="-t ${ITER_TIME}s"
+	TIMEOUT_ARG=$((ITER_TIME*3/2))
 else
 	ITER_ARG="-r $ITER_REPS"
+	TIMEOUT_ARG=
 fi
 
 echo Enabling tcp_tw_recycle
@@ -37,12 +39,28 @@ echo Running up to $MAX_USERS users, $ITERATIONS iterations per user
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $ITERATIONS`; do
 		echo Running $ITER/$ITERATIONS: siege -b $ITER_ARG -c $NR_THREADS
-		$TIME_CMD -o $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.time \
-			./bin/siege -q -b $ITER_ARG \
-				-c $NR_THREADS \
-					http://localhost/siege \
-					2>&1 | tee $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.log \
-					|| die Failed to run siege
+		RETRY=1
+		FAILURES=0
+		while [ $RETRY -eq 1 ]; do
+			ATTEMPTS=$((ATTEMPTS+1))
+			RETRY=0
+			$TIME_CMD -o $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.time \
+				$SHELLPACK_SOURCES/siege-${VERSION}-installed/bin/siege -q -b $ITER_ARG \
+					-c $NR_THREADS \
+						http://localhost/siege \
+						2>&1 | tee $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.log &
+			PIDWAIT=$!
+			wait_on_pid_exit $! $TIMEOUT_ARG
+			if [ $? -ne 0 ]; then
+				echo WARNING: Retry due to siege timeout
+				killall -KILL siege
+				FAILURES=$((FAILURES+1))
+				RETRY=1
+			fi
+		done
+		if [ $FAILURES -ne 0 ]; then
+			echo $FAILURES > $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.failures
+		fi
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_powertwo_end

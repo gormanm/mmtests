@@ -38,15 +38,23 @@ function warn() {
 
 function wait_on_pid_exit() {
 	WAITPID=$1
+	ABORTTIME=$2
 
 	if [ "$WAITPID" != "" ]; then
 		echo -n Waiting on pid $WAITPID to shutdown
+		SLEPT=0
 		while [ "`ps h --pid $WAITPID`" != "" ]; do
 			echo -n .
 			sleep 1
+			SLEPT=$((SLEPT+1))
+			if [ "$ABORTTIME" != "" -a $SLEPT -gt $ABORTTIME ]; then
+				echo WARNING: Pid wait timeout
+				return 1
+			fi
 		done
 		echo
 	fi
+	return 0
 }
 
 function wait_on_pid_file() {
