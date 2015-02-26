@@ -36,7 +36,7 @@ echo "--- src/drv_funcs.c.orig	2013-03-08 18:36:17.026240307 +0000
  	strcat(stmp,s1);
  	strcat(stmp,s2);" | patch -p0
 
-sed -i -e '/system("sync")/d' src/*.c
+sed -i -e '/system("sync/d' src/*.c
 ###SHELLPACK build_configure reaim-${VERSION}
 ###SHELLPACK make
 popd
