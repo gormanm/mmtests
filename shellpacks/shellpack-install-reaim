@@ -77,6 +77,7 @@ echo "--- src/drv_funcs.c.orig	2013-03-08 18:36:17.026240307 +0000
  	strcat(stmp,s1);
  	strcat(stmp,s2);" | patch -p0
 
+sed -i -e '/system("sync")/d' src/*.c
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/reaim-${VERSION}-installed 
 if [ $? -ne 0 ]; then
@@ -98,4 +99,4 @@ echo reaim installed successfully
 #### Description reaim
 #### Details reaim 12
 #### Description reaim
-#### Details reaim 41
+#### Details reaim 43
