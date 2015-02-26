@@ -26,7 +26,11 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	--compare)
-		KERNEL_COMPARE="$2"
+		if [ -z "$KERNEL_COMPARE" ]; then
+			KERNEL_COMPARE="$2"
+		else
+			KERNEL_COMPARE="$KERNEL_COMPARE $2"
+		fi
 		shift 2
 		;;
 	--result-dir)
