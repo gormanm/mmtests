@@ -41,6 +41,7 @@ sed -i -e '/system("sync/d' src/*.c
 ###SHELLPACK make
 popd
 mv $SHELLPACK_SOURCES/reaim-${VERSION} $SHELLPACK_SOURCES/reaim-${VERSION}-installed
+echo "10 page_test" > $SHELLPACK_SOURCES/reaim-${VERSION}-installed/data/workfile.page_test
 
 echo reaim installed successfully
 #### Description reaim

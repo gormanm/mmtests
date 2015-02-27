@@ -38,6 +38,8 @@ for REAIM_WORKFILE in $REAIM_WORKFILES; do
 		grep -v " $EXCLUDE$" data/$REAIM_WORKFILE.mmtests > data/$REAIM_WORKFILE.mmtests.tmp
 		mv data/$REAIM_WORKFILE.mmtests.tmp data/$REAIM_WORKFILE.mmtests
 	done
+	sed -i -e '/FILESIZE/d' data/$REAIM_WORKFILE.mmtests
+	sed -i -e '/POOLSIZE/d' data/$REAIM_WORKFILE.mmtests
 	mkdir $LOGDIR_RESULTS/$REAIM_WORKFILE
 
 	monitor_pre_hook $LOGDIR_RESULTS $REAIM_WORKFILE

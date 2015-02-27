@@ -94,9 +94,10 @@ if [ $? -ne 0 ]; then
 fi
 popd
 mv $SHELLPACK_SOURCES/reaim-${VERSION} $SHELLPACK_SOURCES/reaim-${VERSION}-installed
+echo "10 page_test" > $SHELLPACK_SOURCES/reaim-${VERSION}-installed/data/workfile.page_test
 
 echo reaim installed successfully
 #### Description reaim
 #### Details reaim 12
 #### Description reaim
-#### Details reaim 44
+#### Details reaim 45
