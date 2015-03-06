@@ -251,15 +251,17 @@ sub _time_to_sys {
 	my ($user, $system, $elapsed, $cpu) = split(/\s/, $line);
 	my @elements = split(/:/, $system);
 	my ($hours, $minutes, $seconds);
-	if ($#elements == 1) {
+	if ($#elements == 0) {
+		$hours = 0;
+		$minutes = 0;
+		$seconds = @elements[0];
+	} elsif ($#elements == 1) {
 		$hours = 0;
 		($minutes, $seconds) = @elements;
 	} else {
 		($hours, $minutes, $seconds) = @elements;
 	}
-	$elapsed = $hours * 60 * 60 + $minutes * 60 + $seconds;
-
-	return $elapsed;
+	return $hours * 60 * 60 + $minutes * 60 + $seconds;
 }
 
 sub _time_to_elapsed {
@@ -273,9 +275,7 @@ sub _time_to_elapsed {
 	} else {
 		($hours, $minutes, $seconds) = @elements;
 	}
-	$elapsed = $hours * 60 * 60 + $minutes * 60 + $seconds;
-
-	return $elapsed;
+	return $hours * 60 * 60 + $minutes * 60 + $seconds;
 }
 
 sub printPlot() {
