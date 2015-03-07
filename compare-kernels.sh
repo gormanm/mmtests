@@ -150,18 +150,18 @@ KERNEL_LIST_ITER=`echo $KERNEL_LIST | sed -e 's/,/ /g'`
 
 plain() {
 	IMG_SRC=$1
-	echo -n "  <td><a href=\"$IMG_SRC.ps\"><img src=\"$IMG_SRC.png\"></a></td>"
+	echo -n "  <td><a href=\"$IMG_SRC.ps.gz\"><img src=\"$IMG_SRC.png\"></a></td>"
 }
 
 plain_alone() {
 	IMG_SRC=$1
-	echo -n "  <td colspan=4><a href=\"$IMG_SRC.ps\"><img src=\"$IMG_SRC.png\"></a></td>"
+	echo -n "  <td colspan=4><a href=\"$IMG_SRC.ps.gz\"><img src=\"$IMG_SRC.png\"></a></td>"
 }
 
 smoothover() {
 	IMG_SRC=$1
 	IMG_SMOOTH=$1-smooth
-	echo -n "  <td><a href=\"$IMG_SMOOTH.ps\"><img src=\"$IMG_SRC.png\" onmouseover=\"this.src='$IMG_SMOOTH.png'\" onmouseout=\"this.src='$IMG_SRC.png'\"></a></td>"
+	echo -n "  <td><a href=\"$IMG_SMOOTH.ps.gz\"><img src=\"$IMG_SRC.png\" onmouseover=\"this.src='$IMG_SMOOTH.png'\" onmouseout=\"this.src='$IMG_SRC.png'\"></a></td>"
 }
 
 generate_latency_table() {
