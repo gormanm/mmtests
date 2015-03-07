@@ -12,6 +12,7 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractXfsrepair";
 	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "client-errorlines";
+	$self->{_FieldLength}= 12;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

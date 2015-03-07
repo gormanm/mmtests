@@ -997,6 +997,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		fi
 
 		echo "</table>"
+		gzip $OUTPUT_DIRECTORY/*.ps
 	fi
 done
 cat $SCRIPTDIR/shellpacks/common-footer-$FORMAT 2> /dev/null

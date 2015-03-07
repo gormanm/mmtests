@@ -11,7 +11,7 @@ sub initialise() {
 	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Time";
-	$self->{_FieldLength}= 25;
+	$self->{_FieldLength}= 12;
 	$self->{_SingleType} = 1;
 	$self->{_SingleInclude}  = {
 		"Elapsed-NUMA01" => 1,
