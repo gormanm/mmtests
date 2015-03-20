@@ -36,13 +36,13 @@ export PROFILE_EVENTS=timer
 gcc -Wall /tmp/mmtests-wait.c -o /tmp/mmtests-wait || exit $SHELLPACK_ERROR
 
 echo "#!/bin/bash" > monitor-pre-hook
-echo "perf record -o \$1/oprofile-\$2-report-${PROFILE_TITLE}.data -g -a /tmp/mmtests-wait &" >> monitor-pre-hook
+echo "perf record -o \$1/perf-\$2-report-${PROFILE_TITLE}.data -g -a /tmp/mmtests-wait &" >> monitor-pre-hook
 
 echo "#!/bin/bash" > monitor-post-hook
 echo 'kill `cat /tmp/mmtests.perf.pid`' >> monitor-post-hook
 echo "sleep 5" >> monitor-post-hook
-echo "perf report -i \$1/oprofile-\$2-report-${PROFILE_TITLE}.data > \$1/oprofile-\$2-report-${PROFILE_TITLE}.txt" >> monitor-post-hook
-echo "gzip \$1/oprofile-\$2-report-${PROFILE_TITLE}.data" >> monitor-post-hook
+echo "perf report -i \$1/perf-\$2-report-${PROFILE_TITLE}.data > \$1/perf-\$2-report-${PROFILE_TITLE}.txt" >> monitor-post-hook
+echo "gzip \$1/perf-\$2-report-${PROFILE_TITLE}.data" >> monitor-post-hook
 
 echo "#!/bin/bash" > monitor-cleanup-hook
 
