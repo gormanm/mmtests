@@ -6,7 +6,7 @@ MIRROR_LOCATION="$WEBROOT/jemalloc/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK sources_fetch jemalloc-${VERSION}.tar.gz jemalloc-${VERSION}
+###SHELLPACK git_fetch jemalloc-${VERSION}.tar.gz jemalloc-${VERSION}
 
 # Build
 ###SHELLPACK build_start jemalloc-${VERSION}
