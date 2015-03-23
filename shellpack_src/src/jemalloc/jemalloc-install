@@ -10,6 +10,7 @@ MIRROR_LOCATION="$WEBROOT/jemalloc/"
 
 # Build
 ###SHELLPACK build_start jemalloc-${VERSION}
+git checkout ${VERSION}
 ###SHELLPACK build_autogen jemalloc-${VERSION}
 ###SHELLPACK build_configure jemalloc-${VERSION}
 make install_bin || die Failed to install_bin
