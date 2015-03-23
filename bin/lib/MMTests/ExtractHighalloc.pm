@@ -94,7 +94,6 @@ sub extractReport($$$) {
 		push @{$self->{_ResultData}}, [ "$workload-pass", $iterations ];
 		push @{$self->{_ResultData}}, [ "$workload-success", $nr_success * 100 / $nr_attempt ];
 		push @{$self->{_ResultData}}, [ "$workload-mean-lat", calc_mean(@latencies) ];
-		push @{$self->{_ResultData}}, [ "$workload-5trim-lat", calc_5trimmed_mean(@latencies) ];
 	}
 
 	return 1;

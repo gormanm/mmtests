@@ -10,7 +10,7 @@ use VMR::Report;
 use strict;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_5trimmed_mean &calc_10trimmed_mean &calc_trimoutlier_mean &calc_5trimmed_median &calc_worst10_mean &calc_worst5_mean &calc_worst1_mean &calc_mean &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_lowest_mean &calc_mean &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Values taken from a standard normal table
 my %za = (
@@ -182,23 +182,11 @@ sub calc_median {
 	}
 }
 
-sub calc_5trimmed_mean {
+sub calc_trimmed_mean {
+	my $percentage = shift;
+	$percentage /= 2;
 	my $nr_elements = @_;
-	my $nr_trim = int ($nr_elements * 2.5 / 100);
-
-	if ($nr_trim == 0 || $nr_trim * 2 > $nr_elements) {
-		return calc_mean(@_);
-	}
-
-	my @sorted = sort { $a <=> $b } @_;
-	my @trimmed = @sorted[$nr_trim..$nr_elements - $nr_trim];
-
-	return calc_mean(@trimmed);
-}
-
-sub calc_10trimmed_mean {
-	my $nr_elements = @_;
-	my $nr_trim = int ($nr_elements * 5 / 100);
+	my $nr_trim = int ($nr_elements * $percentage / 100);
 
 	if ($nr_trim == 0 || $nr_trim * 2 > $nr_elements) {
 		return calc_mean(@_);
@@ -211,9 +199,10 @@ sub calc_10trimmed_mean {
 }
 
 
-sub calc_worst10_mean {
+sub calc_highest_mean {
+	my $percentage = shift;
 	my $nr_elements = @_;
-	my $nr_trim = int ($nr_elements * 90 / 100);
+	my $nr_trim = int ($nr_elements * $percentage / 100);
 
 	if ($nr_trim == 0) {
 		return calc_mean(@_);
@@ -225,55 +214,19 @@ sub calc_worst10_mean {
 	return calc_mean(@trimmed);
 }
 
-sub calc_worst5_mean {
+sub calc_lowest_mean {
+	my $percentage = shift;
 	my $nr_elements = @_;
-	my $nr_trim = int ($nr_elements * 95 / 100);
+	my $nr_trim = int ($nr_elements * $percentage / 100);
 
 	if ($nr_trim == 0) {
 		return calc_mean(@_);
 	}
 
 	my @sorted = sort { $a <=> $b } @_;
-	my @trimmed = @sorted[$nr_trim..$nr_elements];
+	my @trimmed = @sorted[0..$nr_trim];
 
 	return calc_mean(@trimmed);
-}
-
-sub calc_worst1_mean {
-	my $nr_elements = @_;
-	my $nr_trim = int ($nr_elements * 99 / 100);
-
-	my @sorted = sort { $a <=> $b } @_;
-	my @trimmed = @sorted[$nr_trim..$nr_elements];
-
-	return calc_mean(@trimmed);
-}
-
-sub calc_trimoutlier_mean {
-	my $nr_elements = @_;
-
-	if ($nr_elements == 1) {
-		return $_[0];
-	}
-
-	my @sorted = sort { $a <=> $b } @_;
-	my @trimmed = @sorted[0..$nr_elements - 2];
-
-	return calc_mean(@trimmed);
-}
-
-sub calc_5trimmed_median {
-	my $nr_elements = @_;
-	my $nr_trim = int ($nr_elements * 2.5 / 100);
-
-	if ($nr_trim == 0 || $nr_trim * 2 > $nr_elements) {
-		return calc_median(@_);
-	}
-
-	my @sorted = sort { $a <=> $b } @_;
-	my @trimmed = @sorted[$nr_trim..$nr_elements - $nr_trim];
-
-	return calc_median(@trimmed);
 }
 
 sub calc_true_mean {

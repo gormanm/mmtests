@@ -47,7 +47,7 @@ sub initialise() {
 	$self->{_FieldHeaders} = [ "Type", "Sample", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
 	$self->{_SummaryLength} = $self->{_FieldLength} + 4 if !defined $self->{_SummaryLength};
 	if ($self->{_Variable} == 1) {
-        	$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-93%", "Max-95%", "Max-99%", "Max", "Highest10%Mean", "Highest5%Mean", "Highest1%Mean" ];
+		$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-93%", "Max-95%", "Max-99%", "Max", "Best90%Mean", "Best50%Mean", "Best10%Mean", "Best5%Mean", "Best1%Mean" ];
 	} else {
 		$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max" ];
 	}
@@ -160,23 +160,25 @@ sub extractSummary() {
 		}
 
 		if ($self->{_Variable} == 1) {
-                	my $quartilesRef = calc_quartiles(@units);
-                	my @quartiles = @{$quartilesRef};
-                	push @row, $operation;
-                	push @row, calc_min(@units);
-                	push @row, $quartiles[1];
-                	push @row, $quartiles[2];
-                	push @row, $quartiles[3];
-                	push @row, $quartiles[90];
-                	push @row, $quartiles[93];
-                	push @row, $quartiles[95];
-                	push @row, $quartiles[99];
-                	push @row, $quartiles[4];
-                	push @row, calc_worst10_mean(@units);
-                	push @row, calc_worst5_mean(@units);
-                	push @row, calc_worst1_mean(@units);
+			my $quartilesRef = calc_quartiles(@units);
+			my @quartiles = @{$quartilesRef};
+			push @row, $operation;
+			push @row, calc_min(@units);
+			push @row, $quartiles[1];
+			push @row, $quartiles[2];
+			push @row, $quartiles[3];
+			push @row, $quartiles[90];
+			push @row, $quartiles[93];
+			push @row, $quartiles[95];
+			push @row, $quartiles[99];
+			push @row, $quartiles[4];
+			push @row, calc_highest_mean(90, @units);
+			push @row, calc_highest_mean(50, @units);
+			push @row, calc_highest_mean(10, @units);
+			push @row, calc_highest_mean(5, @units);
+			push @row, calc_highest_mean(1, @units);
 
-                	push @{$self->{_SummaryData}}, \@row;
+			push @{$self->{_SummaryData}}, \@row;
 		} else {
 			push @row, $operation;
 			foreach my $funcName ("calc_min", $self->{_MeanOp}, "calc_stddev", "calc_coeffvar", "calc_max") {
