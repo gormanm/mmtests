@@ -1,0 +1,14 @@
+#!/bin/bash
+
+###SHELLPACK preamble libmmapcontrol-install 0
+GIT_LOCATION=https://github.com/gormanm/libmmapcontrol.git
+MIRROR_LOCATION="$WEBROOT/libmmapcontrol/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch libmmapcontrol-${VERSION}.tar.gz libmmapcontrol-${VERSION}-installed
+###SHELLPACK build_start libmmapcontrol-${VERSION}-installed
+###SHELLPACK make
+
+echo libmmapcontrol installed successfully
