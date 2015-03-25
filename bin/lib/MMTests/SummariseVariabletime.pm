@@ -22,7 +22,7 @@ sub initialise() {
 	$self->{_RatioPreferred} = "Lower";
 
 	$self->{_SummaryLength} = 16;
-	$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-93%", "Max-95%", "Max-99%", "Max", "Mean", "Best99%Mean", "Best90%Mean", "Best50%Mean", "Best10%Mean", "Best5%Mean", "Best1%Mean" ];
+	$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-93%", "Max-95%", "Max-99%", "Max", "Mean", "Best99%Mean", "Best95%Mean", "Best90%Mean", "Best50%Mean", "Best10%Mean", "Best5%Mean", "Best1%Mean" ];
 	$self->{_SummariseColumn} = 2;
 	$self->{_TestName} = $testName;
 }
@@ -93,6 +93,7 @@ sub extractSummary() {
 		push @row, $quartiles[4];
 		push @row, calc_mean(@units);
 		push @row, calc_lowest_mean(99, @units);
+		push @row, calc_lowest_mean(95, @units);
 		push @row, calc_lowest_mean(90, @units);
 		push @row, calc_lowest_mean(50, @units);
 		push @row, calc_lowest_mean(10, @units);
