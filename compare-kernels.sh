@@ -326,6 +326,15 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		compare-mmtests.pl -d . -b sysbenchexectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
+	thpscale)
+		echo $SUBREPORT Fault Latencies
+		eval $COMPARE_CMD
+		echo
+		echo $SUBREPORT Percentage Faults Huge
+		compare-mmtests.pl -d . -b thpscalecounts -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		;;
+
 	tiobench)
 		echo $SUBREPORT Throughput
 		$COMPARE_CMD

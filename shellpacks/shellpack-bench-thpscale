@@ -1,0 +1,101 @@
+#!/bin/bash
+P=thpscale-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--min-threads)
+		THPSCALE_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		THPSCALE_MAX_THREADS=$2
+		shift 2
+		;;
+	--mapsize)
+		THPSCALE_MAPSIZE=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/thpscale-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/thpscale-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-thpscale -v ${VERSION}  || die thpscale install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/thpscale-${VERSION}-installed || die Failed to cd to thpscale install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo thpscale installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+cd $SHELLPACK_SOURCES/thpscale-${VERSION}-installed ||
+	die Failed to change to benchmark directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+THREADS=
+START_THREAD=$THPSCALE_MIN_THREADS
+END_THREAD=$THPSCALE_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 2 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
+for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	echo Starting $NR_THREADS/$THPSCALE_MAX_THREADS
+	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
+		./thpscale $NR_THREADS $THPSCALE_MAPSIZE	\
+			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+done
+exit $SHELLPACK_SUCCESS
+#### Description thpscale
+#### Details thpscale-bench 6

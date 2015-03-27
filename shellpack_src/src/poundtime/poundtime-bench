@@ -2,7 +2,6 @@
 ###SHELLPACK preamble poundtime-bench 0
 
 ITERATIONS=12
-TESTLIST=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
