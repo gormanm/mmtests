@@ -321,10 +321,6 @@ emit_sconf() {
 ##
 # emit_monitor - Emit monitoring hooks
 emit_monitor() {
-	if [ "`which opcontrol`" = "" ]; then
-		die oprofile not installed
-	fi
- 
  	EMIT_UPITER="echo iter >> /tmp/OPiter.\${lognum}.\${size_class}.\${benchmark}"
 	EMIT_LOCKBEFORE="echo no_lock_stat > /dev/null"
 	EMIT_LOCKAFTER="echo no_lock_stat > /dev/null"
@@ -337,6 +333,9 @@ emit_monitor() {
 		return
 	fi
 
+	if [ "`which opcontrol`" = "" ]; then
+		die oprofile not installed
+	fi
 	EVENT=
 	for i in $EVENTS; do
 		EVENT="$EVENT --event $i"
