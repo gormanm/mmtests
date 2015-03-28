@@ -70,6 +70,10 @@ cd $SHELLPACK_SOURCES/thpscale-${VERSION}-installed ||
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
+echo Creating large file
+dd if=/dev/zero of=$SHELLPACK_TEMP/workfile ibs=1048576 count=$((THPSCALE_MAPSIZE/1048576))
+sync
+
 THREADS=
 START_THREAD=$THPSCALE_MIN_THREADS
 END_THREAD=$THPSCALE_MAX_THREADS
@@ -89,13 +93,16 @@ fi
 
 for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
+	echo Dropping cache to avoid distorting init timings
+	echo 3 > /proc/sys/vm/drop_caches
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	echo Starting $NR_THREADS/$THPSCALE_MAX_THREADS
 	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
-		./thpscale $NR_THREADS $THPSCALE_MAPSIZE	\
+		./thpscale $NR_THREADS $THPSCALE_MAPSIZE $SHELLPACK_TEMP/workfile	\
 			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
+rm $SHELLPACK_TEMP/workfile
 exit $SHELLPACK_SUCCESS
 #### Description thpscale
-#### Details thpscale-bench 6
+#### Details thpscale-bench 14

@@ -1,0 +1,33 @@
+#!/bin/bash
+###SHELLPACK preamble thpscale-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-threads	THPSCALE_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads	THPSCALE_MAX_THREADS
+###SHELLPACK parseargParam	--mapsize	THPSCALE_MAPSIZE
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required thpscale-${VERSION}
+cd $SHELLPACK_SOURCES/thpscale-${VERSION}-installed ||
+	die Failed to change to benchmark directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+echo Creating large file
+dd if=/dev/zero of=$SHELLPACK_TEMP/workfile ibs=1048576 count=$((THPSCALE_MAPSIZE/1048576))
+sync
+
+###SHELLPACK threads_large_stride_begin $THPSCALE_MIN_THREADS $THPSCALE_MAX_THREADS
+	echo Dropping cache to avoid distorting init timings
+	echo 3 > /proc/sys/vm/drop_caches
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	echo Starting $NR_THREADS/$THPSCALE_MAX_THREADS
+	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
+		./thpscale $NR_THREADS $THPSCALE_MAPSIZE $SHELLPACK_TEMP/workfile	\
+			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+rm $SHELLPACK_TEMP/workfile
+exit $SHELLPACK_SUCCESS
