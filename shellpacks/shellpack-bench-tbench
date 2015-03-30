@@ -4,6 +4,8 @@ P=dbench-bench
 DEFAULT_VERSION=4.0
 . $SHELLPACK_INCLUDE/common.sh
 
+SERVER_ADDRESS="localhost"
+
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -24,6 +26,10 @@ while [ "$1" != "" ]; do
 		;;
 	--max-clients)
 		TBENCH_MAX_CLIENTS=$2
+		shift 2
+		;;
+	--server-address)
+		SERVER_ADDRESS=$2
 		shift 2
 		;;
 	*)
@@ -57,6 +63,13 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
+if [ "$SERVER_ADDRESS" != "localhost" -a "$SERVER_ADDRESS" != "127.0.0.1" ]; then
+	if ! ./bin/tbench -t 1 1 $SERVER_ADDRESS; then
+		echo ERROR: Could not connect to $SERVER_ADDRESS
+		exit $SHELLPACK_ERROR
+	fi
+fi
+
 NR_THREADS=1
 if [ "$NR_THREADS" = "" ]; then
 	NR_THREADS=1
@@ -67,13 +80,17 @@ while [ $NR_THREADS -le $TBENCH_MAX_CLIENTS ]; do
 	fi
 	mmtests_activity process $NR_THREADS/$TBENCH_MAX_CLIENTS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	./bin/tbench_srv &
-	PID_SERVER=$!
+	if [ "$SERVER_ADDRESS" == "localhost" -o "$SERVER_ADDRESS" == "127.0.0.1" ]; then
+		./bin/tbench_srv &
+		PID_SERVER=$!
+	fi
 	./bin/tbench \
 		-t $TBENCH_DURATION \
-		$NR_THREADS localhost 2>&1 | tee $LOGDIR_RESULTS/tbench-$NR_THREADS.log \
+		$NR_THREADS $SERVER_ADDRESS 2>&1 | tee $LOGDIR_RESULTS/tbench-$NR_THREADS.log \
 			|| die Failed to run tbench
-	kill -9 $PID_SERVER
+	if [ "$SERVER_ADDRESS" == "localhost" -o "$SERVER_ADDRESS" == "127.0.0.1" ];then
+		kill -9 $PID_SERVER
+	fi
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 NR_THREADS=$((NR_THREADS*2))
 done
