@@ -23,7 +23,7 @@ sub printDataType() {
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_Opname} = "Latency";
-	$self->SUPER::initialise();
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {
