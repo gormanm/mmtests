@@ -19,6 +19,7 @@ use constant MONITOR_IOSTAT		=> 8;
 use constant MONITOR_FTRACE		=> 9;
 use constant MONITOR_IOTOP		=> 10;
 use constant MONITOR_SYSCALLS		=> 11;
+use constant MONITOR_PROCNETDEV		=> 12;
 use strict;
 
 sub new() {
@@ -89,7 +90,8 @@ sub printReport() {
 	    $self->{_DataType} == MONITOR_FTRACE ||
 	    $self->{_DataType} == MONITOR_IOSTAT ||
 	    $self->{_DataType} == MONITOR_SYSCALLS ||
-	    $self->{_DataType} == MONITOR_VMSTAT) {
+	    $self->{_DataType} == MONITOR_VMSTAT ||
+	    $self->{_DataType} == MONITOR_PROCNETDEV) {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {
 		print "Unknown data type for reporting monitor raw data\n";

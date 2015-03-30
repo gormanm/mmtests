@@ -1005,6 +1005,44 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "</tr>"
 		fi
 
+		if [ `ls proc-net-dev-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
+			INTERFACE_LIST=""
+			for NET_DEV in proc-net-dev-$KERNEL_BASE-*; do
+				if [[ $NET_DEV == *".gz" ]]; then
+					LIST=`gunzip -c $NET_DEV | awk '{ if($1 != "time:")  print $1 }' | sort -u`
+				else
+					LIST=`cat $NET_DEV | awk '{ if($1 != "time:")  print $1 }' | sort -u`
+				fi
+				INTERFACE_LIST=`printf "$LIST\n$INTERFACE_LIST" | sort -u`
+			done
+
+			for INTERFACE in $INTERFACE_LIST; do
+				eval $GRAPH_PNG --title \"$INTERFACE Received Bytes\"      --print-monitor proc-net-dev --sub-heading $INTERFACE-rbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes.png
+				eval $GRAPH_PSC --title \"$INTERFACE Received Bytes\"      --print-monitor proc-net-dev --sub-heading $INTERFACE-rbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes.ps
+				eval $GRAPH_PNG --title \"$INTERFACE Received Packets\"    --print-monitor proc-net-dev --sub-heading $INTERFACE-rpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rpackets.png
+				eval $GRAPH_PSC --title \"$INTERFACE Received Packets\"    --print-monitor proc-net-dev --sub-heading $INTERFACE-rpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rpackets.ps
+				eval $GRAPH_PNG --title \"$INTERFACE Transmitted Bytes\"   --print-monitor proc-net-dev --sub-heading $INTERFACE-tbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tbytes.png
+				eval $GRAPH_PSC --title \"$INTERFACE Transmitted Bytes\"   --print-monitor proc-net-dev --sub-heading $INTERFACE-tbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tbytes.ps
+				eval $GRAPH_PNG --title \"$INTERFACE Transmitted Packets\" --print-monitor proc-net-dev --sub-heading $INTERFACE-tpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tpackets.png
+				eval $GRAPH_PSC --title \"$INTERFACE Transmitted Packets\" --print-monitor proc-net-dev --sub-heading $INTERFACE-tpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tpackets.ps
+				eval $GRAPH_PNG --title \"$INTERFACE Received Bytes\"      --print-monitor proc-net-dev --sub-heading $INTERFACE-rbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes-smooth.png     --smooth
+				eval $GRAPH_PSC --title \"$INTERFACE Received Bytes\"      --print-monitor proc-net-dev --sub-heading $INTERFACE-rbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes-smooth.ps      --smooth
+				eval $GRAPH_PNG --title \"$INTERFACE Received Packets\"    --print-monitor proc-net-dev --sub-heading $INTERFACE-rpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rpackets-smooth.png --smooth
+				eval $GRAPH_PSC --title \"$INTERFACE Received Packets\"    --print-monitor proc-net-dev --sub-heading $INTERFACE-rpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rpackets-smooth.ps  --smooth
+				eval $GRAPH_PNG --title \"$INTERFACE Transmitted Bytes\"   --print-monitor proc-net-dev --sub-heading $INTERFACE-tbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tbytes-smooth.png     --smooth
+				eval $GRAPH_PSC --title \"$INTERFACE Transmitted Bytes\"   --print-monitor proc-net-dev --sub-heading $INTERFACE-tbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tbytes-smooth.ps      --smooth
+				eval $GRAPH_PNG --title \"$INTERFACE Transmitted Packets\" --print-monitor proc-net-dev --sub-heading $INTERFACE-tpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tpackets-smooth.png --smooth
+				eval $GRAPH_PSC --title \"$INTERFACE Transmitted Packets\" --print-monitor proc-net-dev --sub-heading $INTERFACE-tpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tpackets-smooth.ps  --smooth
+
+				echo "<tr>"
+				smoothover graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes
+				smoothover graph-$SUBREPORT-proc-net-dev-$INTERFACE-rpackets
+				smoothover graph-$SUBREPORT-proc-net-dev-$INTERFACE-tbytes
+				smoothover graph-$SUBREPORT-proc-net-dev-$INTERFACE-tpackets
+				echo "</tr>"
+			done
+		fi
+
 		echo "</table>"
 		gzip -f $OUTPUT_DIRECTORY/*.ps
 	fi
