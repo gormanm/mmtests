@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_DataType}  == MMTests::Extract::DATA_OPS_PER_SECOND;
 	$self->{_Opname} = "Latency";
-	$self->SUPER::initialise();
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {
