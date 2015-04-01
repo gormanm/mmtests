@@ -2,6 +2,11 @@
 P=nas-install
 DEFAULT_VERSION=3.3
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION="NOT_AVAILABLE"
 MIRROR_LOCATION="$WEBROOT/nas/"
 
@@ -51,4 +56,4 @@ pushd nas-$VERSION-installed > /dev/null || die Failed to rename tar
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas 51
+#### Details nas 52

@@ -4,6 +4,11 @@
 P=nas-bench
 DEFAULT_VERSION=3.3
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 install-depends openmpi openmpi-devel
 
@@ -233,6 +238,9 @@ for PAGES in $NAS_PAGESIZES; do
 				$HUGECTL ./bin/$JOB.$NAS_CLASS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 			else
 				eval $HUGECTL mpirun $MPIOPT -np $MPICPUS ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
+				if [ $? -ne 0 ]; then
+					eval $HUGECTL mpirun --allow-run-as-root $MPIOPT -np $MPICPUS ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
+				fi
 			fi
 
 			if [ $? -eq 0 ]; then
@@ -253,4 +261,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 51
+#### Details nas-bench 52
