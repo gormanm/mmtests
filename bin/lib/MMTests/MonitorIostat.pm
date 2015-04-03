@@ -27,6 +27,9 @@ my %plotMap = (
 	"avgrqsz" => "Average Request Size (sectors)",
 	"rrqm"    => "Read Requests Merged/sec (req/sec)",
 	"wrqm"    => "Write Requests Merged/sec (req/sec)",
+	"rkbs"    => "Reads (kb/sec)",
+	"wkbs"	  => "Writes (kb/sec)",
+	"totalkbs"   => "Total IO (kb/sec)",
 );
 
 sub printDataType() {
@@ -57,7 +60,7 @@ sub extractSummary() {
 	# Yes, this could be done as one pass. Could not be arsed as I'm
 	# playing settlers in 10 minutes.
 	foreach my $device (sort keys %devices) {
-		my (@avgqusz, @avgrqsz, @await, @r_await, @w_await, @svctm, @rrqm, @wrqm);
+		my (@avgqusz, @avgrqsz, @await, @r_await, @w_await, @svctm, @rrqm, @wrqm, @rkbs, @wkbs, @totalkbs);
 
 		foreach my $rowRef (@data) {
 			my @row = @{$rowRef};
@@ -72,6 +75,9 @@ sub extractSummary() {
 			push @avgrqsz, $row[7];
 			push @rrqm,    $row[8];
 			push @wrqm,    $row[9];
+			push @rkbs,    $row[10];
+			push @wkbs,    $row[11];
+			push @totalkbs,$row[12];
 
 		}
 
@@ -115,12 +121,13 @@ sub extractReport($$$) {
 
 	my $fieldLength = 12;
         $self->{_FieldLength} = $fieldLength;
-        $self->{_FieldHeaders} = [ "Time", "Device", "AvgQueueSz", "AWait", "R_AWait", "W_AWait", "SVCtm", "AvgRqSz", "Rrqm", "Wrqm" ];
+        $self->{_FieldHeaders} = [ "Time", "Device", "AvgQueueSz", "AWait", "R_AWait", "W_AWait", "SVCtm", "AvgRqSz", "Rrqm", "Wrqm", "Rkbs", "Wkbs", "Totalkbs" ];
         $self->{_FieldFormat} = [ "%${fieldLength}.4f", "%${fieldLength}s",
 				  "%${fieldLength}.2f", "%${fieldLength}.2f",
 				  "%${fieldLength}.2f", "%${fieldLength}.2f",
 				  "%${fieldLength}.2f", "%${fieldLength}.2f",
-				  "%${fieldLength}.2f", ];
+				  "%${fieldLength}.2f", "%${fieldLength}.2f",
+				  "%${fieldLength}.2f", "%${fieldLength}.2f" ];
 
 	my %samples;
 
@@ -160,10 +167,13 @@ sub extractReport($$$) {
 		}
 
 		# Record times
-		my ($avgqusz, $avgrqsz, $await, $r_await, $w_await, $svctm, $rrqm, $wrqm);
+		my ($avgqusz, $avgrqsz, $await, $r_await, $w_await, $svctm, $rrqm, $wrqm, $rkbs, $wkbs, $totalkbs);
 		if ($format_type == 0) {
 			$rrqm = $elements[6];
 			$wrqm = $elements[7];
+			$rkbs = $elements[10];
+			$wkbs = $elements[11];
+			$totalkbs = $rkbs + $wkbs;
 			$avgrqsz = $elements[12];
 			$avgqusz = $elements[13];
 			$await = $elements[14];
@@ -173,6 +183,9 @@ sub extractReport($$$) {
 		} elsif ($format_type == 1) {
 			$rrqm = $elements[6];
 			$wrqm = $elements[7];
+			$rkbs = $elements[10];
+			$wkbs = $elements[11];
+			$totalkbs = $rkbs + $wkbs;
 			$avgrqsz = $elements[12];
 			$avgqusz = $elements[13];
 			$await = $elements[14];
@@ -216,6 +229,12 @@ sub extractReport($$$) {
 				push @{$self->{_ResultData}}, [ $timestamp, $rrqm ];
 			} elsif ($subHeading eq "$elements[5]-wrqm") {
 				push @{$self->{_ResultData}}, [ $timestamp, $wrqm ];
+			} elsif ($subHeading eq "$elements[5]-rkbs") {
+				push @{$self->{_ResultData}}, [ $timestamp, $rkbs ];
+			} elsif ($subHeading eq "$elements[5]-wkbs") {
+				push @{$self->{_ResultData}}, [ $timestamp, $wkbs ];
+			} elsif ($subHeading eq "$elements[5]-totalkbs") {
+				push @{$self->{_ResultData}}, [ $timestamp, $totalkbs ];
 			}
 		}
 	} close INPUT;

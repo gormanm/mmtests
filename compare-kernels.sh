@@ -370,7 +370,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			PARAM_LIST="avgqz await"
 		fi
 		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			for DEVICE in sda; do
+			for DEVICE in `grep ^Mean /tmp/iostat-$$ | awk '{print $2}' | awk -F - '{print $1}' | sort | uniq`; do
 				echo "<table class=\"resultsGraphs\">"
 				echo "<tr>"
 				for PARAM in avgqusz await r_await w_await; do
@@ -389,6 +389,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
 					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
 				done
+				echo "</tr>"
+				echo "<tr>"
+				for PARAM in rkbs wkbs totalkbs; do
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
+					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
+					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
+					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
+				done
+				echo "</tr>"
 
 				echo "</table>"
 			done
@@ -748,8 +758,8 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					rm -rf /tmp/iotop-mmtests-$$/*
 				done
 				echo "</tr>"
-
 			done
+			rm -rf /tmp/iotop-mmtests-$$
 
 			# IO threads mean
 			for OP in Read Write; do
@@ -817,7 +827,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			smoothover graph-$SUBREPORT-vmstat-wa
 			echo "</tr>"
 
-			echo DEBUG: $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.png > /tmp/a
 			eval $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.png
 			eval $GRAPH_PSC --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.ps
 			eval $GRAPH_PNG --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu.png
