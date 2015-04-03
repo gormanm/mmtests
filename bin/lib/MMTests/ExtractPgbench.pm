@@ -120,6 +120,7 @@ sub extractReport($$$) {
 		my $testStart = 0;
 		my $sumTransactions = 0;
 		my $batch = 1;
+		my $nr_readings = 0;
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			# time num_of_transactions latency_sum latency_2_sum min_latency max_latency
@@ -144,11 +145,23 @@ sub extractReport($$$) {
 					if ($sample % $batch == 0) {
 						push @{$self->{_ResultData}}, [ $client, $elements[0] - $testStart, $sumTransactions / $batch ];
 						$sumTransactions = 0;
+						$nr_readings++;
 					}
 				}
 			}
 		}
 		close INPUT;
+		if ($nr_readings == 0) {
+			$file = "$reportDir/noprofile/default/pgbench-raw-$client";
+			open(INPUT, $file) || die("Failed to open $file\n");
+			while (!eof(INPUT)) {
+				my $line = <INPUT>;
+				if ($line =~ /^tps = ([0-9.]+) \(including.*/) {
+					push @{$self->{_ResultData}}, [ $client, 0, $1 ];
+				}
+			}
+			close INPUT;
+		}
 	}
 
 	$self->{_Operations} = \@clients;
