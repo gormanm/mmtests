@@ -27,9 +27,25 @@ echo $FUTEXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 		mmtests_activity $WORKLOAD-$NR_THREADS
 		echo Running test $WORKLOAD
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-		$PERF_CMD bench futex $WORKLOAD -t $NR_THREADS 2>&1 | \
-			tee $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log \
-			|| die Failed ro run perf-bench futex
+		$PERF_CMD bench futex $WORKLOAD -t $NR_THREADS > $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log 2>&1 &
+		PERF_PID=$!
+		echo -n Waiting on perf to exit..
+		TEST_EXIT=`ps h --pid $PERF_PID`
+		while [ "`ps h --pid $PERF_PID`" != "" ]; do
+			echo -n .
+			sleep 1
+			TEST_ERROR=`grep "wakeup all tasks" $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log`
+			if [ "$TEST_ERROR" != "" ]; then
+				kill -9 $PERF_PID
+				echo WARNING: perf failed to wake all tasks
+				touch $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.failed
+				TEST_EXIT=""
+			else
+				TEST_EXIT=`ps h --pid $PERF_PID`
+			fi
+		done
+		wait $PERF_PID
+		cat $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log
 		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	done
 ###SHELLPACK threads_stride_end
