@@ -45,7 +45,10 @@ echo $FUTEXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 			fi
 		done
 		wait $PERF_PID
+		EXIT_CODE=$?
+		echo
 		cat $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log
+		echo Exit code $EXIT_CODE
 		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	done
 ###SHELLPACK threads_stride_end
