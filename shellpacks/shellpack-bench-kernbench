@@ -3,8 +3,12 @@
 P=kernbench
 DEFAULT_VERSION=3.0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 ITERATIONS=5
-FACTOR=1
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -16,20 +20,24 @@ while [ "$1" != "" ]; do
 		VERSION=$2
 		shift 2
 		;;
-	-k)
-		VERSION=$2
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--min-threads)
+		KERNBENCH_MIN_THREADS=$2
 		shift 2
 		;;
-	-i)
-		ITERATIONS=$2
+	--max-threads)
+		KERNBENCH_MAX_THREADS=$2
 		shift 2
 		;;
-	-t)
-		THREADS=$2
-		shift 2
-		;;
-	-f)
-		FACTOR=$2
+	--iterations)
+		KERNBENCH_ITERATIONS=$2
 		shift 2
 		;;
 	*)
@@ -45,9 +53,12 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
 WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v3.0/linux-$VERSION.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
-THREADS=$(($NUMCPUS*$FACTOR))
+THREADS=$(($NUMCPUS))
 
 pushd $TESTDISK_DIR > /dev/null
 
@@ -63,25 +74,47 @@ echo Warming run
 make -j$THREADS vmlinux > /dev/null 2>&1 || die Failed to build vmlinux
 make clean >/dev/null
 
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-        TIME_CMD="time"
+# Build pass
+THREADS=
+START_THREAD=$KERNBENCH_MIN_THREADS
+END_THREAD=$KERNBENCH_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 2 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
 fi
 
-# Build pass
-for ITERATION in `seq 1 $ITERATIONS`; do
+for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+for ITERATION in `seq 1 $KERNBENCH_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
-	echo Pass $ITERATION
-	sync
+		echo Starting threads $NR_THREADS/$KERNBENCH_MAX_THREADS iteration $ITERATION/$KERNBENCH_ITERATIONS
+		sync
 
-	$TIME_CMD make -j$THREADS vmlinux 2>> $LOGDIR_RESULTS/time.$ITERATION > /dev/null
-	grep elapsed $LOGDIR_RESULTS/time.$ITERATION
-	make clean >/dev/null
+		save_rc $TIME_CMD make -j$NR_THREADS vmlinux 2>> $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time > /dev/null
+		grep elapsed $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time``
+		recover_rc
+		if [ $? -ne 0 ]; then
+			die Failed to run kernbench
+		fi
+
+		# cleanup
+		make clean >/dev/null
+done
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
 
 # Gather results and cleanup
-cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time
+cat $LOGDIR_RESULTS/kernbench-*.time | grep elapsed | tee $LOGDIR_RESULTS/kernbench
 rm -rf $TESTDISK_DIR/*
 
 # clean up the tree to save space
@@ -90,4 +123,4 @@ rm -rf $TMPDIR/kernbench
 
 exit 0
 #### Description Benchmark based on kernel builds
-#### Details kernbench-bench 25
+#### Details kernbench-bench 27

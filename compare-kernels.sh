@@ -516,7 +516,14 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		gitcheckout)
 			;;
-		kernbench|starve)
+		kernbench)
+			echo "<tr>"
+			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label secs
+			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps --y-label secs
+			plain graph-$SUBREPORT
+			echo "</tr>"
+			;;
+		starve)
 			echo "<tr>"
 			for HEADING in User System Elapsed CPU; do
 				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png

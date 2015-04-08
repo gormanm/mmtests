@@ -2,18 +2,20 @@
 # Benchmark a number of kernel builds
 ###SHELLPACK preamble kernbench 3.0
 ITERATIONS=5
-FACTOR=1
 
 ###SHELLPACK parseargBegin
-###SHELLPACK parseargParam -k VERSION
-###SHELLPACK parseargParam -i ITERATIONS
-###SHELLPACK parseargParam -t THREADS
-###SHELLPACK parseargParam -f FACTOR
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-threads	KERNBENCH_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads	KERNBENCH_MAX_THREADS
+###SHELLPACK parseargParam	--iterations	KERNBENCH_ITERATIONS
 ###SHELLPACK parseargEnd
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
 
 WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v3.0/linux-$VERSION.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
-THREADS=$(($NUMCPUS*$FACTOR))
+THREADS=$(($NUMCPUS))
 
 pushd $TESTDISK_DIR > /dev/null
 
@@ -30,17 +32,27 @@ make -j$THREADS vmlinux > /dev/null 2>&1 || die Failed to build vmlinux
 make clean >/dev/null
 
 # Build pass
-###SHELLPACK iteration_begin $ITERATIONS
-	echo Pass $ITERATION
-	sync
+###SHELLPACK threads_large_stride_begin $KERNBENCH_MIN_THREADS $KERNBENCH_MAX_THREADS $KERNBENCH_ITERATIONS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	###SHELLPACK iteration_begin $KERNBENCH_ITERATIONS
+		echo Starting threads $NR_THREADS/$KERNBENCH_MAX_THREADS iteration $ITERATION/$KERNBENCH_ITERATIONS
+		sync
 
-	$TIME_CMD make -j$THREADS vmlinux 2>> $LOGDIR_RESULTS/time.$ITERATION > /dev/null
-	grep elapsed $LOGDIR_RESULTS/time.$ITERATION
-	make clean >/dev/null
-###SHELLPACK iteration_end
+		save_rc $TIME_CMD make -j$NR_THREADS vmlinux 2>> $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time > /dev/null
+		grep elapsed $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time``
+		recover_rc
+		if [ $? -ne 0 ]; then
+			die Failed to run kernbench
+		fi
+
+		# cleanup
+		make clean >/dev/null
+	###SHELLPACK iteration_end $ITERATIONS
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
 
 # Gather results and cleanup
-cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time
+cat $LOGDIR_RESULTS/kernbench-*.time | grep elapsed | tee $LOGDIR_RESULTS/kernbench
 rm -rf $TESTDISK_DIR/*
 
 # clean up the tree to save space

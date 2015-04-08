@@ -64,6 +64,11 @@ export MONITORS_GZIP="proc-vmstat top iotop mpstat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
+# kernbench
+export KERNBENCH_ITERATIONS=5
+export KERNBENCH_MIN_THREADS=2
+export KERNBENCH_MAX_THREADS=$((NUMCPUS*2))
+
 # Git checkout
 export GITCHECKOUT_SOURCETAR=$WEBROOT/gitcheckout/linux-2.6.tar.gz
 export GITCHECKOUT_SOURCE=$SSHROOT/linux-2.6
