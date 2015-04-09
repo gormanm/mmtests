@@ -32,7 +32,7 @@ make -j$THREADS vmlinux > /dev/null 2>&1 || die Failed to build vmlinux
 make clean >/dev/null
 
 # Build pass
-###SHELLPACK threads_large_stride_begin $KERNBENCH_MIN_THREADS $KERNBENCH_MAX_THREADS $KERNBENCH_ITERATIONS
+###SHELLPACK threads_powertwo_begin $KERNBENCH_MIN_THREADS $KERNBENCH_MAX_THREADS $KERNBENCH_ITERATIONS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $KERNBENCH_ITERATIONS
 		echo Starting threads $NR_THREADS/$KERNBENCH_MAX_THREADS iteration $ITERATION/$KERNBENCH_ITERATIONS
@@ -49,10 +49,9 @@ make clean >/dev/null
 		make clean >/dev/null
 	###SHELLPACK iteration_end $ITERATIONS
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
-###SHELLPACK threads_stride_end
+###SHELLPACK threads_powertwo_end
 
-# Gather results and cleanup
-cat $LOGDIR_RESULTS/kernbench-*.time | grep elapsed | tee $LOGDIR_RESULTS/kernbench
+# Cleanup
 rm -rf $TESTDISK_DIR/*
 
 # clean up the tree to save space

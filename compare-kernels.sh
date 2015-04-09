@@ -518,9 +518,23 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		kernbench)
 			echo "<tr>"
-			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label secs
-			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps --y-label secs
-			plain graph-$SUBREPORT
+			for HEADING in user syst elsp; do
+				TITLE_HEADING=
+				case $HEADING in
+				user)
+					TITLE_HEADING="User"
+					;;
+				syst)
+					TITLE_HEADING="System"
+					;;
+				elsp)
+					TITLE_HEADING="Elapsed"
+					;;
+				esac
+				eval $GRAPH_PNG --title \"$SUBREPORT $TITLE_HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $TITLE_HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				plain graph-$SUBREPORT-$HEADING
+			done
 			echo "</tr>"
 			;;
 		starve)

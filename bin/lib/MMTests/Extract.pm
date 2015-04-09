@@ -246,6 +246,25 @@ sub _printCandlePlot() {
 	$self->_printCandlePlotData($fieldLength, @data);
 }
 
+sub _time_to_user {
+	my ($self, $line) = @_;
+	my ($user, $system, $elapsed, $cpu) = split(/\s/, $line);
+	my @elements = split(/:/, $user);
+	my ($hours, $minutes, $seconds);
+	if ($#elements == 0) {
+		$hours = 0;
+		$minutes = 0;
+		$seconds = @elements[0];
+	} elsif ($#elements == 1) {
+		$hours = 0;
+		($minutes, $seconds) = @elements;
+	} else {
+		($hours, $minutes, $seconds) = @elements;
+	}
+	return $hours * 60 * 60 + $minutes * 60 + $seconds;
+}
+
+
 sub _time_to_sys {
 	my ($self, $line) = @_;
 	my ($user, $system, $elapsed, $cpu) = split(/\s/, $line);

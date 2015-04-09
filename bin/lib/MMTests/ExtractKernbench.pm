@@ -47,8 +47,9 @@ sub extractReport($$$) {
 			while (<INPUT>) {
 				my $line = $_;
 				if ($line =~ /([0-9]):([0-9.]+)elapsed/) {
-					my $tottime = ($1 * 60) + $2;
-					push @{$self->{_ResultData}}, [ $nthr, ++$nr_samples, $tottime ];
+					push @{$self->{_ResultData}}, [ "user-$nthr", ++$nr_samples, $self->_time_to_user($line) ];
+					push @{$self->{_ResultData}}, [ "syst-$nthr", ++$nr_samples, $self->_time_to_sys($line) ];
+					push @{$self->{_ResultData}}, [ "elsp-$nthr", ++$nr_samples, $self->_time_to_elapsed($line) ];
 				}
 			}
 			close INPUT;
@@ -56,7 +57,11 @@ sub extractReport($$$) {
 
 	}
 
-	my @ops = sort {$a <=> $b} @threads;
+	my @ops;
+	foreach my $type ("user", "syst", "elsp") {
+		foreach my $thread (sort {$a <=> $b} @threads) {
+			push @ops, "$type-$thread";
+		}
+	}
 	$self->{_Operations} = \@ops;
-
 }

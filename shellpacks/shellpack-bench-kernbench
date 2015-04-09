@@ -75,25 +75,24 @@ make -j$THREADS vmlinux > /dev/null 2>&1 || die Failed to build vmlinux
 make clean >/dev/null
 
 # Build pass
-THREADS=
-START_THREAD=$KERNBENCH_MIN_THREADS
-END_THREAD=$KERNBENCH_MAX_THREADS
-if [ $END_THREAD -gt 32 ]; then
-	THREADS=`seq $START_THREAD 3 8`
-	THREADS="$THREADS `seq 12 9 32`"
-	THREADS="$THREADS `seq 48 31 $END_THREAD`"
-elif [ $END_THREAD -gt 8 ]; then
-	THREADS=`seq $START_THREAD 2 8`
-	THREADS="$THREADS `seq 12 6 $END_THREAD`"
-else
-	THREADS=`seq $START_THREAD 2 $END_THREAD`
+NR_THREADS=$KERNBENCH_MIN_THREADS
+if [ "$NR_THREADS" = "" ]; then
+	NR_THREADS=1
 fi
-if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
-	THREADS="$THREADS $END_THREAD"
+THREADS=$NR_THREADS
+NR_THREADS=$((NR_THREADS*2))
+while [ $NR_THREADS -le $KERNBENCH_MAX_THREADS ]; do
+	THREADS="$THREADS $NR_THREADS"
+	NR_THREADS=$((NR_THREADS*2))
+done
+if [ `echo $THREADS | awk '{print $NF}'` -ne $KERNBENCH_MAX_THREADS ]; then
+	THREADS="$THREADS $KERNBENCH_MAX_THREADS"
 fi
-
 for NR_THREADS in $THREADS; do
-	mmtests_activity process $NR_THREADS/$END_THREAD
+	if [ $NR_THREADS -gt $KERNBENCH_MAX_THREADS ]; then
+		NR_THREADS=$KERNBENCH_MAX_THREADS
+	fi
+	mmtests_activity process $NR_THREADS/$KERNBENCH_MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 for ITERATION in `seq 1 $KERNBENCH_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
@@ -113,8 +112,7 @@ done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
 
-# Gather results and cleanup
-cat $LOGDIR_RESULTS/kernbench-*.time | grep elapsed | tee $LOGDIR_RESULTS/kernbench
+# Cleanup
 rm -rf $TESTDISK_DIR/*
 
 # clean up the tree to save space
@@ -123,4 +121,4 @@ rm -rf $TMPDIR/kernbench
 
 exit 0
 #### Description Benchmark based on kernel builds
-#### Details kernbench-bench 27
+#### Details kernbench-bench 28

@@ -67,6 +67,11 @@ export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
+# Kernbench
+export KERNBENCH_ITERATIONS=5
+export KERNBENCH_MIN_THREADS=$NUMCPUS
+export KERNBENCH_MAX_THREADS=$NUMCPUS
+
 # STREAM
 export STREAM_BACKING_TYPE=static
 export STREAM_PAGESIZES="default"
