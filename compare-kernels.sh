@@ -9,6 +9,7 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 KERNEL_BASE=
 KERNEL_COMPARE=
 KERNEL_EXCLUDE=
+POSTSCRIPT_OUTPUT=no
 
 while [ "$1" != "" ]; do
 	case $1 in
@@ -150,18 +151,30 @@ KERNEL_LIST_ITER=`echo $KERNEL_LIST | sed -e 's/,/ /g'`
 
 plain() {
 	IMG_SRC=$1
-	echo -n "  <td><a href=\"$IMG_SRC.ps.gz\"><img src=\"$IMG_SRC.png\"></a></td>"
+	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
+		 echo -n "  <td><a href=\"$IMG_SRC.ps.gz\"><img src=\"$IMG_SRC.png\"></a></td>"
+	else
+		 echo -n "  <td><img src=\"$IMG_SRC.png\"></td>"
+	fi
 }
 
 plain_alone() {
 	IMG_SRC=$1
-	echo -n "  <td colspan=4><a href=\"$IMG_SRC.ps.gz\"><img src=\"$IMG_SRC.png\"></a></td>"
+	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
+		echo -n "  <td colspan=4><a href=\"$IMG_SRC.ps.gz\"><img src=\"$IMG_SRC.png\"></a></td>"
+	else
+		echo -n "  <td colspan=4><img src=\"$IMG_SRC.png\"></td>"
+	fi
 }
 
 smoothover() {
 	IMG_SRC=$1
 	IMG_SMOOTH=$1-smooth
-	echo -n "  <td><a href=\"$IMG_SMOOTH.ps.gz\"><img src=\"$IMG_SRC.png\" onmouseover=\"this.src='$IMG_SMOOTH.png'\" onmouseout=\"this.src='$IMG_SRC.png'\"></a></td>"
+	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
+		echo -n "  <td><a href=\"$IMG_SMOOTH.ps.gz\"><img src=\"$IMG_SRC.png\" onmouseover=\"this.src='$IMG_SMOOTH.png'\" onmouseout=\"this.src='$IMG_SRC.png'\"></a></td>"
+	else
+		echo -n "  <td><img src=\"$IMG_SRC.png\" onmouseover=\"this.src='$IMG_SMOOTH.png'\" onmouseout=\"this.src='$IMG_SRC.png'\"></td>"
+	fi
 }
 
 generate_latency_table() {
@@ -189,8 +202,10 @@ generate_latency_graph()
 	if [ `ls $LATTYPE-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
 		eval $GRAPH_PNG $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE.png
 		eval $GRAPH_PNG $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE-smooth.png --smooth
-		eval $GRAPH_PSC $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE.ps
-		eval $GRAPH_PSC $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE-smooth.ps --smooth
+		if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
+			eval $GRAPH_PSC $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE.ps
+			eval $GRAPH_PSC $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE-smooth.ps --smooth
+		fi
 		smoothover graph-$SUBREPORT-$LATTYPE
 	fi
 }
@@ -202,7 +217,11 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	COMPARE_BARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
 	COMPARE_R_CMD="compare-mmtests-R.sh -d . $ITERATIONS -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
 	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format png"
-	GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format \"postscript color solid\""
+	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
+		GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format \"postscript color solid\""
+	else
+		GRAPH_PSC="#"
+	fi
 	echo
 	case $SUBREPORT in
 	dbench4)
@@ -1074,7 +1093,9 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		fi
 
 		echo "</table>"
-		gzip -f $OUTPUT_DIRECTORY/*.ps
+		if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
+			gzip -f $OUTPUT_DIRECTORY/*.ps
+		fi
 	fi
 done
 cat $SCRIPTDIR/shellpacks/common-footer-$FORMAT 2> /dev/null
