@@ -1,4 +1,7 @@
 #!/bin/bash
+if [ "$MONITOR_TOP_ACTIVEONLY" = "" ]; then
+	MONITOR_TOP_ACTIVEONLY=yes
+fi
 if [ "$MONITOR_TOP_ACTIVEONLY" != "yes" ]; then
 	exec top -b -d $MONITOR_UPDATE_FREQUENCY | perl -e 'while (<>) {
 		if ($_ =~ /^top -.*/) {
