@@ -792,7 +792,9 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 						fi
 					done
 					eval plot --yrange 0:$MAX --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.png $PROCESS_LIST
-					eval plot --yrange 0:$MAX --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.ps $PROCESS_LIST
+					if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
+						eval plot --yrange 0:$MAX --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.ps $PROCESS_LIST
+					fi
 					plain graph-$SUBREPORT-iotop-$OP-$KERNEL
 
 					rm -rf /tmp/iotop-mmtests-$$/*
@@ -822,9 +824,11 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					done
 
 					eval plot --logY --title \"$KERNEL thread-$CALC $OP\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC.png $PLOT_LIST
-					eval plot --logY --title \"$KERNEL thread-$CALC $OP\" --plottype points --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC.ps $PLOT_LIST
 					eval plot --title \"$KERNEL thread-$CALC $OP\" --plottype lines --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC-smooth.png --smooth bezier $PLOT_LIST 
-					eval plot --title \"$KERNEL thread-$CALC $OP\" --plottype lines --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC-smooth.ps --smooth bezier $PLOT_LIST
+					if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
+						eval plot --logY --title \"$KERNEL thread-$CALC $OP\" --plottype points --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC.ps $PLOT_LIST
+						eval plot --title \"$KERNEL thread-$CALC $OP\" --plottype lines --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC-smooth.ps --smooth bezier $PLOT_LIST
+					fi
 					smoothover graph-$SUBREPORT-iotop-$OP-$CALC
 				done
 				echo "</tr>"
