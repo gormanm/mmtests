@@ -699,6 +699,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT-exectime
 			echo "</tr>"
 			;;
+		thpscale)
+			echo "<tr>"
+
+			for SIZE in fault-base fault-huge; do
+				eval $GRAPH_PNG        -b thpscale --title \"$SUBREPORT $SIZE\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$SIZE.png --sub-heading $SIZE
+				eval $GRAPH_PSC        -b thpscale --title \"$SUBREPORT $SIZE\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$SIZE.ps --sub-heading $SIZE
+				plain graph-$SUBREPORT-$SIZE
+			done
+			echo "</tr>"
+			;;
 		timeexit)
 			;;
 		tiobench)

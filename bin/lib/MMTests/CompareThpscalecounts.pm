@@ -9,7 +9,7 @@ sub new() {
 		_ModuleName  => "CompareThpscalecounts",
 		_DataType    => DATA_ACTIONS,
 		_FieldLength => 12,
-		_CompareOp   => "pndiff",
+		_CompareOp   => "pdiff",
 		_CompareLength => 6,
 		_ResultData  => []
 	};

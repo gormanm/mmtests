@@ -51,7 +51,12 @@ sub extractReport($$$) {
 			}
 		}
 		close INPUT;
-		push @{$self->{_ResultData}}, [ "huge-$client", $huge * 100 / ($huge + $base) ];
+
+		if ($huge + $base != 0) {
+			push @{$self->{_ResultData}}, [ "huge-$client", $huge * 100 / ($huge + $base) ];
+		} else {
+			push @{$self->{_ResultData}}, [ "huge-$client", -1 ];
+		}
 	}
 
 	foreach my $client (@clients) {

@@ -7,7 +7,7 @@ use strict;
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
-	my $fieldLength = $self->{_FieldLength} = 30;
+	my $fieldLength = $self->{_FieldLength} = 25;
 	$self->{_ModuleName} = "ExtractVmscale";
 	$self->{_DataType} = MMTests::Extract::DATA_TIME_SECONDS;
 	$self->{_TestName} = $testName;
