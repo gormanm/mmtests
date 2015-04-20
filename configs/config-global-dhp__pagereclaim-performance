@@ -24,7 +24,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="vmscale lmbench stutter parallelio"
+export MMTESTS="vmscale"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -114,4 +114,4 @@ export STUTTER_FILESIZE=$(($MEMTOTAL_BYTES*2))
 export STUTTER_BLOCKSIZE=$((2*1048576))
 
 # VMScale
-export VMSCALE_CASES="lru-file-mmap-read,lru-file-readonce,lru-file-readtwice,lru-memcg"
+export VMSCALE_CASES="lru-file-mmap-read"

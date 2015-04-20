@@ -333,6 +333,21 @@ function set_mmtests_numactl() {
 		MMTESTS_NUMACTL="numactl --cpunodebind=$MMTESTS_NODE_ID"
 	fi
 
+	if [ "$MMTESTS_NUMA_POLICY" = "cpubind_largest_memory" ]; then
+		MMTESTS_NODE_ID=`numactl --hardware | grep "^node" | grep size | sort -n -k 4 | tail -1 | awk '{print $2}'`
+		echo Setting target node for CPUs to $MMTESTS_NODE_ID
+		MMTESTS_NUMACTL="numactl --cpunodebind=$MMTESTS_NODE_ID"
+	fi
+
+	if [ "$MMTESTS_NUMA_POLICY" = "cpubind_largest_nonnode0_memory" ]; then
+		MMTESTS_NODE_ID=`numactl --hardware | grep "^node" | grep -v "node 0" | grep size | sort -n -k 4 | tail -1 | awk '{print $2}'`
+		if [ "$MMTESTS_NODE_ID" = "" ]; then
+			MMTESTS_NODE_ID=0
+		fi
+		echo Setting target node for CPUs to $MMTESTS_NODE_ID
+		MMTESTS_NUMACTL="numactl --cpunodebind=$MMTESTS_NODE_ID"
+	fi
+
 	if [ "$MMTESTS_NUMACTL" != "" ]; then
 		echo MMTESTS_NUMACTL: $MMTESTS_NUMACTL
 		echo Instance $THIS_INSTANCE / $MAX_INSTANCE
