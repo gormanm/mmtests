@@ -40,6 +40,10 @@ function wait_on_pid_exit() {
 	WAITPID=$1
 	ABORTTIME=$2
 
+	if [ "$ABORTTIME" = "" ]; then
+		ABORTTIME=0
+	fi
+
 	if [ "$WAITPID" != "" ]; then
 		echo -n Waiting on pid $WAITPID to shutdown
 		SLEPT=0
@@ -47,7 +51,7 @@ function wait_on_pid_exit() {
 			echo -n .
 			sleep 1
 			SLEPT=$((SLEPT+1))
-			if [ "$ABORTTIME" != "" -a $SLEPT -gt $ABORTTIME ]; then
+			if [ $ABORTTIME -gt 0 -a $SLEPT -gt $ABORTTIME ]; then
 				echo WARNING: Pid wait timeout
 				return 1
 			fi
