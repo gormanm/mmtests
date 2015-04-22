@@ -151,6 +151,26 @@ if [ "$FORMAT" = "html" ]; then
 	echo "<table cellspacing=0>"
 fi
 
+function tablecell() {
+# Call: GRATIO DESCRIPTION COLOUR
+	GRATIO=$1
+	DESCRIPTION=$2
+	COLOUR=$3
+	if [ "$FORMAT" != "html" ]; then
+		printf "%8.4f %-15s " $GRATIO $DESCRIPTION
+	else
+		if [ "$REPORTROOT" != "" ]; then
+			echo "<td bgcolor=\"$COLOUR\"><font size=1><a href=\"$REPORTROOT\" title=\""
+			cat $COMPARE_FILE
+			echo "\">$GRATIO</a></font></td>"
+		else
+			echo "<td bgcolor=\"$COLOUR\" title=\""
+			cat $COMPARE_FILE
+			echo "\"><font size=1>$GRATIO</font></td>"
+		fi
+	fi
+}
+
 AOPEN=
 ACLOSE=
 if [ "$REPORTROOT" != "" ]; then
@@ -169,12 +189,18 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		$COMPARE_CMD > $COMPARE_FILE
 		GMEAN=`grep ^Gmean $COMPARE_FILE`
 		DMEAN=`grep ^Dmean $COMPARE_FILE`
-		rm $COMPARE_FILE
 		GOODNESS=Unknown
 		COLOUR=$UNKNOWN_COLOUR
 		RATIO=0
 		DESCRIPTION=Unknown
-		OUTPUT=
+
+		if [ "$FORMAT" != "html" ]; then
+			printf "%-20s %-8s" $SUBREPORT $GOODNESS
+		else
+			echo "<tr>"
+			echo "<td bgcolor=\"$COLOUR\"><font size=1>$SUBREPORT</font></td>"
+
+		fi
 
 		if [ -n "$DMEAN" ]; then
 			GOODNESS=`echo $GMEAN | awk '{print $2}'`
@@ -229,11 +255,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					fi
 				fi
 
-				if [ "$FORMAT" != "html" ]; then
-					OUTPUT+=`printf "%8.4f %-15s " $GRATIO $DESCRIPTION`
-				else
-					OUTPUT+="<td bgcolor=\"$COLOUR\"><font size=1>$AOPEN$GRATIO$ACLOSE</font></td>"
-				fi
+				tablecell $GRATIO $DESCRIPTION $COLOUR
 			done
 		elif [ -n "$GMEAN" ]; then
 			GOODNESS=`echo $GMEAN | awk '{print $2}'`
@@ -287,28 +309,18 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					fi
 				fi
 
-				if [ "$FORMAT" != "html" ]; then
-					OUTPUT+=`printf "%8.4f %-15s " $RATIO $DESCRIPTION`
-				else
-					OUTPUT+="<td class=\"nostddev\" bgcolor=\"$COLOUR\"><font size=1>$AOPEN$RATIO$ACLOSE</font></td>"
-				fi
+				tablecell $RATIO $DESCRIPTION $COLOUR
 			done
 		else
-			if [ "$FORMAT" != "html" ]; then
-				OUTPUT+=`printf "%8.4f %-15s " 0 Unknown`
-			else
-				OUTPUT+="<td bgcolor=\"$COLOUR\"><font size=1>$AOPEN$RATIO$ACLOSE</font></td>"
-			fi
+			tablecell 0 Unknown $UNKNOWN_COLOUR
 		fi
 
 		if [ "$FORMAT" != "html" ]; then
-			printf "%-20s %-8s %s\n" $SUBREPORT $GOODNESS "$OUTPUT"
+			echo
 		else
-			echo "<tr>"
-			echo "<td bgcolor=\"$COLOUR\"><font size=1>$SUBREPORT</font></td>"
-			echo $OUTPUT
 			echo "</tr>"
 		fi
+		rm $COMPARE_FILE
 	esac
 done
 
