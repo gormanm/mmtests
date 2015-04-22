@@ -235,6 +235,7 @@ sub extractRatioSummary() {
 		}
 		if ($#row > 0) {
 			push @{$self->{_SummaryData}}, \@row;
+			push @{$self->{_SummaryStdDevs}}, calc_stddev(@units);
 		}
 	}
 

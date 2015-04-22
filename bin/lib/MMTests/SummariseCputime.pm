@@ -118,6 +118,8 @@ sub extractRatioSummary() {
 		push @{$self->{_SummaryData}}, ["Elapsed", &$funcName(@elapsed) ];
 	}
 
+	push @{$self->{_SummaryStdDevs}}, calc_stddev(@units);
+
 	return 1;
 }
 

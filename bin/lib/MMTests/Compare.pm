@@ -141,17 +141,21 @@ sub _generateComparisonTable() {
 	my @resultsTable;
 	my @compareTable;
 	my @compareRatioTable;
+	my @stddevTable;
 
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
 	my $baselineRef = $extractModules[0]->{_SummaryData};
 	my @baseline = @{$baselineRef};
+	my $baseStdDevsRef = $extractModules[0]->{_SummaryStdDevs};
+	my @baseStdDevs = @{$baseStdDevsRef // []};
 
 	for (my $column = 1; $column <= $#summaryHeaders; $column++) {
 		for (my $row = 0; $row <= $#baseline; $row++) {
 			my @data;
 			my @compare;
 			my @ratio;
+			my @stddev;
 			my $compareOp = "pdiff";
 
 			if ($self->{_DataType} == DATA_TIME_SECONDS ||
@@ -182,22 +186,32 @@ sub _generateComparisonTable() {
 					push @data, $summary[$row][$column];
 					push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
 					push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
+					push @stddev, sdiff($summary[$row][$column], $baseline[$row][$column], $baseStdDevs[$row]) if $baseStdDevsRef;
 				} else {
 					push @data, 0;
 					push @compare, 0;
 					push @ratio, 1;
+					push @stddev, 0;
 				}
 			}
 			push @resultsTable, [@data];
 			push @compareTable, [@compare];
 			push @compareRatioTable, [@ratio];
+			push @stddevTable, [@stddev];
 		}
 	}
 
 	my @geomean;
+	my @devmean;
 	for (my $column = 1; $column <= $#summaryHeaders; $column++) {
 		for (my $module = 0; $module <= $#extractModules; $module++) {
 			my @units;
+			for (my $row = 0; $row <= $#baseline; $row++) {
+				push @units, $stddevTable[$row][$module];
+			}
+			push @devmean, [ calc_mean(@units), calc_min(@units), calc_max(@units) ];
+
+			@units = ();
 			for (my $row = 0; $row <= $#baseline; $row++) {
 				push @units, $compareRatioTable[$row][$module];
 			}
@@ -206,8 +220,11 @@ sub _generateComparisonTable() {
 	}
 
 	$self->{_ResultsTable} = \@resultsTable;
+	$self->{_ResultsStdDevTable} = \@stddevTable if $baseStdDevsRef;
+	$self->{_StddevMeanTable} = \@devmean if $baseStdDevsRef;
 	$self->{_ResultsRatioTable} = \@compareRatioTable;
 	$self->{_GeometricMeanTable} = \@geomean;
+
 
 	if ($showCompare) {
 		$self->{_CompareTable} = \@compareTable;
@@ -266,6 +283,7 @@ sub _generateRenderRatioTable() {
 
 	my @titleTable = @{$self->{_TitleTable}};
 	my @resultsTable = @{$self->{_ResultsRatioTable}};
+	my @stddevTable = @{$self->{_ResultsStdDevTable}} if exists $self->{_ResultsStdDevTable};
 	my $fieldLength = $self->{_FieldLength};
 	my $compareLength = 0;
 	my $precision = 2;
@@ -309,7 +327,7 @@ sub _generateRenderRatioTable() {
 	for (my $i = 0; $i <= $#{$resultsTable[0]}; $i++) {
 		my $fieldFormat = "%${fieldLength}.${precision}f";
 		if (defined $self->{_CompareTable}) {
-			push @formatTable, ($fieldFormat, " (%${compareLength}.2f%%)");
+			push @formatTable, ($fieldFormat, " (%${compareLength}.2f%%)", " (\%+${compareLength}.2fs)");
 		} else {
 			push @formatTable, ($fieldFormat, "");
 		}
@@ -330,8 +348,32 @@ sub _generateRenderRatioTable() {
 			} else {
 				push @row, [""];
 			}
+			if (defined $self->{_ResultsStdDevTable}) {
+				push @row, $stddevTable[$row][$i] // 0;
+			} else {
+				push @row, [""];
+			}
 		}
 		push @finalTable, [@row];
+	}
+
+	if (defined $self->{_StddevMeanTable}) {
+		# Stddev mean table
+		my @devTable = $self->{_StddevMeanTable};
+		my @extractModules = @{$self->{_ExtractModules}};
+		my (@dmeanLine, @dminLine, @dmaxLine);
+		push @dmeanLine, "Dmean";
+		push @dminLine, "Dmin";
+		push @dmaxLine, "Dmax";
+		push @dmeanLine, $extractModules[0]->{_RatioPreferred};
+		push @dminLine, $extractModules[0]->{_RatioPreferred};
+		push @dmaxLine, $extractModules[0]->{_RatioPreferred};
+		for (my $i = 0; $i <= $#{$devTable[0]}; $i++) {
+			push @dmeanLine, ($devTable[0][$i][0], undef, undef);
+			push @dminLine, ($devTable[0][$i][1], undef, undef);
+			push @dmaxLine, ($devTable[0][$i][2], undef, undef);
+		}
+		push @finalTable, [@dmeanLine], [@dminLine], [@dmaxLine];
 	}
 
 	# Geometric mean table
@@ -341,8 +383,7 @@ sub _generateRenderRatioTable() {
 	push @rowLine, "Gmean";
 	push @rowLine, $extractModules[0]->{_RatioPreferred};
 	for (my $i = 0; $i <= $#{$geomeanTable[0]}; $i++) {
-		push @rowLine, $geomeanTable[0][$i];
-		push @rowLine, -1;
+		push @rowLine, ($geomeanTable[0][$i], undef, undef);
 	}
 	push @finalTable, [@rowLine];
 

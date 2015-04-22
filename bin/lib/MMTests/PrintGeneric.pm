@@ -50,15 +50,17 @@ sub printRow($$@) {
 		}
 
 		foreach my $column (@rowArr) {
+			my $out;
 			if (defined $formatColumnList[$columnIndex]) {
 				my $format = $formatColumnList[$columnIndex];
 				if ($format eq "ROW") {
 					$format = $formatRowList[$rowIndex];
 				}
-				printf($format, $column);
+				$out = sprintf($format, $column);
 			} else {
-				printf("%${fieldLength}.2f", $column);
+				$out = sprintf("%${fieldLength}.2f", $column);
 			}
+			print (defined $column ? $out : " "x(length $out));
 			$columnIndex++;
 		}
 		print "\n";

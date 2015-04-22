@@ -10,7 +10,7 @@ use VMR::Report;
 use strict;
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&pdiff &pndiff &rdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_lowest_mean &calc_mean &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&pdiff &pndiff &rdiff &sdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_lowest_mean &calc_mean &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Values taken from a standard normal table
 my %za = (
@@ -46,6 +46,19 @@ sub rdiff {
 		return 0;
 	} else {
 		return $_[0] / $_[1];
+	}
+}
+
+sub sdiff {
+	my ($new, $base, $stddev) = @_;
+	my $diff = $new - $base;
+	if ($stddev == 0) {
+		return $diff;
+		# Typically, this occurs for little integers under 20
+		# and here we want to see if anything changes so issuing
+		# quite high numbers (directly the difference).
+	} else {
+		return $diff / $stddev;
 	}
 }
 
