@@ -145,4 +145,4 @@ done
 rm $SHELLPACK_TEMP/in.file
 exit $SHELLPACK_SUCCESS
 #### Description dedup
-#### Details dedup-bench 12
+#### Details dedup-bench 19
