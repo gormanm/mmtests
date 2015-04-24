@@ -2,8 +2,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters (no particular order)
-export MMTESTS="wis-futex wis-pread wis-pwrite wis-malloc wis-pf wis-unlink wis-mmap wis-open wis-poll wis-filelock wis-read wis-getppid wis-sched
-wis-fallocate wis-pthreadmutex wis-signal wis-pipe wis-eventfd wis-posixsems"
+export MMTESTS="wis-futex wis-malloc wis-pf wis-getppid wis-sched wis-pthreadmutex wis-signal wis-pipe wis-eventfd wis-posixsems"
 export RUN_WARMUP=
 
 # Profiling parameters
