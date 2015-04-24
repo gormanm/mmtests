@@ -80,9 +80,9 @@ sub extractReport($$$) {
 		}
 	}
 	my @ops;
-	foreach my $wl (@workloads) {
-		foreach my $nthr (@threads) {
-			foreach my $model (@models) {
+	foreach my $model (@models) {
+		foreach my $wl (@workloads) {
+			foreach my $nthr (@threads) {
 				push @ops, "$wl-$model-$nthr"
 			}
 		}
