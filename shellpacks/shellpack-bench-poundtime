@@ -9,7 +9,6 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 ITERATIONS=12
-TESTLIST=
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -91,7 +90,7 @@ fi
 for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	for FILE in pound_times pound_clock_gettime; do
-		gcc -O2 -lpthread -DNUM_THREADS=$NR_THREADS \
+		gcc -lrt -O2 -lpthread -DNUM_THREADS=$NR_THREADS \
 				$SHELLPACK_SOURCES/poundtime-${VERSION}-installed/${FILE}.c \
 				-o $SHELLPACK_TEMP/$FILE || \
 			die Failed to build ${FILE}.c thread count $NR_THREADS
@@ -110,4 +109,4 @@ done
 done
 exit $SHELLPACK_SUCCESS
 #### Description poundtime
-#### Details poundtime-bench 3
+#### Details poundtime-bench 4

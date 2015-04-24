@@ -17,7 +17,7 @@ ITERATIONS=12
 
 ###SHELLPACK threads_large_stride_begin $POUNDTIME_MIN_THREADS $POUNDTIME_MAX_THREADS
 	for FILE in pound_times pound_clock_gettime; do
-		gcc -O2 -lpthread -DNUM_THREADS=$NR_THREADS \
+		gcc -lrt -O2 -lpthread -DNUM_THREADS=$NR_THREADS \
 				$SHELLPACK_SOURCES/poundtime-${VERSION}-installed/${FILE}.c \
 				-o $SHELLPACK_TEMP/$FILE || \
 			die Failed to build ${FILE}.c thread count $NR_THREADS
