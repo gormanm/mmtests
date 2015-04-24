@@ -493,6 +493,8 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
+		wis-futex|wis-pread|wis-pwrite|wis-malloc|wis-pf|wis-unlink|wis-mmap|wis-open|wis-poll|wis-filelock|wis-read|wis-getppid|wis-sched|wis-fallocate|wis-pthreadmutex|wis-signal|wis-pipe|wis-eventfd|wis-posixsems)
+			;;
 		fsmark-threaded|fsmark-single)
 			eval $GRAPH_PNG        -b $SUBREPORT --title \"$SUBREPORT files/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
 			eval $GRAPH_PSC        -b $SUBREPORT --title \"$SUBREPORT files/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps

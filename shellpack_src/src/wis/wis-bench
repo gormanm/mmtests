@@ -1,0 +1,46 @@
+#!/bin/bash
+# Run wis benchmark
+
+###SHELLPACK preamble wis-bench 0
+TESTTIME=15
+ITERATIONS=12
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-threads	WIS_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads	WIS_MAX_THREADS
+###SHELLPACK parseargParam	--workloads     WIS_WORKLOADS
+###SHELLPACK parseargParam	--iterations    WIS_ITERATIONS
+###SHELLPACK parseargParam	--models        WIS_MODELS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required wis-${VERSION}
+###SHELLPACK monitor_hooks
+
+echo $WIS_WORKLOADS > $LOGDIR_RESULTS/workloads
+echo $WIS_MODELS > $LOGDIR_RESULTS/models
+
+IFS=',' read -a ALL_MODELS <<< "$WIS_MODELS"
+IFS=',' read -a ALL_WORKLOADS <<< "$WIS_WORKLOADS"
+
+for WORKLOAD in ${ALL_WORKLOADS[@]}
+do
+	###SHELLPACK threads_large_stride_begin $WIS_MIN_THREADS $WIS_MAX_THREADS $WIS_ITERATIONS
+		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+		echo Running test $WORKLOAD
+		for MODEL in ${ALL_MODELS[@]}
+		do
+			echo Starting $MODEL $NR_THREADS/$WIS_MAX_THREADS
+			cmd="$WORKLOAD"
+			cmd+="_$MODEL"
+			outfile="$LOGDIR_RESULTS/wis-${WORKLOAD}-${MODEL}-$NR_THREADS.log"
+			./$cmd -t $NR_THREADS -s $WIS_ITERATIONS | tee $outfile > /dev/null
+
+			# Get rid of the warmup values (number of runs are constant).
+			sed -i '1,8d' $outfile
+		done
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+	###SHELLPACK threads_stride_end
+done
+
+exit $SHELLPACK_SUCCESS
