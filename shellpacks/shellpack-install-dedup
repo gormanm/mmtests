@@ -53,13 +53,30 @@ pushd dedup-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/dedup-${VERSION}-installed || die Failed to change to source directory
 
-# Patch benchmark to make it a ro/rw IO benchmark
-TEMPFILE=`mktemp`
-LINECOUNT=`wc -l $0 | awk '{print $1}'`
-PATCHSTART=`grep -n "BEGIN PATCH FILE" $0 | tail -1 | awk -F : '{print $1}'`
-tail -$(($LINECOUNT-$PATCHSTART)) $0 | grep -v "^###" > $TEMPFILE
-cat $TEMPFILE | patch -p1 || exit $SHELLPACK_FAILURE
-rm $TEMPFILE
+LINESTART=`grep -n "==== BEGIN signed-fix.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END signed-fix.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file signed-fix.patch
+fi
+echo Extracting $SHELLPACK_TEMP/signed-fix.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/signed-fix.patch
+LINESTART=`grep -n "==== BEGIN timeout-fix.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END timeout-fix.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file timeout-fix.patch
+fi
+echo Extracting $SHELLPACK_TEMP/timeout-fix.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/timeout-fix.patch
+
+for FILE in signed-fix.patch timeout-fix.patch; do
+	cat $SHELLPACK_TEMP/${FILE} | patch -p1 || exit $SHELLPACK_FAILURE
+done
 
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
@@ -71,7 +88,7 @@ fi
 echo dedup installed successfully
 exit $SHELLPACK_SUCCESS
 
-==== BEGIN PATCH FILE ====
+==== BEGIN signed-fix.patch ====
 diff --git a/encoder.c b/encoder.c
 index 3b86743e8f81..58314d6d3936 100644
 --- a/encoder.c
@@ -85,5 +102,38 @@ index 3b86743e8f81..58314d6d3936 100644
  
      if(s->total_input / unit_div_next <= 0) break;
      if(s->total_dedup / unit_div_next <= 0) break;
+==== END signed-fix.patch ====
+
+==== BEGIN timeout-fix.patch ====
+diff --git a/queue.c b/queue.c
+index 823fdc000d05..ec8ce0022d58 100644
+--- a/queue.c
++++ b/queue.c
+@@ -1,4 +1,5 @@
+ #include <assert.h>
++#include <sys/time.h>
+ 
+ #include "util.h"
+ #include "queue.h"
+@@ -86,8 +87,16 @@ int queue_enqueue(queue_t *que, ringbuffer_t *buf, int limit) {
+ #ifdef ENABLE_PTHREADS
+   pthread_mutex_lock(&que->mutex);
+   assert(!queue_isTerminated(que));
+-  while (ringbuffer_isFull(&que->buf))
+-    pthread_cond_wait(&que->notFull, &que->mutex);
++  while (ringbuffer_isFull(&que->buf)) {
++    struct timeval currentTime;
++    struct timespec timeout;
++
++    gettimeofday(&currentTime, NULL);
++    timeout.tv_sec = currentTime.tv_sec + 5;
++    timeout.tv_nsec = currentTime.tv_usec * 1000UL;
++
++    pthread_cond_timedwait(&que->notFull, &que->mutex, &timeout);
++  }
+ #else
+   assert(!queue_isTerminated(que));
+ #endif
+==== END timeout-fix.patch ====
 #### Description dedup
-#### Details dedup 11
+#### Details dedup 12
