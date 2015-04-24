@@ -6,6 +6,8 @@ MIRROR_LOCATION="$WEBROOT/wis/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
+install-depends hwloc-devel
+
 ###SHELLPACK git_fetch wis-${VERSION}.tar.gz wis-${VERSION}-installed
 
 ###SHELLPACK build_start wis-${VERSION}-installed

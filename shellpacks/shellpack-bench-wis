@@ -125,4 +125,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description will-it-scale
-#### Details wis-bench 1
+#### Details wis-bench 2

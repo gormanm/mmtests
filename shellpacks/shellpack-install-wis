@@ -33,6 +33,8 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+install-depends hwloc-devel
+
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=wis-${VERSION}.tar.gz
 git_fetch $GIT_LOCATION wis-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
@@ -60,4 +62,4 @@ fi
 echo will-it-scale installed successfully
 exit $SHELLPACK_SUCCESS
 #### Description will-it-scale
-#### Details wis 1
+#### Details wis 2
