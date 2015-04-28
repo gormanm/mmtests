@@ -1,0 +1,134 @@
+#!/bin/bash
+P=syscall-install
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+LINESTART=`grep -n "==== BEGIN syscall.c" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END syscall.c" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file syscall.c
+fi
+echo Extracting $SHELLPACK_TEMP/syscall.c
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/syscall.c
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf syscall-${VERSION}-installed
+mkdir -p syscall-${VERSION}-installed
+
+gcc -Wall -O2 $SHELLPACK_TEMP/syscall.c -o syscall-${VERSION}-installed/syscall
+if [ $? -ne 0 ]; then
+	die "$P: Failed to build syscall.c"
+fi
+
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN syscall.c ====
+/* Mostly written by by Borislav Petkov */
+#include <stdio.h>
+#include <sys/syscall.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+typedef unsigned long long u64;
+
+#define DECLARE_ARGS(val, low, high)    unsigned low, high
+#define EAX_EDX_VAL(val, low, high)     ((low) | ((u64)(high) << 32))
+#define EAX_EDX_ARGS(val, low, high)    "a" (low), "d" (high)
+#define EAX_EDX_RET(val, low, high)     "=a" (low), "=d" (high)
+
+static __always_inline unsigned long long rdtsc(void)
+{
+        DECLARE_ARGS(val, low, high);
+
+        asm volatile("rdtsc" : EAX_EDX_RET(val, low, high));
+
+        return EAX_EDX_VAL(val, low, high);
+}
+
+static long my_getpid(void)
+{
+  long ret;
+  asm volatile ("syscall" :
+		"=a" (ret) :
+		"a" (SYS_getpid) :
+		"memory", "cc", "rcx", "r11");
+  return ret;
+}
+
+static inline u64 read_tsc(void)
+{
+	u64 ret;
+
+	asm volatile("mfence");
+	ret = rdtsc();
+	asm volatile("mfence");
+
+	return ret;
+}
+
+#define SAMPLES 30000ULL
+#define LOOPS_PER_SAMPLE 10000UL
+
+int main()
+{
+	int i, j;
+	unsigned long long *samples;
+
+	samples = malloc(SAMPLES * sizeof(unsigned long long));
+	if (!samples) {
+		printf("ENOMEM\n");
+		exit(EXIT_FAILURE);
+	}
+	memset(samples, 1, SAMPLES * sizeof(unsigned long long));
+
+	for (j = 0; j < SAMPLES; j++) {
+		u64 p1, p2;
+		p1 = read_tsc();
+		for (i = 0; i < LOOPS_PER_SAMPLE; i++)
+			my_getpid();
+		p2 = read_tsc();
+
+		samples[j] = p2 - p1;
+	}
+
+	for (j = 0; j < SAMPLES; j++)
+		printf("Cycles: %lld cycles/syscall: %f\n",
+			samples[j], (double)samples[j] / LOOPS_PER_SAMPLE);
+
+	return 0;
+}
+==== END syscall.c ====
+#### Description syscall
+#### Details syscall 23

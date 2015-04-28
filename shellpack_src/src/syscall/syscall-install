@@ -1,0 +1,96 @@
+#!/bin/bash
+###SHELLPACK preamble syscall-install 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK self_extract syscall.c
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf syscall-${VERSION}-installed
+mkdir -p syscall-${VERSION}-installed
+
+gcc -Wall -O2 $SHELLPACK_TEMP/syscall.c -o syscall-${VERSION}-installed/syscall
+if [ $? -ne 0 ]; then
+	die "$P: Failed to build syscall.c"
+fi
+
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN syscall.c ====
+/* Mostly written by Borislav Petkov */
+#include <stdio.h>
+#include <sys/syscall.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+typedef unsigned long long u64;
+
+#define DECLARE_ARGS(val, low, high)    unsigned low, high
+#define EAX_EDX_VAL(val, low, high)     ((low) | ((u64)(high) << 32))
+#define EAX_EDX_ARGS(val, low, high)    "a" (low), "d" (high)
+#define EAX_EDX_RET(val, low, high)     "=a" (low), "=d" (high)
+
+static __always_inline unsigned long long rdtsc(void)
+{
+        DECLARE_ARGS(val, low, high);
+
+        asm volatile("rdtsc" : EAX_EDX_RET(val, low, high));
+
+        return EAX_EDX_VAL(val, low, high);
+}
+
+static long my_getpid(void)
+{
+  long ret;
+  asm volatile ("syscall" :
+		"=a" (ret) :
+		"a" (SYS_getpid) :
+		"memory", "cc", "rcx", "r11");
+  return ret;
+}
+
+static inline u64 read_tsc(void)
+{
+	u64 ret;
+
+	asm volatile("mfence");
+	ret = rdtsc();
+	asm volatile("mfence");
+
+	return ret;
+}
+
+#define SAMPLES 30000ULL
+#define LOOPS_PER_SAMPLE 10000UL
+
+int main()
+{
+	int i, j;
+	unsigned long long *samples;
+
+	samples = malloc(SAMPLES * sizeof(unsigned long long));
+	if (!samples) {
+		printf("ENOMEM\n");
+		exit(EXIT_FAILURE);
+	}
+	memset(samples, 1, SAMPLES * sizeof(unsigned long long));
+
+	for (j = 0; j < SAMPLES; j++) {
+		u64 p1, p2;
+		p1 = read_tsc();
+		for (i = 0; i < LOOPS_PER_SAMPLE; i++)
+			my_getpid();
+		p2 = read_tsc();
+
+		samples[j] = p2 - p1;
+	}
+
+	for (j = 0; j < SAMPLES; j++)
+		printf("Cycles: %lld cycles/syscall: %f\n",
+			samples[j], (double)samples[j] / LOOPS_PER_SAMPLE);
+
+	return 0;
+}
+==== END syscall.c ====
