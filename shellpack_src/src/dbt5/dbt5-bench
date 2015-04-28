@@ -1,0 +1,116 @@
+#!/bin/bash
+###SHELLPACK preamble dbt5-bench 0
+
+DBDRIVER=postgres
+DBUSER=nobody
+EFFECTIVE_CACHESIZE=$((756*1048576))
+SHARED_BUFFERS=$((32*1048576))
+WORK_MEM=$((32*1048576))
+POSTGRES_VERSION=9.3.4
+
+install-depends python-singledispatch
+install-depends python-rpy2
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --effective-cachesize EFFECTIVE_CACHESIZE
+###SHELLPACK parseargParam --shared-buffers      SHARED_BUFFERS
+###SHELLPACK parseargParam --work-mem            WORK_MEM
+###SHELLPACK parseargParam --dbdriver            DBDRIVER
+###SHELLPACK parseargParam --iterations          MAX_ITERATIONS
+###SHELLPACK parseargParam --min-users           MIN_USERS
+###SHELLPACK parseargParam --max-users           MAX_USERS
+###SHELLPACK parseargParam --user-scale          USER_SCALE
+###SHELLPACK parseargParam --nr-customers        NR_CUSTOMERS
+###SHELLPACK parseargParam --nr-trade-days       NR_TRADE_DAYS
+###SHELLPACK parseargParam --scale-factor        SCALE_FACTOR
+###SHELLPACK parseargParam --duration            DURATION
+###SHELLPACK parseargParam --pacing-delay        PACING_DELAY
+###SHELLPACK parseargYes   --setup-only          SETUP_ONLY
+###SHELLPACK parseargYes   --bench-only          BENCH_ONLY
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required dbt5-${VERSION} --dbdriver ${DBDRIVER}
+###SHELLPACK monitor_hooks
+
+echo Configuring paths for $DBDRIVER
+export EGENDIR=$SHELLPACK_SOURCES/dbt5-${VERSION}/egen
+export DBT5PGROOT=$SHELLPACK_SOURCES/dbt5-${VERSION}-installed/data
+mkdir -p $DBT5PGROOT
+chmod a+rwx $DBT5PGROOT
+chmod a+rwx $EGENDIR
+export DBT5DBNAME=dbt5
+export DBT5PGDATA=$DBT5PGROOT/dbt5
+#export DBT5PGDATA=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data
+# export DBT5TSDIR=/mnt/dbt5
+export PATH=$SHELLPACK_SOURCES/dbt5-${VERSION}-installed/bin:$PATH
+if [ "$DBDRIVER" = "postgres" ]; then
+	PSQL=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/bin/psql
+	RUNDBUSER="su -s /bin/bash $DBUSER -c"
+	export PATH=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/bin:$PATH
+	export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/lib:$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/lib64
+	export PGHOST=localhost
+	export PGPORT=5432
+fi
+
+if [ "$BENCH_ONLY" != "yes" ]; then
+	# Initialise database
+	cd $DBT5PGROOT
+	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
+	$TIME_CMD -o $LOGDIR_RESULTS/time-install.log $RUNDBUSER "dbt5-pgsql-build-db -c $NR_CUSTOMERS -s $SCALE_FACTOR -w $NR_TRADE_DAYS -l $PGPORT"
+	if [ $? -ne 0 ]; then
+		die Failed to initialise database
+	fi
+fi
+
+if [ "$SETUP_ONLY" = "yes" ]; then
+	exit $SHELLPACK_SUCCESS
+fi
+
+chmod a+w $SHELLPACK_TEMP
+echo Running users $MIN_USERS to $MAX_USERS, scaling $USER_SCALE
+###SHELLPACK threads_huge_stride_begin $MIN_USERS $MAX_USERS
+NR_USERS=$((NR_THREADS*USER_SCALE))
+if [ $NR_USERS -lt $MIN_USERS ]; then
+	continue
+fi
+monitor_pre_hook $LOGDIR_RESULTS $NR_USERS
+###SHELLPACK iteration_begin $MAX_ITERATIONS; do
+	mmtests_activity users-$NR_USERS-$ITERATION
+
+	# Shutdown previous instance and wait
+	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
+	killall BrokerageHouseMain 2> /dev/null
+	killall MarketExchangeMain 2> /dev/null
+	killall DriverMain 2> /dev/null
+	sleep 5
+	killall -KILL BrokerageHouseMain 2> /dev/null
+	killall -KILL MarketExchangeMain 2> /dev/null
+	killall -KILL DriverMain 2> /dev/null
+	echo -n Waiting for socket to be clear
+	while [ "`netstat -n | grep :30000`" != "" ]; do
+		echo -n .
+		sleep 1
+	done
+	echo
+
+	echo Executing thread $NR_USERS/$((MAX_USERS*USER_SCALE)) interation $ITERATION/$MAX_ITERATIONS
+	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_USERS}-${ITERATION}.log $RUNDBUSER "dbt5-run-workload -a pgsql						\
+		-c $NR_CUSTOMERS -t $NR_CUSTOMERS -f $SCALE_FACTOR -w $NR_TRADE_DAYS	\
+		-l $PACING_DELAY -s 500							\
+		-p $PGPORT -n dbt5							\
+		-d $DURATION								\
+		-u $NR_USERS								\
+		-o $SHELLPACK_TEMP/dbt5-run" 2>&1 | tee dbt5-${NR_USERS}-${ITERATION}.log
+	cp $SHELLPACK_TEMP/dbt5-run/results.txt $LOGDIR_RESULTS/results-${NR_USERS}-${ITERATION}.txt
+	pushd $SHELLPACK_TEMP > /dev/null
+	tar -czf $LOGDIR_RESULTS/dblogs-${NR_USERS}-${ITERATION}.tar.gz dbt5-run
+	popd > /dev/null
+	rm -rf $SHELLPACK_TEMP/dbt5-run
+	$RUNDBUSER "rm -rf $SHELLPACK_TEMP/dbt5-run"
+###SHELLPACK iteration_end
+monitor_post_hook $LOGDIR_RESULTS $NR_USERS
+###SHELLPACK threads_stride_end
+$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
+
+exit $SHELLPACK_SUCCESS

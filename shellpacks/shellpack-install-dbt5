@@ -1,0 +1,149 @@
+#!/bin/bash
+P=dbt5-install
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+GIT_LOCATION=https://github.com/petergeoghegan/dbt5
+MIRROR_LOCATION="$WEBROOT/dbt5/"
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--dbdriver)
+		DBDRIVER=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+LINESTART=`grep -n "==== BEGIN unistd-include.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END unistd-include.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file unistd-include.patch
+fi
+echo Extracting $SHELLPACK_TEMP/unistd-include.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/unistd-include.patch
+
+# Select database driver
+case $DBDRIVER in
+postgres)
+	echo Checking postgres installation
+	DBDRIVER_VERSION=9.3.4
+	;;
+*)
+	die Unrecognised dbdriver $DBDRIVER
+	;;
+esac
+
+# Build database and start it for sysbench config
+$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
+        --effective_cachesize $((MEMTOTAL_BYTES*6/10)) \
+        --shared_buffers $((MEMTOTAL_BYTES/4)) \
+        --work_mem $((16*1048576)) || die Failed to get usable database installation
+
+echo Building dbt5 for $DBDRIVER
+export PATH=$SHELLPACK_SOURCES/${DBDRIVER}build-${DBDRIVER_VERSION}-installed/bin:$PATH
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=dbt5-${VERSION}.tar.gz
+git_fetch $GIT_LOCATION dbt5-${VERSION} $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf dbt5-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR dbt5-${VERSION}
+pushd dbt5-${VERSION} > /dev/null || die Failed to rename tar
+pushd $SHELLPACK_SOURCES/dbt5-${VERSION} || die Failed to change to source directory
+sed -i -e 's/-E SQL_ASCII/-E SQL_ASCII -T template0/' scripts/pgsql/dbt5-pgsql-create-db
+cat $SHELLPACK_TEMP/unistd-include.patch | patch -p1 || Die Failed to apply unistd patch
+cmake CMakeLists.txt -DDBMS=pgsql || die Failed to run cmake
+
+cd $SHELLPACK_SOURCES/dbt5-${VERSION}/egen/prj || die Failed to cd egen/prj
+make -f Makefile.pgsql || die Failed to make Makefile.pgsql
+
+cd $SHELLPACK_SOURCES/dbt5-${VERSION}/storedproc/pgsql/c || die Failed to cd storedproc/pgsql/c
+make -j$NUMCPUS || die Failed to make storedproc/pgsql/c
+make install    || die Failed to install storedproc to postgres
+
+cd $SHELLPACK_SOURCES/dbt5-${VERSION} || die Failed to cd to toplevel
+make -j$NUMCPUS || die Failed to build CMakeLists.txt
+make install DESTDIR=$SHELLPACK_SOURCES/dbt5-${VERSION}-installed || die Failed to install
+
+echo dbt5 for $DBDRIVER successfully installed
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN unistd-include.patch ====
+diff --git a/src/include/CSocket.h b/src/include/CSocket.h
+index 8bf5ffd..d874f57 100644
+--- a/src/include/CSocket.h
++++ b/src/include/CSocket.h
+@@ -18,6 +18,7 @@
+make install || die Failed to install storedproc to postgres
+echo DEBUG HERE
+read INPUT
+
+cd $SHELLPACK_SOURCES/dbt5-${VERSION} || die Failed to cd to toplevel
+make -j$NUMCPUS || die Failed to build CMakeLists.txt
+make install DESTDIR=$SHELLPACK_SOURCES/dbt5-${VERSION}-installed || die Failed to install
+
+echo dbt5 for $DBDRIVER successfully installed
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN unistd-include.patch ====
+diff --git a/src/include/CSocket.h b/src/include/CSocket.h
+index 8bf5ffd..d874f57 100644
+--- a/src/include/CSocket.h
++++ b/src/include/CSocket.h
+@@ -18,6 +18,7 @@
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ #include <errno.h>
++#include <unistd.h>
+ 
+ #include "CThreadErr.h"
+ #include "MiscConsts.h"
+diff --git a/src/interfaces/TxnHarnessSendToMarket.cpp b/src/interfaces/TxnHarnessSendToMarket.cpp
+index 1fa1988..6dfb375 100644
+--- a/src/interfaces/TxnHarnessSendToMarket.cpp
++++ b/src/interfaces/TxnHarnessSendToMarket.cpp
+@@ -8,6 +8,7 @@
+  * 30 July 2006
+  */
+ 
++#include <unistd.h>
+ #include "TxnHarnessSendToMarket.h"
+ 
+ CSendToMarket::CSendToMarket(ofstream* pfile, int MEport)
+==== END unistd-include.patch ====
+#### Description dbt5
+#### Details dbt5 46

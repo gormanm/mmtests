@@ -22,8 +22,10 @@ EXIT_CODE=$SHELLPACK_SUCCESS
 ###SHELLPACK threads_fib_begin 1 $TLBFLUSH_MAX_THREADS
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
+mmtests_activity threads-$NR_THREADS
+
 NR_ENTRIES=$((RANDOM%TLBFLUSH_MAX_ENTRIES))
-###SHELLPACK iteration_begin $TLBFLUSH_ITERATIONS; do
+###SHELLPACK iteration_begin $TLBFLUSH_ITERATIONS
 	THIS_MAX_ENTRIES=$TLBFLUSH_MAX_ENTRIES
 	
 	# Select a range of entries to randomly select from. This is to ensure
