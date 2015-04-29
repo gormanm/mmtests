@@ -38,6 +38,8 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+install-depends cmake
+
 LINESTART=`grep -n "==== BEGIN unistd-include.patch" $0 | tail -1 | awk -F : '{print $1}'`
 LINEEND=`grep -n "==== END unistd-include.patch" $0 | tail -1 | awk -F : '{print $1}'`
 if [ "$LINEEND" = "" ]; then
@@ -48,6 +50,16 @@ if [ "$LINESTART" = "" ]; then
 fi
 echo Extracting $SHELLPACK_TEMP/unistd-include.patch
 sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/unistd-include.patch
+LINESTART=`grep -n "==== BEGIN string-boundary-check.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END string-boundary-check.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file string-boundary-check.patch
+fi
+echo Extracting $SHELLPACK_TEMP/string-boundary-check.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/string-boundary-check.patch
 
 # Select database driver
 case $DBDRIVER in
@@ -85,7 +97,8 @@ mv $DST_DIR dbt5-${VERSION}
 pushd dbt5-${VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/dbt5-${VERSION} || die Failed to change to source directory
 sed -i -e 's/-E SQL_ASCII/-E SQL_ASCII -T template0/' scripts/pgsql/dbt5-pgsql-create-db
-cat $SHELLPACK_TEMP/unistd-include.patch | patch -p1 || Die Failed to apply unistd patch
+cat $SHELLPACK_TEMP/unistd-include.patch        | patch -p1 || Die Failed to apply unistd patch
+cat $SHELLPACK_TEMP/string-boundary-check.patch | patch -p1 || Die Failed to apply string boundary patch
 cmake CMakeLists.txt -DDBMS=pgsql || die Failed to run cmake
 
 cd $SHELLPACK_SOURCES/dbt5-${VERSION}/egen/prj || die Failed to cd egen/prj
@@ -145,5 +158,21 @@ index 1fa1988..6dfb375 100644
  
  CSendToMarket::CSendToMarket(ofstream* pfile, int MEport)
 ==== END unistd-include.patch ====
+
+==== BEGIN string-boundary-check.patch ====
+diff --git a/storedproc/pgsql/c/trade_update.c b/storedproc/pgsql/c/trade_update.c
+index ad8e3a5d42e7..b99f63b446dd 100644
+--- a/storedproc/pgsql/c/trade_update.c
++++ b/storedproc/pgsql/c/trade_update.c
+@@ -1241,7 +1241,7 @@ Datum TradeUpdateFrame3(PG_FUNCTION_ARGS)
+ 						sprintf(ct_name, "%s %s shares of %s", type_name,
+ 								quantity, s_name);
+ 					}
+-					for (i = 0; i < CT_NAME_LEN || ct_name[i] != '\0'; i++) {
++					for (i = 0; i < CT_NAME_LEN && ct_name[i] != '\0'; i++) {
+ 						if (ct_name[i] == '\'')
+ 							ct_name_esc[k++] = '\\';
+ 						ct_name_esc[k++] = ct_name[i];
+==== END string-boundary-check.patch ====
 #### Description dbt5
-#### Details dbt5 46
+#### Details dbt5 48

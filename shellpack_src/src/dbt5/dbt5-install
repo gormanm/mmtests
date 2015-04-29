@@ -8,7 +8,10 @@ MIRROR_LOCATION="$WEBROOT/dbt5/"
 ###SHELLPACK parseargParam	--dbdriver	DBDRIVER
 ###SHELLPACK parseargEnd
 
+install-depends cmake
+
 ###SHELLPACK self_extract unistd-include.patch
+###SHELLPACK self_extract string-boundary-check.patch
 
 # Select database driver
 case $DBDRIVER in
@@ -32,7 +35,8 @@ export PATH=$SHELLPACK_SOURCES/${DBDRIVER}build-${DBDRIVER_VERSION}-installed/bi
 ###SHELLPACK git_fetch dbt5-${VERSION}.tar.gz dbt5-${VERSION}
 ###SHELLPACK build_start dbt5-${VERSION}
 sed -i -e 's/-E SQL_ASCII/-E SQL_ASCII -T template0/' scripts/pgsql/dbt5-pgsql-create-db
-cat $SHELLPACK_TEMP/unistd-include.patch | patch -p1 || Die Failed to apply unistd patch
+cat $SHELLPACK_TEMP/unistd-include.patch        | patch -p1 || Die Failed to apply unistd patch
+cat $SHELLPACK_TEMP/string-boundary-check.patch | patch -p1 || Die Failed to apply string boundary patch
 cmake CMakeLists.txt -DDBMS=pgsql || die Failed to run cmake
 
 cd $SHELLPACK_SOURCES/dbt5-${VERSION}/egen/prj || die Failed to cd egen/prj
@@ -92,3 +96,19 @@ index 1fa1988..6dfb375 100644
  
  CSendToMarket::CSendToMarket(ofstream* pfile, int MEport)
 ==== END unistd-include.patch ====
+
+==== BEGIN string-boundary-check.patch ====
+diff --git a/storedproc/pgsql/c/trade_update.c b/storedproc/pgsql/c/trade_update.c
+index ad8e3a5d42e7..b99f63b446dd 100644
+--- a/storedproc/pgsql/c/trade_update.c
++++ b/storedproc/pgsql/c/trade_update.c
+@@ -1241,7 +1241,7 @@ Datum TradeUpdateFrame3(PG_FUNCTION_ARGS)
+ 						sprintf(ct_name, "%s %s shares of %s", type_name,
+ 								quantity, s_name);
+ 					}
+-					for (i = 0; i < CT_NAME_LEN || ct_name[i] != '\0'; i++) {
++					for (i = 0; i < CT_NAME_LEN && ct_name[i] != '\0'; i++) {
+ 						if (ct_name[i] == '\'')
+ 							ct_name_esc[k++] = '\\';
+ 						ct_name_esc[k++] = ct_name[i];
+==== END string-boundary-check.patch ====
