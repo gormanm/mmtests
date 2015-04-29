@@ -41,6 +41,15 @@ while [ "$1" != "" ]; do
 		SORT_VERSION=yes
 		shift
 		;;
+	--top)
+		shift 2
+		;;
+	--topout)
+		shift 2
+		;;
+	--table-id)
+		shift 2
+		;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift

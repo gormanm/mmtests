@@ -41,6 +41,18 @@ while [ "$1" != "" ]; do
 		SORT_VERSION=yes
 		shift
 		;;
+	--top)
+		TOPNUM="$2"
+		shift 2
+		;;
+	--topout)
+		TOPOUT="$2"
+		shift 2
+		;;
+	--table-id)
+		TABLEID="$2"
+		shift 2
+		;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift
@@ -148,7 +160,7 @@ UNKNOWN_COLOUR="#FFFFFF"
 NEUTRAL_COLOUR="#A0A0A0"
 
 if [ "$FORMAT" = "html" ]; then
-	echo "<table cellspacing=0>"
+	echo "<table id=\"$TABLEID\" cellspacing=0>"
 fi
 
 function tablecell() {
@@ -216,6 +228,9 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				if [ "$DDIFF" != "nan" ]; then
 					DIFF_ADJUSTED=`perl -e "print (($DDIFF*10000))"`
 					DELTA=$((DIFF_ADJUSTED))
+					if [ "$TOPOUT" != "" ]; then
+						echo "$DDIFF $GRATIO $SUBREPORT $TABLEID" >> $TOPOUT
+					fi
 					if [ $DIFF_ADJUSTED -lt 0 ]; then
 						DELTA=$((-DIFF_ADJUSTED))
 					fi
