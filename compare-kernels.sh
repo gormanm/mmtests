@@ -234,6 +234,20 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Per-VFS Operation latency Latency
 		compare-mmtests.pl -d . -b dbench4opslatency -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	dbt5-bench)
+		echo $SUBREPORT Transactions
+		eval $COMPARE_CMD
+		echo
+
+		echo $SUBREPORT Latency
+		compare-mmtests.pl -d . -b dbt5latency -n $KERNEL_LIST $FORMAT_CMD
+		echo
+
+		echo $SUBREPORT Execution time
+		compare-mmtests.pl -d . -b dbt5exectime -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		;;
+
 	dvdstore)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD

@@ -1,14 +1,13 @@
-# ComparePgbenchloadtime.pm
-package MMTests::ComparePgbenchloadtime;
+# CompareDbt5install.pm
+package MMTests::CompareDbt5install;
 use MMTests::Compare;
 our @ISA = qw(MMTests::Compare);
 
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ComparePgbenchloadtime",
+		_ModuleName  => "CompareDbt5install",
 		_DataType    => MMTests::Compare::DATA_TIME_SECONDS,
-		_CompareOps  => [ "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
 		_FieldLength => 12,
 		_ResultData  => []
 	};
