@@ -472,6 +472,20 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT-mbsec
 			echo "</tr>"
 			;;
+		dbt5-bench)
+			echo "<tr>"
+			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			for HEADING in System Elapsd; do
+				eval $GRAPH_PNG --logX -b dbt5exectime --title \"$SUBREPORT $HEADING exec time\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime-$HEADING.png
+				eval $GRAPH_PSC --logX -b dbt5exectime --title \"$SUBREPORT $HEADING exec time\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime-$HEADING.ps
+			done
+			plain graph-$SUBREPORT
+			plain graph-$SUBREPORT-exectime-System
+			plain graph-$SUBREPORT-exectime-Elapsd
+			echo "</tr>"
+			;;
+
 		ebizzy)
 			echo "<tr>"
 			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
@@ -788,7 +802,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		generate_latency_graph "inbox-open" '"Mail Read Latency"'
 		generate_latency_graph "sync-latency" '"Sync Latency"'
 
-		if [ `ls iotop-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
+		if [ `ls iotop-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
 			mkdir /tmp/iotop-mmtests-$$
 			for OP in Read Write; do
 				echo "<tr>"
@@ -827,7 +841,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				done
 				echo "</tr>"
 			done
-			rm -rf /tmp/iotop-mmtests-$$
 
 			# IO threads mean
 			for OP in Read Write; do
@@ -860,7 +873,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				echo "</tr>"
 			done
 
-			rmdir /tmp/iotop-mmtests-$$
+			rm -rf /tmp/iotop-mmtests-$$
 		fi
 
 		if [ `ls perf-time-stat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
