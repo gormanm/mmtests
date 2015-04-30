@@ -35,6 +35,17 @@ fi
 
 install-depends hwloc-devel
 
+LINESTART=`grep -n "==== BEGIN align-alloc.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END align-alloc.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file align-alloc.patch
+fi
+echo Extracting $SHELLPACK_TEMP/align-alloc.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/align-alloc.patch
+
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=wis-${VERSION}.tar.gz
 git_fetch $GIT_LOCATION wis-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
@@ -52,6 +63,7 @@ mv $DST_DIR wis-${VERSION}-installed
 pushd wis-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/wis-${VERSION}-installed || die Failed to change to source directory
+cat $SHELLPACK_TEMP/align-alloc.patch | patch -p1
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -61,5 +73,41 @@ fi
 
 echo will-it-scale installed successfully
 exit $SHELLPACK_SUCCESS
+
+==== BEGIN align-alloc.patch ====
+diff --git a/tests/read3.c b/tests/read3.c
+index fdbd33086caf..0faf23ba9195 100644
+--- a/tests/read3.c
++++ b/tests/read3.c
+@@ -17,7 +17,11 @@ void testcase(unsigned long long *iterations, unsigned long nr)
+ 	int fd = mkostemp(tmpfile, O_DIRECT);
+ 	char *p;
+ 
++#ifdef _ISOC11_SOURCE
+ 	buf = aligned_alloc(getpagesize(), FILESIZE);
++#else
++	posix_memalign(&buf, getpagesize(), FILESIZE);
++#endif
+ 	memset(buf, 0, FILESIZE);
+ 	assert(fd >= 0);
+ 	assert(write(fd, buf, FILESIZE) == FILESIZE);
+diff --git a/tests/read4.c b/tests/read4.c
+index cb097e753800..3f6e437e0bd4 100644
+--- a/tests/read4.c
++++ b/tests/read4.c
+@@ -28,7 +28,11 @@ void testcase(unsigned long long *iterations, unsigned long nr)
+ 	int fd = open(tmpfile, O_DIRECT|O_RDONLY);
+ 	char *p;
+ 
+-	p = aligned_alloc(getpagesize(), BUFLEN);
++#ifdef _ISOC11_SOURCE
++        p = aligned_alloc(getpagesize(), FILESIZE);
++#else
++        posix_memalign(&p, getpagesize(), FILESIZE);
++#endif
+ 
+ 	while (1) {
+ 		int ret = read(fd, p, BUFLEN);
+==== END align-alloc.patch ====
 #### Description will-it-scale
-#### Details wis 2
+#### Details wis 4
