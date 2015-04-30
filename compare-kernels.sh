@@ -1072,14 +1072,18 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 
 		if [ `ls proc-net-dev-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
 			INTERFACE_LIST=""
-			for NET_DEV in proc-net-dev-$KERNEL_BASE-*; do
-				if [[ $NET_DEV == *".gz" ]]; then
-					LIST=`gunzip -c $NET_DEV | awk '{ if($1 != "time:")  print $1 }' | sort -u`
-				else
-					LIST=`cat $NET_DEV | awk '{ if($1 != "time:")  print $1 }' | sort -u`
-				fi
-				INTERFACE_LIST=`printf "$LIST\n$INTERFACE_LIST" | sort -u`
-			done
+			if [ -e ip-addr-$KERNEL_BASE ]; then
+				INTERFACE_LIST=`read-ip-addr.pl -u -f ip-addr-$KERNEL_BASE`
+			else
+				for NET_DEV in proc-net-dev-$KERNEL_BASE-*; do
+					if [[ $NET_DEV == *".gz" ]]; then
+						LIST=`gunzip -c $NET_DEV | awk '{ if($1 != "time:")  print $1 }' | sort -u`
+					else
+						LIST=`cat $NET_DEV | awk '{ if($1 != "time:")  print $1 }' | sort -u`
+					fi
+					INTERFACE_LIST=`printf "$LIST\n$INTERFACE_LIST" | sort -u`
+				done
+			fi
 
 			for INTERFACE in $INTERFACE_LIST; do
 				eval $GRAPH_PNG --title \"$INTERFACE Received Bytes\"      --print-monitor proc-net-dev --sub-heading $INTERFACE-rbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes.png

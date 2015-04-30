@@ -714,6 +714,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 
 	# Run tests in single mode
 	dmesg > $SHELLPACK_LOG/dmesg-$RUNNAME
+	ip addr show > $SHELLPACK_LOG/ip-addr-$RUNNAME
 	echo start :: `date +%s` > $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	echo arch :: `uname -m` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	if [ "`which numactl 2> /dev/null`" != "" ]; then
