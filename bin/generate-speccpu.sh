@@ -563,7 +563,6 @@ emit_base
 emit_compiler
 emit_mconf
 emit_sconf
-emit_monitor
 emit_optimization
 emit_portall
 emit_portint
