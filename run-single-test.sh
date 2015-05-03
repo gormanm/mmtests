@@ -77,6 +77,7 @@ else
 	mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
 	recover_rc
 	check_status $NAME "returned failure, unable to continue"
+	gzip $LOGDIR_RESULTS/mmtests.log
 fi
 fi
 
