@@ -46,7 +46,7 @@ char *filename;
 /* barrier for all threads to finish initialisation on */
 static pthread_barrier_t init_barrier;
 
-static inline uint64_t timeval_to_ns(struct timeval *tv)
+static inline uint64_t timeval_to_us(struct timeval *tv)
 {
 	return ((uint64_t)tv->tv_sec * 1000000) + tv->tv_usec;
 }
@@ -104,7 +104,7 @@ static void *worker(void *data)
 
 	/* Record anon init timings */
 	gettimeofday(&tv_end, NULL);
-	anon_init[thread_idx] = timeval_to_ns(&tv_end) - timeval_to_ns(&tv_start);
+	anon_init[thread_idx] = timeval_to_us(&tv_end) - timeval_to_us(&tv_start);
 
 	/* Fill holes with file pages. Do not include in anon init timings */
 	gettimeofday(&tv_start, NULL);
@@ -122,7 +122,7 @@ static void *worker(void *data)
 
 	/* Record file init timings */
 	gettimeofday(&tv_end, NULL);
-	file_init[thread_idx] = timeval_to_ns(&tv_end) - timeval_to_ns(&tv_start);
+	file_init[thread_idx] = timeval_to_us(&tv_end) - timeval_to_us(&tv_start);
 
 	printf("Artifical sum for offset 0x%016lX: %d\n", thread_size * thread_idx, sum);
 	fflush(NULL);
@@ -141,7 +141,7 @@ static void *worker(void *data)
 		timings[thread_idx][i].hugepage = vec;
 		memset(&second_mapping[arridx], 2, HPAGESIZE);
 		gettimeofday(&timings[thread_idx][i].tv, NULL);
-		timings[thread_idx][i].latency = timeval_to_ns(&timings[thread_idx][i].tv) - timeval_to_ns(&tv_start);
+		timings[thread_idx][i].latency = timeval_to_us(&timings[thread_idx][i].tv) - timeval_to_us(&tv_start);
 	}
 
 	/* Cleanup */

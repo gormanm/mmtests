@@ -105,4 +105,4 @@ done
 rm $SHELLPACK_TEMP/workfile
 exit $SHELLPACK_SUCCESS
 #### Description thpscale
-#### Details thpscale-bench 14
+#### Details thpscale-bench 15

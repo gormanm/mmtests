@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractThpscale";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_NSECONDS;
+	$self->{_DataType}   = MMTests::Extract::DATA_TIME_USECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
 	$self->{_FieldLength} = 12;
