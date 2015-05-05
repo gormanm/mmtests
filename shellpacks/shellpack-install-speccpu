@@ -3,6 +3,11 @@
 P=speccpu-install
 DEFAULT_VERSION=1.2
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION="NOT_AVAILABLE"
 MIRROR_LOCATION="$WEBROOT/spec"
 
@@ -36,9 +41,9 @@ mkdir $SHELLPACK_SOURCES/speccpu-${VERSION}-installed
 cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed
 tar -xf ../$TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf cpu2006-${VERSION}.tar.xz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf cpu2006-${VERSION}.tar.xz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 pushd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed || die Failed to change to source directory
 
@@ -60,4 +65,4 @@ cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed
 
 exit $SHELLPACK_SUCCESS
 #### Description Non-conforming speccpu benchmark
-#### Details speccpu 19
+#### Details speccpu 20

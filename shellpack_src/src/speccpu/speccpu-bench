@@ -64,5 +64,6 @@ $MMTESTS_HUGECTL runspec -c gen-m${RUNBITS}${SPECCPU_PAGESIZE}.cfg \
 RETVAL=$?
 rm -rf /tmp/OPiter*
 mv result/* $LOGDIR_RESULTS/
+gzip $LOGDIR_RESULTS/*.log
 
 exit $RETVAL
