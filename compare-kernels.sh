@@ -137,13 +137,15 @@ if [ "$SORT_VERSION" = "yes" ]; then
 	LIST_SORT=$KERNEL_LIST
 	KERNEL_LIST=
 	KERNEL_BASE=
-	for KERNEL in `echo $LIST_SORT | sed -e 's/,/\n/g' | sort -t . -k2 -n`; do
-		if [ "$KERNEL_BASE" = "" ]; then
-			KERNEL_BASE=$KERNEL
-			KERNEL_LIST=$KERNEL
-		else
-			KERNEL_LIST="$KERNEL_LIST,$KERNEL"
-		fi
+	for MAJOR in `echo $LIST_SORT | sed -e 's/,/\n/g' | awk -F . '{print $1}' | sort -n | uniq`; do
+		for KERNEL in `echo $LIST_SORT | sed -e 's/,/\n/g' | sort -t . -k2 -n | grep ^$MAJOR.`; do
+			if [ "$KERNEL_BASE" = "" ]; then
+				KERNEL_BASE=$KERNEL
+				KERNEL_LIST=$KERNEL
+			else
+				KERNEL_LIST="$KERNEL_LIST,$KERNEL"
+			fi
+		done
 	done
 fi
 
