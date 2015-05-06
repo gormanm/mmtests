@@ -137,6 +137,7 @@ if [[ -n "$USE_R" && $R_SUPPORTED_PLOTTYPES =~ $PLOTTYPE ]]; then
 fi
 
 TITLES=
+COUNT=0
 for TEST in $TEST_LIST; do
 	if [ "$USE_R" != "" ]; then
 		PLOTFILE="$R_TMPDIR/$SUBREPORT-$TEST"
@@ -146,6 +147,11 @@ for TEST in $TEST_LIST; do
 	else
 		PLOTFILE="$TMPDIR/$TEST"
 		$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | grep -v nan > $PLOTFILE || exit
+		if [ "$PLOTTYPE" = "--operation-candlesticks" ]; then
+			OFFSET=`perl -e "print (1+$COUNT*0.3)"`
+			sed -i -e "s/^1 /$OFFSET /" $PLOTFILE
+			COUNT=$((COUNT+1))
+		fi
 	fi
 	if [ `wc -l $PLOTFILE | awk '{print $1}'` -eq 0 ]; then
 		continue
@@ -158,6 +164,12 @@ for TEST in $TEST_LIST; do
 		PLOTS="$PLOTS $PLOTFILE"
 	fi
 done
+XRANGE=
+if [ $COUNT -gt 0 ]; then
+	MINX=-1
+	MAXX=`perl -e "print int (1+0.5+$COUNT*0.3)"`
+	XRANGE="--xrange $MINX:$MAXX"
+fi
 
 # Override certain graph options if requested
 if [ "$FORCE_X_LABEL" != "" ]; then
@@ -174,7 +186,7 @@ PLOTSCRIPTS="plot"
 
 for PLOTSCRIPT in $PLOTSCRIPTS; do
 	eval $SCRIPTDIR/$PLOTSCRIPT $TITLE $PLOTTYPE $SEPARATE_TESTS $SMOOTH $FORMAT_CMD $OUTPUT_CMD $OUTPUT \
-		$LOGX $LOGY $WIDE $SUBREPORT_ARGS \
+		$LOGX $LOGY $WIDE $SUBREPORT_ARGS $XRANGE \
 		--xlabel \"$XLABEL\" \
 		--ylabel \"$YLABEL\" \
 		--titles $TITLES \
