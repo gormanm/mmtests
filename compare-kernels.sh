@@ -448,6 +448,15 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo "<table class=\"resultsGraphs\">"
 
 		case $SUBREPORT in
+		aim9)
+			echo "<tr>"
+			for HEADING in page_test brk_test exec_test fork_test; do
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				plain graph-$SUBREPORT-$HEADING
+			done
+			echo "</tr>"
+			;;
 		autonumabench)
 			echo "<tr>"
 			for HEADING in User System Elapsed; do
@@ -875,7 +884,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			rm -rf /tmp/iotop-mmtests-$$
 		fi
 
-		if [ `ls perf-time-stat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
+		if [ `ls perf-time-stat-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
 			EVENTS=`$EXTRACT_CMD -n $KERNEL_BASE --print-monitor perf-time-stat --print-header | head -1`
 			echo "<tr>"
 			for EVENT in $EVENTS; do
@@ -999,7 +1008,14 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "</tr>"
 		fi
 
-		if [ `ls top-* 2> /dev/null | wc -l` -gt 0 ] && [ `zgrep kswapd top-* | awk '{print $10}' | max | cut -d. -f1` -gt 0 ]; then
+		KSWAPD_MAX_CPU=0
+		if [ `ls top-* 2> /dev/null | wc -l` -gt 0 ]; then
+			KSWAPD_MAX_CPU=`zgrep kswapd top-* | awk '{print $10}' | max | cut -d. -f1`
+			if [ "$KSWAPD_MAX_CPU" = "NaN" ]; then
+				KSWAPD_MAX_CPU=0
+			fi
+		fi
+		if [ $KSWAPD_MAX_CPU -gt 0 ]; then
 			eval $GRAPH_PNG --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.png
 			eval $GRAPH_PSC --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.ps
 			eval $GRAPH_PNG --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan-smooth.png --smooth
@@ -1096,7 +1112,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "</tr>"
 		fi
 
-		if [ `ls proc-net-dev-$KERNEL_BASE-* | wc -l` -gt 0 ]; then
+		if [ `ls proc-net-dev-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
 			INTERFACE_LIST=""
 			if [ -e ip-addr-$KERNEL_BASE ]; then
 				INTERFACE_LIST=`read-ip-addr.pl -u -f ip-addr-$KERNEL_BASE`

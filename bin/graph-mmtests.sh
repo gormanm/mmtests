@@ -149,7 +149,8 @@ for TEST in $TEST_LIST; do
 		$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | grep -v nan > $PLOTFILE || exit
 		if [ "$PLOTTYPE" = "--operation-candlesticks" ]; then
 			OFFSET=`perl -e "print (1+$COUNT*0.3)"`
-			sed -i -e "s/^1 /$OFFSET /" $PLOTFILE
+			awk "\$1=(\$1+$COUNT*0.3)" $PLOTFILE > $PLOTFILE.tmp
+			mv $PLOTFILE.tmp $PLOTFILE
 			COUNT=$((COUNT+1))
 		fi
 	fi
@@ -166,8 +167,9 @@ for TEST in $TEST_LIST; do
 done
 XRANGE=
 if [ $COUNT -gt 0 ]; then
-	MINX=-1
-	MAXX=`perl -e "print int (1+0.5+$COUNT*0.3)"`
+	MINX=0.2
+	END=`wc -l $PLOTFILE | awk '{print $1}'`
+	MAXX=`perl -e "print int ($END+0.5+$COUNT*0.3)"`
 	XRANGE="--xrange $MINX:$MAXX"
 fi
 
