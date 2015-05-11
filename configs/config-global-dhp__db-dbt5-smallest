@@ -1,3 +1,16 @@
+### dbt5 is an OLTP workload simulating a brokerage firm. It is a fair usage
+### implementation of TPC's TPC-E Benchmark. More information on TPC-E can be
+### found on http://www.tpc.org/tpce/default.asp . As noted on that page,
+### the benchmark is scalable but this is not scaled to the size of the
+### machine. Instead the number of customers, trade days and scale factors
+### are fixed as 5000, 50 and 500 respectively. In this benchmark, the number
+### of users is varied so measure how well it handles load for increasing
+### numbers of clients. Further information on the benchmark itself can be
+### read from the paper "DBT-5: A Fair Usage Open-Source TPC-E Implementation
+### for Performance Evaluation of Computer Systems".
+###
+### Note that the benchmark is patched relative to upstream to support a recent
+### version of postgres but it should be functionally equivalent.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

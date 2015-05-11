@@ -1,3 +1,9 @@
+### SysBench is a suite of benchmarks that includes a simple OLTP benchmark.
+### In this configuration it is running executing read-only "complex"
+### transaction types as defined by the suite itself. The transaction types
+### are described in the sysbench manual. The underlying database used is
+### mariadb 10.0.12 and is scaled to be 75% of RAM. The page cache is not
+### flushed after the database is populated so the test starts cache-hot.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

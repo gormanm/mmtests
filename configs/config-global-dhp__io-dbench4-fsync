@@ -1,3 +1,11 @@
+### DBench 4 (https://dbench.samba.org/) is a workload generator that was
+### originally designed for network filesystems but can run on any filesystem.
+### It is intended as a stress tool to detect where the saturation point is.
+### The results can be tricky to interpret as it cycles through a load file
+### and the results partially depend on where in the loadfile the benchmark
+### was when the time runs out. This configuration uses fsync after the IO
+### completes (-F switch to the benchmark specifically) and varies the number
+### of clients up to NUMCPUS*64.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

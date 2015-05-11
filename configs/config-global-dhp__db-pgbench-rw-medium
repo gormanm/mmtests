@@ -1,3 +1,11 @@
+### pgbench is a workload generator that is packaged with postgres. It
+### is relatively basic and modelled on TPC-B. In this configuration,
+### the workload is read-write and scaled so that the approximate size
+### is 60% of RAM. This should fit entirely in memory but there will be
+### copying activity between page cache and the shared memory buffer.
+### Due to the read-write nature of the test there may also be some writeback
+### and sync-related stalls. The page cache is not flushed after the
+### database is populated for the test and starts cache-hot.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
