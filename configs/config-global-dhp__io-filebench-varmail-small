@@ -1,3 +1,16 @@
+### filebench is a filesystem and storage benchmark that runs workloads
+### specified using a Workload Model Language (WML). The intention is that
+### an analyst can distil a production workload into a WML-equivalent and
+### then execute it via filebench. It ships with a number of stock
+### personalities.
+###
+### This configuration uses the varmail personality for a working set that
+### is 20% of RAM. This workload should be similar to a simple mail server
+### that stores one mail in one file. The IO pattern is small create-append-sync,
+### read-append-sync and read/delete operations in a single directory. It runs
+### for a range of clients from 1 to NUMCPUS. More can be read about the stock
+### personalities at
+### http://filebench.sourceforge.net/wiki/index.php/Pre-defined_personalities.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

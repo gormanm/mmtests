@@ -4,10 +4,11 @@
 ### then execute it via filebench. It ships with a number of stock
 ### personalities.
 ###
-### This configuration uses the filebench OLTP personality for a working
-### set that is 2*RAM and uses buffered IO. The IO model should be similar to
-### the Oracle 9i IO model and launches multiple reader, writer and logging
-### processes. More can be read about the stock personalities at
+### This configuration uses the webproxy personality for a working set that
+### is 200% of RAM. This workload should be similar to a web proxy with lots of
+### create-write-close, open-read-close and delete operations. It runs for a
+### range of clients from 1 to NUMCPUS. More can be read about the stock
+### personalities at
 ### http://filebench.sourceforge.net/wiki/index.php/Pre-defined_personalities.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
@@ -77,8 +78,8 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # filebench
-export FILEBENCH_PERSONALITY=oltp
+export FILEBENCH_PERSONALITY=webproxy
 export FILEBENCH_ITERATIONS=3
 export FILEBENCH_WORKING_SET=$((MEMTOTAL_BYTES*2))
 export FILEBENCH_MIN_THREADS=1
-export FILEBENCH_MAX_THREADS=1
+export FILEBENCH_MAX_THREADS=$NUMCPUS
