@@ -5,7 +5,7 @@
 ### personalities.
 ###
 ### This configuration uses the webproxy personality for a working set that
-### is 25% of RAM. This workload should be similar to a web proxy with lots of
+### is 20% of RAM. This workload should be similar to a web proxy with lots of
 ### create-write-close, open-read-close and delete operations. It runs for a
 ### range of clients from 1 to NUMCPUS. More can be read about the stock
 ### personalities at
