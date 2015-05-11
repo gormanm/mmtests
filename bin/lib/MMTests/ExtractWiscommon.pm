@@ -16,7 +16,7 @@ sub initialise() {
 	$self->{_SummaryLength} = $fieldLength;
 	$self->{_TestName} = $testName;
 	$self->{_ModuleName} = "ExtractWiscommon";
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
 }
 
 sub uniq {

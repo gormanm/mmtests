@@ -529,8 +529,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
-		wis-futex|wis-pread|wis-pwrite|wis-malloc|wis-pf|wis-unlink|wis-mmap|wis-open|wis-poll|wis-filelock|wis-read|wis-getppid|wis-sched|wis-fallocate|wis-pthreadmutex|wis-signal|wis-pipe|wis-eventfd|wis-posixsems)
-			;;
 		fsmark-threaded|fsmark-single)
 			eval $GRAPH_PNG        -b $SUBREPORT --title \"$SUBREPORT files/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
 			eval $GRAPH_PSC        -b $SUBREPORT --title \"$SUBREPORT files/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
@@ -774,6 +772,19 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			done
 			echo "</tr>"
 
+			;;
+		wis-eventfd|wis-fallocate|wis-filelock|wis-futex|wis-getppid|wis-malloc|wis-mmap|wis-open|wis-pf|wis-pipe|wis-poll|wis-posixsems|wis-pread|wis-pthreadmutex|wis-pwrite|wis-read|wis-sched|wis-signal|wis-unlink)
+			SUB_WORKLOADS_FILENAME=`find -name "workloads" | grep $SUBREPORT | head -1`
+			SUB_WORKLOADS=`cat $SUB_WORKLOADS_FILENAME | sed -e 's/,/ /g'`
+			for ADDRSPACE in processes threads; do
+				echo "<tr>"
+				for SUB_WORKLOAD in $SUB_WORKLOADS; do
+						eval $GRAPH_PNG --title \"$SUBREPORT $SUB_WORKLOAD $ADDRSPACE\" --sub-heading $SUB_WORKLOAD-$ADDRSPACE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUB_WORKLOAD-$ADDRSPACE.png
+						eval $GRAPH_PSC --title \"$SUBREPORT $SUB_WORKLOAD $ADDRSPACE\" --sub-heading $SUB_WORKLOAD-$ADDRSPACE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUB_WORKLOAD-$ADDRSPACE.ps
+						plain graph-$SUBREPORT-$SUB_WORKLOAD-$ADDRSPACE
+				done
+				echo "</tr>"
+			done
 			;;
 		*)
 			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png
