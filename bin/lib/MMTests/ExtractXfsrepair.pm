@@ -13,6 +13,9 @@ sub initialise() {
 	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_FieldLength}= 12;
+	$self->{_MultiInclude} = {
+		"elapsd-xfsrepair" => 1,
+	};
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
@@ -32,8 +35,8 @@ sub extractReport($$$) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;
-				push @{$self->{_ResultData}}, [ "syst-$testcase", ++$iteration, $self->_time_to_sys($_) ];
-				push @{$self->{_ResultData}}, [ "real-$testcase", ++$iteration, $self->_time_to_elapsed($_) ];
+				push @{$self->{_ResultData}}, [ "system-$testcase", ++$iteration, $self->_time_to_sys($_) ];
+				push @{$self->{_ResultData}}, [ "elapsd-$testcase", ++$iteration, $self->_time_to_elapsed($_) ];
 			}
 			close(INPUT);
 		}
@@ -41,7 +44,7 @@ sub extractReport($$$) {
 
 	my @operations;
 	foreach my $testcase (@testcases) {
-		foreach my $cpu ("real", "syst") {
+		foreach my $cpu ("elapsd", "system") {
 			push @operations, "$cpu-$testcase";
 		}
 	}

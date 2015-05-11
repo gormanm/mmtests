@@ -201,8 +201,13 @@ sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = @{$self->{_Operations}};
 	my @data = @{$self->{_ResultData}};
+	my %includeOps;
 
 	$self->{_SummaryHeaders} = [ "Op", "Ratio" ];
+
+	if (defined $self->{_MultiInclude}) {
+		%includeOps = %{$self->{_MultiInclude}};
+	}
 
 	if ($subHeading ne "") {
 		my $index = 0;
@@ -210,6 +215,15 @@ sub extractRatioSummary() {
 			if ($_operations[$index] =~ /^$subHeading.*/) {
 				$index++;
 				next;
+			}
+			splice(@_operations, $index, 1);
+		}
+	}
+	if (%includeOps) {
+		my $index = 0;
+		while ($index <= $#_operations) {
+			if ($includeOps{$_operations[$index]} == 1) {
+				$index++
 			}
 			splice(@_operations, $index, 1);
 		}

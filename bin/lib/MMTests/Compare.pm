@@ -183,10 +183,12 @@ sub _generateComparisonTable() {
 				my $summaryRef = $extractModules[$module]->{_SummaryData};
 				my @summary = @{$summaryRef};
 				if ($summary[$row][$column] != -1 && $baseline[$row][$column] != -1) {
-					push @data, $summary[$row][$column];
-					push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
-					push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
-					push @stddev, sdiff($summary[$row][$column], $baseline[$row][$column], $baseStdDevs[$row]) if $baseStdDevsRef;
+					if ($summary[$row][$column] ne "NaN") {
+						push @data, $summary[$row][$column];
+						push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
+						push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
+						push @stddev, sdiff($summary[$row][$column], $baseline[$row][$column], $baseStdDevs[$row]) if $baseStdDevsRef;
+					}
 				} else {
 					push @data, 0;
 					push @compare, 0;
