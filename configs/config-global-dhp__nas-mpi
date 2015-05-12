@@ -1,3 +1,7 @@
+### NAS Parallel Benchmark (http://www.nas.nasa.gov/publications/npb.html) is a
+### small set of benchmarks that was intended for use when evaluating
+### supercomputers. They are all computational kernels. In this configuration,
+### the workload is parallelised on a single machine using MPI.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

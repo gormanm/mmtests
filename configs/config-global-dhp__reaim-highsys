@@ -1,5 +1,7 @@
 ### This configuration runs reaim with the workfile.high_systime file
-### except that the signal test is removed.
+### except that the signal test is removed. The signal_test generates a
+### lot of noise, takes the longest to run and is the least useful as
+### no reasonable problem is storming the system with signals.
 ###
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`

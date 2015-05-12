@@ -1,3 +1,6 @@
+### This runs the reaim benchmark with the alltests configuration with large
+### numbers of instances. signal_test is removed as it generates a lot of
+### noise without being useful.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

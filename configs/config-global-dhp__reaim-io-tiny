@@ -1,3 +1,8 @@
+### This configuration runs a number of IO-intensive workfiles from reaim
+### except that signal_test is removed. signal_test generates a lot of noise
+### and interference while there is no real workload that generates that
+### many signals. The workfiles used are compute, new_dbase, new_fserver,
+### shared, disk and alltests.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

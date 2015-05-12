@@ -1,3 +1,9 @@
+### dedup is taken from the PARSEC benchmark suite. It takes a large files,
+### identifies duplicated blocks and then compresses the remainder as best as
+### possible. This is the type of operation that is sometimes conducted when
+### shrinking virtual machine images when an instance is destroyed. This
+### configuration uses a virtual machine disk as input but uses between
+### 2 and 4*NUMCPUS to deduplicate and compress the file.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

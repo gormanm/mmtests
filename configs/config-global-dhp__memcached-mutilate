@@ -1,3 +1,9 @@
+### Mutilate is a load generate for memcached that is meant to generate high
+### request rates that are realistic. It is not an optimal configuration
+### as that would require multiple server instances but it is a reasonable
+### test of a single node. It can also be used to simulate specific loads
+### but this configuration uses the defaults until such time as the basic
+### problems are resolved.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

@@ -1,5 +1,18 @@
+### This is a number of workloads that are of interest to kernel developers.
+### At least some variation of these are commonly used when testing.
+###
 ### kernbench is a simple average of five kernel compiles of the vmlinux binary
-### image.
+### image. Note that it is sensitive to the kernel version, configuration and
+### compiler used. In this configuraiton, it's a defconfig build of vmlinux for
+### kernel 3.0. It does not control the compiler version used so cannot compare
+### distributions fairly.
+###
+### gitcheckout checks out two kernel version from a git tree in rapid succession
+### and measures how long it takes
+###
+### compress is a parallel compression workload that is meant to represent what
+### happens when maintainers upload trees for release and tarballs must be
+### created.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

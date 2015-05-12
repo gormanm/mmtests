@@ -1,3 +1,66 @@
+### This is Andrea Arcangeli's autonuma synthetic benchmark that stresses
+### some NUMA effects but is not intended to represent any real workload as
+### such. Very broadly speaking there are 4 benchmarks of interest.
+###
+### NUMA01
+###   Two processes
+###   NUMCPUSS/2 number of threads so all CPUs are in use
+###
+###   On startup, the process forks
+###   Each process mallocs a 3G buffer but there is no communication
+###       between the processes.
+###   Threads are created that zeros out the full buffer 1000 times
+###
+###   The objective of the test is that initially the two processes
+###   allocate their memory on the same node. As the threads are
+###   are created the memory will migrate from the initial node to
+###   nodes that are closer to the referencing thread.
+###
+###   It is worth noting that this benchmark is specifically tuned
+###   for two nodes and the expectation is that the two processes
+###   and their threads split so that all process A runs on node 0
+###   and all threads on process B run in node 1
+###
+###   With 4 and more nodes, this is actually an adverse workload.
+###   As all the buffer is zeroed in both processes, there is an
+###   expectation that it will continually bounce between two nodes.
+###
+###   So, on 2 nodes, this benchmark tests convergence. On 4 or more
+###   nodes, this partially measures how much busy work automatic
+###   NUMA migrate does and it'll be very noisy due to cache conflicts.
+###
+### NUMA01_THREADLOCAL
+###   Two processes
+###   NUMCPUSS/2 number of threads so all CPUs are in use
+###
+###   On startup, the process forks
+###   Each process mallocs a 3G buffer but there is no communication
+###       between the processes
+###   Threads are created that zero out their own subset of the buffer.
+###       Each buffer is 3G/NR_THREADS in size
+###
+###   This benchmark is slightly better. In an ideal situation, each
+###   thread will migrate its data to its local node. The test really
+###   is to see does it converge and how quickly.
+###
+### NUMA02
+###  One process, NR_CPU threads
+###
+###  On startup, malloc a 1G buffer
+###  Create threads that zero out a thread-local portion of the buffer.
+###       Zeros multiple times - the number of times is fixed and seems
+###       to just be to take a period of time
+###
+###  This is similar in principal to NUMA01_THREADLOCAL except that only
+###  one process is involved. I think it was aimed at being more JVM-like.
+###
+### NUMA02_SMT
+###  One process, NR_CPU/2 threads
+###
+###  This is a variation of NUMA02 except that with half the cores idle it
+###  is checking if the system migrates the memory to two or more nodes or
+###  if it tries to fit everything in one node even though the memory should
+###  migrate to be close to the CPU
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

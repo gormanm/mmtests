@@ -1,3 +1,8 @@
+### poundtime uses between 2 and 4*NUMCPUS threads to hammer on the
+### clock_gettime(CLOCK_PROCESS_CPUTIME_ID). This can be an expensive operation
+### depending on how the kernel uses locks to calculate it. There are some
+### debuggers and applications that monitor their own performance that
+### accidentally depend on the performance of this specific call.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

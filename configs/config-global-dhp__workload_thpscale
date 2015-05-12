@@ -1,3 +1,11 @@
+### This a benchmark that stresses THP allocations in a specific manner.
+### It first creates a file, maps it and creats a large anonymous mapping.
+### In then punches holes in the file mapping that are naturally aligned
+### and half the size of a THP. It then allocates a new large region. This
+### forces THP allocations to use compaction. The overall size of the
+### workload is such that it should fit in memory. It uses between
+### 2 and 32 threads to allocate the final region and measures fault latency
+### and whether base pages or THPs were used.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

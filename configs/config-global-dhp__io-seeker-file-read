@@ -1,3 +1,15 @@
+### Seeker was added due to a bug report based on the benchmark posted at
+### http://www.linuxinsight.com/how_fast_is_your_disk.html . Ultimately it
+### turned out there was not a bug in the kernel but the benchmark was
+### flawed. This version is patched to support read/write benchmarks,
+### tests on either files or block devices and addresses some problems with
+### the random numbers generated. The most important change is that
+### posix_fadvise is used to discard blocks after reading so that it's really
+### measuring IO and not page cache and the write benchmark uses
+### sync_file_range to ensure the write to disk actually happens. The benchmark
+### is not really indicative of anything but remains popular for some reason.
+###
+### This configuration is a read-only benchmark of a file.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

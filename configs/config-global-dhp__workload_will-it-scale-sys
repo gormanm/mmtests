@@ -1,3 +1,7 @@
+### will-is-scale is a set of microbench that run a test case from 1 to N
+### parallel copies to see if it scales. It uses both processes and threads
+### as each hyas different scaling properties. This configuration runs
+### through the benchmarks that are scheduler, MM or IPC based.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

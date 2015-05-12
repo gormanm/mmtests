@@ -1,3 +1,8 @@
+### pgioperf is a workload simulator for postgres running a read/write
+### workload. It simulates the activity of a reporter, the WAL and commit
+### intervals and is vunerable to very large stalls due to sync. It is
+### expected that fixing any problems shown by this benchmark would also
+### be of benefit to postgres.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

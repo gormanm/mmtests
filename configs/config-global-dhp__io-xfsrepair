@@ -1,7 +1,11 @@
 ### xfsrepair creates a sparse file, mounts it, creates 50 million zero-sized
 ### inodes, umounts and then runs xfs_repair on the filesystem image. This
 ### drives an extremely large number of read IOPS through multiple threads
-### using direct IO.
+### using direct IO. As well as being a reasonable benchmark based on a
+### parallel IO workload, it's surprisingly sensitive to interference from
+### automatic NUMA balancing. xfsrepair performance does not depend heavily
+### on good memory locality but it can suffer badly if automatic NUMA
+### balancing gets in the way.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
