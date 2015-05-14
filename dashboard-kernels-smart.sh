@@ -168,11 +168,12 @@ function tablecell() {
 	GRATIO=$1
 	DESCRIPTION=$2
 	COLOUR=$3
+	SUBREPORT=$4
 	if [ "$FORMAT" != "html" ]; then
 		printf "%8.4f %-15s " $GRATIO $DESCRIPTION
 	else
 		if [ "$REPORTROOT" != "" ]; then
-			echo "<td bgcolor=\"$COLOUR\"><font size=1><a href=\"$REPORTROOT\" title=\""
+			echo "<td bgcolor=\"$COLOUR\"><font size=1><a href=\"$REPORTROOT#$SUBREPORT\" title=\""
 			cat $COMPARE_FILE
 			echo "\">$GRATIO</a></font></td>"
 		else
@@ -270,7 +271,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					fi
 				fi
 
-				tablecell $GRATIO $DESCRIPTION $COLOUR
+				tablecell $GRATIO $DESCRIPTION $COLOUR $SUBREPORT
 			done
 		elif [ -n "$GMEAN" ]; then
 			GOODNESS=`echo $GMEAN | awk '{print $2}'`
@@ -324,10 +325,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					fi
 				fi
 
-				tablecell $RATIO $DESCRIPTION $COLOUR
+				tablecell $RATIO $DESCRIPTION $COLOUR $SUBREPORT
 			done
 		else
-			tablecell 0 Unknown $UNKNOWN_COLOUR
+			tablecell 0 Unknown $UNKNOWN_COLOUR $SUBREPORT
 		fi
 
 		if [ "$FORMAT" != "html" ]; then

@@ -225,6 +225,9 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		GRAPH_PSC="#"
 	fi
 	echo
+	if [ "$FORMAT" = "html" ]; then
+		echo "<a name="$SUBREPORT">"
+	fi
 	case $SUBREPORT in
 	dbench4)
 		echo $SUBREPORT Overall Throughput

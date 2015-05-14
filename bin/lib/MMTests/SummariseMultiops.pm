@@ -249,7 +249,9 @@ sub extractRatioSummary() {
 		}
 		if ($#row > 0) {
 			push @{$self->{_SummaryData}}, \@row;
-			push @{$self->{_SummaryStdDevs}}, calc_stddev(@units);
+			if (!$self->{_SuppressDmean}) {
+				push @{$self->{_SummaryStdDevs}}, calc_stddev(@units);
+			}
 		}
 	}
 

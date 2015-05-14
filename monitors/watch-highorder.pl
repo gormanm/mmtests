@@ -34,23 +34,8 @@ my $sigint_pending = 0;
 my $sigint_received = 0;
 sub sigint_handler {
 	my $current_time = time;
-	if ($current_time - 2 > $sigint_received) {
-		print "SIGINT received, report pending. Hit ctrl-c again to exit\n";
-		$sigint_report = 1;
-	} else {
-		if (!$sigint_exit) {
-			print "Second SIGINT received quickly, exiting\n";
-		}
-		$sigint_exit++;
-	}
-
-	if ($sigint_exit > 3) {
-		print "Many SIGINTs received, exiting now without report\n";
-		exit;
-	}
-
-	$sigint_received = $current_time;
-	$sigint_pending = 1;
+	$sigint_report = 1;
+	$sigint_exit = 1;
 }
 $SIG{INT} = "sigint_handler";
 

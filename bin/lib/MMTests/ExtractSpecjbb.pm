@@ -34,6 +34,7 @@ sub extractReport($$$) {
 
 	my $file = "$reportDir/noprofile/$pagesize/SPECjbbMultiJVM.001/MultiVMReport.txt";
 	if (! -e $file) {
+		$self->{_SuppressDmean} = 1;
 		$single_instance = 1;
 		$file = "$reportDir/noprofile/$pagesize/SPECjbbSingleJVM/SPECjbb.001.txt";
 	}
