@@ -191,6 +191,9 @@ if [ "$REPORTROOT" != "" ]; then
 	ACLOSE="</a>"
 fi
 
+KERNEL_LIST_SPACE=`echo $KERNEL_LIST | sed -e 's/,/ /g'`
+read -a KERNEL_NAMES <<< $KERNEL_LIST_SPACE
+
 for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
 	COMPARE_CMD="compare-mmtests.pl --print-ratio -d . -b $SUBREPORT -n $KERNEL_LIST"
 	pwd >> /tmp/aa
@@ -223,14 +226,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			else
 				FIELD_LIST=3
 			fi
+			NAME_INDEX=-1
 			for FIELD in $FIELD_LIST; do
+				NAME_INDEX=$((NAME_INDEX+1))
 				GRATIO=`echo $GMEAN | awk "{print \\$$FIELD}"`
 				DDIFF=`echo $DMEAN | awk "{print \\$$FIELD}"`
 				if [ "$DDIFF" != "nan" ]; then
 					DIFF_ADJUSTED=`perl -e "print (($DDIFF*10000))"`
 					DELTA=$((DIFF_ADJUSTED))
 					if [ "$TOPOUT" != "" ]; then
-						echo "$DDIFF $GRATIO $SUBREPORT $TABLEID" >> $TOPOUT
+						echo "$DDIFF $GRATIO $SUBREPORT $TABLEID ${KERNEL_NAMES[$NAME_INDEX]}" >> $TOPOUT
 					fi
 					if [ $DIFF_ADJUSTED -lt 0 ]; then
 						DELTA=$((-DIFF_ADJUSTED))
