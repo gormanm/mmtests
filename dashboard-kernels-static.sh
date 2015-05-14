@@ -50,6 +50,9 @@ while [ "$1" != "" ]; do
 	--table-id)
 		shift 2
 		;;
+	--toplatest)
+		shift
+		;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift

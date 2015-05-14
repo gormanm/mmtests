@@ -49,6 +49,10 @@ while [ "$1" != "" ]; do
 		TOPOUT="$2"
 		shift 2
 		;;
+	--toplatest)
+		TOPLATEST=yes
+		shift
+		;;
 	--table-id)
 		TABLEID="$2"
 		shift 2
@@ -235,7 +239,9 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 					DIFF_ADJUSTED=`perl -e "print (($DDIFF*10000))"`
 					DELTA=$((DIFF_ADJUSTED))
 					if [ "$TOPOUT" != "" ]; then
-						echo "$DDIFF $GRATIO $SUBREPORT $TABLEID ${KERNEL_NAMES[$NAME_INDEX]}" >> $TOPOUT
+						if [ "$TOPLATEST" != "yes" -o $FIELD -eq $NR_FIELDS ]; then
+							echo "$DDIFF $GRATIO $SUBREPORT $TABLEID ${KERNEL_NAMES[$NAME_INDEX]}" >> $TOPOUT
+						fi
 					fi
 					if [ $DIFF_ADJUSTED -lt 0 ]; then
 						DELTA=$((-DIFF_ADJUSTED))
@@ -290,10 +296,17 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				RATIO=`echo $GMEAN | awk "{print \\$$FIELD}"`
 				if [ "$RATIO" != "nan" ]; then
 					RATIO_ADJUSTED=`perl -e "print (($RATIO*10000))"`
+					DMEAN=`perl -e "printf \"%4.2f\", (abs (1-$RATIO))"`
 					DELTA=$((RATIO_ADJUSTED-10000))
 					if [ $DELTA -lt 0 ]; then
 						DELTA=$((-DELTA))
 					fi
+					if [ "$TOPOUT" != "" ]; then
+						if [ "$TOPLATEST" != "yes" -o $FIELD -eq $NR_FIELDS ]; then
+							echo "$DMEAN $RATIO $SUBREPORT $TABLEID ${KERNEL_NAMES[$NAME_INDEX]}" >> $TOPOUT
+						fi
+					fi
+
 
 					if [ $DELTA -lt 100 ]; then
 						DESCRIPTION="Neutral"
