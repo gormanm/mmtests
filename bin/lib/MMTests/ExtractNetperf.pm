@@ -57,16 +57,18 @@ sub extractReport($$$) {
 				if ($_ =~ /[a-zA-Z]/ || $_ =~ /^$/) {
 					next;
 				}
-				my @elements = split(/\s+/, $_);
+				my $line = $_;
+				$line =~ s/^\s+//;
+				my @elements = split(/\s+/, $line);
 				if ($protocol ne "UDP_STREAM") {
 					if ($#elements > 3) {
 						$send_tput = $elements[-1];
 					}
 				} else {
-					if ($#elements == 6) {
+					if ($#elements == 5) {
 						$send_tput = $elements[-1];
 					}
-					if ($#elements == 4) {
+					if ($#elements == 3) {
 						$recv_tput = $elements[-1];
 					}
 				}
