@@ -8,7 +8,7 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ComparePfttime",
 		_FieldLength => 13,
-		_CompareOps  => [ "none", "pndiff", "pndiff", "pdiff", "pdiff", "pdiff" ],
+		_CompareOps  => [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
 		_Precision   => 4,
 		_ResultData  => []
 	};
