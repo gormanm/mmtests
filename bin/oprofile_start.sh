@@ -31,6 +31,7 @@ echo $VMLINUX | grep -q +
 VMLINUX_LINK=
 if [ $? -eq 0 ]; then
 	echo Linking $VMLINUX /boot/vmlinux-oprofile_start
+	rm -f /boot/vmlinux-oprofile_start
 	ln -s $VMLINUX /boot/vmlinux-oprofile_start 
 	VMLINUX=/boot/vmlinux-oprofile_start
 	VMLINUX_LINK=/boot/vmlinux-oprofile_start
