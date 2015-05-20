@@ -1,5 +1,5 @@
-# ExtractDbt5exectime.pm
-package MMTests::ExtractDbt5exectime;
+# ExtractRingtest.pm
+package MMTests::ExtractRingtest;
 use MMTests::SummariseMultiops;
 use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
@@ -8,7 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
-	$self->{_ModuleName} = "ExtractDbt5exectime";
+	$self->{_ModuleName} = "ExtractRingtest";
 	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_Opname}     = "ExecTime";
@@ -22,9 +22,8 @@ sub extractReport($$$) {
 	my ($tm, $tput, $latency);
 	my $iteration;
 	my @clients;
-	$reportDir =~ s/dbt5exectime/dbt5-bench/;
 
-	my @files = <$reportDir/noprofile/results-*-1.txt>;
+	my @files = <$reportDir/noprofile/time-*-1>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		push @clients, $split[-2];
@@ -35,18 +34,17 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		foreach my $file (<$reportDir/noprofile/time-$client-*.log>) {
+		foreach my $file (<$reportDir/noprofile/time-$client-*>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;
-				push @{$self->{_ResultData}}, [ "System-$client", ++$iteration, $self->_time_to_sys($_) ];
-				push @{$self->{_ResultData}}, [ "Elapsd-$client", ++$iteration, $self->_time_to_elapsed($_) ];
+				push @{$self->{_ResultData}}, [ "Elapsed-$client", ++$iteration, $self->_time_to_elapsed($_) ];
 			}
 			close(INPUT);
 		}
 	}
 
-	foreach my $heading ("System", "Elapsd") {
+	foreach my $heading ("Elapsed") {
 		foreach my $client (@clients) {
 			push @{$self->{_Operations}}, "$heading-$client";
 		}

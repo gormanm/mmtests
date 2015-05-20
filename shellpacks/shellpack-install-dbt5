@@ -97,8 +97,8 @@ mv $DST_DIR dbt5-${VERSION}
 pushd dbt5-${VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/dbt5-${VERSION} || die Failed to change to source directory
 sed -i -e 's/-E SQL_ASCII/-E SQL_ASCII -T template0/' scripts/pgsql/dbt5-pgsql-create-db
-cat $SHELLPACK_TEMP/unistd-include.patch        | patch -p1 || Die Failed to apply unistd patch
-cat $SHELLPACK_TEMP/string-boundary-check.patch | patch -p1 || Die Failed to apply string boundary patch
+cat $SHELLPACK_TEMP/unistd-include.patch        | patch -p1 || die Failed to apply unistd patch
+cat $SHELLPACK_TEMP/string-boundary-check.patch | patch -p1 || die Failed to apply string boundary patch
 cmake CMakeLists.txt -DDBMS=pgsql || die Failed to run cmake
 
 cd $SHELLPACK_SOURCES/dbt5-${VERSION}/egen/prj || die Failed to cd egen/prj
@@ -175,4 +175,4 @@ index ad8e3a5d42e7..b99f63b446dd 100644
  						ct_name_esc[k++] = ct_name[i];
 ==== END string-boundary-check.patch ====
 #### Description dbt5
-#### Details dbt5 48
+#### Details dbt5 49

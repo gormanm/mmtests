@@ -225,4 +225,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt5
-#### Details dbt5-bench 48
+#### Details dbt5-bench 49

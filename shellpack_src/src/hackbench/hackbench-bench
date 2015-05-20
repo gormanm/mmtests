@@ -1,68 +1,49 @@
 #!/bin/bash
 # This is the script for running the hackbench benchmark
-#
-# Usage $P <pipes|sockets> <number-of-groups> -i iterations
 ###SHELLPACK preamble hackbench-bench 0
 iterations=1
-conn_name=
-conn_type=
-num_groups=
+CONN_NAME=
+CONN_TYPE=
+HACKBENCH_GROUPS=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-	pipes)
-		conn_type="-pipe"
-		conn_name=pipes
-		num_groups=$2
-		shift 2
+	--pipes)
+		CONN_TYPE="-pipe"
+		CONN_NAME=pipes
+		shift
 		;;
-	sockets)
-		num_groups=$2
-		conn_name=sockets
-		shift 2
+	--sockets)
+		CONN_TYPE=
+		CONN_NAME=sockets
+		shift
 		;;
-###SHELLPACK parseargParam -i iterations
+###SHELLPACK parseargParam --min-groups HACKBENCH_MIN_GROUPS
+###SHELLPACK parseargParam --max-groups HACKBENCH_MAX_GROUPS
+###SHELLPACK parseargParam --iterations HACKBENCH_ITERATIONS
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required hackbench
-
 ###SHELLPACK monitor_hooks
-
-# Ensure pipes or sockets were specified
-if [ "$num_groups" = "" ]; then
-	die Failed to specify pipes or sockets
-fi
 
 pushd $SHELLPACK_SOURCES/hackbench-${VERSION}-installed > /dev/null
 RESULTSLOG=$LOGDIR_RESULTS/hackbench
-TIFS=$IFS
-RETVAL=0
-IFS=,
-echo -n > $RESULTSLOG
-for group in $num_groups; do
-	mmtests_activity groups $group
-	IFS=$TIFS
-	echo -n > $RESULTSLOG.$group
-	monitor_pre_hook $LOGDIR_RESULTS $group
-	if [ $RETVAL -eq 0 ]; then
-		echo "Connection type: $conn_name" | tee -a $RESULTSLOG $RESULTSLOG.$group
-		echo "Number of groups: $group" | tee -a $RESULTSLOG $RESULTSLOG.$group
 
-		# Run a number of iterations.
-		iter=$iterations
-		while [ $iter -gt 0 ]; do
-			save_rc ./hackbench $conn_type $group process 1000 | tee -a $RESULTSLOG $RESULTSLOG.$group
-			recover_rc
-			RETVAL=$?
-			if [ $RETVAL -ne 0 ]; then
-				echo Error encountered in hackbench
-				iter=0
-			fi
-			iter=$(($iter-1))
-		done
-	fi
-	monitor_post_hook $LOGDIR_RESULTS $group
-	IFS=,
-done
+###SHELLPACK threads_large_stride_begin $HACKBENCH_MIN_GROUPS $HACKBENCH_MAX_GROUPS
+	mmtests_activity $CONN_NAME-$NR_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+
+	###SHELLPACK iteration_begin $HACKBENCH_ITERATIONS
+		echo Running $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS
+		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  \
+			./hackbench $CONN_TYPE $NR_THREADS process 1000 \
+				> $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
+		if [ $? -ne 0 ]; then
+			die Failed to run hackbench
+		fi
+	###SHELLPACK iteration_end $HACKBENCH_ITERATIONS
+	
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
 
 exit $RETVAL

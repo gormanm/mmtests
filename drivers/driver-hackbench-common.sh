@@ -3,8 +3,10 @@ NAMEEXTRA=
 
 run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-hackbench \
-		$IPCMETHOD \
-		$HACKBENCH_GROUPS \
-		-i 7
+		--$IPCMETHOD \
+		--min-groups $HACKBENCH_MIN_GROUPS \
+		--max-groups $HACKBENCH_MAX_GROUPS \
+		--groups $HACKBENCH_GROUPS \
+		--iterations $HACKBENCH_ITERATIONS
 	return $?
 }

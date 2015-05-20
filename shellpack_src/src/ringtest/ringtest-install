@@ -1,0 +1,50 @@
+#!/bin/bash
+###SHELLPACK preamble ringtest-install 0
+WEB_LOCATION="http://people.redhat.com/mingo/scheduler-patches/ring-test.c"
+MIRROR_LOCATION="$WEBROOT/ringtest/ring-test.c"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK self_extract terminate.patch
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf ringtest-${VERSION}-installed
+mkdir -p ringtest-${VERSION}-installed
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/ringtest-${VERSION}-installed/ring-test.c
+cd $SHELLPACK_SOURCES/ringtest-${VERSION}-installed
+cat $SHELLPACK_TEMP/terminate.patch | patch -p1 || die Failed to apply terminate.patch
+gcc -O2 -lpthread ring-test.c -o ring-test
+if [ $? -ne 0 ]; then
+	gcc -O2 -o ring-test ring-test.c -lrt
+	if [ $? -ne 0 ]; then
+		die "$P: Failed to build ring-test"
+	fi
+fi
+
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN terminate.patch ====
+diff --git a/ring-test.c b/ring-test.c
+index e220d6094650..c2527b729d8f 100644
+--- a/ring-test.c
++++ b/ring-test.c
+@@ -94,7 +94,7 @@ static void worker(int task)
+ 
+ int main(int argc, char **argv)
+ {
+-	int i, parent, me;
++	int i, j, parent, me;
+ 
+ 	if (argc > 2) {
+ usage:
+@@ -125,7 +125,7 @@ usage:
+ 	if (me == parent)
+ 		i = 0;
+ 
+-	while (1) {
++	for (j = 0; j < 10; j++) {
+ 		worker(i);
+ 	}
+==== END terminate.patch ====

@@ -10,7 +10,8 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractHackbench";
 	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "client-errorlines";
-	$self->{_PlotXaxis}  = "Clients";
+	$self->{_PlotXaxis}  = "Groups";
+	$self->{_FieldLength} = 12;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
@@ -19,28 +20,29 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my ($user, $system, $elapsed, $cpu);
 
-	my @files = <$reportDir/noprofile/hackbench.*>;
-	my @threads;
+	my @files = <$reportDir/noprofile/hackbench-*-1>;
+	my @groups;
 	foreach my $file (@files) {
-		my @split = split /\./, $file;
-		push @threads, $split[-1];
+		my @split = split /-/, $file;
+		push @groups, $split[-2];
 	}
-	@threads = sort { $a <=> $b} @threads;
+	@groups = sort { $a <=> $b} @groups;
 
-	foreach my $thread (@threads) {
-		my $file = "$reportDir/noprofile/hackbench.$thread";
+	foreach my $group (@groups) {
 		my $nr_samples = 0;
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
-			if ($_ !~ /^Time: (.*)/) {
-				next;
+		foreach my $file (<$reportDir/noprofile/hackbench-$group-*>) {
+			open(INPUT, $file) || die("Failed to open $file\n");
+			while (<INPUT>) {
+				if ($_ !~ /^Time: (.*)/) {
+					next;
+				}
+				my $walltime = $1;
+				push @{$self->{_ResultData}}, [$group, ++$nr_samples, $walltime];
 			}
-			my $walltime = $1;
-			push @{$self->{_ResultData}}, [$thread, ++$nr_samples, $walltime];
+			close INPUT;
 		}
-		close INPUT;
 	}
 
-	$self->{_Operations} = \@threads;
+	$self->{_Operations} = \@groups;
 }
 1;

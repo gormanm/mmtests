@@ -1,6 +1,6 @@
 #!/bin/bash
-# This is the script for running the hackbench benchmark
-P=hackbench-bench
+# This is the script for running the ringtest benchmark
+P=ringtest-bench
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
@@ -8,10 +8,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-iterations=1
-CONN_NAME=
-CONN_TYPE=
-HACKBENCH_GROUPS=
+ITERATIONS=1
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -31,26 +28,16 @@ while [ "$1" != "" ]; do
 		INSTALL_FORCE=yes
 		shift
 		;;
-	--pipes)
-		CONN_TYPE="-pipe"
-		CONN_NAME=pipes
-		shift
-		;;
-	--sockets)
-		CONN_TYPE=
-		CONN_NAME=sockets
-		shift
-		;;
-	--min-groups)
-		HACKBENCH_MIN_GROUPS=$2
+	--min-tasks)
+		RINGTEST_MIN_TASKS=$2
 		shift 2
 		;;
-	--max-groups)
-		HACKBENCH_MAX_GROUPS=$2
+	--max-tasks)
+		RINGTEST_MAX_TASKS=$2
 		shift 2
 		;;
 	--iterations)
-		HACKBENCH_ITERATIONS=$2
+		RINGTEST_ITERATIONS=$2
 		shift 2
 		;;
 	*)
@@ -67,27 +54,27 @@ if [ -z "$VERSION" ]; then
 fi
 
 if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/hackbench
+	rm -rf $SHELLPACK_SOURCES/ringtest
 fi
-if [ ! -d $SHELLPACK_SOURCES/hackbench-installed ]; then
+if [ ! -d $SHELLPACK_SOURCES/ringtest-installed ]; then
 	mmtests_activity source-install
-	$SHELLPACK_INCLUDE/shellpack-install-hackbench -v ${VERSION}  || die hackbench install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-ringtest -v ${VERSION}  || die ringtest install script returned error
 	mmtests_activity source-installed
 fi
-cd $SHELLPACK_SOURCES/hackbench-${VERSION}-installed || die Failed to cd to hackbench install directory
+cd $SHELLPACK_SOURCES/ringtest-${VERSION}-installed || die Failed to cd to ringtest install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo hackbench installed only as requested.
+	echo ringtest installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-pushd $SHELLPACK_SOURCES/hackbench-${VERSION}-installed > /dev/null
+pushd $SHELLPACK_SOURCES/ringtest-${VERSION}-installed > /dev/null
 RESULTSLOG=$LOGDIR_RESULTS/hackbench
 
 THREADS=
-START_THREAD=$HACKBENCH_MIN_GROUPS
-END_THREAD=$HACKBENCH_MAX_GROUPS
+START_THREAD=$RINGTEST_MIN_TASKS
+END_THREAD=$RINGTEST_MAX_TASKS
 if [ $END_THREAD -gt 32 ]; then
 	THREADS=`seq $START_THREAD 3 8`
 	THREADS="$THREADS `seq 12 9 32`"
@@ -104,23 +91,20 @@ fi
 
 for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
-	mmtests_activity $CONN_NAME-$NR_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-
-for ITERATION in `seq 1 $HACKBENCH_ITERATIONS`; do
+	mmtests_activity Tasks-$NR_THREADS
+for ITERATION in `seq 1 $RINGTEST_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
-		echo Running $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS
-		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  \
-			./hackbench $CONN_TYPE $NR_THREADS process 1000 \
-				> $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
+		echo Running $NR_THREADS tasks iteration $ITERATION/$RINGTEST_ITERATIONS
+		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION \
+			./ring-test $NR_THREADS > /dev/null
 		if [ $? -ne 0 ]; then
-			die Failed to run hackbench
+			die Failed to run ring-test
 		fi
 done
-	
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
 
 exit $RETVAL
-#### Description Run the HackBench benchmark
-#### Details hackbench-bench 27
+#### Description ringtest
+#### Details ringtest-bench 8

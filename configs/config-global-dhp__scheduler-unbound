@@ -5,13 +5,18 @@
 ###
 ### pipetest is a scheduler ping-pong test that measures context switch latency.
 ###
+### ringtest creates a ring of tasks which run in a turn, synchronized via an
+### array of pipes, and each task executes a workload function when it has its
+### turn. This simulates a fundamentally single-threaded workload spread out
+### across lots of tasks.
+###
 ### lmbench is just running the lat_ctx test and is another measure of context
 ### switch latency.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="hackbench-pipes hackbench-sockets pipetest lmbench stockfish"
+export MMTESTS="hackbench-pipes hackbench-sockets pipetest ringtest lmbench stockfish"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -74,9 +79,12 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # HackBench
+export HACKBENCH_ITERATIONS=7
+export HACKBENCH_MIN_GROUPS=1
+export HACKBENCH_MAX_GROUPS=$((NUMCPUS*32))
 export HACKBENCH_GROUPS=1,3,8,13,27,62,168,360
 if [[ `uname -m` =~ i.86 ]]; then
-	export HACKBENCH_GROUPS=1,4,8,13,16,20,27,40,72,104
+	export HACKBENCH_MAX_GROUPS=128
 fi
 
 # LMBench
@@ -90,6 +98,11 @@ export LMBENCH_LATCTX_MAXCLIENTS=$NUMCPUS
 
 # PipeTest
 export PIPETEST_ITERATIONS=120
+
+# RingTest
+export RINGTEST_ITERATIONS=7
+export RINGTEST_MIN_TASKS=2
+export RINGTEST_MAX_TASKS=$((NUMCPUS*2))
 
 # Stockfish
 export STOCKFISH_MIN_THREADS=1

@@ -2,6 +2,11 @@
 P=hackbench-install
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION="http://people.redhat.com/mingo/cfs-scheduler/tools/hackbench.c"
 MIRROR_LOCATION="$WEBROOT/hackbench/hackbench.c"
 
@@ -41,4 +46,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description Run the HackBench benchmark
-#### Details hackbench 21
+#### Details hackbench 27

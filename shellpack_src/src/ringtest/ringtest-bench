@@ -1,0 +1,33 @@
+#!/bin/bash
+# This is the script for running the ringtest benchmark
+###SHELLPACK preamble ringtest-bench 0
+ITERATIONS=1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-tasks	RINGTEST_MIN_TASKS
+###SHELLPACK parseargParam	--max-tasks	RINGTEST_MAX_TASKS
+###SHELLPACK parseargParam	--iterations	RINGTEST_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required ringtest
+###SHELLPACK monitor_hooks
+
+pushd $SHELLPACK_SOURCES/ringtest-${VERSION}-installed > /dev/null
+RESULTSLOG=$LOGDIR_RESULTS/hackbench
+
+###SHELLPACK threads_large_stride_begin $RINGTEST_MIN_TASKS $RINGTEST_MAX_TASKS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	mmtests_activity Tasks-$NR_THREADS
+	###SHELLPACK iteration_begin $RINGTEST_ITERATIONS
+		echo Running $NR_THREADS tasks iteration $ITERATION/$RINGTEST_ITERATIONS
+		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION \
+			./ring-test $NR_THREADS > /dev/null
+		if [ $? -ne 0 ]; then
+			die Failed to run ring-test
+		fi
+	###SHELLPACK iteration_end $RINGTEST_ITERATIONS
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+
+exit $RETVAL
