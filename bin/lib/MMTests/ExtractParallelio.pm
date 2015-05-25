@@ -56,7 +56,12 @@ sub extractReport($$$) {
 				my $ops;
 
 				my $file = "$reportDir/noprofile/mmtests.log";
-				open(INPUT, $file) || die("Failed to open $file");
+				if (-e $file) {
+					open(INPUT, $file) || die("Failed to open $file");
+				} else {
+					$file .= ".gz";
+					open(INPUT, "gunzip -c $file|") || die("Failed to open $file");
+				}
 				while (!eof(INPUT)) {
 					my $line = <INPUT>;
 					if ($line =~ /ops\/sec: ([0-9]+)/) {
