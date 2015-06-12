@@ -195,6 +195,14 @@ if [ "$KVM" = "yes" ]; then
 	exit $RETVAL
 fi
 
+# Force artificial date is requested
+if [ "$MMTESTS_FORCE_DATE" != "" ]; then
+	MMTESTS_FORCE_DATE_BASE=`date +%s`
+	date -s "$MMTESTS_FORCE_DATE"
+	MMTESTS_FORCE_DATE_START=`date +%s`
+	echo Forcing reset of date: `date`
+fi
+
 # Install packages that are generally needed by a large number of tests
 install-depends autoconf automake binutils-devel bzip2 dosfstools expect \
 	expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch \
@@ -875,6 +883,13 @@ else
 	echo file end :: /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	cat /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	echo finish :: `date +%s` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+fi
+
+if [ "$MMTESTS_FORCE_DATE" != "" ]; then
+	MMTESTS_FORCE_DATE_END=`date +%s`
+	OFFSET=$((MMTESTS_FORCE_DATE_END-MMTESTS_FORCE_DATE_START))
+	date -s "`echo $((MMTESTS_FORCE_DATE_BASE+OFFSET)) | awk '{print strftime("%c", $0)}'`"
+	echo Restoring after forced date update: `date`
 fi
 
 echo Cleaning up
