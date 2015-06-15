@@ -9,6 +9,11 @@
 P=parallelio-bench
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 . $SHELLPACK_INCLUDE/include-sizes.sh
 
 # Basic argument parser
@@ -103,8 +108,8 @@ for ITERATION in `seq 1 $PARALLELIO_ITERATIONS`; do
 		./run-single-test.sh $WORKLOAD > $LOGDIR_RESULTS/workload-$WORKLOAD-$IO_STEP-$ITERATION.log 2>&1 &
 		WORKLOAD_PID=$!
 
-		# Wait until workload reaches 80% of the target size
-		WARMUP_WORKLOAD_SIZE=$((PARALLELIO_TARGETLOAD_SIZE*8/10))
+		# Wait until workload reaches 60% of the target size
+		WARMUP_WORKLOAD_SIZE=$((PARALLELIO_TARGETLOAD_SIZE*6/10))
 		echo Waiting for workload to warm up to $((WARMUP_WORKLOAD_SIZE/1048576)) MB
 		MAXIMUM_WARMUP_TIME=$((PARALLELIO_WORKLOAD_DURATION/3))
 		MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
@@ -193,4 +198,4 @@ done
 rm -rf $TESTDISK_DIR
 exit $SHELLPACK_SUCCESS
 #### Description Run a workload with varying amounts of IO in the background to see the effect
-#### Details parallelio-bench 39
+#### Details parallelio-bench 40
