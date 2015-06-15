@@ -179,4 +179,4 @@ index ad8e3a5d42e7..b99f63b446dd 100644
  						ct_name_esc[k++] = ct_name[i];
 ==== END string-boundary-check.patch ====
 #### Description dbt5
-#### Details dbt5 51
+#### Details dbt5 52
