@@ -197,6 +197,7 @@ fi
 
 # Force artificial date is requested
 if [ "$MMTESTS_FORCE_DATE" != "" ]; then
+	killall -STOP ntpd
 	MMTESTS_FORCE_DATE_BASE=`date +%s`
 	date -s "$MMTESTS_FORCE_DATE"
 	MMTESTS_FORCE_DATE_START=`date +%s`
@@ -890,6 +891,7 @@ if [ "$MMTESTS_FORCE_DATE" != "" ]; then
 	OFFSET=$((MMTESTS_FORCE_DATE_END-MMTESTS_FORCE_DATE_START))
 	date -s "`echo $((MMTESTS_FORCE_DATE_BASE+OFFSET)) | awk '{print strftime("%c", $0)}'`"
 	echo Restoring after forced date update: `date`
+	killall -CONT ntpd
 fi
 
 echo Cleaning up
