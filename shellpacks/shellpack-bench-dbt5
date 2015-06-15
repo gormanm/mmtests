@@ -125,6 +125,10 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
+if [ -e /opt/python-marvin/bin ]; then
+	export PATH=/opt/python-marvin/bin:$PATH
+fi
+
 echo Configuring paths for $DBDRIVER
 export EGENDIR=$SHELLPACK_SOURCES/dbt5-${VERSION}/egen
 export DBT5PGROOT=$SHELLPACK_SOURCES/dbt5-${VERSION}-installed/data
@@ -225,4 +229,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt5
-#### Details dbt5-bench 50
+#### Details dbt5-bench 51

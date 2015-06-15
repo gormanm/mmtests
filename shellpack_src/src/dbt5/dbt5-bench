@@ -33,6 +33,10 @@ install-depends python-rpy2
 ###SHELLPACK check_install_required dbt5-${VERSION} --dbdriver ${DBDRIVER}
 ###SHELLPACK monitor_hooks
 
+if [ -e /opt/python-marvin/bin ]; then
+	export PATH=/opt/python-marvin/bin:$PATH
+fi
+
 echo Configuring paths for $DBDRIVER
 export EGENDIR=$SHELLPACK_SOURCES/dbt5-${VERSION}/egen
 export DBT5PGROOT=$SHELLPACK_SOURCES/dbt5-${VERSION}-installed/data
