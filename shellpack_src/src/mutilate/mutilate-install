@@ -27,8 +27,27 @@ index cacf4db..af7f734 100644
 +    gettimeofday(&now_tv, NULL);
      now = tv_to_double(&now_tv);
      //#endif" | patch -p1 || exit $SHELLPACK_ERROR
+
+g++-4.7
  
-scons || exit $SHELLPACK_ERROR
+scons
+if [ $? -ne 0 ]; then
+	echo Trying an alternative compiler
+	install-depends gcc47-c++
+	echo "diff --git a/SConstruct b/SConstruct
+index b782d90c38e4..c87e2ec61119 100644
+--- a/SConstruct
++++ b/SConstruct
+@@ -12,6 +12,7 @@ env.Append(CCFLAGS = '-std=c++0x -D_GNU_SOURCE') # -D__STDC_FORMAT_MACROS')
+ if sys.platform == 'darwin':
+     env['CC']  = 'clang'
+     env['CXX'] = 'clang++'
++env['CXX'] = \"g++-4.7\"
+ 
+ conf = env.Configure(config_h = \"config.h\")
+ conf.Define(\"__STDC_FORMAT_MACROS\")" | patch -p1 || exit $SHELLPACK_ERROR
+	scons || exit $SHELLPACK_ERROR
+fi
 mkdir -p ../mutilate-${VERSION}-installed/bin
 cp mutilate ../mutilate-${VERSION}-installed/bin
 

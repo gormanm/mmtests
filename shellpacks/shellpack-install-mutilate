@@ -3,6 +3,11 @@
 P=mutilate-install
 DEFAULT_VERSION=1
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 GIT_LOCATION=git://github.com/leverich/mutilate.git
 MIRROR_LOCATION="$WEBROOT/mutilate"
 
@@ -37,9 +42,9 @@ git_fetch $GIT_LOCATION mutilate-${VERSION} $MIRROR_LOCATION/$TARFILE $SHELLPACK
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf mutilate-${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf mutilate-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -63,11 +68,30 @@ index cacf4db..af7f734 100644
 +    gettimeofday(&now_tv, NULL);
      now = tv_to_double(&now_tv);
      //#endif" | patch -p1 || exit $SHELLPACK_ERROR
+
+g++-4.7
  
-scons || exit $SHELLPACK_ERROR
+scons
+if [ $? -ne 0 ]; then
+	echo Trying an alternative compiler
+	install-depends gcc47-c++
+	echo "diff --git a/SConstruct b/SConstruct
+index b782d90c38e4..c87e2ec61119 100644
+--- a/SConstruct
++++ b/SConstruct
+@@ -12,6 +12,7 @@ env.Append(CCFLAGS = '-std=c++0x -D_GNU_SOURCE') # -D__STDC_FORMAT_MACROS')
+ if sys.platform == 'darwin':
+     env['CC']  = 'clang'
+     env['CXX'] = 'clang++'
++env['CXX'] = \"g++-4.7\"
+ 
+ conf = env.Configure(config_h = \"config.h\")
+ conf.Define(\"__STDC_FORMAT_MACROS\")" | patch -p1 || exit $SHELLPACK_ERROR
+	scons || exit $SHELLPACK_ERROR
+fi
 mkdir -p ../mutilate-${VERSION}-installed/bin
 cp mutilate ../mutilate-${VERSION}-installed/bin
 
 echo mutilate installed successfully
 #### Description mutilate
-#### Details mutilate 19
+#### Details mutilate 20
