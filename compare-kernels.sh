@@ -560,7 +560,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT-overhead
 			echo "</tr>"
 			;;
-		netperf-udp|netperf-tcp)
+		netperf-udp|netperf-tcp|netperf-udp-rr|netperf-tcp-rr)
 			echo "<tr>"
 			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
 			eval $GRAPH_PSC --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
