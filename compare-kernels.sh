@@ -441,6 +441,24 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	fi
 	rm -f /tmp/iostat-$$
 
+	if [ `ls kcache-* 2> /dev/null | wc -l` -gt 0 ]; then
+		echo
+		echo Kcache activity
+		eval $COMPARE_CMD --print-monitor kcache
+
+		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			eval $GRAPH_PNG --title \"Kcache allocations\"   --print-monitor kcache --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.png
+			eval $GRAPH_PNG --title \"Kcache frees\"         --print-monitor kcache --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.png
+			eval $GRAPH_PSC --title \"Kcache allocations\"   --print-monitor kcache --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.png
+			eval $GRAPH_PSC --title \"Kcache frees\"         --print-monitor kcache --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.png
+			echo "<table class=\"resultsGraphs\">"
+			echo "<tr>"
+			plain graph-$SUBREPORT-kcache-allocs
+			plain graph-$SUBREPORT-kcache-frees
+			echo "</tr>"
+		fi
+	fi
+
 	GRANULARITY=
 	generate_latency_table "read-latency"
 	generate_latency_table "write-latency"

@@ -20,6 +20,7 @@ use constant MONITOR_FTRACE		=> 9;
 use constant MONITOR_IOTOP		=> 10;
 use constant MONITOR_SYSCALLS		=> 11;
 use constant MONITOR_PROCNETDEV		=> 12;
+use constant MONITOR_KCACHE		=> 13;
 use strict;
 
 sub new() {
@@ -90,6 +91,7 @@ sub printReport() {
 	    $self->{_DataType} == MONITOR_FTRACE ||
 	    $self->{_DataType} == MONITOR_IOSTAT ||
 	    $self->{_DataType} == MONITOR_SYSCALLS ||
+	    $self->{_DataType} == MONITOR_KCACHE ||
 	    $self->{_DataType} == MONITOR_VMSTAT ||
 	    $self->{_DataType} == MONITOR_PROCNETDEV) {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
@@ -107,6 +109,11 @@ sub printSummaryHeaders() {
 	} else {
 		$self->printFieldHeaders();
 	}
+}
+
+sub printPlot() {
+        my ($self, $subheading) = @_;
+	$self->printSummary($subheading);
 }
 
 sub printSummary() {

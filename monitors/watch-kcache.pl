@@ -61,9 +61,38 @@ cleanup();
 exit(0);
 __END__
 global tidTopid, pidToexec
+global kmallocs, kfrees
 global allocs, frees
 
-probe vm.kmem_cache_alloc
+probe vm.kmalloc
+{
+	tid = tid();
+	pid = pid();
+
+	if (pid == 0)
+		next
+
+	tidTopid[tid] = pid;
+	pidToexec[pid] = execname()
+
+	kmallocs[tid, caller_function, call_site]++
+}
+
+probe vm.kfree
+{
+	tid = tid();
+	pid = pid();
+
+	if (pid == 0)
+		next
+
+	tidTopid[tid] = pid;
+	pidToexec[pid] = execname()
+
+	kfrees[tid, caller_function, call_site]++
+}
+
+probe vm.kmem_cache_alloc, vm.kmem_cache_alloc_node
 {
 	tid = tid();
 	pid = pid();
@@ -92,8 +121,23 @@ probe vm.kmem_cache_free
 
 probe timer.s(__MONITOR_UPDATE_FREQUENCY__) {
 	printf("time: %d\n", gettimeofday_s())
-	total_allocs = 0
-	total_frees = 0
+	total_allocs = 1
+	total_frees = 1
+	total_kmallocs = 0
+	total_kfrees = 0
+	foreach ([tid, caller_function, call_site] in kmallocs-) {
+		pid = tidTopid[tid]
+		if (pid == 0)
+			continue
+
+		count = kmallocs[tid, caller_function, call_site]
+		if (__MONITOR_KCACHE_VERBOSE__) {
+			printf("kmalloc          %10d %10d %22s %22s %p %12d\n",
+				tid, pid, pidToexec[pid],
+				caller_function, call_site, count)
+		}
+		total_kmallocs += count
+	}
 	foreach ([tid, caller_function, call_site] in allocs-) {
 		pid = tidTopid[tid]
 		if (pid == 0)
@@ -107,6 +151,20 @@ probe timer.s(__MONITOR_UPDATE_FREQUENCY__) {
 		}
 		total_allocs += count
 	}
+	foreach ([tid, caller_function, call_site] in kfrees-) {
+		pid = tidTopid[tid]
+		if (pid == 0)
+			continue
+
+		count = kfrees[tid, caller_function, call_site]
+		if (__MONITOR_KCACHE_VERBOSE__) {
+			printf("kfrees           %10d %10d %22s %22s %p %12d\n",
+				tid, pid, pidToexec[pid],
+				caller_function, call_site, count)
+		}
+		total_kfrees += count
+	}
+
 	foreach ([tid, caller_function, call_site] in frees-) {
 		pid = tidTopid[tid]
 		if (pid == 0)
@@ -121,11 +179,15 @@ probe timer.s(__MONITOR_UPDATE_FREQUENCY__) {
 		total_frees += count
 	}
 
-	printf("  total allocs %12d %12d/sec\n", total_allocs, total_allocs / __MONITOR_UPDATE_FREQUENCY__)
-	printf("  total frees  %12d %12d/sec\n", total_frees,  total_frees  / __MONITOR_UPDATE_FREQUENCY__)
+	printf("  total kmem_cache_allocs %12d %12d/sec\n", total_allocs,   total_allocs / __MONITOR_UPDATE_FREQUENCY__)
+	printf("  total kmem_cache_frees  %12d %12d/sec\n", total_frees,    total_frees  / __MONITOR_UPDATE_FREQUENCY__)
+	printf("  total kmallocs          %12d %12d/sec\n", total_kmallocs, total_kmallocs / __MONITOR_UPDATE_FREQUENCY__)
+	printf("  total kfrees            %12d %12d/sec\n", total_kfrees,   total_kfrees  / __MONITOR_UPDATE_FREQUENCY__)
 
 	delete allocs
 	delete frees
+	delete kmallocs
+	delete kfrees
 	delete tidTopid
 	delete pidToexec
 	printf("\n")

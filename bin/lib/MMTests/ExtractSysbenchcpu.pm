@@ -18,7 +18,6 @@ sub initialise() {
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
-	my ($tm, $tput, $latency);
 	my $iteration;
 
 	my @clients;
@@ -36,8 +35,6 @@ sub extractReport($$$) {
 
 		my @files = <$reportDir/noprofile/time-$client-*>;
 		foreach my $file (@files) {
-
-
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;

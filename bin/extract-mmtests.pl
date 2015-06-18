@@ -72,7 +72,10 @@ if (defined $opt_monitor) {
 		exit;
 	}
 
-	if ($opt_printSummary) {
+	if ($opt_printPlot) {
+		$monitorModule->printPlotHeaders() if $opt_printHeader;
+		$monitorModule->printPlot($opt_subheading);
+	} elsif ($opt_printSummary) {
 		$monitorModule->printSummaryHeaders() if $opt_printHeader;
 		$monitorModule->printSummary($opt_subheading);
 	} else {
