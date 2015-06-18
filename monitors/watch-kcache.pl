@@ -64,7 +64,7 @@ global tidTopid, pidToexec
 global kmallocs, kfrees
 global allocs, frees
 
-probe vm.kmalloc
+probe vm.kmalloc, vm.kmalloc_node
 {
 	tid = tid();
 	pid = pid();
