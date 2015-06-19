@@ -33,7 +33,7 @@ if ($monitorInterval == 0) {
 }
 
 my $verbose = $ENV{"MONITOR_KCACHE_VERBOSE"};
-if ($verbose eq "" || $verbose eq "yes") {
+if ($verbose eq "yes") {
 	$verbose = 1;
 } else {
 	$verbose = 0;
@@ -140,8 +140,8 @@ probe vm.kmem_cache_free
 
 probe timer.s(__MONITOR_UPDATE_FREQUENCY__) {
 	printf("time: %d\n", gettimeofday_s())
-	total_allocs = 1
-	total_frees = 1
+	total_allocs = 0
+	total_frees = 0
 	total_kmallocs = 0
 	total_kfrees = 0
 	foreach ([tid, caller_function, call_site] in kmallocs-) {

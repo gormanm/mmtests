@@ -7,6 +7,8 @@ TEST_LIST=
 TMPDIR=
 TITLE="--title \"Default Title\""
 SMOOTH=
+YRANGE_COMMAND=
+XRANGE_COMMAND=
 
 # Do Not Litter
 cleanup() {
@@ -82,6 +84,14 @@ while [ "$1" != "" ]; do
 		;;
 	--y-label)
 		FORCE_Y_LABEL="$2"
+		shift 2
+		;;
+	--yrange)
+		YRANGE_COMMAND="--yrange $2"
+		shift 2
+		;;
+	--xrange)
+		XRANGE_COMMAND="--xrange $2"
 		shift 2
 		;;
 	--R)
@@ -188,7 +198,7 @@ PLOTSCRIPTS="plot"
 
 for PLOTSCRIPT in $PLOTSCRIPTS; do
 	eval $SCRIPTDIR/$PLOTSCRIPT $TITLE $PLOTTYPE $SEPARATE_TESTS $SMOOTH $FORMAT_CMD $OUTPUT_CMD $OUTPUT \
-		$LOGX $LOGY $WIDE $SUBREPORT_ARGS $XRANGE \
+		$LOGX $LOGY $WIDE $SUBREPORT_ARGS $XRANGE $XRANGE_COMMAND $YRANGE_COMMAND \
 		--xlabel \"$XLABEL\" \
 		--ylabel \"$YLABEL\" \
 		--titles $TITLES \
