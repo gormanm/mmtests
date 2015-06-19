@@ -78,6 +78,25 @@ probe vm.kmalloc, vm.kmalloc_node
 	kmallocs[tid, caller_function, call_site]++
 }
 
+# If kmalloc_node does not work above due to the version of systemtap
+# then this should bodge as an alternative
+#probe kernel.function("kmem_cache_alloc_node_trace").return
+#{
+#	call_site = 0
+#	caller_function = "unknown"
+#
+#	tid = tid();
+#	pid = pid();
+#
+#	if (pid == 0)
+#		next
+#
+#	tidTopid[tid] = pid;
+#	pidToexec[pid] = execname()
+#
+#	kmallocs[tid, caller_function, call_site]++
+#}
+
 probe vm.kfree
 {
 	tid = tid();
