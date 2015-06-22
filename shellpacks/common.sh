@@ -357,3 +357,32 @@ function set_mmtests_numactl() {
 		echo Instance $THIS_INSTANCE / $MAX_INSTANCE
 	fi
 }
+
+function mmtests_server_ctl() {
+	if [ "$REMOTE_SERVER_HOST" = "" ]; then
+		return
+	fi
+
+	echo === BEGIN execute remote server command: $REMOTE_SERVER_SCRIPT $@ ===
+	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST $REMOTE_SERVER_WRAPPER $REMOTE_SERVER_SCRIPT --serverside-command $@
+	if [ $? -ne $SHELLPACK_SUCCESS ]; then
+		die Server side command failed
+	fi
+	echo === END execute remote server command: $REMOTE_SERVER_SCRIPT $@ ===
+}
+
+function mmtests_server_init() {
+	SERVER_CTL_RCMD="ssh $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST"
+
+	if [ "$REMOTE_SERVER_HOST" = "" ]; then
+		return
+	fi
+
+	echo === BEGIN execute remote server command: $REMOTE_SERVER_SCRIPT --install-only ===
+	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST $REMOTE_SERVER_WRAPPER $REMOTE_SERVER_SCRIPT --install-only
+
+	if [ $? -ne $SHELLPACK_SUCCESS ]; then
+		die Server side installation failed
+	fi
+	echo === END execute remote server command: $REMOTE_SERVER_SCRIPT --install-only ===
+}

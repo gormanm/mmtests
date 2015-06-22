@@ -79,7 +79,7 @@ sub extractReport($$$) {
 			} else {
 				push @{$self->{_ResultData}}, [ "send-$size", ++$iteration, $send_tput ];
 				push @{$self->{_ResultData}}, [ "recv-$size", ++$iteration, $recv_tput ];
-				if (($send_tput - $recv_tput) > ($send_tput / 10)) {
+				if ($loss || ($send_tput - $recv_tput) > ($send_tput / 10)) {
 					push @{$self->{_ResultData}}, [ "loss-$size", ++$iteration, $send_tput - $recv_tput ];
 					$loss++;
 				}

@@ -52,6 +52,20 @@ if [ "$RUN_FINEPROFILE" = "yes" ]; then
 	fi
 fi
 
+# Check that server/client execution is supported if requested
+if [ "$REMOTE_SERVER_HOST" != "" ]; then
+	if [ "$SERVER_SIDE_SUPPORT" != "yes" ]; then
+		die Execution requested on server side but $NAME does not support it
+		exit $SHELLPACK_ERROR
+	fi
+	if [ "$SERVER_SIDE_BENCH_SCRIPT" = "" ]; then
+		SERVER_SIDE_BENCH_SCRIPT="shellpacks/shellpack-bench-$NAME"
+	fi
+	export REMOTE_SERVER_WRAPPER=$SCRIPTDIR/config-wrap.sh
+	export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/$SERVER_SIDE_BENCH_SCRIPT
+	mmtests_server_init
+fi
+
 function setup_dirs() {
 	for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG; do
 		if [ ! -e "$DIRNAME" ]; then

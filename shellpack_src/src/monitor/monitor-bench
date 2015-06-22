@@ -10,6 +10,14 @@ trap cleanup SIGTERM
 trap cleanup SIGINT
 
 echo $$ > /tmp/mmtests-monitor.pid
-echo Hit enter, run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
+if [ "$MONITOR_FOREVER" = "yes" ]; then
+	echo Run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
+	while [ 1 ]; do
+		sleep 60
+	done
+else
+	echo Hit enter, run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
+	read INPUT
+fi
 
-read INPUT
+exit $SHELLPACK_SUCCESS

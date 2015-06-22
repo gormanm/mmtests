@@ -6,6 +6,10 @@ BUFFER_SIZES="64 128 256 1024 2048 3312 4096 6144 8192 10240 12288 14336 16384"
 
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVER_HOST=127.0.0.1
+if [ "$REMOTE_SERVER_HOST" != "" ]; then
+	SERVER_HOST=$REMOTE_SERVER_HOST
+fi
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -27,13 +31,42 @@ TASKSET_CLIENT=
 
 cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf directory
 
-echo Killing old servers
-killall netserver
+export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-netperf
+case $SERVERSIDE_COMMAND in
+start)
+	echo Killing old servers
+	killall netserver
 
-echo Starting server
-NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
-$TASKSET_SERVER $NETROOT/bin/netserver || die Failed to start netserver
-sleep 2
+	echo Starting server
+	mmtests_activity netperf-$SERVERSIDE_NAME
+	monitor_pre_hook $LOGDIR_RESULTS netperf-$SERVERSIDE_NAME
+	NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
+	$TASKSET_SERVER $NETROOT/bin/netserver || die Failed to start netserver
+	sleep 2
+	exit $SHELLPACK_SUCCESS
+	;;
+stop)
+	monitor_post_hook $LOGDIR_RESULTS netperf-$SERVERSIDE_NAME
+	echo Killing old servers
+	killall netserver
+	exit $SHELLPACK_SUCCESS
+	;;
+flush)
+	exit $SHELLPACK_SUCCESS
+	;;
+none)
+	echo Killing old servers
+	killall netserver
+
+	echo Starting server
+	NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
+	$TASKSET_SERVER $NETROOT/bin/netserver || die Failed to start netserver
+	sleep 2
+	;;
+*)
+	die Unrecognised server-side command
+	;;
+esac
 
 echo $PROTOCOLS > $LOGDIR_RESULTS/protocols
 for PROTOCOL in $PROTOCOLS; do
@@ -43,6 +76,7 @@ for PROTOCOL in $PROTOCOLS; do
 	fi
 
 	for SIZE in $BUFFER_SIZES; do
+	mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 	###SHELLPACK iteration_begin $ITERATIONS
 		mmtests_activity size $SIZE
 		SIZE_OPT=
@@ -58,7 +92,7 @@ for PROTOCOL in $PROTOCOLS; do
 		eval $TASKSET_CLIENT $NETROOT/bin/netperf \
 			-t $PROTOCOL \
 			-i 12,3 -I 99,5 \
-			-H 127.0.0.1 \
+			-H $SERVER_HOST \
 			-- \
 			$SIZE_OPT \
 			$EXTRA \
@@ -66,6 +100,7 @@ for PROTOCOL in $PROTOCOLS; do
 				|| die Failed to run netperf
 		monitor_post_hook $LOGDIR_RESULTS $SIZE
 	###SHELLPACK iteration_end
+	mmtests_server_ctl stop --serverside-name $PROTOCOL-$SIZE
 	done
 done
 killall netserver

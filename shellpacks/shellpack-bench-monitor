@@ -2,6 +2,11 @@
 P=monitor
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 cleanup()
 {
@@ -12,8 +17,16 @@ trap cleanup SIGTERM
 trap cleanup SIGINT
 
 echo $$ > /tmp/mmtests-monitor.pid
-echo Hit enter, run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
+if [ "$MONITOR_FOREVER" = "yes" ]; then
+	echo Run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
+	while [ 1 ]; do
+		sleep 60
+	done
+else
+	echo Hit enter, run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
+	read INPUT
+fi
 
-read INPUT
+exit $SHELLPACK_SUCCESS
 #### Description monitor only
-#### Details monitor-bench 6
+#### Details monitor-bench 8

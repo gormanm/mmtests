@@ -441,7 +441,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	fi
 	rm -f /tmp/iostat-$$
 
-	if [ `ls kcache-* 2> /dev/null | wc -l` -gt 0 ]; then
+	if [ `ls kcache-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
 		eval $COMPARE_BARE_CMD --print-monitor kcache > /tmp/kcache.$$
 		ALLOCS=`grep ^Max /tmp/kcache.$$ | grep allocs | awk '{print $3}' | sed -e 's/\..*//'`
 		FREES=`grep ^Max /tmp/kcache.$$ | grep frees | awk '{print $3}' | sed -e 's/\..*//'`

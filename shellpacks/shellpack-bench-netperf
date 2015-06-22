@@ -11,16 +11,31 @@ fi
 PROTOCOLS="UDP_STREAM TCP_STREAM"
 BUFFER_SIZES="64 128 256 1024 2048 3312 4096 6144 8192 10240 12288 14336 16384"
 
-SERVER_ADDRESS="127.0.0.1"
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVER_HOST=127.0.0.1
+if [ "$REMOTE_SERVER_HOST" != "" ]; then
+	SERVER_HOST=$REMOTE_SERVER_HOST
+fi
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -74,10 +89,6 @@ while [ "$1" != "" ]; do
 		BUFFER_SIZES=`echo $2 | sed -e 's/,/ /g'`
 		shift 2
 		;;
-	--server-address)
-		SERVER_ADDRESS=$2
-		shift 2
-		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -110,33 +121,52 @@ fi
 
 cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf directory
 
-NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
-
-if [ "$SERVER_ADDRESS" == "localhost" -o "$SERVER_ADDRESS" == "127.0.0.1" ]; then
+export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-netperf
+case $SERVERSIDE_COMMAND in
+start)
 	echo Killing old servers
 	killall netserver
 
 	echo Starting server
+	mmtests_activity start-$SERVERSIDE_NAME
+	monitor_pre_hook $LOGDIR_RESULTS $SERVERSIDE_NAME
+	NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
 	$TASKSET_SERVER $NETROOT/bin/netserver || die Failed to start netserver
 	sleep 2
-else
-	echo Check server
-	if ! $NETROOT/bin/netperf -H $SERVER_ADDRESS -l -1; then
-		echo ERROR: Could not connect to $SERVER_ADDRESS
-		exit $SHELLPACK_ERROR
-	fi
-	TASKSET_CLIENT=$TASKSET_SERVER
-	echo TASKSET_CLIENT: $TASKSET_CLIENT
-fi
+	exit $SHELLPACK_SUCCESS
+	;;
+stop)
+	monitor_post_hook $LOGDIR_RESULTS $SERVERSIDE_NAME
+	echo Killing old servers
+	killall netserver
+	exit $SHELLPACK_SUCCESS
+	;;
+flush)
+	exit $SHELLPACK_SUCCESS
+	;;
+none)
+	echo Killing old servers
+	killall netserver
+
+	echo Starting server
+	NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
+	$TASKSET_SERVER $NETROOT/bin/netserver || die Failed to start netserver
+	sleep 2
+	;;
+*)
+	die Unrecognised server-side command
+	;;
+esac
 
 echo $PROTOCOLS > $LOGDIR_RESULTS/protocols
 for PROTOCOL in $PROTOCOLS; do
 	EXTRA=
 	if [ "$PROTOCOL" = "UDP_STREAM" ]; then
-		EXTRA="-P 15895 -s 131072 -S 131072"
+		EXTRA="-P 15895 -s 32768 -S 32768"
 	fi
 
 	for SIZE in $BUFFER_SIZES; do
+	mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 for ITERATION in `seq 1 $ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 		mmtests_activity size $SIZE
@@ -152,8 +182,8 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 		monitor_pre_hook $LOGDIR_RESULTS $SIZE
 		eval $TASKSET_CLIENT $NETROOT/bin/netperf \
 			-t $PROTOCOL \
-			-i 15,3 -I 99,5 \
-			-H $SERVER_ADDRESS \
+			-i 12,3 -I 99,5 \
+			-H $SERVER_HOST \
 			-- \
 			$SIZE_OPT \
 			$EXTRA \
@@ -161,12 +191,11 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 				|| die Failed to run netperf
 		monitor_post_hook $LOGDIR_RESULTS $SIZE
 done
+	mmtests_server_ctl stop --serverside-name $PROTOCOL-$SIZE
 	done
 done
-if [ "$SERVER_ADDRESS" == "localhost" -o "$SERVER_ADDRESS" == "127.0.0.1" ]; then
-	killall netserver
-fi
+killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 27
+#### Details netperf-bench 31

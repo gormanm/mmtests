@@ -1,4 +1,6 @@
 FINEGRAINED_SUPPORTED=yes
+SERVER_SIDE_SUPPORT=yes
+SERVER_SIDE_BENCH_SCRIPT=shellpacks/shellpack-bench-netperf
 NAMEEXTRA=
 
 run_bench() {
