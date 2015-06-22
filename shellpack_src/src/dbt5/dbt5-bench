@@ -108,9 +108,12 @@ monitor_pre_hook $LOGDIR_RESULTS $NR_USERS
 		-u $NR_USERS								\
 		-o $SHELLPACK_TEMP/dbt5-run" 2>&1 | tee dbt5-${NR_USERS}-${ITERATION}.log
 	cp $SHELLPACK_TEMP/dbt5-run/results.txt $LOGDIR_RESULTS/results-${NR_USERS}-${ITERATION}.txt
-	pushd $SHELLPACK_TEMP > /dev/null
-	tar -czf $LOGDIR_RESULTS/dblogs-${NR_USERS}-${ITERATION}.tar.gz dbt5-run
-	popd > /dev/null
+
+	# Uncomment to preserve dbt5 run logs
+	# pushd $SHELLPACK_TEMP > /dev/null
+	# tar -czf $LOGDIR_RESULTS/dblogs-${NR_USERS}-${ITERATION}.tar.gz dbt5-run
+	# popd > /dev/null
+
 	rm -rf $SHELLPACK_TEMP/dbt5-run
 	$RUNDBUSER "rm -rf $SHELLPACK_TEMP/dbt5-run"
 ###SHELLPACK iteration_end

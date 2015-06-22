@@ -21,11 +21,21 @@ install-depends python-rpy2
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -218,9 +228,12 @@ for ITERATION in `seq 1 $MAX_ITERATIONS;`; do
 		-u $NR_USERS								\
 		-o $SHELLPACK_TEMP/dbt5-run" 2>&1 | tee dbt5-${NR_USERS}-${ITERATION}.log
 	cp $SHELLPACK_TEMP/dbt5-run/results.txt $LOGDIR_RESULTS/results-${NR_USERS}-${ITERATION}.txt
-	pushd $SHELLPACK_TEMP > /dev/null
-	tar -czf $LOGDIR_RESULTS/dblogs-${NR_USERS}-${ITERATION}.tar.gz dbt5-run
-	popd > /dev/null
+
+	# Uncomment to preserve dbt5 run logs
+	# pushd $SHELLPACK_TEMP > /dev/null
+	# tar -czf $LOGDIR_RESULTS/dblogs-${NR_USERS}-${ITERATION}.tar.gz dbt5-run
+	# popd > /dev/null
+
 	rm -rf $SHELLPACK_TEMP/dbt5-run
 	$RUNDBUSER "rm -rf $SHELLPACK_TEMP/dbt5-run"
 done
@@ -230,4 +243,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt5
-#### Details dbt5-bench 52
+#### Details dbt5-bench 53
