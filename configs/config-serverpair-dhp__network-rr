@@ -37,7 +37,7 @@ export SWAP_NBD_DEVICE=/dev/nbd0
 export SWAP_NBD_HOST=mcp
 export SWAP_NBD_PORT=10001
 export REMOTE_SERVER_USER=root
-export REMOTE_SERVER_HOST=marvin8
+export REMOTE_SERVER_HOST=unknownhost
 
 # Optionally use a memory control group
 # export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
