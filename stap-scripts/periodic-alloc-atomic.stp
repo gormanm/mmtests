@@ -5,8 +5,8 @@
 
 int burst_alloc = 1;
 int pause = 0;
-#define ALLOC_ORDER 2
-#define MAX_BURST (524288 >> (PAGE_SHIFT + ALLOC_ORDER))
+#define ALLOC_ORDER 3
+#define MAX_BURST (134217728 >> (PAGE_SHIFT + ALLOC_ORDER))
 %}
 
 function atomic_alloc () %{
