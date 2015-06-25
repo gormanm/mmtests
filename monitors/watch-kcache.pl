@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # This script is a combined perl and systemtap script to collect stats on
 # slab activity. The intention is to build a picture of how slab-intensive
-# a workload is and what the sources are
+# a workload is based on the allocation/free frequency.
 #
 # Copyright Mel Gorman <mgorman@suse.de> 2015
 
@@ -62,7 +62,7 @@ probe kernel.function("kmem_cache_alloc_trace"),
 
 probe kernel.function("kfree")
 {
-	if ($objp != NULL) {
+	if ($objp > 16) {
 		total_kfrees++
 	}
 }
