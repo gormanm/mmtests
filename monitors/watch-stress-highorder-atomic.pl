@@ -89,7 +89,7 @@ function atomic_alloc () %{
 		local_burst = MAX_BURST;
 
 	for (i = 0; i < local_burst; i++) {
-		max_alloc[i] = alloc_pages(GFP_ATOMIC, ALLOC_ORDER);
+		max_alloc[i] = alloc_pages(GFP_ATOMIC | __GFP_NOWARN, ALLOC_ORDER);
 		if (!max_alloc[i])
 			break;
 	}
