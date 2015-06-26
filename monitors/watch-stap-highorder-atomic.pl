@@ -23,6 +23,14 @@ sub sigint_handler {
 }
 $SIG{INT} = "sigint_handler";
 
+# Inherited from mmtests, yes there are alternatives
+my $allocSize = $ENV{"MEMTOTAL_BYTES"};
+if ($allocSize == 0) {
+	$allocSize = 1073741824;
+} else {
+	$allocSize /= 8;
+}
+
 my $monitorInterval = $ENV{"MONITOR_UPDATE_FREQUENCY"};
 if ($monitorInterval == 0) {
 	$monitorInterval = 10;
@@ -38,6 +46,7 @@ while (<SELF>) {
 	while (!eof(SELF)) {
 		my $line = <SELF>;
 		$line =~ s/__MONITOR_UPDATE_FREQUENCY__/$monitorInterval/;
+		$line =~ s/__MONITOR_ALLOC_SIZE__/$allocSize/;
 		
 		print $handle $line;
 	}
@@ -55,7 +64,7 @@ __END__
 
 int pause = 0;
 #define ALLOC_ORDER 3
-#define MAX_BURST (1073741824UL >> (PAGE_SHIFT + ALLOC_ORDER))
+#define MAX_BURST (__MONITOR_ALLOC_SIZE__UL >> (PAGE_SHIFT + ALLOC_ORDER))
 int burst_alloc = MAX_BURST;
 %}
 
@@ -92,8 +101,8 @@ function atomic_alloc () %{
 		if (max_alloc[i])
 			__free_pages(max_alloc[i], ALLOC_ORDER);
 	}
-	_stp_printf("atomic alloc burst %6d success %6d failure %6d\n",
-			local_burst, success, failure);
+	_stp_printf("atomic alloc burst %6d / %6d success %6d failure %6d\n",
+			local_burst, MAX_BURST, success, failure);
 	if (failure) {
 		pause = 8;
 	}
