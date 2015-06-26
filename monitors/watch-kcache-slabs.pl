@@ -92,16 +92,16 @@ probe timer.s(__MONITOR_UPDATE_FREQUENCY__) {
 	printf("time: %d\n", gettimeofday_s())
 
 	foreach ([slabname] in total_kmallocs-) {
-		printf("  total kmallocs          %-18s %12d %12d/sec\n", slabname, total_kmallocs[slabname],   total_kmallocs[slabname] / __MONITOR_UPDATE_FREQUENCY__)
-	}
-	foreach ([slabname] in total_kfrees-) {
-		printf("  total kfrees            %-18s %12d %12d/sec\n", slabname, total_kfrees[slabname],   total_kfrees[slabname] / __MONITOR_UPDATE_FREQUENCY__)
+		printf("  total kmallocs          %-35s %7d %7d/sec\n", slabname, total_kmallocs[slabname],   total_kmallocs[slabname] / __MONITOR_UPDATE_FREQUENCY__)
 	}
 	foreach ([slabname] in total_allocs-) {
-		printf("  total kmem_cache_allocs %-18s %12d %12d/sec\n", slabname, total_allocs[slabname],   total_allocs[slabname] / __MONITOR_UPDATE_FREQUENCY__)
+		printf("  total kmem_cache_allocs %-35s %7d %7d/sec\n", slabname, total_allocs[slabname],   total_allocs[slabname] / __MONITOR_UPDATE_FREQUENCY__)
+	}
+	foreach ([slabname] in total_kfrees-) {
+		printf("  total kfrees            %-35s %7d %7d/sec\n", slabname, total_kfrees[slabname],   total_kfrees[slabname] / __MONITOR_UPDATE_FREQUENCY__)
 	}
 	foreach ([slabname] in total_frees-) {
-		printf("  total kmem_cache_frees  %-18s %12d %12d/sec\n", slabname, total_frees[slabname],   total_frees[slabname] / __MONITOR_UPDATE_FREQUENCY__)
+		printf("  total kmem_cache_frees  %-35s %7d %7d/sec\n", slabname, total_frees[slabname],   total_frees[slabname] / __MONITOR_UPDATE_FREQUENCY__)
 	}
 
 	printf("\n")
