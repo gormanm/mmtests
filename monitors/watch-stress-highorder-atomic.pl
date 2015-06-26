@@ -53,7 +53,7 @@ while (<SELF>) {
 }
 
 # Contact
-system("stap -g $stapscript");
+system("stap -g -DMAXSKIPPED=10485760 -DSTP_OVERLOAD_THRESHOLD=5000000000 $stapscript");
 cleanup();
 exit(0);
 __END__
