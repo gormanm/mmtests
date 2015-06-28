@@ -66,22 +66,24 @@ int pause = 0;
 #define ALLOC_ORDER 3
 #define MAX_BURST (__MONITOR_ALLOC_SIZE__UL >> (PAGE_SHIFT + ALLOC_ORDER))
 int burst_alloc = MAX_BURST;
+struct page **max_alloc = NULL;
+bool vmalloced = false;
 %}
 
 function atomic_alloc () %{
-	struct page **max_alloc;
 	int i, local_burst = burst_alloc;
 	int success = 0, failure = 0;
 
-	max_alloc = kmalloc(sizeof(struct page *) * MAX_BURST, GFP_KERNEL);
 	if (!max_alloc) {
-		_stp_printf("failed to alloc max_alloc array\n");
-		return;
+		max_alloc = kmalloc(sizeof(struct page *) * MAX_BURST, GFP_ATOMIC | __GFP_NOWARN);
+		if (!max_alloc) {
+			_stp_printf("failed to alloc max_alloc array\n");
+			return;
+		}
 	}
 
 	if (pause) {
 		pause--;
-		kfree(max_alloc);
 		return;
 	}
 
@@ -106,13 +108,46 @@ function atomic_alloc () %{
 	if (failure) {
 		pause = 8;
 	}
-
-	kfree(max_alloc);
 %}
 
 function update_burst () %{
 	burst_alloc = jiffies % MAX_BURST;
 %}
+
+function monitor_init() %{
+	unsigned long size = sizeof(struct page *) * MAX_BURST;
+	max_alloc = kmalloc(size, GFP_ATOMIC | __GFP_NOWARN);
+	if (!max_alloc) {
+		max_alloc = vmalloc(size);
+		if (!max_alloc) {
+			_stp_printf("Failed to allocate max_alloc at init");
+		} else {
+			_stp_printf("vmalloced max_alloc\n");
+		}
+	} else {
+		_stp_printf("kmalloced max_alloc\n");
+	}
+%}
+
+function monitor_end() %{
+	if (vmalloced) {
+		_stp_printf("vfree max_alloc\n");
+		vfree(max_alloc);
+	} else {
+		_stp_printf("kfree max_alloc\n");
+		kfree(max_alloc);
+	}
+	max_alloc = NULL;
+%}
+
+probe begin
+{
+	monitor_init()
+}
+probe end
+{
+	monitor_end()
+}
 
 probe timer.s(__MONITOR_UPDATE_FREQUENCY__)
 {
