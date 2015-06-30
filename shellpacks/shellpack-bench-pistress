@@ -1,0 +1,108 @@
+#!/bin/bash
+# pistress
+
+P=pistress-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+PISTRESS_ITERATIONS=12
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--min-invgroups)
+		PISTRESS_MIN_INVGROUPS=$2
+		shift 2
+		;;
+	--max-invgroups)
+		PISTRESS_MAX_INVGROUPS=$2
+		shift 2
+		;;
+	--iterations)
+		PISTRESS_ITERATIONS=$2
+		shift 2
+		;;
+	--runtime)
+		PISTRESS_RUNTIME=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/pistress-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/pistress-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-pistress -v ${VERSION}  || die pistress install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/pistress-${VERSION}-installed || die Failed to cd to pistress install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo pistress installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+THREADS=
+START_THREAD=$PISTRESS_MIN_INVGROUPS
+END_THREAD=$PISTRESS_MAX_INVGROUPS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 2 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
+for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+for ITERATION in `seq 1 $PISTRESS_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+		echo Starting thread-groups $NR_THREADS/$PISTRESS_MAX_INVGROUPS iteration $ITERATION/$PISTRESS_ITERATIONS
+		./pi_stress --groups=$NR_THREADS --duration=$PISTRESS_RUNTIME --quiet 2>&1 | \
+			tee $LOGDIR_RESULTS/pistress-${NR_THREADS}-${ITERATION}.log
+done
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+done
+exit $SHELLPACK_SUCCESS
+#### Description pistress
+#### Details pistress-bench 1

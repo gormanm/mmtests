@@ -2,7 +2,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="futexbench-hash futexbench-requeue futexbench-wake sembench-futex futexwait"
+export MMTESTS="futexbench-hash futexbench-requeue futexbench-wake sembench-futex futexwait pistress"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -77,3 +77,11 @@ export SEMBENCH_MAX_THREADS=$((NUMCPUS*64))
 export FUTEXWAIT_ITERATIONS=5
 export FUTEXWAIT_MIN_THREADS=2
 export FUTEXWAIT_MAX_THREADS=$((NUMCPUS*64))
+
+# pistress
+export PISTRESS_ITERATIONS=5
+export PISTRESS_RUNTIME=10 # seconds
+# min/max inversion groups -- benchmark will create 3 threads
+# per-group, with low, mid and high priorities.
+export PISTRESS_MIN_INVGROUPS=1
+export PISTRESS_MAX_INVGROUPS=$((NUMCPUS))
