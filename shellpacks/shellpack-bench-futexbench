@@ -2,7 +2,7 @@
 # Run perf-bench futex benchmark
 
 P=futexbench-bench
-DEFAULT_VERSION=3.17
+DEFAULT_VERSION=4.1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -17,11 +17,21 @@ MAX_THREADS=$NUMCPUS
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -129,4 +139,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description perf-bench futex
-#### Details futexbench-bench 16
+#### Details futexbench-bench 17
