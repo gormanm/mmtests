@@ -1,10 +1,8 @@
-### This is a number of microbenchmarks that are mostly per-based. They evaluate
-### the performance and scalability of a number of IPC primitives.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="ipcscale futexbench-hash futexbench-requeue futexbench-wake pistress sembench-sem sembench-nanosleep sembench-futex futexwait filelockperf-flock filelockperf-posix filelockperf-lease"
+export MMTESTS="filelockperf-flock filelockperf-posix filelockperf-lease"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -27,6 +25,7 @@ fi
 
 # Machine configuration
 # Swap configuration can be one of default, partitions, swapfile, NFS
+#export RUN_TUNINGS="$RUN_TUNINGS sysctl"
 #export VM_DIRTY_RATIO=20
 export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
 export SWAP_CONFIGURATION=default
@@ -63,25 +62,9 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat mpstat"
-export MONITORS_WITH_LATENCY="vmstat"
+export MONITORS_GZIP="proc-vmstat top numa-numastat numa-meminfo numa-convergence numa-scheduling"
+export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
-
-# futexbench
-export FUTEXBENCH_MIN_THREADS=2
-export FUTEXBENCH_MAX_THREADS=$((NUMCPUS*64))
-
-# IPCScale
-export IPCSCALE_ITERATIONS=3
-
-# sembench
-export SEMBENCH_MIN_THREADS=2
-export SEMBENCH_MAX_THREADS=$((NUMCPUS*64))
-
-# futexwait
-export FUTEXWAIT_ITERATIONS=5
-export FUTEXWAIT_MIN_THREADS=2
-export FUTEXWAIT_MAX_THREADS=$((NUMCPUS*64))
 
 # filelockperf
 export FILELOCKPERF_ITERATIONS=10

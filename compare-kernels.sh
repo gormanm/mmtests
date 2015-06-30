@@ -548,6 +548,19 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
+		filelockperf-flock|filelockperf-posix|filelockperf-lease)
+			SUB_WORKLOADS_FILENAME=`find -name "workloads" | grep $SUBREPORT | head -1`
+			SUB_WORKLOADS=`cat $SUB_WORKLOADS_FILENAME | sed -e 's/,/ /g'`
+			for LOCKTYPE in single multi; do
+				echo "<tr>"
+				for SUB_WORKLOAD in $SUB_WORKLOADS; do
+						eval $GRAPH_PNG --title \"$SUBREPORT $SUB_WORKLOAD $LOCKTYPE\" --sub-heading $SUB_WORKLOAD-$LOCKTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUB_WORKLOAD-$LOCKTYPE.png
+						eval $GRAPH_PSC --title \"$SUBREPORT $SUB_WORKLOAD $LOCKTYPE\" --sub-heading $SUB_WORKLOAD-$LOCKTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUB_WORKLOAD-$LOCKTYPE.ps
+						plain graph-$SUBREPORT-$SUB_WORKLOAD-$LOCKTYPE
+				done
+				echo "</tr>"
+			done
+			;;
 		unixbench-dhry2reg|unixbench-syscall|unixbench-pipe|unixbench-spawn|unixbench-execl)
 			echo "<tr>"
 			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
