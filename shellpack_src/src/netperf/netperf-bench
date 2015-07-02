@@ -13,16 +13,10 @@ fi
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-###SHELLPACK parseargParam    --iterations ITERATIONS
 ###SHELLPACK parseargBindings
-	--protocols)
-		PROTOCOLS=`echo $2 | sed -e 's/,/ /g'`
-		shift 2
-		;;
-	--buffer-sizes)
-		BUFFER_SIZES=`echo $2 | sed -e 's/,/ /g'`
-		shift 2
-		;;
+###SHELLPACK parseargParam    --iterations   ITERATIONS
+###SHELLPACK parseargParam    --protocol     PROTOCOL
+###SHELLPACK parseargParam    --buffer-sizes BUFFER_SIZES
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required netperf-${VERSION}
@@ -30,6 +24,7 @@ fi
 ###SHELLPACK monitor_hooks
 
 cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf directory
+BUFFER_SIZES=`echo $2 | sed -e 's/,/ /g'`
 
 export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-netperf
 case $SERVERSIDE_COMMAND in
@@ -68,40 +63,38 @@ none)
 	;;
 esac
 
-echo $PROTOCOLS > $LOGDIR_RESULTS/protocols
-for PROTOCOL in $PROTOCOLS; do
-	EXTRA=
-	if [ "$PROTOCOL" = "UDP_STREAM" ]; then
-		EXTRA="-P 15895 -s 32768 -S 32768"
-	fi
+echo $PROTOCOL > $LOGDIR_RESULTS/protocols
+EXTRA=
+if [ "$PROTOCOL" = "UDP_STREAM" ]; then
+	EXTRA="-P 15895 -s 32768 -S 32768"
+fi
 
-	for SIZE in $BUFFER_SIZES; do
-	mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
-	###SHELLPACK iteration_begin $ITERATIONS
-		mmtests_activity size $SIZE
-		SIZE_OPT=
-		if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
-			SIZE_OPT="-m $SIZE -M $SIZE"
-		fi
-		if [ "$PROTOCOL" = "UDP_RR" -o "$PROTOCOL" = "TCP_RR" ]; then
-			SIZE_OPT="-r $SIZE"
-		fi
+for SIZE in $BUFFER_SIZES; do
+mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
+###SHELLPACK iteration_begin $ITERATIONS
+	mmtests_activity size $SIZE
+	SIZE_OPT=
+	if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
+		SIZE_OPT="-m $SIZE -M $SIZE"
+	fi
+	if [ "$PROTOCOL" = "UDP_RR" -o "$PROTOCOL" = "TCP_RR" ]; then
+		SIZE_OPT="-r $SIZE"
+	fi
 	
-		echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE
-		monitor_pre_hook $LOGDIR_RESULTS $SIZE
-		eval $TASKSET_CLIENT $NETROOT/bin/netperf \
-			-t $PROTOCOL \
-			-i 12,3 -I 99,5 \
-			-H $SERVER_HOST \
-			-- \
-			$SIZE_OPT \
-			$EXTRA \
-				2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
-				|| die Failed to run netperf
-		monitor_post_hook $LOGDIR_RESULTS $SIZE
-	###SHELLPACK iteration_end
-	mmtests_server_ctl stop --serverside-name $PROTOCOL-$SIZE
-	done
+	echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE
+	monitor_pre_hook $LOGDIR_RESULTS $SIZE
+	eval $TASKSET_CLIENT $NETROOT/bin/netperf \
+		-t $PROTOCOL \
+		-i 12,3 -I 99,5 \
+		-H $SERVER_HOST \
+		-- \
+		$SIZE_OPT \
+		$EXTRA \
+			2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
+			|| die Failed to run netperf
+	monitor_post_hook $LOGDIR_RESULTS $SIZE
+###SHELLPACK iteration_end
+mmtests_server_ctl stop --serverside-name $PROTOCOL-$SIZE
 done
 killall netserver
 
