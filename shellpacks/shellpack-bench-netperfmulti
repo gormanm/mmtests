@@ -1,0 +1,273 @@
+#!/bin/bash
+# This script installs netperf and runs the regression tests
+P=netperf-bench
+DEFAULT_VERSION=2.4.5
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+PROTOCOLS="UDP_STREAM TCP_STREAM"
+NETPERFMULTI_BUFFER_SIZE="256"
+
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVER_HOST=127.0.0.1
+if [ "$REMOTE_SERVER_HOST" != "" ]; then
+	SERVER_HOST=$REMOTE_SERVER_HOST
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--bind-pinned)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUA"
+		shift
+		;;
+	--bind-cross-node)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`numactl --hardware | grep ^node | grep cpus: | tail -1 | awk '{print $NF}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
+	--bind-cross-socket)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`list-cpu-siblings.pl $CPUA cores | awk -F , '{print $1}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
+	--bind-cross-ht)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`list-cpu-siblings.pl $CPUA threads | awk -F , '{print $1}'`
+		if [ "$CPUB" = "" ]; then
+			echo ERROR: Could not identify HT thread for CPU $CPUA
+			exit $SHELLPACK_ERROR
+		fi
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
+	--iterations)
+		NETPERFMULTI_ITERATIONS=$2
+		shift 2
+		;;
+	--protocol)
+		NETPERFMULTI_PROTOCOL=$2
+		shift 2
+		;;
+	--buffer-size)
+		NETPERFMULTI_BUFFER_SIZE=$2
+		shift 2
+		;;
+	--duration)
+		NETPERFMULTI_DURATION=$2
+		shift 2
+		;;
+	--min-threads)
+		NETPERFMULTI_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		NETPERFMULTI_MAX_THREADS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/netperf-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/netperf-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-netperf -v ${VERSION}  || die netperf install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo netperf installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf directory
+
+PORT_OFFSET=12864
+
+server_start() {
+	INSTANCES=$1
+	if [ "$REMOTE_SERVER_HOST" != "" ]; then
+		mmtests_server_ctl start --serverside-name $NETPERFMULTI_PROTOCOL-$NETPERFMULTI_BUFFER_SIZE-$NR_THREADS
+		return
+	fi
+
+	echo Starting $INSTANCES server instances
+	for i in `seq 1 $INSTANCES`; do
+		$TASKSET_SERVER $NETROOT/bin/netserver -p $((PORT_OFFSET+i)) || die Failed to start netserver
+	done
+	sleep 2
+}
+
+server_stop() {
+	if [ "$REMOTE_SERVER_HOST" != "" ]; then
+		mmtests_server_ctl stop --serverside-name $NETPERFMULTI_PROTOCOL-$NETPERFMULTI_BUFFER_SIZE-$NR_THREADS
+		return
+	fi
+	echo Stopping all server instances
+	killall netserver
+}
+
+client_start() {
+	INSTANCES=$1
+	echo Starting $INSTANCES client instances
+	for i in `seq 1 $INSTANCES`; do
+		eval $TASKSET_CLIENT $NETROOT/bin/netperf \
+			-t $NETPERFMULTI_PROTOCOL \
+			-l $NETPERFMULTI_DURATION \
+			-H $SERVER_HOST -p $((PORT_OFFSET+i)) \
+			-- \
+			$SIZE_OPT \
+			$EXTRA > $SHELLPACK_TEMP/netperf-instance.$i 2>&1 &
+		echo $! > $SHELLPACK_TEMP/netperf-pids.$i
+	done
+}
+
+export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-netperf
+NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
+case $SERVERSIDE_COMMAND in
+start)
+	server_stop
+
+	INSTANCES=`echo $SERVERSIDE_NAME | awk -F - '{print $NF}'`
+
+	echo Starting server
+	mmtests_activity netperf-$SERVERSIDE_NAME
+	monitor_pre_hook $LOGDIR_RESULTS netperf-$SERVERSIDE_NAME
+	server_start $INSTANCES
+	exit $SHELLPACK_SUCCESS
+	;;
+stop)
+	monitor_post_hook $LOGDIR_RESULTS netperf-$SERVERSIDE_NAME
+	server_stop
+	exit $SHELLPACK_SUCCESS
+	;;
+flush)
+	exit $SHELLPACK_SUCCESS
+	;;
+none)
+	server_stop
+	;;
+*)
+	die Unrecognised server-side command
+	;;
+esac
+
+echo $NETPERFMULTI_PROTOCOL > $LOGDIR_RESULTS/protocols
+EXTRA=
+if [ "$NETPERFMULTI_PROTOCOL" = "UDP_STREAM" ]; then
+	EXTRA="-P 15895 -s 32768 -S 32768"
+fi
+
+THREADS=
+START_THREAD=1
+END_THREAD=$NETPERFMULTI_MAX_THREADS
+if [ $END_THREAD -ge 32 ]; then
+	THREADS=`seq $START_THREAD 4 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -ge 8 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	server_start $NR_THREADS
+for ITERATION in `seq 1 $NETPERFMULTI_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+		mmtests_activity $NETPERFMULTI_BUFFER_SIZE-$NR_THREADS
+		SIZE_OPT=
+		if [ "$NETPERFMULTI_PROTOCOL" = "UDP_STREAM" -o "$NETPERFMULTI_PROTOCOL" = "TCP_STREAM" ]; then
+			SIZE_OPT="-m $NETPERFMULTI_BUFFER_SIZE -M $NETPERFMULTI_BUFFER_SIZE"
+		fi
+		if [ "$NETPERFMULTI_PROTOCOL" = "UDP_RR" -o "$NETPERFMULTI_PROTOCOL" = "TCP_RR" ]; then
+			SIZE_OPT="-r $NETPERFMULTI_BUFFER_SIZE"
+		fi
+	
+		echo Running test $NETPERFMULTI_PROTOCOL $NR_THREADS threads iteration $ITERATION/$NETPERFMULTI_ITERATIONS size $NETPERFMULTI_BUFFER_SIZE
+		monitor_pre_hook $LOGDIR_RESULTS $NETPERFMULTI_BUFFER_SIZE
+		client_start $NR_THREADS
+		echo -n Waiting on pids to exit
+		for i in `seq 1 $NR_THREADS`; do
+			CLIENT_PID=`cat $SHELLPACK_TEMP/netperf-pids.$i`
+			wait $CLIENT_PID
+			if [ $? -ne 0 ]; then
+				cat $SHELLPACK_TEMP/netperf-instance.$i
+				die PID $CLIENT_PID exited with an error
+			fi
+			echo -n .
+			rm $SHELLPACK_TEMP/netperf-pids.$i
+		done
+		echo
+		monitor_post_hook $LOGDIR_RESULTS $NETPERFMULTI_BUFFER_SIZE
+
+		RESULT_FILE=$LOGDIR_RESULTS/$NETPERFMULTI_PROTOCOL-$NR_THREADS.$ITERATION
+		echo -n > $RESULT_FILE
+		for i in `seq 1 $NR_THREADS`; do
+			echo instance $i >> $RESULT_FILE
+			cat $SHELLPACK_TEMP/netperf-instance.$i >> $RESULT_FILE
+			rm $SHELLPACK_TEMP/netperf-instance.$i
+		done
+		cat $RESULT_FILE
+done
+	server_stop
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description Netperf benchmark with multiple instances
+#### Details netperfmulti-bench 11

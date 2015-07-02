@@ -1,11 +1,21 @@
-### netperf-udp is a UDP_STREAM netperf run on a remote server.
+### netperf-udp is a UDP_STREAM netperf run on a loopback device. As
+### this benchmark is very sensitive to scheduling when running in
+### loopback mode, the client and server are bound to cores that are
+### on the same socket but are not hyper-thread siblings.
 ###
-### netperf-tcp is a TCP_STREAM netperf run on a loopback device.
+### netperf-tcp is a TCP_STREAM netperf run on a loopback device. The
+### client and server are bound to CPUs similar to the netperf-udp
+### benchmark.
+###
+### The RR tests are round-robin tests.
+###
+### All tests run with varying numbers of netperf instances to detect
+### how well it scales transmitting a fixed buffer size
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="netperf-udp netperf-tcp tbench4"
+export MMTESTS="netperfmulti-udp netperfmulti-tcp netperfmulti-udp-rr netperfmulti-tcp-rr"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -37,8 +47,6 @@ export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
 export SWAP_NBD_DEVICE=/dev/nbd0
 export SWAP_NBD_HOST=mcp
 export SWAP_NBD_PORT=10001
-export REMOTE_SERVER_USER=root
-export REMOTE_SERVER_HOST=unknownhost
 
 # Optionally use a memory control group
 # export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
@@ -78,9 +86,9 @@ export DBENCH_FSYNC=no
 export DBENCH_MAX_CLIENTS=$((NUMCPUS*64))
 
 # NetPerf
-export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
-export NETPERF_ITERATIONS=5
-
-# TBench
-export TBENCH_DURATION=$((3*60))
-export TBENCH_MAX_CLIENTS=$((NUMCPUS*8))
+export NETPERFMULTI_BUFFER_SIZE=256
+export NETPERFMULTI_BINDING=
+export NETPERFMULTI_ITERATIONS=5
+export NETPERFMULTI_DURATION=30
+export NETPERFMULTI_MIN_THREADS=1
+export NETPERFMULTI_MAX_THREADS=$((NUMCPUS*4))

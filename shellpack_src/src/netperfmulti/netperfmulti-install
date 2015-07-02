@@ -1,0 +1,16 @@
+#!/bin/bash
+# Netperf installer
+###SHELLPACK preamble netperfmulti-install 2.4.5
+WEB_LOCATION=ftp://ftp.netperf.org/netperf/archive
+MIRROR_LOCATION="$WEBROOT/netperf/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch netperf-${VERSION}.tar.gz netperf-${VERSION}
+
+###SHELLPACK build_start netperf-${VERSION}
+###SHELLPACK build_configure netperf-${VERSION}
+###SHELLPACK make_make_install
+
+echo Netperf installed successfully
