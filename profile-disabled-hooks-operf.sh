@@ -18,17 +18,17 @@ echo "#!/bin/bash" > monitor-pre-hook
 case `uname -m` in
 	i?86)
 		echo "operf_start.sh $CALLGRAPH_SWITCH $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer &" >> monitor-pre-hook
-		echo "echo $\! > operf.pid" >> monitor-pre-hook
+		echo "echo \$! > operf.pid" >> monitor-pre-hook
 		export PROFILE_EVENTS=timer
 		;;
 	x86_64)
 		echo "operf_start.sh $CALLGRAPH_SWITCH $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer &" >> monitor-pre-hook
-		echo "echo $\! > operf.pid" >> monitor-pre-hook
+		echo "echo \$! > operf.pid" >> monitor-pre-hook
 		export PROFILE_EVENTS=timer
 		;;
 	ppc64)
 		echo "operf_start.sh $CALLGRAPH_SWITCH $CALLGRAPH --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --event timer &" >> monitor-pre-hook
-		echo "echo $\! > operf.pid" >> monitor-pre-hook
+		echo "echo \$! > operf.pid" >> monitor-pre-hook
 		export PROFILE_EVENTS=timer
 		;;
 	*)
