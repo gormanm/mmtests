@@ -2,6 +2,11 @@
 P=pagealloc-bench
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 ORDER_MIN=0
 ORDER_MAX=4
 GFPFLAGS=GFP_KERNEL
@@ -11,11 +16,21 @@ BATCH_SIZE=$((128*1048576))
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--min-order)
@@ -63,6 +78,9 @@ for ORDER in `seq $ORDER_MIN $ORDER_MAX`; do
         		-e "s/define PARAM_BATCH.*/define PARAM_BATCH $BATCH/" \
         		-e "s/define PARAM_ORDER.*/define PARAM_ORDER $ORDER/" > /tmp/pagealloc.stp
 
+		# Dummy run to compile
+		stap -DSTAP_OVERRIDE_STUCK_CONTEXT -g /tmp/pagealloc.stp > /dev/null
+
 		# Execute
 		monitor_pre_hook $LOGDIR_RESULTS $ORDER-$BATCH
 		stap -DSTAP_OVERRIDE_STUCK_CONTEXT -g /tmp/pagealloc.stp | \
@@ -91,4 +109,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description Micro-benchmark to stress the page allocator
-#### Details pagealloc-bench 20
+#### Details pagealloc-bench 21

@@ -31,6 +31,9 @@ for ORDER in `seq $ORDER_MIN $ORDER_MAX`; do
         		-e "s/define PARAM_BATCH.*/define PARAM_BATCH $BATCH/" \
         		-e "s/define PARAM_ORDER.*/define PARAM_ORDER $ORDER/" > /tmp/pagealloc.stp
 
+		# Dummy run to compile
+		stap -DSTAP_OVERRIDE_STUCK_CONTEXT -g /tmp/pagealloc.stp > /dev/null
+
 		# Execute
 		monitor_pre_hook $LOGDIR_RESULTS $ORDER-$BATCH
 		stap -DSTAP_OVERRIDE_STUCK_CONTEXT -g /tmp/pagealloc.stp | \

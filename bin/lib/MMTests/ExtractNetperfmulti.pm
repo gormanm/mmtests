@@ -40,10 +40,11 @@ sub extractReport($$$) {
 	my $loss;
 	foreach my $client (@clients) {
 		my $iteration = 0;
-		my $send_tput = 0;
-		my $recv_tput = 0;
 
 		foreach my $file (<$reportDir/noprofile/$protocol-$client.*>) {
+			my $send_tput = 0;
+			my $recv_tput = 0;
+
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				my @elements = split(/\s+/, $_);
@@ -67,16 +68,16 @@ sub extractReport($$$) {
 				}
 			}
 			close(INPUT);
-		}
 
-		if ($protocol ne "UDP_STREAM") {
-			push @{$self->{_ResultData}}, [ $client, ++$iteration, $send_tput ];
-		} else {
-			push @{$self->{_ResultData}}, [ "send-$client", ++$iteration, $send_tput ];
-			push @{$self->{_ResultData}}, [ "recv-$client", ++$iteration, $recv_tput ];
-			push @{$self->{_ResultData}}, [ "loss-$client", ++$iteration, $send_tput - $recv_tput ];
-			if (($send_tput - $recv_tput) > ($send_tput / 10)) {
-				$loss++;
+			if ($protocol ne "UDP_STREAM") {
+				push @{$self->{_ResultData}}, [ $client, ++$iteration, $send_tput ];
+			} else {
+				push @{$self->{_ResultData}}, [ "send-$client", ++$iteration, $send_tput ];
+				push @{$self->{_ResultData}}, [ "recv-$client", ++$iteration, $recv_tput ];
+				push @{$self->{_ResultData}}, [ "loss-$client", ++$iteration, $send_tput - $recv_tput ];
+				if (($send_tput - $recv_tput) > ($send_tput / 10)) {
+					$loss++;
+				}
 			}
 		}
 	}
