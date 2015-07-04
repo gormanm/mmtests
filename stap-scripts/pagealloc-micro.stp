@@ -14,7 +14,7 @@
 
 #define PARAM_GFPFLAGS GFP_KERNEL
 #define PARAM_ORDER 0
-#define PARAM_ITERATIONS_INNER 65536
+#define PARAM_ITERATIONS_INNER 10000
 #define PARAM_ITERATIONS_OUTER 15
 #define PARAM_BATCH 1
 
@@ -67,7 +67,7 @@ function alloc_runtest() %{
 	cycles_alloc = cycles_free = 0;
 
 	for (i = 0; i < PARAM_ITERATIONS_OUTER; i++) {
-		for (j = 0; j < PARAM_ITERATIONS_INNER / batch; j++) {
+		for (j = 0; j < PARAM_ITERATIONS_INNER; j++) {
 			int nr_pages;
 
 			/* No point hogging the CPU */
