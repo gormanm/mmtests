@@ -35,7 +35,7 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 		for FILESIZE in `seq $LMBENCH_LATMMAP_MIN_FILESIZE $STRIDE $LMBENCH_LATMMAP_MAX_FILESIZE`; do
 			mmtests_activity filesize $FILESIZE
 			FILESIZE=$((FILESIZE&~4095))
-			dd if=/dev/zero of=$TESTDISK_DIR/lmbench.file ibs=4096 count=$((FILESIZE/4096)) conv=sync 2> /dev/null
+			dd if=/dev/zero of=$TESTDISK_DIR/lmbench.file ibs=4096 count=$((FILESIZE/4096)) conv=fsync 2> /dev/null
 			for ITERATION in `seq 1 $LMBENCH_LATMMAP_ITERATIONS`; do
 				./bin/$LMBENCH_TEST \
 					-N 30 \
