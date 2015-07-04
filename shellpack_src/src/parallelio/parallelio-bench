@@ -24,7 +24,7 @@
 for WORKLOAD in $PARALLELIO_WORKLOADS; do
 	echo Warmup background workload: $WORKLOAD
 	cd $SHELLPACK_TOPLEVEL
-	./run-single-test.sh $WORKLOAD || die Failed to run warmup of $WORKLOAD
+	./run-single-test.sh $WORKLOAD > /dev/null || die Failed to run warmup of $WORKLOAD
 	rm -rf $SHELLPACK_LOG/$WORKLOAD
 	rm -rf $TESTDISK_DIR/*
 done
@@ -69,9 +69,9 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 		WARMUP_START=`date +%s`
 
 		WARMUP_COUNT=1
-		MAX_MEMUSED=$((MEMUSED_BYTES/1048576/100))
+		MAX_MEMUSED=0
 
-		while [ $WARMUP_COUNT -lt 5 ]; do
+		while [ $WARMUP_COUNT -lt 10 ]; do
 			MEMUSED_MB=$((MEMUSED_BYTES/1048576))
 			echo -n "o usage: $MEMUSED_MB MB"
 
