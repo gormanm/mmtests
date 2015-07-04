@@ -19,11 +19,21 @@ fi
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--workloads)
@@ -108,18 +118,28 @@ for ITERATION in `seq 1 $PARALLELIO_ITERATIONS`; do
 		./run-single-test.sh $WORKLOAD > $LOGDIR_RESULTS/workload-$WORKLOAD-$IO_STEP-$ITERATION.log 2>&1 &
 		WORKLOAD_PID=$!
 
-		# Wait until workload reaches 60% of the target size
-		WARMUP_WORKLOAD_SIZE=$((PARALLELIO_TARGETLOAD_SIZE*6/10))
-		echo Waiting for workload to warm up to $((WARMUP_WORKLOAD_SIZE/1048576)) MB
+		# Wait until workload reaches its peak size for 10 seconds
+		echo Waiting for workload to warm up
 		MAXIMUM_WARMUP_TIME=$((PARALLELIO_WORKLOAD_DURATION/3))
 		MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
 		LAST_USED=0
 		WARMUP_START=`date +%s`
-		while [ $MEMUSED_BYTES -lt $WARMUP_WORKLOAD_SIZE ]; do
+
+		WARMUP_COUNT=1
+		MAX_MEMUSED=$((MEMUSED_BYTES/1048576/100))
+
+		while [ $WARMUP_COUNT -lt 5 ]; do
 			MEMUSED_MB=$((MEMUSED_BYTES/1048576))
-			if [ $LAST_USED -ne $MEMUSED_MB ]; then
-				echo o usage: $MEMUSED_MB MB
-				LAST_USED=$((MEMUSED_MB))
+			echo -n "o usage: $MEMUSED_MB MB"
+
+			THIS_MEMUSED=$((MEMUSED_BYTES/1048576/100))
+			if [ $THIS_MEMUSED -gt $MAX_MEMUSED ]; then
+				echo " new peak"
+				MAX_MEMUSED=$THIS_MEMUSED
+				WARMUP_COUNT=1
+			else
+				echo
+				WARMUP_COUNT=$((WARMUP_COUNT+1))
 			fi
 			sleep 2
 			MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
@@ -198,4 +218,4 @@ done
 rm -rf $TESTDISK_DIR
 exit $SHELLPACK_SUCCESS
 #### Description Run a workload with varying amounts of IO in the background to see the effect
-#### Details parallelio-bench 40
+#### Details parallelio-bench 41
