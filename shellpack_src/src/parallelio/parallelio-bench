@@ -30,10 +30,14 @@ for WORKLOAD in $PARALLELIO_WORKLOADS; do
 	MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
 	LAST_USED=0
 	WARMUP_START=`date +%s`
+	MINIMUM_WARMUP=120
+	ORIGINAL_DURATION=$MEMCACHETEST_DURATION
+	export MEMCACHETEST_DURATION=$((MEMCACHETEST_DURATION*2+MINIMUM_WARMUP))
 
 	WARMUP_COUNT=1
 	MAX_MEMUSED=0
 
+	sleep $MINIMUM_WARMUP
 	while [ $WARMUP_COUNT -lt 10 ]; do
 		MEMUSED_MB=$((MEMUSED_BYTES/1048576))
 		echo -n "o usage: $MEMUSED_MB MB"
@@ -47,7 +51,7 @@ for WORKLOAD in $PARALLELIO_WORKLOADS; do
 			echo
 			WARMUP_COUNT=$((WARMUP_COUNT+1))
 		fi
-		sleep 2
+		sleep 3
 		MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
 		if [ "`ps h --pid $WORKLOAD_PID`" = "" ]; then
 			die Workload exited before warmup completed
@@ -56,7 +60,7 @@ for WORKLOAD in $PARALLELIO_WORKLOADS; do
 	sleep 5
 	WARMUP_END=`date +%s`
 	WARMUP_DURATION=$((WARMUP_END-WARMUP_START))
-	export MEMCACHETEST_DURATION=$((MEMCACHETEST_DURATION+WARMUP_DURATION))
+	export MEMCACHETEST_DURATION=$((ORIGINAL_DURATION+WARMUP_DURATION))
 	echo Waiting on process to exit
 	wait $WORKLOAD_PID
 
@@ -103,7 +107,7 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 		for i in `seq 1 $((WARMUP_DURATION/5))`; do
 			MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
 			MEMUSED_MB=$((MEMUSED_BYTES/1048576))
-			echo -n "o usage: $MEMUSED_MB MB"
+			echo "o usage: $MEMUSED_MB MB"
 			sleep 5
 			if [ "`ps h --pid $WORKLOAD_PID`" = "" ]; then
 				die Workload exited before warmup completed
