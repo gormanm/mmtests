@@ -76,4 +76,4 @@ cp ../bin/*/* ../bin/
 
 echo lmbench installed successfully
 #### Description lmbench
-#### Details lmbench 51
+#### Details lmbench 52
