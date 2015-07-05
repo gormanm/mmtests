@@ -24,9 +24,45 @@
 for WORKLOAD in $PARALLELIO_WORKLOADS; do
 	echo Warmup background workload: $WORKLOAD
 	cd $SHELLPACK_TOPLEVEL
-	./run-single-test.sh $WORKLOAD > /dev/null || die Failed to run warmup of $WORKLOAD
+	./run-single-test.sh $WORKLOAD > /dev/null &
+	WORKLOAD_PID=$!
+
+	MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
+	LAST_USED=0
+	WARMUP_START=`date +%s`
+
+	WARMUP_COUNT=1
+	MAX_MEMUSED=0
+
+	while [ $WARMUP_COUNT -lt 10 ]; do
+		MEMUSED_MB=$((MEMUSED_BYTES/1048576))
+		echo -n "o usage: $MEMUSED_MB MB"
+
+		THIS_MEMUSED=$((MEMUSED_BYTES/1048576/100))
+		if [ $THIS_MEMUSED -gt $MAX_MEMUSED ]; then
+			echo " new peak"
+			MAX_MEMUSED=$THIS_MEMUSED
+			WARMUP_COUNT=1
+		else
+			echo
+			WARMUP_COUNT=$((WARMUP_COUNT+1))
+		fi
+		sleep 2
+		MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
+		if [ "`ps h --pid $WORKLOAD_PID`" = "" ]; then
+			die Workload exited before warmup completed
+		fi
+	done
+	sleep 5
+	WARMUP_END=`date +%s`
+	WARMUP_DURATION=$((WARMUP_END-WARMUP_START))
+	export MEMCACHETEST_DURATION=$((MEMCACHETEST_DURATION+WARMUP_DURATION))
+	echo Waiting on process to exit
+	wait $WORKLOAD_PID
+
 	rm -rf $SHELLPACK_LOG/$WORKLOAD
 	rm -rf $TESTDISK_DIR/*
+
 done
 
 # Run one test for ever size of parallel IO
@@ -63,7 +99,7 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 
 		# Wait until workload reaches its peak size for 10 seconds
 		echo Waiting for workload to warm up
-		MAXIMUM_WARMUP_TIME=$((PARALLELIO_WORKLOAD_DURATION/3))
+		MAXIMUM_WARMUP_TIME=$((WARMUP_DURATION*11/10))
 		MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
 		LAST_USED=0
 		WARMUP_START=`date +%s`
