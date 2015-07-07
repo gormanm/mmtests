@@ -3,15 +3,30 @@
 P=vmscale-bench
 DEFAULT_VERSION=1
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -58,19 +73,19 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 fi
 if [ "$VMSCALE_USE_PERF" = "yes" ]; then
 if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/perfbuild-3.17
+	rm -rf $SHELLPACK_SOURCES/perfbuild-4.1
 fi
-if [ ! -d $SHELLPACK_SOURCES/perfbuild-3.17-installed ]; then
+if [ ! -d $SHELLPACK_SOURCES/perfbuild-4.1-installed ]; then
 	mmtests_activity source-install
-	$SHELLPACK_INCLUDE/shellpack-install-perfbuild -v 3.17  || die perfbuild install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-perfbuild -v 4.1  || die perfbuild install script returned error
 	mmtests_activity source-installed
 fi
-cd $SHELLPACK_SOURCES/perfbuild-3.17-installed || die Failed to cd to perfbuild install directory
+cd $SHELLPACK_SOURCES/perfbuild-4.1-installed || die Failed to cd to perfbuild install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo perfbuild installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-	export PATH=$SHELLPACK_SOURCES/perfbuild-3.17-installed/bin:$PATH
+	export PATH=$SHELLPACK_SOURCES/perfbuild-4.1-installed/bin:$PATH
 fi
 
 # Include monitor hooks
@@ -113,4 +128,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description vm scalability test suite
-#### Details vmscale-bench 30
+#### Details vmscale-bench 31
