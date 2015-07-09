@@ -24,7 +24,7 @@ server_start() {
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	if [ "$REMOTE_SERVER_HOST" = "" ]; then
 		nohup ./bin/tbench_srv 0<&- &>/dev/null &
-		echo $! > /tmp/mmtests-tserver.pid
+		sleep 5
 	else
 		mmtests_server_ctl start --serverside-name $1
 	fi
@@ -34,8 +34,7 @@ server_stop() {
 	echo Stopping tbench_srv
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	if [ "$REMOTE_SERVER_HOST" = "" ]; then
-		kill -9 `cat /tmp/mmtests-tserver.pid`
-		rm /tmp/mmtests-tserver.pid
+		killall -KILL tbench_srv
 	else
 		mmtests_server_ctl stop --serverside-name $1
 	fi
@@ -61,6 +60,7 @@ none)
 	;;
 esac
 
+server_stop
 ###SHELLPACK threads_powertwo_begin 1 $TBENCH_MAX_CLIENTS
 	server_start $NR_THREADS
 	./bin/tbench \
