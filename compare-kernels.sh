@@ -441,20 +441,20 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	fi
 	rm -f /tmp/iostat-$$
 
-	if [ `ls kcache-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
-		eval $COMPARE_BARE_CMD --print-monitor kcache > /tmp/kcache.$$
+	if [ `ls kcache-slabs-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
+		eval $COMPARE_BARE_CMD --print-monitor kcacheslabs > /tmp/kcache.$$
 		ALLOCS=`grep ^Max /tmp/kcache.$$ | grep allocs | awk '{print $3}' | sed -e 's/\..*//'`
 		FREES=`grep ^Max /tmp/kcache.$$ | grep frees | awk '{print $3}' | sed -e 's/\..*//'`
 
 		echo
 		echo Kcache activity
-		eval $COMPARE_CMD --print-monitor kcache
+		eval $COMPARE_CMD --print-monitor kcacheslabs
 
 		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcache --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.png
-			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcache --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.png
-			eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcache --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.png
-			eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcache --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.png
+			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.png
+			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.png
+			eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.ps
+			eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.ps
 			echo "<table class=\"resultsGraphs\">"
 			echo "<tr>"
 			plain graph-$SUBREPORT-kcache-allocs
@@ -578,7 +578,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT-overhead
 			echo "</tr>"
 			;;
-		netperf-udp)
+		netperf-udp|netperfmulti-udp)
 			echo "<tr>"
 			eval $GRAPH_PNG --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send.png
 			eval $GRAPH_PSC --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send.ps
@@ -588,7 +588,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT-recv
 			echo "</tr>"
 			;;
-		netperf-tcp|netperf-udp-rr|netperf-tcp-rr)
+		netperf-tcp|netperf-udp-rr|netperf-tcp-rr|netperfmulti-tcp|netperfmulti-udp-rr|netperfmulti-tcp-rr)
 			echo "<tr>"
 			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
 			eval $GRAPH_PSC --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
