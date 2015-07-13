@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # This is a tool that analyses the trace output related to TLB activity
 #
-# Copyright (c) IBM Corporation 2015
+# Copyright (c) SUSE Labs 2015
 # Author: Mel Gorman <mel@csn.ul.ie>
 use strict;
 use Getopt::Long;
@@ -11,6 +11,7 @@ use constant TLB_FLUSH		=> 1;
 use constant EVENT_UNKNOWN		=> 7;
 
 my $opt_output;
+my $opt_output_temporary = 0;
 my %stats;
 my %unique_events;
 
@@ -41,8 +42,8 @@ GetOptions(
 );
 
 if ($opt_output eq "") {
-	print "Must specify output file\n";
-	exit(-1);
+	$opt_output = "/tmp/mmtests.tlb.$$";
+	$opt_output_temporary = 1;
 }
 
 # Defaults for dynamically discovered regex's
@@ -215,6 +216,9 @@ sub print_report() {
 		print $_;
 	}
 	close REPORT;
+	if ($opt_output_temporary) {
+		unlink("/tmp/mmtests.tlb.$$");
+	}
 }
 
 # Process events or signals until neither is available
