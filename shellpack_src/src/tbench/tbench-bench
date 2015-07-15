@@ -42,11 +42,11 @@ server_stop() {
 
 case $SERVERSIDE_COMMAND in
 start)
-	server_start
+	server_start $SERVERSIDE_NAME
 	exit $SHELLPACK_SUCCESS
 	;;
 stop)
-	server_stop
+	server_stop $SERVERSIDE_NAME
 	exit $SHELLPACK_SUCCESS
 	;;
 flush)
@@ -60,7 +60,7 @@ none)
 	;;
 esac
 
-server_stop
+server_stop 0
 ###SHELLPACK threads_powertwo_begin 1 $TBENCH_MAX_CLIENTS
 	server_start $NR_THREADS
 	./bin/tbench \

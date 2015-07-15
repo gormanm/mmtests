@@ -101,11 +101,11 @@ server_stop() {
 
 case $SERVERSIDE_COMMAND in
 start)
-	server_start
+	server_start $SERVERSIDE_NAME
 	exit $SHELLPACK_SUCCESS
 	;;
 stop)
-	server_stop
+	server_stop $SERVERSIDE_NAME
 	exit $SHELLPACK_SUCCESS
 	;;
 flush)
@@ -119,7 +119,7 @@ none)
 	;;
 esac
 
-server_stop
+server_stop 0
 NR_THREADS=1
 if [ "$NR_THREADS" = "" ]; then
 	NR_THREADS=1
@@ -151,4 +151,4 @@ exit $SHELLPACK_SUCCESS
 #### Description tbench
 #### Details tbench-bench 4
 #### Description tbench
-#### Details tbench-bench 18
+#### Details tbench-bench 19
