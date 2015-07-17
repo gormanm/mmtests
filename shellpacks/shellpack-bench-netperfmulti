@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs netperf and runs the regression tests
-P=netperf-bench
+P=netperfmulti-bench
 DEFAULT_VERSION=2.4.5
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
@@ -115,30 +115,30 @@ if [ -z "$VERSION" ]; then
 fi
 
 if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/netperf-${VERSION}
+	rm -rf $SHELLPACK_SOURCES/netperfmulti-${VERSION}
 fi
-if [ ! -d $SHELLPACK_SOURCES/netperf-${VERSION}-installed ]; then
+if [ ! -d $SHELLPACK_SOURCES/netperfmulti-${VERSION}-installed ]; then
 	mmtests_activity source-install
-	$SHELLPACK_INCLUDE/shellpack-install-netperf -v ${VERSION}  || die netperf install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-netperfmulti -v ${VERSION}  || die netperfmulti install script returned error
 	mmtests_activity source-installed
 fi
-cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf install directory
+cd $SHELLPACK_SOURCES/netperfmulti-${VERSION}-installed || die Failed to cd to netperfmulti install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo netperf installed only as requested.
+	echo netperfmulti installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf directory
+cd $SHELLPACK_SOURCES/netperfmulti-${VERSION}-installed || die Failed to cd to netperf directory
 
 PORT_OFFSET=12864
 
 server_start() {
 	INSTANCES=$1
 	if [ "$REMOTE_SERVER_HOST" != "" ]; then
-		mmtests_server_ctl start --serverside-name $NETPERFMULTI_PROTOCOL-$NETPERFMULTI_BUFFER_SIZE-$NR_THREADS
+		mmtests_server_ctl start --serverside-name $NETPERFMULTI_PROTOCOL-$NETPERFMULTI_BUFFER_SIZE-$INSTANCES
 		return
 	fi
 
@@ -150,8 +150,9 @@ server_start() {
 }
 
 server_stop() {
+	INSTANCES=$1
 	if [ "$REMOTE_SERVER_HOST" != "" ]; then
-		mmtests_server_ctl stop --serverside-name $NETPERFMULTI_PROTOCOL-$NETPERFMULTI_BUFFER_SIZE-$NR_THREADS
+		mmtests_server_ctl stop --serverside-name $NETPERFMULTI_PROTOCOL-$NETPERFMULTI_BUFFER_SIZE-$INSTANCES
 		return
 	fi
 	echo Stopping all server instances
@@ -168,28 +169,28 @@ client_start() {
 			-H $SERVER_HOST -p $((PORT_OFFSET+i)) \
 			-- \
 			$SIZE_OPT \
-			$EXTRA > $SHELLPACK_TEMP/netperf-instance.$i 2>&1 &
-		echo $! > $SHELLPACK_TEMP/netperf-pids.$i
+			$EXTRA > $SHELLPACK_TEMP/netperfmulti-instance.$i 2>&1 &
+		echo $! > $SHELLPACK_TEMP/netperfmulti-pids.$i
 	done
 }
 
-export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-netperf
-NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
+export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-netperfmulti
+NETROOT=$SHELLPACK_SOURCES/netperfmulti-${VERSION}-installed 
 case $SERVERSIDE_COMMAND in
 start)
-	server_stop
-
 	INSTANCES=`echo $SERVERSIDE_NAME | awk -F - '{print $NF}'`
+	server_stop $INSTANCES
 
-	echo Starting server
-	mmtests_activity netperf-$SERVERSIDE_NAME
-	monitor_pre_hook $LOGDIR_RESULTS netperf-$SERVERSIDE_NAME
+	echo Starting server $SERVERSIDE_NAME
+	mmtests_activity netperfmulti-$SERVERSIDE_NAME
+	monitor_pre_hook $LOGDIR_RESULTS netperfmulti-$SERVERSIDE_NAME
 	server_start $INSTANCES
 	exit $SHELLPACK_SUCCESS
 	;;
 stop)
-	monitor_post_hook $LOGDIR_RESULTS netperf-$SERVERSIDE_NAME
-	server_stop
+	INSTANCES=`echo $SERVERSIDE_NAME | awk -F - '{print $NF}'`
+	monitor_post_hook $LOGDIR_RESULTS netperfmulti-$SERVERSIDE_NAME
+	server_stop $INSTANCES
 	exit $SHELLPACK_SUCCESS
 	;;
 flush)
@@ -244,14 +245,14 @@ for ITERATION in `seq 1 $NETPERFMULTI_ITERATIONS`; do
 		client_start $NR_THREADS
 		echo -n Waiting on pids to exit
 		for i in `seq 1 $NR_THREADS`; do
-			CLIENT_PID=`cat $SHELLPACK_TEMP/netperf-pids.$i`
+			CLIENT_PID=`cat $SHELLPACK_TEMP/netperfmulti-pids.$i`
 			wait $CLIENT_PID
 			if [ $? -ne 0 ]; then
-				cat $SHELLPACK_TEMP/netperf-instance.$i
+				cat $SHELLPACK_TEMP/netperfmulti-instance.$i
 				die PID $CLIENT_PID exited with an error
 			fi
 			echo -n .
-			rm $SHELLPACK_TEMP/netperf-pids.$i
+			rm $SHELLPACK_TEMP/netperfmulti-pids.$i
 		done
 		echo
 		monitor_post_hook $LOGDIR_RESULTS $NETPERFMULTI_BUFFER_SIZE
@@ -260,14 +261,14 @@ for ITERATION in `seq 1 $NETPERFMULTI_ITERATIONS`; do
 		echo -n > $RESULT_FILE
 		for i in `seq 1 $NR_THREADS`; do
 			echo instance $i >> $RESULT_FILE
-			cat $SHELLPACK_TEMP/netperf-instance.$i >> $RESULT_FILE
-			rm $SHELLPACK_TEMP/netperf-instance.$i
+			cat $SHELLPACK_TEMP/netperfmulti-instance.$i >> $RESULT_FILE
+			rm $SHELLPACK_TEMP/netperfmulti-instance.$i
 		done
 		cat $RESULT_FILE
 done
-	server_stop
+	server_stop $NR_THREADS
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark with multiple instances
-#### Details netperfmulti-bench 11
+#### Details netperfmulti-bench 15

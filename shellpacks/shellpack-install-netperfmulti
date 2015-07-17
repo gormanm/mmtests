@@ -57,12 +57,12 @@ fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-mv $DST_DIR netperf-${VERSION}
-pushd netperf-${VERSION} > /dev/null || die Failed to rename tar
+mv $DST_DIR netperfmulti-${VERSION}
+pushd netperfmulti-${VERSION} > /dev/null || die Failed to rename tar
 
-pushd $SHELLPACK_SOURCES/netperf-${VERSION} || die Failed to change to source directory
+pushd $SHELLPACK_SOURCES/netperfmulti-${VERSION} || die Failed to change to source directory
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
-eval ./configure --prefix=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
+eval ./configure --prefix=$SHELLPACK_SOURCES/netperfmulti-${VERSION}-installed 
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
@@ -84,4 +84,4 @@ fi
 
 echo Netperf installed successfully
 #### Description Netperf benchmark with multiple instances
-#### Details netperfmulti 11
+#### Details netperfmulti 15

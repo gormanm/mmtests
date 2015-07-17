@@ -7,10 +7,10 @@ MIRROR_LOCATION="$WEBROOT/netperf/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK sources_fetch netperf-${VERSION}.tar.gz netperf-${VERSION}
+###SHELLPACK sources_fetch netperf-${VERSION}.tar.gz netperfmulti-${VERSION}
 
-###SHELLPACK build_start netperf-${VERSION}
-###SHELLPACK build_configure netperf-${VERSION}
+###SHELLPACK build_start netperfmulti-${VERSION}
+###SHELLPACK build_configure netperfmulti-${VERSION}
 ###SHELLPACK make_make_install
 
 echo Netperf installed successfully
