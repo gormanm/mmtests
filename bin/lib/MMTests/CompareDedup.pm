@@ -9,7 +9,7 @@ sub new() {
 		_ModuleName  => "CompareDedup",
 		_DataType    => MMTests::Compare::DATA_WALLTIME,
 		_FieldLength => 12,
-		_CompareOp   => "pdiff",
+		_CompareOp   => "pndiff",
 		_ResultData  => []
 	};
 	bless $self, $class;
