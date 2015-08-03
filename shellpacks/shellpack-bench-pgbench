@@ -24,11 +24,21 @@ CACHE_HOT=no
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -155,13 +165,6 @@ if [ "$PGBENCH_DEBUG_AUTO_TRANSACTIONS" = "yes" ]; then
 	exit $SHELLPACK_SUCCESS
 fi
 
-# Figure out how to use the time command
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
-
 if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
 fi
@@ -171,6 +174,8 @@ echo o maximum $MAX_THREADS threads
 echo o scale factor: $SCALE_FACTOR 
 echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 LAST_THREAD=0
+
+FIRST_TIME=yes
 
 THREADS=
 START_THREAD=1
@@ -203,35 +208,38 @@ for NR_THREADS in $THREADS; do
 	fi
 	LAST_THREAD=$NR_THREADS
 
-	echo Creating database for thread count $NR_THREADS
 	# Start the database
+	echo Starting database for thread count $NR_THREADS/$MAX_THREADS
 	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
 		--effective_cachesize $EFFECTIVE_CACHESIZE \
 		--shared_buffers $SHARED_BUFFERS \
 		--work_mem $WORK_MEM \
 		-v ${VERSION} || die Failed to get a usable postgres installation
 
-	$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
-	if [ $? -ne 0 ]; then
-		echo " o Database create returned $?"
-		echo " o Dumping previous runs database"
-		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
-		echo " o Re-creating database"
-		$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
-	fi
+	if [ "$PGBENCH_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
+		$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
+		if [ $? -ne 0 ]; then
+			echo " o Database create returned $?"
+			echo " o Dumping previous runs database"
+			$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+			echo " o Re-creating database"
+			$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
+		fi
 
-	$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'"
-	if [ $? -ne 0 ]; then
-		echo " o Role create returned $?"
-		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
-	fi
+		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'"
+		if [ $? -ne 0 ]; then
+			echo " o Role create returned $?"
+			$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+			$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
+		fi
 
-	echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
-	$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
-		pgbench -h $PGHOST -p $PGPORT \
-			-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
-			> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
+		echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
+		$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
+			pgbench -h $PGHOST -p $PGPORT \
+				-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
+				> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
+	fi
+	FIRST_TIME=no
 
 	if [ "$CACHE_HOT" != "yes" ]; then
 		echo Discarding database cache for cold startup
@@ -280,8 +288,11 @@ for NR_THREADS in $THREADS; do
 		COUNT=$((COUNT+1))
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
-	$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
-	$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+
+	if [ "$PGBENCH_INIT_ONCE" != "yes" ]; then
+		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+	fi
 
 	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
 done
@@ -292,4 +303,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 141
+#### Details pgbench-bench 144
