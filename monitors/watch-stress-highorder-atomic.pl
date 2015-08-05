@@ -26,9 +26,9 @@ $SIG{INT} = "sigint_handler";
 # Inherited from mmtests, yes there are alternatives
 my $allocSize = $ENV{"MEMTOTAL_BYTES"};
 if ($allocSize == 0) {
-	$allocSize = 1073741824;
+	$allocSize = 1024 * 1048576;
 } else {
-	$allocSize /= 8;
+	$allocSize = $allocSize * 2 / 100;
 }
 
 my $monitorInterval = $ENV{"MONITOR_UPDATE_FREQUENCY"};
