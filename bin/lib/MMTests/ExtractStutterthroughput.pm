@@ -40,9 +40,10 @@ sub extractReport($$$) {
 	my $nr_samples = 0;
 	foreach my $file (@files) {
 		open(INPUT, $file) || die("Failed to open $file\n");
-		my @elements = split(/ /, <INPUT>);
+		my $line = <INPUT>;
+		my @elements = split(/ /, $line);
 		@elements = split(/:/, $elements[2]);
-		push @{$self->{_ResultData}}, [ "tput", ++$nr_samples, $filesize / 1048576 / ($elements[0] * 60 + $elements[1]) ];
+		push @{$self->{_ResultData}}, [ "tput", ++$nr_samples, $filesize / 1048576 / ($elements[0] * 60 + $elements[1] + 1) ];
 		close(INPUT);
 	}
 

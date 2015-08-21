@@ -284,7 +284,11 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 	TESTDISK_RAID_PARTITIONS=
 
 	NR_DEVICES=0
+	echo -n > $SHELLPACK_LOG/disk-raid-hdparm-$RUNNAME
+	echo -n > $SHELLPACK_LOG/disk-raid-smartctl-$RUNNAME
 	for DISK in $TESTDISK_RAID_DEVICES; do
+		hdparm -I $DISK 2>&1 >> $SHELLPACK_LOG/disk-raid-hdparm-$RUNNAME
+		smartctl -a $DISK 2>&1 >> $SHELLPACK_LOG/dks-raid-smartctl-$RUNNAME
 		echo
 		echo Deleting partitions on disk $DISK
 		parted -s $DISK mktable msdos
@@ -400,6 +404,8 @@ fi
 
 # Create test disk
 if [ "$TESTDISK_PARTITION" != "" ]; then
+	hdparm -I $TESTDISK_PARTITION 2>&1 > $SHELLPACK_LOG/disk-hdparm-$RUNNAME
+
 	if [ "$TESTDISK_FILESYSTEM" != "" -a "$TESTDISK_FILESYSTEM" != "tmpfs" ]; then
 		echo Formatting test disk: $TESTDISK_FILESYSTEM
 		mkfs.$TESTDISK_FILESYSTEM $TESTDISK_MKFS_PARAM $TESTDISK_PARTITION || exit
