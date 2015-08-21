@@ -263,20 +263,21 @@ done
 
 # Create RAID setup
 if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
-	DEVICE=`echo $TESTDISK_RAID_DEVICES | awk '{print $1}'`
-	BASE_DEVICE=`basename $DEVICE`
-	MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat | awk '{print $1}'`
+	for DEVICE in $TESTDISK_RAID_DEVICES; do
+		BASE_DEVICE=`basename $DEVICE`
+		MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat | awk '{print $1}'`
 
-	if [ "$MD_DEVICE" != "" ]; then
-		echo Cleaning up old device
-		vgremove -f mmtests-raid
-		mdadm --remove $TESTDISK_RAID_MD_DEVICE
-		mdadm --remove /dev/$MD_DEVICE
-		mdadm --stop $TESTDISK_RAID_MD_DEVICE
-		mdadm --stop /dev/$MD_DEVICE
-		mdadm --remove $TESTDISK_RAID_MD_DEVICE
-		mdadm --remove /dev/$MD_DEVICE
-	fi
+		if [ "$MD_DEVICE" != "" ]; then
+			echo Cleaning up old device $MD_DEVICE
+			vgremove -f mmtests-raid
+			mdadm --remove $TESTDISK_RAID_MD_DEVICE
+			mdadm --remove /dev/$MD_DEVICE
+			mdadm --stop $TESTDISK_RAID_MD_DEVICE
+			mdadm --stop /dev/$MD_DEVICE
+			mdadm --remove $TESTDISK_RAID_MD_DEVICE
+			mdadm --remove /dev/$MD_DEVICE
+		fi
+	done
 
 	# Convert to megabytes
 	TESTDISK_RAID_OFFSET=$((TESTDISK_RAID_OFFSET/1048576))
@@ -364,7 +365,7 @@ EOF
 	# blktrace does not capture events from MD devices properly on
 	# at least kernel 3.0
 	yes y | pvcreate -ff $TESTDISK_RAID_MD_DEVICE || exit
-	vgcreate mmtests-raid /dev/md0 || exit
+	vgcreate mmtests-raid $TESTDISK_RAID_MD_DEVICE || exit
 	SIZE=`vgdisplay mmtests-raid | grep Free | grep PE | awk '{print $5}'`
 	if [ "$SIZE" = "" ]; then
 		die Failed to determine LVM size
