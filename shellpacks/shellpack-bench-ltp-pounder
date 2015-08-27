@@ -24,84 +24,17 @@ done
 if [ ! -d $SHELLPACK_SOURCES/ltp-${VERSION}-installed ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-ltp -v ${VERSION} || die ltp install script returned error
 fi
-cd $SHELLPACK_SOURCES/ltp-${VERSION}/testcases/pounder21 || die Failed to cd to ltp pounder install directory
+cd $SHELLPACK_SOURCES/ltp-${VERSION}/tools/pounder21 || die Failed to cd to ltp pounder install directory
+sed -i -e 's/AUTO_SKIP=0/AUTO_SKIP=1/' Install
 
 # Fixup LTP Pounder if necessary
 if [ ! -e LTP_POUNDER_INSTALLED ]; then
-	yes '' | ./Install
+	yes '' | ./Install 2>&1 | tee /tmp/pounder.$$
 	if [ $? -ne 0 ]; then
-		echo "--- pounder21-orig/opt/bonnie++-1.03a/zcav.cpp	2010-07-11 17:49:25.000000000 +0100
-+++ pounder21/opt/bonnie++-1.03a/zcav.cpp	2010-07-11 17:45:39.000000000 +0100
-@@ -9,6 +9,7 @@
- #include <sys/stat.h>
- #include <fcntl.h>
- #include <stdlib.h>
-+#include <string.h>
- #include \"bonnie.h\"
- #ifdef HAVE_VECTOR
- #include <vector>
-fi
-touch LTP_POUNDER_INSTALLED" | patch -p1 || die Failed to patch bonnie
-		echo "--- pounder21-orig/build_scripts/build_kernel	2010-07-11 17:38:27.000000000 +0100
-+++ pounder21/build_scripts/build_kernel	2010-07-11 17:55:41.000000000 +0100
-@@ -33,6 +33,6 @@
- 		wget \"\${POUNDER_CACHE}\${TARNAME}\"
- 	fi
- 	if [ ! -f \"\$TARNAME\" ]; then
--		wget \"http://www.kernel.org/pub/linux/kernel/v2.6/\$TARNAME\"
-+		wget \"http://mcp/mirror/v2.6/\$TARNAME\"
- 	fi
- fi" | patch -p1 || die Failed to patch kernel build
-
-	echo "--- pounder21-orig/build_scripts/ltp	2010-07-12 16:46:14.000000000 +0100
-+++ pounder21/build_scripts/ltp	2010-07-12 16:46:38.000000000 +0100
-@@ -32,11 +32,6 @@
- 		cp -pRdu testcases/network/sctp/func_tests/test_1_to_1_connect.c testcases/network/sctp/func_tests/test_1_to_1_connect.c.pounder
- 		echo \"Debian/Ubuntu detected; applying build fixes...\"
- 		patch -p1 < \$POUNDER_SRCDIR/ltp-debian-build.patch
--		RESULT=\$?
--		if [ \$RESULT -ne 0 ]; then
--			echo Patching failed.
--			exit 1
--		fi
- 	fi
- else
- 	# We need to _unpatch_ this.
-@@ -44,11 +39,6 @@
- 		rm -rf testcases/network/sctp/func_tests/test_1_to_1_connect.c.pounder
- 		echo \"Previous Debian/Ubuntu detected; removing build fixes...\"
- 		patch -p1 -R < \$POUNDER_SRCDIR/ltp-debian-build.patch
--		RESULT=\$?
--		if [ \$RESULT -ne 0 ]; then
--			echo Patching failed.
--			exit 1
--		fi
- 	fi
- 
- fi
-@@ -60,10 +50,6 @@
- 	cp -pRdu testcases/kernel/syscalls/setregid/setregid02.c testcases/kernel/syscalls/setregid/setregid02.c.pounder
- 	patch -p1 < \$POUNDER_SRCDIR/ltp-setregid-fix.patch
- 	RESULT=\$?
--	if [ \$RESULT -ne 0 ]; then
--		echo Patching failed.
--		exit 1
--	fi
- fi
- 
- # Build" | patch -p1 || die Failed to patch ltp build
-
-	echo "--- pounder21-orig/build_scripts/memtest	2010-07-13 11:22:43.000000000 +0100
-+++ pounder21/build_scripts/memtest	2010-07-13 11:23:16.000000000 +0100
-@@ -28,7 +28,7 @@
- 		wget \"\${POUNDER_CACHE\}memtest.html\"
- 	fi
- 	if [ ! -f \"memtest.html\" ]; then
--		wget \"http://people.redhat.com/dledford/memtest.html\"
-+		wget \"http://www.csn.ul.ie/~mel/memtest.html\"
- 	fi
- 	IN_BLOCK=0" | patch -p1 || die Failewd to patch memtest
-		yes '' | ./Install || die Failed to install LTP pounder
+		grep "ide_cdrom_copy build failed with Error" /tmp/pounder.$$
+		if [ $? -ne 0 ]; then
+			die Failed to install with unknown error
+		fi
 	fi
 	touch LTP_POUNDER_INSTALLED
 fi
