@@ -3,6 +3,11 @@
 P=libmicro-install
 DEFAULT_VERSION=1
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 HG_LOCATION=https://hg.java.net/hg/libmicro~hg-repo
 MIRROR_LOCATION="$WEBROOT/libmicro"
 
@@ -11,11 +16,21 @@ install-depends gcc
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -37,9 +52,9 @@ hg_fetch $HG_LOCATION libmicro-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $S
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf libmicro-${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf libmicro-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -76,4 +91,4 @@ fi
 
 echo libmicro installed successfully
 #### Description libmicro
-#### Details libmicro 7
+#### Details libmicro 8

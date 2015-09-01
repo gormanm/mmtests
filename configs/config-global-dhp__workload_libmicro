@@ -1,27 +1,10 @@
-### aim9 is a number of micro-benchmarks. The results of this are very sensitive
-### to a number of factors but it can be useful early warning system. Results
-### tend to be difficult if not impossible to bisect but can sometimes be
-### correlated with degradations in other benchmarks.
-### 
-### vmr-stream is the STREAM memory benchmark and variations in it can be
-### indicative of problems with cache coloring and usage.
-### 
-### pagealloc is a page allocator microbenchmark run via SystemTap. The page
-### allocator is rarely a major component of a workloads time but it can
-### be a source of slow degrataion of overall performance.
-### 
-### pft is a microbenchmark for page fault rates.
-### 
-### ebizzy is intended to simulate the backend of a database backend but it
-### is not IO intensive. Instead it is both scheduler and allocator intensive.
-### Regressions here can indicate a regression in either area. Note that the
-### allocation pattern means that it may be a microbenchmark of mmap/munmap
-### depending on the version of glibc used.
+### libmicro runs a few basic microbenchmarks that were used when isolating
+### regressions from other benchmarks.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="aim9 vmr-stream pagealloc pft ebizzy"
+export MMTESTS="libmicro"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -78,32 +61,6 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_GZIP="proc-vmstat"
+export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
-
-# AIM9
-export AIM9_TESTTIME=15
-export AIM9_TESTLIST=page_test,brk_test,exec_test,fork_test
-
-# EBizzy
-export EBIZZY_MAX_THREADS=$((NUMCPUS*4))
-export EBIZZY_DURATION=30
-export EBIZZY_ITERATIONS=5
-
-# Page allocator microbench
-export PAGEALLOC_GFPFLAGS=GFP_KERNEL
-export PAGEALLOC_ORDER_MIN=0
-export PAGEALLOC_ORDER_MAX=4
-
-# Page Fault Test (PFT)
-export PFT_ITERATIONS=80
-export PFT_MAPPING_SIZE=$((MEMTOTAL_BYTES/5))
-export PFT_MAX_CLIENTS=$NUMCPUS
-export PFT_USE_PROCESSES=yes
-export PFT_PAGESIZES=base
-
-# STREAM
-export STREAM_BACKING_TYPE=static
-export STREAM_PAGESIZES="default"
-#export STREAM_PAGESIZES="base huge dynhuge"
