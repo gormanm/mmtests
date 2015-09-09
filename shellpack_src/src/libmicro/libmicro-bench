@@ -30,7 +30,6 @@ memset	memset_10k	-s 10k -I 600
 memset	memset_1m	-s 1m  -I 200000
 memset	memset_10m	-s 10m -I 2000000 
 memset	memsetP2_10m	-s 10m -I 2000000 -P 2
-read	read_u100k	-s 100k -f /var/tmp/libmicro.2376/data
 cascade_flock	c_flock_200	-C 200 -S -W -P 200 -I 5000000
 cascade_fcntl	c_fcntl_200	-C 200 -S -W -P 200 -I 5000000
 EOT
