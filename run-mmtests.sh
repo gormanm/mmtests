@@ -4,6 +4,7 @@ DIRNAME=`dirname $0`
 export SCRIPTDIR=`cd "$DIRNAME" && pwd`
 RUNNING_TEST=
 KVM=
+EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer
 
 INTERRUPT_COUNT=0
 begin_shutdown() {
@@ -229,17 +230,6 @@ else
 	if [ "$MONITORS_ALWAYS" = "" -a "$MONITORS_PLAIN" = "" -a "$MONITORS_GZIP" = "" -a "$MONITORS_WITH_LATENCY" = "" -a "$MONITORS_TRACER" = "" ]; then
 		echo Monitors enabled but none configured
 		exit $SHELLPACK_ERROR
-	fi
-
-	# Check that expect_unbuffer is installed
-	EXPECT_UNBUFFER=expect_unbuffer
-	if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
-		EXPECT_UNBUFFER=unbuffer
-		if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
-			echo Monitoring enabled but expect_unbuffer is not installed.
-			echo Install the expect-devel package or equivalent
-			exit $SHELLPACK_ERROR
-		fi
 	fi
 fi
 

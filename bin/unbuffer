@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# based on unbuffer from expect package,  however SIGTERM is propagated to
+# child side of pty allowing it to perform any cleanup ahead of SIGHUP
+
+# -*- tcl -*-
+# The next line is executed by /bin/sh, but not tcl \
+exec tclsh "$0" ${1+"$@"}
+
+package require Expect
+
+proc trap_handler {} {
+	global child
+	exec /usr/bin/kill $child
+}
+
+trap trap_handler SIGTERM
+
+# -*- tcl -*-
+# Description: unbuffer stdout of a program
+# Author: Don Libes, NIST
+
+if {[string compare [lindex $argv 0] "-p"] == 0} {
+    # pipeline
+    set stty_init "-echo"
+    eval [list spawn -noecho] [lrange $argv 1 end]
+    set child [exp_pid]
+    close_on_eof -i $user_spawn_id 0
+    interact {
+	eof {
+	    # flush remaining output from child
+	    expect -timeout 1 -re .+
+	    return
+	}
+    }
+} else {
+    set stty_init "-opost"
+    set timeout -1
+    eval [list spawn -noecho] $argv
+    set child [exp_pid]
+    expect
+    exit [lindex [wait] 3]
+}
