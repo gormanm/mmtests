@@ -209,7 +209,7 @@ fi
 install-depends autoconf automake binutils-devel bzip2 dosfstools expect \
 	expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch \
 	recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz wget \
-	perl-Time-HiRes time
+	perl-Time-HiRes time tcl
 install-depends kpartx util-linux
 
 # Following packages only interesting when running virtual machines
