@@ -7,21 +7,67 @@ FIO_CMD_OPTIONS=
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --cmdline                FIO_CMD_OPTIONS
+###SHELLPACK parseargParam --type		    FIO_TEST_TYPE
+###SHELLPACK parseargParam --max_jobs		    FIO_MAX_JOBS
+###SHELLPACK parseargParam --runtime		    FIO_RUNTIME
+###SHELLPACK parseargParam --size		    FIO_SIZE
+###SHELLPACK parseargParam --ioengine		    FIO_IOENGINE
+###SHELLPACK parseargParam --direct		    FIO_DIRECT
+###SHELLPACK parseargParam --iodepth		    FIO_IODEPTH
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required fio-${VERSION}
 
 ###SHELLPACK monitor_hooks
 
-monitor_pre_hook $LOGDIR_RESULTS $SIZE
-ln -s $TESTDISK_DIR /tmp/fio-$$
+FIO_IO_PATTERNS="read write rw randread randwrite randrw"
 
-./fio --directory="$TESTDISK_DIR" $FIO_CMD_OPTIONS \
-	2>&1 | tee $LOGDIR_RESULTS/fio.log \
-		|| die Failed to have fun with fio
+if [ "$FIO_CMD_OPTIONS" != "" ]; then
+	monitor_pre_hook $LOGDIR_RESULTS $SIZE
+	ln -s $TESTDISK_DIR /tmp/fio-$$
 
-rm -rf $TESTDISK_DIR/*
-rm /tmp/fio-$$
-monitor_post_hook $LOGDIR_RESULTS $SIZE
+	./fio --directory="$TESTDISK_DIR" $FIO_CMD_OPTIONS \
+		2>&1 | tee $LOGDIR_RESULTS/fio.log \
+			|| die Failed to have fun with fio
+
+	rm -rf $TESTDISK_DIR/*
+	rm /tmp/fio-$$
+	monitor_post_hook $LOGDIR_RESULTS $SIZE
+	exit $SHELLPACK_SUCCESS
+fi
+
+# default values for scaling test
+FIO_MAX_JOBS=${FIO_MAX_JOBS:-12}
+FIO_RUNTIME=${FIO_RUNTIME:-30}
+FIO_SIZE=${FIO_SIZE:-5G}
+FIO_IOENGINE=${FIO_IOENGINE:-libaio}
+FIO_DIRECT=${FIO_DIRECT:-1}
+FIO_IODEPTH=${FIO_IODEPTH:-1}
+
+case $FIO_TEST_TYPE in
+scaling)
+	DIR_NR=${#TESTDISK_DIRS[*]}
+	DIRS=`echo ${TESTDISK_DIRS[*]} | tr " " ":"`
+	monitor_pre_hook $LOGDIR_RESULTS $FIO_READWRITE
+	for FIO_RW in $FIO_IO_PATTERNS; do
+		for FIO_NUMJOBS in `seq $DIR_NR $DIR_NR $NUMCPUS`; do
+			if [ $FIO_NUMJOBS -gt $FIO_MAX_JOBS ]; then
+				break;
+			fi
+			./fio --directory=$DIRS --rw=$FIO_RW \
+				--name=fio-scaling --size=$FIO_SIZE --numjobs=$FIO_NUMJOBS \
+				--ioengine=$FIO_IOENGINE --group_reporting \
+				--direct=$FIO_DIRECT --iodepth=$FIO_IODEPTH \
+				--runtime=$FIO_RUNTIME 2>&1 | \
+				tee -a $LOGDIR_RESULTS/fio-$FIO_TEST_TYPE-$FIO_RW \
+					|| die Failed to have fun with fio
+		done
+	done
+	monitor_post_hook $LOGDIR_RESULTS $FIO_READWRITE
+	;;
+*)
+	die Unrecognised test type $FIO_TEST_TYPE
+	;;
+esac
 
 exit $SHELLPACK_SUCCESS
