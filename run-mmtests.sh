@@ -394,33 +394,57 @@ if [ "$TESTDISK_RD_SIZE" != "" ]; then
 	fi
 fi
 
-# Create test disk
+# Create test disk(s)
 if [ "$TESTDISK_PARTITION" != "" ]; then
-	hdparm -I $TESTDISK_PARTITION 2>&1 > $SHELLPACK_LOG/disk-hdparm-$RUNNAME
-
+	# override any TESTDISK_PARTITIONS configuration (for backwards compatibility)
+	TESTDISK_PARTITIONS=($TESTDISK_PARTITION)
+fi
+# TBD: Support blktrace in case TESTDISK_PARTITIONS is set and TESTDISK_PARTITION is not
+if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
+	hdparm -I ${TESTDISK_PARTITIONS[*]} 2>&1 > $SHELLPACK_LOG/disk-hdparm-$RUNNAME
 	if [ "$TESTDISK_FILESYSTEM" != "" -a "$TESTDISK_FILESYSTEM" != "tmpfs" ]; then
-		echo Formatting test disk: $TESTDISK_FILESYSTEM
-		mkfs.$TESTDISK_FILESYSTEM $TESTDISK_MKFS_PARAM $TESTDISK_PARTITION || exit
+		for i in ${!TESTDISK_PARTITIONS[*]}; do
+			echo Formatting test disk ${TESTDISK_PARTITIONS[$i]}: $TESTDISK_FILESYSTEM
+			mkfs.$TESTDISK_FILESYSTEM $TESTDISK_MKFS_PARAM ${TESTDISK_PARTITIONS[$i]} || exit
+		done
 	fi
 
-	echo Mounting test disk
+	echo Mounting primary test disk
 	if [ "$TESTDISK_MOUNT_ARGS" = "" ]; then
 		if [ "$TESTDISK_FILESYSTEM" != "" ]; then
-			mount -t $TESTDISK_FILESYSTEM $TESTDISK_PARTITION $SHELLPACK_TEST_MOUNT || exit
+			mount -t $TESTDISK_FILESYSTEM $TESTDISK_PARTITIONS $SHELLPACK_TEST_MOUNT || exit
 		else
-			mount $TESTDISK_PARTITION $SHELLPACK_TEST_MOUNT || exit
+			mount $TESTDISK_PARTITIONS $SHELLPACK_TEST_MOUNT || exit
 		fi
 	else
 		if [ "$TESTDISK_FILESYSTEM" != "" ]; then
-			mount -t $TESTDISK_FILESYSTEM $TESTDISK_PARTITION $SHELLPACK_TEST_MOUNT -o $TESTDISK_MOUNT_ARGS || exit
+			mount -t $TESTDISK_FILESYSTEM $TESTDISK_PARTITIONS $SHELLPACK_TEST_MOUNT -o $TESTDISK_MOUNT_ARGS || exit
 		else
-			mount $TESTDISK_PARTITION $SHELLPACK_TEST_MOUNT -o $TESTDISK_MOUNT_ARGS || exit
+			mount $TESTDISK_PARTITIONS $SHELLPACK_TEST_MOUNT -o $TESTDISK_MOUNT_ARGS || exit
 		fi
 	fi
 
-	echo Creating tmp and sources
-	mkdir -p $SHELLPACK_SOURCES
-	mkdir -p $SHELLPACK_TEMP
+	for i in ${!TESTDISK_PARTITIONS[*]}; do
+		if [ $i -eq 0 ]; then
+			SHELLPACK_TEST_MOUNTS[$i]=$SHELLPACK_TEST_MOUNT
+			echo Creating tmp and sources
+			mkdir -p $SHELLPACK_SOURCES
+			mkdir -p $SHELLPACK_TEMP
+			continue
+		fi
+		SHELLPACK_TEST_MOUNTS[$i]=${SHELLPACK_TEST_MOUNT}_$i
+
+		mkdir -p ${SHELLPACK_TEST_MOUNTS[$i]}
+		echo Mounting additional test disk
+		if [ "$TESTDISK_MOUNT_ARGS" = "" ]; then
+			mount -t $TESTDISK_FILESYSTEM ${TESTDISK_PARTITIONS[$i]} ${SHELLPACK_TEST_MOUNTS[$i]} || exit
+		else
+			mount -t $TESTDISK_FILESYSTEM ${TESTDISK_PARTITIONS[$i]} ${SHELLPACK_TEST_MOUNTS[$i]} -o $TESTDISK_MOUNT_ARGS || exit
+		fi
+
+		echo "Creating tmp (${SHELLPACK_TEST_MOUNTS[$i]}/tmp/$$)"
+		mkdir -p ${SHELLPACK_TEST_MOUNTS[$i]}/tmp/$$
+	done
 fi
 
 # Create NFS mount
@@ -433,17 +457,25 @@ fi
 # Prepared environment in a directory, does not work together with
 # TESTDISK_PARTITION and co.
 if [ "$TESTDISK_DIR" != "" ]; then
-	if [ "$SHELLPACK_TEST_MOUNT" != "" -a "$TESTDISK_PARTITION" != "" ]; then
-		die "Can't use TESTDISK_PARTITION together with TESTDISK_DIR"
+	if [ "$SHELLPACK_TEST_MOUNT" != "" -a ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
+		die "Can't use TESTDISK_PARTITION(S) together with TESTDISK_DIR"
 	fi
 	if ! [ -d "$TESTDISK_DIR" ]; then
 		die "Can't find TESTDISK_DIR $TESTDISK_DIR"
 	fi
 	echo "Using directory $TESTDISK_DIR for test"
 else
-	if [ "$SHELLPACK_TEST_MOUNT" != "" -a "$TESTDISK_PARTITION" != "" ]; then
-		echo "Using TESTDISK_DIR at SHELLPACK_TEST_MOUNT"
-		TESTDISK_DIR="$SHELLPACK_TEMP"
+	if [ ${#SHELLPACK_TEST_MOUNTS[*]} -gt 0 -a ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
+		for i in ${!SHELLPACK_TEST_MOUNTS[*]}; do
+			if [ $i -eq 0 ]; then
+				TESTDISK_DIR="$SHELLPACK_TEMP"
+				TESTDISK_DIRS[$i]="$SHELLPACK_TEMP"
+			else
+				TESTDISK_DIRS[$i]=${SHELLPACK_TEST_MOUNTS[$i]}/tmp/$$
+			fi
+			echo "Using ${TESTDISK_DIRS[$i]}"
+		done
+		export TESTDISK_DIRS
 	else
 		echo "Using default TESTDISK_DIR"
 		TESTDISK_DIR="$SHELLPACK_TEMP"
@@ -611,6 +643,8 @@ fi
 # read-in via common.sh in subshells. This quirk is req'd as bash
 # doesn't support export of arrays. Note that the file needs to be
 # updated whenever an array is modified after this point.
+# Currently required for:
+# - TESTDISK_DIRS
 declare -p | grep "\-ax" | tee $SCRIPTDIR/bash_arrays
 
 # Warm up. More appropriate warmup depends on the exact test
