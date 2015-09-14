@@ -117,6 +117,7 @@ for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
 	fi
 done
 
+rm -f $SCRIPTDIR/bash_arrays # remove stale bash_arrays file
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 if [ -n "$MMTEST_ITERATION" ]; then
@@ -605,6 +606,12 @@ if [ "`lsmod | grep oprofile`" != "" ]; then
 	opcontrol --stop > /dev/null 2> /dev/null
 	opcontrol --deinit > /dev/null 2> /dev/null
 fi
+
+# Save bash arrays (marked as exported) to separate file. They are
+# read-in via common.sh in subshells. This quirk is req'd as bash
+# doesn't support export of arrays. Note that the file needs to be
+# updated whenever an array is modified after this point.
+declare -p | grep "\-ax" | tee $SCRIPTDIR/bash_arrays
 
 # Warm up. More appropriate warmup depends on the exact test
 if [ "$RUN_WARMUP" != "" ]; then
