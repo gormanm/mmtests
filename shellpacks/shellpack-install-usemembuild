@@ -1,0 +1,67 @@
+#!/bin/bash
+P=usemembuild-install
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+WEB_LOCATION=http://www.spinics.net/lists/linux-mm/attachments/
+MIRROR_LOCATION="$WEBROOT/usemem"
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=gtarazbJaHPaAT.gtar
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf gtarazbJaHPaAT.gtar failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR usemembuild-${VERSION}-installed
+pushd usemembuild-${VERSION}-installed > /dev/null || die Failed to rename tar
+pushd $SHELLPACK_SOURCES/usemembuild-${VERSION}-installed || die Failed to change to source directory
+
+mkdir bin/
+gcc -lpthread -O2 usemem.c -o usemem || die Failed to build usemem
+exit $SHELLPACK_SUCCESS
+#### Description usemembuild
+#### Details usemembuild 2
