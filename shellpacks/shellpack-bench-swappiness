@@ -93,14 +93,14 @@ echo $ORIGINAL_SWAPPINESS > /proc/sys/vm/swappiness || die Failed to write swapp
 echo Creating file
 create_populated_file workfile-1 $MEMTOTAL_FILE
 
-USEMEM_LOOPS=50
+USEMEM_LOOPS=150
 
 THREADS="$MIN_SWAPPINESS"
 THREAD_DIFF=$(($MAX_SWAPPINESS-$MIN_SWAPPINESS))
 if [ "$THREAD_DIFF" -lt $STEPS ]; then
 	THREADS=`seq $MIN_SWAPPINESS $MAX_SWAPPINESS`
 else
-	for ITER in `seq 2 $(($STEPS-1))`; do
+	for ITER in `seq 1 $(($STEPS-1))`; do
 		THREADS="$THREADS $((THREAD_DIFF/$STEPS*$ITER))"
 	done
 	THREADS="$THREADS $MAX_SWAPPINESS"
@@ -151,4 +151,4 @@ echo $ORIGINAL_SWAPPINESS > /proc/sys/vm/swappiness
 exit $SHELLPACK_SUCCESS
 
 #### Description swappiness
-#### Details swappiness-bench 10
+#### Details swappiness-bench 11

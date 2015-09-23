@@ -29,9 +29,9 @@ echo $ORIGINAL_SWAPPINESS > /proc/sys/vm/swappiness || die Failed to write swapp
 echo Creating file
 create_populated_file workfile-1 $MEMTOTAL_FILE
 
-USEMEM_LOOPS=50
+USEMEM_LOOPS=150
 
-###SHELLPACK threads_stride_fixed_begin $MIN_SWAPPINESS $MAX_SWAPPINESS $STEPS
+###SHELLPACK threads_stride_alt_fixed_begin $MIN_SWAPPINESS $MAX_SWAPPINESS $STEPS
 	SWAPPINESS=$NR_THREADS
 
 	mmtests_activity swappiness-$SWAPPINESS
