@@ -338,7 +338,7 @@ sub parseVMStat($)
 			return 100;
 		}
 	} else {
-		my $delta_value;
+		my $delta_value = 0;
 		if ($self->{_LastValue}) {
 			$delta_value = $current_value - $self->{_LastValue};
 		}
