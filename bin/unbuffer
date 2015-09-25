@@ -14,6 +14,7 @@ set child 0
 proc trap_handler {} {
 	global child
 	exec /usr/bin/kill $child
+	exec /bin/kill $child
 }
 
 trap trap_handler SIGTERM
