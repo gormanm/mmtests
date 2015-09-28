@@ -1,5 +1,8 @@
 #!/bin/bash
 install-depends iotop
+if [ -e /opt/python-marvin ]; then
+	export PYTHONPATH=/usr/lib/python2.7/site-packages:/opt/python-marvin/lib/python2.7
+fi
 exec iotop -k -b -d $MONITOR_UPDATE_FREQUENCY 2>&1 | perl -e 'while (<>) {
 	my $line = $_;
 	if ($line =~ /^Total /) {
