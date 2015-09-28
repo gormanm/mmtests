@@ -54,7 +54,7 @@ while (<SELF>) {
 }
 
 # Contact
-system("stap $stapscript");
+system("stap -DMAXMAPENTRIES=524288 -DMAXACTION=5000000 -DMAXSKIPPED=10485760 -DSTP_OVERLOAD_THRESHOLD=5000000000 $stapscript");
 cleanup();
 exit(0);
 __END__
