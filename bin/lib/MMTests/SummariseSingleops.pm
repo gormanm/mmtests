@@ -52,6 +52,17 @@ sub initialise() {
 	$self->{_SummaryHeaders} = [ "Type", $self->{_Opname} ? $self->{_Opname} : "Ops"  ];
 	$self->{_SummariseColumn} = 2;
 	$self->{_RatioPreferred} = "Higher";
+
+	if ($self->{_DataType} == MMTests::Extract::DATA_TIME_SECONDS ||
+	    $self->{_DataType} == MMTests::Extract::DATA_TIME_NSECONDS ||
+	    $self->{_DataType} == MMTests::Extract::DATA_TIME_MSECONDS ||
+	    $self->{_DataType} == MMTests::Extract::DATA_TIME_USECONDS ||
+	    $self->{_DataType} == MMTests::Extract::DATA_TIME_CYCLES) {
+		$self->{_MeanOp} = "calc_mean";
+		$self->{_MeanName} = "Amean";
+		$self->{_RatioPreferred} = "Lower";
+	}
+
 	$self->{_TestName} = $testName;
 }
 

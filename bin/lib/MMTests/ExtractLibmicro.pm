@@ -29,11 +29,22 @@ sub extractReport($$$) {
 
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
+			my @elements = split(/\s+/);
 			if ($_ =~ /^#\s+mean of 95.*/) {
-				my @elements = split(/\s+/);
-				push @{$self->{_ResultData}}, [$testname, $elements[4]];
-				push @ops, $testname;
+				push @{$self->{_ResultData}}, [ "mean95-$testname", $elements[-1]];
+				push @ops, "mean95-$testname";
+				next;
 			}
+
+#			if ($elements[1] eq "min" ||
+#					$elements[1] eq "max" ||
+#					$elements[1] eq "mean" ||
+#					$elements[1] eq "median" ||
+#					$elements[1] eq "stddev") {
+#				push @{$self->{_ResultData}}, [ "$elements[1]-$testname", $elements[-1]];
+#				push @ops, "$elements[1]-$testname";
+#				next;
+#			}
 		}
 		close INPUT;
 	}
