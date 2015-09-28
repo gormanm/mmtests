@@ -8,7 +8,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="netperf-udp netperf-tcp tbench4"
+export MMTESTS="netperf-udp netperf-tcp"
 export RUN_WARMUP=
 
 # Profiling parameters
