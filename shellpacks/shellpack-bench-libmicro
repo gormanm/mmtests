@@ -68,7 +68,7 @@ fi
 
 cd $SHELLPACK_SOURCES/libmicro-${VERSION}-installed || die Failed to cd to libmicro directory
 
-COMMON="-E -C 4000 -L -S -W"
+COMMON="-E -D 60000 -L -S -W"
 
 while read A B C; do
 	monitor_pre_hook $LOGDIR_RESULTS $B
@@ -87,10 +87,12 @@ memset	memset_10k	-s 10k -I 600
 memset	memset_1m	-s 1m  -I 200000
 memset	memset_10m	-s 10m -I 2000000 
 memset	memsetP2_10m	-s 10m -I 2000000 -P 2
+exit	exit_10		-B 10
+exit	exit_100	-B 100
 cascade_flock	c_flock_200	-S -W -P 200 -I 5000000
 cascade_fcntl	c_fcntl_200	-S -W -P 200 -I 5000000
 EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro
-#### Details libmicro-bench 10
+#### Details libmicro-bench 11
