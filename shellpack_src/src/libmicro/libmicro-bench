@@ -32,6 +32,7 @@ memset	memset_10m	-s 10m -I 2000000
 memset	memsetP2_10m	-s 10m -I 2000000 -P 2
 exit	exit_10		-B 10
 exit	exit_100	-B 100
+exit	exit_1000	-B 1000
 cascade_flock	c_flock_200	-S -W -P 200 -I 5000000
 cascade_fcntl	c_fcntl_200	-S -W -P 200 -I 5000000
 EOT
