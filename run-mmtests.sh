@@ -425,6 +425,19 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 	fi
 
 	for i in ${!TESTDISK_PARTITIONS[*]}; do
+		if [ "$TESTDISK_IO_SCHEDULER" != "" ]; then
+			DEVICE=`basename ${TESTDISK_PARTITIONS[$i]}`
+			START_DEVICE=$DEVICE
+			while [ ! -e /sys/block/$DEVICE/queue/scheduler ]; do
+				DEVICE=`echo $DEVICE | sed -e 's/.$//'`
+				if [ "$DEVICE" = "" ]; then
+					die "Unable to get an IO scheduler for $START_DEVICE"
+				fi
+			done
+			echo $TESTDISK_IO_SCHEDULER > /sys/block/$DEVICE/queue/scheduler || die "Failed to set IO scheduler $TESTDISK_IO_SCHEDULER on /sys/block/$DEVICE/queue/scheduler"
+			echo Set IO scheduler $TESTDISK_IO_SCHEDULER on $DEVICE
+		fi
+
 		if [ $i -eq 0 ]; then
 			SHELLPACK_TEST_MOUNTS[$i]=$SHELLPACK_TEST_MOUNT
 			echo Creating tmp and sources
