@@ -34,8 +34,7 @@ sub extractReport($$$) {
 	my %samples;
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
-		if ($line =~ /([a-z]+)\[[0-9]+\]: avg: ([0-9.]+) msec; max: ([0-9.]+) msec/) {
-
+		if ($line =~ /^([a-z]+)\[[0-9]+\]: avg: ([0-9.]+) msec; max: ([0-9.]+) msec/i) {
 			my $op = $1;
 			my $avg = $2;
 			my $max = $3;
