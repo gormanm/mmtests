@@ -105,6 +105,12 @@ sub extractSummary() {
 	return 1;
 }
 
+sub printPlot() {
+	my ($self) = @_;
+	$self->{_FieldFormat}[1] = "";
+	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
+}
+
 sub extractReport($$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my $readingDevices = 0;
@@ -214,27 +220,27 @@ sub extractReport($$$) {
 					$svctm, $avgrqsz, $rrqm, $wrqm ];
 		} else {
 			if ($subHeading eq "$elements[5]-avgqusz") {
-				push @{$self->{_ResultData}}, [ $timestamp, $avgqusz ];
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $avgqusz ];
 			} elsif ($subHeading eq "$elements[5]-avgrqsz") {
-				push @{$self->{_ResultData}}, [ $timestamp, $avgrqsz ];
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $avgrqsz ];
 			} elsif ($subHeading eq "$elements[5]-await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $await ];
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $await ];
 			} elsif ($subHeading eq "$elements[5]-r_await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $r_await ];
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $r_await ];
 			} elsif ($subHeading eq "$elements[5]-w_await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $w_await ];
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $w_await ];
 			} elsif ($subHeading eq "$elements[5]-svctm") {
-				push @{$self->{_ResultData}}, [ $timestamp, $svctm ];
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $svctm ];
 			} elsif ($subHeading eq "$elements[5]-rrqm") {
-				push @{$self->{_ResultData}}, [ $timestamp, $rrqm ];
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $rrqm ];
 			} elsif ($subHeading eq "$elements[5]-wrqm") {
-				push @{$self->{_ResultData}}, [ $timestamp, $wrqm ];
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $wrqm ];
 			} elsif ($subHeading eq "$elements[5]-rkbs") {
-				push @{$self->{_ResultData}}, [ $timestamp, $rkbs ];
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $rkbs ];
 			} elsif ($subHeading eq "$elements[5]-wkbs") {
-				push @{$self->{_ResultData}}, [ $timestamp, $wkbs ];
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $wkbs ];
 			} elsif ($subHeading eq "$elements[5]-totalkbs") {
-				push @{$self->{_ResultData}}, [ $timestamp, $totalkbs ];
+				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $totalkbs ];
 			}
 		}
 	} close INPUT;
