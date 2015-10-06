@@ -38,10 +38,14 @@ sub extractReport($$$) {
 			my $op = $1;
 			my $avg = $2;
 			my $max = $3;
+			if ($op ne "read" && $op ne "commit" && $op ne "wal") {
+				next;
+			}
 			push @{$self->{_ResultData}}, [ $op, ++$samples{$op}, $max ];
+
 		}
 	}
-	my @ops = keys %samples;
+	my @ops = sort keys %samples;
 	$self->{_Operations} = \@ops;
 	close INPUT;
 }
