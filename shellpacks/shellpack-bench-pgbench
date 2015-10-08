@@ -229,6 +229,15 @@ for NR_THREADS in $THREADS; do
 				-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
 				> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
 	fi
+
+	if [ "$DATABASE_INIT_ONCE" = "yes" -a "$FIRST_TIME" = "yes" ]; then
+		mmtests_activity database-warmup
+		echo Warming up database for 30 minutes
+		pgbench -v -h $PGHOST -p $PGPORT -r \
+			$VACUUM_ARG $READONLY_ARG -c $MAX_THREADS -j $MAX_THREADS \
+			-T $((60*30)) pgbench
+	fi
+
 	FIRST_TIME=no
 
 	if [ "$RUN_CACHE_COLD" = "yes" ]; then
@@ -293,4 +302,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 147
+#### Details pgbench-bench 152

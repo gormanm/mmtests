@@ -140,6 +140,15 @@ FIRST_TIME=yes
 				-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
 				> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
 	fi
+
+	if [ "$DATABASE_INIT_ONCE" = "yes" -a "$FIRST_TIME" = "yes" ]; then
+		mmtests_activity database-warmup
+		echo Warming up database for 30 minutes
+		pgbench -v -h $PGHOST -p $PGPORT -r \
+			$VACUUM_ARG $READONLY_ARG -c $MAX_THREADS -j $MAX_THREADS \
+			-T $((60*30)) pgbench
+	fi
+
 	FIRST_TIME=no
 
 	if [ "$RUN_CACHE_COLD" = "yes" ]; then
