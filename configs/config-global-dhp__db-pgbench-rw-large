@@ -78,7 +78,7 @@ export OLTP_PAGESIZES="default"
 export PGBENCH_MAX_TRANSACTIONS=auto
 export PGBENCH_READONLY=
 export PGBENCH_MAX_THREADS=$((NUMCPUS*2))
-export PGBENCH_CACHE_HOT=yes
+export PGBENCH_CACHE_COLD=no
 
 # The baseline database size is approximately 30MB. Each unit of scaling
 # factor adds approximately 15M of data to the table. Tune accordingly.

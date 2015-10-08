@@ -12,6 +12,7 @@ MARIADB_VERSION=10.0.12
 POSTGRES_VERSION=9.3.4
 MARIADB_ADMIN_USER=root
 MARIADB_ADMIN_PASSWORD=mmtests-default
+RUN_CACHE_COLD=no
 
 MARIADB_TABLE_DRIVER=innodb
 OLTP_TESTTYPE=complex
@@ -28,6 +29,7 @@ OLTP_TESTTYPE=complex
 ###SHELLPACK parseargParam --iterations          MAX_ITERATIONS
 ###SHELLPACK parseargParam --workload-size       WORKLOAD_SIZE
 ###SHELLPACK parseargYes   --read-only           READONLY
+###SHELLPACK parseargYes   --cache-cold          RUN_CACHE_COLD
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required sysbench-${VERSION} --dbdriver ${DBDRIVER}
@@ -110,12 +112,14 @@ OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 		--oltp-test-mode=$OLTP_TESTTYPE \
 		--oltp-table-size=$OLTP_TABLESIZE"
 ###SHELLPACK threads_huge_stride_begin 1 $MAX_THREADS
-	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
-		--effective_cachesize $EFFECTIVE_CACHESIZE \
-		--shared_buffers $SHARED_BUFFERS \
-		--work_mem $WORK_MEM || die Failed to get usable database installation
-
 	if [ "$DATABASE_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
+		echo Starting database for initialisation
+		mmtests_activity database-init
+		$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
+			--effective_cachesize $EFFECTIVE_CACHESIZE \
+			--shared_buffers $SHARED_BUFFERS \
+			--work_mem $WORK_MEM || die Failed to get usable database installation
+
 		echo Preparing database
 		if [ "$DBDRIVER" = "postgres" ]; then
 			$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgtest;'"
@@ -128,13 +132,29 @@ OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 			eval $MYSQLADMIN create sbtest || die Failed to setup database
 			cp /etc/my.cnf $LOGDIR_RESULTS
 		fi
-		echo Preparing database: $SYSBENCH_OPTIONS $OLTP_OPTIONS
+
+		echo Initialising database for sysbench: $SYSBENCH_OPTIONS $OLTP_OPTIONS
 		$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
 			sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS prepare \
 			> $LOGDIR_RESULTS/load-${NR_THREADS}.log
 	fi
 	FIRST_TIME=no
 
+	if [ "$RUN_CACHE_COLD" = "yes" ]; then
+		echo Stopping database to drop cache
+		$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
+
+		echo Dumping cache to run database cache cold as requested
+		echo 3 > /proc/sys/vm/drop_caches
+
+		echo Starting database cache cold
+		$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
+			--effective_cachesize $EFFECTIVE_CACHESIZE \
+			--shared_buffers $SHARED_BUFFERS \
+			--work_mem $WORK_MEM || die Failed to get usable database installation
+	fi
+
+	mmtests_activity sysbench-$NR_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITER in `seq 1 $MAX_ITERATIONS`; do
 		echo Running $NR_THREADS threads Iteration $ITER/$MAX_ITERATIONS
@@ -151,24 +171,18 @@ OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 		fi
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
-
-	if [ "$DATABASE_INIT_ONCE" = "yes" ]; then
-		echo 3 > /proc/sys/vm/drop_caches
-	fi
 ###SHELLPACK threads_stride_end
 
 echo Cleaning database: sysbench $SYSBENCH_OPTIONS --test=oltp $OLTP_OPTIONS cleanup
 sysbench $SYSBENCH_OPTIONS --test=oltp $OLTP_OPTIONS cleanup
 
-echo Dropping database
+# Shutdown server
 if [ "$DBDRIVER" = "postgres" ]; then
 	$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgtest;'"
 	$RUNDBUSER "$PSQL template1 -c 'DROP ROLE sbtest;'"
 else
 	eval $MYSQLADMIN -f drop sbtest
 fi
-
-# Shutdown server
 $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 echo sysbench successfully completed

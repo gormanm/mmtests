@@ -19,7 +19,7 @@ MAX_TRANSACTIONS=
 READONLY_ARG=
 SCALE_FACTOR=1
 VACUUM_ARG=-n
-CACHE_HOT=no
+RUN_CACHE_COLD=no
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -82,8 +82,8 @@ while [ "$1" != "" ]; do
 		READONLY=yes
 		shift
 		;;
-	--cache-hot)
-		CACHE_HOT=yes
+	--cache-cold)
+		RUN_CACHE_COLD=yes
 		shift
 		;;
 	*)
@@ -208,30 +208,20 @@ for NR_THREADS in $THREADS; do
 	fi
 	LAST_THREAD=$NR_THREADS
 
-	# Start the database
-	echo Starting database for thread count $NR_THREADS/$MAX_THREADS
-	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
-		--effective_cachesize $EFFECTIVE_CACHESIZE \
-		--shared_buffers $SHARED_BUFFERS \
-		--work_mem $WORK_MEM \
-		-v ${VERSION} || die Failed to get a usable postgres installation
-
 	if [ "$DATABASE_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
-		$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
-		if [ $? -ne 0 ]; then
-			echo " o Database create returned $?"
-			echo " o Dumping previous runs database"
-			$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
-			echo " o Re-creating database"
-			$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
-		fi
+		echo Starting database for initialisation
+		mmtests_activity database-init
+		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
+			--effective_cachesize $EFFECTIVE_CACHESIZE \
+			--shared_buffers $SHARED_BUFFERS \
+			--work_mem $WORK_MEM \
+			-v ${VERSION} || die Failed to get a usable postgres installation
 
-		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'"
-		if [ $? -ne 0 ]; then
-			echo " o Role create returned $?"
-			$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-			$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
-		fi
+		echo Preparing database
+		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+		$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
+		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
 
 		echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
 		$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
@@ -241,12 +231,15 @@ for NR_THREADS in $THREADS; do
 	fi
 	FIRST_TIME=no
 
-	if [ "$CACHE_HOT" != "yes" ]; then
-		echo Discarding database cache for cold startup
+	if [ "$RUN_CACHE_COLD" = "yes" ]; then
+		echo Stopping database to drop cache
 		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
+
+		echo Dumping cache to run database cache cold as requested
 		echo 3 > /proc/sys/vm/drop_caches
 
 		# Starting database
+		echo Starting database cache cold
 		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
 			--effective_cachesize $EFFECTIVE_CACHESIZE \
 			--shared_buffers $SHARED_BUFFERS \
@@ -270,6 +263,7 @@ for NR_THREADS in $THREADS; do
 	fi
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	mmtests_activity pgbench-$NR_THREADS
 	echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions
 	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS} \
 		pgbench -v -h $PGHOST -p $PGPORT -r \
@@ -288,19 +282,15 @@ for NR_THREADS in $THREADS; do
 		COUNT=$((COUNT+1))
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
-
-	if [ "$DATABASE_INIT_ONCE" != "yes" ]; then
-		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
-		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-	fi
-
-	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
 done
 
-# Copy the log files
+echo Cleaning up and shutting down
+$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
 cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
 
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 144
+#### Details pgbench-bench 147
