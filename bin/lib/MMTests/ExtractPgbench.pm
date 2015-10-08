@@ -77,7 +77,7 @@ sub extractReport($$$) {
 		my $stallStart = 0;
 		my $stallThreshold = 0;
 		my @values;
-		my $startSamples = 0;
+		my $startSamples = 1;
 		my $endSamples = 0;
 
 		aggregateTransactions("$reportDir/noprofile/default/pgbench-transactions-$client");
