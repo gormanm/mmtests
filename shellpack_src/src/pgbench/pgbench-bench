@@ -127,7 +127,7 @@ FIRST_TIME=yes
 		--work_mem $WORK_MEM \
 		-v ${VERSION} || die Failed to get a usable postgres installation
 
-	if [ "$PGBENCH_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
+	if [ "$DATABASE_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
 		$PSQL "template1 -c 'CREATE DATABASE pgbench;'"
 		if [ $? -ne 0 ]; then
 			echo " o Database create returned $?"
@@ -200,7 +200,7 @@ FIRST_TIME=yes
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
 
-	if [ "$PGBENCH_INIT_ONCE" != "yes" ]; then
+	if [ "$DATABASE_INIT_ONCE" != "yes" ]; then
 		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
 		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
 	fi

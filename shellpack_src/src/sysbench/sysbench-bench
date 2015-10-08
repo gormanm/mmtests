@@ -115,7 +115,7 @@ OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 		--shared_buffers $SHARED_BUFFERS \
 		--work_mem $WORK_MEM || die Failed to get usable database installation
 
-	if [ "$SYSBENCH_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
+	if [ "$DATABASE_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
 		echo Preparing database
 		if [ "$DBDRIVER" = "postgres" ]; then
 			$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgtest;'"
@@ -152,7 +152,7 @@ OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 
-	if [ "$SYSBENCH_INIT_ONCE" = "yes" ]; then
+	if [ "$DATABASE_INIT_ONCE" = "yes" ]; then
 		echo 3 > /proc/sys/vm/drop_caches
 	fi
 ###SHELLPACK threads_stride_end
