@@ -118,11 +118,11 @@ fi
 
 if [ "$MAX_TRANSACTIONS" = "auto" ]; then
 	if [ "$READONLY" = "yes" ]; then
-		CEILING=5000000
+		CEILING=20000000
 		WEIGHT_MAINMEMORY=2
 		WEIGHT_DISK=600
 	else
-		CEILING=1500000
+		CEILING=2000000
 		WEIGHT_MAINMEMORY=2
 		WEIGHT_DISK=300
 	fi
@@ -302,4 +302,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 152
+#### Details pgbench-bench 154
