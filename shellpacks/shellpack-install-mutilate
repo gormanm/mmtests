@@ -15,10 +15,6 @@ install-depends libevent-devel scons
 install-depends gengetopt
 install-depends zeromq-devel gcc-c++
 
-if [ -e /opt/python-marvin ]; then
-	export PYTHONPATH=/usr/lib/python2.7/site-packages:/opt/python-marvin/lib/python2.7
-fi
-
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -85,11 +81,14 @@ index cacf4db..af7f734 100644
      now = tv_to_double(&now_tv);
      //#endif" | patch -p1 || exit $SHELLPACK_ERROR
 
-scons
-if [ $? -ne 0 ]; then
-	echo Trying an alternative compiler: gcc47
-	install-depends gcc47-c++
-	echo "diff --git a/SConstruct b/SConstruct
+RETRY=yes
+while [ "$RETRY" = "yes" ]; do
+	RETRY=no
+	scons
+	if [ $? -ne 0 ]; then
+		echo Trying an alternative compiler: gcc47
+		install-depends gcc47-c++
+		echo "diff --git a/SConstruct b/SConstruct
 index b782d90c38e4..c87e2ec61119 100644
 --- a/SConstruct
 +++ b/SConstruct
@@ -102,25 +101,24 @@ index b782d90c38e4..c87e2ec61119 100644
  conf = env.Configure(config_h = \"config.h\")
  conf.Define(\"__STDC_FORMAT_MACROS\")" | patch -p1 || exit $SHELLPACK_ERROR
 
-	scons
-	if [ $? -ne 0 ]; then
-		echo Trying an alternative compiler: gcc48
-		install-depends gcc48-c++
-		echo "diff --git a/SConstruct b/SConstruct
-index b782d90c38e4..c87e2ec61119 100644
---- a/SConstruct
-+++ b/SConstruct
-@@ -12,6 +12,7 @@ env.Append(CCFLAGS = '-std=c++0x -D_GNU_SOURCE') # -D__STDC_FORMAT_MACROS')
- if sys.platform == 'darwin':
-     env['CC']  = 'clang'
-     env['CXX'] = 'clang++'
-+env['CXX'] = \"g++-4.8\"
- 
- conf = env.Configure(config_h = \"config.h\")
- conf.Define(\"__STDC_FORMAT_MACROS\")" | patch -p1 || exit $SHELLPACK_ERROR
-		scons || exit $SHELLPACK_ERROR
+		scons
+		if [ $? -ne 0 ]; then
+			echo Trying an alternative compiler: gcc48
+			install-depends gcc48-c++
+			sed -i -e 's/g++-4.7/g++-4.8/' SConstruct
+			scons
+			if [ $? -ne 0 ]; then
+				if [ "$PYTHONPATH" = "" -a -e /opt/python-marvin ]; then
+					export PYTHONPATH=/usr/lib/python2.7/site-packages:/opt/python-marvin/lib/python2.7
+					sed -i -e '/g++-4.8/d' SConstruct
+					RETRY=yes
+				else
+					die Failed to build mutilate
+				fi
+			fi
+		fi
 	fi
-fi
+done
 
 mkdir -p ../mutilate-${VERSION}-installed/bin
 cp mutilate ../mutilate-${VERSION}-installed/bin
@@ -128,4 +126,4 @@ cp mutilate ../mutilate-${VERSION}-installed/bin
 echo mutilate installed successfully
 exit $SHELLPACK_SUCCESS
 #### Description mutilate
-#### Details mutilate 23
+#### Details mutilate 27
