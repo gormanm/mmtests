@@ -336,11 +336,29 @@ EOF
 		;;
 	raid5)
 		echo mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
-		mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS || exit
+		EXPECT_SCRIPT=`mktemp`
+		cat > $EXPECT_SCRIPT <<EOF
+spawn mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+expect {
+	"Continue creating array?" { send yes\\r; exp_continue}
+}
+EOF
+		expect -f $EXPECT_SCRIPT || exit -1
+		rm $EXPECT_SCRIPT
+
 		;;
 	*)
 		echo mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
-		mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS || exit
+		EXPECT_SCRIPT=`mktemp`
+		cat > $EXPECT_SCRIPT <<EOF
+spawn mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+expect {
+	"Continue creating array?" { send yes\\r; exp_continue}
+}
+EOF
+		expect -f $EXPECT_SCRIPT || exit -1
+		rm $EXPECT_SCRIPT
+
 		;;
 	esac
 
