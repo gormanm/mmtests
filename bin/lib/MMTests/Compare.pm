@@ -215,7 +215,11 @@ sub _generateComparisonTable() {
 
 			@units = ();
 			for (my $row = 0; $row <= $#baseline; $row++) {
-				push @units, $compareRatioTable[$row][$module];
+				if ($compareRatioTable[$row][$module] != 0) {
+					push @units, $compareRatioTable[$row][$module];
+				} else {
+					push @units, 0.00001;
+				}
 			}
 			push @geomean, calc_geomean(@units);
 		}
