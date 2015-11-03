@@ -16,11 +16,21 @@ install-depends libaio-devel
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -64,20 +74,18 @@ fi
 export LDFLAGS=-laio
 pushd $SHELLPACK_SOURCES/reaim-${VERSION} || die Failed to change to source directory
 
-# There is an off-by-one error in the handling of log directories. Patch it
-echo "--- src/drv_funcs.c.orig	2013-03-08 18:36:17.026240307 +0000
-+++ src/drv_funcs.c	2013-03-08 18:35:16.516331963 +0000
-@@ -171,7 +171,7 @@
- 
- char *ext_strcat(char *s1, char *s2)
- {
--	char *stmp = (char*)malloc(strlen(s1)+strlen(s2));
-+	char *stmp = (char*)malloc(strlen(s1)+strlen(s2) + 1);
- 	stmp[0] = '\0';
- 	strcat(stmp,s1);
- 	strcat(stmp,s2);" | patch -p0
-
-sed -i -e '/system("sync/d' src/*.c
+# Patch crazy syncing and off-by-one error
+LINESTART=`grep -n "==== BEGIN controlled-sync.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END controlled-sync.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file controlled-sync.patch
+fi
+echo Extracting $SHELLPACK_TEMP/controlled-sync.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/controlled-sync.patch
+cat $SHELLPACK_TEMP/controlled-sync.patch | patch -p1 || die Failed to apply controlled sync patch
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/reaim-${VERSION}-installed 
 if [ $? -ne 0 ]; then
@@ -97,7 +105,281 @@ mv $SHELLPACK_SOURCES/reaim-${VERSION} $SHELLPACK_SOURCES/reaim-${VERSION}-insta
 echo "10 page_test" > $SHELLPACK_SOURCES/reaim-${VERSION}-installed/data/workfile.page_test
 
 echo reaim installed successfully
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN controlled-sync.patch ====
+diff --git a/src/disk1.c b/src/disk1.c
+index 4cc73715bc57..c85afecf199d 100644
+--- a/src/disk1.c
++++ b/src/disk1.c
+@@ -175,13 +175,14 @@ static int disk_rr(int argc, char **argv, struct Result *res)
+ 			perror("disk_rr()");
+ 			fprintf(stderr, "disk_rr : cannot write %s\n",
+ 				myfn2);
++			fsync(fd);
+ 			close(fd);
+ 			unlink(myfn2);
+ 			return (-1);
+ 		}
+ 	}
++	fsync(fd);
+ 	close(fd);
+-	system("sync");
+ 	if ((fd = open(myfn2, O_RDONLY)) < 0) {
+ 		fprintf(stderr, "disk_rr : cannot open %s\n", myfn2);
+ 		perror(__FILE__);
+@@ -213,13 +214,11 @@ static int disk_rr(int argc, char **argv, struct Result *res)
+ 			perror("disk_rr()");
+ 			fprintf(stderr, "disk_rr : can't read %s\n",
+ 				myfn2);
+-			close(fd);
+ 			return (-1);
+ 		}
+ 	}
+ 	close(fd);
+ 	unlink(myfn2);
+-	system("sync");
+ 	res->d = n;
+ 	return (0);
+ }
+@@ -265,8 +264,8 @@ static int disk_rw(int argc, char **argv, struct Result *res)
+ 			return (-1);
+ 		}
+ 	}
++	fsync(fd);
+ 	close(fd);
+-	system("sync");
+ 	if ((fd = open(myfn2, O_WRONLY)) < 0) {
+ 		fprintf(stderr, "disk_rw : cannot open %s\n", myfn2);
+ 		perror(__FILE__);
+@@ -305,7 +304,6 @@ static int disk_rw(int argc, char **argv, struct Result *res)
+ 	}
+ 	unlink(myfn2);
+ 	close(fd);
+-	system("sync");
+ 	res->d = n;
+ 	return (0);
+ }
+@@ -415,8 +413,8 @@ static int disk_rd(int argc, char **argv, struct Result *res)
+ 			return (-1);
+ 		}
+ 	}
++	fsync(fd);
+ 	close(fd);
+-	system("sync");
+ 	fd = open(myfn1, O_RDONLY);
+ 	if (fd < 0) {		/*  */
+ 		fprintf(stderr, "disk_rd : cannot open %s\n", myfn1);
+@@ -442,7 +440,6 @@ static int disk_rd(int argc, char **argv, struct Result *res)
+ 		}
+ 	}
+ 	close(fd);
+-	system("sync");
+ 	res->d = i;
+ 	unlink(myfn1);
+ 	return (0);
+@@ -464,7 +461,6 @@ static int disk_cp(int argc, char **argv, struct Result *res)
+ 		sprintf(fn1, "%s", TMPFILE1);	/* source file name */
+ 		sprintf(fn2, "%s", TMPFILE2);	/* desination file nam */
+ 	}
+-	system("sync");
+ 	aim_mktemp(fn2);	/* convert into unique temporary name */
+ 	fd = open(fn1, O_RDONLY);	/* open the file */
+ 	if (fd < 0) {		/* open source file */
+@@ -479,7 +475,6 @@ static int disk_cp(int argc, char **argv, struct Result *res)
+ 		close(fd);	/* close source file */
+ 		return (-1);	/* return error */
+ 	}
+-	system("sync");
+ 	status = lseek(fd, 0L, SEEK_SET);	/* move pointer to offset 0 (rewind) */
+ 	if (status < 0) {	/* handle error case */
+ 		fprintf(stderr, "disk_cp (3): cannot lseek %s\n", fn1);	/* talk to human */
+@@ -513,10 +508,10 @@ static int disk_cp(int argc, char **argv, struct Result *res)
+ 	/*
+ 	 * make it anonymous (and work NFS harder) 
+ 	 */
++	fsync(fd);
+ 	close(fd);		/* close input file */
+ 	close(fd2);		/* close (and delete) output file */
+ 	unlink(fn2);
+-	system("sync");
+ 	res->d = disk_iteration_count;	/* return number */
+ 	return (0);		/* show success */
+ }
+@@ -612,8 +607,6 @@ static int disk_wrt(int argc, char **argv, struct Result *res)
+ 		return (-1);
+ 	}
+ 
+-	system("sync");
+-
+ 	while (n--) {
+ 		if ((i = write(fd, nbuf, sizeof nbuf)) != sizeof nbuf) {
+ 			fprintf(stderr, "disk_wrt : cannot write %s\n",
+@@ -628,8 +621,8 @@ static int disk_wrt(int argc, char **argv, struct Result *res)
+ 	unlink(fn2);		/*
+ 				 * unlink moved after write 10/17/95  
+ 				 */
++	fsync(fd);
+ 	close(fd);
+-	system("sync");
+ 
+ 	res->d = disk_iteration_count;
+ 	return (0);
+@@ -859,9 +852,9 @@ static int disk_dio_rr(int argc, char **argv, struct Result *res)
+ 				return (-1);
+ 			}
+ 		}
++		fsync(fd);
+ 		close(fd);
+ 	}
+-	system("sync");
+ 	if ((n = posix_memalign(&align_buf, 4096, sizeof nbuf))) {
+ 		fprintf(stderr,
+ 			"disk_dio_rr : can't allocated aligned memory %s\n",
+@@ -905,8 +898,8 @@ static int disk_dio_rr(int argc, char **argv, struct Result *res)
+ 	}
+ 	if (do_unlink)
+ 		unlink(mfn2);
++	fsync(fd);
+ 	close(fd);
+-	system("sync");
+ 	res->d = n;
+ 	free(align_buf);
+ 	return (0);
+@@ -969,7 +962,6 @@ static int disk_dio_rw(int argc, char **argv, struct Result *res)
+ 		}
+ 		close(fd);
+ 	}
+-	system("sync");
+ 	if ((n = posix_memalign(&align_buf, 4096, sizeof nbuf))) {
+ 		fprintf(stderr,
+ 			"disk_dio_rw : can't allocated aligned memory %s\n",
+@@ -1023,8 +1015,8 @@ static int disk_dio_rw(int argc, char **argv, struct Result *res)
+ 	}
+ 	if (do_unlink)
+ 		unlink(fn2);
++	fsync(fd);
+ 	close(fd);
+-	system("sync");
+ 	res->d = n;
+ 	free(align_buf);
+ 	return (0);
+@@ -1089,8 +1081,8 @@ static int disk_dio_rd(int argc, char **argv, struct Result *res)
+ 			return (-1);
+ 		}
+ 	}
++	fsync(fd);
+ 	close(fd);
+-	system("sync");
+ 	res->d = i;
+ 	free(align_buf);
+ 	return (0);
+@@ -1127,7 +1119,6 @@ static int disk_dio_cp(int argc, char **argv, struct Result *res)
+ 		close(fd);	/* close source file */
+ 		return (-1);	/* return error */
+ 	}
+-	system("sync");
+ 	status = lseek(fd, 0L, SEEK_SET);	/* move pointer to offset 0 (rewind) */
+ 	if (status < 0) {	/* handle error case */
+ 		fprintf(stderr, "disk_dio_cp (3): cannot lseek %s\n", fn1);	/* talk to human */
+@@ -1170,9 +1161,9 @@ static int disk_dio_cp(int argc, char **argv, struct Result *res)
+ 	/*
+ 	 * make it anonymous (and work NFS harder) 
+ 	 */
++	fsync(fd);
+ 	close(fd);		/* close input file */
+ 	close(fd2);		/* close (and delete) output file */
+-	system("sync");
+ 	res->d = disk_iteration_count;	/* return number */
+ 	free(align_buf);
+ 	return (0);		/* show success */
+@@ -1216,7 +1207,6 @@ static int disk_dio_wrt(int argc, char **argv, struct Result *res)
+ 		return (-1);
+ 	}
+ 
+-	system("sync");
+ 	if ((n = posix_memalign(&align_buf, 4096, sizeof nbuf))) {
+ 		fprintf(stderr,
+ 			"disk_dio_wrt : can't allocated aligned memory %s\n",
+@@ -1236,11 +1226,11 @@ static int disk_dio_wrt(int argc, char **argv, struct Result *res)
+ 		}
+ 	}
+ 
++	fsync(fd);
+ 	close(fd);
+ 	res->d = disk_iteration_count;
+ 	if (do_unlink)
+ 		unlink(fn2);
+-	system("sync");
+ 	free(align_buf);
+ 
+ 	return (0);
+@@ -1711,7 +1701,6 @@ static int disk_aio_read_write(int argc, char **argv, struct Result *res,
+ 		}
+ 		close(fd);
+ 	}
+-	system("sync");
+ 	if ((fd = open(myfn2, open_flag)) < 0) {
+ 		fprintf(stderr, "%s : cannot open %s\n", name, myfn2);
+ 		perror(__FILE__);
+@@ -1797,10 +1786,10 @@ static int disk_aio_read_write(int argc, char **argv, struct Result *res,
+ 		(void)aio_wait_for_ios(myctx, 0, name);
+ 	}
+ 	io_queue_release(myctx);
++	fsync(fd);
+ 	close(fd);
+ 	if (do_unlink)
+ 		unlink(myfn2);
+-	system("sync");
+ 	res->d = n;
+ 	return (0);
+ }
+diff --git a/src/disk_funcs.c b/src/disk_funcs.c
+index 798ba07a450d..0b0d907b0e46 100644
+--- a/src/disk_funcs.c
++++ b/src/disk_funcs.c
+@@ -150,6 +150,7 @@ int disk_create_all_files()
+ 
+ 			/* Save the generated file name for destruction */
+ 			strcpy(my_disk->fn1arr[j], fn1);
++			fsync(fd1);
+ 			close(fd1);
+ 		}
+ 	} else {
+@@ -158,7 +159,6 @@ int disk_create_all_files()
+ 			"No directories in config file, exitiing. \n");
+ 		return 1;
+ 	}
+-	system("sync");
+ 	return (0);
+ }
+ 
+diff --git a/src/driver.c b/src/driver.c
+index 4bb796c4d8af..ee86425c76ac 100644
+--- a/src/driver.c
++++ b/src/driver.c
+@@ -632,7 +632,7 @@ int multiuser(struct input_params *invars, int totalhits)
+ 		   (void) printf("%5d", rl_vars->runnum);
+ 		 */
+ 		fflush(stdout);
+-		system("sync;sync;sync");	/* clean out the cache, boosts performance */
++		system("sync");	/* clean out the cache, avoids interference */
+ 		loop_result = runloop(global_list, rl_vars);
+ 		time(&my_time);
+ 
+diff --git a/src/drv_funcs.c b/src/drv_funcs.c
+index f11a98883c4c..72637ca015f4 100644
+--- a/src/drv_funcs.c
++++ b/src/drv_funcs.c
+@@ -171,7 +171,7 @@ int write_debug_file(char *debug_msg)
+ 
+ char *ext_strcat(char *s1, char *s2)
+ {
+-	char *stmp = (char*)malloc(strlen(s1)+strlen(s2));
++	char *stmp = (char*)malloc(strlen(s1)+strlen(s2) + 1);
+ 	stmp[0] = '\0';
+ 	strcat(stmp,s1);
+ 	strcat(stmp,s2);
+==== END controlled-sync.patch ====
 #### Description reaim
-#### Details reaim 12
-#### Description reaim
-#### Details reaim 45
+#### Details reaim 50
