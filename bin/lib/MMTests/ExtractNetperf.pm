@@ -46,18 +46,24 @@ sub extractReport($$$) {
 		foreach $file (<$reportDir/noprofile/$protocol-$size.*>) {
 			my $send_tput = 0;
 			my $recv_tput = 0;
+			my $skip = 0;
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
-				my @elements = split(/\s+/, $_);
-				if ($_ =~ /Confidence intervals: Throughput/) {
-					my @subelements = split(/\s+/, $_);
+				my $line = $_;
+
+				my @elements = split(/\s+/, $line);
+				if ($line =~ /Confidence intervals: Throughput/) {
+					my @subelements = split(/\s+/, $line);
 					$confidenceLimit = $subelements[5];
 					next;
 				}
-				if ($_ =~ /[a-zA-Z]/ || $_ =~ /^$/) {
+				if ($line =~ /Desired confidence was not achieved/) {
+					$skip = 1;
+				}
+				if ($line =~ /[a-zA-Z]/ || $line =~ /^$/) {
 					next;
 				}
-				my $line = $_;
+
 				$line =~ s/^\s+//;
 				my @elements = split(/\s+/, $line);
 				if ($protocol ne "UDP_STREAM") {
@@ -74,6 +80,9 @@ sub extractReport($$$) {
 				}
 			}
 			close(INPUT);
+#			if ($skip) {
+#				next;
+#			}
 			if ($protocol ne "UDP_STREAM") {
 				push @{$self->{_ResultData}}, [ $size, ++$iteration, $send_tput ];
 			} else {

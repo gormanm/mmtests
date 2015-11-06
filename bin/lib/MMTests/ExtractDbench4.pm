@@ -41,11 +41,12 @@ sub extractReport($$$) {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;
+			$line =~ s/^\s+//;
 			if ($line =~ /execute/) {
-				my @elements = split(/\s+/, $_);
+				my @elements = split(/\s+/, $line);
 
 				$nr_samples++;
-				push @{$self->{_ResultData}}, [ "mb/sec-$client", $nr_samples, $elements[3] ];
+				push @{$self->{_ResultData}}, [ "mb/sec-$client", $nr_samples, $elements[2] ];
 
 				next;
 			}
