@@ -40,6 +40,7 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $file = "$reportDir/noprofile/fsmark-$client.log";
 		my $preamble = 1;
+		my $enospace = 0;
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;
@@ -48,6 +49,14 @@ sub extractReport($$$) {
 					next;
 				}
 				$preamble = 0;
+				next;
+			}
+
+			if ($line =~ /Insufficient free space/) {
+				$enospace = 1;
+			}
+
+			if ($enospace) {
 				next;
 			}
 
