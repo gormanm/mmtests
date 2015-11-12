@@ -24,7 +24,7 @@ sub extractReport($$$) {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;
-			if ($line !~ /^[a-z.]+,/) {
+			if ($line !~ /^[a-z0-9.]+,/) {
 				next;
 			}
 
