@@ -66,19 +66,20 @@ esac
 echo $PROTOCOL > $LOGDIR_RESULTS/protocols
 EXTRA=
 if [ "$PROTOCOL" = "UDP_STREAM" ]; then
-	EXTRA="-P 15895 -s 32768 -S 32768"
+	EXTRA="-P 15895"
 fi
 
 for SIZE in $BUFFER_SIZES; do
 mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 ###SHELLPACK iteration_begin $ITERATIONS
 	mmtests_activity size $SIZE
-	SIZE_OPT=
+	SOCKETSIZE_OPT="-s $((SIZE+256)) -S $((SIZE+256))"
+	MSGSIZE_OPT=
 	if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
-		SIZE_OPT="-m $SIZE -M $SIZE"
+		MSGSIZE_OPT="-m $SIZE -M $SIZE"
 	fi
 	if [ "$PROTOCOL" = "UDP_RR" -o "$PROTOCOL" = "TCP_RR" ]; then
-		SIZE_OPT="-r $SIZE"
+		MSGSIZE_OPT="-r $SIZE"
 	fi
 	
 	echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE
@@ -88,7 +89,7 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 		-i 12,3 -I 99,5 \
 		-H $SERVER_HOST \
 		-- \
-		$SIZE_OPT \
+		$SOCKETSIZE_OPT $MSGSIZE_OPT \
 		$EXTRA \
 			2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
 			|| die Failed to run netperf
