@@ -254,113 +254,159 @@ done
 
 # Create RAID setup
 if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
-	for DEVICE in $TESTDISK_RAID_DEVICES; do
-		BASE_DEVICE=`basename $DEVICE`
-		MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat | awk '{print $1}'`
-
-		if [ "$MD_DEVICE" != "" ]; then
-			echo Cleaning up old device $MD_DEVICE
-			vgremove -f mmtests-raid
-			mdadm --remove $TESTDISK_RAID_MD_DEVICE
-			mdadm --remove /dev/$MD_DEVICE
-			mdadm --stop $TESTDISK_RAID_MD_DEVICE
-			mdadm --stop /dev/$MD_DEVICE
-			mdadm --remove $TESTDISK_RAID_MD_DEVICE
-			mdadm --remove /dev/$MD_DEVICE
-		fi
-	done
-
 	# Convert to megabytes
 	TESTDISK_RAID_OFFSET=$((TESTDISK_RAID_OFFSET/1048576))
 	TESTDISK_RAID_SIZE=$((TESTDISK_RAID_SIZE/1048576))
-	TESTDISK_RAID_PARTITIONS=
 
+	RAID_CREATE_START=`date +%s`
+
+	# Build the partition list
 	NR_DEVICES=0
+	SUBSET=
+	for PART in $TESTDISK_RAID_DEVICES; do
+		# Limit the TESTDISK_RAID_DEVICES for raid1
+		if [ "$TESTDISK_RAID_TYPE" = "raid1" -a $NR_DEVICES -eq 2 ]; then
+			continue
+		fi
+		if [ "$SUBSET" = "" ]; then
+			SUBSET=$PART
+		else
+			SUBSET="$SUBSET $PART"
+		fi
+		NR_DEVICES=$((NR_DEVICES+1))
+	done
+	export TESTDISK_RAID_DEVICES=$SUBSET
+
+	# Create expected list of partitions which may not exist yet
+	TESTDISK_RAID_PARTITIONS=
+	for DISK in $TESTDISK_RAID_DEVICES; do
+		TESTDISK_RAID_PARTITIONS="$TESTDISK_RAID_PARTITIONS ${DISK}1"
+	done
+
+	# Record basic device information
 	echo -n > $SHELLPACK_LOG/disk-raid-hdparm-$RUNNAME
 	echo -n > $SHELLPACK_LOG/disk-raid-smartctl-$RUNNAME
 	for DISK in $TESTDISK_RAID_DEVICES; do
 		hdparm -I $DISK 2>&1 >> $SHELLPACK_LOG/disk-raid-hdparm-$RUNNAME
 		smartctl -a $DISK 2>&1 >> $SHELLPACK_LOG/dks-raid-smartctl-$RUNNAME
-		echo
-		echo Deleting partitions on disk $DISK
-		parted -s $DISK mktable msdos
-
-		echo Creating partitions on $DISK
-		parted -s --align optimal $DISK mkpart primary $TESTDISK_RAID_OFFSET $TESTDISK_RAID_SIZE || die Failed to create aligned partition with parted
-		ATTEMPT=0
-		OUTPUT=`mdadm --zero-superblock ${DISK}1 2>&1 | grep "not zeroing"`
-		while [ "$OUTPUT" != "" ]; do
-			echo Retrying superblock zeroing of ${DISK}1
-			sleep 1
-			mdadm --zero-superblock ${DISK}1
-			OUTPUT=`mdadm --zero-superblock ${DISK}1 2>&1 | grep "not zeroing"`
-			ATTEMPT=$((ATTEMPT+1))
-			if [ $ATTEMPT -eq 5 ]; then
-				die Failed to zero superblock of ${DISK}1
-			fi
-		done
-
-		NR_DEVICES=$(($NR_DEVICES+1))
-		TESTDISK_RAID_PARTITIONS="$TESTDISK_RAID_PARTITIONS ${DISK}1"
 	done
 
-	echo Creation start: `date`
-	echo Creating RAID device $TESTDISK_RAID_MD_DEVICE $TESTDISK_RAID_TYPE
-	case $TESTDISK_RAID_TYPE in
-	raid1)
-		# Force use with just two disks
-		NR_DEVICES=0
-		SUBSET=
-		for PART in $TESTDISK_RAID_PARTITIONS; do
-			if [ $NR_DEVICES -eq 2 ]; then
-				continue
+	# Check if a suitable device is already assembled
+	echo Scanning and assembling existing devices: $TESTDISK_RAID_DEVICES
+	mdadm --assemble --scan
+	FULL_ASSEMBLY_REQUIRED=no
+	LAST_MD_DEVICE=
+	for DEVICE in $TESTDISK_RAID_DEVICES; do
+		BASE_DEVICE=`basename $DEVICE`
+		MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat | awk '{print $1}'`
+		if [ "$MD_DEVICE" = "" ]; then
+			echo o Device $DEVICE is not part of a RAID array, assembly required
+			FULL_ASSEMBLY_REQUIRED=yes
+			continue
+		fi
+
+		if [ "$LAST_MD_DEVICE" = "" ]; then
+			LAST_MD_DEVICE=$MD_DEVICE
+		fi
+		if [ "$LAST_MD_DEVICE" != "$MD_DEVICE" ]; then
+			echo o Device $DEVICE is part of $MD_DEVICE which does not match $LAST_MD_DEVICE, assembly required
+			FULL_ASSEMBLY_REQUIRED=yes
+			continue
+		fi
+
+		PERSONALITY=`grep $BASE_DEVICE /proc/mdstat | awk '{print $4}'`
+		if [ "$PERSONALITY" != "$TESTDISK_RAID_TYPE" ]; then
+			echo o Device $DEVICE is part of a $PERSONALITY array instead of $TESTDISK_RAID_TYPE, assembly required
+			FULL_ASSEMBLY_REQUIRED=yes
+			continue
+		fi
+	done
+
+	if [ "$FULL_ASSEMBLY_REQUIRED" = "yes" ]; then
+		echo Full assembly required
+		echo Creation start: `date`
+		for DEVICE in $TESTDISK_RAID_DEVICES; do
+			BASE_DEVICE=`basename $DEVICE`
+			MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat | awk '{print $1}'`
+
+			if [ "$MD_DEVICE" != "" ]; then
+				echo Cleaning up old device $MD_DEVICE
+				vgremove -f mmtests-raid
+				mdadm --remove $TESTDISK_RAID_MD_DEVICE
+				mdadm --remove /dev/$MD_DEVICE
+				mdadm --stop $TESTDISK_RAID_MD_DEVICE
+				mdadm --stop /dev/$MD_DEVICE
+				mdadm --remove $TESTDISK_RAID_MD_DEVICE
+				mdadm --remove /dev/$MD_DEVICE
 			fi
-			if [ "$SUBSET" = "" ]; then
-				SUBSET=$PART
-			else
-				SUBSET="$SUBSET $PART"
-			fi
-			NR_DEVICES=$((NR_DEVICES+1))
 		done
-		export TESTDISK_RAID_PARTITIONS=$SUBSET
-		echo mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
-		EXPECT_SCRIPT=`mktemp`
-		cat > $EXPECT_SCRIPT <<EOF
+
+		for DISK in $TESTDISK_RAID_DEVICES; do
+			echo
+			echo Deleting partitions on disk $DISK
+			parted -s $DISK mktable msdos
+
+			echo Creating partitions on $DISK
+			parted -s --align optimal $DISK mkpart primary $TESTDISK_RAID_OFFSET $TESTDISK_RAID_SIZE || die Failed to create aligned partition with parted
+			ATTEMPT=0
+			OUTPUT=`mdadm --zero-superblock ${DISK}1 2>&1 | grep "not zeroing"`
+			while [ "$OUTPUT" != "" ]; do
+				echo Retrying superblock zeroing of ${DISK}1
+				sleep 1
+				mdadm --zero-superblock ${DISK}1
+				OUTPUT=`mdadm --zero-superblock ${DISK}1 2>&1 | grep "not zeroing"`
+				ATTEMPT=$((ATTEMPT+1))
+				if [ $ATTEMPT -eq 5 ]; then
+					die Failed to zero superblock of ${DISK}1
+				fi
+			done
+		done
+
+		echo Creating RAID device $TESTDISK_RAID_MD_DEVICE $TESTDISK_RAID_TYPE
+		case $TESTDISK_RAID_TYPE in
+		raid1)
+			echo mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+			EXPECT_SCRIPT=`mktemp`
+			cat > $EXPECT_SCRIPT <<EOF
 spawn mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
 }
 EOF
-		expect -f $EXPECT_SCRIPT || exit -1
-		rm $EXPECT_SCRIPT
-		;;
-	raid5)
-		echo mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
-		EXPECT_SCRIPT=`mktemp`
-		cat > $EXPECT_SCRIPT <<EOF
+			expect -f $EXPECT_SCRIPT || exit -1
+			rm $EXPECT_SCRIPT
+			;;
+		raid5)
+			echo mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+			EXPECT_SCRIPT=`mktemp`
+			cat > $EXPECT_SCRIPT <<EOF
 spawn mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
 }
 EOF
-		expect -f $EXPECT_SCRIPT || exit -1
-		rm $EXPECT_SCRIPT
+			expect -f $EXPECT_SCRIPT || exit -1
+			rm $EXPECT_SCRIPT
 
-		;;
-	*)
-		echo mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
-		EXPECT_SCRIPT=`mktemp`
-		cat > $EXPECT_SCRIPT <<EOF
+			;;
+		*)
+			echo mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+			EXPECT_SCRIPT=`mktemp`
+			cat > $EXPECT_SCRIPT <<EOF
 spawn mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
 }
 EOF
-		expect -f $EXPECT_SCRIPT || exit -1
-		rm $EXPECT_SCRIPT
+			expect -f $EXPECT_SCRIPT || exit -1
+			rm $EXPECT_SCRIPT
 
-		;;
-	esac
+			;;
+		esac
+	else
+		echo Reusing existing raid configuration, removing old volume group
+		vgremove -f mmtests-raid
+	fi
 
 	echo Waiting on sync to finish
 	mdadm --misc --wait $TESTDISK_RAID_MD_DEVICE
@@ -383,6 +429,8 @@ EOF
 
 	# Consider the test partition to be the LVM volume
 	export TESTDISK_PARTITION=/dev/mmtests-raid/lvm0
+
+	RAID_CREATE_END=`date +%s`
 fi
 
 # Create NBD device
@@ -802,6 +850,9 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	dmesg > $SHELLPACK_LOG/dmesg-$RUNNAME
 	ip addr show > $SHELLPACK_LOG/ip-addr-$RUNNAME
 	echo start :: `date +%s` > $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	if [ "$RAID_CREATE_END" != "" ]; then
+		echo raid-create :: $((RAID_CREATE_END-RAID_CREATE_START)) >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	fi
 	echo arch :: `uname -m` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	if [ "`which numactl 2> /dev/null`" != "" ]; then
 		numactl --hardware >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
