@@ -1,0 +1,32 @@
+#!/bin/bash
+# This script runs the git source unit tests
+
+###SHELLPACK preamble gitsource-bench v2.6.3
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--iterations GITSOURCE_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required gitsource-${VERSION}
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/gitsource-${VERSION}-installed || die Failed to cd to gitsource-$VERSION-installed
+
+echo Warming run
+make test > $LOGDIR_RESULTS/warmup.log 2>&1
+tail $LOGDIR_RESULTS/warmup.log
+
+monitor_pre_hook $LOGDIR_RESULTS 1
+###SHELLPACK iteration_begin $KERNBENCH_ITERATIONS
+	echo Starting iteration $ITERATION/$GITSOURCE_ITERATIONS
+	$TIME_CMD -o $LOGDIR_RESULTS/gitsource-${ITERATION}.time \
+		make test \
+		> $LOGDIR_RESULTS/gitsource-${ITERATION}.log 2>&1
+	tail $LOGDIR_RESULTS/gitsource-${ITERATION}.log
+###SHELLPACK iteration_end $ITERATIONS
+monitor_post_hook $LOGDIR_RESULTS 1
+
+cat $LOGDIR_RESULTS/gitsource-*.time | grep elapsed | tee $LOGDIR_RESULTS/time
+
+exit $SHELLPACK_SUCCESS

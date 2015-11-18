@@ -1,0 +1,19 @@
+#!/bin/bash
+###SHELLPACK preamble gitsource-install v2.6.3
+GIT_LOCATION=https://github.com/git/git
+MIRROR_LOCATION="$WEBROOT/gitsource/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch gitsource-${VERSION}.tar.gz gitsource-${VERSION}-installed
+
+###SHELLPACK build_start gitsource-${VERSION}-installed
+if [ -e .git ]; then
+	git checkout $VERSION || die Failed to checkout version $VERSION
+fi
+make configure || die Failed to run make configure
+###SHELLPACK build_configure gitsource-${VERSION}
+###SHELLPACK make
+
+echo gitsource installed successfully
