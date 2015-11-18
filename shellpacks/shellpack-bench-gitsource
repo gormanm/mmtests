@@ -85,6 +85,7 @@ for ITERATION in `seq 1 $GITSOURCE_ITERATIONS`; do
 		make test \
 		> $LOGDIR_RESULTS/gitsource-${ITERATION}.log 2>&1
 	tail $LOGDIR_RESULTS/gitsource-${ITERATION}.log
+	cat $LOGDIR_RESULTS/gitsource-${ITERATION}.time
 done
 monitor_post_hook $LOGDIR_RESULTS 1
 
@@ -92,4 +93,4 @@ cat $LOGDIR_RESULTS/gitsource-*.time | grep elapsed | tee $LOGDIR_RESULTS/time
 
 exit $SHELLPACK_SUCCESS
 #### Description git source unit tests
-#### Details gitsource-bench 4
+#### Details gitsource-bench 5
