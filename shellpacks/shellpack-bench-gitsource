@@ -78,7 +78,7 @@ make test > $LOGDIR_RESULTS/warmup.log 2>&1
 tail $LOGDIR_RESULTS/warmup.log
 
 monitor_pre_hook $LOGDIR_RESULTS 1
-for ITERATION in `seq 1 $KERNBENCH_ITERATIONS`; do
+for ITERATION in `seq 1 $GITSOURCE_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 	echo Starting iteration $ITERATION/$GITSOURCE_ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/gitsource-${ITERATION}.time \
@@ -92,4 +92,4 @@ cat $LOGDIR_RESULTS/gitsource-*.time | grep elapsed | tee $LOGDIR_RESULTS/time
 
 exit $SHELLPACK_SUCCESS
 #### Description git source unit tests
-#### Details gitsource-bench 3
+#### Details gitsource-bench 4
