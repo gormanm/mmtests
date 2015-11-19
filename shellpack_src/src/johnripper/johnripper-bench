@@ -1,0 +1,31 @@
+#!/bin/bash
+###SHELLPACK preamble johnripper-bench 1.8.0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam    --iterations   JOHNRIPPER_ITERATIONS
+###SHELLPACK parseargParam    --duration     JOHNRIPPER_DURATION
+###SHELLPACK parseargParam    --min-threads  JOHNRIPPER_MIN_THREADS
+###SHELLPACK parseargParam    --max-threads  JOHNRIPPER_MAX_THREADS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required johnripper-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/johnripper-${VERSION}-installed/run || die Failed to cd to johnripper install directory
+###SHELLPACK threads_huge_stride_begin $JOHNRIPPER_MIN_THREADS $JOHNRIPPER_MAX_THREADS
+	mmtests_activity client $NR_THREADS/$JOHNRIPPER_MAX_THREADS	
+
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	###SHELLPACK iteration_begin $JOHNRIPPER_ITERATIONS
+		echo Starting iteration $ITERATION/$JOHNRIPPER_ITERATIONS threads $NR_THREADS/$JOHNRIPPER_MAX_THREADS
+		export OMP_NUM_THREADS=$NR_THREADS
+		$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}-$ITERATION.time	\
+			./john --test=$JOHNRIPPER_DURATION			\
+			2>&1 | tee -a $LOGDIR_RESULTS/johnripper-$NR_THREADS-$ITERATION.log
+	###SHELLPACK iteration_end
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+
+exit $SHELLPACK_SUCCESS

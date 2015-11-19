@@ -1,0 +1,27 @@
+#!/bin/bash
+# john the ripper installer
+###SHELLPACK preamble johnripper-install 1.8.0
+WEB_LOCATION=http://www.openwall.com/john/j
+MIRROR_LOCATION="$WEBROOT/johnripper/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch john-${VERSION}.tar.xz johnripper-${VERSION}-installed
+
+# Build
+###SHELLPACK build_start johnripper-${VERSION}-installed
+cd src
+sed -i -e "s/^OMPFLAGS.*/OMPFLAGS = -fopenmp/" Makefile
+case `uname -m` in
+x86_64)
+	make clean linux-x86-64 || die Failed to build john the ripper
+	;;
+ppc64|ppc64le)
+	make clean linux-ppc64 || die Failed to build john the ripper
+	;;
+*)
+	die Arch `uname -m` unsupported
+esac
+
+echo john the ripper installed successfully

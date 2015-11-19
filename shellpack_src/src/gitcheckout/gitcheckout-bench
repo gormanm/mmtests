@@ -40,13 +40,6 @@ else
 	git clone $GITCHECKOUT_SOURCE gitcheckout || exit $SHELLPACK_ERROR
 fi
 
-# Stupid, but we cannot be certain if we're using built-in time or command time
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
-
 GITCHECKOUT_COMMITS=`echo $GITCHECKOUT_COMMITS | sed -e 's/,/ /g'`
 sysctl -w vm.drop_caches=3
 

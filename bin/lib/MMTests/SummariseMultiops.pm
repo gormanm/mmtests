@@ -72,6 +72,11 @@ sub printPlot() {
 					$index++;
 					next;
 				}
+			} elsif ($self->{_ClientSubheading} == 1) {
+				if ($_operations[$index] =~ /.*-$subHeading$/) {
+					$index++;
+					next;
+				}
 			} else {
 				if ($_operations[$index] =~ /^$subHeading.*/) {
 					$index++;
@@ -121,7 +126,11 @@ sub printPlot() {
 			printf "%-${fieldLength}s ", $heading;
 			$self->_printErrorBarData($fieldLength, @units);
 		} elsif ($self->{_PlotType} eq "client-errorlines") {
-			$heading =~ s/.*-//;
+			if ($self->{_ClientSubheading} == 1) {
+				$heading =~ s/-.*//;
+			} else {
+				$heading =~ s/.*-//;
+			}
 			printf "%-${fieldLength}s ", $heading;
 			$self->_printErrorBarData($fieldLength, @units);
 		}
