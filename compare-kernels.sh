@@ -277,6 +277,15 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT App Overhead
 		compare-mmtests.pl -d . -b ${SUBREPORT}overhead -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	johnripper)
+		echo $SUBREPORT Transactions
+		eval $COMPARE_CMD
+		echo
+
+		echo $SUBREPORT User/System CPU time
+		compare-mmtests.pl -d . -b johnripperexectime -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		;;
 	loopdd)
 		echo $SUBREPORT Throughput
 		eval $COMPARE_CMD

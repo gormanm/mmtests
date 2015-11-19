@@ -1,8 +1,8 @@
 ### John the Ripper is a password cracked that can be parallelised. This is
-### completely user-space bound with little or no system CPU usage expected.
-### It's suitable as a CPU benchmark but should also be able to detect
-### indirect problems such as cpufreq bugs forcing lower frequencies to be
-### used unnecessarily.
+### user-space bound with little or no system CPU usage unless there are more
+### threads than CPUs in the system. It's suitable as a CPU benchmark, should
+### also be able to detect indirect problems such as cpufreq bugs forcing lower
+### frequencies to be used unnecessarily and detect some scheduler anomalies.
 
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
