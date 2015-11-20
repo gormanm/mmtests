@@ -68,7 +68,13 @@ sub extractSummary() {
 		$_operations[0] = $subHeading;
 	}
 
+	my $bestOp = "calc_lowest_mean";
+	if ($self->{_RatioPreferred} eq "Higher") {
+		$bestOp = "calc_highest_mean";
+	}
+
 	foreach my $operation (@_operations) {
+		no strict  "refs";
 
 		my @units;
 		my @row;
@@ -92,13 +98,13 @@ sub extractSummary() {
 		push @row, $quartiles[99];
 		push @row, $quartiles[4];
 		push @row, calc_mean(@units);
-		push @row, calc_lowest_mean(99, @units);
-		push @row, calc_lowest_mean(95, @units);
-		push @row, calc_lowest_mean(90, @units);
-		push @row, calc_lowest_mean(50, @units);
-		push @row, calc_lowest_mean(10, @units);
-		push @row, calc_lowest_mean(5, @units);
-		push @row, calc_lowest_mean(1, @units);
+		push @row, &$bestOp(99, @units);
+		push @row, &$bestOp(95, @units);
+		push @row, &$bestOp(90, @units);
+		push @row, &$bestOp(50, @units);
+		push @row, &$bestOp(10, @units);
+		push @row, &$bestOp(5, @units);
+		push @row, &$bestOp(1, @units);
 
 		push @{$self->{_SummaryData}}, \@row;
 	}

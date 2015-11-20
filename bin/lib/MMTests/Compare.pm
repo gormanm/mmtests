@@ -165,11 +165,11 @@ sub _generateComparisonTable() {
 			    $self->{_DataType} == DATA_TIME_CYCLES) {
 				$compareOp = "pndiff";
 			}
-			if (defined $self->{_CompareOp}) {
-				$compareOp = $self->{_CompareOp};
-			}
 			if (defined $self->{_CompareOps}) {
 				$compareOp = $self->{_CompareOps}[$column];
+			}
+			if (defined $self->{_CompareOp}) {
+				$compareOp = $self->{_CompareOp};
 			}
 			if (defined $extractModules[0]->{_CompareOpsRow} &&
 				defined $extractModules[0]->{_CompareOpsRow}[$row]) {
