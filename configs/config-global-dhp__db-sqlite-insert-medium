@@ -1,6 +1,6 @@
 ### sqlite is a serverless transactional SQL database that is sometimes
 ### embedded in applications. This test profile is an SQL insert test on
-### a table that will be 8M in size.
+### a table that will be 2M in size.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
@@ -67,4 +67,4 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # sqlite, assumes a row is roughly 52 bytes to create a 16M table
-export SQLITE_SIZE=$((8*1048576/52))
+export SQLITE_SIZE=$((2*1048576/52))
