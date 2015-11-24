@@ -13,6 +13,7 @@ MARIADB_ADMIN_PASSWORD=mmtests-default
 ###SHELLPACK parseargParam --work_mem            IGNORED_B
 ###SHELLPACK parseargParam --shared_buffers      SHARED_BUFFERS
 ###SHELLPACK parseargYes   --start		 SERVER_START
+###SHELLPACK parseargParam --start_opts          MARIADB_START_OPTS
 ###SHELLPACK parseargYes   --stop		 SERVER_STOP
 ###SHELLPACK parseargEnd
 
@@ -84,7 +85,13 @@ if [ "$SERVER_START" = "yes" ]; then
 	ulimit -l $SHARED_BUFFERS
 
 	echo Starting mariadb
-	./support-files/mysql.server start --pid-file=$MARIADB_PIDFILE
+	IFS=',' read -a INITARR <<< "$MARIADB_START_OPTS"
+	for OP in ${INITARR[@]}
+	do
+	    START_STR+="$OP "
+	done
+
+	./support-files/mysql.server start --pid-file=$MARIADB_PIDFILE $START_STR
 	wait_on_pid_file $MARIADB_PIDFILE
 	MARIADB_PID=`cat $MARIADB_PIDFILE 2>&1`
 	./bin/mysqladmin -u $MARIADB_ADMIN_USER password $MARIADB_ADMIN_PASSWORD

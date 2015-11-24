@@ -61,6 +61,10 @@ while [ "$1" != "" ]; do
 		SERVER_START=yes
 		shift
 		;;
+	--start_opts)
+		MARIADB_START_OPTS=$2
+		shift 2
+		;;
 	--stop)
 		SERVER_STOP=yes
 		shift
@@ -158,7 +162,13 @@ if [ "$SERVER_START" = "yes" ]; then
 	ulimit -l $SHARED_BUFFERS
 
 	echo Starting mariadb
-	./support-files/mysql.server start --pid-file=$MARIADB_PIDFILE
+	IFS=',' read -a INITARR <<< "$MARIADB_START_OPTS"
+	for OP in ${INITARR[@]}
+	do
+	    START_STR+="$OP "
+	done
+
+	./support-files/mysql.server start --pid-file=$MARIADB_PIDFILE $START_STR
 	wait_on_pid_file $MARIADB_PIDFILE
 	MARIADB_PID=`cat $MARIADB_PIDFILE 2>&1`
 	./bin/mysqladmin -u $MARIADB_ADMIN_USER password $MARIADB_ADMIN_PASSWORD
@@ -167,4 +177,4 @@ fi
 echo mariadb operation successful
 exit $SHELLPACK_SUCCESS
 #### Description mariadbbuild
-#### Details mariadbbuild-bench 33
+#### Details mariadbbuild-bench 34
