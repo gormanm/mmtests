@@ -1,0 +1,102 @@
+#!/bin/bash
+P=mediawikibuild-bench
+DEFAULT_VERSION=1.18.6
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--start)
+		MEDIAWIKI_START=yes
+		shift
+		;;
+	--stop)
+		MEDIAWIKI_STOP=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/mediawikibuild-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/mediawikibuild-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-mediawikibuild -v ${VERSION}  || die mediawikibuild install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/mediawikibuild-${VERSION}-installed || die Failed to cd to mediawikibuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo mediawikibuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# see install script
+BUFF_POOL_SIZE=$(($MEMTOTAL_BYTES/2))
+DBSTART_OPTIONS="--innodb_flush_method=nosync,--innodb_flush_log_at_trx_commit=0,--innodb_buffer_pool_size=${BUFF_POOL_SIZE},--innodb_log_file_size=512M,--max_allowed_packet=1G"
+
+if [ "$MEDIAWIKI_START" = "yes" ]; then
+    $SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --stop
+    echo Starting mariadb server...
+    $SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --start \
+	--start_opts $DBSTART_OPTIONS \
+	--effective_cachesize $((MEMTOTAL_BYTES*6/10)) \
+	--shared_buffers $((MEMTOTAL_BYTES/4)) \
+	--work_mem $((16*1048576)) || die Failed to start mariadb server.
+
+    $SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop
+    echo Starting apache server...
+    $SHELLPACK_INCLUDE/shellpack-bench-apachebuild --start || die Failed to start apache http server.
+fi
+
+if [ "$MEDIAWIKI_STOP" = "yes" ]; then
+    echo Stopping apache server...
+    $SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop
+    echo Stopping mariadb server...
+    $SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --stop
+fi
+
+echo mediawikibuild successfully installed
+exit $SHELLPACK_SUCCESS
+#### Description mediawikibuild
+#### Details mediawikibuild-bench 3

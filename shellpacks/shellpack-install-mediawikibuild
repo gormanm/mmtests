@@ -1,0 +1,264 @@
+#!/bin/bash
+# Mediawiki
+
+#
+# MediaWiki is a free software wiki package written in PHP.
+# It's originally for use on Wikipedia, however nowadays
+# it is also used by several other projects of the non-profit
+# Wikimedia Foundation and by many other wikis
+#
+# Being a web-application, the mediawikibuild installer will
+# also install mariadb and httpd from their corresponding
+# shellpacks.
+#
+# README about versioning. For mmtests, an older 1.8 based
+# version of mediawiki is used as it is only compatible with
+# the available database schemas as well as external tools
+# to load wikipedia dumps. For instance, modern versions of
+# mediawiki's importDump.php is extremely slow, while wmdumper
+# is orders of magnitude faster, yet stale as it cannot handle
+# modern (2015) dumps. Additionally, users of this web-app
+# (ie: wikibench requires 1.18 as that's the data available
+# of or the traces) can require certain versions. In the future
+# this can be extended to pass from the shellpack user. Also
+# see comments in create_wikipedia_db().
+#
+
+P=mediawikibuild-install
+DEFAULT_VERSION=1.18.6
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+#MEDIAWIKI_VERSION=1.25.3
+#WEB_LOCATION=https://releases.wikimedia.org/mediawiki/1.25/
+MEDIAWIKI_VERSION=1.18.6
+WEB_LOCATION=https://releases.wikimedia.org/mediawiki/1.18/
+MIRROR_LOCATION="$WEBROOT/mediawiki/"
+
+MARIADB_VERSION=10.1.8
+MARIADB_DBNAME=my_wiki
+MARIADB_ADMIN_USER=root
+MARIADB_ADMIN_PASSWORD=mmtests-default
+MYSQLCMD="${SHELLPACK_SOURCES}/mariadbbuild-${MARIADB_VERSION}-installed/bin/mysql -u $MARIADB_ADMIN_USER -p$MARIADB_ADMIN_PASSWORD"
+MYSQLADMIN="${SHELLPACK_SOURCES}/mariadbbuild-${MARIADB_VERSION}-installed/bin/mysqladmin -u $MARIADB_ADMIN_USER -p$MARIADB_ADMIN_PASSWORD"
+
+APACHE_VERSION=2.4.17
+PHP_VERSION=5.6.15
+PHPCMD=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/bin/php
+
+function create_wikipedia_db() {
+    MWDUMPER_VERSION=1.16
+    MWDUMPER_JAR=mwdumper.jar
+    # see comments for chosen date of dumps.
+    DUMP_YEAR=20080103
+    # this will generate a little over 6.2 million pages
+    DUMP_FILE_XML=enwiki-$DUMP_YEAR-pages-articles.xml
+
+    # Uncomment the below to replace the dump used. Unfortunately these
+    # are incompatible with wmdumper -- see comments above.
+    # Also, this dump file is considerably larger and can take days to
+    # dump (over 16 million pages).
+#    DUMP_FILE_XML=enwiki-latest-pages-articles-multistream.xml
+#    wget -c http://dumps.wikimedia.org/enwiki/latest/$DUMP_FILE_XML.bz2
+
+    wget -c http://dumps.wikimedia.org/tools/$MWDUMPER_JAR
+
+    wget -c https://archive.org/download/enwiki-$DUMP_YEAR/$DUMP_FILE_XML.bz2
+    mmtests_activity database-init
+    echo uncompressing ...
+    eval bunzip2 $DUMP_FILE_XML.bz2 || die Failed to setup mediawiki
+
+    # Some java flavors' --server option will increase the performance
+    # and in a huge way for Sun's JVM large files (such as $DUMP_FILE_XML).
+    #
+    # In any case, this will take a while...
+    java -jar $MWDUMPER_JAR --format=sql:1.5 $DUMP_FILE_XML | \
+	$MYSQLCMD --force $MARIADB_DBNAME
+
+    #
+    # Download additional dumps that fill tables other than the main articles,
+    # as it will allow us to service more requests, instead of throwing 404s.
+    #
+    # image.sql: Metadata on current versions of uploaded images.
+    # imagelinks.sql: Wiki image usage records.
+    # pagelinks.sql: Wiki page-to-page link records.
+    # externallinks.sql: Wiki external URL link records.
+    # categorylinks.sql: Wiki category membership link records.
+    # logging.sql: Data for various events (deletions, uploads, etc).
+    #
+    # These additions will obviously enlarge the required storage
+    # capabilities (see sizeof each dump for reference), so commenting
+    # one or more of these is perfectly ok.
+    #
+    addons=( image.sql \
+	imagelinks.sql \
+	pagelinks.sql \
+	externallinks.sql \
+	categorylinks.sql \
+	logging.sql )
+    for addon in "${addons[@]}"
+    do
+	ADDON_FILE=enwiki-$DUMP_YEAR-$addon
+
+	wget -c https://archive.org/download/enwiki-$DUMP_YEAR/$ADDON_FILE.gz
+	gunzip $ADDON_FILE.gz
+
+	# Each of these downloaded .sql files create their corresponding tables
+	# using the TYPE declaration, which is deprecated and breaks the entire
+	# script... use ENGINE instead.
+	sed -i -e "s/TYPE=InnoDB/ENGINE=InnoDb/" $ADDON_FILE
+
+	echo Importing $addon dump ...
+	$MYSQLCMD --force $MARIADB_DBNAME < $ADDON_FILE
+    done
+
+    echo Completed $DUMP_FILE_XML dump.
+}
+
+FIRST_DB_INSTALL=false
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=mediawiki-${MEDIAWIKI_VERSION}.tar.gz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf mediawiki-${MEDIAWIKI_VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR mediawikibuild-${MEDIAWIKI_VERSION}
+pushd mediawikibuild-${MEDIAWIKI_VERSION} > /dev/null || die Failed to rename tar
+
+# PART 1: Check/install dependencies and setup htdoc related dirs
+if [ ! -e $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}-installed ]; then
+	echo Installing apache server
+	$SHELLPACK_INCLUDE/shellpack-install-apachebuild -v ${APACHE_VERSION} || die Failed to install apache httpd
+	echo Apache server successfully installed.
+fi
+
+# Now install mariadb/mysql
+if [ ! -e $SHELLPACK_SOURCES/mariadb-build-${MARIADB_VERSION}-installed ]; then
+	echo Installing mariadb server
+	FIRST_DB_INSTALL=true
+	$SHELLPACK_INCLUDE/shellpack-install-mariadbbuild -v ${MARIADB_VERSION} || die Failed to install mariadb
+	echo MariaDB server successfully installed.
+fi
+
+# With the apache base installed, put the mediawiki software into htdocs.
+MEDIAWIKI_HTDOCS=$SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/htdocs/mediawiki/
+mkdir $MEDIAWIKI_HTDOCS
+
+# -- see below how we set scriptpath in install.php such that urls are 'mediawiki'
+eval cp -rf $SHELLPACK_SOURCES/mediawikibuild-${MEDIAWIKI_VERSION}/* \
+    $MEDIAWIKI_HTDOCS || die Failed to setup mediawiki
+
+# -- needed for the rest of mmtests (looks for -installed)
+eval mv -f $SHELLPACK_SOURCES/mediawikibuild-${MEDIAWIKI_VERSION} $SHELLPACK_SOURCES/mediawikibuild-${MEDIAWIKI_VERSION}-installed || die Failed to setup mediawiki
+# -- ensure image file uploads directory is writable
+eval chmod a+w $MEDIAWIKI_HTDOCS/images || die Faild to setup mediawiki
+
+
+# PART 2: Mediawiki install and configuration (we need to have the DB started)
+
+# this influences innodb_buffer_pool_instances, but
+# let's mariadb handle that automatically, so just
+# change the pool size.
+BUFF_POOL_SIZE=$(($MEMTOTAL_BYTES/2))
+
+# most of these options are based on the fact that a large
+# wikipedia dump is coming next, lets try to optimize the
+# database in what we can.
+DBSTART_OPTIONS="--innodb_flush_method=nosync,--innodb_flush_log_at_trx_commit=0,--innodb_buffer_pool_size=${BUFF_POOL_SIZE},--innodb_log_file_size=512M,--max_allowed_packet=1G"
+
+$SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --start \
+	--start_opts $DBSTART_OPTIONS \
+	--effective_cachesize $((MEMTOTAL_BYTES*6/10)) \
+	--shared_buffers $((MEMTOTAL_BYTES/4)) \
+	--work_mem $((16*1048576)) || die Failed to get usable database installation
+
+$MYSQLCMD -e "CREATE DATABASE IF NOT EXISTS ${MARIADB_DBNAME} CHARACTER SET utf8 COLLATE utf8_general_ci"
+
+# Create the mediawiki settings manually (use the same creds for DB
+# and mediawiki admin) this will create the LocalSettings.php for us.
+if [ ! -e $$MEDIAWIKI_HTDOCS/LocalSettings.php ] || [ $FIRST_DB_INSTALL = "true" ]; then
+    $PHPCMD $MEDIAWIKI_HTDOCS/maintenance/install.php \
+	--dbname $MARIADB_DBNAME \
+	--dbpass $MARIADB_ADMIN_PASSWORD \
+	--dbserver localhost \
+	--dbtype mysql \
+	--dbuser $MARIADB_ADMIN_USER \
+	--email showmedamoney@lala.com \
+	--installdbpass $MARIADB_ADMIN_PASSWORD \
+	--installdbuser $MARIADB_ADMIN_USER \
+	--pass $MARIADB_ADMIN_PASSWORD \
+	--conf $MEDIAWIKI_HTDOCS/LocalSettings.php \
+	--scriptpath /mediawiki mmtests-wikipedia $MARIADB_ADMIN_USER
+
+    if [ ! -e $MEDIAWIKI_HTDOCS/LocalSettings.php ]; then
+	die Failed to setup mediawiki
+    fi
+
+    # install HitCounter extension, this updates the DB with some new
+    # tables required by some more up-to-date versions, depending on
+    # the used dump. Uncomment the below if using mediawiki 1.25 or
+    # above.
+#    wget -c https://extdist.wmflabs.org/dist/extensions/HitCounters-REL1_25-7e36831.tar.gz
+#    tar xf HitCounters-REL1_25-7e36831.tar.gz
+#    mv -f HitCounters $MEDIAWIKI_HTDOCS/extensions/
+#    echo "wfLoadExtension( 'HitCounters' );" >> $MEDIAWIKI_HTDOCS/LocalSettings.php
+
+    # Uncomment if we ever want to upgrade from 1.18 to 1.25.
+    # Also uncomment this if installing HitCounter (or any other)
+    # mediawiki extension.
+#    $PHPCMD $MEDIAWIKI_HTDOCS/maintenance/update.php --quick
+
+    # avoid creating the DB if we don't have to (it takes a looong while)
+    create_wikipedia_db
+fi
+
+$SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --stop
+
+echo mediawikibuild installed successfully
+#### Description mediawikibuild
+#### Details mediawikibuild 3
