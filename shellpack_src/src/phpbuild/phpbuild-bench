@@ -1,0 +1,13 @@
+#!/bin/bash
+# This script installs php and leaves it ready for use building Apache httpd
+###SHELLPACK preamble phpbuild-bench 5.6.15
+PHP_VERSION=5.6.15
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required phpbuild-${VERSION}
+
+echo php successfully installed
+exit $SHELLPACK_SUCCESS

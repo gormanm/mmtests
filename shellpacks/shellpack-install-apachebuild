@@ -11,11 +11,12 @@ fi
 
 APR_VERSION=1.5.2
 PCRE_VERSION=8.37
+PHP_VERSION=5.6.15
 
 WEB_LOCATION=http://ftp.heanet.ie/mirrors/www.apache.org/dist/httpd
 MIRROR_LOCATION="$WEBROOT/apache/"
 
-install-depends gcc gcc-c++
+install-depends gcc gcc-c++ libxml2-devel
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -72,10 +73,10 @@ if [ ! -e $SHELLPACK_SOURCES/pcre-${PCRE_VERSION}-installed ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-pcrebuild -v ${PCRE_VERSION} || die Failed to install pcre
 fi
 
-# Build
+# Build Apache
 pushd $SHELLPACK_SOURCES/apachebuild-${VERSION} || die Failed to change to source directory
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
-eval ./configure --prefix=$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed --with-apr=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-apr-util=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-pcre=$SHELLPACK_SOURCES/pcrebuild-${PCRE_VERSION}-installed
+eval ./configure --prefix=$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed --with-apr=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-apr-util=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-pcre=$SHELLPACK_SOURCES/pcrebuild-${PCRE_VERSION}-installed --enable-so
 if [ $? -ne 0 ]; then
 	error "$P: configure failed"
 	popd > /dev/null
@@ -95,6 +96,11 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 
+# Install PHP (module) -- requires httpd to previously be built
+if [ ! -e $SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-phpbuild -v ${PHP_VERSION} || die Failed to install php
+fi
+
 echo httpd installed successfully
 #### Description apachebuild
-#### Details apachebuild 8
+#### Details apachebuild 9

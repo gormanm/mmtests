@@ -1,12 +1,14 @@
 #!/bin/bash
-P=apachebuild-bench
-DEFAULT_VERSION=2.4.17
+# This script installs php and leaves it ready for use building Apache httpd
+P=phpbuild-bench
+DEFAULT_VERSION=5.6.15
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
+PHP_VERSION=5.6.15
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -36,14 +38,6 @@ while [ "$1" != "" ]; do
 		INSTALL_FORCE=yes
 		shift
 		;;
-	--start)
-		SERVER_START=yes
-		shift
-		;;
-	--stop)
-		SERVER_STOP=yes
-		shift
-		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -58,28 +52,20 @@ if [ -z "$VERSION" ]; then
 fi
 
 if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/apachebuild-${VERSION}
+	rm -rf $SHELLPACK_SOURCES/phpbuild-${VERSION}
 fi
-if [ ! -d $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed ]; then
+if [ ! -d $SHELLPACK_SOURCES/phpbuild-${VERSION}-installed ]; then
 	mmtests_activity source-install
-	$SHELLPACK_INCLUDE/shellpack-install-apachebuild -v ${VERSION}  || die apachebuild install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-phpbuild -v ${VERSION}  || die phpbuild install script returned error
 	mmtests_activity source-installed
 fi
-cd $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed || die Failed to cd to apachebuild install directory
+cd $SHELLPACK_SOURCES/phpbuild-${VERSION}-installed || die Failed to cd to phpbuild install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo apachebuild installed only as requested.
+	echo phpbuild installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
 
-if [ "$SERVER_START" = "yes" ]; then
-	$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/bin/apachectl -k start || die Failed to start apache as requested
-fi
-
-if [ "$SERVER_STOP" = "yes" ]; then
-	$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/bin/apachectl -k stop || die Failed to stop apache as requested
-fi
-
-echo Apache httpd successfully installed
+echo php successfully installed
 exit $SHELLPACK_SUCCESS
-#### Description apachebuild
-#### Details apachebuild-bench 9
+#### Description phpbuild
+#### Details phpbuild-bench 1

@@ -4,11 +4,12 @@
 
 APR_VERSION=1.5.2
 PCRE_VERSION=8.37
+PHP_VERSION=5.6.15
 
 WEB_LOCATION=http://ftp.heanet.ie/mirrors/www.apache.org/dist/httpd
 MIRROR_LOCATION="$WEBROOT/apache/"
 
-install-depends gcc gcc-c++
+install-depends gcc gcc-c++ libxml2-devel
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
@@ -21,9 +22,14 @@ if [ ! -e $SHELLPACK_SOURCES/pcre-${PCRE_VERSION}-installed ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-pcrebuild -v ${PCRE_VERSION} || die Failed to install pcre
 fi
 
-# Build
+# Build Apache
 ###SHELLPACK build_start apachebuild-${VERSION}
-###SHELLPACK build_configure apachebuild-${VERSION} --with-apr=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-apr-util=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-pcre=$SHELLPACK_SOURCES/pcrebuild-${PCRE_VERSION}-installed
+###SHELLPACK build_configure apachebuild-${VERSION} --with-apr=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-apr-util=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-pcre=$SHELLPACK_SOURCES/pcrebuild-${PCRE_VERSION}-installed --enable-so
 ###SHELLPACK make_make_install
+
+# Install PHP (module) -- requires httpd to previously be built
+if [ ! -e $SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed ]; then
+	$SHELLPACK_INCLUDE/shellpack-install-phpbuild -v ${PHP_VERSION} || die Failed to install php
+fi
 
 echo httpd installed successfully
