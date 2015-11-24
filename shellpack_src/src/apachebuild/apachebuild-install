@@ -23,7 +23,7 @@ fi
 
 # Build
 ###SHELLPACK build_start apachebuild-${VERSION}
-###SHELLPACK build_configure apachebuild-${VERSION} --with-apr=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-apr-util=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-pcre=$SHELLPACK_SOURCES/pcre-${PCRE_VERSION}-installed
+###SHELLPACK build_configure apachebuild-${VERSION} --with-apr=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-apr-util=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-pcre=$SHELLPACK_SOURCES/pcrebuild-${PCRE_VERSION}-installed
 ###SHELLPACK make_make_install
 
 echo httpd installed successfully
