@@ -1,0 +1,38 @@
+#!/bin/bash
+# wikibench installer
+P=wikibench-install
+VERSION=0.3.1
+TARFILE=wikibench-${VERSION}.tar.gz
+WEB_LOCATION=http://www.wikibench.eu/wp-content/uploads/2011/01/$TARFILE
+MIRROR_LOCATION=$WEBROOT/wikibench
+APACHE_VERSION=2.4.17
+APR_VERSION=1.5.2
+MARIADB_VERSIO=10.1.8
+MEDIAWIKI_VERSION=1.18.6
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+install-depends ant
+
+. $SHELLPACK_INCLUDE/common.sh
+
+if [ ! -e $SHELLPACK_SOURCES/mediawiki-build-${MEDIAWIKI_VERSION}-installed ]; then
+	echo Installing mediawiki and httpd server
+	$SHELLPACK_INCLUDE/shellpack-install-mediawikibuild -v ${MEDIAWIKI_VERSION} || die Failed to install mediawiki httpd
+	echo Mediawiki and httpd server successfully installed.
+fi
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/$TARFILE
+
+cd $SHELLPACK_SOURCES
+tar xf $TARFILE || die $P: tar xf wikibench-$VERSION.tar.gz failed
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1`
+[ "$DST_DIR" != "wikibench-${VERSION}-installed/" ] && mv $DST_DIR wikibench-${VERSION}-installed
+
+# Build the library
+pushd wikibench-${VERSION}-installed > /dev/null
+
+echo wikibench installed successfully

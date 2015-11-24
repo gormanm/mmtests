@@ -1,0 +1,297 @@
+#!/bin/bash
+# Run wikibench benchmark
+
+P=wikibench-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+TESTTIME=15
+ITERATIONS=12
+
+APACHE_VERSION=2.4.17
+
+# It is suggested that no other java process be running along with
+# this benchmark. C'mon, java is a bitch already, you can uncomment
+# the following or run it in a separate shell (as root, preferably).
+# This is particularly useful when re-running wikibench from a prev
+# broken run.
+#
+# killall -9 java
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--warmup-time)
+		WIKIBENCH_WARMUP=$2
+		shift 2
+		;;
+	--min-workers)
+		WIKIBENCH_MIN_WORKERS=$2
+		shift 2
+		;;
+	--max-workers)
+		WIKIBENCH_MAX_WORKERS=$2
+		shift 2
+		;;
+	--sut-hostname)
+		WIKIBENCH_SUT_HOSTNAME=$2
+		shift 2
+		;;
+	--sut-port)
+		WIKIBENCH_SUT_PORT=$2
+		shift 2
+		;;
+	--size)
+		WIKIBENCH_SIZE=$2
+		shift 2
+		;;
+	--sampling)
+		WIKIBENCH_SAMPLING=$2
+		shift 2
+		;;
+	--sampling)
+		WIKIBENCH_WORKLOAD=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/wikibench-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/wikibench-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-wikibench -v ${VERSION}  || die wikibench install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/wikibench-${VERSION}-installed || die Failed to cd to wikibench install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo wikibench installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+WORKER_TIMEOUT=300 # ms
+
+# Decide what trace file to download. This will determine the
+# workload to be run by the benchmark. Because these traces are
+# already prepared/sampled, we only need the wikijector component
+# of the entire wikibench codebase.
+cd wikijector/
+
+# Download Apache httpcomponents libraries (binary versions)
+HTTPCOMPONENTS_CLIENT_VERSION=4.5.1
+wget -c http://apache.mirrors.ionfish.org//httpcomponents/httpclient/binary/httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz
+HTTPCOMPONENTS_CORE_VERSION=4.4.4
+wget -c http://apache.mirrors.ionfish.org//httpcomponents/httpcore/binary/httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz
+
+tar xf httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz ||
+die $P: tar xf httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz
+
+tar xf httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz ||
+die $P: tar xf httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz
+
+WIKIBENCH_PERMIL=
+
+if [ $WIKIBENCH_WORKLOAD != "" ]; then
+    SAMPLED_FILE=$WIKIBENCH_WORKLOAD.txt
+else
+    if [ "$WIKIBENCH_SIZE" = "small" ]; then
+	WIKIBENCH_PERMIL=990
+    elif [ "$WIKIBENCH_SIZE" = "medium" ]; then
+	WIKIBENCH_PERMIL=500
+    else [ "$WIKIBENCH_SIZE" = "large" ]
+	WIKIBENCH_PERMIL=0
+    fi
+    SAMPLED_FILE="sampled-traces-2007-09-${WIKIBENCH_SAMPLING}-${WIKIBENCH_PERMIL}.txt"
+fi
+
+wget -c "http://linux-scalability.org/benchmarks/${SAMPLED_FILE}.gz"
+
+# idx 0 is the controller, the rest are workers
+PIDARR=()
+CONTROLLER_IDX=0
+
+# hack for opensuse. SLE12 already has this...
+export JAVA_HOME=/usr/lib64/jvm/java
+
+$SHELLPACK_INCLUDE/shellpack-bench-mediawikibuild --start
+
+function start_wikibench_controller() {
+	MODE=$1
+	NWORKERS=$2
+
+	# Start the controller (verbose)
+	printf "Starting controller ... "
+	gunzip -c $SAMPLED_FILE.gz | ./wikijector.sh vcontroller \
+	    httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION/lib \
+	    httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION/lib \
+	    $WIKIBENCH_SUT_HOSTNAME $NWORKERS > $LOGDIR_RESULTS/$MODE-$WIKIBENCH_SAMPLING-controller-$NWORKERS.log 2>&1 &
+
+	sleep 5
+	# Check that the controller started sucessfully. At this
+	# point nothing as actually occured, as the ball starts
+	# rolling when all the specified workers have started.
+	PIDARR[$CONTROLLER_IDX]=`ps -A -o pid,cmd|grep run_verbose_controller | grep -v grep | head -n 1 | awk '{print $1}'`
+	CONTROLLER_TEST_ERROR=`grep FAILED $LOGDIR_RESULTS/$MODE-$WIKIBENCH_SAMPLING-controller-${NWORKERS}.log`
+	if [ "$CONTROLLER_TEST_ERROR" != "" ] || [ "${PIDARR[$CONTROLLER_IDX]}" = "" ]; then
+		die Failed to start benchmark controller.
+	fi
+
+	printf "OK (PID %s)\n" ${PIDARR[$CONTROLLER_IDX]}
+
+	# Start each worker
+	for i in `seq 1 $NWORKERS`; do
+		printf "* Starting worker %d/%d ... " $i $NWORKERS
+
+		./wikijector.sh worker \
+		    httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION/lib \
+		    httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION/lib \
+		    $WIKIBENCH_SUT_HOSTNAME 1 \
+		    $WIKIBENCH_SUT_HOSTNAME $WIKIBENCH_SUT_PORT $WORKER_TIMEOUT \
+		    $LOGDIR_RESULTS/$MODE-output-$WIKIBENCH_SAMPLING-worker-$i-$NWORKERS.log > $LOGDIR_RESULTS/$MODE-$WIKIBENCH_SAMPLING-worker-$i-$NWORKERS.log 2>&1 &
+
+		WORKER_PPID=$!
+		sleep 5
+		# The PPID will only have one child (our java/ant process)
+		tmp=`ps -o pid= --ppid $WORKER_PPID`
+		if [ "$tmp" != "" ]; then
+		    PIDARR[$i]=$tmp
+		fi
+
+		WORKER_TEST_ERROR=`grep FAILED $LOGDIR_RESULTS/$MODE-$WIKIBENCH_SAMPLING-worker-$i-$NWORKERS.log`
+		if [ "$WORKER_TEST_ERROR" != "" ] || [ "${PIDARR[$i]}" = "" ]; then
+
+			for pid in "${PIDARR[@]}"
+			do
+				if [ "`ps -o pid= --pid $pid`" != "" ]; then
+					kill -9 $pid
+				fi
+			done
+
+			die Failed to start benchmark worker.
+		fi
+		printf "OK (PID: %s)\n" ${PIDARR[$i]}
+	done
+
+	COUNT=0
+	# Wait on the workers to end -- thus the controller can tell us that.
+	echo -n Running benchmark ..
+	while [ "`ps h --pid ${PIDARR[$CONTROLLER_IDX]}`" != "" ]; do
+		echo -n .
+		sleep 60 # the smallest test will last nearly 2 hrs.
+		if [ $MODE = "warmup" ]; then
+			COUNT=$(($COUNT+1))
+		fi
+
+		CONTROLLER_TEST_ERROR=`grep "Exception:" $LOGDIR_RESULTS/$MODE-$WIKIBENCH_SAMPLING-controller-${NWORKERS}.log`
+		# A period of 10-15 minutes is a reasonable amount of time to get
+		# most of the working set in memory as well as fill caches for
+		# the different servers.
+		if [ "$CONTROLLER_TEST_ERROR" != "" ] || [ $COUNT -ge 10 ]; then
+			if [ $MODE != "warmup" ]; then
+			    echo WARNING: controller indicates errors
+			    touch $LOGDIR_RESULTS/$WIKIBENCH_SAMPLING-controller-${NWORKERS}.log.FAILED
+			fi
+
+			for pid in "${PIDARR[@]}"
+			do
+			    if [ "$pid" != "" ] && [ "`ps -o pid= --pid $pid`" != "" ]; then
+				kill -9 $pid > /dev/null
+			    fi
+			done
+		fi
+	done
+
+	wait `ps -o ppid= --pid ${PIDARR[$CONTROLLER_IDX]}`
+	printf " Done\n"
+
+	echo -n Waiting on workers to exit ..
+	for pid in "${PIDARR[@]}"
+	do
+		while [ "`ps h --pid $pid`" != "" ]; do
+			echo -n .
+			sleep 10
+		done
+	done
+	printf " Done\n"
+}
+
+# MAIN
+
+if [ $WIKIBENCH_WARMUP = "yes" ]; then
+    echo --- wikibench warmup ---
+    start_wikibench_controller warmup $NUMCPUS
+    echo --- wikibench warmup period over ---
+fi
+
+NR_THREADS=$WIKIBENCH_MIN_WORKERS
+if [ "$NR_THREADS" = "" ]; then
+	NR_THREADS=1
+fi
+THREADS=$NR_THREADS
+NR_THREADS=$((NR_THREADS*2))
+while [ $NR_THREADS -le $WIKIBENCH_MAX_WORKERS ]; do
+	THREADS="$THREADS $NR_THREADS"
+	NR_THREADS=$((NR_THREADS*2))
+done
+if [ `echo $THREADS | awk '{print $NF}'` -ne $WIKIBENCH_MAX_WORKERS ]; then
+	THREADS="$THREADS $WIKIBENCH_MAX_WORKERS"
+fi
+for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -gt $WIKIBENCH_MAX_WORKERS ]; then
+		NR_THREADS=$WIKIBENCH_MAX_WORKERS
+	fi
+	mmtests_activity process $NR_THREADS/$WIKIBENCH_MAX_WORKERS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+
+	start_wikibench_controller normal $NR_THREADS
+
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+done
+
+$SHELLPACK_INCLUDE/shellpack-bench-mediawikibuild --stop
+
+exit $SHELLPACK_SUCCESS
+#### Description wikibench
+#### Details wikibench-bench 1
