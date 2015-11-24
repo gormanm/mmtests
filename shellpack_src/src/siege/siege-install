@@ -3,9 +3,8 @@
 ###SHELLPACK preamble siege-install 3.0.5
 
 
-APACHE_VERSION=2.4.10
-
-APR_VERSION=1.5.1
+APACHE_VERSION=2.4.17
+APR_VERSION=1.5.2
 PCRE_VERSION=8.35
 
 WEB_LOCATION=http://download.joedog.org/siege

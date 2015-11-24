@@ -1,11 +1,11 @@
 #!/bin/bash
 # APR and APR-util installer for Apache httpd
-###SHELLPACK preamble aprbuild-install 1.5.1
+###SHELLPACK preamble aprbuild-install 1.5.2
 
 WEB_LOCATION=http://ftp.heanet.ie/mirrors/www.apache.org/dist/apr/
 MIRROR_LOCATION="$WEBROOT/apache/"
 
-APRUTIL_VERSION=1.5.3
+APRUTIL_VERSION=1.5.4
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

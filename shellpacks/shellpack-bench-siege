@@ -13,11 +13,21 @@ ITER_REPS=150
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -144,4 +154,4 @@ done
 echo siege completed successfully
 exit $SHELLPACK_SUCCESS
 #### Description siege
-#### Details siege-bench 38
+#### Details siege-bench 39

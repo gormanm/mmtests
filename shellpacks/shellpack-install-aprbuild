@@ -1,22 +1,37 @@
 #!/bin/bash
 # APR and APR-util installer for Apache httpd
 P=aprbuild-install
-DEFAULT_VERSION=1.5.1
+DEFAULT_VERSION=1.5.2
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 WEB_LOCATION=http://ftp.heanet.ie/mirrors/www.apache.org/dist/apr/
 MIRROR_LOCATION="$WEBROOT/apache/"
 
-APRUTIL_VERSION=1.5.3
+APRUTIL_VERSION=1.5.4
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -39,9 +54,9 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf apr-${VERSION}.tar.bz2 failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf apr-${VERSION}.tar.bz2 failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -78,9 +93,9 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf apr-util-${APRUTIL_VERSION}.tar.bz2 failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf apr-util-${APRUTIL_VERSION}.tar.bz2 failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -111,4 +126,4 @@ fi
 
 echo apr and apr-util installed successfully
 #### Description aprbuild
-#### Details aprbuild 5
+#### Details aprbuild 6

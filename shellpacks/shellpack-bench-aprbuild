@@ -1,17 +1,32 @@
 #!/bin/bash
 # This script installs apr and leaves it ready for use building Apache httpd
 P=aprbuild-bench
-DEFAULT_VERSION=1.5.1
+DEFAULT_VERSION=1.5.2
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -39,7 +54,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/aprbuild-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/aprbuild-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-aprbuild -v ${VERSION}  || die aprbuild install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/aprbuild-${VERSION}-installed || die Failed to cd to aprbuild install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -50,4 +67,4 @@ fi
 echo apr and apr-util successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description aprbuild
-#### Details aprbuild-bench 5
+#### Details aprbuild-bench 6

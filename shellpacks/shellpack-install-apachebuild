@@ -1,7 +1,7 @@
 #!/bin/bash
 # apache httpd installer
 P=apachebuild-install
-DEFAULT_VERSION=2.4.10
+DEFAULT_VERSION=2.4.17
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -9,8 +9,8 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 
-APR_VERSION=1.5.1
-PCRE_VERSION=8.35
+APR_VERSION=1.5.2
+PCRE_VERSION=8.37
 
 WEB_LOCATION=http://ftp.heanet.ie/mirrors/www.apache.org/dist/httpd
 MIRROR_LOCATION="$WEBROOT/apache/"
@@ -97,4 +97,4 @@ fi
 
 echo httpd installed successfully
 #### Description apachebuild
-#### Details apachebuild 7
+#### Details apachebuild 8

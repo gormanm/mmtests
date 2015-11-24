@@ -1,8 +1,13 @@
 #!/bin/bash
 # Perl Compatible RE installer for Apache httpd
 P=pcrebuild-install
-DEFAULT_VERSION=8.35
+DEFAULT_VERSION=8.37
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 WEB_LOCATION=ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre
 MIRROR_LOCATION="$WEBROOT/apache/"
@@ -10,11 +15,21 @@ MIRROR_LOCATION="$WEBROOT/apache/"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -37,9 +52,9 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf pcre-${VERSION}.tar.bz2 failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf pcre-${VERSION}.tar.bz2 failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -70,4 +85,4 @@ fi
 
 echo pcrebuild installed successfully
 #### Description pcrebuild
-#### Details pcrebuild 7
+#### Details pcrebuild 8

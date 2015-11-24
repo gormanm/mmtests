@@ -10,9 +10,8 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 
-APACHE_VERSION=2.4.10
-
-APR_VERSION=1.5.1
+APACHE_VERSION=2.4.17
+APR_VERSION=1.5.2
 PCRE_VERSION=8.35
 
 WEB_LOCATION=http://download.joedog.org/siege
@@ -22,11 +21,21 @@ MIRROR_LOCATION="$WEBROOT/siege/"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -146,4 +155,4 @@ Here is a bunch of text to bring the page size up to 1K.
 </body>
 </html>
 #### Description siege
-#### Details siege 38
+#### Details siege 39

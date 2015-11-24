@@ -1,6 +1,6 @@
 #!/bin/bash
 P=apachebuild-bench
-DEFAULT_VERSION=2.4.10
+DEFAULT_VERSION=2.4.17
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -82,4 +82,4 @@ fi
 echo Apache httpd successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description apachebuild
-#### Details apachebuild-bench 7
+#### Details apachebuild-bench 8

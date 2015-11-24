@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs apr and leaves it ready for use building Apache httpd
-###SHELLPACK preamble aprbuild-bench 1.5.1
+###SHELLPACK preamble aprbuild-bench 1.5.2
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
