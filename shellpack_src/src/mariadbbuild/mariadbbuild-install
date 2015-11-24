@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs mariadb and leaves it ready for benchmarking
-###SHELLPACK preamble mariadb-install 10.0.12
+###SHELLPACK preamble mariadb-install 10.1.8
 
 MARIADB_USER=nobody
 MARIADB_GROUP=nogroup
