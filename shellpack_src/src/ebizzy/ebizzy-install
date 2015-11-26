@@ -9,7 +9,20 @@ MIRROR_LOCATION="$WEBROOT/ebizzy"
 
 ###SHELLPACK sources_fetch ebizzy-${VERSION}.tar.gz ebizzy-$VERSION
 
-echo 'diff --git a/ebizzy.c b/ebizzy.c
+echo 'diff --git a/configure b/configure
+index 49f3652..3618780 100755
+--- a/configure
++++ b/configure
+@@ -31,7 +31,7 @@ cat <<EOF > Makefile
+ all: ebizzy
+
+ ebizzy: ebizzy.c
+-	gcc -Wall -Wshadow ${LIBS} ${FLAGS} -o ebizzy ebizzy.c
++	gcc -Wall -Wshadow ${FLAGS} -o ebizzy ebizzy.c ${LIBS}
+
+ clean:
+ 	rm -f ebizzy Makefile
+diff --git a/ebizzy.c b/ebizzy.c
 index 76c7492..3e7644f 100644
 --- a/ebizzy.c
 +++ b/ebizzy.c

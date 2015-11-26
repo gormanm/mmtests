@@ -3,17 +3,32 @@
 P=ebizzy-install
 DEFAULT_VERSION=0.3
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/ebizzy"
 MIRROR_LOCATION="$WEBROOT/ebizzy"
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -35,9 +50,9 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf ebizzy-${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf ebizzy-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -45,7 +60,20 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR ebizzy-$VERSION
 pushd ebizzy-$VERSION > /dev/null || die Failed to rename tar
 
-echo 'diff --git a/ebizzy.c b/ebizzy.c
+echo 'diff --git a/configure b/configure
+index 49f3652..3618780 100755
+--- a/configure
++++ b/configure
+@@ -31,7 +31,7 @@ cat <<EOF > Makefile
+ all: ebizzy
+
+ ebizzy: ebizzy.c
+-	gcc -Wall -Wshadow ${LIBS} ${FLAGS} -o ebizzy ebizzy.c
++	gcc -Wall -Wshadow ${FLAGS} -o ebizzy ebizzy.c ${LIBS}
+
+ clean:
+ 	rm -f ebizzy Makefile
+diff --git a/ebizzy.c b/ebizzy.c
 index 76c7492..3e7644f 100644
 --- a/ebizzy.c
 +++ b/ebizzy.c
@@ -141,4 +169,4 @@ cp ebizzy ../ebizzy-$VERSION-installed/bin || exit $SHELLPACK_ERROR
 
 exit $SHELLPACK_SUCCESS
 #### Description ebizzy
-#### Details ebizzy 14
+#### Details ebizzy 16
