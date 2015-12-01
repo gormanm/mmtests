@@ -1,0 +1,90 @@
+#!/bin/bash
+# cyclictest
+
+P=cyclictest-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--runtime)
+		CYCLICTEST_RUNTIME=$2
+		shift 2
+		;;
+	--affinity)
+		CYCLICTEST_AFFINITY=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/cyclictest-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/cyclictest-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-cyclictest -v ${VERSION}  || die cyclictest install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/cyclictest-${VERSION}-installed || die Failed to cd to cyclictest install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo cyclictest installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+if [ "$CYCLICTEST_AFFINITY" = "yes" ]; then
+	CYCLICTEST_AFFINITY_PARAM=-a
+fi
+
+monitor_pre_hook $LOGDIR_RESULTS
+./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
+	-n --distance=0 --duration=$CYCLICTEST_RUNTIME --quiet 2>&1 | \
+	tee $LOGDIR_RESULTS/cyclictest.log
+monitor_post_hook $LOGDIR_RESULTS
+exit $SHELLPACK_SUCCESS
+#### Description cyclictest
+#### Details cyclictest-bench 9

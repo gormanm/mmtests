@@ -1,0 +1,26 @@
+#!/bin/bash
+# cyclictest
+
+###SHELLPACK preamble cyclictest-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --runtime		CYCLICTEST_RUNTIME
+###SHELLPACK parseargYes     --affinity		CYCLICTEST_AFFINITY
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required cyclictest-${VERSION}
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+if [ "$CYCLICTEST_AFFINITY" = "yes" ]; then
+	CYCLICTEST_AFFINITY_PARAM=-a
+fi
+
+monitor_pre_hook $LOGDIR_RESULTS
+./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
+	-n --distance=0 --duration=$CYCLICTEST_RUNTIME --quiet 2>&1 | \
+	tee $LOGDIR_RESULTS/cyclictest.log
+monitor_post_hook $LOGDIR_RESULTS
+exit $SHELLPACK_SUCCESS
