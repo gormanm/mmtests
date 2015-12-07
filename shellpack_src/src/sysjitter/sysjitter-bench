@@ -1,0 +1,21 @@
+#!/bin/bash
+###SHELLPACK preamble sysjitter-bench 1.3
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --duration           DURATION
+###SHELLPACK parseargParam --threshold		THRESHOLD
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required sysjitter-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/sysjitter-${VERSION}-installed
+
+monitor_pre_hook $LOGDIR_RESULTS sysjitter
+mmtests_activity sysjitter
+echo Running sysjitter for $DURATION seconds, min_threshold $THRESHOLD
+./sysjitter --runtime $DURATION $THRESHOLD 2>&1 | tee $LOGDIR_RESULTS/sysjitter.log
+
+exit $SHELLPACK_SUCCESS

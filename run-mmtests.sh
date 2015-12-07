@@ -229,8 +229,7 @@ if [ "$RUN_MONITOR" = "no" ]; then
 else
 	# Check at least one monitor is enabled
 	if [ "$MONITORS_ALWAYS" = "" -a "$MONITORS_PLAIN" = "" -a "$MONITORS_GZIP" = "" -a "$MONITORS_WITH_LATENCY" = "" -a "$MONITORS_TRACER" = "" ]; then
-		echo Monitors enabled but none configured
-		exit $SHELLPACK_ERROR
+		echo WARNING: Monitors enabled but none configured
 	fi
 fi
 

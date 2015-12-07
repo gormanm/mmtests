@@ -1,0 +1,86 @@
+#!/bin/bash
+P=sysjitter-bench
+DEFAULT_VERSION=1.3
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--duration)
+		DURATION=$2
+		shift 2
+		;;
+	--threshold)
+		THRESHOLD=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/sysjitter-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/sysjitter-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-sysjitter -v ${VERSION}  || die sysjitter install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/sysjitter-${VERSION}-installed || die Failed to cd to sysjitter install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo sysjitter installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+cd $SHELLPACK_SOURCES/sysjitter-${VERSION}-installed
+
+monitor_pre_hook $LOGDIR_RESULTS sysjitter
+mmtests_activity sysjitter
+echo Running sysjitter for $DURATION seconds, min_threshold $THRESHOLD
+./sysjitter --runtime $DURATION $THRESHOLD 2>&1 | tee $LOGDIR_RESULTS/sysjitter.log
+
+exit $SHELLPACK_SUCCESS
+#### Description sysjitter
+#### Details sysjitter-bench 5

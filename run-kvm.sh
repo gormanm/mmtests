@@ -119,11 +119,20 @@ rm /tmp/mmtests.exclude
 
 echo Unmounting KVM device
 umount /tmp/mnt-mmtests
+ATTEMPT=1
 SANITY=`lsof $PART_DEVICE`
-if [ "$SANITY" != "" ]; then
-	echo Something still has $PART_DEVICE open, not safe
-	exit -1
-fi
+
+while [ "$SANITY" != "" -a "$KVM_FORCE_START" != "yes" ]; do
+	ATTEMPT=$((ATTEMPT+1))
+	if [ $ATTEMPT -eq 10 ]; then
+		echo Giving up
+		exit -1
+	fi
+	echo Something still has $PART_DEVICE open, not safe. Attempt $ATTEMPT, override with KVM_FORCE_START=yes
+	echo cmd: lsof $PART_DEVICE
+	sleep 3
+	SANITY=`lsof $PART_DEVICE`
+done
 dmsetup remove $PART_DEVICE
 losetup -d $LOOP_DEVICE
 
@@ -144,10 +153,11 @@ qemu-system-x86_64							\
 -m $MMTESTS_KVM_MEMORY							\
 -drive file=$MMTESTS_KVM_IMAGEDIR/mmtests-root.img,if=virtio,cache=none \
 -drive file=$MMTESTS_KVM_IMAGEDIR/mmtests-swap.img,if=virtio,cache=none \
+-cpu Nehalem								\
 -no-reboot								\
 -s 									\
 --enable-kvm								\
--net nic,model=rtl8139							\
+-net nic,model=virtio							\
 -net user,hostfwd=tcp::30022-:22					\
 -kernel $MMTESTS_KVM_KERNEL						\
 -initrd $MMTESTS_KVM_INITRD						\
