@@ -24,10 +24,6 @@ postgres)
 	;;
 esac
 
-if [ -e /opt/python-marvin/bin ]; then
-	export PATH=/opt/python-marvin/bin:$PATH
-fi
-
 # Build database and start it for sysbench config
 $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
         --effective_cachesize $((MEMTOTAL_BYTES*6/10)) \

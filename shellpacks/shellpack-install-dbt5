@@ -82,10 +82,6 @@ postgres)
 	;;
 esac
 
-if [ -e /opt/python-marvin/bin ]; then
-	export PATH=/opt/python-marvin/bin:$PATH
-fi
-
 # Build database and start it for sysbench config
 $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
         --effective_cachesize $((MEMTOTAL_BYTES*6/10)) \
@@ -189,4 +185,4 @@ index ad8e3a5d42e7..b99f63b446dd 100644
  						ct_name_esc[k++] = ct_name[i];
 ==== END string-boundary-check.patch ====
 #### Description dbt5
-#### Details dbt5 53
+#### Details dbt5 54
