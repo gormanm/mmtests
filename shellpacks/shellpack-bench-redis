@@ -1,0 +1,235 @@
+#!/bin/bash
+# This script installs redis and runs the benchmark suite tests
+P=redis-bench
+DEFAULT_VERSION=3.0.5
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVER_HOST=127.0.0.1
+if [ "$REMOTE_SERVER_HOST" != "" ]; then
+	SERVER_HOST=$REMOTE_SERVER_HOST
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--bind-pinned)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUA"
+		shift
+		;;
+	--bind-cross-node)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`numactl --hardware | grep ^node | grep cpus: | tail -1 | awk '{print $NF}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
+	--bind-cross-socket)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`list-cpu-siblings.pl $CPUA cores | awk -F , '{print $1}'`
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
+	--bind-cross-ht)
+		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
+		CPUB=`list-cpu-siblings.pl $CPUA threads | awk -F , '{print $1}'`
+		if [ "$CPUB" = "" ]; then
+			echo ERROR: Could not identify HT thread for CPU $CPUA
+			exit $SHELLPACK_ERROR
+		fi
+		TASKSET_SERVER="taskset -c $CPUA"
+		TASKSET_CLIENT="taskset -c $CPUB"
+		shift
+		;;
+	--iterations)
+		REDIS_ITERATIONS=$2
+		shift 2
+		;;
+	--persistence)
+		REDIS_PERSISTENCE=$2
+		shift 2
+		;;
+	--requests)
+		REDIS_REQUESTS=$2
+		shift 2
+		;;
+	--keyspace)
+		REDIS_KEYSPACE=$2
+		shift 2
+		;;
+	--min-threads)
+		REDIS_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		REDIS_MAX_THREADS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/redis-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/redis-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-redis -v ${VERSION}  || die redis install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/redis-${VERSION}-installed || die Failed to cd to redis install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo redis installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+export PATH=$SHELLPACK_SOURCES/redis-${VERSION}-installed/bin:$PATH
+REDIS_CONF=$SHELLPACK_SOURCES/redis-${VERSION}-installed/etc/redis-${REDIS_PERSISTENCE}.conf
+REDIS_PIDFILE=/tmp/redis-mmtests.pid
+
+server_start() {
+	if [ "$REMOTE_SERVER_HOST" != "" ]; then
+		mmtests_server_ctl start --serverside-name $NR_THREADS-$ITERATION
+	fi
+
+	if [ -e $REDIS_PIDFILE ]; then
+		echo Killing old servers
+		redis-cli flushall 2>&1 > /dev/null
+		kill `cat $REDIS_PIDFILE 2> /dev/null` 2> /dev/null
+		wait_on_pid_exit $REDIS_PIDFILE
+		rm $REDIS_PIDFILE
+	fi
+
+	echo Starting server
+	mmtests_activity redis-$SERVERSIDE_NAME
+	ulimit -n 15000
+	sysctl net.core.somaxconn=512
+	
+	monitor_pre_hook $LOGDIR_RESULTS redis-$SERVERSIDE_NAME
+	$TASKSET_SERVER redis-server $REDIS_CONF 2>&1 > $LOGDIR_RESULTS/redis-server.log &
+	REDIS_PID=$!
+	echo $REDIS_PID > $REDIS_PIDFILE
+	wait_on_pid_start $REDIS_PID
+}
+
+server_stop() {
+	if [ "$REMOTE_SERVER_HOST" != "" ]; then
+		mmtests_server_ctl stop --serverside-name $NR_THREADS-$ITERATION
+	fi
+
+	monitor_post_hook $LOGDIR_RESULTS redis-$SERVERSIDE_NAME
+
+	if [ ! -e $REDIS_PIDFILE ]; then
+		return
+	fi
+	echo Killing old servers
+	redis-cli flushall 2> /dev/null
+	kill `cat $REDIS_PIDFILE` > /dev/null
+	wait_on_pid_exit `cat $REDIS_PIDFILE`
+	rm $REDIS_PIDFILE
+}
+
+export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-redis
+case $SERVERSIDE_COMMAND in
+start)
+	server_start
+	exit $SHELLPACK_SUCCESS
+	;;
+stop)
+	server_stop
+	exit $SHELLPACK_SUCCESS
+	;;
+flush)
+	redis-cli flushall
+	exit $SHELLPACK_SUCCESS
+	;;
+none)
+	server_stop
+	;;
+*)
+	die Unrecognised server-side command
+	;;
+esac
+
+THREADS=
+START_THREAD=$REDIS_MIN_THREADS
+END_THREAD=$REDIS_MAX_THREADS
+if [ $END_THREAD -ge 32 ]; then
+	THREADS=`seq $START_THREAD 4 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -ge 8 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+for NR_THREADS in $THREADS; do
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+for ITERATION in `seq 1 $REDIS_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+		server_start
+		mmtests_activity $NR_THREADS-$ITERATION
+		echo Running test $NR_THREADS threads iteration $ITERATION/$REDIS_ITERATIONS
+		redis-benchmark --csv \
+			-c $NR_THREADS		\
+			-r $REDIS_KEYSPACE	\
+			-n $REDIS_REQUESTS 2>&1 | tee $LOGDIR_RESULTS/redis-${NR_THREADS}-${ITERATION}.log
+		server_stop
+done
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description redis
+#### Details redis-bench 15

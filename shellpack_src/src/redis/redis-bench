@@ -1,0 +1,110 @@
+#!/bin/bash
+# This script installs redis and runs the benchmark suite tests
+###SHELLPACK preamble redis-bench 3.0.5
+
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVER_HOST=127.0.0.1
+if [ "$REMOTE_SERVER_HOST" != "" ]; then
+	SERVER_HOST=$REMOTE_SERVER_HOST
+fi
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargParam    --iterations   REDIS_ITERATIONS
+###SHELLPACK parseargParam    --persistence  REDIS_PERSISTENCE
+###SHELLPACK parseargParam    --requests     REDIS_REQUESTS
+###SHELLPACK parseargParam    --keyspace     REDIS_KEYSPACE
+###SHELLPACK parseargParam    --min-threads  REDIS_MIN_THREADS
+###SHELLPACK parseargParam    --max-threads  REDIS_MAX_THREADS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required redis-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+export PATH=$SHELLPACK_SOURCES/redis-${VERSION}-installed/bin:$PATH
+REDIS_CONF=$SHELLPACK_SOURCES/redis-${VERSION}-installed/etc/redis-${REDIS_PERSISTENCE}.conf
+REDIS_PIDFILE=/tmp/redis-mmtests.pid
+
+server_start() {
+	if [ "$REMOTE_SERVER_HOST" != "" ]; then
+		mmtests_server_ctl start --serverside-name $NR_THREADS-$ITERATION
+	fi
+
+	if [ -e $REDIS_PIDFILE ]; then
+		echo Killing old servers
+		redis-cli flushall 2>&1 > /dev/null
+		kill `cat $REDIS_PIDFILE 2> /dev/null` 2> /dev/null
+		wait_on_pid_exit $REDIS_PIDFILE
+		rm $REDIS_PIDFILE
+	fi
+
+	echo Starting server
+	mmtests_activity redis-$SERVERSIDE_NAME
+	ulimit -n 15000
+	sysctl net.core.somaxconn=512
+	
+	monitor_pre_hook $LOGDIR_RESULTS redis-$SERVERSIDE_NAME
+	$TASKSET_SERVER redis-server $REDIS_CONF 2>&1 > $LOGDIR_RESULTS/redis-server.log &
+	REDIS_PID=$!
+	echo $REDIS_PID > $REDIS_PIDFILE
+	wait_on_pid_start $REDIS_PID
+}
+
+server_stop() {
+	if [ "$REMOTE_SERVER_HOST" != "" ]; then
+		mmtests_server_ctl stop --serverside-name $NR_THREADS-$ITERATION
+	fi
+
+	monitor_post_hook $LOGDIR_RESULTS redis-$SERVERSIDE_NAME
+
+	if [ ! -e $REDIS_PIDFILE ]; then
+		return
+	fi
+	echo Killing old servers
+	redis-cli flushall 2> /dev/null
+	kill `cat $REDIS_PIDFILE` > /dev/null
+	wait_on_pid_exit `cat $REDIS_PIDFILE`
+	rm $REDIS_PIDFILE
+}
+
+export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-redis
+case $SERVERSIDE_COMMAND in
+start)
+	server_start
+	exit $SHELLPACK_SUCCESS
+	;;
+stop)
+	server_stop
+	exit $SHELLPACK_SUCCESS
+	;;
+flush)
+	redis-cli flushall
+	exit $SHELLPACK_SUCCESS
+	;;
+none)
+	server_stop
+	;;
+*)
+	die Unrecognised server-side command
+	;;
+esac
+
+###SHELLPACK threads_huge_stride_begin $REDIS_MIN_THREADS $REDIS_MAX_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	###SHELLPACK iteration_begin $REDIS_ITERATIONS
+		server_start
+		mmtests_activity $NR_THREADS-$ITERATION
+		echo Running test $NR_THREADS threads iteration $ITERATION/$REDIS_ITERATIONS
+		redis-benchmark --csv \
+			-c $NR_THREADS		\
+			-r $REDIS_KEYSPACE	\
+			-n $REDIS_REQUESTS 2>&1 | tee $LOGDIR_RESULTS/redis-${NR_THREADS}-${ITERATION}.log
+		server_stop
+	###SHELLPACK iteration_end
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+
+exit $SHELLPACK_SUCCESS

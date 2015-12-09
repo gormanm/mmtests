@@ -211,7 +211,7 @@ if [ "$NETPERFMULTI_PROTOCOL" = "UDP_STREAM" ]; then
 fi
 
 THREADS=
-START_THREAD=1
+START_THREAD=$NETPERFMULTI_MIN_THREADS
 END_THREAD=$NETPERFMULTI_MAX_THREADS
 if [ $END_THREAD -ge 32 ]; then
 	THREADS=`seq $START_THREAD 4 8`
@@ -271,4 +271,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark with multiple instances
-#### Details netperfmulti-bench 15
+#### Details netperfmulti-bench 16

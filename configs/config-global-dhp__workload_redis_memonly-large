@@ -1,0 +1,81 @@
+### redis is a single-threaded server in-memory data store. This is a basic
+### configuration that uses one server even if running on a NUMA machine
+### with clients unbound. The number of requests is large (10,000,000) with
+### a keyspace of 5,000,000 keys. The data is not persisted as the test is
+### too short-lived to detect whether the timing of disk IO is a major
+### factor. Contrary to recommendations, THP is left as its default
+### setting which in most cases will be enabled.
+DIRNAME=`dirname $0`
+SCRIPTDIR=`cd "$DIRNAME" && pwd`
+
+# MM Test Parameters
+export MMTESTS="redis"
+export RUN_WARMUP=
+
+# Profiling parameters
+export RUN_NOPROFILE=yes
+export RUN_FINEPROFILE=no
+export RUN_COARSEPROFILE=no
+export OPROFILE_REPORT_ANNOTATE=no
+
+# Fixups
+if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/bin:$PATH
+fi
+if [ "`which record-extfrag 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/fraganalysis:$PATH
+fi
+if [ "`which oprofile_report.sh 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/vmr/bin:$PATH
+fi
+
+# Machine configuration
+# Swap configuration can be one of default, partitions, swapfile, NFS
+#export RUN_TUNINGS="$RUN_TUNINGS sysctl"
+#export VM_DIRTY_RATIO=20
+export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
+export SWAP_CONFIGURATION=default
+export SWAP_PARTITIONS=
+export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
+export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
+export SWAP_NBD_DEVICE=/dev/nbd0
+export SWAP_NBD_HOST=mcp
+export SWAP_NBD_PORT=10001
+
+# Optionally use a memory control group
+# export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda5
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+#
+# Test NFS disk to setup (optional)
+#export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
+#
+# Test NBD disk to setup (optional)
+#export TESTDISK_NBD_DEVICE=/dev/nbd0
+#export TESTDISK_NBD_HOST=mcp
+#export TESTDISK_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# Redis
+export REDIS_ITERATIONS=5
+export REDIS_PERSISTENCE=memonly
+export REDIS_REQUESTS=10000000
+export REDIS_KEYSPACE=$((REDIS_REQUESTS/2))
+export REDIS_MIN_THREADS=1
+export REDIS_MAX_THREADS=$((NUMCPUS*4))

@@ -39,6 +39,32 @@ function warn() {
 	echo "WARNING${TAG}: $@"
 }
 
+function wait_on_pid_start() {
+	WAITPID=$1
+	ABORTTIME=$2
+
+	if [ "$ABORTTIME" = "" ]; then
+		ABORTTIME=0
+	fi
+
+	if [ "$WAITPID" != "" ]; then
+		echo -n Waiting on pid $WAITPID to start
+		SLEPT=0
+		while [ "`ps h --pid $WAITPID`" = "" ]; do
+			echo -n .
+			sleep 1
+			SLEPT=$((SLEPT+1))
+			if [ $ABORTTIME -gt 0 -a $SLEPT -gt $ABORTTIME ]; then
+				echo WARNING: Pid wait timeout
+				return 1
+			fi
+		done
+		echo
+	fi
+	return 0
+}
+
+
 function wait_on_pid_exit() {
 	WAITPID=$1
 	ABORTTIME=$2
