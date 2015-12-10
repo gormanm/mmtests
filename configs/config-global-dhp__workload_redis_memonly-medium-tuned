@@ -32,7 +32,7 @@ fi
 # Swap configuration can be one of default, partitions, swapfile, NFS
 #export RUN_TUNINGS="$RUN_TUNINGS sysctl"
 #export VM_DIRTY_RATIO=20
-export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
+export VM_TRANSPARENT_HUGEPAGES_DEFAULT=never
 export SWAP_CONFIGURATION=default
 export SWAP_PARTITIONS=
 export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
@@ -78,7 +78,3 @@ export REDIS_REQUESTS=1000000
 export REDIS_KEYSPACE=$((REDIS_REQUESTS/2))
 export REDIS_MIN_THREADS=1
 export REDIS_MAX_THREADS=$((NUMCPUS*4))
-
-# Redis tuning parameters
-echo Applying Tuning Set A: disable THP
-echo never > /sys/kernel/mm/transparent_hugepage/enabled
