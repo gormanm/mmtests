@@ -33,6 +33,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 
+# The older version is used as it's compatible with the sample files
 #MEDIAWIKI_VERSION=1.25.3
 #WEB_LOCATION=https://releases.wikimedia.org/mediawiki/1.25/
 MEDIAWIKI_VERSION=1.18.6
@@ -65,9 +66,12 @@ function create_wikipedia_db() {
 #    DUMP_FILE_XML=enwiki-latest-pages-articles-multistream.xml
 #    wget -c http://dumps.wikimedia.org/enwiki/latest/$DUMP_FILE_XML.bz2
 
-    wget -c http://dumps.wikimedia.org/tools/$MWDUMPER_JAR
+    WEB_LOCATION=http://dumps.wikimedia.org/tools
+    sources_fetch $WEB_LOCATION/mwdumper.jar $MIRROR_LOCATION/mwdumper.jar mwdumper.jar
 
-    wget -c https://archive.org/download/enwiki-$DUMP_YEAR/$DUMP_FILE_XML.bz2
+    WEB_LOCATION=https://archive.org/download/enwiki-$DUMP_YEAR
+    sources_fetch $WEB_LOCATION/$DUMP_FILE_XML.bz2 $MIRROR_LOCATION/$DUMP_FILE_XML $DUMP_FILE_XML.bz2
+
     mmtests_activity database-init
     echo uncompressing ...
     eval bunzip2 $DUMP_FILE_XML.bz2 || die Failed to setup mediawiki
@@ -100,6 +104,7 @@ function create_wikipedia_db() {
 	externallinks.sql \
 	categorylinks.sql \
 	logging.sql )
+
     for addon in "${addons[@]}"
     do
 	ADDON_FILE=enwiki-$DUMP_YEAR-$addon
@@ -116,7 +121,7 @@ function create_wikipedia_db() {
 	$MYSQLCMD --force $MARIADB_DBNAME < $ADDON_FILE
     done
 
-    echo Completed $DUMP_FILE_XML dump.
+    echo Completed wikipedia database dump.
 }
 
 FIRST_DB_INSTALL=false
@@ -217,6 +222,7 @@ $SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --start \
 	--shared_buffers $((MEMTOTAL_BYTES/4)) \
 	--work_mem $((16*1048576)) || die Failed to get usable database installation
 
+# watchout of character set issues, utf8 and binary are encouraged.
 $MYSQLCMD -e "CREATE DATABASE IF NOT EXISTS ${MARIADB_DBNAME} CHARACTER SET utf8 COLLATE utf8_general_ci"
 
 # Create the mediawiki settings manually (use the same creds for DB
@@ -261,4 +267,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --stop
 
 echo mediawikibuild installed successfully
 #### Description mediawikibuild
-#### Details mediawikibuild 3
+#### Details mediawikibuild 6

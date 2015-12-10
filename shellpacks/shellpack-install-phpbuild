@@ -97,9 +97,22 @@ printf '%s\n\t%s\n%s\n' '<FilesMatch "\.phps$">' 'SetHandler application/x-httpd
 echo Generating phpinfo.php file
 echo "<?php phpinfo(); ?>" >> $SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/htdocs/phpinfo.php
 
-wget -c https://xcache.lighttpd.net/pub/Releases/$XCACHE_VERSION/xcache-$XCACHE_VERSION.tar.gz
-tar xf xcache-$XCACHE_VERSION.tar.gz || die Failed to setup php xcode
-cd xcache-$XCACHE_VERSION
+WEB_LOCATION=https://xcache.lighttpd.net/pub/Releases/$XCACHE_VERSION
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=xcache-$XCACHE_VERSION.tar.gz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf xcache-$XCACHE_VERSION.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR xcache-$XCACHE_VERSION
+pushd xcache-$XCACHE_VERSION > /dev/null || die Failed to rename tar
 $SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/bin/phpize
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/xcode-${XCACHE_VERSION}-installed --enable-xcache --with-php-config=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/bin/php-config
@@ -126,4 +139,4 @@ cat xcache.ini >> $SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/php.ini
 
 echo php installed successfully
 #### Description phpbuild
-#### Details phpbuild 1
+#### Details phpbuild 3

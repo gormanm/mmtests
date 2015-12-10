@@ -26,6 +26,7 @@
 
 ###SHELLPACK preamble mediawikibuild-install 1.18.6
 
+# The older version is used as it's compatible with the sample files
 #MEDIAWIKI_VERSION=1.25.3
 #WEB_LOCATION=https://releases.wikimedia.org/mediawiki/1.25/
 MEDIAWIKI_VERSION=1.18.6
@@ -58,9 +59,12 @@ function create_wikipedia_db() {
 #    DUMP_FILE_XML=enwiki-latest-pages-articles-multistream.xml
 #    wget -c http://dumps.wikimedia.org/enwiki/latest/$DUMP_FILE_XML.bz2
 
-    wget -c http://dumps.wikimedia.org/tools/$MWDUMPER_JAR
+    WEB_LOCATION=http://dumps.wikimedia.org/tools
+    sources_fetch $WEB_LOCATION/mwdumper.jar $MIRROR_LOCATION/mwdumper.jar mwdumper.jar
 
-    wget -c https://archive.org/download/enwiki-$DUMP_YEAR/$DUMP_FILE_XML.bz2
+    WEB_LOCATION=https://archive.org/download/enwiki-$DUMP_YEAR
+    sources_fetch $WEB_LOCATION/$DUMP_FILE_XML.bz2 $MIRROR_LOCATION/$DUMP_FILE_XML.bz2 $DUMP_FILE_XML.bz2
+
     mmtests_activity database-init
     echo uncompressing ...
     eval bunzip2 $DUMP_FILE_XML.bz2 || die Failed to setup mediawiki
@@ -91,13 +95,15 @@ function create_wikipedia_db() {
 	imagelinks.sql \
 	pagelinks.sql \
 	externallinks.sql \
+	categorylinks.sql \
 	logging.sql )
 
     for addon in "${addons[@]}"
     do
 	ADDON_FILE=enwiki-$DUMP_YEAR-$addon
 
-	wget -c https://archive.org/download/enwiki-$DUMP_YEAR/$ADDON_FILE.gz
+	WEB_LOCATION=https://archive.org/download/enwiki-$DUMP_YEAR
+	sources_fetch $WEB_LOCATION/$ADDON_FILE.gz $MIRROR_LOCATION/$ADDON_FILE.gz $ADDON_FILE.gz
 	gunzip $ADDON_FILE.gz
 
 	# Each of these downloaded .sql files create their corresponding tables

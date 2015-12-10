@@ -1,13 +1,16 @@
 #!/bin/bash
 # wikibench installer
-P=wikibench-install
-VERSION=0.3.1
-TARFILE=wikibench-${VERSION}.tar.gz
-WEB_LOCATION=http://www.wikibench.eu/wp-content/uploads/2011/01/$TARFILE
+
+P=wikibench
+DEFAULT_VERSION=0.3.1
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+WEB_LOCATION=http://www.wikibench.eu/wp-content/uploads/2011/01
 MIRROR_LOCATION=$WEBROOT/wikibench
-APACHE_VERSION=2.4.17
-APR_VERSION=1.5.2
-MARIADB_VERSIO=10.1.8
 MEDIAWIKI_VERSION=1.18.6
 
 # Basic argument parser
@@ -53,18 +56,22 @@ if [ ! -e $SHELLPACK_SOURCES/mediawiki-build-${MEDIAWIKI_VERSION}-installed ]; t
 	echo Mediawiki and httpd server successfully installed.
 fi
 
-sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/$TARFILE
-
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=wikibench-${VERSION}.tar.gz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
-tar xf $TARFILE || die $P: tar xf wikibench-$VERSION.tar.gz failed
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf wikibench-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
 
 # Rename directory to something we expect.
-DST_DIR=`tar tf $TARFILE | head -n 1`
-[ "$DST_DIR" != "wikibench-${VERSION}-installed/" ] && mv $DST_DIR wikibench-${VERSION}-installed
-
-# Build the library
-pushd wikibench-${VERSION}-installed > /dev/null
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR wikibench-${VERSION}-installed
+pushd wikibench-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 echo wikibench installed successfully
 #### Description wikibench
-#### Details wikibench 1
+#### Details wikibench 3

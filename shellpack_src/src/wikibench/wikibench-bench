@@ -39,16 +39,15 @@ WORKER_TIMEOUT=300 # ms
 cd wikijector/
 
 # Download Apache httpcomponents libraries (binary versions)
+WEB_LOCATION=http://apache.mirrors.ionfish.org//httpcomponents/httpclient/binary
 HTTPCOMPONENTS_CLIENT_VERSION=4.5.1
-wget -c http://apache.mirrors.ionfish.org//httpcomponents/httpclient/binary/httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz
+###SHELLPACK sources_fetch httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION
+mv $SHELLPACK_SOURCES/httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION . || die Failed to fetch httpcomponents-client
+
+WEB_LOCATION=http://apache.mirrors.ionfish.org//httpcomponents/httpcore/binary
 HTTPCOMPONENTS_CORE_VERSION=4.4.4
-wget -c http://apache.mirrors.ionfish.org//httpcomponents/httpcore/binary/httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz
-
-tar xf httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz ||
-die $P: tar xf httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz
-
-tar xf httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz ||
-die $P: tar xf httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz
+###SHELLPACK sources_fetch httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION
+mv $SHELLPACK_SOURCES/httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION . || die Failed to fetch httpcomponents-core
 
 WIKIBENCH_PERMIL=
 
@@ -70,9 +69,6 @@ wget -c "http://linux-scalability.org/benchmarks/${SAMPLED_FILE}.gz"
 # idx 0 is the controller, the rest are workers
 PIDARR=()
 CONTROLLER_IDX=0
-
-# hack for opensuse. SLE12 already has this...
-export JAVA_HOME=/usr/lib64/jvm/java
 
 $SHELLPACK_INCLUDE/shellpack-bench-mediawikibuild --start
 

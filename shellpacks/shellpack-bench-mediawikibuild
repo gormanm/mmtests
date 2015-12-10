@@ -99,4 +99,4 @@ fi
 echo mediawikibuild successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description mediawikibuild
-#### Details mediawikibuild-bench 3
+#### Details mediawikibuild-bench 6

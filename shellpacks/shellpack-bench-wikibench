@@ -120,16 +120,43 @@ WORKER_TIMEOUT=300 # ms
 cd wikijector/
 
 # Download Apache httpcomponents libraries (binary versions)
+WEB_LOCATION=http://apache.mirrors.ionfish.org//httpcomponents/httpclient/binary
 HTTPCOMPONENTS_CLIENT_VERSION=4.5.1
-wget -c http://apache.mirrors.ionfish.org//httpcomponents/httpclient/binary/httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION
+pushd httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION > /dev/null || die Failed to rename tar
+mv $SHELLPACK_SOURCES/httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION . || die Failed to fetch httpcomponents-client
+
+WEB_LOCATION=http://apache.mirrors.ionfish.org//httpcomponents/httpcore/binary
 HTTPCOMPONENTS_CORE_VERSION=4.4.4
-wget -c http://apache.mirrors.ionfish.org//httpcomponents/httpcore/binary/httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
 
-tar xf httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz ||
-die $P: tar xf httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz
-
-tar xf httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz ||
-die $P: tar xf httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION
+pushd httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION > /dev/null || die Failed to rename tar
+mv $SHELLPACK_SOURCES/httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION . || die Failed to fetch httpcomponents-core
 
 WIKIBENCH_PERMIL=
 
@@ -151,9 +178,6 @@ wget -c "http://linux-scalability.org/benchmarks/${SAMPLED_FILE}.gz"
 # idx 0 is the controller, the rest are workers
 PIDARR=()
 CONTROLLER_IDX=0
-
-# hack for opensuse. SLE12 already has this...
-export JAVA_HOME=/usr/lib64/jvm/java
 
 $SHELLPACK_INCLUDE/shellpack-bench-mediawikibuild --start
 
@@ -294,4 +318,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-mediawikibuild --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description wikibench
-#### Details wikibench-bench 1
+#### Details wikibench-bench 3

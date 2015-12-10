@@ -9,7 +9,7 @@ run_bench() {
 	fi
 
 	$SHELLPACK_INCLUDE/shellpack-bench-wikibench $VERSION_PARAM	\
-		--warmup       $WIKIBENCH_WARMUP			\
+		--warmup-time  $WIKIBENCH_WARMUP			\
 		--min-workers  $WIKIBENCH_MIN_WORKERS			\
 		--max-workers  $WIKIBENCH_MAX_WORKERS			\
 		--sut-hostname $WIKIBENCH_SUT_HOSTNAME			\
