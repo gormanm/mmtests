@@ -1,0 +1,55 @@
+#!/bin/bash
+
+P=specjbb2015-install
+DEFAULT_VERSION=1.00
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+WEB_LOCATION="NOT_AVAILABLE"
+MIRROR_LOCATION="$WEBROOT/spec"
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+mkdir -p $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/SPECjbb2015_${VERSION}.zip $SHELLPACK_SOURCES/SPECjbb2015_${VERSION}.zip
+cd $SHELLPACK_SOURCES
+unzip SPECjbb2015_${VERSION}.zip || die Failed to unzip SPECjbb2015_${VERSION}.zip
+mv SPECjbb2015_${VERSION} specjbb2015-${VERSION}-installed || die Failed to rename specjbb2015 directory
+
+exit $SHELLPACK_SUCCESS
+#### Description specjbb2015
+#### Details specjbb2015 3

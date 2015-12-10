@@ -2,7 +2,7 @@ FINEGRAINED_SUPPORTED=yes
 NAMEEXTRA=
 
 run_bench() {
-	$SCRIPTDIR/shellpacks/shellpack-bench-specjbb2013 \
+	$SCRIPTDIR/shellpacks/shellpack-bench-specjbb2015 \
 		--instances            $SPECJBB_JVM_INSTANCES
 	return $?
 }
