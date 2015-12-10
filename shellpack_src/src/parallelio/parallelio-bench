@@ -168,6 +168,7 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 		echo $WORKLOAD $IO_STEP $ITERATION $((ENDTIME_WORKLOAD-STARTTIME_WORKLOAD)) >> $LOGDIR_RESULTS/workload-durations.log
 
 		# Collect the data from the target workload and cleanup
+		gzip $LOGDIR_RESULTS/workload-$WORKLOAD-$IO_STEP-$ITERATION.log
 		mv $SHELLPACK_LOG/$WORKLOAD $LOGDIR_RESULTS/$WORKLOAD-$IO_STEP-$ITERATION
 		rm -rf $TESTDISK_DIR/*
 	###SHELLPACK iteration_end

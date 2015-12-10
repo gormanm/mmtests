@@ -225,6 +225,7 @@ for ITERATION in `seq 1 $PARALLELIO_ITERATIONS`; do
 		echo $WORKLOAD $IO_STEP $ITERATION $((ENDTIME_WORKLOAD-STARTTIME_WORKLOAD)) >> $LOGDIR_RESULTS/workload-durations.log
 
 		# Collect the data from the target workload and cleanup
+		gzip $LOGDIR_RESULTS/workload-$WORKLOAD-$IO_STEP-$ITERATION.log
 		mv $SHELLPACK_LOG/$WORKLOAD $LOGDIR_RESULTS/$WORKLOAD-$IO_STEP-$ITERATION
 		rm -rf $TESTDISK_DIR/*
 done
@@ -235,4 +236,4 @@ done
 rm -rf $TESTDISK_DIR
 exit $SHELLPACK_SUCCESS
 #### Description Run a workload with varying amounts of IO in the background to see the effect
-#### Details parallelio-bench 50
+#### Details parallelio-bench 51

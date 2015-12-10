@@ -41,6 +41,7 @@ echo o $MEMCACHETEST_ITEMS items per iteration
 	-T $MEMCACHETEST_DURATION -l \
 		    | tee $LOGDIR_RESULTS/memcachetest.log
 
+gzip $LOGDIR_RESULTS/memcachetest.log
 $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 
 exit $SHELLPACK_SUCCESS

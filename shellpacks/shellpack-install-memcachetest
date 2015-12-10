@@ -3,6 +3,11 @@
 P=memcachetest-install
 DEFAULT_VERSION=0.01
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 GIT_LOCATION=https://github.com/ingenthr/memcachetest.git
 MIRROR_LOCATION="$WEBROOT/memcachetest"
 
@@ -11,11 +16,21 @@ install-depends libevent-devel
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -37,9 +52,9 @@ git_fetch $GIT_LOCATION memcachetest-${VERSION} $MIRROR_LOCATION/$TARFILE $SHELL
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf memcachetest-${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf memcachetest-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -73,4 +88,4 @@ fi
 
 echo memcachetest installed successfully
 #### Description memcachetest
-#### Details memcachetest 16
+#### Details memcachetest 17
