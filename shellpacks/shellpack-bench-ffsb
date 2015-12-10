@@ -3,6 +3,11 @@
 P=ffsb-install
 DEFAULT_VERSION=6.0-rc2
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 DURATION=300
 NUM_FILES=100
@@ -18,11 +23,21 @@ MAX_FILESIZE=$((32*1048576))
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -86,7 +101,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/ffsb-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/ffsb-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-ffsb -v ${VERSION}  || die ffsb install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/ffsb-${VERSION}-installed || die Failed to cd to ffsb install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -217,4 +234,4 @@ monitor_post_hook $LOGDIR_RESULTS ffsb
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb-bench 19
+#### Details ffsb-bench 20

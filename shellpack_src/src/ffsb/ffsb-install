@@ -6,7 +6,7 @@ MIRROR_LOCATION="$WEBROOT/ffsb/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-WEB_LOCATION=http://sunet.dl.sourceforge.net/project/ffsb/ffsb/ffsb-${VERSION}
+WEB_LOCATION=http://heanet.dl.sourceforge.net/sourceforge/ffsb
 ###SHELLPACK sources_fetch ffsb-${VERSION}.tar.bz2 ffsb-${VERSION}
 
 ###SHELLPACK build_start ffsb-${VERSION}

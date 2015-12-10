@@ -3,15 +3,30 @@
 P=tiobench-bench
 DEFAULT_VERSION=0.3.3
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -69,7 +84,16 @@ NR_THREADS=$TIOBENCH_MIN_CLIENTS
 if [ "$NR_THREADS" = "" ]; then
 	NR_THREADS=1
 fi
+THREADS=$NR_THREADS
+NR_THREADS=$((NR_THREADS*2))
 while [ $NR_THREADS -le $TIOBENCH_MAX_CLIENTS ]; do
+	THREADS="$THREADS $NR_THREADS"
+	NR_THREADS=$((NR_THREADS*2))
+done
+if [ `echo $THREADS | awk '{print $NF}'` -ne $TIOBENCH_MAX_CLIENTS ]; then
+	THREADS="$THREADS $TIOBENCH_MAX_CLIENTS"
+fi
+for NR_THREADS in $THREADS; do
 	if [ $NR_THREADS -gt $TIOBENCH_MAX_CLIENTS ]; then
 		NR_THREADS=$TIOBENCH_MAX_CLIENTS
 	fi
@@ -86,9 +110,8 @@ while [ $NR_THREADS -le $TIOBENCH_MAX_CLIENTS ]; do
 				|| die Failed to run tiobench
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
-NR_THREADS=$((NR_THREADS*2))
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description tiobench
-#### Details tiobench-bench 19
+#### Details tiobench-bench 20

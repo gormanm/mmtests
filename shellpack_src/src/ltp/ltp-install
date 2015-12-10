@@ -3,50 +3,19 @@
 P=ltp-install
 INSTALL_TESTS=0
 VERSION=
-DEFAULT_VERSION=full-20120104
-WEB_LOCATION=http://netcologne.dl.sourceforge.net/project/ltp/LTP%20Source/ltp-20120104/ltp-full-20120104.bz2
+DEFAULT_VERSION=20150420
+WEB_LOCATION=http://heanet.dl.sourceforge.net/sourceforge/ltp
 MIRROR_LOCATION=$WEBROOT/ltp
 LTP_SOURCE_REPO=http://mcp/mmtests-mirror
 . $SHELLPACK_INCLUDE/common.sh
 
-# Basic argument parser
-while [ "$1" != "" ]; do
-  case "$1" in
-    -v)
-            VERSION=$2
-	    shift 2
-	    ;;
-    *)
-            echo Unrecognised option: $1
-	    shift
-  esac
-done
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
 
-if [ -z "$VERSION" ]; then
-	VERSION=$DEFAULT_VERSION
-fi
-SUB_VERSION=`echo $VERSION | sed -e 's/full-//'`
-TARFILE=ltp-${VERSION}.bz2
-WEB_LOCATION=$WEB_LOCATION/ltp-$SUB_VERSION/ltp-$VERSION.bz2
-
-MIRROR_LOCATION=$MIRROR_LOCATION/$TARFILE
-sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/$TARFILE
-
-cd $SHELLPACK_SOURCES
-tar xf $TARFILE || die $P: tar xf ltp-$VERSION.tar.gz failed
-
-# Rename directory to something we expect.
-DST_DIR=`tar tf $TARFILE | head -n 1`
-[ "$DST_DIR" != "ltp-${VERSION}/" ] && mv $DST_DIR ltp-${VERSION}
-
-# Build the library
-pushd ltp-${VERSION} > /dev/null
-
-# Build
-INSTALLPATH=$SHELLPACK_SOURCES/ltp-${VERSION}-installed
-rm -rf $INSTALLPATH
-./configure --prefix=$INSTALLPATH  || die configure failed
-make -j4 || die build failed
-make install || die install failed
+###SHELLPACK sources_fetch ltp-full-${VERSION}.tar.bz2 ltp-$VERSION
+###SHELLPACK build_start ltp-$VERSION
+###SHELLPACK build_configure ltp-${VERSION}
+###SHELLPACK make_make_install
 
 echo LTP installed successfully
