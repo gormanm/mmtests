@@ -711,8 +711,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		pagealloc)
 			;;
-		pipetest)
-			;;
 		pft)
 			echo "<tr>"
 			eval $GRAPH_PNG --title \"$SUBREPORT faults/cpu\" --sub-heading faults/cpu --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultscpu.png

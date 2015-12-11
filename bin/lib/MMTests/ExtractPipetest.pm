@@ -10,6 +10,7 @@ sub new() {
 		_ModuleName  => "ExtractPipetest",
 		_DataType    => MMTests::Extract::DATA_TIME_USECONDS,
 		_ResultData  => [],
+		_PlotType    => "simple",
 	};
 	bless $self, $class;
 	return $self;
