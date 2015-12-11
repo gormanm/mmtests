@@ -27,10 +27,6 @@ sub initialise() {
 	$self->{_TestName} = $testName;
 }
 
-sub printDataType() {
-	print "Operations/sec";
-}
-
 sub printPlot() {
 	my ($self, $subHeading) = @_;
 	my @data = @{$self->{_ResultData}};
@@ -41,16 +37,25 @@ sub printPlot() {
 	$subHeading =~ s/\s+//g;
 
 	my @units;
+	my @index;
 	my @row;
 	my $samples = 0;
 	foreach my $row (@data) {
 		@{$row}[0] =~ s/\s+//g;
-		if (@{$row}[0] eq $subHeading) {
+		if (@{$row}[0] eq $subHeading || $self->{_PlotType} eq "simple") {
+			push @index, @{$row}[1];
 			push @units, @{$row}[2];
 			$samples++;
 		}
 	}
-	$self->_printCandlePlotData($fieldLength, @units);
+
+	if ($self->{_PlotType} eq "simple") {
+		for (my $samples = 0; $samples <= $#index; $samples++) {
+			printf("%-${fieldLength}d %${fieldLength}.3f\n", $index[$samples] - $index[0], $units[$samples]);
+		}
+	} else {
+		$self->_printCandlePlotData($fieldLength, @units);
+	}
 }
 
 sub printReport() {

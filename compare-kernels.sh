@@ -296,6 +296,15 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT CPU-Time
 		eval $COMPARE_CMD --sub-heading elapsed
 		;;
+	mediawikibuild)
+		echo $SUBREPORT WikiMedia import pages/sec
+		eval $COMPARE_CMD
+
+		echo
+		echo $SUBREPORT Data import times
+		compare-mmtests.pl -d . -b mediawikibuildloadtime -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		;;
 	parallelio)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
