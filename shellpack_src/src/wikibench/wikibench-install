@@ -13,12 +13,7 @@ install-depends ant
 
 . $SHELLPACK_INCLUDE/common.sh
 
-if [ ! -e $SHELLPACK_SOURCES/mediawiki-build-${MEDIAWIKI_VERSION}-installed ]; then
-	echo Installing mediawiki and httpd server
-	$SHELLPACK_INCLUDE/shellpack-install-mediawikibuild -v ${MEDIAWIKI_VERSION} || die Failed to install mediawiki httpd
-	echo Mediawiki and httpd server successfully installed.
-fi
-
+###SHELLPACK check_external_install_required mediawikibuild mediawikibuild-${MEDIAWIKI_VERSION} ${MEDIAWIKI_VERSION}
 ###SHELLPACK sources_fetch wikibench-${VERSION}.tar.gz wikibench-${VERSION}-installed
 
 echo wikibench installed successfully

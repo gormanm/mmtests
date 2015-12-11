@@ -1,7 +1,9 @@
 #!/bin/bash
 # Run wikibench benchmark
 
-###SHELLPACK preamble wikibench-bench 0
+###SHELLPACK preamble wikibench-bench 0.3.1
+MIRROR_LOCATION=$WEBROOT/wikibench
+
 TESTTIME=15
 ITERATIONS=12
 
@@ -30,28 +32,48 @@ APACHE_VERSION=2.4.17
 ###SHELLPACK check_install_required wikibench-${VERSION}
 ###SHELLPACK monitor_hooks
 
+if [ ! -e $JAVA_HOME ]; then
+	install-depends java-1_7_0-openjdk
+	install-depends java-1_7_0-openjdk-devel
+
+	if [ ! -e /usr/lib64/jvm/java ]; then
+		echo ERROR: Java binary is not located at $JAVA_HOME as configured
+		exit -1
+	fi
+	export JAVA_HOME=/usr/lib64/jvm
+fi
+export PATH=$JAVA_HOME:$JAVA_HOME/bin:$PATH
+
 WORKER_TIMEOUT=300 # ms
+
+# Download Apache httpcomponents libraries (binary versions)
+WEB_LOCATION=http://apache.mirrors.ionfish.org//httpcomponents/httpclient/binary
+HTTPCOMPONENTS_CLIENT_VERSION=4.5.1
+if [ ! -e $SHELLPACK_SOURCES/wikibench-${VERSION}-installed/wikijector/httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION ]; then
+	###SHELLPACK sources_fetch httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION
+	mv $SHELLPACK_SOURCES/httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION	\
+		$SHELLPACK_SOURCES/wikibench-${VERSION}-installed/wikijector 		\
+			|| die Failed to move httpcomponents-client
+fi
+
+WEB_LOCATION=http://apache.mirrors.ionfish.org//httpcomponents/httpcore/binary
+HTTPCOMPONENTS_CORE_VERSION=4.4.4
+if [ ! -e $SHELLPACK_SOURCES/wikibench-${VERSION}-installed/wikijector/httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION ]; then
+	###SHELLPACK sources_fetch httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION
+	mv $SHELLPACK_SOURCES/httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION		\
+		$SHELLPACK_SOURCES/wikibench-${VERSION}-installed/wikijector		\
+			|| die Failed to move httpcomponents-core
+fi
+cd $SHELLPACK_SOURCES/wikibench-${VERSION}-installed/wikijector || die Failed to locate wikijector
 
 # Decide what trace file to download. This will determine the
 # workload to be run by the benchmark. Because these traces are
 # already prepared/sampled, we only need the wikijector component
 # of the entire wikibench codebase.
-cd wikijector/
-
-# Download Apache httpcomponents libraries (binary versions)
-WEB_LOCATION=http://apache.mirrors.ionfish.org//httpcomponents/httpclient/binary
-HTTPCOMPONENTS_CLIENT_VERSION=4.5.1
-###SHELLPACK sources_fetch httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION
-mv $SHELLPACK_SOURCES/httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION . || die Failed to fetch httpcomponents-client
-
-WEB_LOCATION=http://apache.mirrors.ionfish.org//httpcomponents/httpcore/binary
-HTTPCOMPONENTS_CORE_VERSION=4.4.4
-###SHELLPACK sources_fetch httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION
-mv $SHELLPACK_SOURCES/httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION . || die Failed to fetch httpcomponents-core
 
 WIKIBENCH_PERMIL=
 
-if [ $WIKIBENCH_WORKLOAD != "" ]; then
+if [ "$WIKIBENCH_WORKLOAD" != "" ]; then
     SAMPLED_FILE=$WIKIBENCH_WORKLOAD.txt
 else
     if [ "$WIKIBENCH_SIZE" = "small" ]; then
@@ -64,7 +86,8 @@ else
     SAMPLED_FILE="sampled-traces-2007-09-${WIKIBENCH_SAMPLING}-${WIKIBENCH_PERMIL}.txt"
 fi
 
-wget -c "http://linux-scalability.org/benchmarks/${SAMPLED_FILE}.gz"
+WEB_LOCATION=http://linux-scalability.org/benchmarks
+sources_fetch $WEB_LOCATION/${SAMPLED_FILE}.gz $MIRROR_LOCATION/${SAMPLED_FILE}.gz ${SAMPLED_FILE}.gz
 
 # idx 0 is the controller, the rest are workers
 PIDARR=()
@@ -78,6 +101,7 @@ function start_wikibench_controller() {
 
 	# Start the controller (verbose)
 	printf "Starting controller ... "
+	cd $SHELLPACK_SOURCES/wikibench-${VERSION}-installed/wikijector || die Failed to locate wikijector
 	gunzip -c $SAMPLED_FILE.gz | ./wikijector.sh vcontroller \
 	    httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION/lib \
 	    httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION/lib \
@@ -90,6 +114,10 @@ function start_wikibench_controller() {
 	PIDARR[$CONTROLLER_IDX]=`ps -A -o pid,cmd|grep run_verbose_controller | grep -v grep | head -n 1 | awk '{print $1}'`
 	CONTROLLER_TEST_ERROR=`grep FAILED $LOGDIR_RESULTS/$MODE-$WIKIBENCH_SAMPLING-controller-${NWORKERS}.log`
 	if [ "$CONTROLLER_TEST_ERROR" != "" ] || [ "${PIDARR[$CONTROLLER_IDX]}" = "" ]; then
+		echo
+		echo "=== begin log ==="
+		cat $LOGDIR_RESULTS/$MODE-$WIKIBENCH_SAMPLING-controller-${NWORKERS}.log
+		echo "=== end  log  ==="
 		die Failed to start benchmark controller.
 	fi
 

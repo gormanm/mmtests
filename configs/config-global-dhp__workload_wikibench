@@ -4,8 +4,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="mediawikibuild"
-# export MMTESTS="mediawikibuild wikibench-req-small"
+export MMTESTS="mediawikibuild wikibench-req-small"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -33,7 +32,7 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # wikibench
-export JAVA_HOME=/opt/java/jre/bin/java
+export JAVA_HOME=/opt/java
 export WIKIBENCH_MIN_WORKERS=2
 export WIKIBENCH_MAX_WORKERS=$((NUMCPUS*2))
 
@@ -56,8 +55,3 @@ export WIKIBENCH_SUT_PORT=80
 #    be found in http://www.linux-scalability.org/benchmarks/
 #      sampled-traces-2007-09-req-dummy
 #export WIKIBENCH_WORKLOAD="sampled-traces-2007-09-req-dummy"
-
-if [ ! -e $JAVA_HOME ]; then
-	echo ERROR: Java binary is not located at $JAVA_HOME as configured
-	exit -1
-fi

@@ -50,12 +50,19 @@ install-depends ant
 
 . $SHELLPACK_INCLUDE/common.sh
 
-if [ ! -e $SHELLPACK_SOURCES/mediawiki-build-${MEDIAWIKI_VERSION}-installed ]; then
-	echo Installing mediawiki and httpd server
-	$SHELLPACK_INCLUDE/shellpack-install-mediawikibuild -v ${MEDIAWIKI_VERSION} || die Failed to install mediawiki httpd
-	echo Mediawiki and httpd server successfully installed.
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/mediawikibuild-${MEDIAWIKI_VERSION}
 fi
-
+if [ ! -d $SHELLPACK_SOURCES/mediawikibuild-${MEDIAWIKI_VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-mediawikibuild -v ${MEDIAWIKI_VERSION}  || die mediawikibuild install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/mediawikibuild-${MEDIAWIKI_VERSION}-installed || die Failed to cd to mediawikibuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo mediawikibuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=wikibench-${VERSION}.tar.gz
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
@@ -74,4 +81,4 @@ pushd wikibench-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 echo wikibench installed successfully
 #### Description wikibench
-#### Details wikibench 3
+#### Details wikibench 22
