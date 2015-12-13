@@ -75,4 +75,4 @@ cp redis.conf $SHELLPACK_SOURCES/redis-${VERSION}-installed/etc/redis-default-pe
 
 echo Redis installed successfully
 #### Description redis
-#### Details redis 15
+#### Details redis 16
