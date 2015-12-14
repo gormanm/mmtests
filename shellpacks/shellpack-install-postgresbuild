@@ -3,6 +3,11 @@
 P=postgresbuild-install
 DEFAULT_VERSION=9.3.4
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 POSTGRES_USER=nobody
 POSTGRES_GROUP=nogroup
@@ -12,11 +17,21 @@ NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--postgres-user)
@@ -131,7 +146,12 @@ GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
 echo Initialising database
 PSQL="su -s /bin/bash $POSTGRES_USER -c"
 POSTGRES_DATADIR=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data
-$PSQL "bin/initdb -D $POSTGRES_DATADIR" || die Failed to init DB
+$PSQL "bin/initdb -D $POSTGRES_DATADIR"
+if [ $? -ne 0 ]; then
+	echo WARNING: initdb failed to execute, forcing access permissions on home
+	chmod a+x $HOME
+	$PSQL "bin/initdb -D $POSTGRES_DATADIR" || die die Failed to init DB
+fi
 
 # Update the max connection count if necessary
 echo o Setting max_connections: $(($NUMCPUS*6))
@@ -167,4 +187,4 @@ update_entry_cnf password_encryption off
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 49
+#### Details postgresbuild 50

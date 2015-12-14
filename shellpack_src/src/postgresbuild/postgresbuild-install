@@ -63,7 +63,12 @@ GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
 echo Initialising database
 PSQL="su -s /bin/bash $POSTGRES_USER -c"
 POSTGRES_DATADIR=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data
-$PSQL "bin/initdb -D $POSTGRES_DATADIR" || die Failed to init DB
+$PSQL "bin/initdb -D $POSTGRES_DATADIR"
+if [ $? -ne 0 ]; then
+	echo WARNING: initdb failed to execute, forcing access permissions on home
+	chmod a+x $HOME
+	$PSQL "bin/initdb -D $POSTGRES_DATADIR" || die die Failed to init DB
+fi
 
 # Update the max connection count if necessary
 echo o Setting max_connections: $(($NUMCPUS*6))
