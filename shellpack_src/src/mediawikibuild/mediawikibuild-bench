@@ -75,6 +75,7 @@ function mediawiki_init() {
     $TIME_CMD -o $LOGDIR_RESULTS/time-import-mwdump \
 	java -jar $MWDUMPER_JAR --format=sql:1.5 $DUMP_FILE_XML 2> $LOGDIR_RESULTS/import-mwdump.log | \
 		$MYSQLCMD --force $MARIADB_DBNAME 2>&1 | tee $LOGDIR_RESULTS/import-mwdump-mysql.log
+    rm $DUMP_FILE_XML
 
     #
     # Download additional dumps that fill tables other than the main articles,
@@ -115,6 +116,7 @@ function mediawiki_init() {
 	ADDON_NAME=`echo $addon | sed -e 's/.sql//'`
 	$TIME_CMD -o $LOGDIR_RESULTS/time-import-$ADDON_NAME \
 		$MYSQLCMD --force $MARIADB_DBNAME < $ADDON_FILE 2>&1 | tee $LOGDIR_RESULTS/import-${ADDON_NAME}.log
+	rm $ADDON_FILE
     done
 
     echo Completed wikipedia database dump.

@@ -191,4 +191,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --stop
 
 echo mediawikibuild installed successfully
 #### Description mediawikibuild
-#### Details mediawikibuild 13
+#### Details mediawikibuild 14
