@@ -60,6 +60,9 @@ mv $DST_DIR gitsource-${VERSION}-installed
 pushd gitsource-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/gitsource-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 if [ -e .git ]; then
 	git checkout $VERSION || die Failed to checkout version $VERSION
 fi
@@ -81,4 +84,4 @@ fi
 
 echo gitsource installed successfully
 #### Description git source unit tests
-#### Details gitsource 5
+#### Details gitsource 6

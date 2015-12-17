@@ -93,4 +93,4 @@ cat $LOGDIR_RESULTS/gitsource-*.time | grep elapsed | tee $LOGDIR_RESULTS/time
 
 exit $SHELLPACK_SUCCESS
 #### Description git source unit tests
-#### Details gitsource-bench 5
+#### Details gitsource-bench 6

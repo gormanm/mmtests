@@ -231,6 +231,9 @@ EOC
 		my ($srcdir) = @details;
 		print <<EOC
 pushd \$SHELLPACK_SOURCES/$srcdir || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch \$FILE
+done
 EOC
 	} elsif ($command eq "build_autogen") {
 		print <<EOC
