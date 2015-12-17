@@ -53,6 +53,11 @@ PHPCMD=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/bin/php
 
 FIRST_DB_INSTALL=false
 
+# Check requirements
+if [ $TESTDISK_PRIMARY_SIZE_BYTES -le $((100*1048576*1024)) ]; then
+	die Must be at least 100GB free disk space
+fi
+
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -191,4 +196,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --stop
 
 echo mediawikibuild installed successfully
 #### Description mediawikibuild
-#### Details mediawikibuild 14
+#### Details mediawikibuild 16
