@@ -1,0 +1,92 @@
+#!/bin/bash
+P=phpbench-bench
+DEFAULT_VERSION=0.8.1
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--iterations)
+		PHPBENCH_ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/phpbench-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/phpbench-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-phpbench -v ${VERSION}  || die phpbench install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/phpbench-${VERSION}-installed || die Failed to cd to phpbench install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo phpbench installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+echo Shutting down apache server...
+$SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die Failed to shutdown apache http server
+
+monitor_pre_hook $LOGDIR_RESULTS 1
+for ITERATION in `seq 1 $PHPBENCH_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+	$TIME_CMD -o $LOGDIR_RESULTS/phpbench-${ITERATION}.time \
+		$SHELLPACK_SOURCES/phpbuild-5.6.15-installed/bin/php \
+			$SHELLPACK_SOURCES/phpbench-${VERSION}-installed/phpbench.php 2>&1 \
+				| grep -v "Deprecated:"  \
+				| grep -v "Division by zero" \
+				| grep -v "Strict Standards:" \
+				| grep -E -v "^$"	      \
+				| tee $LOGDIR_RESULTS/phpbench-${ITERATION}.log
+done
+monitor_post_hook $LOGDIR_RESULTS 1
+
+echo phpbench completed successfully
+exit $SHELLPACK_SUCCESS
+#### Description phpbench
+#### Details phpbench-bench 12

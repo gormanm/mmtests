@@ -1,0 +1,29 @@
+#!/bin/bash
+###SHELLPACK preamble phpbench-bench 0.8.1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --iterations        PHPBENCH_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK monitor_hooks
+###SHELLPACK check_install_required phpbench-${VERSION}
+
+echo Shutting down apache server...
+$SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die Failed to shutdown apache http server
+
+monitor_pre_hook $LOGDIR_RESULTS 1
+###SHELLPACK iteration_begin $PHPBENCH_ITERATIONS
+	$TIME_CMD -o $LOGDIR_RESULTS/phpbench-${ITERATION}.time \
+		$SHELLPACK_SOURCES/phpbuild-5.6.15-installed/bin/php \
+			$SHELLPACK_SOURCES/phpbench-${VERSION}-installed/phpbench.php 2>&1 \
+				| grep -v "Deprecated:"  \
+				| grep -v "Division by zero" \
+				| grep -v "Strict Standards:" \
+				| grep -E -v "^$"	      \
+				| tee $LOGDIR_RESULTS/phpbench-${ITERATION}.log
+###SHELLPACK iteration_end $PHPBENCH_ITERATIONS
+monitor_post_hook $LOGDIR_RESULTS 1
+
+echo phpbench completed successfully
+exit $SHELLPACK_SUCCESS
