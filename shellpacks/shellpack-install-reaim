@@ -73,6 +73,9 @@ fi
 
 export LDFLAGS=-laio
 pushd $SHELLPACK_SOURCES/reaim-${VERSION} || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 
 # Patch crazy syncing and off-by-one error
 LINESTART=`grep -n "==== BEGIN controlled-sync.patch" $0 | tail -1 | awk -F : '{print $1}'`
@@ -382,4 +385,4 @@ index f11a98883c4c..72637ca015f4 100644
  	strcat(stmp,s2);
 ==== END controlled-sync.patch ====
 #### Description reaim
-#### Details reaim 50
+#### Details reaim 51

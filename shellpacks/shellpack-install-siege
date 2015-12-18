@@ -75,6 +75,9 @@ fi
 # Build
 export LDFLAGS=-lrt
 pushd $SHELLPACK_SOURCES/siege-${VERSION} || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/siege-${VERSION}-installed 
 if [ $? -ne 0 ]; then
@@ -155,4 +158,4 @@ Here is a bunch of text to bring the page size up to 1K.
 </body>
 </html>
 #### Description siege
-#### Details siege 39
+#### Details siege 40

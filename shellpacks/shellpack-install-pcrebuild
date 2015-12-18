@@ -62,6 +62,9 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR pcrebuild-${VERSION}
 pushd pcrebuild-${VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/pcrebuild-${VERSION} || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/pcrebuild-${VERSION}-installed 
 if [ $? -ne 0 ]; then
@@ -85,4 +88,4 @@ fi
 
 echo pcrebuild installed successfully
 #### Description pcrebuild
-#### Details pcrebuild 8
+#### Details pcrebuild 9

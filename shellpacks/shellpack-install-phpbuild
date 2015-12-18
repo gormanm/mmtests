@@ -66,6 +66,9 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR phpbuild-${PHP_VERSION}
 pushd phpbuild-${PHP_VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/phpbuild-${PHP_VERSION} || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed --with-apxs2=$SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/bin/apxs --with-mysql --with-config-file-path=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/
 if [ $? -ne 0 ]; then
@@ -139,4 +142,4 @@ cat xcache.ini >> $SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/php.ini
 
 echo php installed successfully
 #### Description phpbuild
-#### Details phpbuild 3
+#### Details phpbuild 5

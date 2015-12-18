@@ -82,4 +82,4 @@ fi
 echo Apache httpd successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description apachebuild
-#### Details apachebuild-bench 9
+#### Details apachebuild-bench 10

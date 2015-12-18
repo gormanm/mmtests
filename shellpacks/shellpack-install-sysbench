@@ -94,6 +94,9 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR sysbench-${VERSION}
 pushd sysbench-${VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/sysbench-${VERSION} || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 touch NEWS
 touch AUTHORS
 autoreconf -f -i || die Failed to run autoreconf
@@ -134,4 +137,4 @@ fi
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench 73
+#### Details sysbench 74

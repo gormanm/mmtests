@@ -61,6 +61,9 @@ mv $DST_DIR netperf-${VERSION}
 pushd netperf-${VERSION} > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/netperf-${VERSION} || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
 if [ $? -ne 0 ]; then
@@ -84,4 +87,4 @@ fi
 
 echo Netperf installed successfully
 #### Description Netperf benchmark
-#### Details netperf 34
+#### Details netperf 35

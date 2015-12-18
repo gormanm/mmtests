@@ -3,17 +3,32 @@
 P=bonnie-install
 DEFAULT_VERSION=1.03e
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION="http://www.coker.com.au/bonnie++"
 MIRROR_LOCATION="$WEBROOT/bonnie"
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -36,9 +51,9 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf bonnie%2B%2B-${VERSION}.tgz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf bonnie%2B%2B-${VERSION}.tgz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -47,6 +62,9 @@ mv $DST_DIR bonnie-$VERSION
 pushd bonnie-$VERSION > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/bonnie-$VERSION || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/bonnie-${VERSION}-installed 
 if [ $? -ne 0 ]; then
@@ -70,4 +88,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description bonnie
-#### Details bonnie 31
+#### Details bonnie 32

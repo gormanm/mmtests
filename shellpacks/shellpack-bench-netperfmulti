@@ -231,7 +231,7 @@ for NR_THREADS in $THREADS; do
 	server_start $NR_THREADS
 for ITERATION in `seq 1 $NETPERFMULTI_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
-		mmtests_activity $NETPERFMULTI_BUFFER_SIZE-$NR_THREADS
+		mmtests_activity $NETPERFMULTI_BUFFER_SIZE-$NR_THREADS-$ITERATION
 		SIZE_OPT=
 		if [ "$NETPERFMULTI_PROTOCOL" = "UDP_STREAM" -o "$NETPERFMULTI_PROTOCOL" = "TCP_STREAM" ]; then
 			SIZE_OPT="-m $NETPERFMULTI_BUFFER_SIZE -M $NETPERFMULTI_BUFFER_SIZE"
@@ -271,4 +271,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark with multiple instances
-#### Details netperfmulti-bench 16
+#### Details netperfmulti-bench 17

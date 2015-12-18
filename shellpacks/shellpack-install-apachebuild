@@ -75,6 +75,9 @@ fi
 
 # Build Apache
 pushd $SHELLPACK_SOURCES/apachebuild-${VERSION} || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed --with-apr=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-apr-util=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-pcre=$SHELLPACK_SOURCES/pcrebuild-${PCRE_VERSION}-installed --enable-so
 if [ $? -ne 0 ]; then
@@ -103,4 +106,4 @@ fi
 
 echo httpd installed successfully
 #### Description apachebuild
-#### Details apachebuild 9
+#### Details apachebuild 10

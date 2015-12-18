@@ -62,6 +62,9 @@ pushd sqlite-${VERSION} > /dev/null || die Failed to rename tar
 
 # Build
 pushd $SHELLPACK_SOURCES/sqlite-${VERSION} || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/sqlite-${VERSION}-installed 
 if [ $? -ne 0 ]; then
@@ -85,4 +88,4 @@ fi
 
 echo sqlite installed successfully
 #### Description sqlite
-#### Details sqlite 22
+#### Details sqlite 23

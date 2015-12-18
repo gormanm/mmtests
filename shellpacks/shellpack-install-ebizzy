@@ -150,6 +150,9 @@ index 76c7492..3e7644f 100644
  	sys_time = difftimeval(&end_ru.ru_stime, &start_ru.ru_stime);' | patch -p1 || exit $SHELLPACK_ERROR
 
 pushd $SHELLPACK_SOURCES/ebizzy-$VERSION || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/-installed 
 if [ $? -ne 0 ]; then
@@ -169,4 +172,4 @@ cp ebizzy ../ebizzy-$VERSION-installed/bin || exit $SHELLPACK_ERROR
 
 exit $SHELLPACK_SUCCESS
 #### Description ebizzy
-#### Details ebizzy 16
+#### Details ebizzy 17

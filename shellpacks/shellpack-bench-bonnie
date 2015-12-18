@@ -3,6 +3,11 @@
 P=bonnie-bench
 DEFAULT_VERSION=1.03e
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 DATASET_SIZE=$((2*1048576))
 NR_FILES=1024
@@ -15,11 +20,21 @@ FSYNC_PARAM=
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -115,4 +130,4 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	fi
 done
 #### Description bonnie
-#### Details bonnie-bench 31
+#### Details bonnie-bench 32
