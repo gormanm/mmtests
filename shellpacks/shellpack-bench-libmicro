@@ -96,4 +96,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro
-#### Details libmicro-bench 12
+#### Details libmicro-bench 13

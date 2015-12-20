@@ -3,15 +3,30 @@
 P=getpidbench-bench
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -56,4 +71,4 @@ eval $MMTESTS_NUMACTL ./getpidbench 2>&1
 monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 exit $SHELLPACK_SUCCESS
 #### Description sys_getpid in loop benchmark
-#### Details getpidbench-bench 30
+#### Details getpidbench-bench 31

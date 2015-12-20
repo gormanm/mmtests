@@ -59,9 +59,12 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR usemembuild-${VERSION}-installed
 pushd usemembuild-${VERSION}-installed > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/usemembuild-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 
 mkdir bin/
 gcc -lpthread -O2 usemem.c -o usemem || die Failed to build usemem
 exit $SHELLPACK_SUCCESS
 #### Description usemembuild
-#### Details usemembuild 2
+#### Details usemembuild 3

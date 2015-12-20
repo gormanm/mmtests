@@ -79,4 +79,4 @@ make install_lib || die Failed to install_lib
 
 echo jemalloc installed successfully
 #### Description jemalloc
-#### Details jemalloc 5
+#### Details jemalloc 6

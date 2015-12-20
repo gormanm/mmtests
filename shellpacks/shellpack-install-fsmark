@@ -16,11 +16,21 @@ install-depends glibc-devel-static glibc-devel-static-32bit
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -53,6 +63,9 @@ mv $DST_DIR fsmark-${VERSION}-installed
 pushd fsmark-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/fsmark-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -62,4 +75,4 @@ fi
 
 echo fsmark installed successfully
 #### Description fsmark
-#### Details fsmark 32
+#### Details fsmark 33

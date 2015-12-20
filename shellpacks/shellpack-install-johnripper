@@ -62,6 +62,9 @@ pushd johnripper-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 # Build
 pushd $SHELLPACK_SOURCES/johnripper-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 cd src
 sed -i -e "s/^OMPFLAGS.*/OMPFLAGS = -fopenmp/" Makefile
 case `uname -m` in
@@ -77,4 +80,4 @@ esac
 
 echo john the ripper installed successfully
 #### Description John the ripper is a parallelised password cracked
-#### Details johnripper 8
+#### Details johnripper 9

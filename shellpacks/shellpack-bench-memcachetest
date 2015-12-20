@@ -114,4 +114,4 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 
 exit $SHELLPACK_SUCCESS
 #### Description memcachetest
-#### Details memcachetest-bench 18
+#### Details memcachetest-bench 19

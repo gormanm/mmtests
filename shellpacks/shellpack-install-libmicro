@@ -63,6 +63,9 @@ mv $DST_DIR libmicro-${VERSION}-installed
 pushd libmicro-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/libmicro-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 
 echo '--- Makefile.com.orig	2014-03-31 12:09:53.689008589 +0100
 +++ Makefile.com	2014-03-31 12:09:57.317989834 +0100
@@ -91,4 +94,4 @@ fi
 
 echo libmicro installed successfully
 #### Description libmicro
-#### Details libmicro 12
+#### Details libmicro 13

@@ -2,15 +2,30 @@
 P=cmattach-test-bench
 DEFAULT_VERSION=20110718
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -38,7 +53,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/cmattach-test-${VERSION}
 fi
 if [ ! -d $SHELLPACK_SOURCES/cmattach-test-${VERSION}-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-cmattach-test -v ${VERSION}  || die cmattach-test install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/cmattach-test-${VERSION}-installed || die Failed to cd to cmattach-test install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -84,4 +101,4 @@ for TEST in process_vm_readv_simple process_vm_writev process_vm_readv_iovec; do
 	echo $STATUS
 done
 #### Description This is a basic functional test of cross-memory-attach
-#### Details cmattach-test-bench 3
+#### Details cmattach-test-bench 4

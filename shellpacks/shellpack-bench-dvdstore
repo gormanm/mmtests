@@ -21,11 +21,21 @@ MARIADB_ADMIN_PASSWORD=mmtests-default
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -154,13 +164,6 @@ else
 	exit $SHELLPACK_ERROR
 fi
 
-# Figure out how to use the time command
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
-
 FIRST_TIME=yes
 SYSBENCH_OPTIONS="$MAX_TIME_COMMAND $MAX_TRANSACTIONS_COMMAND $SYSBENCH_DB_OPTIONS"
 OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
@@ -282,4 +285,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 echo dvdstore successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description dvdstore
-#### Details dvdstore-bench 19
+#### Details dvdstore-bench 21

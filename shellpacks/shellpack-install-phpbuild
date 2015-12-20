@@ -142,4 +142,4 @@ cat xcache.ini >> $SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/php.ini
 
 echo php installed successfully
 #### Description phpbuild
-#### Details phpbuild 5
+#### Details phpbuild 6

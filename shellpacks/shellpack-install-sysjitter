@@ -64,6 +64,9 @@ pushd sysjitter-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 # Build
 pushd $SHELLPACK_SOURCES/sysjitter-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -73,4 +76,4 @@ fi
 
 echo sysjitter installed successfully
 #### Description sysjitter
-#### Details sysjitter 5
+#### Details sysjitter 6

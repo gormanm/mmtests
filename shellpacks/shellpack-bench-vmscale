@@ -128,4 +128,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description vm scalability test suite
-#### Details vmscale-bench 31
+#### Details vmscale-bench 32

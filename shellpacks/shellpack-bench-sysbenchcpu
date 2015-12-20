@@ -125,4 +125,4 @@ done
 echo sysbenchcpu successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description sysbenchcpu
-#### Details sysbenchcpu-bench 10
+#### Details sysbenchcpu-bench 11

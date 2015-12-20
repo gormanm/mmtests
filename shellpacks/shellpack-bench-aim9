@@ -4,6 +4,11 @@
 P=aim9-bench
 DEFAULT_VERSION=9110
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 WORKFILE=s9workfile-short
 HOSTNAME=`hostname`
@@ -15,11 +20,21 @@ TESTLIST=
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -106,4 +121,4 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	$EXPECT -f $EXPECT_SCRIPT | tee $LOGDIR_RESULTS/aim9-$ITERATION
 done
 #### Description AIM9 benchmark
-#### Details aim9-bench 22
+#### Details aim9-bench 23

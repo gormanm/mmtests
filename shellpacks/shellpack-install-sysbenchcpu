@@ -93,4 +93,4 @@ fi
 echo sysbenchcpu successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description sysbenchcpu
-#### Details sysbenchcpu 10
+#### Details sysbenchcpu 11

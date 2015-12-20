@@ -233,4 +233,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description redis
-#### Details redis-bench 16
+#### Details redis-bench 17

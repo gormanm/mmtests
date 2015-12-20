@@ -15,11 +15,21 @@ FUTEXWAIT_MAX_THREADS=$NUMCPUS
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -109,4 +119,4 @@ done
 done
 exit $SHELLPACK_SUCCESS
 #### Description futexwait
-#### Details futexwait-bench 8
+#### Details futexwait-bench 9

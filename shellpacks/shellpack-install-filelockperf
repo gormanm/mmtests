@@ -13,11 +13,21 @@ MIRROR_LOCATION="$WEBROOT/filelockperf/"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -50,6 +60,9 @@ mv $DST_DIR filelockperf-${VERSION}-installed
 pushd filelockperf-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/filelockperf-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 git clone git://git.savannah.gnu.org/gnulib.git
 export FULLPATH=`pwd`
 export PATH=$PATH:$FULLPATH/gnulib/
@@ -63,4 +76,4 @@ fi
 
 echo filelockperf installed successfully
 #### Description filelockperf
-#### Details filelockperf 2
+#### Details filelockperf 3

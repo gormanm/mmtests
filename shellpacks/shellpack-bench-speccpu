@@ -18,11 +18,21 @@ install-depends dmidecode gcc gcc-c++ gcc-fortran
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -127,4 +137,4 @@ gzip $LOGDIR_RESULTS/*.log
 
 exit $RETVAL
 #### Description Non-conforming speccpu benchmark
-#### Details speccpu-bench 20
+#### Details speccpu-bench 21

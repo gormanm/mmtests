@@ -62,6 +62,9 @@ pushd tiobench-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 # Build
 pushd $SHELLPACK_SOURCES/tiobench-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 
 # Patch the stupid thing for low cpu efficiency
 echo "--- tiobench.pl-orig	2012-02-17 08:51:54.915428315 +0000
@@ -132,4 +135,4 @@ fi
 
 echo tiobench installed successfully
 #### Description tiobench
-#### Details tiobench 20
+#### Details tiobench 21

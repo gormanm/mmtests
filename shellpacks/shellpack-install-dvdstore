@@ -15,11 +15,21 @@ DBDRIVER=postgres
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--dbdriver)
@@ -96,10 +106,16 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR dvdstore_$DVDSTOREDRIVER-${VERSION}
 pushd dvdstore_$DVDSTOREDRIVER-${VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/dvdstore-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 mv $SHELLPACK_SOURCES/dvdstore_$DVDSTOREDRIVER-${VERSION}/* .
 rmdir $SHELLPACK_SOURCES/dvdstore_$DVDSTOREDRIVER-${VERSION}
 
 pushd $SHELLPACK_SOURCES/dvdstore-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 cd pgsqlds2
 file_fetch https://github.com/npgsql/npgsql/releases/download/v2.2.4.1/Npgsql-2.2.4.1-net35.zip \
 	$MIRROR_LOCATION/Npgsql-2.2.4.1-net35.zip \
@@ -128,4 +144,4 @@ fi
 echo dvdstore for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description dvdstore
-#### Details dvdstore 19
+#### Details dvdstore 21

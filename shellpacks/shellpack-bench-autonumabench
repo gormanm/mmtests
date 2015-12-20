@@ -67,6 +67,11 @@
 P=autonumabench-bench
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 AUTONUMA_TESTS="NUMA01 NUMA02 NUMA01_THEADLOCAL NUMA02_SMT"
 install-depends numactl libnuma-devel gnuplot
@@ -74,11 +79,21 @@ install-depends numactl libnuma-devel gnuplot
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -161,4 +176,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description AutoNUMA Benchmark
-#### Details autonumabench-bench 12
+#### Details autonumabench-bench 13

@@ -61,6 +61,9 @@ mv $DST_DIR redis-${VERSION}
 pushd redis-${VERSION} > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/redis-${VERSION} || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -75,4 +78,4 @@ cp redis.conf $SHELLPACK_SOURCES/redis-${VERSION}-installed/etc/redis-default-pe
 
 echo Redis installed successfully
 #### Description redis
-#### Details redis 16
+#### Details redis 17

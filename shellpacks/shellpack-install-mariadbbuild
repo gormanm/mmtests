@@ -94,6 +94,9 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR mariadbbuild-${VERSION}
 pushd mariadbbuild-${VERSION} > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/mariadbbuild-${VERSION} || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 cmake . -DCMAKE_INSTALL_PREFIX=$SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed 
 if [ $? -ne 0 ]; then
 	error "$P: cmake failed"
@@ -134,4 +137,4 @@ mv ${MARIADB_CONF}.tmp $MARIADB_CONF
 echo mariadb successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description mariadbbuild
-#### Details mariadbbuild 34
+#### Details mariadbbuild 35

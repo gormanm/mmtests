@@ -3,6 +3,11 @@
 P=memtester-install
 DEFAULT_VERSION=4.3.0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION=http://pyropus.ca/software/memtester/old-versions
 #memtester-4.3.0.tar.gz
 MIRROR_LOCATION="$WEBROOT/memtester/"
@@ -10,11 +15,21 @@ MIRROR_LOCATION="$WEBROOT/memtester/"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -36,9 +51,9 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf memtester-${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf memtester-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -48,6 +63,9 @@ pushd memtester-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 # Build
 pushd $SHELLPACK_SOURCES/memtester-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -57,4 +75,4 @@ fi
 
 echo memtester installed successfully
 #### Description Userspace memory integrity tester
-#### Details memtester 5
+#### Details memtester 6

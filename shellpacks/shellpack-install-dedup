@@ -15,11 +15,21 @@ install-depends libopenssl-devel
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -52,6 +62,9 @@ mv $DST_DIR dedup-${VERSION}-installed
 pushd dedup-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/dedup-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 
 LINESTART=`grep -n "==== BEGIN signed-fix.patch" $0 | tail -1 | awk -F : '{print $1}'`
 LINEEND=`grep -n "==== END signed-fix.patch" $0 | tail -1 | awk -F : '{print $1}'`
@@ -157,4 +170,4 @@ index f1c43751f2bf..c5dad71eb2b9 100644
    buf->head = 0;
 ==== END timeout-fix.patch ====
 #### Description dedup
-#### Details dedup 19
+#### Details dedup 20

@@ -62,6 +62,9 @@ pushd cyclictest-${VERSION}-installed > /dev/null || die Failed to rename tar
 install-depends libnuma-devel
 
 pushd $SHELLPACK_SOURCES/cyclictest-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -71,4 +74,4 @@ fi
 
 echo cyclictest installed successfully
 #### Description cyclictest
-#### Details cyclictest 9
+#### Details cyclictest 4

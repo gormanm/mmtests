@@ -4,17 +4,32 @@
 P=autonumabench-install
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 GIT_LOCATION=git://gitorious.org/autonuma-benchmark/autonuma-benchmark.git
 MIRROR_LOCATION="$WEBROOT/autonumabench/"
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -36,9 +51,9 @@ git_fetch $GIT_LOCATION autonumabench-${VERSION}-installed $MIRROR_LOCATION/$TAR
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf autonumabench-${VERSION}.tar.gz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf autonumabench-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -48,6 +63,9 @@ pushd autonumabench-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 # Build
 pushd $SHELLPACK_SOURCES/autonumabench-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 echo 'diff --git a/start_bench.sh b/start_bench.sh
 index 101286e..5780b09 100755
 --- a/start_bench.sh
@@ -139,4 +157,4 @@ index 101286e..5780b09 100755
 
 echo autonumabench installed successfully
 #### Description AutoNUMA Benchmark
-#### Details autonumabench 12
+#### Details autonumabench 13

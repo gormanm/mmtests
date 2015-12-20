@@ -14,11 +14,21 @@ MIRROR_LOCATION="$WEBROOT/libmmapcontrol/"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -50,6 +60,9 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR libmmapcontrol-${VERSION}-installed
 pushd libmmapcontrol-${VERSION}-installed > /dev/null || die Failed to rename tar
 pushd $SHELLPACK_SOURCES/libmmapcontrol-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -59,4 +72,4 @@ fi
 
 echo libmmapcontrol installed successfully
 #### Description libmmapcontrol
-#### Details libmmapcontrol 2
+#### Details libmmapcontrol 3

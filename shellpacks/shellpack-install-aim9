@@ -3,17 +3,32 @@
 P=aim9-install
 DEFAULT_VERSION=9110
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/aimbench"
 MIRROR_LOCATION="$WEBROOT/aim9"
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -43,9 +58,9 @@ sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf s${VERSION}.tar.Z failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf s${VERSION}.tar.Z failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -54,6 +69,9 @@ mv $DST_DIR aim9-$VERSION-installed
 pushd aim9-$VERSION-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/aim9-$VERSION-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 echo  > aim9.configure
 echo >> aim9.configure
 echo >> aim9.configure
@@ -79,4 +97,4 @@ fork_test" >> s9workfile-short
 
 exit $SHELLPACK_SUCCESS
 #### Description AIM9 benchmark
-#### Details aim9 22
+#### Details aim9 23

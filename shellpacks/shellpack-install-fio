@@ -63,6 +63,9 @@ mv $DST_DIR fio-${VERSION}-installed
 pushd fio-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 pushd $SHELLPACK_SOURCES/fio-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -72,4 +75,4 @@ fi
 
 echo fio installed successfully
 #### Description Flexible IO tester
-#### Details fio 4
+#### Details fio 5

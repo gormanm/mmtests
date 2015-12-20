@@ -87,4 +87,4 @@ monitor_pre_hook $LOGDIR_RESULTS
 monitor_post_hook $LOGDIR_RESULTS
 exit $SHELLPACK_SUCCESS
 #### Description cyclictest
-#### Details cyclictest-bench 9
+#### Details cyclictest-bench 4

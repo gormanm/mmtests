@@ -117,4 +117,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description John the ripper is a parallelised password cracked
-#### Details johnripper-bench 8
+#### Details johnripper-bench 9

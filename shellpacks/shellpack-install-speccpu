@@ -14,11 +14,21 @@ MIRROR_LOCATION="$WEBROOT/spec"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -46,6 +56,9 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 pushd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 
 SCRIPT=`mktemp`
 echo "spawn ./install.sh
@@ -65,4 +78,4 @@ cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed
 
 exit $SHELLPACK_SUCCESS
 #### Description Non-conforming speccpu benchmark
-#### Details speccpu 20
+#### Details speccpu 21

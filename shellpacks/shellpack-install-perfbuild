@@ -81,6 +81,9 @@ echo Extracting $SHELLPACK_TEMP/lock-pi-stress.patch
 sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/lock-pi-stress.patch
 cat $SHELLPACK_TEMP/lock-pi-stress.patch  | patch -p1 || die Failed to apply lock-pi-stress.patch
 pushd $SHELLPACK_SOURCES/perfbuild-${VERSION}/tools/perf || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 make -j$NUMCPUS prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -408,4 +411,4 @@ index b5314e4..f67934d 100644
  };
 ==== END lock-pi-stress.patch ====
 #### Description perfbuild
-#### Details perfbuild 5
+#### Details perfbuild 6
