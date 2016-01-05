@@ -124,7 +124,27 @@ if [ "$SORT_VERSION" = "yes" ]; then
 	LIST_SORT=$KERNEL_LIST
 	KERNEL_LIST=
 	KERNEL_BASE=
-	for KERNEL in `echo $LIST_SORT | sed -e 's/,/\n/g' | sort -t . -k2 -n`; do
+	LIST_SORTED=`echo $LIST_SORT | sed -e 's/,/\n/g' | sort -t . -k1 -k2 -k3 -n`
+	LIST_SORTED_STRIPPED=
+
+	# Strip so only the latest stable major versions are included
+	declare -a LIST_ARRAY
+	read -r -a LIST_ARRAY <<< $LIST_SORTED
+	NR_ELEMENTS=${#LIST_ARRAY[@]}
+	for INDEX in ${!LIST_ARRAY[@]}; do
+		KERNEL=${LIST_ARRAY[$INDEX]}
+		CURRENT_MAJOR=`echo $KERNEL | awk -F . '{print $1"."$2}'`
+		if [ $((INDEX+1)) -eq $NR_ELEMENTS ]; then
+			LIST_SORTED_STRIPPED+=$KERNEL
+		else
+			NEXT_MAJOR=`echo ${LIST_ARRAY[$((INDEX+1))]} | awk -F . '{print $1"."$2}'`
+			if [ "$NEXT_MAJOR" != "$CURRENT_MAJOR" ]; then
+				LIST_SORTED_STRIPPED+="$KERNEL "
+			fi
+		fi
+	done
+
+	for KERNEL in $LIST_SORTED_STRIPPED; do
 		if [ "$KERNEL_BASE" = "" ]; then
 			KERNEL_BASE=$KERNEL
 			KERNEL_LIST=$KERNEL
