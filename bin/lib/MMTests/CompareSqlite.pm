@@ -9,7 +9,7 @@ sub new() {
 		_ModuleName  => "CompareSqlite",
 		_DataType    => MMTests::Extract::DATA_TRANS_PER_SECOND,
 		_FieldLength => 12,
-		_CompareOp   => "pndiff",
+		_CompareOp   => "pdiff",
 		_ResultData  => []
 	};
 	bless $self, $class;
