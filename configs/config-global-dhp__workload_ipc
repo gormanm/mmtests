@@ -86,7 +86,7 @@ export FUTEXWAIT_MAX_THREADS=$((NUMCPUS*64))
 # filelockperf
 export FILELOCKPERF_ITERATIONS=10
 export FILELOCKPERF_MIN_THREADS=2
-export FILELOCKPERF_MAX_THREADS=$((NUMCPUS*64))
+export FILELOCKPERF_MAX_THREADS=$((NUMCPUS*8))
 export FILELOCKPERF_LOCKITERS=1024 # number of times each thread does a lock/unlock pair.
  # single: single file for all tasks
  # multi: each task deals with its own file
