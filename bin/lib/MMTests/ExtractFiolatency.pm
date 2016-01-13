@@ -1,16 +1,17 @@
 # ExtractFiolatency
 package MMTests::ExtractFiolatency;
-use MMTests::SummariseMultiops;
+use MMTests::SummariseVariabletime;
 use VMR::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
+our @ISA = qw(MMTests::SummariseVariabletime);
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "Fiolatency.pm",
-		_DataType    => MMTests::Extract::DATA_TIME_USECONDS,
-		_ResultData  => []
+		_DataType    => MMTests::Extract::DATA_TIME_MSECONDS,
+		_ResultData  => [],
+		_PlotType    => "simple-filter",
 	};
 	bless $self, $class;
 	return $self;

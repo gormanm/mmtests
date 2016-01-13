@@ -47,9 +47,15 @@ sub printPlot() {
 			push @units, @{$row}[2];
 			$samples++;
 		}
-	}
 
-	if ($self->{_PlotType} eq "simple") {
+		if (@{$row}[0] eq $subHeading && $self->{_PlotType} eq "simple-filter") {
+			push @index, @{$row}[1];
+			push @units, @{$row}[2];
+			$samples++;
+		}
+
+	}
+	if ($self->{_PlotType} eq "simple" || $self->{_PlotType} eq "simple-filter") {
 		for (my $samples = 0; $samples <= $#index; $samples++) {
 			printf("%-${fieldLength}d %${fieldLength}.3f\n", $index[$samples] - $index[0], $units[$samples]);
 		}

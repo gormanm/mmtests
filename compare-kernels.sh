@@ -399,8 +399,12 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Throughput
 		$COMPARE_CMD
 		echo
-		echo $SUBREPORT Latency
-		compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST $FORMAT_CMD
+		echo $SUBREPORT Latency read
+		compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-read $FORMAT_CMD
+
+		echo
+		echo $SUBREPORT Latency write
+		compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-write $FORMAT_CMD
 		;;
 	*)
 		echo $SUBREPORT
@@ -585,6 +589,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				done
 				echo "</tr>"
 			done
+			;;
+		fio)
+			echo "<tr>"
+			eval $GRAPH_PNG -b fiolatency --title \"$SUBREPORT read latency\"  --logY --sub-heading latency-read  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.png
+			eval $GRAPH_PSC -b fiolatency --title \"$SUBREPORT read latency\"  --logY --sub-heading latency-read  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-latency.ps
+			eval $GRAPH_PNG -b fiolatency --title \"$SUBREPORT write latency\" --logY --sub-heading latency-write --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency.png
+			eval $GRAPH_PSC -b fiolatency --title \"$SUBREPORT write latency\" --logY --sub-heading latency-write --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-latency.ps
+			plain graph-$SUBREPORT-read-latency
+			plain graph-$SUBREPORT-write-latency
+			echo "</tr>"
 			;;
 		unixbench-dhry2reg|unixbench-syscall|unixbench-pipe|unixbench-spawn|unixbench-execl)
 			echo "<tr>"

@@ -38,7 +38,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			YLABEL="$2"
 			shift 2
 			;;
-		--simple)
+		--simple|--simple-filter)
 			PLOTTYPE="lines"
 			shift
 			;;
