@@ -125,6 +125,7 @@ for REAIM_WORKFILE in $REAIM_WORKFILES; do
 
 	monitor_pre_hook $LOGDIR_RESULTS $REAIM_WORKFILE
 	for ITERATION in `seq 1 $REAIM_ITERATIONS`; do
+		echo Running iteration $ITERATION/$REAIM_ITERATIONS workfile $REAIM_WORKFILE
 		save_rc ./src/reaim \
 			-s$REAIM_STARTUSERS \
 			-e$REAIM_ENDUSERS \
@@ -149,4 +150,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description reaim
-#### Details reaim-bench 52
+#### Details reaim-bench 53
