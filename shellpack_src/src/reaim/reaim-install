@@ -26,7 +26,7 @@ export LDFLAGS=-laio
 # Patch crazy syncing and off-by-one error
 ###SHELLPACK self_extract controlled-sync.patch
 cat $SHELLPACK_TEMP/controlled-sync.patch | patch -p1 || die Failed to apply controlled sync patch
-automake
+./bootstrap
 ###SHELLPACK build_configure reaim-${VERSION}
 ###SHELLPACK make
 popd
