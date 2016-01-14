@@ -297,7 +297,7 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 	LAST_MD_DEVICE=
 	for DEVICE in $TESTDISK_RAID_DEVICES; do
 		BASE_DEVICE=`basename $DEVICE`
-		MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat | awk '{print $1}' | sed -e 's/(auto-read-only)//'`
+		MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat | sed -e 's/(auto-read-only)//' | awk '{print $1}'`
 		if [ "$MD_DEVICE" = "" ]; then
 			echo o Device $DEVICE is not part of a RAID array, assembly required
 			FULL_ASSEMBLY_REQUIRED=yes
