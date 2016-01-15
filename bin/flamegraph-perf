@@ -1,0 +1,76 @@
+#!/bin/bash
+# This script generates a flame graph from a perf profile using Brendan
+# Gregg's FlameGraph tool.
+
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
+export FLAMEGRAPH=$SCRIPTDIR/FlameGraph
+
+TEMP_DIR=
+function cleanup() {
+	if [ "$TEMP_DIR" != "" ]; then
+		rm -rf $TEMP_DIR
+	fi
+}
+trap cleanup EXIT
+
+if [ ! -d $FLAMEGRAPH ]; then
+	pushd $SCRIPTDIR > /dev/null
+	git clone https://github.com/brendangregg/FlameGraph || exit -1
+fi
+if [ ! -e $FLAMEGRAPH/stackcollapse-perf.pl ]; then
+	echo ERROR: FlameGraph stackcollapse-perf.pl is not available and could not be cloned
+	exit -1
+fi
+if [ "`which perf 2>/dev/null`" = "" ]; then
+	echo ERROR: perf is not available
+	exit -1
+fi
+
+TEMP_DIR=`mktemp -d`
+OUTPUT=kernel.svg
+INPUT=perf.data
+TITLE="flamegraph: `basename $INPUT`"
+ICICLE=
+REVERSE=
+WIDTH=
+
+# Command line parser
+while [ "$1" != "" ]; do
+	case "$1" in
+	-i|--input)
+		INPUT=$2
+		shift 2
+		;;
+	-o|--output)
+		OUTPUT=$2
+		shift 2
+		;;
+	-t|--title)
+		TITLE="$2"
+		shift 2
+		;;
+	-w|--width)
+		WIDTH="--width $2"
+		shift 2
+		;;
+	--icicle)
+		ICICLE=--inverted
+		shift
+		;;
+	--reverse)
+		REVERSE=--reverse
+		shift
+		;;
+	*)
+		echo WARNING: Unrecognised option $1
+		shift
+	esac
+done
+perf script -i $INPUT > $TEMP_DIR/perf.out || exit -1
+$FLAMEGRAPH/stackcollapse-perf.pl $TEMP_DIR/perf.out > $TEMP_DIR/folded.out || exit -1
+$FLAMEGRAPH/flamegraph.pl $WIDTH $ICICLE $REVERSE --title "$TITLE" $TEMP_DIR/folded.out > $OUTPUT || exit -1
+
+echo outputted to $OUTPUT
+rm -rf $TEMP_DIR
+exit 0
