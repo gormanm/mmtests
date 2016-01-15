@@ -4,7 +4,6 @@
 iterations=1
 CONN_NAME=
 CONN_TYPE=
-HACKBENCH_GROUPS=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
