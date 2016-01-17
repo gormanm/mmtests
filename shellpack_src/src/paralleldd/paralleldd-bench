@@ -23,17 +23,20 @@ PARALLELDD_WRITEFILES=
 
 ###SHELLPACK monitor_hooks
 
+if [ "$PARALLELDD_SPLITINPUT" != "yes" ]; then
+	echo Creating file of size $((PARALLELDD_SOURCESIZE/1048576)) MB filled with garbage
+	dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file ibs=1048576 count=$((PARALLELDD_SOURCESIZE/1048576)) conv=fdatasync
+	sync
+fi
+
 ###SHELLPACK threads_large_stride_begin $PARALLELDD_MIN_THREADS $PARALLELDD_MAX_THREADS
 	if [ "$PARALLELDD_SPLITINPUT" = "yes" ]; then
 		for INSTANCE in `seq 1 $NR_THREADS`; do
 			echo Creating input file $INSTANCE/$NR_THREADS of size $((PARALLELDD_SOURCESIZE/1048576/$NR_THREADS)) MB filled with garbage
 			dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file.$INSTANCE ibs=1048576 count=$((PARALLELDD_SOURCESIZE/1048576)) conv=fdatasync
 		done
-	else
-		echo Creating file of size $((PARALLELDD_SOURCESIZE/1048576)) MB filled with garbage
-		dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file ibs=1048576 count=$((PARALLELDD_SOURCESIZE/1048576)) conv=fdatasync
+		sync
 	fi
-	sync
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $PARALLELDD_ITERATIONS
