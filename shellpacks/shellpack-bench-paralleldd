@@ -59,6 +59,10 @@ while [ "$1" != "" ]; do
 		PARALLELDD_WRITEFILES=yes
 		shift
 		;;
+	--split-input)
+		PARALLELDD_SPLITINPUT=yes
+		shift
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -74,9 +78,6 @@ fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
-
-echo Creating file of size $((PARALLELDD_SOURCESIZE/1048576)) MB filled with garbage
-dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file ibs=1048576 count=$((PARALLELDD_SOURCESIZE/1048576)) conv=fdatasync
 
 THREADS=
 START_THREAD=$PARALLELDD_MIN_THREADS
@@ -97,6 +98,17 @@ fi
 
 for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
+	if [ "$PARALLELDD_SPLITINPUT" = "yes" ]; then
+		for INSTANCE in `seq 1 $NR_THREADS`; do
+			echo Creating input file $INSTANCE/$NR_THREADS of size $((PARALLELDD_SOURCESIZE/1048576/$NR_THREADS)) MB filled with garbage
+			dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file.$INSTANCE ibs=1048576 count=$((PARALLELDD_SOURCESIZE/1048576)) conv=fdatasync
+		done
+	else
+		echo Creating file of size $((PARALLELDD_SOURCESIZE/1048576)) MB filled with garbage
+		dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file ibs=1048576 count=$((PARALLELDD_SOURCESIZE/1048576)) conv=fdatasync
+	fi
+	sync
+
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 for ITERATION in `seq 1 $PARALLELDD_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
@@ -109,6 +121,10 @@ for ITERATION in `seq 1 $PARALLELDD_ITERATIONS`; do
 			OUTPUT_FILE=/dev/null
 			if [ "$PARALLELDD_WRITEFILES" = "yes" ]; then
 				OUTPUT_FILE=$SHELLPACK_TEMP/output.$INSTANCE
+			fi
+			INPUT_FILE=$SHELLPACK_TEMP/source_file
+			if [ "$PARALLELDD_SPLITINPUT" = "yes" ]; then
+				INPUT_FILE=${INPUT_FILE}.$INSTANCE
 			fi
 			$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$INSTANCE-$ITERATION \
 				dd if=$SHELLPACK_TEMP/source_file of=$OUTPUT_FILE 2> $LOGDIR_RESULTS/log-$NR_THREADS-$INSTANCE-$ITERATION &
@@ -126,4 +142,4 @@ rm $SHELLPACK_TEMP/source_file
 
 exit $SHELLPACK_SUCCESS
 #### Description ddread
-#### Details paralleldd-bench 5
+#### Details paralleldd-bench 6

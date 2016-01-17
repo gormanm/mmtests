@@ -18,14 +18,23 @@ PARALLELDD_WRITEFILES=
 ###SHELLPACK parseargParam --max-threads  PARALLELDD_MAX_THREADS
 ###SHELLPACK parseargParam --iterations   PARALLELDD_ITERATIONS
 ###SHELLPACK parseargYes   --write-files  PARALLELDD_WRITEFILES
+###SHELLPACK parseargYes   --split-input  PARALLELDD_SPLITINPUT
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK monitor_hooks
 
-echo Creating file of size $((PARALLELDD_SOURCESIZE/1048576)) MB filled with garbage
-dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file ibs=1048576 count=$((PARALLELDD_SOURCESIZE/1048576)) conv=fdatasync
-
 ###SHELLPACK threads_large_stride_begin $PARALLELDD_MIN_THREADS $PARALLELDD_MAX_THREADS
+	if [ "$PARALLELDD_SPLITINPUT" = "yes" ]; then
+		for INSTANCE in `seq 1 $NR_THREADS`; do
+			echo Creating input file $INSTANCE/$NR_THREADS of size $((PARALLELDD_SOURCESIZE/1048576/$NR_THREADS)) MB filled with garbage
+			dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file.$INSTANCE ibs=1048576 count=$((PARALLELDD_SOURCESIZE/1048576)) conv=fdatasync
+		done
+	else
+		echo Creating file of size $((PARALLELDD_SOURCESIZE/1048576)) MB filled with garbage
+		dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file ibs=1048576 count=$((PARALLELDD_SOURCESIZE/1048576)) conv=fdatasync
+	fi
+	sync
+
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $PARALLELDD_ITERATIONS
 		echo Dumping cache for cold cache read
@@ -37,6 +46,10 @@ dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file ibs=1048576 count=$((PARALLELD
 			OUTPUT_FILE=/dev/null
 			if [ "$PARALLELDD_WRITEFILES" = "yes" ]; then
 				OUTPUT_FILE=$SHELLPACK_TEMP/output.$INSTANCE
+			fi
+			INPUT_FILE=$SHELLPACK_TEMP/source_file
+			if [ "$PARALLELDD_SPLITINPUT" = "yes" ]; then
+				INPUT_FILE=${INPUT_FILE}.$INSTANCE
 			fi
 			$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$INSTANCE-$ITERATION \
 				dd if=$SHELLPACK_TEMP/source_file of=$OUTPUT_FILE 2> $LOGDIR_RESULTS/log-$NR_THREADS-$INSTANCE-$ITERATION &
