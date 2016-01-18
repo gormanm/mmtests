@@ -118,7 +118,7 @@ for ITERATION in `seq 1 $PARALLELDD_ITERATIONS`; do
 		sync
 		echo 3 > /proc/sys/vm/drop_caches
 
-		echo Starting iteration $ITERATION/$ITERATIONS threads $NR_THREADS
+		echo Starting iteration $ITERATION/$PARALLELDD_ITERATIONS threads $NR_THREADS
 		for INSTANCE in `seq 1 $NR_THREADS`; do
 			OUTPUT_FILE=/dev/null
 			if [ "$PARALLELDD_WRITEFILES" = "yes" ]; then
@@ -144,4 +144,4 @@ rm $SHELLPACK_TEMP/source_file
 
 exit $SHELLPACK_SUCCESS
 #### Description ddread
-#### Details paralleldd-bench 12
+#### Details paralleldd-bench 13
