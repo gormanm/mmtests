@@ -80,8 +80,7 @@ fi
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
 if [ "$PARALLELDD_SPLITINPUT" != "yes" ]; then
-	echo Creating file of size $((PARALLELDD_SOURCESIZE/1048576)) MB filled with garbage
-	dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file ibs=1048576 count=$((PARALLELDD_SOURCESIZE/1048576)) conv=fdatasync
+	create_random_file $PARALLELDD_SOURCESIZE $SHELLPACK_TEMP/source_file
 	sync
 fi
 
@@ -105,10 +104,8 @@ fi
 for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	if [ "$PARALLELDD_SPLITINPUT" = "yes" ]; then
-		echo Creating input file 1/$NR_THREADS of size $((PARALLELDD_SOURCESIZE/1048576/$NR_THREADS)) MB filled with garbage
-		dd if=/dev/urandom of=$SHELLPACK_TEMP/source_file.1 ibs=1048576 count=$((PARALLELDD_SOURCESIZE/1048576)) conv=fdatasync
-		for INSTANCE in `seq 1 $NR_THREADS`; do
-			echo Creating input file $INSTANCE/$NR_THREADS of size $((PARALLELDD_SOURCESIZE/1048576/$NR_THREADS)) MB filled with garbage
+		create_random_file $((PARALLELDD_SOURCESIZE/$NR_THREADS)) $SHELLPACK_TEMP/source_file.1
+		for INSTANCE in `seq 2 $NR_THREADS`; do
 			cp $SHELLPACK_TEMP/source_file.1 $SHELLPACK_TEMP/source_file.$INSTANCE
 		done
 		sync
@@ -147,4 +144,4 @@ rm $SHELLPACK_TEMP/source_file
 
 exit $SHELLPACK_SUCCESS
 #### Description ddread
-#### Details paralleldd-bench 9
+#### Details paralleldd-bench 12

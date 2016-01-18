@@ -415,3 +415,32 @@ function mmtests_server_init() {
 	fi
 	echo === END execute remote server command: $REMOTE_SERVER_SCRIPT --install-only ===
 }
+
+function create_random_file() {
+	SIZE=$1
+	OUTPUT=$2
+	if [ "$SHELLPACK_TEMP" = "" ]; then
+		die SHELLPACK_TEMP is not set
+	fi
+
+	echo Creating file $OUTPUT of size $((SIZE/1048576)) MB filled with garbage
+	dd if=/dev/urandom of=$SHELLPACK_TEMP/random_base_file ibs=1048575 count=20 2> /dev/null
+
+	if [ -e $OUTPUT ]; then
+		echo Removing existing $OUTPUT file
+		rm -f $OUTPUT || die Failed to remove existing output file $OUTPUTT
+	fi
+
+	BASE_SIZE=$((1048575*20))
+	while [ $SIZE -gt 0 ]; do
+		if [ $SIZE -gt $BASE_SIZE ]; then
+			dd if=$SHELLPACK_TEMP/random_base_file of=$OUTPUT oflag=append conv=notrunc 2> /dev/null
+			SIZE=$((SIZE-$BASE_SIZE))
+		else
+			dd if=$SHELLPACK_TEMP/random_base_file of=$OUTPUT oflag=append conv=notrunc ibs=$SIZE obs=$SIZE 2>/dev/null
+			SIZE=0
+		fi
+	done
+	rm $SHELLPACK_TEMP/random_base_file
+	ls -lh $OUTPUT
+}
