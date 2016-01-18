@@ -27,8 +27,8 @@ file)
 	if [ "$SEEKER_SIZE" = "" -o $SEEKER_SIZE -eq 0 ]; then
 		die Must specify proper SEEKER_SIZE
 	fi
-	echo Creating file of size $SEEKER_SIZE filled with garbage
-	dd if=/dev/urandom of=$SHELLPACK_TEMP/seeker_file ibs=1048576 count=$((SEEKER_SIZE/1048576)) conv=fdatasync
+	create_random_file $SEEKER_SIZE $SHELLPACK_TEMP/seeker_file
+	sync
 	SEEKER_FILE="$SHELLPACK_TEMP/seeker_file"
 	;;
 block)

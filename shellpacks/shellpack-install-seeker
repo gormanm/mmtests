@@ -13,11 +13,21 @@ MIRROR_LOCATION="$WEBROOT/seeker/seeker.c"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -221,4 +231,4 @@ exit $SHELLPACK_SUCCESS
  	}
  	/* notreached */
 #### Description Block device seeker microbenchmark
-#### Details seeker 9
+#### Details seeker 10

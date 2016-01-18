@@ -15,11 +15,21 @@ SEEKER_SIZE=$((MEMTOTAL_BYTES*2))
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -86,8 +96,8 @@ file)
 	if [ "$SEEKER_SIZE" = "" -o $SEEKER_SIZE -eq 0 ]; then
 		die Must specify proper SEEKER_SIZE
 	fi
-	echo Creating file of size $SEEKER_SIZE filled with garbage
-	dd if=/dev/urandom of=$SHELLPACK_TEMP/seeker_file ibs=1048576 count=$((SEEKER_SIZE/1048576)) conv=fdatasync
+	create_random_file $SEEKER_SIZE $SHELLPACK_TEMP/seeker_file
+	sync
 	SEEKER_FILE="$SHELLPACK_TEMP/seeker_file"
 	;;
 block)
@@ -125,4 +135,4 @@ if [ $RETVAL -ne 0 ]; then
 fi
 exit $SHELLPACK_SUCCESS
 #### Description Block device seeker microbenchmark
-#### Details seeker-bench 9
+#### Details seeker-bench 10
