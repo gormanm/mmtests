@@ -9,7 +9,7 @@ sub new() {
 		_ModuleName  => "CompareFsmark",
 		_DataType    => MMTests::Extract::DATA_OPSSEC,
 		_FieldLength => 12,
-		_CompareOps  => [ "none", "pdiff", "pdiff", "pdiff", "pndiff", "pdiff" ],
+		_CompareOp  => "pdiff",
 		_CompareLength => 6,
 		_ResultData  => []
 	};

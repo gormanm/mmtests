@@ -1,7 +1,7 @@
 # ExtractFsmark.pm
 package MMTests::ExtractFsmark;
-use MMTests::SummariseMultiops;
-our @ISA = qw(MMTests::SummariseMultiops);
+use MMTests::SummariseVariableops;
+our @ISA = qw(MMTests::SummariseVariableops);
 use strict;
 
 sub initialise() {

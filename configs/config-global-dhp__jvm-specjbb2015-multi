@@ -59,3 +59,8 @@ export SPECJBB_TXI_PER_INSTANCE=1
 export SPECJBB_PAGESIZES="default"
 #export SPECJBB_PAGESIZES="base huge"
 export SPECJBB_HUGESWITCH=-Xlp
+
+if [ $NUMNODES -eq 1 ]; then
+	echo Skipping multi-JVM test configuration on single node machine
+	exit $SHELLPACK_SUCCESS
+fi

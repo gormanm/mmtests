@@ -78,3 +78,8 @@ export PERFNUMA_NR_THREADS=$((NUMCPUS/NUMNODES))
 export PERFNUMA_PROCESS_WSS=${MMTESTS_NODE_ID_BY_SIZE[0]*4/5}
 export PERFNUMA_WORKLOADS="light_converge standard_converge oversubscribe_converge"
 export PERFNUMA_ITERATIONS=10
+
+if [ $NUMNODES -eq 1 ]; then
+	echo Skipping NUMA test configuration on single node machine
+	exit $SHELLPACK_SUCCESS
+fi
