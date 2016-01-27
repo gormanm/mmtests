@@ -126,11 +126,10 @@ for PAGES in $SPECJBB_PAGESIZES; do
 	EXIT_CODE=$SHELLPACK_SUCCESS
 	if [ $INSTANCES -eq 1 ]; then
 		set_mmtests_numactl $INSTANCES $INSTANCES
-		eval save_rc $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP -jar specjbb2015.jar -m COMPOSITE 2> $LOGDIR_RESULTS/$PAGES/specjbb2015.err | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log
+		eval save_rc $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP -jar specjbb2015.jar -m COMPOSITE 2> /dev/null | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log
 		recover_rc
 		if [ $EXIT_CODE -ne 0 ]; then
 			echo ERROR: java exited with an error
-			cat $LOGDIR_RESULTS/$PAGES/specjbb2015.err
 			EXIT_CODE=$SHELLPACK_ERROR
 		fi
 	else
@@ -152,7 +151,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 		SPEC_OPTS="-Dspecjbb.group.count=$INSTANCES -Dspecjbb.txi.pergroup.count=$SPECJBB_TXI_PER_INSTANCE"
 		
 		# Start controller
-		java $SPECJBB_HEAP_CONTROLLER $SPEC_OPTS -jar specjbb2015.jar -m MULTICONTROLLER 2> $LOGDIR_RESULTS/$PAGES/specjbb2015.err | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log &
+		java $SPECJBB_HEAP_CONTROLLER $SPEC_OPTS -jar specjbb2015.jar -m MULTICONTROLLER 2> /dev/null | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log &
 		CONTROLLER_PID=`jobs -p`
 		echo $CONTROLLER_PID > $SHELLPACK_TEMP/jvm-instances.pids
 		echo Started controller pid: $CONTROLLER_PID
@@ -171,7 +170,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 				eval $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_HEAP_TXI -jar specjbb2015.jar \
 					-m TXINJECTOR \
 					-G=$GROUPID \
-					-J=$JVMID 2> $LOGDIR_RESULTS/$PAGES/txi-${GROUPID}-${JVMID}.err > $LOGDIR_RESULTS/$PAGES/txi-${GROUPID}-${JVMID}.log &
+					-J=$JVMID 2> /dev/null > $LOGDIR_RESULTS/$PAGES/txi-${GROUPID}-${JVMID}.log &
 				TXI_PID=$!
 				echo $TXI_PID >> $SHELLPACK_TEMP/jvm-instances.pids
 				echo o TXI instance $GROUPID $JVMID: $TXI_PID
@@ -182,7 +181,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 					-m BACKEND \
 					-G=$GROUPID \
 					-J=$JVMID \
-					2> $LOGDIR_RESULTS/$PAGES/backend-${GROUPID}.err > $LOGDIR_RESULTS/$PAGES/backend-${GROUPID}.log &
+					2> /dev/null > $LOGDIR_RESULTS/$PAGES/backend-${GROUPID}.log &
 			BE_PID=$!
 			echo o BE instance $GROUPID: $BE_PID
 			echo $BE_PID >> $SHELLPACK_TEMP/jvm-instances.pids
@@ -199,9 +198,10 @@ for PAGES in $SPECJBB_PAGESIZES; do
 	fi
 
 	monitor_post_hook $LOGDIR_RESULTS specjbb
-	mv result $LOGDIR_RESULTS/$PAGES/
+	tar -czf $LOGDIR_RESULTS/$PAGES/result.tar.gz result
+	rm -rf result
 done
 
 exit $EXIT_CODE
 #### Description specjbb2015
-#### Details specjbb2015-bench 3
+#### Details specjbb2015-bench 5
