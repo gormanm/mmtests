@@ -1,0 +1,65 @@
+diff -ru systemtap.orig/runtime/linux/print.c systemtap/runtime/linux/print.c
+--- systemtap.orig/runtime/linux/print.c	2016-02-01 15:16:00.029908750 +0100
++++ systemtap/runtime/linux/print.c	2016-02-01 15:18:39.481915288 +0100
+@@ -239,9 +239,9 @@
+ 	       THIS_MODULE->name,
+ 	       vstr, 
+ #ifndef STAPCONF_GRSECURITY
+-	       THIS_MODULE->module_core,
+-	       (unsigned long) (THIS_MODULE->core_size - THIS_MODULE->core_text_size)/1024,
+-               (unsigned long) (THIS_MODULE->core_text_size)/1024,
++	       THIS_MODULE->core_layout.base,
++               (unsigned long) (THIS_MODULE->core_layout.size - THIS_MODULE->core_layout.text_size)/1024,
++               (unsigned long) (THIS_MODULE->core_layout.text_size)/1024,
+ #else
+                THIS_MODULE->module_core_rx,
+ 	       (unsigned long) (THIS_MODULE->core_size_rw - THIS_MODULE->core_size_rx)/1024,
+diff -ru systemtap.orig/runtime/linux/runtime_defines.h systemtap/runtime/linux/runtime_defines.h
+--- systemtap.orig/runtime/linux/runtime_defines.h	2016-02-01 15:16:00.029908750 +0100
++++ systemtap/runtime/linux/runtime_defines.h	2016-02-01 15:16:04.585908937 +0100
+@@ -0,0 +1,23 @@
++// The following kernel commit renamed __GFP_WAIT to __GRP_RECLAIM:
++//
++//   commit 71baba4b92dc1fa1bc461742c6ab1942ec6034e9
++//   Author: Mel Gorman <mgorman@techsingularity.net>
++//   Date:   Fri Nov 6 16:28:28 2015 -0800
++// 
++//       mm, page_alloc: rename __GFP_WAIT to __GFP_RECLAIM
++//     
++//       __GFP_WAIT was used to signal that the caller was in atomic
++//       context and could not sleep.  Now it is possible to
++//       distinguish between true atomic context and callers that are
++//       not willing to sleep.  The latter should clear
++//       __GFP_DIRECT_RECLAIM so kswapd will still wake.  As clearing
++//       __GFP_WAIT behaves differently, there is a risk that people
++//       will clear the wrong flags.  This patch renames __GFP_WAIT to
++//       __GFP_RECLAIM to clearly indicate what it does -- setting it
++//       allows all reclaim activity, clearing them prevents it.
++//
++// Handle the rename by defining __GFP_WAIT as __GFP_RECLAIM.
++#include <linux/gfp.h>
++#ifndef __GFP_WAIT
++#define __GFP_WAIT __GFP_RECLAIM
++#endif
+diff -ru systemtap.orig/runtime/stp_utrace.c systemtap/runtime/stp_utrace.c
+--- systemtap.orig/runtime/stp_utrace.c	2016-02-01 15:16:00.057908751 +0100
++++ systemtap/runtime/stp_utrace.c	2016-02-01 15:16:04.585908937 +0100
+@@ -511,7 +511,8 @@
+  */
+ static bool utrace_task_alloc(struct task_struct *task)
+ {
+-	struct utrace *utrace = kmem_cache_zalloc(utrace_cachep, GFP_IOFS);
++	struct utrace *utrace = kmem_cache_zalloc(utrace_cachep,
++						  STP_ALLOC_FLAGS);
+ 	struct utrace *u;
+ 
+ 	if (unlikely(!utrace))
+@@ -782,7 +783,7 @@
+ 		utrace = task_utrace_struct(target);
+ 	}
+ 
+-	engine = kmem_cache_alloc(utrace_engine_cachep, GFP_IOFS);
++	engine = kmem_cache_alloc(utrace_engine_cachep, STP_ALLOC_FLAGS);
+ 	if (unlikely(!engine))
+ 		return ERR_PTR(-ENOMEM);
+ 

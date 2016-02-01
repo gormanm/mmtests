@@ -2,13 +2,11 @@
 # systemtap breaks almost constantly. This script tries to bodge it into
 # working if possible
 
-STAP_FILES="/usr/share/systemtap/runtime/stack.c /usr/share/systemtap/runtime/transport/relay_v2.c
-	/usr/share/systemtap/runtime/transport/transport.c /usr/share/systemtap/runtime/stat.c
-	/usr/share/systemtap/runtime/map.c /usr/share/systemtap/runtime/map-stat.c
-	/usr/share/systemtap/runtime/task_finder2.c /usr/share/systemtap/runtime/task_finder_vma.c
-	/usr/share/systemtap/runtime/linux/task_finder_map.c /usr/share/systemtap/runtime/linux/task_finder_map.c
-	/usr/share/systemtap/runtime/stp_utrace.c /usr/share/systemtap/runtime/alloc.c"
-
+SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
+STAP_FILES="/usr/share/systemtap/runtime/linux/print.c
+	/usr/share/systemtap/runtime/linux/runtime_defines.h
+	/usr/share/systemtap/runtime/stp_utrace.c"
 if [ "`whoami`" != "root" ]; then
 	exit
 fi
@@ -44,85 +42,7 @@ if [ $? == 0 ]; then
 fi
 
 echo WARNING: systemtap installation broken, trying to fix.
-
-# Adjust to removal of warning hook
-sed /usr/share/systemtap/runtime/stack.c \
-	-e 's/.warning = print_stack_warning/\/\/MMTESTS:.warning = print_stack_warning/' \
-	-e 's/.warning_symbol = print_stack_warning_symbol,/\/\/MMTESTS:.warning_symbol = print_stack_warning_symbol,/' > /usr/share/systemtap/runtime/stack.c.tmp
-mv /usr/share/systemtap/runtime/stack.c.tmp /usr/share/systemtap/runtime/stack.c
-stap -e 'probe begin { println("validating systemtap fix") exit () }'
-if [ $? == 0 ]; then
-	exit 0
-fi
-
-# Mode changed type and a field rename
-sed /usr/share/systemtap/runtime/transport/relay_v2.c \
-	-e 's/int mode/umode_t mode/' > /usr/share/systemtap/runtime/transport/relay_v2.c.tmp
-mv /usr/share/systemtap/runtime/transport/relay_v2.c.tmp /usr/share/systemtap/runtime/transport/relay_v2.c
-sed /usr/share/systemtap/runtime/transport/transport.c \
-	-e 's/fs_supers.next/fs_supers.first/' > /usr/share/systemtap/runtime/transport/transport.c.tmp
-mv /usr/share/systemtap/runtime/transport/transport.c.tmp /usr/share/systemtap/runtime/transport/transport.c
-stap -e 'probe begin { println("validating systemtap fix") exit () }'
-if [ $? == 0 ]; then
-	exit 0
-fi
-
-# Change in CPU iterators
-for FILE in stat.c map-stat.c map.c; do
-	sed /usr/share/systemtap/runtime/$FILE \
-		-e 's/stp_for_each_cpu/for_each_online_cpu/' > /usr/share/systemtap/runtime/$FILE.tmp
-	mv /usr/share/systemtap/runtime/$FILE.tmp /usr/share/systemtap/runtime/$FILE
-done
-stap -e 'probe begin { println("validating systemtap fix") exit () }'
-if [ $? == 0 ]; then
-	exit 0
-fi
-
-# Crude workaround for VMA flag change
-sed /usr/share/systemtap/runtime/task_finder2.c \
-	-e 's/VM_EXECUTABLE/0xF/' > /usr/share/systemtap/runtime/task_finder2.c.tmp
-mv /usr/share/systemtap/runtime/task_finder2.c.tmp /usr/share/systemtap/runtime/task_finder2.c
-stap -e 'probe begin { println("validating systemtap fix") exit () }'
-if [ $? == 0 ]; then
-	exit 0
-fi
-
-# Change in hlist API
-if [ -e /usr/share/systemtap/runtime/task_finder_vma.c ]; then
-	sed /usr/share/systemtap/runtime/task_finder_vma.c \
-		-e 's/hlist_for_each_entry_safe(entry, node/hlist_for_each_entry_safe(entry/' \
-		-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/task_finder_vma.c.tmp
-	mv /usr/share/systemtap/runtime/task_finder_vma.c.tmp /usr/share/systemtap/runtime/task_finder_vma.c
-fi
-if [ -e /usr/share/systemtap/runtime/linux/task_finder_map.c ]; then
-	sed /usr/share/systemtap/runtime/linux/task_finder_map.c \
-		-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/linux/task_finder_map.c.tmp
-	mv /usr/share/systemtap/runtime/linux/task_finder_map.c.tmp /usr/share/systemtap/runtime/linux/task_finder_map.c
-fi
-if [ -e /usr/share/systemtap/runtime/task_finder_map.c ]; then
-	sed /usr/share/systemtap/runtime/task_finder_map.c \
-		-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/task_finder_map.c.tmp
-	mv /usr/share/systemtap/runtime/task_finder_map.c.tmp /usr/share/systemtap/runtime/task_finder_map.c
-fi
-sed /usr/share/systemtap/runtime/stp_utrace.c \
-	-e 's/hlist_for_each_entry_safe(utrace, node/hlist_for_each_entry_safe(utrace/' \
-	-e 's/hlist_for_each_entry(/hlist_for_each_entry_safe(/' > /usr/share/systemtap/runtime/stp_utrace.c.tmp
-mv /usr/share/systemtap/runtime/stp_utrace.c.tmp /usr/share/systemtap/runtime/stp_utrace.c
-stap -e 'probe begin { println("validating systemtap fix") exit () }'
-if [ $? == 0 ]; then
-	exit 0
-fi
-
-# Changes in alloc header
-grep -q "include <linux/percpu.h>" /usr/share/systemtap/runtime/alloc.c
-if [ $? -eq 0 ]; then
-	START=`grep -n "include <linux/percpu.h>" /usr/share/systemtap/runtime/alloc.c | head -1 | cut -f1 -d:`
-	LENGTH=`wc -l < /usr/share/systemtap/runtime/alloc.c`
-	head -$START /usr/share/systemtap/runtime/alloc.c > /usr/share/systemtap/runtime/alloc.c.tmp
-	echo "#include <linux/slab.h>" >> /usr/share/systemtap/runtime/alloc.c.tmp
-	tail -$((LENGTH-START)) /usr/share/systemtap/runtime/alloc.c >> /usr/share/systemtap/runtime/alloc.c.tmp
-	mv /usr/share/systemtap/runtime/alloc.c.tmp /usr/share/systemtap/runtime/alloc.c
-fi
+cat $SCRIPTDIR/stap-scripts/stap-runtime-1.patch | patch -p1 -d /usr/share/systemtap || exit -1
 stap -e 'probe begin { println("validating systemtap fix") exit () }'
 if [ $? == 0 ]; then
 	exit 0
