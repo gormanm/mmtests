@@ -11,6 +11,14 @@ if [ "`whoami`" != "root" ]; then
 	exit
 fi
 
+restore_systemtap() {
+	for STAP_FILE in $STAP_FILES; do
+		if [ -e $STAP_FILE -a ! -e $STAP_FILE.orig ]; then
+			cp $STAP_FILE $STAP_FILE.orig 2> /dev/null
+		fi
+	done
+}
+
 # Check if stap is already working unless the script has been asked to
 # restore stap to its original state
 if [ "$1" != "--restore-only" ]; then
@@ -21,11 +29,7 @@ if [ "$1" != "--restore-only" ]; then
 fi
 
 # Backup original stap files before adjusting
-for STAP_FILE in $STAP_FILES; do
-	if [ -e $STAP_FILE -a ! -e $STAP_FILE.orig ]; then
-		cp $STAP_FILE $STAP_FILE.orig 2> /dev/null
-	fi
-done
+restore_systemtap
 
 # Restore original files and go through workarounds in order
 for STAP_FILE in $STAP_FILES; do
@@ -42,18 +46,22 @@ if [ $? == 0 ]; then
 fi
 
 echo WARNING: systemtap installation broken, trying to fix.
-cat $SCRIPTDIR/stap-scripts/stap-runtime-1.patch | patch -p1 -d /usr/share/systemtap || exit -1
-stap -e 'probe begin { println("validating systemtap fix") exit () }'
-if [ $? == 0 ]; then
-	exit 0
-fi
+
+for PATCH in 4.4 4.5; do
+	cat $SCRIPTDIR/stap-patches/systemtap-runtime-${PATCH}.patch | patch -p1 -d /usr/share/systemtap
+	if [ $? -ne 0 ]; then
+		restore_systemtap
+		echo ERROR: Unable to patch systemtap, upgrade to at least 2.9
+		exit -1
+	fi
+	stap -e 'probe begin { println("validating systemtap fix") exit () }'
+	if [ $? == 0 ]; then
+		exit 0
+	fi
+done
 
 # No other workarounds available
 if [ "$STAP_FIX_LEAVE_BROKEN" != "yes" ]; then
-	for STAP_FILE in $STAP_FILES; do
-		if [ -e $STAP_FILE.orig ]; then
-			mv $STAP_FILE.orig $STAP_FILE
-		fi
-	done
+	restore_systemtap
 fi
 exit -1
