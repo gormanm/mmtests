@@ -1,7 +1,7 @@
 #!/bin/bash
-# phpbench installer
-P=phpbench-install
-DEFAULT_VERSION=0.8.1
+# blogbench installer
+P=blogbench-install
+DEFAULT_VERSION=1.1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -9,11 +9,8 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 
-WEB_LOCATION=https://download.pureftpd.org/pub/phpbench
-MIRROR_LOCATION="$WEBROOT/phpbench/"
-APACHE_VERSION=2.4.17
-APR_VERSION=1.5.2
-PCRE_VERSION=8.35
+WEB_LOCATION=https://download.pureftpd.org/pub/blogbench
+MIRROR_LOCATION="$WEBROOT/blogbench/"
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -48,36 +45,47 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}
-fi
-if [ ! -d $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}-installed ]; then
-	mmtests_activity source-install
-	$SHELLPACK_INCLUDE/shellpack-install-apachebuild -v ${APACHE_VERSION}  || die apachebuild install script returned error
-	mmtests_activity source-installed
-fi
-cd $SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed || die Failed to cd to apachebuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo apachebuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 # Unconditionally fetch the tar to find out the real version number
-TARFILE=phpbench-${VERSION}.tar.gz
+TARFILE=blogbench-${VERSION}.tar.gz
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-	error "$P: tar xf phpbench-${VERSION}.tar.gz failed"
+	error "$P: tar xf blogbench-${VERSION}.tar.gz failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-mv $DST_DIR phpbench-${VERSION}-installed
-pushd phpbench-${VERSION}-installed > /dev/null || die Failed to rename tar
+mv $DST_DIR blogbench-${VERSION}
+pushd blogbench-${VERSION} > /dev/null || die Failed to rename tar
+pushd $SHELLPACK_SOURCES/blogbench-${VERSION} || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
+export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
+eval ./configure --prefix=$SHELLPACK_SOURCES/blogbench-${VERSION}-installed CFLAGS=-O2
+if [ $? -ne 0 ]; then
+	error "$P: configure failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+unset CFLAGS
+make -j$NUMCPUS 
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+make install
+if [ $? -ne 0 ]; then
+	error "$P: make install failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
 
-echo phpbench successfully
+echo blogbench installed successfully
 exit $SHELLPACK_SUCCESS
-#### Description phpbench
-#### Details phpbench 13
+#### Description blogbench
+#### Details blogbench 6

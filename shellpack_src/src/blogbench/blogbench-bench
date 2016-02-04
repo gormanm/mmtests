@@ -1,0 +1,25 @@
+#!/bin/bash
+###SHELLPACK preamble blogbench-bench 1.1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --iterations        BLOGBENCH_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK monitor_hooks
+###SHELLPACK check_install_required phpbench-${VERSION}
+
+monitor_pre_hook $LOGDIR_RESULTS 1
+###SHELLPACK iteration_begin $BLOGBENCH_ITERATIONS
+	echo Starting interation $ITERATION/$BLOGBENCH_ITERATIONS
+	$TIME_CMD -o $LOGDIR_RESULTS/blogbench-${ITERATION}.time \
+		$SHELLPACK_SOURCES/blogbench-${VERSION}-installed/bin/blogbench -d $SHELLPACK_TEMP 2>&1 \
+				| tee $LOGDIR_RESULTS/blogbench-${ITERATION}.log
+	rm -rf $SHELLPACK_TEMP
+	mkdir $SHELLPACK_TEMP
+	sync
+###SHELLPACK iteration_end $BLOGBENCH_ITERATIONS
+monitor_post_hook $LOGDIR_RESULTS 1
+
+echo blogbench completed successfully
+exit $SHELLPACK_SUCCESS

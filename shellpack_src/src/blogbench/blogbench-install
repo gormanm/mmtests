@@ -1,0 +1,17 @@
+#!/bin/bash
+# blogbench installer
+###SHELLPACK preamble blogbench-install 1.1
+
+WEB_LOCATION=https://download.pureftpd.org/pub/blogbench
+MIRROR_LOCATION="$WEBROOT/blogbench/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch blogbench-${VERSION}.tar.gz blogbench-${VERSION}
+###SHELLPACK build_start blogbench-${VERSION}
+###SHELLPACK build_configure blogbench-${VERSION} CFLAGS=-O2
+###SHELLPACK make_make_install
+
+echo blogbench installed successfully
+exit $SHELLPACK_SUCCESS

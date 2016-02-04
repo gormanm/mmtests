@@ -1,6 +1,6 @@
 #!/bin/bash
-P=phpbench-bench
-DEFAULT_VERSION=0.8.1
+P=blogbench-bench
+DEFAULT_VERSION=1.1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -37,7 +37,7 @@ while [ "$1" != "" ]; do
 		shift
 		;;
 	--iterations)
-		PHPBENCH_ITERATIONS=$2
+		BLOGBENCH_ITERATIONS=$2
 		shift 2
 		;;
 	*)
@@ -60,33 +60,29 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 fi
 if [ ! -d $SHELLPACK_SOURCES/phpbench-${VERSION}-installed ]; then
 	mmtests_activity source-install
-	$SHELLPACK_INCLUDE/shellpack-install-phpbench -v ${VERSION}  || die phpbench install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-blogbench -v ${VERSION}  || die blogbench install script returned error
 	mmtests_activity source-installed
 fi
-cd $SHELLPACK_SOURCES/phpbench-${VERSION}-installed || die Failed to cd to phpbench install directory
+cd $SHELLPACK_SOURCES/blogbench-${VERSION}-installed || die Failed to cd to blogbench install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo phpbench installed only as requested.
+	echo blogbench installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
 
-echo Shutting down apache server...
-$SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die Failed to shutdown apache http server
-
 monitor_pre_hook $LOGDIR_RESULTS 1
-for ITERATION in `seq 1 $PHPBENCH_ITERATIONS`; do
+for ITERATION in `seq 1 $BLOGBENCH_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
-	$TIME_CMD -o $LOGDIR_RESULTS/phpbench-${ITERATION}.time \
-		$SHELLPACK_SOURCES/phpbuild-5.6.15-installed/bin/php \
-			$SHELLPACK_SOURCES/phpbench-${VERSION}-installed/phpbench.php 2>&1 \
-				| grep -v "Deprecated:"  \
-				| grep -v "Division by zero" \
-				| grep -v "Strict Standards:" \
-				| grep -E -v "^$"	      \
-				| tee $LOGDIR_RESULTS/phpbench-${ITERATION}.log
+	echo Starting interation $ITERATION/$BLOGBENCH_ITERATIONS
+	$TIME_CMD -o $LOGDIR_RESULTS/blogbench-${ITERATION}.time \
+		$SHELLPACK_SOURCES/blogbench-${VERSION}-installed/bin/blogbench -d $SHELLPACK_TEMP 2>&1 \
+				| tee $LOGDIR_RESULTS/blogbench-${ITERATION}.log
+	rm -rf $SHELLPACK_TEMP
+	mkdir $SHELLPACK_TEMP
+	sync
 done
 monitor_post_hook $LOGDIR_RESULTS 1
 
-echo phpbench completed successfully
+echo blogbench completed successfully
 exit $SHELLPACK_SUCCESS
-#### Description phpbench
-#### Details phpbench-bench 13
+#### Description blogbench
+#### Details blogbench-bench 6

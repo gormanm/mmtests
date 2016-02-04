@@ -1,6 +1,6 @@
 #!/bin/bash
 # phpbench installer
-###SHELLPACK preamble siege-install 0.8.1
+###SHELLPACK preamble phpbench-install 0.8.1
 
 WEB_LOCATION=https://download.pureftpd.org/pub/phpbench
 MIRROR_LOCATION="$WEBROOT/phpbench/"
