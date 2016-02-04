@@ -241,7 +241,7 @@ sub extractReport($$$$) {
 	# kswapd steal
 	foreach my $key ("kswapd_steal", "pgsteal_kswapd_dma", "pgsteal_kswapd_dma32",
 			 "pgsteal_kswapd_normal", "pgsteal_kswapd_high",
-			 "pgsteal_kswapd_movable") {
+			 "pgsteal_kswapd_movable", "pgsteal_kswapd") {
 		my $value = $vmstat_after{$key} - $vmstat_before{$key};
 		$vmstat{$key} = $value;
 		$vmstat{"mmtests_kswapd_steal"} += $value;
@@ -252,7 +252,8 @@ sub extractReport($$$$) {
 	foreach my $key ("pgsteal_dma", "pgsteal_dma32", "pgsteal_normal",
 			 "pgsteal_movable", "pgsteal_high", "pgsteal_direct_dma",
 			 "pgsteal_direct_dma32", "pgsteal_direct_normal",
-			 "pgsteal_direct_movable", "pgsteal_direct_high") {
+			 "pgsteal_direct_movable", "pgsteal_direct_high",
+			 "pgsteal_direct") {
 		my $value = $vmstat_after{$key} - $vmstat_before{$key};
 		$vmstat{$key} = $value;
 		$vmstat{"mmtests_direct_steal"} += $value;
@@ -264,14 +265,18 @@ sub extractReport($$$$) {
 	# kswap scan
 	foreach my $key ("pgscan_kswapd_dma", "pgscan_kswapd_dma32",
 			 "pgscan_kswapd_normal", "pgscan_kswapd_movable",
-			 "pgscan_kswapd_high") {
+			 "pgscan_kswapd_high", "pgscan_kswapd") {
 		my $value = $vmstat_after{$key} - $vmstat_before{$key};
 		$vmstat{$key} = $value;
 		$vmstat{"mmtests_kswapd_scan"} += $value;
 
+
 		# Record the zone being scanned
 		my @elements = split(/_/, $key);
 		my $zone = $elements[-1];
+		if ($zone eq "kswapd") {
+			$zone = "normal";
+		}
 		$vmstat{"mmtests_${zone}_scanned"} += $value;
 		$zones_seen{$zone} = 1;
 	}
@@ -280,7 +285,7 @@ sub extractReport($$$$) {
 	# direct scan
 	foreach my $key ("pgscan_direct_dma", "pgscan_direct_dma32",
 			  "pgscan_direct_normal", "pgscan_direct_movable",
-			  "pgscan_direct_high") {
+			  "pgscan_direct_high", "pgscan_direct") {
 		my $value = $vmstat_after{$key} - $vmstat_before{$key};
 		$vmstat{$key} = $value;
 		$vmstat{"mmtests_direct_scan"} += $value;
@@ -288,6 +293,9 @@ sub extractReport($$$$) {
 		# Record the zone being scanned
 		my @elements = split(/_/, $key);
 		my $zone = $elements[-1];
+		if ($zone eq "direct") {
+			$zone = "normal";
+		}
 		$vmstat{"mmtests_${zone}_scanned"} += $value;
 	}
 	$vmstat{"mmtests_direct_velocity"} = $vmstat{"mmtests_direct_scan"} / $elapsed_time;
@@ -341,9 +349,12 @@ sub extractReport($$$$) {
 			 "thp_fault_alloc", "thp_collapse_alloc",
 			 "thp_split", "thp_fault_fallback",
 			 "thp_collapse_alloc_failed") {
-
-		my $value = $vmstat_after{$key} - $vmstat_before{$key};
-		$vmstat{$key} = $value;
+		if (!defined($vmstat_after{$key}) && $padded_compat) {
+			$vmstat{$key} = 0;
+		} else {
+			my $value = $vmstat_after{$key} - $vmstat_before{$key};
+			$vmstat{$key} = $value;
+		}
 	}
 	$vmstat{"mmtests_vmscan_write_file"} = $vmstat{"nr_vmscan_write"} - $vmstat{"pswpout"};
 	$vmstat{"mmtests_vmscan_write_anon"} = $vmstat{"pswpout"};
@@ -405,37 +416,11 @@ sub extractReport($$$$) {
 	}
 
 	if ($padded_compat) {
-		foreach my $key ("compact_stall", "compact_success",
-				 "compact_fail",
-				 "pgmigrate_success", "pgmigrate_fail",
-				 "compact_isolated",
-				 "compact_migrate_scanned",
-				 "compact_free_scanned",
-				 "compact_pages_moved",
-				 "compact_pagemigrate_failed",
-				 "numa_hit", "numa_miss", "numa_interleave",
-				 "numa_local", "numa_pte_updates",
-				 "numa_huge_pte_updates", "numa_hint_faults",
-				 "numa_hint_faults_local",
-				 "numa_pages_migrated") {
-			if (!defined($vmstat_before{$key})) {
-				$vmstat{$key} = -1;
+		foreach my $key (@_fieldOrder) {
+			if (!defined($vmstat{$key})) {
+				$vmstat{$key} = 0;
 			}
 		}
-
-		if (!defined($vmstat_before{"compact_migrate_scanned"}) &&
-		    !defined($vmstat_before{"compact_blocks_moved"})) {
-			$vmstat{"mmtests_compaction_cost"} = -1;
-		}
-		if (!defined($vmstat_before{"numa_pte_updates"})) {
-			$vmstat{"mmtests_numa_pte_updates"} = -1;
-		}
-		if (!defined($vmstat_before{"numa_pte_updates"})) {
-			$vmstat{"mmtests_numa_pte_updates"} = -1;
-			$vmstat{"mmtests_hint_local"} = -1;
-			$vmstat{"mmtests_autonuma_cost"} = -1;
-		}
-
 	}
 
 	# Pick order to display keys in

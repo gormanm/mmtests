@@ -189,17 +189,19 @@ sub parseVMStat($)
 	my @mmtests_direct_scan = ("pgscan_direct_dma", "pgscan_direct_dma32",
                           "pgscan_direct_normal", "pgscan_direct_movable",
                           "pgscan_direct_high");
+	my @mmtests_direct_nodelru_scan = ("pgscan_direct");
 	my @mmtests_direct_steal = ("pgsteal_dma", "pgsteal_dma32",
 			  "pgsteal_normal", "pgsteal_movable", "pgsteal_high",
 			  "pgsteal_direct_dma", "pgsteal_direct_dma32",
 			  "pgsteal_direct_normal", "pgsteal_direct_movable",
-			  "pgsteal_direct_high", "kswapd_steal");
+			  "pgsteal_direct_high", "pgsteal_direct");
 	my @mmtests_kswapd_scan = ("pgscan_kswapd_dma", "pgscan_kswapd_dma32",
 			 "pgscan_kswapd_normal", "pgscan_kswapd_movable",
 			 "pgscan_kswapd_high") ;
+	my @mmtests_kswapd_nodelru_scan = ("pgscan_kswapd");
         my @mmtests_kswapd_steal = ("kswapd_steal", "pgsteal_kswapd_dma", "pgsteal_kswapd_dma32",
 			  "pgsteal_kswapd_normal", "pgsteal_kswapd_high",
-			  "pgsteal_kswapd_movable");
+			  "pgsteal_kswapd_movable", "pgsteal_kswapd");
 
 	my $current_scan = 0;
 	my $current_steal = 0;
@@ -210,6 +212,11 @@ sub parseVMStat($)
 		my ($stat, $value) = split(/\s/, $line);
 		if ($subHeading eq "mmtests_direct_scan" ) {
 			foreach my $key (@mmtests_direct_scan) {
+				if ($stat eq $key) {
+					$current_value += $value;
+				}
+			}
+			foreach my $key (@mmtests_direct_nodelru_scan) {
 				if ($stat eq $key) {
 					$current_value += $value;
 				}
@@ -248,6 +255,11 @@ sub parseVMStat($)
 			}
 		} elsif ($subHeading eq "mmtests_kswapd_scan") {
 			foreach my $key (@mmtests_kswapd_scan) {
+				if ($stat eq $key) {
+					$current_value += $value;
+				}
+			}
+			foreach my $key (@mmtests_kswapd_nodelru_scan) {
 				if ($stat eq $key) {
 					$current_value += $value;
 				}
