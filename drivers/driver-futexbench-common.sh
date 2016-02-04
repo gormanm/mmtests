@@ -15,6 +15,7 @@ run_bench() {
 	$SHELLPACK_INCLUDE/shellpack-bench-futexbench $VERSION_PARAM	\
 		--min-threads $FUTEXBENCH_MIN_THREADS			\
 		--max-threads $FUTEXBENCH_MAX_THREADS			\
+		--shared $FUTEXBENCH_SHARED				\
 		--workloads $FUTEXBENCH_WORKLOADS
 
 	return $?

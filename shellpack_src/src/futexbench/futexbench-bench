@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run perf-bench futex benchmark
 
-###SHELLPACK preamble futexbench-bench 4.1
+###SHELLPACK preamble futexbench-bench 4.4
 TESTTIME=15
 ITERATIONS=12
 TESTLIST=
@@ -11,6 +11,7 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam   --min-threads      FUTEXBENCH_MIN_THREADS
 ###SHELLPACK parseargParam   --max-threads      FUTEXBENCH_MAX_THREADS
+###SHELLPACK parseargParam   --shared           FUTEXBENCH_SHARED
 ###SHELLPACK parseargParam   --workloads	FUTEXBENCH_WORKLOADS
 ###SHELLPACK parseargEnd
 
@@ -19,15 +20,20 @@ MAX_THREADS=$NUMCPUS
 
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf
+SHARED_OPT=""
+
+if [ "$FUTEXBENCH_SHARED" = "yes" ]; then
+    SHARED_OPT="-S"
+fi
 
 echo $FUTEXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 
 ###SHELLPACK threads_large_stride_begin $FUTEXBENCH_MIN_THREADS $FUTEXBENCH_MAX_THREADS
 	for WORKLOAD in $FUTEXBENCH_WORKLOADS; do
 		mmtests_activity $WORKLOAD-$NR_THREADS
-		echo Running test $WORKLOAD
+		echo "Running test $WORKLOAD (shared=$FUTEXBENCH_SHARED)"
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-		$PERF_CMD bench futex $WORKLOAD -t $NR_THREADS > $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log 2>&1 &
+		$PERF_CMD bench futex $WORKLOAD -t $NR_THREADS $SHARED_OPT > $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log 2>&1 &
 		PERF_PID=$!
 		echo -n Waiting on perf to exit..
 		TEST_EXIT=`ps h --pid $PERF_PID`

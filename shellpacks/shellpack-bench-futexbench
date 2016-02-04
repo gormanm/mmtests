@@ -2,7 +2,7 @@
 # Run perf-bench futex benchmark
 
 P=futexbench-bench
-DEFAULT_VERSION=4.1
+DEFAULT_VERSION=4.4
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -50,6 +50,10 @@ while [ "$1" != "" ]; do
 		FUTEXBENCH_MAX_THREADS=$2
 		shift 2
 		;;
+	--shared)
+		FUTEXBENCH_SHARED=$2
+		shift 2
+		;;
 	--workloads)
 		FUTEXBENCH_WORKLOADS=$2
 		shift 2
@@ -85,6 +89,11 @@ fi
 
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf
+SHARED_OPT=""
+
+if [ "$FUTEXBENCH_SHARED" = "yes" ]; then
+    SHARED_OPT="-S"
+fi
 
 echo $FUTEXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 
@@ -109,9 +118,9 @@ for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	for WORKLOAD in $FUTEXBENCH_WORKLOADS; do
 		mmtests_activity $WORKLOAD-$NR_THREADS
-		echo Running test $WORKLOAD
+		echo "Running test $WORKLOAD (shared=$FUTEXBENCH_SHARED)"
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-		$PERF_CMD bench futex $WORKLOAD -t $NR_THREADS > $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log 2>&1 &
+		$PERF_CMD bench futex $WORKLOAD -t $NR_THREADS $SHARED_OPT > $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log 2>&1 &
 		PERF_PID=$!
 		echo -n Waiting on perf to exit..
 		TEST_EXIT=`ps h --pid $PERF_PID`
@@ -139,4 +148,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description perf-bench futex
-#### Details futexbench-bench 17
+#### Details futexbench-bench 19
