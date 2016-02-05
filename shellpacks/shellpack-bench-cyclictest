@@ -10,6 +10,8 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 
+CYCLICTEST_ITERATIONS=5
+
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -38,8 +40,12 @@ while [ "$1" != "" ]; do
 		INSTALL_FORCE=yes
 		shift
 		;;
-	--runtime)
-		CYCLICTEST_RUNTIME=$2
+	--duration)
+		CYCLICTEST_DURATION=$2
+		shift 2
+		;;
+	--iterations)
+		CYCLICTEST_ITERATIONS=$2
 		shift 2
 		;;
 	--affinity)
@@ -80,11 +86,15 @@ if [ "$CYCLICTEST_AFFINITY" = "yes" ]; then
 	CYCLICTEST_AFFINITY_PARAM=-a
 fi
 
-monitor_pre_hook $LOGDIR_RESULTS
-./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
-	-n --distance=0 --duration=$CYCLICTEST_RUNTIME --quiet 2>&1 | \
-	tee $LOGDIR_RESULTS/cyclictest.log
-monitor_post_hook $LOGDIR_RESULTS
+for ITERATION in `seq 1 $CYCLICTEST_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+	echo Starting iteration $ITERATION/$CYCLICTEST_ITERATIONS
+	monitor_pre_hook $LOGDIR_RESULTS
+	./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
+		-n --distance=0 --duration=$CYCLICTEST_DURATION --quiet 2>&1 | \
+		tee $LOGDIR_RESULTS/cyclictest-$ITERATION.log
+	monitor_post_hook $LOGDIR_RESULTS
+done
 exit $SHELLPACK_SUCCESS
 #### Description cyclictest
-#### Details cyclictest-bench 4
+#### Details cyclictest-bench 6

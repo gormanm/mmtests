@@ -1,8 +1,8 @@
 # ExtractCyclictest.pm
 package MMTests::ExtractCyclictest;
-use MMTests::SummariseVariabletime;
+use MMTests::SummariseMultiops;
 use VMR::Report;
-our @ISA = qw(MMTests::SummariseVariabletime);
+our @ISA = qw(MMTests::SummariseMultiops);
 
 sub new() {
 	my $class = shift;
@@ -18,19 +18,17 @@ sub new() {
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 
-	my $file = "$reportDir/noprofile/cyclictest.log";
-	open(INPUT, $file) || die("Failed to open $file\n");
 	my $iteration = 0;
-	while (<INPUT>) {
-		my $max;
-
-		if ($_ !~ /^.*Max: (.*)/) {
-			next;
+	foreach my $file (<$reportDir/noprofile/cyclictest-*.log>) {
+		open(INPUT, $file) || die("Failed to open $file\n");
+		while (<INPUT>) {
+			next if ($_ !~ /^T.*Avg:\s+([0-9]+).*Max:\s+([0-9]+)/);
+			$iteration++;
+			push @{$self->{_ResultData}}, [ "LatAvg", $iteration, $1];
+			push @{$self->{_ResultData}}, [ "LatMax", $iteration, $2];
 		}
-		$max = int($1);
-		push @{$self->{_ResultData}}, [ "Time", ++$iteration, $max];
+		close INPUT;
 	}
-	close INPUT;
 
-	$self->{_Operations} = [ "Time" ];
+	$self->{_Operations} = [ "LatAvg", "LatMax" ];
 }

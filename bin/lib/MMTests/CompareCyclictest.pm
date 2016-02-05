@@ -8,7 +8,7 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareCyclictest",
 		_DataType    => MMTests::Compare::DATA_TIME_USECONDS,
-		_CompareOp   => "pndiff",
+		_CompareOps  => [ "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
 		_FieldLength => 12,
 		_ResultData  => []
 	};
