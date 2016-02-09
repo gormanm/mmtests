@@ -77,6 +77,7 @@ export MONITOR_UPDATE_FREQUENCY=10
 export IOZONE_NODE=${MMTESTS_NODE_ID_BY_SIZE[$((NUMNODES-1))]}
 # Assume 10% of node size won't hit any dirty throttling or per-node limits
 iozone_size=$((${MMTESTS_NODE_SIZE[$IOZONE_NODE]}/10))
+iozone_size=$((iozone_size&~(16*1048576-1)))
 
 export IOZONE_MIN_SIZE=$((iozone_size/4))
 export IOZONE_MAX_SIZE=$((iozone_size/2))
