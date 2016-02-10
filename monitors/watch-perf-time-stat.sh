@@ -2,13 +2,13 @@
 
 install-depends perf
 
-if [ "$MONITOR_PERF_EVENTS" = "" ]; then
-	echo ERROR: Did not specify MONITOR_PERF_EVENTS in log
-	exit -1
+EVENTS_COMMAND=
+if [ "$MONITOR_PERF_EVENTS" != "" ]; then
+	EVENTS_COMMAND="-e $MONITOR_PERF_EVENTS"
 fi
 
 # Run perf sched for small durations to build picture up over time
 while [ 1 ]; do
 	echo time: `date +%s`
-	perf stat -a -e $MONITOR_PERF_EVENTS sleep $MONITOR_UPDATE_FREQUENCY
+	perf stat -a $EVENTS_COMMAND sleep $MONITOR_UPDATE_FREQUENCY
 done

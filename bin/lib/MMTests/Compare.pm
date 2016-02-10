@@ -404,7 +404,6 @@ sub _generateRenderTable() {
 	my @formatTable;
 	my @compareTable;
 
-
 	my @titleTable = @{$self->{_TitleTable}};
 	my @resultsTable = @{$self->{_ResultsTable}};
 	my $fieldLength = $self->{_FieldLength};

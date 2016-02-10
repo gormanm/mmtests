@@ -420,6 +420,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	echo
 	eval $COMPARE_CMD --print-monitor mmtests-vmstat
 
+	if [ `ls perf-time-stat-* 2> /dev/null | wc -l` -gt 0 ]; then
+		eval $COMPARE_CMD --print-monitor perf-time-stat
+	fi
+
 	TEST=
 	if [ `ls iostat-* 2> /dev/null | wc -l` -gt 0 ]; then
 		eval $COMPARE_BARE_CMD --print-monitor iostat 2> /dev/null > /tmp/iostat-$$
@@ -1029,15 +1033,24 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 
 		if [ `ls perf-time-stat-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
 			EVENTS=`$EXTRACT_CMD -n $KERNEL_BASE --print-monitor perf-time-stat --print-header | head -1`
-			echo "<tr>"
+			COUNT=-1
 			for EVENT in $EVENTS; do
+				COUNT=$((COUNT+1))
+				if [ $((COUNT%3)) -eq 0 ]; then
+					echo "<tr>"
+				fi
 				eval $GRAPH_PNG --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT.png
 				eval $GRAPH_PSC --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT.ps
 				eval $GRAPH_PNG --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT-smooth.png --smooth
 				eval $GRAPH_PSC --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT-smooth.ps --smooth
 				smoothover graph-$SUBREPORT-perf-time-stat-$EVENT
+				if [ $((COUNT%3)) -eq 2 ]; then
+					echo "</tr>"
+				fi
 			done
-			echo "</tr>"
+			if [ $((COUNT%3)) -ne 2 ]; then
+				echo "</tr>"
+			fi
 		fi
 
 		if [ `ls vmstat-$KERNEL_BASE-* | wc -l` -gt 0 ]; then

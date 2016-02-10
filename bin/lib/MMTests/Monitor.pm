@@ -21,6 +21,7 @@ use constant MONITOR_IOTOP		=> 10;
 use constant MONITOR_SYSCALLS		=> 11;
 use constant MONITOR_PROCNETDEV		=> 12;
 use constant MONITOR_KCACHE		=> 13;
+use constant MONITOR_PERFTIMESTAT	=> 14;
 use strict;
 
 sub new() {
@@ -44,13 +45,13 @@ sub getModuleName() {
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my (@fieldHeaders);
-	my ($fieldLength);
+	my $fieldLength = 12;
 
 	if ($self->{_DataType} == MONITOR_CPUTIME_SINGLE) {
 		$fieldLength = 12;
 		@fieldHeaders = ("", "User", "System", "Elapsed");
 	}
-	$self->{_FieldLength}  = $fieldLength;
+	$self->{_FieldLength}  = $fieldLength if !defined($self->{_FieldLength});
 	$self->{_FieldHeaders} = \@fieldHeaders;
 	$self->{_TestName} = $testName;
 }
@@ -90,6 +91,7 @@ sub printReport() {
 	    $self->{_DataType} == MONITOR_IOTOP ||
 	    $self->{_DataType} == MONITOR_FTRACE ||
 	    $self->{_DataType} == MONITOR_IOSTAT ||
+	    $self->{_DataType} == MONITOR_PERFTIMESTAT ||
 	    $self->{_DataType} == MONITOR_SYSCALLS ||
 	    $self->{_DataType} == MONITOR_KCACHE ||
 	    $self->{_DataType} == MONITOR_VMSTAT ||
