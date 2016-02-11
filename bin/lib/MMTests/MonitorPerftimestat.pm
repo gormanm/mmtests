@@ -159,6 +159,7 @@ COLRD:		while (!eof(INPUT)) {
 	my $start_timestamp = 0;
 	my @row;
 	$headingIndex = 0;
+	$reading = 0;
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 
