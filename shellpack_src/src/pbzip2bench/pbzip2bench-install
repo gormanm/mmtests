@@ -1,0 +1,19 @@
+#!/bin/bash
+###SHELLPACK preamble pbzip2bench-install 0
+PBZIP2_VERSION=1.1.13
+WEB_LOCATION=https://launchpad.net/pbzip2/1.1/${PBZIP2_VERSION}/+download/
+MIRROR_LOCATION="$WEBROOT/pbzip2/"
+
+install-depends gcc-c++ libbz2-devel
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch pbzip2-${PBZIP2_VERSION}.tar.gz pbzip2bench-${VERSION}-installed
+
+###SHELLPACK build_start pbzip2bench-${VERSION}-installed
+
+###SHELLPACK make
+
+echo pbzip2 installed successfully
+exit $SHELLPACK_SUCCESS

@@ -1,0 +1,63 @@
+#!/bin/bash
+# Run pbzip2 benchmark
+
+###SHELLPACK preamble pbzip2bench-bench 0
+
+ITERATIONS=12
+TESTLIST=
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-threads	PBZIP2BENCH_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads	PBZIP2BENCH_MAX_THREADS
+###SHELLPACK parseargParam	--iterations	PBZIP2BENCH_ITERATIONS
+###SHELLPACK parseargParam	--file          PBZIP2BENCH_FILE
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required pbzip2bench-${VERSION}
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Copy/download test file into the test partition
+if [ "$PBZIP2BENCH_FILE" = "" ]; then
+	die PBZIP2BENCH_FILE must be specified
+fi
+if [ -e $PBZIP2BENCH_FILE ]; then
+	mmtests_activity Copying
+	cp $PBZIP2BENCH_FILE $SHELLPACK_TEMP/in.file.gz
+	if [ $? -ne 0 ]; then
+		die Failed to copy $PBZIP2BENCH_FILE
+	fi
+else
+	mmtests_activity Downloading
+	echo Downloading $PBZIP2BENCH_FILE
+	wget -O $SHELLPACK_TEMP/in.file.gz -q $PBZIP2BENCH_FILE
+	if [ $? -ne 0 ]; then
+		die Failed to download $PBZIP2BENCH_FILE
+	fi
+fi
+if [ "`file $SHELLPACK_TEMP/in.file.gz | grep gzip`" = "" ]; then
+	echo Source file already uncompressed
+	mv $SHELLPACK_TEMP/in.file.gz $SHELLPACK_TEMP/in.file
+else
+	echo Uncompressing source file
+	gunzip $SHELLPACK_TEMP/in.file.gz || die Failed to decompress source file
+fi
+
+###SHELLPACK threads_large_stride_begin $PBZIP2BENCH_MIN_THREADS $PBZIP2BENCH_MAX_THREADS $PBZIP2BENCH_ITERATIONS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	###SHELLPACK iteration_begin $PBZIP2BENCH_ITERATIONS
+		echo Starting threads $NR_THREADS/$PBZIP2BENCH_MAX_THREADS iteration $ITERATION/$PBZIP2BENCH_ITERATIONS
+		save_rc $TIME_CMD -o $LOGDIR_RESULTS/pbzip2bench-${NR_THREADS}-$ITERATION.time \
+		    $SHELLPACK_SOURCES/pbzip2bench-${VERSION}-installed/pbzip2 --keep --force --compress -p${NR_THREADS} $SHELLPACK_TEMP/in.file 2>&1 | tee $LOGDIR_RESULTS/pbzip2bench-${NR_THREADS}-${ITERATION}.log
+		recover_rc
+		if [ $? -ne 0 ]; then
+			die Failed to run pbzip2bench
+		fi
+
+		###SHELLPACK iteration_end $ITERATIONS
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+rm $SHELLPACK_TEMP/in.file
+exit $SHELLPACK_SUCCESS
