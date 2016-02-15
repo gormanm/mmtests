@@ -529,6 +529,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			done
 			echo "</tr>"
 			;;
+		blogbench)
+			echo "<tr>"
+			eval $GRAPH_PNG -b blogbench --title \"$SUBREPORT read score\" --sub-heading Read  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-score.png
+			eval $GRAPH_PSC -b blogbench --title \"$SUBREPORT read score\" --sub-heading Read  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-read-score.ps
+			eval $GRAPH_PNG -b blogbench --title \"$SUBREPORT write latency\" --sub-heading Write --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-score.png
+			eval $GRAPH_PSC -b blogbench --title \"$SUBREPORT write latency\" --sub-heading Write --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-write-score.ps
+			plain graph-$SUBREPORT-read-score
+			plain graph-$SUBREPORT-write-score
+			echo "</tr>"
+			;;
 		dbench3)
 			echo "<tr>"
 			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-mbsec.png
