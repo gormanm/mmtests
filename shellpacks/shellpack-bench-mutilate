@@ -37,6 +37,10 @@ while [ "$1" != "" ]; do
 		INSTALL_FORCE=yes
 		shift
 		;;
+	--min-threads)
+		MUTILATE_MIN_THREADS=$2
+		shift 2
+		;;
 	--max-threads)
 		MUTILATE_MAX_THREADS=$2
 		shift 2
@@ -101,7 +105,7 @@ cd $SHELLPACK_SOURCES/mutilate-${VERSION}-installed || die Failed to cd to mutil
 MUTILATE_ITEMS=$(($MEMCACHED_MEMPOOL/$MUTILATE_VALUE_SIZE))
 
 THREADS=
-START_THREAD=1
+START_THREAD=$MUTILATE_MIN_THREADS
 END_THREAD=$MUTILATE_MAX_THREADS
 if [ $END_THREAD -gt 32 ]; then
 	THREADS=`seq $START_THREAD 3 8`
@@ -147,4 +151,4 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 
 exit $SHELLPACK_SUCCESS
 #### Description mutilate
-#### Details mutilate-bench 29
+#### Details mutilate-bench 30
