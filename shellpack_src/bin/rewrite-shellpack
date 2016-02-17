@@ -443,6 +443,9 @@ else
 	THREADS=`seq \$START_THREAD \$END_THREAD`
 fi
 for NR_THREADS in \$THREADS; do
+	if [ \$NR_THREADS -lt $min_thread ]; then
+		continue
+	fi
 	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC
 	} elsif ($command eq "threads_large_stride_begin") {
@@ -466,6 +469,9 @@ if [ `echo \$THREADS | awk '{print \$NF}'` -ne \$END_THREAD ]; then
 fi
 
 for NR_THREADS in \$THREADS; do
+	if [ \$NR_THREADS -lt $min_thread ]; then
+		continue
+	fi
 	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC
 	} elsif ($command eq "threads_huge_stride_begin") {
@@ -488,6 +494,9 @@ if [ `echo \$THREADS | awk '{print \$NF}'` -ne \$END_THREAD ]; then
 	THREADS="\$THREADS \$END_THREAD"
 fi
 for NR_THREADS in \$THREADS; do
+	if [ \$NR_THREADS -lt $min_thread ]; then
+		continue
+	fi
 	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC
 	} elsif ($command eq "threads_stride_fixed_begin") {
@@ -504,6 +513,9 @@ else
 	THREADS="\$THREADS $max_thread"
 fi
 for NR_THREADS in \$THREADS; do
+	if [ \$NR_THREADS -lt $min_thread ]; then
+		continue
+	fi
 	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC
 	} elsif ($command eq "threads_stride_alt_fixed_begin") {
@@ -520,6 +532,9 @@ else
 	THREADS="\$THREADS $max_thread"
 fi
 for NR_THREADS in \$THREADS; do
+	if [ \$NR_THREADS -lt $min_thread ]; then
+		continue
+	fi
 	mmtests_activity process \$NR_THREADS/\$END_THREAD
 EOC
 	} elsif ($command eq "threads_stride_end") {
