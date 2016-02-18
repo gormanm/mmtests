@@ -663,7 +663,7 @@ fi
 
 # Validate systemtap installation if it exists
 TESTS_STAP="stress-highalloc pagealloc highalloc"
-MONITORS_STAP="dstate stap-highorder-atomic function-frequency"
+MONITORS_STAP="dstate stap-highorder-atomic function-frequency syscalls"
 STAP_USED=
 MONITOR_STAP=
 for TEST in $MMTESTS; do
