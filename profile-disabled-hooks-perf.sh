@@ -12,7 +12,7 @@ int main() {
 	char buf[64];
 	int bytes_write, bytes_written;
 
-	fd = open("/tmp/mmtests.perf.pid", O_CREAT|O_TRUNC|O_WRONLY);
+	fd = open("/tmp/mmtests.wait.pid", O_CREAT|O_TRUNC|O_WRONLY);
 	if (fd == -1) {
 		perror("open");
 		exit(-1);
@@ -36,18 +36,27 @@ export PROFILE_EVENTS=timer
 gcc -Wall /tmp/mmtests-wait.c -o /tmp/mmtests-wait || exit $SHELLPACK_ERROR
 
 echo "#!/bin/bash" > monitor-pre-hook
-echo "perf record -o \$1/perf-\$2-report-${PROFILE_TITLE}.data -g -a /tmp/mmtests-wait &" >> monitor-pre-hook
+echo "
+perf record -o \$1/perf-\$2-report-${PROFILE_TITLE}.data -g -a /tmp/mmtests-wait &
+echo \$! > /tmp/mmtests.perf.pid
+" >> monitor-pre-hook
 
 echo "#!/bin/bash" > monitor-post-hook
-echo 'kill `cat /tmp/mmtests.perf.pid`' >> monitor-post-hook
-echo "sleep 5" >> monitor-post-hook
+echo 'kill `cat /tmp/mmtests.wait.pid`' >> monitor-post-hook
+echo 'echo Waiting on perf to exit: `date`' >> monitor-post-hook
+echo 'WAITPID=`cat /tmp/mmtests.perf.pid`' >> monitor-post-hook
+echo 'while [ "`ps h --pid $WAITPID`" != "" ]; do' >> monitor-post-hook
+echo 'echo -n .' >> monitor-post-hook
+echo 'sleep 1' >> monitor-post-hook
+echo 'done' >> monitor-post-hook
+echo 'echo Perf exited: `date`' >> monitor-post-hook
 echo "perf report -i \$1/perf-\$2-report-${PROFILE_TITLE}.data > \$1/perf-\$2-report-${PROFILE_TITLE}.txt" >> monitor-post-hook
 echo "gzip \$1/perf-\$2-report-${PROFILE_TITLE}.data" >> monitor-post-hook
 
 echo "#!/bin/bash" > monitor-cleanup-hook
 
 echo "#!/bin/bash" > monitor-reset
-echo 'kill `cat /tmp/mmtests.perf.pid`' >> monitor-reset
+echo 'kill `cat /tmp/mmtests.wait.pid`' >> monitor-reset
 echo "sleep 5" >> monitor-reset
 
 chmod u+x monitor-*
