@@ -443,4 +443,5 @@ function create_random_file() {
 	done
 	rm $SHELLPACK_TEMP/random_base_file
 	ls -lh $OUTPUT
+	sync
 }
