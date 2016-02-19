@@ -54,7 +54,7 @@ fi
 				INPUT_FILE=${INPUT_FILE}.$INSTANCE
 			fi
 			$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$INSTANCE-$ITERATION \
-				dd if=$SHELLPACK_TEMP/source_file of=$OUTPUT_FILE 2> $LOGDIR_RESULTS/log-$NR_THREADS-$INSTANCE-$ITERATION &
+				dd if=$INPUT_FILE of=$OUTPUT_FILE 2> $LOGDIR_RESULTS/log-$NR_THREADS-$INSTANCE-$ITERATION &
 		done
 
 		echo Waiting on dd instances to complete

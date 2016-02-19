@@ -102,6 +102,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $PARALLELDD_MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	if [ "$PARALLELDD_SPLITINPUT" = "yes" ]; then
 		create_random_file $((PARALLELDD_SOURCESIZE/$NR_THREADS)) $SHELLPACK_TEMP/source_file.1
@@ -129,7 +132,7 @@ for ITERATION in `seq 1 $PARALLELDD_ITERATIONS`; do
 				INPUT_FILE=${INPUT_FILE}.$INSTANCE
 			fi
 			$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$INSTANCE-$ITERATION \
-				dd if=$SHELLPACK_TEMP/source_file of=$OUTPUT_FILE 2> $LOGDIR_RESULTS/log-$NR_THREADS-$INSTANCE-$ITERATION &
+				dd if=$INPUT_FILE of=$OUTPUT_FILE 2> $LOGDIR_RESULTS/log-$NR_THREADS-$INSTANCE-$ITERATION &
 		done
 
 		echo Waiting on dd instances to complete
@@ -144,4 +147,4 @@ rm $SHELLPACK_TEMP/source_file
 
 exit $SHELLPACK_SUCCESS
 #### Description ddread
-#### Details paralleldd-bench 13
+#### Details paralleldd-bench 16
