@@ -902,6 +902,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			done
 			echo "</tr>"
 			;;
+		usemem)
+			echo "<tr>"
+			for HEADING in Elapsd System; do
+				eval $GRAPH_PNG -b usemem --title \"$SUBREPORT $HEADING time\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.png
+				eval $GRAPH_PSC -b usemem --title \"$SUBREPORT $HEADING time\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.ps
+			done
+			plain graph-$SUBREPORT-System
+			plain graph-$SUBREPORT-Elapsd
+			echo "</tr>"
+			;;
 		timeexit)
 			;;
 		tiobench)

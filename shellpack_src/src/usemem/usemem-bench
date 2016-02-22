@@ -1,0 +1,59 @@
+#!/bin/bash
+###SHELLPACK preamble usemem-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam	--size			USEMEM_WORKLOAD_SIZE
+###SHELLPACK parseargParam	--anon-percentage	USEMEM_PERCENTAGE_ANON
+###SHELLPACK parseargParam	--loops			USEMEM_LOOPS
+###SHELLPACK parseargParam	--iterations		USEMEM_ITERATIONS
+###SHELLPACK parseargParam	--min-threads		USEMEM_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads		USEMEM_MAX_THREADS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_external_install_required usemembuild usemembuild-${VERSION}-installed ${VERSION}
+
+MEMTOTAL_ANON=$((USEMEM_WORKLOAD_SIZE*USEMEM_PERCENTAGE_ANON/100))
+MEMTOTAL_FILE=$((USEMEM_WORKLOAD_SIZE*(100-USEMEM_PERCENTAGE_ANON)/100))
+create_random_file $((MEMTOTAL_FILE+32*1048576)) $SHELLPACK_TEMP/source_file
+
+###SHELLPACK monitor_hooks
+
+###SHELLPACK threads_large_stride_begin $USEMEM_MIN_THREADS $USEMEM_MAX_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	###SHELLPACK iteration_begin $USEMEM_ITERATIONS
+		echo Starting usemem with $NR_THREADS threads iteration $ITERATION/$USEMEM_ITERATIONS
+
+		echo "#!/bin/bash
+		echo -n > $SHELLPACK_TEMP/usemem.pids
+
+		# Anon
+		$SHELLPACK_SOURCES/usemembuild-$VERSION-installed/usemem	\
+			-t $NR_THREADS						\
+			-j 4096							\
+			-r $USEMEM_LOOPS					\
+			$((MEMTOTAL_ANON/NR_THREADS)) 2> /dev/null &
+		echo \$! >> $SHELLPACK_TEMP/usemem.pids
+
+		# File
+		$SHELLPACK_SOURCES/usemembuild-$VERSION-installed/usemem	\
+			-t $NR_THREADS						\
+			-f $SHELLPACK_TEMP/source_file				\
+			-j 4096							\
+			-r $USEMEM_LOOPS					\
+			--readonly						\
+			$((MEMTOTAL_FILE/NR_THREADS)) 2> /dev/null &
+		echo \$! >> $SHELLPACK_TEMP/usemem.pids
+
+		for USEMEM_PID in \`cat $SHELLPACK_TEMP/usemem.pids\`; do
+			echo Waiting on pid \$USEMEM_PID
+			wait \$USEMEM_PID
+		done" > $SHELLPACK_TEMP/usemem.sh
+		chmod a+x $SHELLPACK_TEMP/usemem.sh
+		$TIME_CMD -o $LOGDIR_RESULTS/usemem-$NR_THREADS-$ITERATION $SHELLPACK_TEMP/usemem.sh
+		echo
+	###SHELLPACK iteration_end $USEMEM_ITERATIONS
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+
+exit $SHELLPACK_SUCCESS
+
