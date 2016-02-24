@@ -5,18 +5,13 @@
 ###
 ### pipetest is a scheduler ping-pong test that measures context switch latency.
 ###
-### ringtest creates a ring of tasks which run in a turn, synchronized via an
-### array of pipes, and each task executes a workload function when it has its
-### turn. This simulates a fundamentally single-threaded workload spread out
-### across lots of tasks.
-###
 ### lmbench is just running the lat_ctx test and is another measure of context
 ### switch latency.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="hackbench-pipes hackbench-sockets pipetest ringtest lmbench stockfish"
+export MMTESTS="hackbench-pipes hackbench-sockets pipetest lmbench stockfish"
 export RUN_WARMUP=
 
 # Profiling parameters
