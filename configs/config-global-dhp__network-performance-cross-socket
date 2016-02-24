@@ -1,14 +1,20 @@
 ### netperf-udp is a UDP_STREAM netperf run on a loopback device. As
 ### this benchmark is very sensitive to scheduling when running in
-### loopback mode.
+### loopback mode, the client and server are bound to cores that are
+### on the same socket but are not hyper-thread siblings.
 ###
-### netperf-tcp is a TCP_STREAM netperf run on a loopback device.
+### netperf-tcp is a TCP_STREAM netperf run on a loopback device. The
+### client and server are bound to CPUs similar to the netperf-udp
+### benchmark.
 ###
+### The RR tests are round-robin tests.
+###
+### tbench4 is the network portion of the dbench4 benchmark.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="netperf-udp netperf-tcp"
+export MMTESTS="netperf-udp netperf-tcp netperf-udp-rr netperf-tcp-rr"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -80,4 +86,9 @@ export DBENCH_MAX_CLIENTS=$((NUMCPUS*64))
 
 # NetPerf
 export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
+export NETPERF_BINDING=cross-socket
 export NETPERF_ITERATIONS=5
+
+# TBench
+export TBENCH_DURATION=$((3*60))
+export TBENCH_MAX_CLIENTS=$((NUMCPUS*64))

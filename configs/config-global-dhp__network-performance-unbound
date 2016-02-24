@@ -1,11 +1,13 @@
 ### netperf-udp is a UDP_STREAM netperf run on a loopback device.
 ###
 ### netperf-tcp is a TCP_STREAM netperf run on a loopback device.
+###
+### tbench4 is the network portion of the dbench4 benchmark.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="netperf-udp netperf-tcp netperf-udp-rr netperf-tcp-rr"
+export MMTESTS="netperf-udp netperf-tcp netperf-udp-rr netperf-tcp-rr tbench4"
 export RUN_WARMUP=
 
 # Profiling parameters
