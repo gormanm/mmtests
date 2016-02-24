@@ -1225,8 +1225,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			if [ $? -eq 0 ]; then
 				KSWAPD_ACTIVITY=yes
 			fi
+			$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading mmtests_direct_scan | grep -q -v " 0"
+			if [ $? -eq 0 ]; then
+				DIRECT_ACTIVITY=yes
+			fi
+
 		done
-		if [ "$KSWAPD_ACTIVITY" = "yes" ]; then
+		if [ "$DIRECT_ACTIVITY" = "yes" ]; then
 			eval $GRAPH_PNG --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.png
 			eval $GRAPH_PSC --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.ps
 			eval $GRAPH_PNG --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan-smooth.png --smooth
@@ -1244,8 +1249,9 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			smoothover graph-$SUBREPORT-proc-vmstat-direct-steal
 			smoothover graph-$SUBREPORT-proc-vmstat-direct-efficiency
 			echo "</tr>"
+		fi
 
-
+		if [ "$KSWAPD_ACTIVITY" = "yes" ]; then
 			eval $GRAPH_PNG --title \"KSwapd Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan.png
 			eval $GRAPH_PSC --title \"KSwapd Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan.ps
 			eval $GRAPH_PNG --title \"KSwapd Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan-smooth.png --smooth
