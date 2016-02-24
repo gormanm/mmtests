@@ -15,9 +15,7 @@ cd $SHELLPACK_SOURCES/thpscale-${VERSION}-installed ||
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-echo Creating large file
-dd if=/dev/zero of=$SHELLPACK_TEMP/workfile ibs=1048576 count=$((THPSCALE_MAPSIZE/1048576))
-sync
+create_random_file $THPSCALE_MAPSIZE $SHELLPACK_TEMP/workfile
 
 ###SHELLPACK threads_large_stride_begin $THPSCALE_MIN_THREADS $THPSCALE_MAX_THREADS
 	echo Dropping cache to avoid distorting init timings

@@ -11,11 +11,21 @@ fi
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -70,9 +80,7 @@ cd $SHELLPACK_SOURCES/thpscale-${VERSION}-installed ||
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-echo Creating large file
-dd if=/dev/zero of=$SHELLPACK_TEMP/workfile ibs=1048576 count=$((THPSCALE_MAPSIZE/1048576))
-sync
+create_random_file $THPSCALE_MAPSIZE $SHELLPACK_TEMP/workfile
 
 THREADS=
 START_THREAD=$THPSCALE_MIN_THREADS
@@ -92,6 +100,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $THPSCALE_MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	echo Dropping cache to avoid distorting init timings
 	echo 3 > /proc/sys/vm/drop_caches
@@ -105,4 +116,4 @@ done
 rm $SHELLPACK_TEMP/workfile
 exit $SHELLPACK_SUCCESS
 #### Description thpscale
-#### Details thpscale-bench 15
+#### Details thpscale-bench 16
