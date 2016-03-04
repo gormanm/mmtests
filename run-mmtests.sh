@@ -691,7 +691,9 @@ if [ "$STAP_USED" != "" ]; then
 	if [ $? != 0 ]; then
 		echo "ERROR: systemtap required for $STAP_USED but systemtap is broken and unable"
 		echo "       to workaround with stap-fix.sh"
-		exit $SHELLPACK_ERROR
+		if [ "`uname -m`" != "aarch64" ]; then
+			exit $SHELLPACK_ERROR
+		fi
 	fi
 fi
 
