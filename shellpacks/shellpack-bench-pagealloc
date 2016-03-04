@@ -66,6 +66,8 @@ if [ "`which stap`" = "" ]; then
 	exit $SHELLPACK_ERROR
 fi
 
+stap -e 'probe begin { println("validate systemtap") exit () }' || exit $SHELLPACK_SUCCESS
+
 echo -n > $LOGDIR_RESULTS/pagealloc.log
 for ORDER in `seq $ORDER_MIN $ORDER_MAX`; do
 	BATCH_MAX=$((((BATCH_SIZE) / 4096) >> $ORDER))
@@ -109,4 +111,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description Micro-benchmark to stress the page allocator
-#### Details pagealloc-bench 21
+#### Details pagealloc-bench 22
