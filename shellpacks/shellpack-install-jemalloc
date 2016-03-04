@@ -69,9 +69,14 @@ git checkout ${VERSION}
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/jemalloc-${VERSION}-installed 
 if [ $? -ne 0 ]; then
-	error "$P: configure failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+	cp /usr/share/automake*/config.guess .
+	cp /usr/share/automake*/config.sub .
+	eval ./configure --prefix=$SHELLPACK_SOURCES/jemalloc-${VERSION}-installed 
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 unset CFLAGS
 make install_bin || die Failed to install_bin
@@ -79,4 +84,4 @@ make install_lib || die Failed to install_lib
 
 echo jemalloc installed successfully
 #### Description jemalloc
-#### Details jemalloc 6
+#### Details jemalloc 7

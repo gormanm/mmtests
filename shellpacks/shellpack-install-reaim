@@ -93,9 +93,14 @@ cat $SHELLPACK_TEMP/controlled-sync.patch | patch -p1 || die Failed to apply con
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/reaim-${VERSION}-installed 
 if [ $? -ne 0 ]; then
-	error "$P: configure failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+	cp /usr/share/automake*/config.guess .
+	cp /usr/share/automake*/config.sub .
+	eval ./configure --prefix=$SHELLPACK_SOURCES/reaim-${VERSION}-installed 
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 unset CFLAGS
 make -j$NUMCPUS 
@@ -386,4 +391,4 @@ index f11a98883c4c..72637ca015f4 100644
  	strcat(stmp,s2);
 ==== END controlled-sync.patch ====
 #### Description reaim
-#### Details reaim 54
+#### Details reaim 55

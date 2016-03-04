@@ -82,9 +82,14 @@ echo '--- ffsb-6.0-rc2-orig/parser.c	2008-10-27 20:17:05.000000000 +0000
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/ffsb-${VERSION}-installed 
 if [ $? -ne 0 ]; then
-	error "$P: configure failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+	cp /usr/share/automake*/config.guess .
+	cp /usr/share/automake*/config.sub .
+	eval ./configure --prefix=$SHELLPACK_SOURCES/ffsb-${VERSION}-installed 
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 unset CFLAGS
 make -j$NUMCPUS 
@@ -102,4 +107,4 @@ fi
 
 echo ffsb installed successfully
 #### Description Flexible FileSystem Benchmark
-#### Details ffsb 22
+#### Details ffsb 23

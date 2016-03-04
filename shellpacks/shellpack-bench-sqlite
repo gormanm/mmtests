@@ -151,4 +151,4 @@ alarm 0;
 close(PIPE);
 ==== END perl-trans.pl ====
 #### Description sqlite
-#### Details sqlite-bench 24
+#### Details sqlite-bench 25

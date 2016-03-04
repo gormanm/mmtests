@@ -68,9 +68,14 @@ done
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/bonnie-${VERSION}-installed 
 if [ $? -ne 0 ]; then
-	error "$P: configure failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+	cp /usr/share/automake*/config.guess .
+	cp /usr/share/automake*/config.sub .
+	eval ./configure --prefix=$SHELLPACK_SOURCES/bonnie-${VERSION}-installed 
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 unset CFLAGS
 make -j$NUMCPUS 
@@ -88,4 +93,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description bonnie
-#### Details bonnie 33
+#### Details bonnie 34

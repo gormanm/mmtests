@@ -102,9 +102,14 @@ done
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed --enable-thread-safety --without-krb5 --without-readline --enable-assembler
 if [ $? -ne 0 ]; then
-	error "$P: configure failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+	cp /usr/share/automake*/config.guess .
+	cp /usr/share/automake*/config.sub .
+	eval ./configure --prefix=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed --enable-thread-safety --without-krb5 --without-readline --enable-assembler
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 unset CFLAGS
 make -j$NUMCPUS 
@@ -190,4 +195,4 @@ update_entry_cnf password_encryption off
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 52
+#### Details postgresbuild 53

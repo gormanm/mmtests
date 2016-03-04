@@ -154,6 +154,9 @@ else
 	THREADS="$THREADS $FILEBENCH_MAX_THREADS"
 fi
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $FILEBENCH_MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	cat > $LOGDIR_RESULTS/filebench.script << EOF
 	load $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/$FILEBENCH_PERSONALITY
@@ -183,4 +186,4 @@ done
 	;;
 esac
 #### Description filebench
-#### Details filebench-bench 18
+#### Details filebench-bench 19

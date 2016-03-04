@@ -116,9 +116,14 @@ echo "--- sysbench/drivers/pgsql/drv_pgsql.c.orig	2010-12-03 14:14:59.000000000 
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/sysbench-${VERSION}-installed $CONFIGURE_ARGS
 if [ $? -ne 0 ]; then
-	error "$P: configure failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+	cp /usr/share/automake*/config.guess .
+	cp /usr/share/automake*/config.sub .
+	eval ./configure --prefix=$SHELLPACK_SOURCES/sysbench-${VERSION}-installed $CONFIGURE_ARGS
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 unset CFLAGS
 make -j$NUMCPUS 
@@ -137,4 +142,4 @@ fi
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench 75
+#### Details sysbench 76

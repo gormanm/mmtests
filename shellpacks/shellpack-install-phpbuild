@@ -72,9 +72,14 @@ done
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed --with-apxs2=$SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/bin/apxs --with-mysql --with-config-file-path=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/
 if [ $? -ne 0 ]; then
-	error "$P: configure failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+	cp /usr/share/automake*/config.guess .
+	cp /usr/share/automake*/config.sub .
+	eval ./configure --prefix=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed --with-apxs2=$SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/bin/apxs --with-mysql --with-config-file-path=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 unset CFLAGS
 make -j$NUMCPUS 
@@ -120,9 +125,14 @@ $SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/bin/phpize
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/xcode-${XCACHE_VERSION}-installed --enable-xcache --with-php-config=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/bin/php-config
 if [ $? -ne 0 ]; then
-	error "$P: configure failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+	cp /usr/share/automake*/config.guess .
+	cp /usr/share/automake*/config.sub .
+	eval ./configure --prefix=$SHELLPACK_SOURCES/xcode-${XCACHE_VERSION}-installed --enable-xcache --with-php-config=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/bin/php-config
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 unset CFLAGS
 make -j$NUMCPUS 
@@ -142,4 +152,4 @@ cat xcache.ini >> $SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/php.ini
 
 echo php installed successfully
 #### Description phpbuild
-#### Details phpbuild 6
+#### Details phpbuild 8

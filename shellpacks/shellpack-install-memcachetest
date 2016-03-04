@@ -71,9 +71,14 @@ echo "m4_define([VERSION_NUMBER], [0.8.3_6_g35fd1b9])" > m4/version.m4
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/memcachetest-${VERSION}-installed 
 if [ $? -ne 0 ]; then
-	error "$P: configure failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+	cp /usr/share/automake*/config.guess .
+	cp /usr/share/automake*/config.sub .
+	eval ./configure --prefix=$SHELLPACK_SOURCES/memcachetest-${VERSION}-installed 
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 unset CFLAGS
 make -j$NUMCPUS 
@@ -91,4 +96,4 @@ fi
 
 echo memcachetest installed successfully
 #### Description memcachetest
-#### Details memcachetest 19
+#### Details memcachetest 20

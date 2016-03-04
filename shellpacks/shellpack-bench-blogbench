@@ -85,4 +85,4 @@ monitor_post_hook $LOGDIR_RESULTS 1
 echo blogbench completed successfully
 exit $SHELLPACK_SUCCESS
 #### Description blogbench
-#### Details blogbench-bench 6
+#### Details blogbench-bench 7

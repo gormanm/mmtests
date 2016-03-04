@@ -72,9 +72,14 @@ autoreconf -f -i || die Failed to run autoreconf
 export CFLAGS="-O2 $CFLAGS_MMTESTS_EXTRA"
 eval ./configure --prefix=$SHELLPACK_SOURCES/sysbenchcpu-${VERSION}-installed --without-mysql
 if [ $? -ne 0 ]; then
-	error "$P: configure failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+	cp /usr/share/automake*/config.guess .
+	cp /usr/share/automake*/config.sub .
+	eval ./configure --prefix=$SHELLPACK_SOURCES/sysbenchcpu-${VERSION}-installed --without-mysql
+	if [ $? -ne 0 ]; then
+		error "$P: configure failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 unset CFLAGS
 make -j$NUMCPUS 
@@ -93,4 +98,4 @@ fi
 echo sysbenchcpu successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description sysbenchcpu
-#### Details sysbenchcpu 11
+#### Details sysbenchcpu 12
