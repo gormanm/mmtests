@@ -3,9 +3,6 @@
 ### tend to be difficult if not impossible to bisect but can sometimes be
 ### correlated with degradations in other benchmarks.
 ### 
-### vmr-stream is the STREAM memory benchmark and variations in it can be
-### indicative of problems with cache coloring and usage.
-### 
 ### pagealloc is a page allocator microbenchmark run via SystemTap. The page
 ### allocator is rarely a major component of a workloads time but it can
 ### be a source of slow degrataion of overall performance.
@@ -21,7 +18,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="aim9 vmr-stream pagealloc pft ebizzy"
+export MMTESTS="aim9 pagealloc pft ebizzy"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -102,8 +99,3 @@ export PFT_MAPPING_SIZE=$((MEMTOTAL_BYTES/5))
 export PFT_MAX_CLIENTS=$NUMCPUS
 export PFT_USE_PROCESSES=yes
 export PFT_PAGESIZES=base
-
-# STREAM
-export STREAM_BACKING_TYPE=static
-export STREAM_PAGESIZES="default"
-#export STREAM_PAGESIZES="base huge dynhuge"
