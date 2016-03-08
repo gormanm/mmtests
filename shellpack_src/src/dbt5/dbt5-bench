@@ -53,6 +53,9 @@ if [ "$DBDRIVER" = "postgres" ]; then
 	export PGHOST=localhost
 	export PGPORT=5432
 fi
+if [ -e /opt/python-marvin/bin/python ]; then
+	export PATH=/opt/python-marvin/bin:$PATH
+fi
 
 if [ "$BENCH_ONLY" != "yes" ]; then
 	# Initialise database

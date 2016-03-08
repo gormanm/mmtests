@@ -155,6 +155,9 @@ if [ "$DBDRIVER" = "postgres" ]; then
 	export PGHOST=localhost
 	export PGPORT=5432
 fi
+if [ -e /opt/python-marvin/bin/python ]; then
+	export PATH=/opt/python-marvin/bin:$PATH
+fi
 
 if [ "$BENCH_ONLY" != "yes" ]; then
 	# Initialise database
@@ -189,6 +192,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 	THREADS="$THREADS $END_THREAD"
 fi
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $MIN_USERS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 NR_USERS=$((NR_THREADS*USER_SCALE))
 if [ $NR_USERS -lt $MIN_USERS ]; then
@@ -239,4 +245,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt5
-#### Details dbt5-bench 55
+#### Details dbt5-bench 56
