@@ -4,7 +4,7 @@
 WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/v4.x"
 MIRROR_LOCATION="$WEBROOT/linux/"
 
-install-depends python3-devel
+install-depends python3-devel bison flex
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall

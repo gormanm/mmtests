@@ -11,7 +11,7 @@ fi
 WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/v4.x"
 MIRROR_LOCATION="$WEBROOT/linux/"
 
-install-depends python3-devel
+install-depends python3-devel bison flex
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -88,4 +88,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description perfbuild
-#### Details perfbuild 7
+#### Details perfbuild 8
