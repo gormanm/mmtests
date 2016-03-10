@@ -36,7 +36,7 @@ sub initialise() {
 	    $self->{_DataType} == MMTests::Extract::DATA_TIME_MSECONDS ||
 	    $self->{_DataType} == MMTests::Extract::DATA_TIME_USECONDS ||
 	    $self->{_DataType} == MMTests::Extract::DATA_TIME_CYCLES ||
-	    $self->{_DataType} == MMTests::Extract::DATA_ACTIONS) {
+	    $self->{_DataType} == MMTests::Extract::DATA_BAD_ACTIONS) {
 		$self->{_MeanOp} = "calc_mean";
 		$self->{_MeanName} = "Amean";
 		$self->{_RatioPreferred} = "Lower";
