@@ -848,6 +848,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	fi
 
 	EXIT_CODE=$SHELLPACK_SUCCESS
+	RETURN_CODE=$SHELLPACK_SUCCESS
 
 	# Run tests in single mode
 	dmesg > $SHELLPACK_LOG/dmesg-$RUNNAME
@@ -888,6 +889,10 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-$RUNNAME \
 			./run-single-test.sh $TEST
 		EXIT_CODE=$?
+
+		if [ $EXIT_CODE -ne 0 ]; then
+			RETURN_CODE=1
+		fi
 
 		# Record some basic information at end of test
 		for PROC_FILE in $PROC_FILES; do
@@ -1041,5 +1046,5 @@ if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 fi
 
 echo `date +%s` run-mmtests: End >> $SHELLPACK_ACTIVITY
-echo status :: $EXIT_CODE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-exit $EXIT_CODE
+echo status :: $RETURN_CODE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+exit $RETURN_CODE
