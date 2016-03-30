@@ -1,0 +1,11 @@
+--- a/runtime/linux/access_process_vm.h.orig	2016-03-30 14:01:20.714557982 +0200
++++ b/runtime/linux/access_process_vm.h	2016-03-30 14:02:30.694555549 +0200
+@@ -32,7 +32,7 @@
+       int bytes, ret, offset;
+       void *maddr;
+ 
+-      ret = get_user_pages (tsk, mm, addr, 1, write, 1, &page, &vma);
++      ret = get_user_pages (addr, 1, write, 1, &page, &vma);
+       if (ret <= 0)
+ 	break;
+ 
