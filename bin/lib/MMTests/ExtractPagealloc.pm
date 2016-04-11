@@ -10,9 +10,9 @@ use strict;
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
+	my $fieldLength = $self->{_FieldLength} = 13;
 	$self->SUPER::initialise();
 
-	my $fieldLength = $self->{_FieldLength};
 	$self->{_DataType} = MMTests::Extract::DATA_TIME_CYCLES;
 	$self->{_PlotXaxis}   = "MemSize";
 	$self->{_PlotType} = "client-errorlines";

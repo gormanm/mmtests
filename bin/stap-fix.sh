@@ -48,7 +48,7 @@ fi
 
 echo WARNING: systemtap installation broken, trying to fix.
 
-for PATCH in 4.4 4.5 4.6; do
+for PATCH in 4.4 4.5 4.6 4.6-rc3; do
 	cat $SCRIPTDIR/stap-patches/systemtap-runtime-${PATCH}.patch | patch -p1 -d /usr/share/systemtap
 	if [ $? -ne 0 ]; then
 		restore_systemtap
