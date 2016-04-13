@@ -97,7 +97,7 @@ static void *worker(void *data)
 	}
 
 	/* Allocate second mapping but do not fault it */
-	second_mapping = mmap(NULL, second_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
+	second_mapping = mmap(NULL, second_size + HPAGESIZE, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
 	if (second_mapping == MAP_FAILED) {
 		perror("Second mapping");
 		exit(EXIT_FAILURE);
