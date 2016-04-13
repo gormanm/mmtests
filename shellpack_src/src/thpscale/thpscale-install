@@ -180,7 +180,7 @@ int main(int argc, char **argv)
 
 	nr_hpages = total_size / nr_threads / HPAGESIZE / 2;
 	thread_size = ((total_size / nr_threads) + (HPAGESIZE*4) - 1) & ~(HPAGESIZE-1);
-	th = malloc(nr_threads * sizeof(pthread_t *));
+	th = malloc(nr_threads * sizeof(pthread_t));
 	if (th == NULL) {
 		printf("Unable to allocate thread structures\n");
 		exit(EXIT_FAILURE);
