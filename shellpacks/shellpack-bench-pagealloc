@@ -61,6 +61,9 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
+install-depends cpupower
+cpupower frequency-set performance
+
 if [ "`which stap`" = "" ]; then
 	echo systemtap is required
 	exit $SHELLPACK_ERROR
@@ -111,4 +114,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description Micro-benchmark to stress the page allocator
-#### Details pagealloc-bench 22
+#### Details pagealloc-bench 23

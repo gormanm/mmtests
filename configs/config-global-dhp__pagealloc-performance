@@ -18,7 +18,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="aim9 pagealloc pft ebizzy"
+export MMTESTS="aim9 pft ebizzy pagealloc"
 export RUN_WARMUP=
 
 # Profiling parameters
