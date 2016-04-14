@@ -15,7 +15,7 @@ BATCH_SIZE=$((128*1048576))
 ###SHELLPACK monitor_hooks
 
 install-depends cpupower
-cpupower frequency-set performance
+cpupower frequency-set -g performance
 
 if [ "`which stap`" = "" ]; then
 	echo systemtap is required
