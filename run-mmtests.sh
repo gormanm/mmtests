@@ -370,6 +370,7 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 spawn mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
+	"Wipe it"		   { send y\\e; exp_continue}
 }
 EOF
 			expect -f $EXPECT_SCRIPT || exit -1
@@ -382,6 +383,7 @@ EOF
 spawn mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
+	"Wipe it"		   { send y\\e; exp_continue}
 }
 EOF
 			expect -f $EXPECT_SCRIPT || exit -1
@@ -395,6 +397,7 @@ EOF
 spawn mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
+	"Wipe it"		   { send y\\e; exp_continue}
 }
 EOF
 			expect -f $EXPECT_SCRIPT || exit -1
