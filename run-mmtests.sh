@@ -454,6 +454,50 @@ if [ "$TESTDISK_RD_SIZE" != "" ]; then
 	fi
 fi
 
+# Create storage cache device
+if [ "${STORAGE_CACHE_TYPE}" = "dm-cache" ]; then
+	if [ "${STORAGE_CACHING_DEVICE}" = "" -o \
+		"${STORAGE_BACKING_DEVICE}" = "" ]; then
+		echo "ERROR: no caching and/or backing device specified"
+		exit 1
+	fi
+	if [ "${TESTDISK_FILESYSTEM}" != "" -a \
+		"${TESTDISK_FILESYSTEM}" != "tmpfs" ]; then
+		echo "Formatting test disk ${STORAGE_BACKING_DEVICE}:" \
+		    " ${TESTDISK_FILESYSTEM}"
+		mkfs.${TESTDISK_FILESYSTEM} ${TESTDISK_MKFS_PARAM} \
+		    ${STORAGE_BACKING_DEVICE} || exit
+		# quirk to prevent 2nd formatting of cache device
+		TESTDISK_FILESYSTEM=""
+	fi
+	./bin/dmcache-setup.sh -c ${STORAGE_CACHING_DEVICE} \
+	    -b ${STORAGE_BACKING_DEVICE} -a ||
+	(echo "ERROR: dmcache-setup failed" \
+	    "(dmcache-setup.sh -c ${STORAGE_CACHING_DEVICE}" \
+	    "-b ${STORAGE_BACKING_DEVICE} -a)"; exit 1)
+	TESTDISK_PARTITION=$(./dmcache-setup.sh -c ${STORAGE_CACHING_DEVICE} \
+	    -b ${STORAGE_BACKING_DEVICE} --show-dev)
+elif [ "${STORAGE_CACHE_TYPE}" = "bcache" ]; then
+	install-depends bcache-tools
+	if [ "${STORAGE_CACHING_DEVICE}" = "" -o \
+		"${STORAGE_BACKING_DEVICE}" = "" ]; then
+		echo "ERROR: no caching and/or backing device specified"
+		exit 1
+	fi
+	./bin/bcache-setup.sh -c ${STORAGE_CACHING_DEVICE} \
+	    -b ${STORAGE_BACKING_DEVICE} -r  ||
+	(echo "ERROR: bcache-setup failed" \
+	    "(bcache-setup.sh -c ${STORAGE_CACHING_DEVICE}" \
+	    "-b ${STORAGE_BACKING_DEVICE} -r)"; exit 1)
+	./bin/bcache-setup.sh -c ${STORAGE_CACHING_DEVICE} \
+	    -b ${STORAGE_BACKING_DEVICE} -a ||
+	(echo "ERROR: bcache-setup failed" \
+	    "(bcache-setup.sh -c ${STORAGE_CACHING_DEVICE}" \
+	    "-b ${STORAGE_BACKING_DEVICE} -a)"; exit 1)
+	TESTDISK_PARTITION=$(./bin/bcache-setup.sh --show-dev \
+	    -c ${STORAGE_CACHING_DEVICE} -b ${STORAGE_BACKING_DEVICE})
+fi
+
 # Create test disk(s)
 if [ "$TESTDISK_PARTITION" != "" ]; then
 	# override any TESTDISK_PARTITIONS configuration (for backwards compatibility)
@@ -461,7 +505,9 @@ if [ "$TESTDISK_PARTITION" != "" ]; then
 fi
 # TBD: Support blktrace in case TESTDISK_PARTITIONS is set and TESTDISK_PARTITION is not
 if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
-	hdparm -I ${TESTDISK_PARTITIONS[*]} 2>&1 > $SHELLPACK_LOG/disk-hdparm-$RUNNAME
+	if [ "${STORAGE_CACHE_TYPE}" = "" ]; then
+		hdparm -I ${TESTDISK_PARTITIONS[*]} 2>&1 > $SHELLPACK_LOG/disk-hdparm-$RUNNAME
+	fi
 	if [ "$TESTDISK_FILESYSTEM" != "" -a "$TESTDISK_FILESYSTEM" != "tmpfs" ]; then
 		for i in ${!TESTDISK_PARTITIONS[*]}; do
 			echo Formatting test disk ${TESTDISK_PARTITIONS[$i]}: $TESTDISK_FILESYSTEM
@@ -957,7 +1003,7 @@ fi
 if [ "$MMTESTS_FORCE_DATE" != "" ]; then
 	MMTESTS_FORCE_DATE_END=`date +%s`
 	OFFSET=$((MMTESTS_FORCE_DATE_END-MMTESTS_FORCE_DATE_START))
-	date -s "`echo $((MMTESTS_FORCE_DATE_BASE+OFFSET)) | awk '{print strftime("%c", $0)}'`"
+	date -s "$(echo $((MMTESTS_FORCE_DATE_BASE+OFFSET)) | awk '{print strftime("%c", $0)}')"
 	echo Restoring after forced date update: `date`
 	killall -CONT ntpd
 fi

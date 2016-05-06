@@ -91,6 +91,15 @@ TESTDISK_DIR
 	environment (eg. a specifically created filesystem mounted with desired
 	mount options).
 
+STORAGE_CACHE_TYPE
+STORAGE_CACHING_DEVICE
+STORAGE_BACKING_DEVICE
+	It's also possible to use storage caching.
+	STORAGE_CACHE_TYPE is either "dm-cache" or "bcache". The devices
+	specified with STORAGE_CACHING_DEVICE and STORAGE_BACKING_DEVICE are
+	used to create the cache device which then is used for all the
+	tests.
+
 As MMTests downloads a number of benchmarks it is possible to create
 a local mirror. The location of the mirror is configured in WEBROOT in
 shellpacks/common-config.sh.  For example, kernbench tries to download
