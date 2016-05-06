@@ -4,7 +4,7 @@ DIRNAME=`dirname $0`
 export SCRIPTDIR=`cd "$DIRNAME" && pwd`
 RUNNING_TEST=
 KVM=
-EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer
+export EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer
 
 INTERRUPT_COUNT=0
 begin_shutdown() {
@@ -99,7 +99,7 @@ fi
 
 # Take the unparsed option as the parameter
 shift
-RUNNAME=$1
+export RUNNAME=$1
 export MMTEST_ITERATION=$2
 
 if [ -z "$RUNNAME" ]; then
@@ -120,6 +120,8 @@ done
 rm -f $SCRIPTDIR/bash_arrays # remove stale bash_arrays file
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
+. $SCRIPTDIR/shellpacks/deferred-monitors.sh
+
 if [ -n "$MMTEST_ITERATION" ]; then
 	export SHELLPACK_LOG="$SHELLPACK_LOG/$MMTEST_ITERATION"
 fi
@@ -232,16 +234,6 @@ else
 		echo WARNING: Monitors enabled but none configured
 	fi
 fi
-
-function discover_script() {
-	DISCOVERED_SCRIPT=$1
-	if [ ! -e $DISCOVERED_SCRIPT ]; then
-		DISCOVERED_SCRIPT=$1.sh
-		if [ ! -e $DISCOVERED_SCRIPT ]; then
-			DISCOVERED_SCRIPT=$1.pl
-		fi
-	fi
-}
 
 # Run tunings
 echo Tuning the system before running: $RUNNAME
@@ -745,65 +737,22 @@ else
 fi
 	
 function start_monitors() {
-	MONITOR_PREFIX=./monitors/watch
-	echo Starting monitors
-	echo -n > monitor.pids
-	for MONITOR in $MONITORS_ALWAYS; do
-		discover_script $MONITOR_PREFIX-$MONITOR
-		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
-		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $MONITOR_LOG &
-		echo $! >> monitor.pids
-		echo Started monitor $MONITOR always pid `tail -1 monitor.pids`
-	done
-	for MONITOR in $MONITORS_PLAIN; do
-		discover_script $MONITOR_PREFIX-$MONITOR
-		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
-		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $MONITOR_LOG &
-		echo $! >> monitor.pids
-		echo Started monitor $MONITOR plain pid `tail -1 monitor.pids`
-	done
-	for MONITOR in $MONITORS_GZIP; do
-		discover_script $MONITOR_PREFIX-$MONITOR
-		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
-		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT | tee | gzip -c > $MONITOR_LOG.gz &
-		PID1=$!
-		sleep 5
-		PID2=`./bin/piping-pid.sh $PID1`
-		PID3=`./bin/piping-pid.sh $PID2`
-		echo $PID3 >> monitor.pids
-		echo $PID1 >> monitor.pids
-		echo Started monitor $MONITOR gzip pid $PID3,$PID1
-	done
-	for MONITOR in $MONITORS_WITH_LATENCY; do
-		discover_script $MONITOR_PREFIX-$MONITOR
-		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
-		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT | ./monitors/latency-output > $MONITOR_LOG &
-		PID1=$!
-		sleep 5
-		PID2=`ps aux | grep watch-$MONITOR.sh | grep -v grep | grep -v expect | awk '{print $2}'`
-		echo $PID2 >> monitor.pids
-		echo $PID1 >> monitor.pids
-		echo Started monitor $MONITOR latency pid $PID2,$PID1
-	done
-	for MONITOR in $MONITORS_TRACER; do
-		discover_script $MONITOR_PREFIX-$MONITOR
-		export MONITOR_LOG=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST
-		export MONITOR_PID=$SHELLPACK_LOG/$MONITOR-$RUNNAME-$TEST.pid
-		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT &
+	local _start _type _monitors _monitor
 
-		ATTEMPT=1
-		while [ ! -e $MONITOR_PID ]; do
-			sleep 1
-			ATTEMPT=$((ATTEMPT+1))
-			if [ $ATTEMPT -gt 10 ]; then
-				die "Waited 10 seconds for $MONITOR to start but no sign of it."
+	create_monitor_dir
+	GLOBAL_MONITOR_DIR=$MONITOR_DIR
+
+	for _type in always plain gzip with_latency tracer
+	do
+		_monitors=$(eval echo \$MONITORS_$(echo $_type | tr '[:lower:]' '[:upper:]'))
+		for _monitor in $_monitors; do
+			if is_deferred_monitor $_monitor
+			then
+				add_deferred_monitor $_type $_monitor
+			else
+				start_monitor $_type $_monitor
 			fi
 		done
-
-		PID1=`cat $MONITOR_PID`
-		rm $MONITOR_PID
-		echo $PID1 >> monitor.pids
-		echo Started monitor $MONITOR tracer pid $PID1
 	done
 
 	if [ "$MONITOR_STAP" != "" ]; then
@@ -813,26 +762,10 @@ function start_monitors() {
 }
 
 function stop_monitors() {
-	# Shutdown monitors carefully. Time is given to allow monitors to
-	# exit so processes like gzip do not get killed before they have
-	# processed the full of their stdin
-	sleep 5
-	for PID in `cat monitor.pids`; do
-		if [ "`ps h --pid $PID`" != "" ]; then
-			echo -n "Shutting down monitor: $PID"
-			kill $PID
-			sleep 1
+	# If all monitors are deferred, there will be no global monitor.pids
 
-			while [ "`ps h --pid $PID`" != "" ]; do
-				echo -n .
-				sleep 1
-			done
-			echo
-		else
-			echo "Already exited: $PID"
-		fi
-	done
-	rm monitor.pids
+	[ -f ${GLOBAL_MONITOR_DIR}/monitor.pids ] && \
+		shutdown_monitors ${GLOBAL_MONITOR_DIR}/monitor.pids
 }
 
 export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity-$RUNNAME"
@@ -868,6 +801,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		# Configure transparent hugepage support as configured
 		reset_transhuge
 
+		export CURRENT_TEST=$TEST
 		start_monitors
 
 		# Run the test
