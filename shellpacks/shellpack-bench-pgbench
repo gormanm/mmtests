@@ -21,6 +21,8 @@ SCALE_FACTOR=1
 VACUUM_ARG=-n
 RUN_CACHE_COLD=no
 
+. $SHELLPACK_INCLUDE/deferred-monitors.sh
+
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -274,6 +276,7 @@ for NR_THREADS in $THREADS; do
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	mmtests_activity pgbench-$NR_THREADS
 	echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions
+	start_deferred_monitors "$NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions"
 	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS} \
 		pgbench -v -h $PGHOST -p $PGPORT -r \
 			-l --aggregate-interval=1 \
@@ -281,6 +284,7 @@ for NR_THREADS in $THREADS; do
 			$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
 			pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS
 	SYSRET=$?
+	stop_deferred_monitors
 	if [ $SYSRET -ne 0 ]; then
 		cat $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS
 		die pgbench failed to execute
@@ -302,4 +306,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 154
+#### Details pgbench-bench 157
