@@ -381,6 +381,36 @@ function set_mmtests_numactl() {
 		MMTESTS_NUMACTL="numactl --cpunodebind=$MMTESTS_NODE_ID"
 	fi
 
+	if [ "$MMTESTS_NUMA_POLICY" = "cpubind_node_nrcpus" ]; then
+		if [ "$MMTESTS_NUMA_NODE_NRCPUS" = "" ]; then
+			die cpubind_node_nrcpus requires MMTESTS_NUMA_NODE_NRCPUS
+		fi
+		local NUMA_NODE=`echo $MMTESTS_NUMA_NODE_NRCPUS | awk -F , '{print $1}'`
+		local BIND_CPUS=`echo $MMTESTS_NUMA_NODE_NRCPUS | awk -F , '{print $2}'`
+		local AVAILABLE_CPUS_STR=`numactl --hardware | grep "^node $NUMA_NODE cpus:" | awk -F ': ' '{print $2}'`
+
+		if [ "$BIND_CPUS" = "" ]; then
+			die Unable to parse MMTESTS_NUMA_NODE_NRCPUS
+		fi
+
+		declare -a AVAILABLE_CPUS
+		AVAILABLE_CPUS=($AVAILABLE_CPUS_STR)
+
+		CPU_BIND_STRING=
+		for i in `seq 0 $((BIND_CPUS-1))`; do
+			CPUID=${AVAILABLE_CPUS[$i]}
+			if [ "$CPUID" = "" ]; then
+				die cpubind_node_nrcpus requested more cpus than are available on node $NUMA_NODE
+			fi
+			if [ "$CPU_BIND_STRING" != "" ]; then
+				CPU_BIND_STRING=$CPU_BIND_STRING,
+			fi
+			CPU_BIND_STRING=$CPU_BIND_STRING$CPUID
+		done
+
+		MMTESTS_NUMACTL="numactl --membind $NUMA_NODE -C $CPU_BIND_STRING"
+	fi
+
 	if [ "$MMTESTS_NUMACTL" != "" ]; then
 		echo MMTESTS_NUMACTL: $MMTESTS_NUMACTL
 		echo Instance $THIS_INSTANCE / $MAX_INSTANCE
