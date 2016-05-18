@@ -413,13 +413,24 @@ EOF
 	# monitor is in use. For reasons I did not bother tracking down,
 	# blktrace does not capture events from MD devices properly on
 	# at least kernel 3.0
+	echo Creating logical volume
 	yes y | pvcreate -ff $TESTDISK_RAID_MD_DEVICE || exit
 	vgcreate mmtests-raid $TESTDISK_RAID_MD_DEVICE || exit
 	SIZE=`vgdisplay mmtests-raid | grep Free | grep PE | awk '{print $5}'`
 	if [ "$SIZE" = "" ]; then
 		die Failed to determine LVM size
 	fi
-	lvcreate -l $SIZE mmtests-raid -n lvm0 || exit
+	echo lvcreate -l $SIZE mmtests-raid -n lvm0
+	EXPECT_SCRIPT=`mktemp`
+	cat > $EXPECT_SCRIPT <<EOF
+spawn lvcreate -l $SIZE mmtests-raid -n lvm0
+expect {
+	"Wipe it"		   { send y\\r; exp_continue}
+}
+EOF
+	expect -f $EXPECT_SCRIPT || exit -1
+	rm $EXPECT_SCRIPT
+
 
 	# Consider the test partition to be the LVM volume
 	export TESTDISK_PARTITION=/dev/mmtests-raid/lvm0
