@@ -24,6 +24,10 @@ tail -$(($LINECOUNT-$PATCHSTART)) $0 | grep -v "^###" > $TEMPFILE
 cat $TEMPFILE | patch -p1 || exit $SHELLPACK_FAILURE
 rm $TEMPFILE
 
+# Remove pthread unlock which never locks
+sed -i -e '/Release the read lock, allowing threads to start/d' parser_gram.y
+sed -i -e '/pthread_rwlock_unlock/d' parser_gram.y
+
 ###SHELLPACK build_configure filebench-${VERSION}
 ###SHELLPACK make_make_install CFLAGS=-O2
 
