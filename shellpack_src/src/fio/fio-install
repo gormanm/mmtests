@@ -12,6 +12,30 @@ install-depends glibc-devel
 ###SHELLPACK sources_fetch fio-${VERSION}.tar.bz2 fio-${VERSION}-installed
 
 ###SHELLPACK build_start fio-${VERSION}-installed
-###SHELLPACK make
+make -j$NUMCPUS
+if [ $? -ne 0 ]; then
+	###SHELLPACK self_extract fio-types.patch
+	cat $SHELLPACK_TEMP/fio-types.patch | patch -p0 || die Failed to apply fio types fix
+	make -j$NUMCPUS
+	if [ $? -ne 0 ]; then
+		error "$P: make failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
+fi
 
 echo fio installed successfully
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN fio-types.patch ====
+--- oslib/libmtd_legacy.c.orig	2016-05-20 15:46:59.248153123 +0200
++++ oslib/libmtd_legacy.c	2016-05-20 15:47:03.404249326 +0200
+@@ -29,6 +29,7 @@
+ #include <fcntl.h>
+ #include <unistd.h>
+ #include <stdlib.h>
++#include <inttypes.h>
+ #include <errno.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+==== END fio-types.patch ====

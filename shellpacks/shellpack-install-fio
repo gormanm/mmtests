@@ -66,13 +66,41 @@ pushd $SHELLPACK_SOURCES/fio-${VERSION}-installed || die Failed to change to sou
 for FILE in `find -name "*"`; do
 	touch $FILE
 done
-make -j$NUMCPUS 
+make -j$NUMCPUS
 if [ $? -ne 0 ]; then
-	error "$P: make failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+LINESTART=`grep -n "==== BEGIN fio-types.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END fio-types.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file fio-types.patch
+fi
+echo Extracting $SHELLPACK_TEMP/fio-types.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/fio-types.patch
+	cat $SHELLPACK_TEMP/fio-types.patch | patch -p0 || die Failed to apply fio types fix
+	make -j$NUMCPUS
+	if [ $? -ne 0 ]; then
+		error "$P: make failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 
 echo fio installed successfully
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN fio-types.patch ====
+--- oslib/libmtd_legacy.c.orig	2016-05-20 15:46:59.248153123 +0200
++++ oslib/libmtd_legacy.c	2016-05-20 15:47:03.404249326 +0200
+@@ -29,6 +29,7 @@
+ #include <fcntl.h>
+ #include <unistd.h>
+ #include <stdlib.h>
++#include <inttypes.h>
+ #include <errno.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+==== END fio-types.patch ====
 #### Description Flexible IO tester
-#### Details fio 11
+#### Details fio 12
