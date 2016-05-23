@@ -22,6 +22,9 @@ fi
 DBENCH_CLIENTS=`echo $DBENCH_CLIENTS | tr ',' ' '`
 
 CLIENT=1
+if [ "$DBENCH_MIN_CLIENTS" != "" ]; then
+	CLIENT=$DBENCH_MIN_CLIENTS
+fi
 while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 	mmtests_activity client $CLIENT/$DBENCH_MAX_CLIENTS
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
