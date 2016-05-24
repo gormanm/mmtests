@@ -13,6 +13,7 @@ READONLY_ARG=
 SCALE_FACTOR=1
 VACUUM_ARG=-n
 RUN_CACHE_COLD=no
+MIN_THREADS=1
 
 . $SHELLPACK_INCLUDE/deferred-monitors.sh
 
@@ -22,6 +23,7 @@ RUN_CACHE_COLD=no
 ###SHELLPACK parseargParam --shared-buffers      SHARED_BUFFERS
 ###SHELLPACK parseargParam --work-mem            WORK_MEM
 
+###SHELLPACK parseargParam --min-threads	 MIN_THREADS
 ###SHELLPACK parseargParam --max-threads         MAX_THREADS
 ###SHELLPACK parseargParam --scale-factor        SCALE_FACTOR
 ###SHELLPACK parseargParam --max-time            MAX_TIME
@@ -107,7 +109,7 @@ LAST_THREAD=0
 
 FIRST_TIME=yes
 
-###SHELLPACK threads_huge_stride_begin 1 $MAX_THREADS
+###SHELLPACK threads_huge_stride_begin $MIN_THREADS $MAX_THREADS
 	# Do not repeat iterations due to thread count
 	if [ $NR_THREADS -eq $LAST_THREAD ]; then
 		continue

@@ -20,6 +20,7 @@ READONLY_ARG=
 SCALE_FACTOR=1
 VACUUM_ARG=-n
 RUN_CACHE_COLD=no
+MIN_THREADS=1
 
 . $SHELLPACK_INCLUDE/deferred-monitors.sh
 
@@ -64,6 +65,10 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 
+	--min-threads)
+		MIN_THREADS=$2
+		shift 2
+		;;
 	--max-threads)
 		MAX_THREADS=$2
 		shift 2
@@ -180,7 +185,7 @@ LAST_THREAD=0
 FIRST_TIME=yes
 
 THREADS=
-START_THREAD=1
+START_THREAD=$MIN_THREADS
 END_THREAD=$MAX_THREADS
 if [ $END_THREAD -ge 32 ]; then
 	THREADS=`seq $START_THREAD 4 8`
@@ -196,6 +201,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 	THREADS="$THREADS $END_THREAD"
 fi
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	# Do not repeat iterations due to thread count
 	if [ $NR_THREADS -eq $LAST_THREAD ]; then
@@ -306,4 +314,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 157
+#### Details pgbench-bench 158
