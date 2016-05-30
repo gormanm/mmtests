@@ -7,6 +7,7 @@ SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
 STAP_FILES="/usr/share/systemtap/runtime/linux/print.c
 	    /usr/share/systemtap/runtime/linux/access_process_vm.h
 	    /usr/share/systemtap/runtime/linux/runtime_defines.h
+	    /usr/share/systemtap/transport/transport.c
 	    /usr/share/systemtap/runtime/stp_utrace.c"
 if [ "`whoami`" != "root" ]; then
 	exit
@@ -48,7 +49,7 @@ fi
 
 echo WARNING: systemtap installation broken, trying to fix.
 
-for PATCH in 4.4 4.5 4.6 4.6-rc3; do
+for PATCH in 4.4 4.5 4.6 4.6-rc3 4.7-rc1; do
 	cat $SCRIPTDIR/stap-patches/systemtap-runtime-${PATCH}.patch | patch -p1 -d /usr/share/systemtap
 	if [ $? -ne 0 ]; then
 		restore_systemtap
