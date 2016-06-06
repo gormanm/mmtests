@@ -344,6 +344,8 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 			while [ "$OUTPUT" != "" ]; do
 				echo Retrying superblock zeroing of ${DISK}1
 				sleep 1
+				mdadm --stop $TESTDISK_RAID_MD_DEVICE
+				mdadm --stop /dev/$MD_DEVICE
 				mdadm --zero-superblock ${DISK}1
 				OUTPUT=`mdadm --zero-superblock ${DISK}1 2>&1 | grep "not zeroing"`
 				ATTEMPT=$((ATTEMPT+1))
