@@ -79,12 +79,12 @@ while read A B C; do
 done <<EOT
 getsockname	getsockname	-B 10000
 getpeername	getpeername	-B 10000
-socket	socket_u	-B 256
-socket	socket_i	-B 256	-f PF_INET
-socketpair	socketpair	-B 256
+socket	socket_u	-B 10000
+socket	socket_i	-B 10000	-f PF_INET
+socketpair	socketpair	-B 10000
 setsockopt	setsockopt	-B 10000
-bind	bind	-B 100
-listen	listen	-B 100
+bind	bind	-B 10000
+listen	listen	-B 10000
 poll	poll_10	-n 10	-B 10000
 poll	poll_100	-n 100	-B 10000
 poll	poll_1000	-n 1000	-B 10000
@@ -97,12 +97,12 @@ select	select_1000	-n 1000	-B 10000
 select	select_w10	-n 10	-B 10000	-w 1
 select	select_w100	-n 100	-B 10000	-w 10
 select	select_w1000	-n 1000	-B 10000 -w 100
-connection	connection	-B 256
-connection	conn_accept	-B 256 -a
-connection	conn_connect	-B 256 -c
-close_tcp	close_tcp	-B 32
+connection	connection	-B 10000
+connection	conn_accept	-B 10000 -a
+connection	conn_connect	-B 10000 -c
+close_tcp	close_tcp	-B 10000
 EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-socket
-#### Details libmicro-socket-bench 3
+#### Details libmicro-socket-bench 4

@@ -93,10 +93,10 @@ while read A B C; do
 	fi
 	monitor_post_hook $LOGDIR_RESULTS $B
 done <<EOT
-close		close_bad		-B 32		-b
-close		close_tmp		-B 32		-f $TFILE
-close		close_usr		-B 32		-f $VFILE
-close		close_zero		-B 32		-f /dev/zero
+close		close_bad		-B 10000		-b
+close		close_tmp		-B 10000		-f $TFILE
+close		close_usr		-B 10000		-f $VFILE
+close		close_zero		-B 10000		-f /dev/zero
 chdir		chdir_tmp	-B 10000		$TDIR1 $TDIR2
 chdir		chdir_usr	-B 10000		$VDIR1 $VDIR2
 chdir		chgetwd_tmp	-B 10000	-g $TDIR1 $TDIR2
@@ -105,11 +105,11 @@ realpath	realpath_tmp	-B 10000		-f $TDIR1
 realpath	realpath_usr	-B 10000	-f $VDIR1
 lseek		lseek_t8k	-s 8k	-B 10000	-f $TFILE
 lseek		lseek_u8k	-s 8k	-B 10000	-f $VFILE
-open		open_tmp		-B 256		-f $TFILE
-open		open_usr		-B 256		-f $VFILE
-open		open_zero		-B 256		-f /dev/zero
-dup		dup			-B 512
-recurse		recurse		-B 512
+open		open_tmp		-B 10000		-f $TFILE
+open		open_usr		-B 10000		-f $VFILE
+open		open_zero		-B 10000		-f /dev/zero
+dup		dup			-B 10000
+recurse		recurse		-B 10000
 read		read_t1k	-s 1k			-f $TFILE
 read		read_t10k	-s 10k			-f $TFILE
 read		read_t100k	-s 100k			-f $TFILE
@@ -161,4 +161,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-file
-#### Details libmicro-file-bench 3
+#### Details libmicro-file-bench 4

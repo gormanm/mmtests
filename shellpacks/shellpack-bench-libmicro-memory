@@ -188,7 +188,7 @@ mprotect	mprot_wz8k	-l 8k	-B 10000	-w	-f /dev/zero
 mprotect	mprot_wz128k	-l 128k	-B 10000	-w	-f /dev/zero
 mprotect	mprot_twz8k	-l 8k -B 10000 -w -t -f /dev/zero
 mprotect	mprot_tw128k	-l 128k -B 10000 -w -t -f /dev/zero
-mprotect	mprot_tw4m	-l 4m -w -t -B 1 -f /dev/zero
+mprotect	mprot_tw4m	-l 4m -w -t -B 10000 -f /dev/zero
 pipe	pipe_pst1	-s 1	-B 10000	-x pipe -m st
 pipe	pipe_pmt1	-s 1	-B 10000	-x pipe -m mt
 pipe	pipe_pmp1	-s 1	-B 10000	-x pipe -m mp
@@ -211,4 +211,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-memory
-#### Details libmicro-memory-bench 3
+#### Details libmicro-memory-bench 4
