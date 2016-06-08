@@ -11,7 +11,7 @@
 
 cd $SHELLPACK_SOURCES/libmicro-socket-${VERSION}-installed || die Failed to cd to libmicro directory
 
-COMMON="-E -C 2000 -L -S -W"
+COMMON="-E -C 2000 -B 10000 -L -S -W"
 
 while read A B C; do
 	monitor_pre_hook $LOGDIR_RESULTS $B
@@ -20,30 +20,30 @@ while read A B C; do
 	fi
 	monitor_post_hook $LOGDIR_RESULTS $B
 done <<EOT
-getsockname	getsockname	-B 10000
-getpeername	getpeername	-B 10000
-socket	socket_u	-B 10000
-socket	socket_i	-B 10000	-f PF_INET
-socketpair	socketpair	-B 10000
-setsockopt	setsockopt	-B 10000
-bind	bind	-B 10000
-listen	listen	-B 10000
-poll	poll_10	-n 10	-B 10000
-poll	poll_100	-n 100	-B 10000
-poll	poll_1000	-n 1000	-B 10000
-poll	poll_w10	-n 10	-B 10000	-w 1
-poll	poll_w100	-n 100	-B 10000	-w 10
-poll	poll_w1000	-n 1000	-B 10000	-w 100
-select	select_10	-n 10	-B 10000
-select	select_100	-n 100	-B 10000
-select	select_1000	-n 1000	-B 10000
-select	select_w10	-n 10	-B 10000	-w 1
-select	select_w100	-n 100	-B 10000	-w 10
-select	select_w1000	-n 1000	-B 10000 -w 100
-connection	connection	-B 10000
-connection	conn_accept	-B 10000 -a
-connection	conn_connect	-B 10000 -c
-close_tcp	close_tcp	-B 10000
+getsockname	getsockname
+getpeername	getpeername
+socket	socket_u
+socket	socket_i	-f PF_INET
+socketpair	socketpair
+setsockopt	setsockopt
+bind	bind
+listen	listen
+poll	poll_10	-n 10
+poll	poll_100	-n 100
+poll	poll_1000	-n 1000
+poll	poll_w10	-n 10	-w 1
+poll	poll_w100	-n 100	-w 10
+poll	poll_w1000	-n 1000	-w 100
+select	select_10	-n 10
+select	select_100	-n 100
+select	select_1000	-n 1000
+select	select_w10	-n 10	-w 1
+select	select_w100	-n 100	-w 10
+select	select_w1000	-n 1000 -w 100
+connection	connection
+connection	conn_accept -a
+connection	conn_connect -c
+close_tcp	close_tcp
 EOT
 
 exit $SHELLPACK_SUCCESS
