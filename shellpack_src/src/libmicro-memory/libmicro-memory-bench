@@ -1,0 +1,178 @@
+#!/bin/bash
+###SHELLPACK preamble libmicro-memory-bench 1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required libmicro-memory-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/libmicro-memory-${VERSION}-installed || die Failed to cd to libmicro directory
+
+COMMON="-E -C 2000 -L -S -W"
+
+TMPROOT=/tmp/libmicro.$$
+VARROOT=/var/tmp/libmicro.$$
+mkdir -p $TMPROOT
+mkdir -p $VARROOT
+trap "rm -rf $TMPROOT $VARROOT" 0 2
+
+TFILE=$TMPROOT/data
+VFILE=$VARROOT/data
+dd if=/dev/zero of=$TFILE bs=1024k count=10 2>/dev/null
+dd if=/dev/zero of=$VFILE bs=1024k count=10 2>/dev/null
+
+while read A B C; do
+	monitor_pre_hook $LOGDIR_RESULTS $B
+	if [ -f bin/$A ]; then
+		eval bin/$A $COMMON -N "$B" $C 2>&1 > $LOGDIR_RESULTS/$B.log
+	fi
+	monitor_post_hook $LOGDIR_RESULTS $B
+done <<EOT
+mutex	mutex_st	-I 10
+mutex	mutex_mt	-t -I 10
+mutex	mutex_T2	-T 2 -I 100
+longjmp	longjmp	-I 10
+siglongjmp	siglongjmp	-I 20
+cascade_mutex	c_mutex_1	-I 50
+cascade_mutex	c_mutex_10	-T 10 -I 5000
+cascade_mutex	c_mutex_200	-T 200 -I 2000000
+memset	memset_10	-s 10	-I 10
+memset	memset_256	-s 256	-I 20
+memset	memset_256_u	-s 256	 -a 1 -I 20
+memset	memset_1k	-s 1k	 -I 100
+memset	memset_4k	-s 4k -I 250
+memset	memset_4k_uc	-s 4k -u -I 400
+memset	memset_10k	-s 10k	-I 600
+memset	memset_1m	-s 1m	-I 200000
+memset	memset_10m	-s 10m -I 2000000
+memset	memsetP2_10m	-s 10m -P 2 -I 2000000
+memrand	memrand	-s 128m -B 10000
+cachetocache	cachetocache	-s 100k -T 2 -I 200
+malloc	malloc_10	-s 10 -g 10 -I 50
+malloc	malloc_100	-s 100 -g 10 -I 50
+malloc	malloc_1k	-s 1k -g 10 -I 50
+malloc	malloc_10k	-s 10k -g 10 -I 50
+malloc	malloc_100k	-s 100k -g 10 -I 2000
+malloc	mallocT2_10	-s 10 -g 10 -T 2 -I 200
+malloc	mallocT2_100	-s 100 -g 10 -T 2 -I 200
+malloc	mallocT2_1k	-s 1k -g 10 -T 2 -I 200
+malloc	mallocT2_10k	-s 10k -g 10 -T 2 -I 200
+malloc	mallocT2_100k	-s 100k -g 10 -T 2 -I 10000
+memcpy	memcpy_10	-s 10	-I 10
+memcpy	memcpy_1k	-s 1k	-I 50
+memcpy	memcpy_10k	-s 10k	-I 800
+memcpy	memcpy_1m	-s 1m -I 500000
+memcpy	memcpy_10m	-s 10m -I 5000000
+strcpy	strcpy_10	-s 10 -I 5
+strcpy	strcpy_1k	-s 1k -I 100
+strlen	strlen_10	-s 10 -I 5
+strlen	strlen_1k	-s 1k -I 100
+strchr	strchr_10	-s 10 -I 5
+strchr	strchr_1k	-s 1k -I 200
+strcmp	strcmp_10	-s 10 -I 10
+strcmp	strcmp_1k	-s 1k -I 200
+strcasecmp	scasecmp_10	-s 10 -I 50
+strcasecmp	scasecmp_1k	-s 1k -I 20000
+mutex	mutex_st	-I 10
+mutex	mutex_mt	-t -I 10
+mutex	mutex_T2	-T 2 -I 100
+cascade_mutex	c_mutex_1	-I 50
+cascade_mutex	c_mutex_10	-T 10 -I 5000
+cascade_mutex	c_mutex_200	-T 200	-I 2000000
+cascade_cond	c_cond_1	-I 100
+cascade_cond	c_cond_10	-T 10	-I 3000
+cascade_cond	c_cond_200	-T 200	-I 2000000
+cascade_lockf	c_lockf_1	-I 1000
+cascade_lockf	c_lockf_10	-P 10 -I 50000
+cascade_lockf	c_lockf_200	-P 200 -I 5000000
+cascade_flock	c_flock	-I 1000
+cascade_flock	c_flock_10	-P 10 -I 50000
+cascade_flock	c_flock_200	-P 200	-I 5000000
+cascade_fcntl	c_fcntl_1	-I 2000
+cascade_fcntl	c_fcntl_10	-P 10 -I 20000
+cascade_fcntl	c_fcntl_200	-P 200	-I 5000000
+file_lock	file_lock	-I 1000
+fcntl	fcntl_tmp	-I 100	-f $TFILE
+fcntl	fcntl_usr	-I 100	-f $VFILE
+fcntl_ndelay	fcntl_ndelay	-I 100
+mmap	mmap_z8k	-l 8k -I 1000		-f /dev/zero
+mmap	mmap_z128k	-l 128k	-I 2000		-f /dev/zero
+mmap	mmap_t8k	-l 8k	-I 1000		-f $TFILE
+mmap	mmap_t128k	-l 128k	-I 1000		-f $TFILE
+mmap	mmap_u8k	-l 8k	-I 1000		-f $VFILE
+mmap	mmap_u128k	-l 128k	-I 1000		-f $VFILE
+mmap	mmap_a8k	-l 8k	-I 200		-f MAP_ANON
+mmap	mmap_a128k	-l 128k	-I 200		-f MAP_ANON
+mmap	mmap_rz8k	-l 8k	-I 2000 -r	-f /dev/zero
+mmap	mmap_rz128k	-l 128k	-I 2000 -r	-f /dev/zero
+mmap	mmap_rt8k	-l 8k	-I 2000 -r	-f $TFILE
+mmap	mmap_rt128k	-l 128k	-I 20000 -r	-f $TFILE
+mmap	mmap_ru8k	-l 8k	-I 2000 -r	-f $VFILE
+mmap	mmap_ru128k	-l 128k	-I 20000 -r	-f $VFILE
+mmap	mmap_ra8k	-l 8k	-I 2000 -r	-f MAP_ANON
+mmap	mmap_ra128k	-l 128k	-I 20000 -r	-f MAP_ANON
+mmap	mmap_wz8k	-l 8k	-I 5000 -w	-f /dev/zero
+mmap	mmap_wz128k	-l 128k	-I 50000 -w	-f /dev/zero
+mmap	mmap_wt8k	-l 8k	-I 5000 -w	-f $TFILE
+mmap	mmap_wt128k	-l 128k	-I 50000 -w	-f $TFILE
+mmap	mmap_wu8k	-l 8k	-I 5000 -w	-f $VFILE
+mmap	mmap_wu128k	-l 128k	-I 500000 -w	-f $VFILE
+mmap	mmap_wa8k	-l 8k	-I 3000 -w	-f MAP_ANON
+mmap	mmap_wa128k	-l 128k	-I 50000 -w	-f MAP_ANON
+munmap	unmap_z8k	-l 8k -I 500		-f /dev/zero
+munmap	unmap_z128k	-l 128k	-I 500		-f /dev/zero
+munmap	unmap_t8k	-l 8k	-I 500		-f $TFILE
+munmap	unmap_t128k	-l 128k	-I 500		-f $TFILE
+munmap	unmap_u8k	-l 8k	-I 500		-f $VFILE
+munmap	unmap_u128k	-l 128k	-I 500		-f $VFILE
+munmap	unmap_a8k	-l 8k	-I 500		-f MAP_ANON
+munmap	unmap_a128k	-l 128k	-I 500		-f MAP_ANON
+munmap	unmap_rz8k	-l 8k	-I 1000	-r	-f /dev/zero
+munmap	unmap_rz128k	-l 128k	-I 2000 -r	-f /dev/zero
+munmap	unmap_rt8k	-l 8k	-I 1000	-r	-f $TFILE
+munmap	unmap_rt128k	-l 128k	-I 3000	-r	-f $TFILE
+munmap	unmap_ru8k	-l 8k	-I 1000	-r	-f $VFILE
+munmap	unmap_ru128k	-l 128k	-I 3000	-r	-f $VFILE
+munmap	unmap_ra8k	-l 8k	-I 1000	-r	-f MAP_ANON
+munmap	unmap_ra128k	-l 128k	-I 2000	-r	-f MAP_ANON
+connection	conn_connect	-B 256	-c
+munmap	unmap_wz8k	-l 8k	-I 1000	-w	-f /dev/zero
+munmap	unmap_wz128k	-l 128k	-I 8000	-w	-f /dev/zero
+munmap	unmap_wt8k	-l 8k	-I 1000	-w	-f $TFILE
+munmap	unmap_wt128k	-l 128k	-I 10000	-w	-f $TFILE
+munmap	unmap_wu8k	-l 8k	-I 1000	-w	-f $VFILE
+munmap	unmap_wu128k	-l 128k	-I 50000	-w	-f $VFILE
+munmap	unmap_wa8k	-l 8k	-I 1000	-w	-f MAP_ANON
+munmap	unmap_wa128k	-l 128k	-I 10000	-w	-f MAP_ANON
+mprotect	mprot_z8k	-l 8k -I 300			-f /dev/zero
+mprotect	mprot_z128k	-l 128k	-I 500		-f /dev/zero
+mprotect	mprot_wz8k	-l 8k	-I 500	-w	-f /dev/zero
+mprotect	mprot_wz128k	-l 128k	-I 1000	-w	-f /dev/zero
+mprotect	mprot_twz8k	-l 8k -I 1000 -w -t -f /dev/zero
+mprotect	mprot_tw128k	-l 128k -I 2000 -w -t -f /dev/zero
+mprotect	mprot_tw4m	-l 4m -w -t -B 1 -f /dev/zero
+pipe	pipe_pst1	-s 1	-I 1000	-x pipe -m st
+pipe	pipe_pmt1	-s 1	-I 8000	-x pipe -m mt
+pipe	pipe_pmp1	-s 1	-I 8000	-x pipe -m mp
+pipe	pipe_pst4k	-s 4k	-I 1000	-x pipe -m st
+pipe	pipe_pmt4k	-s 4k	-I 8000	-x pipe -m mt
+pipe	pipe_pmp4k	-s 4k	-I 8000	-x pipe -m mp
+pipe	pipe_sst1	-s 1	-I 1000	-x sock -m st
+pipe	pipe_smt1	-s 1	-I 8000	-x sock -m mt
+pipe	pipe_smp1	-s 1	-I 8000	-x sock -m mp
+pipe	pipe_sst4k	-s 4k	-I 1000	-x sock -m st
+pipe	pipe_smt4k	-s 4k	-I 8000	-x sock -m mt
+pipe	pipe_smp4k	-s 4k	-I 8000	-x sock -m mp
+pipe	pipe_tst1	-s 1	-I 1000	-x tcp -m st
+pipe	pipe_tmt1	-s 1	-I 8000	-x tcp -m mt
+pipe	pipe_tmp1	-s 1	-I 8000	-x tcp -m mp
+pipe	pipe_tst4k	-s 4k	-I 1000	-x tcp -m st
+pipe	pipe_tmt4k	-s 4k	-I 8000	-x tcp -m mt
+pipe	pipe_tmp4k	-s 4k	-I 8000	-x tcp -m mp
+connection	conn_accept	-B 256 -a
+EOT
+
+exit $SHELLPACK_SUCCESS
