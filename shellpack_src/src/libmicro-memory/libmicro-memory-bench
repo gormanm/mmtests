@@ -34,9 +34,6 @@ memset	memset_1k	-s 1k
 memset	memset_4k	-s 4k
 memset	memset_4k_uc	-s 4k -u
 memset	memset_10k	-s 10k
-memset	memset_1m	-s 1m
-memset	memset_10m	-s 10m
-memset	memsetP2_10m	-s 10m -P 2
 memrand	memrand	-s 128m
 cachetocache	cachetocache	-s 100k -T 2
 malloc	malloc_10	-s 10 -g 10
@@ -48,12 +45,9 @@ malloc	mallocT2_10	-s 10 -g 10 -T 2
 malloc	mallocT2_100	-s 100 -g 10 -T 2
 malloc	mallocT2_1k	-s 1k -g 10 -T 2
 malloc	mallocT2_10k	-s 10k -g 10 -T 2
-malloc	mallocT2_100k	-s 100k -g 10 -T 2
 memcpy	memcpy_10	-s 10
 memcpy	memcpy_1k	-s 1k
 memcpy	memcpy_10k	-s 10k
-memcpy	memcpy_1m	-s 1m
-memcpy	memcpy_10m	-s 10m
 strcpy	strcpy_10	-s 10
 strcpy	strcpy_1k	-s 1k
 strlen	strlen_10	-s 10
@@ -77,11 +71,8 @@ mmap	mmap_rt128k	-l 128k -r	-f $TFILE
 mmap	mmap_ra8k	-l 8k -r	-f MAP_ANON
 mmap	mmap_ra128k	-l 128k -r	-f MAP_ANON
 mmap	mmap_wz8k	-l 8k -w	-f /dev/zero
-mmap	mmap_wz128k	-l 128k -w	-f /dev/zero
 mmap	mmap_wt8k	-l 8k -w	-f $TFILE
-mmap	mmap_wt128k	-l 128k -w	-f $TFILE
 mmap	mmap_wa8k	-l 8k -w	-f MAP_ANON
-mmap	mmap_wa128k	-l 128k -w	-f MAP_ANON
 munmap	unmap_z8k	-l 8k		-f /dev/zero
 munmap	unmap_z128k	-l 128k		-f /dev/zero
 munmap	unmap_t8k	-l 8k		-f $TFILE
@@ -95,18 +86,14 @@ munmap	unmap_rt128k	-l 128k	-r	-f $TFILE
 munmap	unmap_ra8k	-l 8k	-r	-f MAP_ANON
 munmap	unmap_ra128k	-l 128k	-r	-f MAP_ANON
 munmap	unmap_wz8k	-l 8k	-w	-f /dev/zero
-munmap	unmap_wz128k	-l 128k	-w	-f /dev/zero
 munmap	unmap_wt8k	-l 8k	-w	-f $TFILE
-munmap	unmap_wt128k	-l 128k	-w	-f $TFILE
 munmap	unmap_wa8k	-l 8k	-w	-f MAP_ANON
-munmap	unmap_wa128k	-l 128k	-w	-f MAP_ANON
 mprotect	mprot_z8k	-l 8k			-f /dev/zero
 mprotect	mprot_z128k	-l 128k		-f /dev/zero
 mprotect	mprot_wz8k	-l 8k	-w	-f /dev/zero
 mprotect	mprot_wz128k	-l 128k	-w	-f /dev/zero
 mprotect	mprot_twz8k	-l 8k -w -t -f /dev/zero
 mprotect	mprot_tw128k	-l 128k -w -t -f /dev/zero
-mprotect	mprot_tw4m	-l 4m -w -t -f /dev/zero
 pipe	pipe_pst1	-s 1	-x pipe -m st
 pipe	pipe_pmt1	-s 1	-x pipe -m mt
 pipe	pipe_pmp1	-s 1	-x pipe -m mp

@@ -1,6 +1,6 @@
 #!/bin/bash
 # libmicro installer
-P=libmicro-memory-install
+P=libmicro-smallbatches-install
 DEFAULT_VERSION=1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
@@ -47,22 +47,22 @@ if [ -z "$VERSION" ]; then
 fi
 
 # Unconditionally fetch the tar to find out the real version number
-TARFILE=libmicro-memory-${VERSION}.tar.gz
-hg_fetch $HG_LOCATION libmicro-memory-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+TARFILE=libmicro-smallbatches-${VERSION}.tar.gz
+hg_fetch $HG_LOCATION libmicro-smallbatches-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-	error "$P: tar xf libmicro-memory-${VERSION}.tar.gz failed"
+	error "$P: tar xf libmicro-smallbatches-${VERSION}.tar.gz failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-mv $DST_DIR libmicro-memory-${VERSION}-installed
-pushd libmicro-memory-${VERSION}-installed > /dev/null || die Failed to rename tar
+mv $DST_DIR libmicro-smallbatches-${VERSION}-installed
+pushd libmicro-smallbatches-${VERSION}-installed > /dev/null || die Failed to rename tar
 
-pushd $SHELLPACK_SOURCES/libmicro-memory-${VERSION}-installed || die Failed to change to source directory
+pushd $SHELLPACK_SOURCES/libmicro-smallbatches-${VERSION}-installed || die Failed to change to source directory
 for FILE in `find -name "*"`; do
 	touch $FILE
 done
@@ -93,5 +93,5 @@ if [ $? -ne 0 ]; then
 fi
 
 echo libmicro installed successfully
-#### Description libmicro-memory
-#### Details libmicro-memory 9
+#### Description libmicro-smallbatches
+#### Details libmicro-smallbatches 1

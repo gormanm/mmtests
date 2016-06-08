@@ -30,20 +30,12 @@ bind	bind
 listen	listen
 poll	poll_10	-n 10
 poll	poll_100	-n 100
-poll	poll_1000	-n 1000
 poll	poll_w10	-n 10	-w 1
 poll	poll_w100	-n 100	-w 10
-poll	poll_w1000	-n 1000	-w 100
 select	select_10	-n 10
 select	select_100	-n 100
-select	select_1000	-n 1000
 select	select_w10	-n 10	-w 1
 select	select_w100	-n 100	-w 10
-select	select_w1000	-n 1000 -w 100
-connection	connection
-connection	conn_accept -a
-connection	conn_connect -c
-close_tcp	close_tcp
 EOT
 
 exit $SHELLPACK_SUCCESS

@@ -45,7 +45,6 @@ localtime_r	localtime_r
 strftime	strftime
 mktime	mktime
 mktime	mktimeT2	-T 2
-exit	exit
 EOT
 
 exit $SHELLPACK_SUCCESS
