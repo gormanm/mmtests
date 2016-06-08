@@ -1,6 +1,6 @@
 #!/bin/bash
 # libmicro installer
-P=libmicro-install
+P=libmicro-regular-install
 DEFAULT_VERSION=1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
@@ -47,22 +47,22 @@ if [ -z "$VERSION" ]; then
 fi
 
 # Unconditionally fetch the tar to find out the real version number
-TARFILE=libmicro-${VERSION}.tar.gz
-hg_fetch $HG_LOCATION libmicro-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+TARFILE=libmicro-regular-${VERSION}.tar.gz
+hg_fetch $HG_LOCATION libmicro-regular-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-	error "$P: tar xf libmicro-${VERSION}.tar.gz failed"
+	error "$P: tar xf libmicro-regular-${VERSION}.tar.gz failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-mv $DST_DIR libmicro-${VERSION}-installed
-pushd libmicro-${VERSION}-installed > /dev/null || die Failed to rename tar
+mv $DST_DIR libmicro-regular-${VERSION}-installed
+pushd libmicro-regular-${VERSION}-installed > /dev/null || die Failed to rename tar
 
-pushd $SHELLPACK_SOURCES/libmicro-${VERSION}-installed || die Failed to change to source directory
+pushd $SHELLPACK_SOURCES/libmicro-regular-${VERSION}-installed || die Failed to change to source directory
 for FILE in `find -name "*"`; do
 	touch $FILE
 done
@@ -93,5 +93,5 @@ if [ $? -ne 0 ]; then
 fi
 
 echo libmicro installed successfully
-#### Description libmicro
-#### Details libmicro 13
+#### Description libmicro-regular
+#### Details libmicro-regular 1

@@ -1,5 +1,5 @@
 #!/bin/bash
-P=libmicro-bench
+P=libmicro-regular-bench
 DEFAULT_VERSION=1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
@@ -50,23 +50,23 @@ if [ -z "$VERSION" ]; then
 fi
 
 if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/libmicro-${VERSION}
+	rm -rf $SHELLPACK_SOURCES/libmicro-regular-${VERSION}
 fi
-if [ ! -d $SHELLPACK_SOURCES/libmicro-${VERSION}-installed ]; then
+if [ ! -d $SHELLPACK_SOURCES/libmicro-regular-${VERSION}-installed ]; then
 	mmtests_activity source-install
-	$SHELLPACK_INCLUDE/shellpack-install-libmicro -v ${VERSION}  || die libmicro install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-libmicro-regular -v ${VERSION}  || die libmicro-regular install script returned error
 	mmtests_activity source-installed
 fi
-cd $SHELLPACK_SOURCES/libmicro-${VERSION}-installed || die Failed to cd to libmicro install directory
+cd $SHELLPACK_SOURCES/libmicro-regular-${VERSION}-installed || die Failed to cd to libmicro-regular install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo libmicro installed only as requested.
+	echo libmicro-regular installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-cd $SHELLPACK_SOURCES/libmicro-${VERSION}-installed || die Failed to cd to libmicro directory
+cd $SHELLPACK_SOURCES/libmicro-regular-${VERSION}-installed || die Failed to cd to libmicro directory
 
 COMMON="-E -D 60000 -L -S -W"
 
@@ -95,5 +95,5 @@ cascade_fcntl	c_fcntl_200	-S -W -P 200 -I 5000000
 EOT
 
 exit $SHELLPACK_SUCCESS
-#### Description libmicro
-#### Details libmicro-bench 13
+#### Description libmicro-regular
+#### Details libmicro-regular-bench 1

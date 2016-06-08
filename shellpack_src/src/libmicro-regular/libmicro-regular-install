@@ -1,6 +1,6 @@
 #!/bin/bash
 # libmicro installer
-###SHELLPACK preamble libmicro-install 1
+###SHELLPACK preamble libmicro-regular-install 1
 HG_LOCATION=https://hg.java.net/hg/libmicro~hg-repo
 MIRROR_LOCATION="$WEBROOT/libmicro"
 
@@ -9,9 +9,9 @@ install-depends gcc
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK hg_fetch libmicro-${VERSION}.tar.gz libmicro-${VERSION}-installed
+###SHELLPACK hg_fetch libmicro-regular-${VERSION}.tar.gz libmicro-regular-${VERSION}-installed
 
-###SHELLPACK build_start libmicro-${VERSION}-installed
+###SHELLPACK build_start libmicro-regular-${VERSION}-installed
 
 echo '--- Makefile.com.orig	2014-03-31 12:09:53.689008589 +0100
 +++ Makefile.com	2014-03-31 12:09:57.317989834 +0100

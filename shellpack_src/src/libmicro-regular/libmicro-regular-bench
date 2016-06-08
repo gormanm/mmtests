@@ -1,15 +1,15 @@
 #!/bin/bash
-###SHELLPACK preamble libmicro-bench 1
+###SHELLPACK preamble libmicro-regular-bench 1
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required libmicro-${VERSION}
+###SHELLPACK check_install_required libmicro-regular-${VERSION}
 
 ###SHELLPACK monitor_hooks
 
-cd $SHELLPACK_SOURCES/libmicro-${VERSION}-installed || die Failed to cd to libmicro directory
+cd $SHELLPACK_SOURCES/libmicro-regular-${VERSION}-installed || die Failed to cd to libmicro directory
 
 COMMON="-E -D 60000 -L -S -W"
 

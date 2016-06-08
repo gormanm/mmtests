@@ -2,6 +2,6 @@ FINEGRAINED_SUPPORTED=yes
 NAMEEXTRA=
 
 run_bench() {
-	$SHELLPACK_INCLUDE/shellpack-bench-libmicro
+	$SHELLPACK_INCLUDE/shellpack-bench-libmicro-regular
 	return $?
 }
