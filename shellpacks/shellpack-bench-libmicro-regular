@@ -83,27 +83,27 @@ while read A B C; do
 	fi
 	monitor_post_hook $LOGDIR_RESULTS $B
 done <<EOT
-getpid	getpid	-I 5
-getenv	getenv	-s 100 -I 100
-getenv	getenvT2	-s 100 -I 100   -T 2
+getpid	getpid	-B 10000
+getenv	getenv	-s 100 -B 10000
+getenv	getenvT2	-s 100 -B 10000   -T 2
 gettimeofday	gettimeofday
-log	log	-I 20
-exp	exp	-I 20
+log	log	-B 10000
+exp	exp	-B 10000
 lrand48	lrand48
 isatty	isatty_yes
 isatty	isatty_no	-f	$IFILE
-strtol	strtol	-I 20
-longjmp	longjmp	-I 10
-siglongjmp	siglongjmp	-I 20
-getrusage	getrusage	-I 200
-times	times	-I 200
-time	time	-I 50
-localtime_r	localtime_r	-I 200
-strftime	strftime	-I 10000
-mktime	mktime	-I 500
-mktime	mktimeT2	-T 2 -I 1000
+strtol	strtol	-B 10000
+longjmp	longjmp	-B 10000
+siglongjmp	siglongjmp	-B 10000
+getrusage	getrusage	-B 10000
+times	times	-B 10000
+time	time	-B 10000
+localtime_r	localtime_r	-B 10000
+strftime	strftime	-B 10000
+mktime	mktime	-B 10000
+mktime	mktimeT2	-T 2 -B 10000
 EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-regular
-#### Details libmicro-regular-bench 2
+#### Details libmicro-regular-bench 3

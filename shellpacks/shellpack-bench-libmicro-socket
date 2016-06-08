@@ -77,26 +77,26 @@ while read A B C; do
 	fi
 	monitor_post_hook $LOGDIR_RESULTS $B
 done <<EOT
-getsockname	getsockname	-I 100
-getpeername	getpeername	-I 100
+getsockname	getsockname	-B 10000
+getpeername	getpeername	-B 10000
 socket	socket_u	-B 256
 socket	socket_i	-B 256	-f PF_INET
 socketpair	socketpair	-B 256
-setsockopt	setsockopt	-I 200
+setsockopt	setsockopt	-B 10000
 bind	bind	-B 100
 listen	listen	-B 100
-poll	poll_10	-n 10	-I 500
-poll	poll_100	-n 100	-I 1000
-poll	poll_1000	-n 1000	-I 5000
-poll	poll_w10	-n 10	-I 500	-w 1
-poll	poll_w100	-n 100	-I 2000	-w 10
-poll	poll_w1000	-n 1000	-I 40000	-w 100
-select	select_10	-n 10	-I 500
-select	select_100	-n 100	-I 1000
-select	select_1000	-n 1000	-I 5000
-select	select_w10	-n 10	-I 500	-w 1
-select	select_w100	-n 100	-I 2000	-w 10
-select	select_w1000	-n 1000	-I 40000 -w 100
+poll	poll_10	-n 10	-B 10000
+poll	poll_100	-n 100	-B 10000
+poll	poll_1000	-n 1000	-B 10000
+poll	poll_w10	-n 10	-B 10000	-w 1
+poll	poll_w100	-n 100	-B 10000	-w 10
+poll	poll_w1000	-n 1000	-B 10000	-w 100
+select	select_10	-n 10	-B 10000
+select	select_100	-n 100	-B 10000
+select	select_1000	-n 1000	-B 10000
+select	select_w10	-n 10	-B 10000	-w 1
+select	select_w100	-n 100	-B 10000	-w 10
+select	select_w1000	-n 1000	-B 10000 -w 100
 connection	connection	-B 256
 connection	conn_accept	-B 256 -a
 connection	conn_connect	-B 256 -c
@@ -105,4 +105,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-socket
-#### Details libmicro-socket-bench 2
+#### Details libmicro-socket-bench 3
