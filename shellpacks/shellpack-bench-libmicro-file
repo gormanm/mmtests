@@ -68,7 +68,7 @@ fi
 
 cd $SHELLPACK_SOURCES/libmicro-file-${VERSION}-installed || die Failed to cd to libmicro directory
 
-COMMON="-E -C 2000 -B 10000 -L -S -W"
+COMMON="-E -C 0 -D 30000 -B 10000 -L -S -W"
 
 TMPROOT=/tmp/libmicro.$$
 VARROOT=/var/tmp/libmicro.$$
@@ -161,4 +161,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-file
-#### Details libmicro-file-bench 5
+#### Details libmicro-file-bench 6
