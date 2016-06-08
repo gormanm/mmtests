@@ -1,0 +1,105 @@
+#!/bin/bash
+###SHELLPACK preamble libmicro-file-bench 1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required libmicro-file-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/libmicro-file-${VERSION}-installed || die Failed to cd to libmicro directory
+
+COMMON="-E -C 2000 -L -S -W"
+
+TMPROOT=/tmp/libmicro.$$
+VARROOT=/var/tmp/libmicro.$$
+mkdir -p $TMPROOT
+mkdir -p $VARROOT
+trap "rm -rf $TMPROOT $VARROOT" 0 2
+
+TFILE=$TMPROOT/data
+TDIR1=$TMPROOT/0/1/2/3/4/5/6/7/8/9
+VFILE=$VARROOT/data
+VDIR1=$VARROOT/0/1/2/3/4/5/6/7/8/9
+
+dd if=/dev/zero of=$TFILE bs=1024k count=10 2>/dev/null
+dd if=/dev/zero of=$VFILE bs=1024k count=10 2>/dev/null
+mkdir -p $TDIR1
+mkdir -p $VDIR1
+
+while read A B C; do
+	monitor_pre_hook $LOGDIR_RESULTS $B
+	if [ -f bin/$A ]; then
+		eval bin/$A $COMMON -N "$B" $C 2>&1 > $LOGDIR_RESULTS/$B.log
+	fi
+	monitor_post_hook $LOGDIR_RESULTS $B
+done <<EOT
+close		close_bad		-B 32		-b
+close		close_tmp		-B 32		-f $TFILE
+close		close_usr		-B 32		-f $VFILE
+close		close_zero		-B 32		-f /dev/zero
+chdir		chdir_tmp	-I 2000		$TDIR1 $TDIR2
+chdir		chdir_usr	-I 2000		$VDIR1 $VDIR2
+chdir		chgetwd_tmp	-I 3000	-g $TDIR1 $TDIR2
+chdir		chgetwd_usr	-I 3000	-g $VDIR1 $VDIR2
+realpath	realpath_tmp	-I 3000		-f $TDIR1
+realpath	realpath_usr	-I 3000	-f $VDIR1
+lseek		lseek_t8k	-s 8k	-I 50	-f $TFILE
+lseek		lseek_u8k	-s 8k	-I 50	-f $VFILE
+open		open_tmp		-B 256		-f $TFILE
+open		open_usr		-B 256		-f $VFILE
+open		open_zero		-B 256		-f /dev/zero
+dup		dup			-B 512
+recurse		recurse		-B 512
+read		read_t1k	-s 1k			-f $TFILE
+read		read_t10k	-s 10k			-f $TFILE
+read		read_t100k	-s 100k			-f $TFILE
+read		read_u1k	-s 1k			-f $VFILE
+read		read_u10k	-s 10k			-f $VFILE
+read		read_u100k	-s 100k			-f $VFILE
+read		read_z1k	-s 1k			-f /dev/zero
+read		read_z10k	-s 10k			-f /dev/zero
+read		read_z100k	-s 100k			-f /dev/zero
+read		read_zw100k	-s 100k	-w	-f /dev/zero
+write		write_t1k	-s 1k			-f $TFILE
+write		write_t10k	-s 10k			-f $TFILE
+write		write_t100k	-s 100k			-f $TFILE
+write		write_u1k	-s 1k			-f $VFILE
+write		write_u10k	-s 10k			-f $VFILE
+write		write_u100k	-s 100k			-f $VFILE
+write		write_n1k	-s 1k	-I 100 -B 0	-f /dev/null
+write		write_n10k	-s 10k	-I 100 -B 0	-f /dev/null
+write		write_n100k	-s 100k	-I 100 -B 0	-f /dev/null
+writev		writev_t1k	-s 1k			-f $TFILE
+writev		writev_t10k	-s 10k		-f $TFILE
+writev		writev_t100k	-s 100k			-f $TFILE
+writev		writev_u1k	-s 1k			-f $VFILE
+writev		writev_u10k	-s 10k			-f $VFILE
+writev		writev_u100k	-s 100k			-f $VFILE
+writev		writev_n1k	-s 1k	-I 100 -B 0	-f /dev/null
+writev		writev_n10k	-s 10k	-I 100 -B 0	-f /dev/null
+writev		writev_n100k	-s 100k	-I 100 -B 0	-f /dev/null
+pread		pread_t1k	-s 1k	-I 300		-f $TFILE
+pread		pread_t10k	-s 10k	-I 1000		-f $TFILE
+pread		pread_t100k	-s 100k	-I 10000	-f $TFILE
+pread		pread_u1k	-s 1k	-I 300		-f $VFILE
+pread		pread_u10k	-s 10k	-I 1000		-f $VFILE
+pread		pread_u100k	-s 100k	-I 10000	-f $VFILE
+pread		pread_z1k	-s 1k	-I 300		-f /dev/zero
+pread		pread_z10k	-s 10k	-I 1000		-f /dev/zero
+pread		pread_z100k	-s 100k	-I 2000	-f /dev/zero
+pread		pread_zw100k	-s 100k	-w -I 10000	-f /dev/zero
+pwrite		pwrite_t1k	-s 1k	-I 500		-f $TFILE
+pwrite		pwrite_t10k	-s 10k	-I 1000		-f $TFILE
+pwrite		pwrite_t100k	-s 100k	-I 10000	-f $TFILE
+pwrite		pwrite_u1k	-s 1k	-I 500		-f $VFILE
+pwrite		pwrite_u10k	-s 10k	-I 1000		-f $VFILE
+pwrite		pwrite_u100k	-s 100k	-I 20000	-f $VFILE
+pwrite		pwrite_n1k	-s 1k	-I 100		-f /dev/null
+pwrite		pwrite_n10k	-s 10k	-I 100		-f /dev/null
+pwrite		pwrite_n100k	-s 100k	-I 100		-f /dev/null
+EOT
+
+exit $SHELLPACK_SUCCESS
