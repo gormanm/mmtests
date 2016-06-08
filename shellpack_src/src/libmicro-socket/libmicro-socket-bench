@@ -1,0 +1,48 @@
+#!/bin/bash
+###SHELLPACK preamble libmicro-socket-bench 1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required libmicro-socket-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/libmicro-socket-${VERSION}-installed || die Failed to cd to libmicro directory
+
+COMMON="-E -C 2000 -L -S -W"
+
+while read A B C; do
+	monitor_pre_hook $LOGDIR_RESULTS $B
+	if [ -f bin/$A ]; then
+		eval bin/$A $COMMON -N "$B" $C 2>&1 > $LOGDIR_RESULTS/$B.log
+	fi
+	monitor_post_hook $LOGDIR_RESULTS $B
+done <<EOT
+getsockname	getsockname	-I 100
+getpeername	getpeername	-I 100
+socket	socket_u	-B 256
+socket	socket_i	-B 256	-f PF_INET
+socketpair	socketpair	-B 256
+setsockopt	setsockopt	-I 200
+bind	bind	-B 100
+listen	listen	-B 100
+connection	connection	-B 256
+poll	poll_10	-n 10	-I 500
+poll	poll_100	-n 100	-I 1000
+poll	poll_1000	-n 1000	-I 5000
+poll	poll_w10	-n 10	-I 500	-w 1
+poll	poll_w100	-n 100	-I 2000	-w 10
+poll	poll_w1000	-n 1000	-I 40000	-w 100
+select	select_10	-n 10	-I 500
+select	select_100	-n 100	-I 1000
+select	select_1000	-n 1000	-I 5000
+select	select_w10	-n 10	-I 500	-w 1
+select	select_w100	-n 100	-I 2000	-w 10
+select	select_w1000	-n 1000	-I 40000 -w 100
+connection	conn_accept	-B 256 -a
+close_tcp	close_tcp	-B 32
+EOT
+
+exit $SHELLPACK_SUCCESS
