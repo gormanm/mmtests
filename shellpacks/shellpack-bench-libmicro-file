@@ -126,18 +126,18 @@ write		write_t100k	-s 100k			-f $TFILE
 write		write_u1k	-s 1k			-f $VFILE
 write		write_u10k	-s 10k			-f $VFILE
 write		write_u100k	-s 100k			-f $VFILE
-write		write_n1k	-s 1k	-I 100 -B 0	-f /dev/null
-write		write_n10k	-s 10k	-I 100 -B 0	-f /dev/null
-write		write_n100k	-s 100k	-I 100 -B 0	-f /dev/null
+write		write_n1k	-s 1k	-I 100	-f /dev/null
+write		write_n10k	-s 10k	-I 100	-f /dev/null
+write		write_n100k	-s 100k	-I 100	-f /dev/null
 writev		writev_t1k	-s 1k			-f $TFILE
 writev		writev_t10k	-s 10k		-f $TFILE
 writev		writev_t100k	-s 100k			-f $TFILE
 writev		writev_u1k	-s 1k			-f $VFILE
 writev		writev_u10k	-s 10k			-f $VFILE
 writev		writev_u100k	-s 100k			-f $VFILE
-writev		writev_n1k	-s 1k	-I 100 -B 0	-f /dev/null
-writev		writev_n10k	-s 10k	-I 100 -B 0	-f /dev/null
-writev		writev_n100k	-s 100k	-I 100 -B 0	-f /dev/null
+writev		writev_n1k	-s 1k	-I 100	-f /dev/null
+writev		writev_n10k	-s 10k	-I 100	-f /dev/null
+writev		writev_n100k	-s 100k	-I 100	-f /dev/null
 pread		pread_t1k	-s 1k	-I 300		-f $TFILE
 pread		pread_t10k	-s 10k	-I 1000		-f $TFILE
 pread		pread_t100k	-s 100k	-I 10000	-f $TFILE
@@ -161,4 +161,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-file
-#### Details libmicro-file-bench 1
+#### Details libmicro-file-bench 2
