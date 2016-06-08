@@ -42,15 +42,15 @@ cascade_mutex	c_mutex_200	-T 200
 cascade_cond	c_cond_1
 cascade_cond	c_cond_10	-T 10
 cascade_cond	c_cond_200	-T 200
-cascade_lockf	c_lockf_1	-d /dev/shm
-cascade_lockf	c_lockf_10	-d /dev/shm -P 10
-cascade_lockf	c_lockf_200	-d /dev/shm -P 200
-cascade_flock	c_flock	-d /dev/shm
-cascade_flock	c_flock_10	-d /dev/shm -P 10
-cascade_flock	c_flock_200	-d /dev/shm -P 200
-cascade_fcntl	c_fcntl_1	-d /dev/shm
-cascade_fcntl	c_fcntl_10	-d /dev/shm -P 10
-cascade_fcntl	c_fcntl_200	-d /dev/shm -P 200
+cascade_lockf	c_lockf_1
+cascade_lockf	c_lockf_10 -P 10
+cascade_lockf	c_lockf_200 -P 200
+cascade_flock	c_flock
+cascade_flock	c_flock_10 -P 10
+cascade_flock	c_flock_200 -P 200
+cascade_fcntl	c_fcntl_1
+cascade_fcntl	c_fcntl_10 -P 10
+cascade_fcntl	c_fcntl_200 -P 200
 file_lock	file_lock
 fcntl	fcntl_tmp -f $TFILE
 fcntl	fcntl_usr -f $VFILE

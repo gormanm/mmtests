@@ -125,15 +125,6 @@ strcmp	strcmp_10	-s 10
 strcmp	strcmp_1k	-s 1k
 strcasecmp	scasecmp_10	-s 10
 strcasecmp	scasecmp_1k	-s 1k
-cascade_lockf	c_lockf_1
-cascade_lockf	c_lockf_10	-P 10
-cascade_lockf	c_lockf_200	-P 200
-cascade_flock	c_flock
-cascade_flock	c_flock_10	-P 10
-cascade_flock	c_flock_200	-P 200
-cascade_fcntl	c_fcntl_1
-cascade_fcntl	c_fcntl_10	-P 10
-cascade_fcntl	c_fcntl_200	-P 200
 mmap	mmap_z8k	-l 8k		-f /dev/zero
 mmap	mmap_z128k	-l 128k		-f /dev/zero
 mmap	mmap_t8k	-l 8k		-f $TFILE
@@ -211,4 +202,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-memory
-#### Details libmicro-memory-bench 6
+#### Details libmicro-memory-bench 7
