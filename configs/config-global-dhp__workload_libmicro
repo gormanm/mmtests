@@ -4,7 +4,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="libmicro-regular libmicro-file libmicro-memory"
+export MMTESTS="libmicro-regular libmicro-file libmicro-memory libmicro-contextswitch"
 export RUN_WARMUP=
 
 # Profiling parameters

@@ -1,0 +1,60 @@
+#!/bin/bash
+###SHELLPACK preamble libmicro-contextswitch-bench 1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required libmicro-contextswitch-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/libmicro-contextswitch-${VERSION}-installed || die Failed to cd to libmicro directory
+
+COMMON="-E -C 2000 -L -S -W"
+
+TMPROOT=/tmp/libmicro.$$
+VARROOT=/var/tmp/libmicro.$$
+mkdir -p $TMPROOT
+mkdir -p $VARROOT
+trap "rm -rf $TMPROOT $VARROOT" 0 2
+
+TFILE=$TMPROOT/data
+VFILE=$VARROOT/data
+dd if=/dev/zero of=$TFILE bs=1024k count=10 2>/dev/null
+dd if=/dev/zero of=$VFILE bs=1024k count=10 2>/dev/null
+
+while read A B C; do
+	monitor_pre_hook $LOGDIR_RESULTS $B
+	if [ -f bin/$A ]; then
+		eval bin/$A $COMMON -N "$B" $C 2>&1 > $LOGDIR_RESULTS/$B.log
+	fi
+	monitor_post_hook $LOGDIR_RESULTS $B
+done <<EOT
+getcontext	getcontext	-I 100
+setcontext	setcontext	-I 100
+mutex	mutex_st	-I 10
+mutex	mutex_mt	-t -I 10
+mutex	mutex_T2	-T 2 -I 100
+cascade_mutex	c_mutex_1	-I 50
+cascade_mutex	c_mutex_10	-T 10 -I 5000
+cascade_mutex	c_mutex_200	-T 200 -I 2000000
+cascade_cond	c_cond_1	-I 100
+cascade_cond	c_cond_10	-T 10 -I 3000
+cascade_cond	c_cond_200	-T 200 -I 2000000
+cascade_lockf	c_lockf_1	-d /dev/shm -I 1000
+cascade_lockf	c_lockf_10	-d /dev/shm -P 10 -I 50000
+cascade_lockf	c_lockf_200	-d /dev/shm -P 200 -I 5000000
+cascade_flock	c_flock	-d /dev/shm -I 1000
+cascade_flock	c_flock_10	-d /dev/shm -P 10 -I 50000
+cascade_flock	c_flock_200	-d /dev/shm -P 200 -I 5000000
+cascade_fcntl	c_fcntl_1	-d /dev/shm -I 2000
+cascade_fcntl	c_fcntl_10	-d /dev/shm -P 10 -I 20000
+cascade_fcntl	c_fcntl_200	-d /dev/shm -P 200 -I 5000000
+file_lock	file_lock	-I 1000
+fcntl	fcntl_tmp	-I 100 -f $TFILE
+fcntl	fcntl_usr	-I 100 -f $VFILE
+fcntl_ndelay	fcntl_ndelay	-I 100
+EOT
+
+exit $SHELLPACK_SUCCESS
