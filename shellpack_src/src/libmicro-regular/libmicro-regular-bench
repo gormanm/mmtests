@@ -11,7 +11,13 @@
 
 cd $SHELLPACK_SOURCES/libmicro-regular-${VERSION}-installed || die Failed to cd to libmicro directory
 
-COMMON="-E -D 60000 -L -S -W"
+COMMON="-E -C 2000 -L -S -W"
+
+TMPROOT=/tmp/libmicro.$$
+mkdir -p $TMPROOT
+trap "rm -rf $TMPROOT" 0 2
+IFILE=$TMPROOT/ifile
+touch $IFILE
 
 while read A B C; do
 	monitor_pre_hook $LOGDIR_RESULTS $B
@@ -20,21 +26,25 @@ while read A B C; do
 	fi
 	monitor_post_hook $LOGDIR_RESULTS $B
 done <<EOT
-memset	memset_10	-s 10  -I 10 
-memset	memset_256	-s 256 -I 20
-memset	memset_256_u	-s 256 -I 20  -a 1
-memset	memset_1k	-s 1k  -I 100
-memset	memset_4k	-s 4k  -I 250
-memset	memset_4k_uc	-s 4k  -I 400 -u
-memset	memset_10k	-s 10k -I 600   
-memset	memset_1m	-s 1m  -I 200000
-memset	memset_10m	-s 10m -I 2000000 
-memset	memsetP2_10m	-s 10m -I 2000000 -P 2
-exit	exit_10		-B 10
-exit	exit_100	-B 100
-exit	exit_1000	-B 1000
-cascade_flock	c_flock_200	-S -W -P 200 -I 5000000
-cascade_fcntl	c_fcntl_200	-S -W -P 200 -I 5000000
+getpid	getpid	-I 5
+getenv	getenv	-s 100 -I 100
+getenv	getenvT2	-s 100 -I 100   -T 2
+gettimeofday	gettimeofday
+log	log	-I 20
+exp	exp	-I 20
+lrand48	lrand48
+isatty	isatty_yes
+isatty	isatty_no	-f	$IFILE
+strtol	strtol	-I 20
+longjmp	longjmp	-I 10
+siglongjmp	siglongjmp	-I 20
+getrusage	getrusage	-I 200
+times	times	-I 200
+time	time	-I 50
+localtime_r	localtime_r	-I 200
+strftime	strftime	-I 10000
+mktime	mktime	-I 500
+mktime	mktimeT2	-T 2 -I 1000
 EOT
 
 exit $SHELLPACK_SUCCESS
