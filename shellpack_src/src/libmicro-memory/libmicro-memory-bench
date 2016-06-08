@@ -31,14 +31,6 @@ while read A B C; do
 	fi
 	monitor_post_hook $LOGDIR_RESULTS $B
 done <<EOT
-mutex	mutex_st	-I 10
-mutex	mutex_mt	-t -I 10
-mutex	mutex_T2	-T 2 -I 100
-longjmp	longjmp	-I 10
-siglongjmp	siglongjmp	-I 20
-cascade_mutex	c_mutex_1	-I 50
-cascade_mutex	c_mutex_10	-T 10 -I 5000
-cascade_mutex	c_mutex_200	-T 200 -I 2000000
 memset	memset_10	-s 10	-I 10
 memset	memset_256	-s 256	-I 20
 memset	memset_256_u	-s 256	 -a 1 -I 20
@@ -76,15 +68,6 @@ strcmp	strcmp_10	-s 10 -I 10
 strcmp	strcmp_1k	-s 1k -I 200
 strcasecmp	scasecmp_10	-s 10 -I 50
 strcasecmp	scasecmp_1k	-s 1k -I 20000
-mutex	mutex_st	-I 10
-mutex	mutex_mt	-t -I 10
-mutex	mutex_T2	-T 2 -I 100
-cascade_mutex	c_mutex_1	-I 50
-cascade_mutex	c_mutex_10	-T 10 -I 5000
-cascade_mutex	c_mutex_200	-T 200	-I 2000000
-cascade_cond	c_cond_1	-I 100
-cascade_cond	c_cond_10	-T 10	-I 3000
-cascade_cond	c_cond_200	-T 200	-I 2000000
 cascade_lockf	c_lockf_1	-I 1000
 cascade_lockf	c_lockf_10	-P 10 -I 50000
 cascade_lockf	c_lockf_200	-P 200 -I 5000000
@@ -94,10 +77,6 @@ cascade_flock	c_flock_200	-P 200	-I 5000000
 cascade_fcntl	c_fcntl_1	-I 2000
 cascade_fcntl	c_fcntl_10	-P 10 -I 20000
 cascade_fcntl	c_fcntl_200	-P 200	-I 5000000
-file_lock	file_lock	-I 1000
-fcntl	fcntl_tmp	-I 100	-f $TFILE
-fcntl	fcntl_usr	-I 100	-f $VFILE
-fcntl_ndelay	fcntl_ndelay	-I 100
 mmap	mmap_z8k	-l 8k -I 1000		-f /dev/zero
 mmap	mmap_z128k	-l 128k	-I 2000		-f /dev/zero
 mmap	mmap_t8k	-l 8k	-I 1000		-f $TFILE
@@ -138,7 +117,6 @@ munmap	unmap_ru8k	-l 8k	-I 1000	-r	-f $VFILE
 munmap	unmap_ru128k	-l 128k	-I 3000	-r	-f $VFILE
 munmap	unmap_ra8k	-l 8k	-I 1000	-r	-f MAP_ANON
 munmap	unmap_ra128k	-l 128k	-I 2000	-r	-f MAP_ANON
-connection	conn_connect	-B 256	-c
 munmap	unmap_wz8k	-l 8k	-I 1000	-w	-f /dev/zero
 munmap	unmap_wz128k	-l 128k	-I 8000	-w	-f /dev/zero
 munmap	unmap_wt8k	-l 8k	-I 1000	-w	-f $TFILE
@@ -172,7 +150,6 @@ pipe	pipe_tmp1	-s 1	-I 8000	-x tcp -m mp
 pipe	pipe_tst4k	-s 4k	-I 1000	-x tcp -m st
 pipe	pipe_tmt4k	-s 4k	-I 8000	-x tcp -m mt
 pipe	pipe_tmp4k	-s 4k	-I 8000	-x tcp -m mp
-connection	conn_accept	-B 256 -a
 EOT
 
 exit $SHELLPACK_SUCCESS

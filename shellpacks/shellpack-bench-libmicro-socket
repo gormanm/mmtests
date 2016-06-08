@@ -85,7 +85,6 @@ socketpair	socketpair	-B 256
 setsockopt	setsockopt	-I 200
 bind	bind	-B 100
 listen	listen	-B 100
-connection	connection	-B 256
 poll	poll_10	-n 10	-I 500
 poll	poll_100	-n 100	-I 1000
 poll	poll_1000	-n 1000	-I 5000
@@ -98,10 +97,12 @@ select	select_1000	-n 1000	-I 5000
 select	select_w10	-n 10	-I 500	-w 1
 select	select_w100	-n 100	-I 2000	-w 10
 select	select_w1000	-n 1000	-I 40000 -w 100
+connection	connection	-B 256
 connection	conn_accept	-B 256 -a
+connection	conn_connect	-B 256 -c
 close_tcp	close_tcp	-B 32
 EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-socket
-#### Details libmicro-socket-bench 1
+#### Details libmicro-socket-bench 2
