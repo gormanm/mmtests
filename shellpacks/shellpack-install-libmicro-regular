@@ -87,11 +87,14 @@ if [ $? -ne 0 ]; then
 fi
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
-	error "$P: make failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
+	make -j$NUMCPUS 
+	if [ $? -ne 0 ]; then
+		error "$P: make failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
 fi
 
 echo libmicro installed successfully
 #### Description libmicro-regular
-#### Details libmicro-regular 7
+#### Details libmicro-regular 8

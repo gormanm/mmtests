@@ -300,6 +300,20 @@ if [ \$? -ne 0 ]; then
 	exit \$SHELLPACK_ERROR
 fi
 EOC
+	} elsif ($command eq "make_retry") {
+		my $opts = join(" ", @details);
+		print <<EOC
+make -j\$NUMCPUS $opts
+if [ \$? -ne 0 ]; then
+	make -j\$NUMCPUS $opts
+	if [ \$? -ne 0 ]; then
+		error "\$P: make failed"
+		popd > /dev/null
+		exit \$SHELLPACK_ERROR
+	fi
+fi
+EOC
+
 	} elsif ($command eq "make_clean") {
 		print <<EOC
 make clean

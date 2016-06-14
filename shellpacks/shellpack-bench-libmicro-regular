@@ -106,4 +106,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-regular
-#### Details libmicro-regular-bench 7
+#### Details libmicro-regular-bench 8

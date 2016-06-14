@@ -103,4 +103,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-contextswitch
-#### Details libmicro-contextswitch-bench 7
+#### Details libmicro-contextswitch-bench 8

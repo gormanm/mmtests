@@ -173,4 +173,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-memory
-#### Details libmicro-memory-bench 9
+#### Details libmicro-memory-bench 10

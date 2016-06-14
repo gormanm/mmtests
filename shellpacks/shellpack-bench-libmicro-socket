@@ -97,4 +97,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-socket
-#### Details libmicro-socket-bench 7
+#### Details libmicro-socket-bench 8
