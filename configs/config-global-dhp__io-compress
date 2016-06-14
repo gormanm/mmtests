@@ -1,19 +1,11 @@
-### This is a number of workloads that are of interest to kernel developers.
-### At least some variation of these are commonly used when testing.
-###
-### kernbench is a simple average of five kernel compiles of the vmlinux binary
-### image. Note that it is sensitive to the kernel version, configuration and
-### compiler used. In this configuraiton, it's a defconfig build of vmlinux for
-### kernel 3.0. It does not control the compiler version used so cannot compare
-### distributions fairly.
-###
-### gitcheckout checks out two kernel version from a git tree in rapid succession
-### and measures how long it takes
+### compress is a parallel compression workload that is meant to represent what
+### happens when maintainers upload trees for release and tarballs must be
+### created.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="kernbench gitcheckout"
+export MMTESTS="compress"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -84,3 +76,10 @@ export GITCHECKOUT_SOURCE=$SSHROOT/linux-2.6
 export GITCHECKOUT_COMMITS=v2.6.14,v3.2,v2.6.16,v3.4,v2.6.18
 export GITCHECKOUT_ITERATIONS=15
 export GITCHECKOUT_CACHE=hot
+
+# On-disk compression
+export COMPRESS_METHOD=pigz
+export COMPRESS_SOURCE=$WEBROOT/compress/vm-image.gz
+export COMPRESS_APPROXIMATE_SIZE_MB=$((MEMTOTAL_BYTES/1048576))
+export COMPRESS_INSTANCES=1
+export COMPRESS_THREADS_PER_INSTANCE=$NUMCPUS
