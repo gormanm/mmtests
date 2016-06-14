@@ -105,6 +105,15 @@ if [ $? -ne 0 ]; then
 fi
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
+	make -j$NUMCPUS 
+	if [ $? -ne 0 ]; then
+		error "$P: make failed"
+		popd > /dev/null
+		exit $SHELLPACK_ERROR
+	fi
+fi
+make -j$NUMCPUS 
+if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
@@ -137,4 +146,4 @@ mv ${MARIADB_CONF}.tmp $MARIADB_CONF
 echo mariadb successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description mariadbbuild
-#### Details mariadbbuild 35
+#### Details mariadbbuild 36

@@ -41,6 +41,7 @@ MIRROR_LOCATION=$WEBROOT/mariadb/
 ###SHELLPACK sources_fetch mariadb-${VERSION}.tar.gz mariadbbuild-${VERSION}
 ###SHELLPACK build_start mariadbbuild-${VERSION}
 ###SHELLPACK build_cmake mariadbbuild-${VERSION}
+###SHELLPACK make_retry
 ###SHELLPACK make_make_install
 
 echo Initialising database for user $MARIADB_USER
