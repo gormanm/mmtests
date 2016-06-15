@@ -831,6 +831,27 @@ export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity-$RUNNAME"
 rm -f $SHELLPACK_ACTIVITY 2> /dev/null
 echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
 
+
+if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
+	install-depends numad
+
+	echo Restart numad and purge log as per MMTESTS_NUMA_POLICY
+	killall -KILL numad
+	if [ `which numad 2>/dev/null` = "" ]; then
+		die numad requested but unavailable
+	fi
+	rm -f /var/log/numad.log
+	numad -F -d &> $SHELLPACK_LOG/numad-stdout-$RUNNAME &
+	export NUMAD_PID=$!
+	echo -n Waiting on numad.log
+	while [ ! -e /var/log/numad.log ]; do
+		echo .
+		sleep 1
+	done
+	echo
+	echo Numad started: pid $NUMAD_PID
+fi
+
 if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	# Create memory control group if requested
 	if [ "$MEMCG_SIZE" != "" ]; then
@@ -1024,8 +1045,8 @@ fi
 if [ "$MMTEST_NUMA_POLICY" = "numad" ]; then
 	echo Shutting down numad pid $NUMAD_PID
 	kill $NUMAD_PID
-	echo Shutting down tail pid $NUMAD_TAIL_PID
-	kill $NUMAD_TAIL_PID
+	sleep 10
+	mv /var/log/numad.log $SHELLPACK_LOG/numad-log-$RUNNAME
 fi
 
 echo Cleaning up
