@@ -421,12 +421,13 @@ function set_mmtests_numactl() {
 		fi
 		rm -f /var/log/numad.log
 		numad -F -d &> $SHELLPACK_LOG/numad-stdout-$RUNNAME &
-		export NUMAD_PID=$1
-		echo Waiting on numad.log
+		export NUMAD_PID=$!
+		echo -n Waiting on numad.log
 		while [ ! -e /var/log/numad.log ]; do
 			echo .
 			sleep 1
 		done
+		echo
 		cat /var/log/numad.log > $SHELLPACK_LOG/numad-log-$RUNNAME
 		tail -f /var/log/numad.log >> $SHELLPACK_LOG/numad-log-$RUNNAME &
 		export NUMAD_TAIL_PID=$!
