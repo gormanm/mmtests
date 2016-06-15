@@ -100,6 +100,10 @@ if [ ! -e $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share ]; then
 	cp $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/doc/dbench/loadfiles/client.txt $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share
 fi
 
+# Extract our loadfiles from the original one
+head -n 600 $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/client.txt >$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/client-warmup.txt
+head -n 4173 $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/client.txt | tail -n 3573 >$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/client-tiny.txt
+
 echo dbench installed successfully
 #### Description dbench
-#### Details dbench 24
+#### Details dbench 25

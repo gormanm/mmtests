@@ -104,4 +104,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description dbench
-#### Details dbench-bench 24
+#### Details dbench-bench 25
