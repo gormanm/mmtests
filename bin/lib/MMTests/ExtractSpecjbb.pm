@@ -32,8 +32,48 @@ sub extractReport($$$) {
 		$pagesize = "default";
 	}
 
-	my $file = "$reportDir/noprofile/$pagesize/SPECjbbMultiJVM.001/MultiVMReport.txt";
-	if (! -e $file) {
+	my $file;
+	if (-e "$reportDir/noprofile/$pagesize/SPECjbbMultiJVM.001") {
+		$file = "$reportDir/noprofile/$pagesize/SPECjbbMultiJVM.001/MultiVMReport.txt";
+		if (! -e $file) {
+			my $instances = 0;
+
+			$file = "$reportDir/noprofile/$pagesize/SPECjbbMultiJVM.001/MultiVMMmtests.txt";
+			open(OUTPUT, ">$file") || die("Failed to open $file\n");
+
+			foreach my $report (<$reportDir/noprofile/$pagesize/SPECjbbMultiJVM.001/SPECjbb.*.txt>) {
+				my ($included, $warehouse, $throughput);
+				my $line = "";
+
+				$instances++;
+				print OUTPUT "\n";
+				print OUTPUT "JVM $instances Scores\n";
+				print OUTPUT "Warehouses Thrput\n";
+
+				open(INPUT, $report) || die("Failed to open $file");
+				while (!eof(INPUT) && $line !~ /SPEC scores/) {
+					$line = <INPUT>;
+				}
+				$line = <INPUT>;
+				$line = <INPUT>;
+				while (!eof(INPUT)) {
+					my @elements = split(/\s+/, $line);
+					shift @elements;
+					if ($elements[0] eq "*") {
+						($included, $warehouse, $throughput) = @elements;
+					} else {
+						($warehouse, $throughput) = @elements;
+						$included = "";
+					}
+					last if $warehouse eq "";
+					print OUTPUT " $warehouse $throughput\n";
+					$line = <INPUT>;
+				}
+				close(INPUT);
+			}
+			close OUTPUT;
+		}
+	} else {
 		$self->{_SuppressDmean} = 1;
 		$single_instance = 1;
 		$file = "$reportDir/noprofile/$pagesize/SPECjbbSingleJVM/SPECjbb.001.txt";
