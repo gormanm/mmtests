@@ -25,6 +25,25 @@ CLIENT=1
 if [ "$DBENCH_MIN_CLIENTS" != "" ]; then
 	CLIENT=$DBENCH_MIN_CLIENTS
 fi
+
+LOADDIR=$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/
+
+if [ "$DBENCH_DURATION_FACTOR" != "" ]; then
+	FACTOR=$((DBENCH_DURATION_FACTOR*1000))
+else
+	./bin/dbench --run-once --skip-cleanup -D $TESTDISK_DIR \
+		--loadfile $LOADDIR/client-warmup.txt $DBENCH_MAX_CLIENTS \
+		&>/dev/null
+	FACTOR=$(./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND \
+		$DBENCH_FSYNC_COMMAND --show-execute-time --run-once \
+		-D $TESTDISK_DIR --loadfile $LOADDIR/client-tiny.txt \
+		--machine-readable -t 10000 $DBENCH_MAX_CLIENTS | \
+		grep "^@E@" | cut -d '@' -f 4 | head -n 1)
+	# We multiply the factor by 3 to get enough time for at least about 3
+	# runs of each client
+	FACTOR=$((FACTOR * 3 / DBENCH_MAX_CLIENTS))
+fi
+
 while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 	mmtests_activity client $CLIENT/$DBENCH_MAX_CLIENTS
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
@@ -34,7 +53,7 @@ while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 	sync
 	./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
 		-D $TESTDISK_DIR \
-		-t $DBENCH_DURATION \
+		-t $((DBENCH_DURATION_BASE + FACTOR*CLIENT/1000)) \
 		$CLIENT 2>&1 | tee $LOGDIR_RESULTS/dbench-$CLIENT.log \
 			|| die Failed to run dbench
 	monitor_post_hook $LOGDIR_RESULTS $CLIENT
