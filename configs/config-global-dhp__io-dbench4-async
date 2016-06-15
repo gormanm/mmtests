@@ -78,3 +78,13 @@ export DBENCH_OSYNC=no
 export DBENCH_SYNC_DIRECTORY=no
 export DBENCH_FSYNC=no
 export DBENCH_MAX_CLIENTS=$((NUMCPUS*64))
+
+# Force small filesystem size to limit variations of the test due to
+# differences in inode placement in the partition. Each client needs ~25 MB
+# of space, give it 30 to avoid close to ENOSPC conditions. Also force at
+# least 1GB size to avoid tiny filesystems.
+SIZE=$((DBENCH_MAX_CLIENTS*30))
+if [ $SIZE -lt 1024 ]; then
+	SIZE=1024
+fi
+export TESTDISK_FS_SIZE=${SIZE}m
