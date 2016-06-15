@@ -85,6 +85,10 @@ fi
 while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 	mmtests_activity client $CLIENT/$DBENCH_MAX_CLIENTS
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
+	# Make sure test tree is clean before the run - dbench does not clean
+	# up after itself
+	rm -rf $TESTDISK_DIR/clients &>/dev/null
+	sync
 	./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
 		-D $TESTDISK_DIR \
 		-t $DBENCH_DURATION \
@@ -100,4 +104,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description dbench
-#### Details dbench-bench 23
+#### Details dbench-bench 24
