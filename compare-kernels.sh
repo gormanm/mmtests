@@ -230,7 +230,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	fi
 	case $SUBREPORT in
 	dbench4)
-		echo $SUBREPORT Overall Throughput
+		echo $SUBREPORT Loadfile Execution Time
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Latency

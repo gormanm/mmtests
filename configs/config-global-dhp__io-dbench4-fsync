@@ -5,7 +5,16 @@
 ### and the results partially depend on where in the loadfile the benchmark
 ### was when the time runs out. This configuration uses fsync after the IO
 ### completes (-F switch to the benchmark specifically) and varies the number
-### of clients up to NUMCPUS*64.
+### of clients up to NUMCPUS*8.
+###
+### This is a modified version of the benchmark to reduce variation. The
+### filesystem is limited in size to offset variations due to disk
+### placement of inodes. Work files are deleted between runs to further
+### reduce noise from disk placement. A smaller version of the loadfile
+### is used to minimise variances due to loadfiles being partially
+### completed. The metric reported is time to complete execution as
+### throughput is difficult to interpret when different operations take
+### different amounts of time.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 

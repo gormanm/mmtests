@@ -1,7 +1,3 @@
-### dbench3 is used here as an in-memory metadata intensitive benchmark.
-### It's important to note that it is not guaranteed to do any IO to disk
-### and may do all modifications in memory stressing a variety of locks.
-###
 ### fsmark-threaded creates a number of zero-length files from varying
 ### numbers of threads. The test is async so take into account that the
 ### files are not necessarily on disk when the test completes.
@@ -9,7 +5,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="dbench3 fsmark-threaded"
+export MMTESTS="fsmark-threaded"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -71,13 +67,6 @@ export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top slabinfo"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
-
-# DBench
-export DBENCH_DURATION=$((5*60))
-export DBENCH_OSYNC=no
-export DBENCH_SYNC_DIRECTORY=no
-export DBENCH_FSYNC=no
-export DBENCH_MAX_CLIENTS=$((NUMCPUS*64))
 
 # FS-Mark
 export FSMARK_FILESIZE=0
