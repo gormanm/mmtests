@@ -419,7 +419,7 @@ function set_mmtests_numactl() {
 		if [ `which numad 2>/dev/null` = "" ]; then
 			die numad requested but unavailable
 		fi
-		numad -F &> $SHELLPACK_LOG/numad-$RUNNAME &
+		numad -F -d &> $SHELLPACK_LOG/numad-$RUNNAME &
 		echo Numad started
 	fi
 
