@@ -414,13 +414,23 @@ function set_mmtests_numactl() {
 	if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
 		install-depends numad
 
-		echo Restart numad
+		echo Restart numad and purge log
 		killall -KILL numad
 		if [ `which numad 2>/dev/null` = "" ]; then
 			die numad requested but unavailable
 		fi
-		numad -F -d &> $SHELLPACK_LOG/numad-$RUNNAME &
-		echo Numad started
+		rm -f /var/log/numad.log
+		numad -F -d &> $SHELLPACK_LOG/numad-stdout-$RUNNAME &
+		export NUMAD_PID=$1
+		echo Waiting on numad.log
+		while [ ! -e /var/log/numad.log ]; do
+			echo .
+			sleep 1
+		done
+		cat /var/log/numad.log > $SHELLPACK_LOG/numad-log-$RUNNAME
+		tail -f /var/log/numad.log >> $SHELLPACK_LOG/numad-log-$RUNNAME &
+		export NUMAD_TAIL_PID=$!
+		echo Numad started: pid $NUMAD_PID tail $NUMAD_TAIL_PID
 	fi
 
 	if [ "$MMTESTS_NUMACTL" != "" ]; then

@@ -1022,8 +1022,10 @@ if [ "$MMTESTS_FORCE_DATE" != "" ]; then
 fi
 
 if [ "$MMTEST_NUMA_POLICY" = "numad" ]; then
-	echo Shutting down numad
-	killall numad
+	echo Shutting down numad pid $NUMAD_PID
+	kill $NUMAD_PID
+	echo Shutting down tail pid $NUMAD_TAIL_PID
+	kill $NUMAD_TAIL_PID
 fi
 
 echo Cleaning up
