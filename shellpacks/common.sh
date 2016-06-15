@@ -411,8 +411,23 @@ function set_mmtests_numactl() {
 		MMTESTS_NUMACTL="numactl --membind $NUMA_NODE -C $CPU_BIND_STRING"
 	fi
 
+	if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
+		install-depends numad
+
+		echo Restart numad
+		killall -KILL numad
+		if [ `which numad 2>/dev/null` = "" ]; then
+			die numad requested but unavailable
+		fi
+		numad -F &> $SHELLPACK_LOG/numad-$RUNNAME &
+		echo Numad started
+	fi
+
 	if [ "$MMTESTS_NUMACTL" != "" ]; then
-		echo MMTESTS_NUMACTL: $MMTESTS_NUMACTL
+		echo "MMTESTS_NUMACTL: $MMTESTS_NUMACTL"
+		if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
+			echo "MMTESTS_NUMAD:   on"
+		fi
 		echo Instance $THIS_INSTANCE / $MAX_INSTANCE
 	fi
 }

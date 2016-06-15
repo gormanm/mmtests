@@ -84,6 +84,8 @@ fi
 
 EXIT_CODE=$SHELLPACK_SUCCESS
 
+set_mmtests_numactl $EBIZZY_MAX_THREADS $EBIZZY_MAX_THREADS
+
 THREADS=
 START_THREAD=1
 END_THREAD=$EBIZZY_MAX_THREADS
@@ -129,4 +131,4 @@ done
 
 exit $EXIT_CODE
 #### Description ebizzy
-#### Details ebizzy-bench 19
+#### Details ebizzy-bench 20

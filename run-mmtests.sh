@@ -1021,6 +1021,11 @@ if [ "$MMTESTS_FORCE_DATE" != "" ]; then
 	killall -CONT ntpd
 fi
 
+if [ "$MMTEST_NUMA_POLICY" = "numad" ]; then
+	echo Shutting down numad
+	killall numad
+fi
+
 echo Cleaning up
 for TEST in $MMTESTS; do
 	uname -a > $SHELLPACK_LOG/$TEST/kernel.version
