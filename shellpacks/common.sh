@@ -428,8 +428,7 @@ function set_mmtests_numactl() {
 			sleep 1
 		done
 		echo
-		cat /var/log/numad.log > $SHELLPACK_LOG/numad-log-$RUNNAME
-		tail -f /var/log/numad.log >> $SHELLPACK_LOG/numad-log-$RUNNAME &
+		tail -n 1000 -f /var/log/numad.log >> $SHELLPACK_LOG/numad-log-$RUNNAME &
 		export NUMAD_TAIL_PID=$!
 		echo Numad started: pid $NUMAD_PID tail $NUMAD_TAIL_PID
 	fi
