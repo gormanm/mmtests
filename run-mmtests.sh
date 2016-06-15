@@ -522,9 +522,24 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 		hdparm -I ${TESTDISK_PARTITIONS[*]} 2>&1 > $SHELLPACK_LOG/disk-hdparm-$RUNNAME
 	fi
 	if [ "$TESTDISK_FILESYSTEM" != "" -a "$TESTDISK_FILESYSTEM" != "tmpfs" ]; then
+		if [ "${TESTDISK_FS_SIZE}" != "" ]; then
+			case "${TESTDISK_FILESYSTEM}" in
+			ext2|ext3|ext4)
+				TESTDISK_MKFS_PARAMS_SUFFIX="${TESTDISK_FS_SIZE}"
+			;;
+			xfs)
+				TESTDISK_MKFS_PARAM="${TESTDISK_MKFS_PARAM} -d size=${TESTDISK_FS_SIZE}"
+				;;
+			btrfs)
+				TESTDISK_MKFS_PARAM="${TESTDISK_MKFS_PARAM} -b ${TESTDISK_FS_SIZE}"
+				;;
+			esac
+		fi
 		for i in ${!TESTDISK_PARTITIONS[*]}; do
 			echo Formatting test disk ${TESTDISK_PARTITIONS[$i]}: $TESTDISK_FILESYSTEM
-			mkfs.$TESTDISK_FILESYSTEM $TESTDISK_MKFS_PARAM ${TESTDISK_PARTITIONS[$i]} || exit
+			mkfs.$TESTDISK_FILESYSTEM $TESTDISK_MKFS_PARAM \
+				${TESTDISK_PARTITIONS[$i]} \
+				${TESTDISK_MKFS_PARAM_SUFFIX} || exit
 		done
 	fi
 
