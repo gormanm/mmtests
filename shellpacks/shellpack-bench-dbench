@@ -108,9 +108,14 @@ while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 	# up after itself
 	rm -rf $TESTDISK_DIR/clients &>/dev/null
 	sync
+	# First create directory hierarchy
+	./bin/dbench --run-once --skip-cleanup -D $TESTDISK_DIR \
+		--loadfile $LOADDIR/client-warmup.txt $CLIENT &>/dev/null
+	# Then run the benchmark
 	./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
-		-D $TESTDISK_DIR \
+		-D $TESTDISK_DIR --warmup 0 \
 		-t $((DBENCH_DURATION_BASE + FACTOR*CLIENT/1000)) \
+		--loadfile $LOADDIR/client-tiny.txt --show-execute-time \
 		$CLIENT 2>&1 | tee $LOGDIR_RESULTS/dbench-$CLIENT.log \
 			|| die Failed to run dbench
 	monitor_post_hook $LOGDIR_RESULTS $CLIENT
@@ -123,4 +128,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description dbench
-#### Details dbench-bench 29
+#### Details dbench-bench 30
