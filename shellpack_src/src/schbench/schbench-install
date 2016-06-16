@@ -1,0 +1,14 @@
+#!/bin/bash
+###SHELLPACK preamble schbench-install 0
+GIT_LOCATION=git://git.kernel.org/pub/scm/linux/kernel/git/mason/schbench.git
+MIRROR_LOCATION="$WEBROOT/schbench/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch schbench-${VERSION}.tar.gz schbench-${VERSION}-installed
+
+###SHELLPACK build_start schbench-${VERSION}-installed
+###SHELLPACK make
+
+echo schbench installed successfully
