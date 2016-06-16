@@ -49,11 +49,11 @@ fi
 
 echo WARNING: systemtap installation broken, trying to fix.
 
-for PATCH in 4.4 4.5 4.6 4.6-rc3 4.7-rc1; do
+for PATCH in 4.5 4.6 4.6-rc3 4.7-rc1; do
 	cat $SCRIPTDIR/stap-patches/systemtap-runtime-${PATCH}.patch | patch -p1 -d /usr/share/systemtap
 	if [ $? -ne 0 ]; then
 		restore_systemtap
-		echo ERROR: Unable to patch systemtap, upgrade to at least 2.9
+		echo ERROR: Unable to patch systemtap, upgrade to at least 3.0
 		exit -1
 	fi
 	stap -e 'probe begin { println("validating systemtap fix") exit () }'
