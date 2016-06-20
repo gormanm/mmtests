@@ -2,16 +2,11 @@
 ### sensitive to regressions in the scheduler fast-path. It creates groups
 ### of threads or processes (depending on configuration) that communicate
 ### via pipes or sockets (depending on configuration).
-###
-### pipetest is a scheduler ping-pong test that measures context switch latency.
-###
-### lmbench is just running the lat_ctx test and is another measure of context
-### switch latency.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets pipetest lmbench"
+export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -74,22 +69,10 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # HackBench
-export HACKBENCH_ITERATIONS=3
+export HACKBENCH_ITERATIONS=7
 export HACKBENCH_MIN_GROUPS=1
 export HACKBENCH_MAX_GROUPS=$((NUMCPUS*4))
 if [[ `uname -m` =~ i.86 ]]; then
 	export HACKBENCH_MAX_GROUPS=128
 fi
-export HACKBENCH_LOOPS=20000
-
-# LMBench
-export LMBENCH_TESTS=lat_ctx
-export LMBENCH_LATMMAP_ITERATIONS=500
-export LMBENCH_LATMMAP_MIN_FILESIZE=$((64*1024))
-export LMBENCH_LATMMAP_MAX_FILESIZE=$((2048*1048576))
-export LMBENCH_LATCTX_ITERATIONS=30
-export LMBENCH_LATCTX_SIZE=0,48,64,96,4096,8192
-export LMBENCH_LATCTX_MAXCLIENTS=$NUMCPUS
-
-# PipeTest
-export PIPETEST_ITERATIONS=120
+export HACKBENCH_LOOPS=1000
