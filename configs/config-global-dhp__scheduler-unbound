@@ -11,7 +11,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="hackbench-pipes hackbench-sockets pipetest lmbench"
+export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets pipetest lmbench"
 export RUN_WARMUP=
 
 # Profiling parameters

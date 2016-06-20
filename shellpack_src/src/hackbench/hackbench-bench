@@ -4,6 +4,7 @@
 iterations=1
 CONN_NAME=
 CONN_TYPE=
+HACKBENCH_TYPE=process
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -20,6 +21,7 @@ CONN_TYPE=
 ###SHELLPACK parseargParam --min-groups HACKBENCH_MIN_GROUPS
 ###SHELLPACK parseargParam --max-groups HACKBENCH_MAX_GROUPS
 ###SHELLPACK parseargParam --iterations HACKBENCH_ITERATIONS
+###SHELLPACK parseargParam --type       HACKBENCH_TYPE
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required hackbench
@@ -35,7 +37,7 @@ RESULTSLOG=$LOGDIR_RESULTS/hackbench
 	###SHELLPACK iteration_begin $HACKBENCH_ITERATIONS
 		echo Running $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS
 		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  \
-			./hackbench $CONN_TYPE $NR_THREADS process 1000 \
+			./hackbench $CONN_TYPE $NR_THREADS $HACKBENCH_TYPE 1000 \
 				> $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
 		if [ $? -ne 0 ]; then
 			die Failed to run hackbench

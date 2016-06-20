@@ -11,6 +11,7 @@ fi
 iterations=1
 CONN_NAME=
 CONN_TYPE=
+HACKBENCH_TYPE=process
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -60,6 +61,10 @@ while [ "$1" != "" ]; do
 		;;
 	--iterations)
 		HACKBENCH_ITERATIONS=$2
+		shift 2
+		;;
+	--type)
+		HACKBENCH_TYPE=$2
 		shift 2
 		;;
 	*)
@@ -112,6 +117,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $HACKBENCH_MIN_GROUPS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	mmtests_activity $CONN_NAME-$NR_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
@@ -120,7 +128,7 @@ for ITERATION in `seq 1 $HACKBENCH_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 		echo Running $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS
 		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  \
-			./hackbench $CONN_TYPE $NR_THREADS process 1000 \
+			./hackbench $CONN_TYPE $NR_THREADS $HACKBENCH_TYPE 1000 \
 				> $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
 		if [ $? -ne 0 ]; then
 			die Failed to run hackbench
@@ -132,4 +140,4 @@ done
 
 exit $RETVAL
 #### Description Run the HackBench benchmark
-#### Details hackbench-bench 28
+#### Details hackbench-bench 29

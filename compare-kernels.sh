@@ -666,7 +666,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
-		hackbench-pipes|hackbench-sockets)
+		hackbench-process-pipes|hackbench-process-sockets|hackbench-thread-pipes|hackbench-thread-sockets)
 			echo "<tr>"
 			eval $GRAPH_PNG --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png --y-label latency
 			eval $GRAPH_PSC --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps  --y-label latency
