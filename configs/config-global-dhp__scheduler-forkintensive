@@ -2,13 +2,11 @@
 ### sensitive to regressions in the scheduler fast-path. It creates groups
 ### of threads or processes (depending on configuration) that communicate
 ### via pipes or sockets (depending on configuration).
-###
-### pipetest is a scheduler ping-pong test that measures context switch latency.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets pipetest"
+export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -71,13 +69,10 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # HackBench
-export HACKBENCH_ITERATIONS=3
+export HACKBENCH_ITERATIONS=7
 export HACKBENCH_MIN_GROUPS=1
 export HACKBENCH_MAX_GROUPS=$((NUMCPUS*4))
 if [[ `uname -m` =~ i.86 ]]; then
 	export HACKBENCH_MAX_GROUPS=128
 fi
-export HACKBENCH_LOOPS=20000
-
-# PipeTest
-export PIPETEST_ITERATIONS=120
+export HACKBENCH_LOOPS=1000
