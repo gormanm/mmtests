@@ -67,6 +67,10 @@ while [ "$1" != "" ]; do
 		HACKBENCH_TYPE=$2
 		shift 2
 		;;
+	--loops)
+		HACKBENCH_LOOPS=$2
+		shift 2
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -128,7 +132,7 @@ for ITERATION in `seq 1 $HACKBENCH_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 		echo Running $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS
 		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  \
-			./hackbench $CONN_TYPE $NR_THREADS $HACKBENCH_TYPE 1000 \
+			./hackbench $CONN_TYPE $NR_THREADS $HACKBENCH_TYPE $HACKBENCH_LOOPS \
 				> $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
 		if [ $? -ne 0 ]; then
 			die Failed to run hackbench
@@ -140,4 +144,4 @@ done
 
 exit $RETVAL
 #### Description Run the HackBench benchmark
-#### Details hackbench-bench 29
+#### Details hackbench-bench 30

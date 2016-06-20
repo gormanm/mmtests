@@ -80,6 +80,7 @@ export HACKBENCH_MAX_GROUPS=$((NUMCPUS*4))
 if [[ `uname -m` =~ i.86 ]]; then
 	export HACKBENCH_MAX_GROUPS=128
 fi
+export HACKBENCH_LOOPS=1000
 
 # LMBench
 export LMBENCH_TESTS=lat_ctx
