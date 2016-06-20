@@ -11,7 +11,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="hackbench-pipes hackbench-sockets pipetest lmbench stockfish"
+export MMTESTS="hackbench-pipes hackbench-sockets pipetest lmbench"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -92,13 +92,3 @@ export LMBENCH_LATCTX_MAXCLIENTS=$NUMCPUS
 
 # PipeTest
 export PIPETEST_ITERATIONS=120
-
-# RingTest
-export RINGTEST_ITERATIONS=7
-export RINGTEST_MIN_TASKS=2
-export RINGTEST_MAX_TASKS=$((NUMCPUS*2))
-
-# Stockfish
-export STOCKFISH_MIN_THREADS=1
-export STOCKFISH_MAX_THREADS=$((NUMCPUS*2))
-export STOCKFISH_ITERATIONS=3
