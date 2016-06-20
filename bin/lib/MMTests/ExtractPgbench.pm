@@ -20,43 +20,6 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub aggregateTransactions($)
-{
-	my $root = @_[0];
-	my $processed = $root . ".processed";
-
-	local *OUTPUT;
-	my @inputs;
-
-	if (open(INPUT, $root)) {
-		push @inputs, *INPUT;
-	} else {
-		foreach my $file (<$root-*>) {
-			local *INPUT;
-			if (open(INPUT, $file)) {
-				push @inputs, *INPUT;
-			}
-		}
-	}
-
-	open(OUTPUT, ">$processed") || die("Failed to open $processed for write");
-
-	while (!eof($inputs[0])) {
-		my $timestamp;
-		my $transactions = 0;
-		foreach my $handle (@inputs) {
-			my $line = <$handle>;
-			my @elements = split(/\s+/, $line);
-			if ($elements[0] ne "") {
-				$timestamp = $elements[0];
-				$transactions += $elements[1];
-			}
-		}
-		print OUTPUT "$timestamp $transactions\n";
-	}
-	close OUTPUT;
-}
-
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
@@ -75,14 +38,11 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $sample = 0;
 		my $stallStart = 0;
-		my $stallThreshold = 0;
 		my @values;
 		my $startSamples = 1;
 		my $endSamples = 0;
 
-		aggregateTransactions("$reportDir/noprofile/default/pgbench-transactions-$client");
-
-		my $file = "$reportDir/noprofile/default/pgbench-transactions-$client.processed";
+		my $file = "$reportDir/noprofile/default/pgbench-transactions-$client-1";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my @elements = split(/\s+/, $_);
@@ -90,7 +50,6 @@ sub extractReport($$$) {
 			$endSamples++;
 		}
 		close(INPUT);
-		$stallThreshold = int (calc_mean(@values) / 4);
 
 		# Find where the shutdown cutoff is where transactions start to taper
 		if ($endSamples > 60) {
@@ -119,8 +78,13 @@ sub extractReport($$$) {
 
 		my $testStart = 0;
 		my $sumTransactions = 0;
-		my $batch = 1;
 		my $nr_readings = 0;
+		my $thisBatch = 0;
+		my $batch = int (($endSamples - $startSamples) / 12);
+		if ($batch <= 0) {
+			$batch = 1;
+		}
+		$startSamples += ($batch * 2);
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			# time num_of_transactions latency_sum latency_2_sum min_latency max_latency
@@ -131,22 +95,13 @@ sub extractReport($$$) {
 			}
 			$sample++;
 			if ($sample > $startSamples && $sample <= $endSamples) {
-				if ($nrTransactions < $stallThreshold) {
-					if ($stallStart == 0) {
-						$stallStart = $elements[0];
-					}
-				} else {
-					if ($stallStart) {
-						my $stallDuration = $elements[0] - $stallStart;
-						$nrTransactions /= $stallDuration;
-						$stallStart = 0;
-					}
-					$sumTransactions += $nrTransactions;
-					if ($sample % $batch == 0) {
-						push @{$self->{_ResultData}}, [ $client, $elements[0] - $testStart, $sumTransactions / $batch ];
-						$sumTransactions = 0;
-						$nr_readings++;
-					}
+				$thisBatch++;
+				$sumTransactions += $nrTransactions;
+				if ($thisBatch % $batch == 0) {
+					push @{$self->{_ResultData}}, [ $client, $elements[0] - $testStart, $sumTransactions / $batch ];
+					$thisBatch = 0;
+					$sumTransactions = 0;
+					$nr_readings++;
 				}
 			}
 		}
