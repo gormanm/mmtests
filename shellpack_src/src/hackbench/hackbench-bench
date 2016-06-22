@@ -40,8 +40,12 @@ RESULTSLOG=$LOGDIR_RESULTS/hackbench
 		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  \
 			./hackbench $CONN_TYPE $NR_THREADS $HACKBENCH_TYPE $HACKBENCH_LOOPS \
 				> $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
+
+		# Failure likely due to open file or pid limitations
 		if [ $? -ne 0 ]; then
-			die Failed to run hackbench
+			monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+			rm $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
+			exit $SHELLPACK_SUCCESS
 		fi
 	###SHELLPACK iteration_end $HACKBENCH_ITERATIONS
 	

@@ -56,4 +56,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description Run the HackBench benchmark
-#### Details hackbench 30
+#### Details hackbench 31
