@@ -75,4 +75,7 @@ export HACKBENCH_MAX_GROUPS=$((NUMCPUS*4))
 if [[ `uname -m` =~ i.86 ]]; then
 	export HACKBENCH_MAX_GROUPS=128
 fi
+if [ $HACKBENCH_MAX_GROUPS -gt 296 ]; then
+	export HACKBENCH_MAX_GROUPS=296
+fi
 export HACKBENCH_LOOPS=1000
