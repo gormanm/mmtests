@@ -364,6 +364,7 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 spawn mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
+	"Really INITIALIZE"        { send y\\r; exp_continue}
 	"Wipe it"		   { send y\\r; exp_continue}
 }
 EOF
@@ -377,6 +378,7 @@ EOF
 spawn mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
+	"Really INITIALIZE"        { send y\\r; exp_continue}
 	"Wipe it"		   { send y\\r; exp_continue}
 }
 EOF
@@ -391,6 +393,7 @@ EOF
 spawn mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
+	"Really INITIALIZE"        { send y\\r; exp_continue}
 	"Wipe it"		   { send y\\r; exp_continue}
 }
 EOF
@@ -427,6 +430,7 @@ EOF
 	cat > $EXPECT_SCRIPT <<EOF
 spawn lvcreate -l $SIZE mmtests-raid -n lvm0
 expect {
+	"Really INITIALIZE"        { send y\\r; exp_continue}
 	"Wipe it"		   { send y\\r; exp_continue}
 }
 EOF
