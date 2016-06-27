@@ -38,6 +38,7 @@ sub extractSummary() {
 	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.2f", ];
 
 	# Array of potential headers and the samples
+	shift @fieldHeaders;
 	my @headerCounters;
 	my $index = 1;
 	$headerCounters[0] = [];
@@ -104,6 +105,7 @@ sub extractReport($$$$) {
 		close(INPUT);
 		@fieldHeaders = sort keys %_colMap;
 	}
+	unshift @fieldHeaders, "Time";
 
 	# Fill in the headers
 	if ($subHeading ne "") {
@@ -119,6 +121,7 @@ sub extractReport($$$$) {
 	}
 
 	# Read all counters
+	$file = "$reportDir/turbostat-$testName-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {
@@ -142,11 +145,18 @@ sub extractReport($$$$) {
 			}
 
 			$reading = 0;
-			$timestamp = $elements[0];
-			if ($start_timestamp == 0) {
-				$start_timestamp = $elements[0];
+			if ($elements[3] eq "--") {
+				$timestamp = $elements[0];
+				if ($start_timestamp == 0) {
+					$start_timestamp = $elements[0];
+				}
+			} else {
+				$timestamp++;
+				if ($start_timestamp == 0) {
+					$timestamp = $start_timestamp = 1;
+				}
 			}
-			push @row, $elements[0] - $start_timestamp;
+			push @row, $timestamp - $start_timestamp;
 		}
 
 		if ($line =~ /Core\s+CPU/) {
@@ -154,7 +164,11 @@ sub extractReport($$$$) {
 			next;
 		}
 		next if $reading != 1;
-		next if @elements[4] ne "-" && @elements[4] ne "-";
+		my $offset = 0;
+		if ($elements[3] eq "--") {
+			$offset = 4;
+		}
+		next if @elements[$offset] ne "-" && @elements[$offset] ne "-";
 
 		foreach my $header (@fieldHeaders) {
 			next if ($header eq "Time");
