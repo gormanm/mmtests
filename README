@@ -20,12 +20,12 @@ set depending on the test. The driver script takes the name of the
 test as a parameter. Generally, this would be a symbolic name naming
 the kernel being tested.
 
-Each test is driven by a run-single-test.sh script which reads
-the relevant driver-TESTNAME.sh script. High level items such as
-profiling are configured from the top-level script while the driver
-scripts typically convert the config parameters into switches for a
-"shellpack". A shellpack is a pair of benchmark and install scripts
-that are all stored in shellpacks/ .
+Each test is driven by a run-single-test.sh script which reads the relevant
+driver-TESTNAME.sh script. It should not be used directly. High level
+items such as profiling are configured from the top-level script while the
+driver scripts typically convert the config parameters into switches for a
+"shellpack". A shellpack is a pair of benchmark and install scripts that
+are all stored in shellpacks/ .
 
 Monitors can be optionally configured. A full list is in monitors/
 . Care should be taken with monitors as there is a possibility that

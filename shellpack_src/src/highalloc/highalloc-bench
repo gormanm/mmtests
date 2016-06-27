@@ -66,7 +66,7 @@ for WORKLOAD in $WORKLOADS; do
 	cd $SHELLPACK_TOPLEVEL
 	mkdir -p $LOGDIR_RESULTS
 	echo Starting background workload: $WORKLOAD
-	./run-single-test.sh $WORKLOAD > $LOGDIR_RESULTS/workload-$WORKLOAD.log 2>&1 &
+	./bin/run-single-test.sh $WORKLOAD > $LOGDIR_RESULTS/workload-$WORKLOAD.log 2>&1 &
 	WORKLOAD_PID=$!
 	
 	# While workload is running, try highalloc tests

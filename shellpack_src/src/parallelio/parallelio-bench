@@ -24,7 +24,7 @@
 for WORKLOAD in $PARALLELIO_WORKLOADS; do
 	echo Warmup background workload: $WORKLOAD
 	cd $SHELLPACK_TOPLEVEL
-	./run-single-test.sh $WORKLOAD > /dev/null &
+	./bin/run-single-test.sh $WORKLOAD > /dev/null &
 	WORKLOAD_PID=$!
 
 	MEMUSED_BYTES=`free -b | grep Mem: | awk '{print $3}'`
@@ -98,7 +98,7 @@ for IO_STEP in `seq 0 $PARALLELIO_INCREMENTS`; do
 
 		echo Starting background workload: $WORKLOAD
 		STARTTIME_WORKLOAD=`date +%s`
-		./run-single-test.sh $WORKLOAD > $LOGDIR_RESULTS/workload-$WORKLOAD-$IO_STEP-$ITERATION.log 2>&1 &
+		./bin/run-single-test.sh $WORKLOAD > $LOGDIR_RESULTS/workload-$WORKLOAD-$IO_STEP-$ITERATION.log 2>&1 &
 		WORKLOAD_PID=$!
 
 		# Wait until workload reaches its peak size for 10 seconds

@@ -1,6 +1,6 @@
 #!/bin/bash
 DIRNAME=`dirname $0`
-export SCRIPTDIR=`cd "$DIRNAME" && pwd`
+export SCRIPTDIR=`cd "$DIRNAME/.." && pwd`
 FAILED=no
 P="run-single-test"
 . $SCRIPTDIR/shellpacks/common.sh
@@ -61,7 +61,7 @@ if [ "$REMOTE_SERVER_HOST" != "" ]; then
 	if [ "$SERVER_SIDE_BENCH_SCRIPT" = "" ]; then
 		SERVER_SIDE_BENCH_SCRIPT="shellpacks/shellpack-bench-$NAME"
 	fi
-	export REMOTE_SERVER_WRAPPER=$SCRIPTDIR/config-wrap.sh
+	export REMOTE_SERVER_WRAPPER=$SCRIPTDIR/bin/config-wrap.sh
 	export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/$SERVER_SIDE_BENCH_SCRIPT
 	mmtests_server_init
 fi

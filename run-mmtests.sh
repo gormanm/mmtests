@@ -806,7 +806,7 @@ declare -p | grep "\-ax" | tee $SCRIPTDIR/bash_arrays
 if [ "$RUN_WARMUP" != "" ]; then
 	echo Entering warmup
 	RUNNING_TEST=$RUN_WARMUP
-	./run-single-test.sh $RUN_WARMUP
+	./bin/run-single-test.sh $RUN_WARMUP
 	RUNNING_TEST=
 	rm -rf $SHELLPACK_LOG/$RUN_WARMUP
 	echo Warmup complete, beginning tests
@@ -922,7 +922,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		fi
 		RUNNING_TEST=$TEST
 		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-$RUNNAME \
-			./run-single-test.sh $TEST
+			./bin/run-single-test.sh $TEST
 		EXIT_CODE=$?
 
 		# Record some basic information at end of test
@@ -992,7 +992,7 @@ else
 
 			# Start tests for the first time if necessary
 			if [ "$CURRENTPID" = "" ]; then
-				/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
+				/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./bin/run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
 				PID=$!
 				echo Started first test $TEST pid $PID
 				echo $TEST:$PID:$NR_TEST >> test.pids
@@ -1009,7 +1009,7 @@ else
 				cat $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 				rm $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID
 
-				/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
+				/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./bin/run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
 				PID=$!
 				echo Started test $TEST pid $PID
 				echo $TEST:$PID:$NR_TEST >> test.pids
