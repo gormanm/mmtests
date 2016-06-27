@@ -51,7 +51,7 @@ export TESTDISK_MOUNT_ARGS="size=$((MEMTOTAL_BYTES*4/5))"
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat slabinfo"
+export MONITORS_GZIP="proc-vmstat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 

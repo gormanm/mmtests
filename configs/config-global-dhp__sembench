@@ -42,7 +42,7 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top slabinfo"
+export MONITORS_GZIP="proc-vmstat top"
 export MONITOR_UPDATE_FREQUENCY=10
 export MONITOR_PERF_EVENTS=node-load-misses,node-store-misses
 
