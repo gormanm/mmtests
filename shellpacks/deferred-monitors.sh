@@ -121,8 +121,6 @@ function shutdown_monitors()
 				sleep 1
 			done
 			echo
-		else
-			echo "Already exited: $_pid"
 		fi
 	done
 
@@ -205,6 +203,10 @@ function start_with_latency_monitor()
 	$EXPECT_UNBUFFER $DISCOVERED_SCRIPT | $SCRIPTDIR/monitors/latency-output > $MONITOR_LOG &
 	PID1=$!
 	sleep 5
+	COUNT=`ps aux | grep watch-${_monitor}.sh | egrep -v -e 'grep|expect' | awk '{print $2}' | wc -l`
+	if [ $COUNT -gt 1 ]; then
+		warn Unexpected number of scripts running
+	fi
 	PID2=`ps aux | grep watch-${_monitor}.sh | egrep -v -e 'grep|expect' | awk '{print $2}'`
 	echo $PID2 >> $_pidfile
 	echo $PID1 >> $_pidfile

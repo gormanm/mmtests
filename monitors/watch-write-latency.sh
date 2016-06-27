@@ -11,6 +11,8 @@ LINECOUNT=`wc -l $0 | awk '{print $1}'`
 CSTART=`grep -n "BEGIN C FILE" $0 | tail -1 | awk -F : '{print $1}'`
 tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > $TEMPFILE.c
 
+install-depends gcc gcc-32bit autoconf automake bunutils-devel make patch
+
 # Build it
 WRITESIZE=
 WRITEPAUSE=

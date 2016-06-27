@@ -209,14 +209,11 @@ if [ "$MMTESTS_FORCE_DATE" != "" ]; then
 fi
 
 # Install packages that are generally needed by a large number of tests
-install-depends autoconf automake binutils-devel bzip2 dosfstools expect \
-	expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch \
-	recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz wget \
-	perl-Time-HiRes time tcl
+install-depends autoconf automake binutils-devel bzip2 dosfstools expect
+install-depends expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch
+install-depends recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz wget
+install-depends perl-Time-HiRes time tcl
 install-depends kpartx util-linux
-
-# Following packages only interesting when running virtual machines
-#install-depends libvirt-daemon-driver-qemu libvirt-daemon-qemu qemu virt-manager
 
 # Check monitoring
 if [ "$FORCE_RUN_MONITOR" != "" ]; then
@@ -236,12 +233,14 @@ else
 fi
 
 # Run tunings
-echo Tuning the system before running: $RUNNAME
-for T in $RUN_TUNINGS; do
-	discover_script ./tunings/tuning-$T
-	export TUNING_LOG=$SHELLPACK_LOG/$T-$RUNNAME-$TEST
-	$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $TUNING_LOG || exit $SHELLPACK_ERROR
-done
+if [ "$RUN_TUNINGS" != "" ]; then
+	echo Tuning the system before running: $RUNNAME
+	for T in $RUN_TUNINGS; do
+		discover_script ./tunings/tuning-$T
+		export TUNING_LOG=$SHELLPACK_LOG/$T-$RUNNAME-$TEST
+		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $TUNING_LOG || exit $SHELLPACK_ERROR
+	done
+fi
 
 # Create RAID setup
 if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
@@ -636,6 +635,10 @@ else
 	fi
 fi
 
+if [ "$SWAP_CONFIGURATION" = "" ]; then
+	export SWAP_CONFIGURATION=default
+fi
+
 # Configure swap
 case $SWAP_CONFIGURATION in
 partitions)
@@ -718,11 +721,13 @@ nbd)
 	swapon $SWAP_NBD_DEVICE || die Failed to activate NBD swap
 	;;
 default)
-	echo Using default swap configuration
 	;;
 esac
-echo Swap configuration
-swapon -s
+
+if [ "$SWAP_CONFIGURATION" != "default" ]; then
+	echo Swap configuration
+	swapon -s
+fi
 
 # Configure low_latency if requested
 if [ "$CFQ_LOW_LATENCY" != "" ]; then
@@ -800,7 +805,7 @@ fi
 # updated whenever an array is modified after this point.
 # Currently required for:
 # - TESTDISK_DIRS
-declare -p | grep "\-ax" | tee $SCRIPTDIR/bash_arrays
+declare -p | grep "\-ax" > $SCRIPTDIR/bash_arrays
 
 # Warm up. More appropriate warmup depends on the exact test
 if [ "$RUN_WARMUP" != "" ]; then
@@ -810,8 +815,6 @@ if [ "$RUN_WARMUP" != "" ]; then
 	RUNNING_TEST=
 	rm -rf $SHELLPACK_LOG/$RUN_WARMUP
 	echo Warmup complete, beginning tests
-else
-	echo Skipping warmup run
 fi
 	
 function start_monitors() {
@@ -1076,7 +1079,9 @@ for TEST in $MMTESTS; do
 done
 
 # Restore system to original state
-stap-fix.sh --restore-only
+if [ "$STAP_USED" != "" ]; then
+	stap-fix.sh --restore-only
+fi
 
 if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 	echo Recompressing vmlinux

@@ -305,6 +305,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		compare-mmtests.pl -d . -b mediawikibuildloadtime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
+	monitor)
+		echo No meaningful extraction script for monitor
+		echo
+		;;
 	parallelio)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
@@ -566,14 +570,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT-exectime-Elapsd
 			echo "</tr>"
 			;;
-
-		ebizzy)
-			echo "<tr>"
-			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
-			eval $GRAPH_PSC --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
-			plain graph-$SUBREPORT
-			echo "</tr>"
-			;;
 		dedup)
 			echo "<tr>"
 			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label secs
@@ -581,24 +577,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
-		pbzip2bench)
+		ebizzy)
 			echo "<tr>"
-			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label secs
-			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps --y-label secs
-			plain graph-$SUBREPORT
-			echo "</tr>"
-			;;
-		freqmine-small|freqmine-medium|freqmine-large)
-			echo "<tr>"
-			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label secs
-			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps --y-label secs
-			plain graph-$SUBREPORT
-			echo "</tr>"
-			;;
-		futexbench-hash|futexbench-requeue|futexbench-wake)
-			echo "<tr>"
-			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
-			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
@@ -625,10 +607,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT-write-latency
 			echo "</tr>"
 			;;
-		unixbench-dhry2reg|unixbench-syscall|unixbench-pipe|unixbench-spawn|unixbench-execl)
+		freqmine-small|freqmine-medium|freqmine-large)
 			echo "<tr>"
-			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
-			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label secs
+			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps --y-label secs
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
@@ -642,34 +624,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT-overhead
 			echo "</tr>"
 			;;
-		netperf-udp|netperfmulti-udp)
+		futexbench-hash|futexbench-requeue|futexbench-wake)
 			echo "<tr>"
-			eval $GRAPH_PNG --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send.png
-			eval $GRAPH_PSC --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send.ps
-			eval $GRAPH_PNG --logX --title \"$SUBREPORT Recv Throughput\" --sub-heading recv --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-recv.png
-			eval $GRAPH_PSC --logX --title \"$SUBREPORT Recv Throughput\" --sub-heading recv --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-recv.ps
-			plain graph-$SUBREPORT-send
-			plain graph-$SUBREPORT-recv
-			echo "</tr>"
-			;;
-		netperf-tcp|netperf-udp-rr|netperf-tcp-rr|netperfmulti-tcp|netperfmulti-udp-rr|netperfmulti-tcp-rr)
-			echo "<tr>"
-			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
-			eval $GRAPH_PSC --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
-			plain graph-$SUBREPORT
-			echo "</tr>"
-			;;
-		sembench-sem|sembench-nanosleep|sembench-futex)
-			echo "<tr>"
-			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label ops/sec
-			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps --y-label ops/sec
-			plain graph-$SUBREPORT
-			echo "</tr>"
-			;;
-		hackbench-process-pipes|hackbench-process-sockets|hackbench-thread-pipes|hackbench-thread-sockets)
-			echo "<tr>"
-			eval $GRAPH_PNG --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png --y-label latency
-			eval $GRAPH_PSC --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps  --y-label latency
+			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
@@ -680,16 +638,35 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
-		pistress)
+		gitcheckout)
+			;;
+		hackbench-process-pipes|hackbench-process-sockets|hackbench-thread-pipes|hackbench-thread-sockets)
 			echo "<tr>"
-			eval $GRAPH_PNG --logX --wide --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label total-inversions
-			eval $GRAPH_PSC --logX --wide --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps --y-label total-inversions
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png --y-label latency
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps  --y-label latency
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
 		highalloc)
 			;;
-		gitcheckout)
+		johnripper)
+			COUNT=-1
+			for HEADING in `$EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sed -e 's/[0-9]*-//' | sort | uniq`; do
+				COUNT=$((COUNT+1))
+				if [ $((COUNT%3)) -eq 0 ]; then
+					echo "<tr>"
+				fi
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				plain graph-$SUBREPORT-$HEADING
+
+				if [ $((COUNT%3)) -eq 2 ]; then
+					echo "</tr>"
+				fi
+			done
+			if [ $((COUNT%3)) -ne 2 ]; then
+				echo "</tr>"
+			fi
 			;;
 		kernbench)
 			echo "<tr>"
@@ -712,41 +689,15 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			done
 			echo "</tr>"
 			;;
-		starve)
-			echo "<tr>"
-			for HEADING in User System Elapsed CPU; do
-				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
-				plain graph-$SUBREPORT-$HEADING
-			done
-			echo "</tr>"
-			;;
 		ku_latency)
-			;;
-		johnripper)
-			COUNT=-1
-			for HEADING in `$EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sed -e 's/[0-9]*-//' | sort | uniq`; do
-				COUNT=$((COUNT+1))
-				if [ $((COUNT%3)) -eq 0 ]; then
-					echo "<tr>"
-				fi
-				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
-				plain graph-$SUBREPORT-$HEADING
-
-				if [ $((COUNT%3)) -eq 2 ]; then
-					echo "</tr>"
-				fi
-			done
-			if [ $((COUNT%3)) -ne 2 ]; then
-				echo "</tr>"
-			fi
 			;;
 		libmicro)
 			;;
-		mutilate)
-			;;
 		micro)
+			;;
+		monitor)
+			;;
+		mutilate)
 			;;
 		nas-mpi|nas-ser)
 			echo "<tr>"
@@ -755,7 +706,31 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
+		netperf-udp|netperfmulti-udp)
+			echo "<tr>"
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send.png
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send.ps
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT Recv Throughput\" --sub-heading recv --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-recv.png
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT Recv Throughput\" --sub-heading recv --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-recv.ps
+			plain graph-$SUBREPORT-send
+			plain graph-$SUBREPORT-recv
+			echo "</tr>"
+			;;
+		netperf-tcp|netperf-udp-rr|netperf-tcp-rr|netperfmulti-tcp|netperfmulti-udp-rr|netperfmulti-tcp-rr)
+			echo "<tr>"
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			plain graph-$SUBREPORT
+			echo "</tr>"
+			;;
 		pagealloc)
+			;;
+		pbzip2bench)
+			echo "<tr>"
+			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label secs
+			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps --y-label secs
+			plain graph-$SUBREPORT
+			echo "</tr>"
 			;;
 		pft)
 			echo "<tr>"
@@ -801,6 +776,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				fi
 				COUNT=$((COUNT+1))
 			done
+			;;
+		pistress)
+			echo "<tr>"
+			eval $GRAPH_PNG --logX --wide --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label total-inversions
+			eval $GRAPH_PSC --logX --wide --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps --y-label total-inversions
+			plain graph-$SUBREPORT
+			echo "</tr>"
 			;;
 		postmark)
 			echo "<tr>"
@@ -848,7 +830,30 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				echo "</tr>"
 			fi
 			;;
+		sembench-sem|sembench-nanosleep|sembench-futex)
+			echo "<tr>"
+			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png --y-label ops/sec
+			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps --y-label ops/sec
+			plain graph-$SUBREPORT
+			echo "</tr>"
+			;;
+		siege)
+			echo "<tr>"
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			plain graph-$SUBREPORT
+			echo "</tr>"
+			;;
 		specjbb2013)
+			;;
+		starve)
+			echo "<tr>"
+			for HEADING in User System Elapsed CPU; do
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				plain graph-$SUBREPORT-$HEADING
+			done
+			echo "</tr>"
 			;;
 		stockfish)
 			echo "<tr>"
@@ -858,14 +863,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			eval $GRAPH_PSC        -b stockfishtime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-time.ps
 			plain graph-$SUBREPORT
 			plain graph-$SUBREPORT-time
-			echo "</tr>"
-			;;
-
-		siege)
-			echo "<tr>"
-			eval $GRAPH_PNG --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
-			eval $GRAPH_PSC --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
-			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
 		stress-highalloc)
@@ -902,16 +899,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			done
 			echo "</tr>"
 			;;
-		usemem)
-			echo "<tr>"
-			for HEADING in Elapsd System; do
-				eval $GRAPH_PNG -b usemem --title \"$SUBREPORT $HEADING time\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.png
-				eval $GRAPH_PSC -b usemem --title \"$SUBREPORT $HEADING time\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.ps
-			done
-			plain graph-$SUBREPORT-System
-			plain graph-$SUBREPORT-Elapsd
-			echo "</tr>"
-			;;
 		timeexit)
 			;;
 		tiobench)
@@ -921,6 +908,23 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				eval $GRAPH_PSC --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
 				plain graph-$SUBREPORT-$HEADING
 			done
+			echo "</tr>"
+			;;
+		unixbench-dhry2reg|unixbench-syscall|unixbench-pipe|unixbench-spawn|unixbench-execl)
+			echo "<tr>"
+			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			plain graph-$SUBREPORT
+			echo "</tr>"
+			;;
+		usemem)
+			echo "<tr>"
+			for HEADING in Elapsd System; do
+				eval $GRAPH_PNG -b usemem --title \"$SUBREPORT $HEADING time\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.png
+				eval $GRAPH_PSC -b usemem --title \"$SUBREPORT $HEADING time\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.ps
+			done
+			plain graph-$SUBREPORT-System
+			plain graph-$SUBREPORT-Elapsd
 			echo "</tr>"
 			;;
 		vmr-stream)
@@ -938,7 +942,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				plain graph-$SUBREPORT-$HEADING
 			done
 			echo "</tr>"
-
 			;;
 		wis-eventfd|wis-fallocate|wis-filelock|wis-futex|wis-getppid|wis-malloc|wis-mmap|wis-open|wis-pf|wis-pipe|wis-poll|wis-posixsems|wis-pread|wis-pthreadmutex|wis-pwrite|wis-read|wis-sched|wis-signal|wis-unlink)
 			SUB_WORKLOADS_FILENAME=`find -name "workloads" | grep $SUBREPORT | head -1`

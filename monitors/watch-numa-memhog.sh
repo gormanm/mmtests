@@ -1,6 +1,7 @@
 #!/bin/bash
 
 install-depends numactl
+install-depends gcc gcc-32bit autoconf automake bunutils-devel make patch
 
 # Extract the memhog program
 EXITING=0
