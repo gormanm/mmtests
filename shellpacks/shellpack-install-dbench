@@ -47,16 +47,6 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-LINESTART=`grep -n "==== BEGIN 0001-Allow-reporting-of-workload-execution-times.patch" $0 | tail -1 | awk -F : '{print $1}'`
-LINEEND=`grep -n "==== END 0001-Allow-reporting-of-workload-execution-times.patch" $0 | tail -1 | awk -F : '{print $1}'`
-if [ "$LINEEND" = "" ]; then
-	LINECOUNT=`wc -l $0 | awk '{print $1}'`
-fi
-if [ "$LINESTART" = "" ]; then
-	die Failed to find start of file 0001-Allow-reporting-of-workload-execution-times.patch
-fi
-echo Extracting $SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
-sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=dbench-${VERSION}.tar.gz
@@ -75,7 +65,19 @@ mv $DST_DIR dbench-${VERSION}
 pushd dbench-${VERSION} > /dev/null || die Failed to rename tar
 
 # Build
-patch -p1 <$SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
+if [ "$VERSION" = "4.1alpha" ]; then
+LINESTART=`grep -n "==== BEGIN 0001-Allow-reporting-of-workload-execution-times.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END 0001-Allow-reporting-of-workload-execution-times.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file 0001-Allow-reporting-of-workload-execution-times.patch
+fi
+echo Extracting $SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
+	patch -p1 <$SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
+fi
 pushd $SHELLPACK_SOURCES/dbench-${VERSION} || die Failed to change to source directory
 for FILE in `find -name "*"`; do
 	touch $FILE
@@ -214,4 +216,4 @@ index 14a5a702650c..465cf3b18002 100644
  };
 ==== END 0001-Allow-reporting-of-workload-execution-times.patch ====
 #### Description dbench
-#### Details dbench 30
+#### Details dbench 31

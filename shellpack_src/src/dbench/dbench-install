@@ -10,12 +10,14 @@ install-depends popt-devel zlib-devel
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK self_extract 0001-Allow-reporting-of-workload-execution-times.patch
 
 ###SHELLPACK git_fetch dbench-${VERSION}.tar.gz dbench-${VERSION}
 
 # Build
-patch -p1 <$SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
+if [ "$VERSION" = "4.1alpha" ]; then
+	###SHELLPACK self_extract 0001-Allow-reporting-of-workload-execution-times.patch
+	patch -p1 <$SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
+fi
 ###SHELLPACK build_start dbench-${VERSION}
 ###SHELLPACK build_autogen dbench-${VERSION}
 ###SHELLPACK build_configure dbench-${VERSION}
