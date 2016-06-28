@@ -1066,7 +1066,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		fi
 
 		if [ `ls turbostat-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
-			EVENTS=`$EXTRACT_CMD -n $KERNEL_BASE --print-monitor turbostat --print-header | head -1`
+			EVENTS=`$EXTRACT_CMD -n $KERNEL_BASE --print-monitor turbostat --print-header | head -1 | sed -e 's/Time //'`
 			COUNT=-1
 			for EVENT in $EVENTS; do
 				EVENT_FILENAME=`echo $EVENT | sed -e 's/%/Pct/g'`
@@ -1074,10 +1074,14 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				if [ $((COUNT%3)) -eq 0 ]; then
 					echo "<tr>"
 				fi
-				eval $GRAPH_PNG --title \"$EVENT\"   --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME.png
-				eval $GRAPH_PSC --title \"$EVENT\"   --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME.ps
-				eval $GRAPH_PNG --title \"$EVENT\"   --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME-smooth.png --smooth
-				eval $GRAPH_PSC --title \"$EVENT\"   --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME-smooth.ps --smooth
+				RANGE_CMD="--yrange 0:100"
+				if [ "$EVENT" = "CorrWatt" -o "$EVENT" = "PkgWatt" ]; then
+					RANGE_CMD=
+				fi
+				eval $GRAPH_PNG --title \"$EVENT\"   $RANGE_CMD --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME.png
+				eval $GRAPH_PSC --title \"$EVENT\"   $RANGE_CMD --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME.ps
+				eval $GRAPH_PNG --title \"$EVENT\"   $RANGE_CMD --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME-smooth.png --smooth
+				eval $GRAPH_PSC --title \"$EVENT\"   $RANGE_CMD --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME-smooth.ps --smooth
 				smoothover graph-$SUBREPORT-turbostat-$EVENT_FILENAME
 				if [ $((COUNT%3)) -eq 2 ]; then
 					echo "</tr>"

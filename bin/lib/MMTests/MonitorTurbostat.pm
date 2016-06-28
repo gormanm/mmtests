@@ -20,8 +20,13 @@ my %_colMap;
 my @fieldHeaders;
 
 sub printDataType() {
-	my ($self) = @_;
-	print "Busy,Time,Busy";
+	my ($self, $subHeading) = @_;
+
+	if ($subHeading eq "CorWatt" || $subHeading eq "PkgWatt") {
+		print "Watt,Time,Watt";
+	} else {
+		print "Percentage,Time,Percentage";
+	}
 }
 
 sub printPlot() {
