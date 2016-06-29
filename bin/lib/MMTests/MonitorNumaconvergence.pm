@@ -1,7 +1,8 @@
 # NumaConvergence.pm
 #
 # This module tracks NUMA hinting faults over time and can determine if
-# a workload has converged or not.
+# a workload has converged or not. Values tending towards 1 indicate that
+# the majority of faults are local.
 
 package MMTests::MonitorNumaconvergence;
 use MMTests::Monitor;
