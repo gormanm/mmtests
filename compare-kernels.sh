@@ -1318,10 +1318,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			eval $GRAPH_PSC --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.ps
 			eval $GRAPH_PNG --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-smooth.png --smooth
 			eval $GRAPH_PSC --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading numa_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.png
-			eval $GRAPH_PSC --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading numa_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.ps
-			eval $GRAPH_PNG --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading numa_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading numa_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.png
+			eval $GRAPH_PSC --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.ps
+			eval $GRAPH_PNG --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.ps --smooth
 
 
 			echo "<tr>"
@@ -1334,6 +1334,43 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-local
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-remote
 			echo "</tr>"
+		fi
+
+		if [ `ls ftrace-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+			PLOT_TITLES=
+			for NAME in `echo $KERNEL_LIST | sed -e 's/,/ /g'`; do
+				extract-mmtests.pl -d . -b $SUBREPORT -n $NAME --print-monitor Ftracenumatraffic > /tmp/mmtests-numatraffic-$$-$NAME
+				if [ "$PLOT_TITLES" = "" ]; then
+					PLOT_TITLES=$NAME
+				else
+					PLOT_TITLES="$PLOT_TITLES $NAME"
+				fi
+			done
+			MAX_MIGRATION=`awk '{print $3}' /tmp/mmtests-numatraffic-$$-* | sort -n | tail -1`
+			MAX_NID=`awk '{print $2}' /tmp/mmtests-numatraffic-$$-* | sed -e 's/[a-z]*-//' | sort -n | tail -1`
+			if [ "$MAX_NID" != "" ]; then
+				PLOTTYPE=linespoints
+				for NAME in `echo $KERNEL_LIST | sed -e 's/,/ /g'`; do
+					echo "<tr>"
+					for NID in `seq 0 $MAX_NID`; do
+						grep "from-$NID " /tmp/mmtests-numatraffic-$$-$NAME | awk '{print $1" "$3}' > /tmp/mmtests-numatraffic-plot-$$-$NAME
+						plot --yrange 0:$MAX_MIGRATION --title "NUMA balance page migrate from node $NID" --titles "$PLOT_TITLES" --plottype $PLOTTYPE --format png                               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numab-migrate-from-$NID-${NAME}.png /tmp/mmtests-numatraffic-plot-$$-$NAME
+						plot --yrange 0:$MAX_MIGRATION --title "NUMA balance page migrate from node $NID" --titles "$PLOT_TITLES" --plottype $PLOTTYPE --format "postscript color solid" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numab-migrate-from-$NID-${NAME}.ps  /tmp/mmtests-numatraffic-plot-$$-$NAME
+						plain graph-$SUBREPORT-numab-migrate-from-$NID-${NAME}
+					done
+					echo "</tr>"
+					echo "<tr>"
+					for NID in `seq 0 $MAX_NID`; do
+						grep "to-$NID " /tmp/mmtests-numatraffic-$$-$NAME | awk '{print $1" "$3}' > /tmp/mmtests-numatraffic-plot-$$-$NAME
+						plot --yrange 0:$MAX_MIGRATION --title "NUMA balance page migrate to node $NID" --titles "$PLOT_TITLES" --plottype $PLOTTYPE --format png                               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numab-migrate-to-$NID-${NAME}.png /tmp/mmtests-numatraffic-plot-$$-$NAME
+						plot --yrange 0:$MAX_MIGRATION --title "NUMA balance page migrate to node $NID" --titles "$PLOT_TITLES" --plottype $PLOTTYPE --format "postscript color solid" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numab-migrate-to-$NID-${NAME}.ps  /tmp/mmtests-numatraffic-plot-$$-$NAME
+						plain graph-$SUBREPORT-numab-migrate-to-$NID-${NAME}
+					done
+					echo "</tr>"
+					rm /tmp/mmtests-numatraffic-plot-$$-$NAME
+				done
+			fi
+			rm -f /tmp/mmtests-numatraffic-$$-*
 		fi
 
 		if [ `ls proc-net-dev-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then

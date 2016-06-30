@@ -163,7 +163,7 @@ my @_fieldOrder = (
 	"mmtests_compaction_cost",
 	"numa_pte_updates",
 	"numa_hint_faults",
-	"numa_hint_faults_remote",
+	"mmtests_hint_faults_remote",
 	"numa_hint_faults_local",
 	"numa_pages_migrated",
 	"mmtests_autonuma_cost",
