@@ -313,7 +313,9 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 	done
 
 	if [ "$FULL_ASSEMBLY_REQUIRED" = "yes" ]; then
-		echo Full assembly required
+		echo Full assembly required for mdstat state
+		cat /proc/mdstat
+
 		echo Creation start: `date`
 		for DEVICE in $TESTDISK_RAID_DEVICES; do
 			BASE_DEVICE=`basename $DEVICE`
@@ -329,6 +331,16 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 				mdadm --remove $TESTDISK_RAID_MD_DEVICE
 				mdadm --remove /dev/$MD_DEVICE
 			fi
+
+			echo Shutting down all md devices related to devices
+			for DEVICE in $TESTDISK_RAID_DEVICES; do
+				echo -n "o $DEVICE: "
+				for MD_DEVICE in `grep ^md /proc/mdstat | grep $DEVICE | awk '{print $1}'`; do
+					mdadm --stop $MD_DEVICE
+					echo -n "$MD_DEVICE "
+				done
+				echo
+			done
 		done
 
 		for DISK in $TESTDISK_RAID_DEVICES; do
