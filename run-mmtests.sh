@@ -288,7 +288,7 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 	LAST_MD_DEVICE=
 	for DEVICE in $TESTDISK_RAID_DEVICES; do
 		BASE_DEVICE=`basename $DEVICE`
-		MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat | sed -e 's/(auto-read-only)//' | awk '{print $1}'`
+		MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat 2>/dev/null | sed -e 's/(auto-read-only)//' | awk '{print $1}'`
 		if [ "$MD_DEVICE" = "" ]; then
 			echo o Device $DEVICE is not part of a RAID array, assembly required
 			FULL_ASSEMBLY_REQUIRED=yes
@@ -304,7 +304,7 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 			continue
 		fi
 
-		PERSONALITY=`grep $BASE_DEVICE /proc/mdstat | awk '{print $4}'`
+		PERSONALITY=`grep $BASE_DEVICE /proc/mdstat 2>/dev/null | awk '{print $4}'`
 		if [ "$PERSONALITY" != "$TESTDISK_RAID_TYPE" ]; then
 			echo o Device $DEVICE is part of a $PERSONALITY array instead of $TESTDISK_RAID_TYPE, assembly required
 			FULL_ASSEMBLY_REQUIRED=yes
@@ -314,12 +314,12 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 
 	if [ "$FULL_ASSEMBLY_REQUIRED" = "yes" ]; then
 		echo Full assembly required for mdstat state
-		cat /proc/mdstat
+		cat /proc/mdstat 2>/dev/null
 
 		echo Creation start: `date`
 		for DEVICE in $TESTDISK_RAID_DEVICES; do
 			BASE_DEVICE=`basename $DEVICE`
-			MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat | awk '{print $1}'`
+			MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat 2>/dev/null | awk '{print $1}'`
 
 			if [ "$MD_DEVICE" != "" ]; then
 				echo Cleaning up old device $MD_DEVICE
@@ -332,15 +332,19 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 				mdadm --remove /dev/$MD_DEVICE
 			fi
 
-			echo Shutting down all md devices related to devices
-			for DEVICE in $TESTDISK_RAID_DEVICES; do
-				echo -n "o $DEVICE: "
-				for MD_DEVICE in `grep ^md /proc/mdstat | grep $DEVICE | awk '{print $1}'`; do
-					mdadm --stop $MD_DEVICE
-					echo -n "$MD_DEVICE "
+			MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat 2>/dev/null | awk '{print $1}'`
+			if [ "$MD_DEVICE" != "" ]; then
+				echo Shutting down all md devices related to devices
+				for DEVICE in $TESTDISK_RAID_DEVICES; do
+					BASE_DEVICE=`basename $DEVICE`
+					echo -n "o $BASE_DEVICE: "
+					for MD_DEVICE in `grep ^md /proc/mdstat 2>/dev/null | grep $BASE_DEVICE | awk '{print $1}'`; do
+						mdadm --stop $MD_DEVICE
+						echo -n "$MD_DEVICE "
+					done
+					echo
 				done
-				echo
-			done
+			fi
 		done
 
 		for DISK in $TESTDISK_RAID_DEVICES; do
