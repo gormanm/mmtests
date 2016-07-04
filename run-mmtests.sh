@@ -325,11 +325,8 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 				echo Cleaning up old device $MD_DEVICE
 				vgremove -f mmtests-raid
 				mdadm --remove $TESTDISK_RAID_MD_DEVICE
-				mdadm --remove /dev/$MD_DEVICE
 				mdadm --stop $TESTDISK_RAID_MD_DEVICE
-				mdadm --stop /dev/$MD_DEVICE
 				mdadm --remove $TESTDISK_RAID_MD_DEVICE
-				mdadm --remove /dev/$MD_DEVICE
 			fi
 
 			MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat 2>/dev/null | awk '{print $1}'`
@@ -339,7 +336,7 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 					BASE_DEVICE=`basename $DEVICE`
 					echo -n "o $BASE_DEVICE: "
 					for MD_DEVICE in `grep ^md /proc/mdstat 2>/dev/null | grep $BASE_DEVICE | awk '{print $1}'`; do
-						mdadm --stop $MD_DEVICE
+						mdadm --stop /dev/$MD_DEVICE
 						echo -n "$MD_DEVICE "
 					done
 					echo
@@ -360,7 +357,6 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 				echo Retrying superblock zeroing of ${DISK}1
 				sleep 1
 				mdadm --stop $TESTDISK_RAID_MD_DEVICE
-				mdadm --stop /dev/$MD_DEVICE
 				mdadm --zero-superblock ${DISK}1
 				OUTPUT=`mdadm --zero-superblock ${DISK}1 2>&1 | grep "not zeroing"`
 				ATTEMPT=$((ATTEMPT+1))
