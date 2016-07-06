@@ -18,7 +18,7 @@ sub initialise() {
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Threads";
-	$self->SUPER::initialise();
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$) {
