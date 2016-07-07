@@ -79,6 +79,17 @@ fi
 echo Extracting $SHELLPACK_TEMP/fio-types.patch
 sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/fio-types.patch
 	cat $SHELLPACK_TEMP/fio-types.patch | patch -p0 || die Failed to apply fio types fix
+LINESTART=`grep -n "==== BEGIN mutex-fix-double-unlock.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END mutex-fix-double-unlock.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file mutex-fix-double-unlock.patch
+fi
+echo Extracting $SHELLPACK_TEMP/mutex-fix-double-unlock.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/mutex-fix-double-unlock.patch
+	cat $SHELLPACK_TEMP/mutex-fix-double-unlock.patch | patch -p0 || die Failed to apply fio types fix
 	make -j$NUMCPUS
 	if [ $? -ne 0 ]; then
 		error "$P: make failed"
@@ -102,5 +113,19 @@ exit $SHELLPACK_SUCCESS
  #include <sys/types.h>
  #include <sys/stat.h>
 ==== END fio-types.patch ====
+==== BEGIN mutex-fix-double-unlock.patch ====
+diff --git a/mutex.c b/mutex.c
+index a48e37d..16107dd 100644
+--- a/mutex.c
++++ b/mutex.c
+@@ -136,6 +136,7 @@ int fio_mutex_down_timeout(struct fio_mutex *mutex, unsigned int msecs)
+ 	if (!ret) {
+ 		mutex->value--;
+ 		pthread_mutex_unlock(&mutex->lock);
++		return 0;
+ 	}
+ 
+ 	pthread_mutex_unlock(&mutex->lock);
+==== END mutex-fix-double-unlock.patch ====
 #### Description Flexible IO tester
-#### Details fio 12
+#### Details fio 13
