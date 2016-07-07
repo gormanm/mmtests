@@ -347,6 +347,11 @@ sub _generateRenderRatioTable() {
 				push @row, $element;
 			}
 		}
+		if (defined $extractModules[0]->{_RatioMatch}) {
+			if ($row[1] !~ $extractModules[0]->{_RatioMatch}) {
+				next;
+			}
+		}
 		for (my $i = 0; $i <= $#{$resultsTable[$row]}; $i++) {
 			push @row, $resultsTable[$row][$i];
 			if (defined $self->{_CompareTable}) {

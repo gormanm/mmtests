@@ -253,7 +253,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				NAME_INDEX=$((NAME_INDEX+1))
 				GRATIO=`echo $GMEAN | awk "{print \\$$FIELD}"`
 				DDIFF=`echo $DMEAN | awk "{print \\$$FIELD}"`
-				if [ "$DDIFF" != "nan" ]; then
+				if [ "$DDIFF" != "nan" -a "$DDIFF" != "NaN" ]; then
 					DIFF_ADJUSTED=`perl -e "print (($DDIFF*10000))"`
 					DELTA=$((DIFF_ADJUSTED))
 					if [ "$TOPOUT" != "" ]; then
