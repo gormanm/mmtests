@@ -12,12 +12,12 @@ install-depends glibc-devel
 ###SHELLPACK sources_fetch fio-${VERSION}.tar.bz2 fio-${VERSION}-installed
 
 ###SHELLPACK build_start fio-${VERSION}-installed
+###SHELLPACK self_extract mutex-fix-double-unlock.patch
+cat $SHELLPACK_TEMP/mutex-fix-double-unlock.patch | patch -p0
 make -j$NUMCPUS
 if [ $? -ne 0 ]; then
 	###SHELLPACK self_extract fio-types.patch
 	cat $SHELLPACK_TEMP/fio-types.patch | patch -p0 || die Failed to apply fio types fix
-	###SHELLPACK self_extract mutex-fix-double-unlock.patch
-	cat $SHELLPACK_TEMP/mutex-fix-double-unlock.patch | patch -p0 || die Failed to apply fio types fix
 	make -j$NUMCPUS
 	if [ $? -ne 0 ]; then
 		error "$P: make failed"
@@ -42,10 +42,9 @@ exit $SHELLPACK_SUCCESS
  #include <sys/stat.h>
 ==== END fio-types.patch ====
 ==== BEGIN mutex-fix-double-unlock.patch ====
-diff --git a/mutex.c b/mutex.c
-index a48e37d..16107dd 100644
---- a/mutex.c
-+++ b/mutex.c
+diff mutex.c mutex.c
+--- mutex.c
++++ mutex.c
 @@ -136,6 +136,7 @@ int fio_mutex_down_timeout(struct fio_mutex *mutex, unsigned int msecs)
  	if (!ret) {
  		mutex->value--;
