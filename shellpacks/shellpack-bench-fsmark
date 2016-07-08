@@ -101,17 +101,17 @@ fi
 ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
 
 # Scale iterations to fit on the disk
-DISKSIZE=`df -k $SHELLPACK_TEMP | tail -1 | awk '{print $2}'`
-DISKSIZE=$((DISKSIZE*1024))
-DISKSIZE=$((DISKSIZE*7/10))
+ACTUAL_DISKSIZE=`df -k $SHELLPACK_TEMP | tail -1 | awk '{print $2}'`
+ACTUAL_DISKSIZE=$((ACTUAL_DISKSIZE*1024))
+USABLE_DISKSIZE=$((ACTUAL_DISKSIZE*7/10))
 ESTIMATED_USAGE=$((FILESIZE*NR_FILES_PER_ITERATION*ITERATIONS))
 
-echo Requested iterations: $ITERATIONS, estimated usage $((ESTIMATED_USAGE/(1048576*1024)))GB, diskdisk $((DISKSIZE/(1048576*1024)))GB
-while [ $ESTIMATED_USAGE -gt $DISKSIZE ]; do
+echo Requested iterations: $ITERATIONS, estimated usage $((ESTIMATED_USAGE/(1048576*1024)))GB, diskspace $((ACTUAL_DISKSIZE/(1048576*1024)))GB
+while [ $ESTIMATED_USAGE -gt $USABLE_DISKSIZE ]; do
 	ITERATIONS=$((ITERATIONS-1))
 	ESTIMATED_USAGE=$((FILESIZE*NR_FILES_PER_ITERATION*ITERATIONS))
 done
-echo Testing iterations: $ITERATIONS, estimated usage $((ESTIMATED_USAGE/(1048576*1024)))GB, diskdisk $((DISKSIZE/(1048576*1024)))GB
+echo Testing iterations: $ITERATIONS, estimated usage $((ESTIMATED_USAGE/(1048576*1024)))GB, diskspace $((ACTUAL_DISKSIZE/(1048576*1024)))GB
 
 if [ $ITERATIONS -le 0 ]; then
 	die Disk is too small to potentially run benchmark
@@ -173,4 +173,4 @@ rm /tmp/fsmark-$$
 
 exit $SHELLPACK_SUCCESS
 #### Description fsmark
-#### Details fsmark-bench 37
+#### Details fsmark-bench 38
