@@ -28,6 +28,7 @@ ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
 # Scale iterations to fit on the disk
 DISKSIZE=`df -k $SHELLPACK_TEMP | tail -1 | awk '{print $2}'`
 DISKSIZE=$((DISKSIZE*1024))
+DISKSIZE=$((DISKSIZE*8/10))
 ESTIMATED_USAGE=$((FILESIZE*NR_FILES_PER_ITERATION*ITERATIONS))
 
 echo Requested iterations: $ITERATIONS, estimated usage $((ESTIMATED_USAGE/(1048576*1024)))GB, diskdisk $((DISKSIZE/(1048576*1024)))GB
