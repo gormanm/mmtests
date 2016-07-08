@@ -4,9 +4,9 @@
 ###SHELLPACK preamble fsmark-bench 3.3
 MIN_THREADS=1
 MAX_THREADS=1
-NUM_SUB_DIRECTORIES=100
-NUM_FILES_PER_ITERATION=50000
-NUM_ITERATIONS=63
+NR_SUB_DIRECTORIES=100
+NR_FILES_PER_ITERATION=50000
+ITERATIONS=63
 FILESIZE=0
 
 ###SHELLPACK parseargBegin
@@ -14,9 +14,9 @@ FILESIZE=0
 ###SHELLPACK parseargParam --min-threads            MIN_THREADS
 ###SHELLPACK parseargParam --max-threads            MAX_THREADS
 ###SHELLPACK parseargParam --filesize               FILESIZE
-###SHELLPACK parseargParam --nr-files-per-iteration NUM_FILES_PER_ITERATION
-###SHELLPACK parseargParam --nr-sub-directories     NUM_SUB_DIRECTORIES
-###SHELLPACK parseargParam --iterations             NUM_ITERATIONS
+###SHELLPACK parseargParam --nr-files-per-iteration NR_FILES_PER_ITERATION
+###SHELLPACK parseargParam --nr-sub-directories     NR_SUB_DIRECTORIES
+###SHELLPACK parseargParam --iterations             ITERATIONS
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required fsmark-${VERSION}
@@ -24,6 +24,22 @@ FILESIZE=0
 ###SHELLPACK monitor_hooks
 
 ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
+
+# Scale iterations to fit on the disk
+DISKSIZE=`df -k $SHELLPACK_TEMP | tail -1 | awk '{print $2}'`
+DISKSIZE=$((DISKSIZE*1024))
+ESTIMATED_USAGE=$((FILESIZE*NR_FILES_PER_ITERATION*ITERATIONS))
+
+echo Requested iterations: $ITERATIONS, estimated usage $((ESTIMATED_USAGE/(1048576*1024)))GB, diskdisk $((DISKSIZE/(1048576*1024)))GB
+while [ $ESTIMATED_USAGE -gt $DISKSIZE ]; do
+	ITERATIONS=$((ITERATIONS-1))
+	ESTIMATED_USAGE=$((FILESIZE*NR_FILES_PER_ITERATION*ITERATIONS))
+done
+echo Testing iterations: $ITERATIONS, estimated usage $((ESTIMATED_USAGE/(1048576*1024)))GB, diskdisk $((DISKSIZE/(1048576*1024)))GB
+
+if [ $ITERATIONS -le 0 ]; then
+	die Disk is too small to potentially run benchmark
+fi
 
 ###SHELLPACK threads_large_stride_begin $MIN_THREADS $MAX_THREADS
 	PARAM=
@@ -34,9 +50,9 @@ ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
 
 	echo ./fs_mark \
 		$PARAM \
-		-D $NUM_SUB_DIRECTORIES \
-		-n $(($NUM_FILES_PER_ITERATION/$NR_THREADS)) \
-		-L $NUM_ITERATIONS \
+		-D $NR_SUB_DIRECTORIES \
+		-n $(($NR_FILES_PER_ITERATION/$NR_THREADS)) \
+		-L $ITERATIONS \
 		-t $NR_THREADS \
 		-S0 \
 		-s $FILESIZE | tee $LOGDIR_RESULTS/fsmark-cmd-${NR_THREADS}.log
@@ -44,9 +60,9 @@ ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	eval ./fs_mark \
 		$PARAM \
-		-D $NUM_SUB_DIRECTORIES \
-		-n $(($NUM_FILES_PER_ITERATION/$NR_THREADS)) \
-		-L $NUM_ITERATIONS \
+		-D $NR_SUB_DIRECTORIES \
+		-n $(($NR_FILES_PER_ITERATION/$NR_THREADS)) \
+		-L $ITERATIONS \
 		-t $NR_THREADS \
 		-S0 \
 		-s $FILESIZE \

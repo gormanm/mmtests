@@ -27,7 +27,6 @@ IMAGE_SIZE=`df -k $SHELLPACK_TEMP | tail -1 | awk '{print $2}'`
 IMAGE_SIZE=$((IMAGE_SIZE*9/10))
 
 # fsmark directory parameters
-NR_HEAD_DIRECTORIES=$NR_THREADS
 NR_SUB_DIRECTORIES=10000
 NR_INODES=50000000
 NR_FILES_ITERATION=500000
@@ -41,7 +40,6 @@ done
 echo "Parameters"
 echo "o nr_inodes         $NR_INODES"
 echo "o nr_threads        $NR_THREADS"
-echo "o nr_toplevel_dirs  $NR_HEAD_DIRECTORIES"
 echo "o nr_sub_dirs       $NR_SUB_DIRECTORIES"
 echo "o total_files_iter  $NR_FILES_ITERATION"
 echo "o fsmark_files_iter $FSMARK_FILES"

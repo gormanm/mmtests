@@ -11,9 +11,9 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 MIN_THREADS=1
 MAX_THREADS=1
-NUM_SUB_DIRECTORIES=100
-NUM_FILES_PER_ITERATION=50000
-NUM_ITERATIONS=63
+NR_SUB_DIRECTORIES=100
+NR_FILES_PER_ITERATION=50000
+ITERATIONS=63
 FILESIZE=0
 
 # Basic argument parser
@@ -57,15 +57,15 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	--nr-files-per-iteration)
-		NUM_FILES_PER_ITERATION=$2
+		NR_FILES_PER_ITERATION=$2
 		shift 2
 		;;
 	--nr-sub-directories)
-		NUM_SUB_DIRECTORIES=$2
+		NR_SUB_DIRECTORIES=$2
 		shift 2
 		;;
 	--iterations)
-		NUM_ITERATIONS=$2
+		ITERATIONS=$2
 		shift 2
 		;;
 	*)
@@ -100,6 +100,22 @@ fi
 
 ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
 
+# Scale iterations to fit on the disk
+DISKSIZE=`df -k $SHELLPACK_TEMP | tail -1 | awk '{print $2}'`
+DISKSIZE=$((DISKSIZE*1024))
+ESTIMATED_USAGE=$((FILESIZE*NR_FILES_PER_ITERATION*ITERATIONS))
+
+echo Requested iterations: $ITERATIONS, estimated usage $((ESTIMATED_USAGE/(1048576*1024)))GB, diskdisk $((DISKSIZE/(1048576*1024)))GB
+while [ $ESTIMATED_USAGE -gt $DISKSIZE ]; do
+	ITERATIONS=$((ITERATIONS-1))
+	ESTIMATED_USAGE=$((FILESIZE*NR_FILES_PER_ITERATION*ITERATIONS))
+done
+echo Testing iterations: $ITERATIONS, estimated usage $((ESTIMATED_USAGE/(1048576*1024)))GB, diskdisk $((DISKSIZE/(1048576*1024)))GB
+
+if [ $ITERATIONS -le 0 ]; then
+	die Disk is too small to potentially run benchmark
+fi
+
 THREADS=
 START_THREAD=$MIN_THREADS
 END_THREAD=$MAX_THREADS
@@ -118,6 +134,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	PARAM=
 	for THREAD in `seq 1 $NR_THREADS`; do
@@ -127,9 +146,9 @@ for NR_THREADS in $THREADS; do
 
 	echo ./fs_mark \
 		$PARAM \
-		-D $NUM_SUB_DIRECTORIES \
-		-n $(($NUM_FILES_PER_ITERATION/$NR_THREADS)) \
-		-L $NUM_ITERATIONS \
+		-D $NR_SUB_DIRECTORIES \
+		-n $(($NR_FILES_PER_ITERATION/$NR_THREADS)) \
+		-L $ITERATIONS \
 		-t $NR_THREADS \
 		-S0 \
 		-s $FILESIZE | tee $LOGDIR_RESULTS/fsmark-cmd-${NR_THREADS}.log
@@ -137,9 +156,9 @@ for NR_THREADS in $THREADS; do
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	eval ./fs_mark \
 		$PARAM \
-		-D $NUM_SUB_DIRECTORIES \
-		-n $(($NUM_FILES_PER_ITERATION/$NR_THREADS)) \
-		-L $NUM_ITERATIONS \
+		-D $NR_SUB_DIRECTORIES \
+		-n $(($NR_FILES_PER_ITERATION/$NR_THREADS)) \
+		-L $ITERATIONS \
 		-t $NR_THREADS \
 		-S0 \
 		-s $FILESIZE \
@@ -153,4 +172,4 @@ rm /tmp/fsmark-$$
 
 exit $SHELLPACK_SUCCESS
 #### Description fsmark
-#### Details fsmark-bench 33
+#### Details fsmark-bench 35
