@@ -85,4 +85,4 @@ for ITERATION in `seq 1 $IPCSCALE_ITERATIONS`; do
 	./sem-scalebench > $LOGDIR_RESULTS/semscale.$ITERATION
 done
 #### Description ipcscale
-#### Details ipcscale-bench 5
+#### Details ipcscale-bench 6

@@ -10,6 +10,8 @@ fi
 GIT_LOCATION=https://github.com/manfred-colorfu/ipcscale.git
 MIRROR_LOCATION="$WEBROOT/ipcscale/"
 
+install-depends gcc-c++ glibc-devel-static
+
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -72,4 +74,4 @@ fi
 
 echo ipcscale installed successfully
 #### Description ipcscale
-#### Details ipcscale 5
+#### Details ipcscale 6

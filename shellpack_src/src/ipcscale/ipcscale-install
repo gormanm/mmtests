@@ -3,6 +3,8 @@
 GIT_LOCATION=https://github.com/manfred-colorfu/ipcscale.git
 MIRROR_LOCATION="$WEBROOT/ipcscale/"
 
+install-depends gcc-c++ glibc-devel-static
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
