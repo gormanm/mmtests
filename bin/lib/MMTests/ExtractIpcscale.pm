@@ -9,6 +9,9 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_DataType}  == MMTests::Extract::DATA_OPS_PER_SECOND;
 	$self->{_Opname} = "Latency";
+	$self->{_PlotType} = "client-errorlines";
+	$self->{_ClientSubheading} = 1;
+	$self->{_PlotXaxis}  = "Threads";
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

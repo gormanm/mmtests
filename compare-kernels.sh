@@ -638,6 +638,21 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
+		ipcscale)
+			COUNT=-1
+			for HEADING in `$EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sed -e 's/[0-9]*-//' | sort | uniq`; do
+				COUNT=$((COUNT+1))
+				if [ $((COUNT%2)) -eq 0 ]; then
+					echo "<tr>"
+				fi
+				eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png --y-label ops/sec
+				eval $GRAPH_PSC --wide --logX  --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps --y-label ops/sec
+				plain graph-$SUBREPORT-$HEADING
+			done
+			if [ $((COUNT%2)) -ne 2 ]; then
+				echo "</tr>"
+			fi
+			;;
 		gitcheckout)
 			;;
 		hackbench-process-pipes|hackbench-process-sockets|hackbench-thread-pipes|hackbench-thread-sockets)
