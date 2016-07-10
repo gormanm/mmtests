@@ -8,7 +8,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 GIT_LOCATION=https://github.com/manfred-colorfu/ipcscale.git
-MIRROR_LOCATION="$WEBROOT/ipcscale/"
+#MIRROR_LOCATION="$WEBROOT/ipcscale/"
 
 install-depends gcc-c++ glibc-devel-static
 
@@ -74,4 +74,4 @@ fi
 
 echo ipcscale installed successfully
 #### Description ipcscale
-#### Details ipcscale 6
+#### Details ipcscale 7

@@ -4,7 +4,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="ipcscale futexbench-hash futexbench-requeue futexbench-wake pistress sembench-sem sembench-nanosleep sembench-futex futexwait filelockperf-flock filelockperf-posix filelockperf-lease"
+export MMTESTS="ipcscale-waitforzero ipcscale-sysvsempp ipcscale-posixsempp futexbench-hash futexbench-requeue futexbench-wake pistress sembench-sem sembench-nanosleep sembench-futex futexwait filelockperf-flock filelockperf-posix filelockperf-lease"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -73,7 +73,15 @@ export FUTEXBENCH_MAX_THREADS=$((NUMCPUS*64))
 export FUTEXBENCH_SHARED=no
 
 # IPCScale
+#  threads per core, no more than two make sense.
+#  Iterations will be bounded by NR_CPUS * [MIN_THREADS, MAX_THREADS]
+#  hard limits -- increments in such ranges are left to the ipcscale
+#  program.
+export IPCSCALE_MIN_THREADS=1
+export IPCSCALE_MAX_THREADS=2
+export IPCSCALE_COMPLEXOPS=4
 export IPCSCALE_ITERATIONS=3
+export IPCSCALE_RUNTIME=5 # secs
 
 # sembench
 export SEMBENCH_MIN_THREADS=2

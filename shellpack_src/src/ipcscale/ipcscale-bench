@@ -6,21 +6,70 @@
 ITERATIONS=12
 TESTLIST=
 
+#
+# mmtests supports three ipcscale options:
+#
+#   (i) waitforzero: The semaphores are always 0, i.e. the threads never sleep
+#       and no task switching will occur. This might be representative for a
+#       big-reader style lock. If the performance goes down when more cores are
+#       added then user space operations are performed until the maximum rate of
+#       semaphore operations is observed.
+#
+#  (ii) sysvsempp (sysv sem ping-pong): Pairs of threads pass a token to each
+#       other. Each token passing forces a task switch.
+#
+# (iii) posixsempp (posix sem ping-pong): Just like (ii) but with posix sems;
+#       ie: semop vs sem_wait
+#
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-###SHELLPACK parseargParam	--iterations	IPCSCALE_ITERATIONS
+###SHELLPACK parseargParam   --min-threads      IPCSCALE_MIN_THREADS
+###SHELLPACK parseargParam   --max-threads      IPCSCALE_MAX_THREADS
+###SHELLPACK parseargParam   --complexops	IPCSCALE_COMPLEXOPS
+###SHELLPACK parseargParam   --iterations	IPCSCALE_ITERATIONS
+###SHELLPACK parseargParam   --workloads	IPCSCALE_WORKLOADS
+###SHELLPACK parseargParam   --workloads	IPCSCALE_RUNTIME
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required ipcscale-${VERSION}
+###SHELLPACK monitor_hooks
+
+echo $IPCSCALE_WORKLOADS > $LOGDIR_RESULTS/workloads
 
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
-        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-        TIME_CMD="time"
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
 fi
 
-###SHELLPACK iteration_begin $IPCSCALE_ITERATIONS
-	echo Starting iteration $ITERATION
-	$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-	./sem-scalebench > $LOGDIR_RESULTS/semscale.$ITERATION
-###SHELLPACK iteration_end $ITERATIONS
+###SHELLPACK threads_large_stride_begin $IPCSCALE_MIN_THREADS $IPCSCALE_MAX_THREADS $IPCSCALE_ITERATIONS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREAD
+	for WORKLOAD in $IPCSCALE_WORKLOADS; do
+		mmtests_activity $WORKLOAD-$NR_THREADS
+		COMPLEXOPS="-x $IPCSCALE_COMPLEXOPS" # only valid for ping-pong runs.
+
+		# wait-for-zero
+		if [ "$WORKLOAD" = "waitforzero" ]; then
+		       OPNUM=1
+		       COMPLEXOPS=""
+		# sysvsem ping-pong
+		elif [ "$WORKLOAD" = "sysvsempp" ]; then
+		       OPNUM=2
+		# posix sem ping-pong
+		elif [ "$WORKLOAD" = "posixsempp" ]; then
+		       OPNUM=3
+		else
+		       OPNUM=1 # default
+		       COMPLEXOPS=""
+		fi
+
+		###SHELLPACK iteration_begin $IPCSCALE_ITERATIONS
+			echo Starting $WORKLOAD -- threads-per-core $NR_THREADS/$IPCSCALE_MAX_THREADS, run $ITERATION/$IPCSCALE_ITERATIONS
+
+			$TIME_CMD -o $LOGDIR_RESULTS/time.$NR_THREADS.$ITERATION \
+			./sem-scalebench -t $IPCSCALE_RUNTIME $COMPLEXOPS -o $OPNUM -p $NR_THREADS > $LOGDIR_RESULTS/semscale.$NR_THREADS.$ITERATION
+		###SHELLPACK iteration_end
+	done
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end

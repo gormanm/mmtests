@@ -638,7 +638,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
-		ipcscale)
+		ipcscale-waitforzero|ipcscale-sysvsempp|ipcscale-posixsempp)
 			COUNT=-1
 			for HEADING in `$EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sed -e 's/[0-9]*-//' | sort | uniq`; do
 				COUNT=$((COUNT+1))

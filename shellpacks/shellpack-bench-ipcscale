@@ -13,6 +13,26 @@ fi
 ITERATIONS=12
 TESTLIST=
 
+#
+# mmtests supports three ipcscale options:
+#
+#   (i) waitforzero: The semaphores are always 0, i.e. the threads never sleep
+#       and no task switching will occur. This might be representative for a
+#       big-reader style lock. If the performance goes down when more cores are
+#       added then user space operations are performed until the maximum rate of
+#       semaphore operations is observed.
+#
+#  (ii) sysvsempp (sysv sem ping-pong): Pairs of threads pass a token to each
+#       other. Each token passing forces a task switch.
+#
+# (iii) posixsempp (posix sem ping-pong): Just like (ii) but with posix sems;
+#       ie: semop vs sem_wait
+#
+#
+# First up to IPCSCALE_CPU0 threads are put on core 0, then the next
+# thread(s) are placed to the core <interleave>.
+#
+
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -41,8 +61,28 @@ while [ "$1" != "" ]; do
 		INSTALL_FORCE=yes
 		shift
 		;;
+	--min-threads)
+		IPCSCALE_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		IPCSCALE_MAX_THREADS=$2
+		shift 2
+		;;
+	--complexops)
+		IPCSCALE_COMPLEXOPS=$2
+		shift 2
+		;;
 	--iterations)
 		IPCSCALE_ITERATIONS=$2
+		shift 2
+		;;
+	--workloads)
+		IPCSCALE_WORKLOADS=$2
+		shift 2
+		;;
+	--workloads)
+		IPCSCALE_RUNTIME=$2
 		shift 2
 		;;
 	*)
@@ -71,18 +111,68 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo ipcscale installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+echo $IPCSCALE_WORKLOADS > $LOGDIR_RESULTS/workloads
 
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
-        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-        TIME_CMD="time"
+	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+	TIME_CMD="time"
 fi
+
+THREADS=
+START_THREAD=$IPCSCALE_MIN_THREADS
+END_THREAD=$IPCSCALE_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 2 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
+for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $IPCSCALE_MIN_THREADS ]; then
+		continue
+	fi
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREAD
+	for WORKLOAD in $IPCSCALE_WORKLOADS; do
+		mmtests_activity $WORKLOAD-$NR_THREADS
+		COMPLEXOPS="-x $IPCSCALE_COMPLEXOPS" # only valid for ping-pong runs.
+
+		# wait-for-zero
+		if [ "$WORKLOAD" = "waitforzero" ]; then
+		       OPNUM=1
+		       COMPLEXOPS=""
+		# sysvsem ping-pong
+		elif [ "$WORKLOAD" = "sysvsempp" ]; then
+		       OPNUM=2
+		# posix sem ping-pong
+		elif [ "$WORKLOAD" = "posixsempp" ]; then
+		       OPNUM=3
+		else
+		       OPNUM=1 # default
+		       COMPLEXOPS=""
+		fi
 
 for ITERATION in `seq 1 $IPCSCALE_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
-	echo Starting iteration $ITERATION
-	$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-	./sem-scalebench > $LOGDIR_RESULTS/semscale.$ITERATION
+			echo Starting $WORKLOAD -- threads-per-core $NR_THREADS/$IPCSCALE_MAX_THREADS, run $ITERATION/$IPCSCALE_ITERATIONS
+
+			$TIME_CMD -o $LOGDIR_RESULTS/time.$NR_THREADS.$ITERATION \
+			./sem-scalebench -t $IPCSCALE_RUNTIME $COMPLEXOPS -o $OPNUM -p $NR_THREADS > $LOGDIR_RESULTS/semscale.$NR_THREADS.$ITERATION
+done
+	done
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
 #### Description ipcscale
-#### Details ipcscale-bench 6
+#### Details ipcscale-bench 7

@@ -1,13 +1,16 @@
 # CompareIpcscale.pm
-package MMTests::CompareIpcscale;
+package MMTests::CompareIpcscalecommon;
 use MMTests::Compare;
 our @ISA = qw(MMTests::Compare);
 
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "CompareIpcscale",
+		_ModuleName  => "CompareIpcscalecommon",
+		_DataType    => MMTests::Compare::DATA_THROUGHPUT,
 		_FieldLength => 16,
+		_CompareOp   => "pndiff",
+		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

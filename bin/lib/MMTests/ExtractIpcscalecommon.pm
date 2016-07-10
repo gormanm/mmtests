@@ -1,5 +1,5 @@
-# ExtractIpcscale.pm
-package MMTests::ExtractIpcscale;
+# ExtractIpcscalecommon.pm
+package MMTests::ExtractIpcscalecommon;
 use MMTests::SummariseMultiops;
 use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
