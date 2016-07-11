@@ -31,6 +31,11 @@ HACKBENCH_TYPE=process
 pushd $SHELLPACK_SOURCES/hackbench-${VERSION}-installed > /dev/null
 RESULTSLOG=$LOGDIR_RESULTS/hackbench
 
+# Ensure we don't hit the open file descriptor ulimit when running
+# hackbench-threads-*. " * 2" adds a bit of headroom for marvin's
+# processes, e.g. monitors.
+ulimit -n $((HACKBENCH_MAX_GROUPS * 40 * 2))
+
 ###SHELLPACK threads_large_stride_begin $HACKBENCH_MIN_GROUPS $HACKBENCH_MAX_GROUPS
 	mmtests_activity $CONN_NAME-$NR_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
