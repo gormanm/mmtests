@@ -148,6 +148,9 @@ sub extractReport($$$$) {
 			if ($headingIndex == 3) {
 				$val /= 1024;
 			}
+			if ($headingIndex >= 12 && $headingIndex <= 16) {
+				$val = 100 if ($val > 100);
+			}
 		}
 
 		push @{$self->{_ResultData}},
