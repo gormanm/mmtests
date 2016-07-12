@@ -5,9 +5,9 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 # Read list of nodes
 while read tmp NID tmp tmp tmp; do
 	if [ "$NODES" = "" ]; then
-		NODES="$NODES $NID"
-	else
 		NODES="$NID"
+	else
+		NODES="$NODES $NID"
 	fi
 done <<< "$(numactl --hardware | grep "size:")"
 
