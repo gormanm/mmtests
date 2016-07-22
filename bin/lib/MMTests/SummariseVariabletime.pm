@@ -46,9 +46,7 @@ sub printPlot() {
 			push @index, @{$row}[1];
 			push @units, @{$row}[2];
 			$samples++;
-		}
-
-		if (@{$row}[0] eq $subHeading && $self->{_PlotType} eq "simple-filter") {
+		} elsif (@{$row}[0] eq $subHeading && $self->{_PlotType} eq "simple-filter") {
 			push @index, @{$row}[1];
 			push @units, @{$row}[2];
 			$samples++;
@@ -57,7 +55,11 @@ sub printPlot() {
 	}
 	if ($self->{_PlotType} eq "simple" || $self->{_PlotType} eq "simple-filter") {
 		for (my $samples = 0; $samples <= $#index; $samples++) {
-			printf("%-${fieldLength}d %${fieldLength}.3f\n", $index[$samples] - $index[0], $units[$samples]);
+			if (int $index[$samples] == $index[$samples]) {
+				printf("%-${fieldLength}d %${fieldLength}.3f\n", $index[$samples] - $index[0], $units[$samples]);
+			} else {
+				printf("%-${fieldLength}f %${fieldLength}.3f\n", $index[$samples] - $index[0], $units[$samples]);
+			}
 		}
 	} else {
 		$self->_printCandlePlotData($fieldLength, @units);

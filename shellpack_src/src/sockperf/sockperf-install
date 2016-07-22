@@ -1,0 +1,17 @@
+#!/bin/bash
+# Sockperf installer
+###SHELLPACK preamble sockperf-install 0
+GIT_LOCATION=https://github.com/Mellanox/sockperf
+MIRROR_LOCATION="$WEBROOT/sockperf/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch sockperf-${VERSION}.tar.gz sockperf-${VERSION}
+
+###SHELLPACK build_start sockperf-${VERSION}
+###SHELLPACK build_autogen sockperf-${VERSION}
+###SHELLPACK build_configure sockperf-${VERSION}
+###SHELLPACK make_make_install
+
+echo Sockperf installed successfully

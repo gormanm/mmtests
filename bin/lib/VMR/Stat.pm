@@ -185,11 +185,11 @@ sub calc_harmmean {
 
 sub calc_median {
 	my $nr_elements = @_;
-	my $mid = int $nr_elements / 2;
+	my $mid = int $nr_elements / 2 - 1;
 
 	my @sorted = sort { $a <=> $b } @_;
 	if ($nr_elements % 2 == 0) {
-		return $sorted[$nr_elements / 2];
+		return $sorted[$mid];
 	} else {
 		return ($sorted[$mid-1] + $sorted[$mid])/2;
 	}
