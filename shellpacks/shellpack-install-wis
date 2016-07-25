@@ -77,6 +77,9 @@ for FILE in `find -name "*"`; do
 	touch $FILE
 done
 cat $SHELLPACK_TEMP/align-alloc.patch | patch -p1
+sed -i -e 's/tmpfs/tmp/' tests/fallocate1.c
+sed -i -e 's/\/tmp\/willitscale/willitscale/' tests/*.c
+sed -i -e 's/\/tmp\/shared_area/shared_area/' main.c
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -123,4 +126,4 @@ index cb097e753800..3f6e437e0bd4 100644
  		int ret = read(fd, p, BUFLEN);
 ==== END align-alloc.patch ====
 #### Description will-it-scale
-#### Details wis 5
+#### Details wis 9

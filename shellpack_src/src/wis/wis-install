@@ -14,6 +14,9 @@ install-depends hwloc-devel
 
 ###SHELLPACK build_start wis-${VERSION}-installed
 cat $SHELLPACK_TEMP/align-alloc.patch | patch -p1
+sed -i -e 's/tmpfs/tmp/' tests/fallocate1.c
+sed -i -e 's/\/tmp\/willitscale/willitscale/' tests/*.c
+sed -i -e 's/\/tmp\/shared_area/shared_area/' main.c
 ###SHELLPACK make
 
 echo will-it-scale installed successfully

@@ -115,6 +115,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $WIS_MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 		echo Running test $WORKLOAD
@@ -135,4 +138,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description will-it-scale
-#### Details wis-bench 5
+#### Details wis-bench 9
