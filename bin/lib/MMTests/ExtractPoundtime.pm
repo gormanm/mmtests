@@ -29,7 +29,7 @@ sub extractReport($$$) {
 		$file =~ s/-.*//;
 		$hashCases{$file} = 1;
 	}
-	@testcases = keys %hashCases;
+	@testcases = sort keys %hashCases;
 	undef %hashCases;
 
 	my @clients;
