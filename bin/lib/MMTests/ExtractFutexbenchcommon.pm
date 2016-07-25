@@ -81,7 +81,7 @@ sub extractReport($$$) {
 	}
 
 	my @ops;
-	foreach my $futexType (keys %futexTypesSeen) {
+	foreach my $futexType (sort keys %futexTypesSeen) {
 		foreach my $wl (@workloads) {
 			foreach my $nthr (@threads) {
 				push @ops, "$wl-$futexType-$nthr"
