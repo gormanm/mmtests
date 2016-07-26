@@ -167,7 +167,7 @@ start)
 	echo Killing old servers
 	killall netserver
 
-	echo Starting server
+	echo Starting server $TASKSET_SERVER
 	mmtests_activity sockperf-$SERVERSIDE_NAME
 	monitor_pre_hook $LOGDIR_RESULTS sockperf-$SERVERSIDE_NAME
 	SOCKPERFROOT=$SHELLPACK_SOURCES/sockperf-${VERSION}-installed 
@@ -219,7 +219,7 @@ for SIZE in $SOCKPERF_MESSAGE_SIZES; do
 		monitor_pre_hook $LOGDIR_RESULTS $SOCKPERF_PROTOCOL-$SIZE-$RATE
 for ITERATION in `seq 1 $ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
-		echo Running $SOCKPERF_TESTTYPE test $PROTOCOL size $SIZE rate $RATE iteration $ITERATION/$ITERATIONS
+		echo Running $SOCKPERF_TESTTYPE test $PROTOCOL size $SIZE rate $RATE iteration $ITERATION/$ITERATIONS $TASKSET_CLIENT
 
 		eval $TASKSET_CLIENT $SOCKPERFROOT/bin/sockperf 			\
 			$SOCKPERF_TESTTYPE $PROTOCOL_SWITCH				\
@@ -240,4 +240,4 @@ rm /tmp/sockperf-server.pid
 
 exit $SHELLPACK_SUCCESS
 #### Description sockperf
-#### Details sockperf-bench 14
+#### Details sockperf-bench 15
