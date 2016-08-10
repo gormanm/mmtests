@@ -93,13 +93,18 @@ sub extractReport($$$$) {
 		}
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;
-			next if ($line !~ /\s+Core\s+CPU/);
+			next if ($line !~ /\s+Core\s+CPU/ && $line !~ /\s+CPU\s+Avg_MHz/);
 			$line =~ s/^\s+//;
 			my @elements = split(/\s+/, $line);
 
 			my $index;
 			foreach my $header (@elements) {
-				if ($header =~ /CPU%c[0-9]/ || $header eq "CorWatt" || $header eq "PkgWatt" || $header eq "%Busy") {
+				if ($header =~ /CPU%c[0-9]/ ||
+				    $header eq "CorWatt" ||
+				    $header eq "PkgWatt" ||
+				    $header eq "%Busy" ||
+				    $header eq "Busy%" ||
+				    $header eq "Avg_MHz") {
 					$_colMap{$header} = $index;
 				}
 
@@ -143,7 +148,7 @@ sub extractReport($$$$) {
 		$line =~ s/^\s+//;
 		my @elements = split(/\s+/, $line);
 
-		if ($line =~ /Core\s+CPU/) {
+		if ($line =~ /Core\s+CPU/ || $line =~ /CPU\s+Avg_MHz/) {
 			if ($start_timestamp) {
 				push @{$self->{_ResultData}}, [ @row ];
 				$#row = -1;
@@ -164,7 +169,7 @@ sub extractReport($$$$) {
 			push @row, $timestamp - $start_timestamp;
 		}
 
-		if ($line =~ /Core\s+CPU/) {
+		if ($line =~ /Core\s+CPU/ || $line =~ /CPU\s+Avg_MHz/) {
 			$reading = 1;
 			next;
 		}
