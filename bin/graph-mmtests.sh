@@ -156,7 +156,10 @@ for TEST in $TEST_LIST; do
 		fi
 	else
 		PLOTFILE="$TMPDIR/$TEST"
-		$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | grep -v nan > $PLOTFILE || exit
+		$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | \
+			grep -v nan 		| \
+			sed -e 's/_/\\\\_/g'	  \
+			> $PLOTFILE || exit
 		if [ "$PLOTTYPE" = "--operation-candlesticks" ]; then
 			OFFSET=`perl -e "print (1+$COUNT*0.3)"`
 			awk "\$1=(\$1+$COUNT*0.3)" $PLOTFILE > $PLOTFILE.tmp
@@ -203,4 +206,6 @@ for PLOTSCRIPT in $PLOTSCRIPTS; do
 		--ylabel \"$YLABEL\" \
 		--titles $TITLES \
 		$PLOTS && break
+	echo
+	cat $PLOTSCRIPT
 done

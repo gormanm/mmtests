@@ -12,6 +12,8 @@ sub initialise() {
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Time";
 	$self->{_SingleType} = 1;
+	$self->{_FieldLength} = 14;
+	$self->{_ClientSubheading} = 1;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
@@ -34,7 +36,7 @@ sub extractReport($$$) {
 		next if $line =~ /^threshold/;
 		next if $line =~ /^cpu_mhz/;
 		next if $line =~ /^runtime/;
-		next if $line =~ /^int_total\(ns\)/;
+		# next if $line =~ /^int_total\(ns\)/;
 
 		$line =~ s/://;
 		$line =~ s/\(ns\)//;

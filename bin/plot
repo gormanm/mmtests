@@ -19,7 +19,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			shift 2
 			;;
 		--title)
-			echo "set title '$2'" >> $TEMP
+			echo "set title '`echo $2 | sed -e 's/_/\\\_/g'`'" >> $TEMP
 			shift 2
 			;;
 		--header)

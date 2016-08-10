@@ -921,6 +921,15 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT-exectime
 			echo "</tr>"
 			;;
+		sysjitter)
+			for HEADING in int_total int_median int_mean; do
+				eval $GRAPH_PNG --wide --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-${HEADING}.png
+				eval $GRAPH_PNG --wide --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-${HEADING}.png
+				echo "<tr>"
+				plain graph-$SUBREPORT-$HEADING
+				echo "</tr>"
+			done
+			;;
 		thpscale)
 			echo "<tr>"
 

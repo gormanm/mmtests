@@ -17,13 +17,20 @@ sub new() {
 sub printPlot() {
 	my ($self, $subHeading) = @_;
 
+
 	if ($subHeading eq "") {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {
 		my @filteredData;
 		foreach my $row (@{$self->{_ResultData}}) {
-			if (@{$row}[0] =~ /^$subHeading.*/) {
-				push @filteredData, $row;
+			if ($self->{_ClientSubheading} == 1) {
+				if (@{$row}[0] =~ /.*-$subHeading$/) {
+					push @filteredData, $row;
+				}
+			} else {
+				if (@{$row}[0] =~ /^$subHeading.*/) {
+					push @filteredData, $row;
+				}
 			}
 		}
 		$self->{_PrintHandler}->printRow(\@filteredData, $self->{_FieldLength}, $self->{_FieldFormat});
