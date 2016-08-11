@@ -863,7 +863,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			COUNT=-1
 			for HEADING in `$EXTRACT_CMD -n $KERNEL_BASE | awk '{print $1}' | uniq`; do
 				COUNT=$((COUNT+1))
-				if [ $((COUNT%3)) -eq 0 ]; then
+				if [ $((COUNT%4)) -eq 0 ]; then
 					echo "<tr>"
 				fi
 				eval $GRAPH_PNG --logY --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-${HEADING}.png
@@ -871,7 +871,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				eval $GRAPH_PNG --logY --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-${HEADING}-smooth.png --smooth
 				eval $GRAPH_PSC --logY --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-${HEADING}-smooth.ps --smooth
 				smoothover graph-$SUBREPORT-$HEADING
-				if [ $((COUNT%3)) -eq 2 ]; then
+				if [ $((COUNT%4)) -eq 3 ]; then
 					echo "</tr>"
 				fi
 			done
