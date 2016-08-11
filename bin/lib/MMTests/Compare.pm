@@ -187,7 +187,13 @@ sub _generateComparisonTable() {
 						push @data, $summary[$row][$column];
 						push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
 						push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
-						push @stddev, sdiff($summary[$row][$column], $baseline[$row][$column], $baseStdDevs[$row]) if $baseStdDevsRef;
+						if ($baseStdDevsRef) {
+							my $sdiff_val = sdiff($summary[$row][$column], $baseline[$row][$column], $baseStdDevs[$row]);
+							if ($sdiff_val eq "NaN") {
+								$sdiff_val = 0;
+							}
+							push @stddev, $sdiff_val;
+						}
 					}
 				} else {
 					push @data, 0;
@@ -215,7 +221,10 @@ sub _generateComparisonTable() {
 
 			@units = ();
 			for (my $row = 0; $row <= $#baseline; $row++) {
-				if ($compareRatioTable[$row][$module] != 0) {
+				if ($compareRatioTable[$row][$module] eq "NaN" ||
+				    $compareRatioTable[$row][$module] eq "") {
+					push @units, 1;
+				} elsif ($compareRatioTable[$row][$module] != 0) {
 					push @units, $compareRatioTable[$row][$module];
 				} else {
 					push @units, 0.00001;
@@ -339,6 +348,8 @@ sub _generateRenderRatioTable() {
 		}
 	}
 
+	my $maxCols = 0;
+
 	# Final comparison table
 	for (my $row = 0; $row <= $#titleTable; $row++) {
 		my @row;
@@ -352,6 +363,12 @@ sub _generateRenderRatioTable() {
 				next;
 			}
 		}
+
+		if ($#{$resultsTable[$row]} > $maxCols) {
+			$maxCols = $#{$resultsTable[$row]};
+		}
+		next if $#{$resultsTable[$row]} < $maxCols;
+
 		for (my $i = 0; $i <= $#{$resultsTable[$row]}; $i++) {
 			push @row, $resultsTable[$row][$i];
 			if (defined $self->{_CompareTable}) {
