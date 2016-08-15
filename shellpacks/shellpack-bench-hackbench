@@ -103,6 +103,11 @@ fi
 pushd $SHELLPACK_SOURCES/hackbench-${VERSION}-installed > /dev/null
 RESULTSLOG=$LOGDIR_RESULTS/hackbench
 
+# Ensure we don't hit the open file descriptor ulimit when running
+# hackbench-threads-*. " * 2" adds a bit of headroom for marvin's
+# processes, e.g. monitors.
+ulimit -n $((HACKBENCH_MAX_GROUPS * 40 * 2))
+
 THREADS=
 START_THREAD=$HACKBENCH_MIN_GROUPS
 END_THREAD=$HACKBENCH_MAX_GROUPS
@@ -148,4 +153,4 @@ done
 
 exit $RETVAL
 #### Description Run the HackBench benchmark
-#### Details hackbench-bench 31
+#### Details hackbench-bench 32
