@@ -83,4 +83,4 @@ echo Running sysjitter for $DURATION seconds, min_threshold $THRESHOLD
 
 exit $SHELLPACK_SUCCESS
 #### Description sysjitter
-#### Details sysjitter-bench 6
+#### Details sysjitter-bench 9
