@@ -1246,19 +1246,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			smoothover graph-$SUBREPORT-proc-vmstat-pgpin
 			smoothover graph-$SUBREPORT-proc-vmstat-pgpout
 			echo "</tr>"
-
-			eval $GRAPH_PNG --title \"Slabs scanned\"       --print-monitor proc-vmstat --sub-heading slabs_scanned      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slabs-scanned.png
-			eval $GRAPH_PSC --title \"Slabs scanned\"       --print-monitor proc-vmstat --sub-heading slabs_scanned      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slabs-scanned.ps
-			eval $GRAPH_PNG --title \"Kswapd inode steal\"  --print-monitor proc-vmstat --sub-heading kswapd_inodesteal  --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-inode-steal.png
-			eval $GRAPH_PSC --title \"Kswapd inode steal\"  --print-monitor proc-vmstat --sub-heading kswapd_inodesteal  --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-inode-steal.ps
-			eval $GRAPH_PNG --title \"Direct inode steal\"  --print-monitor proc-vmstat --sub-heading pginodesteal       --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-inode-steal.png
-			eval $GRAPH_PSC --title \"Direct inode steal\"  --print-monitor proc-vmstat --sub-heading pginodesteal       --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-inode-steal.ps
-
-			echo "<tr>"
-			smoothover graph-$SUBREPORT-proc-vmstat-slabs-scanned
-			smoothover graph-$SUBREPORT-proc-vmstat-kswapd-inode-steal
-			smoothover graph-$SUBREPORT-proc-vmstat-direct-inode-steal
-			echo "</tr>"
 		fi
 		if [ `ls proc-vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ] && [ `awk '{print $12}' vmstat-* | max` -gt 0 ]; then
 			eval $GRAPH_PNG --title \"Swap Usage\" --print-monitor vmstat --sub-heading swpd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-swpd.png
@@ -1280,6 +1267,8 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		fi
 
 		KSWAPD_ACTIVITY=no
+		DIRECT_ACTIVITY=no
+		SLAB_ACTIVITY=no
 		for KERNEL in $KERNEL_LIST_ITER; do
 			$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan | grep -q -v " 0"
 			if [ $? -eq 0 ]; then
@@ -1289,7 +1278,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			if [ $? -eq 0 ]; then
 				DIRECT_ACTIVITY=yes
 			fi
-
+			$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading slabs_scanned | grep -q -v " 0"
+			if [ $? -eq 0 ]; then
+				SLAB_ACTIVITY=yes
+			fi
 		done
 		if [ "$DIRECT_ACTIVITY" = "yes" ]; then
 			eval $GRAPH_PNG --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.png
@@ -1348,6 +1340,21 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			smoothover graph-$SUBREPORT-top-kswapd
 			smoothover graph-$SUBREPORT-proc-vmstat-reclaim-file-writes
 			smoothover graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes
+			echo "</tr>"
+		fi
+
+		if [ "$SLAB_ACTIVITY" = "yes" ]; then
+			eval $GRAPH_PNG --title \"Slabs scanned\"       --print-monitor proc-vmstat --sub-heading slabs_scanned      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slabs-scanned.png
+			eval $GRAPH_PSC --title \"Slabs scanned\"       --print-monitor proc-vmstat --sub-heading slabs_scanned      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slabs-scanned.ps
+			eval $GRAPH_PNG --title \"Kswapd inode steal\"  --print-monitor proc-vmstat --sub-heading kswapd_inodesteal  --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-inode-steal.png
+			eval $GRAPH_PSC --title \"Kswapd inode steal\"  --print-monitor proc-vmstat --sub-heading kswapd_inodesteal  --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-inode-steal.ps
+			eval $GRAPH_PNG --title \"Direct inode steal\"  --print-monitor proc-vmstat --sub-heading pginodesteal       --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-inode-steal.png
+			eval $GRAPH_PSC --title \"Direct inode steal\"  --print-monitor proc-vmstat --sub-heading pginodesteal       --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-inode-steal.ps
+
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-proc-vmstat-slabs-scanned
+			smoothover graph-$SUBREPORT-proc-vmstat-kswapd-inode-steal
+			smoothover graph-$SUBREPORT-proc-vmstat-direct-inode-steal
 			echo "</tr>"
 		fi
 
