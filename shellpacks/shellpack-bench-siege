@@ -100,7 +100,17 @@ fi
 
 echo Enabling tcp_tw_recycle
 sysctl -w net.ipv4.tcp_tw_recycle=1
+
 echo Setting files limit $((MAX_USERS*1000))
+
+# Bump the system hard limit first if it's too small otherwise the
+# following ulimit will fail with EPERM.
+cur_limit=$(sysctl fs.nr_open | awk '{print $3}')
+
+if [ $cur_limit -lt $((MAX_USERS*1000)) ]; then
+	sysctl -w fs.nr_open=$((MAX_USERS*1000))
+fi
+
 ulimit -n $((MAX_USERS*1000))
 
 echo Running up to $MAX_USERS users, $ITERATIONS iterations per user
@@ -154,4 +164,4 @@ done
 echo siege completed successfully
 exit $SHELLPACK_SUCCESS
 #### Description siege
-#### Details siege-bench 42
+#### Details siege-bench 43
