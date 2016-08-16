@@ -170,54 +170,66 @@ BAD_STRINGS[1]="Bad"
 BAD_STRINGS[2]="Awful"
 BAD_STRINGS[3]="Abominable"
 
-GOOD_COLOURS[3]="#007800"
-GOOD_COLOURS[2]="#009F00"
-GOOD_COLOURS[1]="#00C700"
-GOOD_COLOURS[0]="#00EE00"
+GOOD_COLOURS[3]="#4d9221"
+GOOD_COLOURS[2]="#7fbc41"
+GOOD_COLOURS[1]="#b8e186"
+GOOD_COLOURS[0]="#e6f5d0"
 
-BAD_COLOURS[3]="#780000"
-BAD_COLOURS[2]="#9F0000"
-BAD_COLOURS[1]="#C70000"
-BAD_COLOURS[0]="#EE0000"
+BAD_COLOURS[3]="#c51b7d"
+BAD_COLOURS[2]="#de77ae"
+BAD_COLOURS[1]="#f1b6da"
+BAD_COLOURS[0]="#fde0ef"
 
 UNKNOWN_COLOUR="#FFFFFF"
 NEUTRAL_COLOUR="#A0A0A0"
 
-if [ "$FORMAT" = "html" ]; then
-	echo "<table id=\"$TABLEID\" cellspacing=0>"
-fi
-
-function tablecell() {
-# Call: GRATIO DESCRIPTION COLOUR
-	GRATIO=$1
-	DESCRIPTION=$2
-	COLOUR=$3
-	SUBREPORT=$4
-	if [ "$FORMAT" != "html" ]; then
-		printf "%8.4f %-15s " $GRATIO $DESCRIPTION
-	else
-		if [ "$REPORTROOT" != "" ]; then
-			echo "<td bgcolor=\"$COLOUR\"><font size=1><a href=\"$REPORTROOT#$SUBREPORT\" title=\""
-			cat $COMPARE_FILE
-			echo "\">$GRATIO</a></font></td>"
-		else
-			echo "<td bgcolor=\"$COLOUR\" title=\""
-			cat $COMPARE_FILE
-			echo "\"><font size=1>$GRATIO</font></td>"
-		fi
-	fi
+function removetrailingcomma() {
+	sed '$ s/,\s*$//' <<< "$1"
 }
 
-AOPEN=
-ACLOSE=
-if [ "$REPORTROOT" != "" ]; then
-	AOPEN="<a href=\"$REPORTROOT\" title="$KERNEL_LIST">"
-	ACLOSE="</a>"
-fi
+function subreportjson() {
+	# The first argument COMPARISONS is a string composed by elements
+	# like "3.1415 Excellent #007800" separated by commas.
+	# Example:
+	# "0 Excellent #007800,0 Abominable #780000,0 Satisfactory #00EE00"
+	COMPARISONS=$1
+	SUBREPORT=$2
+	IFS=, read -r -a CMPS <<< "$COMPARISONS"
+	if [ "$FORMAT" != "json" ]; then
+		for ELEM in "${CMPS[@]}" ; do
+			read -r GRATIO DESCRIPTION COLOUR <<< $ELEM
+			printf "%8.4f %-15s " $GRATIO $DESCRIPTION
+		done
+	else
+		echo "\"$SUBREPORT\": {"
+		if [ "$REPORTROOT" != "" ]; then
+			echo "\"link\": \"$REPORTROOT#$SUBREPORT\","
+		fi
+		echo -n "\"title\": \""
+		cat $COMPARE_FILE \
+			| sed 's/\\/\\\\/g' \
+			| sed 's/$/\\n/' \
+			| tr --delete '\n'
+		echo "\","
+		echo "\"comparisons\": ["
+		TMP=
+		for ELEM in "${CMPS[@]}" ; do
+			read -r GRATIO DESCRIPTION COLOUR <<< $ELEM
+			TMP+="{\"bgcolor\": \"$COLOUR\","
+			TMP+="\"description\": \"$DESCRIPTION\","
+			TMP+="\"value\": $GRATIO},"
+		done
+		TMP=$(IFS= removetrailingcomma "$TMP")
+		echo $TMP
+		echo "]"
+		echo "}"
+	fi
+}
 
 KERNEL_LIST_SPACE=`echo $KERNEL_LIST | sed -e 's/,/ /g'`
 read -a KERNEL_NAMES <<< $KERNEL_LIST_SPACE
 
+SUBREPORTSJSON=
 for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
 	COMPARE_CMD="compare-mmtests.pl --print-ratio -d . -b $SUBREPORT -n $KERNEL_LIST"
 
@@ -232,14 +244,11 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		RATIO=0
 		DESCRIPTION=Unknown
 
-		if [ "$FORMAT" != "html" ]; then
+		if [ "$FORMAT" != "json" ]; then
 			printf "%-20s %-8s" $SUBREPORT $GOODNESS
-		else
-			echo "<tr>"
-			echo "<td bgcolor=\"$COLOUR\"><font size=1>$SUBREPORT</font></td>"
-
 		fi
 
+		COMPARISONS=
 		if [ -n "$DMEAN" ]; then
 			GOODNESS=`echo $GMEAN | awk '{print $2}'`
 			NR_FIELDS=`echo $GMEAN | awk '{print NF}'`
@@ -253,7 +262,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				NAME_INDEX=$((NAME_INDEX+1))
 				GRATIO=`echo $GMEAN | awk "{print \\$$FIELD}"`
 				DDIFF=`echo $DMEAN | awk "{print \\$$FIELD}"`
-				if [ "$DDIFF" != "nan" -a "$DDIFF" != "NaN" ]; then
+				if [ "$DDIFF" != "nan" -a "$DDIFF" != "NaN" -a "$DDIFF" != "-nan" -a "$DDIFF" != "-NaN" ]; then
 					DIFF_ADJUSTED=`perl -e "print (($DDIFF*10000))"`
 					DELTA=$((DIFF_ADJUSTED))
 					if [ "$TOPOUT" != "" ]; then
@@ -298,10 +307,14 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 							fi
 						fi
 					fi
+					COMPARISONS+="$RATIO $DESCRIPTION $COLOUR,"
+				else
+					# nan isn't a valid JSON value (nor NaN for that matter).
+					COMPARISONS+="null Unknown $UNKNOWN_COLOUR,"
 				fi
-
-				tablecell $GRATIO $DESCRIPTION $COLOUR $SUBREPORT
 			done
+			COMPARISONS=$(IFS= removetrailingcomma "$COMPARISONS")
+			SUBREPORTSJSON+=$(subreportjson "$COMPARISONS" $SUBREPORT)", "
 		elif [ -n "$GMEAN" ]; then
 			GOODNESS=`echo $GMEAN | awk '{print $2}'`
 			NR_FIELDS=`echo $GMEAN | awk '{print NF}'`
@@ -312,7 +325,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			fi
 			for FIELD in $FIELD_LIST; do
 				RATIO=`echo $GMEAN | awk "{print \\$$FIELD}"`
-				if [ "$RATIO" != "nan" ]; then
+				if [ "$RATIO" != "nan" -a "$RATIO" != "-nan" ]; then
 					RATIO_ADJUSTED=`perl -e "print (($RATIO*10000))"`
 					DMEAN=`perl -e "printf \"%4.2f\", (abs (1-$RATIO))"`
 					DELTA=$((RATIO_ADJUSTED-10000))
@@ -359,23 +372,27 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 							fi
 						fi
 					fi
+					COMPARISONS+="$RATIO $DESCRIPTION $COLOUR,"
+				else
+					# nan isn't a valid JSON value (nor NaN for that matter).
+					COMPARISONS+="null Unknown $UNKNOWN_COLOUR,"
 				fi
-
-				tablecell $RATIO $DESCRIPTION $COLOUR $SUBREPORT
 			done
+			COMPARISONS=$(IFS= removetrailingcomma "$COMPARISONS")
+			SUBREPORTSJSON+=$(subreportjson "$COMPARISONS" $SUBREPORT)", "
 		else
-			tablecell 0 Unknown $UNKNOWN_COLOUR $SUBREPORT
-		fi
-
-		if [ "$FORMAT" != "html" ]; then
-			echo
-		else
-			echo "</tr>"
+			SUBREPORTSJSON+=$(subreportjson "0 Unknown $UNKNOWN_COLOUR" $SUBREPORT)", "
 		fi
 		rm $COMPARE_FILE
 	esac
 done
 
-if [ "$FORMAT" = "html" ]; then
-	echo "</table>"
+if [ "$FORMAT" = "json" ]; then
+	printf '%s\n' "{"
+	printf '%s\n' "\"table-id\": \"$TABLEID\","
+	printf '%s\n' "\"subreports\" :"
+	printf '%s\n' "{"
+	printf '%s\n' "$(IFS= removetrailingcomma "$SUBREPORTSJSON")"
+	printf '%s\n' "}"
+	printf '%s\n' "}"
 fi
