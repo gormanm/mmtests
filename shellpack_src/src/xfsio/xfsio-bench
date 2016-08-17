@@ -1,0 +1,36 @@
+#!/bin/bash
+###SHELLPACK preamble xfsio-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--iterations	XFSIO_ITERATIONS
+###SHELLPACK parseargParam	--size		XFSIO_SIZE
+###SHELLPACK parseargParam	--testcases	XFSIO_TESTCASES
+###SHELLPACK parseargEnd
+
+install-depends xfsprogs
+
+# Include monitor hooks
+###SHELLPACK monitor_hooks
+
+XFSIO_TESTCASES=`echo $XFSIO_TESTCASES | tr ',' ' '`
+
+for TESTCASE in $XFSIO_TESTCASES; do
+	monitor_pre_hook $LOGDIR_RESULTS $TESTCASE
+	###SHELLPACK iteration_begin $XFSIO_ITERATIONS
+	case $TESTCASE in
+	pwrite-single-async)
+		$TIME_CMD -o $LOGDIR_RESULTS/pwrite-single.$ITERATION \
+			xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_TEMP/testfile
+		rm $SHELLPACK_TEMP/testfile
+		sync
+		;;
+	*)
+		die Unrecognised testcase $TESTCASE
+		;;
+	esac
+	###SHELLPACK iteration_end $XFSIO_ITERATIONS
+	monitor_post_hook $LOGDIR_RESULTS $TESTCASE
+done
+
+exit $SHELLPACK_SUCCESS
