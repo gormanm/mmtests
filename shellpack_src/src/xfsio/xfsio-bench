@@ -16,20 +16,37 @@ install-depends xfsprogs
 XFSIO_TESTCASES=`echo $XFSIO_TESTCASES | tr ',' ' '`
 
 for TESTCASE in $XFSIO_TESTCASES; do
+
+	# Prepare step
+	case $TESTCASE in
+	pwrite-single-rewrite-async)
+		echo Writing file first, no measurement
+		xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_TEMP/file |
+			tee -a $TESTCASE-setup
+		;;
+	esac
+
 	monitor_pre_hook $LOGDIR_RESULTS $TESTCASE
 	###SHELLPACK iteration_begin $XFSIO_ITERATIONS
 	case $TESTCASE in
 	pwrite-single-async)
-		$TIME_CMD -o $LOGDIR_RESULTS/pwrite-single.$ITERATION \
-			xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_TEMP/testfile
-		rm $SHELLPACK_TEMP/testfile
+		$TIME_CMD -o $LOGDIR_RESULTS/$TESTCASE-time.$ITERATION \
+			xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_TEMP/file |
+				tee -a $TESTCASE-log.$ITERATION
+		rm $SHELLPACK_TEMP/file
 		sync
+		;;
+	pwrite-single-rewrite-async)
+		$TIME_CMD -o $LOGDIR_RESULTS/$TESTCASE-time.$ITERATION \
+			xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_TEMP/file |
+				tee -a $TESTCASE-log.$ITERATION
 		;;
 	*)
 		die Unrecognised testcase $TESTCASE
 		;;
 	esac
 	###SHELLPACK iteration_end $XFSIO_ITERATIONS
+	rm $SHELLPACK_TEMP/file*
 	monitor_post_hook $LOGDIR_RESULTS $TESTCASE
 done
 

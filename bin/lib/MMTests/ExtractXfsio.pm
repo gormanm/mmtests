@@ -21,23 +21,18 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
-	my @clients;
 
 	foreach my $file (<$reportDir/noprofile/pwrite-single.*>) {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			next if $_ !~ /elapsed/;
-			push @{$self->{_ResultData}}, [ "System-$client", ++$iteration, $self->_time_to_sys($_) ];
-			push @{$self->{_ResultData}}, [ "Elapsd-$client", ++$iteration, $self->_time_to_elapsed($_) ];
+			push @{$self->{_ResultData}}, [ "System", ++$iteration, $self->_time_to_sys($_) ];
+			push @{$self->{_ResultData}}, [ "Elapsd", ++$iteration, $self->_time_to_elapsed($_) ];
 		}
 		close(INPUT);
 	}
 
-	foreach my $heading ("System", "Elapsd") {
-		foreach my $client (@clients) {
-			push @{$self->{_Operations}}, "$heading-$client";
-		}
-	}
+	$self->{_Operations} = [ "System", "Elapsd" ];
 }
 
 1;
