@@ -416,6 +416,9 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo
 		echo $SUBREPORT Throughput
 		compare-mmtests.pl -d . -b xfsiothroughput -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		echo $SUBREPORT Ops
+		compare-mmtests.pl -d . -b xfsioops -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	*)
 		echo $SUBREPORT
