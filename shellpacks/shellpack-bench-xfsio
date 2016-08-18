@@ -87,14 +87,14 @@ for ITERATION in `seq 1 $XFSIO_ITERATIONS`; do
 	pwrite-single-async)
 		$TIME_CMD -o $LOGDIR_RESULTS/$TESTCASE-time.$ITERATION \
 			xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_TEMP/file |
-				tee -a $TESTCASE-log.$ITERATION
+				tee -a $LOGDIR_RESULTS/$TESTCASE-log.$ITERATION
 		rm $SHELLPACK_TEMP/file
 		sync
 		;;
 	pwrite-single-rewrite-async)
 		$TIME_CMD -o $LOGDIR_RESULTS/$TESTCASE-time.$ITERATION \
 			xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_TEMP/file |
-				tee -a $TESTCASE-log.$ITERATION
+				tee -a $LOGDIR_RESULTS/$TESTCASE-log.$ITERATION
 		;;
 	*)
 		die Unrecognised testcase $TESTCASE
@@ -107,4 +107,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description xfsio
-#### Details xfsio-bench 7
+#### Details xfsio-bench 8

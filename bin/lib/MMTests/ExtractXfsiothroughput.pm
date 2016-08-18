@@ -1,5 +1,5 @@
-# ExtractXfsio.pm
-package MMTests::ExtractXfsio;
+# ExtractXfsiothroughput.pm
+package MMTests::ExtractXfsiothroughput;
 use MMTests::SummariseMultiops;
 use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
@@ -8,10 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
-	$self->{_ModuleName} = "ExtractXfsio";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
-	$self->{_PlotType}   = "client-errorlines";
-	$self->{_Opname}     = "ExecTime";
+	$self->{_ModuleName} = "ExtractXfsiothroughput";
+	$self->{_DataType}   = MMTests::Extract::DATA_MBYTES_PER_SECOND;
 	$self->{_FieldLength} = 12;
 
 	$self->SUPER::initialise($reportDir, $testName);
@@ -23,27 +21,26 @@ sub extractReport($$$) {
 	my $iteration;
 	my $testcase;
 	my %testcases;
+	$reportDir =~ s/xfsiothroughput/xfsio/;
 
-	foreach my $file (<$reportDir/noprofile/*-time.*>) {
+	foreach my $file (<$reportDir/noprofile/*-log.*>) {
 		$testcase = $file;
 		$testcase =~ s/.*\///;
-		$testcase =~ s/-time.*//;
+		$testcase =~ s/-log.*//;
 
 		$testcases{$testcase} = 1;
 
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
-			next if $_ !~ /elapsed/;
-			push @{$self->{_ResultData}}, [ "$testcase-System", ++$iteration, $self->_time_to_sys($_) ];
-			push @{$self->{_ResultData}}, [ "$testcase-Elapsd", ++$iteration, $self->_time_to_elapsed($_) ];
+			next if $_ !~ /.*\(([0-9.]+) MiB\/sec.*/;
+			push @{$self->{_ResultData}}, [ "$testcase-tput", ++$iteration, $1 ];
 		}
 		close(INPUT);
 	}
 
 	my @operations;
 	foreach $testcase (sort { $a <=> $b } keys %testcases) {
-		push @operations, "$testcase-System";
-		push @operations, "$testcase-Elapsd";
+		push @operations, "$testcase-tput";
 	}
 	$self->{_Operations} = \@operations;
 }

@@ -270,6 +270,17 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Thread spread
 		compare-mmtests.pl -d . -b ebizzyrange -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	fio)
+		echo $SUBREPORT Throughput
+		$COMPARE_CMD
+		echo
+		echo $SUBREPORT Latency read
+		compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-read $FORMAT_CMD
+
+		echo
+		echo $SUBREPORT Latency write
+		compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-write $FORMAT_CMD
+		;;
 	fsmark-single|fsmark-threaded)
 		echo $SUBREPORT
 		$COMPARE_CMD
@@ -399,16 +410,12 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT average and max operation latencies
 		compare-mmtests.pl -d . -b tiobenchlatency -n $KERNEL_LIST $FORMAT_CMD
 		;;
-	fio)
-		echo $SUBREPORT Throughput
+	xfsio)
+		echo $SUBREPORT Time
 		$COMPARE_CMD
 		echo
-		echo $SUBREPORT Latency read
-		compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-read $FORMAT_CMD
-
-		echo
-		echo $SUBREPORT Latency write
-		compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-write $FORMAT_CMD
+		echo $SUBREPORT Throughput
+		compare-mmtests.pl -d . -b xfsiothroughput -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	*)
 		echo $SUBREPORT
