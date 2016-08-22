@@ -1,0 +1,71 @@
+#!/bin/bash
+# This script installs Apache Maven and leaves it ready for use building 'linkbench'
+P=mavenbuild-bench
+DEFAULT_VERSION=3.3.9
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+MAVEN_VERSION=3.3.9
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/mavenbuild-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/mavenbuild-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-mavenbuild -v ${VERSION}  || die mavenbuild install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/mavenbuild-${VERSION}-installed || die Failed to cd to mavenbuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo mavenbuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+echo maven successfully installed
+exit $SHELLPACK_SUCCESS
+#### Description mavenbuild
+#### Details mavenbuild-bench 7
