@@ -37,6 +37,14 @@ export PATH=$JAVA_HOME:$JAVA_HOME/bin:$PATH
 
 CONFIG_PATH=$SHELLPACK_SOURCES/linkbench-${VERSION}-installed/config/
 
+EFFECTIVE_CACHESIZE=$((MEMTOTAL_BYTES*6/10))
+SHARED_BUFFERS=$((MEMTOTAL_BYTES/4))
+DATABASE_MEMORY_AVAILABLE=$((MEMTOTAL_BYTES-LINKBENCH_WORKLOAD_SIZE))
+if [ $DATABASE_MEMORY_AVAILABLE -gt $((MEMTOTAL_BYTES/4)) ]; then
+	EFFECTIVE_CACHESIZE=$((DATABASE_MEMORY_AVAILABLE*6/10))
+	SHARED_BUFFERS=$((DATABASE_MEMORY_AVAILABLE/4))
+fi
+
 ###SHELLPACK threads_large_stride_begin $LINKBENCH_MIN_THREADS $LINKBENCH_MAX_THREADS
 		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 		mmtests_activity $NR_THREADS
@@ -44,8 +52,8 @@ CONFIG_PATH=$SHELLPACK_SOURCES/linkbench-${VERSION}-installed/config/
 		###SHELLPACK iteration_begin $LINKBENCH_ITERATIONS
 				$SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --start \
 				    --start_opts $DBSTART_OPTIONS \
-				    --effective_cachesize $((MEMTOTAL_BYTES*6/10)) \
-				    --shared_buffers $((MEMTOTAL_BYTES/4)) \
+				    --effective_cachesize $EFFECTIVE_CACHESIZE \
+				    --shared_buffers $SHARED_BUFFERS \
 				    --work_mem $((16*1048576)) || die Failed to get usable database installation
 
 				# This is the data-request phase.
