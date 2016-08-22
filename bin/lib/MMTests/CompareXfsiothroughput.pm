@@ -6,11 +6,9 @@ our @ISA = qw(MMTests::Compare);
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "CompareXfsio",
+		_ModuleName  => "CompareXfsiothroughput",
 		_DataType    => MMTests::Compare::DATA_MBYTES_PER_SECOND,
-		_CompareOp   => "pndiff",
-		_Precision   => 4,
-		_CompareOp   => "pndiff",
+		_CompareOp   => "pdiff",
 		_ResultData  => []
 	};
 	bless $self, $class;
