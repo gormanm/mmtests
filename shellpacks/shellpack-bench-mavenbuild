@@ -68,4 +68,4 @@ fi
 echo maven successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description mavenbuild
-#### Details mavenbuild-bench 7
+#### Details mavenbuild-bench 8

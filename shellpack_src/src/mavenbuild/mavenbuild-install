@@ -2,7 +2,7 @@
 # Apache Maven installer.
 ###SHELLPACK preamble mavenbuild-install 3.3.9
 WEB_LOCATION=http://apache.mirrors.tds.net/maven/maven-3/3.3.9/binaries/
-#MIRROR_LOCATION="$WEBROOT/maven/"
+MIRROR_LOCATION="$WEBROOT/maven/"
 
 MAVEN_VERSION=3.3.9
 

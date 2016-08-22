@@ -9,7 +9,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 WEB_LOCATION=http://apache.mirrors.tds.net/maven/maven-3/3.3.9/binaries/
-#MIRROR_LOCATION="$WEBROOT/maven/"
+MIRROR_LOCATION="$WEBROOT/maven/"
 
 MAVEN_VERSION=3.3.9
 
@@ -48,7 +48,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=apache-maven-${MAVEN_VERSION}-bin.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -68,4 +68,4 @@ done
 
 echo maven installed successfully
 #### Description mavenbuild
-#### Details mavenbuild 7
+#### Details mavenbuild 8
