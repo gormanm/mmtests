@@ -185,6 +185,7 @@ function sources_fetch() {
 	WEB=$1
 	MIRROR=$2
 	OUTPUT=$3
+	WEB_ALT=$4
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
@@ -198,7 +199,14 @@ function sources_fetch() {
 		echo "$P: Fetching from internet $WEB"
 		wget -q -O $OUTPUT $WEB
 		if [ $? -ne 0 ]; then
-			die "$P: Could not download $WEB"
+			if [ "$WEB_ALT" = "" ]; then
+				die "$P: Could not download $WEB"
+			fi
+			echo "$P: Fetching from alt internet $WEB_ALT"
+			wget -q -O $OUTPUT $WEB_ALT
+			if [ $? -ne 0 ]; then
+				die "$P: Could not download $WEB_ALT"
+			fi
 		fi
 	fi
 }

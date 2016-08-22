@@ -37,6 +37,7 @@ update_entry_cnf() {
 }
 
 WEB_LOCATION=http://ftp.heanet.ie/mirrors/mariadb/mariadb-${VERSION}/source
+WEB_LOCATION_ALT=http://archive.mariadb.org//mariadb-${VERSION}/source
 MIRROR_LOCATION=$WEBROOT/mariadb/
 ###SHELLPACK sources_fetch mariadb-${VERSION}.tar.gz mariadbbuild-${VERSION}
 ###SHELLPACK build_start mariadbbuild-${VERSION}
