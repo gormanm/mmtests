@@ -9,7 +9,7 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 FIRST_DB_INSTALL=false
-MARIADB_VERSION=10.1.16
+MARIADB_VERSION=10.1.8
 MARIADB_DBNAME=linkdb
 MARIADB_ADMIN_USER=root
 MARIADB_ADMIN_PASSWORD=mmtests-default
@@ -156,4 +156,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description linkbench
-#### Details linkbench-bench 1
+#### Details linkbench-bench 2
