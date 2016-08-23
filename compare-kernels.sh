@@ -442,6 +442,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		eval $COMPARE_CMD --print-monitor perf-time-stat
 	fi
 
+	IOSTAT_GRAPH=no
 	TEST=
 	if [ `ls iostat-* 2> /dev/null | wc -l` -gt 0 ]; then
 		eval $COMPARE_BARE_CMD --print-monitor iostat 2> /dev/null > /tmp/iostat-$$
@@ -455,43 +456,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		if [ "$TEST" != "" ]; then
 			PARAM_LIST="avgqz await"
 		fi
-		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			for DEVICE in `grep ^Mean /tmp/iostat-$$ | awk '{print $2}' | awk -F - '{print $1}' | sort | uniq`; do
-				echo "<table class=\"resultsGraphs\">"
-				echo "<tr>"
-				for PARAM in avgqusz await r_await w_await; do
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
-					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
-				done
-				echo "</tr>"
-				echo "<tr>"
-				for PARAM in avgrqsz rrqm wrqm; do
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
-					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
-				done
-				echo "</tr>"
-				echo "<tr>"
-				for PARAM in rkbs wkbs totalkbs; do
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
-					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
-				done
-				echo "</tr>"
-
-				echo "</table>"
-			done
-		fi
+		IOSTAT_GRAPH=yes
 	fi
-	rm -f /tmp/iostat-$$
 
+	KCACHE_GRAPH=no
 	if [ `ls kcache-slabs-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
 		eval $COMPARE_BARE_CMD --print-monitor kcacheslabs > /tmp/kcache.$$
 		ALLOCS=`grep ^Max /tmp/kcache.$$ | grep allocs | awk '{print $3}' | sed -e 's/\..*//'`
@@ -500,19 +468,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo
 		echo Kcache activity
 		eval $COMPARE_CMD --print-monitor kcacheslabs
-
-		if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.png
-			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.png
-			eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.ps
-			eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.ps
-			echo "<table class=\"resultsGraphs\">"
-			echo "<tr>"
-			plain graph-$SUBREPORT-kcache-allocs
-			plain graph-$SUBREPORT-kcache-frees
-			echo "</tr>"
-		fi
-		rm /tmp/kcache.$$
+		KCACHE_ACTIVITY=yes
 	fi
 
 	GRANULARITY=
@@ -1035,6 +991,57 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		esac
 		echo "</table>"
 
+		if [ "$IOSTAT_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			for DEVICE in `grep ^Mean /tmp/iostat-$$ | awk '{print $2}' | awk -F - '{print $1}' | sort | uniq`; do
+				echo "<table class=\"resultsGraphs\">"
+				echo "<tr>"
+				for PARAM in avgqusz await r_await w_await; do
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
+					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
+					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
+					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
+				done
+				echo "</tr>"
+				echo "<tr>"
+				for PARAM in avgrqsz rrqm wrqm; do
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
+					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
+					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
+					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
+				done
+				echo "</tr>"
+				echo "<tr>"
+				for PARAM in rkbs wkbs totalkbs; do
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
+					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
+					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
+					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
+				done
+				echo "</tr>"
+
+				echo "</table>"
+			done
+		fi
+		rm -f /tmp/iostat-$$
+
+		if [ "$KCACHE_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+				eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.png
+				eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.png
+				eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.ps
+				eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.ps
+				echo "<table class=\"resultsGraphs\">"
+				echo "<tr>"
+				plain graph-$SUBREPORT-kcache-allocs
+				plain graph-$SUBREPORT-kcache-frees
+				echo "</tr>"
+			fi
+		fi
+		rm -f /tmp/kcache.$$
+
 		# Monitor graphs for this test
 		echo "<table class=\"monitorGraphs\">"
 		generate_latency_graph "read-latency" '"Read Latency"'
@@ -1378,22 +1385,51 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "</tr>"
 		fi
 
-		if [ `ls numa-meminfo-* 2> /dev/null | wc -l` -gt 0 ] && [ `zgrep ^Node numa-meminfo-* | awk '{print $2}' | sort | uniq | wc -l` -gt 1 ]; then
-			eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.png
-			eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.ps
-			eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"Pages migrated\"      --print-monitor proc-vmstat     --sub-heading pgmigrate_success     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success.png
-			eval $GRAPH_PSC --title \"Pages migrated\"      --print-monitor proc-vmstat     --sub-heading pgmigrate_success     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success.ps
-			eval $GRAPH_PNG --title \"Pages migrated\"      --print-monitor proc-vmstat     --sub-heading pgmigrate_success     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Pages migrated\"      --print-monitor proc-vmstat     --sub-heading pgmigrate_success     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"NUMA PTE Updates\"    --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.png
-			eval $GRAPH_PSC --title \"NUMA PTE Updates\"    --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.ps
-			eval $GRAPH_PNG --title \"NUMA PTE Updates\"    --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA PTE Updates\"    --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.ps --smooth
+		if [ `ls proc-vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ] && [ `zgrep compact_stall proc-vmstat-$KERNEL_BASE-* | awk '{print $2}' | sort -n | tail -1` -gt 0 ]; then
+			eval $GRAPH_PNG --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall.png
+			eval $GRAPH_PSC --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall.ps
+			eval $GRAPH_PNG --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall-smooth.ps  --smooth
 
-			eval $GRAPH_PNG --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.png
-			eval $GRAPH_PSC --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.ps
+			eval $GRAPH_PNG --title \"Pages successful migrate\"  --print-monitor proc-vmstat --sub-heading pgmigrate_success  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success.png
+			eval $GRAPH_PSC --title \"Pages successful migrate\"  --print-monitor proc-vmstat --sub-heading pgmigrate_success  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success.ps
+			eval $GRAPH_PNG --title \"Pages successful migrate\"  --print-monitor proc-vmstat --sub-heading pgmigrate_success  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Pages successful migrate\"  --print-monitor proc-vmstat --sub-heading pgmigrate_success  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success-smooth.ps  --smooth
+
+			eval $GRAPH_PNG --title \"Pages failed migrate\"      --print-monitor proc-vmstat --sub-heading pgmigrate_fail     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_failure.png
+			eval $GRAPH_PSC --title \"Pages failed migrate\"      --print-monitor proc-vmstat --sub-heading pgmigrate_fail     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_failure.ps
+			eval $GRAPH_PNG --title \"Pages failed migrate\"      --print-monitor proc-vmstat --sub-heading pgmigrate_fail     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_failure-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Pages failed migrate\"      --print-monitor proc-vmstat --sub-heading pgmigrate_fail     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_failure-smooth.ps  --smooth
+
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-proc-vmstat-compact_stall
+			smoothover graph-$SUBREPORT-proc-vmstat-pgmigrate_success
+			smoothover graph-$SUBREPORT-proc-vmstat-pgmigrate_failure
+			echo "</tr>"
+		fi
+
+		if [ `ls proc-vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ] && [ `zgrep numa_hint_faults proc-vmstat-$KERNEL_BASE-* | awk '{print $2}' | sort -n | tail -1` -gt 0 ]; then
+			eval $GRAPH_PNG --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.png
+			eval $GRAPH_PSC --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.ps
+			eval $GRAPH_PNG --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.ps --smooth
+
+			eval $GRAPH_PNG --title \"NUMA Huge PTE Updates\"  --print-monitor proc-vmstat     --sub-heading numa_huge_pte_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pte-updates.png
+			eval $GRAPH_PSC --title \"NUMA Huge PTE Updates\"  --print-monitor proc-vmstat     --sub-heading numa_huge_pte_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pte-updates.ps
+			eval $GRAPH_PNG --title \"NUMA Huge PTE Updates\"  --print-monitor proc-vmstat     --sub-heading numa_huge_pte_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pte-updates-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Huge PTE Updates\"  --print-monitor proc-vmstat     --sub-heading numa_huge_pte_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pte-updates-smooth.ps --smooth
+
+			eval $GRAPH_PNG --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated.png
+			eval $GRAPH_PSC --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated.ps
+			eval $GRAPH_PNG --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated-smooth.ps --smooth
+
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-proc-vmstat-numa-pte-updates
+			smoothover graph-$SUBREPORT-proc-vmstat-numa-huge-pte-updates
+			smoothover graph-$SUBREPORT-proc-vmstat-numa_pages_migrated
+			echo "</tr>"
+
 			eval $GRAPH_PNG --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.png
 			eval $GRAPH_PSC --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.ps
 			eval $GRAPH_PNG --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-smooth.png --smooth
@@ -1403,16 +1439,25 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			eval $GRAPH_PNG --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.png --smooth
 			eval $GRAPH_PSC --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.ps --smooth
 
-
 			echo "<tr>"
-			smoothover graph-$SUBREPORT-numa-memory-balance
-			smoothover graph-$SUBREPORT-proc-vmstat-pgmigrate_success
-			smoothover graph-$SUBREPORT-proc-vmstat-numa-pte-updates
-			echo "</tr>"
-			echo "<tr>"
-			plain graph-$SUBREPORT-numa-convergence
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-local
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-remote
+			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults.png ]; then
+				smoothover graph-$SUBREPORT-proc-vmstat-minorfaults
+			fi
+			echo "</tr>"
+		fi
+
+		if [ `ls numa-meminfo-* 2> /dev/null | wc -l` -gt 0 ] && [ `zgrep ^Node numa-meminfo-* | awk '{print $2}' | sort | uniq | wc -l` -gt 1 ]; then
+			eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.png
+			eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.ps
+			eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.png
+			eval $GRAPH_PSC --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.ps
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-numa-memory-balance
+			plain graph-$SUBREPORT-numa-convergence
 			echo "</tr>"
 		fi
 
