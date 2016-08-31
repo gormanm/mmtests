@@ -471,14 +471,17 @@ if [ "$TESTDISK_RD_SIZE" != "" ]; then
 		rmmod brd
 	fi
 	modprobe brd rd_size=$((TESTDISK_RD_SIZE/1024))
-	export TESTDISK_PARTITION=/dev/ram0
 	if [ "$TESTDISK_RD_PREALLOC" == "yes" ]; then
 		if [ "$TESTDISK_RD_PREALLOC_NODE" != "" ]; then
 			tmp_prealloc_cmd="numactl -N $TESTDISK_RD_PREALLOC_NODE"
 		else
 			tmp_prealloc_cmd="numactl -i all"
 		fi
-		$tmp_prealloc_cmd dd if=/dev/zero of=$TESTDISK_PARTITION bs=1M &>/dev/null
+		$tmp_prealloc_cmd dd if=/dev/zero of=/dev/ram0 bs=1M &>/dev/null
+	fi
+
+	if [ "$TESTDISK_FILESYSTEM" != "" ]; then
+		export TESTDISK_PARTITION=/dev/ram0
 	fi
 fi
 
@@ -658,7 +661,11 @@ partitions)
 	swapoff -a
 	for SWAP_PART in $SWAP_PARTITIONS; do
 		echo Enabling swap on partition $SWAP_PART
-		swapon $SWAP_PART || die Failed to enable swap on $SWAP_PART
+		swapon $SWAP_PART
+		if [ $? -ne 0 ]; then
+			mkswap $SWAP_PART || die Failed to mkswap $SWAP_PART
+			swapon $SWAP_PART || die Failed to enable swap on $SWAP_PART
+		fi
 	done
 	;;
 swapfile)
