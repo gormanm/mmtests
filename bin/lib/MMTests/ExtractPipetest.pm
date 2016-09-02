@@ -2,6 +2,7 @@
 package MMTests::ExtractPipetest;
 use MMTests::SummariseVariabletime;
 use VMR::Report;
+use Math::Round;
 our @ISA = qw(MMTests::SummariseVariabletime);
 
 sub new() {
@@ -24,7 +25,8 @@ sub extractReport($$$) {
 	my $iteration = 0;
 	while (<INPUT>) {
 		my @elements = split(/\s/);
-		push @{$self->{_ResultData}}, ["Time", ++$iteration, $elements[0]];
+		my $t = nearest(.5, $elements[0]);
+		push @{$self->{_ResultData}}, ["Time", ++$iteration, $t];
 	}
 
 	$self->{_Operations} = [ "Time" ];

@@ -6,6 +6,8 @@ MIRROR_LOCATION="$WEBROOT/pipetest/pipe-test.c"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
+install-depends perl-Math-Round
+
 cd $SHELLPACK_SOURCES || die Sources directory does not exist
 rm -rf pipetest-${VERSION}-installed
 mkdir -p pipetest-${VERSION}-installed
