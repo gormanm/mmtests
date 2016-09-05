@@ -320,6 +320,11 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo No meaningful extraction script for monitor
 		echo
 		;;
+	netpipe)
+		echo $SUBREPORT Throughput
+		compare-mmtests.pl -d . -b netpipe4mb -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		;;
 	parallelio)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
@@ -680,6 +685,17 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		mutilate)
 			;;
+		netpipe)
+			echo "<tr>"
+			eval $GRAPH_PNG        --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png
+			eval $GRAPH_PSC        --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps
+			eval $GRAPH_PNG --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-logx.png
+			eval $GRAPH_PSC --logX --title \"$SUBREPORT Throughput\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-logx.ps
+			plain graph-$SUBREPORT-logx
+			plain graph-$SUBREPORT
+			echo "</tr>"
+			;;
+
 		nas-mpi|nas-ser)
 			echo "<tr>"
 			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png

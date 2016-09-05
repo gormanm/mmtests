@@ -29,7 +29,7 @@ start)
 	mmtests_activity netpipe-$SERVERSIDE_NAME
 	monitor_pre_hook $LOGDIR_RESULTS netpipe-$SERVERSIDE_NAME
 	NETROOT=$SHELLPACK_SOURCES/netpipe-${VERSION}
-	$TASKSET_SERVER $NETROOT/NPtcp || die Failed to start server
+	$TASKSET_SERVER $NETROOT/NPtcp &
 	sleep 2
 	exit $SHELLPACK_SUCCESS
 	;;
@@ -48,7 +48,7 @@ none)
 
 	echo Starting server
 	NETROOT=$SHELLPACK_SOURCES/netpipe-${VERSION}-installed 
-	$TASKSET_SERVER $NETROOT/NPtcp || die Failed to start server
+	$TASKSET_SERVER $NETROOT/NPtcp &
 	sleep 2
 	;;
 *)
