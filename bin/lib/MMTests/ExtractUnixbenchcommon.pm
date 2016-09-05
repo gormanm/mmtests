@@ -56,13 +56,6 @@ sub extractReport($$$) {
 				my $line = $_;
 				my @tmp = split(/\s+/, $line);
 
-				# Unixbench outputs multiple lines with similar data.
-				# Skip anything that's not the exact lines we are
-				# interested in.
-				if ($line =~ /samples/) {
-				    next;
-				}
-
 				if ($line =~ /^Dhrystone 2 using register variables * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/) {
 				    $tp = $2;
 				} elsif ($line =~ /^Pipe Throughput * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/) {
@@ -73,7 +66,13 @@ sub extractReport($$$) {
 				    $tp = $2;
 				} elsif (/^Process Creation * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/)  {
 				    $tp = $2;
-				}else {
+				} elsif (/^File .*maxblocks * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/)  {
+				    $tp = $2;
+				} elsif (/^File .*maxblocks * ([0-9.]+) KBps/) {
+				    $tp = $1;
+				    next if <INPUT> =~ /BASELINE/;
+				    next if <INPUT> =~ /BASELINE/;
+				} else {
 				    next;
 				}
 
