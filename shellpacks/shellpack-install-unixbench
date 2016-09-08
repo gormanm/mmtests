@@ -46,7 +46,7 @@ fi
 rm -rf $SHELLPACK_SOURCES/unixbench-${VERSION}
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=UnixBench${VERSION}.tgz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -111,4 +111,4 @@ index d615935..7322003 100755
          # Run the benchmark.
          my $bresult = runBenchmark($bench, $params, $verbose, $logFile, $copies);
 #### Description unixbench
-#### Details unixbench 2
+#### Details unixbench 3

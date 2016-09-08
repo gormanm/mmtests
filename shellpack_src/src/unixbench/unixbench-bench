@@ -11,6 +11,7 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam   --min-threads      UNIXBENCH_MIN_THREADS
 ###SHELLPACK parseargParam   --max-threads      UNIXBENCH_MAX_THREADS
+###SHELLPACK parseargParam   --iterations	UNIXBENCH_ITERATIONS
 ###SHELLPACK parseargParam   --workloads	UNIXBENCH_WORKLOADS
 ###SHELLPACK parseargEnd
 
@@ -22,11 +23,13 @@ echo $UNIXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 ###SHELLPACK threads_large_stride_begin $UNIXBENCH_MIN_THREADS $UNIXBENCH_MAX_THREADS
 	for WORKLOAD in $UNIXBENCH_WORKLOADS; do
 		mmtests_activity $WORKLOAD-$NR_THREADS
-		echo Running test $WORKLOAD
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-		./Run -q -c $NR_THREADS $WORKLOAD 2>&1 | \
-			tee $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log \
-			|| die Failed ro run unixbench
+		###SHELLPACK iteration_begin $UNIXBENCH_ITERATIONS
+			echo Running test $WORKLOAD iteration $ITERATION/$UNIXBENCH_ITERATIONS
+			./Run -q -c $NR_THREADS $WORKLOAD 2>&1 | \
+				tee $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}-${ITERATION}.log \
+				|| die Failed ro run unixbench
+		###SHELLPACK iteration_end $UNIXBENCH_ITERATIONS
 		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	done
 ###SHELLPACK threads_stride_end

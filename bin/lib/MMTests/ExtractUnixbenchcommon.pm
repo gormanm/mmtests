@@ -35,10 +35,10 @@ sub extractReport($$$) {
 	my @threads;
 	foreach my $wl (@workloads) {
 		chomp($wl);
-		my @files = <$reportDir/noprofile/$wl-*.log>;
+		my @files = <$reportDir/noprofile/$wl-*-1.log>;
 		foreach my $file (@files) {
 			my @elements = split (/-/, $file);
-			my $thr = $elements[-1];
+			my $thr = $elements[-2];
 			$thr =~ s/.log//;
 			push @threads, $thr;
 		}
@@ -48,38 +48,39 @@ sub extractReport($$$) {
 
 	foreach my $nthr (@threads) {
 		foreach my $wl (@workloads) {
-			my $file = "$reportDir/noprofile/$wl-$nthr.log";
 			my $nr_samples = 0;
 
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
-				my $line = $_;
-				my @tmp = split(/\s+/, $line);
+			foreach my $file (<$reportDir/noprofile/$wl-$nthr-*.log>) {
+				open(INPUT, $file) || die("Failed to open $file\n");
+				while (<INPUT>) {
+					my $line = $_;
+					my @tmp = split(/\s+/, $line);
 
-				if ($line =~ /^Dhrystone 2 using register variables * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/) {
-				    $tp = $2;
-				} elsif ($line =~ /^Pipe Throughput * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/) {
-				    $tp = $2;
-				} elsif ($line =~ /^System Call Overhead * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/) {
-				    $tp = $2;
-				} elsif ($line =~ /^Execl Throughput * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/) {
-				    $tp = $2;
-				} elsif (/^Process Creation * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/)  {
-				    $tp = $2;
-				} elsif (/^File .*maxblocks * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/)  {
-				    $tp = $2;
-				} elsif (/^File .*maxblocks * ([0-9.]+) KBps/) {
-				    $tp = $1;
-				    next if <INPUT> =~ /BASELINE/;
-				    next if <INPUT> =~ /BASELINE/;
-				} else {
-				    next;
+					if ($line =~ /^Dhrystone 2 using register variables * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/) {
+						$tp = $2;
+					} elsif ($line =~ /^Pipe Throughput * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/) {
+						$tp = $2;
+					} elsif ($line =~ /^System Call Overhead * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/) {
+						$tp = $2;
+					} elsif ($line =~ /^Execl Throughput * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/) {
+						$tp = $2;
+					} elsif (/^Process Creation * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/)  {
+						$tp = $2;
+					} elsif (/^File .*maxblocks * ([0-9.]+) * ([0-9.]+) * ([0-9.]+)/)  {
+						$tp = $2;
+					} elsif (/^File .*maxblocks * ([0-9.]+) KBps/) {
+						$tp = $1;
+						next if <INPUT> =~ /BASELINE/;
+						next if <INPUT> =~ /BASELINE/;
+					} else {
+						next;
+					}
+
+					push @{$self->{_ResultData}}, [ "unixbench-$wl-$nthr", ++$nr_samples, $tp ];
 				}
 
-				push @{$self->{_ResultData}}, [ "unixbench-$wl-$nthr", ++$nr_samples, $tp ];
+				close INPUT;
 			}
-
-			close INPUT;
 		}
 	}
 

@@ -15,6 +15,7 @@ run_bench() {
 	$SHELLPACK_INCLUDE/shellpack-bench-unixbench $VERSION_PARAM	\
 		--min-threads $UNIXBENCH_MIN_THREADS			\
 		--max-threads $UNIXBENCH_MAX_THREADS			\
+		--iterations  $UNIXBENCH_ITERATIONS			\
 		--workloads $UNIXBENCH_WORKLOADS
 
 	return $?
