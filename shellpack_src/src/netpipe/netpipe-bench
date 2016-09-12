@@ -17,7 +17,7 @@ fi
 
 ###SHELLPACK monitor_hooks
 
-cd $SHELLPACK_SOURCES/netpipe-${VERSION} || die Failed to cd to netpipe directory
+cd $SHELLPACK_SOURCES/netpipe-${VERSION}-installed || die Failed to cd to netpipe directory
 
 export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-netpipe
 case $SERVERSIDE_COMMAND in
