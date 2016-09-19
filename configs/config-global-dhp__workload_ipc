@@ -78,7 +78,7 @@ export FUTEXBENCH_SHARED=no
 #  hard limits -- increments in such ranges are left to the ipcscale
 #  program.
 export IPCSCALE_MIN_THREADS=1
-export IPCSCALE_MAX_THREADS=2
+export IPCSCALE_MAX_THREADS=1
 export IPCSCALE_COMPLEXOPS=4
 export IPCSCALE_ITERATIONS=3
 export IPCSCALE_RUNTIME=5 # secs
