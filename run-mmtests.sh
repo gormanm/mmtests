@@ -214,6 +214,7 @@ install-depends expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile pa
 install-depends recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz wget
 install-depends perl-Time-HiRes time tcl
 install-depends kpartx util-linux
+install-depends hwloc-lstopo
 
 # Check monitoring
 if [ "$FORCE_RUN_MONITOR" != "" ]; then
@@ -921,6 +922,9 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	if [ "`which lscpu 2> /dev/null`" != "" ]; then
 		echo lscpu :: >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		lscpu >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	fi
+	if [ "`which lstopo 2> /dev/null`" != "" ]; then
+		lstopo lstopo-${RUNNAME}.pdf
 	fi
 	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
 	for TEST in $MMTESTS; do
