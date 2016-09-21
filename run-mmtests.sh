@@ -915,7 +915,12 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	fi
 	echo arch :: `uname -m` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	if [ "`which numactl 2> /dev/null`" != "" ]; then
+		echo numactl :: >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		numactl --hardware >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	fi
+	if [ "`which lscpu 2> /dev/null`" != "" ]; then
+		echo lscpu :: >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		lscpu >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	fi
 	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
 	for TEST in $MMTESTS; do
