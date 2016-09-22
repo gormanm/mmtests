@@ -215,6 +215,7 @@ install-depends recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz wg
 install-depends perl-Time-HiRes time tcl
 install-depends kpartx util-linux
 install-depends hwloc-lstopo
+install-depends cpupower
 
 # Check monitoring
 if [ "$FORCE_RUN_MONITOR" != "" ]; then
@@ -916,12 +917,16 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	fi
 	echo arch :: `uname -m` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	if [ "`which numactl 2> /dev/null`" != "" ]; then
-		echo numactl :: >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		echo numactl :: configuration >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		numactl --hardware >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	fi
 	if [ "`which lscpu 2> /dev/null`" != "" ]; then
-		echo lscpu :: >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		echo lscpu :: configuration >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		lscpu >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	fi
+	if [ "`which cpupower 2> /dev/null`" != "" ]; then
+		echo cpupower :: frequency-info >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		cpupower frequency-info >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	fi
 	if [ "`which lstopo 2> /dev/null`" != "" ]; then
 		lstopo lstopo-${RUNNAME}.pdf
