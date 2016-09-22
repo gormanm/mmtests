@@ -930,6 +930,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	fi
 	if [ "`which lstopo 2> /dev/null`" != "" ]; then
 		lstopo $SHELLPACK_LOG/lstopo-${RUNNAME}.pdf
+		lstopo --output-format txt > $SHELLPACK_LOG/lstopo-${RUNNAME}.txt
 	fi
 	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
 	for TEST in $MMTESTS; do
