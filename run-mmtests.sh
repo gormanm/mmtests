@@ -929,7 +929,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		cpupower frequency-info >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	fi
 	if [ "`which lstopo 2> /dev/null`" != "" ]; then
-		lstopo lstopo-${RUNNAME}.pdf
+		lstopo $SHELLPACK_LOG/lstopo-${RUNNAME}.pdf
 	fi
 	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
 	for TEST in $MMTESTS; do
