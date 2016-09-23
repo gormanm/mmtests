@@ -2,6 +2,7 @@
 
 ###SHELLPACK preamble adrestia-install 0
 GIT_LOCATION="https://github.com/mfleming/adrestia.git"
+MIRROR_LOCATION="$WEBROOT/adrestia"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

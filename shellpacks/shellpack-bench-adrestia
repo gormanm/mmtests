@@ -131,4 +131,4 @@ done
 
 exit $RETVAL
 #### Description Linux scheduler load balancer microbenchmark suite
-#### Details adrestia-bench 1
+#### Details adrestia-bench 3
