@@ -1,0 +1,14 @@
+#!/bin/bash
+
+###SHELLPACK preamble adrestia-install 0
+GIT_LOCATION="https://github.com/mfleming/adrestia.git"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch adrestia-${VERSION}.tar.gz adrestia-${VERSION}-installed
+
+###SHELLPACK build_start adrestia-${VERSION}-installed
+###SHELLPACK make
+
+echo adrestia installed successfully

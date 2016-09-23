@@ -1,0 +1,40 @@
+#!/bin/bash
+# Run adrestia benchmark
+
+###SHELLPACK preamble adrestia-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --min-arrival-time ADRESTIA_MIN_ATIME
+###SHELLPACK parseargParam --max-arrival-time ADRESTIA_MAX_ATIME
+###SHELLPACK parseargParam --threads          ADRESTIA_THREADS
+###SHELLPACK parseargParam --service-time     ADRESTIA_STIME
+###SHELLPACK parseargParam --loops            ADRESTIA_LOOPS
+###SHELLPACK parseargParam --test             ADRESTIA_TEST
+###SHELLPACK parseargParam --iterations       ADRESTIA_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required adrestia-${VERSION}
+
+cd $SHELLPACK_SOURCES/adrestia-${VERSION}-installed
+
+# The single test doesn't use arrival time or multiple threads, so
+# avoid needless iterations.
+if [ "$ADRESTIA_TEST" = "wakeup-single" ]; then
+	ADRESTIA_MAX_ATIME=$ADRESTIA_MIN_ATIME
+	ADRESTIA_THREADS=1
+fi
+
+ATIME=$ADRESTIA_MIN_ATIME
+while [ $ATIME -le $ADRESTIA_MAX_ATIME ]; do
+	###SHELLPACK threads_large_stride_begin 1 $ADRESTIA_THREADS
+		###SHELLPACK iteration_begin $ADRESTIA_ITERATIONS
+		echo Running $ADRESTIA_TEST $ATIME:$ADRESTIA_STIME threads $NR_THREADS $ITERATION/$ADRESTIA_ITERATIONS
+		$TIME_CMD -o $LOGDIR_RESULTS/time-$ATIME-$NR_THREADS-$ITERATION \
+			./adrestia -a $ATIME -l $ADRESTIA_LOOPS -s $ADRESTIA_STIME -t $NR_THREADS $ADRESTIA_TEST \
+				> $LOGDIR_RESULTS/adrestia-$ATIME-$NR_THREADS-$ITERATION.log
+		###SHELLPACK iteration_end $ADRESTIA_ITERATIONS
+	###SHELLPACK threads_stride_end
+	((ATIME *= 2))
+done
+
+exit $RETVAL
