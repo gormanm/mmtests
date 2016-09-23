@@ -90,6 +90,10 @@ Memory Topology
 CPU Topology
 ------------
 `list-cpu-toplogy.sh`
+
+Hwloc Topology
+-------------
+`lstopo --output-format txt | cat`
 EOF
 
 echo
