@@ -916,6 +916,10 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		echo raid-create :: $((RAID_CREATE_END-RAID_CREATE_START)) >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	fi
 	echo arch :: `uname -m` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	echo mount :: `uname -m` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	mount >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	echo /proc/mounts :: `uname -m` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	cat /proc/mounts >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	if [ "`which numactl 2> /dev/null`" != "" ]; then
 		echo numactl :: configuration >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		numactl --hardware >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
