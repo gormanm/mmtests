@@ -4,7 +4,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="ipcscale-waitforzero ipcscale-sysvsempp ipcscale-posixsempp futexbench-hash futexbench-requeue futexbench-wake pistress sembench-sem sembench-nanosleep sembench-futex futexwait filelockperf-flock filelockperf-posix filelockperf-lease"
+export MMTESTS="ipcscale-sysvsempp"
 export RUN_WARMUP=
 
 # Profiling parameters
