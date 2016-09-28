@@ -37,7 +37,7 @@ gcc -Wall /tmp/mmtests-wait.c -o /tmp/mmtests-wait || exit $SHELLPACK_ERROR
 
 echo "#!/bin/bash" > monitor-pre-hook
 echo "
-perf record -o \$1/perf-\$2-report-${PROFILE_TITLE}.data -g -a /tmp/mmtests-wait &
+perf record -o \$1/perf-\$2-report-${PROFILE_TITLE}.data -a /tmp/mmtests-wait &
 echo \$! > /tmp/mmtests.perf.pid
 " >> monitor-pre-hook
 
