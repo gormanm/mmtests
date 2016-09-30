@@ -161,12 +161,13 @@ if [ "$SERVER_START" = "yes" ]; then
 	echo $(($SHARED_BUFFERS*2/$PAGESIZE)) > /proc/sys/kernel/shmall
 	ulimit -l $SHARED_BUFFERS
 
-	echo Starting mariadb
 	IFS=',' read -a INITARR <<< "$MARIADB_START_OPTS"
 	for OP in ${INITARR[@]}
 	do
 	    START_STR+="$OP "
 	done
+	echo Starting mariadb: $START_STR
+	echo o key_buffer_size buffers $SHARED_BUFFERS
 
 	./support-files/mysql.server start --pid-file=$MARIADB_PIDFILE $START_STR
 	wait_on_pid_file $MARIADB_PIDFILE
@@ -177,4 +178,4 @@ fi
 echo mariadb operation successful
 exit $SHELLPACK_SUCCESS
 #### Description mariadbbuild
-#### Details mariadbbuild-bench 38
+#### Details mariadbbuild-bench 39

@@ -147,4 +147,4 @@ mv ${MARIADB_CONF}.tmp $MARIADB_CONF
 echo mariadb successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description mariadbbuild
-#### Details mariadbbuild 38
+#### Details mariadbbuild 39

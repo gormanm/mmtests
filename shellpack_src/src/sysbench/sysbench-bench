@@ -14,9 +14,6 @@ MARIADB_ADMIN_USER=root
 MARIADB_ADMIN_PASSWORD=mmtests-default
 RUN_CACHE_COLD=no
 
-MARIADB_TABLE_DRIVER=innodb
-OLTP_TESTTYPE=complex
-
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --effective-cachesize EFFECTIVE_CACHESIZE
@@ -31,6 +28,11 @@ OLTP_TESTTYPE=complex
 ###SHELLPACK parseargYes   --read-only           READONLY
 ###SHELLPACK parseargYes   --cache-cold          RUN_CACHE_COLD
 ###SHELLPACK parseargEnd
+
+MARIADB_TABLE_DRIVER=innodb
+MARIADB_START_OPTIONS="--innodb_buffer_pool_size=${SHARED_BUFFERS},--innodb_log_file_size=512M"
+OLTP_TESTTYPE=complex
+
 
 ###SHELLPACK check_install_required sysbench-${VERSION} --dbdriver ${DBDRIVER}
 ###SHELLPACK monitor_hooks
@@ -115,9 +117,10 @@ OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 	if [ "$DATABASE_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
 		echo Starting database for initialisation
 		mmtests_activity database-init
-		$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
-			--effective_cachesize $EFFECTIVE_CACHESIZE \
-			--shared_buffers $SHARED_BUFFERS \
+		$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start	\
+			--start_opts $MARIADB_START_OPTIONS			\
+			--effective_cachesize $EFFECTIVE_CACHESIZE		\
+			--shared_buffers $SHARED_BUFFERS			\
 			--work_mem $WORK_MEM || die Failed to get usable database installation
 
 		echo Preparing database
