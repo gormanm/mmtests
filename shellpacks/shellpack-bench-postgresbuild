@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
 P=postgresbuild-bench
-DEFAULT_VERSION=9.3.4
+DEFAULT_VERSION=9.6.0
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then

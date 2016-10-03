@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble pgbench-bench 9.3.4
+###SHELLPACK preamble pgbench-bench 9.6.0
 install-depends gnuplot
 
 ROLE=`whoami`

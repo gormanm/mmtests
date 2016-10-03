@@ -17,7 +17,7 @@ install-depends cmake
 case $DBDRIVER in
 postgres)
 	echo Checking postgres installation
-	DBDRIVER_VERSION=9.3.4
+	DBDRIVER_VERSION=9.6.0
 	;;
 *)
 	die Unrecognised dbdriver $DBDRIVER
