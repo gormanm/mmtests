@@ -1,0 +1,128 @@
+#!/bin/bash
+# Run lkp benchmarks
+
+P=lkp-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--workload)
+		LKP_WORKLOAD=$2
+		shift 2
+		;;
+	--min-threads)
+		LKP_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		LKP_MAX_THREADS=$2
+		shift 2
+		;;
+	--duration)
+		LKP_DURATION=$2
+		shift 2
+		;;
+	--iterations)
+		LKP_ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/lkp-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/lkp-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-lkp -v ${VERSION}  || die lkp install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/lkp-${VERSION}-installed || die Failed to cd to lkp install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo lkp installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+echo $LKP_WORKLOAD > $LOGDIR_RESULTS/workload
+
+THREADS=
+START_THREAD=$LKP_MIN_THREADS
+END_THREAD=$LKP_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 2 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
+for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $LKP_MIN_THREADS ]; then
+		continue
+	fi
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	export runtime=$LKP_DURATION
+	export nr_threads=$NR_THREADS
+
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+for ITERATION in `seq 1 $LKP_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+	echo Starting $LKP_WORKLOAD threads $NR_THREADS/$LKP_MAX_THREADS iteration $ITERATION/$LKP_ITERATIONS
+	./tests/$LKP_WORKLOAD 2>&1 | tee $LOGDIR_RESULTS/lkp-$NR_THREADS-$ITERATION.log
+done
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description lkp
+#### Details lkp-bench 4
