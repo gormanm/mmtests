@@ -157,7 +157,7 @@ if [ "$SERVER_START" = "yes" ]; then
 	# Do not checkpoint frequently
 	# Checkpoints are in 16MB segments so this tuning is to checkpoint
 	# when roughly quarter of the shared bufffers have been updated.
-	update_entry_cnf checkpoint_segments $((SHARED_BUFFERS/1048576/4))
+	update_entry_cnf max_wal_size $((SHARED_BUFFERS/1048576/4))
 	update_entry_cnf synchronous_commit on
 
 	# Configure shmem parameters
@@ -185,4 +185,4 @@ fi
 echo postgres operation successful
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild-bench 53
+#### Details postgresbuild-bench 55
