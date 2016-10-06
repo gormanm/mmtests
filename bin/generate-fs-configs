@@ -1,0 +1,297 @@
+#!/bin/bash
+
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
+cd ../configs || exit
+
+NOATIME_FSCONFIGS="
+config-global-dhp__db-dvdstore-tiny
+config-global-dhp__db-dvdstore-small
+config-global-dhp__db-dvdstore-medium
+config-global-dhp__db-pgbench-ro-xlarge
+config-global-dhp__db-pgbench-ro-large
+config-global-dhp__db-pgbench-ro-medium
+config-global-dhp__db-pgbench-ro-small
+config-global-dhp__db-pgbench-rw-xlarge
+config-global-dhp__db-pgbench-rw-large
+config-global-dhp__db-pgbench-rw-medium
+config-global-dhp__db-pgbench-rw-small
+config-global-dhp__db-sysbench-mariadb-oltp-ro-medium
+config-global-dhp__db-sysbench-mariadb-oltp-ro-small
+config-global-dhp__db-sysbench-mariadb-oltp-rw-medium
+config-global-dhp__db-sysbench-mariadb-oltp-rw-small
+config-global-dhp__db-sysbench-postgres-oltp-ro-medium
+config-global-dhp__db-sysbench-postgres-oltp-ro-small
+config-global-dhp__db-sysbench-postgres-oltp-rw-medium
+config-global-dhp__db-sysbench-postgres-oltp-rw-small
+config-global-dhp__workload_wikibench
+config-global-dhp__pgioperf
+config-global-dhp__db-dbt5-smallest
+config-global-dhp__stress-highorder-atomic
+config-global-dhp__workload_usemem
+"
+
+RAMCONFIGS="
+config-global-dhp__reaim-io-ram-tiny
+config-global-dhp__io-iozone-ram
+config-global-dhp__io-iozone-ram-dio
+"
+
+FSCONFIGS="
+config-global-dhp__io-threaded
+config-global-dhp__io-metadata
+config-global-dhp__io-dbench4-async
+config-global-dhp__io-dbench4-fsync
+config-global-dhp__pagereclaim-performance
+config-global-dhp__pagereclaim-shrinker
+config-global-dhp__workload-fsmark-50m-inode
+config-global-dhp__workload-fsmark-50m-zerofile-inode
+config-global-dhp__io-xfsrepair
+config-global-dhp__io-compress
+config-global-dhp__workload_mailserver
+config-global-dhp__workload_kerndevel
+config-global-dhp__workload_dedup
+config-global-dhp__workload_shellscripts
+config-global-dhp__reaim-io-tiny
+config-global-dhp__reaim-io-medium
+config-global-dhp__reaim-highsys
+config-global-dhp__reaim-stress
+config-global-dhp__stress-highalloc-performance
+config-global-dhp__io-bonnie-async
+config-global-dhp__io-bonnie-fsync
+config-global-dhp__io-bonnie-async-fixed
+config-global-dhp__io-bonnie-fsync-fixed
+config-global-dhp__io-iozone
+config-global-dhp__io-iozone-small
+config-global-dhp__io-iozone-dio
+config-global-dhp__io-seeker-file-read
+config-global-dhp__io-seeker-file-write
+config-global-dhp__io-filebench-varmail-small
+config-global-dhp__io-filebench-varmail-medium
+config-global-dhp__io-filebench-varmail-large
+config-global-dhp__io-filebench-oltp
+config-global-dhp__io-filebench-oltp-directio
+config-global-dhp__io-filebench-webserver-small
+config-global-dhp__io-filebench-webproxy-small
+config-global-dhp__io-filebench-webproxy-medium
+config-global-dhp__io-filebench-webproxy-large
+config-global-dhp__io-ddread
+config-global-dhp__io-ddwrite
+config-global-dhp__workload_thpscale
+config-global-dhp__workload_will-it-scale-io
+config-global-dhp__proprietary_saphana_memload
+config-global-dhp__proprietary_saphanahwcct
+config-global-dhp__proprietary_sapfstest_random
+config-global-dhp__proprietary_sapfstest_sequential
+config-global-dhp__proprietary_saphana_oltp
+config-global-dhp__proprietary_saphana_oltp_tuned
+config-global-dhp__proprietary_saphana_tpcds_large
+config-global-dhp__proprietary_saphana_tpcds_large_tuned
+config-global-dhp__io-iozone-doublemem-async
+config-global-dhp__io-iozone-doublemem-fsync
+config-global-dhp__db-sqlite-insert-small
+config-global-dhp__db-sqlite-insert-medium
+config-global-dhp__io-paralleldd-read-small
+config-global-dhp__io-paralleldd-read-large
+config-global-dhp__io-paralleldd-read-small-multi
+config-global-dhp__io-paralleldd-read-large-multi
+config-global-dhp__io-fio-randread-async-randwrite
+config-global-dhp__io-fio-randread-async-seqwrite
+config-global-dhp__io-fio-randread-sync-heavywrite
+config-global-dhp__io-fio-randread-sync-randwrite
+config-global-dhp__io-blogbench
+config-global-dhp__workload_libmicro-file
+config-global-dhp__io-xfsio
+config-global-dhp__io-xfsio-profile-normal
+config-global-dhp__workload_unixbench-io
+"
+
+rm -f *-ext3 *-ext4 *-btrfs *-btrfs-nocow *-xfs *-raid0 *-raid1 *-raid5
+
+for CONFIG in $RAMCONFIGS; do
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/ram0/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext3/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM=/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
+			> $CONFIG-ext3
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/ram0/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext4/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-F -E lazy_itable_init=0"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
+			> $CONFIG-ext4
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/ram0/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier/' \
+			> $CONFIG-btrfs
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/ram0/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier,nodatacow/' \
+			> $CONFIG-btrfs-nocow
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/ram0/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=inode64,logbsize=262144,nobarrier/' \
+			> $CONFIG-xfs
+
+#	for FS in ext3 ext4 btrfs xfs; do
+#		sed -i '/export TESTDISK_RD_PREALLOC/d' ${CONFIG}-$FS
+#		sed -i '/export TESTDISK_RD_PREALLOC_NODE/d' ${CONFIG}-$FS
+#		sed -i '/export TESTDISK_RD_SIZE/d' ${CONFIG}-$FS
+#
+#		echo >> ${CONFIG}-$FS
+#		echo '# Use 1/5 of NUMA node size to leave space for pagecache and other stuff' >> ${CONFIG}-$FS
+#		echo '# Also note we may be on UMA machine after all' >> ${CONFIG}-$FS
+#		echo 'export TESTDISK_RD_PREALLOC=yes' >> ${CONFIG}-$FS
+#		echo 'export TESTDISK_RD_PREALLOC_NODE=${MMTESTS_NODE_ID_BY_SIZE[$((NUMNODES-1))]}' >> ${CONFIG}-$FS
+#		echo 'export TESTDISK_RD_SIZE=$((${MMTESTS_NODE_SIZE[$TESTDISK_RD_PREALLOC_NODE]}/5))' >> ${CONFIG}-$FS
+#	done
+done
+for CONFIG in $FSCONFIGS; do
+	if [ ! -e $CONFIG ]; then
+		continue
+	fi
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext3/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM=/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
+			> $CONFIG-ext3
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext4/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-F -E lazy_itable_init=0"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
+			> $CONFIG-ext4
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier/' \
+			> $CONFIG-btrfs
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier,nodatacow/' \
+			> $CONFIG-btrfs-nocow
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=inode64,nobarrier/' \
+			> $CONFIG-xfs
+
+done
+for CONFIG in $NOATIME_FSCONFIGS; do
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext3/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM=/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0,noatime/' \
+			> $CONFIG-ext3
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext4/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-F -E lazy_itable_init=0"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0,noatime/' \
+			> $CONFIG-ext4
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=noatime,nobarrier/' \
+			> $CONFIG-btrfs
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=noatime,nobarrier,nodatacow/' \
+			> $CONFIG-btrfs-nocow
+
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=noatime,inode64,logbsize=262144,nobarrier/' \
+			> $CONFIG-xfs
+
+done
+
+
+LIMITMEM_CONFIGS="
+"
+for CONFIG in $LIMITMEM_CONFIGS; do
+	DESTCONFIG=`echo $CONFIG | sed -e 's/dhp__/dhp-2048M__/'`
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext3/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM=/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
+			> $DESTCONFIG-ext3
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext4/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-F -E lazy_itable_init=0"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0,noatime/' \
+			> $DESTCONFIG-ext4
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier/' \
+			> $DESTCONFIG-btrfs
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=inode64,logbsize=262144,nobarrier/' \
+			> $DESTCONFIG-xfs
+done
+
+TMPFS_CONFIGS="
+config-global-dhp__io-paralleldd-read
+config-global-dhp__pagereclaim-performance
+config-global-dhp__reaim-io-tiny
+"
+
+for CONFIG in $TMPFS_CONFIGS; do
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=none/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=tmpfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM=/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=/' \
+			> $CONFIG-tmpfs
+done
+
+for FS in xfs ext3 ext4 btrfs btrfs-nocow; do
+	for TYPE in rotary ssd; do
+		for CONFIG in `ls config-*-$FS`; do
+			cp $CONFIG $CONFIG-$TYPE-raid0
+			cp $CONFIG $CONFIG-$TYPE-raid1
+			cp $CONFIG $CONFIG-$TYPE-raid5
+		done
+	done
+done
