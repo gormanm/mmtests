@@ -164,6 +164,11 @@ function file_fetch() {
 	MIRROR=$2
 	OUTPUT=$3
 
+	if [ -e $OUTPUT ]; then
+		echo Downloaded file already available at $OUTPUT
+		return
+	fi
+
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
 		wget -q -O $OUTPUT $MIRROR
@@ -186,6 +191,11 @@ function sources_fetch() {
 	MIRROR=$2
 	OUTPUT=$3
 	WEB_ALT=$4
+
+	if [ -e $OUTPUT ]; then
+		echo Downloaded file already available at $OUTPUT
+		return
+	fi
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
