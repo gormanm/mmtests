@@ -2,7 +2,7 @@
 
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
-cd ../configs || exit
+cd $SCRIPTDIR/configs || exit
 
 NOATIME_FSCONFIGS="
 config-global-dhp__db-dvdstore-tiny
@@ -27,7 +27,6 @@ config-global-dhp__db-sysbench-postgres-oltp-rw-small
 config-global-dhp__workload_wikibench
 config-global-dhp__pgioperf
 config-global-dhp__db-dbt5-smallest
-config-global-dhp__stress-highorder-atomic
 config-global-dhp__workload_usemem
 "
 
@@ -272,7 +271,7 @@ for CONFIG in $LIMITMEM_CONFIGS; do
 done
 
 TMPFS_CONFIGS="
-config-global-dhp__io-paralleldd-read
+config-global-dhp__io-paralleldd-read-small
 config-global-dhp__pagereclaim-performance
 config-global-dhp__reaim-io-tiny
 "
