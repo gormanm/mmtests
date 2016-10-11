@@ -1,0 +1,94 @@
+#!/bin/bash
+P=hpcc-install
+DEFAULT_VERSION=1.5.0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+WEB_LOCATION="http://icl.cs.utk.edu/projectsfiles/hpcc/download"
+MIRROR_LOCATION="$WEBROOT/hpcc/"
+
+install-depends openmpi openmpi-devel openmpi-libs libblas3 blas blas-devel blas-devel-static
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+TEMPLATE=Linux_PII_CBLAS
+
+template_set_param() {
+	KEY=$1
+	VALUE=$2
+	VALUE_ESCAPED=`echo "$VALUE" | sed -e 's/\//\\\\\//g'`
+	sed -i -e "s/$KEY\s*=.*/$KEY = $VALUE_ESCAPED/" Make.$TEMPLATE
+	grep MPdir Make.$TEMPLATE
+}
+
+# Unconditionally fetch the tar to find out the real version number
+TARFILE=hpcc-${VERSION}.tar.gz
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
+cd $SHELLPACK_SOURCES
+tar -xf $TARFILE
+if [ $? -ne 0 ]; then
+	error "$P: tar xf hpcc-${VERSION}.tar.gz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR hpcc-$VERSION-installed
+pushd hpcc-$VERSION-installed > /dev/null || die Failed to rename tar
+pushd $SHELLPACK_SOURCES/hpcc-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
+cd hpl || die Package is not laid out as expected
+cp setup/Make.$TEMPLATE . || die Failed to copy $TEMPLATE template
+template_set_param MPdir  $HPCC_MPI_PATH
+template_set_param MPlib  ""
+template_set_param LAdir  /usr/lib64
+template_set_param LAinc  -I/usr/include
+template_set_param LAlib  -lblas
+template_set_param CC     $HPCC_MPI_PATH/mpicc
+template_set_param LINKER $HPCC_MPI_PATH/mpicc
+sed -i -e /HPL_CALL_CBLAS/d Make.$TEMPLATE
+
+make arch=$TEMPLATE || die Failed to build hpcc stage 1
+cd ..
+make arch=$TEMPLATE || die Failed to build hpcc stage 2
+
+exit $SHELLPACK_SUCCESS
+#### Description hpcc
+#### Details hpcc 16

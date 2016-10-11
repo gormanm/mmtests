@@ -1,0 +1,148 @@
+#!/bin/bash
+# This is the script for running the HPC Challenge
+#
+P=hpcc-bench
+DEFAULT_VERSION=1.5.0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+MPIOPT="-mca btl ^openib,udapl"
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--workload-size)
+		HPCC_WORKLOAD_SIZE=$2
+		shift 2
+		;;
+	--iterations)
+		HPCC_ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/hpcc-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/hpcc-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-hpcc -v ${VERSION}  || die hpcc install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/hpcc-${VERSION}-installed || die Failed to cd to hpcc install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo hpcc installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+round_down_power_2_cpus() {
+	POWER=1
+
+	while [ $((1<<$POWER)) -le $NUMCPUS ]; do
+		POWER=$((POWER+1))
+	done
+
+	MPICPUS=$((1<<(POWER-1)))
+}
+round_down_power_2_cpus
+
+# Calculate basic parameters
+N=`echo "scale=0; sqrt ($HPCC_WORKLOAD_SIZE/8)" | bc -l`
+P=`echo "scale=0; sqrt ($NUMCPUS)" | bc -l`
+Q=$P
+
+# Choose NB
+FACTOR=1
+while [ $((P*Q*FACTOR)) -lt 100 ]; do
+	FACTOR=$((FACTOR+1))
+done
+NB=$((P*Q*FACTOR))
+
+# Write hpccinf.txt
+cat > hpccinf.txt <<EOF
+HPLinpack benchmark input file
+Innovative Computing Laboratory, University of Tennessee
+HPL.out      output file name (if any)
+8            device out (6=stdout,7=stderr,file)
+1            # of problems sizes (N)
+$N           Ns
+1            # of NBs
+$NB          NBs
+0            PMAP process mapping (0=Row-,1=Column-major)
+1            # of process grids (P x Q)
+$P           Ps
+$Q           Qs
+16.0         threshold
+1            # of panel fact
+2            PFACTs (0=left, 1=Crout, 2=Right)
+1            # of recursive stopping criterium
+4            NBMINs (>= 1)
+1            # of panels in recursion
+2            NDIVs
+1            # of recursive panel fact.
+1            RFACTs (0=left, 1=Crout, 2=Right)
+1            # of broadcast
+1            BCASTs (0=1rg,1=1rM,2=2rg,3=2rM,4=Lng,5=LnM)
+1            # of lookahead depth
+1            DEPTHs (>=0)
+2            SWAP (0=bin-exch,1=long,2=mix)
+64           swapping threshold
+0            L1 in (0=transposed,1=no-transposed) form
+0            U  in (0=transposed,1=no-transposed) form
+1            Equilibration (0=no,1=yes)
+8            memory alignment in double (> 0)
+##### This line (no. 32) is ignored (it serves as a separator). ######
+0                               Number of additional problem sizes for PTRANS
+1200 10000 30000                values of N
+0                               number of additional blocking sizes for PTRANS
+40 9 8 13 13 20 16 32 64        values of NB
+EOF
+cp hpccinf.txt $LOGDIR_RESULTS/
+
+monitor_pre_hook $LOGDIR_RESULTS hpcc
+for ITERATION in `seq 1 $HPCC_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+	mmtests_activity hpcc-$ITERATION
+	echo Running hpcc iteration $ITERATION/$HPCC_ITERATIONS
+	$HPCC_MPI_PATH/mpirun $MPIOPT -np $MPICPUS ./hpcc 2>&1 | tee $LOGDIR_RESULTS/hpcc-${ITERATION}.log
+	mv hpccoutf.txt $LOGDIR_RESULTS/hpccoutf-${ITERATION}.txt
+done
+monitor_post_hook $LOGDIR_RESULTS hpcc
+
+exit $SHELLPACK_SUCCESS
+#### Description hpcc
+#### Details hpcc-bench 16
