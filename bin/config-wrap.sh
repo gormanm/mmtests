@@ -11,4 +11,8 @@ P="config-wrap"
 if [ "$MMTESTS" = "" ]; then
 	. $SCRIPTDIR/config
 fi
+
+mkdir -p $SCRIPTDIR/work/log
+mkdir -p $SCRIPTDIR/work/testdisk
+mkdir -p $SCRIPTDIR/work/sources
 eval $@

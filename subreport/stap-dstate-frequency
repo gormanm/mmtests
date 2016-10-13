@@ -34,10 +34,6 @@ while ($line = <>) {
 		$reading_trace = 0;
 		$stalltime = $4;
 
-		if ($stalltime == 0) {
-			print "DEBUG $line";
-		}
-
 		$first_trace = "";
 		$trace = "";
 	}

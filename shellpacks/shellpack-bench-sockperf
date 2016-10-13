@@ -130,6 +130,9 @@ fi
 SOCKPERF_MESSAGE_SIZES=`echo $SOCKPERF_MESSAGE_SIZES | tr ',' ' '`
 SOCKPERF_MESSAGE_RATES=`echo $SOCKPERF_MESSAGE_RATES | tr ',' ' '`
 
+if [ "$SOCKPERF_PROTOCOL" = "" ]; then
+	SOCKPERF_PROTOCOL=`echo $SERVERSIDE_NAME | awk -F - '{print $1}'`
+fi
 case $SOCKPERF_PROTOCOL in
 tcp)
 	PROTOCOL_SWITCH=--tcp
@@ -154,9 +157,6 @@ throughput)
 under-load)
 	ITERATIONS=1
 	;;
-*)
-	die Unrecognised test type, specify ping-ping, throughput or under-load
-	;;
 esac
 
 cd $SHELLPACK_SOURCES/sockperf-${VERSION}-installed || die Failed to cd to sockperf directory
@@ -164,14 +164,12 @@ cd $SHELLPACK_SOURCES/sockperf-${VERSION}-installed || die Failed to cd to sockp
 export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-sockperf
 case $SERVERSIDE_COMMAND in
 start)
-	echo Killing old servers
-	killall netserver
-
 	echo Starting server $TASKSET_SERVER
 	mmtests_activity sockperf-$SERVERSIDE_NAME
 	monitor_pre_hook $LOGDIR_RESULTS sockperf-$SERVERSIDE_NAME
 	SOCKPERFROOT=$SHELLPACK_SOURCES/sockperf-${VERSION}-installed 
-	$TASKSET_SERVER $SOCKPERFROOT/bin/sockperf server $PROTOCOL_SWITCH &
+	killall sockperf 2> /dev/null
+	nohup $TASKSET_SERVER $SOCKPERFROOT/bin/sockperf server $PROTOCOL_SWITCH 0<&- &>/dev/null &
 	echo $! > /tmp/sockperf-server.pid
 	sleep 2
 	ps -p `cat /tmp/sockperf-server.pid`
@@ -231,7 +229,7 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 done
 		monitor_post_hook $LOGDIR_RESULTS $SOCKPERF_PROTOCOL-$SIZE-$RATE
 
-		mmtests_server_ctl stop --serverside-name $PROTOCOL-$SIZE
+		mmtests_server_ctl stop --serverside-name $SOCKPERF_PROTOCOL-$SIZE-$RATE
 	done
 done
 
@@ -240,4 +238,4 @@ rm /tmp/sockperf-server.pid
 
 exit $SHELLPACK_SUCCESS
 #### Description sockperf
-#### Details sockperf-bench 15
+#### Details sockperf-bench 23
