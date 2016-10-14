@@ -53,7 +53,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=httpd-${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -104,6 +104,10 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 
+# remove User and Group directives from httpd config file, so that it's executed as the current user
+sed -i 's/^User .*$//' $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/conf/httpd.conf || die Failed to remove User directive from httpd.conf
+sed -i 's/^Group .*$//' $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/conf/httpd.conf || die Failed to remove Group directive from httpd.conf
+
 # Install PHP (module) -- requires httpd to previously be built
 if [ ! -e $SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed ]; then
 	$SHELLPACK_INCLUDE/shellpack-install-phpbuild -v ${PHP_VERSION} || die Failed to install php
@@ -111,4 +115,4 @@ fi
 
 echo httpd installed successfully
 #### Description apachebuild
-#### Details apachebuild 12
+#### Details apachebuild 13
