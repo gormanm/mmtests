@@ -10,7 +10,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 
-MPIOPT="-mca btl ^openib,udapl"
+MPIOPT="--allow-run-as-root -mca btl ^openib,udapl"
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -145,4 +145,4 @@ monitor_post_hook $LOGDIR_RESULTS hpcc
 
 exit $SHELLPACK_SUCCESS
 #### Description hpcc
-#### Details hpcc-bench 16
+#### Details hpcc-bench 18

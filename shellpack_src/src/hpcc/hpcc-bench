@@ -3,7 +3,7 @@
 #
 ###SHELLPACK preamble hpcc-bench 1.5.0
 
-MPIOPT="-mca btl ^openib,udapl"
+MPIOPT="--allow-run-as-root -mca btl ^openib,udapl"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam	--workload-size		HPCC_WORKLOAD_SIZE
