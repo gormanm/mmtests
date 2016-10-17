@@ -89,28 +89,8 @@ fi
 
 echo $UNIXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 
-THREADS=
-START_THREAD=$UNIXBENCH_MIN_THREADS
-END_THREAD=$UNIXBENCH_MAX_THREADS
-if [ $END_THREAD -gt 32 ]; then
-	THREADS=`seq $START_THREAD 3 8`
-	THREADS="$THREADS `seq 12 9 32`"
-	THREADS="$THREADS `seq 48 31 $END_THREAD`"
-elif [ $END_THREAD -gt 8 ]; then
-	THREADS=`seq $START_THREAD 2 8`
-	THREADS="$THREADS `seq 12 6 $END_THREAD`"
-else
-	THREADS=`seq $START_THREAD 2 $END_THREAD`
-fi
-if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
-	THREADS="$THREADS $END_THREAD"
-fi
-
-for NR_THREADS in $THREADS; do
-	if [ $NR_THREADS -lt $UNIXBENCH_MIN_THREADS ]; then
-		continue
-	fi
-	mmtests_activity process $NR_THREADS/$END_THREAD
+for NR_THREADS in $UNIXBENCH_MIN_THREADS $UNIXBENCH_MAX_THREADS; do
+	mmtests_activity process $NR_THREADS/$UNIXBENCH_MAX_THREADS
 	for WORKLOAD in $UNIXBENCH_WORKLOADS; do
 		mmtests_activity $WORKLOAD-$NR_THREADS
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
@@ -126,4 +106,4 @@ done
 done
 exit $SHELLPACK_SUCCESS
 #### Description unixbench
-#### Details unixbench-bench 3
+#### Details unixbench-bench 4

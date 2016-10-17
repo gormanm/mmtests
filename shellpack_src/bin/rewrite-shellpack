@@ -445,6 +445,13 @@ for NR_THREADS in `seq $min_thread $max_thread`; do
 EOC
 	} elsif ($command eq "threads_iterate_end") {
 		print "done\n";
+	} elsif ($command eq "threads_min_max_stride_begin") {
+		my ($min_thread, $max_thread) = @details;
+		print <<EOC
+for NR_THREADS in $min_thread $max_thread; do
+	mmtests_activity process \$NR_THREADS/$max_thread
+EOC
+
 	} elsif ($command eq "threads_stride_begin") {
 		my ($min_thread, $max_thread) = @details;
 		print <<EOC
