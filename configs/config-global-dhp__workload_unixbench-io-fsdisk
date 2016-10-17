@@ -3,7 +3,7 @@ SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
 export RUN_WARMUP=
-export MMTESTS="unixbench-fsbuffer unixbench-fsbuffer-r unixbench-fsbuffer-w unixbench-fsdisk unixbench-fsdisk-r unixbench-fsdisk-w unixbench-fstime unixbench-fstime-r unixbench-fstime-w"
+export MMTESTS="unixbench-fsdisk unixbench-fsdisk-r unixbench-fsdisk-w"
 
 # Profiling parameters
 export RUN_NOPROFILE=yes

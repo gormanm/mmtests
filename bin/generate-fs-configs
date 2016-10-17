@@ -102,7 +102,9 @@ config-global-dhp__io-blogbench
 config-global-dhp__workload_libmicro-file
 config-global-dhp__io-xfsio
 config-global-dhp__io-xfsio-profile-normal
-config-global-dhp__workload_unixbench-io
+config-global-dhp__workload_unixbench-io-fsbuffer
+config-global-dhp__workload_unixbench-io-fsdisk
+config-global-dhp__workload_unixbench-io-fstime
 "
 
 rm -f *-ext3 *-ext4 *-btrfs *-btrfs-nocow *-xfs *-raid0 *-raid1 *-raid5
