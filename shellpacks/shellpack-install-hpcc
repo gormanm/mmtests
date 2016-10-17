@@ -52,7 +52,6 @@ template_set_param() {
 	VALUE=$2
 	VALUE_ESCAPED=`echo "$VALUE" | sed -e 's/\//\\\\\//g'`
 	sed -i -e "s/$KEY\s*=.*/$KEY = $VALUE_ESCAPED/" Make.$TEMPLATE
-	grep MPdir Make.$TEMPLATE
 }
 
 # Unconditionally fetch the tar to find out the real version number
@@ -122,4 +121,4 @@ index 87aceed..a56fed9 100644
 ==== END fix-restrict.patch ====
 
 #### Description hpcc
-#### Details hpcc 18
+#### Details hpcc 19

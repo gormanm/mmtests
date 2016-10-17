@@ -1,0 +1,11 @@
+#!/bin/bash
+###SHELLPACK preamble hpcg-install 3.0
+WEB_LOCATION="http://www.hpcg-benchmark.org/downloads"
+MIRROR_LOCATION="$WEBROOT/hpcg/"
+
+install-depends openmpi openmpi-devel openmpi-libs
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+###SHELLPACK sources_fetch hpcg-${VERSION}.tar.gz hpcg-$VERSION-installed
+exit $SHELLPACK_SUCCESS

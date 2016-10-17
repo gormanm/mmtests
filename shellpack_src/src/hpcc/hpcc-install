@@ -15,7 +15,6 @@ template_set_param() {
 	VALUE=$2
 	VALUE_ESCAPED=`echo "$VALUE" | sed -e 's/\//\\\\\//g'`
 	sed -i -e "s/$KEY\s*=.*/$KEY = $VALUE_ESCAPED/" Make.$TEMPLATE
-	grep MPdir Make.$TEMPLATE
 }
 
 ###SHELLPACK sources_fetch hpcc-${VERSION}.tar.gz hpcc-$VERSION-installed

@@ -1,0 +1,157 @@
+#!/bin/bash
+# This is the script for running the HPCG benchmark
+#
+P=hpcg-bench
+DEFAULT_VERSION=3.0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+MPIRUN=
+MPIOPT=
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--duration)
+		HPCG_DURATION=$2
+		shift 2
+		;;
+	--iterations)
+		HPCG_ITERATIONS=$2
+		shift 2
+		;;
+	--parallelise-type)
+		HPCG_PARALLELISE=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/hpcg-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/hpcg-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-hpcg -v ${VERSION}  || die hpcg install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/hpcg-${VERSION}-installed || die Failed to cd to hpcg install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo hpcg installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+TEMPLATE=
+template_set_param() {
+	KEY=$1
+	VALUE=$2
+	VALUE_ESCAPED=`echo "$VALUE" | sed -e 's/\//\\\\\//g'`
+	sed -i -e "s/$KEY\s*=.*/$KEY = $VALUE_ESCAPED/" setup/Make.$TEMPLATE
+}
+
+round_down_power_2_cpus() {
+	POWER=1
+
+	while [ $((1<<$POWER)) -le $NUMCPUS ]; do
+		POWER=$((POWER+1))
+	done
+
+	MPICPUS=$((1<<(POWER-1)))
+}
+round_down_power_2_cpus
+
+# Configure build template
+case $HPCG_PARALLELISE in
+gcc-omp)
+	TEMPLATE=GCC_OMP
+	export OMP_NUM_THREADS=$MPICPUS
+	unset MPIRUN
+	unset MPIOPT
+	;;
+gcc-mpi)
+	TEMPLATE=Linux_MPI
+	unset OMP_NUM_THREADS
+	MPIRUN=$HPCG_MPI_PATH/mpirun
+	MPIOPT="--allow-run-as-root -mca btl ^openib,udapl -np $MPICPUS"
+	template_set_param CXX   $HPCG_MPI_PATH/mpicxx
+	template_set_param MPdir $HPCG_MPI_PATH
+	template_set_param MPlib ""
+	;;
+gcc-omp-mpi)
+	TEMPLATE=MPI_GCC_OMP
+	export OMP_NUM_THREADS=$MPICPUS
+	MPIRUN=$HPCG_MPI_PATH/mpirun
+	MPIOPT="--allow-run-as-root -mca btl ^openib,udapl -np $MPICPUS"
+	template_set_param CXX   $HPCG_MPI_PATH/mpicxx
+	template_set_param MPdir $HPCG_MPI_PATH
+	template_set_param MPlib ""
+	;;
+serial)
+	TEMPLATE=Linux_Serial
+	MPICPUS=1
+	unset OMP_NUM_THREADS
+	unset MPIRUN
+	unset MPIOPT
+	;;
+*)
+	die  Unsupported parallelise option $HPCG_PARALLELISE
+	;;
+esac
+make clean || die Failed to clean hpcg
+make arch=$TEMPLATE || die Failed to build hpcg
+
+# Configure benchmark
+cat > hpcg.dat <<EOF
+HPCG benchmark input file
+Sandia National Laboratories; University of Tennessee, Knoxville
+104 104 104
+$HPCG_DURATION
+EOF
+
+monitor_pre_hook $LOGDIR_RESULTS hpcg
+for ITERATION in `seq 1 $HPCG_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+	mmtests_activity hpcg-$ITERATION
+	echo Running hpcg iteration $ITERATION/$HPCG_ITERATIONS cpus $MPICPUS
+	eval $MPIRUN $MPIOPT ./bin/xhpcg 2>&1 | tee $LOGDIR_RESULTS/hpcg-${ITERATION}.raw
+	mv HPCG-Benchmark-*.yaml $LOGDIR_RESULTS/hpcg-${ITERATION}.yaml
+	mv hpcg_log*.txt $LOGDIR_RESULTS/hpcg-${ITERATION}.log
+done
+monitor_post_hook $LOGDIR_RESULTS hpcg
+
+exit $SHELLPACK_SUCCESS
+#### Description hpcg
+#### Details hpcg-bench 12
