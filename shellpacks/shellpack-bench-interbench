@@ -1,0 +1,129 @@
+#!/bin/bash
+# Run interbench benchmark
+
+P=interbench-bench
+DEFAULT_VERSION=0.31.1
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+INTERBENCH_DURATION=30
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--min-threads)
+		INTERBENCH_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		INTERBENCH_MAX_THREADS=$2
+		shift 2
+		;;
+	--duration)
+		INTERBENCH_DURATION=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/interbench-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/interbench-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-interbench -v ${VERSION}  || die interbench install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/interbench-${VERSION}-installed || die Failed to cd to interbench install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo interbench installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+THREADS=
+START_THREAD=$INTERBENCH_MIN_THREADS
+END_THREAD=$INTERBENCH_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 2 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
+for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $INTERBENCH_MIN_THREADS ]; then
+		continue
+	fi
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	mmtests_activity interbench-$NR_THREADS
+
+	cd $SHELLPACK_TEMP/ || die Failed to change to temporary directory
+	rm -f interbench.*
+
+	echo Running with $NR_THREADS threads
+	save_rc $TIME_CMD -o $LOGDIR_RESULTS/interbench-${NR_THREADS}.time		\
+		$SHELLPACK_SOURCES/interbench-${VERSION}-installed/bin/interbench	\
+		-t $INTERBENCH_DURATION							\
+		-L $NR_THREADS -d | tee $LOGDIR_RESULTS/interbench-${NR_THREADS}.log
+	recover_rc
+	RETVAL=$?
+	if [ $RETVAL -ne 0 ]; then
+		die interbench exited with error
+	fi
+	mv *.latency $LOGDIR_RESULTS/interbench-${NR_THREADS}.latency
+
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description interbench
+#### Details interbench-bench 8

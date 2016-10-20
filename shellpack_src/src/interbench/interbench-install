@@ -1,0 +1,18 @@
+#!/bin/bash
+
+###SHELLPACK preamble interbench-install 0.31.1
+GIT_LOCATION="https://github.com/gormanm/interbench"
+MIRROR_LOCATION="$WEBROOT/interbench"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch interbench-${VERSION}.tar.bz2 interbench-$VERSION
+###SHELLPACK build_start interbench-${VERSION}
+git checkout interbench-$VERSION || die Failed to checkout $VERSION
+###SHELLPACK make_clean
+###SHELLPACK make
+mkdir -p ../interbench-$VERSION-installed/bin
+cp interbench ../interbench-$VERSION-installed/bin || exit $SHELLPACK_ERROR
+
+exit $SHELLPACK_SUCCESS
