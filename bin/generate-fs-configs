@@ -29,6 +29,8 @@ config-global-dhp__pgioperf
 config-global-dhp__db-dbt5-smallest
 config-global-dhp__workload_usemem
 config-global-dhp__workload_linkbench
+config-global-dhp__workload_graphdb-small
+config-global-dhp__workload_graphdb-large
 "
 
 RAMCONFIGS="

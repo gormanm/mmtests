@@ -609,6 +609,27 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
+		graphdb)
+			COUNT=-1
+			for HEADING in read write mmap munmap; do
+				COUNT=$((COUNT+1))
+				if [ $((COUNT%2)) -eq 0 ]; then
+					echo "<tr>"
+				fi
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-smooth.png --smooth
+				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-smooth.ps --smooth
+				smoothover graph-$SUBREPORT-$HEADING
+
+				if [ $((COUNT%2)) -eq 1 ]; then
+					echo "</tr>"
+				fi
+			done
+			if [ $((COUNT%2)) -ne 1 ]; then
+				echo "</tr>"
+			fi
+			;;
 		ipcscale-waitforzero|ipcscale-sysvsempp|ipcscale-posixsempp)
 			COUNT=-1
 			for HEADING in `$EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sed -e 's/[0-9]*-//' | sort | uniq`; do
