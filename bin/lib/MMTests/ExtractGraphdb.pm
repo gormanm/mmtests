@@ -38,14 +38,10 @@ sub extractReport($$$) {
 
 		next if ($line !~ /[0-9]* [a-z]* [0-9]*$/);
 		my ($timestamp, $op, $latency) = split(/\s+/, $line);
-		next if ($timestamp > 2000000000000000);
-		next if ($latency > 300000000);
 
 		if ($start_timestamp == 0) {
 			$start_timestamp = $timestamp;
 		}
-
-
 		push @{$self->{_ResultData}}, [ $op, $timestamp - $start_timestamp, $latency ];
 	}
 

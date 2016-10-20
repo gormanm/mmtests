@@ -18,8 +18,10 @@ cat $SHELLPACK_TEMP/log-latencies.patch | patch -p1 || exit $SHELLPACK_FAILURE
 exit $SHELLPACK_SUCCESS
 
 ==== BEGIN log-latencies.patch ====
---- a/graphdb.cpp	2016-10-20 18:04:19.636667815 +0100
-+++ b/graphdb.cpp	2016-10-20 18:08:09.809411991 +0100
+diff --git a/graphdb.cpp b/graphdb.cpp
+index 8e712ad51241..d1119e6e80f0 100644
+--- a/graphdb.cpp
++++ b/graphdb.cpp
 @@ -17,8 +17,6 @@
   *
   * - Apurva Mehta <amehta@linkedin.com>
@@ -29,7 +31,7 @@ exit $SHELLPACK_SUCCESS
  #include <iostream>
  #include <string>
  #include <sys/mman.h>
-@@ -35,40 +33,45 @@
+@@ -35,40 +33,47 @@
  #include <sys/resource.h>
  #include <pthread.h>
  
@@ -48,6 +50,8 @@ exit $SHELLPACK_SUCCESS
 +static const unsigned long long IO_READ_LATENCY_THRESHOLD = 200;
 +static const unsigned long long IO_WRITE_LATENCY_THRESHOLD = 400;
 +static const unsigned long long VM_LATENCY_THRESHOLD = 10;
++static const useconds_t read_delay = 20000;
++static const useconds_t max_write_delay = 100000;
  static pthread_rwlock_t addr_lock = PTHREAD_RWLOCK_INITIALIZER;
  
 +unsigned long long finish_time = 0;
@@ -86,7 +90,7 @@ exit $SHELLPACK_SUCCESS
  
  		close(fd);
  
-@@ -89,7 +92,6 @@
+@@ -89,7 +94,6 @@ unsigned long get_user_time_ms(struct rusage start_time, struct rusage end_time)
  	return (timeval_to_us(end_time.ru_utime) - timeval_to_us(start_time.ru_utime)) / 1000;
  }
  
@@ -94,7 +98,7 @@ exit $SHELLPACK_SUCCESS
  unsigned long get_system_time_ms(struct rusage start_time, struct rusage end_time)
  {
  	return (timeval_to_us(end_time.ru_stime) - timeval_to_us(start_time.ru_stime)) / 1000;
-@@ -103,60 +105,73 @@
+@@ -103,60 +107,97 @@ string get_time_string()
  
  	time(&raw_time);
  	timeinfo = localtime(&raw_time);
@@ -115,10 +119,10 @@ exit $SHELLPACK_SUCCESS
 +bool finished(void)
 +{
 +	struct timeval current;
- 
++
 +	if (!finish_time)
 +		return false;
-+
+ 
 +	gettimeofday(&current, NULL);
 +	return timeval_to_us(current) > finish_time;
 +}
@@ -162,6 +166,28 @@ exit $SHELLPACK_SUCCESS
  	close(fd);
  }
  
++ofstream *open_latency(void)
++{
++	ostringstream fname;
++	fname << (unsigned int) pthread_self() << "-latency.dat";
++
++	return new ofstream(fname.str().c_str(), ios::trunc | ios::binary);
++}
++
++void report_latency(ofstream *fout, unsigned long long current_time, const char *op, unsigned long long latency)
++{
++	char buf[128];
++
++	sprintf(buf, "%llu %s %llu", current_time, op, latency);
++	*fout << buf << endl;
++}
++
++void close_latency(ofstream *fout)
++{
++	fout->close();
++	delete fout;
++}
++
  void *read_randomly_from_addresses(void *addrs)
  {
 -	
@@ -169,6 +195,7 @@ exit $SHELLPACK_SUCCESS
 -	struct rusage r_end_time; 
  	struct timeval start_time;
  	struct timeval end_time;
++	ofstream *fout;
  
 -	unsigned long long start; 
 -	unsigned long long end; 
@@ -179,6 +206,7 @@ exit $SHELLPACK_SUCCESS
 +	unsigned long tmp = 0, sum = 0;
  
  	vector<unsigned long*> *mapped_addrs =  (vector<unsigned long*> *) addrs;
++	fout = open_latency();
  
 -	while(true){
 -
@@ -186,7 +214,7 @@ exit $SHELLPACK_SUCCESS
  		int lock_rc = 0;
  		while ((lock_rc = pthread_rwlock_rdlock(&addr_lock)) == EBUSY);
  
-@@ -167,43 +182,38 @@
+@@ -167,43 +208,42 @@ void *read_randomly_from_addresses(void *addrs)
  
  		unsigned int file_no = rand() % mapped_addrs->size();
  		unsigned int file_sz = FILE_SIZE/sizeof(unsigned long);
@@ -223,10 +251,13 @@ exit $SHELLPACK_SUCCESS
 +		end = timeval_to_us(end_time);
  
 -		}
+-		usleep(20000);
 +		if ((end - start) > IO_READ_LATENCY_THRESHOLD)
-+			cout << end << " read " << (end - start) << endl;
- 		usleep(20000);
++			report_latency(fout, end, "read", (end - start));
++		if (read_delay)
++			usleep(read_delay);
  	}
++	close_latency(fout);
  
  	return 0;
 -
@@ -237,11 +268,13 @@ exit $SHELLPACK_SUCCESS
  	vector<unsigned long *> *addresses = (vector<unsigned long *> *) pool;
  
 -	while (true) {
++	ofstream *flatency = open_latency();
++
 +	while (!finished()) {
  		// Create a new .dat file. Name will be Epoch time in microseconds.
  
  		ostringstream fname;
-@@ -212,29 +222,34 @@
+@@ -212,29 +252,35 @@ void *create_data_and_update_pool(void *pool)
  		unsigned long long time = timeval_to_us(tv);
  		fname << LIVE_DATA << "/" << (unsigned int) pthread_self() << "-" <<  time << ".dat";
  		ofstream fout;
@@ -266,24 +299,26 @@ exit $SHELLPACK_SUCCESS
  				++num_written;
  			}
 -		       
+-			usleep(rand() % 100000);
+-		}
+-		
 +			gettimeofday(&end_time, NULL);
 +			latency += timeval_to_us(end_time) - timeval_to_us(start_time);
-+
- 			usleep(rand() % 100000);
- 		}
--		
--
+ 
++			if (max_write_delay)
++				usleep(rand() % max_write_delay);
++		}
  		fout.close();
 -		cout << get_time_string() << " | Finished writing " << fname.str() << endl;
 +		if (latency > IO_WRITE_LATENCY_THRESHOLD)
-+			cout << timeval_to_us(end_time) << " write " << latency / 1000 << endl;
++			report_latency(flatency, timeval_to_us(end_time), "write", latency);
  
 -		// Reopen the file in readonly mode. 
 +		// Reopen the file in readonly mode.
  
  		int fd = open(fname.str().c_str(), O_RDONLY);
  
-@@ -242,15 +257,20 @@
+@@ -242,15 +288,20 @@ void *create_data_and_update_pool(void *pool)
  			cerr << get_time_string() << " | Could not open " << fname.str() << " for reading. Error code: " << errno << endl;
  			exit(1);
  		}
@@ -296,7 +331,7 @@ exit $SHELLPACK_SUCCESS
 +		gettimeofday(&end_time, NULL);
 +		latency = timeval_to_us(end_time) - timeval_to_us(start_time);
 +		if (latency > VM_LATENCY_THRESHOLD)
-+			cout << timeval_to_us(end_time) << " mmap " << latency << endl;
++			report_latency(flatency, timeval_to_us(end_time), "mmap", latency);
  		close(fd);
  
 -		// Lock the table and update it. 
@@ -306,7 +341,7 @@ exit $SHELLPACK_SUCCESS
  		while ((lock_rc = pthread_rwlock_wrlock(&addr_lock)) == EBUSY);
  
  		if (lock_rc != 0) {
-@@ -264,63 +284,60 @@
+@@ -264,63 +315,61 @@ void *create_data_and_update_pool(void *pool)
  		// Add the new file
  		(*addresses)[file_no] = base ;
  
@@ -318,7 +353,7 @@ exit $SHELLPACK_SUCCESS
 +		gettimeofday(&end_time, NULL);
 +		latency = timeval_to_us(end_time) - timeval_to_us(start_time);
 +		if (latency > VM_LATENCY_THRESHOLD)
-+			cout << timeval_to_us(end_time) << " munmap " << latency << endl;
++			report_latency(flatency, timeval_to_us(end_time), "munmap", latency);
 +
  
 -		
@@ -332,6 +367,7 @@ exit $SHELLPACK_SUCCESS
 -		
 -	}		
 +	}
++	close_latency(flatency);
  	return pool;
  }
 -	
@@ -361,12 +397,12 @@ exit $SHELLPACK_SUCCESS
 -	void *res; 
 +	vector<pthread_t> write_threads(NUM_WRITE_THREADS);
 +	void *res;
++
++	pthread_rwlock_init(&addr_lock, NULL);
  
 -	pthread_rwlock_init(&addr_lock, NULL); 
 -	
 -	cout << get_time_string() << " | Starting read threads.. " << endl; 
-+	pthread_rwlock_init(&addr_lock, NULL);
-+
 +	cerr << get_time_string() << " | Starting read threads.. " << endl;
  	for (unsigned int i = 0; i < NUM_READ_THREADS; ++i)
  		pthread_create(&read_threads[i], 0, &read_randomly_from_addresses, (void *) &mapped_addrs);
