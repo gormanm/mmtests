@@ -68,8 +68,10 @@ config-global-dhp__io-seeker-file-write
 config-global-dhp__io-filebench-varmail-small
 config-global-dhp__io-filebench-varmail-medium
 config-global-dhp__io-filebench-varmail-large
-config-global-dhp__io-filebench-oltp
-config-global-dhp__io-filebench-oltp-directio
+config-global-dhp__io-filebench-oltp-small
+config-global-dhp__io-filebench-oltp-large
+config-global-dhp__io-filebench-oltp-directio-small
+config-global-dhp__io-filebench-oltp-directio-large
 config-global-dhp__io-filebench-webserver-small
 config-global-dhp__io-filebench-webproxy-small
 config-global-dhp__io-filebench-webproxy-medium
