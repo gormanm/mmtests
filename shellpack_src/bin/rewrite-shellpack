@@ -546,6 +546,7 @@ for NR_THREADS in \$THREADS; do
 EOC
 	} elsif ($command eq "threads_stride_alt_fixed_begin") {
 		my ($min_thread, $max_thread, $samples) = @details;
+		$samples--;
 		print <<EOC
 THREADS="$min_thread"
 THREAD_DIFF=\$(($max_thread-$min_thread))
@@ -553,7 +554,7 @@ if [ "\$THREAD_DIFF\" -lt $samples ]; then
 	THREADS=`seq $min_thread $max_thread`
 else
 	for ITER in `seq 1 \$(($samples-1))`; do
-		THREADS="\$THREADS \$((THREAD_DIFF/$samples*\$ITER))"
+		THREADS="\$THREADS \$(($min_thread+THREAD_DIFF/$samples*\$ITER))"
 	done
 	THREADS="\$THREADS $max_thread"
 fi

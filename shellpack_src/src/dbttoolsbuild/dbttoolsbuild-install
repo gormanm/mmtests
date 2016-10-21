@@ -1,0 +1,18 @@
+#!/bin/bash
+
+###SHELLPACK preamble dbttoolsbuild-install 0
+GIT_LOCATION="git://git.code.sf.net/p/osdldbt/dbttools"
+MIRROR_LOCATION="$WEBROOT/dbttools/"
+
+install-depends cmake
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch dbttoolsbuild-${VERSION}.tar.xz dbttoolsbuild-${VERSION}
+###SHELLPACK build_start dbttoolsbuild-${VERSION}
+cmake CMakeLists.txt || die Failed to run cmake
+make install DESTDIR=$SHELLPACK_SOURCES/dbttoolsbuild-${VERSION}-installed || die Failed to install
+
+exit $SHELLPACK_SUCCESS
