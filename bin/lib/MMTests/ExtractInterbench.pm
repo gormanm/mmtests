@@ -44,7 +44,7 @@ sub extractReport($$$) {
 		open(INPUT, $file) || die("$file");
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;
-			my ($timestamp, $load, $latency) = split(/\s+/, $line);
+			my ($timestamp, $load, $latency, $deadline_miss) = split(/\s+/, $line);
 
 			if ($last_comparison ne $load) {
 				$start_timestamp = $timestamp;

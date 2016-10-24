@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble interbench-install 0.31.3
+###SHELLPACK preamble interbench-install 0.31.4
 GIT_LOCATION="https://github.com/gormanm/interbench"
 MIRROR_LOCATION="$WEBROOT/interbench"
 
