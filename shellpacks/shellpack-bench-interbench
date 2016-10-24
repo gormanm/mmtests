@@ -2,7 +2,7 @@
 # Run interbench benchmark
 
 P=interbench-bench
-DEFAULT_VERSION=0.31.2
+DEFAULT_VERSION=0.31.3
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -126,4 +126,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description interbench
-#### Details interbench-bench 12
+#### Details interbench-bench 13
