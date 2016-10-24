@@ -63,7 +63,9 @@ pushd $SHELLPACK_SOURCES/interbench-${VERSION} || die Failed to change to source
 for FILE in `find -name "*"`; do
 	touch $FILE
 done
-git checkout interbench-$VERSION || die Failed to checkout $VERSION
+if [ -e .git ]; then
+	git checkout interbench-$VERSION || die Failed to checkout $VERSION
+fi
 make clean
 if [ $? -ne 0 ]; then
 	error "$P: make clean failed"
@@ -81,4 +83,4 @@ cp interbench ../interbench-$VERSION-installed/bin || exit $SHELLPACK_ERROR
 
 exit $SHELLPACK_SUCCESS
 #### Description interbench
-#### Details interbench 13
+#### Details interbench 14

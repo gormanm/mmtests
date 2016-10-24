@@ -9,7 +9,9 @@ MIRROR_LOCATION="$WEBROOT/interbench"
 
 ###SHELLPACK git_fetch interbench-${VERSION}.tar.bz2 interbench-$VERSION
 ###SHELLPACK build_start interbench-${VERSION}
-git checkout interbench-$VERSION || die Failed to checkout $VERSION
+if [ -e .git ]; then
+	git checkout interbench-$VERSION || die Failed to checkout $VERSION
+fi
 ###SHELLPACK make_clean
 ###SHELLPACK make
 mkdir -p ../interbench-$VERSION-installed/bin
