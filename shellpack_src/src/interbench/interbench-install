@@ -11,7 +11,7 @@ MIRROR_LOCATION="$WEBROOT/interbench"
 ###SHELLPACK build_start interbench-${VERSION}
 git checkout interbench-$VERSION || die Failed to checkout $VERSION
 ###SHELLPACK make_clean
-###SHELLPACK make
+###SHELLPACK make -std=c99
 mkdir -p ../interbench-$VERSION-installed/bin
 cp interbench ../interbench-$VERSION-installed/bin || exit $SHELLPACK_ERROR
 

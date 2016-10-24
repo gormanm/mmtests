@@ -70,7 +70,7 @@ if [ $? -ne 0 ]; then
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
-make -j$NUMCPUS 
+make -j$NUMCPUS -std=c99
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
 	popd > /dev/null
@@ -81,4 +81,4 @@ cp interbench ../interbench-$VERSION-installed/bin || exit $SHELLPACK_ERROR
 
 exit $SHELLPACK_SUCCESS
 #### Description interbench
-#### Details interbench 8
+#### Details interbench 9
