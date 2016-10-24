@@ -30,8 +30,8 @@ config-global-dhp__db-dbt2-postgres-small
 config-global-dhp__db-dbt5-postgres-smallest
 config-global-dhp__workload_usemem
 config-global-dhp__workload_linkbench
-config-global-dhp__workload_graphdb-small
-config-global-dhp__workload_graphdb-large
+config-global-dhp__workload-graphdb-small
+config-global-dhp__workload-graphdb-large
 "
 
 RAMCONFIGS="
