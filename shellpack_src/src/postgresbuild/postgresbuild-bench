@@ -80,7 +80,12 @@ if [ "$SERVER_START" = "yes" ]; then
 	# Do not checkpoint frequently
 	# Checkpoints are in 16MB segments so this tuning is to checkpoint
 	# when roughly quarter of the shared bufffers have been updated.
-	update_entry_cnf max_wal_size $((SHARED_BUFFERS/1048576/4))
+	if [ "$VERSION" = "9.3.4" ]; then
+		update_entry_cnf checkpoint_segments $((SHARED_BUFFERS/1048576/4))
+	else
+		update_entry_cnf max_wal_size $((SHARED_BUFFERS/1048576/4))
+	fi
+
 	update_entry_cnf synchronous_commit on
 
 	# Configure shmem parameters

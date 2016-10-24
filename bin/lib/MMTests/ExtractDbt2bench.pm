@@ -65,9 +65,6 @@ sub extractReport($$$) {
 			if ($start_timestamp == 0) {
 				$start_timestamp = $timestamp;
 			}
-			if ($txmap{$tx} eq "") {
-				print "DEBUG: $tx\n";
-			}
 
 			push @{$self->{_ResultData}}, [ "$txmap{$tx}-$client",
 							$timestamp - $start_timestamp,

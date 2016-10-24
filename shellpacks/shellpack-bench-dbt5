@@ -13,7 +13,7 @@ DBUSER=nobody
 EFFECTIVE_CACHESIZE=$((756*1048576))
 SHARED_BUFFERS=$((32*1048576))
 WORK_MEM=$((32*1048576))
-POSTGRES_VERSION=9.6.0
+POSTGRES_VERSION=9.3.4
 
 install-depends python-singledispatch
 install-depends python-rpy2
@@ -60,10 +60,6 @@ while [ "$1" != "" ]; do
 		;;
 	--dbdriver)
 		DBDRIVER=$2
-		shift 2
-		;;
-	--iterations)
-		MAX_ITERATIONS=$2
 		shift 2
 		;;
 	--min-users)
@@ -163,7 +159,7 @@ if [ "$BENCH_ONLY" != "yes" ]; then
 	# Initialise database
 	cd $DBT5PGROOT
 	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
-	$TIME_CMD -o $LOGDIR_RESULTS/time-install.log $RUNDBUSER "dbt5-pgsql-build-db -c $NR_CUSTOMERS -s $SCALE_FACTOR -w $NR_TRADE_DAYS -l $PGPORT"
+	$TIME_CMD -o $LOGDIR_RESULTS/time-install.log $RUNDBUSER "dbt5-pgsql-build-db -c $NR_CUSTOMERS -s $SCALE_FACTOR -w $NR_TRADE_DAYS -l $PGPORT -i $EGENDIR"
 	if [ $? -ne 0 ]; then
 		die Failed to initialise database
 	fi
@@ -174,36 +170,24 @@ if [ "$SETUP_ONLY" = "yes" ]; then
 fi
 
 chmod a+w $SHELLPACK_TEMP
-echo Running users $MIN_USERS to $MAX_USERS, scaling $USER_SCALE
-THREADS=
-START_THREAD=$MIN_USERS
-END_THREAD=$MAX_USERS
-if [ $END_THREAD -ge 32 ]; then
-	THREADS=`seq $START_THREAD 4 8`
-	THREADS="$THREADS `seq 12 9 32`"
-	THREADS="$THREADS `seq 48 31 $END_THREAD`"
-elif [ $END_THREAD -ge 8 ]; then
-	THREADS=`seq $START_THREAD 3 8`
-	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+echo Running users $MIN_USERS to $MAX_USERS
+THREADS="$MIN_USERS"
+THREAD_DIFF=$(($MAX_USERS-$MIN_USERS))
+if [ "$THREAD_DIFF" -lt 5 ]; then
+	THREADS=`seq $MIN_USERS $MAX_USERS`
 else
-	THREADS=`seq $START_THREAD 2 $END_THREAD`
-fi
-if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
-	THREADS="$THREADS $END_THREAD"
+	for ITER in `seq 1 $((5-1))`; do
+		THREADS="$THREADS $(($MIN_USERS+THREAD_DIFF/5*$ITER))"
+	done
+	THREADS="$THREADS $MAX_USERS"
 fi
 for NR_THREADS in $THREADS; do
 	if [ $NR_THREADS -lt $MIN_USERS ]; then
 		continue
 	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
-NR_USERS=$((NR_THREADS*USER_SCALE))
-if [ $NR_USERS -lt $MIN_USERS ]; then
-	continue
-fi
-monitor_pre_hook $LOGDIR_RESULTS $NR_USERS
-for ITERATION in `seq 1 $MAX_ITERATIONS;`; do
-	mmtests_activity iteration $ITERATION
-	mmtests_activity users-$NR_USERS-$ITERATION
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	mmtests_activity users-$NR_THREADS
 
 	# Shutdown previous instance and wait
 	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
@@ -221,28 +205,33 @@ for ITERATION in `seq 1 $MAX_ITERATIONS;`; do
 	done
 	echo
 
-	echo Executing thread $NR_USERS/$((MAX_USERS*USER_SCALE)) interation $ITERATION/$MAX_ITERATIONS
-	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_USERS}-${ITERATION}.log $RUNDBUSER "dbt5-run-workload -a pgsql						\
-		-c $NR_CUSTOMERS -t $NR_CUSTOMERS -f $SCALE_FACTOR -w $NR_TRADE_DAYS	\
-		-l $PACING_DELAY -s 500							\
-		-p $PGPORT -n dbt5							\
-		-d $DURATION								\
-		-u $NR_USERS								\
-		-o $SHELLPACK_TEMP/dbt5-run" 2>&1 | tee dbt5-${NR_USERS}-${ITERATION}.log
-	cp $SHELLPACK_TEMP/dbt5-run/results.txt $LOGDIR_RESULTS/results-${NR_USERS}-${ITERATION}.txt
+	echo Executing thread $NR_THREADS/$MAX_USERS
+	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}.log $RUNDBUSER "dbt5-run-workload -a pgsql	\
+		-c $NR_CUSTOMERS			\
+		-s $DBT5_SCALE_FACTOR			\
+		-t $NR_CUSTOMERS			\
+		-w $NR_TRADE_DAYS			\
+		-u $NR_THREADS				\
+		-f $SCALE_FACTOR			\
+		-i $EGENDIR				\
+		-l $PACING_DELAY 			\
+		-p $PGPORT -n dbt5			\
+		-d $DURATION				\
+		-o $SHELLPACK_TEMP/dbt5-run" 2>&1 | tee dbt5-${NR_THREADS}.log
+	cp $SHELLPACK_TEMP/dbt5-run/results.txt    $LOGDIR_RESULTS/dbt5-${NR_THREADS}.txt
+	cp $SHELLPACK_TEMP/dbt5-run/driver/mix.log $LOGDIR_RESULTS/dbt5-${NR_THREADS}.mix
 
 	# Uncomment to preserve dbt5 run logs
-	# pushd $SHELLPACK_TEMP > /dev/null
-	# tar -czf $LOGDIR_RESULTS/dblogs-${NR_USERS}-${ITERATION}.tar.gz dbt5-run
-	# popd > /dev/null
+	pushd $SHELLPACK_TEMP > /dev/null
+	tar -czf $LOGDIR_RESULTS/dblogs-${NR_THREADS}.tar.gz dbt5-run
+	popd > /dev/null
 
 	rm -rf $SHELLPACK_TEMP/dbt5-run
 	$RUNDBUSER "rm -rf $SHELLPACK_TEMP/dbt5-run"
-done
-monitor_post_hook $LOGDIR_RESULTS $NR_USERS
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
 $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt5
-#### Details dbt5-bench 57
+#### Details dbt5-bench 69

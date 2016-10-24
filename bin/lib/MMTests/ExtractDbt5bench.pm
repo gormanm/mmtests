@@ -1,51 +1,91 @@
 # ExtractDbt5bench.pm
 package MMTests::ExtractDbt5bench;
-use MMTests::SummariseMultiops;
+use MMTests::SummariseVariabletime;
 use VMR::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
+our @ISA = qw(MMTests::SummariseVariabletime);
 use strict;
+
+sub new() {
+	my $class = shift;
+	my $self = {
+		_ModuleName  => "ExtractDbt5bench",
+		_DataType    => MMTests::Extract::DATA_TIME_USECONDS,
+		_PlotType    => "simple-filter",
+		_ResultData  => []
+	};
+	bless $self, $class;
+	return $self;
+}
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	$self->{_ModuleName} = "ExtractDbt5bench";
-	$self->{_DataType}   = MMTests::Extract::DATA_TRANS_PER_SECOND;
-	$self->{_PlotType}   = "client-errorlines";
-	$self->{_PlotXaxis}  = "Clients";
-	$self->{_FieldLength} = 12;
-	$self->{_ExactSubheading} = 1;
-	$self->{_ExactPlottype} = "simple";
-	$self->{_DefaultPlot} = "1";
-
+	$self->{_Opname} = "Latency";
 	$self->SUPER::initialise($reportDir, $testName);
 }
+
+my %txmap = (
+	0  => "SecurityDetail",
+	1  => "BrokerVolume",
+	2  => "CustomerPosition",
+	3  => "MarketWatch",
+	4  => "TradeStatus",
+	5  => "TradeLookup",
+	6  => "TradeOrder",
+	7  => "TradeUpdate",
+	8  => "MarketFeed",
+	9  => "TradeResult",
+	10 => "DataMaintainence",
+);
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 	my @clients;
 
-	my @files = <$reportDir/noprofile/results-*-1.txt>;
+	my @files = <$reportDir/noprofile/dbt5-*.mix>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
-		push @clients, $split[-2];
+		$split[-1] =~ s/.mix//;
+		push @clients, $split[-1];
 	}
 	@clients = sort { $a <=> $b } @clients;
 
 	# Extract per-client transaction information
 	foreach my $client (@clients) {
-		my $iteration = 0;
+		my $start_timestamp = 0;
+		my $reading = 0;
 
-		my @files = <$reportDir/noprofile/results-$client-*.txt>;
-		foreach my $file (@files) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
-				next if ($_ !~ /([0-9.]+) trade-result transactions/);
-				push @{$self->{_ResultData}}, [ $client, ++$iteration, $1 ];
+		my $file = "$reportDir/noprofile/dbt5-$client.mix";
+		open(INPUT, $file) || die("Failed to open $file\n");
+		while (!eof(INPUT)) {
+			my $line = <INPUT>;
+
+			if ($line =~ /START/) {
+				$reading = 1;
+				next;
 			}
-			close(INPUT);
+			next if !$reading;
+
+			my ($timestamp, $tx, $status, $latency, $token) = split(/,/, $line);
+			if ($start_timestamp == 0) {
+				$start_timestamp = $timestamp;
+			}
+			next if ($status == 1);
+
+			push @{$self->{_ResultData}}, [ "$txmap{$tx}-$client",
+							$timestamp - $start_timestamp,
+							$latency * 1000 ];
+		}
+		close(INPUT);
+	}
+
+	my @ops;
+	foreach my $tx (sort values %txmap) {
+		foreach my $client (@clients) {
+			push @ops, "$tx-$client";
 		}
 	}
 
-	$self->{_Operations} = \@clients;
+	$self->{_Operations} = \@ops;
 }
 
 1;
