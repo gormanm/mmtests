@@ -109,9 +109,9 @@ echo Running users $MIN_USERS to $MAX_USERS
 	cp $SHELLPACK_TEMP/dbt5-run/driver/mix.log $LOGDIR_RESULTS/dbt5-${NR_THREADS}.mix
 
 	# Uncomment to preserve dbt5 run logs
-	pushd $SHELLPACK_TEMP > /dev/null
-	tar -czf $LOGDIR_RESULTS/dblogs-${NR_THREADS}.tar.gz dbt5-run
-	popd > /dev/null
+	# pushd $SHELLPACK_TEMP > /dev/null
+	# tar -czf $LOGDIR_RESULTS/dblogs-${NR_THREADS}.tar.gz dbt5-run
+	# popd > /dev/null
 
 	rm -rf $SHELLPACK_TEMP/dbt5-run
 	$RUNDBUSER "rm -rf $SHELLPACK_TEMP/dbt5-run"
