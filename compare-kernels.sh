@@ -288,6 +288,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT App Overhead
 		compare-mmtests.pl -d . -b ${SUBREPORT}overhead -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	interbench)
+		echo $SUBREPORT latency
+		$COMPARE_CMD
+		echo
+		echo $SUBREPORT Missed deadlines
+		compare-mmtests.pl -d . -b interbenchdeadline -n $KERNEL_LIST $FORMAT_CMD
+		;;
 	johnripper)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
