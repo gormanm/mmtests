@@ -51,14 +51,15 @@ if [ "$DBDRIVER" = "postgres" ]; then
 	export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/lib:$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/lib64
 	export PGHOST=localhost
 	export PGPORT=5432
+	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 fi
 if [ -e /opt/python-marvin/bin/python ]; then
 	export PATH=/opt/python-marvin/bin:$PATH
 fi
 
+cd $DBT5PGROOT
 if [ "$BENCH_ONLY" != "yes" ]; then
 	# Initialise database
-	cd $DBT5PGROOT
 	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 	$TIME_CMD -o $LOGDIR_RESULTS/time-install.log $RUNDBUSER "dbt5-pgsql-build-db -c $NR_CUSTOMERS -s $SCALE_FACTOR -w $NR_TRADE_DAYS -l $PGPORT -i $EGENDIR"
 	if [ $? -ne 0 ]; then
