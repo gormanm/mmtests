@@ -86,7 +86,7 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 	monitor_pre_hook $LOGDIR_RESULTS $SIZE
 	eval $TASKSET_CLIENT $NETROOT/bin/netperf \
 		-t $PROTOCOL \
-		-i 12,3 -I 99,5 \
+		-i 3,3 -I 95,5 \
 		-H $SERVER_HOST \
 		-- \
 		$SOCKETSIZE_OPT $MSGSIZE_OPT \
