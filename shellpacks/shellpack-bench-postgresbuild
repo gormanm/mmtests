@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
 P=postgresbuild-bench
-DEFAULT_VERSION=9.6.0
+DEFAULT_VERSION=9.6.1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -162,7 +162,7 @@ if [ "$SERVER_START" = "yes" ]; then
 	else
 		update_entry_cnf max_wal_size $((SHARED_BUFFERS/1048576/4))
 	fi
-		
+
 	update_entry_cnf synchronous_commit on
 
 	# Configure shmem parameters
@@ -190,4 +190,4 @@ fi
 echo postgres operation successful
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild-bench 56
+#### Details postgresbuild-bench 57

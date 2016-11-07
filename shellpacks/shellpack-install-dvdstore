@@ -59,7 +59,7 @@ MIRROR_LOCATION=$WEBROOT/dvdstore
 case $DBDRIVER in
 postgres)
 	echo Checking postgres installation
-	DBDRIVER_VERSION=9.6.0
+	DBDRIVER_VERSION=9.6.1
 	DVDSTORE_DBDRIVER=postgresql
 	;;
 *)
@@ -77,7 +77,7 @@ echo Building dvdstore for $DBDRIVER
 export PATH=$SHELLPACK_SOURCES/${DBDRIVER}build-${DBDRIVER_VERSION}-installed/bin:$PATH
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=ds${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -92,7 +92,7 @@ mv $DST_DIR dvdstore-${VERSION}-installed
 pushd dvdstore-${VERSION}-installed > /dev/null || die Failed to rename tar
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=ds${VERSION}_${DVDSTORE_DBDRIVER}.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -144,4 +144,4 @@ fi
 echo dvdstore for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description dvdstore
-#### Details dvdstore 21
+#### Details dvdstore 22

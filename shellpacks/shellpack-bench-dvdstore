@@ -14,7 +14,7 @@ DBUSER=nobody
 EFFECTIVE_CACHESIZE=$((756*1048576))
 SHARED_BUFFERS=$((32*1048576))
 WORK_MEM=$((32*1048576))
-POSTGRES_VERSION=9.6.0
+POSTGRES_VERSION=9.6.1
 MARIADB_ADMIN_USER=root
 MARIADB_ADMIN_PASSWORD=mmtests-default
 
@@ -186,6 +186,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 	THREADS="$THREADS $END_THREAD"
 fi
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt 1 ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
@@ -285,4 +288,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 echo dvdstore successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description dvdstore
-#### Details dvdstore-bench 21
+#### Details dvdstore-bench 22

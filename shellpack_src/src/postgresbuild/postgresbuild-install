@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
-###SHELLPACK preamble postgresbuild-install 9.6.0
+###SHELLPACK preamble postgresbuild-install 9.6.1
 
 POSTGRES_USER=nobody
 POSTGRES_GROUP=nogroup

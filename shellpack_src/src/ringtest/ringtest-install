@@ -27,7 +27,7 @@ exit $SHELLPACK_SUCCESS
 
 ==== BEGIN terminate.patch ====
 diff --git a/ring-test.c b/ring-test.c
-index e220d6094650..c2527b729d8f 100644
+index e220d609.6.1..c2527b729d8f 100644
 --- a/ring-test.c
 +++ b/ring-test.c
 @@ -94,7 +94,7 @@ static void worker(int task)
