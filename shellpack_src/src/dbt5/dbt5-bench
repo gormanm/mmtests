@@ -41,8 +41,6 @@ chmod a+rwx $DBT5PGROOT
 chmod a+rwx $EGENDIR
 export DBT5DBNAME=dbt5
 export DBT5PGDATA=$DBT5PGROOT/dbt5
-#export DBT5PGDATA=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data
-# export DBT5TSDIR=/mnt/dbt5
 export PATH=$SHELLPACK_SOURCES/dbt5-${VERSION}-installed/bin:$PATH
 if [ "$DBDRIVER" = "postgres" ]; then
 	PSQL=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/bin/psql
@@ -51,7 +49,7 @@ if [ "$DBDRIVER" = "postgres" ]; then
 	export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/lib:$SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/lib64
 	export PGHOST=localhost
 	export PGPORT=5432
-	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
+	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build -v $POSTGRES_VERSION --stop
 fi
 if [ -e /opt/python-marvin/bin/python ]; then
 	export PATH=/opt/python-marvin/bin:$PATH
@@ -60,7 +58,7 @@ fi
 cd $DBT5PGROOT
 if [ "$BENCH_ONLY" != "yes" ]; then
 	# Initialise database
-	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
+	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build -v $POSTGRES_VERSION --stop
 	$TIME_CMD -o $LOGDIR_RESULTS/time-install.log $RUNDBUSER "dbt5-pgsql-build-db -c $NR_CUSTOMERS -s $SCALE_FACTOR -w $NR_TRADE_DAYS -l $PGPORT -i $EGENDIR"
 	if [ $? -ne 0 ]; then
 		die Failed to initialise database
@@ -78,7 +76,7 @@ echo Running users $MIN_USERS to $MAX_USERS
 	mmtests_activity users-$NR_THREADS
 
 	# Shutdown previous instance and wait
-	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
+	$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build -v $POSTGRES_VERSION --stop
 	killall BrokerageHouseMain 2> /dev/null
 	killall MarketExchangeMain 2> /dev/null
 	killall DriverMain 2> /dev/null
@@ -118,6 +116,6 @@ echo Running users $MIN_USERS to $MAX_USERS
 	$RUNDBUSER "rm -rf $SHELLPACK_TEMP/dbt5-run"
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
-$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
+$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build -v $POSTGRES_VERSION --stop
 
 exit $SHELLPACK_SUCCESS
