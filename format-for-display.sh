@@ -187,6 +187,25 @@ function removetrailingcomma() {
 	sed '$ s/,\s*$//' <<< "$1"
 }
 
+function isnan() {
+	# "nan" comes from libc, "NaN" from Perl itself.
+	test $1 = "nan" -o \
+		$1 = "+nan" -o \
+		$1 = "-nan" -o \
+		$1 = "NaN" -o \
+		$1 = "+NaN" -o \
+		$1 = "-NaN"
+}
+
+function isinf() {
+	test $1 = "inf" -o \
+		$1 = "+inf" -o \
+		$1 = "-inf" -o \
+		$1 = "Inf" -o \
+		$1 = "+Inf" -o \
+		$1 = "-Inf"
+}
+
 function subreportjson() {
 	# The first argument COMPARISONS is a string composed by elements
 	# like "3.1415 Excellent #007800" separated by commas.
@@ -262,7 +281,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				NAME_INDEX=$((NAME_INDEX+1))
 				GRATIO=`echo $GMEAN | awk "{print \\$$FIELD}"`
 				DDIFF=`echo $DMEAN | awk "{print \\$$FIELD}"`
-				if [ "$DDIFF" != "nan" -a "$DDIFF" != "NaN" -a "$DDIFF" != "-nan" -a "$DDIFF" != "-NaN" ]; then
+				if ! isnan "$DDIFF" && ! isinf "$DDIFF"; then
 					DIFF_ADJUSTED=`perl -e "print (($DDIFF*10000))"`
 					DELTA=$((DIFF_ADJUSTED))
 					if [ "$TOPOUT" != "" ]; then
@@ -308,7 +327,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 						fi
 					fi
 				fi
-				if [ "$GRATIO" != "nan" -a "$GRATIO" != "NaN" -a "$GRATIO" != "-nan" -a "$GRATIO" != "-NaN" ]; then
+				if ! isnan "$GRATIO" && ! isinf "$GRATIO"; then
 					COMPARISONS+="$GRATIO $DESCRIPTION $COLOUR,"
 				else
 					# nan isn't a valid JSON value (nor NaN for that matter).
@@ -327,7 +346,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			fi
 			for FIELD in $FIELD_LIST; do
 				RATIO=`echo $GMEAN | awk "{print \\$$FIELD}"`
-				if [ "$RATIO" != "nan" -a "$RATIO" != "-nan" ]; then
+				if ! isnan "$RATIO" && ! isinf "$RATIO"; then
 					RATIO_ADJUSTED=`perl -e "print (($RATIO*10000))"`
 					DMEAN=`perl -e "printf \"%4.2f\", (abs (1-$RATIO))"`
 					DELTA=$((RATIO_ADJUSTED-10000))
