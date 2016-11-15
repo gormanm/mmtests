@@ -307,7 +307,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 							fi
 						fi
 					fi
-					COMPARISONS+="$RATIO $DESCRIPTION $COLOUR,"
+					COMPARISONS+="$GRATIO $DESCRIPTION $COLOUR,"
 				else
 					# nan isn't a valid JSON value (nor NaN for that matter).
 					COMPARISONS+="null Unknown $UNKNOWN_COLOUR,"
