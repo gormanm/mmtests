@@ -307,6 +307,8 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 							fi
 						fi
 					fi
+				fi
+				if [ "$GRATIO" != "nan" -a "$GRATIO" != "NaN" -a "$GRATIO" != "-nan" -a "$GRATIO" != "-NaN" ]; then
 					COMPARISONS+="$GRATIO $DESCRIPTION $COLOUR,"
 				else
 					# nan isn't a valid JSON value (nor NaN for that matter).
