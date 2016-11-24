@@ -8,7 +8,8 @@ STAP_FILES="/usr/share/systemtap/runtime/linux/print.c
 	    /usr/share/systemtap/runtime/linux/access_process_vm.h
 	    /usr/share/systemtap/runtime/linux/runtime_defines.h
 	    /usr/share/systemtap/transport/transport.c
-	    /usr/share/systemtap/runtime/stp_utrace.c"
+	    /usr/share/systemtap/runtime/stp_utrace.c
+	    /usr/share/systemtap/runtime/transport/relay_v2.c"
 if [ "`whoami`" != "root" ]; then
 	exit
 fi
@@ -49,7 +50,8 @@ fi
 
 echo WARNING: systemtap installation broken, trying to fix.
 
-for PATCH in 4.5 4.6 4.6-rc3 4.7-rc1 4.8; do
+for PATCH in 4.5 4.6 4.6-rc3 4.7-rc1 4.8 4.9; do
+	echo Applying patch systemtap-runtime-${PATCH}.patch
 	cat $SCRIPTDIR/stap-patches/systemtap-runtime-${PATCH}.patch | patch -p1 -d /usr/share/systemtap
 	if [ $? -ne 0 ]; then
 		restore_systemtap

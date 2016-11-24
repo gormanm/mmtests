@@ -1,0 +1,21 @@
+--- a/runtime/transport/relay_v2.c	2016-11-24 14:32:25.253874610 +0000
++++ b/runtime/transport/relay_v2.c	2016-11-24 14:32:34.433897560 +0000
+@@ -397,7 +397,7 @@
+ 	if (entry == NULL)
+ 		return -EINVAL;
+ 
+-	buf = _stp_relay_data.rchan->buf[smp_processor_id()];
++	buf = *this_cpu_ptr(_stp_relay_data.rchan->buf);
+ 	if (unlikely(buf->offset + size_request > buf->chan->subbuf_size)) {
+ 		size_request = __stp_relay_switch_subbuf(buf, size_request);
+ 		if (!size_request)
+--- a/runtime/linux/access_process_vm.h	2016-11-24 11:42:45.682852798 +0000
++++ b/runtime/linux/access_process_vm.h	2016-11-24 11:42:51.618845242 +0000
+@@ -32,7 +32,7 @@
+       int bytes, ret, offset;
+       void *maddr;
+ 
+-      ret = get_user_pages_remote (tsk, mm, addr, 1, write, 1, &page, &vma);
++      ret = get_user_pages_remote (tsk, mm, addr, 1, FOLL_FORCE | (write ? FOLL_WRITE : 0), &page, &vma);
+       if (ret <= 0)
+ 	break;
