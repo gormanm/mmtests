@@ -8,6 +8,7 @@ STAP_FILES="/usr/share/systemtap/runtime/linux/print.c
 	    /usr/share/systemtap/runtime/linux/access_process_vm.h
 	    /usr/share/systemtap/runtime/linux/runtime_defines.h
 	    /usr/share/systemtap/transport/transport.c
+	    /usr/share/systemtap/runtime/transport/transport.c
 	    /usr/share/systemtap/runtime/stp_utrace.c
 	    /usr/share/systemtap/runtime/transport/relay_v2.c"
 if [ "`whoami`" != "root" ]; then
