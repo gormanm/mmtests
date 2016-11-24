@@ -36,14 +36,42 @@ for ORDER in `seq $ORDER_MIN $ORDER_MAX`; do
         		-e "s/define PARAM_BATCH.*/define PARAM_BATCH $BATCH/" \
         		-e "s/define PARAM_ORDER.*/define PARAM_ORDER $ORDER/" > /tmp/pagealloc.stp
 
-		# Dummy run to compile
-		stap -DSTAP_OVERRIDE_STUCK_CONTEXT -g /tmp/pagealloc.stp > /dev/null
-
 		# Execute
+		stap -DSTAP_OVERRIDE_STUCK_CONTEXT -g /tmp/pagealloc.stp &
+		STAP_PID=$!
+
+		ATTEMPT=0
+		echo -n Waiting for module to load
+		sleep 1
+		while [ ! -e /proc/mmtests-pagealloc-micro ]; do
+			echo -n .
+			sleep 1
+			ATTEMPT=$((ATTEMPT+1))
+			if [ $ATTEMPT = 180 ]; then
+				die Failed to run stap module after 3 minutes
+			fi
+		done
+		echo
+		echo Executing test
+
 		monitor_pre_hook $LOGDIR_RESULTS $ORDER-$BATCH
-		stap -DSTAP_OVERRIDE_STUCK_CONTEXT -g /tmp/pagealloc.stp | \
-			tee -a $LOGDIR_RESULTS/pagealloc.log
+		cat /proc/mmtests-pagealloc-micro | tee -a $LOGDIR_RESULTS/pagealloc.log
 		monitor_post_hook $LOGDIR_RESULTS $ORDER-$BATCH
+
+		ATTEMPT=0
+		echo -n Waiting for module to unload
+		kill -INT $STAP_PID
+		sleep 2
+		while [ -e /proc/mmtests-pagealloc-micro ]; do
+			kill -INT $STAP_PID
+			echo -n .
+			sleep 1
+			ATTEMPT=$((ATTEMPT+1))
+			if [ $ATTEMPT = 180 ]; then
+				die Failed to unload stap module after 3 minutes
+			fi
+		done
+		echo
 
 		BATCH=$((BATCH<<1))
 	done

@@ -11,6 +11,8 @@
 #include <linux/proc_fs.h>
 #include <linux/kernel.h>
 #include <linux/vmalloc.h>
+#include <linux/proc_fs.h>
+#include <linux/seq_file.h>
 
 #define PARAM_GFPFLAGS GFP_KERNEL
 #define PARAM_ORDER 0
@@ -37,30 +39,23 @@ inline unsigned long long read_clockcycles(void)
 	return jiffies;
 }
 #endif /* CONFIG_X86 */
-%}
 
-function alloc_runtest() %{
+static int pagealloc_run(struct seq_file *m, void *v)
+{
 	unsigned int order = PARAM_ORDER;
 	unsigned long batch = PARAM_BATCH;
 	struct page **pages;		/* Pages that were allocated */
 	int i, j;
 	unsigned long long start_cycles_alloc, cycles_alloc;
 	unsigned long long start_cycles_free, cycles_free;
-	bool enabled_preempt = false;
-
-	if (in_atomic()) {
-		_stp_printf("WARNING: Enabling preempt behind systemtaps back\n");
-		preempt_enable();
-		enabled_preempt = true;
-	}
 
 	/* Allocate memory to store pointers to pages */
 	pages = __vmalloc((PARAM_BATCH+1) * sizeof(struct page **),
 			GFP_KERNEL|__GFP_HIGHMEM,
 			PAGE_KERNEL);
 	if (pages == NULL) {
-		_stp_printf("Failed to allocate space to store page pointers\n");
-		goto out_preempt;
+		seq_printf(m, "Failed to allocate space to store page pointers\n");
+		return -EINVAL;
 	}
 	memset(pages, 0, (PARAM_BATCH+1) * sizeof(struct page **));
 
@@ -92,21 +87,46 @@ function alloc_runtest() %{
 		cycles_alloc = (unsigned long)cycles_alloc / batch;
 		cycles_free = (unsigned long)cycles_free / batch;
 
-		_stp_printf("order %2d batch %6d alloc %llu free %llu\n",
+		seq_printf(m, "order %2u batch %6lu alloc %llu free %llu\n",
 			order, batch, cycles_alloc, cycles_free);
 	}
 
 	vfree(pages);
 
-out_preempt:
-	if (enabled_preempt)
-		preempt_disable();
+	return 0;
+}
 
-	return;
+static int
+pagealloc_open(struct inode *inode, struct file *file)
+{
+    return single_open(file, pagealloc_run, NULL);
+}
+
+static const struct file_operations pagealloc_fops = {
+    .owner      = THIS_MODULE,
+    .open       = pagealloc_open,
+    .read       = seq_read,
+    .llseek     = seq_lseek,
+    .release    = single_release,
+};
+%}
+
+function pagealloc_init() %{
+    printk(KERN_INFO "Loading pagealloc microbenchmark\n");
+    proc_create("mmtests-pagealloc-micro", 0, NULL, &pagealloc_fops);
+%}
+
+function pagealloc_exit() %{
+    remove_proc_entry("mmtests-pagealloc-micro", NULL);
+    printk(KERN_INFO "Unloading pagealloc microbenchmark.\n");
 %}
 
 probe begin
 {
-	alloc_runtest()
-	exit()
+	pagealloc_init()
+}
+
+probe end
+{
+	pagealloc_exit()
 }
