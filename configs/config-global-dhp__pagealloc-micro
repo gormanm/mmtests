@@ -1,20 +1,11 @@
-### aim9 is a number of micro-benchmarks. The results of this are very sensitive
-### to a number of factors but it can be useful early warning system. Results
-### tend to be difficult if not impossible to bisect but can sometimes be
-### correlated with degradations in other benchmarks.
-### 
-### pft is a microbenchmark for page fault rates.
-### 
-### ebizzy is intended to simulate the backend of a database backend but it
-### is not IO intensive. Instead it is both scheduler and allocator intensive.
-### Regressions here can indicate a regression in either area. Note that the
-### allocation pattern means that it may be a microbenchmark of mmap/munmap
-### depending on the version of glibc used.
+### pagealloc is a page allocator microbenchmark run via SystemTap. The page
+### allocator is rarely a major component of a workloads time but it can
+### be a source of slow degrataion of overall performance.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="aim9 pft"
+export MMTESTS="pagealloc"
 export RUN_WARMUP=
 
 # Profiling parameters
