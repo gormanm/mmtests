@@ -42,9 +42,9 @@ echo \$! > /tmp/mmtests.perf.pid
 " >> monitor-pre-hook
 
 echo "#!/bin/bash" > monitor-post-hook
-echo 'kill `cat /tmp/mmtests.wait.pid`' >> monitor-post-hook
-echo 'echo Waiting on perf to exit: `date`' >> monitor-post-hook
 echo 'WAITPID=`cat /tmp/mmtests.perf.pid`' >> monitor-post-hook
+echo 'kill $WAITPID' >> monitor-post-hook
+echo 'echo Waiting on perf pid $WAITPID to exit: `date`' >> monitor-post-hook
 echo 'while [ "`ps h --pid $WAITPID`" != "" ]; do' >> monitor-post-hook
 echo 'echo -n .' >> monitor-post-hook
 echo 'sleep 1' >> monitor-post-hook
