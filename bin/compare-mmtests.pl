@@ -63,8 +63,8 @@ if (!defined($opt_monitor)) {
 		eval {
 			my $reportDirectory = "$opt_reportDirectory/$opt_benchmark-$name";
 			my $profile = "noprofile";
-			if (! -e "$opt_reportDirectory/noprofile") {
-				if (-e "$opt_reportDirectory/fine-profile-timer") {
+			if (! -e "$reportDirectory/noprofile") {
+				if (-e "$reportDirectory/fine-profile-timer") {
 					$profile = "fine-profile-timer";
 				}
 			}
