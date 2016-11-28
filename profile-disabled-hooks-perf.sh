@@ -44,6 +44,7 @@ echo \$! > /tmp/mmtests.perf.pid
 echo "#!/bin/bash" > monitor-post-hook
 echo 'WAITPID=`cat /tmp/mmtests.perf.pid`' >> monitor-post-hook
 echo 'kill $WAITPID' >> monitor-post-hook
+echo 'sleep 1' >> monitor-post-hook
 echo 'echo Waiting on perf pid $WAITPID to exit: `date`' >> monitor-post-hook
 echo 'while [ "`ps h --pid $WAITPID`" != "" ]; do' >> monitor-post-hook
 echo 'echo -n .' >> monitor-post-hook
@@ -52,6 +53,7 @@ echo 'done' >> monitor-post-hook
 echo 'echo Perf exited: `date`' >> monitor-post-hook
 echo "perf report -i \$1/perf-\$2-report-${PROFILE_TITLE}.data > \$1/perf-\$2-report-${PROFILE_TITLE}.txt" >> monitor-post-hook
 echo "gzip \$1/perf-\$2-report-${PROFILE_TITLE}.data" >> monitor-post-hook
+echo "exit 0" >> monitor-post-hook
 
 echo "#!/bin/bash" > monitor-cleanup-hook
 
