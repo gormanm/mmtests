@@ -16,11 +16,11 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $iteration = 0;
 
-	open(INPUT, "$reportDir/noprofile/graph500.log");
+	open(INPUT, "$reportDir/$profile/graph500.log");
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 

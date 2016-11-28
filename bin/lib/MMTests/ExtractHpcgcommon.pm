@@ -27,11 +27,11 @@ my %metric_map = (
 	"Raw Total B/W" => "bwidth-GBsec-total",
 );
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $iteration = 0;
 
-	foreach my $file (<$reportDir/noprofile/hpcg-*.yaml>) {
+	foreach my $file (<$reportDir/$profile/hpcg-*.yaml>) {
 		$iteration++;
 
 		my $reading;

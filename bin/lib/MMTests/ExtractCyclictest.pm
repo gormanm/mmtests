@@ -15,11 +15,11 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 
 	my $iteration = 0;
-	foreach my $file (<$reportDir/noprofile/cyclictest-*.log>) {
+	foreach my $file (<$reportDir/$profile/cyclictest-*.log>) {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			next if ($_ !~ /^T.*Avg:\s+([0-9]+).*Max:\s+([0-9]+)/);

@@ -23,10 +23,10 @@ sub uniq {
 	grep !$seen{$_}++, @_;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tp, $name);
-	my $file_wk = "$reportDir/noprofile/workloads";
+	my $file_wk = "$reportDir/$profile/workloads";
 	open(INPUT, "$file_wk") || die("Failed to open $file_wk\n");
 	my @workloads = split(/ /, <INPUT>);
 	$self->{_Workloads} = \@workloads;
@@ -35,7 +35,7 @@ sub extractReport($$$) {
 	my @threads;
 	foreach my $wl (@workloads) {
 		chomp($wl);
-		my @files = <$reportDir/noprofile/$wl-*-1.log>;
+		my @files = <$reportDir/$profile/$wl-*-1.log>;
 		foreach my $file (@files) {
 			my @elements = split (/-/, $file);
 			my $thr = $elements[-2];
@@ -50,7 +50,7 @@ sub extractReport($$$) {
 		foreach my $wl (@workloads) {
 			my $nr_samples = 0;
 
-			foreach my $file (<$reportDir/noprofile/$wl-$nthr-*.log>) {
+			foreach my $file (<$reportDir/$profile/$wl-$nthr-*.log>) {
 				open(INPUT, $file) || die("Failed to open $file\n");
 				while (<INPUT>) {
 					my $line = $_;

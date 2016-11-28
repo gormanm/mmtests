@@ -16,20 +16,20 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($wallTime);
 	my $dummy;
 
 	my $_pagesize = "default";
-	if (! -e "$reportDir/noprofile/$_pagesize") {
+	if (! -e "$reportDir/$profile/$_pagesize") {
 		$_pagesize = "base";
 	}
-	if (! -e "$reportDir/noprofile/$_pagesize") {
+	if (! -e "$reportDir/$profile/$_pagesize") {
 		$_pagesize = "transhuge";
 	}
 
-	my @files = <$reportDir/noprofile/$_pagesize/*.log>;
+	my @files = <$reportDir/$profile/$_pagesize/*.log>;
 	my @kernels;
 	foreach my $file (@files) {
 		my @split = split /\//, $file;
@@ -40,7 +40,7 @@ sub extractReport($$$) {
 	die("No data") if $kernels[0] eq "";
 
 	foreach my $kernel (@kernels) {
-		my $file = "$reportDir/noprofile/$_pagesize/$kernel.log";
+		my $file = "$reportDir/$profile/$_pagesize/$kernel.log";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;

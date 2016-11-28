@@ -15,15 +15,15 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $lastIOStep = -1;
 	my @ioSteps;
 	my @ioSizes;
 	my $workload;
 
 	# Read the IO steps and workload type
-	my $file = "$reportDir/noprofile/workload-durations.log";
+	my $file = "$reportDir/$profile/workload-durations.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my @elements = split(/\s/);
@@ -37,7 +37,7 @@ sub extractReport($$$) {
 
 	# Read the corresponding IO sizes
 	$ioSizes[0] = "0M";
-	$file = "$reportDir/noprofile/io-durations.log";
+	$file = "$reportDir/$profile/io-durations.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my @elements = split(/\s/);
@@ -48,14 +48,14 @@ sub extractReport($$$) {
 	# Read the workload performance data
 	if ($workload eq "memcachetest") {
 		foreach my $ioStep (@ioSteps) {
-			my @reportDirs = <$reportDir/noprofile/memcachetest-$ioStep-*>;
+			my @reportDirs = <$reportDir/$profile/memcachetest-$ioStep-*>;
 			my $minOps = -1;
 			my $iteration = 0;
 
 			foreach my $reportDir (@reportDirs) {
 				my $ops;
 
-				my $file = "$reportDir/noprofile/mmtests.log";
+				my $file = "$reportDir/$profile/mmtests.log";
 				if (-e $file) {
 					open(INPUT, $file) || die("Failed to open $file");
 				} else {

@@ -17,14 +17,14 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 	my @clients;
 	$reportDir =~ s/pgbenchexectime/pgbench/;
 
-	my @files = <$reportDir/noprofile/default/pgbench-raw-*>;
+	my @files = <$reportDir/$profile/default/pgbench-raw-*>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
@@ -36,7 +36,7 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		my $file = "$reportDir/noprofile/default/time-$client";
+		my $file = "$reportDir/$profile/default/time-$client";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			next if $_ !~ /elapsed/;

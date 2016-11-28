@@ -14,11 +14,11 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 
 	my @swappiness;
-	my @files = <$reportDir/noprofile/vmstat-*>;
+	my @files = <$reportDir/$profile/vmstat-*>;
         foreach my $file (@files) {
                 my @split = split /-/, $file;
                 $split[-1] =~ s/.log//;
@@ -27,7 +27,7 @@ sub extractReport($$$) {
         @swappiness = sort { $a <=> $b } @swappiness;
 
 	foreach my $swappy (@swappiness) {
-		my $file = "$reportDir/noprofile/vmstat-$swappy";
+		my $file = "$reportDir/$profile/vmstat-$swappy";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		my $samples = 0;
 		my $first = 1;

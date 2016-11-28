@@ -17,13 +17,13 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $seen_read = 0;
 	my $seen_write = 0;
 	$reportDir =~ s/fiolatency/fio/;
 
-	my @files = <$reportDir/noprofile/fio_lat.*.log>;
+	my @files = <$reportDir/$profile/fio_lat.*.log>;
 	foreach my $file (@files) {
 		my $nr_samples = 0;
 		my $time;

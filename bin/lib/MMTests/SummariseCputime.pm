@@ -129,14 +129,10 @@ sub printReport() {
 	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($user, $system, $elapsed, $cpu);
-	my $file = "$reportDir/noprofile/time";
-
-	if (! -e $file) {
-		$file = "$reportDir/fine-profile-timer/time";
-	}
+	my $file = "$reportDir/$profile/time";
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {

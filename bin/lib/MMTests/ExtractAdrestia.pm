@@ -16,11 +16,11 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($user, $system, $elapsed, $cpu);
 
-	my @files = <$reportDir/noprofile/adrestia-*-1.log>;
+	my @files = <$reportDir/$profile/adrestia-*-1.log>;
 	my @tmp;
 	my @threads;
 	foreach my $file (@files) {
@@ -30,7 +30,7 @@ sub extractReport($$$) {
 
 	my @groups = do { my %seen; grep { !$seen{$_}++ } @tmp };
 
-	foreach my $file (<$reportDir/noprofile/adrestia-$groups[0]-*-1.log>) {
+	foreach my $file (<$reportDir/$profile/adrestia-$groups[0]-*-1.log>) {
 		my @split = split /-/, $file;
 		push @threads, $split[-2];
 	}
@@ -41,7 +41,7 @@ sub extractReport($$$) {
 	foreach my $group (@groups) {
 		my $nr_samples = 0;
 		foreach my $thread (@threads) {
-			foreach my $file (<$reportDir/noprofile/adrestia-$group-$thread-*.log>) {
+			foreach my $file (<$reportDir/$profile/adrestia-$group-$thread-*.log>) {
 				my @split = split /-/, $file;
 
 				open(INPUT, $file) || die("Failed to open $file\n");

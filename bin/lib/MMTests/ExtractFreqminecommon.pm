@@ -25,11 +25,11 @@ sub uniq {
 	grep !$seen{$_}++, @_;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my @threads;
 
-	my @files = <$reportDir/noprofile/freqmine-*-1.log>;
+	my @files = <$reportDir/$profile/freqmine-*-1.log>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		my $thr = $elements[-2];
@@ -38,7 +38,7 @@ sub extractReport($$$) {
 	}
 
 	foreach my $nthr (@threads) {
-		my @files = <$reportDir/noprofile/freqmine-$nthr-*.log>;
+		my @files = <$reportDir/$profile/freqmine-$nthr-*.log>;
 
 		foreach my $file (@files) {
 			my @split = split /-/, $file;

@@ -17,15 +17,15 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tm, $tput, $latency);
 	$reportDir =~ s/mediawikibuildloadtime/mediawikibuild/;
 
 	my @import_list = ("mwdump", "image", "imagelinks", "logging", "pagelinks");
 
 	foreach my $import (@import_list) {
-		open(INPUT, "$reportDir/noprofile/time-import-$import");
+		open(INPUT, "$reportDir/$profile/time-import-$import");
 		while (<INPUT>) {
 			next if $_ !~ /elapsed/;
 			push @{$self->{_ResultData}}, [ "$import", $self->_time_to_elapsed($_) ];

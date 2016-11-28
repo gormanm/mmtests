@@ -20,12 +20,12 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tm, $tput, $latency);
 	my @clients;
 
-	my @files = <$reportDir/noprofile/default/pgbench-raw-*>;
+	my @files = <$reportDir/$profile/default/pgbench-raw-*>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
@@ -42,7 +42,7 @@ sub extractReport($$$) {
 		my $startSamples = 1;
 		my $endSamples = 0;
 
-		my $file = "$reportDir/noprofile/default/pgbench-transactions-$client-1";
+		my $file = "$reportDir/$profile/default/pgbench-transactions-$client-1";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my @elements = split(/\s+/, $_);
@@ -107,7 +107,7 @@ sub extractReport($$$) {
 		}
 		close INPUT;
 		if ($nr_readings == 0) {
-			$file = "$reportDir/noprofile/default/pgbench-raw-$client";
+			$file = "$reportDir/$profile/default/pgbench-raw-$client";
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (!eof(INPUT)) {
 				my $line = <INPUT>;

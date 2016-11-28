@@ -31,11 +31,11 @@ my %txmap = (
 	"s" => "StockLevel"
 );
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my @clients;
 
-	my @files = <$reportDir/noprofile/dbt2-*.mix>;
+	my @files = <$reportDir/$profile/dbt2-*.mix>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-1] =~ s/.mix//;
@@ -48,7 +48,7 @@ sub extractReport($$$) {
 		my $start_timestamp = 0;
 		my $reading = 0;
 
-		my $file = "$reportDir/noprofile/dbt2-$client.mix";
+		my $file = "$reportDir/$profile/dbt2-$client.mix";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;

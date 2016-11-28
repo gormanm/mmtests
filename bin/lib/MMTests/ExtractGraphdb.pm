@@ -23,13 +23,13 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my @ops;
 
 	my $start_timestamp;
-	my $file = "$reportDir/noprofile/graphdb.log";
-	die if ! -e "$reportDir/noprofile/graphdb.log";
+	my $file = "$reportDir/$profile/graphdb.log";
+	die if ! -e "$reportDir/$profile/graphdb.log";
 
 	open(INPUT, "sort -n $file|");
 	while (!eof(INPUT)) {

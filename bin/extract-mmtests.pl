@@ -107,8 +107,16 @@ if ($opt_printType) {
 	exit;
 }
 
+# Guess profile name
+my $profile = "noprofile";
+if (! -e $opt_reportDirectory/noprofile) {
+	if (-e $opt_reportDirectory/fine-profile-timer) {
+		$profile = "fine-profile-timer";
+	}
+}
+
 # Extract data from the benchmark itself and print whatever was requested
-$extractModule->extractReport($opt_reportDirectory, $opt_name);
+$extractModule->extractReport($opt_reportDirectory, $opt_name, $profile);
 $extractModule->printReportTop();
 if ($opt_printPlot) {
 	$extractModule->printPlotHeaders() if $opt_printHeader;

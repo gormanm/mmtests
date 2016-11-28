@@ -16,14 +16,14 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my @clients;
 	$reportDir =~ s/4latency/4/;
 
-	my @files = <$reportDir/noprofile/dbench-*.log>;
+	my @files = <$reportDir/$profile/dbench-*.log>;
 	if ($files[0] eq "") {
-		@files = <$reportDir/noprofile/tbench-*.log>;
+		@files = <$reportDir/$profile/tbench-*.log>;
 	}
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
@@ -34,9 +34,9 @@ sub extractReport($$$) {
 
 	foreach my $client (@clients) {
 		my $nr_samples = 0;
-		my $file = "$reportDir/noprofile/dbench-$client.log";
+		my $file = "$reportDir/$profile/dbench-$client.log";
 		if (! -e $file) {
-			$file = "$reportDir/noprofile/tbench-$client.log";
+			$file = "$reportDir/$profile/tbench-$client.log";
 		}
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {

@@ -13,11 +13,11 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $recent = 0;
 
-	my @files = <$reportDir/noprofile/phpbench-*.log>;
+	my @files = <$reportDir/$profile/phpbench-*.log>;
 	my $iteration = 1;
 	foreach my $file (@files) {
 		open(INPUT, $file) || die("Failed to open $file\n");

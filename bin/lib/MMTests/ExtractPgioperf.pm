@@ -26,11 +26,11 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $recent = 0;
 
-	open(INPUT, "$reportDir/noprofile/pgioperf.log") || die("Failed to open $reportDir/noprofile/pgioperf.log");
+	open(INPUT, "$reportDir/$profile/pgioperf.log") || die("Failed to open $reportDir/$profile/pgioperf.log");
 	my %samples;
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;

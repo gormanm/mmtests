@@ -20,12 +20,12 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tm, $tput, $latency);
 	my @clients;
 
-	my @files = <$reportDir/noprofile/dvdstore-*.log>;
+	my @files = <$reportDir/$profile/dvdstore-*.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-1] =~ s/.log//;
@@ -44,7 +44,7 @@ sub extractReport($$$) {
 		my $endSamples = 0;
 
 		my $reading = 0;
-		my $file = "$reportDir/noprofile/dvdstore-$client.log";
+		my $file = "$reportDir/$profile/dvdstore-$client.log";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;

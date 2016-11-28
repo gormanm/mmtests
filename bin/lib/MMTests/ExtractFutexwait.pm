@@ -22,12 +22,12 @@ sub initialise() {
 	$self->{_PlotXaxis}  = "Threads";
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tp, $name);
 	my @threads;
 
-	my @files = <$reportDir/noprofile/futexwait-*-1.log>;
+	my @files = <$reportDir/$profile/futexwait-*-1.log>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		my $thr = $elements[-2];
@@ -36,7 +36,7 @@ sub extractReport($$$) {
 	}
 
 	foreach my $nthr (@threads) {
-		my @files = <$reportDir/noprofile/futexwait-$nthr-*.log>;
+		my @files = <$reportDir/$profile/futexwait-$nthr-*.log>;
 
 		foreach my $file (@files) {
 			my @split = split /-/, $file;

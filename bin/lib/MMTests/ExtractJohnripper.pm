@@ -16,12 +16,12 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my @clients;
 	my %benchmarks;
 
-	my @files = <$reportDir/noprofile/johnripper-*-1.log>;
+	my @files = <$reportDir/$profile/johnripper-*-1.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		push @clients, $split[-2];
@@ -32,7 +32,7 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		my @files = <$reportDir/noprofile/johnripper-$client-*.log>;
+		my @files = <$reportDir/$profile/johnripper-$client-*.log>;
 		foreach my $file (@files) {
 			my $benchmark;
 			my $salt;

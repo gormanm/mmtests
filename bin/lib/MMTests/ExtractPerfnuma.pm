@@ -15,13 +15,13 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 	my @convergances;
 
-	my @files = <$reportDir/noprofile/*-1.log>;
+	my @files = <$reportDir/$profile/*-1.log>;
 	foreach my $file (@files) {
 		my @split = split /\//, $file;
 		my $filename = $split[-1];
@@ -34,7 +34,7 @@ sub extractReport($$$) {
 	foreach my $convergance (@convergances) {
 		my $iteration = 0;
 
-		my @files = <$reportDir/noprofile/$convergance-*>;
+		my @files = <$reportDir/$profile/$convergance-*>;
 		foreach my $file (@files) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {

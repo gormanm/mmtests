@@ -15,15 +15,15 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 	my $testcase;
 	my %testcases;
 	$reportDir =~ s/xfsioops/xfsio/;
 
-	foreach my $file (<$reportDir/noprofile/*-log.*>) {
+	foreach my $file (<$reportDir/$profile/*-log.*>) {
 		$testcase = $file;
 		$testcase =~ s/.*\///;
 		$testcase =~ s/-log.*//;

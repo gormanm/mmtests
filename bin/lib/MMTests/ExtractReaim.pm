@@ -15,11 +15,11 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $required_heading = "JPM";
 
-	my @workfiles = <$reportDir/noprofile/workfile.*>;
+	my @workfiles = <$reportDir/$profile/workfile.*>;
 	foreach my $workfile (@workfiles) {
 		my $worktitle = $workfile;
 		$worktitle =~ s/.*\.//;

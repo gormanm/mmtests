@@ -15,12 +15,12 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $iteration = 0;
 	my @metric_list = ("HPL_Tflops", "PTRANS_GBs", "MPIRandomAccess_GUPs", "MPIFFT_Gflops", "StarSTREAM_Triad", "StarDGEMM_Gflops", "RandomlyOrderedRingBandwidth_GBytes");
 
-	foreach my $file (<$reportDir/noprofile/hpccoutf-*.txt>) {
+	foreach my $file (<$reportDir/$profile/hpccoutf-*.txt>) {
 		$iteration++;
 
 		open (INPUT, $file) || die("Failed to open $file");

@@ -14,11 +14,11 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $recent = 0;
 
-	my @files = <$reportDir/noprofile/bonnie.*>;
+	my @files = <$reportDir/$profile/bonnie.*>;
 	my $iteration = 1;
 	foreach my $file (@files) {
 		open(INPUT, $file) || die("Failed to open $file\n");

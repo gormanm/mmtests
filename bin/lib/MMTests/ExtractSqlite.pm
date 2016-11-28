@@ -17,10 +17,10 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $exclude_warmup = 0;
-	my $file = "$reportDir/noprofile/sqlite.log";
+	my $file = "$reportDir/$profile/sqlite.log";
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {

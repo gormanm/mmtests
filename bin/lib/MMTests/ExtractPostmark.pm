@@ -21,11 +21,11 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $recent = 0;
 
-	my $file = "$reportDir/noprofile/postmark.log";
+	my $file = "$reportDir/$profile/postmark.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my $line = $_;

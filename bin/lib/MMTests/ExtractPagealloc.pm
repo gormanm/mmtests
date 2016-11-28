@@ -22,12 +22,12 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my %samples;
 
 	my @orders;
-	my @files = <$reportDir/noprofile/alloc-[0-9]*>;
+	my @files = <$reportDir/$profile/alloc-[0-9]*>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		push @orders, $split[-1];
@@ -35,7 +35,7 @@ sub extractReport($$$) {
 	@orders = sort @orders;
 
 	my (@allocs, @frees, @batch_sizes);
-	open(INPUT, "$reportDir/noprofile/pagealloc.log") || die("Failed to open pagealloc.log\n");
+	open(INPUT, "$reportDir/$profile/pagealloc.log") || die("Failed to open pagealloc.log\n");
 
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;

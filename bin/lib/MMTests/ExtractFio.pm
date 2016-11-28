@@ -17,9 +17,9 @@ sub initialise() {
         $self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
-	my $file = "$reportDir/noprofile/fio.log";
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
+	my $file = "$reportDir/$profile/fio.log";
 	my @ops;
 
 	open(INPUT, $file) || die("Failed to open $file\n");

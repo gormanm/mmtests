@@ -16,8 +16,8 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tm, $tput, $latency);
 	my $size = 0;
 
@@ -25,7 +25,7 @@ sub extractReport($$$) {
 	my @candidates = ( "lat_mmap", "lat_ctx" );
 
 	foreach $case (@candidates) {
-		$file = "$reportDir/noprofile/lmbench-$case.log";
+		$file = "$reportDir/$profile/lmbench-$case.log";
 		if (open(INPUT, $file)) {
 			$caseName = $case;
 			last;

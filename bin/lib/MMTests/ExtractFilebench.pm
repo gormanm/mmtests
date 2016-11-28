@@ -15,16 +15,16 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 
-	open(INPUT, "$reportDir/noprofile/model") || die("Failed to detect model");
+	open(INPUT, "$reportDir/$profile/model") || die("Failed to detect model");
 	my $case = <INPUT>;
 	chomp($case);
 	close(INPUT);
 
         my @clients;
-        my @files = <$reportDir/noprofile/$case-*.1>;
+        my @files = <$reportDir/$profile/$case-*.1>;
         foreach my $file (@files) {
                 my @split = split /-/, $file;
                 $split[-1] =~ s/\.1//;
@@ -35,7 +35,7 @@ sub extractReport($$$) {
 	my @ops;
 	foreach my $client (@clients) {
 		my $iteration = 0;
-		foreach my $file (<$reportDir/noprofile/$case-$client.*>) {
+		foreach my $file (<$reportDir/$profile/$case-$client.*>) {
 			open(INPUT, $file) || die("Failed to open $file");
 			my ($startSetup, $endSetup, $endRun);
 			while (!eof(INPUT)) {

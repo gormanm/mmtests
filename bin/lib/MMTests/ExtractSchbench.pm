@@ -20,10 +20,10 @@ sub initialise() {
 	$self->{_SummaryHeaders} = [ "Unit", "Min", "50th-qrtle", "75th-qrtle", "90th-qrtle", "95th-qrtle", "99th-qrtle", "99.5th-qrtle", "99.9th-qrtle", "Max" ];
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 
-	my @files = <$reportDir/noprofile/schbench-*.log>;
+	my @files = <$reportDir/$profile/schbench-*.log>;
 	my @groups;
 
 	foreach my $file (@files) {
@@ -37,7 +37,7 @@ sub extractReport($$$) {
 	@groups = sort { $a <=> $b } @groups;
 
 	foreach my $group (@groups) {
-		open(INPUT, "$reportDir/noprofile/schbench-$group.log") || die("Failed to open $group\n");
+		open(INPUT, "$reportDir/$profile/schbench-$group.log") || die("Failed to open $group\n");
 		while (<INPUT>) {
 			if ($_ =~ /[ \t\*]+([0-9]+)\.[0-9]+th: ([0-9]+)/) {
 				push @{$self->{_ResultData}}, [$group, $1, $2];

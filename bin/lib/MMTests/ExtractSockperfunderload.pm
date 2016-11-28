@@ -22,12 +22,12 @@ sub uniq {
 	grep !$seen{$_}++, @_;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($protocol);
 
 	my (@sizes, @rates);
-	my @files = <$reportDir/noprofile/*-*-1.log>;
+	my @files = <$reportDir/$profile/*-*-1.log>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		$protocol = $elements[-4];
@@ -41,7 +41,7 @@ sub extractReport($$$) {
 	my @ops;
 	foreach my $size (@sizes) {
 		foreach my $rate (@rates) {
-			my $file = "$reportDir/noprofile/$protocol-$size-$rate-1.log";
+			my $file = "$reportDir/$profile/$protocol-$size-$rate-1.log";
 			open(INPUT, $file) || die("Failed to open $file\n");
 			my $start_time = 0;
 

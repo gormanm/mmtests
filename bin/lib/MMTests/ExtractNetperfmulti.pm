@@ -18,17 +18,17 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tm, $tput, $latency);
 
-	open (INPUT, "$reportDir/noprofile/protocols");
+	open (INPUT, "$reportDir/$profile/protocols");
 	my $protocol = <INPUT>;
 	chomp($protocol);
 	close(INPUT);
 
 	my @clients;
-	my @files = <$reportDir/noprofile/$protocol-*.1>;
+	my @files = <$reportDir/$profile/$protocol-*.1>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		my $client = $elements[-1];
@@ -41,7 +41,7 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		foreach my $file (<$reportDir/noprofile/$protocol-$client.*>) {
+		foreach my $file (<$reportDir/$profile/$protocol-$client.*>) {
 			my $send_tput = 0;
 			my $recv_tput = 0;
 

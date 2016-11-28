@@ -20,8 +20,8 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 
@@ -30,7 +30,7 @@ sub extractReport($$$) {
 
 	foreach my $testcase (@testcases) {
 		my $iteration = 0;
-		my @files = <$reportDir/noprofile/time.$testcase.*>;
+		my @files = <$reportDir/$profile/time.$testcase.*>;
 		foreach my $file (@files) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {

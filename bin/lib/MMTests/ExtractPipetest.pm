@@ -17,10 +17,10 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 
-	my $file = "$reportDir/noprofile/pipetest.log";
+	my $file = "$reportDir/$profile/pipetest.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	my $iteration = 0;
 	while (<INPUT>) {

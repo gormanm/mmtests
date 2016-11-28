@@ -16,13 +16,13 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($user, $system, $elapsed, $cpu);
 	$reportDir =~ s/stutterthroughput/stutter/;
 
 	# Extract calibration write test throughput
-	my $file = "$reportDir/noprofile/calibrate.time";
+	my $file = "$reportDir/$profile/calibrate.time";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	my @elements = split(/ /, <INPUT>);
 	@elements = split(/:/, $elements[2]);
@@ -30,13 +30,13 @@ sub extractReport($$$) {
 	push @{$self->{_ResultData}}, [ "PotentialWriteSpeed", 1, (1024) / ($elements[0] * 60 + $elements[1]) ];
 
 	# Extract filesize of write
-	my $file = "$reportDir/noprofile/dd.filesize";
+	my $file = "$reportDir/$profile/dd.filesize";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	my $filesize = <INPUT>;
 	close(INPUT);
 
 	# Extract calibration write test throughput
-	my @files = <$reportDir/noprofile/time.*>;
+	my @files = <$reportDir/$profile/time.*>;
 	my $nr_samples = 0;
 	foreach my $file (@files) {
 		open(INPUT, $file) || die("Failed to open $file\n");

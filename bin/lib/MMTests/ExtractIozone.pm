@@ -49,12 +49,12 @@ sub _calcStats() {
 	push @{$self->{_SummaryData}}, \@row;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 
 	my @sizes;
 	my %sizesSeen;
-	my @files = <$reportDir/noprofile/iozone-*.log>;
+	my @files = <$reportDir/$profile/iozone-*.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-1] =~ s/.log//;

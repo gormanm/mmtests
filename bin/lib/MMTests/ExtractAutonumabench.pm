@@ -23,12 +23,12 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($user, $system, $elapsed, $cpu);
 	my $bindTypes;
 
-	my @files = <$reportDir/noprofile/time.*>;
+	my @files = <$reportDir/$profile/time.*>;
 	if (!@files) {
 		die("Failed to open any time files\n")
 	}

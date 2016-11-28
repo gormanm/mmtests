@@ -14,12 +14,12 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my @workloads = ( "page_test", "brk_test", "exec_test", "fork_test" );
 
 	# List of report files, sort them to be purty
-	my @files = <$reportDir/noprofile/aim9-*>;
+	my @files = <$reportDir/$profile/aim9-*>;
 	@files = sort {
 		my ($dummy, $aIndex) = split(/-([^-]+)$/, $a);
 		my ($dummy, $bIndex) = split(/-([^-]+)$/, $b);

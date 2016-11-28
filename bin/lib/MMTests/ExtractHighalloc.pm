@@ -28,7 +28,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $lastWorkload = "";
 
-	open(WORKLOG, "$reportDir/noprofile/mmtests.log") || die("Failed to open mmtests.log");
+	open(WORKLOG, "$reportDir/$profile/mmtests.log") || die("Failed to open mmtests.log");
 	while (!eof(WORKLOG)) {
 		my $line = <WORKLOG>;
 		if ($line =~ /Background workload: ([a-z-]+) pid [0-9]+, highalloc pass ([0-9]+)/) {
@@ -65,12 +65,12 @@ sub extractSummary() {
 	return 1;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tm, $tput, $latency);
 
 	foreach my $workload (@_workloads) {
-		my @files = <$reportDir/noprofile/highalloc-$workload-*.log>;
+		my @files = <$reportDir/$profile/highalloc-$workload-*.log>;
 		my @latencies;
 		my $iterations = 0;
 		my $nr_success = 0;

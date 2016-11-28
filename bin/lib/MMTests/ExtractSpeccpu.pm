@@ -15,24 +15,24 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $section = 0;
 	my $pagesize = "base";
 
-	if (! -e "$reportDir/noprofile/$pagesize") {
+	if (! -e "$reportDir/$profile/$pagesize") {
 		$pagesize = "transhuge";
 	}
-	if (! -e "$reportDir/noprofile/$pagesize") {
+	if (! -e "$reportDir/$profile/$pagesize") {
 		$pagesize = "default";
 	}
 
 	my $size = "test";
-	if (! -e "$reportDir/noprofile/$pagesize/CINT2006.001.test.txt") {
+	if (! -e "$reportDir/$profile/$pagesize/CINT2006.001.test.txt") {
 		$size = "ref";
 	}
 
-	foreach my $file ("$reportDir/noprofile/$pagesize/CINT2006.001.$size.txt", "$reportDir/noprofile/$pagesize/CFP2006.001.$size.txt") {
+	foreach my $file ("$reportDir/$profile/$pagesize/CINT2006.001.$size.txt", "$reportDir/$profile/$pagesize/CFP2006.001.$size.txt") {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		my $reading = 0;
 

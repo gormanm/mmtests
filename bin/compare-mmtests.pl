@@ -62,14 +62,20 @@ if (!defined($opt_monitor)) {
 		printVerbose("Loading extract $opt_benchmark $name\n");
 		eval {
 			my $reportDirectory = "$opt_reportDirectory/$opt_benchmark-$name";
+			my $profile = "noprofile";
+			if (! -e "$opt_reportDirectory/noprofile") {
+				if (-e "$opt_reportDirectory/fine-profile-timer") {
+					$profile = "fine-profile-timer";
+				}
+			}
 			$extractModules[$nrModules] = $extractFactory->loadModule($opt_benchmark, $reportDirectory, $name);
 			if ($opt_Rsummary) {
 				$extractModules[$nrModules++]->extractSummaryR($opt_subheading, $opt_Rsummary);
 			} elsif ($opt_printRatio) {
-				$extractModules[$nrModules]->extractReport($reportDirectory, $name);
+				$extractModules[$nrModules]->extractReport($reportDirectory, $name, $profile);
 				$extractModules[$nrModules++]->extractRatioSummary($opt_subheading);
 			} else {
-				$extractModules[$nrModules]->extractReport($reportDirectory, $name);
+				$extractModules[$nrModules]->extractReport($reportDirectory, $name, $profile);
 				$extractModules[$nrModules++]->extractSummary($opt_subheading);
 			}
 		} or do {

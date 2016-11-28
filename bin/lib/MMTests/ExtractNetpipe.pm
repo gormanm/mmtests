@@ -17,11 +17,11 @@ sub initialise() {
         $self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $nr_samples = 0;
 
-	my $file = "$reportDir/noprofile/netpipe.log";
+	my $file = "$reportDir/$profile/netpipe.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my $line = $_;

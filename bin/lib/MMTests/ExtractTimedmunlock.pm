@@ -14,14 +14,10 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($user, $system, $elapsed, $cpu);
-	my $file = "$reportDir/noprofile/timedmunlock.time";
-
-	if (! -e $file) {
-		$file = "$reportDir/fine-profile-timer/timedmunlock.time";
-	}
+	my $file = "$reportDir/$profile/timedmunlock.time";
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {

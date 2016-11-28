@@ -14,8 +14,8 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($user, $system, $elapsed, $cpu);
 	my $iteration = 1;
 
@@ -25,7 +25,7 @@ sub extractReport($$$) {
 	};
 
 	my @clients;
-	my @files = <$reportDir/noprofile/fsmark-*.log>;
+	my @files = <$reportDir/$profile/fsmark-*.log>;
 	foreach my $file (@files) {
 		if ($file =~ /-cmd-/) {
 			next;
@@ -38,7 +38,7 @@ sub extractReport($$$) {
 
 	my @ops;
 	foreach my $client (@clients) {
-		my $file = "$reportDir/noprofile/fsmark-$client.log";
+		my $file = "$reportDir/$profile/fsmark-$client.log";
 		my $preamble = 1;
 		my $enospace = 0;
 		open(INPUT, $file) || die("Failed to open $file\n");

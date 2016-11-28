@@ -19,12 +19,12 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my @clients;
 	$reportDir =~ s/dbt5latency/dbt5-bench/;
 
-	my @files = <$reportDir/noprofile/results-*-1.txt>;
+	my @files = <$reportDir/$profile/results-*-1.txt>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		push @clients, $split[-2];
@@ -35,7 +35,7 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		my @files = <$reportDir/noprofile/results-$client-*.txt>;
+		my @files = <$reportDir/$profile/results-$client-*.txt>;
 		foreach my $file (@files) {
 			my $reading = 0;
 			open(INPUT, $file) || die("Failed to open $file\n");

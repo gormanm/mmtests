@@ -16,8 +16,8 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $jvm_instance = -1;
 	my $reading_tput = 0;
 	my @jvm_instances;
@@ -26,14 +26,14 @@ sub extractReport($$$) {
 	my $single_instance;
 	my $pagesize = "base";
 
-	if (! -e "$reportDir/noprofile/$pagesize") {
+	if (! -e "$reportDir/$profile/$pagesize") {
 		$pagesize = "transhuge";
 	}
-	if (! -e "$reportDir/noprofile/$pagesize") {
+	if (! -e "$reportDir/$profile/$pagesize") {
 		$pagesize = "default";
 	}
 
-	my @files = <$reportDir/noprofile/$pagesize/result/specjbb2015-*/report-*/*.raw>;
+	my @files = <$reportDir/$profile/$pagesize/result/specjbb2015-*/report-*/*.raw>;
 	my $file = $files[0];
 	die if ($file eq "");
 

@@ -18,12 +18,12 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $nr_cpus;
 	my @cpus;
 
-	open(INPUT, "$reportDir/noprofile/sysjitter.log") || die "Failed to open sysjitter.log";
+	open(INPUT, "$reportDir/$profile/sysjitter.log") || die "Failed to open sysjitter.log";
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 		chomp($line);

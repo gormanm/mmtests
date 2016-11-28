@@ -16,11 +16,11 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($user, $system, $elapsed, $cpu);
 
-	my @files = <$reportDir/noprofile/*.log>;
+	my @files = <$reportDir/$profile/*.log>;
 	my @ops;
 	foreach my $file (@files) {
 		my $testname = $file;

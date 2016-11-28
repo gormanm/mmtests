@@ -17,10 +17,10 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 
-	my $file = "$reportDir/noprofile/ku-latency.log";
+	my $file = "$reportDir/$profile/ku-latency.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 
 	my $time_kernel;

@@ -16,12 +16,12 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 
 	$reportDir =~ s/ebizzyrange/ebizzy/;
 	my @clients;
-	my @files = <$reportDir/noprofile/ebizzy-*-1.log>;
+	my @files = <$reportDir/$profile/ebizzy-*-1.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
@@ -32,7 +32,7 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $sample = 0;
 
-		my @files = <$reportDir/noprofile/ebizzy-$client-*>;
+		my @files = <$reportDir/$profile/ebizzy-$client-*>;
 		foreach my $file (@files) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {

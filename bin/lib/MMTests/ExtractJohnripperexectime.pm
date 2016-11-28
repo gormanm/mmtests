@@ -17,14 +17,14 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 	my @clients;
 	$reportDir =~ s/johnripperexectime/johnripper/;
 
-	my @files = <$reportDir/noprofile/load-*-1.time>;
+	my @files = <$reportDir/$profile/load-*-1.time>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		push @clients, $split[-2];
@@ -35,7 +35,7 @@ sub extractReport($$$) {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		foreach my $file (<$reportDir/noprofile/load-$client-*.time>) {
+		foreach my $file (<$reportDir/$profile/load-$client-*.time>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;

@@ -24,12 +24,12 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my @threads;
 	my @ops;
 
-	foreach my $file (<$reportDir/noprofile/interbench-*.latency>) {
+	foreach my $file (<$reportDir/$profile/interbench-*.latency>) {
 		my @elements = split (/-/, $file);
 		my $thr = $elements[-1];
 		$thr =~ s/.latency//;
@@ -39,7 +39,7 @@ sub extractReport($$$) {
 	foreach my $thread (@threads) {
 		my $start_timestamp;
 		my $last_comparison;
-		my $file = "$reportDir/noprofile/interbench-$thread.latency";
+		my $file = "$reportDir/$profile/interbench-$thread.latency";
 
 		open(INPUT, $file) || die("$file");
 		while (!eof(INPUT)) {

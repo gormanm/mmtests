@@ -20,11 +20,11 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 
-	open (INPUT, "$reportDir/noprofile/time-install.log") ||
-		die("Failed to open $reportDir/noprofile/time-install.log");
+	open (INPUT, "$reportDir/$profile/time-install.log") ||
+		die("Failed to open $reportDir/$profile/time-install.log");
 	while (<INPUT>) {
 		next if $_ !~ /elapsed/;
 		push @{$self->{_ResultData}}, [ "Sys",     $self->_time_to_sys($_) ];

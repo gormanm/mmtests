@@ -14,7 +14,7 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
+sub extractReport() {
 	return 1;
 }
 

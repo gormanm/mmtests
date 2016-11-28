@@ -18,9 +18,9 @@ sub new() {
 	return $self;
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
-	my $file = "$reportDir/noprofile/log.txt";
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
+	my $file = "$reportDir/$profile/log.txt";
 	my $pass = 0;
 
 	open(INPUT, $file) || die("Failed to open $file\n");

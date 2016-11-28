@@ -19,15 +19,11 @@ sub new() {
 
 my $_pagesize = "base";
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($user, $system, $wallTime, $faultsCpu, $faultsSec);
 	my $dummy;
 	$reportDir =~ s/pfttime-/pft-/;
-	my $profile = "noprofile";
-	if (! -e "$reportDir/$profile") {
-		$profile = "fine-profile-timer";
-	}
 
 	my @clients;
         my @files = <$reportDir/$profile/$_pagesize/pft-*.log>;

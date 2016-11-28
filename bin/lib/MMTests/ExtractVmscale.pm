@@ -19,11 +19,11 @@ sub initialise() {
 	$self->{_RatioPreferred} = "Lower";
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my @cases;
 
-	open(INPUT, "$reportDir/noprofile/cases") || die "Failed to open cases file";
+	open(INPUT, "$reportDir/$profile/cases") || die "Failed to open cases file";
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 		chomp($line);
@@ -34,8 +34,8 @@ sub extractReport($$$) {
 	my %ops;
 
 	foreach my $case (@cases) {
-		open(INPUT, "$reportDir/noprofile/$case.time") ||
-			die("Failed to open $reportDir/noprofile/$case.time");
+		open(INPUT, "$reportDir/$profile/$case.time") ||
+			die("Failed to open $reportDir/$profile/$case.time");
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;
 			next if $line !~ /elapsed/;
@@ -44,8 +44,8 @@ sub extractReport($$$) {
 		}
 		close(INPUT);
 
-		open(INPUT, "$reportDir/noprofile/$case.log") ||
-			die("Failed to open $reportDir/noprofile/$case.log");
+		open(INPUT, "$reportDir/$profile/$case.log") ||
+			die("Failed to open $reportDir/$profile/$case.log");
 
 		if ($case eq "lru-file-readonce" || $case eq "lru-file-readtwice") {
 			my @values;

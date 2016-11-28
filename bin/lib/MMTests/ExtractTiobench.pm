@@ -13,18 +13,18 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $max_read = -1;
 
-	if (open(INPUT, "$reportDir/noprofile/disk-read.speed")) {
+	if (open(INPUT, "$reportDir/$profile/disk-read.speed")) {
 		$max_read = <INPUT>;
 		close(INPUT);
 	}
 	push @{$self->{_ResultData}}, [ "PotentialReadSpeed", 1, $max_read ];
 
 	my @clients;
-	my @files = <$reportDir/noprofile/tiobench-*-1.log>;
+	my @files = <$reportDir/$profile/tiobench-*-1.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		push @clients, $split[-2];
@@ -33,7 +33,7 @@ sub extractReport($$$) {
 
 	foreach my $client (@clients) {
 		my $reading = 0;
-		my @files = <$reportDir/noprofile/tiobench-$client-*.log>;
+		my @files = <$reportDir/$profile/tiobench-$client-*.log>;
 		foreach my $file (@files) {
 			my $op;
 			my @split = split /-/, $file;

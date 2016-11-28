@@ -18,12 +18,12 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $protocol;
 
 	my @sizes;
-	my @files = <$reportDir/noprofile/*-max-1.stdout>;
+	my @files = <$reportDir/$profile/*-max-1.stdout>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		$protocol = $elements[-4];
@@ -36,7 +36,7 @@ sub extractReport($$$) {
 		my $file;
 		my $iteration = 0;
 
-		foreach $file (<$reportDir/noprofile/$protocol-$size-max-*.stdout>) {
+		foreach $file (<$reportDir/$profile/$protocol-$size-max-*.stdout>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (!eof(INPUT)) {
 				my $line = <INPUT>;
