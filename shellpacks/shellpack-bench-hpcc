@@ -82,7 +82,7 @@ round_down_power_2_cpus
 
 # Calculate basic parameters
 N=`echo "scale=0; sqrt ($HPCC_WORKLOAD_SIZE/8)" | bc -l`
-P=`echo "scale=0; sqrt ($NUMCPUS)" | bc -l`
+P=`echo "scale=0; sqrt ($MPICPUS)" | bc -l`
 Q=$P
 
 # Choose NB
@@ -145,4 +145,4 @@ monitor_post_hook $LOGDIR_RESULTS hpcc
 
 exit $SHELLPACK_SUCCESS
 #### Description hpcc
-#### Details hpcc-bench 19
+#### Details hpcc-bench 20

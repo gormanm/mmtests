@@ -26,7 +26,7 @@ round_down_power_2_cpus
 
 # Calculate basic parameters
 N=`echo "scale=0; sqrt ($HPCC_WORKLOAD_SIZE/8)" | bc -l`
-P=`echo "scale=0; sqrt ($NUMCPUS)" | bc -l`
+P=`echo "scale=0; sqrt ($MPICPUS)" | bc -l`
 Q=$P
 
 # Choose NB
