@@ -54,7 +54,7 @@ install-depends cmake libopenssl-devel libcurl-devel curl expat libexpat-devel
 case $DBDRIVER in
 postgres|pgsql)
 	echo Checking postgres installation
-	DBDRIVER_VERSION=9.6.0
+	DBDRIVER_VERSION=9.6.1
 	DBT2_DBDRIVER=pgsql
 	;;
 *)
@@ -112,4 +112,4 @@ fi
 echo dbt2 for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description dbt2
-#### Details dbt2 22
+#### Details dbt2 24

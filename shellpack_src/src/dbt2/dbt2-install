@@ -1,0 +1,45 @@
+#!/bin/bash
+###SHELLPACK preamble dbt2-install 0
+
+GIT_LOCATION=git://osdldbt.git.sourceforge.net/gitroot/osdldbt/dbt2
+MIRROR_LOCATION="$WEBROOT/dbt2/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam	--dbdriver	DBDRIVER
+###SHELLPACK parseargEnd
+
+install-depends cmake libopenssl-devel libcurl-devel curl expat libexpat-devel
+
+# Select database driver
+case $DBDRIVER in
+postgres|pgsql)
+	echo Checking postgres installation
+	DBDRIVER_VERSION=9.6.1
+	DBT2_DBDRIVER=pgsql
+	;;
+*)
+	die Unrecognised dbdriver $DBDRIVER
+	;;
+esac
+
+# Build database and start it for sysbench config
+$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
+        --effective_cachesize $((MEMTOTAL_BYTES*6/10)) \
+        --shared_buffers $((MEMTOTAL_BYTES/4)) \
+        --work_mem $((16*1048576)) || die Failed to get usable database installation
+
+echo Building dbt2 for $DBDRIVER
+export PATH=$SHELLPACK_SOURCES/${DBDRIVER}build-${DBDRIVER_VERSION}-installed/bin:$PATH
+###SHELLPACK git_fetch dbt2-${VERSION}.tar.gz dbt2-${VERSION}
+###SHELLPACK build_start dbt2-${VERSION}
+cmake -DDBMS=$DBT2_DBDRIVER -DDESTDIR=$SHELLPACK_SOURCES/dbt2-${VERSION}-installed
+make -j$NUMCPUS || die Failed to build dbt2
+make install || die Failed to install
+
+echo Building dbt2 stored procedures for $DBDRIVER
+export PATH=$SHELLPACK_SOURCES/${DBDRIVER}build-${DBDRIVER_VERSION}-installed/bin:$PATH
+cd storedproc/pgsql/c
+###SHELLPACK make_make_install
+
+echo dbt2 for $DBDRIVER successfully installed
+exit $SHELLPACK_SUCCESS
