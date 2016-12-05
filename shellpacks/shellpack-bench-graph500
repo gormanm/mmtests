@@ -185,7 +185,12 @@ mpi-simple)
 esac
 
 make clean || die Failed to clean
-make || die Failed to build
+make
+if [ $? -ne 0 ]; then
+	echo Stripping loop-strip-mine
+	sed -i -e 's/-floop-strip-mine//' make.inc
+	make || die Failed to build
+fi
 
 monitor_pre_hook $LOGDIR_RESULTS graph500
 mmtests_activity hpcg-$ITERATION
@@ -195,4 +200,4 @@ monitor_post_hook $LOGDIR_RESULTS graph500
 
 exit $SHELLPACK_SUCCESS
 #### Description graph500
-#### Details graph500-bench 7
+#### Details graph500-bench 8

@@ -61,4 +61,4 @@ mv $DST_DIR graph500-$VERSION-installed
 pushd graph500-$VERSION-installed > /dev/null || die Failed to rename tar
 exit $SHELLPACK_SUCCESS
 #### Description graph500
-#### Details graph500 7
+#### Details graph500 8
