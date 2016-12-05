@@ -72,7 +72,12 @@ serial)
 	;;
 esac
 make clean || die Failed to clean hpcg
-make arch=$TEMPLATE || die Failed to build hpcg
+make arch=$TEMPLATE
+if [ $? -ne 0 ]; then
+	echo Attempting build with g++ 4.8
+	install-depends gcc48-c++
+	make CXX=g++-4.8 arch=$TEMPLATE || die Failed to build hpcg
+fi
 
 # Configure benchmark
 cat > hpcg.dat <<EOF

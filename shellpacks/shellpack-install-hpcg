@@ -61,4 +61,4 @@ mv $DST_DIR hpcg-$VERSION-installed
 pushd hpcg-$VERSION-installed > /dev/null || die Failed to rename tar
 exit $SHELLPACK_SUCCESS
 #### Description hpcg
-#### Details hpcg 12
+#### Details hpcg 13
