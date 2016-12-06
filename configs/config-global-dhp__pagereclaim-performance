@@ -24,7 +24,11 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="vmscale lmbench stutter parallelio"
+if [ "`uname -m`" != "aarch64" ]; then
+	export MMTESTS="vmscale lmbench stutter parallelio"
+else
+	export MMTESTS="vmscale lmbench stutter"
+fi
 export RUN_WARMUP=
 
 # Profiling parameters
