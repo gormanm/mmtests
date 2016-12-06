@@ -11,6 +11,7 @@ WEB_LOCATION="http://www.hpcg-benchmark.org/downloads"
 MIRROR_LOCATION="$WEBROOT/hpcg/"
 
 install-depends openmpi openmpi-devel openmpi-libs
+install-depends libpsm_infinipath1
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -61,4 +62,4 @@ mv $DST_DIR hpcg-$VERSION-installed
 pushd hpcg-$VERSION-installed > /dev/null || die Failed to rename tar
 exit $SHELLPACK_SUCCESS
 #### Description hpcg
-#### Details hpcg 13
+#### Details hpcg 14

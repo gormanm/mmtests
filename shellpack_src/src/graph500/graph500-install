@@ -4,6 +4,7 @@ WEB_LOCATION="http://www.graph500.org/sites/default/files/files"
 MIRROR_LOCATION="$WEBROOT/graph500/"
 
 install-depends openmpi openmpi-devel openmpi-libs
+install-depends libpsm_infinipath1
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

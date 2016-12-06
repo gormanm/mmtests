@@ -200,4 +200,4 @@ monitor_post_hook $LOGDIR_RESULTS graph500
 
 exit $SHELLPACK_SUCCESS
 #### Description graph500
-#### Details graph500-bench 8
+#### Details graph500-bench 9

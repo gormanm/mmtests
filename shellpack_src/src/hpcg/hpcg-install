@@ -4,6 +4,7 @@ WEB_LOCATION="http://www.hpcg-benchmark.org/downloads"
 MIRROR_LOCATION="$WEBROOT/hpcg/"
 
 install-depends openmpi openmpi-devel openmpi-libs
+install-depends libpsm_infinipath1
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

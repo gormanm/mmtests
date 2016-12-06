@@ -11,6 +11,7 @@ WEB_LOCATION="http://www.graph500.org/sites/default/files/files"
 MIRROR_LOCATION="$WEBROOT/graph500/"
 
 install-depends openmpi openmpi-devel openmpi-libs
+install-depends libpsm_infinipath1
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -61,4 +62,4 @@ mv $DST_DIR graph500-$VERSION-installed
 pushd graph500-$VERSION-installed > /dev/null || die Failed to rename tar
 exit $SHELLPACK_SUCCESS
 #### Description graph500
-#### Details graph500 8
+#### Details graph500 9

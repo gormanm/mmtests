@@ -4,6 +4,7 @@ WEB_LOCATION="http://icl.cs.utk.edu/projectsfiles/hpcc/download"
 MIRROR_LOCATION="$WEBROOT/hpcc/"
 
 install-depends openmpi openmpi-devel openmpi-libs libblas3 blas blas-devel blas-devel-static
+install-depends libpsm_infinipath1
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

@@ -4,6 +4,7 @@
 ###SHELLPACK preamble nas-bench 3.3
 
 install-depends openmpi openmpi-devel
+install-depends libpsm_infinipath1
 
 NAS_TYPE=SER
 RUNBITS=
