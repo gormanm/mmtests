@@ -155,3 +155,4 @@ fi
 done
 
 rm -rf $SHELLPACK_TEMP
+exit $EXIT_CODE
