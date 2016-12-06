@@ -47,7 +47,7 @@ fi
 rm -rf $SHELLPACK_SOURCES/filebench-${VERSION}
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=filebench-${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -125,4 +125,4 @@ index 634897e..85ac02a 100644
  	return (FILEBENCH_OK);
  }
 #### Description filebench
-#### Details filebench 20
+#### Details filebench 21

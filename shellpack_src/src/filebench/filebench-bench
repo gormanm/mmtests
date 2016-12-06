@@ -94,3 +94,5 @@ EOF
 	die Unrecognised model $FILEBENCH_PERSONALITY
 	;;
 esac
+
+exit $SHELLPACK_SUCCESS
