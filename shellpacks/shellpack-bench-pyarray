@@ -12,11 +12,21 @@ ITERATIONS=30
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -96,7 +106,6 @@ for x in t:
     x.join()' > $SHELLPACK_TEMP/pyarray.py
 
 # Run the benchmark
-RETVAL=0
 monitor_pre_hook $LOGDIR_RESULTS
 for ITERATION in `seq 1 $ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
@@ -107,6 +116,6 @@ done
 monitor_post_hook $LOGDIR_RESULTS
 cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time
 
-exit $RETVAL
+exit $SHELLPACK_SUCCESS
 #### Description pyarray
-#### Details pyarray-bench 3
+#### Details pyarray-bench 4

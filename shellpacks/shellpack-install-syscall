@@ -11,11 +11,21 @@ fi
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -54,7 +64,7 @@ fi
 exit $SHELLPACK_SUCCESS
 
 ==== BEGIN syscall.c ====
-/* Mostly written by by Borislav Petkov */
+/* Mostly written by Borislav Petkov */
 #include <stdio.h>
 #include <sys/syscall.h>
 #include <stdlib.h>
@@ -131,4 +141,4 @@ int main()
 }
 ==== END syscall.c ====
 #### Description syscall
-#### Details syscall 23
+#### Details syscall 24

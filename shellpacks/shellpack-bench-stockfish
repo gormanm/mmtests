@@ -112,6 +112,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $STOCKFISH_MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 cat > $EXPECT_SCRIPT <<EOF
 spawn $SHELLPACK_SOURCES/stockfish-${VERSION}-installed/bin/stockfish
@@ -134,5 +137,7 @@ for ITERATION in `seq 1 $STOCKFISH_ITERATIONS`; do
 		$EXPECT -f $EXPECT_SCRIPT > $LOGDIR_RESULTS/stockfish-$NR_THREADS-$ITERATION
 done
 done
+
+exit $SHELLPACK_SUCCESS
 #### Description stockfish
-#### Details stockfish-bench 8
+#### Details stockfish-bench 9

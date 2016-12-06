@@ -120,5 +120,7 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	echo Starting iteration $ITERATION
 	$EXPECT -f $EXPECT_SCRIPT | tee $LOGDIR_RESULTS/aim9-$ITERATION
 done
+
+exit $SHELLPACK_SUCCESS
 #### Description AIM9 benchmark
-#### Details aim9-bench 23
+#### Details aim9-bench 24

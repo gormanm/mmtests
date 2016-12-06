@@ -28,7 +28,6 @@ for x in t:
     x.join()' > $SHELLPACK_TEMP/pyarray.py
 
 # Run the benchmark
-RETVAL=0
 monitor_pre_hook $LOGDIR_RESULTS
 ###SHELLPACK iteration_begin $ITERATIONS
 $TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
@@ -38,4 +37,4 @@ cat $LOGDIR_RESULTS/time.$ITERATION
 monitor_post_hook $LOGDIR_RESULTS
 cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time
 
-exit $RETVAL
+exit $SHELLPACK_SUCCESS

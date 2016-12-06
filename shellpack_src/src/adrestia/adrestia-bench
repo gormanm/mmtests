@@ -37,4 +37,4 @@ while [ $ATIME -le $ADRESTIA_MAX_ATIME ]; do
 	((ATIME *= 2))
 done
 
-exit $RETVAL
+exit $SHELLPACK_SUCCESS

@@ -65,3 +65,4 @@ select	select_w1000	-n 1000 -w 100
 exit	exit
 EOT
 
+exit $SHELLPACK_SUCCESS

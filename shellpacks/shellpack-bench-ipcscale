@@ -28,10 +28,6 @@ TESTLIST=
 # (iii) posixsempp (posix sem ping-pong): Just like (ii) but with posix sems;
 #       ie: semop vs sem_wait
 #
-#
-# First up to IPCSCALE_CPU0 threads are put on core 0, then the next
-# thread(s) are placed to the core <interleave>.
-#
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -174,5 +170,7 @@ done
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
+
+exit $SHELLPACK_SUCCESS
 #### Description ipcscale
-#### Details ipcscale-bench 7
+#### Details ipcscale-bench 8

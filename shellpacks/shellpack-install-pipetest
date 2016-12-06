@@ -58,4 +58,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description Run the pipe-test benchmark
-#### Details pipetest 16
+#### Details pipetest 17

@@ -50,3 +50,5 @@ chmod u+x $EXPECT_SCRIPT
 		$EXPECT -f $EXPECT_SCRIPT > $LOGDIR_RESULTS/stockfish-$NR_THREADS-$ITERATION
 ###SHELLPACK iteration_end $ITERATIONS
 ###SHELLPACK threads_stride_end
+
+exit $SHELLPACK_SUCCESS

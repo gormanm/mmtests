@@ -63,3 +63,5 @@ fi
 	echo Starting iteration $ITERATION
 	$EXPECT -f $EXPECT_SCRIPT | tee $LOGDIR_RESULTS/aim9-$ITERATION
 ###SHELLPACK iteration_end $ITERATIONS
+
+exit $SHELLPACK_SUCCESS

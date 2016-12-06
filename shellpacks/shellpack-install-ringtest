@@ -13,11 +13,21 @@ MIRROR_LOCATION="$WEBROOT/ringtest/ring-test.c"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -63,7 +73,7 @@ exit $SHELLPACK_SUCCESS
 
 ==== BEGIN terminate.patch ====
 diff --git a/ring-test.c b/ring-test.c
-index e220d6094650..c2527b729d8f 100644
+index e220d609.6.1..c2527b729d8f 100644
 --- a/ring-test.c
 +++ b/ring-test.c
 @@ -94,7 +94,7 @@ static void worker(int task)
@@ -85,4 +95,4 @@ index e220d6094650..c2527b729d8f 100644
  	}
 ==== END terminate.patch ====
 #### Description ringtest
-#### Details ringtest 8
+#### Details ringtest 9

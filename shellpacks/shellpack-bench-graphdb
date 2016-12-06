@@ -146,6 +146,6 @@ cat *-latency.dat | sort -n > $LOGDIR_RESULTS/graphdb.log
 rm *-latency.dat
 monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 
-exit $RETVAL
+exit $SHELLPACK_SUCCESS
 #### Description graphdb
-#### Details graphdb-bench 25
+#### Details graphdb-bench 26

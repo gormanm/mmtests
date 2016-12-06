@@ -53,7 +53,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=cma-test-${VERSION}.tgz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -136,4 +136,4 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 #### Description This is a basic functional test of cross-memory-attach
-#### Details cmattach-test 4
+#### Details cmattach-test 5

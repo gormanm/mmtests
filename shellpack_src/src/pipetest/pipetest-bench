@@ -49,5 +49,4 @@ done
 echo
 
 monitor_post_hook $LOGDIR_RESULTS
-
-exit $RETVAL
+exit $SHELLPACK_SUCCESS

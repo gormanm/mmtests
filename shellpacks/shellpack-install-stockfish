@@ -70,4 +70,4 @@ make install ARCH=$ARCH PREFIX=$SHELLPACK_SOURCES/stockfish-${VERSION}-installed
 
 echo stockfish installed successfully
 #### Description stockfish
-#### Details stockfish 8
+#### Details stockfish 9

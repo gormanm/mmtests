@@ -58,4 +58,4 @@ rm -rf $TESTDISK_DIR/*
 popd > /dev/null
 rm -rf $TMPDIR/kernbench
 
-exit 0
+exit $SHELLPACK_SUCCESS

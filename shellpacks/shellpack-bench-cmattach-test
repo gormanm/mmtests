@@ -100,5 +100,7 @@ for TEST in process_vm_readv_simple process_vm_writev process_vm_readv_iovec; do
 	kill -9 $SRCPID
 	echo $STATUS
 done
+
+exit $SHELLPACK_SUCCESS
 #### Description This is a basic functional test of cross-memory-attach
-#### Details cmattach-test-bench 4
+#### Details cmattach-test-bench 5

@@ -57,3 +57,5 @@ echo ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
 		die Failed to run bonnie
 	fi
 ###SHELLPACK iteration_end
+
+exit $SHELLPACK_SUCCESS

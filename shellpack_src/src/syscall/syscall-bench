@@ -16,4 +16,4 @@ monitor_pre_hook $LOGDIR_RESULTS
 $TASKSET_SERVER ./syscall | tee $LOGDIR_RESULTS/syscall.log
 monitor_post_hook $LOGDIR_RESULTS
 
-exit $RETVAL
+exit $SHELLPACK_SUCCESS

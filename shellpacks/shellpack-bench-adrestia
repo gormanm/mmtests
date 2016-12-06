@@ -129,6 +129,6 @@ done
 	((ATIME *= 2))
 done
 
-exit $RETVAL
+exit $SHELLPACK_SUCCESS
 #### Description Linux scheduler load balancer microbenchmark suite
-#### Details adrestia-bench 3
+#### Details adrestia-bench 4
