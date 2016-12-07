@@ -170,12 +170,11 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 for ITERATION in `seq 1 $ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 	mmtests_activity size $SIZE
-	SOCKETSIZE_OPT="-s $((SIZE+256)) -S $((SIZE+256))"
 	MSGSIZE_OPT=
 	if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
 		MSGSIZE_OPT="-m $SIZE -M $SIZE"
 	fi
-	if [ "$PROTOCOL" = "UDP_RR" -o "$PROTOCOL" = "TCP_RR" ]; then
+	if [ "$PROTOCOL" = "TCP_RR" ]; then
 		MSGSIZE_OPT="-r $SIZE"
 	fi
 	
@@ -185,9 +184,7 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 		-t $PROTOCOL \
 		-i 3,3 -I 95,5 \
 		-H $SERVER_HOST \
-		-- \
-		$SOCKETSIZE_OPT $MSGSIZE_OPT \
-		$EXTRA \
+		-- $MSGSIZE_OPT $EXTRA \
 			2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
 			|| die Failed to run netperf
 	monitor_post_hook $LOGDIR_RESULTS $SIZE
@@ -198,4 +195,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 41
+#### Details netperf-bench 42

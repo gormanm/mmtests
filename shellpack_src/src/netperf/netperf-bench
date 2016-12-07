@@ -73,12 +73,11 @@ for SIZE in $BUFFER_SIZES; do
 mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 ###SHELLPACK iteration_begin $ITERATIONS
 	mmtests_activity size $SIZE
-	SOCKETSIZE_OPT="-s $((SIZE+256)) -S $((SIZE+256))"
 	MSGSIZE_OPT=
 	if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
 		MSGSIZE_OPT="-m $SIZE -M $SIZE"
 	fi
-	if [ "$PROTOCOL" = "UDP_RR" -o "$PROTOCOL" = "TCP_RR" ]; then
+	if [ "$PROTOCOL" = "TCP_RR" ]; then
 		MSGSIZE_OPT="-r $SIZE"
 	fi
 	
@@ -88,9 +87,7 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 		-t $PROTOCOL \
 		-i 3,3 -I 95,5 \
 		-H $SERVER_HOST \
-		-- \
-		$SOCKETSIZE_OPT $MSGSIZE_OPT \
-		$EXTRA \
+		-- $MSGSIZE_OPT $EXTRA \
 			2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
 			|| die Failed to run netperf
 	monitor_post_hook $LOGDIR_RESULTS $SIZE

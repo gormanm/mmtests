@@ -8,8 +8,6 @@
 ### benchmark.
 ###
 ### The RR tests are round-robin tests.
-###
-### tbench4 is the network portion of the dbench4 benchmark.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
