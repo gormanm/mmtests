@@ -441,10 +441,19 @@ function mmtests_server_ctl() {
 	fi
 
 	echo === BEGIN execute remote server command: $REMOTE_SERVER_SCRIPT $@ ===
-	sysctl net.core.rmem_max=16777216
-	sysctl net.core.wmem_max=16777216
-	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST sysctl net.core.rmem_max=16777216
-	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST sysctl net.core.wmem_max=16777216
+	MAX_SIZE=33554432
+	echo Setting local rmem_max and wmem_max to $MAX_SIZE
+	sysctl net.core.rmem_max=$MAX_SIZE
+	sysctl net.core.wmem_max=$MAX_SIZE
+	echo Setting remote rmem_max and wmem_max to $MAX_SIZE
+	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST sysctl net.core.rmem_max=$MAX_SIZE
+	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST sysctl net.core.wmem_max=$MAX_SIZE
+	echo Local
+	sysctl net.core.rmem_max
+	sysctl net.core.wmem_max
+	echo Remote
+	sysctl net.core.rmem_max
+	sysctl net.core.wmem_max
 	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST $REMOTE_SERVER_WRAPPER $REMOTE_SERVER_SCRIPT --serverside-command $@
 	if [ $? -ne $SHELLPACK_SUCCESS ]; then
 		die Server side command failed
