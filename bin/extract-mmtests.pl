@@ -109,8 +109,8 @@ if ($opt_printType) {
 
 # Guess profile name
 my $profile = "noprofile";
-if (! -e $opt_reportDirectory/noprofile) {
-	if (-e $opt_reportDirectory/fine-profile-timer) {
+if (! -e "$opt_reportDirectory/noprofile") {
+	if (-e "$opt_reportDirectory/fine-profile-timer") {
 		$profile = "fine-profile-timer";
 	}
 }
