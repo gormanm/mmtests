@@ -207,7 +207,7 @@ esac
 echo $NETPERFMULTI_PROTOCOL > $LOGDIR_RESULTS/protocols
 EXTRA=
 if [ "$NETPERFMULTI_PROTOCOL" = "UDP_STREAM" ]; then
-	EXTRA="-P 15895 -s 32768 -S 32768"
+	EXTRA="-P 15895"
 fi
 
 THREADS=
@@ -236,7 +236,7 @@ for ITERATION in `seq 1 $NETPERFMULTI_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 		mmtests_activity $NETPERFMULTI_BUFFER_SIZE-$NR_THREADS-$ITERATION
 		SIZE_OPT=
-		if [ "$NETPERFMULTI_PROTOCOL" = "UDP_STREAM" -o "$NETPERFMULTI_PROTOCOL" = "TCP_STREAM" ]; then
+		if [ "$NETPERFMULTI_PROTOCOL" = "UDP_STREAM" -o "$NETPERFMULTI_PROTOCOL" = "TCP_STREAM" -o "$NETPERFMULTI_PROTOCOL" = "STREAM_STREAM" ]; then
 			SIZE_OPT="-m $NETPERFMULTI_BUFFER_SIZE -M $NETPERFMULTI_BUFFER_SIZE"
 		fi
 		if [ "$NETPERFMULTI_PROTOCOL" = "UDP_RR" -o "$NETPERFMULTI_PROTOCOL" = "TCP_RR" ]; then
@@ -274,4 +274,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark with multiple instances
-#### Details netperfmulti-bench 19
+#### Details netperfmulti-bench 20

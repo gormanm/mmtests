@@ -172,7 +172,7 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	mmtests_activity size $SIZE
 	MSGSIZE_OPT=
 	SOCKETSIZE_OPT=
-	if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
+	if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" -o "$PROTOCOL" = "STREAM_STREAM" ]; then
 		MSGSIZE_OPT="-m $SIZE -M $SIZE"
 	fi
 	if [ "$REMOTE_SERVER_HOST" != "" ]; then
@@ -206,4 +206,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 46
+#### Details netperf-bench 51
