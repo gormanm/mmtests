@@ -6,16 +6,11 @@
 ### netperf-tcp is a TCP_STREAM netperf run on a loopback device. The
 ### client and server are bound to CPUs similar to the netperf-udp
 ### benchmark.
-###
-### The RR tests are round-robin tests.
-###
-### All tests run with varying numbers of netperf instances to detect
-### how well it scales transmitting a fixed buffer size
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="netperfmulti-udp netperfmulti-tcp netperfmulti-udp-rr netperfmulti-tcp-rr"
+export MMTESTS="netperfmulti-udp netperfmulti-tcp"
 export RUN_WARMUP=
 
 # Profiling parameters
