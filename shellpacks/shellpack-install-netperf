@@ -92,4 +92,4 @@ fi
 
 echo Netperf installed successfully
 #### Description Netperf benchmark
-#### Details netperf 44
+#### Details netperf 46

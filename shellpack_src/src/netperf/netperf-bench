@@ -88,6 +88,11 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 	fi
 	
 	echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE
+	echo $TASKSET_CLIENT netperf \
+		-t $PROTOCOL \
+		-i 3,3 -I 95,5 \
+		-H $SERVER_HOST \
+		-- $MSGSIZE_OPT $EXTRA 
 	monitor_pre_hook $LOGDIR_RESULTS $SIZE
 	eval $TASKSET_CLIENT $NETROOT/bin/netperf \
 		-t $PROTOCOL \

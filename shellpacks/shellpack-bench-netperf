@@ -185,6 +185,11 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	fi
 	
 	echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE
+	echo $TASKSET_CLIENT netperf \
+		-t $PROTOCOL \
+		-i 3,3 -I 95,5 \
+		-H $SERVER_HOST \
+		-- $MSGSIZE_OPT $EXTRA 
 	monitor_pre_hook $LOGDIR_RESULTS $SIZE
 	eval $TASKSET_CLIENT $NETROOT/bin/netperf \
 		-t $PROTOCOL \
@@ -201,4 +206,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 44
+#### Details netperf-bench 46
