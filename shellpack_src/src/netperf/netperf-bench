@@ -77,7 +77,7 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 	if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
 		MSGSIZE_OPT="-m $SIZE -M $SIZE"
 	fi
-	if [ "$PROTOCOL" = "TCP_RR" ]; then
+	if [ "$PROTOCOL" = "UDP_RR" -o "$PROTOCOL" = "TCP_RR" ]; then
 		MSGSIZE_OPT="-r $SIZE"
 	fi
 	

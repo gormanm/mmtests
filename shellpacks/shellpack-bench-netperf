@@ -174,7 +174,7 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
 		MSGSIZE_OPT="-m $SIZE -M $SIZE"
 	fi
-	if [ "$PROTOCOL" = "TCP_RR" ]; then
+	if [ "$PROTOCOL" = "UDP_RR" -o "$PROTOCOL" = "TCP_RR" ]; then
 		MSGSIZE_OPT="-r $SIZE"
 	fi
 	
@@ -195,4 +195,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 42
+#### Details netperf-bench 43
