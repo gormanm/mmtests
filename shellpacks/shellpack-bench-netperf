@@ -171,11 +171,17 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 	mmtests_activity size $SIZE
 	MSGSIZE_OPT=
+	SOCKETSIZE_OPT=
 	if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" ]; then
 		MSGSIZE_OPT="-m $SIZE -M $SIZE"
 	fi
-	if [ "$PROTOCOL" = "UDP_RR" -o "$PROTOCOL" = "TCP_RR" ]; then
-		MSGSIZE_OPT="-r $SIZE"
+	if [ "$REMOTE_SERVER_HOST" != "" ]; then
+		# UDP_STREAM on a 10GbE network was found to lose excessive
+		# packets unless the socket sizes were increase. These values
+		# resulted in minimal packet loss.
+		if [ "$PROTOCOL" = "UDP_STREAM" ]; then
+			SOCKETSIZE_OPT="-s 851968 -S 851968"
+		fi
 	fi
 	
 	echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE
@@ -195,4 +201,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 43
+#### Details netperf-bench 44

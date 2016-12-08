@@ -442,23 +442,17 @@ function mmtests_server_ctl() {
 
 	echo === BEGIN execute remote server command: $REMOTE_SERVER_SCRIPT $@ ===
 
-	# These max and default socket sizes were selected to get netperf UDP_STREAM
-	# transmitting as its maximum rate with minimal packet loss on a 10GbE network.
-	# Other networks and devices may have different requirements. It's excessive
-	# for TCP_STREAM to transmit at maximum rates but easier overall to pick a
-	# common default instead of per-test settings
+	# These max and default socket sizes were selected to allow netperf UDP_STREAM
+	# the option of transmitting at the maximum rate with minimal packet loss on a
+	# 10GbE network. Other networks and devices may have different requirements.
+	# The maximum values are beyond excessive
 	MAX_SIZE=33554432
-	DEFAULT_SIZE=1703936
-	echo Setting local rmem_max and wmem_max to $MAX_SIZE, defaults to $DEFAULT_SIZE
+	echo Setting local rmem_max and wmem_max to $MAX_SIZE
 	sysctl net.core.rmem_max=$MAX_SIZE
 	sysctl net.core.wmem_max=$MAX_SIZE
-	sysctl net.core.rmem_default=$DEFAULT_SIZE
-	sysctl net.core.wmem_default=$DEFAULT_SIZE
 	echo Setting remote rmem_max and wmem_max to $MAX_SIZE
 	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST sysctl net.core.rmem_max=$MAX_SIZE
 	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST sysctl net.core.wmem_max=$MAX_SIZE
-	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST sysctl net.core.rmem_max=$DEFAULT_SIZE
-	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST sysctl net.core.wmem_max=$DEFAULT_SIZE
 
 	# Start remote server
 	ssh -o StrictHostKeyChecking=no $REMOTE_SERVER_USER@$REMOTE_SERVER_HOST $REMOTE_SERVER_WRAPPER $REMOTE_SERVER_SCRIPT --serverside-command $@
