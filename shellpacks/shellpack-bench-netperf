@@ -195,7 +195,7 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 		-t $PROTOCOL \
 		-i 3,3 -I 95,5 \
 		-H $SERVER_HOST \
-		-- $MSGSIZE_OPT $EXTRA \
+		-- $SOCKETSIZE_OPT $MSGSIZE_OPT $EXTRA \
 			2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
 			|| die Failed to run netperf
 	monitor_post_hook $LOGDIR_RESULTS $SIZE
