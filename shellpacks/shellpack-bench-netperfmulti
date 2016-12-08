@@ -274,4 +274,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark with multiple instances
-#### Details netperfmulti-bench 20
+#### Details netperfmulti-bench 21

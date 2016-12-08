@@ -60,6 +60,7 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR netperfmulti-${VERSION}
 pushd netperfmulti-${VERSION} > /dev/null || die Failed to rename tar
 
+export CFLAGS_MMTESTS_EXTRA="-DWANT_UNIX"
 pushd $SHELLPACK_SOURCES/netperfmulti-${VERSION} || die Failed to change to source directory
 for FILE in `find -name "*"`; do
 	touch $FILE
@@ -92,4 +93,4 @@ fi
 
 echo Netperf installed successfully
 #### Description Netperf benchmark with multiple instances
-#### Details netperfmulti 20
+#### Details netperfmulti 21
