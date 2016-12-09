@@ -185,17 +185,14 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	fi
 	
 	echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE
-	echo $TASKSET_CLIENT netperf \
+	NETPERF_OPTS="\
 		-t $PROTOCOL \
 		-i 3,3 -I 95,5 \
 		-H $SERVER_HOST \
-		-- $MSGSIZE_OPT $EXTRA 
+		-- $SOCKETSIZE_OPT $MSGSIZE_OPT $EXTRA"
+	echo $TASKSET_CLIENT "netperf" $NETPERF_OPTS
 	monitor_pre_hook $LOGDIR_RESULTS $SIZE
-	eval $TASKSET_CLIENT $NETROOT/bin/netperf \
-		-t $PROTOCOL \
-		-i 3,3 -I 95,5 \
-		-H $SERVER_HOST \
-		-- $SOCKETSIZE_OPT $MSGSIZE_OPT $EXTRA \
+	eval $TASKSET_CLIENT $NETROOT/bin/netperf $NETPERF_OPTS \
 			2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
 			|| die Failed to run netperf
 	monitor_post_hook $LOGDIR_RESULTS $SIZE
@@ -206,4 +203,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 51
+#### Details netperf-bench 52
