@@ -1,9 +1,6 @@
 ### The bonnie IO benchmark generates a number of basic IO patterns simulating
-### the operations of a busy file server. The dataset size is 1G with 1024
-### files and the IO is asynchronous. Note that the fixed dataset size is
-### smaller than most servers memory meaning that the benchmark may run
-### entirely in memory. Some aspects of the test may be so short-lived that
-### the results are inconclusive.
+### the operations of a busy file server. The dataset size of 2*RAM with 1024
+### files and the IO is synchronous.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
@@ -72,8 +69,6 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # bonnie
-export BONNIE_DATASET_SIZE=$((1048576*1024))
-export BONNIE_NR_FILES=1024
-export BONNIE_NR_DIRECTORIES=1
+export BONNIE_DATASET_SIZE=$((MEMTOTAL_BYTES*2))
 export BONNIE_ITERATIONS=3
-export BONNIE_FSYNC=no
+export BONNIE_FSYNC=yes

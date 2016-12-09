@@ -9,9 +9,8 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 
-DATASET_SIZE=$((2*1048576))
-NR_FILES=1024
-NR_DIRECTORIES=1
+DATASET_SIZE=0
+NR_FILES=0
 MACHINE=`hostname`
 ITERATIONS=3
 FSYNC=no
@@ -53,6 +52,10 @@ while [ "$1" != "" ]; do
 		NR_FILES=$2
 		shift 2
 		;;
+	--dirsize)
+		DIRECTORY_SIZE=$2
+		shift 2
+		;;
 	--nr_directories)
 		NR_DIRECTORIES=$2
 		shift 2
@@ -92,12 +95,21 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	exit $SHELLPACK_SUCCESS
 fi
 
-DIRECTORY_SIZE=$((DATASET_SIZE/NR_FILES))
-NR_FILES=$((NR_FILES/1024))
-DATASET_SIZE=$((DATASET_SIZE/1048576))
-if [ $NR_FILES -eq 0 ]; then
-	NR_FILES=1
+DIRTEST_PARAM="-n 0"
+FILETEST_PARAM="-s 0"
+if [ $NR_FILES -gt 0 ]; then
+	NR_FILES=$((NR_FILES/1024))
+	if [ $NR_FILES -eq 0 ]; then
+		NR_FILES=1
+	fi
+	DIRTEST_PARAM="-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES"
 fi
+
+if [ $DATASET_SIZE -gt 0 ]; then
+	DATASET_SIZE=$((DATASET_SIZE/1048576))
+	FILETEST_PARAM="-s $DATASET_SIZE"
+fi
+
 if [ "$FSYNC" = "yes" ]; then
 	FSYNC_PARAM=-b
 fi
@@ -111,16 +123,16 @@ cd $SHELLPACK_SOURCES/bonnie-${VERSION}-installed
 
 echo ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
 	-d $TESTDISK_DIR \
-	-s $DATASET_SIZE \
-	-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES \
+	$FILETEST_PARAM \
+	$DIRTEST_PARAM \
 	-m $MACHINE | tee $LOGDIR_RESULTS/bonnie-params
 for ITERATION in `seq 1 $ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 	echo Starting iteration $ITERATION
 	save_rc ./sbin/bonnie++ $FSYNC_PARAM $USER_PARAM -r 0 \
 		-d $TESTDISK_DIR \
-		-s $DATASET_SIZE \
-		-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES \
+		$FILETEST_PARAM \
+		$DIRTEST_PARAM \
 		-m $MACHINE \
 		2>&1 | tee $LOGDIR_RESULTS/bonnie.$ITERATION
 
@@ -132,4 +144,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description bonnie
-#### Details bonnie-bench 35
+#### Details bonnie-bench 37

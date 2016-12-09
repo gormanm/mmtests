@@ -2,9 +2,8 @@
 
 ###SHELLPACK preamble bonnie-bench 1.03e
 
-DATASET_SIZE=$((2*1048576))
-NR_FILES=1024
-NR_DIRECTORIES=1
+DATASET_SIZE=0
+NR_FILES=0
 MACHINE=`hostname`
 ITERATIONS=3
 FSYNC=no
@@ -14,6 +13,7 @@ FSYNC_PARAM=
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --dataset		DATASET_SIZE
 ###SHELLPACK parseargParam --nr_files		NR_FILES
+###SHELLPACK parseargParam --dirsize		DIRECTORY_SIZE
 ###SHELLPACK parseargParam --nr_directories	NR_DIRECTORIES
 ###SHELLPACK parseargParam --iterations		ITERATIONS
 ###SHELLPACK parseargYes   --sync		FSYNC
@@ -21,12 +21,21 @@ FSYNC_PARAM=
 
 ###SHELLPACK check_install_required bonnie-${VERSION}
 
-DIRECTORY_SIZE=$((DATASET_SIZE/NR_FILES))
-NR_FILES=$((NR_FILES/1024))
-DATASET_SIZE=$((DATASET_SIZE/1048576))
-if [ $NR_FILES -eq 0 ]; then
-	NR_FILES=1
+DIRTEST_PARAM="-n 0"
+FILETEST_PARAM="-s 0"
+if [ $NR_FILES -gt 0 ]; then
+	NR_FILES=$((NR_FILES/1024))
+	if [ $NR_FILES -eq 0 ]; then
+		NR_FILES=1
+	fi
+	DIRTEST_PARAM="-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES"
 fi
+
+if [ $DATASET_SIZE -gt 0 ]; then
+	DATASET_SIZE=$((DATASET_SIZE/1048576))
+	FILETEST_PARAM="-s $DATASET_SIZE"
+fi
+
 if [ "$FSYNC" = "yes" ]; then
 	FSYNC_PARAM=-b
 fi
@@ -40,15 +49,15 @@ cd $SHELLPACK_SOURCES/bonnie-${VERSION}-installed
 
 echo ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
 	-d $TESTDISK_DIR \
-	-s $DATASET_SIZE \
-	-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES \
+	$FILETEST_PARAM \
+	$DIRTEST_PARAM \
 	-m $MACHINE | tee $LOGDIR_RESULTS/bonnie-params
 ###SHELLPACK iteration_begin $ITERATIONS
 	echo Starting iteration $ITERATION
 	save_rc ./sbin/bonnie++ $FSYNC_PARAM $USER_PARAM -r 0 \
 		-d $TESTDISK_DIR \
-		-s $DATASET_SIZE \
-		-n $NR_FILES:$DIRECTORY_SIZE:$DIRECTORY_SIZE:$NR_DIRECTORIES \
+		$FILETEST_PARAM \
+		$DIRTEST_PARAM \
 		-m $MACHINE \
 		2>&1 | tee $LOGDIR_RESULTS/bonnie.$ITERATION
 
