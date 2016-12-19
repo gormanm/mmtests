@@ -78,6 +78,6 @@ if [ $DBT2_MIN_USERS -lt $NUMCPUS ]; then
 	export DBT_SCALE_FACTOR=$NUMCPUS
 fi
 export DBT2_MAX_USERS=$((DBT2_SCALE_FACTOR+(NUMCPUS*2)))
-if [ $DBT2_MAX_USERS -ge $((NUMCPUS*6)) ]; then
-	export DBT2_MAX_USERS=$((NUMCPUS*6-1))
+if [ $DBT2_MAX_USERS -ge 96 ]; then
+	export DBT2_MAX_USERS=96
 fi
