@@ -106,6 +106,7 @@ echo Running users $MIN_USERS to $MAX_USERS
 		-o $SHELLPACK_TEMP/dbt5-run" 2>&1 | tee dbt5-${NR_THREADS}.log
 	cp $SHELLPACK_TEMP/dbt5-run/results.txt    $LOGDIR_RESULTS/dbt5-${NR_THREADS}.txt || exit $SHELLPACK_ERROR
 	cp $SHELLPACK_TEMP/dbt5-run/driver/mix.log $LOGDIR_RESULTS/dbt5-${NR_THREADS}.mix || exit $SHELLPACK_ERROR
+	gzip $LOGDIR_RESULTS/dbt5-${NR_THREADS}.mix
 
 	# Uncomment to preserve dbt5 run logs
 	# pushd $SHELLPACK_TEMP > /dev/null
