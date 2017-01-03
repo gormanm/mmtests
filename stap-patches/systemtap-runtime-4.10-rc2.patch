@@ -1,0 +1,11 @@
+--- a/runtime/linux/access_process_vm.h	2017-01-03 10:18:51.934181961 +0100
++++ b/runtime/linux/access_process_vm.h	2017-01-03 10:20:36.214180787 +0100
+@@ -32,7 +32,7 @@
+       int bytes, ret, offset;
+       void *maddr;
+ 
+-      ret = get_user_pages_remote (tsk, mm, addr, 1, FOLL_FORCE | (write ? FOLL_WRITE : 0), &page, &vma);
++      ret = get_user_pages_remote (tsk, mm, addr, 1, FOLL_FORCE | (write ? FOLL_WRITE : 0), &page, &vma, NULL);
+       if (ret <= 0)
+ 	break;
+ 
