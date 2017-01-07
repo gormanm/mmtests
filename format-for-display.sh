@@ -282,7 +282,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				GRATIO=`echo $GMEAN | awk "{print \\$$FIELD}"`
 				DDIFF=`echo $DMEAN | awk "{print \\$$FIELD}"`
 				if ! isnan "$DDIFF" && ! isinf "$DDIFF"; then
-					DIFF_ADJUSTED=`perl -e "print (($DDIFF*10000))"`
+					DIFF_ADJUSTED=`perl -e "printf \"%d\", (($DDIFF*10000))"`
 					DELTA=$((DIFF_ADJUSTED))
 					if [ "$TOPOUT" != "" ]; then
 						if [ "$TOPLATEST" != "yes" -o $FIELD -eq $NR_FIELDS ]; then
@@ -347,7 +347,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			for FIELD in $FIELD_LIST; do
 				RATIO=`echo $GMEAN | awk "{print \\$$FIELD}"`
 				if ! isnan "$RATIO" && ! isinf "$RATIO"; then
-					RATIO_ADJUSTED=`perl -e "print (($RATIO*10000))"`
+					RATIO_ADJUSTED=`perl -e "printf \"%d\", (($RATIO*10000))"`
 					DMEAN=`perl -e "printf \"%4.2f\", (abs (1-$RATIO))"`
 					DELTA=$((RATIO_ADJUSTED-10000))
 					if [ $DELTA -lt 0 ]; then
