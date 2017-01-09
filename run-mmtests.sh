@@ -545,7 +545,7 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 		if [ "${TESTDISK_FS_SIZE}" != "" ]; then
 			case "${TESTDISK_FILESYSTEM}" in
 			ext2|ext3|ext4)
-				TESTDISK_MKFS_PARAMS_SUFFIX="${TESTDISK_FS_SIZE}"
+				TESTDISK_MKFS_PARAM_SUFFIX="${TESTDISK_FS_SIZE}"
 			;;
 			xfs)
 				TESTDISK_MKFS_PARAM="${TESTDISK_MKFS_PARAM} -d size=${TESTDISK_FS_SIZE}"
