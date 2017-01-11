@@ -1,0 +1,92 @@
+### This is a benchmark that tries to simulate the VM pressure of hadoop but
+### it is not a hadoop simulator. It has a few discrete parts
+### o Fill the drive to a configured percentage
+### o Reruse worksets
+### o Read/write things
+### o Burn CPUs to compete with kswapd for CPU
+### o Allocate things
+DIRNAME=`dirname $0`
+SCRIPTDIR=`cd "$DIRNAME" && pwd`
+
+# MM Test Parameters (no particular order)
+export MMTESTS="simoop"
+export RUN_WARMUP=
+
+# Profiling parameters
+export RUN_NOPROFILE=yes
+export RUN_FINEPROFILE=no
+export RUN_COARSEPROFILE=no
+#export OPROFILE_REPORT_ANNOTATE=yes
+#export OPROFILE_REPORT_CALLGRAPH=8
+
+# Fixups
+if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/bin:$PATH
+fi
+if [ "`which record-extfrag 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/fraganalysis:$PATH
+fi
+if [ "`which oprofile_report.sh 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/vmr/bin:$PATH
+fi
+
+# Machine configuration
+# Swap configuration can be one of default, partitions, swapfile, NFS
+#export RUN_TUNINGS="$RUN_TUNINGS sysctl"
+#export VM_DIRTY_RATIO=20
+export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
+export SWAP_CONFIGURATION=default
+export SWAP_PARTITIONS=
+export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
+export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
+export SWAP_NBD_DEVICE=/dev/nbd0
+export SWAP_NBD_HOST=mcp
+export SWAP_NBD_PORT=10001
+
+# Optionally use a memory control group
+# export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+#
+# Test NFS disk to setup (optional)
+#export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
+#
+# Test NBD disk to setup (optional)
+#export TESTDISK_NBD_DEVICE=/dev/nbd0
+#export TESTDISK_NBD_HOST=mcp
+#export TESTDISK_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# simoop
+# PER_THREAD_WORKINGSET is allocated once and reused
+# Total workingset in this configuration is roughly 70% of RAM
+export SIMOOP_WARMTIME_DURATION=180
+export SIMOOP_RUNTIME_DURATION=600
+export SIMOOP_FILE_DIRECTORIES=16
+export SIMOOP_THREADS=$((NUMCPUS/2))
+export SIMOOP_WORKINGSET_MB=$(((MEMTOTAL_BYTES/5)/1048576))
+export SIMOOP_WORKINGSET_THREAD_MB=$((SIMOOP_WORKINGSET_MB/SIMOOP_THREADS))
+export SIMOOP_BURN_THREADS=$((SIMOOP_THREADS/5))
+export SIMOOP_READWRITE_THREADS=$((SIMOOP_FILE_DIRECTORIES/2))
+export SIMOOP_DU_THREADS=2
+export SIMOOP_FILESIZE_MB=80
+export SIMOOP_READSIZE_MB=2
+export SIMOOP_WRITESIZE_MB=1
+export SIMOOP_REPORT_FREQUENCY=10
+export SIMOOP_NUMFILES=$((SIMOOP_WORKINGSET_THREAD_MB*16/SIMOOP_FILESIZE_MB/$SIMOOP_FILE_DIRECTORIES))

@@ -2,6 +2,7 @@ if [ -e $SCRIPTDIR/bash_arrays ]; then
 	. $SCRIPTDIR/bash_arrays
 fi
 export SHELLPACK_ERROR=-1
+export SHELLPACK_FAILURE=-1
 export SHELLPACK_SUCCESS=0
 if [ "$SCRIPTDIR" = "" ]; then
 	echo $P: SCRIPTDIR not set, should not happen

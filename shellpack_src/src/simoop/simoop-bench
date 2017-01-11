@@ -1,0 +1,61 @@
+#!/bin/bash
+# Run simoop benchmark
+
+###SHELLPACK preamble simoop-bench 0
+TESTTIME=15
+ITERATIONS=12
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --threads             SIMOOP_THREADS
+###SHELLPACK parseargParam --warm-time           SIMOOP_WARMTIME_DURATION
+###SHELLPACK parseargParam --run-time            SIMOOP_RUNTIME_DURATION
+###SHELLPACK parseargParam --burn-threads        SIMOOP_BURN_THREADS
+###SHELLPACK parseargParam --du-threads          SIMOOP_DU_THREADS
+###SHELLPACK parseargParam --rw-threads          SIMOOP_READWRITE_THREADS
+###SHELLPACK parseargParam --working-set-thread  SIMOOP_WORKINGSET_THREAD_MB
+###SHELLPACK parseargParam --filesize            SIMOOP_FILESIZE_MB
+###SHELLPACK parseargParam --read-size           SIMOOP_READSIZE_MB
+###SHELLPACK parseargParam --write-size          SIMOOP_WRITESIZE_MB
+###SHELLPACK parseargParam --report-frequency    SIMOOP_REPORT_FREQUENCY
+###SHELLPACK parseargParam --nr-directories      SIMOOP_FILE_DIRECTORIES
+###SHELLPACK parseargParam --nr-files            SIMOOP_NUMFILES
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required simoop-${VERSION}
+###SHELLPACK monitor_hooks
+
+# Create benchmark directories
+SIMOOP_DIRECTORIES=
+for i in `seq 1 $SIMOOP_FILE_DIRECTORIES`; do
+	mkdir $SHELLPACK_TEMP/$i
+done
+
+# Create benchmark parameters
+SIMOOP_PARAMS="
+	-t $SIMOOP_THREADS
+	-w $SIMOOP_WARMTIME_DURATION
+	-r $SIMOOP_RUNTIME_DURATION
+	-C $SIMOOP_BURN_THREADS
+	-D $SIMOOP_DU_THREADS
+	-T $SIMOOP_READWRITE_THREADS
+	-m $SIMOOP_WORKINGSET_THREAD_MB
+	-f $SIMOOP_FILESIZE_MB
+	-R $SIMOOP_READSIZE_MB
+	-W $SIMOOP_WRITESIZE_MB
+	-i $SIMOOP_REPORT_FREQUENCY
+	-n $SIMOOP_NUMFILES
+	-M 128
+	$SHELLPACK_TEMP/*
+"
+
+echo Executing simoop $SIMOOP_PARAMS
+monitor_pre_hook $LOGDIR_RESULTS simoop
+save_rc eval ./simoop $SIMOOP_PARAMS 2>&1 | tee $LOGDIR_RESULTS/simoop.log
+recover_rc
+monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+
+if [ $EXIT_CODE -ne 0 ]; then
+	exit $SHELLPACK_ERROR
+fi
+exit $SHELLPACK_SUCCESS

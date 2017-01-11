@@ -116,6 +116,7 @@ config-global-dhp__workload_unixbench-io-fsbuffer
 config-global-dhp__workload_unixbench-io-fsdisk
 config-global-dhp__workload_unixbench-io-fstime
 config-global-dhp__workload-interbench
+config-global-dhp__workload_simoop-short
 "
 
 rm -f *-ext3 *-ext4 *-btrfs *-btrfs-nocow *-xfs *-raid0 *-raid1 *-raid5

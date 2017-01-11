@@ -368,6 +368,14 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		compare-mmtests.pl -d . -b pgbenchexectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
+	simoop)
+		echo $SUBREPORT latencies
+		eval $COMPARE_CMD
+		echo
+		echo $SUBREPORT rates
+		compare-mmtests.pl -d . -b simooprates -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		;;
 	specjvm)
 		echo $SUBREPORT
 		eval $COMPARE_CMD
@@ -766,7 +774,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
-
 		nas-mpi|nas-ser)
 			echo "<tr>"
 			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png
@@ -910,6 +917,25 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			eval $GRAPH_PNG --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
 			eval $GRAPH_PSC --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
 			plain graph-$SUBREPORT
+			echo "</tr>"
+			;;
+		simoop)
+			for INTERVAL in p50 p95 p99; do
+				echo "<tr>"
+				for HEADING in Read Write Allocation; do
+					eval $GRAPH_PNG --title \"$SUBREPORT $INTERVAL-$HEADING\" --sub-heading $INTERVAL-$HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$INTERVAL-$HEADING.png
+					eval $GRAPH_PSC --title \"$SUBREPORT $INTERVAL-$HEADING\" --sub-heading $INTERVAL-$HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$INTERVAL-$HEADING.ps
+					plain graph-$SUBREPORT-$INTERVAL-$HEADING
+				done
+				echo "</tr>"
+			done
+
+			echo "<tr>"
+			for HEADING in work stall; do
+				eval $GRAPH_PNG -b simooprates --title \"$SUBREPORT $HEADING rates\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.png
+				eval $GRAPH_PSC -b simooprates --title \"$SUBREPORT $HEADING rates\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.ps
+				plain graph-$SUBREPORT-$HEADING
+			done
 			echo "</tr>"
 			;;
 		sockperf-tcp-under-load|sockperf-udp-under-load)
@@ -1383,20 +1409,22 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		KSWAPD_ACTIVITY=no
 		DIRECT_ACTIVITY=no
 		SLAB_ACTIVITY=no
-		for KERNEL in $KERNEL_LIST_ITER; do
-			$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan | grep -q -v " 0"
-			if [ $? -eq 0 ]; then
-				KSWAPD_ACTIVITY=yes
-			fi
-			$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading mmtests_direct_scan | grep -q -v " 0"
-			if [ $? -eq 0 ]; then
-				DIRECT_ACTIVITY=yes
-			fi
-			$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading slabs_scanned | grep -q -v " 0"
-			if [ $? -eq 0 ]; then
-				SLAB_ACTIVITY=yes
-			fi
-		done
+		if [ `ls proc-vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ]; then
+			for KERNEL in $KERNEL_LIST_ITER; do
+				$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan | grep -q -v " 0"
+				if [ $? -eq 0 ]; then
+					KSWAPD_ACTIVITY=yes
+				fi
+				$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading mmtests_direct_scan | grep -q -v " 0"
+				if [ $? -eq 0 ]; then
+					DIRECT_ACTIVITY=yes
+				fi
+				$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading slabs_scanned | grep -q -v " 0"
+				if [ $? -eq 0 ]; then
+					SLAB_ACTIVITY=yes
+				fi
+			done
+		fi
 		if [ "$DIRECT_ACTIVITY" = "yes" ]; then
 			eval $GRAPH_PNG --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.png
 			eval $GRAPH_PSC --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.ps
