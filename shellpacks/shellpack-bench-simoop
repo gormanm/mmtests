@@ -145,6 +145,8 @@ SIMOOP_PARAMS="
 	$SHELLPACK_TEMP/*
 "
 
+ulimit -n 65534
+
 echo Executing simoop $SIMOOP_PARAMS
 monitor_pre_hook $LOGDIR_RESULTS simoop
 save_rc eval ./simoop $SIMOOP_PARAMS 2>&1 | tee $LOGDIR_RESULTS/simoop.log
@@ -156,4 +158,4 @@ if [ $EXIT_CODE -ne 0 ]; then
 fi
 exit $SHELLPACK_SUCCESS
 #### Description simoop
-#### Details simoop-bench 2
+#### Details simoop-bench 4
