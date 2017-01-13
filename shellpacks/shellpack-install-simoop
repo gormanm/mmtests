@@ -63,6 +63,18 @@ pushd $SHELLPACK_SOURCES/simoop-${VERSION}-installed || die Failed to change to 
 for FILE in `find -name "*"`; do
 	touch $FILE
 done
+LINESTART=`grep -n "==== BEGIN fix-overrun.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END fix-overrun.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file fix-overrun.patch
+fi
+echo Extracting $SHELLPACK_TEMP/fix-overrun.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/fix-overrun.patch
+cat $SHELLPACK_TEMP/fix-overrun.patch | patch -p1 || die Failed to apply fix-overrun patch
+rm $SHELLPACK_TEMP/fix-overrun.patch
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -72,5 +84,38 @@ fi
 
 echo simoop installed successfully
 exit $SHELLPACK_SUCCESS
+
+==== BEGIN fix-overrun.patch ====
+diff --git a/simoop.c b/simoop.c
+index 2069c0816c9d..3671c837c9b0 100644
+--- a/simoop.c
++++ b/simoop.c
+@@ -265,7 +265,7 @@ static void parse_options(int ac, char **av)
+ 		print_usage();
+ 		exit(1);
+ 	}
+-	paths = malloc(sizeof(char *) * total_paths + 1);
++	paths = malloc(sizeof(char *) * (total_paths + 1));
+ 	paths[total_paths] = NULL;
+ 	for (i = 0; i < total_paths; i++) {
+ 		paths[i] = strdup(av[optind++]);
+@@ -1148,7 +1148,6 @@ static void sleep_for_runtime(struct thread_data *worker_threads_mem)
+ 	unsigned long long delta;
+ 	unsigned long long rate_delta;
+ 	unsigned long long instant_delta;
+-	unsigned long long runtime_usec = runtime * 1000000;
+ 	unsigned long long warmup_usec = warmup_seconds * 1000000;
+ 	double work_done = 0;
+ 	double instant_work_done = 0;
+@@ -1187,7 +1186,7 @@ static void sleep_for_runtime(struct thread_data *worker_threads_mem)
+ 
+ 		instant_allocstalls = allocstalls;
+ 		instant_work_done = work_done;
+-		if (delta < runtime_usec)
++		if (delta < (unsigned long long)runtime * 1000000)
+ 			sleep(interval_seconds);
+ 		else
+ 			break;
+==== END fix-overrun.patch ====
 #### Description simoop
-#### Details simoop 4
+#### Details simoop 8
