@@ -61,6 +61,20 @@ foreach my $release_file ("debian_version", "debian_release", "redhat-release", 
 }
 
 if (!defined($distro)) {
+	if (-r "/etc/os-release") {
+		open(OSRELEASE, "</etc/os-release");
+		foreach (<OSRELEASE>) {
+			# https://www.freedesktop.org/software/systemd/man/os-release.html
+			# multiple values possible
+			if (/ID_LIKE="(.*)"/) {
+				$distro = $1;
+				last;
+			}
+		}
+	}
+}
+
+if (!defined($distro)) {
 	die("Failed to identify distribution\n");
 }
 
