@@ -24,10 +24,10 @@ fi
 export TEST_DEV=$XFSTESTS_TEST_DEV
 export TEST_DIR=$SHELLPACK_TEMP/test_dir
 export SCRATCH_DEV=$XFSTESTS_SCRATCH_DEV
-export SCRATCH_DIR=$SHELLPACK_TEMP/scrach_dir
+export SCRATCH_MNT=$SHELLPACK_TEMP/scrach_mnt
 
 mkdir -p $TEST_DIR
-mkdir -p $SCRATCH_DIR
+mkdir -p $SCRATCH_MNT
 
 for TEST in 180; do
 	monitor_pre_hook $LOGDIR_RESULTS $TEST
