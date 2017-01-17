@@ -6,7 +6,8 @@ MIRROR_LOCATION="$WEBROOT/xfstests/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-# TODO: install-depends
+# TODO: more install-depends
+install-depends libuuid-devel
 
 ###SHELLPACK git_fetch xfstests-${VERSION}.tar.gz xfstests-${VERSION}-installed
 
