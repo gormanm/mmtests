@@ -16,12 +16,16 @@ fi
 if [ "$XFSTESTS_SCRATCH_DEV" = "" ]; then
 	die XFSTESTS_SCRATCH_DEV must be configured
 fi
+if [ "$TESTDISK_FILESYSTEM" = "" ]; then
+	die TESTDISK_FILESYSTEM must be configured
+fi
 
 # Configure environment
 export TEST_DEV=$XFSTESTS_TEST_DEV
 export TEST_DIR=$SHELLPACK_TEMP/test_dir
 export SCRATCH_DEV=$XFSTESTS_SCRATCH_DEV
 export SCRATCH_MNT=$SHELLPACK_TEMP/scrach_mnt
+export FSTYP=$TESTDISK_FILESYSTEM
 
 mkdir -p $TEST_DIR
 mkdir -p $SCRATCH_MNT
