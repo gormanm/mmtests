@@ -1,0 +1,93 @@
+#!/bin/bash
+# Run the regression tests
+
+P=xfstests-bench
+DEFAULT_VERSION=20110701
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/xfstests-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/xfstests-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-xfstests -v ${VERSION}  || die xfstests install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/xfstests-${VERSION}-installed || die Failed to cd to xfstests install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo xfstests installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Check configuration
+if [ "$XFSTESTS_TEST_DEV" = "" ]; then
+	die XFSTESTS_TEST_DEV must be configured
+fi
+if [ "$XFSTESTS_SCRATCH_DEV" = "" ]; then
+	die XFSTESTS_SCRATCH_DEV must be configured
+fi
+if [ "$XFSTESTS_180_NR_FILES" = "" ]; then
+	die XFSTESTS_180_NR_FILES must be configured
+fi
+
+# Configure environment
+export TEST_DEV=$XFSTESTS_TEST_DEV
+export TEST_DIR=$SHELLPACK_TEMP/test_dir
+export SCRATCH_DEV=$XFSTESTS_SCRATCH_DEV
+export SCRATCH_DIR=$SHELLPACK_TEMP/scrach_dir
+
+mkdir -p $TEST_DIR
+mkdir -p $SCRATCH_DIR
+
+for TEST in 180; do
+	monitor_pre_hook $LOGDIR_RESULTS $TEST
+
+	./$TEST 2>&1 | tee $LOGDIR_RESULTS/xfstests-$TEST.log \
+		|| die Failed to run xfstests
+
+	monitor_post_hook $LOGDIR_RESULTS $SIZE
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description xfstests, a filesystem regression testsuite
+#### Details xfstests-bench 2
