@@ -43,7 +43,8 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-# TODO: install-depends
+# TODO: more install-depends
+install-depends libuuid-devel
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=xfstests-${VERSION}.tar.gz
@@ -60,18 +61,18 @@ fi
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR xfstests-${VERSION}-installed
 pushd xfstests-${VERSION}-installed > /dev/null || die Failed to rename tar
-
-# Edit some of the tests
-sed -i -e 's/$i -lt 1000/$i -lt $XFSTESTS_180_NR_FILES/' 180.tmp
-
 pushd $SHELLPACK_SOURCES/xfstests-${VERSION}-installed || die Failed to change to source directory
 for FILE in `find -name "*"`; do
 	touch $FILE
 done
-
-make || die Failed to build xfstests
+make -j$NUMCPUS 
+if [ $? -ne 0 ]; then
+	error "$P: make failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
 
 echo xfstests installed successfully
 exit $SHELLPACK_SUCCESS
 #### Description xfstests, a filesystem regression testsuite
-#### Details xfstests 2
+#### Details xfstests 3

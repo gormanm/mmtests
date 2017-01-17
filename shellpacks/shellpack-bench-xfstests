@@ -60,34 +60,50 @@ fi
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
 # Check configuration
+
+# FIXME: we need to umount and mount the test device and mmtests use the
+# subdirectories (srouces, installed, tmp), umount is blocked, lots of scripts
+# depend on SHELLPACK_TEMP etc, so we have to restrict xfstests until the rest
+# gets reviewed or a better fix is found
+if [ "$TESTDISK_PARTITION" != "" ]; then
+	die "TESTDISK_PARTITION must not be set for xfstests, use XFSTESTS_TEST_DEV"
+fi
 if [ "$XFSTESTS_TEST_DEV" = "" ]; then
 	die XFSTESTS_TEST_DEV must be configured
+
 fi
-if [ "$XFSTESTS_SCRATCH_DEV" = "" ]; then
-	die XFSTESTS_SCRATCH_DEV must be configured
+
+if [ -z "$XFSTESTS_SCRATCH_DEV" -a -z "$XFSTESTS_SCRATCH_DEV_POOL" ]; then
+	die XFSTESTS_SCRATCH_DEV or XFSTESTS_SCRATCH_DEV_POOL must be configured
 fi
-if [ "$XFSTESTS_180_NR_FILES" = "" ]; then
-	die XFSTESTS_180_NR_FILES must be configured
+if [ "$TESTDISK_FILESYSTEM" = "" ]; then
+	die TESTDISK_FILESYSTEM must be configured
 fi
 
 # Configure environment
 export TEST_DEV=$XFSTESTS_TEST_DEV
-export TEST_DIR=$SHELLPACK_TEMP/test_dir
+export TEST_DIR=$SHELLPACK_TOPLEVEL/test_dir
+# exactly one of the SCRATCH_DEV* variables can be set, but we'll not validate
+# it here and let xfstests do that
 export SCRATCH_DEV=$XFSTESTS_SCRATCH_DEV
-export SCRATCH_DIR=$SHELLPACK_TEMP/scrach_dir
+export SCRATCH_DEV_POOL=$XFSTESTS_SCRATCH_DEV_POOL
+export SCRATCH_MNT=$SHELLPACK_TOPLEVEL/scrach_mnt
+export FSTYP=$TESTDISK_FILESYSTEM
 
 mkdir -p $TEST_DIR
-mkdir -p $SCRATCH_DIR
+mkdir -p $SCRATCH_MNT
 
-for TEST in 180; do
-	monitor_pre_hook $LOGDIR_RESULTS $TEST
+# FIXME: as we're not using mmtests-provided mkfs step, do that here manually
+mkfs."$TESTDISK_FILESYSTEM" $TESTDISK_MKFS_PARAM $XFSTESTS_TEST_DEV ||
+	die Unable to mkfs TEST_DEV
 
-	./$TEST 2>&1 | tee $LOGDIR_RESULTS/xfstests-$TEST.log \
-		|| die Failed to run xfstests
+monitor_pre_hook $LOGDIR_RESULTS default
 
-	monitor_post_hook $LOGDIR_RESULTS $SIZE
-done
+./check -T 2>&1 | tee $LOGDIR_RESULTS/xfstests-default.log \
+	|| die Failed to run xfstests
+
+monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description xfstests, a filesystem regression testsuite
-#### Details xfstests-bench 2
+#### Details xfstests-bench 3
