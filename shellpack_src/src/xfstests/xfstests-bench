@@ -1,27 +1,13 @@
 #!/bin/bash
-# This script installs xfstests and runs the regression tests
-P=xfstests-bench
-VERSION=20110701
-. $SHELLPACK_INCLUDE/common.sh
+# Run the regression tests
 
-# Basic args parser
-while [ "$1" != "" ]; do
-	case "$1" in
-		-v)
-			VERSION=$2
-			shift 2;;
-		*)	echo Unrecognised option: $1; shift
-	esac
-done
+###SHELLPACK preamble xfstests-bench 20110701
 
-# Install if necessary
-if [ ! -d $SHELLPACK_SOURCES/xfstests-${VERSION}-installed ]; then
-	$SHELLPACK_INCLUDE/shellpack-install-xfstests -v ${VERSION} || die xfstests install script returned error
-fi
-cd $SHELLPACK_SOURCES/xfstests-${VERSION}-installed || die Failed to cd to xfstests install directory
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
 
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+###SHELLPACK check_install_required xfstests-${VERSION}
+###SHELLPACK monitor_hooks
 
 # Check configuration
 if [ "$XFSTESTS_TEST_DEV" = "" ]; then
@@ -53,5 +39,3 @@ for TEST in 180; do
 done
 
 exit $SHELLPACK_SUCCESS
-#### Description xfstests
-#### Details xfstests-bench 5
