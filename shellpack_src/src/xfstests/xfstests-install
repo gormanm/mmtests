@@ -15,8 +15,7 @@ install-depends libuuid-devel
 sed -i -e 's/$i -lt 1000/$i -lt $XFSTESTS_180_NR_FILES/' 180.tmp
 
 ###SHELLPACK build_start xfstests-${VERSION}-installed
-
-make || die Failed to build xfstests
+###SHELLPACK make
 
 echo xfstests installed successfully
 exit $SHELLPACK_SUCCESS
