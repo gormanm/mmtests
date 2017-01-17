@@ -16,9 +16,6 @@ fi
 if [ "$XFSTESTS_SCRATCH_DEV" = "" ]; then
 	die XFSTESTS_SCRATCH_DEV must be configured
 fi
-if [ "$XFSTESTS_180_NR_FILES" = "" ]; then
-	die XFSTESTS_180_NR_FILES must be configured
-fi
 
 # Configure environment
 export TEST_DEV=$XFSTESTS_TEST_DEV
@@ -29,13 +26,11 @@ export SCRATCH_MNT=$SHELLPACK_TEMP/scrach_mnt
 mkdir -p $TEST_DIR
 mkdir -p $SCRATCH_MNT
 
-for TEST in 180; do
-	monitor_pre_hook $LOGDIR_RESULTS $TEST
+monitor_pre_hook $LOGDIR_RESULTS default
 
-	./$TEST 2>&1 | tee $LOGDIR_RESULTS/xfstests-$TEST.log \
-		|| die Failed to run xfstests
+./check -T 2>&1 | tee $LOGDIR_RESULTS/xfstests-default.log \
+	|| die Failed to run xfstests
 
-	monitor_post_hook $LOGDIR_RESULTS $SIZE
-done
+monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS

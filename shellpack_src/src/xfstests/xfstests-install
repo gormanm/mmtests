@@ -10,10 +10,6 @@ MIRROR_LOCATION="$WEBROOT/xfstests/"
 install-depends libuuid-devel
 
 ###SHELLPACK git_fetch xfstests-${VERSION}.tar.gz xfstests-${VERSION}-installed
-
-# Edit some of the tests
-sed -i -e 's/$i -lt 1000/$i -lt $XFSTESTS_180_NR_FILES/' 180.tmp
-
 ###SHELLPACK build_start xfstests-${VERSION}-installed
 ###SHELLPACK make
 
