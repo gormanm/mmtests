@@ -13,8 +13,8 @@
 if [ "$XFSTESTS_TEST_DEV" = "" ]; then
 	die XFSTESTS_TEST_DEV must be configured
 fi
-if [ "$XFSTESTS_SCRATCH_DEV" = "" ]; then
-	die XFSTESTS_SCRATCH_DEV must be configured
+if [ -z "$XFSTESTS_SCRATCH_DEV" -a -z "$XFSTESTS_SCRATCH_DEV_POOL" ]; then
+	die XFSTESTS_SCRATCH_DEV or XFSTESTS_SCRATCH_DEV_POOL must be configured
 fi
 if [ "$TESTDISK_FILESYSTEM" = "" ]; then
 	die TESTDISK_FILESYSTEM must be configured
@@ -23,7 +23,10 @@ fi
 # Configure environment
 export TEST_DEV=$XFSTESTS_TEST_DEV
 export TEST_DIR=$SHELLPACK_TEMP/test_dir
+# exactly one of the SCRATCH_DEV* variables can be set, but we'll not validate
+# it here and let xfstests do that
 export SCRATCH_DEV=$XFSTESTS_SCRATCH_DEV
+export SCRATCH_DEV_POOL=$XFSTESTS_SCRATCH_DEV_POOL
 export SCRATCH_MNT=$SHELLPACK_TEMP/scrach_mnt
 export FSTYP=$TESTDISK_FILESYSTEM
 
