@@ -94,6 +94,15 @@ while [ "$1" != "" ]; do
 		XRANGE_COMMAND="--xrange $2"
 		shift 2
 		;;
+	--sort-samples)
+		SORT_SAMPLES=yes
+		shift
+		;;
+	--sort-samples-reverse)
+		SORT_SAMPLES=yes
+		SORT_REVERSE=yes
+		shift
+		;;
 	--R)
 		USE_R="yes"
 		shift
@@ -160,6 +169,25 @@ for TEST in $TEST_LIST; do
 			grep -v nan 		| \
 			sed -e 's/_/\\\\_/g'	  \
 			> $PLOTFILE || exit
+
+		if [ "$SORT_SAMPLES" = "yes" ]; then
+			NR_SAMPLES=0
+			SORT_SWITCH=
+			if [ "$SORT_REVERSE" = "yes" ]; then
+				SORT_SWITCH=-r
+			fi
+			for SAMPLE in `awk '{print $2}' $PLOTFILE | sort $SORT_SWITCH -n`; do
+				NR_SAMPLES=$((NR_SAMPLES+1))
+				echo $NR_SAMPLES $SAMPLE >> $PLOTFILE.tmp
+			done
+			mv $PLOTFILE.tmp $PLOTFILE
+		fi
+
+		if [ "$GRAPH_DEBUG" = "yes" ]; then
+			echo TRACE: $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot
+			echo TRACE: Writing /tmp/lastplot
+			cp $PLOTFILE /tmp/lastplot
+		fi
 		if [ "$PLOTTYPE" = "--operation-candlesticks" ]; then
 			OFFSET=`perl -e "print (1+$COUNT*0.3)"`
 			awk "\$1=(\$1+$COUNT*0.3)" $PLOTFILE > $PLOTFILE.tmp

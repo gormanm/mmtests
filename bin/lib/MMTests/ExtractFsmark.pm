@@ -9,7 +9,9 @@ sub initialise() {
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractFsmark";
 	$self->{_DataType}   = MMTests::Extract::DATA_OPS_PER_SECOND;
-	$self->{_PlotType}   = "client-errorlines";
+        $self->{_ExactSubheading} = 1;
+        $self->{_PlotType} = "simple-filter";
+        $self->{_DefaultPlot} = "1";
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

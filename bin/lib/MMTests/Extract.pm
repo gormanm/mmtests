@@ -58,6 +58,7 @@ sub printDataType() {
 	my $yaxis = "UNKNOWN AXIS";
 	my $units = "Time";
 
+
 	if ($self->{_DataType} == DATA_TIME_USECONDS) {
 		$yaxis = "Time (usec)";
 	} elsif ($self->{_DataType} == DATA_TIME_NSECONDS) {

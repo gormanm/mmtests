@@ -623,14 +623,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "</tr>"
 			;;
 		fsmark-threaded|fsmark-single)
-			eval $GRAPH_PNG        -b $SUBREPORT --title \"$SUBREPORT files/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
-			eval $GRAPH_PSC        -b $SUBREPORT --title \"$SUBREPORT files/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
-			eval $GRAPH_PNG        -b ${SUBREPORT}overhead --title \"$SUBREPORT overhead\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-overhead.png
-			eval $GRAPH_PSC        -b ${SUBREPORT}overhead --title \"$SUBREPORT overhead\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-overhead.ps
-			echo "<tr>"
-			plain graph-$SUBREPORT
-			plain graph-$SUBREPORT-overhead
-			echo "</tr>"
+			for CLIENT in `$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sed -e 's/.*-//' | sort -n | uniq`; do
+				echo "<tr>"
+				eval $GRAPH_PNG        -b $SUBREPORT --title \"$SUBREPORT clients-$CLIENT files/sec\" --sub-heading files/sec-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT.png
+				eval $GRAPH_PSC        -b $SUBREPORT --title \"$SUBREPORT clients-$CLIENT files/sec\" --sub-heading files/sec-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT.ps
+				eval $GRAPH_PNG        -b $SUBREPORT --title \"$SUBREPORT clients-$CLIENT files/sec sorted\" --sub-heading files/sec-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT-sorted.png --sort-samples-reverse
+				eval $GRAPH_PSC        -b $SUBREPORT --title \"$SUBREPORT clients-$CLIENT files/sec sorted\" --sub-heading files/sec-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT-sorted.ps --sort-samples-reverse
+				plain graph-$SUBREPORT-$CLIENT
+				plain graph-$SUBREPORT-$CLIENT-sorted
+				echo "</tr>"
+			done
 			;;
 		futexbench-hash|futexbench-requeue|futexbench-wake)
 			echo "<tr>"
