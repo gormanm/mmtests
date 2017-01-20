@@ -202,6 +202,7 @@ sub parseVMStat($)
         my @mmtests_kswapd_steal = ("kswapd_steal", "pgsteal_kswapd_dma", "pgsteal_kswapd_dma32",
 			  "pgsteal_kswapd_normal", "pgsteal_kswapd_high",
 			  "pgsteal_kswapd_movable", "pgsteal_kswapd");
+        my @mmtests_slab = ("nr_slab_reclaimable", "nr_slab_unreclaimable");
 
 	my $current_scan = 0;
 	my $current_steal = 0;
@@ -270,6 +271,12 @@ sub parseVMStat($)
 					$current_value += $value;
 				}
 			}
+		} elsif ($subHeading eq "mmtests_total_slab") {
+			foreach my $key (@mmtests_slab) {
+				if ($stat eq $key) {
+					$current_value += $value;
+				}
+			}
 		} elsif ($subHeading eq "mmtests_kswapd_efficiency" ) {
 			my $scan = 0;
 			my $steal = 0;
@@ -332,6 +339,8 @@ sub parseVMStat($)
 			return $nr_anon;
 		}
 		return $nr_anon + $nr_thp_anon;
+	} elsif ($subHeading eq "mmtests_total_slab") {
+		return $current_value;
 	} elsif ($subHeading eq "mmtests_direct_efficiency" ||
 		 $subHeading eq "mmtests_kswapd_efficiency") {
 		my ($delta_steal, $delta_scan);
