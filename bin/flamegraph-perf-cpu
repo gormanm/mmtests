@@ -1,7 +1,20 @@
 #!/bin/bash
-# This script generates a flame graph from a perf profile using Brendan
-# Gregg's FlameGraph tool.
-
+# This script generates a flame graph from a CPU perf profile using Brendan
+# Gregg's FlameGraph tool. Basic usage is as follows
+#
+# For a full CPU profile based flamegraph
+#   perf record -a -g -- sleep 30
+#   flamegraph-perf-sched -i perf.data
+#
+# To reduce the overhead, -F can be used
+#   perf record -F 99 -a -g -- sleep 30
+#   flamegraph-perf-sched -i perf.data
+#
+# To create an off-cpu callgraph
+#   echo 1 > /proc/sys/kernel/sched_schedstats
+#   perf record -e sched:sched_stat_sleep -e sched:sched_switch -e sched:sched_process_exit -a -g -- sleep 30
+#   flamegraph-perf-sched -i perf.data --sleep
+#   echo 0 > /proc/sys/kernel/sched_schedstats
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
 export FLAMEGRAPH=$SCRIPTDIR/FlameGraph
