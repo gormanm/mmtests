@@ -86,6 +86,7 @@ function start_monitor
 	export MONITOR_LOG=${MONITOR_DIR}/${_monitor}-${RUNNAME}-${CURRENT_TEST}
 	discover_script ${_monitor}
 	start_${_type}_monitor $_monitor
+	echo `date +%s` >> ${MONITOR_LOG}.start
 }
 
 function start_deferred_monitor()
