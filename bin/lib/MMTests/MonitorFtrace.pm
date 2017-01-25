@@ -83,9 +83,13 @@ sub timestamp_to_ms($) {
 	return ($sec * 1000) + ($usec / 1000);
 }
 
+my %processMap;
+
 sub extractReport($$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my %last_procmap;
+
+	$self->{_SubHeading} = $subHeading;
 
 	my $file = "$reportDir/ftrace-$testName-$testBenchmark";
 	if (-e $file) {
@@ -112,6 +116,15 @@ sub extractReport($$$) {
 		$process_pid =~ /(.*)-([0-9]*)$/;
 		my $process = $1;
 		my $pid = $2;
+
+		if ($process ne "") {
+			$processMap{$pid} = $process;
+		} else {
+			$process = $processMap{$pid};
+			if ($process eq "") {
+				$process = "UNKNOWN";
+			}
+		}
 
 		if ($process eq "") {
 			$process = $last_procmap{$pid};

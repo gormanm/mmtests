@@ -93,6 +93,12 @@ sub ftraceCallback {
 	my $perprocessRef = $self->{_PerProcessStats};
 	my $pidprocess = "$pid-$process";
 
+	if ($self->{_SubHeading} eq "kswapd") {
+		return if $process =~ /^kswapd[0-9]*$/;
+	}
+	if ($self->{_SubHeading} eq "no-kswapd") {
+		return if $process !~ /^kswapd[0-9]*$/;
+	}
 	if ($tracepoint eq $tracepoint_start) {
 		if ($details !~ /$regex_start/p) {
 			print "WARNING: Failed to parse $tracepoint as expected\n";
