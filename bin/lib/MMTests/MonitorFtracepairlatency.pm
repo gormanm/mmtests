@@ -126,6 +126,9 @@ sub ftraceCallback {
 			if ($delayed > $delay_threshold) {
 				push @{$self->{_ResultData}}, [ ($latencyState{$pidprocess} - ($self->{_StartTimestamp} * 1000)) / 1000, $delayed ];
 			}
+			#if ($delayed > 5000) {
+			#	print "DEBUG: $pid $process $delayed $details\n"
+			#}
 		}
 		$latencyState{$pidprocess} = 0;
 	}
