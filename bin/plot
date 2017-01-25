@@ -46,6 +46,10 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			PLOTTYPE="linespoint"
 			shift
 			;;
+		--points)
+			PLOTTYPE="points"
+			shift
+			;;
 		--operation-candlesticks)
 			OPER_CANDLESTICKS="yes"
 			PLOTTYPE="candlesticks"

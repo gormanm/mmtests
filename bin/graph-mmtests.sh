@@ -137,6 +137,14 @@ for TEST in $TEST_LIST; do
 	if [ "$PLOTTYPE" != "" ]; then
 		PLOTTYPE=--$PLOTTYPE
 	fi
+
+	if [ "$GRAPH_DEBUG" = "yes" ]; then
+		echo "TRACE: $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-type"
+		echo "TRACE: TYPE     $TYPE"
+		echo "TRACE: XLABEL   $XLABEL"
+		echo "TRACE: YLABEL   $YLABEL"
+		echo "TRACE: PLOTTYPE $PLOTTYPE"
+	fi
 	break
 done
 
@@ -228,12 +236,16 @@ PLOTSCRIPTS="plot"
 [ "$TITLES" == "" ] && exit 0
 
 for PLOTSCRIPT in $PLOTSCRIPTS; do
-	eval $SCRIPTDIR/$PLOTSCRIPT $TITLE $PLOTTYPE $SEPARATE_TESTS $SMOOTH $FORMAT_CMD $OUTPUT_CMD $OUTPUT \
+	COMMAND="$SCRIPTDIR/$PLOTSCRIPT $TITLE $PLOTTYPE $SEPARATE_TESTS $SMOOTH $FORMAT_CMD $OUTPUT_CMD $OUTPUT \
 		$LOGX $LOGY $WIDE $SUBREPORT_ARGS $XRANGE $XRANGE_COMMAND $YRANGE_COMMAND \
 		--xlabel \"$XLABEL\" \
 		--ylabel \"$YLABEL\" \
 		--titles $TITLES \
-		$PLOTS && break
+		$PLOTS"
+	if [ "$GRAPH_DEBUG" = "yes" ]; then
+		echo TRACE: $COMMAND
+	fi
+	eval $COMMAND && break
 	echo
 	cat $PLOTSCRIPT
 done

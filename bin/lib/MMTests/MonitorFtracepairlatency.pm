@@ -17,8 +17,6 @@ use constant LATENCY_STALLED	=> 2;
 
 sub add_regex_start($$$)
 {
-	my ($tracepoint, $def);
-
 	my $self = shift @_;
 	my $tracepoint = shift @_;
 	my $def = shift @_;
@@ -28,11 +26,20 @@ sub add_regex_start($$$)
 
 	$regex_start = $self->generate_traceevent_regex($tracepoint, $def, @_);
 }
+
+sub add_regex_start_noverify($$)
+{
+	my $self = shift @_;
+	my $tracepoint = shift @_;
+	my $def = shift @_;
+
+	$tracepoint_start = $tracepoint;
+	$tracepoint_start =~ s/.*\///;
+	$regex_start = $def;
+}
 	
 sub add_regex_end($$$)
 {
-	my ($tracepoint, $def);
-
 	my $self = shift @_;
 	my $tracepoint = shift @_;
 	my $def = shift @_;
@@ -41,6 +48,31 @@ sub add_regex_end($$$)
 	$tracepoint_end =~ s/.*\///;
 
 	$regex_end = $self->generate_traceevent_regex($tracepoint, $def, @_);
+}
+
+sub add_regex_end_noverify($$)
+{
+	my $self = shift @_;
+	my $tracepoint = shift @_;
+	my $def = shift @_;
+
+	$tracepoint_end = $tracepoint;
+	$tracepoint_end =~ s/.*\///;
+	$regex_end = $tracepoint;
+}
+
+my $delay_threshold = 0;
+
+sub set_delay_threshold
+{
+	my $self = shift @_;
+	$delay_threshold = shift @_;
+}
+
+sub printDataType() {
+        my ($self) = @_;
+
+	print "ms,Time,Latency,points\n";
 }
 
 sub ftraceInit {
@@ -85,13 +117,11 @@ sub ftraceCallback {
 		my $delayed = 0;
 		if ($latencyState{$pidprocess}) {
 			$delayed = $timestamp_ms - $latencyState{$pidprocess};
-			if ($delayed > 0) {
-				push @{$self->{_ResultData}}, [ $latencyState{$pidprocess} - ($self->{_StartTimestamp} * 1000), $delayed ];
-				# printf "END:   %16s $pid %16s $delayed\n", $timestamp_ms, $process;
+			if ($delayed > $delay_threshold) {
+				push @{$self->{_ResultData}}, [ ($latencyState{$pidprocess} - ($self->{_StartTimestamp} * 1000)) / 1000, $delayed ];
 			}
 		}
 		$latencyState{$pidprocess} = 0;
-
 	}
 }
 
