@@ -1,6 +1,7 @@
 # MonitorFtracepairlatency.pm
 package MMTests::MonitorFtracepairlatency;
 use MMTests::MonitorFtrace;
+use VMR::Stat;
 our @ISA = qw(MMTests::MonitorFtrace);
 use strict;
 
@@ -82,7 +83,7 @@ sub ftraceInit {
 
 	%latencyState = ();
 
-	$self->{_FieldLength} = 16;
+	$self->{_FieldLength} = 12;
 	$self->{_FtraceCounters} = \@ftraceCounters;
 	$self->{_PerProcessStats} = \%perprocessStats;
 }
@@ -136,7 +137,36 @@ sub ftraceCallback {
 
 sub extractSummary() {
 	my $self = shift @_;
-	$self->SUPER::extractSummary();
+	my @data = @{$self->{_ResultData}};
+
+	my $fieldLength = $self->{_FieldLength} = 12;
+	$self->{_RowOrientated} = 0;
+	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.4f", ];
+	$self->{_SummaryLength} = 12;
+	$self->{_SummaryHeaders} = [ "Latency", "" ];
+
+	my @units;
+	foreach my $row (@data) {
+		push @units, @{$row}[1];
+	}
+
+	my $quartilesRef = calc_quartiles(@units);
+	my @quartiles = @{$quartilesRef};
+
+	my @row;
+	push @{$self->{_SummaryData}}, [ "Min", calc_min(@units) ];
+	push @{$self->{_SummaryData}}, [ "1st-qrtle", $quartiles[1]  ];
+	push @{$self->{_SummaryData}}, [ "2nd-qrtle", $quartiles[2]  ];
+	push @{$self->{_SummaryData}}, [ "3rd-qrtle", $quartiles[3]  ];
+	push @{$self->{_SummaryData}}, [ "Max-90%",   $quartiles[90] ];
+	push @{$self->{_SummaryData}}, [ "Max-93%",   $quartiles[93] ];
+	push @{$self->{_SummaryData}}, [ "Max-95%",   $quartiles[95] ];
+	push @{$self->{_SummaryData}}, [ "Max-99%",   $quartiles[99] ];
+	push @{$self->{_SummaryData}}, [ "Max",       $quartiles[4]  ];
+	push @{$self->{_SummaryData}}, [ "Mean",      calc_mean(@units) ];
+	push @{$self->{_SummaryData}}, [ "Samples",   $#units ];
+
+	return 1;
 }
 
 1;
