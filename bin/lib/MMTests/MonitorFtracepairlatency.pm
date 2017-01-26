@@ -71,9 +71,14 @@ sub set_delay_threshold
 }
 
 sub printDataType() {
-        my ($self) = @_;
+	my ($self) = @_;
 
 	print "ms,Time,Latency,points\n";
+}
+
+sub printPlot() {
+	my ($self, $subheading) = @_;
+	$self->printReport($subheading);
 }
 
 sub ftraceInit {
@@ -95,10 +100,10 @@ sub ftraceCallback {
 	my $pidprocess = "$pid-$process";
 
 	if ($self->{_SubHeading} eq "kswapd") {
-		return if $process =~ /^kswapd[0-9]*$/;
+		return if $process !~ /^kswapd[0-9]*$/;
 	}
 	if ($self->{_SubHeading} eq "no-kswapd") {
-		return if $process !~ /^kswapd[0-9]*$/;
+		return if $process =~ /^kswapd[0-9]*$/;
 	}
 	if ($tracepoint eq $tracepoint_start) {
 		if ($details !~ /$regex_start/p) {
@@ -109,8 +114,8 @@ sub ftraceCallback {
 		}
 
 		$latencyState{$pidprocess} = $timestamp_ms;
-		if ($self->{_StartTimestamp} == 0) {
-			$self->{_StartTimestamp} = $timestamp_ms / 1000;
+		if ($self->{_StartTimestampMs} == 0) {
+			$self->{_StartTimestampMs} = $timestamp_ms;
 		}
 	} elsif ($tracepoint eq $tracepoint_end) {
 		if ($details !~ /$/p) {
@@ -125,7 +130,7 @@ sub ftraceCallback {
 		if ($latencyState{$pidprocess}) {
 			$delayed = $timestamp_ms - $latencyState{$pidprocess};
 			if ($delayed > $delay_threshold) {
-				push @{$self->{_ResultData}}, [ ($latencyState{$pidprocess} - ($self->{_StartTimestamp} * 1000)) / 1000, $delayed ];
+				push @{$self->{_ResultData}}, [ ($latencyState{$pidprocess} - $self->{_StartTimestampMs}) / 1000, $delayed ];
 			}
 			#if ($delayed > 5000) {
 			#	print "DEBUG: $pid $process $delayed $details\n"
@@ -145,9 +150,25 @@ sub extractSummary() {
 	$self->{_SummaryLength} = 12;
 	$self->{_SummaryHeaders} = [ "Latency", "" ];
 
+	my @thresholds = ( 0, 5, 10, 100, 500, 1000, 5000 );
+	my @samples;
+	for (my $i; $i <= $#thresholds; $i++) {
+		$samples[$i] = 0;
+	}
+
 	my @units;
 	foreach my $row (@data) {
 		push @units, @{$row}[1];
+
+		for (my $i = 0; $i <= $#thresholds; $i++) {
+			if (@{$row}[1] >= $thresholds[$i] && ($i == $#thresholds || @{$row}[1] < $thresholds[$i+1])) {
+				$samples[$i]++;
+			}
+		}
+	}
+
+	if ($#units == -1) {
+		$units[0] = 0;
 	}
 
 	my $quartilesRef = calc_quartiles(@units);
@@ -165,6 +186,9 @@ sub extractSummary() {
 	push @{$self->{_SummaryData}}, [ "Max",       $quartiles[4]  ];
 	push @{$self->{_SummaryData}}, [ "Mean",      calc_mean(@units) ];
 	push @{$self->{_SummaryData}}, [ "Samples",   $#units ];
+	for (my $i = 0; $i <= $#thresholds; $i++) {
+		push @{$self->{_SummaryData}}, [ "Samples-$thresholds[$i]", $samples[$i] ];
+	}
 
 	return 1;
 }

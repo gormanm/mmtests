@@ -92,6 +92,15 @@ sub extractReport($$$) {
 	$self->{_SubHeading} = $subHeading;
 
 	my $file = "$reportDir/ftrace-$testName-$testBenchmark";
+
+	if (-e "$file.start") {
+		if (open(INPUT, $file)) {
+			<INPUT>;
+			my ($start, $idle) = split(/ /, <INPUT>);
+			$self->{_StartTimestampMs} = $start * 1000;
+		}
+		close INPUT;
+	}
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {
