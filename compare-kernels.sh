@@ -491,6 +491,47 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		KCACHE_ACTIVITY=yes
 	fi
 
+	FTRACE_ALLOCLATENCY_GRAPH=no
+	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
+		zgrep -q mm_vmscan_direct_reclaim_begin ftrace-$KERNEL_BASE*
+		if [ $? -eq 0 ]; then
+			echo Ftrace direct reclaim allocation stalls
+			eval $COMPARE_CMD --print-monitor ftraceallocstall
+			FTRACE_ALLOCLATENCY_GRAPH=yes
+		fi
+	fi
+
+	FTRACE_SHRINKERLATENCY_GRAPH=no
+	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
+		zgrep -q mm_shrink_slab_start ftrace-$KERNEL_BASE*
+		if [ $? -eq 0 ]; then
+			echo Ftrace slab shrinker stalls kswapd
+			eval $COMPARE_CMD --print-monitor ftraceshrinkerstall --sub-heading kswapd
+			echo
+			echo Ftrace slab shrinker stalls not kswapd
+			eval $COMPARE_CMD --print-monitor ftraceshrinkerstall --sub-heading no-kswapd
+
+			FTRACE_SHRINKERLATENCY_GRAPH=yes
+		fi
+	fi
+
+	FTRACE_COMPACTLATENCY_GRAPH=no
+	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
+		zgrep -q mm_compaction_begin ftrace-$KERNEL_BASE*
+		if [ $? -eq 0 ]; then
+			echo Ftrace compaction stalls khugepaged
+			eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading khugepaged
+			echo
+			echo Ftrace slab shrinker stalls kswapd or kcompactd
+			eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd
+			echo
+			echo Ftrace slab shrinker stalls not kswapd, kcompactd or khugepaged
+			eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged
+
+			FTRACE_COMPACTLATENCY_GRAPH=yes
+		fi
+	fi
+
 	GRANULARITY=
 	generate_latency_table "read-latency"
 	generate_latency_table "write-latency"
@@ -1143,19 +1184,78 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		rm -f /tmp/iostat-$$
 
 		if [ "$KCACHE_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			if [ "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-				eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.png
-				eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.png
-				eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.ps
-				eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.ps
-				echo "<table class=\"resultsGraphs\">"
-				echo "<tr>"
-				plain graph-$SUBREPORT-kcache-allocs
-				plain graph-$SUBREPORT-kcache-frees
-				echo "</tr>"
-			fi
+			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.png
+			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.png
+			eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.ps
+			eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.ps
+			echo "<table class=\"resultsGraphs\">"
+			echo "<tr>"
+			plain graph-$SUBREPORT-kcache-allocs
+			plain graph-$SUBREPORT-kcache-frees
+			echo "</tr>"
 		fi
 		rm -f /tmp/kcache.$$
+
+		if [ "$FTRACE_ALLOCLATENCY_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			eval $GRAPH_PNG --title \"Direct reclaim allocation stalls\"   --print-monitor ftraceallocstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-alloc-stalls.png
+			eval $GRAPH_PSC --title \"Direct reclaim allocation stalls\"   --print-monitor ftraceallocstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-alloc-stalls.ps
+			eval $GRAPH_PNG --title \"Direct reclaim allocation stalls logY\"   --print-monitor ftraceallocstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-alloc-stalls-logY.png --logY
+			eval $GRAPH_PSC --title \"Direct reclaim allocation stalls logY\"   --print-monitor ftraceallocstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-alloc-stalls-logY.ps --logY
+			echo "<tr>"
+			plain graph-$SUBREPORT-ftrace-alloc-stalls
+			plain graph-$SUBREPORT-ftrace-alloc-stalls-logY
+			echo "</tr>"
+		fi
+
+		if [ "$FTRACE_SHRINKERLATENCY_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			eval $GRAPH_PNG --title \"Slab shrinker stall kswapd\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd.png
+			eval $GRAPH_PSC --title \"Slab shrinker stall kswapd\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd.ps
+			eval $GRAPH_PNG --title \"Slab shrinker stall not kswapd\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd.png
+			eval $GRAPH_PSC --title \"Slab shrinker stall not kswapd\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd.ps
+
+			eval $GRAPH_PNG --title \"Slab shrinker stall kswapd\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-logY.png --logY
+			eval $GRAPH_PSC --title \"Slab shrinker stall kswapd\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-logY.ps --logY
+			eval $GRAPH_PNG --title \"Slab shrinker stall not kswapd\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-logY.png --logY
+			eval $GRAPH_PSC --title \"Slab shrinker stall not kswapd\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-logY.ps --logY
+
+			echo "<tr>"
+			plain graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd
+			plain graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-logY
+			echo "</tr>"
+			echo "<tr>"
+			plain graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd
+			plain graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-logY
+			echo "</tr>"
+		fi
+
+		if [ "$FTRACE_COMPACTLATENCY_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			eval $GRAPH_PNG --title \"Compaction stalls khugepaged\"                          --print-monitor ftracecompactstall --sub-heading khugepaged                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-khugepaged.png
+			eval $GRAPH_PNG --title \"Compaction stalls kswapd or kcompactd\"                 --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd.png
+			eval $GRAPH_PNG --title \"Compaction stalls not khugepaged, kswapd or kcompactd\" --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged.png
+			eval $GRAPH_PNG --title \"Compaction stalls khugepaged\"                          --print-monitor ftracecompactstall --sub-heading khugepaged                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-khugepaged-logY.png --logY
+			eval $GRAPH_PNG --title \"Compaction stalls kswapd or kcompactd logY\"                 --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd-logY.png --logY
+			eval $GRAPH_PNG --title \"Compaction stalls not khugepaged, kswapd or kcompactd logY\" --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged-logY.png --logY
+
+			eval $GRAPH_PSC --title \"Compaction stalls khugepaged\"                          --print-monitor ftracecompactstall --sub-heading khugepaged                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-khugepaged.ps
+			eval $GRAPH_PSC --title \"Compaction stalls kswapd or kcompactd\"                 --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd.ps
+			eval $GRAPH_PSC --title \"Compaction stalls not khugepaged, kswapd or kcompactd\" --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged.ps
+			eval $GRAPH_PSC --title \"Compaction stalls khugepaged logY\"                          --print-monitor ftracecompactstall --sub-heading khugepaged                      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-khugepaged-logY.ps --logY
+			eval $GRAPH_PSC --title \"Compaction stalls kswapd or kcompactd logY\"                 --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd-logY.ps --logY
+			eval $GRAPH_PSC --title \"Compaction stalls not khugepaged, kswapd or kcompactd logY\" --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged-logY.ps --logY
+
+			echo "<tr>"
+			plain graph-$SUBREPORT-ftrace-shrinker-stalls-khugepaged
+			plain graph-$SUBREPORT-ftrace-shrinker-stalls-khugepaged-logY
+			echo "</tr>"
+			echo "<tr>"
+			plain graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-kcompactd
+			plain graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-kcompactd-logY
+			echo "</tr>"
+			echo "<tr>"
+			plain graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-kcompactd-khugepaged
+			plain graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-kcompactd-khugepaged-logY
+			echo "</tr>"
+		fi
 
 		# Monitor graphs for this test
 		echo "<table class=\"monitorGraphs\">"

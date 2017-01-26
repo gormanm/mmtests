@@ -102,8 +102,19 @@ sub ftraceCallback {
 	if ($self->{_SubHeading} eq "kswapd") {
 		return if $process !~ /^kswapd[0-9]*$/;
 	}
+	if ($self->{_SubHeading} eq "khugepaged") {
+		return if $process !~ /^khugepaged*$/;
+	}
 	if ($self->{_SubHeading} eq "no-kswapd") {
 		return if $process =~ /^kswapd[0-9]*$/;
+	}
+	if ($self->{_SubHeading} eq "kswapd-kcompactd") {
+		return if $process !~ /^kswapd[0-9]*$/ && $process !~ /^kcompactd[0-9]*$/;
+	}
+	if ($self->{_SubHeading} eq "no-kswapd-kcompactd-khugepaged") {
+		return if $process =~ /^kswapd[0-9]*$/;
+		return if $process =~ /^kcompactd[0-9]*$/;
+		return if $process =~ /^khugepaged[0-9]*$/;
 	}
 	if ($tracepoint eq $tracepoint_start) {
 		if ($details !~ /$regex_start/p) {
