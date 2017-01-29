@@ -477,6 +477,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			PARAM_LIST="avgqz await"
 		fi
 		IOSTAT_GRAPH=yes
+
+		if [ "$FORMAT" != "html" ]; then
+			rm /tmp/iostat-$$
+		fi
 	fi
 
 	KCACHE_GRAPH=no
