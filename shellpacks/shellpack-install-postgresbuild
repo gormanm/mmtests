@@ -126,7 +126,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Make pgbench
-cd contrib/pgbench
+cd src/bin/pgbench || die Failed to locate pgbench directory
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -195,4 +195,4 @@ update_entry_cnf password_encryption off
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 57
+#### Details postgresbuild 58
