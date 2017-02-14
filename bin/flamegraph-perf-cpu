@@ -52,6 +52,10 @@ WIDTH=
 SLEEP=
 while [ "$1" != "" ]; do
 	case "$1" in
+	-k|--vmlinux)
+		VMLINUX="-k $2"
+		shift 2
+		;;
 	-i|--input)
 		INPUT=$2
 		shift 2
@@ -89,12 +93,12 @@ done
 SLEEP_TITLE=
 COLOR_SWITCH=
 if [ "$SLEEP" != "yes" ]; then
-	perf script -i $INPUT > $TEMP_DIR/perf.out || exit -1
+	perf $VMLINUX script -i $INPUT > $TEMP_DIR/perf.out || exit -1
 	$FLAMEGRAPH/stackcollapse-perf.pl $TEMP_DIR/perf.out > $TEMP_DIR/folded.out || exit -1
 else
 	SLEEP_TITLE=" Off-CPU"
 	COLOR_SWITCH="--colors=io"
-	perf inject -v -s -i $INPUT -o $INPUT-injected
+	perf inject $VMLINUX -v -s -i $INPUT -o $INPUT-injected
 	read $INPUT
 	perf script -F comm,pid,tid,cpu,time,period,event,ip,sym,dso,trace -i $INPUT-injected | awk '
 		NF > 4 { exec = $1; period_ms = int($5 / 1000000) }
