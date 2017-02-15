@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+#
+# This is a basic script that takes a stream of data from perf script
+# that presumably has stack traces and dumps the frequency of call
+# stacks that triggered each event
+#
+# Input format expected to be generated from
+# perf script -F comm,pid,tid,cpu,time,period,event,ip,sym,dso,trace -i perf.data
+use strict;
+
+# Read the raw output of the script
+my $line;
+my %unique_event_counts;
+my $trace = "";
+
+while (!eof(STDIN)) {
+	my $line = <STDIN>;
+
+	# Watch for the beginning of an event
+	if ($line =~ /^[0-9a-zA-Z:]/) {
+
+		my @elements = split(/\s+/, $line);
+		my $id = "$elements[0]-$elements[1]";
+		my $event = $elements[5];
+
+		if ($trace ne "") {
+			$unique_event_counts{$trace}++;
+			$trace = "$id :: $event\n";
+		}
+
+		next;
+	}
+	$trace .= $line;
+}
+
+# Dump the unique traces
+foreach my $trace (sort {$unique_event_counts{$b} <=> $unique_event_counts{$a}} keys %unique_event_counts) {
+	if ($ENV{MONITOR_LOG} ne "") {
+		printf OUTPUT "Event count:		%8d\n", $unique_event_counts{$trace};
+		print  OUTPUT "$trace\n";
+	} else {
+		printf "Event count:		%8d\n", $unique_event_counts{$trace};
+		print "$trace\n";
+	}
+}
