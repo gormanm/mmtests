@@ -18,6 +18,7 @@
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
 export FLAMEGRAPH=$SCRIPTDIR/FlameGraph
+export PATH=$FLAMEGRAPH:$SCRIPTDIR/bin:$PATH
 
 TEMP_DIR=
 function cleanup() {
@@ -47,6 +48,7 @@ TITLE="flamegraph: `basename $INPUT`"
 ICICLE=
 REVERSE=
 WIDTH=
+PREPROCESS=none
 
 # Command line parser
 SLEEP=
@@ -81,7 +83,11 @@ while [ "$1" != "" ]; do
 		shift
 		;;
 	--sleep)
-		SLEEP=yes
+		PREPROCESS=perf-inject
+		shift
+		;;
+	--merge-events)
+		PREPROCESS=merge-events
 		shift
 		;;
 	*)
@@ -92,20 +98,34 @@ done
 
 SLEEP_TITLE=
 COLOR_SWITCH=
-if [ "$SLEEP" != "yes" ]; then
+case $PREPROCESS in
+none)
 	perf $VMLINUX script -i $INPUT > $TEMP_DIR/perf.out || exit -1
 	$FLAMEGRAPH/stackcollapse-perf.pl $TEMP_DIR/perf.out > $TEMP_DIR/folded.out || exit -1
-else
-	SLEEP_TITLE=" Off-CPU"
+	;;
+perf-inject)
+	SLEEP_TITLE=" Off-CPU (perf inject)"
 	COLOR_SWITCH="--colors=io"
 	perf inject $VMLINUX -v -s -i $INPUT -o $INPUT-injected
-	read $INPUT
 	perf script -F comm,pid,tid,cpu,time,period,event,ip,sym,dso,trace -i $INPUT-injected | awk '
 		NF > 4 { exec = $1; period_ms = int($5 / 1000000) }
 		NF > 1 && NF <= 4 && period_ms > 0 { print $2 }
 		NF < 2 && period_ms > 0 { printf "%s\n%d\n\n", exec, period_ms }' | $FLAMEGRAPH/stackcollapse.pl > $TEMP_DIR/folded.out
 	rm $INPUT-injected
-fi
+	;;
+merge-events)
+	SLEEP_TITLE=" Off-CPU (merged events manually)"
+	COLOR_SWITCH="--colors=io"
+	perf script -F comm,pid,tid,cpu,time,period,event,ip,sym,dso,trace -i $INPUT | merge-perf-events.pl | awk '
+		NF > 4 { exec = $1; period_ms = int($5 / 1000000) }
+		NF > 1 && NF <= 4 && period_ms > 0 { print $2 }
+		NF < 2 && period_ms > 0 { printf "%s\n%d\n\n", exec, period_ms }' | $FLAMEGRAPH/stackcollapse.pl > $TEMP_DIR/folded.out
+	;;
+*)
+	echo ERROR: Unknown processing event
+	exit -1
+	;;
+esac
 echo $FLAMEGRAPH/flamegraph.pl $WIDTH $ICICLE $REVERSE $COLOR_SWITCH --title "$TITLE$SLEEP_TITLE" $TEMP_DIR/folded.out
 $FLAMEGRAPH/flamegraph.pl $WIDTH $ICICLE $REVERSE $COLOR_SWITCH --title "$TITLE$SLEEP_TITLE" $TEMP_DIR/folded.out > $OUTPUT || exit -1
 
