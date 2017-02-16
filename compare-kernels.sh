@@ -501,6 +501,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		if [ $? -eq 0 ]; then
 			echo Ftrace direct reclaim allocation stalls
 			eval $COMPARE_CMD --print-monitor ftraceallocstall
+			echo
 			FTRACE_ALLOCLATENCY_GRAPH=yes
 		fi
 	fi
@@ -511,9 +512,9 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		if [ $? -eq 0 ]; then
 			echo Ftrace slab shrinker stalls kswapd
 			eval $COMPARE_CMD --print-monitor ftraceshrinkerstall --sub-heading kswapd
-			echo
 			echo Ftrace slab shrinker stalls not kswapd
 			eval $COMPARE_CMD --print-monitor ftraceshrinkerstall --sub-heading no-kswapd
+			echo
 
 			FTRACE_SHRINKERLATENCY_GRAPH=yes
 		fi
@@ -525,14 +526,53 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		if [ $? -eq 0 ]; then
 			echo Ftrace compaction stalls khugepaged
 			eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading khugepaged
-			echo
-			echo Ftrace slab shrinker stalls kswapd or kcompactd
+			echo Ftrace compaction stalls kswapd or kcompactd
 			eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd
-			echo
-			echo Ftrace slab shrinker stalls not kswapd, kcompactd or khugepaged
+			echo Ftrace compaction stalls not kswapd, kcompactd or khugepaged
 			eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged
+			echo
 
 			FTRACE_COMPACTLATENCY_GRAPH=yes
+		fi
+	fi
+
+	FTRACE_WAITIFFCONGESTED_GRAPH=no
+	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
+		zgrep -q wait_iff_congested ftrace-$KERNEL_BASE* | grep -v "usec_delayed=0"
+		if [ $? -eq 0 ]; then
+			echo Ftrace wait_iff_congested kswapd
+			eval $COMPARE_CMD --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd
+			echo Ftrace wait_iff_congested not kswapd
+			eval $COMPARE_CMD --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd
+			echo
+
+			FTRACE_WAITIFFCONGESTED_GRAPH=yes
+		fi
+	fi
+
+	FTRACE_CONGESTIONWAIT_GRAPH=no
+	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
+		zgrep -q congestion_wait ftrace-$KERNEL_BASE* | grep -v "usec_delayed=0"
+		if [ $? -eq 0 ]; then
+			echo Ftrace congestion_wait kswapd
+			eval $COMPARE_CMD --print-monitor ftracecongestionwaitstall --sub-heading kswapd
+			echo Ftrace congestion_wait not kswapd
+			eval $COMPARE_CMD --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd
+			echo
+
+			FTRACE_CONGESTIONWAIT_GRAPH=yes
+		fi
+	fi
+
+	FTRACE_BALANCEDIRTYPAGES_GRAPH=no
+	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
+		zgrep -q balance_dirty_pages ftrace-$KERNEL_BASE*
+		if [ $? -eq 0 ]; then
+			echo Ftrace balance_dirty_pages
+			eval $COMPARE_CMD --print-monitor ftracebalancedirtypagesstall --sub-heading no-kswapd
+			echo
+
+			FTRACE_BALANCEDIRTYPAGES_GRAPH=yes
 		fi
 	fi
 
@@ -1217,10 +1257,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			eval $GRAPH_PNG --title \"Slab shrinker stall not kswapd\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd.png
 			eval $GRAPH_PSC --title \"Slab shrinker stall not kswapd\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd.ps
 
-			eval $GRAPH_PNG --title \"Slab shrinker stall kswapd\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-logY.png --logY
-			eval $GRAPH_PSC --title \"Slab shrinker stall kswapd\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-logY.ps --logY
-			eval $GRAPH_PNG --title \"Slab shrinker stall not kswapd\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-logY.png --logY
-			eval $GRAPH_PSC --title \"Slab shrinker stall not kswapd\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-logY.ps --logY
+			eval $GRAPH_PNG --title \"Slab shrinker stall kswapd logY\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-logY.png --logY
+			eval $GRAPH_PSC --title \"Slab shrinker stall kswapd logY\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-logY.ps --logY
+			eval $GRAPH_PNG --title \"Slab shrinker stall not kswapd logY\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-logY.png --logY
+			eval $GRAPH_PSC --title \"Slab shrinker stall not kswapd logY\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-logY.ps --logY
 
 			echo "<tr>"
 			plain graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd
@@ -1248,16 +1288,69 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			eval $GRAPH_PSC --title \"Compaction stalls not khugepaged, kswapd or kcompactd logY\" --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged-logY.ps --logY
 
 			echo "<tr>"
-			plain graph-$SUBREPORT-ftrace-shrinker-stalls-khugepaged
-			plain graph-$SUBREPORT-ftrace-shrinker-stalls-khugepaged-logY
+			plain graph-$SUBREPORT-ftrace-compact-stalls-khugepaged
+			plain graph-$SUBREPORT-ftrace-compact-stalls-khugepaged-logY
 			echo "</tr>"
 			echo "<tr>"
-			plain graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-kcompactd
-			plain graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-kcompactd-logY
+			plain graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd
+			plain graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd-logY
 			echo "</tr>"
 			echo "<tr>"
-			plain graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-kcompactd-khugepaged
-			plain graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-kcompactd-khugepaged-logY
+			plain graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged
+			plain graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged-logY
+			echo "</tr>"
+		fi
+
+		if [ "$FTRACE_WAITIFFCONGESTED_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			eval $GRAPH_PNG --title \"wait_iff_congested stall kswapd\"       --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd.png
+			eval $GRAPH_PSC --title \"wait_iff_congested stall kswapd\"       --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd.ps
+			eval $GRAPH_PNG --title \"wait_iff_congested stall not kswapd\"   --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd.png
+			eval $GRAPH_PSC --title \"wait_iff_congested stall not kswapd\"   --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd.ps
+
+			eval $GRAPH_PNG --title \"wait_iff_congested stall kswapd logY\"       --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd-logY.png --logY
+			eval $GRAPH_PSC --title \"wait_iff_congested stall kswapd logY\"       --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd-logY.ps --logY
+			eval $GRAPH_PNG --title \"wait_iff_congested stall not kswapd logY\"   --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd-logY.png --logY
+			eval $GRAPH_PSC --title \"wait_iff_congested stall not kswapd logY\"   --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd-logY.ps --logY
+
+			echo "<tr>"
+			plain graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd
+			plain graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd-logY
+			echo "</tr>"
+			echo "<tr>"
+			plain graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd
+			plain graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd-logY
+			echo "</tr>"
+		fi
+
+		if [ "$FTRACE_CONGESTIONWAIT_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			eval $GRAPH_PNG --title \"congestion_wait stall kswapd\"       --print-monitor ftracecongestionwaitstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd.png
+			eval $GRAPH_PSC --title \"congestion_wait stall kswapd\"       --print-monitor ftracecongestionwaitstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd.ps
+			eval $GRAPH_PNG --title \"congestion_wait stall not kswapd\"   --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd.png
+			eval $GRAPH_PSC --title \"congestion_wait stall not kswapd\"   --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd.ps
+
+			eval $GRAPH_PNG --title \"congestion_wait stall kswapd logY\"       --print-monitor ftracecongestionwaitstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd-logY.png --logY
+			eval $GRAPH_PSC --title \"congestion_wait stall kswapd logY\"       --print-monitor ftracecongestionwaitstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd-logY.ps --logY
+			eval $GRAPH_PNG --title \"congestion_wait stall not kswapd logY\"   --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd-logY.png --logY
+			eval $GRAPH_PSC --title \"congestion_wait stall not kswapd logY\"   --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd-logY.ps --logY
+
+			echo "<tr>"
+			plain graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd
+			plain graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd-logY
+			echo "</tr>"
+			echo "<tr>"
+			plain graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd
+			plain graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd-logY
+			echo "</tr>"
+		fi
+
+		if [ "$FTRACE_BALANCEDIRTYPAGES_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
+			eval $GRAPH_PNG --title \"Balance Dirty Pages stalls : worst-case not actual and assumes HZ=250\"   --print-monitor ftracebalancedirtypagesstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-balancedirtypages-stalls.png
+			eval $GRAPH_PSC --title \"Balance Dirty Pages stalls : worst-case not actual and assumes HZ=250\"   --print-monitor ftracebalancedirtypagesstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-balancedirtypages-stalls.ps
+			eval $GRAPH_PNG --title \"Balance Dirty Pages stalls : worst-case not actual and assumes HZ=250 logY\"   --print-monitor ftracebalancedirtypagesstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-balancedirtypages-stalls-logY.png --logY
+			eval $GRAPH_PSC --title \"Balance Dirty Pages stalls : worst-case not actual and assumes HZ=250 logY\"   --print-monitor ftracebalancedirtypagesstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-balancedirtypages-stalls-logY.ps --logY
+			echo "<tr>"
+			plain graph-$SUBREPORT-ftrace-balancedirtypages-stalls
+			plain graph-$SUBREPORT-ftrace-balancedirtypages-stalls-logY
 			echo "</tr>"
 		fi
 

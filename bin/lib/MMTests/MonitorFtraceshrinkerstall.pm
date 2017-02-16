@@ -13,7 +13,8 @@ sub ftraceInit() {
 	$self->add_regex_end_noverify("vmscan/mm_shrink_slab_end",
 		'([0-9a-z+_/]+) (?:\[[A-Za-z0-9_-]+\] )?([0-9a-fx]+): unused scan count ([0-9]*) new scan count ([0-9]*) total_scan ([-0-9]*) last shrinker return val ([0-9]*)');
 
-	$self->set_delay_threshold(1);
+	# Only display shrinker stalls larger than 5 microseconds
+	$self->set_delay_threshold(0.05);
 
 	$self->SUPER::ftraceInit();
 

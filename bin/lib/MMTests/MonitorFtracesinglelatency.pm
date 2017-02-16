@@ -1,74 +1,64 @@
-# MonitorFtracepairlatency.pm
-package MMTests::MonitorFtracepairlatency;
+# MonitorFtracesinglelatency.pm
+package MMTests::MonitorFtracesinglelatency;
 use MMTests::MonitorFtrace;
 use VMR::Stat;
 our @ISA = qw(MMTests::MonitorFtrace);
 use strict;
 
-my ($regex_default_start, $regex_default_end);
-my ($regex_start, $regex_end);
-my ($tracepoint_start, $tracepoint_end);
+my ($regex_default);
+my ($regex_watch, $regex_end);
+my ($tracepoint_watch, $delay_field);
 my $name_start;
 my $start_timestamp;
-my %latencyState;
 
-use constant LATENCY_START	=> 0;
-use constant LATENCY_END	=> 1;
-use constant LATENCY_STALLED	=> 2;
-
-sub add_regex_start($$$)
+sub add_regex($$$$)
 {
 	my $self = shift @_;
 	my $tracepoint = shift @_;
 	my $def = shift @_;
+	$delay_field = shift @_;
 
-	$tracepoint_start = $tracepoint;
-	$tracepoint_start =~ s/.*\///;
-
-	$regex_start = $self->generate_traceevent_regex($tracepoint, $def, @_);
+	$delay_field -= 1;
+	$tracepoint_watch = $tracepoint;
+	$tracepoint_watch =~ s/.*\///;
+	$regex_watch = $self->generate_traceevent_regex($tracepoint, $def, @_);
 }
 
-sub add_regex_start_noverify($$)
+sub add_regex_noverify($$)
 {
 	my $self = shift @_;
-	my $tracepoint = shift @_;
+	$tracepoint_watch = shift @_;
 	my $def = shift @_;
-
-	$tracepoint_start = $tracepoint;
-	$tracepoint_start =~ s/.*\///;
-	$regex_start = $def;
+	$delay_field = $_;
+	
+	$tracepoint_watch =~ s/.*\///;
+	$regex_watch = $def;
 }
 	
-sub add_regex_end($$$)
-{
-	my $self = shift @_;
-	my $tracepoint = shift @_;
-	my $def = shift @_;
-
-	$tracepoint_end = $tracepoint;
-	$tracepoint_end =~ s/.*\///;
-
-	$regex_end = $self->generate_traceevent_regex($tracepoint, $def, @_);
-}
-
-sub add_regex_end_noverify($$)
-{
-	my $self = shift @_;
-	my $tracepoint = shift @_;
-	my $def = shift @_;
-
-	$tracepoint_end = $tracepoint;
-	$tracepoint_end =~ s/.*\///;
-	$regex_end = $tracepoint;
-}
-
 # By default, display everything
 my $delay_threshold = -1;
+
+# By default, assume units are in time
+my $jiffie_multiplier = 1;
+
+my @thresholds = ( 0, 5, 10, 100, 500, 1000, 5000 );
 
 sub set_delay_threshold
 {
 	my $self = shift @_;
 	$delay_threshold = shift @_;
+}
+
+sub set_jiffie_multiplier
+{
+	my $self = shift @_;
+	$jiffie_multiplier = shift @_;
+}
+
+sub set_thresholds
+{
+	my $self = shift @_;
+	@thresholds = @_;
 }
 
 sub printDataType() {
@@ -85,19 +75,14 @@ sub printPlot() {
 sub ftraceInit {
 	my $self = shift @_;
 	my @ftraceCounters;
-	my %perprocessStats;
-
-	%latencyState = ();
 
 	$self->{_FieldLength} = 12;
 	$self->{_FtraceCounters} = \@ftraceCounters;
-	$self->{_PerProcessStats} = \%perprocessStats;
 }
 
 sub ftraceCallback {
 	my ($self, $timestamp_ms, $pid, $process, $tracepoint, $details) = @_;
 	my $ftraceCounterRef = $self->{_FtraceCounters};
-	my $perprocessRef = $self->{_PerProcessStats};
 	my $pidprocess = "$pid-$process";
 
 	if ($self->{_SubHeading} eq "kswapd") {
@@ -117,35 +102,26 @@ sub ftraceCallback {
 		return if $process =~ /^kcompactd[0-9]*$/;
 		return if $process =~ /^khugepaged[0-9]*$/;
 	}
-	if ($tracepoint eq $tracepoint_start) {
-		if ($details !~ /$regex_start/p) {
+	if ($tracepoint eq $tracepoint_watch) {
+		if ($details !~ /$regex_watch/p) {
 			print "WARNING: Failed to parse $tracepoint as expected\n";
 			print "	 $details\n";
-			print "	 $regex_start\n";
+			print "	 $regex_watch\n";
 			return;
 		}
 
-		$latencyState{$pidprocess} = $timestamp_ms;
+		my @elements = split(/\s+/, $details);
+		my $delayed = $elements[$delay_field];
+		$delayed =~ s/.*=//;
+		$delayed *= $jiffie_multiplier;
+
 		if ($self->{_StartTimestampMs} == 0) {
 			$self->{_StartTimestampMs} = $timestamp_ms;
 		}
-	} elsif ($tracepoint eq $tracepoint_end) {
-		if ($details !~ /$/p) {
-			print "WARNING: Failed to parse $tracepoint_end as expected\n";
-			print "	 $details\n";
-			print "	 $regex_end\n";
-			return;
-		}
 
-		# Check how long the process was stalled
-		my $delayed = 0;
-		if ($latencyState{$pidprocess}) {
-			$delayed = $timestamp_ms - $latencyState{$pidprocess};
-			if ($delayed > $delay_threshold) {
-				push @{$self->{_ResultData}}, [ ($latencyState{$pidprocess} - $self->{_StartTimestampMs}) / 1000, $delayed ];
-			}
+		if ($delayed > $delay_threshold) {
+			push @{$self->{_ResultData}}, [ ($timestamp_ms - $self->{_StartTimestampMs}) / 1000, $delayed ];
 		}
-		$latencyState{$pidprocess} = 0;
 	}
 }
 
@@ -159,7 +135,6 @@ sub extractSummary() {
 	$self->{_SummaryLength} = 12;
 	$self->{_SummaryHeaders} = [ "Latency", "" ];
 
-	my @thresholds = ( 0, 5, 10, 100, 500, 1000, 5000 );
 	my @samples;
 	for (my $i; $i <= $#thresholds; $i++) {
 		$samples[$i] = 0;
