@@ -46,7 +46,7 @@ fi
 ###SHELLPACK make_make_install
 
 # Make pgbench
-cd src/bin/pgbench || die Failed to locate pgbench directory
+cd src/bin/pgbench || cd contrib/pgbench || die Failed to locate pgbench directory
 ###SHELLPACK make_make_install
 touch $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/unconfigured
 
