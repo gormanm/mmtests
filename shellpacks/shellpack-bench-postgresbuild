@@ -190,4 +190,4 @@ fi
 echo postgres operation successful
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild-bench 60
+#### Details postgresbuild-bench 61

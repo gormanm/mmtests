@@ -112,6 +112,14 @@ if [ $? -ne 0 ]; then
 	fi
 fi
 unset CFLAGS
+
+# Backup pgbench contents
+PGBENCHDIR="src/bin/pgbench"
+if [ ! -e $PGBENCHDIR ]; then
+	PGBENCHDIR="contrib/pgbench"
+fi
+cp -r $PGBENCHDIR /tmp
+
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -126,7 +134,10 @@ if [ $? -ne 0 ]; then
 fi
 
 # Make pgbench
-cd src/bin/pgbench || cd contrib/pgbench || die Failed to locate pgbench directory
+echo Building pgbench
+cd $PGBENCHDIR || die Failed to locate pgbench directory
+cp /tmp/pgbench/* .
+rm -rf /tmp/pgbench
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -139,6 +150,7 @@ if [ $? -ne 0 ]; then
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
+
 touch $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/unconfigured
 
 cd $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed || die Failed to change to installation directory.
@@ -195,4 +207,4 @@ update_entry_cnf password_encryption off
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 60
+#### Details postgresbuild 61

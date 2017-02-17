@@ -43,11 +43,23 @@ fi
 ###SHELLPACK sources_fetch postgresql-${VERSION}.tar.bz2 postgresbuild-${VERSION}
 ###SHELLPACK build_start postgresbuild-${VERSION}
 ###SHELLPACK build_configure postgresbuild-${VERSION} --enable-thread-safety --without-krb5 --without-readline --enable-assembler
+
+# Backup pgbench contents
+PGBENCHDIR="src/bin/pgbench"
+if [ ! -e $PGBENCHDIR ]; then
+	PGBENCHDIR="contrib/pgbench"
+fi
+cp -r $PGBENCHDIR /tmp
+
 ###SHELLPACK make_make_install
 
 # Make pgbench
-cd src/bin/pgbench || cd contrib/pgbench || die Failed to locate pgbench directory
+echo Building pgbench
+cd $PGBENCHDIR || die Failed to locate pgbench directory
+cp /tmp/pgbench/* .
+rm -rf /tmp/pgbench
 ###SHELLPACK make_make_install
+
 touch $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/unconfigured
 
 cd $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed || die Failed to change to installation directory.
