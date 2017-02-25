@@ -1,0 +1,34 @@
+#!/bin/bash
+# This benchmark simple uses /dev/cpu_dma_latency to set the requested
+# latency. It outputs nothing. The point is to run turbostat as a monitor
+# and determine if it's behaving as expected
+
+###SHELLPACK preamble cpudmalatency-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --duration CPUDMALATENCY_DURATION
+###SHELLPACK parseargParam --quiet    CPUDMALATENCY_QUIET
+###SHELLPACK parseargParam --latency  CPUDMALATENCY_LATENCY
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+####SHELLPACK self_extract cpudmalatency.pl
+sed -i -e "s/LATENCY/$CPUDMALATENCY_LATENCY/" $SHELLPACK_TEMP/cpudmalatency.pl
+sed -i -e "s/DURATION/$CPUDMALATENCY_DURATION/" $SHELLPACK_TEMP/cpudmalatency.pl
+sed -i -e "s/QUIET/$CPUDMALATENCY_QUIET/" $SHELLPACK_TEMP/cpudmalatency.pl
+chmod a+x $SHELLPACK_TEMP/cpudmalatency.pl
+
+monitor_pre_hook $LOGDIR_RESULTS cpudmalatency
+$TIME_CMD -o $LOGDIR_RESULTS/time $SHELLPACK_TEMP/cpudmalatency.pl
+monitor_post_hook $LOGDIR_RESULTS cpudmalatency
+
+exit $SHELLPACK_SUCCESS
+==== BEGIN cpudmalatency.pl ====
+#!/usr/bin/perl
+sleep(QUIET);
+open(CPU, ">/dev/cpu_dma_latency") || die "Failed to open cpu_dma_latency";
+syswrite CPU, LATENCY;
+sleep(DURATION);
+close(CPU);
+sleep(QUIET);
+==== END cpudmalatency.pl ====
