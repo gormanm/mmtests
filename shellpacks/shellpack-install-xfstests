@@ -43,8 +43,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-# TODO: more install-depends
-install-depends libuuid-devel
+install-depends libuuid-devel acl-devel attr-devel xfsprogs-devel
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=xfstests-${VERSION}.tar.gz
@@ -72,7 +71,11 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 
+# testing users
+id fsgqa || useradd fsgqa
+id 123456-fsgqa || useradd 123456-fsgqa
+
 echo xfstests installed successfully
 exit $SHELLPACK_SUCCESS
 #### Description xfstests, a filesystem regression testsuite
-#### Details xfstests 3
+#### Details xfstests 4
