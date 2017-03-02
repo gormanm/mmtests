@@ -12,5 +12,9 @@ install-depends libuuid-devel acl-devel attr-devel xfsprogs-devel
 ###SHELLPACK build_start xfstests-${VERSION}-installed
 ###SHELLPACK make
 
+# testing users
+id fsgqa || useradd fsgqa
+id 123456-fsgqa || useradd 123456-fsgqa
+
 echo xfstests installed successfully
 exit $SHELLPACK_SUCCESS
