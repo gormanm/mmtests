@@ -1,1 +1,0 @@
-dashboard-kernels-smart.sh
