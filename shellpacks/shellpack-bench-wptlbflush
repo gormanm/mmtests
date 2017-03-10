@@ -1,0 +1,79 @@
+#!/bin/bash
+P=wptlbflush-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/wptlbflush
+fi
+if [ ! -d $SHELLPACK_SOURCES/wptlbflush-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-wptlbflush -v ${VERSION}  || die wptlbflush install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed || die Failed to cd to wptlbflush install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo wptlbflush installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Run the benchmark
+RETVAL=0
+monitor_pre_hook $LOGDIR_RESULTS
+$TIME_CMD -o $LOGDIR_RESULTS/time \
+	$SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush > $LOGDIR_RESULTS/wp-tlbflush.log || \
+	die wp-flush aborted due to possible corruption
+monitor_post_hook $LOGDIR_RESULTS
+
+exit $SHELLPACK_SUCCESS
+#### Description wptlbflush
+#### Details wptlbflush-bench 7
