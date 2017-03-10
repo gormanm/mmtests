@@ -1,0 +1,167 @@
+#!/bin/bash
+###SHELLPACK preamble wptlbflush-install 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm    -rf $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed
+mkdir -p  $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed
+###SHELLPACK self_extract wp-tlbflush.c
+gcc -Wall -lpthread $SHELLPACK_TEMP/wp-tlbflush.c -o $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush || die Failed to build
+
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN wp-tlbflush.c ====
+/*
+ * Cause CoW faults that incur TLB flushes on remote CPUs.
+ */
+#define _GNU_SOURCE
+#include <sys/mman.h>
+#include <assert.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+static size_t page_size;
+
+/*
+ * Read a single byte from every page
+ */
+static void readbytes(void *start, size_t num_pages, bool verify)
+{
+	int i;
+
+	for (i = 0; i < num_pages; i++) {
+		char *ptr = start + (page_size*i);
+		char data = *(volatile char *)ptr;
+
+		if (verify)
+			assert(data == 'A');
+	}
+}
+
+/*
+ * Write a byte into every page
+ */
+static void writebytes(void *start, size_t num_pages)
+{
+	int i;
+
+	for (i = 0; i < num_pages; i++) {
+		char *ptr = start + (page_size*i);
+		*(volatile char *)ptr = 'A';
+	}
+}
+
+struct thread_arg {
+	void *addr;
+	size_t num_pages;
+};
+
+static void *thread_func(void *arg)
+{
+	struct thread_arg *ta = arg;
+
+	writebytes(ta->addr, ta->num_pages);
+	pthread_exit(0);
+}
+
+static void run_threads(void *addr, size_t num_pages, size_t num_threads)
+{
+	pthread_t *threads;
+	struct thread_arg arg = {
+		.addr = addr,
+		.num_pages = num_pages,
+	};
+	int i;
+
+	threads = calloc(num_threads, sizeof(*threads));
+	if (!threads) {
+		perror("calloc");
+		exit(EXIT_FAILURE);
+	}
+
+	for (i = 0; i < num_threads; i++) {
+		pthread_create(&threads[i], NULL, thread_func, &arg);
+		pthread_setname_np(threads[i], "worker");
+	}
+
+	for (i = 0; i < num_threads; i++)
+		pthread_join(threads[i], NULL);
+
+	free(threads);
+}
+
+#define LOOPS 100000
+
+int main(int argc, char **argv)
+{
+	size_t length;
+	size_t num_pages;
+	int prot, flags;
+	void *addr;
+	int i, n;
+	int fd;
+	int num_procs = 8;
+	struct timeval start, end, latency;
+	unsigned long samples[LOOPS];
+
+	page_size = sysconf(_SC_PAGESIZE);
+	num_pages = 511;
+	length = page_size * num_pages;
+
+	prot = PROT_READ|PROT_WRITE;
+	flags = MAP_ANONYMOUS|MAP_PRIVATE;
+#if 0
+	fd = open("zero", O_RDWR|O_CREAT);
+	if (fd == -1) {
+		perror("open");
+		exit(EXIT_FAILURE);
+	}
+#else
+	fd = -1;
+#endif
+
+	for (i = 0; i < LOOPS; i++) {
+
+		addr = mmap(0, length, prot, flags, fd, 0);
+		if (addr == (void *)-1) {
+			perror("mmap");
+			exit(EXIT_FAILURE);
+		}
+	
+		writebytes(addr, num_pages);
+		gettimeofday(&start, NULL);
+		for (n = 0; n < num_procs; n++) {
+			if (!fork()) {
+				writebytes(addr, num_pages);
+				run_threads(addr, num_pages, 4);
+				exit(0);
+			}
+		}
+
+		for (n = 0; n < num_procs; n++)
+			waitpid(-1, NULL, 0);
+		gettimeofday(&end, NULL);
+		timersub(&end, &start, &latency);
+		samples[i] = (latency.tv_sec * 1000000) + (latency.tv_usec);
+
+		readbytes(addr, num_pages, true);
+		munmap(addr, length);
+	}
+
+	for (i = 0; i < LOOPS; i++) {
+		printf("%lu\n", samples[i]);
+	}
+
+	close(fd);
+	return 0;
+}
+==== END wp-tlbflush.c ====
