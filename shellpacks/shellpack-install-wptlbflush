@@ -54,7 +54,7 @@ if [ "$LINESTART" = "" ]; then
 fi
 echo Extracting $SHELLPACK_TEMP/wp-tlbflush.c
 sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/wp-tlbflush.c
-gcc -Wall -lpthread $SHELLPACK_TEMP/wp-tlbflush.c -o $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush || die Failed to build
+mv $SHELLPACK_TEMP/wp-tlbflush.c $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed
 
 exit $SHELLPACK_SUCCESS
 
@@ -145,9 +145,9 @@ static void run_threads(void *addr, size_t num_pages, size_t num_threads)
 	free(threads);
 }
 
-#define LOOPS 100000
+#define LOOPS 50000
 #define NUM_PROCESS 8
-#define NUM_THREADS 8
+#define NUM_THREADS (NUM_PROCESS/2)
 
 int main(int argc, char **argv)
 {
@@ -214,4 +214,4 @@ int main(int argc, char **argv)
 }
 ==== END wp-tlbflush.c ====
 #### Description wptlbflush
-#### Details wptlbflush 8
+#### Details wptlbflush 14

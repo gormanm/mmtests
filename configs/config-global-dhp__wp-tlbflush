@@ -62,3 +62,7 @@ export MONITORS_PLAIN=
 export MONITORS_GZIP=
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
+
+# Half the number of threads are created as processes
+export WPTLBFLUSH_MIN_PROCESSES=2
+export WPTLBFLUSH_MAX_PROCESSES=$NUMCPUS

@@ -1164,16 +1164,18 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			done
 			;;
 		wptlbflush)
-			echo "<tr>"
-			eval $GRAPH_PNG --logY -b $SUBREPORT --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
-			eval $GRAPH_PSC --logY -b $SUBREPORT --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
-			eval $GRAPH_PNG --logY -b $SUBREPORT --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-smooth.png --smooth
-			eval $GRAPH_PSC --logY -b $SUBREPORT --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-smooth.ps --smooth
-			eval $GRAPH_PNG --logY -b $SUBREPORT --title \"$SUBREPORT sorted\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-sorted.png --sort-samples-reverse
-			eval $GRAPH_PSC --logY -b $SUBREPORT --title \"$SUBREPORT sorted\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-sorted.ps --sort-samples-reverse
-			smoothover graph-$SUBREPORT
-			plain graph-$SUBREPORT-sorted
-			echo "</tr>"
+			for CLIENT in `$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sed -e 's/.*-//' | sort -n | uniq`; do
+				echo "<tr>"
+				eval $GRAPH_PNG -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT.png
+				eval $GRAPH_PSC -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT.ps
+				eval $GRAPH_PNG -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT-smooth.png --smooth
+				eval $GRAPH_PSC -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT-smooth.ps --smooth
+				eval $GRAPH_PNG -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs sorted\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT-sorted.png --sort-samples-reverse
+				eval $GRAPH_PSC -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs sorted\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT-sorted.ps --sort-samples-reverse
+				smoothover graph-$SUBREPORT-$CLIENT
+				plain graph-$SUBREPORT-$CLIENT-sorted
+				echo "</tr>"
+			done
 			;;
 		*)
 			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png

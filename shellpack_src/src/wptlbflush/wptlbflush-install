@@ -8,7 +8,7 @@ cd $SHELLPACK_SOURCES || die Sources directory does not exist
 rm    -rf $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed
 mkdir -p  $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed
 ###SHELLPACK self_extract wp-tlbflush.c
-gcc -Wall -lpthread $SHELLPACK_TEMP/wp-tlbflush.c -o $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush || die Failed to build
+mv $SHELLPACK_TEMP/wp-tlbflush.c $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed
 
 exit $SHELLPACK_SUCCESS
 
@@ -99,9 +99,9 @@ static void run_threads(void *addr, size_t num_pages, size_t num_threads)
 	free(threads);
 }
 
-#define LOOPS 100000
+#define LOOPS 50000
 #define NUM_PROCESS 8
-#define NUM_THREADS 8
+#define NUM_THREADS (NUM_PROCESS/2)
 
 int main(int argc, char **argv)
 {

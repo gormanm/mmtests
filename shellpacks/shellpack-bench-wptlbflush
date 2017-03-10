@@ -36,6 +36,14 @@ while [ "$1" != "" ]; do
 		INSTALL_FORCE=yes
 		shift
 		;;
+	--min-processes)
+		WPTLBFLUSH_MIN_PROCESSES=$2
+		shift 2
+		;;
+	--max-processes)
+		WPTLBFLUSH_MAX_PROCESSES=$2
+		shift 2
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -66,14 +74,42 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
+
 # Run the benchmark
-RETVAL=0
-monitor_pre_hook $LOGDIR_RESULTS
-$TIME_CMD -o $LOGDIR_RESULTS/time \
-	$SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush > $LOGDIR_RESULTS/wp-tlbflush.log || \
-	die wp-flush aborted due to possible corruption
-monitor_post_hook $LOGDIR_RESULTS
+
+THREADS=
+START_THREAD=$WPTLBFLUSH_MIN_PROCESSES
+END_THREAD=$WPTLBFLUSH_MAX_PROCESSES
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 2 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
+for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $WPTLBFLUSH_MIN_PROCESSES ]; then
+		continue
+	fi
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	echo Running for $NR_THREADS processes of $WPTLBFLUSH_MAX_PROCESSES
+	sed -i -e "s/define NUM_PROCESS.*/define NUM_PROCESS $NR_THREADS/" $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush.c
+	gcc -Wall -lpthread $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush.c -o $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush || die Failed to build
+
+	monitor_pre_hook $NR_THREADS
+	$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS \
+		$SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush > $LOGDIR_RESULTS/wp-tlbflush-$NR_THREADS.log || \
+		die wp-flush aborted due to possible corruption
+	monitor_post_hook $NR_THREADS
+done
 
 exit $SHELLPACK_SUCCESS
 #### Description wptlbflush
-#### Details wptlbflush-bench 8
+#### Details wptlbflush-bench 14
