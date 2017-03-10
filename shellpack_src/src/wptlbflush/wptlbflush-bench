@@ -1,0 +1,20 @@
+#!/bin/bash
+###SHELLPACK preamble wptlbflush-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required wptlbflush
+
+###SHELLPACK monitor_hooks
+
+# Run the benchmark
+RETVAL=0
+monitor_pre_hook $LOGDIR_RESULTS
+$TIME_CMD -o $LOGDIR_RESULTS/time \
+	$SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush > $LOGDIR_RESULTS/wp-tlbflush.log || \
+	die wp-flush aborted due to possible corruption
+monitor_post_hook $LOGDIR_RESULTS
+
+exit $SHELLPACK_SUCCESS
