@@ -154,7 +154,7 @@ for CONFIG in $RAMCONFIGS; do
 		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/ram0/' \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
-		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=inode64,logbsize=262144/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=inode64,logbsize=262144,nobarrier/' \
 			> $CONFIG-xfs
 
 #	for FS in ext3 ext4 btrfs xfs; do

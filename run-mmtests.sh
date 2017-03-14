@@ -614,6 +614,29 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 		echo "Creating tmp (${SHELLPACK_TEST_MOUNTS[$i]}/tmp/$$)"
 		mkdir -p ${SHELLPACK_TEST_MOUNTS[$i]}/tmp/$$
 	done
+
+	# For XFS parittions mounted nobarrier on later kernels, the parameter
+	# is ignored but the system can be tuned such that it is faked
+	if [ "$TESTDISK_FILESYSTEM" = "xfs" ]; then
+		MAJOR_KERNEL=`uname -r | awk -F . '{print $1}'`
+		MINOR_KERNEL=`uname -r | awk -F . '{print $2}'`
+		if [ "$MAJOR_KERNEL" -gt 4 ]; then
+			echo Setting temporary write through on all disks for simulated xfs nobarrier
+			for CACHE in `find -L /sys/class/scsi_disk -name "cache_type" 2>/dev/null`; do
+				echo "write back" > $CACHE
+				echo "temporary write through" > $CACHE
+				cat $CACHE
+			done
+		fi
+		if [ "$MAJOR_KERNEL" -eq 4 -a "$MINOR_KERNEL" -ge 10 ]; then
+			echo Setting temporary write through on all disks for simulated xfs nobarrier
+			for CACHE in `find -L /sys/class/scsi_disk -name "cache_type" 2>/dev/null`; do
+				echo "write back" > $CACHE
+				echo "temporary write through" > $CACHE
+				cat $CACHE
+			done
+		fi
+	fi
 fi
 
 # Create NFS mount
