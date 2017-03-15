@@ -74,9 +74,7 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-
 # Run the benchmark
-
 THREADS=
 START_THREAD=$WPTLBFLUSH_MIN_PROCESSES
 END_THREAD=$WPTLBFLUSH_MAX_PROCESSES
@@ -112,4 +110,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description wptlbflush
-#### Details wptlbflush-bench 14
+#### Details wptlbflush-bench 17

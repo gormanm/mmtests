@@ -11,9 +11,7 @@
 
 ###SHELLPACK monitor_hooks
 
-
 # Run the benchmark
-
 ###SHELLPACK threads_large_stride_begin $WPTLBFLUSH_MIN_PROCESSES $WPTLBFLUSH_MAX_PROCESSES
 	echo Running for $NR_THREADS processes of $WPTLBFLUSH_MAX_PROCESSES
 	sed -i -e "s/define NUM_PROCESS.*/define NUM_PROCESS $NR_THREADS/" $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush.c

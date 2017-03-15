@@ -54,7 +54,11 @@ if [ "$LINESTART" = "" ]; then
 fi
 echo Extracting $SHELLPACK_TEMP/wp-tlbflush.c
 sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/wp-tlbflush.c
+<<<<<<< HEAD
 mv $SHELLPACK_TEMP/wp-tlbflush.c $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed
+=======
+gcc -Wall -lpthread $SHELLPACK_TEMP/wp-tlbflush.c -o $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush || die Failed to build
+>>>>>>> 810a1a9524b0db3a445c663e049ea7046542d219
 
 exit $SHELLPACK_SUCCESS
 
@@ -214,4 +218,4 @@ int main(int argc, char **argv)
 }
 ==== END wp-tlbflush.c ====
 #### Description wptlbflush
-#### Details wptlbflush 14
+#### Details wptlbflush 17
