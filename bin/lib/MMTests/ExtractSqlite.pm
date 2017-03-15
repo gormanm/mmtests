@@ -6,15 +6,16 @@ our @ISA = qw(MMTests::SummariseVariableops);
 
 use strict;
 
-sub new() {
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractSqlite",
-		_DataType    => MMTests::Extract::DATA_TRANS_PER_SECOND,
-		_ResultData  => [],
-	};
-	bless $self, $class;
-	return $self;
+
+	$self->{_ModuleName} = "ExtractSqlite";
+	$self->{_DataType}    => MMTests::Extract::DATA_TRANS_PER_SECOND,
+	$self->{_PlotType} = "simple";
+	$self->{_DefaultPlot} = "1";
+
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport() {

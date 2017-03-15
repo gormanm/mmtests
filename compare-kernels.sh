@@ -1044,6 +1044,17 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		specjbb2013)
 			;;
+		sqlite)
+			echo "<tr>"
+			eval $GRAPH_PNG        -b $SUBREPORT --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
+			eval $GRAPH_PSC        -b $SUBREPORT --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			eval $GRAPH_PNG        -b $SUBREPORT --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-smooth.png --smooth
+			eval $GRAPH_PSC        -b $SUBREPORT --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-smooth.ps --smooth
+			eval $GRAPH_PNG        -b $SUBREPORT --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-sorted.png --sort-samples-reverse
+			eval $GRAPH_PSC        -b $SUBREPORT --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-sorted.ps --sort-samples-reverse
+			smoothover graph-$SUBREPORT
+			plain graph-$SUBREPORT-sorted
+			;;
 		starve)
 			echo "<tr>"
 			for HEADING in User System Elapsed CPU; do
