@@ -41,10 +41,10 @@ sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
 	my @clients;
 
-	my @files = <$reportDir/$profile/dbt5-*.mix>;
+	my @files = <$reportDir/$profile/dbt5-*.mix.gz>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
-		$split[-1] =~ s/.mix//;
+		$split[-1] =~ s/.mix.gz//;
 		push @clients, $split[-1];
 	}
 	@clients = sort { $a <=> $b } @clients;
@@ -54,8 +54,8 @@ sub extractReport() {
 		my $start_timestamp = 0;
 		my $reading = 0;
 
-		my $file = "$reportDir/$profile/dbt5-$client.mix";
-		open(INPUT, $file) || die("Failed to open $file\n");
+		my $file = "$reportDir/$profile/dbt5-$client.mix.gz";
+		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;
 
