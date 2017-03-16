@@ -1,12 +1,12 @@
-# ComparePgioperf.pm
-package MMTests::ComparePgioperf;
+# ComparePgioperfbench.pm
+package MMTests::ComparePgioperfbench;
 use MMTests::Compare;
 our @ISA = qw(MMTests::Compare);
 
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ComparePgioperf",
+		_ModuleName  => "ComparePgioperfbench",
 		_DataType    => MMTests::Compare::DATA_TIME_MSECONDS,
 		_FieldLength => 16,
 		_ResultData  => []

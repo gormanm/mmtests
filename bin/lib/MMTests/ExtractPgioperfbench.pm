@@ -1,5 +1,5 @@
-# ExtractPgioperf.pm
-package MMTests::ExtractPgioperf;
+# ExtractPgioperfbench.pm
+package MMTests::ExtractPgioperfbench;
 use MMTests::SummariseVariabletime;
 use VMR::Stat;
 our @ISA = qw(MMTests::SummariseVariabletime);
@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 
-	$self->{_ModuleName} = "ExtractPgioperf";
+	$self->{_ModuleName} = "ExtractPgioperfbench";
 	$self->{_DataType}   = MMTests::Extract::DATA_TIME_MSECONDS;
 	$self->{_ExactSubheading} = 1;
 	$self->{_PlotType} = "simple-filter";

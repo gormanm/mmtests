@@ -7,7 +7,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="pgioperf"
+export MMTESTS="pgioperfinit pgioperfbench"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -76,4 +76,4 @@ export PGIOPERF_NUM_RANDOM_READERS=16
 export PGIOPERF_READ_REPORT_INTERVAL=10000
 export PGIOPERF_WAL_REPORT_INTERVAL=1000
 export PGIOPERF_COMMIT_REPORT_INTERVAL=500
-export PGIOPERF_DURATION=1800
+export PGIOPERF_SAMPLES=3000

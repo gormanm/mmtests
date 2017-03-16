@@ -136,8 +136,11 @@ sub extractReport() {
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
-		$_ =~ tr/[a-zA-Z]%//d;
-		($user, $system, $elapsed, $cpu) = split(/\s/, $_);
+		my $line = $_;
+		next if $line !~ /elapsed/;
+
+		$line =~ tr/[a-zA-Z]%//d;
+		($user, $system, $elapsed, $cpu) = split(/\s/, $line);
 		my @elements = split(/:/, $elapsed);
 		my ($hours, $minutes, $seconds);
 		if ($#elements == 1) {

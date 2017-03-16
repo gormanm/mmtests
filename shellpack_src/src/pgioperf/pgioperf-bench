@@ -7,7 +7,7 @@ WAL_SIZE=$((1*1024*1048576))
 READ_REPORT_INTERVAL=10000
 WAL_REPORT_INTERVAL=1000
 COMMIT_REPORT_INTERVAL=500
-DURATION=180
+SAMPLES=180
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --data-size			DATA_SIZE
@@ -16,43 +16,69 @@ DURATION=180
 ###SHELLPACK parseargParam --read-report-interval	READ_REPORT_INTERVAL
 ###SHELLPACK parseargParam --wal-report-interval	WAL_REPORT_INTERVAL
 ###SHELLPACK parseargParam --commit-report-interval	COMMIT_REPORT_INTERVAL
-###SHELLPACK parseargParam --duration			DURATION
+###SHELLPACK parseargParam --samples			SAMPLES
+###SHELLPACK parseargYes   --init			INIT
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-# Build the mapping program
-echo Building pgioperf program
-cd $SHELLPACK_TEMP
-LINECOUNT=`wc -l $0 | awk '{print $1}'`
-CSTART=`grep -n "BEGIN C FILE" $0 | tail -1 | awk -F : '{print $1}'`
-tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > pgioperf.c
-gcc -lrt -std=c99 -Wall					\
-	-DDATA_SIZE=$DATA_SIZE				\
-	-DWAL_SIZE=$WAL_SIZE				\
-	-DNUM_RANDOM_READERS=$NUM_RANDOM_READERS	\
-	-DREAD_REPORT_INTERVAL=$READ_REPORT_INTERVAL	\
-	-DWAL_REPORT_INTERVAL=$WAL_REPORT_INTERVAL	\
-	-DCOMMIT_REPORT_INTERVAL=$COMMIT_REPORT_INTERVAL\
-		pgioperf.c -o pgioperf || exit $SHELLPACK_ERROR
+# Start it reading in the background
+EXPECT_UNBUFFER=expect_unbuffer
+if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
+	EXPECT_UNBUFFER=unbuffer
+fi
 
-monitor_pre_hook $LOGDIR_RESULTS
-sntp -P no -r pool.ntp.org
-sleep 10
+if [ "$INIT" = "yes" ]; then
+	echo Building pgioperf program
+	rm -rf $SHELLPACK_TEMP/../pgioperf
+	mkdir $SHELLPACK_TEMP/../pgioperf
+	cd $SHELLPACK_TEMP/../pgioperf
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+	CSTART=`grep -n "BEGIN C FILE" $0 | tail -1 | awk -F : '{print $1}'`
+	tail -$(($LINECOUNT-$CSTART)) $0 | grep -v "^###" > pgioperf.c
+	gcc -lrt -std=c99 -Wall					\
+		-DDATA_SIZE=$DATA_SIZE				\
+		-DWAL_SIZE=$WAL_SIZE				\
+		-DNUM_RANDOM_READERS=$NUM_RANDOM_READERS	\
+		-DREAD_REPORT_INTERVAL=$READ_REPORT_INTERVAL	\
+		-DWAL_REPORT_INTERVAL=$WAL_REPORT_INTERVAL	\
+		-DCOMMIT_REPORT_INTERVAL=$COMMIT_REPORT_INTERVAL\
+			pgioperf.c -o pgioperf || exit $SHELLPACK_ERROR
+
+	echo Initialising pgioperf
+	$TIME_CMD -o $LOGDIR_RESULTS/time ./pgioperf init
+	exit $SHELLPACK_SUCCESS
+fi
+
+cd $SHELLPACK_TEMP/../pgioperf || exit -1
+if [ ! -e wal ]; then
+	die No wal file
+fi
+if [ ! -e data ]; then
+	due No data file
+fi
+
+echo Dropping caches for a cold run
+sysctl -w vm.drop_caches=3
+
 echo Executing pgioperf
-cp pgioperf /tmp/
-./pgioperf > $LOGDIR_RESULTS/pgioperf.log 2>&1 &
+monitor_pre_hook $LOGDIR_RESULTS
+$EXPECT_UNBUFFER ./pgioperf > $LOGDIR_RESULTS/pgioperf.log 2>&1 &
 PGIOPERF_PID=$!
 COUNT=0
-while [ $COUNT -lt $DURATION ]; do
-	if [ $((COUNT%60)) -eq 0 ]; then
-		echo $(((DURATION-COUNT))) seconds remaining
+while [ $COUNT -lt $SAMPLES ]; do
+	REMAINING=$((SAMPLES-COUNT))
+	if [ $REMAINING -lt 0 ]; then
+		REMAINING=0
 	fi
+	echo $REMAINING samples remaining
 	sleep 10
-	COUNT=$((COUNT+10))
+	COUNT=`wc -l $LOGDIR_RESULTS/pgioperf.log | awk '{print $1}'`
 done
 shutdown_pid pgioperf $PGIOPERF_PID
-rm $SHELLPACK_TEMP/wal
-rm $SHELLPACK_TEMP/data
+head -$SAMPLES $LOGDIR_RESULTS/pgioperf.log > $LOGDIR_RESULTS/pgioperf.log.tmp
+mv $LOGDIR_RESULTS/pgioperf.log.tmp $LOGDIR_RESULTS/pgioperf.log
+cd $SHELLPACK_TEMP/..
+rm -rf pgioperf
 
 monitor_post_hook $LOGDIR_RESULTS
 
@@ -322,6 +348,7 @@ initialize_files(void)
 	ssize_t wal_size_written = 0;
 
 	/* initialize data file */
+	fprintf(stdout, "o data\n");
 	fd = open("data", O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
 	if (fd < 0 && errno == EEXIST)
 		;
@@ -342,6 +369,7 @@ initialize_files(void)
 	}
 
 	/* initialize wal file */
+	fprintf(stdout, "o wal\n");
 	fd = open("wal", O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
 	if (fd < 0 && errno == EEXIST)
 		;
@@ -390,7 +418,10 @@ main(int argc, char **argv)
 	srandom((int)time(NULL));
 	signal(SIGTERM, sigterm_handler);
 
-	initialize_files();
+	if (argc > 1 && !strcmp("init", argv[1])) {
+		initialize_files();
+		exit(0);
+	}
 
 	checkpointer_pid = start_subprocess(do_checkpointer_writes);
 	wal_pid = start_subprocess(do_wal_writes);
