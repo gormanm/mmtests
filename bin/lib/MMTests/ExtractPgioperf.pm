@@ -1,29 +1,25 @@
 # ExtractPgioperf.pm
 package MMTests::ExtractPgioperf;
-use MMTests::SummariseMultiops;
+use MMTests::SummariseVariabletime;
 use VMR::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
+our @ISA = qw(MMTests::SummariseVariabletime);
 use strict;
-
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractPgioperf",
-		_DataType    => MMTests::Extract::DATA_TIME_MSECONDS,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
-}
-
-sub printDataType() {
-	print "Operations/sec,TestName,Latency,candlesticks";
-}
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	$self->{_Opname} = "Latency";
+	my $class = shift;
+
+	$self->{_ModuleName} = "ExtractPgioperf";
+	$self->{_DataType}   = MMTests::Extract::DATA_TIME_MSECONDS;
+	$self->{_ExactSubheading} = 1;
+	$self->{_PlotType} = "simple-filter";
+	$self->{_DefaultPlot} = "1";
+
 	$self->SUPER::initialise($reportDir, $testName);
+}
+
+sub printDataType() {
+	print "Time,Sample Index,Latency,points";
 }
 
 sub extractReport() {
@@ -31,7 +27,7 @@ sub extractReport() {
 	my $recent = 0;
 
 	open(INPUT, "$reportDir/$profile/pgioperf.log") || die("Failed to open $reportDir/$profile/pgioperf.log");
-	my %samples;
+	my $samples = 0;
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 		if ($line =~ /^([a-z]+)\[[0-9]+\]: avg: ([0-9.]+) msec; max: ([0-9.]+) msec/i) {
@@ -41,12 +37,11 @@ sub extractReport() {
 			if ($op ne "read" && $op ne "commit" && $op ne "wal") {
 				next;
 			}
-			push @{$self->{_ResultData}}, [ $op, ++$samples{$op}, $max ];
+			push @{$self->{_ResultData}}, [ $op, ++$samples, $max ];
 
 		}
 	}
-	my @ops = sort keys %samples;
-	$self->{_Operations} = \@ops;
+	$self->{_Operations} = [ "commit", "read", "wal" ];
 	close INPUT;
 }
 

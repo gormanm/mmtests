@@ -905,6 +905,16 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "</tr>"
 			;;
 		pgioperf)
+			for OPER in commit read wal; do
+				echo "<tr>"
+				eval $GRAPH_PNG --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER.ps
+				eval $GRAPH_PNG --logY --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER-logY.png
+				eval $GRAPH_PSC --logY --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER-logY.ps
+				plain graph-$SUBREPORT-$OPER
+				plain graph-$SUBREPORT-$OPER-logY
+				echo "</tr>"
+			done
 			;;
 		pgbench)
 			echo "<tr>"
