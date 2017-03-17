@@ -904,7 +904,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			plain graph-$SUBREPORT-faultssec
 			echo "</tr>"
 			;;
-		pgioperf)
+		pgioperfbench)
 			for OPER in commit read wal; do
 				echo "<tr>"
 				eval $GRAPH_PNG --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER.png
