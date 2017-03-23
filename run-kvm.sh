@@ -26,8 +26,18 @@ ssh root@$GUEST_IP rm -rf git-private/${NAME}
 ssh root@$GUEST_IP tar -C git-private -xf ${NAME}.tar.gz || die Failed to extract ${NAME}.tar.gz
 rm ${NAME}.tar.gz
 
-echo Booting current kernel `uname -r` on the guest
-kvm-boot `uname -r` || die Failed to boot `uname -r`
+
+echo Booting current kernel `uname -r` $MORE_BOOT_ARGS on the guest
+kvm-boot `uname -r` $MORE_BOOT_ARGS || die Failed to boot `uname -r`
+
+offline_cpus=`virsh dumpxml marvin-mmtests | grep -c iothreadpin`
+if [ "$offline_cpus" != "" ]; then
+	echo Taking $offline_cpus offline for pinned io threads
+	NR_CPU=$((`nproc`-1))
+	for c in $(seq $NR_CPU -1 $((NR_CPU-$offline_cpus+1))); do
+		ssh root@$GUEST_IP "echo 0 > /sys/devices/system/cpu/cpu$c/online"
+	done
+fi
 
 echo Executing mmtests on the guest
 ssh root@$GUEST_IP "cd git-private/$NAME && ./run-mmtests.sh $@"
