@@ -30,13 +30,16 @@ rm ${NAME}.tar.gz
 echo Booting current kernel `uname -r` $MORE_BOOT_ARGS on the guest
 kvm-boot `uname -r` $MORE_BOOT_ARGS || die Failed to boot `uname -r`
 
-offline_cpus=`virsh dumpxml marvin-mmtests | grep -c iothreadpin`
-if [ "$offline_cpus" != "" ]; then
-	echo Taking $offline_cpus offline for pinned io threads
-	NR_CPU=$((`nproc`-1))
-	for c in $(seq $NR_CPU -1 $((NR_CPU-$offline_cpus+1))); do
-		ssh root@$GUEST_IP "echo 0 > /sys/devices/system/cpu/cpu$c/online"
-	done
+if [ "$1" = "--offline-iothreads" ]; then
+	offline_cpus=`virsh dumpxml marvin-mmtests | grep -c iothreadpin`
+	if [ "$offline_cpus" != "" ]; then
+		echo Taking $offline_cpus offline for pinned io threads
+		NR_CPU=$((`nproc`-1))
+		for c in $(seq $NR_CPU -1 $((NR_CPU-$offline_cpus+1))); do
+			ssh root@$GUEST_IP "echo 0 > /sys/devices/system/cpu/cpu$c/online"
+		done
+	fi
+	shift
 fi
 
 echo Executing mmtests on the guest
