@@ -34,9 +34,10 @@ if [ "$1" = "--offline-iothreads" ]; then
 	offline_cpus=`virsh dumpxml marvin-mmtests | grep -c iothreadpin`
 	if [ "$offline_cpus" != "" ]; then
 		echo Taking $offline_cpus offline for pinned io threads
-		NR_CPU=$((`nproc`-1))
-		for c in $(seq $NR_CPU -1 $((NR_CPU-$offline_cpus+1))); do
-			ssh root@$GUEST_IP "echo 0 > /sys/devices/system/cpu/cpu$c/online"
+		for PHYS_CPU in `virsh dumpxml marvin-mmtests | grep iothreadpin | sed -e "s/.* cpuset='\([0-9]\+\)'.*/\1/"`; do
+			VIRT_CPU=`virsh dumpxml marvin-mmtests | grep vcpupin | grep "vcpu='$PHYS_CPU'"`
+			ssh root@$GUEST_IP "echo 0 > /sys/devices/system/cpu/cpu$VIRT_CPU/online"
+			echo o Virt $VIRT_CPU phys $PHYS_CPU
 		done
 	fi
 	shift
