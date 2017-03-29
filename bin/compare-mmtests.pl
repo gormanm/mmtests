@@ -28,6 +28,7 @@ my ($opt_subheading, $opt_format);
 my ($opt_names, $opt_benchmark);
 my ($opt_monitor, $opt_hideCompare);
 my ($opt_Rsummary);
+my ($opt_JSONExport);
 GetOptions(
 	'verbose|v'		=> \$opt_verbose,
 	'help|h'		=> \$opt_help,
@@ -38,6 +39,7 @@ GetOptions(
 	'--sub-heading=s'	=> \$opt_subheading,
 	'--format=s'		=> \$opt_format,
 	'--R-summary|R=s'	=> \$opt_Rsummary,
+	'--json-export'		=> \$opt_JSONExport,
 	'n|names=s'		=> \$opt_names,
 	'b|benchmark=s'		=> \$opt_benchmark,
 	'manual'		=> \$opt_manual,
@@ -123,6 +125,11 @@ if ($opt_Rsummary) {
 }
 
 $compareModule->extractComparison($opt_subheading, !$opt_hideCompare);
+
+if ($opt_JSONExport && $opt_benchmark) {
+	$compareModule->saveJSONExport($opt_benchmark);
+}
+
 $compareModule->printComparison($opt_printRatio);
 
 # Below this line is help and manual page information
@@ -142,6 +149,7 @@ compare-mmtests.pl [options]
  -R, --R-summary	Read summary data from a table pre-calculated by R
  -v, --verbose		Verbose output
  --format		Output format
+ --json-export		Saves comparison data in JSON format (gzip'ed)
  --print-header		Print a header
  --sub-heading		Analyse just a sub-heading of the data, see manual page
  --manual		Print manual page
@@ -176,6 +184,12 @@ presence of R-based results.
 
 Output format for the report. Valid options are html and text. By default
 the formatting is in plain text.
+
+=item B<--json-export>
+
+Saves comparison data in a compressed JSON file inside the current
+directory. The exported file is named <benchmark>.json.gz, where <benchmark>
+is the value of the --benchmark option flag.
 
 =item B<--print-header>
 

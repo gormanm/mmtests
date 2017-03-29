@@ -30,6 +30,7 @@ use constant DATA_WALLTIME_OUTLIERS	=> 21;
 use constant DATA_OPSSEC		=> 22;
 use constant DATA_THROUGHPUT		=> 23;
 use VMR::Stat;
+use VMR::Blessless qw(blessless);
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
 use List::Util ();
@@ -46,6 +47,11 @@ sub new() {
 	};
 	bless $self, $class;
 	return $self;
+}
+
+sub TO_JSON() {
+	my ($self) = @_;
+	return blessless($self);
 }
 
 sub getModuleName() {

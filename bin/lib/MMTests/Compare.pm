@@ -29,8 +29,10 @@ use constant DATA_WALLTIME_OUTLIERS	=> 52;
 use constant DATA_OPSSEC		=> 53;
 use constant DATA_THROUGHPUT		=> 54;
 use VMR::Stat;
+use VMR::Blessless qw(blessless);
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
+use Cpanel::JSON::XS;
 use strict;
 
 sub new() {
@@ -44,6 +46,11 @@ sub new() {
 	};
 	bless $self, $class;
 	return $self;
+}
+
+sub TO_JSON() {
+	my ($self) = @_;
+	return blessless($self);
 }
 
 sub getModuleName() {
@@ -512,6 +519,17 @@ sub extractComparison() {
 
 	$self->_generateTitleTable();
 	$self->_generateComparisonTable($subHeading, $showCompare);
+}
+
+sub saveJSONExport() {
+	my ($self, $fname) = @_;
+	my $json = Cpanel::JSON::XS->new();
+	$json->allow_blessed();
+	$json->convert_blessed();
+	my $fh;
+	open($fh, ">", "$fname.json") or print "Error: could not save $fname.json\n";
+	print $fh $json->encode($self);
+	close $fh;
 }
 
 sub _printComparisonRow() {
