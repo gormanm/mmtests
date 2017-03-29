@@ -250,7 +250,7 @@ read -a KERNEL_NAMES <<< $KERNEL_LIST_SPACE
 
 SUBREPORTSJSON=
 for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
-	COMPARE_CMD="compare-mmtests.pl --print-ratio -d . -b $SUBREPORT -n $KERNEL_LIST"
+	COMPARE_CMD="compare-mmtests.pl --json-export --print-ratio -d . -b $SUBREPORT -n $KERNEL_LIST"
 
 	case $SUBREPORT in
 	*)
