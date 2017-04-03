@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run the regression tests
 
-###SHELLPACK preamble xfstests-bench 20110701
+###SHELLPACK preamble xfstests-bench git
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

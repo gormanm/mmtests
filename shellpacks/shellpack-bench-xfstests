@@ -2,7 +2,7 @@
 # Run the regression tests
 
 P=xfstests-bench
-DEFAULT_VERSION=20110701
+DEFAULT_VERSION=git
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -106,4 +106,4 @@ monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description xfstests, a filesystem regression testsuite
-#### Details xfstests-bench 4
+#### Details xfstests-bench 5
