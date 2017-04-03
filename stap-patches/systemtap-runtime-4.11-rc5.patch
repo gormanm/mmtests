@@ -1,0 +1,11 @@
+--- a/runtime/linux/access_process_vm.h	2017-04-03 11:53:00.734385814 +0200
++++ b/runtime/linux/access_process_vm.h	2017-04-03 11:54:05.150383574 +0200
+@@ -4,6 +4,7 @@
+  * we copied and pasted it here.  Fortunately, everything it calls is exported.
+  */
+ #include <linux/pagemap.h>
++#include <linux/sched/mm.h>
+ #include <asm/cacheflush.h>
+ 
+ static int
+
