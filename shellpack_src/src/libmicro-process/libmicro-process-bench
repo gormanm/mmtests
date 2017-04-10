@@ -1,0 +1,47 @@
+#!/bin/bash
+###SHELLPACK preamble libmicro-process-bench 1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required libmicro-process-${VERSION}
+
+###SHELLPACK monitor_hooks
+
+cd $SHELLPACK_SOURCES/libmicro-process-${VERSION}-installed || die Failed to cd to libmicro directory
+
+COMMON="-E -C 0 -D 30000 -B 10000 -L -S -W"
+
+TMPROOT=/tmp/libmicro.$$
+mkdir -p $TMPROOT
+trap "rm -rf $TMPROOT" 0 2
+
+TFILE=$TMPROOT/data
+dd if=/dev/zero of=$TFILE bs=1024k count=10 2>/dev/null
+
+while read A B C; do
+	monitor_pre_hook $LOGDIR_RESULTS $B
+	if [ -f bin/$A ]; then
+		eval bin/$A $COMMON -N "$B" $C 2>&1 > $LOGDIR_RESULTS/$B.log
+	fi
+	monitor_post_hook $LOGDIR_RESULTS $B
+done <<EOT
+exec            exec			-B 10
+exit            exit_10			-B 10
+exit            exit_100		-B 100
+exit            exit_1000		-B 1000 -C 50
+fork            fork_10			-B 10
+fork            fork_100		-B 100  -C 100
+fork            fork_1000		-B 1000 -C 50
+pthread_create  pthread_8		-B 8
+pthread_create  pthread_32		-B 32
+pthread_create  pthread_128		-B 128
+pthread_create  pthread_512		-B 512
+sigaction       sigaction		-I 100
+signal          signal			-I 1000
+sigprocmask     sigprocmask		-I 200
+system          system			-I 1000000
+EOT
+
+exit $SHELLPACK_SUCCESS
