@@ -279,10 +279,11 @@ timing_after_action(struct timing *t, const char *ctx, int64_t report_interval)
 
 	if ((t->iter % report_interval) == 0)
 	{
-		fprintf(stdout, "%s[%d]: avg: %.1f msec; max: %.1f msec\n",
+		fprintf(stdout, "%s[%d]: avg: %.1f msec; max: %.1f msec time: %ld.%.9ld\n",
 				ctx, getpid(),
 				(double) (t->period_total / report_interval) / 1000000,
-				(double) t->period_max / 1000000);
+				(double) t->period_max / 1000000,
+				t->t_after.tv_sec, t->t_after.tv_nsec);
 		fflush(stdout);
 		t->total += t->period_total;
 		t->period_total = 0;
@@ -512,4 +513,4 @@ main(int argc, char **argv)
 	return 0;
 }
 #### Description Postgres IO performance microbenchmark
-#### Details pgioperf-bench 34
+#### Details pgioperf-bench 35

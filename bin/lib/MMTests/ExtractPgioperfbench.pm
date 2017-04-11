@@ -8,6 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
+	my $fieldLength = 12;
 
 	$self->{_ModuleName} = "ExtractPgioperfbench";
 	$self->{_DataType}   = MMTests::Extract::DATA_TIME_MSECONDS;
@@ -16,6 +17,8 @@ sub initialise() {
 	$self->{_DefaultPlot} = "1";
 
 	$self->SUPER::initialise($reportDir, $testName);
+	$self->{_FieldLength} = $fieldLength;
+	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.4f" , "%${fieldLength}.2f%%" ];
 }
 
 sub printDataType() {
@@ -25,6 +28,7 @@ sub printDataType() {
 sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $recent = 0;
+	my $start_time = 0;
 
 	open(INPUT, "$reportDir/$profile/pgioperf.log") || die("Failed to open $reportDir/$profile/pgioperf.log");
 	my $samples = 0;
@@ -37,7 +41,16 @@ sub extractReport() {
 			if ($op ne "read" && $op ne "commit" && $op ne "wal") {
 				next;
 			}
-			push @{$self->{_ResultData}}, [ $op, ++$samples, $max ];
+			$samples++;
+			my $time = $samples;
+			if ($line =~ /time:/) {
+				my @elements = split(/\s+/, $line);
+				$time = @elements[-1];
+				if ($start_time == 0) {
+					$start_time = $time;
+				}
+			}
+			push @{$self->{_ResultData}}, [ $op, $time - $start_time, $max ];
 
 		}
 	}
