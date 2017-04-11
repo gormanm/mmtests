@@ -281,8 +281,9 @@ timing_after_action(struct timing *t, const char *ctx, int64_t report_interval)
 	{
 		fprintf(stdout, "%s[%d]: avg: %.1f msec; max: %.1f msec\n",
 				ctx, getpid(),
-				(double) (t->period_total / read_report_interval) / 1000000,
+				(double) (t->period_total / report_interval) / 1000000,
 				(double) t->period_max / 1000000);
+		fflush(stdout);
 		t->total += t->period_total;
 		t->period_total = 0;
 		t->period_max = 0;
@@ -362,11 +363,13 @@ do_checkpointer_writes(void)
 		if ((++writes % 100000) == 0)
 		{
 			fprintf(stdout, "starting fsync() of files\n");
+			fflush(stdout);
 
 			if (fsync(fd) < 0)
 				fatal_error(errno);
 
 			fprintf(stdout, "finished fsync() of files\n");
+			fflush(stdout);
 		}
 
 		nsleep(200000);
@@ -509,4 +512,4 @@ main(int argc, char **argv)
 	return 0;
 }
 #### Description Postgres IO performance microbenchmark
-#### Details pgioperf-bench 33
+#### Details pgioperf-bench 34
