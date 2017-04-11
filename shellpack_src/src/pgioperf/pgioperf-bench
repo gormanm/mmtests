@@ -219,7 +219,7 @@ timing_after_action(struct timing *t, const char *ctx, int64_t report_interval)
 	{
 		fprintf(stdout, "%s[%d]: avg: %.1f msec; max: %.1f msec\n",
 				ctx, getpid(),
-				(double) (t->period_total / read_report_interval) / 1000000,
+				(double) (t->period_total / report_interval) / 1000000,
 				(double) t->period_max / 1000000);
 		t->total += t->period_total;
 		t->period_total = 0;
