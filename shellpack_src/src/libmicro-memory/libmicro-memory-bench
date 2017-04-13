@@ -13,13 +13,6 @@ cd $SHELLPACK_SOURCES/libmicro-memory-${VERSION}-installed || die Failed to cd t
 
 COMMON="-E -C 0 -D 30000 -B 10000 -L -S -W"
 
-TMPROOT=/tmp/libmicro.$$
-mkdir -p $TMPROOT
-trap "rm -rf $TMPROOT" 0 2
-
-TFILE=$TMPROOT/data
-dd if=/dev/zero of=$TFILE bs=1024k count=10 2>/dev/null
-
 while read A B C; do
 	monitor_pre_hook $LOGDIR_RESULTS $B
 	if [ -f bin/$A ]; then
@@ -60,33 +53,23 @@ strcasecmp	scasecmp_10	-s 10
 strcasecmp	scasecmp_1k	-s 1k
 mmap	mmap_z8k	-l 8k		-f /dev/zero
 mmap	mmap_z128k	-l 128k		-f /dev/zero
-mmap	mmap_t8k	-l 8k		-f $TFILE
-mmap	mmap_t128k	-l 128k		-f $TFILE
 mmap	mmap_a8k	-l 8k		-f MAP_ANON
 mmap	mmap_a128k	-l 128k		-f MAP_ANON
 mmap	mmap_rz8k	-l 8k -r	-f /dev/zero
 mmap	mmap_rz128k	-l 128k -r	-f /dev/zero
-mmap	mmap_rt8k	-l 8k -r	-f $TFILE
-mmap	mmap_rt128k	-l 128k -r	-f $TFILE
 mmap	mmap_ra8k	-l 8k -r	-f MAP_ANON
 mmap	mmap_ra128k	-l 128k -r	-f MAP_ANON
 mmap	mmap_wz8k	-l 8k -w	-f /dev/zero
-mmap	mmap_wt8k	-l 8k -w	-f $TFILE
 mmap	mmap_wa8k	-l 8k -w	-f MAP_ANON
 munmap	unmap_z8k	-l 8k		-f /dev/zero
 munmap	unmap_z128k	-l 128k		-f /dev/zero
-munmap	unmap_t8k	-l 8k		-f $TFILE
-munmap	unmap_t128k	-l 128k		-f $TFILE
 munmap	unmap_a8k	-l 8k		-f MAP_ANON
 munmap	unmap_a128k	-l 128k		-f MAP_ANON
 munmap	unmap_rz8k	-l 8k	-r	-f /dev/zero
 munmap	unmap_rz128k	-l 128k -r	-f /dev/zero
-munmap	unmap_rt8k	-l 8k	-r	-f $TFILE
-munmap	unmap_rt128k	-l 128k	-r	-f $TFILE
 munmap	unmap_ra8k	-l 8k	-r	-f MAP_ANON
 munmap	unmap_ra128k	-l 128k	-r	-f MAP_ANON
 munmap	unmap_wz8k	-l 8k	-w	-f /dev/zero
-munmap	unmap_wt8k	-l 8k	-w	-f $TFILE
 munmap	unmap_wa8k	-l 8k	-w	-f MAP_ANON
 mprotect	mprot_z8k	-l 8k			-f /dev/zero
 mprotect	mprot_z128k	-l 128k		-f /dev/zero

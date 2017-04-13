@@ -70,13 +70,6 @@ cd $SHELLPACK_SOURCES/libmicro-contextswitch-${VERSION}-installed || die Failed 
 
 COMMON="-E -C 0 -D 30000 -B 10000 -L -S -W"
 
-TMPROOT=/tmp/libmicro.$$
-mkdir -p $TMPROOT
-trap "rm -rf $TMPROOT" 0 2
-
-TFILE=$TMPROOT/data
-dd if=/dev/zero of=$TFILE bs=1024k count=10 2>/dev/null
-
 while read A B C; do
 	monitor_pre_hook $LOGDIR_RESULTS $B
 	if [ -f bin/$A ]; then
@@ -96,11 +89,8 @@ cascade_flock	c_flock
 cascade_flock	c_flock_10 -P 10
 cascade_flock	c_flock_200 -P 200
 cascade_fcntl	c_fcntl_1
-file_lock	file_lock
-fcntl	fcntl_tmp -f $TFILE
-fcntl_ndelay	fcntl_ndelay
 EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-contextswitch
-#### Details libmicro-contextswitch-bench 8
+#### Details libmicro-contextswitch-bench 9

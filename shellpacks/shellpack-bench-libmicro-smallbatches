@@ -70,16 +70,6 @@ cd $SHELLPACK_SOURCES/libmicro-smallbatches-${VERSION}-installed || die Failed t
 
 COMMON="-E -C 0 -D 30000 -B 100 -L -S -W"
 
-TMPROOT=/tmp/libmicro.$$
-mkdir -p $TMPROOT
-trap "rm -rf $TMPROOT" 0 2
-
-IFILE=$TMPROOT/ifile
-touch $IFILE
-
-TFILE=$TMPROOT/data
-dd if=/dev/zero of=$TFILE bs=1024k count=10 2>/dev/null
-
 while read A B C; do
 	monitor_pre_hook $LOGDIR_RESULTS $B
 	if [ -f bin/$A ]; then
@@ -97,10 +87,8 @@ malloc	mallocT2_100k	-s 100k -g 10 -T 2
 memcpy	memcpy_1m	-s 1m
 memcpy	memcpy_10m	-s 10m
 mmap	mmap_wz128k	-l 128k -w	-f /dev/zero
-mmap	mmap_wt128k	-l 128k -w	-f $TFILE
 mmap	mmap_wa128k	-l 128k -w	-f MAP_ANON
 munmap	unmap_wz128k	-l 128k	-w	-f /dev/zero
-munmap	unmap_wt128k	-l 128k	-w	-f $TFILE
 munmap	unmap_wa128k	-l 128k	-w	-f MAP_ANON
 mprotect	mprot_tw4m	-l 4m -w -t -f /dev/zero
 cascade_mutex	c_mutex_10	-T 10
@@ -124,4 +112,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-smallbatches
-#### Details libmicro-smallbatches-bench 3
+#### Details libmicro-smallbatches-bench 4

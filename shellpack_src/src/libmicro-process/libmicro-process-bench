@@ -13,13 +13,6 @@ cd $SHELLPACK_SOURCES/libmicro-process-${VERSION}-installed || die Failed to cd 
 
 COMMON="-E -C 0 -D 30000 -B 10000 -L -S -W"
 
-TMPROOT=/tmp/libmicro.$$
-mkdir -p $TMPROOT
-trap "rm -rf $TMPROOT" 0 2
-
-TFILE=$TMPROOT/data
-dd if=/dev/zero of=$TFILE bs=1024k count=10 2>/dev/null
-
 while read A B C; do
 	monitor_pre_hook $LOGDIR_RESULTS $B
 	if [ -f bin/$A ]; then

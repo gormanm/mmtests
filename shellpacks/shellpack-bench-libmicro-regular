@@ -70,12 +70,6 @@ cd $SHELLPACK_SOURCES/libmicro-regular-${VERSION}-installed || die Failed to cd 
 
 COMMON="-E -C 0 -D 30000 -B 10000 -L -S -W"
 
-TMPROOT=/tmp/libmicro.$$
-mkdir -p $TMPROOT
-trap "rm -rf $TMPROOT" 0 2
-IFILE=$TMPROOT/ifile
-touch $IFILE
-
 while read A B C; do
 	monitor_pre_hook $LOGDIR_RESULTS $B
 	if [ -f bin/$A ]; then
@@ -91,7 +85,6 @@ log	log
 exp	exp
 lrand48	lrand48
 isatty	isatty_yes
-isatty	isatty_no	-f	$IFILE
 strtol	strtol
 longjmp	longjmp
 siglongjmp	siglongjmp
@@ -106,4 +99,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-regular
-#### Details libmicro-regular-bench 8
+#### Details libmicro-regular-bench 9

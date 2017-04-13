@@ -70,15 +70,19 @@ cd $SHELLPACK_SOURCES/libmicro-file-${VERSION}-installed || die Failed to cd to 
 
 COMMON="-E -C 0 -D 30000 -B 10000 -L -S -W"
 
-TMPROOT=/tmp/libmicro.$$
+TMPROOT=$SHELLPACK_TEMP/libmicro.$$
 mkdir -p $TMPROOT
 trap "rm -rf $TMPROOT" 0 2
 
 TFILE=$TMPROOT/data
 TDIR1=$TMPROOT/0/1/2/3/4/5/6/7/8/9
+TDIR2=$TMPROOT/10/11/12/13/14/15/16/17/18/19
+IFILE=$TMPROOT/ifile
 
 dd if=/dev/zero of=$TFILE bs=1024k count=10 2>/dev/null
 mkdir -p $TDIR1
+mkdir -p $TDIR2
+touch $IFILE
 
 while read A B C; do
 	monitor_pre_hook $LOGDIR_RESULTS $B
@@ -87,48 +91,64 @@ while read A B C; do
 	fi
 	monitor_post_hook $LOGDIR_RESULTS $B
 done <<EOT
-close		close_bad			-b
-close		close_tmp			-f $TFILE
-close		close_zero			-f /dev/zero
-chdir		chdir_tmp		$TDIR1 $TDIR2
+close		close_bad	-b
+close		close_tmp	-f $TFILE
+close		close_zero	-f /dev/zero
+chdir		chdir_tmp	$TDIR1 $TDIR2
 chdir		chgetwd_tmp	-g $TDIR1 $TDIR2
-realpath	realpath_tmp		-f $TDIR1
+realpath	realpath_tmp	-f $TDIR1
 lseek		lseek_t8k	-s 8k	-f $TFILE
-open		open_tmp			-f $TFILE
-open		open_zero			-f /dev/zero
+open		open_tmp	-f $TFILE
+open		open_zero	-f /dev/zero
 dup		dup
 recurse		recurse
-read		read_t1k	-s 1k			-f $TFILE
-read		read_t10k	-s 10k			-f $TFILE
-read		read_t100k	-s 100k			-f $TFILE
-read		read_z1k	-s 1k			-f /dev/zero
-read		read_z10k	-s 10k			-f /dev/zero
-read		read_z100k	-s 100k			-f /dev/zero
+read		read_t1k	-s 1k		-f $TFILE
+read		read_t10k	-s 10k		-f $TFILE
+read		read_t100k	-s 100k		-f $TFILE
+read		read_z1k	-s 1k		-f /dev/zero
+read		read_z10k	-s 10k		-f /dev/zero
+read		read_z100k	-s 100k		-f /dev/zero
 read		read_zw100k	-s 100k	-w	-f /dev/zero
-write		write_t1k	-s 1k			-f $TFILE
-write		write_t10k	-s 10k			-f $TFILE
-write		write_n1k	-s 1k	-f /dev/null
-write		write_n10k	-s 10k	-f /dev/null
-write		write_n100k	-s 100k	-f /dev/null
-writev		writev_t1k	-s 1k			-f $TFILE
-writev		writev_n1k	-s 1k	-f /dev/null
-writev		writev_n10k	-s 10k	-f /dev/null
-writev		writev_n100k	-s 100k	-f /dev/null
+write		write_t1k	-s 1k		-f $TFILE
+write		write_t10k	-s 10k		-f $TFILE
+write		write_n1k	-s 1k		-f /dev/null
+write		write_n10k	-s 10k		-f /dev/null
+write		write_n100k	-s 100k		-f /dev/null
+writev		writev_t1k	-s 1k		-f $TFILE
+writev		writev_n1k	-s 1k		-f /dev/null
+writev		writev_n10k	-s 10k		-f /dev/null
+writev		writev_n100k	-s 100k		-f /dev/null
 pread		pread_t1k	-s 1k		-f $TFILE
 pread		pread_t10k	-s 10k		-f $TFILE
-pread		pread_t100k	-s 100k	-f $TFILE
+pread		pread_t100k	-s 100k		-f $TFILE
 pread		pread_z1k	-s 1k		-f /dev/zero
 pread		pread_z10k	-s 10k		-f /dev/zero
-pread		pread_z100k	-s 100k	-f /dev/zero
+pread		pread_z100k	-s 100k		-f /dev/zero
 pread		pread_zw100k	-s 100k	-w	-f /dev/zero
 pwrite		pwrite_t1k	-s 1k		-f $TFILE
 pwrite		pwrite_t10k	-s 10k		-f $TFILE
-pwrite		pwrite_t100k	-s 100k	-f $TFILE
+pwrite		pwrite_t100k	-s 100k		-f $TFILE
 pwrite		pwrite_n1k	-s 1k		-f /dev/null
 pwrite		pwrite_n10k	-s 10k		-f /dev/null
 pwrite		pwrite_n100k	-s 100k		-f /dev/null
+fcntl		fcntl_tmp	-f $TFILE
+file_lock	file_lock
+fcntl_ndelay    fcntl_ndelay
+mmap		mmap_t8k	-l 8k		-f $TFILE
+mmap		mmap_t128k	-l 128k		-f $TFILE
+mmap		mmap_rt8k	-l 8k -r	-f $TFILE
+mmap		mmap_rt128k	-l 128k -r	-f $TFILE
+mmap		mmap_wt8k	-l 8k -w	-f $TFILE
+munmap		unmap_t8k	-l 8k		-f $TFILE
+munmap		unmap_t128k	-l 128k		-f $TFILE
+munmap		unmap_rt8k	-l 8k	-r	-f $TFILE
+munmap		unmap_rt128k	-l 128k	-r	-f $TFILE
+munmap		unmap_wt8k	-l 8k	-w	-f $TFILE
+isatty  	isatty_no       -f		$IFILE
+mmap    	mmap_wt128k     -l 128k -w      -f $TFILE
+munmap  	unmap_wt128k    -l 128k -w      -f $TFILE
 EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-file
-#### Details libmicro-file-bench 9
+#### Details libmicro-file-bench 11
