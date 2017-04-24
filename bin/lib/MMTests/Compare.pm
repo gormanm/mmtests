@@ -32,7 +32,6 @@ use VMR::Stat;
 use VMR::Blessless qw(blessless);
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
-use Cpanel::JSON::XS;
 use strict;
 
 sub new() {
@@ -523,6 +522,7 @@ sub extractComparison() {
 
 sub saveJSONExport() {
 	my ($self, $fname) = @_;
+	require Cpanel::JSON::XS;
 	my $json = Cpanel::JSON::XS->new();
 	$json->allow_blessed();
 	$json->convert_blessed();
