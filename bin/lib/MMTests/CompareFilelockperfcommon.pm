@@ -7,9 +7,9 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareFilelockperfcommon",
-		_DataType    => MMTests::Compare::DATA_TIME_MSECONDS,
+		_DataType    => MMTests::Compare::DATA_TIME_SECONDS,
 		_FieldLength => 12,
-		_CompareOp   => "pdiff",
+		_CompareOp   => "pndiff",
 		_ResultData  => []
 	};
 	bless $self, $class;
