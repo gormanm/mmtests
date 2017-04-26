@@ -124,12 +124,12 @@ if [ "$SORT_VERSION" = "yes" ]; then
 	LIST_SORT=$KERNEL_LIST
 	KERNEL_LIST=
 	KERNEL_BASE=
-	LIST_SORTED=`echo $LIST_SORT | sed -e 's/,/\n/g' | sort -t . -k1 -k2 -k3 -n`
+	LIST_SORTED=`echo $LIST_SORT | sed -e 's/,/\n/g' | sort -t . -k1,1 -k2,2 -k3,3 -n`
 	LIST_SORTED_STRIPPED=
 
 	# Strip so only the latest stable major versions are included
 	declare -a LIST_ARRAY
-	read -r -a LIST_ARRAY <<< $LIST_SORTED
+	LIST_ARRAY=(`echo ${LIST_SORTED}`);
 	NR_ELEMENTS=${#LIST_ARRAY[@]}
 	for INDEX in ${!LIST_ARRAY[@]}; do
 		KERNEL=${LIST_ARRAY[$INDEX]}
