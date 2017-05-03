@@ -195,7 +195,7 @@ sub _generateComparisonTable() {
 						push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
 						if ($baseStdDevsRef) {
 							my $sdiff_val = sdiff($summary[$row][$column], $baseline[$row][$column], $baseStdDevs[$row]);
-							if ($sdiff_val eq "NaN") {
+							if ($sdiff_val eq "NaN" || $sdiff_val eq "nan") {
 								$sdiff_val = 0;
 							}
 							push @stddev, $sdiff_val;
