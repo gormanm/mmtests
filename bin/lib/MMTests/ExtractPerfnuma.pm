@@ -39,14 +39,14 @@ sub extractReport() {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				my $line = $_;
-				if ($line =~ /\s+([0-9.]+) secs latency to NUMA-converge/) {
+				if ($line =~ /\s+([0-9.]+), secs,\s+NUMA-convergence-latency/) {
 					push @{$self->{_ResultData}}, [ "converged-$convergance", $iteration, $1 ];
 				}
-				if ($line =~ /\s+([0-9.]+) secs slowest/) {
-					push @{$self->{_ResultData}}, [ "slowest-$convergance", $iteration, $1 ];
+				if ($line =~ /\s+([0-9.]+), GB\/sec,\s+thread-speed/) {
+					push @{$self->{_ResultData}}, [ "threadspeed-$convergance", $iteration, $1 ];
 				}
-				if ($line =~ /\s+([0-9.]+) secs fastest/) {
-					push @{$self->{_ResultData}}, [ "fastest-$convergance", $iteration, $1 ];
+				if ($line =~ /\s+([0-9.]+), GB\/sec,\s+total-speed/) {
+					push @{$self->{_ResultData}}, [ "totalspeed-$convergance", $iteration, $1 ];
 				}
 			}
 			close(INPUT);
@@ -55,7 +55,7 @@ sub extractReport() {
 	}
 
 	my @ops;
-	foreach my $heading ("converged", "slowest", "fastest") {
+	foreach my $heading ("converged", "threadspeed", "totalspeed") {
 		for my $convergance (@convergances) {
 			push @ops, "$heading-$convergance";
 		}
