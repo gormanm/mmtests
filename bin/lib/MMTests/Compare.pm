@@ -188,18 +188,19 @@ sub _generateComparisonTable() {
 				no strict "refs";
 				my $summaryRef = $extractModules[$module]->{_SummaryData};
 				my @summary = @{$summaryRef};
-				if ($summary[$row][$column] != -1 && $baseline[$row][$column] != -1) {
-					if ($summary[$row][$column] ne "NaN") {
-						push @data, $summary[$row][$column];
-						push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
-						push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
-						if ($baseStdDevsRef) {
-							my $sdiff_val = sdiff($summary[$row][$column], $baseline[$row][$column], $baseStdDevs[$row]);
-							if ($sdiff_val eq "NaN" || $sdiff_val eq "nan") {
-								$sdiff_val = 0;
-							}
-							push @stddev, $sdiff_val;
+				if ($summary[$row][$column] eq "") {
+					$summary[$row][$column] = "NaN";
+				}
+				if ($summary[$row][$column] != -1 && $summary[$row][$column] ne "NaN" && $baseline[$row][$column] != -1) {
+					push @data, $summary[$row][$column];
+					push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
+					push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
+					if ($baseStdDevsRef) {
+						my $sdiff_val = sdiff($summary[$row][$column], $baseline[$row][$column], $baseStdDevs[$row]);
+						if ($sdiff_val eq "NaN" || $sdiff_val eq "nan") {
+							$sdiff_val = 0;
 						}
+						push @stddev, $sdiff_val;
 					}
 				} else {
 					push @data, 0;
