@@ -45,6 +45,10 @@ config-global-dhp__io-fio-randread-async-randwrite
 config-global-dhp__io-fio-randread-async-seqwrite
 config-global-dhp__io-fio-randread-sync-heavywrite
 config-global-dhp__io-fio-randread-sync-randwrite
+config-global-dhp__io-bonnie-file-async
+config-global-dhp__io-bonnie-dir-async
+config-global-dhp__io-bonnie-file-fsync
+config-global-dhp__io-bonnie-dir-fsync
 "
 
 FSCONFIGS="
