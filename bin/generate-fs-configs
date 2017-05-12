@@ -40,6 +40,13 @@ config-global-dhp__io-iozone-ram
 config-global-dhp__io-iozone-ram-dio
 "
 
+DEADLINE_FSCONFIGS="
+config-global-dhp__io-fio-randread-async-randwrite
+config-global-dhp__io-fio-randread-async-seqwrite
+config-global-dhp__io-fio-randread-sync-heavywrite
+config-global-dhp__io-fio-randread-sync-randwrite
+"
+
 FSCONFIGS="
 config-global-dhp__io-threaded
 config-global-dhp__io-metadata
@@ -210,6 +217,52 @@ for CONFIG in $FSCONFIGS; do
 			> $CONFIG-xfs
 
 done
+for CONFIG in $DEADLINE_FSCONFIGS; do
+	if [ ! -e $CONFIG ]; then
+		continue
+	fi
+	OUT_CONFIG=`echo $CONFIG | sed -e 's/dhp__io/dhp__io-deadline/'`
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext3/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM=/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
+			> $OUT_CONFIG-ext3
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext4/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-F -E lazy_itable_init=0"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
+			> $OUT_CONFIG-ext4
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier/' \
+			> $OUT_CONFIG-btrfs
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier,nodatacow/' \
+			> $OUT_CONFIG-btrfs-nocow
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
+		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=inode64,nobarrier/' \
+			> $OUT_CONFIG-xfs
+	echo "export TESTDISK_IO_SCHEDULER=deadline" >> $OUT_CONFIG-ext3
+	echo "export TESTDISK_IO_SCHEDULER=deadline" >> $OUT_CONFIG-ext4
+	echo "export TESTDISK_IO_SCHEDULER=deadline" >> $OUT_CONFIG-btrfs
+	echo "export TESTDISK_IO_SCHEDULER=deadline" >> $OUT_CONFIG-btrfs-nocow
+	echo "export TESTDISK_IO_SCHEDULER=deadline" >> $OUT_CONFIG-xfs
+done
+
 for CONFIG in $NOATIME_FSCONFIGS; do
 	cat $CONFIG | sed \
 		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
