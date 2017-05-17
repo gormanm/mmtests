@@ -1,0 +1,33 @@
+#!/bin/bash
+###SHELLPACK preamble sysbenchthread-bench 0.4.12
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --max-threads MAX_THREADS
+###SHELLPACK parseargParam --iterations  ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required sysbenchthread-${VERSION}
+###SHELLPACK monitor_hooks
+export PATH=$SHELLPACK_SOURCES/sysbenchthread-${VERSION}-installed/bin:$PATH
+
+###SHELLPACK threads_large_stride_begin 1 $MAX_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	###SHELLPACK iteration_begin $ITERATIONS
+		echo Running $NR_THREADS threads Iteration $ITERATION/$ITERATIONS
+		eval $TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITERATION} \
+			sysbench --test=threads				\
+				--thread-locks=$NR_THREADS		\
+				--max-time=20s				\
+				run >> $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITERATION
+		SYSRET=$?
+		if [ $SYSRET -ne 0 ]; then
+			cat $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITERATION
+			die sysbench exited abnormally
+		fi
+	###SHELLPACK iteration_end
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+
+echo sysbenchthread successfully completed
+exit $SHELLPACK_SUCCESS
