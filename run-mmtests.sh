@@ -279,8 +279,10 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 	echo -n > $SHELLPACK_LOG/disk-raid-hdparm-$RUNNAME
 	echo -n > $SHELLPACK_LOG/disk-raid-smartctl-$RUNNAME
 	for DISK in $TESTDISK_RAID_DEVICES; do
-		hdparm -I $DISK 2>&1 >> $SHELLPACK_LOG/disk-raid-hdparm-$RUNNAME
-		smartctl -a $DISK 2>&1 >> $SHELLPACK_LOG/dks-raid-smartctl-$RUNNAME
+		if [ "`uname -r`" != "4.4.52-0.g56e0224-default" ]; then
+			hdparm -I $DISK 2>&1 >> $SHELLPACK_LOG/disk-raid-hdparm-$RUNNAME
+			smartctl -a $DISK 2>&1 >> $SHELLPACK_LOG/dks-raid-smartctl-$RUNNAME
+		fi
 	done
 
 	# Check if a suitable device is already assembled
@@ -371,10 +373,10 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 		echo Creating RAID device $TESTDISK_RAID_MD_DEVICE $TESTDISK_RAID_TYPE
 		case $TESTDISK_RAID_TYPE in
 		raid1)
-			echo mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+			echo mdadm --create $TESTDISK_RAID_MD_DEVICE --name=0 -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 			EXPECT_SCRIPT=`mktemp`
 			cat > $EXPECT_SCRIPT <<EOF
-spawn mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+spawn mdadm --create $TESTDISK_RAID_MD_DEVICE --name=0 -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
 	"Really INITIALIZE"        { send y\\r; exp_continue}
@@ -385,10 +387,10 @@ EOF
 			rm $EXPECT_SCRIPT
 			;;
 		raid5)
-			echo mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+			echo mdadm --create $TESTDISK_RAID_MD_DEVICE --name=0 --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 			EXPECT_SCRIPT=`mktemp`
 			cat > $EXPECT_SCRIPT <<EOF
-spawn mdadm --create $TESTDISK_RAID_MD_DEVICE --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+spawn mdadm --create $TESTDISK_RAID_MD_DEVICE --name=0 --bitmap=internal -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
 	"Really INITIALIZE"        { send y\\r; exp_continue}
@@ -400,10 +402,10 @@ EOF
 
 			;;
 		*)
-			echo mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+			echo mdadm --create $TESTDISK_RAID_MD_DEVICE --name=0 -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 			EXPECT_SCRIPT=`mktemp`
 			cat > $EXPECT_SCRIPT <<EOF
-spawn mdadm --create $TESTDISK_RAID_MD_DEVICE -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
+spawn mdadm --create $TESTDISK_RAID_MD_DEVICE --name=0 -l $TESTDISK_RAID_TYPE -n $NR_DEVICES $TESTDISK_RAID_PARTITIONS
 expect {
 	"Continue creating array?" { send yes\\r; exp_continue}
 	"Really INITIALIZE"        { send y\\r; exp_continue}
@@ -539,7 +541,10 @@ fi
 # TBD: Support blktrace in case TESTDISK_PARTITIONS is set and TESTDISK_PARTITION is not
 if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 	if [ "${STORAGE_CACHE_TYPE}" = "" ]; then
-		hdparm -I ${TESTDISK_PARTITIONS[*]} 2>&1 > $SHELLPACK_LOG/disk-hdparm-$RUNNAME
+		# Temporary hack for SLE 12 SP3 Alpha 2 testing
+		if [ "`uname -r`" != "4.4.52-0.g56e0224-default" ]; then
+			hdparm -I ${TESTDISK_PARTITIONS[*]} 2>&1 > $SHELLPACK_LOG/disk-hdparm-$RUNNAME
+		fi
 	fi
 	if [ "$TESTDISK_FILESYSTEM" != "" -a "$TESTDISK_FILESYSTEM" != "tmpfs" ]; then
 		if [ "${TESTDISK_FS_SIZE}" != "" ]; then
