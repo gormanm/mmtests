@@ -319,6 +319,7 @@ if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 	if [ "$FULL_ASSEMBLY_REQUIRED" = "yes" ]; then
 		echo Full assembly required for mdstat state
 		cat /proc/mdstat 2>/dev/null
+		rm -f /etc/mdadm/mdadm.conf
 
 		echo Creation start: `date`
 		for DEVICE in $TESTDISK_RAID_DEVICES; do
@@ -428,6 +429,9 @@ EOF
 	echo Dumping final md state
 	cat /proc/mdstat			| tee    md-stat-$RUNNAME
 	mdadm --detail $TESTDISK_RAID_MD_DEVICE | tee -a md-stat-$RUNNAME
+
+	mkdir -p /etc/mdadm
+	mdadm --detail --scan >> /etc/mdadm/mdadm.conf
 
 	# Create LVM device of a fixed name. This is in case the blktrace
 	# monitor is in use. For reasons I did not bother tracking down,
