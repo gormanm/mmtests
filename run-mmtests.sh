@@ -431,7 +431,7 @@ EOF
 	mdadm --detail $TESTDISK_RAID_MD_DEVICE | tee -a md-stat-$RUNNAME
 
 	mkdir -p /etc/mdadm
-	mdadm --detail --scan >> /etc/mdadm/mdadm.conf
+	mdadm --detail --scan > /etc/mdadm/mdadm.conf
 
 	# Create LVM device of a fixed name. This is in case the blktrace
 	# monitor is in use. For reasons I did not bother tracking down,
