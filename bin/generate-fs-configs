@@ -35,7 +35,6 @@ config-global-dhp__workload-graphdb-large
 "
 
 RAMCONFIGS="
-config-global-dhp__reaim-io-ram-tiny
 config-global-dhp__io-iozone-ram
 config-global-dhp__io-iozone-ram-dio
 "
@@ -66,8 +65,12 @@ config-global-dhp__workload_mailserver
 config-global-dhp__workload_kerndevel
 config-global-dhp__workload_dedup
 config-global-dhp__workload_shellscripts
-config-global-dhp__reaim-io-tiny
-config-global-dhp__reaim-io-medium
+config-global-dhp__reaim-io-alltests
+config-global-dhp__reaim-io-compute
+config-global-dhp__reaim-io-disk
+config-global-dhp__reaim-io-new_dbase
+config-global-dhp__reaim-io-new_fserver
+config-global-dhp__reaim-io-shared
 config-global-dhp__reaim-highsys
 config-global-dhp__reaim-stress
 config-global-dhp__stress-highalloc-performance

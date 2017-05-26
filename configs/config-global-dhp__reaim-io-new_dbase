@@ -1,8 +1,7 @@
-### This configuration runs a number of IO-intensive workfiles from reaim
-### except that signal_test is removed. signal_test generates a lot of noise
-### and interference while there is no real workload that generates that
-### many signals. The workfiles used are compute, new_dbase, new_fserver,
-### shared, disk and alltests.
+### This configuration runs an IO-intensive workfiles from reaim except that
+### signal_test is removed. signal_test generates a lot of noise and
+### interference while there is no real workload that generates that
+### many signals.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
@@ -40,11 +39,6 @@ fi
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
 #export TESTDISK_MOUNT_ARGS=""
 
-# Use 1/2 of memory to leave space for pagecache and other stuff.
-export TESTDISK_RD_PREALLOC=no
-export TESTDISK_RD_SIZE=$((MEMTOTAL_BYTES/2))
-export TESTDISK_FILESYSTEM=xfs
-
 # Swap configuration can be one of default, partitions, swapfile, NFS
 #export RUN_TUNINGS="$RUN_TUNINGS sysctl"
 #export VM_DIRTY_RATIO=20
@@ -72,5 +66,5 @@ export REAIM_STARTUSERS=1
 export REAIM_INCREMENT=$((NUMCPUS/2))
 export REAIM_ENDUSERS=$((NUMCPUS*4+REAIM_INCREMENT))
 export REAIM_ITERATIONS=5
-export REAIM_WORKFILES="workfile.compute workfile.new_dbase workfile.new_fserver workfile.shared workfile.disk workfile.alltests"
+export REAIM_WORKFILES="workfile.new_dbase"
 export REAIM_EXCLUDE=signal_test
