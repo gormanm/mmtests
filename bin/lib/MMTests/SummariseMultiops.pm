@@ -1,6 +1,7 @@
 # SummariseMultiops.pm
 package MMTests::SummariseMultiops;
 use MMTests::Extract;
+use MMTests::DataTypes;
 use VMR::Stat;
 our @ISA = qw(MMTests::Extract);
 use strict;
@@ -27,19 +28,32 @@ sub initialise() {
 	$self->{_Opname} = $opName;
 	$self->{_PlotType} = $plotType;
 
-	$self->{_RatioPreferred} = "Higher";
-	$self->{_MeanOp} = "calc_harmmean";
-	$self->{_MeanName} = "Hmean";
-
-	if ($self->{_DataType} == MMTests::Extract::DATA_TIME_SECONDS ||
-	    $self->{_DataType} == MMTests::Extract::DATA_TIME_NSECONDS ||
-	    $self->{_DataType} == MMTests::Extract::DATA_TIME_MSECONDS ||
-	    $self->{_DataType} == MMTests::Extract::DATA_TIME_USECONDS ||
-	    $self->{_DataType} == MMTests::Extract::DATA_TIME_CYCLES ||
-	    $self->{_DataType} == MMTests::Extract::DATA_BAD_ACTIONS) {
+	if ($self->{_DataType} == DataTypes::DATA_TIME_SECONDS ||
+	    $self->{_DataType} == DataTypes::DATA_TIME_NSECONDS ||
+	    $self->{_DataType} == DataTypes::DATA_TIME_MSECONDS ||
+	    $self->{_DataType} == DataTypes::DATA_TIME_USECONDS ||
+	    $self->{_DataType} == DataTypes::DATA_TIME_CYCLES ||
+	    $self->{_DataType} == DataTypes::DATA_BAD_ACTIONS) {
 		$self->{_MeanOp} = "calc_mean";
 		$self->{_MeanName} = "Amean";
 		$self->{_RatioPreferred} = "Lower";
+		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
+	}
+	if ($self->{_DataType} == DataTypes::DATA_ACTIONS ||
+	    $self->{_DataType} == DataTypes::DATA_ACTIONS_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_ACTIONS_PER_MINUTE ||
+	    $self->{_DataType} == DataTypes::DATA_OPS_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_OPS_PER_MINUTE ||
+	    $self->{_DataType} == DataTypes::DATA_KBYTES_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_MBYTES_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_MBITS_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE ||
+	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
+		$self->{_MeanOp} = "calc_harmmean";
+		$self->{_MeanName} = "Hmean";
+		$self->{_RatioPreferred} = "Higher";
+		$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff" ];
 	}
 
 	$self->SUPER::initialise($reportDir, $testName);

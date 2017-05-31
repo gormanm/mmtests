@@ -10,7 +10,7 @@ sub initialise() {
 	my $class = shift;
 
 	$self->{_ModuleName} = "ExtractReaim";
-	$self->{_DataType}   = MMTests::Extract::DATA_ACTIONS_PER_MINUTE;
+	$self->{_DataType}   = DataTypes::DATA_ACTIONS_PER_MINUTE;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->SUPER::initialise($reportDir, $testName);
 }

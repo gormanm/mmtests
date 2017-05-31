@@ -10,9 +10,11 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractPft";
-	$self->{_DataType}   = MMTests::Extract::DATA_OPS_PER_SECOND;
+	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
+	$self->{_FieldLength} = 14;
+	$self->{_Precision} = 4;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

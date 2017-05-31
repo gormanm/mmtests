@@ -14,7 +14,7 @@ sub initialise() {
 	$self->{_SummaryLength} = $fieldLength;
 	$self->{_TestName} = $testName;
 	$self->{_ModuleName} = "ExtractKernbench";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
+	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Threads";

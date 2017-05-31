@@ -9,7 +9,5 @@ sub initialise() {
         my ($self, $reportDir, $testName) = @_;
 
 	$self->SUPER::initialise($reportDir, $testName);
-	$self->{_ModuleName} = "SummariseVariabletime";
-	$self->{_RatioPreferred} = "Higher";
 }
 

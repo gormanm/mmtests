@@ -8,7 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_ModuleName} = "ExtractPhpbench";
-	$self->{_DataType}   = MMTests::Extract::DATA_ACTIONS;
+	$self->{_DataType}   = DataTypes::DATA_ACTIONS;
 	$self->{_PlotType}   = "operation-candlesticks";
 	$self->SUPER::initialise($reportDir, $testName);
 }

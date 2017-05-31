@@ -8,9 +8,10 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractHpcg",
-		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
+		_DataType    => DataTypes::DATA_OPS_PER_SECOND,
 		_ResultData  => [],
 		_PlotType    => "histogram",
+		_Precision   => 4,
 	};
 	bless $self, $class;
 	return $self;

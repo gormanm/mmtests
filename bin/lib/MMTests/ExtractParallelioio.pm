@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractParallelioio",
-		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
+		_DataType    => DataTypes::DATA_TIME_SECONDS,
 		_ResultData  => []
 	};
 	bless $self, $class;

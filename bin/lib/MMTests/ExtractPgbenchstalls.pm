@@ -8,7 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_ModuleName} = "ExtractPgbenchstalls";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
+	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
 	$self->{_FieldLength} = 12;

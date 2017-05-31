@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
 	$self->{_ModuleName} = "ExtractSpecjbb";
-	$self->{_DataType}   = MMTests::Extract::DATA_OPS_PER_SECOND;
+	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
 

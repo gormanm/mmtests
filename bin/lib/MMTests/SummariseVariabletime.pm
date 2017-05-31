@@ -19,7 +19,35 @@ sub initialise() {
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
 	$self->{_FieldHeaders} = [ "Type", "Sample", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
-	$self->{_RatioPreferred} = "Lower";
+
+	if ($self->{_DataType} == DataTypes::DATA_TIME_SECONDS ||
+	    $self->{_DataType} == DataTypes::DATA_TIME_NSECONDS ||
+	    $self->{_DataType} == DataTypes::DATA_TIME_MSECONDS ||
+	    $self->{_DataType} == DataTypes::DATA_TIME_USECONDS ||
+	    $self->{_DataType} == DataTypes::DATA_TIME_CYCLES ||
+	    $self->{_DataType} == DataTypes::DATA_BAD_ACTIONS) {
+		$self->{_MeanOp} = "calc_mean";
+		$self->{_MeanName} = "Amean";
+		$self->{_RatioPreferred} = "Lower";
+		$self->{_CompareOp} = "pndiff";
+	}
+	if ($self->{_DataType} == DataTypes::DATA_ACTIONS ||
+	    $self->{_DataType} == DataTypes::DATA_ACTIONS_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_ACTIONS_PER_MINUTE ||
+	    $self->{_DataType} == DataTypes::DATA_OPS_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_OPS_PER_MINUTE ||
+	    $self->{_DataType} == DataTypes::DATA_KBYTES_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_MBYTES_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_MBITS_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_SECOND ||
+	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE ||
+	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
+		$self->{_MeanOp} = "calc_harmmean";
+		$self->{_MeanName} = "Hmean";
+		$self->{_RatioPreferred} = "Higher";
+		$self->{_CompareOp} = "pdiff";
+	}
+
 
 	$self->{_SummaryLength} = 16;
 	$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-93%", "Max-95%", "Max-99%", "Max", "Mean", "Stddev", "Coeff", "Best99%Mean", "Best95%Mean", "Best90%Mean", "Best50%Mean", "Best10%Mean", "Best5%Mean", "Best1%Mean" ];

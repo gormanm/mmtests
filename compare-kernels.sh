@@ -244,10 +244,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		eval $COMPARE_CMD
 		echo
 
-		echo $SUBREPORT Latency
-		compare-mmtests.pl -d . -b dbt5latency -n $KERNEL_LIST $FORMAT_CMD
-		echo
-
 		echo $SUBREPORT Execution time
 		compare-mmtests.pl -d . -b dbt5exectime -n $KERNEL_LIST $FORMAT_CMD
 		echo

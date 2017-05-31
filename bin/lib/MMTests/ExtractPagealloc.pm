@@ -13,7 +13,7 @@ sub initialise() {
 	my $fieldLength = $self->{_FieldLength} = 13;
 	$self->SUPER::initialise();
 
-	$self->{_DataType} = MMTests::Extract::DATA_TIME_CYCLES;
+	$self->{_DataType} = DataTypes::DATA_TIME_CYCLES;
 	$self->{_PlotXaxis}   = "MemSize";
 	$self->{_PlotType} = "client-errorlines";
 	$self->{_TestName} = $testName;

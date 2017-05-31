@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractPerfnuma";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
+	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "operation-candlesticks";
 	$self->{_FieldLength} = 34;
 	$self->SUPER::initialise($reportDir, $testName);

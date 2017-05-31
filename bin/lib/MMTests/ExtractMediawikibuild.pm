@@ -10,7 +10,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractMediawikibuild",
-		_DataType    => MMTests::Extract::DATA_TRANS_PER_SECOND,
+		_DataType    => DataTypes::DATA_TRANS_PER_SECOND,
 		_ResultData  => [],
 		_PlotType    => "simple",
 	};

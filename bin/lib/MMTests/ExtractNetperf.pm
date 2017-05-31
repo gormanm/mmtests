@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractNetperf";
-	$self->{_DataType}   = MMTests::Extract::DATA_MBITS_PER_SECOND;
+	$self->{_DataType}   = DataTypes::DATA_MBITS_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_Opname}     = "Tput";
 	$self->{_FieldLength} = 12;

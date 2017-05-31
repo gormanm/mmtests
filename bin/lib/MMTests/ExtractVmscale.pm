@@ -9,7 +9,7 @@ sub initialise() {
 
 	my $fieldLength = $self->{_FieldLength} = 25;
 	$self->{_ModuleName} = "ExtractVmscale";
-	$self->{_DataType} = MMTests::Extract::DATA_TIME_SECONDS;
+	$self->{_DataType} = DataTypes::DATA_TIME_SECONDS;
 	$self->{_TestName} = $testName;
 	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%$fieldLength.2f" ];
 	$self->{_FieldHeaders} = [ "Test", "Metric", "Value" ];

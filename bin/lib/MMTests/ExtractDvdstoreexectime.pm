@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractDvdstoreexectime";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
+	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_Opname}     = "ExecTime";
 	$self->{_FieldLength} = 12;

@@ -7,7 +7,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractUnixbenchsyscall";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_NSECONDS;
+	$self->{_DataType}   = DataTypes::DATA_TIME_NSECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Threads";
 

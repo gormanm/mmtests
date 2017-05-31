@@ -1,17 +1,15 @@
 # ExtractSpecjbbpeak.pm
 package MMTests::ExtractSpecjbbpeak;
-use MMTests::Extract;
+use MMTests::SummariseSingleops;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract);
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
-
-use constant DATA_SPECJBB_PEAK     => 900;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractSpecjbbpeak",
-		_DataType    => DATA_ACTIONS,
+		_DataType    => DataTypes::DATA_ACTIONS,
 		_ResultData  => [],
 		_FieldLength => 15,
 	};

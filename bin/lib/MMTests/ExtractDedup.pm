@@ -9,17 +9,16 @@ use Data::Dumper qw(Dumper);
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
-	$self->SUPER::initialise();
-
 	my $fieldLength = $self->{_FieldLength} = 12;
 	$self->{_FieldLength} = $fieldLength;
 	$self->{_SummaryLength} = $fieldLength;
 	$self->{_TestName} = $testName;
 	$self->{_ModuleName} = "ExtractDedup";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
+	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Threads";
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport() {
@@ -34,6 +33,7 @@ sub extractReport() {
 		$thr =~ s/.log//;
 		push @threads, $thr;
 	}
+	@threads = sort { $a <=> $b } @threads;
 
 	foreach my $nthr (@threads) {
 		my @files = <$reportDir/$profile/dedup-$nthr-*.time>;
@@ -47,8 +47,7 @@ sub extractReport() {
 			while (<INPUT>) {
 				my $line = $_;
 				if ($line =~ /([0-9]):([0-9.]+)elapsed/) {
-					my $tottime = ($1 * 60) + $2;
-					push @{$self->{_ResultData}}, [ $nthr, ++$nr_samples, $tottime ];
+					push @{$self->{_ResultData}}, [ $nthr, ++$nr_samples, $self->_time_to_elapsed($line) ];
 				}
 			}
 			close INPUT;
@@ -56,7 +55,5 @@ sub extractReport() {
 
 	}
 
-	my @ops = sort {$a <=> $b} @threads;
-	$self->{_Operations} = \@ops;
-
+	$self->{_Operations} = \@threads;
 }

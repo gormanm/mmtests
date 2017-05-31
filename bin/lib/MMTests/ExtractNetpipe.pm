@@ -9,7 +9,7 @@ sub initialise() {
         my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractNetpipe";
-	$self->{_DataType}   = MMTests::Extract::DATA_MBITS_PER_SECOND;
+	$self->{_DataType}   = DataTypes::DATA_MBITS_PER_SECOND;
 	$self->{_PlotType}   = "simple";
 	$self->{_PlotXaxis}  = "Message Size KBytes";
 	$self->{_FieldLength} = 12;

@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractTimedmunlock",
-		_DataType    => MMTests::Extract::DATA_NONE,
+		_DataType    => DataTypes::DATA_TIME_USECONDS,
 		_ResultData  => []
 	};
 	bless $self, $class;

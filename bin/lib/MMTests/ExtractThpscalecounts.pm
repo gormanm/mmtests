@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractThpscalecounts";
-	$self->{_DataType}   = MMTests::Extract::DATA_ACTIONS;
+	$self->{_DataType}   = DataTypes::DATA_ACTIONS;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Percentage";
 	$self->{_FieldLength} = 12;

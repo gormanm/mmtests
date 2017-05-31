@@ -1,13 +1,13 @@
 # ExtractSchbench.pm
 package MMTests::ExtractSchbench;
-use MMTests::SummariseMultiops;
+use MMTests::SummariseSingleops;
 use VMR::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
+our @ISA = qw(MMTests::SummariseSingleops);
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_ModuleName} = "ExtractSchbench";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_USECONDS;
+	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
 	$self->{_PlotXaxis}  = "Threads";
 	$self->{_FieldLength} = 12;
 	$self->{_ExactSubheading} = 1;

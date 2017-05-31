@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractXfsiothroughput";
-	$self->{_DataType}   = MMTests::Extract::DATA_MBYTES_PER_SECOND;
+	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
 	$self->{_FieldLength} = 12;
 
 	$self->SUPER::initialise($reportDir, $testName);

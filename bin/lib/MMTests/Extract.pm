@@ -4,25 +4,7 @@
 # and extract information from them
 
 package MMTests::Extract;
-
-use constant DATA_NONE			=> 0;
-use constant DATA_TIME_SECONDS		=> 1;
-use constant DATA_TIME_NSECONDS		=> 2;
-use constant DATA_TIME_USECONDS		=> 3;
-use constant DATA_TIME_MSECONDS		=> 4;
-use constant DATA_TIME_CYCLES		=> 5;
-use constant DATA_ACTIONS               => 6;
-use constant DATA_ACTIONS_PER_SECOND    => 7;
-use constant DATA_ACTIONS_PER_MINUTE    => 8;
-use constant DATA_BAD_ACTIONS           => 9;
-use constant DATA_OPS_PER_SECOND        => 10;
-use constant DATA_OPS_PER_MINUTE        => 11;
-use constant DATA_KBYTES_PER_SECOND	=> 13;
-use constant DATA_MBYTES_PER_SECOND	=> 14;
-use constant DATA_MBITS_PER_SECOND	=> 15;
-use constant DATA_TRANS_PER_SECOND	=> 16;
-use constant DATA_TRANS_PER_MINUTE	=> 17;
-use constant DATA_SUCCESS_PERCENT	=> 18;
+use MMTests::DataTypes;
 use VMR::Stat;
 use VMR::Blessless qw(blessless);
 use MMTests::PrintGeneric;
@@ -59,44 +41,44 @@ sub printDataType() {
 	my $units = "Time";
 
 
-	if ($self->{_DataType} == DATA_TIME_USECONDS) {
+	if ($self->{_DataType} == DataTypes::DATA_TIME_USECONDS) {
 		$yaxis = "Time (usec)";
-	} elsif ($self->{_DataType} == DATA_TIME_NSECONDS) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_TIME_NSECONDS) {
 		$yaxis = "Time (nanosec)";
-	} elsif ($self->{_DataType} == DATA_TIME_MSECONDS) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_TIME_MSECONDS) {
 		$yaxis = "Time (msec)";
-	} elsif ($self->{_DataType} == DATA_TIME_SECONDS) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_TIME_SECONDS) {
 		$yaxis = "Time (seconds)";
-	} elsif ($self->{_DataType} == DATA_TIME_CYCLES) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_TIME_CYCLES) {
 		$yaxis = "Time (cpu cycles)";
-	} elsif ($self->{_DataType} == DATA_ACTIONS) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_ACTIONS) {
 		$yaxis = "Actions";
 		$units = "VarAction";
-	} elsif ($self->{_DataType} == DATA_ACTIONS_PER_SECOND) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_ACTIONS_PER_SECOND) {
 		$yaxis = "Actions/sec";
 		$units = "Actions";
-	} elsif ($self->{_DataType} == DATA_ACTIONS_PER_MINUTE) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_ACTIONS_PER_MINUTE) {
 		$yaxis = "Actions/minute";
 		$units = "Actions";
-	} elsif ($self->{_DataType} == DATA_OPS_PER_SECOND) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_OPS_PER_SECOND) {
 		$yaxis = "Ops/sec";
 		$units = "Operations";
-	} elsif ($self->{_DataType} == DATA_OPS_PER_MINUTE) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_OPS_PER_MINUTE) {
 		$yaxis = "Ops/minute";
 		$units = "Operations";
-	} elsif ($self->{_DataType} == DATA_TRANS_PER_SECOND) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_TRANS_PER_SECOND) {
 		$yaxis = "Transactions/sec";
 		$units = "Transactions";
-	} elsif ($self->{_DataType} == DATA_TRANS_PER_MINUTE) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE) {
 		$yaxis = "Transactions/minute";
 		$units = "Transactions";
-	} elsif ($self->{_DataType} == DATA_MBITS_PER_SECOND) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_MBITS_PER_SECOND) {
 		$yaxis = "MBits/sec";
 		$units = "Throughput";
-	} elsif ($self->{_DataType} == DATA_MBYTES_PER_SECOND) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_MBYTES_PER_SECOND) {
 		$yaxis = "MBytes/sec";
 		$units = "Throughput";
-	} elsif ($self->{_DataType} == DATA_SUCCESS_PERCENT) {
+	} elsif ($self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
 		$yaxis = "Percentage";
 		$units = "Success";
 	}

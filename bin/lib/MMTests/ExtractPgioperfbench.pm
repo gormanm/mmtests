@@ -11,7 +11,7 @@ sub initialise() {
 	my $fieldLength = 12;
 
 	$self->{_ModuleName} = "ExtractPgioperfbench";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_MSECONDS;
+	$self->{_DataType}   = DataTypes::DATA_TIME_MSECONDS;
 	$self->{_ExactSubheading} = 1;
 	$self->{_PlotType} = "simple-filter";
 	$self->{_DefaultPlot} = "1";

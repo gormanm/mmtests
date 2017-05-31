@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractHpcc",
-		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
+		_DataType    => DataTypes::DATA_OPS_PER_SECOND,
 		_ResultData  => []
 	};
 	bless $self, $class;

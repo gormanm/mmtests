@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractSockperfunderload",
-		_DataType    => MMTests::Extract::DATA_TIME_USECONDS,
+		_DataType    => DataTypes::DATA_TIME_USECONDS,
 		_ResultData  => [],
 		_Opname      => "Round-Trip-Time",
 		_PlotType    => "simple-filter",

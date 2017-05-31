@@ -8,7 +8,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractFsmark";
-	$self->{_DataType}   = MMTests::Extract::DATA_OPS_PER_SECOND;
+	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
         $self->{_ExactSubheading} = 1;
         $self->{_PlotType} = "simple-filter";
         $self->{_DefaultPlot} = "1";

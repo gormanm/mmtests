@@ -8,7 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_ModuleName} = "ExtractAim9";
-	$self->{_DataType}   = MMTests::Extract::DATA_OPS_PER_SECOND;
+	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "operation-candlesticks";
 
 	$self->SUPER::initialise($reportDir, $testName);

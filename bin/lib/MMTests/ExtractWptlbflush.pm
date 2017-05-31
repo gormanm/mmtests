@@ -12,7 +12,7 @@ sub printDataType() {
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_ModuleName} = "ExtractWptlbflush";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_USECONDS;
+	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
 	$self->{_FieldLength} = 12;

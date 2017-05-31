@@ -5,13 +5,11 @@ use VMR::Stat;
 our @ISA = qw(MMTests::Extract);
 use strict;
 
-use constant DATA_HIGHALLOC => 500;
-
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractHighalloc",
-		_DataType    => DATA_HIGHALLOC,
+		_DataType    => DataTypes::DATA_SUCCESS_PERCENT,
 		_ResultData  => [],
 	};
 	bless $self, $class;

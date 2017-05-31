@@ -8,7 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_ModuleName} = "ExtractSimooprates";
-	$self->{_DataType}   = MMTests::Extract::DATA_OPS_PER_SECOND;
+	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_Opname}     = "Time";
 	$self->{_ExactSubheading} = 1;
 	$self->{_ExactPlottype}   = "simple";

@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractDbt5exectime";
-	$self->{_DataType}   = MMTests::Extract::DATA_TIME_SECONDS;
+	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_Opname}     = "ExecTime";
 	$self->{_FieldLength} = 12;
@@ -24,10 +24,11 @@ sub extractReport() {
 	my @clients;
 	$reportDir =~ s/dbt5exectime/dbt5-bench/;
 
-	my @files = <$reportDir/$profile/results-*-1.txt>;
+	my @files = <$reportDir/$profile/time-*.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
-		push @clients, $split[-2];
+		$split[-1] =~ s/.log//;
+		push @clients, $split[-1];
 	}
 	@clients = sort { $a <=> $b } @clients;
 
@@ -35,15 +36,14 @@ sub extractReport() {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		foreach my $file (<$reportDir/$profile/time-$client-*.log>) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
-				next if $_ !~ /elapsed/;
-				push @{$self->{_ResultData}}, [ "System-$client", ++$iteration, $self->_time_to_sys($_) ];
-				push @{$self->{_ResultData}}, [ "Elapsd-$client", ++$iteration, $self->_time_to_elapsed($_) ];
-			}
-			close(INPUT);
+		my $file = "$reportDir/$profile/time-$client.log";
+		open(INPUT, $file) || die("Failed to open $file\n");
+		while (<INPUT>) {
+			next if $_ !~ /elapsed/;
+			push @{$self->{_ResultData}}, [ "System-$client", ++$iteration, $self->_time_to_sys($_) ];
+			push @{$self->{_ResultData}}, [ "Elapsd-$client", ++$iteration, $self->_time_to_elapsed($_) ];
 		}
+		close(INPUT);
 	}
 
 	foreach my $heading ("System", "Elapsd") {

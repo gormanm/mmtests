@@ -11,8 +11,9 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractStutter",
-		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
+		_DataType    => DataTypes::DATA_MBYTES_PER_SECOND,
 		_ResultData  => [],
+		_Precision   => 4,
 	};
 	bless $self, $class;
 	return $self;

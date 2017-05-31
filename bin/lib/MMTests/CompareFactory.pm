@@ -18,8 +18,13 @@ sub loadModule($$$) {
 	my $pmName = $moduleName;
 	$pmName = ucfirst($pmName);
 	$pmName =~ s/-//g;
-   	require "MMTests/Compare$pmName.pm";
-    	$pmName->import();
+	my $modName = "MMTests/Compare$pmName.pm";
+	if (!eval "require \"$modName\"") {
+		$pmName = "";
+		require "MMTests/Compare.pm";
+	} else {
+		require "MMTests/Compare$pmName.pm";
+	}
 
 	my $className = "MMTests::Compare$pmName";
 	my $classInstance = $className->new();

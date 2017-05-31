@@ -4,26 +4,7 @@
 # the Extract classes and compare them with each other.
 
 package MMTests::Compare;
-
-use constant DATA_NONE                  => MMTests::Extract::DATA_NONE;
-use constant DATA_TIME_SECONDS          => MMTests::Extract::DATA_TIME_SECONDS;
-use constant DATA_TIME_NSECONDS         => MMTests::Extract::DATA_TIME_NSECONDS;
-use constant DATA_TIME_USECONDS         => MMTests::Extract::DATA_TIME_USECONDS;
-use constant DATA_TIME_MSECONDS         => MMTests::Extract::DATA_TIME_MSECONDS;
-use constant DATA_TIME_CYCLES           => MMTests::Extract::DATA_TIME_CYCLES;
-use constant DATA_ACTIONS               => MMTests::Extract::DATA_ACTIONS;
-use constant DATA_ACTIONS_PER_SECOND    => MMTests::Extract::DATA_ACTIONS_PER_SECOND;
-use constant DATA_ACTIONS_PER_MINUTE    => MMTests::Extract::DATA_ACTIONS_PER_MINUTE;
-use constant DATA_BAD_ACTIONS		=> MMTests::Extract::DATA_BAD_ACTIONS;
-use constant DATA_OPS_PER_SECOND        => MMTests::Extract::DATA_OPS_PER_SECOND;
-use constant DATA_OPS_PER_MINUTE        => MMTests::Extract::DATA_OPS_PER_MINUTE;
-use constant DATA_KBYTES_PER_SECOND	=> MMTests::Extract::DATA_KBYTES_PER_SECOND;
-use constant DATA_MBYTES_PER_SECOND     => MMTests::Extract::DATA_MBYTES_PER_SECOND;
-use constant DATA_MBITS_PER_SECOND      => MMTests::Extract::DATA_MBITS_PER_SECOND;
-use constant DATA_TRANS_PER_SECOND      => MMTests::Extract::DATA_TRANS_PER_SECOND;
-use constant DATA_TRANS_PER_MINUTE      => MMTests::Extract::DATA_TRANS_PER_MINUTE;
-use constant DATA_SUCCESS_PERCENT       => MMTests::Extract::DATA_SUCCESS_PERCENT;
-
+use MMTests::DataTypes;
 use VMR::Stat;
 use VMR::Blessless qw(blessless);
 use MMTests::PrintGeneric;
@@ -64,32 +45,11 @@ sub initialise() {
 	my @extractModules = @{$extractModulesRef};
 	$self->{_DataType} = $extractModules[0]->{_DataType};
 	$self->{_FieldLength} = $extractModules[0]->{_FieldLength};
-
-	if ($self->{_DataType} == DATA_TIME_SECONDS ||
-	    $self->{_DataType} == DATA_TIME_NSECONDS ||
-	    $self->{_DataType} == DATA_TIME_USECONDS ||
-	    $self->{_DataType} == DATA_TIME_MSECONDS ||
-	    $self->{_DataType} == DATA_TIME_CYCLES) {
-		$compareLength = 6;
-		@fieldHeaders = ("Time", "Procs");
+	$self->{_Precision} = $extractModules[0]->{_Precision};
+	if ($self->{_ModuleName} eq "" || $self->{_ModuleName} eq "Compare") {
+		$self->{_ModuleName} = $extractModules[0]->{_ModuleName};
+		$self->{_ModuleName} =~ s/^Extract/Compare/;
 	}
-	if ($self->{_DataType} == DATA_OPS_PER_SECOND) {
-		if (!defined $self->{_CompareOps}) {
-			$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff" ];
-		}
-	}
-	if (($self->{_DataType} == DATA_TRANS_PER_SECOND || $self->{_DataType} == DATA_TRANS_PER_MINUTE) && $self->{_Variable} != 1) {
-		if (!defined $self->{_CompareOps}) {
-			$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff" ];
-		}
-	}
-	if (!$self->{_FieldLength}) {
-		$self->{_FieldLength}  = 12;
-	}
-	if (!$self->{_CompareLength}) {
-		$self->{_CompareLength}  = $compareLength;
-	}
-	$self->{_FieldHeaders} = \@fieldHeaders;
 }
 
 sub setFormat() {
@@ -161,25 +121,19 @@ sub _generateComparisonTable() {
 			my @compare;
 			my @ratio;
 			my @stddev;
-			my $compareOp = "pdiff";
+			my $compareOp;
 
-			if ($self->{_DataType} == DATA_TIME_SECONDS ||
-			    $self->{_DataType} == DATA_TIME_NSECONDS ||
-			    $self->{_DataType} == DATA_TIME_USECONDS ||
-			    $self->{_DataType} == DATA_TIME_MSECONDS ||
-			    $self->{_DataType} == DATA_TIME_CYCLES) {
-				$compareOp = "pndiff";
-			}
 			if (defined $self->{_CompareOps}) {
 				$compareOp = $self->{_CompareOps}[$column];
+			} elsif (defined @{$extractModules[0]->{_CompareOps}}[$column]) {
+				$compareOp = @{$extractModules[0]->{_CompareOps}}[$column];
 			}
 			if (defined $self->{_CompareOp}) {
 				$compareOp = $self->{_CompareOp};
+			} elsif (defined $extractModules[0]->{_CompareOp}) {
+				$compareOp = $extractModules[0]->{_CompareOp};
 			}
-			if (defined $extractModules[0]->{_CompareOpsRow} &&
-				defined $extractModules[0]->{_CompareOpsRow}[$row]) {
-				$compareOp = $extractModules[0]->{_CompareOpsRow}[$row];
-			}
+			die if !defined($compareOp);
 			if (defined $extractModules[0]->{_CompareLookup}{$baseline[$row][0]}) {
 				$compareOp = $extractModules[0]->{_CompareLookup}{$baseline[$row][0]};
 			}
@@ -245,7 +199,6 @@ sub _generateComparisonTable() {
 	$self->{_StddevMeanTable} = \@devmean if $baseStdDevsRef;
 	$self->{_ResultsRatioTable} = \@compareRatioTable;
 	$self->{_GeometricMeanTable} = \@geomean;
-
 
 	if ($showCompare) {
 		$self->{_CompareTable} = \@compareTable;

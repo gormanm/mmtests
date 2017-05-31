@@ -9,7 +9,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractSpecjbb2015",
-		_DataType    => MMTests::Extract::DATA_ACTIONS,
+		_DataType    => DataTypes::DATA_ACTIONS,
 		_ResultData  => [],
 	};
 	bless $self, $class;

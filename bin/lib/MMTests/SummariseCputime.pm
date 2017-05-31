@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "SummariseCputime",
-		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
+		_DataType    => DataTypes::DATA_TIME_SECONDS,
 		_ResultData  => []
 	};
 	bless $self, $class;
@@ -28,6 +28,10 @@ sub initialise() {
 
 	$self->{_SummaryHeaders} = [ "Operation", "User", "System", "Elapsed", "CPU" ];
         $self->{_PlotHeaders} = [ "LowStddev", "Min", "Max", "HighStddev", "Mean" ];
+	$self->{_MeanOp} = "calc_mean";
+	$self->{_MeanName} = "Amean";
+	$self->{_RatioPreferred} = "Lower";
+	$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
 
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];

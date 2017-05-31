@@ -10,7 +10,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName    => "MonitorProcinterrupts",
-		_DataType      => MMTests::Extract::DATA_OPS_PER_SECOND,
+		_DataType      => DataTypes::DATA_OPS_PER_SECOND,
 		_FieldLength   => 12,
 		_ResultData    => [],
 		_PlotType      => "simple",
