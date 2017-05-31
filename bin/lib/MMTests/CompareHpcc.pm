@@ -8,7 +8,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareHpcc",
-		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
 		_FieldLength => 18,
 		_ResultData  => []
 	};

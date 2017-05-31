@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareXfsioops",
-		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
 		_CompareOp   => "pdiff",
 		_ResultData  => []
 	};

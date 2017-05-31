@@ -8,7 +8,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareParallelioio",
-		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
 		_FieldLength => 18,
 		_ResultData  => []
 	};

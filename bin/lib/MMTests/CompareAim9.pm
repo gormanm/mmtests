@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareAim9",
-		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
 	};
 	bless $self, $class;
 	return $self;

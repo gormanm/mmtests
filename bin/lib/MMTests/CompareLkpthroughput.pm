@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareLkpthroughput",
-		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
 		_FieldLength => 14,
 		_CompareOp   => "pdiff",
 		_ResultData  => []

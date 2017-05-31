@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareNas",
-		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
 		_FieldLength => 12,
 		_Precision   => 2,
 		_CompareOps  => [ "none", "pndiff" ],

@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareDbt5bench",
-		_DataType    => MMTests::Extract::DATA_TIME_MSECOND,
 		_CompareOp   => "pndiff",
 		_ResultData  => []
 	};

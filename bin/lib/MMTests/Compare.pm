@@ -60,6 +60,10 @@ sub initialise() {
 	my $compareLength = 6;
 	$fieldLength = 12;
 
+	$self->{_ExtractModules} = $extractModulesRef;
+	my @extractModules = @{$extractModulesRef};
+	$self->{_DataType} = $extractModules[0]->{_DataType};
+
 	if ($self->{_DataType} == DATA_TIME_SECONDS ||
 	    $self->{_DataType} == DATA_TIME_NSECONDS ||
 	    $self->{_DataType} == DATA_TIME_USECONDS ||
@@ -85,7 +89,6 @@ sub initialise() {
 		$self->{_CompareLength}  = $compareLength;
 	}
 	$self->{_FieldHeaders} = \@fieldHeaders;
-	$self->{_ExtractModules} = $extractModulesRef;
 }
 
 sub setFormat() {

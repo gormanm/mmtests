@@ -8,7 +8,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareGraph500",
-		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
 		_Precision   => 5,
 		_ResultData  => []
 	};
