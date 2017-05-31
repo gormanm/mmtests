@@ -58,11 +58,11 @@ sub initialise() {
 	my (@fieldHeaders, @plotHeaders, @summaryHeaders);
 	my ($fieldLength, $plotLength, $summaryLength);
 	my $compareLength = 6;
-	$fieldLength = 12;
 
 	$self->{_ExtractModules} = $extractModulesRef;
 	my @extractModules = @{$extractModulesRef};
 	$self->{_DataType} = $extractModules[0]->{_DataType};
+	$self->{_FieldLength} = $extractModules[0]->{_FieldLength};
 
 	if ($self->{_DataType} == DATA_TIME_SECONDS ||
 	    $self->{_DataType} == DATA_TIME_NSECONDS ||
@@ -83,7 +83,7 @@ sub initialise() {
 		}
 	}
 	if (!$self->{_FieldLength}) {
-		$self->{_FieldLength}  = $fieldLength;
+		$self->{_FieldLength}  = 12;
 	}
 	if (!$self->{_CompareLength}) {
 		$self->{_CompareLength}  = $compareLength;

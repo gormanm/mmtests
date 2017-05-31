@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ComparePgioperfbench",
-		_FieldLength => 16,
 		_ResultData  => []
 	};
 	bless $self, $class;

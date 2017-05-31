@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareFutexbenchcommon",
-		_FieldLength => 12,
 		_CompareOp   => "pdiff",
 		_ResultData  => []
 	};

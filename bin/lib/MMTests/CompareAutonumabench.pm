@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareAutonumabench",
 		_DataType    => DATA_AUTONUMABENCH,
-		_FieldLength => 12,
 		_CompareOp   => "pndiff",
 		_CompareLength => 6,
 		_ResultData  => []

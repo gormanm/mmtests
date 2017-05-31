@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareNetpipe",
-		_FieldLength => 12,
 		_CompareOps  => [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff", "pdiff" ],
 		_ResultData  => []
 	};

@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareVmscale",
 		_ResultData  => [],
-		_FieldLength => 25,
 	};
 	bless $self, $class;
 	return $self;

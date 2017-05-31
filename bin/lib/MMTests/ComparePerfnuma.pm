@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ComparePerfnuma",
 		_CompareOps  => [ "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
-		_FieldLength => 12,
 	};
 	bless $self, $class;
 	return $self;

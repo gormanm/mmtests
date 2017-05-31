@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareKernbench",
-		_FieldLength => 12,
 		_ResultData  => []
 	};
 	bless $self, $class;

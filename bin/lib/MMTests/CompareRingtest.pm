@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareRingtest",
 		_CompareOps  => [ "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
-		_FieldLength => 12,
 		_ResultData  => []
 	};
 	bless $self, $class;

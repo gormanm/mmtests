@@ -8,7 +8,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareHpcc",
-		_FieldLength => 18,
 		_ResultData  => []
 	};
 	bless $self, $class;

@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ComparePagealloc",
 		_DataType    => DATA_PAGEALLOC,
-		_FieldLength => 17,
 		_CompareOp   => "pndiff",
 		_CompareLength => 6,
 		_ResultData  => []

@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareSysjitter",
-		_FieldLength => 12,
 		_CompareOps  => [ "none", "pndiff" ],
 		_ResultData  => []
 	};

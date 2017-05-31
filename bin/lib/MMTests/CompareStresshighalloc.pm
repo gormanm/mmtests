@@ -9,7 +9,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareStresshighalloc",
-		_FieldLength => 12,
 		_Precision   => 2,
 		_CompareOps  => [ "none", "pndiff" ],
 		_ResultData  => []

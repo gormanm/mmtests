@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareTimeexit",
-		_FieldLength => 12,
 		_CompareOp   => "pndiff",
 		_ResultData  => []
 	};
