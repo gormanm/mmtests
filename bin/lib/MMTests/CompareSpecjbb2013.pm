@@ -1,13 +1,13 @@
 # CompareSpecjbb2013.pm
 package MMTests::CompareSpecjbb2013;
-use MMTests::Compare;
+use MMTests::;
 our @ISA = qw(MMTests::Compare);
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareSpecjbb2013",
-		_DataType    => MMTests::Compare::DATA_OPSSEC,
+		_DataType    => MMTests::Extract::DATA_ACTIONS,
 		_FieldLength => 15,
 		_ResultData  => []
 	};

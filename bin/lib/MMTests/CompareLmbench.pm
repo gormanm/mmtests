@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareLmbench",
-		_DataType    => MMTests::Compare::DATA_WALLTIME,
+		_DataType    => MMTests::Extract::DATA_TIME_USECONDS,
 		_CompareOp   => "pndiff",
 		_Precision   => 4,
 		_CompareOp   => "pndiff",

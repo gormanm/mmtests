@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareMonitor",
-		_DataType    => MMTests::Compare::DATA_NONE,
+		_DataType    => MMTests::Extract::DATA_NONE,
 		_FieldLength => 12,
 		_CompareOp   => "pndiff",
 		_ResultData  => []

@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareWptlbflush",
-		_DataType    => MMTests::Extract::DATA_WALLTIME_VARIABLE,
+		_DataType    => MMTests::Extract::DATA_TIME_USECONDS,
 		_FieldLength => 12,
 		_CompareOp   => "pndiff",
 		_ResultData  => []

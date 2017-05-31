@@ -11,7 +11,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractSpecjbbpeak",
-		_DataType    => DATA_SPECJBB_PEAK,
+		_DataType    => DATA_ACTIONS,
 		_ResultData  => [],
 		_FieldLength => 15,
 	};

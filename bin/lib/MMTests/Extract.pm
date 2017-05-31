@@ -17,18 +17,12 @@ use constant DATA_ACTIONS_PER_MINUTE    => 8;
 use constant DATA_BAD_ACTIONS           => 9;
 use constant DATA_OPS_PER_SECOND        => 10;
 use constant DATA_OPS_PER_MINUTE        => 11;
-use constant DATA_RECORDS_PER_SECOND    => 12;
 use constant DATA_KBYTES_PER_SECOND	=> 13;
 use constant DATA_MBYTES_PER_SECOND	=> 14;
 use constant DATA_MBITS_PER_SECOND	=> 15;
 use constant DATA_TRANS_PER_SECOND	=> 16;
 use constant DATA_TRANS_PER_MINUTE	=> 17;
 use constant DATA_SUCCESS_PERCENT	=> 18;
-use constant DATA_WALLTIME		=> 19;
-use constant DATA_WALLTIME_VARIABLE	=> 20;
-use constant DATA_WALLTIME_OUTLIERS	=> 21;
-use constant DATA_OPSSEC		=> 22;
-use constant DATA_THROUGHPUT		=> 23;
 use VMR::Stat;
 use VMR::Blessless qw(blessless);
 use MMTests::PrintGeneric;
@@ -90,9 +84,6 @@ sub printDataType() {
 	} elsif ($self->{_DataType} == DATA_OPS_PER_MINUTE) {
 		$yaxis = "Ops/minute";
 		$units = "Operations";
-	} elsif ($self->{_DataType} == DATA_RECORDS_PER_SECOND) {
-		$yaxis = "Records/sec";
-		$units = "RecordTrans";
 	} elsif ($self->{_DataType} == DATA_TRANS_PER_SECOND) {
 		$yaxis = "Transactions/sec";
 		$units = "Transactions";
@@ -128,24 +119,8 @@ sub initialise() {
 	my (@fieldHeaders, @plotHeaders, @summaryHeaders);
 	my ($fieldLength, $plotLength, $summaryLength);
 
-	if ($self->{_DataType} == DATA_WALLTIME) {
-		$fieldLength = 12;
-		$summaryLength = 12;
-		$plotLength = 12;
-		@fieldHeaders = ("Unit", "WallTime");
-		@summaryHeaders = ("Time", "Unit");
-		@plotHeaders = ("Unit", "WallTime");
-	} elsif ($self->{_DataType} == DATA_THROUGHPUT) {
-		$fieldLength = 12;
-		$plotLength = 12;
-		$summaryLength = 12;
-		@fieldHeaders = ("Unit", "Throughput");
-		@plotHeaders = ("Unit", "Throughput");
-		@summaryHeaders = ("Min", "Mean", "TrimMean", "Stddev", "Max");
-	} else {
-		$fieldLength = 18;
-		@fieldHeaders = ("UnknownType");
-	}
+	$fieldLength = 12;
+	@fieldHeaders = ("UnknownType");
 	$fieldLength = $self->{_FieldLength}   if defined $self->{_FieldLength};
 	$fieldLength = $self->{_SummaryLength} if defined $self->{_SummaryLength};
 
@@ -309,15 +284,7 @@ sub printPlot() {
 	my ($self, $subheading) = @_;
 	my $fieldLength = $self->{_PlotLength};
 
-	if ($self->{_DataType} == DATA_WALLTIME) {
-		$self->printSummary();
-	} elsif ($self->{_DataType} == DATA_THROUGHPUT) {
-		my $column = 0;
-		$column = $self->{_SummariseColumn} if defined $self->{_SummariseColumn};
-		$self->_printCandlePlot($fieldLength, $column);
-	} else {
-		print "Unhandled data type for plotting.\n";
-	}
+	print "Unhandled data type for plotting.\n";
 }
 
 sub extractSummary() {
@@ -328,27 +295,7 @@ sub extractSummary() {
 		@formatList = @{$self->{_FieldFormat}};
 	}
 
-	if ($self->{_DataType} == DATA_WALLTIME) {
-		my (%units, @walltimes);
-		@walltimes = [];
-		foreach my $row (@{$self->{_ResultData}}) {
-			my @rowArray = @{$row};
-			$units{$rowArray[0]} = 1;
-			push @{$walltimes[$rowArray[0]]}, $rowArray[1];
-		}
-
-		foreach my $unit (sort {$a <=> $b} (keys %units)) {
-			my $mean;
-			if ($self->{_UseTrueMean} == 1) {
-				$mean = calc_true_mean(99, 1, @{$walltimes[$unit]});
-			} else {
-				$mean = calc_mean(@{$walltimes[$unit]});
-			}
-			push @{$self->{_SummaryData}}, [$unit, $mean];
-		}
-	} else {
-		print "Unknown data type for summarising\n";
-	}
+	print "Unknown data type for summarising\n";
 
 	return 1;
 }
@@ -423,12 +370,7 @@ sub _printClientReport() {
 
 sub printReport() {
 	my ($self) = @_;
-	if ($self->{_DataType} == DATA_WALLTIME ||
-			$self->{_DataType} == DATA_THROUGHPUT) {
-		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
-	} else {
-		print "Unknown data type for reporting extracted raw data\n";
-	}
+	print "Unknown data type for reporting extracted raw data\n";
 }
 
 1;

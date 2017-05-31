@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareTimeexit",
-		_DataType    => MMTests::Extract::DATA_WALLTIME_VARIABLE,
+		_DataType    => MMTests::Extract::DATA_TIME_MSECONDS,
 		_FieldLength => 12,
 		_CompareOp   => "pndiff",
 		_ResultData  => []

@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareVmrstream",
-		_DataType    => MMTests::Compare::DATA_OPSSEC,
+		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
 		_FieldLength => 12,
 		_ResultData  => []
 	};

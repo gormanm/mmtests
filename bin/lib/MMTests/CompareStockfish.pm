@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareStockfish",
-		_DataType    => MMTests::Compare::DATA_WALLTIME,
+		_DataType    => MMTests::Extract::DATA_OPS_PER_SECOND,
 		_FieldLength => 12,
 	};
 	bless $self, $class;

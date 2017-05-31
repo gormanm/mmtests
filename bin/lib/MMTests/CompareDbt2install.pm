@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareDbt2install",
-		_DataType    => MMTests::Compare::DATA_TIME_SECONDS,
+		_DataType    => MMTests::Extract::DATA_TIME_SECONDS,
 		_FieldLength => 12,
 		_ResultData  => []
 	};

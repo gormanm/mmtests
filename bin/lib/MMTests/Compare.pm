@@ -5,29 +5,25 @@
 
 package MMTests::Compare;
 
-use constant DATA_NONE                  => 0;
-use constant DATA_TIME_SECONDS          => 1;
-use constant DATA_TIME_NSECONDS         => 2;
-use constant DATA_TIME_USECONDS         => 3;
-use constant DATA_TIME_MSECONDS         => 4;
-use constant DATA_TIME_CYCLES           => 5;
-use constant DATA_ACTIONS               => 6;
-use constant DATA_ACTIONS_PER_SECOND    => 7;
-use constant DATA_ACTIONS_PER_MINUTE    => 8;
-use constant DATA_OPS_PER_SECOND        => 9;
-use constant DATA_OPS_PER_MINUTE        => 10;
-use constant DATA_RECORDS_PER_SECOND    => 11;
-use constant DATA_MBITS_PER_SECOND      => 12;
-use constant DATA_MBYTES_PER_SECOND     => 13;
-use constant DATA_TRANS_PER_SECOND      => 14;
-use constant DATA_TRANS_PER_MINUTE      => 15;
-use constant DATA_SUCCESS_PERCENT       => 16;
+use constant DATA_NONE                  => MMTests::Extract::DATA_NONE;
+use constant DATA_TIME_SECONDS          => MMTests::Extract::DATA_TIME_SECONDS;
+use constant DATA_TIME_NSECONDS         => MMTests::Extract::DATA_TIME_NSECONDS;
+use constant DATA_TIME_USECONDS         => MMTests::Extract::DATA_TIME_USECONDS;
+use constant DATA_TIME_MSECONDS         => MMTests::Extract::DATA_TIME_MSECONDS;
+use constant DATA_TIME_CYCLES           => MMTests::Extract::DATA_TIME_CYCLES;
+use constant DATA_ACTIONS               => MMTests::Extract::DATA_ACTIONS;
+use constant DATA_ACTIONS_PER_SECOND    => MMTests::Extract::DATA_ACTIONS_PER_SECOND;
+use constant DATA_ACTIONS_PER_MINUTE    => MMTests::Extract::DATA_ACTIONS_PER_MINUTE;
+use constant DATA_BAD_ACTIONS		=> MMTests::Extract::DATA_BAD_ACTIONS;
+use constant DATA_OPS_PER_SECOND        => MMTests::Extract::DATA_OPS_PER_SECOND;
+use constant DATA_OPS_PER_MINUTE        => MMTests::Extract::DATA_OPS_PER_MINUTE;
+use constant DATA_KBYTES_PER_SECOND	=> MMTests::Extract::DATA_KBYTES_PER_SECOND;
+use constant DATA_MBYTES_PER_SECOND     => MMTests::Extract::DATA_MBYTES_PER_SECOND;
+use constant DATA_MBITS_PER_SECOND      => MMTests::Extract::DATA_MBITS_PER_SECOND;
+use constant DATA_TRANS_PER_SECOND      => MMTests::Extract::DATA_TRANS_PER_SECOND;
+use constant DATA_TRANS_PER_MINUTE      => MMTests::Extract::DATA_TRANS_PER_MINUTE;
+use constant DATA_SUCCESS_PERCENT       => MMTests::Extract::DATA_SUCCESS_PERCENT;
 
-use constant DATA_WALLTIME		=> 50;
-use constant DATA_WALLTIME_VARIABLE	=> 51;
-use constant DATA_WALLTIME_OUTLIERS	=> 52;
-use constant DATA_OPSSEC		=> 53;
-use constant DATA_THROUGHPUT		=> 54;
 use VMR::Stat;
 use VMR::Blessless qw(blessless);
 use MMTests::PrintGeneric;
@@ -64,8 +60,7 @@ sub initialise() {
 	my $compareLength = 6;
 	$fieldLength = 12;
 
-	if ($self->{_DataType} == DATA_WALLTIME ||
-	    $self->{_DataType} == DATA_TIME_SECONDS ||
+	if ($self->{_DataType} == DATA_TIME_SECONDS ||
 	    $self->{_DataType} == DATA_TIME_NSECONDS ||
 	    $self->{_DataType} == DATA_TIME_USECONDS ||
 	    $self->{_DataType} == DATA_TIME_MSECONDS ||
@@ -579,13 +574,7 @@ sub printComparison() {
 
 sub printReport() {
 	my ($self) = @_;
-	if ($self->{_DataType} == DATA_WALLTIME ||
-			$self->{_DataType} == DATA_OPSSEC ||
-			$self->{_DataType} == DATA_THROUGHPUT) {
-		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
-	} else {
-		print "Unknown data type for reporting raw data\n";
-	}
+	print "Unknown data type for reporting raw data\n";
 }
 
 1;

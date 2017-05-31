@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareTiobench",
-		_DataType    => MMTests::Extract::DATA_THROUGHPUT,
+		_DataType    => MMTests::Extract::DATA_MBYTES_PER_SECOND,
 		_FieldLength => 12,
 		_CompareOp   => "pdiff",
 		_ResultData  => []

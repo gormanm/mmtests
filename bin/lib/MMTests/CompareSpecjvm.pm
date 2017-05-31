@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareSpecjvm",
-		_DataType    => MMTests::Compare::DATA_OPSSEC,
+		_DataType    => MMTests::Extract::DATA_OPS_PER_MINUTE,
 		_FieldLength => 13,
 		_ResultData  => []
 	};

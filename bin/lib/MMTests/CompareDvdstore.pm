@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareDvdstore",
-		_DataType    => MMTests::Compare::DATA_TRANS_PER_MINUTE,
+		_DataType    => MMTests::Extract::DATA_TRANS_PER_MINUTE,
 		_CompareOps  => [ "pndiff", "pdiff", "pdiff", "pndiff", "pdiff", "pdiff" ],
 		_Variable    => 1,
 		_ResultData  => []

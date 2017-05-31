@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareParallelioswap",
-		_DataType    => MMTests::Compare::DATA_ACTIONS,
+		_DataType    => MMTests::Extract::DATA_ACTIONS,
 		_FieldLength => 18,
 		_CompareOp   => "pndiff",
 		_ResultData  => []

@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareTlbflush",
-		_DataType    => MMTests::Compare::DATA_TIME_NSECONDS,
+		_DataType    => MMTests::Extract::DATA_TIME_NSECONDS,
 	};
 	bless $self, $class;
 	return $self;
