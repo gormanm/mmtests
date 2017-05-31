@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareSpeccpu",
-		_ResultData  => [],
 		_CompareOp => 'pndiff',
 	};
 	bless $self, $class;

@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareDbt5bench",
 		_CompareOp   => "pndiff",
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

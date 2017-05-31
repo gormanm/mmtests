@@ -9,7 +9,6 @@ sub new() {
 		_ModuleName  => "CompareDvdstore",
 		_CompareOps  => [ "pndiff", "pdiff", "pdiff", "pndiff", "pdiff", "pdiff" ],
 		_Variable    => 1,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

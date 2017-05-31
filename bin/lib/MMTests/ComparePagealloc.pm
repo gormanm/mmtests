@@ -12,7 +12,6 @@ sub new() {
 		_DataType    => DATA_PAGEALLOC,
 		_CompareOp   => "pndiff",
 		_CompareLength => 6,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

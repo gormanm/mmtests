@@ -9,7 +9,6 @@ sub new() {
 		_ModuleName  => "ComparePgbench",
 		_CompareOps  => [ "pndiff", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff" ],
 		_Variable    => 1,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

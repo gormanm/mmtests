@@ -11,7 +11,6 @@ sub new() {
 		_ModuleName  => "CompareStresshighalloc",
 		_Precision   => 2,
 		_CompareOps  => [ "none", "pndiff" ],
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

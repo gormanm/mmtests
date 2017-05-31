@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareSysjitter",
 		_CompareOps  => [ "none", "pndiff" ],
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

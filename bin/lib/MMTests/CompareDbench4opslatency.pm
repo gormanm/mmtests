@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareDbench4opslatency",
 		_CompareOps  => [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

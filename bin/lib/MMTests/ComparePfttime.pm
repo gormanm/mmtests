@@ -9,7 +9,6 @@ sub new() {
 		_ModuleName  => "ComparePfttime",
 		_CompareOps  => [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
 		_Precision   => 4,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

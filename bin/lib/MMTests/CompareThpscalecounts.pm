@@ -10,7 +10,6 @@ sub new() {
 		_DataType    => DATA_ACTIONS,
 		_CompareOp   => "pdiff",
 		_CompareLength => 6,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

@@ -9,7 +9,6 @@ sub new() {
 		_ModuleName  => "CompareDbt5latency",
 		_CompareOps  => [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
 		_Variable    => 1,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

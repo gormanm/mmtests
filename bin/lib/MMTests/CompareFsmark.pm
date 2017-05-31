@@ -9,7 +9,6 @@ sub new() {
 		_ModuleName  => "CompareFsmark",
 		_CompareOp  => "pdiff",
 		_CompareLength => 6,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

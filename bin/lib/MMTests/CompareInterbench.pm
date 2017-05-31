@@ -9,7 +9,6 @@ sub new() {
 		_ModuleName  => "CompareInterbench",
 		_CompareOp   => "pndiff",
 		_Precision   => 4,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

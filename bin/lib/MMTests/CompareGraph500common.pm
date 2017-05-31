@@ -9,7 +9,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareGraph500",
 		_Precision   => 5,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

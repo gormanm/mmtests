@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareParalleldd",
 		_CompareOps  => [ "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ],
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

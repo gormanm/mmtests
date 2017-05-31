@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareHighalloc",
 		_DataType    => DATA_HIGHALLOC,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

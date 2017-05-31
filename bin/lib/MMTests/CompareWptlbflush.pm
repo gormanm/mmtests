@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareWptlbflush",
 		_CompareOp   => "pndiff",
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

@@ -36,6 +36,7 @@ sub new() {
 		_ModuleName 	=> "Compare",
 		_DataType	=> 0,
 		_FieldHeaders	=> [],
+		_ResultData	=> [],
 		_FieldLength	=> 0,
 		_Headers	=> [ "Base" ],
 	};

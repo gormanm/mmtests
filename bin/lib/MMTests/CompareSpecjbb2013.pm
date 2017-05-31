@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareSpecjbb2013",
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

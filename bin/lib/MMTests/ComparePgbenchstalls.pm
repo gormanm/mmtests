@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ComparePgbenchstalls",
 		_Variable    => 1,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

@@ -9,7 +9,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareHpcg",
 		_Precision   => 5,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

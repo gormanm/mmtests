@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "CompareEbizzyrange",
 		_CompareOps  => [ "none", "pndiff", "pndiff", "pndiff", "pdiff", "pndiff", "pndiff" ],
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

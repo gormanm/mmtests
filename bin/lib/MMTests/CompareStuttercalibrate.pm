@@ -10,7 +10,6 @@ sub new() {
 		_CompareOp   => "pndiff",
 		_Precision   => 4,
 		_CompareOp   => "pndiff",
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

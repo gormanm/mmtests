@@ -12,7 +12,6 @@ sub new() {
 		_DataType    => DATA_PFT,
 		_CompareOps  => [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff" ],
 		_Precision   => 4,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;
