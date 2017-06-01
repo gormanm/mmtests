@@ -16,8 +16,7 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractDedup";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
-	$self->{_PlotType}   = "client-errorlines";
-	$self->{_PlotXaxis}  = "Threads";
+	$self->{_PlotType}   = "thread-errorlines";
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

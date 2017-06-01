@@ -8,14 +8,7 @@ use Data::Dumper qw(Dumper);
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-
-	$self->SUPER::initialise();
-
-	my $fieldLength = $self->{_FieldLength} = 12;
-	$self->{_FieldLength} = $fieldLength;
-	$self->{_SummaryLength} = $fieldLength;
-	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub uniq {

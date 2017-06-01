@@ -8,11 +8,8 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractXfsrepair";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
-	$self->{_PlotType}   = "client-errorlines";
-	$self->{_FieldLength}= 12;
 	$self->{_MultiInclude} = {
 		"elapsd-xfsrepair" => 1,
 	};

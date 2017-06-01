@@ -3,44 +3,29 @@ package MMTests::SummariseCputime;
 use MMTests::Extract;
 use VMR::Stat;
 our @ISA = qw(MMTests::Extract);
-
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "SummariseCputime",
-		_DataType    => DataTypes::DATA_TIME_SECONDS,
-		_ResultData  => []
-	};
-	bless $self, $class;
-	return $self;
-}
+use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
-	$self->SUPER::initialise();
+	$self->{_DataType} = DataTypes::DATA_TIME_SECONDS;
+	$self->SUPER::initialise($reportDir, $testName);
 
-	$self->{_FieldLength} = 12;
-	$self->{_SummaryLength} = 12;
-        $self->{_PlotLength} = 12;
+	my $fieldLength = $self->{_FieldLength} = 12;
 	$self->{_FieldHeaders} = [ "User", "System", "Elapsed", "CPU" ];
-	$self->{_RatioPreferred} = "Lower";
-
 	$self->{_SummaryHeaders} = [ "Operation", "User", "System", "Elapsed", "CPU" ];
+	$self->{_SummaryLength} = $fieldLength;
+	$self->{_PlotLength} = $fieldLength;
         $self->{_PlotHeaders} = [ "LowStddev", "Min", "Max", "HighStddev", "Mean" ];
 	$self->{_MeanOp} = "calc_mean";
 	$self->{_MeanName} = "Amean";
 	$self->{_RatioPreferred} = "Lower";
 	$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
-
-	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
-
-	$self->{_TestName} = $testName;
 }
 
 sub printDataType() {
-	print "CPUTime,TestName,Time (seconds),candlesticks";
+	print "CPUTime,TestName,Time (seconds),operation-candlesticks";
 }
 
 sub printPlot() {
@@ -61,7 +46,10 @@ sub printPlot() {
 		print("Unknown sub-heading '$subheading', specify --sub-heading\n");
 		return;
 	}
-	$self->_printCandlePlot($fieldLength - 1, $column);
+	my @units;
+	push @units, $column;
+	printf "%d %-${fieldLength}s ", 1, ".";
+	$self->_printCandlePlot($fieldLength - 1, @units);
 }
 
 sub extractSummary() {
@@ -122,7 +110,7 @@ sub extractRatioSummary() {
 		push @{$self->{_SummaryData}}, ["Elapsed", &$funcName(@elapsed) ];
 	}
 
-	push @{$self->{_SummaryStdDevs}}, calc_stddev(@units);
+	push @{$self->{_SummaryStdDevs}}, calc_stddev(@elapsed);
 
 	return 1;
 }

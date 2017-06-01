@@ -7,7 +7,6 @@ use strict;
 
 sub initialise() {
         my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractFio";
 	$self->{_DataType}   = DataTypes::DATA_KBYTES_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";

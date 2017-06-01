@@ -5,12 +5,9 @@ our @ISA = qw(MMTests::ExtractUnixbenchcommon);
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractUnixbenchspawn";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
-	$self->{_PlotType}   = "client-errorlines";
-	$self->{_PlotXaxis}  = "Threads";
-
+	$self->{_PlotType}   = "thread-errorlines";
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

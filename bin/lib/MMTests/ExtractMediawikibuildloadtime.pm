@@ -7,7 +7,6 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractMediawikibuildloadtime";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "single-candlesticks";

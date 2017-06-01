@@ -5,11 +5,9 @@ our @ISA = qw(MMTests::ExtractFutexbenchcommon);
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractFutexbenchrequeue";
 	$self->{_DataType}   = DataTypes::DATA_TIME_MSECONDS;
-	$self->{_PlotType}   = "client-errorlines";
-	$self->{_PlotXaxis}  = "Threads";
+	$self->{_PlotType}   = "thread-errorlines";
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

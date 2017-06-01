@@ -7,7 +7,6 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractThpscale";
 	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
 	$self->{_PlotType}   = "client-errorlines";

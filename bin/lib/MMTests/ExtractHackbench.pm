@@ -6,12 +6,9 @@ our @ISA = qw(MMTests::SummariseMultiops);
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractHackbench";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
-	$self->{_PlotType}   = "client-errorlines";
-	$self->{_PlotXaxis}  = "Groups";
-	$self->{_FieldLength} = 12;
+	$self->{_PlotType}   = "group-errorlines";
 	$self->{_Precision} = 4;
 
 	$self->SUPER::initialise($reportDir, $testName);

@@ -6,12 +6,8 @@ our @ISA = qw(MMTests::SummariseMultiops);
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractAdrestia";
 	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
-	$self->{_PlotType}   = "client-errorlines";
-	$self->{_PlotXaxis}  = "Arrival Time";
-	$self->{_FieldLength} = 12;
 	$self->{_Precision} = 4;
 
 	$self->SUPER::initialise($reportDir, $testName);

@@ -7,11 +7,9 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractPgbenchloadtime";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
-	$self->{_PlotType}   = "single-candlesticks";
-	$self->{_FieldLength} = 12;
+	$self->{_PlotType}   = "histogram-single";
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

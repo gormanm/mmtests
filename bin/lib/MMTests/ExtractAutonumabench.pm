@@ -6,12 +6,10 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractAutonumabench";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Time";
-	$self->{_FieldLength}= 12;
 	$self->{_SingleType} = 1;
 	$self->{_SingleInclude}  = {
 		"Elapsed-NUMA01" => 1,

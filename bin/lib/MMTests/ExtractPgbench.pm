@@ -7,15 +7,10 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	$self->{_ModuleName} = "ExtractPgbench";
-	$self->{_DataType}   = DataTypes::DATA_TRANS_PER_SECOND;
-	$self->{_PlotType}   = "client-errorlines";
-	$self->{_PlotXaxis}  = "Clients";
-	$self->{_FieldLength} = 12;
-	$self->{_ExactSubheading} = 1;
-	$self->{_ExactPlottype} = "simple";
-	# $self->{_Variable}   = 1;
-	$self->{_DefaultPlot} = "1";
+	$self->{_ModuleName}		= "ExtractPgbench";
+	$self->{_DataType}		= DataTypes::DATA_TRANS_PER_SECOND;
+	$self->{_PlotType}		= "client-errorlines";
+	$self->{_SubheadingPlotType}	= "simple-clients";
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
@@ -48,31 +43,6 @@ sub extractReport() {
 			$endSamples++;
 		}
 		close(INPUT);
-
-		# Find where the shutdown cutoff is where transactions start to taper
-#		if ($endSamples > 60) {
-#			# Find where we should stop recording samples
-#			my $maxIndex = $endSamples - 30;
-#			my $maxValue = $values[$maxIndex];
-#			for (my $i = $endSamples - 30; $i < $endSamples; $i++) {
-#				if ($values[$i] >= $maxValue) {
-#					$maxIndex = $i;
-#					$maxValue = $values[$i];
-#				}
-#			}
-#			$endSamples = $maxIndex;
-#
-#			# Find where we should start recording samples
-#			$maxIndex = 0;
-#			$maxValue = $values[$maxIndex];
-#			for (my $i = 0; $i < 30; $i++) {
-#				if ($values[$i] >= $maxValue) {
-#					$maxIndex = $i;
-#					$maxValue = $values[$i];
-#				}
-#			}
-#			$startSamples = $maxIndex;
-#		}
 
 		my $testStart = 0;
 		my $sumTransactions = 0;

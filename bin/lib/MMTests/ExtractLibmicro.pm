@@ -6,7 +6,6 @@ our @ISA = qw(MMTests::SummariseSingleops);
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractLibmicro";
 	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
 	$self->{_PlotType}   = "histogram";

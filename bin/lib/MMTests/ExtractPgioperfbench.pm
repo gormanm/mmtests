@@ -7,7 +7,6 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	my $fieldLength = 12;
 
 	$self->{_ModuleName} = "ExtractPgioperfbench";

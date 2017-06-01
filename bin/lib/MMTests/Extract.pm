@@ -40,7 +40,6 @@ sub printDataType() {
 	my $yaxis = "UNKNOWN AXIS";
 	my $units = "Time";
 
-
 	if ($self->{_DataType} == DataTypes::DATA_TIME_USECONDS) {
 		$yaxis = "Time (usec)";
 	} elsif ($self->{_DataType} == DataTypes::DATA_TIME_NSECONDS) {
@@ -83,17 +82,23 @@ sub printDataType() {
 		$units = "Success";
 	}
 
-	my $xaxis = "TestName";
+	my $xaxis = "UNKNOWN";
 	if (defined($self->{_PlotXaxis})) {
 		$xaxis = $self->{_PlotXaxis};
 	}
-
 	my $plotType = "UNKNOWN";
 	if (defined($self->{_PlotType})) {
 		$plotType = $self->{_PlotType};
 	}
 
+	if ($xaxis eq "UNKNOWN" && $self->{_PlotType} =~ /candlesticks/) {
+		$xaxis = "-";
+	}
+
 	print "$units,$xaxis,$yaxis,$plotType";
+	if ($self->{_SubheadingPlotType} != "") {
+		print ",$self->{_SubheadingPlotType}";
+	}
 }
 
 sub initialise() {
@@ -113,6 +118,30 @@ sub initialise() {
 	$self->{_PlotHeaders} = \@plotHeaders;
 	$self->{_SummaryLength}  = $summaryLength;
 	$self->{_SummaryHeaders} = \@summaryHeaders;
+
+	if ($self->{_PlotType} eq "client-errorlines") {
+		$self->{_PlotXaxis}  = "Clients";
+	}
+	if ($self->{_PlotType} eq "thread-errorlines") {
+		$self->{_PlotType} = "client-errorlines";
+		$self->{_PlotXaxis}  = "Threads";
+	}
+	if ($self->{_PlotType} eq "process-errorlines") {
+		$self->{_PlotType} = "client-errorlines";
+		$self->{_PlotXaxis}  = "Processes";
+	}
+	if ($self->{_PlotType} eq "group-errorlines") {
+		$self->{_PlotType} = "client-errorlines";
+		$self->{_PlotXaxis}  = "Groups";
+	}
+	if ($self->{_PlotType} eq "histogram-single") {
+		$self->{_PlotType} = "histogram-time";
+		$self->{_SingleType} = 1;
+	}
+	if ($self->{_SubheadingPlotType} eq "simple-clients") {
+		$self->{_ExactSubheading} = 1;
+		$self->{_ExactPlottype} = "simple";
+	}
 }
 
 sub setFormat() {

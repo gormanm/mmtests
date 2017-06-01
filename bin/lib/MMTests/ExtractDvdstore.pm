@@ -10,12 +10,7 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractDvdstore";
 	$self->{_DataType}   = DataTypes::DATA_TRANS_PER_MINUTE;
 	$self->{_PlotType}   = "client-errorlines";
-	$self->{_PlotXaxis}  = "Clients";
-	$self->{_FieldLength} = 12;
-	$self->{_ExactSubheading} = 1;
-	$self->{_ExactPlottype} = "simple";
-	# $self->{_Variable}   = 1;
-	$self->{_DefaultPlot} = "1";
+	$self->{_SubheadingPlotType} = "simple-clients";
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

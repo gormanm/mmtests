@@ -6,10 +6,8 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractFsmarkoverhead";
 	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
-	$self->{_PlotType}   = "client-errorlines";
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

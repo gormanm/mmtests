@@ -7,12 +7,9 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
-	$self->{_ModuleName} = "ExtractDbench4";
+	$self->{_ModuleName} = "ExtractSiege";
 	$self->{_DataType}   = DataTypes::DATA_TRANS_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
-	$self->{_PlotXaxis}  = "Clients";
-
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

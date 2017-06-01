@@ -6,7 +6,6 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractFsmark";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
         $self->{_ExactSubheading} = 1;
@@ -63,10 +62,10 @@ sub extractReport() {
 			}
 
 			my @elements = split(/\s+/, $_);
-			push @{$self->{_ResultData}}, [ "files/sec-$client", ++$iteration, $elements[4] ];
+			push @{$self->{_ResultData}}, [ "$client-files/sec", ++$iteration, $elements[4] ];
 		}
 		close INPUT;
-		push @ops, "files/sec-$client";
+		push @ops, "$client-files/sec";
 	}
 
 	$self->{_Operations} = \@ops;

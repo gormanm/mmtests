@@ -7,14 +7,9 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-
-	$self->SUPER::initialise();
-
-	my $fieldLength = $self->{_FieldLength};
 	$self->{_DataType} = DataTypes::DATA_MBYTES_PER_SECOND;
 	$self->{_PlotXaxis}   = "MemSize";
 	$self->{_PlotType} = "client-errorlines";
-	$self->{_TestName} = $testName;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

@@ -1,4 +1,3 @@
-# ExtractDbench4time
 package MMTests::ExtractDbench4;
 use MMTests::SummariseMultiops;
 use VMR::Stat;
@@ -7,13 +6,9 @@ use strict;
 
 sub initialise() {
         my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractDbench4";
 	$self->{_DataType}   = DataTypes::DATA_TIME_MSECONDS;
 	$self->{_PlotType}   = "client-errorlines";
-	$self->{_PlotXaxis}  = "Clients";
-	$self->{_FieldLength} = 12;
-
         $self->SUPER::initialise($reportDir, $testName);
 }
 
@@ -46,7 +41,7 @@ sub extractReport() {
 				my @elements = split(/\s+/, $line);
 
 				$nr_samples++;
-				push @{$self->{_ResultData}}, [ "msec-$client", $nr_samples, $elements[3] ];
+				push @{$self->{_ResultData}}, [ "$client", $nr_samples, $elements[3] ];
 
 				next;
 			}
@@ -56,7 +51,7 @@ sub extractReport() {
 
 	my @ops;
 	foreach my $client (@clients) {
-		push @ops, "msec-$client";
+		push @ops, "$client";
 	}
 
 	$self->{_Operations} = \@ops;

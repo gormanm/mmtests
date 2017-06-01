@@ -1,24 +1,14 @@
 # ExtractPagealloc.pm
 package MMTests::ExtractPagealloc;
 use MMTests::SummariseMultiops;
-our @ISA = qw(MMTests::SummariseMultiops);
-
-use constant DATA_PAGEALLOC	=> 100;
 use VMR::Stat;
+our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-
-	my $fieldLength = $self->{_FieldLength} = 13;
-	$self->SUPER::initialise();
-
 	$self->{_DataType} = DataTypes::DATA_TIME_CYCLES;
-	$self->{_PlotXaxis}   = "MemSize";
-	$self->{_PlotType} = "client-errorlines";
-	$self->{_TestName} = $testName;
 	$self->{_FilterNaN} = 1;
-
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

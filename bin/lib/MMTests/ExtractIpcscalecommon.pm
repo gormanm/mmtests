@@ -7,11 +7,11 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	$self->{_DataType}  == DataTypes::DATA_OPS_PER_SECOND;
+	$self->{_ModuleName} = "ExtractIpcscale";
+	$self->{_DataType}  = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_Opname} = "Latency";
-	$self->{_PlotType} = "client-errorlines";
+	$self->{_PlotType} = "thread-errorlines";
 	$self->{_ClientSubheading} = 1;
-	$self->{_PlotXaxis}  = "Threads";
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
@@ -39,7 +39,7 @@ sub extractReport() {
 			}
 		}
 	}
-	my @ops = sort keys %samples;
+	my @ops = sort { $a <=> $b } keys %samples;
 	$self->{_Operations} = \@ops;
 	close INPUT;
 }

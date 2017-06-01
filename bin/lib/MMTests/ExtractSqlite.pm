@@ -8,13 +8,9 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
-
 	$self->{_ModuleName} = "ExtractSqlite";
 	$self->{_DataType} = DataTypes::DATA_TRANS_PER_SECOND,
 	$self->{_PlotType} = "simple";
-	$self->{_DefaultPlot} = "1";
-
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

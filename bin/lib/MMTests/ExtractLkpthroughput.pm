@@ -9,14 +9,10 @@ use Data::Dumper qw(Dumper);
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
-	$self->SUPER::initialise();
-
-	my $fieldLength = $self->{_FieldLength} = 14;
-	$self->{_FieldLength} = $fieldLength;
-	$self->{_SummaryLength} = $fieldLength;
-	$self->{_TestName} = $testName;
 	$self->{_ModuleName} = "ExtractLkpthroughput";
-	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
+	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
+	$self->{_PlotType}   = "thread-errorlines";
+	$self->SUPER::initialise();
 }
 
 sub uniq {

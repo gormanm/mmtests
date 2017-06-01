@@ -8,11 +8,9 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractSysbenchexectime";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
-	$self->{_PlotType}   = "client-errorlines";
-
+	$self->{_PlotType}   = "operation-candlesticks";
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

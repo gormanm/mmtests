@@ -5,7 +5,6 @@ our @ISA = qw(MMTests::ExtractHpcgcommon);
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractHpcgserial";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 

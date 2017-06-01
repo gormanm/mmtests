@@ -64,8 +64,8 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			shift
 			;;
 		--client-errorlines)
-			CLIENT_ERRORLINES="yes"
 			PLOTTYPE="errorlines"
+			XRANGE="0:"
 			shift
 			;;
 		--single-candlesticks)
@@ -91,6 +91,13 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			PLOTTYPE="histogram"
 			shift
 			;;
+		--histogram-time)
+			HISTOGRAM="yes"
+			USING="2:xtic(1)"
+			PLOTTYPE="histogram"
+			YRANGE="0:"
+			shift
+			;;
 		--stacked-histogram)
 			STACKED_HISTOGRAM=yes
 			shift
@@ -113,6 +120,9 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			;;
 		--logX)
 			LOGX=yes
+			if [ "$XRANGE" = "0:" ]; then
+				XRANGE="1:"
+			fi
 			shift
 			;;
 		--logY)
@@ -159,6 +169,9 @@ done
 FIRST=yes
 #XRANGE=1
 if [ "$CLIENT_CANDLESTICKS" = "yes" -o "$CLIENT_ERRORBARS" = "yes" ]; then
+	echo set boxwidth 0.2 >> $TEMP
+fi
+if [ "$SINGLE_CANDLESTICKS" = "yes" ]; then
 	echo set boxwidth 0.2 >> $TEMP
 fi
 if [ "$HISTOGRAM" = "yes" ]; then

@@ -147,6 +147,11 @@ sub printPlot() {
 			}
 			printf "%-${fieldLength}s ", $heading;
 			$self->_printErrorBarData($fieldLength, @units);
+		} elsif ($self->{_PlotType} =~ "histogram") {
+			my @data = @{$self->{_ResultData}};
+			foreach my $row (@data) {
+				printf("%-${fieldLength}s %${fieldLength}.3f\n", @{$row}[0], @{$row}[2]);
+			}
 		}
 	}
 }

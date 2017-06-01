@@ -8,11 +8,10 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
 	$self->{_ModuleName} = "ExtractPoundtime";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
-	$self->{_PlotType}   = "client-errorlines";
-
+	$self->{_PlotType}   = "thread-errorlines";
+	$self->{_ClientSubheading} = 1;
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
@@ -48,8 +47,8 @@ sub extractReport() {
 				open(INPUT, $file) || die("Failed to open $file\n");
 				while (<INPUT>) {
 					next if $_ !~ /elapsed/;
-					push @{$self->{_ResultData}}, [ "real-$testcase-$client", ++$iteration, $self->_time_to_elapsed($_) ];
-					push @{$self->{_ResultData}}, [ "syst-$testcase-$client", ++$iteration, $self->_time_to_sys($_) ];
+					push @{$self->{_ResultData}}, [ "$client-real-$testcase", ++$iteration, $self->_time_to_elapsed($_) ];
+					push @{$self->{_ResultData}}, [ "$client-syst-$testcase", ++$iteration, $self->_time_to_sys($_) ];
 				}
 				close(INPUT);
 			}
@@ -60,7 +59,7 @@ sub extractReport() {
 	foreach my $cpu ("real", "syst") {
 		foreach my $testcase (@testcases) {
 			foreach my $client (@clients) {
-				push @operations, "$cpu-$testcase-$client";
+				push @operations, "$client-$cpu-$testcase";
 			}
 		}
 	}

@@ -7,11 +7,9 @@ use strict;
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
-	my $class = shift;
-
 	$self->{_ModuleName} = "ExtractReaim";
 	$self->{_DataType}   = DataTypes::DATA_ACTIONS_PER_MINUTE;
-	$self->{_PlotType}   = "client-errorlines";
+	$self->{_PlotType}   = "process-errorlines";
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
