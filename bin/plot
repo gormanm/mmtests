@@ -26,10 +26,6 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			cat $2 >> $TEMP
 			shift 2
 			;;
-		--stream)
-			STREAM=yes
-			shift
-			;;
 		--xlabel)
 			XLABEL="$2"
 			shift 2
@@ -95,121 +91,8 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			PLOTTYPE="histogram"
 			shift
 			;;
-		--cacheeffects)
-			CACHEEFFECTS=yes
-			shift
-			;;
-		--netperf)
-			NETPERF=yes
-			shift
-			;;
-		--irqsoff)
-			IRQSOFF=yes
-			shift
-			;;
-		--sysbench)
-			SYSBENCH=yes
-			shift
-			;;
-		--sysbench-ratio)
-			SYSBENCH_RATIO=yes
-			shift
-			;;
-		--mem-usage)
-			TITLE="Memory Usage"
-			MEMORY_USAGE=yes
-			shift
-			;;
-		--time-series)
-			TIME_SERIES="yes"
-			shift
-			;;
 		--stacked-histogram)
 			STACKED_HISTOGRAM=yes
-			shift
-			;;
-		--thp-count)
-			TITLE="Transparent Huge Pages"
-			THP=yes
-			shift
-			;;
-		--cpu-usage)
-			CPU_USAGE=yes
-			YRANGE=0:100
-			shift
-			;;
-		--iostat-rates)
-			IOSTAT_RATES=yes
-			shift
-			;;
-		--iostat-blocks)
-			IOSTAT_BLOCKS=yes
-			shift
-			;;
-		--unusable-index)
-			UNUSABLE_INDEX=yes
-			shift
-			;;
-		--timeplot)
-			AWK_FORMAT="<awk '{print \$1/60,\$2}' @@PLOT@@"
-			XLABEL="Time Elapsed (minutes)"
-			shift
-			;;
-		--kernbench)
-			KERNBENCH=yes
-			PLOTTYPE="candlesticks"
-			PLOTEXTRA=", '' using 1:6:6:6:6 with candlesticks lt -1 notitle"
-			USING="1:2:3:4:5"
-			shift
-			;;
-		--parallelio)
-			PARALLELIO=yes
-			shift
-			;;
-		--parallelio-swap)
-			PARALLELIO_SWAP=yes
-			shift
-			;;
-		--parallelio-swapin)
-			PARALLELIO_SWAPIN=yes
-			shift
-			;;
-		--parallelio-ioduration)
-			PARALLELIO_IODURATION=yes
-			shift
-			;;
-		--tbench)
-			TBENCH=yes
-			LOGX=yes
-			shift
-			;;
-		--tbench-latency)
-			TBENCH_LATENCY=yes
-			LOGX=yes
-			shift
-			;;
-		--residency)
-			RESIDENCY=yes
-			PLOTTYPE="points"
-			PLOTCOMMAND=residency
-			shift
-			;;
-		--residency-smooth)
-			RESIDENCY=yes
-			PLOTTYPE="lines"
-			PLOTCOMMAND=residency
-			SMOOTH="smooth bezier"
-			LOGY=yes
-			shift
-			;;
-		--highorder-latency)
-			HIGHORDER_LATENCY=yes
-			PLOTTYPE=points
-			USING="1:3"
-			shift
-			;;
-		--stress-highalloc)
-			PLOTTYPE="points"
 			shift
 			;;
 		--plottype)
@@ -255,10 +138,6 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			shift 2
 			IFS=$TIFS
 			;;
-		--shrink)
-			SHRINK="set size 0.5,0.5"
-			shift
-			;;
 		--xrange)
 			XRANGE=$2
 			shift 2
@@ -279,100 +158,6 @@ done
 
 FIRST=yes
 #XRANGE=1
-if [ "$SHRINK" != "" ]; then
-	echo $SHRINK >> $TEMP
-fi
-
-if [ "$STREAM" = "yes" ]; then
-	echo set ylabel \"MB/s Throughput\" >> $TEMP
-	echo set xlabel \"Working Set Size \(bytes\)\" >> $TEMP
-	echo set format x \"2**%g\" >> $TEMP
-	echo set xtics 5 >> $TEMP
-fi
-if [ "$SYSBENCH" = "yes" ]; then
-	echo set ylabel \"Thousand Transactions Per Second\" >> $TEMP
-	echo set xlabel \"Threads\" >> $TEMP
-fi
-if [ "$SYSBENCH_RATIO" = "yes" ]; then
-	echo set ylabel \"Transactions Ratio\" >> $TEMP
-	echo set xlabel \"Threads\" >> $TEMP
-fi
-if [ "$NETPERF" = "yes" ]; then
-	echo set ylabel \"MB/s Throughput\" >> $TEMP
-	echo set xlabel \"Packet Size \(bytes\)\" >> $TEMP
-	echo "set log x 2" >> $TEMP
-	echo "set log y 2" >> $TEMP
-fi
-if [ "$CACHEEFFECTS" = "yes" ]; then
-	echo set ylabel \"Cycles To Access Element\" >> $TEMP
-	echo set xlabel \"Working Set Size \(bytes\)\" >> $TEMP
-	echo set format x \"2**%g\" >> $TEMP
-	echo set xtics 5 >> $TEMP
-fi
-if [ "$HIGHORDER_LATENCY" = "yes" ]; then
-	echo set xlabel \"Timestamp\" >> $TEMP
-	echo set ylabel \"Latency\" >> $TEMP
-fi
-if [ "$UNUSABLE_INDEX" = "yes" ]; then
-	echo set ylabel \"Unusable Free Space Index\" >> $TEMP
-	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
-fi
-if [ "$IRQSOFF" = "yes" ]; then
-	echo set ylabel \"IRQs Disabled Latency \(us\)\" >> $TEMP
-	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
-fi
-if [ "$MEMORY_USAGE" = "yes" ]; then
-	echo set ylabel \"Memory Used \(MB\)\" >> $TEMP
-	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
-	AWK_FORMAT="<awk '{print \$1/60,\$2/1048576}' @@PLOT@@"
-fi
-if [ "$PARALLELIO" = "yes" ]; then
-	echo set ylabel \"Transactions per second\" >> $TEMP
-	echo set xlabel \"Parallel IO Size MB\" >> $TEMP
-	AWK_FORMAT="<awk '{print \$1/1048576,\$2}' @@PLOT@@"
-fi
-if [ "$PARALLELIO_SWAP" = "yes" ]; then
-	echo set ylabel \"Swap In/Out Pages\" >> $TEMP
-	echo set xlabel \"Parallel IO Size MB\" >> $TEMP
-	AWK_FORMAT="<awk '{print \$1/1048576,\$2}' @@PLOT@@"
-fi
-if [ "$PARALLELIO_SWAPIN" = "yes" ]; then
-	echo set ylabel \"SwapIn IO Pages\" >> $TEMP
-	echo set xlabel \"Parallel IO Size MB\" >> $TEMP
-	AWK_FORMAT="<awk '{print \$1/1048576,\$2}' @@PLOT@@"
-fi
-if [ "$PARALLELIO_IODURATION" = "yes" ]; then
-	echo set ylabel \"Completion Time \(seconds\)\" >> $TEMP
-	echo set xlabel \"Parallel IO Size MB\" >> $TEMP
-	AWK_FORMAT="<awk '{print \$1/1048576,\$2}' @@PLOT@@"
-fi
-if [ "$THP" = "yes" ]; then
-	echo set ylabel \"Transparent Huge Pages\" >> $TEMP
-	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
-	AWK_FORMAT="<awk '{print \$1/60,\$2}' @@PLOT@@"
-fi
-if [ "$CPU_USAGE" = "yes" ]; then
-	echo set ylabel \"CPU Usage\" >> $TEMP
-	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
-	AWK_FORMAT="<awk '{print \$1/60,\$@@FIELD@@}' @@PLOT@@"
-	PLOTCOMMAND=cpuusage
-fi
-if [ "$IOSTAT_BLOCKS" = "yes" ]; then
-	echo set ylabel \"Blocks Read/Written\" >> $TEMP
-	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
-	AWK_FORMAT="<awk '{print \$1/60,\$@@FIELD@@}' @@PLOT@@"
-	PLOTCOMMAND=iostat-blocks
-fi
-if [ "$IOSTAT_RATES" = "yes" ]; then
-	echo set ylabel \"Blocks Read/Written per second\" >> $TEMP
-	echo set xlabel \"Time Elapsed \(minutes\)\" >> $TEMP
-	AWK_FORMAT="<awk '{print \$1/60,\$@@FIELD@@}' @@PLOT@@"
-	PLOTCOMMAND=iostat-rates
-fi
-if [ "$KERNBENCH" = "yes" -o "$CANDLESTICKS" = "yes" -o "$SINGLE_CANDLESTICKS" ]; then
-	echo set style fill pattern 6 border  >> $TEMP
-	echo set boxwidth 0.2 >> $TEMP
-fi
 if [ "$CLIENT_CANDLESTICKS" = "yes" -o "$CLIENT_ERRORBARS" = "yes" ]; then
 	echo set boxwidth 0.2 >> $TEMP
 fi
@@ -391,14 +176,6 @@ if [ "$STACKED_HISTOGRAM" = "yes" ]; then
 	echo set boxwidth 0.75 absolute >> $TEMP
 	echo set style fill solid 1.00 border -1 >> $TEMP
 	PLOTCOMMAND=stacked-histogram
-fi
-if [ "$TBENCH" = "yes" ]; then
-	echo set ylabel \"Throughput MB/sec\" >> $TEMP
-	echo set xlabel \"Clients\" >> $TEMP
-fi
-if [ "$TBENCH_LATENCY" = "yes" ]; then
-	echo set ylabel \"Latency ms\" >> $TEMP
-	echo set xlabel \"Clients\" >> $TEMP
 fi
 if [ "$XRANGE" != "" ]; then
 	echo "set xrange [$XRANGE]" >> $TEMP
@@ -453,10 +230,6 @@ while [ "$1" != "" ]; do
 
 	TIME_OFFSET=
 	USING_COMMAND=
-	if [ "$TIME_SERIES" = "yes" ]; then
-		TIME_OFFSET=`head -1 $PLOTFILE | awk '{print $1}'`
-		TIME_OFFSET="(\$1-$TIME_OFFSET):2"
-	fi
 
 	if [ "$USING" != "" -o "$TIME_OFFSET" != "" ]; then
 		USING_COMMAND="using $TIME_OFFSET $USING"
@@ -491,43 +264,6 @@ while [ "$1" != "" ]; do
 			PLOTSTRING="\"`echo $AWK_FORMAT | sed -e "s/@@PLOT@@/$ESCAPED/"`\""
 		fi
 		echo -n "$PLOTSTRING $USING_COMMAND $SMOOTH_ACTUAL $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
-		;;
-	residency)
-		STARTTIME=`zcat $PLOTFILE | head -1 | awk '{print $1}'`
-		zcat $PLOTFILE | perl -e "\$last=0; while (<>) {(\$time,\$latency) = split(/ /); \$time -= $STARTTIME; \$latency += \$time-\$last; \$last=\$time; print \"\$time \$latency\n\"}" > $PLOTFILE.tmp
-		CLEANUP_FILES="$CLEANUP_FILES $PLOTFILE.tmp"
-		echo -n "'$PLOTFILE.tmp' $USING_COMMAND $SMOOTH_ACTUAL $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
-		;;
-	cpuusage)
-		PLOTSTRING="'$PLOTFILE'"
-		if [ "$AWK_FORMAT" != "" ]; then
-			ESCAPED=`echo "$PLOTFILE" | sed -e 's/\//\\\\\//g'`
-			PLOTSTRING_USER="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/2/' -e "s/@@PLOT@@/$ESCAPED/"`\""
-			PLOTSTRING_SYS="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/3/' -e "s/@@PLOT@@/$ESCAPED/"`\""
-			PLOTSTRING_WAIT="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/5/' -e "s/@@PLOT@@/$ESCAPED/"`\""
-		fi
-
-		echo -n "$PLOTSTRING_USER title \"User %\" with lines, $PLOTSTRING_SYS title \"Sys  %\" with lines, $PLOTSTRING_WAIT title \"Wait %\" with lines" >> $TEMP
-		;;
-	iostat-blocks)
-		PLOTSTRING="'$PLOTFILE'"
-		if [ "$AWK_FORMAT" != "" ]; then
-			ESCAPED=`echo "$PLOTFILE" | sed -e 's/\//\\\\\//g'`
-			PLOTSTRING_READ="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/2/' -e "s/@@PLOT@@/$ESCAPED/"`\""
-			PLOTSTRING_WRITE="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/3/' -e "s/@@PLOT@@/$ESCAPED/"`\""
-		fi
-
-		echo -n "$PLOTSTRING_READ title \"read\" with lines, $PLOTSTRING_WRITE title \"write\" with lines" >> $TEMP
-		;;
-	iostat-rates)
-		PLOTSTRING="'$PLOTFILE'"
-		if [ "$AWK_FORMAT" != "" ]; then
-			ESCAPED=`echo "$PLOTFILE" | sed -e 's/\//\\\\\//g'`
-			PLOTSTRING_READ="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/2/' -e "s/@@PLOT@@/$ESCAPED/"`\""
-			PLOTSTRING_WRITE="\"`echo $AWK_FORMAT | sed -e 's/@@FIELD@@/3/' -e "s/@@PLOT@@/$ESCAPED/"`\""
-		fi
-
-		echo -n "$PLOTSTRING_READ title \"read rate\" with lines, $PLOTSTRING_WRITE title \"write rate\" with lines" >> $TEMP
 		;;
 	stacked-histogram)
 		PLOTSTRING="'$PLOTFILE'"
