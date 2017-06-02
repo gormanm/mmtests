@@ -3,6 +3,8 @@
 GIT_LOCATION=https://github.com/davidlohr/freqmine.git
 MIRROR_LOCATION="$WEBROOT/freqmine/"
 
+install-depends gcc-c++
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 

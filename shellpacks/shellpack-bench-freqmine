@@ -105,6 +105,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $FREQMINE_MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	for SIZE in $FREQMINE_SIZE; do
 		echo "Running $SIZE workload";
@@ -149,4 +152,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description freqmine
-#### Details freqmine-bench 5
+#### Details freqmine-bench 6

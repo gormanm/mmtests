@@ -10,6 +10,8 @@ fi
 GIT_LOCATION=https://github.com/davidlohr/freqmine.git
 MIRROR_LOCATION="$WEBROOT/freqmine/"
 
+install-depends gcc-c++
+
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -116,4 +118,4 @@ index c76043b..9784028 100644
  	return bufcount;
  } // switchbuf 
 #### Description freqmine
-#### Details freqmine 5
+#### Details freqmine 6
