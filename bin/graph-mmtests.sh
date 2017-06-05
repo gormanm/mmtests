@@ -169,11 +169,11 @@ for TEST in $TEST_LIST; do
 	if [ "$USE_R" != "" ]; then
 		PLOTFILE="$R_TMPDIR/$SUBREPORT-$TEST"
 		if [ ! -f "$R_TMPDIR/$SUBREPORT.Rdata" ]; then
-			$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-header > $PLOTFILE || exit
+			$SCRIPTDIR/cache-mmtests.sh $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-header > $PLOTFILE || exit
 		fi
 	else
 		PLOTFILE="$TMPDIR/$TEST"
-		$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | \
+		$SCRIPTDIR/cache-mmtests.sh $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | \
 			grep -v nan 		| \
 			sed -e 's/_/\\\\_/g'	  \
 			> $PLOTFILE || exit

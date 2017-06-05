@@ -390,9 +390,9 @@ generate_subheading_trans_graphs() {
 
 cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
 for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
-	EXTRACT_CMD="extract-mmtests.pl -d . -b $SUBREPORT" 
-	COMPARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
-	COMPARE_BARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
+	EXTRACT_CMD="cache-mmtests.sh extract-mmtests.pl -d . -b $SUBREPORT"
+	COMPARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
+	COMPARE_BARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
 	COMPARE_R_CMD="compare-mmtests-R.sh -d . $ITERATIONS -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
 	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format png"
 	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
@@ -410,10 +410,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Latency
-		compare-mmtests.pl -d . -b dbench4latency -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4latency -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Per-VFS Operation latency Latency
-		compare-mmtests.pl -d . -b dbench4opslatency -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4opslatency -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	dbt5-bench)
 		echo $SUBREPORT Transactions
@@ -421,7 +421,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo
 
 		echo $SUBREPORT Execution time
-		compare-mmtests.pl -d . -b dbt5exectime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b dbt5exectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	dvdstore)
@@ -429,7 +429,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		eval $COMPARE_CMD
 		echo
 		echo $SUBREPORT Time
-		compare-mmtests.pl -d . -b dvdstoreexectime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b dvdstoreexectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	ebizzy)
@@ -437,35 +437,35 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Per-thread
-		compare-mmtests.pl -d . -b ebizzythread -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b ebizzythread -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Thread spread
-		compare-mmtests.pl -d . -b ebizzyrange -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b ebizzyrange -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	fio)
 		echo $SUBREPORT Throughput
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Latency read
-		compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-read $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-read $FORMAT_CMD
 
 		echo
 		echo $SUBREPORT Latency write
-		compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-write $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-write $FORMAT_CMD
 		;;
 	fsmark-single|fsmark-threaded)
 		echo $SUBREPORT
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT App Overhead
-		compare-mmtests.pl -d . -b ${SUBREPORT}overhead -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b ${SUBREPORT}overhead -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	interbench)
 		echo $SUBREPORT latency
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Missed deadlines
-		compare-mmtests.pl -d . -b interbenchdeadline -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b interbenchdeadline -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	johnripper)
 		echo $SUBREPORT Transactions
@@ -473,7 +473,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo
 
 		echo $SUBREPORT User/System CPU time
-		compare-mmtests.pl -d . -b johnripperexectime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b johnripperexectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	loopdd)
@@ -492,7 +492,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 
 		echo
 		echo $SUBREPORT Data import times
-		compare-mmtests.pl -d . -b mediawikibuildloadtime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b mediawikibuildloadtime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	monitor)
@@ -501,7 +501,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		;;
 	netpipe)
 		echo $SUBREPORT Throughput
-		compare-mmtests.pl -d . -b netpipe4mb -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b netpipe4mb -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	parallelio)
@@ -509,25 +509,25 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		eval $COMPARE_CMD
 		echo
 		echo $SUBREPORT Background IO
-		compare-mmtests.pl -d . -b parallelioio -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b parallelioio -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Swap totals
-		compare-mmtests.pl -d . -b parallelioswap -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b parallelioswap -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	pft)
 		echo $SUBREPORT timings
-		compare-mmtests.pl -d . -b pfttime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b pfttime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT faults
 		eval $COMPARE_CMD
 		;;
 	pgbench)
 		echo $SUBREPORT Initialisation
-		compare-mmtests.pl -d . -b pgbenchloadtime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b pgbenchloadtime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
-		compare-mmtests.pl -d . -b pgbenchstalls -n $KERNEL_LIST $FORMAT_CMD > /tmp/pgbench-$$
+		cache-mmtests.sh compare-mmtests.pl -d . -b pgbenchstalls -n $KERNEL_LIST $FORMAT_CMD > /tmp/pgbench-$$
 		TEST=`grep MinStall-1 /tmp/pgbench-$$ | grep -v nan`
 		if [ "$TEST" != "" ]; then
 			echo
@@ -537,7 +537,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		rm /tmp/pgbench-$$
 		echo
 		echo $SUBREPORT Time
-		compare-mmtests.pl -d . -b pgbenchexectime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b pgbenchexectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	simoop)
@@ -545,7 +545,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		eval $COMPARE_CMD
 		echo
 		echo $SUBREPORT rates
-		compare-mmtests.pl -d . -b simooprates -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b simooprates -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	specjvm)
@@ -556,14 +556,14 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT
 		$COMPARE_CMD
 		echo $SUBREPORT Peaks
-		compare-mmtests.pl -d . -b specjbbpeak -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b specjbbpeak -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	stockfish)
 		echo $SUBREPORT Nodes/sec
-		compare-mmtests.pl -d . -b stockfish -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b stockfish -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Execution time
-		compare-mmtests.pl -d . -b stockfishtime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b stockfishtime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	stutter)
@@ -571,20 +571,20 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT estimated write speed
-		compare-mmtests.pl -d . -b stuttercalibrate -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b stuttercalibrate -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT parallel write throughput
-		compare-mmtests.pl -d . -b stutterthroughput -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b stutterthroughput -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	sysbench)
 		echo $SUBREPORT Initialisation
-		compare-mmtests.pl -d . -b sysbenchloadtime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b sysbenchloadtime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
 		echo
 		echo $SUBREPORT Time
-		compare-mmtests.pl -d . -b sysbenchexectime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b sysbenchexectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	thpscale)
@@ -592,7 +592,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		eval $COMPARE_CMD
 		echo
 		echo $SUBREPORT Percentage Faults Huge
-		compare-mmtests.pl -d . -b thpscalecounts -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b thpscalecounts -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	tiobench)
@@ -600,17 +600,17 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT average and max operation latencies
-		compare-mmtests.pl -d . -b tiobenchlatency -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b tiobenchlatency -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	xfsio)
 		echo $SUBREPORT Time
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Throughput
-		compare-mmtests.pl -d . -b xfsiothroughput -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b xfsiothroughput -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Ops
-		compare-mmtests.pl -d . -b xfsioops -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b xfsioops -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	*)
 		echo $SUBREPORT
@@ -1792,7 +1792,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		if [ `ls ftrace-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
 			PLOT_TITLES=
 			for NAME in `echo $KERNEL_LIST | sed -e 's/,/ /g'`; do
-				extract-mmtests.pl -d . -b $SUBREPORT -n $NAME --print-monitor Ftracenumatraffic > /tmp/mmtests-numatraffic-$$-$NAME
+				cache-mmtests.sh extract-mmtests.pl -d . -b $SUBREPORT -n $NAME --print-monitor Ftracenumatraffic > /tmp/mmtests-numatraffic-$$-$NAME
 				if [ "$PLOT_TITLES" = "" ]; then
 					PLOT_TITLES=$NAME
 				else
