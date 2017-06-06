@@ -62,6 +62,10 @@ while [ "$1" != "" ]; do
 	esac
 done
 
+if [ "$CACHE_MMTESTS" != "" ]; then
+	find $CACHE_MMTESTS -maxdepth 2 -type d -ctime +30 -exec rm -rf {} \;
+fi
+
 # Do Not Litter
 cleanup() {
 	if [ "$R_TMPDIR" != "" -a -d $R_TMPDIR ]; then

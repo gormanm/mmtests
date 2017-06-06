@@ -64,9 +64,6 @@ unlock_hashdir() {
 	rmdir "$CACHE_MMTESTS/$HASHDIR/lockdir"
 }
 
-# Trim old cache entries
-find $CACHE_MMTESTS -maxdepth 2 -type d -ctime +30 -exec rm -rf {} \;
-
 HASH=`cat $HASHFILE | md5sum | awk '{print $1}'`
 HASH_TOPLEVEL=`echo $HASH | head -c 3`
 HASHDIR="$HASH_TOPLEVEL/$HASH"
