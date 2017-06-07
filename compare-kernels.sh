@@ -63,7 +63,7 @@ while [ "$1" != "" ]; do
 done
 
 if [ "$CACHE_MMTESTS" != "" ]; then
-	find $CACHE_MMTESTS -maxdepth 2 -type d -atime +30 -exec rm -rf {} \;
+	find $CACHE_MMTESTS -maxdepth 3 -type f -atime +30 -exec rm -rf {} \;
 fi
 
 # Do Not Litter
