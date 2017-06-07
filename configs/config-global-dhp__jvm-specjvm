@@ -1,5 +1,5 @@
 ### This is a standard specjvm run using a single JVM with a maximum heap
-### size of 80% of memory.
+### size of 60% of memory.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
@@ -51,7 +51,7 @@ export SPECJVM_JRE=/opt/java/jre/bin
 export SPECJVM_DEFAULT_ITERATION_TIME=300
 export SPECJVM_DEFAULT_WARMUP_TIME=120
 export SPECJVM_DEFAULT_ITERATIONS=3
-export SPECJVM_MAXHEAP=-Xmx$((MEMTOTAL_BYTES*4/5/1048576))m
+export SPECJVM_MAXHEAP=-Xmx$((MEMTOTAL_BYTES*6/10/1048576))m
 export SPECJVM_PAGESIZES="default"
 #export SPECJVM_PAGESIZES="base huge"
 export SPECJVM_HUGESWITCH=-Xlp

@@ -1,4 +1,4 @@
-### specjbb is executed with one JVM with a maximum heap size of 80% of
+### specjbb is executed with one JVM with a maximum heap size of 60% of
 ### memory.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
@@ -46,11 +46,11 @@ export MONITORS_GZIP="proc-vmstat top numa-numastat numa-meminfo numa-convergenc
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# SPECjbb - max heap 80% of memory.
+# SPECjbb - max heap 60% of memory.
 # Total heap is divided between number of instances
 export SPECJBB_JRE=/opt/java/jre/bin
 export SPECJBB_JVM_INSTANCES=1
-export SPECJBB_MAXHEAP_TOTAL_MB=$((MEMTOTAL_BYTES*8/10/1048576))
+export SPECJBB_MAXHEAP_TOTAL_MB=$((MEMTOTAL_BYTES*6/10/1048576))
 export SPECJBB_MAXHEAP=-Xmx$(($SPECJBB_MAXHEAP_TOTAL_MB/$SPECJBB_JVM_INSTANCES))m
 export SPECJBB_HEAP_CONTROLLER=-Xmx$((2*1024*1048576))m
 export SPECJBB_HEAP_BACKEND=-Xmx$((4*1024*1048576))m
