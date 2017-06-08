@@ -151,6 +151,8 @@ compare-mmtests.pl [options]
  --format		Output format
  --json-export		Saves comparison data in JSON format (gzip'ed)
  --print-header		Print a header
+ --print-ratio		Print relative comparison instead of absolute values
+ --print-monitor=s	Print comparison based on specified monitor
  --sub-heading		Analyse just a sub-heading of the data, see manual page
  --manual		Print manual page
  --help			Print help message
@@ -194,6 +196,14 @@ is the value of the --benchmark option flag.
 =item B<--print-header>
 
 Print a header that briefly describes what each of the fields are.
+
+=item B<--print-ratio>
+
+Print values as ratios relative to baseline instead of absolute values
+
+=item B<--print-monitor>
+
+Print comparison based on specified monitor.
 
 =item B<--sub-heading>
 
