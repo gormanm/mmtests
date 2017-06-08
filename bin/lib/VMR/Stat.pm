@@ -50,15 +50,17 @@ sub rdiff {
 }
 
 sub sdiff {
-	my ($new, $base, $stddev) = @_;
+	my ($new, $newstddev, $base, $basestddev) = @_;
 	my $diff = $new - $base;
-	if ($stddev == 0) {
+	my $pdev = sqrt(($newstddev**2 + $basestddev**2) / 2);
+
+	if ($pdev == 0) {
 		return $diff;
 		# Typically, this occurs for little integers under 20
 		# and here we want to see if anything changes so issuing
 		# quite high numbers (directly the difference).
 	} else {
-		return $diff / $stddev;
+		return $diff / $pdev;
 	}
 }
 
