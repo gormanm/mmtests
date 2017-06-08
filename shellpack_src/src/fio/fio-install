@@ -1,6 +1,6 @@
 #!/bin/bash
 # fio installer
-###SHELLPACK preamble fio-install 2.2.13
+###SHELLPACK preamble fio-install 2.20
 WEB_LOCATION=http://brick.kernel.dk/snaps
 MIRROR_LOCATION="$WEBROOT/fio"
 
@@ -41,16 +41,3 @@ exit $SHELLPACK_SUCCESS
  #include <sys/types.h>
  #include <sys/stat.h>
 ==== END fio-types.patch ====
-==== BEGIN mutex-fix-double-unlock.patch ====
-diff mutex.c mutex.c
---- mutex.c
-+++ mutex.c
-@@ -136,6 +136,7 @@ int fio_mutex_down_timeout(struct fio_mutex *mutex, unsigned int msecs)
- 	if (!ret) {
- 		mutex->value--;
- 		pthread_mutex_unlock(&mutex->lock);
-+		return 0;
- 	}
- 
- 	pthread_mutex_unlock(&mutex->lock);
-==== END mutex-fix-double-unlock.patch ====
