@@ -81,6 +81,26 @@ function one_pass() {
 	    || die Failed to have fun with fio
 }
 
+function rand_read_write() {
+	local rw size qd=$1 rt=30 njobs=$2 bs=4k name=fio-ssd
+	local logfile=${LOGDIR_RESULTS}/fio-ssd-rand-jobs_${njobs}-qd_${qd}-bs_${bs}
+	for rw in randread randwrite; do
+		for size in 1G 2G 4G 8G 16G; do
+			one_pass ${logfile} ${rw} ${size} ${qd} ${rt} ${njobs} ${bs} ${name}
+		done
+	done
+}
+
+function seq_write_read() {
+	local rw size qd=$1 rt=10 njobs=1 bs=128k name=fio-ssd
+	local logfile=${LOGDIR_RESULTS}/fio-ssd-seq-jobs_${njobs}-qd_${qd}-bs_${bs}
+	for rw in write read; do
+		for size in 8G 16G 32G; do
+			one_pass ${logfile} ${rw} ${size} ${qd} ${rt} ${njobs} ${bs} ${name}
+		done
+	done
+}
+
 function scaling_test() {
 	local rw size=${FIO_SIZE} qd=${FIO_IODEPTH} rt=${FIO_RUNTIME} njobs bs=4k name=fio-scaling
 	local logfile
@@ -102,6 +122,20 @@ scaling)
 	monitor_pre_hook $LOGDIR_RESULTS $FIO_READWRITE
 	scaling_test
 	monitor_post_hook $LOGDIR_RESULTS $FIO_READWRITE
+	;;
+ssd)
+	DIR_NR=${#TESTDISK_DIRS[*]}
+	DIRS=$(echo ${TESTDISK_DIRS[*]} | tr " " ":")
+	monitor_pre_hook ${LOGDIR_RESULTS}
+	# 4k, QD  1, jobs 1 (randread, randwrite)
+	rand_read_write 1 1
+	# 4k, QD 32, jobs 4 (randread, randwrite)
+	rand_read_write 32 4
+	# 128k, QD 2, jobs 1
+	seq_write_read 2
+	# 128k, QD 4, jobs 1
+	seq_write_read 4
+	monitor_post_hook ${LOGDIR_RESULTS}
 	;;
 *)
 	die Unrecognised test type $FIO_TEST_TYPE
