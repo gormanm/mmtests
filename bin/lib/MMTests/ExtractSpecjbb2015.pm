@@ -35,7 +35,12 @@ sub extractReport() {
 
 	my @files = <$reportDir/$profile/$pagesize/result/specjbb2015-*/report-*/*.raw>;
 	my $file = $files[0];
-	die if ($file eq "");
+	if ($file eq "") {
+		system("tar -C $reportDir/$profile/$pagesize -xf $reportDir/$profile/$pagesize/result.tar.gz");
+		@files = <$reportDir/$profile/$pagesize/result/specjbb2015-*/report-*/*.raw>;
+		$file = $files[0];
+		die if ($file eq "");
+	}
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
