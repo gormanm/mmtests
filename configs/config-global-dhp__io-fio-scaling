@@ -72,7 +72,7 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # fio
 export FIO_TEST_TYPE=scaling
-export FIO_MAX_JOBS=24
-export FIO_RUNTIME=60
-export FIO_SIZE=5G
+export FIO_MAX_JOBS=64
+export FIO_RUNTIME=15
+export FIO_SIZE=1G
 export FIO_IOENGINE=libaio

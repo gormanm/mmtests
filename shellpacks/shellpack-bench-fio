@@ -123,9 +123,9 @@ if [ "$FIO_CMD_OPTIONS" != "" ]; then
 fi
 
 # default values for scaling test
-FIO_MAX_JOBS=${FIO_MAX_JOBS:-12}
-FIO_RUNTIME=${FIO_RUNTIME:-30}
-FIO_SIZE=${FIO_SIZE:-5G}
+FIO_MAX_JOBS=${FIO_MAX_JOBS:-64}
+FIO_RUNTIME=${FIO_RUNTIME:-15}
+FIO_SIZE=${FIO_SIZE:-1G}
 FIO_IOENGINE=${FIO_IOENGINE:-libaio}
 FIO_DIRECT=${FIO_DIRECT:-1}
 FIO_IODEPTH=${FIO_IODEPTH:-1}
@@ -186,14 +186,22 @@ function seq_write_read() {
 }
 
 function scaling_test() {
-	local rw size=${FIO_SIZE} qd=${FIO_IODEPTH} rt=${FIO_RUNTIME} njobs bs=4k name=fio-scaling
-	local logfile
+	local rw size=${FIO_SIZE} qd=${FIO_IODEPTH} rt=${FIO_RUNTIME} bs=4k name=fio-scaling
+	local logfile i njobs=0 p_njobs=0
 	for rw in ${FIO_IO_PATTERNS}; do
 		logfile=${LOGDIR_RESULTS}/fio-scaling-${rw}
-		for njobs in $(seq ${DIR_NR} ${DIR_NR} ${NUMCPUS}); do
+		for i in $(seq 0 ${NUMCPUS}); do
+			njobs=$[2**${i}*${DIR_NR}]
 			if [ ${njobs} -gt ${FIO_MAX_JOBS} ]; then
-				break;
+				break
 			fi
+			if [ ${njobs} -gt ${NUMCPUS} ]; then
+				njobs=${NUMCPUS}
+			fi
+			if [ ${njobs} -eq ${p_njobs} ]; then
+				break
+			fi
+			p_njobs=${njobs}
 			one_pass ${logfile} ${rw} ${size} ${qd} ${rt} ${njobs} ${bs} ${name}
 		done
 	done
@@ -228,4 +236,4 @@ esac
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible IO tester
-#### Details fio-bench 17
+#### Details fio-bench 18

@@ -114,4 +114,4 @@ exit $SHELLPACK_SUCCESS
  #include <sys/stat.h>
 ==== END fio-types.patch ====
 #### Description Flexible IO tester
-#### Details fio 17
+#### Details fio 18
