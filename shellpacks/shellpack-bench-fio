@@ -71,6 +71,10 @@ while [ "$1" != "" ]; do
 		FIO_IODEPTH=$2
 		shift 2
 		;;
+	--reusefiles)
+		FIO_REUSE_FILES=$2
+		shift 2
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -101,7 +105,7 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-FIO_IO_PATTERNS="read write rw randread randwrite randrw"
+FIO_IO_PATTERNS="write read rw randread randwrite randrw"
 
 if [ "$FIO_CMD_OPTIONS" != "" ]; then
 	monitor_pre_hook $LOGDIR_RESULTS $SIZE
@@ -125,26 +129,62 @@ FIO_SIZE=${FIO_SIZE:-5G}
 FIO_IOENGINE=${FIO_IOENGINE:-libaio}
 FIO_DIRECT=${FIO_DIRECT:-1}
 FIO_IODEPTH=${FIO_IODEPTH:-1}
+FIO_REUSE_FILES=${FIO_REUSE_FILES:-no}
+
+function remove_fio_files() {
+	local logfile=$1 name=$2
+	local d files
+
+	for d in ${TESTDISK_DIRS[*]}; do
+		files=$(ls ${d}/${name}.*[0-9].[0-9]* 2>/dev/null)
+		if [ $? -eq 0 ]; then
+			files=$(ls ${d}/${name}.*[0-9].[0-9]*)
+			rm ${files}
+		fi
+	done
+}
+
+function one_pass() {
+	local logfile=$1 rw=$2 size=$3 qd=$4 rt=$5 njobs=$6 bs=$7 name=$8
+
+	if [ "${FIO_REUSE_FILES}" != "yes" ]; then
+		remove_fio_files ${logfile} ${name}
+	fi
+	echo "fio --directory=${DIRS} --rw=${rw} --name=${name} \
+	    --size=${size} --group_reporting \
+	    --output-format=terse --terse-version=3 \
+	    --ioengine=${FIO_IOENGINE} --direct=${FIO_DIRECT} \
+	    --iodepth=${qd} --runtime=${rt} --numjobs=${njobs} \
+	    --blocksize=${bs}" | tee -a ${logfile}
+	./fio --directory=${DIRS} --rw=${rw} --name=${name} \
+	    --size=${size} --group_reporting \
+	    --output-format=terse --terse-version=3 \
+	    --ioengine=${FIO_IOENGINE} --direct=${FIO_DIRECT} \
+	    --iodepth=${qd} --runtime=${rt} --numjobs=${njobs} \
+	    --blocksize=${bs} | tee -a ${logfile} \
+	    || die Failed to have fun with fio
+}
+
+function scaling_test() {
+	local rw size=${FIO_SIZE} qd=${FIO_IODEPTH} rt=${FIO_RUNTIME} njobs bs=4k name=fio-scaling
+	local logfile
+	for rw in ${FIO_IO_PATTERNS}; do
+		logfile=${LOGDIR_RESULTS}/fio-scaling-${rw}
+		for njobs in $(seq ${DIR_NR} ${DIR_NR} ${NUMCPUS}); do
+			if [ ${njobs} -gt ${FIO_MAX_JOBS} ]; then
+				break;
+			fi
+			one_pass ${logfile} ${rw} ${size} ${qd} ${rt} ${njobs} ${bs} ${name}
+		done
+	done
+}
 
 case $FIO_TEST_TYPE in
 scaling)
 	DIR_NR=${#TESTDISK_DIRS[*]}
 	DIRS=`echo ${TESTDISK_DIRS[*]} | tr " " ":"`
 	monitor_pre_hook $LOGDIR_RESULTS $FIO_READWRITE
-	for FIO_RW in $FIO_IO_PATTERNS; do
-		for FIO_NUMJOBS in `seq $DIR_NR $DIR_NR $NUMCPUS`; do
-			if [ $FIO_NUMJOBS -gt $FIO_MAX_JOBS ]; then
-				break;
-			fi
-			./fio --directory=$DIRS --rw=$FIO_RW \
-				--name=fio-scaling --size=$FIO_SIZE --numjobs=$FIO_NUMJOBS \
-				--ioengine=$FIO_IOENGINE --group_reporting \
-				--direct=$FIO_DIRECT --iodepth=$FIO_IODEPTH \
-				--runtime=$FIO_RUNTIME 2>&1 | \
-				tee -a $LOGDIR_RESULTS/fio-$FIO_TEST_TYPE-$FIO_RW \
-					|| die Failed to have fun with fio
-		done
-	done
+	scaling_test
 	monitor_post_hook $LOGDIR_RESULTS $FIO_READWRITE
 	;;
 *)
@@ -154,4 +194,4 @@ esac
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible IO tester
-#### Details fio-bench 15
+#### Details fio-bench 16
