@@ -456,6 +456,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo
 		echo $SUBREPORT Latency write
 		cache-mmtests.sh compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-write $FORMAT_CMD
+		echo
+		# all sub-headings (ie. fio-scaling-[rand]{rw,read,write}-{read,write})
+		echo $SUBREPORT scaling
+		cache-mmtests.sh compare-mmtests.pl -d . -b fioscaling -n $KERNEL_LIST
 		;;
 	fsmark-single|fsmark-threaded)
 		echo $SUBREPORT

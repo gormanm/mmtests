@@ -1,0 +1,84 @@
+# ExtractFioscaling
+package MMTests::ExtractFioscaling;
+use MMTests::SummariseMultiops;
+use VMR::Stat;
+our @ISA = qw(MMTests::SummariseMultiops);
+use strict;
+
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
+	my $class = shift;
+	$self->{_ModuleName} = "ExtractFio";
+	$self->{_DataType}   = DataTypes::DATA_KBYTES_PER_SECOND;
+	$self->{_PlotType}   = "client-errorlines";
+	$self->{_PlotXaxis}  = "Clients";
+	$self->{_FieldLength} = 12;
+
+	$self->SUPER::initialise($reportDir, $testName);
+}
+
+sub extractOneFile {
+	my ($self, $reportDir, $reportName, $profile, $worker) = @_;
+	my $file;
+	my $jobs = 0;
+	my $rw = 0;
+
+	$reportDir =~ s/fioscaling/fio/;
+
+	$file = "$reportDir/$profile/$worker";
+
+	open(INPUT, $file) || die("Failed to open $file\n");
+	while (<INPUT>) {
+		if ( /^fio/ ) {
+			# fio command line, parse for number of jobs
+			my @words;
+			@words = split(' ');
+			foreach my $word (@words) {
+				if ($word =~ m/^--numjobs=/) {
+					$word =~ s/--numjobs=//;
+					$jobs=$word
+				}
+			}
+		} elsif ( /^[3;fio]/ ) {
+			# assume fio terse format version 3
+			my @elements;
+
+			@elements = split(/;/, $_);
+			# Total read KB > 0?
+			if ($elements[5] > 0) {
+				push @{$self->{_ResultData}}, [ "$worker-read", $jobs, $elements[44] ];
+				$rw = $rw | 1;
+			}
+			# Total written KB > 0?
+			if ($elements[46] > 0) {
+				push @{$self->{_ResultData}}, [ "$worker-write", $jobs, $elements[85] ];
+				$rw = $rw | 2;
+			}
+		}
+	}
+	close INPUT;
+	return $rw;
+}
+
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
+	my @file_types = ('read', 'write', 'rw', 'randread', 'randwrite', 'randrw');
+	my @ops;
+	my $worker;
+	my $rw = 0;
+
+	for my $type (@file_types) {
+		$worker = "fio-scaling-$type";
+		$rw = extractOneFile(@_, $worker);
+		if ($rw & 1) {
+			push @ops, "$worker-read";
+		}
+		if ($rw & 2) {
+			push @ops, "$worker-write";
+		}
+	}
+
+	$self->{_Operations} = \@ops;
+}
+
+1;
