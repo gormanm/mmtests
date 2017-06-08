@@ -77,6 +77,9 @@ sub printDataType() {
 	} elsif ($self->{_DataType} == DataTypes::DATA_MBYTES_PER_SECOND) {
 		$yaxis = "MBytes/sec";
 		$units = "Throughput";
+	} elsif ($self->{_DataType} == DataTypes::DATA_KBYTES_PER_SECOND) {
+		$yaxis = "KBytes/sec";
+		$units = "Throughput";
 	} elsif ($self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
 		$yaxis = "Percentage";
 		$units = "Success";
