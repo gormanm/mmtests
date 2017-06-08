@@ -347,7 +347,6 @@ done
 TMPFS_CONFIGS="
 config-global-dhp__io-paralleldd-read-small
 config-global-dhp__pagereclaim-performance
-config-global-dhp__reaim-io-tiny
 "
 
 for CONFIG in $TMPFS_CONFIGS; do
