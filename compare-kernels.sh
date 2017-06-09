@@ -221,7 +221,7 @@ generate_client_trans_graphs() {
 	fi
 	COUNT=0
 	for CLIENT in $CLIENT_LIST; do
-		CLIENT_FILENAME=`echo $CLIENT_FILENAME | sed -e 's/\///'`
+		CLIENT_FILENAME=`echo $CLIENT | sed -e 's/\///'`
 		echo "<tr>"
 		if [ "$CLIENT" = "1" ]; then
 			LABEL="$SUBREPORT transactions $CLIENT client"
