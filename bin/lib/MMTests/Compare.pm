@@ -39,7 +39,6 @@ sub initialise() {
 	my ($self, $extractModulesRef) = @_;
 	my (@fieldHeaders, @plotHeaders, @summaryHeaders);
 	my ($fieldLength, $plotLength, $summaryLength);
-	my $compareLength = 6;
 
 	$self->{_ExtractModules} = $extractModulesRef;
 	my @extractModules = @{$extractModulesRef};
@@ -216,6 +215,10 @@ sub _generateHeaderTable() {
 	my @extractModules = @{$self->{_ExtractModules}};
 	my $operationLength = $self->{_OperationLength};
 	push @headerFormat, "%${operationLength}s";
+
+	if (! defined $self->{_CompareLength}) {
+		$self->{_CompareLength} = 6;
+	}
 
 	# Headers
 	for (my $i = 0; $i <= 1; $i++) {
@@ -400,6 +403,9 @@ sub _generateRenderTable() {
 	if (defined $self->{_CompareTable}) {
 		@compareTable = @{$self->{_CompareTable}};
 		$compareLength = $self->{_CompareLength};
+		if (! defined $compareLength) {
+			$compareLength = 6;
+		}
 	}
 
 	my @extractModules = @{$self->{_ExtractModules}};
