@@ -228,9 +228,9 @@ generate_client_trans_graphs() {
 		else
 			LABEL="$SUBREPORT transactions $CLIENT clients"
 		fi
-		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}.png
-		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL smooth\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-smooth.png --smooth
-		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL sorted\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-sorted.png --sort-samples-reverse
+		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}.png --x-label Time
+		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL smooth\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-smooth.png --smooth --x-label Time
+		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL sorted\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-sorted.png --sort-samples-reverse --x-label \"Sorted samples\"
 		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}
 		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-smooth
 		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-sorted
@@ -382,9 +382,9 @@ generate_subheading_trans_graphs() {
 
 	for SUBHEADING in $SUBHEADING_LIST; do
 		echo "<tr>"
-		eval $GRAPH_PNG -b $SUBTEST --title \"$SUBTEST $SUBHEADING\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING.png
-		eval $GRAPH_PNG -b $SUBTEST --title \"$SUBTEST $SUBHEADING smooth\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING-smooth.png --smooth
-		eval $GRAPH_PNG -b $SUBTEST --title \"$SUBTEST $SUBHEADING sorted\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING-sorted.png --sort-samples-reverse
+		eval $GRAPH_PNG -b $SUBTEST --title \"$SUBTEST $SUBHEADING\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING.png --x-label Time
+		eval $GRAPH_PNG -b $SUBTEST --title \"$SUBTEST $SUBHEADING smooth\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING-smooth.png --smooth --x-label Time
+		eval $GRAPH_PNG -b $SUBTEST --title \"$SUBTEST $SUBHEADING sorted\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING-sorted.png --sort-samples-reverse --x-label \"Sorted samples\"
 		plain graph-$SUBTEST-$SUBHEADING
 		plain graph-$SUBTEST-$SUBHEADING-smooth
 		plain graph-$SUBTEST-$SUBHEADING-sorted
@@ -933,8 +933,8 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		pgbench)
 			echo "<tr>"
-			eval $GRAPH_PNG        -b pgbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.png
-			eval $GRAPH_PSC        -b pgbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.ps
+			eval $GRAPH_PNG        -b pgbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.png --x-label \"Test names\"
+			eval $GRAPH_PSC        -b pgbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.ps --x-label \"Test names\"
 			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
 			eval $GRAPH_PSC --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
 			eval $GRAPH_PNG --logX -b pgbenchexectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.png
