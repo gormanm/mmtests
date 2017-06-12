@@ -13,7 +13,6 @@ sub initialise() {
 	$self->{_ExactSubheading} = 1;
 	$self->{_ExactPlottype} = "simple";
 	$self->{_DefaultPlot} = "1";
-	$self->{_Variable} = 1;
 
 	$self->SUPER::initialise($reportDir, $testName);
 

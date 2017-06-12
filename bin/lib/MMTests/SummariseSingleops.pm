@@ -66,8 +66,6 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TIME_USECONDS ||
 	    $self->{_DataType} == DataTypes::DATA_TIME_CYCLES ||
 	    $self->{_DataType} == DataTypes::DATA_BAD_ACTIONS) {
-		$self->{_MeanOp} = "calc_mean";
-		$self->{_MeanName} = "Amean";
 		$self->{_RatioPreferred} = "Lower";
 		$self->{_CompareOp} = "pndiff";
 	}
@@ -82,8 +80,6 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_SECOND ||
 	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE ||
 	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
-		$self->{_MeanOp} = "calc_harmmean";
-		$self->{_MeanName} = "Hmean";
 		$self->{_RatioPreferred} = "Higher";
 		$self->{_CompareOp} = "pdiff";
 	}

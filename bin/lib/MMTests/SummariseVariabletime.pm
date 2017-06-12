@@ -27,6 +27,7 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TIME_CYCLES ||
 	    $self->{_DataType} == DataTypes::DATA_BAD_ACTIONS) {
 		$self->{_MeanOp} = "calc_mean";
+		$self->{_MeanOpBest} = "calc_lowest_mean";
 		$self->{_MeanName} = "Amean";
 		$self->{_RatioPreferred} = "Lower";
 		$self->{_CompareOp} = "pndiff";
@@ -43,14 +44,14 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE ||
 	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
 		$self->{_MeanOp} = "calc_harmmean";
+		$self->{_MeanOpBest} = "calc_highest_harmmean";
 		$self->{_MeanName} = "Hmean";
 		$self->{_RatioPreferred} = "Higher";
 		$self->{_CompareOp} = "pdiff";
 	}
 
-
 	$self->{_SummaryLength} = 16;
-	$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-93%", "Max-95%", "Max-99%", "Max", "Mean", "Stddev", "Coeff", "Best99%Mean", "Best95%Mean", "Best90%Mean", "Best50%Mean", "Best10%Mean", "Best5%Mean", "Best1%Mean" ];
+	$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-95%", "Max-99%", "Max", "$self->{_MeanName}", "Stddev", "Coeff", "Best99%$self->{_MeanName}", "Best95%$self->{_MeanName}",  "Best90%$self->{_MeanName}", "Best75%$self->{_MeanName}", "Best50%$self->{_MeanName}", "Best25%$self->{_MeanName}" ];
 	$self->{_SummariseColumn} = 2;
 	$self->{_TestName} = $testName;
 }
@@ -109,10 +110,8 @@ sub extractSummary() {
 		$_operations[0] = $subHeading;
 	}
 
-	my $bestOp = "calc_lowest_mean";
-	if ($self->{_RatioPreferred} eq "Higher") {
-		$bestOp = "calc_highest_mean";
-	}
+	my $meanOp = $self->{_MeanOp};
+	my $bestOp = $self->{_MeanOpBest};
 
 	foreach my $operation (@_operations) {
 		no strict  "refs";
@@ -126,6 +125,9 @@ sub extractSummary() {
 				$samples++;
 			}
 		}
+
+        $self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-95%", "Max-99%", "Max", "$self->{_MeanName}", "Stddev", "Coeff", "Best99%$self->{_MeanName}", "Best95%$self->{_MeanName}",  "Best90%$self->{_MeanName}", "Best75%$self->{_MeanName}", "Best50%$self->{_MeanName}", "Best25%$self->{_MeanName}" ];
+
 		my $quartilesRef = calc_quartiles(@units);
 		my @quartiles = @{$quartilesRef};
 		push @row, $operation;
@@ -134,20 +136,18 @@ sub extractSummary() {
 		push @row, $quartiles[2];
 		push @row, $quartiles[3];
 		push @row, $quartiles[90];
-		push @row, $quartiles[93];
 		push @row, $quartiles[95];
 		push @row, $quartiles[99];
 		push @row, $quartiles[4];
-		push @row, calc_mean(@units);
+		push @row, &$meanOp(@units);
 		push @row, calc_stddev(@units);
 		push @row, calc_coeffvar(@units);
 		push @row, &$bestOp(99, @units);
 		push @row, &$bestOp(95, @units);
 		push @row, &$bestOp(90, @units);
+		push @row, &$bestOp(75, @units);
 		push @row, &$bestOp(50, @units);
-		push @row, &$bestOp(10, @units);
-		push @row, &$bestOp(5, @units);
-		push @row, &$bestOp(1, @units);
+		push @row, &$bestOp(25, @units);
 
 		push @{$self->{_SummaryData}}, \@row;
 	}

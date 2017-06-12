@@ -17,8 +17,6 @@ sub initialise() {
 	$self->{_SummaryLength} = $fieldLength;
 	$self->{_PlotLength} = $fieldLength;
         $self->{_PlotHeaders} = [ "LowStddev", "Min", "Max", "HighStddev", "Mean" ];
-	$self->{_MeanOp} = "calc_mean";
-	$self->{_MeanName} = "Amean";
 	$self->{_RatioPreferred} = "Lower";
 	$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
 	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];

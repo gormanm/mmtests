@@ -1,8 +1,8 @@
 # ExtractSqlite.pm
 package MMTests::ExtractSqlite;
-use MMTests::SummariseVariableops;
+use MMTests::SummariseMultiops;
 use VMR::Report;
-our @ISA = qw(MMTests::SummariseVariableops);
+our @ISA = qw(MMTests::SummariseMultiops);
 
 use strict;
 

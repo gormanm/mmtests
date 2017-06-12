@@ -35,9 +35,10 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TIME_CYCLES ||
 	    $self->{_DataType} == DataTypes::DATA_BAD_ACTIONS) {
 		$self->{_MeanOp} = "calc_mean";
+		$self->{_MeanOpBest} = "calc_lowest_mean";
 		$self->{_MeanName} = "Amean";
 		$self->{_RatioPreferred} = "Lower";
-		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
+		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
 	}
 	if ($self->{_DataType} == DataTypes::DATA_ACTIONS ||
 	    $self->{_DataType} == DataTypes::DATA_ACTIONS_PER_SECOND ||
@@ -51,9 +52,10 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE ||
 	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
 		$self->{_MeanOp} = "calc_harmmean";
+		$self->{_MeanOpBest} = "calc_highest_harmmean";
 		$self->{_MeanName} = "Hmean";
 		$self->{_RatioPreferred} = "Higher";
-		$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff" ];
+		$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff", "pdiff", "pdiff", "pdiff", ];
 	}
 
 	$self->SUPER::initialise($reportDir, $testName);
@@ -61,11 +63,7 @@ sub initialise() {
 	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
 	$self->{_FieldHeaders} = [ "Type", "Sample", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
 	$self->{_SummaryLength} = $self->{_FieldLength} + 4 if !defined $self->{_SummaryLength};
-	if ($self->{_Variable} == 1) {
-		$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-93%", "Max-95%", "Max-99%", "Max", "Best99%Mean", "Best95%Mean", "Best90%Mean", "Best50%Mean", "Best10%Mean", "Best5%Mean", "Best1%Mean" ];
-	} else {
-		$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max" ];
-	}
+	$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max", "$self->{_MeanName}-50", "$self->{_MeanName}-95", "$self->{_MeanName}-99" ];
 	$self->{_SummariseColumn} = 2;
 	$self->{_TestName} = $testName;
 }
@@ -188,40 +186,25 @@ sub extractSummary() {
 			}
 		}
 
-		if ($self->{_Variable} == 1) {
-			my $quartilesRef = calc_quartiles(@units);
-			my @quartiles = @{$quartilesRef};
-			push @row, $operation;
-			push @row, calc_min(@units);
-			push @row, $quartiles[1];
-			push @row, $quartiles[2];
-			push @row, $quartiles[3];
-			push @row, $quartiles[90];
-			push @row, $quartiles[93];
-			push @row, $quartiles[95];
-			push @row, $quartiles[99];
-			push @row, $quartiles[4];
-			push @row, calc_highest_mean(99, @units);
-			push @row, calc_highest_mean(95, @units);
-			push @row, calc_highest_mean(90, @units);
-			push @row, calc_highest_mean(50, @units);
-			push @row, calc_highest_mean(10, @units);
-			push @row, calc_highest_mean(5, @units);
-			push @row, calc_highest_mean(1, @units);
-
+		push @row, $operation;
+		my $funcName;
+		foreach $funcName ("calc_min", $self->{_MeanOp}, "calc_stddev", "calc_coeffvar", "calc_max") {
+			no strict "refs";
+			my $value = &$funcName(@units);
+			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
+				push @row, $value;
+			}
+		}
+		$funcName = $self->{_MeanOpBest};
+		foreach my $i (50, 95, 99) {
+			no strict "refs";
+			my $value = &$funcName($i, @units);
+			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
+				push @row, $value;
+			}
+		}
+		if ($#row > 1) {
 			push @{$self->{_SummaryData}}, \@row;
-		} else {
-			push @row, $operation;
-			foreach my $funcName ("calc_min", $self->{_MeanOp}, "calc_stddev", "calc_coeffvar", "calc_max") {
-				no strict "refs";
-				my $value = &$funcName(@units);
-				if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-					push @row, $value;
-				}
-			}
-			if ($#row > 1) {
-				push @{$self->{_SummaryData}}, \@row;
-			}
 		}
 	}
 
