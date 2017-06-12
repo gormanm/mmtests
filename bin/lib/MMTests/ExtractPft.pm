@@ -12,6 +12,7 @@ sub initialise() {
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_Precision} = 4;
+	$self->{_FieldLength} = 14;
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
