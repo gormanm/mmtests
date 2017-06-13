@@ -216,11 +216,15 @@ generate_latency_graph() {
 
 generate_client_trans_graphs() {
 	CLIENT_LIST=$1
+	XLABEL=$2
 	if [ "$CLIENT_LIST" = "" ]; then
 		CLIENT_LIST=`$COMPARE_BARE_CMD | grep ^Hmean | awk '{print $2}' | sort -n | uniq`
 		if [ "$CLIENT_LIST" = "" ]; then
 			CLIENT_LIST=`$COMPARE_BARE_CMD | grep ^Amean | awk '{print $2}' | sort -n | uniq`
 		fi
+	fi
+	if [ "$XLABEL" = "" ]; then
+		XLABEL="Time"
 	fi
 	COUNT=0
 	for CLIENT in $CLIENT_LIST; do
@@ -231,8 +235,8 @@ generate_client_trans_graphs() {
 		else
 			LABEL="$SUBREPORT transactions $CLIENT clients"
 		fi
-		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}.png --x-label Time
-		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL smooth\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-smooth.png --smooth --x-label Time
+		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}.png --x-label "$XLABEL"
+		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL smooth\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-smooth.png --smooth --x-label "$XLABEL"
 		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL sorted\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-sorted.png --sort-samples-reverse --x-label \"Sorted samples\"
 		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}
 		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-smooth
@@ -783,7 +787,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "<tr>"
 			generate_basic_single "$SUBREPORT Completion times" "--logX"
 			generate_basic_single "$SUBREPORT Completion times" "--logX --logY"
-			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`" simple
+			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`" Samples
 			echo "</tr>"
 			;;
 		dbt2-bench|dbt5-branch)
