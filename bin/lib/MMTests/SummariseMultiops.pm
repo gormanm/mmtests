@@ -63,7 +63,7 @@ sub initialise() {
 	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
 	$self->{_FieldHeaders} = [ "Type", "Sample", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
 	$self->{_SummaryLength} = $self->{_FieldLength} + 4 if !defined $self->{_SummaryLength};
-	$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max", "$self->{_MeanName}-50", "$self->{_MeanName}-95", "$self->{_MeanName}-99" ];
+	$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max", "B$self->{_MeanName}-50", "B$self->{_MeanName}-95", "B$self->{_MeanName}-99" ];
 	$self->{_SummariseColumn} = 2;
 	$self->{_TestName} = $testName;
 }
