@@ -218,6 +218,9 @@ generate_client_trans_graphs() {
 	CLIENT_LIST=$1
 	if [ "$CLIENT_LIST" = "" ]; then
 		CLIENT_LIST=`$COMPARE_BARE_CMD | grep ^Hmean | awk '{print $2}' | sort -n | uniq`
+		if [ "$CLIENT_LIST" = "" ]; then
+			CLIENT_LIST=`$COMPARE_BARE_CMD | grep ^Amean | awk '{print $2}' | sort -n | uniq`
+		fi
 	fi
 	COUNT=0
 	for CLIENT in $CLIENT_LIST; do
@@ -780,6 +783,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "<tr>"
 			generate_basic_single "$SUBREPORT Completion times" "--logX"
 			generate_basic_single "$SUBREPORT Completion times" "--logX --logY"
+			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`" simple
 			echo "</tr>"
 			;;
 		dbt2-bench|dbt5-branch)

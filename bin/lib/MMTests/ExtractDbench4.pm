@@ -6,9 +6,10 @@ use strict;
 
 sub initialise() {
         my ($self, $reportDir, $testName) = @_;
-	$self->{_ModuleName} = "ExtractDbench4";
-	$self->{_DataType}   = DataTypes::DATA_TIME_MSECONDS;
-	$self->{_PlotType}   = "client-errorlines";
+	$self->{_ModuleName} 		= "ExtractDbench4";
+	$self->{_DataType}   		= DataTypes::DATA_TIME_MSECONDS;
+	$self->{_PlotType}   		= "client-errorlines";
+	$self->{_SubheadingPlotType}	= "simple-clients";
         $self->SUPER::initialise($reportDir, $testName);
 }
 
