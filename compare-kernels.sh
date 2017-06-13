@@ -320,15 +320,14 @@ generate_cputime_graphs() {
 }
 
 generate_basic_single() {
-	TITLE=$1
-	EXTRA=$2
+	TITLE="$1"
+	EXTRA="$2"
 
 	if [ "$TITLE" = "" ]; then
 		TITLE="SUBREPORT"
 	fi
 	if [ "$EXTRA" != "" ]; then
-		EXTRA_FILENAME=`echo $EXTRA | sed -e 's/ //g'`
-		EXTRA_FILENAME=`echo $EXTRA | sed -e 's/--/-/g'`
+		EXTRA_FILENAME=`echo $EXTRA | sed -e 's/--/-/g' | sed -e 's/ /-/g'`
 		EXTRA_TITLE=`echo " $EXTRA" | sed -e 's/--wide//' -e 's/--//g'`
 	fi
 
