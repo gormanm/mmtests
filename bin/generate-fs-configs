@@ -122,6 +122,7 @@ config-global-dhp__io-fio-randread-async-randwrite
 config-global-dhp__io-fio-randread-async-seqwrite
 config-global-dhp__io-fio-randread-sync-heavywrite
 config-global-dhp__io-fio-randread-sync-randwrite
+config-global-dhp__io-fio-seqread-doublemem-4k-4t
 config-global-dhp__io-blogbench
 config-global-dhp__workload_libmicro-file
 config-global-dhp__io-xfsio
