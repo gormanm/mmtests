@@ -41,6 +41,9 @@ sub extractReport() {
 			if ($line =~ /completed in/) {
 				my @elements = split(/\s+/, $line);
 
+				# Look for what is probably a negative wrap
+				next if ($elements[3] > (1<<31));
+
 				$nr_samples++;
 				push @{$self->{_ResultData}}, [ "$client", $nr_samples, $elements[3] ];
 
