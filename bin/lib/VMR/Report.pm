@@ -6,7 +6,6 @@ package VMR::Report;
 require Exporter;
 use vars qw (@ISA @EXPORT);
 use strict;
-use VMR::File;
 my $verbose;
 
 @ISA    = qw(Exporter);
