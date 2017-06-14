@@ -16,7 +16,7 @@ cleanup() {
 trap cleanup EXIT
 
 if [ "$CACHE_MMTESTS" = "" ]; then
-	exec $@
+	exec "$@"
 fi
 
 ORIG_PWD=`pwd`
@@ -25,7 +25,7 @@ ORIG_PWD=`pwd`
 if [ ! -d $CACHE_MMTESTS ]; then
 	mkdir -p $CACHE_MMTESTS
 	if [ $? -ne 0 ]; then
-		exec $@
+		exec "$@"
 	fi
 fi
 echo "Command: $@" > $HASHFILE
@@ -37,13 +37,13 @@ for i in `seq 1 $#`; do
 		cd $MMTESTS_LOGDIR
 		if [ $? -ne 0 ]; then
 			cd $ORIG_PWD
-			exec $@
+			exec "$@"
 		fi
 
 		echo "Log directory `pwd`" >> $HASHFILE
 		if [ `ls tests-timestamp* 2> /dev/null | wc -l` -eq 0 ]; then
 			cd $ORIG_PWD
-			exec $@
+			exec "$@"
 		fi
 		cd $ORIG_PWD
 	fi
@@ -90,7 +90,7 @@ if [ -d "$CACHE_MMTESTS/$HASHDIR" ]; then
 		zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz"
 		RET=$?
 		if [ $RET -ne 0 ]; then
-			eval $@
+			eval "$@"
 			RET=$?
 		fi
 		unlock_hashdir
@@ -104,11 +104,11 @@ fi
 # Create new results
 mkdir -p $CACHE_MMTESTS/$HASHDIR
 if [ $? -ne 0 ]; then
-	exec $@
+	exec "$@"
 fi
 lock_hashdir
 cp $HASHFILE "$CACHE_MMTESTS/$HASHDIR/hashfile"
-eval $@ > "$CACHE_MMTESTS/$HASHDIR/cache.tmp"
+eval "$@" > "$CACHE_MMTESTS/$HASHDIR/cache.tmp"
 if [ $? -ne 0 ]; then
 	cat "$CACHE_MMTESTS/$HASHDIR/cache.tmp"
 	rm -rf "$CACHE_MMTESTS/$HASHDIR"

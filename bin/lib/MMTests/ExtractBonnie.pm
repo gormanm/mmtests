@@ -11,6 +11,7 @@ sub initialise() {
 	$self->{_DataType}   = DataTypes::DATA_KBYTES_PER_SECOND;
 	$self->{_PlotType}   = "operation-candlesticks";
 	$self->{_DefaultPlot} = "SeqOut Block";
+	$self->{_ExactSubheading} = 1;
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
@@ -74,10 +75,10 @@ sub extractReport() {
 				push @{$self->{_ResultData}}, [ "SeqOut Rewrite",  $iteration, $elements[6] ];
 			}
 			if ($elements[8] != 0) {
-				push @{$self->{_ResultData}}, [ "SeqIn  Char",     $iteration, $elements[8] ];
+				push @{$self->{_ResultData}}, [ "SeqIn Char",     $iteration, $elements[8] ];
 			}
 			if ($elements[10] != 0) {
-				push @{$self->{_ResultData}}, [ "SeqIn  Block",    $iteration, $elements[10] ];
+				push @{$self->{_ResultData}}, [ "SeqIn Block",    $iteration, $elements[10] ];
 			}
 			if ($elements[12] != 0) {
 				push @{$self->{_ResultData}}, [ "Random seeks",    $iteration, $elements[12] ];

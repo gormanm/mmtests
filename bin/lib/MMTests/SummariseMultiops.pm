@@ -79,7 +79,9 @@ sub printPlot() {
 		my $index = 0;
 		while ($index <= $#_operations) {
 			if ($self->{_ExactSubheading} == 1) {
-				$self->{_PlotType} = $self->{_ExactPlottype};
+				if (defined $self->{_ExactPlottype}) {
+					$self->{_PlotType} = $self->{_ExactPlottype};
+				}
 				if ($_operations[$index] eq "$subHeading") {
 					$index++;
 					next;

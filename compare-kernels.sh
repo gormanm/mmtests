@@ -294,14 +294,20 @@ generate_subtest_graphs() {
 	if [ "$WRAP" = "" ]; then
 		WRAP=3
 	fi
-	for HEADING in `$EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sort | uniq`; do
+	SUBTEST_LIST=$2
+	if [ "$SUBTEST_LIST" = "" ]; then
+		SUBTEST_LIST=`eval $EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sort | uniq | sed -e 's/ /@/g'`
+	fi
+	for HEADING in $SUBTEST_LIST; do
+		HEADING=`echo $HEADING | sed -e 's/@/ /g'`
+		HEADING_FILENAME=`echo $HEADING | sed -e 's/ //g'`
 		COUNT=$((COUNT+1))
 		if [ $((COUNT%$WRAP)) -eq 0 ]; then
 			echo "<tr>"
 		fi
-		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
-		plain graph-$SUBREPORT-$HEADING
+		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME.png
+		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME.ps
+		plain graph-$SUBREPORT-$HEADING_FILENAME
 		if [ $((COUNT%$WRAP)) -eq $((WRAP-1)) ]; then
 			echo "</tr>"
 		fi
@@ -775,7 +781,11 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		adrestia-wakeup-*)
 			;;
 		aim9)
-			generate_subtest_graphs 4
+			generate_subtest_graphs 2
+			;;
+		bonnie)
+			SUBTEST_LIST=`$EXTRACT_CMD -n $KERNEL | awk '{print $1" "$2}' | sort | uniq | sed -e 's/ /@/g'`
+			generate_subtest_graphs 3 "$SUBTEST_LIST"
 			;;
 		autonumabench)
 			generate_cputime_graphs

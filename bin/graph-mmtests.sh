@@ -114,7 +114,12 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	*)
-		EXTRACT_ARGS="$EXTRACT_ARGS $1"
+		echo $1 | grep -q ' '
+		if [ $? -eq 0 ]; then
+			EXTRACT_ARGS="$EXTRACT_ARGS \"$1\""
+		else
+			EXTRACT_ARGS="$EXTRACT_ARGS $1"
+		fi
 		shift
 		;;
 	esac
@@ -169,11 +174,11 @@ for TEST in $TEST_LIST; do
 	if [ "$USE_R" != "" ]; then
 		PLOTFILE="$R_TMPDIR/$SUBREPORT-$TEST"
 		if [ ! -f "$R_TMPDIR/$SUBREPORT.Rdata" ]; then
-			$SCRIPTDIR/cache-mmtests.sh $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-header > $PLOTFILE || exit
+			eval $SCRIPTDIR/cache-mmtests.sh $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-header > $PLOTFILE || exit
 		fi
 	else
 		PLOTFILE="$TMPDIR/$TEST"
-		$SCRIPTDIR/cache-mmtests.sh $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | \
+		eval $SCRIPTDIR/cache-mmtests.sh $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | \
 			grep -v nan 		| \
 			sed -e 's/_/\\\\_/g'	  \
 			> $PLOTFILE || exit
