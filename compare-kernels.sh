@@ -13,6 +13,10 @@ POSTSCRIPT_OUTPUT=no
 
 while [ "$1" != "" ]; do
 	case $1 in
+	--auto-detect)
+		AUTO_DETECT_SIGNIFICANCE="--print-significance"
+		shift
+		;;
 	--format)
 		FORMAT=$2
 		FORMAT_CMD="--format $FORMAT"
@@ -407,7 +411,7 @@ generate_subheading_trans_graphs() {
 cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
 for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
 	EXTRACT_CMD="cache-mmtests.sh extract-mmtests.pl -d . -b $SUBREPORT"
-	COMPARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
+	COMPARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD $AUTO_DETECT_SIGNIFICANCE"
 	COMPARE_BARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
 	COMPARE_R_CMD="compare-mmtests-R.sh -d . $ITERATIONS -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
 	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format png"

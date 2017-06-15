@@ -23,7 +23,7 @@ use strict;
 my ($opt_verbose);
 my ($opt_help, $opt_manual);
 my ($opt_reportDirectory);
-my ($opt_printHeader, $opt_printRatio);
+my ($opt_printHeader, $opt_printRatio, $opt_printSignificance);
 my ($opt_subheading, $opt_format);
 my ($opt_names, $opt_benchmark);
 my ($opt_monitor, $opt_hideCompare);
@@ -34,6 +34,7 @@ GetOptions(
 	'help|h'		=> \$opt_help,
 	'--print-header'	=> \$opt_printHeader,
 	'--print-ratio'		=> \$opt_printRatio,
+	'--print-significance'	=> \$opt_printSignificance,
 	'--print-monitor=s'	=> \$opt_monitor,
 	'--no-compare'		=> \$opt_hideCompare,
 	'--sub-heading=s'	=> \$opt_subheading,
