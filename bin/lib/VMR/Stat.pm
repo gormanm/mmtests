@@ -337,11 +337,11 @@ sub calc_stddev {
 		}
 	}
 
-	if ($n == 0) {
+	if ($n <= 1) {
 		return "NaN";
 	}
 
-	return sqrt($diff / $n);
+	return sqrt($diff / ($n - 1));
 }
 
 sub calc_coeffvar {
