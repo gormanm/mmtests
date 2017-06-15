@@ -95,7 +95,6 @@ rm $TREE_MMTESTS/profile-disabled-hooks*
 rm $TREE_MMTESTS/README
 rm $TREE_MMTESTS/run-kvm.sh
 rm -rf $TREE_MMTESTS/configs
-rm -rf $TREE_MMTESTS/fraganalysis
 rm -rf $TREE_MMTESTS/micro
 rm -rf $TREE_MMTESTS/shellpack_src
 rm -rf $TREE_MMTESTS/stap-patches
