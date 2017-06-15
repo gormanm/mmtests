@@ -467,11 +467,11 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Latency read
-		cache-mmtests.sh compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-read $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-read $FORMAT_CMD
 
 		echo
 		echo $SUBREPORT Latency write
-		cache-mmtests.sh compare-mmtests.pl -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-write $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-write $FORMAT_CMD
 		echo
 		# all sub-headings (ie. fio-scaling-[rand]{rw,read,write}-{read,write})
 		echo $SUBREPORT scaling
@@ -525,7 +525,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		;;
 	netpipe)
 		echo $SUBREPORT Throughput
-		cache-mmtests.sh compare-mmtests.pl -d . -b netpipe4mb -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b netpipe4mb -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	parallelio)
@@ -540,7 +540,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		;;
 	pft)
 		echo $SUBREPORT timings
-		cache-mmtests.sh compare-mmtests.pl -d . -b pfttime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b pfttime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT faults
 		eval $COMPARE_CMD
@@ -551,7 +551,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
-		cache-mmtests.sh compare-mmtests.pl -d . -b pgbenchstalls -n $KERNEL_LIST $FORMAT_CMD > /tmp/pgbench-$$
+		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b pgbenchstalls -n $KERNEL_LIST $FORMAT_CMD > /tmp/pgbench-$$
 		TEST=`grep MinStall-1 /tmp/pgbench-$$ | grep -v nan`
 		if [ "$TEST" != "" ]; then
 			echo
