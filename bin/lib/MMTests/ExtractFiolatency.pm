@@ -12,6 +12,7 @@ sub new() {
 		_DataType    => DataTypes::DATA_TIME_MSECONDS,
 		_ResultData  => [],
 		_PlotType    => "simple-filter",
+		_PlotXaxis   => "Time (seconds)"
 	};
 	bless $self, $class;
 	return $self;
@@ -22,6 +23,8 @@ sub extractReport() {
 	my $seen_read = 0;
 	my $seen_write = 0;
 	$reportDir =~ s/fiolatency/fio/;
+
+	my @resultData;
 
 	my @files = <$reportDir/$profile/fio_lat.*.log>;
 	foreach my $file (@files) {
@@ -44,10 +47,14 @@ sub extractReport() {
 				next;
 			}
 			$nr_samples++;
-			push @{$self->{_ResultData}}, [ "latency-$dir", $nr_samples, $lat ];
+			$time /= 1000;
+			push @resultData, [ "latency-$dir", $time, $lat ];
 		}
 		close INPUT;
 	}
+
+	@resultData = sort { $a->[1] <=> $b->[1] } @resultData;
+	$self->{_ResultData} = \@resultData;
 
 	my @ops;
 

@@ -153,7 +153,6 @@ sub extractSummary() {
 	}
 
 	return 1;
-
 }
 
 sub extractRatioSummary() {
@@ -188,8 +187,6 @@ sub extractRatioSummary() {
 	}
 
 	return 1;
-
 }
-
 
 1;
