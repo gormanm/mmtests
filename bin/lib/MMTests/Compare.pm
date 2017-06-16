@@ -217,7 +217,7 @@ sub _generateHeaderTable() {
 	push @headerFormat, "%${operationLength}s";
 
 	if (! defined $self->{_CompareLength}) {
-		$self->{_CompareLength} = 6;
+		$self->{_CompareLength} = 7;
 	}
 
 	# Headers
@@ -404,7 +404,7 @@ sub _generateRenderTable() {
 		@compareTable = @{$self->{_CompareTable}};
 		$compareLength = $self->{_CompareLength};
 		if (! defined $compareLength) {
-			$compareLength = 6;
+			$compareLength = 7;
 		}
 	}
 
