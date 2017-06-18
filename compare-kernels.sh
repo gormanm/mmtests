@@ -67,7 +67,13 @@ while [ "$1" != "" ]; do
 done
 
 if [ "$CACHE_MMTESTS" != "" ]; then
-	find $CACHE_MMTESTS -maxdepth 3 -type f -atime +14 -exec rm -rf {} \;
+	CURRENT_UPDATE=`date +%s`
+	CURRENT_UPDATE=$((CURRENT_UPDATE/3600))
+	LAST_UPDATE=`cat $CACHE_MMTESTS/last_update`
+	if [ "$LAST_UPDATE" != "$CURRENT_UPDATE" ]; then
+		find $CACHE_MMTESTS -maxdepth 3 -type f -atime +14 -exec rm -rf {} \;
+	fi
+	echo -n $CURRENT_UPDATE > $CACHE_MMTESTS/last_update
 fi
 
 # Do Not Litter
