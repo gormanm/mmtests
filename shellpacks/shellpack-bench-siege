@@ -103,7 +103,7 @@ if [ -e /proc/sys/net/ipv4/tcp_tw_recycle ]; then
 	sysctl -w net.ipv4.tcp_tw_recycle=1
 else
 	echo Enabling tcp_tw_reuse
-	sysctl -w net.ipv4.tcp.tw_reuse=1
+	sysctl -w net.ipv4.tcp_tw_reuse=1
 fi
 
 echo Setting files limit $((MAX_USERS*1000))
@@ -169,4 +169,4 @@ done
 echo siege completed successfully
 exit $SHELLPACK_SUCCESS
 #### Description siege
-#### Details siege-bench 45
+#### Details siege-bench 46
