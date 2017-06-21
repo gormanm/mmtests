@@ -64,5 +64,5 @@ export MONITOR_UPDATE_FREQUENCY=10
 # dedup
 export DEDUP_ITERATIONS=4
 export DEDUP_MIN_THREADS=2
-export DEDUP_MAX_THREADS=$((NUMCPUS*4))
+export DEDUP_MAX_THREADS=4
 export DEDUP_FILE=$WEBROOT/compress/vm-image.gz
