@@ -44,7 +44,11 @@ while ( $results[$nr_samples] = <>) {
 my $sample;
 my $mean = calc_mean(@results);
 my $stddev = calc_stddev(@results);
-my $conf = calc_confidence_interval_lower($opt_confidence_level, @results);
+my $conf = calc_confidence_interval_lower("NaN", $opt_confidence_level, @results);
+if ($conf !~ /^[-0-9]+/) {
+	print "Confidence level $opt_confidence_level not supported\n";
+	exit -1;
+}
 my $limit = $mean * $opt_limit / 100;
 my $conf_delta = $mean - $conf;
 my $usable_samples = $nr_samples;
@@ -84,7 +88,7 @@ CONF_LOOP:
 
 		$mean = calc_mean(@results);
 		$stddev = calc_stddev(@results);
-		$conf = calc_confidence_interval_lower($opt_confidence_level, @results);
+		$conf = calc_confidence_interval_lower("NaN", $opt_confidence_level, @results);
 		$limit = $mean * $opt_limit / 100;
 		$conf_delta = $mean - $conf;
 
