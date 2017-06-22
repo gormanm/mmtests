@@ -34,7 +34,10 @@ else
 	echo Downloading $DEDUP_FILE
 	wget -O $SHELLPACK_TEMP/in.file.gz -q $DEDUP_FILE
 	if [ $? -ne 0 ]; then
-		die Failed to download $DEDUP_FILE
+		wget -O $SHELLPACK_TEMP/in.file.gz $DEDUP_FILE
+		if [ $? -ne 0 ]; then
+			die Failed to download $DEDUP_FILE
+		fi
 	fi
 fi
 if [ "`file $SHELLPACK_TEMP/in.file.gz | grep gzip`" = "" ]; then

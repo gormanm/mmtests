@@ -102,7 +102,10 @@ else
 	echo Downloading $DEDUP_FILE
 	wget -O $SHELLPACK_TEMP/in.file.gz -q $DEDUP_FILE
 	if [ $? -ne 0 ]; then
-		die Failed to download $DEDUP_FILE
+		wget -O $SHELLPACK_TEMP/in.file.gz $DEDUP_FILE
+		if [ $? -ne 0 ]; then
+			die Failed to download $DEDUP_FILE
+		fi
 	fi
 fi
 if [ "`file $SHELLPACK_TEMP/in.file.gz | grep gzip`" = "" ]; then
@@ -131,6 +134,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $DEDUP_MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 for ITERATION in `seq 1 $DEDUP_ITERATIONS`; do
@@ -155,4 +161,4 @@ done
 rm $SHELLPACK_TEMP/in.file
 exit $SHELLPACK_SUCCESS
 #### Description dedup
-#### Details dedup-bench 20
+#### Details dedup-bench 21
