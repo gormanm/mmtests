@@ -589,16 +589,21 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 	export TESTDISK_PRIMARY_SIZE_BYTES=`df $SHELLPACK_TEST_MOUNT | tail -1 | awk '{print $4}'`
 	export TESTDISK_PRIMARY_SIZE_BYTES=$((TESTDISK_PRIMARY_SIZE_BYTES*1024))
 
+	rm -f $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
 	for i in ${!TESTDISK_PARTITIONS[*]}; do
+		DEVICE=`basename ${TESTDISK_PARTITIONS[$i]}`
+		while [ ! -e /sys/block/$DEVICE/queue/scheduler ]; do
+			DEVICE=`echo $DEVICE | sed -e 's/.$//'`
+			if [ "$DEVICE" = "" ]; then
+				break
+			fi
+		done
+		grep -r -H . /sys/block/$DEVICE/queue/* >> $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
+
 		if [ "$TESTDISK_IO_SCHEDULER" != "" ]; then
-			DEVICE=`basename ${TESTDISK_PARTITIONS[$i]}`
-			START_DEVICE=$DEVICE
-			while [ ! -e /sys/block/$DEVICE/queue/scheduler ]; do
-				DEVICE=`echo $DEVICE | sed -e 's/.$//'`
-				if [ "$DEVICE" = "" ]; then
-					die "Unable to get an IO scheduler for $START_DEVICE"
-				fi
-			done
+			if [ "$DEVICE" = "" ]; then
+				die "Unable to get an IO scheduler for $START_DEVICE"
+			fi
 			echo $TESTDISK_IO_SCHEDULER > /sys/block/$DEVICE/queue/scheduler || die "Failed to set IO scheduler $TESTDISK_IO_SCHEDULER on /sys/block/$DEVICE/queue/scheduler"
 			echo Set IO scheduler $TESTDISK_IO_SCHEDULER on $DEVICE
 			grep -H . /sys/block/$DEVICE/queue/scheduler
