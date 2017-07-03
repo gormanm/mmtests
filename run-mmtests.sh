@@ -602,6 +602,7 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 			echo $TESTDISK_IO_SCHEDULER > /sys/block/$DEVICE/queue/scheduler || die "Failed to set IO scheduler $TESTDISK_IO_SCHEDULER on /sys/block/$DEVICE/queue/scheduler"
 			echo Set IO scheduler $TESTDISK_IO_SCHEDULER on $DEVICE
 			grep -H . /sys/block/$DEVICE/queue/scheduler
+			lsscsi | grep $DEVICE
 		fi
 
 		if [ $i -eq 0 ]; then
@@ -969,6 +970,10 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		lstopo $SHELLPACK_LOG/lstopo-${RUNNAME}.pdf
 		lstopo --output-format txt > $SHELLPACK_LOG/lstopo-${RUNNAME}.txt
 	fi
+	if [ "`which lsscsi 2> /dev/null`" != "" ]; then
+		lsscsi > $SHELLPACK_LOG/lsscsi-${RUNNAME}.txt
+	fi
+
 	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
 	for TEST in $MMTESTS; do
 		# Configure transparent hugepage support as configured
