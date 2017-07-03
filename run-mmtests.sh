@@ -598,7 +598,6 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 				break
 			fi
 		done
-		grep -r -H . /sys/block/$DEVICE/queue/* >> $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
 
 		if [ "$TESTDISK_IO_SCHEDULER" != "" ]; then
 			if [ "$DEVICE" = "" ]; then
@@ -614,6 +613,7 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 			grep -H . /sys/block/$DEVICE/queue/scheduler
 			lsscsi | grep $DEVICE
 		fi
+		grep -r -H . /sys/block/$DEVICE/queue/* >> $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
 
 		if [ $i -eq 0 ]; then
 			SHELLPACK_TEST_MOUNTS[$i]=$SHELLPACK_TEST_MOUNT
