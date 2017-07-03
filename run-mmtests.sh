@@ -601,6 +601,7 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 			done
 			echo $TESTDISK_IO_SCHEDULER > /sys/block/$DEVICE/queue/scheduler || die "Failed to set IO scheduler $TESTDISK_IO_SCHEDULER on /sys/block/$DEVICE/queue/scheduler"
 			echo Set IO scheduler $TESTDISK_IO_SCHEDULER on $DEVICE
+			grep -H . /sys/block/$DEVICE/queue/scheduler
 		fi
 
 		if [ $i -eq 0 ]; then
