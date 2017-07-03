@@ -604,8 +604,13 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 			if [ "$DEVICE" = "" ]; then
 				die "Unable to get an IO scheduler for $START_DEVICE"
 			fi
-			echo $TESTDISK_IO_SCHEDULER > /sys/block/$DEVICE/queue/scheduler || die "Failed to set IO scheduler $TESTDISK_IO_SCHEDULER on /sys/block/$DEVICE/queue/scheduler"
 			echo Set IO scheduler $TESTDISK_IO_SCHEDULER on $DEVICE
+			echo $TESTDISK_IO_SCHEDULER > /sys/block/$DEVICE/queue/scheduler || die "Failed to set IO scheduler $TESTDISK_IO_SCHEDULER on /sys/block/$DEVICE/queue/scheduler"
+
+			if [ "$TESTDISK_IO_SCHEDULER_LOW_LATENCY" != "" ]; then
+				echo Setting IO scheduler low_latency to $TESTDISK_IO_SCHEDULER_LOW_LATENCY
+				echo $TESTDISK_IO_SCHEDULER_LOW_LATENCY > /sys/block/$DEVICE/queue/iosched/low_latency || die "Failed to set IO scheduler low_latency to $TESTDISK_IO_SCHEDULER_LOW_LATENCY"
+			fi
 			grep -H . /sys/block/$DEVICE/queue/scheduler
 			lsscsi | grep $DEVICE
 		fi
