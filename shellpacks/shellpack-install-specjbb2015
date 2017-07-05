@@ -44,7 +44,6 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-mkdir -p $SHELLPACK_SOURCES/specjbb2015-${VERSION}-installed/config
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/SPECjbb2015_${VERSION}.zip $SHELLPACK_SOURCES/SPECjbb2015_${VERSION}.zip
 cd $SHELLPACK_SOURCES
 unzip SPECjbb2015_${VERSION}.zip || die Failed to unzip SPECjbb2015_${VERSION}.zip
@@ -52,4 +51,4 @@ mv SPECjbb2015_${VERSION} specjbb2015-${VERSION}-installed || die Failed to rena
 
 exit $SHELLPACK_SUCCESS
 #### Description specjbb2015
-#### Details specjbb2015 7
+#### Details specjbb2015 8

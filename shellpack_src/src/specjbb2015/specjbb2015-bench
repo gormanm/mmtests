@@ -22,7 +22,7 @@ pushd $SHELLPACK_SOURCES/specjbb2015-${VERSION}-installed > /dev/null || die Fai
 [ ! -e specjbb2015.jar ] && die No specjbb2015.jar available
 
 # Increase open file limit
-ulimit -l 65536
+ulimit -n 65536
 
 # Run the actual test
 for PAGES in $SPECJBB_PAGESIZES; do
