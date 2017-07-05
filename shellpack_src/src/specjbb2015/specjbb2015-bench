@@ -21,6 +21,9 @@ STARTING_HUGEPAGES=`cat /proc/sys/vm/nr_hugepages`
 pushd $SHELLPACK_SOURCES/specjbb2015-${VERSION}-installed > /dev/null || die Failed to cd to specjbb
 [ ! -e specjbb2015.jar ] && die No specjbb2015.jar available
 
+# Increase open file limit
+ulimit -l 65536
+
 # Run the actual test
 for PAGES in $SPECJBB_PAGESIZES; do
 	USE_HUGEPAGE=
@@ -81,12 +84,6 @@ for PAGES in $SPECJBB_PAGESIZES; do
 		HEAP_TOTAL=$((TEST_CONTROLLER))
 		HEAP_TOTAL=$((HEAP_TOTAL+TEST_BACKEND))
 		HEAP_TOTAL=$((HEAP_TOTAL+TEST_TXI*SPECJBB_TXI_PER_INSTANCE))
-		TEST_MAX=$((TEST_MAX))
-
-		if [ $HEAP_TOTAL -gt $TEST_MAX ]; then
-			echo Required total heaps of $HEAP_TOTAL exceeds per-group maximum configured heap of $TEST_MAX
-			exit $SHELLPACK_ERROR
-		fi
 
 		SPEC_OPTS="-Dspecjbb.group.count=$INSTANCES -Dspecjbb.txi.pergroup.count=$SPECJBB_TXI_PER_INSTANCE"
 		

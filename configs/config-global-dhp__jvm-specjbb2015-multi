@@ -1,4 +1,4 @@
-### specjbb is executed with one JVM with a maximum heap size of 60% of
+### specjbb is executed with one JVM with a maximum heap size of 70% of
 ### memory.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
@@ -43,16 +43,25 @@ export MONITORS_GZIP="proc-vmstat top numa-numastat numa-meminfo numa-convergenc
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# SPECjbb - max heap 60% of memory.
 # Total heap is divided between number of instances
 export SPECJBB_JRE=/opt/java/jre/bin
+
+# SPECjbb - max heap 70% of memory.
 export SPECJBB_JVM_INSTANCES=$NUMNODES
-export SPECJBB_MAXHEAP_TOTAL_MB=$((MEMTOTAL_BYTES*6/10/1048576))
+export SPECJBB_MAXHEAP_TOTAL_MB=$((MEMTOTAL_BYTES*7/10/1048576))
 export SPECJBB_MAXHEAP=-Xmx$(($SPECJBB_MAXHEAP_TOTAL_MB/$SPECJBB_JVM_INSTANCES))m
-export SPECJBB_HEAP_CONTROLLER=-Xmx$((2*1024))m
-export SPECJBB_HEAP_BACKEND=-Xmx$((4*1024))m
-export SPECJBB_HEAP_TXI=-Xmx$((2*1024))m
+
+# Work out approximate requirements for helpers and total
+export SPECJBB_HEAP_HELPERS=$((2*1024))
+export SPECJBB_HEAP_BACKEND_TOTAL=$(((SPECJBB_MAXHEAP_TOTAL_MB-SPECJBB_HEAP_HELPERS*2)*4/5))
+export SPECJBB_HEAP_BACKEND=$((SPECJBB_HEAP_BACKEND_TOTAL/SPECJBB_JVM_INSTANCES))
+
+# Scale memory usage to what is available
+export SPECJBB_HEAP_CONTROLLER=-Xmx${SPECJBB_HEAP_HELPERS}m
+export SPECJBB_HEAP_TXI=-Xmx${SPECJBB_HEAP_HELPERS}m
+export SPECJBB_HEAP_BACKEND=-Xmx${SPECJBB_HEAP_BACKEND}m
 export SPECJBB_TXI_PER_INSTANCE=1
+
 export SPECJBB_PAGESIZES="default"
 #export SPECJBB_PAGESIZES="base huge"
 export SPECJBB_HUGESWITCH=-Xlp

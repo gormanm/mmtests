@@ -7,7 +7,7 @@ MIRROR_LOCATION="$WEBROOT/spec"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-mkdir -p $SHELLPACK_SOURCES/specjbb2013-${VERSION}-installed/config
+mkdir -p $SHELLPACK_SOURCES/specjbb2015-${VERSION}-installed/config
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/SPECjbb2015_${VERSION}.zip $SHELLPACK_SOURCES/SPECjbb2015_${VERSION}.zip
 cd $SHELLPACK_SOURCES
 unzip SPECjbb2015_${VERSION}.zip || die Failed to unzip SPECjbb2015_${VERSION}.zip
