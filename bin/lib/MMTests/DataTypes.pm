@@ -24,4 +24,6 @@ use constant DATA_TRANS_PER_SECOND	=> 16;
 use constant DATA_TRANS_PER_MINUTE	=> 17;
 use constant DATA_SUCCESS_PERCENT	=> 18;
 
+use constant DATA_RATIO_SPEEDUP		=> 19;
+
 1;

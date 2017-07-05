@@ -83,6 +83,8 @@ sub printDataType() {
 	} elsif ($self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
 		$yaxis = "Percentage";
 		$units = "Success";
+	} elsif ($self->{_DataType} == DataTypes::DATA_RATIO_SPEEDUP) {
+		$yaxis = "Speedup (ratio)";
 	}
 
 	my $xaxis = "UNKNOWN";

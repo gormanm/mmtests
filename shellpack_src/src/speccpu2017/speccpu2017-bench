@@ -1,0 +1,100 @@
+#!/bin/bash
+# This is the script for running SPECcpu
+###SHELLPACK preamble speccpu2017-bench 1.0.1
+
+SPECCPU_DATA_SIZE=ref
+SPECCPU_ITERATIONS=3
+SPECCPU_TESTS=specspeed
+
+install-depends dmidecode gcc gcc-c++ gcc-fortran
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --input-data-size	SPECCPU_DATA_SIZE
+###SHELLPACK parseargParam --iterations		SPECCPU_ITERATIONS
+###SHELLPACK parseargParam --tests		SPECCPU_TESTS
+###SHELLPACK parseargParam --parallel		SPECCPU_PARALLEL
+###SHELLPACK parseargYes   --build		SPECCPU_BUILDONLY
+###SHELLPACK parseargEnd
+
+# Detect bitness
+case `uname -m` in
+	i?86)
+		RUNBITS=32
+		;;
+	*)
+		RUNBITS=64
+		;;
+esac
+
+# Detect whether it is reportable
+REPORTABLE=--reportable
+if [ "$TESTS" != "specspeed" -a "$TESTS" != "specrate" ]; then
+	if [ "$SPECCPU_ITERATIONS" = "1" -o "$SPECCPU_DATA_SIZE" != "ref" ]; then
+		REPORTABLE=--noreportable
+	fi
+fi
+
+###SHELLPACK check_install_required speccpu2017-${VERSION}
+###SHELLPACK monitor_hooks
+
+# Prepare system
+cd $SHELLPACK_SOURCES/speccpu2017-${VERSION}-installed > /dev/null || die Failed to cd to speccpu
+[ ! -e shrc ] && die No speccpu2017 shrc script
+[ -e result ] && rm -rf result
+. shrc
+mkdir -p config
+
+# Generate SPEC configurations
+if [ ! -e  config/gen-m${RUNBITS}.cfg ]; then
+	echo Auto-generating speccpu 2017 file
+	generate-speccpu2017.sh			\
+		--bitness ${RUNBITS}		\
+		--parallel $SPECCPU_PARALLEL	\
+		--iterations $SPECCPU_ITERATIONS > config/gen-m${RUNBITS}.cfg || die Failed to generate spec config file
+fi
+
+# Prebuild everything if requested
+if [ "$SPECCPU_BUILDONLY" = "yes" ]; then
+	BUILD_LIST=
+	case $SPECCPU_TESTS in
+	specspeed)
+		BUILD_LIST="intspeed fpspeed"
+		;;
+	specrate)
+		BUILD_LIST="intrate fprate"
+		;;
+	esac
+	if [ "$BUILD_LIST" != "" ]; then
+		mmtests_activity source-install
+		for BUILD in $BUILD_LIST; do
+			echo Prebuilding $BUILD for $SIZE
+			$MMTESTS_HUGECTL runcpu --config gen-m${RUNBITS}.cfg	\
+				$REPORTABLE					\
+				--tune base					\
+				--size $SIZE					\
+				--iterations $SPECCPU_ITERATIONS		\
+				--action=build $SPECCPU_DATA_SIZE || die Failed to build spec
+		done
+	fi
+
+	echo Speccpu 2017 build-only for $SPECCPU_TESTS complete
+	exit $SHELLPACK_SUCCESS
+fi
+
+# Increase stack size of cam4_s will fail
+ulimit -s $((256*1048576))
+
+# Run the benchmark
+mmtests_activity runcpu
+$MMTESTS_HUGECTL runcpu --config gen-m${RUNBITS}.cfg	\
+	$REPORTABLE					\
+	--tune base					\
+	--size $SPECCPU_DATA_SIZE			\
+	--iterations $SPECCPU_ITERATIONS		\
+	$SPECCPU_TESTS
+RETVAL=$?
+mv result/* $LOGDIR_RESULTS/
+gzip $LOGDIR_RESULTS/*.log
+
+exit $RETVAL

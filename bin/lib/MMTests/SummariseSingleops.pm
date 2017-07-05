@@ -79,7 +79,8 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_MBITS_PER_SECOND ||
 	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_SECOND ||
 	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE ||
-	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
+	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT  ||
+	    $self->{_DataType} == DataTypes::DATA_RATIO_SPEEDUP) {
 		$self->{_RatioPreferred} = "Higher";
 		$self->{_CompareOp} = "pdiff";
 	}

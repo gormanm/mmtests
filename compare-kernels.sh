@@ -588,6 +588,9 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Peaks
 		cache-mmtests.sh compare-mmtests.pl -d . -b specjbbpeak -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	speccpu2017-speed-build)
+		echo $SUBREPORT
+		;;
 	stockfish)
 		echo $SUBREPORT Nodes/sec
 		cache-mmtests.sh compare-mmtests.pl -d . -b stockfish -n $KERNEL_LIST $FORMAT_CMD
@@ -1018,6 +1021,8 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		sockperf-tcp-under-load|sockperf-udp-under-load)
 			generate_client_subtest_graphs 4
+			;;
+		speccpu2017-speed-build)
 			;;
 		specjbb2013)
 			;;
