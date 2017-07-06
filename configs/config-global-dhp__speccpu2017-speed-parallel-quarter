@@ -70,10 +70,3 @@ if [ $SPECCPU_PARALLEL -le 0 ]; then
 	echo Skipping speccpu2017speed parallel as cannot run with $SPECCPU_PARALLEL cpus
 	exit $SHELLPACK_SUCCESS
 fi
-MEMTOTAL_GB=$((MEMTOTAL_BYTES/1048576/1024))
-MEMTOTAL_REQUIRED=$((2*SPECCPU_PARALLEL))
-
-if [ $MEMTOTAL_REQUIRED -ge $MEMTOTAL_GB ]; then
-	echo Skipping speccpu2017speed parallel as $MEMTOTAL_REQUIRED GB required but $MEMTOTAL_GB available
-	exit $SHELLPACK_SUCCESS
-fi

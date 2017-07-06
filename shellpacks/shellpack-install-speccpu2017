@@ -75,4 +75,4 @@ rm $SCRIPT
 
 exit $SHELLPACK_SUCCESS
 #### Description speccpu2017
-#### Details speccpu2017 6
+#### Details speccpu2017 12
