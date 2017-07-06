@@ -1,13 +1,13 @@
 #!/bin/bash
 
 ###SHELLPACK preamble ebizzy-install 0.3
-WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/ebizzy"
+WEB_LOCATION="https://10gbps-io.dl.sourceforge.net/project/ebizzy/ebizzy"
 MIRROR_LOCATION="$WEBROOT/ebizzy"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK sources_fetch ebizzy-${VERSION}.tar.gz ebizzy-$VERSION
+###SHELLPACK sources_fetch ${VERSION}/ebizzy-${VERSION}.tar.gz ebizzy-$VERSION
 
 echo 'diff --git a/configure b/configure
 index 49f3652..3618780 100755

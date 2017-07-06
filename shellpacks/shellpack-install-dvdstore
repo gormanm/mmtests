@@ -117,7 +117,7 @@ for FILE in `find -name "*"`; do
 	touch $FILE
 done
 cd pgsqlds2
-file_fetch https://github.com/npgsql/npgsql/releases/download/v2.2.4.1/Npgsql-2.2.4.1-net35.zip \
+file_fetch  http://skynet.ie/~mel/mmtests-archive/dvdstore/Npgsql-2.2.4.1-net35.zip \
 	$MIRROR_LOCATION/Npgsql-2.2.4.1-net35.zip \
 	Npgsql.zip
 unzip Npgsql.zip
@@ -144,4 +144,4 @@ fi
 echo dvdstore for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description dvdstore
-#### Details dvdstore 22
+#### Details dvdstore 23

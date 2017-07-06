@@ -3,7 +3,7 @@
 P=libhugetlbfs-install
 INSTALL_TESTS=0
 VERSION=
-WEB_LOCATION=http://heanet.dl.sourceforge.net/project/libhugetlbfs/libhugetlbfs
+WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/libhugetlbfs
 MIRROR_LOCATION="$WEBROOT/libhugetlbfs"
 DEFAULT_VERSION=2.9
 . $SHELLPACK_INCLUDE/common.sh

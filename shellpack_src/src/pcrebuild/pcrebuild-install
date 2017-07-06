@@ -3,6 +3,7 @@
 ###SHELLPACK preamble pcrebuild-install 8.37
 
 WEB_LOCATION=ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre
+WEB_LOCATION_ALT=http://www.skynet.ie/~mel/mmtests-archive/apache/
 MIRROR_LOCATION="$WEBROOT/apache/"
 
 ###SHELLPACK parseargBegin

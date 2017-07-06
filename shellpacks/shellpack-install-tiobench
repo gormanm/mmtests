@@ -8,7 +8,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-WEB_LOCATION=http://heanet.dl.sourceforge.net/sourceforge/tiobench
+WEB_LOCATION=https://10gbps-io.dl.sourceforge.net/project/tiobench/tiobench
 MIRROR_LOCATION="$WEBROOT/tiobench/"
 
 # Basic argument parser
@@ -46,7 +46,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=tiobench-${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$VERSION/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -135,4 +135,4 @@ fi
 
 echo tiobench installed successfully
 #### Description tiobench
-#### Details tiobench 21
+#### Details tiobench 22

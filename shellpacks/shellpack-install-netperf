@@ -8,7 +8,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-WEB_LOCATION=ftp://ftp.netperf.org/netperf/archive
+WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/netperf
 MIRROR_LOCATION="$WEBROOT/netperf/"
 
 # Basic argument parser
@@ -93,4 +93,4 @@ fi
 
 echo Netperf installed successfully
 #### Description Netperf benchmark
-#### Details netperf 52
+#### Details netperf 53

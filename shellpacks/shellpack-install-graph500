@@ -7,7 +7,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-WEB_LOCATION="http://www.graph500.org/sites/default/files/files"
+WEB_LOCATION="http://www.skynet.ie/~mel/mmtests-archive/graph500"
 MIRROR_LOCATION="$WEBROOT/graph500/"
 
 install-depends openmpi openmpi-devel openmpi-libs
@@ -62,4 +62,4 @@ mv $DST_DIR graph500-$VERSION-installed
 pushd graph500-$VERSION-installed > /dev/null || die Failed to rename tar
 exit $SHELLPACK_SUCCESS
 #### Description graph500
-#### Details graph500 9
+#### Details graph500 10

@@ -7,7 +7,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-WEB_LOCATION=http://byte-unixbench.googlecode.com/files/
+WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/unixbench
 MIRROR_LOCATION="$WEBROOT/unixbench/"
 
 # Basic argument parser
@@ -111,4 +111,4 @@ index d615935..7322003 100755
          # Run the benchmark.
          my $bresult = runBenchmark($bench, $params, $verbose, $logFile, $copies);
 #### Description unixbench
-#### Details unixbench 4
+#### Details unixbench 5

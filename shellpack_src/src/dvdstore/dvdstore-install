@@ -43,7 +43,7 @@ rmdir $SHELLPACK_SOURCES/dvdstore_$DVDSTOREDRIVER-${VERSION}
 
 ###SHELLPACK build_start dvdstore-${VERSION}-installed
 cd pgsqlds2
-file_fetch https://github.com/npgsql/npgsql/releases/download/v2.2.4.1/Npgsql-2.2.4.1-net35.zip \
+file_fetch  http://skynet.ie/~mel/mmtests-archive/dvdstore/Npgsql-2.2.4.1-net35.zip \
 	$MIRROR_LOCATION/Npgsql-2.2.4.1-net35.zip \
 	Npgsql.zip
 unzip Npgsql.zip

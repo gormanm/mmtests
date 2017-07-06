@@ -4,7 +4,7 @@ P=ltp-install
 INSTALL_TESTS=0
 VERSION=
 DEFAULT_VERSION=20150420
-WEB_LOCATION=http://heanet.dl.sourceforge.net/sourceforge/ltp
+WEB_LOCATION=http://netcologne.dl.sourceforge.net/project/ltp/LTP%20Source
 MIRROR_LOCATION=$WEBROOT/ltp
 LTP_SOURCE_REPO=http://mcp/mmtests-mirror
 . $SHELLPACK_INCLUDE/common.sh
@@ -13,7 +13,7 @@ LTP_SOURCE_REPO=http://mcp/mmtests-mirror
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
 
-###SHELLPACK sources_fetch ltp-full-${VERSION}.tar.bz2 ltp-$VERSION
+###SHELLPACK sources_fetch ltp-${VERSION}/ltp-full-${VERSION}.tar.bz2 ltp-$VERSION
 ###SHELLPACK build_start ltp-$VERSION
 ###SHELLPACK build_configure ltp-${VERSION}
 ###SHELLPACK make_make_install

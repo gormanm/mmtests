@@ -8,7 +8,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-WEB_LOCATION=http://heanet.dl.sourceforge.net/project/fsmark/fsmark/
+WEB_LOCATION=https://10gbps-io.dl.sourceforge.net/project/fsmark/fsmark
 MIRROR_LOCATION="$WEBROOT/fsmark/"
 
 install-depends glibc-devel-static glibc-devel-static-32bit
@@ -48,7 +48,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=fs_mark-${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$VERSION/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -75,4 +75,4 @@ fi
 
 echo fsmark installed successfully
 #### Description fsmark
-#### Details fsmark 39
+#### Details fsmark 40

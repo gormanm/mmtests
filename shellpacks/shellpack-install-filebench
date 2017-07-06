@@ -8,7 +8,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/filebench"
+WEB_LOCATION="https://10gbps-io.dl.sourceforge.net/project/filebench/older/filebench-1.4.9.1/filebench-1.4.9.1.tar.gz"
 MIRROR_LOCATION="$WEBROOT/filebench"
 
 # Basic argument parser
@@ -47,7 +47,7 @@ fi
 rm -rf $SHELLPACK_SOURCES/filebench-${VERSION}
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=filebench-${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
+sources_fetch $WEB_LOCATION/filebench-${VERSION}/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/filebench-${VERSION}/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -125,4 +125,4 @@ index 634897e..85ac02a 100644
  	return (FILEBENCH_OK);
  }
 #### Description filebench
-#### Details filebench 21
+#### Details filebench 23

@@ -203,4 +203,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 52
+#### Details netperf-bench 53

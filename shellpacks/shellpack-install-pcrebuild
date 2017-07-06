@@ -10,6 +10,7 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 WEB_LOCATION=ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre
+WEB_LOCATION_ALT=http://www.skynet.ie/~mel/mmtests-archive/apache/
 MIRROR_LOCATION="$WEBROOT/apache/"
 
 # Basic argument parser
@@ -48,7 +49,7 @@ fi
 # PCRE, use pcre naming to limit extra junk
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=pcre-${VERSION}.tar.bz2
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -93,4 +94,4 @@ fi
 
 echo pcrebuild installed successfully
 #### Description pcrebuild
-#### Details pcrebuild 12
+#### Details pcrebuild 13

@@ -8,7 +8,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-WEB_LOCATION="http://heanet.dl.sourceforge.net/sourceforge/aimbench"
+WEB_LOCATION="http://www.skynet.ie/~mel/mmtests-archive/aim9"
 MIRROR_LOCATION="$WEBROOT/aim9"
 
 # Basic argument parser
@@ -97,4 +97,4 @@ fork_test" >> s9workfile-short
 
 exit $SHELLPACK_SUCCESS
 #### Description AIM9 benchmark
-#### Details aim9 24
+#### Details aim9 25

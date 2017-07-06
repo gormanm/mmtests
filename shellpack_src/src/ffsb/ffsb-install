@@ -6,8 +6,8 @@ MIRROR_LOCATION="$WEBROOT/ffsb/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-WEB_LOCATION=http://heanet.dl.sourceforge.net/sourceforge/ffsb
-###SHELLPACK sources_fetch ffsb-${VERSION}.tar.bz2 ffsb-${VERSION}
+WEB_LOCATION=https://10gbps-io.dl.sourceforge.net/project/ffsb/ffsb
+###SHELLPACK sources_fetch ffsb-${VERSION}/ffsb-${VERSION}.tar.bz2 ffsb-${VERSION}
 
 ###SHELLPACK build_start ffsb-${VERSION}
 echo '--- ffsb-6.0-rc2-orig/parser.c	2008-10-27 20:17:05.000000000 +0000

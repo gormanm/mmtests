@@ -1,6 +1,6 @@
 #!/bin/bash
 ###SHELLPACK preamble graph500-install 2.1.4
-WEB_LOCATION="http://www.graph500.org/sites/default/files/files"
+WEB_LOCATION="http://www.skynet.ie/~mel/mmtests-archive/graph500"
 MIRROR_LOCATION="$WEBROOT/graph500/"
 
 install-depends openmpi openmpi-devel openmpi-libs

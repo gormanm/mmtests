@@ -50,7 +50,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-WEB_LOCATION=http://surfnet.dl.sourceforge.net/sourceforge/sysbench
+WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/sysbench
 MIRROR_LOCATION=$WEBROOT/sysbench
 
 # Select database driver
@@ -142,4 +142,4 @@ fi
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench 78
+#### Details sysbench 79

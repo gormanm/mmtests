@@ -10,7 +10,7 @@ DBDRIVER=postgres
 ###SHELLPACK parseargParam	--dbdriver	DBDRIVER
 ###SHELLPACK parseargEnd
 
-WEB_LOCATION=http://surfnet.dl.sourceforge.net/sourceforge/sysbench
+WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/sysbench
 MIRROR_LOCATION=$WEBROOT/sysbench
 
 # Select database driver

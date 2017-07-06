@@ -4,7 +4,7 @@ P=ltp-install
 INSTALL_TESTS=0
 VERSION=
 DEFAULT_VERSION=20150420
-WEB_LOCATION=http://heanet.dl.sourceforge.net/sourceforge/ltp
+WEB_LOCATION=http://netcologne.dl.sourceforge.net/project/ltp/LTP%20Source
 MIRROR_LOCATION=$WEBROOT/ltp
 LTP_SOURCE_REPO=http://mcp/mmtests-mirror
 . $SHELLPACK_INCLUDE/common.sh
@@ -52,7 +52,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=ltp-full-${VERSION}.tar.bz2
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/ltp-${VERSION}/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/ltp-${VERSION}/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -97,4 +97,4 @@ fi
 
 echo LTP installed successfully
 #### Description LTP Regression Test Suite
-#### Details ltp 25
+#### Details ltp 26

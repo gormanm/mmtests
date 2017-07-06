@@ -1,6 +1,6 @@
 #!/bin/bash
 ###SHELLPACK preamble unixbench-install 5.1.3
-WEB_LOCATION=http://byte-unixbench.googlecode.com/files/
+WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/unixbench
 MIRROR_LOCATION="$WEBROOT/unixbench/"
 
 ###SHELLPACK parseargBegin

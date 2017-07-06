@@ -6,7 +6,7 @@ VERSION=0.4.12
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-WEB_LOCATION=http://surfnet.dl.sourceforge.net/sourceforge/sysbench
+WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/sysbench
 MIRROR_LOCATION=$WEBROOT/sysbench
 
 echo Building sysbench cpu

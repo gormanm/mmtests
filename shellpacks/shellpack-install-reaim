@@ -8,7 +8,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-WEB_LOCATION=http://heanet.dl.sourceforge.net/project/re-aim-7/re-aim
+WEB_LOCATION=https://10gbps-io.dl.sourceforge.net/project/re-aim-7/re-aim
 MIRROR_LOCATION="$WEBROOT/reaim/"
 
 install-depends libaio-devel
@@ -49,7 +49,7 @@ fi
 # Unconditionally fetch the tar to find out the real version number
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=osdl-aim-${VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$VERSION/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -391,4 +391,4 @@ index f11a98883c4c..72637ca015f4 100644
  	strcat(stmp,s2);
 ==== END controlled-sync.patch ====
 #### Description reaim
-#### Details reaim 55
+#### Details reaim 56

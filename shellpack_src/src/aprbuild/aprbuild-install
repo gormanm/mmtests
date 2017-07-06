@@ -3,6 +3,7 @@
 ###SHELLPACK preamble aprbuild-install 1.5.2
 
 WEB_LOCATION=http://ftp.heanet.ie/mirrors/www.apache.org/dist/apr/
+WEB_LOCATION_ALT=https://archive.apache.org/dist/apr
 MIRROR_LOCATION="$WEBROOT/apache/"
 
 APRUTIL_VERSION=1.5.4

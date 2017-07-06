@@ -13,7 +13,7 @@ ITERATIONS=5
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v3.0/linux-$VERSION.tar.gz
+WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v3.0/linux-${VERSION}.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS))
 
