@@ -72,9 +72,9 @@ if [ "$SPECCPU_BUILDONLY" = "yes" ]; then
 			$MMTESTS_HUGECTL runcpu --config gen-m${RUNBITS}.cfg	\
 				$REPORTABLE					\
 				--tune base					\
-				--size $SIZE					\
+				--size $SPECCPU_DATA_SIZE			\
 				--iterations $SPECCPU_ITERATIONS		\
-				--action=build $SPECCPU_DATA_SIZE || die Failed to build spec
+				--action=build $SPECCPU_TESTS || die Failed to build spec
 		done
 	fi
 
