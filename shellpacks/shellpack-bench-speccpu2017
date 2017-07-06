@@ -121,6 +121,7 @@ mkdir -p config
 if [ ! -e  config/gen-m${RUNBITS}.cfg ]; then
 	echo Auto-generating speccpu 2017 file
 	generate-speccpu2017.sh			\
+		--spectype $SPECCPU_TESTS	\
 		--bitness ${RUNBITS}		\
 		--parallel $SPECCPU_PARALLEL	\
 		--iterations $SPECCPU_ITERATIONS > config/gen-m${RUNBITS}.cfg || die Failed to generate spec config file
@@ -128,34 +129,22 @@ fi
 
 # Prebuild everything if requested
 if [ "$SPECCPU_BUILDONLY" = "yes" ]; then
-	BUILD_LIST=
-	case $SPECCPU_TESTS in
-	specspeed)
-		BUILD_LIST="intspeed fpspeed"
-		;;
-	specrate)
-		BUILD_LIST="intrate fprate"
-		;;
-	esac
-	if [ "$BUILD_LIST" != "" ]; then
-		mmtests_activity source-install
-		for BUILD in $BUILD_LIST; do
-			echo Prebuilding $BUILD for $SIZE
-			$MMTESTS_HUGECTL runcpu --config gen-m${RUNBITS}.cfg	\
-				$REPORTABLE					\
-				--tune base					\
-				--size $SPECCPU_DATA_SIZE			\
-				--iterations $SPECCPU_ITERATIONS		\
-				--action=build $SPECCPU_TESTS || die Failed to build spec
-		done
-	fi
+	mmtests_activity source-install
+	echo Prebuilding $SPECCPU_TESTS
+	$MMTESTS_HUGECTL runcpu --config gen-m${RUNBITS}.cfg	\
+		$REPORTABLE					\
+		--tune base					\
+		--size $SPECCPU_DATA_SIZE			\
+		--iterations $SPECCPU_ITERATIONS		\
+		--action=build $SPECCPU_TESTS || die Failed to build spec
 
 	echo Speccpu 2017 build-only for $SPECCPU_TESTS complete
 	exit $SHELLPACK_SUCCESS
 fi
 
-# Increase stack size of cam4_s will fail
-ulimit -s $((256*1048576))
+# Remove stack size limits or cam4_s will fail. A fixed size could be used
+# but xz and cam4_s disagree on what that size should be when parallelised.
+ulimit -s unlimited
 
 # Run the benchmark
 mmtests_activity runcpu
@@ -171,4 +160,4 @@ gzip $LOGDIR_RESULTS/*.log
 
 exit $RETVAL
 #### Description speccpu2017
-#### Details speccpu2017-bench 6
+#### Details speccpu2017-bench 10

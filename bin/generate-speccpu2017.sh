@@ -10,6 +10,7 @@ GCC_VERSION=
 BITNESS=64
 ITERATIONS=1
 PARALLEL=1
+SPECTYPE=specspeed
 ARCH=`uname -m`
 
 if [ "$SAMPLE_CYCLE_FACTOR" = "" ]; then
@@ -31,6 +32,7 @@ Usage: generate-speccpu.sh [options]
   --bitness    32/64 bitness (Default: $BITNESS)
   --iterations Iterations to run speccpu
   --parallel   Number of copies or threads to use
+  --type       Pick specrate or specspeed
 "
 	exit $1
 }
@@ -58,7 +60,7 @@ emit_header() {
 # detect_base - Detect base configuration
 # emit_base - Emit the base SPEC configuration
 detect_base() {
-	ignore_errors=0
+	ignore_errors=1
 	tune=base
 	output_format="txt,html,cfg,pdf,csv"
 	ext=$ARCH-m$BITNESS-gcc`echo $GCC_VERSION | sed -e 's/\.//g'`
@@ -73,6 +75,7 @@ emit_base() {
 	echo "%define build_ncpus $numcpus"
 	echo "%define os LINUX"
 	echo "%define model -m$BITNESS"
+	echo "%define bits $BITNESS"
 	echo
 	echo "command_add_redirect = 1"
 	echo "flagsurl             = \$[top]/config/flags/gcc.xml"
@@ -83,15 +86,20 @@ emit_base() {
 	echo "log_line_width       = 1020"
 	echo "makeflags            = --jobs=%{build_ncpus}"
 	echo "mean_anyway          = 1"
+	if [ $PARALLEL -gt 1 -a "$SPECTYPE" = "specspeed" ]; then
+		echo "parallel_test        = 1"
+	fi
 	echo "output_format        = $output_format"
 	echo "preenv               = 1"
 	echo "reportable           = $reportable"
 	echo "tune                 = $tune"
 	echo
-	echo "intrate,fprate:"
-	echo "    copies           = $PARALLEL"
-	echo "intspeed,fpspeed:"
-	echo "    copies           = $PARALLEL"
+	echo "default:"
+	if [ "$SPECTYPE" = "specspeed" ]; then
+		echo "    threads          = $PARALLEL"
+	else
+		echo "    copies           = $PARALLEL"
+	fi
 	echo
 
 	### echo "hw_avail           = $hw_avail"
@@ -309,7 +317,7 @@ emit_footer() {
 }
 
 # Parse the arguments
-OPTARGS=`getopt -o h --long help,gcc,bitness:,iterations:,parallel: -n generate-speccpu2017.sh -- "$@"`
+OPTARGS=`getopt -o h --long help,gcc,bitness:,iterations:,parallel:,spectype: -n generate-speccpu2017.sh -- "$@"`
 eval set -- "$OPTARGS"
 while [ "$1" != "" ] && [ "$1" != "--" ]; do
 	case "$1" in
@@ -332,6 +340,18 @@ while [ "$1" != "" ] && [ "$1" != "--" ]; do
 		PARALLEL=$2
 		shift 2
 		;;
+	--spectype)
+		if [ "$2" = "specspeed" -o "$2" = "specrate" ]; then
+			SPECTYPE=$2
+		else
+			WHICH=`echo $2 | head -c 1`
+			if [ "$WHICH" = "6" ]; then
+				SPECTYPE=specspeed
+			else
+				SPECTYPE=specrate
+			fi
+		fi
+		shift 2
 	esac
 done
 

@@ -2,7 +2,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="speccpu2017-speed-build speccpu2017-speed"
+export MMTESTS="speccpu2017-rate-build speccpu2017-rate"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -63,4 +63,17 @@ export MONITOR_UPDATE_FREQUENCY=10
 # SPECcpu 2017
 export SPECCPU_DATA_SIZE=ref
 export SPECCPU_ITERATIONS=3
-export SPECCPU_PARALLEL=$((NUMCPUS))
+
+# Calculate level of parallelisation
+export SPECCPU_PARALLEL=$((NUMCPUS/4))
+if [ $SPECCPU_PARALLEL -le 0 ]; then
+	echo Skipping speccpu2017speed parallel as cannot run with $SPECCPU_PARALLEL cpus
+	exit $SHELLPACK_SUCCESS
+fi
+MEMTOTAL_GB=$((MEMTOTAL_BYTES/1048576/1024))
+MEMTOTAL_REQUIRED=$((2*SPECCPU_PARALLEL))
+
+if [ $MEMTOTAL_REQUIRED -ge $MEMTOTAL_GB ]; then
+	echo Skipping speccpu2017speed parallel as $MEMTOTAL_REQUIRED GB required but $MEMTOTAL_GB available
+	exit $SHELLPACK_SUCCESS
+fi
