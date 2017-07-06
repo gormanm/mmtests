@@ -820,7 +820,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		filelockperf-flock|filelockperf-posix|filelockperf-lease)
 			SUB_WORKLOADS_FILENAME=`find -name "workloads" | grep $SUBREPORT | head -1`
-			SUB_WORKLOADS=`cat $SUB_WORKLOADS_FILENAME | sed -e 's/,/ /g'`
+			SUB_WORKLOADS=
+			if [ "$SUB_WORKLOADS_FILENAME" != "" ]; then
+				SUB_WORKLOADS=`cat $SUB_WORKLOADS_FILENAME | sed -e 's/,/ /g'`
+			fi
 			for LOCKTYPE in single multi; do
 				echo "<tr>"
 				for SUB_WORKLOAD in $SUB_WORKLOADS; do
@@ -1129,7 +1132,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		wis-eventfd|wis-fallocate|wis-filelock|wis-futex|wis-getppid|wis-malloc|wis-mmap|wis-open|wis-pf|wis-pipe|wis-poll|wis-posixsems|wis-pread|wis-pthreadmutex|wis-pwrite|wis-read|wis-sched|wis-signal|wis-unlink)
 			SUB_WORKLOADS_FILENAME=`find -name "workloads" | grep $SUBREPORT | head -1`
-			SUB_WORKLOADS=`cat $SUB_WORKLOADS_FILENAME | sed -e 's/,/ /g'`
+			SUB_WORKLOADS=
+			if [ "$SUB_WORKLOADS_FILENAME" != "" ]; then
+				SUB_WORKLOADS=`cat $SUB_WORKLOADS_FILENAME | sed -e 's/,/ /g'`
+			fi
 			for ADDRSPACE in processes threads; do
 				echo "<tr>"
 				for SUB_WORKLOAD in $SUB_WORKLOADS; do
