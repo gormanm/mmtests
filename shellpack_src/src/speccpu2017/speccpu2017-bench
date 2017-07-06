@@ -60,8 +60,10 @@ fi
 # it's a waste of time to run the full suite.
 if [ "$SPECCPU_TESTS" = "specspeed" ]; then
 	if [ $SPECCPU_PARALLEL -gt 1 ]; then
+		echo WARNING:
 		echo WARNING: Limiting parallelised specspeed test to fpspeed as only one
-		echo intspeed benchmark supports openmp parallelisation.
+		echo WARNING: intspeed benchmark supports openmp parallelisation.
+		echo WARNING:
 		SPECCPU_TESTS="fpspeed"
 	fi
 fi
