@@ -1,8 +1,9 @@
 ### pgbench is a workload generator that is packaged with postgres. It
 ### is relatively basic and modelled on TPC-B. In this configuration,
-### the workload is read-only and scaled so that the approximate size
-### is 200% of RAM. The page cache is flushed after the database is
-### populated for teh test and the benchmark starts cache-cold.
+### the workload is read-write and scaled so that the approximate size
+### is 80% of of the database shared buffer which itself is 20% of RAM.
+### The page cache is not flushed after the database is populated for the
+### test and starts cache-hot.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
@@ -70,12 +71,13 @@ export MONITOR_UPDATE_FREQUENCY=10
 export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES/2))
 export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/5))
 export OLTP_PAGESIZES="default"
-export PGBENCH_MAX_TRANSACTIONS=auto
-export PGBENCH_READONLY=yes
-export PGBENCH_MAX_THREADS=$((NUMCPUS*2))
+export PGBENCH_MAX_TIME=900
+export PGBENCH_READONLY=
+export PGBENCH_MAX_THREADS=$((NUMCPUS))
+export PGBENCH_CACHE_COLD=no
 
 # The baseline database size is approximately 30MB. Each unit of scaling
 # factor adds approximately 15M of data to the table. Tune accordingly.
-export TARGET_WORKLOAD_SIZE=$((MEMTOTAL_BYTES*2))
+export TARGET_WORKLOAD_SIZE=$((OLTP_SHAREDBUFFERS*4/5))
 export PGBENCH_SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)/(15*1048576)))
 export DATABASE_INIT_ONCE=yes
