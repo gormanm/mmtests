@@ -8,9 +8,10 @@ require Exporter;
 use vars qw (@ISA @EXPORT);
 use VMR::Report;
 use strict;
+use POSIX qw(floor);
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&pdiff &pndiff &rdiff &sdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_lowest_mean &calc_highest_mean &calc_highest_harmmean &calc_mean &calc_trimmed_mean &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_lowest_mean &calc_highest_mean &calc_highest_harmmean &calc_mean &calc_trimmed_mean &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Values taken from a standard normal table
 my %za = (
@@ -472,6 +473,44 @@ sub calc_confidence_interval_upper {
 	my $confidence_level = shift;
 	my $mean = calc_mean(@_);
 	return $mean + calc_confidence_interval($variance, $confidence_level, @_);
+}
+
+# Perform Welch's t-test.
+# Returns 0 if H_0 is not rejected, returns 1 if H_0 is rejected.
+# mean_x, mean_y, stddev_x, stddev_y, n_x, n_y,
+# alpha (significance level) either 5 (ie 5%) or 1 (ie 1%)
+sub calc_welch_test {
+	my $mx = shift;
+	my $my = shift;
+	my $sx = shift;
+	my $sy = shift;
+	my $m = shift;
+	my $n = shift;
+	my $alpha = shift;
+
+	my $tsx = $sx**2 / $m;
+	my $tsy = $sy**2 / $n;
+
+	printVerbose("mx: $mx, my: $my, sx: $sx, sy: $sy, m: $m, n: $n, alpha: $alpha%\n");
+
+	# calculate integer used as degrees of freedom
+	my $k = ($m - 1) * ($n - 1) * ($tsx + $tsy)**2;
+	$k = $k / (($n - 1) * ($tsx)**2 + ($m - 1) * ($tsy)**2);
+	$k = floor($k);
+
+	# compute t-value
+	my $t = ($mx - $my) / sqrt($tsx + $tsy);
+
+	my $q = qt($k, 100 - $alpha);
+
+	# reject if |t| > t_{k;(1-alpha/2)}
+	if (abs($t) > $q) {
+		printVerbose("Rejecting H_0: µx=µy; t=$t, k=$k, qt=$q, alpha=$alpha%\n");
+		return 1;
+	} else {
+		printVerbose("Not rejecting H_0: µx=µy; t=$t, k=$k, qt=$q, alpha=$alpha%\n");
+		return 0;
+	}
 }
 
 1;
