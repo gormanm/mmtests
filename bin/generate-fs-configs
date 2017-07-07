@@ -138,6 +138,8 @@ config-global-dhp__speccpu2017-speed-parallel-quarter
 config-global-dhp__speccpu2017-speed-parallel-half
 config-global-dhp__speccpu2017-speed-parallel-full
 config-global-dhp__speccpu2017-rate-parallel-quarter
+config-global-dhp__speccpu2017-rate-parallel-half
+config-global-dhp__speccpu2017-rate-parallel-full
 "
 
 rm -f *-ext3 *-ext4 *-btrfs *-btrfs-nocow *-xfs *-raid0 *-raid1 *-raid5
