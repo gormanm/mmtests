@@ -36,13 +36,6 @@ sub extractReport() {
 			next;
 		}
 
-		if ($section == 3 && $line !~ /result:/) {
-			my ($bench, $ops) = split(/\s+/, $line);
-			if ($bench !~ /startup/) {
-				push @{$self->{_ResultData}}, [ $bench, $ops ];
-			}
-		}
-
 		if ($section == 4 && $line =~ /iteration [0-9]+/) {
 			my ($bench, $dA, $dB, $dC, $dD, $dE, $ops) = split(/\s+/, $line);
 			if ($bench !~ /startup/) {
