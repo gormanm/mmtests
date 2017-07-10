@@ -8,11 +8,7 @@ cd $SHELLPACK_SOURCES || die Sources directory does not exist
 rm    -rf $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed
 mkdir -p  $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed
 ###SHELLPACK self_extract wp-tlbflush.c
-<<<<<<< HEAD
 mv $SHELLPACK_TEMP/wp-tlbflush.c $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed
-=======
-gcc -Wall -lpthread $SHELLPACK_TEMP/wp-tlbflush.c -o $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush || die Failed to build
->>>>>>> 810a1a9524b0db3a445c663e049ea7046542d219
 
 exit $SHELLPACK_SUCCESS
 

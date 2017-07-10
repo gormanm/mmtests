@@ -110,4 +110,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description wptlbflush
-#### Details wptlbflush-bench 17
+#### Details wptlbflush-bench 18
