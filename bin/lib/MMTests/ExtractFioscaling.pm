@@ -39,7 +39,7 @@ sub extractOneFile {
 					$jobs=$word
 				}
 			}
-		} elsif ( /^[3;fio]/ ) {
+		} elsif ( /^[5;fio]/ ) {
 			# assume fio terse format version 3
 			my @elements;
 
@@ -50,8 +50,8 @@ sub extractOneFile {
 				$rw = $rw | 1;
 			}
 			# Total written KB > 0?
-			if ($elements[46] > 0) {
-				push @{$self->{_ResultData}}, [ "$worker-write", $jobs, $elements[85] ];
+			if ($elements[52] > 0) {
+				push @{$self->{_ResultData}}, [ "$worker-write", $jobs, $elements[91] ];
 				$rw = $rw | 2;
 			}
 		}

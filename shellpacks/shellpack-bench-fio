@@ -152,13 +152,13 @@ function one_pass() {
 	fi
 	echo "fio --directory=${DIRS} --rw=${rw} --name=${name} \
 	    --size=${size} --group_reporting \
-	    --output-format=terse --terse-version=3 \
+	    --output-format=terse --terse-version=5 \
 	    --ioengine=${FIO_IOENGINE} --direct=${FIO_DIRECT} \
 	    --iodepth=${qd} --runtime=${rt} --numjobs=${njobs} \
 	    --blocksize=${bs}" | tee -a ${logfile}
 	./fio --directory=${DIRS} --rw=${rw} --name=${name} \
 	    --size=${size} --group_reporting \
-	    --output-format=terse --terse-version=3 \
+	    --output-format=terse --terse-version=5 \
 	    --ioengine=${FIO_IOENGINE} --direct=${FIO_DIRECT} \
 	    --iodepth=${qd} --runtime=${rt} --numjobs=${njobs} \
 	    --blocksize=${bs} | tee -a ${logfile} \
@@ -236,4 +236,4 @@ esac
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible IO tester
-#### Details fio-bench 19
+#### Details fio-bench 20
