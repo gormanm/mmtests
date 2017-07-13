@@ -2,7 +2,7 @@
 # This script installs fio and runs a fio job
 
 P=fio-bench
-DEFAULT_VERSION=2.20
+DEFAULT_VERSION=2.99
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -236,4 +236,4 @@ esac
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible IO tester
-#### Details fio-bench 18
+#### Details fio-bench 19

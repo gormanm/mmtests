@@ -1,7 +1,7 @@
 #!/bin/bash
 # fio installer
 P=fio-install
-DEFAULT_VERSION=2.20
+DEFAULT_VERSION=2.99
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -114,4 +114,4 @@ exit $SHELLPACK_SUCCESS
  #include <sys/stat.h>
 ==== END fio-types.patch ====
 #### Description Flexible IO tester
-#### Details fio 18
+#### Details fio 19
