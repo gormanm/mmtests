@@ -68,10 +68,12 @@ done
 
 if [ "$CACHE_MMTESTS" != "" ]; then
 	if [ -e $CACHE_MMTESTS/current_update ]; then
-		CLEANUP_PID=`cat $CACHE_MMTESTS/current_update`
-		ps -p $CLEANUP_PID > /dev/null
-		if [ $? -ne 0 ]; then
-			rm $CACHE_MMTESTS/current_update
+		CLEANUP_PID=`cat $CACHE_MMTESTS/current_update 2> /dev/null`
+		if [ "$CLEANUP_PID" != "" ]; then
+			ps -p $CLEANUP_PID > /dev/null
+			if [ $? -ne 0 ]; then
+				rm $CACHE_MMTESTS/current_update
+			fi
 		fi
 	else
 		echo $$ > $CACHE_MMTESTS/current_update
