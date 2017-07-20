@@ -67,13 +67,23 @@ while [ "$1" != "" ]; do
 done
 
 if [ "$CACHE_MMTESTS" != "" ]; then
-	CURRENT_UPDATE=`date +%s`
-	CURRENT_UPDATE=$((CURRENT_UPDATE/3600))
-	LAST_UPDATE=`cat $CACHE_MMTESTS/last_update`
-	if [ "$LAST_UPDATE" != "$CURRENT_UPDATE" ]; then
-		find $CACHE_MMTESTS -maxdepth 3 -type f -atime +14 -exec rm -rf {} \;
+	if [ -e $CACHE_MMTESTS/current_update ]; then
+		CLEANUP_PID=`cat $CACHE_MMTESTS/current_update`
+		ps -p $CLEANUP_PID > /dev/null
+		if [ $? -ne 0 ]; then
+			rm $CACHE_MMTESTS/current_update
+		fi
+	else
+		echo $$ > $CACHE_MMTESTS/current_update
+		CURRENT_UPDATE=`date +%s`
+		CURRENT_UPDATE=$((CURRENT_UPDATE/86400))
+		LAST_UPDATE=`cat $CACHE_MMTESTS/last_update`
+		if [ "$LAST_UPDATE" != "$CURRENT_UPDATE" ]; then
+			find $CACHE_MMTESTS -maxdepth 3 -type f -atime +14 -exec rm -rf {} \;
+		fi
+		echo -n $CURRENT_UPDATE > $CACHE_MMTESTS/last_update
+		rm $CACHE_MMTESTS/current_update
 	fi
-	echo -n $CURRENT_UPDATE > $CACHE_MMTESTS/last_update
 fi
 
 # Do Not Litter
