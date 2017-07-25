@@ -60,7 +60,6 @@ export SWAP_NBD_PORT=10001
 # be interleaved across all nodes in case of NUMA machine
 export TESTDISK_RD_PREALLOC=yes
 export TESTDISK_RD_SIZE=$((MEMTOTAL_BYTES/3))
-export TESTDISK_FILESYSTEM=xfs
 
 #
 # Test NFS disk to setup (optional)
