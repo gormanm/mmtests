@@ -1006,6 +1006,8 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		redis)
 			generate_ops_graphs
 			;;
+		schbench)
+			;;
 		sembench-sem|sembench-nanosleep|sembench-futex)
 			generate_basic "$SUBREPORT" "--logX --wide"
 			;;
