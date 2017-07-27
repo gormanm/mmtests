@@ -1034,7 +1034,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "</tr>"
 			;;
 		sockperf-tcp-under-load|sockperf-udp-under-load)
-			generate_client_subtest_graphs 4
+			generate_subtest_graphs 4
 			;;
 		speccpu2017-*-build)
 			;;
