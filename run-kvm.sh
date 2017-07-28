@@ -27,8 +27,12 @@ ssh root@$GUEST_IP tar -C git-private -xf ${NAME}.tar.gz || die Failed to extrac
 rm ${NAME}.tar.gz
 
 
-echo Booting current kernel `uname -r` $MORE_BOOT_ARGS on the guest
-kvm-boot `uname -r` $MORE_BOOT_ARGS || die Failed to boot `uname -r`
+if [ "$1" != "--keep-kernel" ]; then
+	echo Booting current kernel `uname -r` $MORE_BOOT_ARGS on the guest
+	kvm-boot `uname -r` $MORE_BOOT_ARGS || die Failed to boot `uname -r`
+else
+	shift
+fi
 
 if [ "$1" = "--offline-iothreads" ]; then
 	offline_cpus=`virsh dumpxml marvin-mmtests | grep -c iothreadpin`
