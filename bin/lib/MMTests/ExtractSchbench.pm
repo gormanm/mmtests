@@ -4,23 +4,25 @@ use MMTests::SummariseSingleops;
 use VMR::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
 
+use strict;
+
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_ModuleName} = "ExtractSchbench";
 	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
 	$self->{_PlotXaxis}  = "Threads";
+	$self->{_Opname} = "Lat";
 	$self->{_FieldLength} = 12;
 	$self->{_ExactSubheading} = 1;
 	$self->{_ExactPlottype} = "simple";
 	$self->{_DefaultPlot} = "1";
-
+	$self->{_SingleType} = 1;
 	$self->SUPER::initialise($reportDir, $testName);
-
-	$self->{_SummaryHeaders} = [ "Unit", "Min", "50th-qrtle", "75th-qrtle", "90th-qrtle", "95th-qrtle", "99th-qrtle", "99.5th-qrtle", "99.9th-qrtle", "Max" ];
 }
 
 sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
+	my %singleInclude;
 
 	my @files = <$reportDir/$profile/schbench-*.log>;
 	my @groups;
@@ -38,57 +40,18 @@ sub extractReport() {
 	foreach my $group (@groups) {
 		open(INPUT, "$reportDir/$profile/schbench-$group.log") || die("Failed to open $group\n");
 		while (<INPUT>) {
-			if ($_ =~ /[ \t\*]+([0-9]+)\.[0-9]+th: ([0-9]+)/) {
-				push @{$self->{_ResultData}}, [$group, $1, $2];
-			} elsif ($_ =~ /min=([0-9]+), max=([0-9]+)/) {
-				push @{$self->{_ResultData}}, [$group, "LatMin", $1];
-				push @{$self->{_ResultData}}, [$group, "LatMax", $2];
+			if ($_ =~ /[ \t\*]+([0-9]+\.[0-9]+)th: ([0-9]+)/) {
+				my $quartile = $1;
+				my $lat = $2;
+				$quartile =~ s/00$//;
+				push @{$self->{_ResultData}}, ["${quartile}th-qrtle-$group", $lat];
+				if ($quartile == 99) {
+					$singleInclude{"${quartile}th-qrtle-$group"} = 1;
+				}
 			}
 		}
 		close INPUT;
 	}
 
-	$self->{_Operations} = \@groups;
-}
-
-sub extractSummary() {
-	my ($self, $subHeading) = @_;
-	my @_operations = @{$self->{_Operations}};
-	my @data = @{$self->{_ResultData}};
-
-	if ($subHeading ne "") {
-		my $index = 0;
-		while ($index <= $#_operations) {
-			if ($_operations[$index] =~ /^$subHeading.*/) {
-				$index++;
-				next;
-			}
-			splice(@_operations, $index, 1);
-		}
-	}
-
-	foreach my $operation (@_operations) {
-		my @units;
-		my @row;
-		foreach my $row (@data) {
-			if (@{$row}[0] eq "$operation") {
-				push @units, @{$row}[2];
-			}
-		}
-
-		push @row, $operation;
-		push @row, $units[7];
-		push @row, $units[0];
-		push @row, $units[1];
-		push @row, $units[2];
-		push @row, $units[3];
-		push @row, $units[4];
-		push @row, $units[5];
-		push @row, $units[6];
-		push @row, $units[8];
-
-		push @{$self->{_SummaryData}}, \@row;
-	}
-
-	return 1;
+	$self->{_SingleInclude} = \%singleInclude;
 }
