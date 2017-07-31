@@ -256,9 +256,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	*)
 		COMPARE_FILE=`mktemp`
 		$COMPARE_CMD > $COMPARE_FILE
-		if [ -f $SUBREPORT.json ]; then
-			gzip -f $SUBREPORT.json
-		fi
 		GMEAN=`grep ^Gmean $COMPARE_FILE`
 		DMEAN=`grep ^Dmean $COMPARE_FILE`
 		GOODNESS=Unknown

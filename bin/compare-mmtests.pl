@@ -127,12 +127,18 @@ if ($opt_Rsummary) {
 
 $compareModule->extractComparison($opt_subheading, !$opt_hideCompare);
 
+$compareModule->printComparison($opt_printRatio);
+
 if ($opt_JSONExport && $opt_benchmark) {
 	my $fname = "$opt_reportDirectory/$opt_benchmark.json";
 	$compareModule->saveJSONExport($fname);
+	# $compareModule might occupy more than 50% of memory. In such case
+	# forking to call gzip will result in ENOMEM from clone(2).
+	# We need to start afresh with a new sheet of memory using exec.
+	exec "gzip -f $fname";
 }
-
-$compareModule->printComparison($opt_printRatio);
+# The branch above terminates the program. Don't put any code below this line.
+exit(0)
 
 # Below this line is help and manual page information
 __END__
