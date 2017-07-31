@@ -128,7 +128,8 @@ if ($opt_Rsummary) {
 $compareModule->extractComparison($opt_subheading, !$opt_hideCompare);
 
 if ($opt_JSONExport && $opt_benchmark) {
-	$compareModule->saveJSONExport($opt_benchmark);
+	my $fname = "$opt_reportDirectory/$opt_benchmark.json";
+	$compareModule->saveJSONExport($fname);
 }
 
 $compareModule->printComparison($opt_printRatio);

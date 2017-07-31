@@ -489,7 +489,7 @@ sub saveJSONExport() {
 	$json->allow_blessed();
 	$json->convert_blessed();
 	my $fh;
-	open($fh, ">", "$fname.json") or print "Error: could not save $fname.json\n";
+	open($fh, ">", "$fname") or print "Error: could not save $fname\n";
 	print $fh $json->encode($self);
 	close $fh;
 }
