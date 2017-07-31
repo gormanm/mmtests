@@ -5,11 +5,23 @@
 HASHFILE=/tmp/cache-mmtests.$$
 HASHDIR=
 MMTESTS_LOGDIR=
+rm_hashdir() {
+	if [ "$JSON_EXPORT" = "yes" -a -L "$MMTESTS_LOGDIR/$BENCHMARK.json.gz" ]; then
+		rm -f "$MMTESTS_LOGDIR/$BENCHMARK.json.gz"
+	fi
+	rm -rf "$CACHE_MMTESTS/$HASHDIR"
+}
 cleanup() {
 	rm -f $HASHFILE
 	if [ "$HASHDIR" != "" ]; then
-		if [ ! -e "$CACHE_MMTESTS/$HASHDIR/cache.gz" ]; then
-			rm -rf "$CACHE_MMTESTS/$HASHDIR"
+		if [ "$JSON_EXPORT" = "yes" ]; then
+			if ! [ -e "$CACHE_MMTESTS/$HASHDIR/cache.gz" -a -e "$CACHE_MMTESTS/$HASHDIR/cache.json.gz" -a "$CACHEFILES_SOUND" != "no" ]; then
+				rm_hashdir
+			fi
+		else
+			if ! [ -e "$CACHE_MMTESTS/$HASHDIR/cache.gz" -a "$CACHEFILES_SOUND" != "no" ]; then
+				rm_hashdir
+			fi
 		fi
 	fi
 }
@@ -46,6 +58,16 @@ for i in `seq 1 $#`; do
 			exec "$@"
 		fi
 		cd $ORIG_PWD
+	fi
+done
+
+JSON_EXPORT=no
+for i in `seq 1 $#`; do
+	if [ "${!i}" = "--json-export" ]; then
+		JSON_EXPORT=yes
+	elif [ "${!i}" = "-b" ]; then
+		i=$((i+1))
+		BENCHMARK=${!i}
 	fi
 done
 
@@ -87,18 +109,55 @@ if [ -d "$CACHE_MMTESTS/$HASHDIR" ]; then
 		cd $ORIG_PWD
 	fi
 	if [ "$RESULTS_VALID" = "yes" ]; then
-		zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz"
-		RET=$?
-		if [ $RET -ne 0 ]; then
+
+		CACHEFILES_EXIST=yes
+		if [ "$JSON_EXPORT" = "yes" ]; then
+			if ! [ -e "$CACHE_MMTESTS/$HASHDIR/cache.gz" -a -e "$CACHE_MMTESTS/$HASHDIR/cache.json.gz" ]; then
+				CACHEFILES_EXIST=no
+			fi
+		else
+			if ! [ -e "$CACHE_MMTESTS/$HASHDIR/cache.gz" ]; then
+				CACHEFILES_EXIST=no
+			fi
+		fi
+		if [ "$CACHEFILES_EXIST" = "no" ]; then
 			eval "$@"
 			RET=$?
+			unlock_hashdir
+			exit $RET
+		fi
+
+		CACHEFILES_SOUND=yes
+		if [ "$JSON_EXPORT" = "yes" ]; then
+			{ zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz" && zcat "$CACHE_MMTESTS/$HASHDIR/cache.json.gz"; } > /dev/null
+			if [ $? -ne 0 ]; then
+				CACHEFILES_SOUND=no
+			fi
+		else
+			zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz" > /dev/null
+			if [ $? -ne 0 ]; then
+				CACHEFILES_SOUND=no
+			fi
+		fi
+		if [ "$CACHEFILES_SOUND" = "no" ]; then
+			eval "$@"
+			RET=$?
+			unlock_hashdir
+			exit $RET
+		fi
+
+		zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz"
+		RET=$?
+		if [ "$JSON_EXPORT" = "yes" ]; then
+			ln -s -f "$CACHE_MMTESTS/$HASHDIR/cache.json.gz" "$MMTESTS_LOGDIR/$BENCHMARK.json.gz"
+			RET=$((RET || $?))
 		fi
 		unlock_hashdir
 		exit $RET
 	fi
 
 	# Thrash invalid cache
-	rm -rf "$CACHE_MMTESTS/$HASHDIR"
+	rm_hashdir
 fi
 
 # Create new results
@@ -111,13 +170,18 @@ cp $HASHFILE "$CACHE_MMTESTS/$HASHDIR/hashfile"
 eval "$@" > "$CACHE_MMTESTS/$HASHDIR/cache.tmp"
 if [ $? -ne 0 ]; then
 	cat "$CACHE_MMTESTS/$HASHDIR/cache.tmp"
-	rm -rf "$CACHE_MMTESTS/$HASHDIR"
+	rm_hashdir
 	exit -1
 fi
 
 gzip "$CACHE_MMTESTS/$HASHDIR/cache.tmp"
 mv "$CACHE_MMTESTS/$HASHDIR/cache.tmp.gz" "$CACHE_MMTESTS/$HASHDIR/cache.gz"
 zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz"
+
+if [ "$JSON_EXPORT" = "yes" -a -f "$MMTESTS_LOGDIR/$BENCHMARK.json.gz" ]; then
+	mv "$MMTESTS_LOGDIR/$BENCHMARK.json.gz" "$CACHE_MMTESTS/$HASHDIR/cache.json.gz"
+	ln -s "$CACHE_MMTESTS/$HASHDIR/cache.json.gz" "$MMTESTS_LOGDIR/$BENCHMARK.json.gz"
+fi
 
 # Cache tests-timestamp md5sums
 if [ "$MMTESTS_LOGDIR" != "" ]; then
