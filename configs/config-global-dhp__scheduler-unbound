@@ -3,6 +3,15 @@
 ### of threads or processes (depending on configuration) that communicate
 ### via pipes or sockets (depending on configuration).
 ###
+### Note that while hackbench is often considered to be a scheduler benchmark,
+### it is particularly weak when used with pipes. Given multiple senders and
+### receivers sharing pipes that are unsynchronised, it is dominated heavily
+### by a mutex protecting the pipe structures and a spinlock protecting the
+### queue for wakeups. A significant percentage of time is spend acquiring
+### and releasing those locks as well as the inevitable bounces of cache
+### line data as waker/wakee processes do not run on the same CPUs but
+### instead select CPUs that are nearby during wakeups.
+###
 ### pipetest is a scheduler ping-pong test that measures context switch latency.
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
