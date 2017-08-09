@@ -121,7 +121,11 @@ sub printPlot() {
 		if ($self->{_PlotType} eq "simple") {
 			my @data = @{$self->{_ResultData}};
 			for ($samples = 0; $samples <= $#index; $samples++) {
-				printf("%-${fieldLength}d %${fieldLength}.3f\n", $index[$samples] - $index[0], $units[$samples]);
+				if ($self->{_SubheadingFine} == 1) {
+					printf("%-${fieldLength}.3f %${fieldLength}.3f\n", $index[$samples] - $index[0], $units[$samples]);
+				} else {
+					printf("%-${fieldLength}d %${fieldLength}.3f\n", $index[$samples] - $index[0], $units[$samples]);
+				}
 			}
 		} elsif ($self->{_PlotType} eq "candlesticks") {
 			printf "%-${fieldLength}s ", $heading;

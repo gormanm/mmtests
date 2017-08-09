@@ -6,11 +6,20 @@ use strict;
 
 sub initialise() {
         my ($self, $reportDir, $testName) = @_;
+	my $fieldLength = 12;
 	$self->{_ModuleName} 		= "ExtractDbench4";
 	$self->{_DataType}   		= DataTypes::DATA_TIME_MSECONDS;
 	$self->{_PlotType}   		= "client-errorlines";
 	$self->{_SubheadingPlotType}	= "simple-clients";
+	$self->{_SubheadingFine}	= 1;
         $self->SUPER::initialise($reportDir, $testName);
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%-${fieldLength}.3f", "%${fieldLength}d" ];
+}
+
+sub sort_time {
+	my $resultRef = shift;
+	my @new_resultRef = sort { $a->[1] <=> $b->[1] } @$resultRef;
+	return \@new_resultRef;
 }
 
 sub extractReport() {
@@ -27,6 +36,8 @@ sub extractReport() {
 		push @clients, $split[-1];
 	}
 	@clients = sort { $a <=> $b } @clients;
+
+	my %client_time;
 
 	foreach my $client (@clients) {
 		my $nr_samples = 0;
@@ -45,13 +56,16 @@ sub extractReport() {
 				next if ($elements[3] > (1<<31));
 
 				$nr_samples++;
-				push @{$self->{_ResultData}}, [ "$client", $nr_samples, $elements[3] ];
+				$client_time{$elements[0]} += $elements[3];
+				push @{$self->{_ResultData}}, [ "$client", $client_time{$elements[0]} / 1000, $elements[3] ];
 
 				next;
 			}
 		}
 		close INPUT;
 	}
+
+	$self->{_ResultData} = sort_time $self->{_ResultData};
 
 	my @ops;
 	foreach my $client (@clients) {
