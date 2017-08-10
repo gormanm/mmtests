@@ -17,6 +17,12 @@ install-depends popt-devel zlib-devel
 if [ "$VERSION" = "4.1alpha" ]; then
 	###SHELLPACK self_extract 0001-Allow-reporting-of-workload-execution-times.patch
 	patch -p1 <$SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
+
+	###SHELLPACK self_extract 0002-Defer-reporting-of-execution-times.patch
+	patch -p1 <$SHELLPACK_TEMP/0002-Defer-reporting-of-execution-times.patch
+
+	###SHELLPACK self_extract 0003-Check-if-parent-is-alive-once-per-loadfile.patch
+	patch -p1 <$SHELLPACK_TEMP/0003-Check-if-parent-is-alive-once-per-loadfile.patch
 fi
 ###SHELLPACK build_start dbench-${VERSION}
 ###SHELLPACK build_autogen dbench-${VERSION}
@@ -129,3 +135,151 @@ index 14a5a702650c..465cf3b18002 100644
  	const char *smb_user;
  };
 ==== END 0001-Allow-reporting-of-workload-execution-times.patch ====
+
+==== BEGIN 0002-Defer-reporting-of-execution-times.patch ====
+From 09bfb355b1bac2b27b24e5b9969005389da1dccc Mon Sep 17 00:00:00 2001
+From: Mel Gorman <mgorman@techsingularity.net>
+Date: Thu, 10 Aug 2017 10:37:24 +0100
+Subject: [PATCH] Defer reporting of execution times
+
+If loadfiles are completed rapidly, there is a large amount of data
+sent to stddout and then recorded which generates IO in itself. This
+patch buffers durations and runtimes for a time. In some cases, it'll
+be buffered until the end of the benchmark.
+
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+---
+ child.c | 38 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 34 insertions(+), 4 deletions(-)
+
+diff --git a/child.c b/child.c
+index e4ae2304f040..828295d2aad9 100644
+--- a/child.c
++++ b/child.c
+@@ -309,9 +309,19 @@ static int parse_randomstring(char *line)
+ 	return 0;
+ }
+ 
++void dump_samples(int id, unsigned int *duration, unsigned int *runtime, unsigned int nr_samples)
++{
++	unsigned int i;
++
++	for (i = 0; i < nr_samples; i++) {
++		printf("%4d completed in %u ms at time %u ms\n", id,
++		       duration[i], runtime[i]);
++	}
++}
+ 
+ /* run a test that simulates an approximate netbench client load */
+ #define MAX_PARM_LEN 1024
++#define MAX_SAMPLES 130672
+ void child_run(struct child_struct *child0, const char *loadfile)
+ {
+ 	int i;
+@@ -326,7 +336,16 @@ void child_run(struct child_struct *child0, const char *loadfile)
+ 	int have_random = 0;
+ 	unsigned loop_count = 0;
+ 	z_off_t loop_start = 0;
+-	struct timeval start;
++	struct timeval start, begin;
++	unsigned nr_samples = 0;
++
++	unsigned int *sample_duration = malloc(sizeof(unsigned int) * (MAX_SAMPLES + 1));
++	unsigned int *sample_runtime  = malloc(sizeof(unsigned int) * (MAX_SAMPLES + 1));
++
++	if (!sample_duration || !sample_runtime) {
++		printf("ENOMEM for samples\n");
++		exit(1);
++	}
+ 
+ 	gzf = gzopen(loadfile, "r");
+ 	if (gzf == NULL) {
+@@ -345,6 +364,8 @@ void child_run(struct child_struct *child0, const char *loadfile)
+ 		memset(sparams[i], 0, MAX_PARM_LEN);
+ 	}
+ 
++	gettimeofday(&begin, NULL);
++
+ again:
+ 	for (child=child0;child<child0+options.clients_per_process;child++) {
+ 		nb_time_reset(child);
+@@ -534,16 +555,23 @@ void child_run(struct child_struct *child0, const char *loadfile)
+ 
+ 	if (options.show_execute_time) {
+ 		struct timeval end;
+-		unsigned int duration;
++		unsigned int duration, runtime;
+ 
+ 		gettimeofday(&end, NULL);
+ 		duration = (end.tv_sec - start.tv_sec) * 1000 +
+ 			   (end.tv_usec - start.tv_usec) / 1000;
++		runtime = (end.tv_sec - begin.tv_sec) * 1000 +
++			   (end.tv_usec - begin.tv_usec) / 1000;
+ 		if (options.machine_readable)
+ 			printf("@E@%d@%u\n", child0->id, duration);
+ 		else {
+-			printf("%4d completed in %u ms\n", child0->id,
+-			       duration);
++			sample_duration[nr_samples] = duration;
++			sample_runtime[nr_samples] = runtime;
++			nr_samples++;
++			if (nr_samples == MAX_SAMPLES) {
++				dump_samples(child0->id, sample_duration, sample_runtime, nr_samples);
++				nr_samples = 0;
++			}
+ 		}
+ 	}
+ 
+@@ -556,6 +584,8 @@ void child_run(struct child_struct *child0, const char *loadfile)
+ 
+ done:
+ 	gzclose(gzf);
++	usleep(child0->id * 5000);
++	dump_samples(child0->id, sample_duration, sample_runtime, nr_samples);
+ 	for (child=child0;child<child0+options.clients_per_process;child++) {
+ 		child->cleanup = 1;
+ 		fflush(stdout);
+==== END 0002-Defer-reporting-of-execution-times.patch ====
+
+==== BEGIN 0003-Check-if-parent-is-alive-once-per-loadfile.patch ====
+From ae104306bf484563e0a761d2d9a78e222875e12a Mon Sep 17 00:00:00 2001
+From: Mel Gorman <mgorman@techsingularity.net>
+Date: Thu, 10 Aug 2017 10:49:24 +0100
+Subject: [PATCH] Check if parent is alive once per loadfile
+
+strace reports that a high percentage of time is spent calling kill()
+with 12,000,000 calls in 3 minutes. Check if the parent is alive once
+per load file processed.
+
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+---
+ child.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/child.c b/child.c
+index 828295d2aad9..9ec9df011540 100644
+--- a/child.c
++++ b/child.c
+@@ -384,10 +384,6 @@ void child_run(struct child_struct *child0, const char *loadfile)
+ 
+ 		params = sparams;
+ 
+-		if (kill(parent, 0) == -1) {
+-			exit(1);
+-		}
+-
+ loop_again:
+ 		/* if this is a "LOOP <xxx>" line, 
+ 		 * remember the current file position and move to the next line
+@@ -580,6 +576,10 @@ void child_run(struct child_struct *child0, const char *loadfile)
+ 	}
+ 
+ 	gzrewind(gzf);
++	if (kill(parent, 0) == -1) {
++		exit(1);
++	}
++
+ 	goto again;
+ 
+ done:
+==== END 0003-Check-if-parent-is-alive-once-per-loadfile.patch ====
