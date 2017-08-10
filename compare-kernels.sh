@@ -450,6 +450,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Latency
 		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4latency -n $KERNEL_LIST $FORMAT_CMD
 		echo
+		echo "$SUBREPORT Throughput (misleading but traditional)"
+		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4tput -n $KERNEL_LIST $FORMAT_CMD
+		echo
+
 		echo $SUBREPORT Per-VFS Operation latency Latency
 		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4opslatency -n $KERNEL_LIST $FORMAT_CMD
 		;;
