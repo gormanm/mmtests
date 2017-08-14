@@ -43,7 +43,8 @@ my %_fieldCounters = (
 	"nr_unevictable"	=> 1,
 	"nr_unstable"		=> 1,
 	"nr_writeback"		=> 1,
-	"nr_writeback_temp"	=> 1
+	"nr_writeback_temp"	=> 1,
+	"nr_dirty_background_threshold" => 1
 );
 
 my %_fieldNameMap = (

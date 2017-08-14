@@ -43,7 +43,11 @@ sub printDataType() {
 	my ($self) = @_;
 	my $headingIndex = $self->{_HeadingIndex};
 
-	if ($headingIndex == 2) {
+	if ($headingIndex == 0) {
+		print "Processes,Time,Runnable Processes\n";
+	} elsif ($headingIndex == 1) {
+		print "Processes,Time,Blocked Processes\n";
+	} elsif ($headingIndex == 2) {
 		print "Pages,Time,Swap usage (pages)\n";
 	} elsif ($headingIndex == 3) {
 		print "Time,Time,Free Memory (mb)\n";

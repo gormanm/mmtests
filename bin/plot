@@ -197,9 +197,11 @@ if [ "$YRANGE" != "" ]; then
 	echo "set yrange [$YRANGE]" >> $TEMP
 fi
 if [ "$XLABEL" != "" ]; then
+	XLABEL=`echo $XLABEL | sed -e 's/_/\\\_/g'`
 	echo "set xlabel '$XLABEL'" >> $TEMP
 fi
 if [ "$YLABEL" != "" ]; then
+	YLABEL=`echo $YLABEL | sed -e 's/_/\\\_/g'`
 	echo "set ylabel '$YLABEL'" >> $TEMP
 fi
 if [ "$LOGX" = "yes" ]; then

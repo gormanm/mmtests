@@ -1540,26 +1540,48 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			smoothover graph-$SUBREPORT-vmstat-wa
 			echo "</tr>"
 
-			eval $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.png
-			eval $GRAPH_PSC --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.ps
+			eval $GRAPH_PNG --title \"Runnable Processes\"   --print-monitor vmstat --sub-heading r --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-r.png
+			eval $GRAPH_PSC --title \"Runnable Processes\"   --print-monitor vmstat --sub-heading r --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-r.ps
+			eval $GRAPH_PNG --title \"Blocked Processes\"    --print-monitor vmstat --sub-heading b --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-b.png
+			eval $GRAPH_PSC --title \"Blocked Processes\"    --print-monitor vmstat --sub-heading b --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-b.ps
 			eval $GRAPH_PNG --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu.png
 			eval $GRAPH_PSC --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu.ps
-			eval $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy-smooth.png --smooth
-			eval $GRAPH_PSC --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"Runnable Processes\"   --print-monitor vmstat --sub-heading r --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-r-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Runnable Processes\"   --print-monitor vmstat --sub-heading r --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-r-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"Blocked Processes\"    --print-monitor vmstat --sub-heading b --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-b-smooth.png --smooth
+			eval $GRAPH_PSC --title \"Blocked Processes\"    --print-monitor vmstat --sub-heading b --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-b-smooth.ps --smooth
 			eval $GRAPH_PNG --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu-smooth.png --smooth
 			eval $GRAPH_PSC --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu-smooth.ps --smooth
+
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-vmstat-r
+			smoothover graph-$SUBREPORT-vmstat-b
+			smoothover graph-$SUBREPORT-vmstat-totalcpu
+			echo "</tr>"
+
+			eval $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.png
+			eval $GRAPH_PSC --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.ps
+			eval $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy-smooth.png --smooth
+			eval $GRAPH_PSC --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy-smooth.ps --smooth
 
 			if [ `ls proc-vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ]; then
 				eval $GRAPH_PNG --title \"Minor Faults\" --logY   --print-monitor proc-vmstat --sub-heading mmtests_minor_faults --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults.png
 				eval $GRAPH_PSC --title \"Minor Faults\" --logY   --print-monitor proc-vmstat --sub-heading mmtests_minor_faults --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults.ps
+				eval $GRAPH_PNG --title \"Major Faults\" --logY   --print-monitor proc-vmstat --sub-heading pgmajfault --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults.png
+				eval $GRAPH_PSC --title \"Major Faults\" --logY   --print-monitor proc-vmstat --sub-heading pgmajfault --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults.ps
+
 				eval $GRAPH_PNG --title \"Minor Faults\"          --print-monitor proc-vmstat --sub-heading mmtests_minor_faults --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults-smooth.png --smooth
 				eval $GRAPH_PSC --title \"Minor Faults\"          --print-monitor proc-vmstat --sub-heading mmtests_minor_faults --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults-smooth.ps  --smooth
+				eval $GRAPH_PNG --title \"Major Faults\"          --print-monitor proc-vmstat --sub-heading pgmajfault --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults-smooth.png
+				eval $GRAPH_PSC --title \"Major Faults\"          --print-monitor proc-vmstat --sub-heading pgmajfault --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults-smooth.ps
 			fi
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-vmstat-ussy
-			smoothover graph-$SUBREPORT-vmstat-totalcpu
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults.png ]; then
 				smoothover graph-$SUBREPORT-proc-vmstat-minorfaults
+			fi
+			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults.png ]; then
+				smoothover graph-$SUBREPORT-proc-vmstat-majorfaults
 			fi
 			echo "</tr>"
 		fi
@@ -1583,6 +1605,12 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "</tr>"
 		fi
 		if [ `ls proc-vmstat-$KERNEL_BASE-* 2> /dev/null| wc -l` -gt 0 ]; then
+			eval $GRAPH_PNG --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty.png 2> /dev/null
+			eval $GRAPH_PSC --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty.ps 2> /dev/null
+			eval $GRAPH_PNG --title \"Writeback Pages\"    --print-monitor proc-vmstat --sub-heading nr_writeback --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_writeback.png 2> /dev/null
+			eval $GRAPH_PSC --title \"Writeback Pages\"    --print-monitor proc-vmstat --sub-heading nr_writeback --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_writeback.ps 2> /dev/null
+			eval $GRAPH_PNG --title \"Dirty Background Threshold\"    --print-monitor proc-vmstat --sub-heading nr_dirty_background_threshold --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty_background_threshold.png 2> /dev/null
+			eval $GRAPH_PSC --title \"Dirty Background Threshold\"    --print-monitor proc-vmstat --sub-heading nr_dirty_background_threshold --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty_background_threshold.ps 2> /dev/null
 			eval $GRAPH_PNG --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp.png 2> /dev/null
 			eval $GRAPH_PSC --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp.ps 2> /dev/null
 			eval $GRAPH_PNG --title \"Anon Pages\" --print-monitor proc-vmstat --sub-heading mmtests_total_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-anon.png
@@ -1596,6 +1624,12 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			eval $GRAPH_PNG --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab.png
 			eval $GRAPH_PSC --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab.ps
 
+			eval $GRAPH_PNG --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty-smooth.png --smooth 2> /dev/null
+			eval $GRAPH_PSC --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty-smooth.ps --smooth 2> /dev/null
+			eval $GRAPH_PNG --title \"Writeback Pages\"    --print-monitor proc-vmstat --sub-heading nr_writeback --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_writeback-smooth.png --smooth 2> /dev/null
+			eval $GRAPH_PSC --title \"Writeback Pages\"    --print-monitor proc-vmstat --sub-heading nr_writeback --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_writeback-smooth.ps --smooth 2> /dev/null
+			eval $GRAPH_PNG --title \"Dirty Background Threshold\"    --print-monitor proc-vmstat --sub-heading nr_dirty_background_threshold --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty_background_threshold-smooth.png --smooth 2> /dev/null
+			eval $GRAPH_PSC --title \"Dirty Background Threshold\"    --print-monitor proc-vmstat --sub-heading nr_dirty_background_threshold --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty_background_threshold-smooth.ps --smooth 2> /dev/null
 			eval $GRAPH_PNG --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp-smooth.png --smooth 2> /dev/null
 			eval $GRAPH_PSC --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp-smooth.ps  --smooth 2> /dev/null
 			eval $GRAPH_PNG --title \"Anon Pages\" --print-monitor proc-vmstat --sub-heading mmtests_total_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-anon-smooth.png                --smooth
@@ -1608,6 +1642,12 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			eval $GRAPH_PSC --title \"Slab Reclaimable\"    --print-monitor proc-vmstat --sub-heading nr_slab_reclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-reclaimable-smooth.ps --smooth
 			eval $GRAPH_PNG --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-smooth.png --smooth
 			eval $GRAPH_PSC --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-smooth.ps --smooth
+
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-proc-vmstat-nr_dirty
+			smoothover graph-$SUBREPORT-proc-vmstat-nr_writeback
+			smoothover graph-$SUBREPORT-proc-vmstat-nr_dirty_background_threshold
+			echo "</tr>"
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-thp
