@@ -14,64 +14,6 @@ use Statistics::Distributions;
 @ISA    = qw(Exporter);
 @EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_lowest_mean &calc_highest_mean &calc_highest_harmmean &calc_mean &calc_trimmed_mean &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
-# Values taken from a standard normal table
-my %za = (
-	95=>1.96,
-	99=>2.58,
-);
-
-# created with R using "qt(c(0.975), df=$key); from df=22 added
-# only smallest entries that differed at most 0.01 from previous entry
-my %qt_975 = (
-	1=>12.7062, 2=>4.302653, 3=>3.182446, 4=>2.776445, 5=>2.570582,
-	6=>2.446912, 7=>2.364624, 8=>2.306004, 9=>2.262157, 10=>2.228139,
-	11=>2.200985, 12=>2.178813, 13=>2.160369, 14=>2.144787, 15=>2.13145,
-	16=>2.119905, 17=>2.109816, 18=>2.100922, 19=>2.093024, 20=>2.085963,
-	21=>2.079614, 22=>2.073873, 24=>2.063899, 26=>2.055529, 28=>2.048407,
-	31=>2.039513, 35=>2.030108, 40=>2.021075, 47=>2.011741, 57=>2.002465,
-	74=>1.992543, 106=>1.982597, 188=>1.972663, 879=>1.962666,
-	#inf=>1.959964
-);
-
-# created with R using "qt(c(0.995), df=$key); from df=33 added
-# only smallest entries that differed at most 0.01 from previous entry
-my %qt_995 = (
-	1=>63.65674, 2=>9.924843, 3=>5.840909, 4=>4.604095, 5=>4.032143,
-	6=>3.707428, 7=>3.499483, 8=>3.355387, 9=>3.249836, 10=>3.169273,
-	11=>3.105807, 12=>3.05454, 13=>3.012276, 14=>2.976843, 15=>2.946713,
-	16=>2.920782, 17=>2.898231, 18=>2.87844, 19=>2.860935, 20=>2.84534,
-	21=>2.83136, 22=>2.818756, 23=>2.807336, 24=>2.79694, 25=>2.787436,
-	26=>2.778715, 27=>2.770683, 28=>2.763262, 29=>2.756386, 30=>2.749996,
-	31=>2.744042, 32=>2.738481, 33=>2.733277, 35=>2.723806, 37=>2.715409,
-	39=>2.707913, 42=>2.698066, 45=>2.689585, 49=>2.679952, 54=>2.669985,
-	60=>2.660283, 67=>2.65122, 76=>2.642078, 89=>2.632204, 107=>2.62256,
-	135=>2.612738, 184=>2.602813, 291=>2.592829, 704=>2.582831,
-	#inf=>2.575829
-);
-
-# quantile of t-distribution with
-# $_[0] degrees of freedom and $_[1] confidence level
-sub qt {
-	my %qtt;
-	my $q;
-
-	if ( $_[1] == 99 ) {
-		%qtt = %qt_995;
-	} elsif ( $_[1] == 95 ) {
-		%qtt = %qt_975;
-	} else {
-		return "NaN";
-	}
-
-	foreach my $key (reverse sort {$qtt{$b} <=> $qtt{$a}} keys %qtt) {
-		if ( $_[0] >= $key ) {
-			$q = $qtt{$key};
-			last;
-		}
-	}
-	return $q;
-}
-
 # Print the percentage difference between two values
 sub pdiff {
 	if ($_[0] == $_[1] || $_[0] == 0) {
@@ -442,7 +384,7 @@ sub calc_confidence_interval {
 	my $n = 0;
 	my $i;
 	my $stddev;
-	my $q;
+	my $q; my $q1;
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined $_[$i]) {
@@ -453,10 +395,10 @@ sub calc_confidence_interval {
 	my $mean = calc_mean(@_);
 	if ($variance !~ /^[-0-9]+/) {
 		$stddev = calc_stddev(@_);
-		$q = qt($n-1, $confidence_level);
+		$q = Statistics::Distributions::tdistr($n-1, (100 - $confidence_level) / 200);
 	} else {
 		$stddev = sqrt($variance);
-		$q = $za{$confidence_level};
+		$q = Statistics::Distributions::udistr((100 - $confidence_level) / 200);
 	}
 
 	return ($q*($stddev/sqrt($n)));
