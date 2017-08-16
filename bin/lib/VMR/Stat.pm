@@ -9,6 +9,7 @@ use vars qw (@ISA @EXPORT);
 use VMR::Report;
 use strict;
 use POSIX qw(floor);
+use Statistics::Distributions;
 
 @ISA    = qw(Exporter);
 @EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_lowest_mean &calc_highest_mean &calc_highest_harmmean &calc_mean &calc_trimmed_mean &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
@@ -478,7 +479,7 @@ sub calc_confidence_interval_upper {
 # Perform Welch's t-test.
 # Returns 0 if H_0 is not rejected, returns 1 if H_0 is rejected.
 # mean_x, mean_y, stddev_x, stddev_y, n_x, n_y,
-# alpha (significance level) either 5 (ie 5%) or 1 (ie 1%)
+# alpha (significance level), e.g. 5 (ie 5%) or 1 (ie 1%)
 sub calc_welch_test {
 	my $mx = shift;
 	my $my = shift;
@@ -501,7 +502,7 @@ sub calc_welch_test {
 	# compute t-value
 	my $t = ($mx - $my) / sqrt($tsx + $tsy);
 
-	my $q = qt($k, 100 - $alpha);
+	my $q = Statistics::Distributions::tdistr($k, $alpha / 200);
 
 	# reject if |t| > t_{k;(1-alpha/2)}
 	if (abs($t) > $q) {
