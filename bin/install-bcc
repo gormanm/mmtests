@@ -1,0 +1,46 @@
+#!/bin/bash
+SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
+export PATH=$PATH:$SCRIPTDIR
+
+if [ -e /usr/share/bcc ]; then
+	exit 0
+fi
+
+cd $SCRIPTDIR/..
+MMTESTS_ROOT=`pwd`
+SOURCEDIR=$MMTESTS_ROOT/build
+
+for PACKAGE in cmake lua51-luajit lua51-luajit-devel bison flex gcc gcc-c++ git libelf-devel libstdc++-devel llvm-devel pkg-config python-devel python-setuptools python3-devel python3-setuptools libLLVM4 clang clang-devel gcc7-c++ libfl-devel glibc glibc-devel; do
+	install-depends $PACKAGE
+done
+
+mkdir -p $SOURCEDIR
+cd $SOURCEDIR || exit -1
+git clone https://github.com/iovisor/bcc || exit -1
+mkdir $SOURCEDIR/bcc/build || exit -1
+cd $SOURCEDIR/bcc/build
+echo Building bcc
+cmake .. \
+	-DCMAKE_INSTALL_PREFIX=/usr					\
+	-DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_EXE_LINKER_FLAGS=-lstdc++ 	\
+	-DLUAJIT_INCLUDE_DIR=`pkg-config --variable=includedir luajit`	\
+	|| exit -1
+
+make -j8
+if [ $? -ne 0 ]; then
+	echo
+	echo Build failed, retrying without no-pie
+	sed -i -e 's/-no-pie//' ../src/lua/CMakeLists.txt
+	make -j8 || exit -1
+fi
+make install || exit -1
+
+echo Building python bindings
+cmake .. -DPYTHON_CMD=python3 || exit -1
+cd src/python || exit -1
+make || exit -1
+make install || exit -1
+
+echo Build successful
+exit 0
