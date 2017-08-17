@@ -142,6 +142,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			IFS=","
 			COUNT=0
 			for TITLE in $2; do
+				TITLE=`echo $TITLE | sed -e 's/_/\\\_/g'`
 				TITLES[$COUNT]="$TITLE"
 				COUNT=$(($COUNT+1))
 			done

@@ -1581,7 +1581,12 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				smoothover graph-$SUBREPORT-proc-vmstat-minorfaults
 			fi
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults.png ]; then
-				smoothover graph-$SUBREPORT-proc-vmstat-majorfaults
+				MAJFAULTS=`$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading pgmajfault | awk '{print $2}' | max`
+				if [ $MAJFAULTS -gt 0 ]; then
+					smoothover graph-$SUBREPORT-proc-vmstat-majorfaults
+				else
+					echo "<td><center>No major page faults</center></td>"
+				fi
 			fi
 			echo "</tr>"
 		fi
