@@ -70,6 +70,10 @@ if (!defined($distro)) {
 				$distro = $1;
 				last;
 			}
+			if (/CPE_NAME="cpe:\/o:([a-z]*):/) {
+				$distro = $1;
+				last;
+			}
 		}
 	}
 }
