@@ -141,7 +141,7 @@ static void *worker(void *data)
 		start = timespec_to_ns(&tv_start);
 		end = timespec_to_ns(&tv_end);
 		index = record_sample(tid, end - born, end - start, latencies, index);
-		seq = (seq + 1) % 1000;
+		seq = (seq + 1) % 10;
 	}
 
 	dump_latencies(tid, latencies);
