@@ -42,6 +42,7 @@ pthread_t *threads;
 int nr_threads;
 int nr_samples;
 int alignment;
+int tid_offset = 0;
 bool done;
 
 static inline uint64_t timespec_to_ns(struct timespec *tv)
@@ -94,9 +95,8 @@ static unsigned int record_sample(int tid, uint64_t timestamp, uint64_t latency,
 static void *worker(void *data)
 {
 	uint64_t *thread_space = (uint64_t *) data;
-	uint64_t *private_space;
 	struct access_timing *latencies;
-	int tid, cpu, seq = 0;
+	int tid, cpu;
 	unsigned int index = 0;
 	uint64_t start = 0, end = 0;
 	struct timespec tv_start, tv_end;
@@ -112,13 +112,6 @@ static void *worker(void *data)
 		return NULL;
 	}
 
-	private_space = calloc(nr_samples, sizeof(uint64_t *));
-	if (!private_space) {
-		fprintf(stderr, "ERROR: Thread %d failed to allocate space for private_space\n", tid);
-		pthread_barrier_wait(&init_barrier);
-		return NULL;
-	}
-
 	CPU_ZERO(&cpuset);
 	cpu = thread_space[0] % (sysconf(_SC_NPROCESSORS_ONLN) - 1);
 	CPU_SET(cpu, &cpuset);
@@ -129,19 +122,15 @@ static void *worker(void *data)
 	pthread_barrier_wait(&init_barrier);
 
 	while (!done) {
+		thread_space = tid_to_thread_space((tid + tid_offset) % nr_threads);
 		int i;
-		uint64_t *space = private_space;
-		if (seq == 0)
-			space = thread_space;
-
 		clock_gettime(CLOCK_REALTIME, &tv_start);
 		for (i = 0; i < nr_samples; i++)
-			space[i] += start;
+			thread_space[i] += start;
 		clock_gettime(CLOCK_REALTIME, &tv_end);
 		start = timespec_to_ns(&tv_start);
 		end = timespec_to_ns(&tv_end);
 		index = record_sample(tid, end - born, end - start, latencies, index);
-		seq = (seq + 1) % 10;
 	}
 
 	dump_latencies(tid, latencies);
@@ -149,7 +138,6 @@ static void *worker(void *data)
 	/* Make it impossible to optimise thread_space writes */
 	fd = fopen("/tmp/thotdata", "w");
 	fwrite(thread_space,  sizeof(uint64_t), 1, fd);
-	fwrite(private_space, sizeof(uint64_t), 1, fd);
 	fclose(fd);
 	unlink("/tmp/thotdata");
 
@@ -205,7 +193,10 @@ int main(int argc, char **argv)
 		}
 	}
 
-	sleep(30);
+	for (i = 0; i < 60; i++) {
+		sleep(1);
+		tid_offset = (tid_offset + 1) % nr_threads;
+	}
 	done = true;
 
 	for (i = 0; i < nr_threads; i++)
