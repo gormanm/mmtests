@@ -1,0 +1,205 @@
+#!/bin/bash
+###SHELLPACK preamble thotdata 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK self_extract thotdata.c 
+
+mkdir $SHELLPACK_SOURCES/thotdata-${VERSION}-installed
+gcc -Wall -lpthread $SHELLPACK_TEMP/thotdata.c -o $SHELLPACK_SOURCES/thotdata-${VERSION}-installed/thotdata || \
+	die Failed to build thotdata
+
+echo thotdata installed successfully
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN thotdata.c ====
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <pthread.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/types.h>
+
+#define HPAGE_SIZE (2*1048576)
+#define MIN_LATENCY 100000
+#define REPORT_THRESHOLD 1048576
+
+struct access_timing {
+	uint64_t timestamp;
+	uint64_t latency;
+};
+
+static pthread_barrier_t init_barrier;
+pthread_mutex_t report_lock;
+uint64_t *shared_space;
+uint64_t born;
+pthread_t *threads;
+int nr_threads;
+int nr_samples;
+int alignment;
+bool done;
+
+static inline uint64_t timespec_to_ns(struct timespec *tv)
+{
+	return ((uint64_t)tv->tv_sec * 1000000000) + tv->tv_nsec;
+}
+
+static uint64_t *tid_to_thread_space(int tid)
+{
+	return shared_space + (tid * nr_samples);
+}
+
+static int thread_space_to_tid(uint64_t *thread_space)
+{
+	return (thread_space - shared_space) / nr_samples;
+}
+
+static void dump_latencies(int tid, struct access_timing *latencies)
+{
+	int i;
+
+	pthread_mutex_lock(&report_lock);
+	for (i = 0; i < REPORT_THRESHOLD; i++) {
+		if (!latencies[i].latency)
+			break;
+		printf("%3d %16f %16f\n",
+			tid,
+			(double)latencies[i].timestamp / 1000000,
+			(double)latencies[i].latency / 1000000);
+	}
+	pthread_mutex_unlock(&report_lock);
+
+	memset(latencies, 0, REPORT_THRESHOLD * sizeof(struct access_timing));
+}
+
+static unsigned int record_sample(int tid, uint64_t timestamp, uint64_t latency, struct access_timing *latencies, int index)
+{
+	latencies[index].timestamp = timestamp;
+	if (latency >= MIN_LATENCY) {
+		latencies[index].latency = latency;
+		if (++index == REPORT_THRESHOLD) {
+			dump_latencies(tid, latencies);
+			index = 0;
+		}
+	}
+
+	return index;
+}
+
+/* Allow every BIND_STRIDE threads to be uynbound */
+#ifndef BIND_STRIDE
+#define BIND_STRIDE 4
+#endif
+
+static void *worker(void *data)
+{
+	uint64_t *thread_space = (uint64_t *) data;
+	struct access_timing *latencies;
+	int tid, cpu;
+	unsigned int index = 0;
+	struct timespec tv_start, tv_end;
+	cpu_set_t cpuset;
+
+	/* Initialise work space */
+	tid = thread_space_to_tid(thread_space);
+	latencies = calloc(REPORT_THRESHOLD, sizeof(struct access_timing));
+	if (!latencies) {
+		fprintf(stderr, "ERROR: Thread %d failed to allocate space for latencies\n", tid);
+		pthread_barrier_wait(&init_barrier);
+		return NULL;
+	}
+
+	if (BIND_STRIDE == 0 || tid % BIND_STRIDE != 0) {
+		CPU_ZERO(&cpuset);
+		cpu = thread_space[0] % (sysconf(_SC_NPROCESSORS_ONLN) - 1);
+		CPU_SET(cpu, &cpuset);
+		if (pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset))
+    			fprintf(stderr, "WARNING: Thread %4d failed to set affinity to %2d\n", tid, cpu);
+	}
+	memset(thread_space, nr_samples, sizeof(uint64_t));
+
+	pthread_barrier_wait(&init_barrier);
+	if (tid == 0)
+		fprintf(stderr, "ready\n");
+
+	while (!done) {
+		int i;
+		uint64_t start, end;
+
+		clock_gettime(CLOCK_REALTIME, &tv_start);
+		start = timespec_to_ns(&tv_start);
+		for (i = 0; i < nr_samples; i++)
+			thread_space[i] = start;
+		clock_gettime(CLOCK_REALTIME, &tv_end);
+		end = timespec_to_ns(&tv_end);
+		index = record_sample(tid, end - born, end - start, latencies, index);
+	}
+
+	dump_latencies(tid, latencies);
+
+	return NULL;
+}
+
+int main(int argc, char **argv)
+{
+	int i;
+	size_t shared_size;
+	struct timespec tv_start;
+
+	if (argc <= 2) {
+		printf("Usage: numab-hot-test alignment cpulist\n");
+		exit(EXIT_FAILURE);
+	}
+
+	alignment = atoi(argv[1]);
+	nr_threads = argc - 2;
+	nr_samples = alignment / sizeof(uint64_t);
+
+	shared_size = nr_samples * nr_threads * sizeof(uint64_t);
+	if (posix_memalign((void **)&shared_space, HPAGE_SIZE, shared_size)) {
+		perror("posix_memalign");
+		exit(EXIT_FAILURE);
+	}
+
+	threads = malloc(nr_threads * sizeof(struct pthread_t *));
+	if (!threads) {
+		printf("FATAL: Insufficient memory to allocate thread structures\n");
+		exit(EXIT_FAILURE);
+	}
+
+	done = false;
+	pthread_barrier_init(&init_barrier, NULL, nr_threads);
+	if (pthread_mutex_init(&report_lock, NULL) != 0) {
+        	fprintf(stderr, "ERROR: Failed to init mutex\n");
+		exit(EXIT_FAILURE);
+	}
+
+	clock_gettime(CLOCK_REALTIME, &tv_start);
+	born = timespec_to_ns(&tv_start);
+
+	for (i = 2; i < argc; i++) {
+		uint64_t *thread_space = tid_to_thread_space(i - 2);
+		int cpu = atoi(argv[i]);
+
+		thread_space[0] = cpu;
+		if (pthread_create(&threads[i - 2], NULL, worker, thread_space)) {
+			perror("Creating thread");
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	sleep(30);
+	done = true;
+
+	for (i = 0; i < nr_threads; i++)
+		pthread_join(threads[i], NULL);
+	pthread_barrier_destroy(&init_barrier);
+
+	exit(EXIT_SUCCESS);
+}
+==== END thotdata.c ====

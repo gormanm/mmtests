@@ -1,0 +1,46 @@
+#!/bin/bash
+###SHELLPACK preamble thotdata-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-threads	THOTDATA_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads	THOTDATA_MAX_THREADS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required thotdata-${VERSION}
+cd $SHELLPACK_SOURCES/thotdata-${VERSION}-installed ||
+	die Failed to change to benchmark directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Get a list of interleaved CPU between available nodes
+TIFS=$IFS
+IFS="
+"
+
+NODE=0
+for LINE in `numactl --hardware | grep cpus: | awk -F ": " '{print $2}'`; do
+        echo $LINE | sed -e 's/ /\n/g' > $SHELLPACK_TEMP/interleave.$NODE.$$
+        NODE=$((NODE+1))
+done
+
+paste -d '\n' $SHELLPACK_TEMP/interleave.*.$$ > $SHELLPACK_TEMP/interleave.$$
+rm $SHELLPACK_TEMP/interleave.*.$$
+IFS=$TIFS
+
+###SHELLPACK threads_powertwo_begin $THOTDATA_MIN_THREADS $THOTDATA_MAX_THREADS
+	CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/interleave.$$ | tr '\n' ' '`
+	for ALIGNMENT in 64 4096 2097152; do
+		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS-$ALIGNMENT
+		echo Starting $NR_THREADS/$THOTDATA_MAX_THREADS with alignment $ALIGNMENT
+		echo o $CPULIST
+		
+		$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time	\
+			./thotdata $ALIGNMENT $CPULIST			\
+				> $LOGDIR_RESULTS/threads-${NR_THREADS}-$ALIGNMENT.log 2>&1
+		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS-$ALIGNMENT
+	done
+###SHELLPACK threads_powertwo_end
+rm $SHELLPACK_TEMP/interleave.$$
+exit $SHELLPACK_SUCCESS

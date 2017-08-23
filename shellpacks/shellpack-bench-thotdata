@@ -1,0 +1,127 @@
+#!/bin/bash
+P=thotdata-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--min-threads)
+		THOTDATA_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		THOTDATA_MAX_THREADS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/thotdata-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/thotdata-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-thotdata -v ${VERSION}  || die thotdata install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/thotdata-${VERSION}-installed || die Failed to cd to thotdata install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo thotdata installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+cd $SHELLPACK_SOURCES/thotdata-${VERSION}-installed ||
+	die Failed to change to benchmark directory
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Get a list of interleaved CPU between available nodes
+TIFS=$IFS
+IFS="
+"
+
+NODE=0
+for LINE in `numactl --hardware | grep cpus: | awk -F ": " '{print $2}'`; do
+        echo $LINE | sed -e 's/ /\n/g' > $SHELLPACK_TEMP/interleave.$NODE.$$
+        NODE=$((NODE+1))
+done
+
+paste -d '\n' $SHELLPACK_TEMP/interleave.*.$$ > $SHELLPACK_TEMP/interleave.$$
+rm $SHELLPACK_TEMP/interleave.*.$$
+IFS=$TIFS
+
+NR_THREADS=$THOTDATA_MIN_THREADS
+if [ "$NR_THREADS" = "" ]; then
+	NR_THREADS=1
+fi
+THREADS=$NR_THREADS
+NR_THREADS=$((NR_THREADS*2))
+while [ $NR_THREADS -le $THOTDATA_MAX_THREADS ]; do
+	THREADS="$THREADS $NR_THREADS"
+	NR_THREADS=$((NR_THREADS*2))
+done
+if [ `echo $THREADS | awk '{print $NF}'` -ne $THOTDATA_MAX_THREADS ]; then
+	THREADS="$THREADS $THOTDATA_MAX_THREADS"
+fi
+for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -gt $THOTDATA_MAX_THREADS ]; then
+		NR_THREADS=$THOTDATA_MAX_THREADS
+	fi
+	mmtests_activity process $NR_THREADS/$THOTDATA_MAX_THREADS
+	CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/interleave.$$ | tr '\n' ' '`
+	for ALIGNMENT in 64 4096 2097152; do
+		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS-$ALIGNMENT
+		echo Starting $NR_THREADS/$THOTDATA_MAX_THREADS with alignment $ALIGNMENT
+		echo o $CPULIST
+		
+		$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time	\
+			./thotdata $ALIGNMENT $CPULIST			\
+				> $LOGDIR_RESULTS/threads-${NR_THREADS}-$ALIGNMENT.log 2>&1
+		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS-$ALIGNMENT
+	done
+done
+rm $SHELLPACK_TEMP/interleave.$$
+exit $SHELLPACK_SUCCESS
+#### Description thotdata
+#### Details thotdata-bench 8
