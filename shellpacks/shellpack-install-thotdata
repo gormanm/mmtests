@@ -192,7 +192,7 @@ static void *worker(void *data)
 	fwrite(thread_space, sizeof(uint64_t), 1, fd);
 	fclose(fd);
 	unlink("/tmp/thotdata");
-	
+
 	return &thread_space[0];
 }
 
@@ -256,4 +256,4 @@ int main(int argc, char **argv)
 }
 ==== END thotdata.c ====
 #### Description thotdata
-#### Details thotdata 16
+#### Details thotdata 17

@@ -114,7 +114,7 @@ for NR_THREADS in $THREADS; do
 	for ALIGNMENT in 64 4096 2097152; do
 		MIN_LATENCY=100000
 		if [ $ALIGNMENT -eq 2097152 ]; then
-			MIN_LATENCY=1000000
+			MIN_LATENCY=3500000
 		fi
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS-$ALIGNMENT
 		echo Starting $NR_THREADS/$THOTDATA_MAX_THREADS with alignment $ALIGNMENT
@@ -129,4 +129,4 @@ done
 rm $SHELLPACK_TEMP/interleave.$$
 exit $SHELLPACK_SUCCESS
 #### Description thotdata
-#### Details thotdata-bench 16
+#### Details thotdata-bench 17
