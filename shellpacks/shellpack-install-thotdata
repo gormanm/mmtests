@@ -72,7 +72,6 @@ exit $SHELLPACK_SUCCESS
 #include <sys/types.h>
 
 #define HPAGE_SIZE (2*1048576)
-#define MIN_LATENCY 100000
 #define REPORT_THRESHOLD 1048576
 
 struct access_timing {
@@ -84,6 +83,7 @@ static pthread_barrier_t init_barrier;
 pthread_mutex_t report_lock;
 uint64_t *shared_space;
 uint64_t born;
+uint64_t min_latency;
 pthread_t *threads;
 int nr_threads;
 int nr_samples;
@@ -126,7 +126,7 @@ static void dump_latencies(int tid, struct access_timing *latencies)
 static unsigned int record_sample(int tid, uint64_t timestamp, uint64_t latency, struct access_timing *latencies, int index)
 {
 	latencies[index].timestamp = timestamp;
-	if (latency >= MIN_LATENCY) {
+	if (latency >= min_latency) {
 		latencies[index].latency = latency;
 		if (++index == REPORT_THRESHOLD) {
 			dump_latencies(tid, latencies);
@@ -137,9 +137,9 @@ static unsigned int record_sample(int tid, uint64_t timestamp, uint64_t latency,
 	return index;
 }
 
-/* Allow every BIND_STRIDE threads to be uynbound */
+/* Allow every BIND_STRIDE threads to be unbound */
 #ifndef BIND_STRIDE
-#define BIND_STRIDE 4
+#define BIND_STRIDE 5
 #endif
 
 static void *worker(void *data)
@@ -148,8 +148,10 @@ static void *worker(void *data)
 	struct access_timing *latencies;
 	int tid, cpu;
 	unsigned int index = 0;
+	uint64_t start = 0, end = 0;
 	struct timespec tv_start, tv_end;
 	cpu_set_t cpuset;
+	FILE *fd;
 
 	/* Initialise work space */
 	tid = thread_space_to_tid(thread_space);
@@ -167,26 +169,31 @@ static void *worker(void *data)
 		if (pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset))
     			fprintf(stderr, "WARNING: Thread %4d failed to set affinity to %2d\n", tid, cpu);
 	}
-	memset(thread_space, nr_samples, sizeof(uint64_t));
+	memset(thread_space, 0, nr_samples * sizeof(uint64_t));
 
 	pthread_barrier_wait(&init_barrier);
 
 	while (!done) {
 		int i;
-		uint64_t start, end;
 
 		clock_gettime(CLOCK_REALTIME, &tv_start);
-		start = timespec_to_ns(&tv_start);
 		for (i = 0; i < nr_samples; i++)
-			thread_space[i] = start;
+			thread_space[i] += start;
 		clock_gettime(CLOCK_REALTIME, &tv_end);
+		start = timespec_to_ns(&tv_start);
 		end = timespec_to_ns(&tv_end);
 		index = record_sample(tid, end - born, end - start, latencies, index);
 	}
 
 	dump_latencies(tid, latencies);
 
-	return NULL;
+	/* Make it impossible to optimise thread_space writes */
+	fd = fopen("/tmp/thotdata", "w");
+	fwrite(thread_space, sizeof(uint64_t), 1, fd);
+	fclose(fd);
+	unlink("/tmp/thotdata");
+	
+	return &thread_space[0];
 }
 
 int main(int argc, char **argv)
@@ -195,13 +202,14 @@ int main(int argc, char **argv)
 	size_t shared_size;
 	struct timespec tv_start;
 
-	if (argc <= 2) {
-		printf("Usage: numab-hot-test alignment cpulist\n");
+	if (argc <= 3) {
+		printf("Usage: numab-hot-test alignment min_latency cpulist\n");
 		exit(EXIT_FAILURE);
 	}
 
 	alignment = atoi(argv[1]);
-	nr_threads = argc - 2;
+	min_latency = atoi(argv[2]);
+	nr_threads = argc - 3;
 	nr_samples = alignment / sizeof(uint64_t);
 
 	shared_size = nr_samples * nr_threads * sizeof(uint64_t);
@@ -226,18 +234,18 @@ int main(int argc, char **argv)
 	clock_gettime(CLOCK_REALTIME, &tv_start);
 	born = timespec_to_ns(&tv_start);
 
-	for (i = 2; i < argc; i++) {
-		uint64_t *thread_space = tid_to_thread_space(i - 2);
+	for (i = 3; i < argc; i++) {
+		uint64_t *thread_space = tid_to_thread_space(i - 3);
 		int cpu = atoi(argv[i]);
 
 		thread_space[0] = cpu;
-		if (pthread_create(&threads[i - 2], NULL, worker, thread_space)) {
+		if (pthread_create(&threads[i - 3], NULL, worker, thread_space)) {
 			perror("Creating thread");
 			exit(EXIT_FAILURE);
 		}
 	}
 
-	sleep(30);
+	sleep(60);
 	done = true;
 
 	for (i = 0; i < nr_threads; i++)
@@ -248,4 +256,4 @@ int main(int argc, char **argv)
 }
 ==== END thotdata.c ====
 #### Description thotdata
-#### Details thotdata 9
+#### Details thotdata 16

@@ -29,15 +29,20 @@ paste -d '\n' $SHELLPACK_TEMP/interleave.*.$$ > $SHELLPACK_TEMP/interleave.$$
 rm $SHELLPACK_TEMP/interleave.*.$$
 IFS=$TIFS
 
+cpupower frequency-set -g performance
 ###SHELLPACK threads_powertwo_begin $THOTDATA_MIN_THREADS $THOTDATA_MAX_THREADS
 	CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/interleave.$$ | tr '\n' ' '`
-	for ALIGNMENT in 64 4096; do
+	for ALIGNMENT in 64 4096 2097152; do
+		MIN_LATENCY=100000
+		if [ $ALIGNMENT -eq 2097152 ]; then
+			MIN_LATENCY=1000000
+		fi
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS-$ALIGNMENT
 		echo Starting $NR_THREADS/$THOTDATA_MAX_THREADS with alignment $ALIGNMENT
 		echo o $CPULIST
 		
-		$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time	\
-			./thotdata $ALIGNMENT $CPULIST			\
+		$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}-$ALIGNMENT.time	\
+			./thotdata $ALIGNMENT $MIN_LATENCY $CPULIST			\
 				> $LOGDIR_RESULTS/threads-${NR_THREADS}-$ALIGNMENT.log 2>&1
 		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS-$ALIGNMENT
 	done
