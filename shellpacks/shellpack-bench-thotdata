@@ -87,6 +87,7 @@ for LINE in `numactl --hardware | grep cpus: | awk -F ": " '{print $2}'`; do
         NODE=$((NODE+1))
 done
 
+cat $SHELLPACK_TEMP/interleave.*.$$ > $SHELLPACK_TEMP/bynode.$$
 paste -d '\n' $SHELLPACK_TEMP/interleave.*.$$ > $SHELLPACK_TEMP/interleave.$$
 rm $SHELLPACK_TEMP/interleave.*.$$
 IFS=$TIFS
@@ -111,7 +112,7 @@ for NR_THREADS in $THREADS; do
 		NR_THREADS=$THOTDATA_MAX_THREADS
 	fi
 	mmtests_activity process $NR_THREADS/$THOTDATA_MAX_THREADS
-		CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/interleave.$$ | tr '\n' ' '`
+		CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/bynode.$$ | tr '\n' ' '`
 		MIN_LATENCY=100000
 		if [ $ALIGNMENT -eq 2097152 ]; then
 			MIN_LATENCY=3500000
@@ -127,6 +128,7 @@ for NR_THREADS in $THREADS; do
 done
 done
 rm $SHELLPACK_TEMP/interleave.$$
+rm $SHELLPACK_TEMP/bynode.$$
 exit $SHELLPACK_SUCCESS
 #### Description thotdata
-#### Details thotdata-bench 23
+#### Details thotdata-bench 26

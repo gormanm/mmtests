@@ -146,7 +146,6 @@ static void *worker(void *data)
 	unsigned int index = 0;
 	uint64_t start = 0, end = 0;
 	struct timespec tv_start, tv_end;
-	cpu_set_t cpuset;
 	FILE *fd;
 
 	/* Initialise work space */
@@ -158,18 +157,12 @@ static void *worker(void *data)
 		return NULL;
 	}
 
-	CPU_ZERO(&cpuset);
-	cpu = thread_space[0] % (sysconf(_SC_NPROCESSORS_ONLN) - 1);
-	CPU_SET(cpu, &cpuset);
-	if (pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset))
-		fprintf(stderr, "WARNING: Thread %4d failed to set affinity to %2d\n", tid, cpu);
 	memset(thread_space, 0, nr_samples * sizeof(uint64_t));
-
 	pthread_barrier_wait(&init_barrier);
 
 	while (!done) {
-		thread_space = tid_to_thread_space((tid + tid_offset) % nr_threads);
 		int i;
+		thread_space = tid_to_thread_space((tid + tid_offset) % nr_threads);
 		clock_gettime(CLOCK_REALTIME, &tv_start);
 		for (i = 0; i < nr_samples; i++)
 			thread_space[i] += start;
@@ -239,7 +232,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	for (i = 0; i < 60; i++) {
+	for (i = 0; i < 120; i++) {
 		sleep(1);
 		tid_offset = (tid_offset + 1) % nr_threads;
 	}
@@ -253,4 +246,4 @@ int main(int argc, char **argv)
 }
 ==== END thotdata.c ====
 #### Description thotdata
-#### Details thotdata 23
+#### Details thotdata 26

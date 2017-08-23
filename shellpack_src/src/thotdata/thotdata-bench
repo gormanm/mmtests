@@ -25,6 +25,7 @@ for LINE in `numactl --hardware | grep cpus: | awk -F ": " '{print $2}'`; do
         NODE=$((NODE+1))
 done
 
+cat $SHELLPACK_TEMP/interleave.*.$$ > $SHELLPACK_TEMP/bynode.$$
 paste -d '\n' $SHELLPACK_TEMP/interleave.*.$$ > $SHELLPACK_TEMP/interleave.$$
 rm $SHELLPACK_TEMP/interleave.*.$$
 IFS=$TIFS
@@ -32,7 +33,7 @@ IFS=$TIFS
 cpupower frequency-set -g performance
 for ALIGNMENT in 64 4096 2097152; do
 	###SHELLPACK threads_powertwo_begin $THOTDATA_MIN_THREADS $THOTDATA_MAX_THREADS
-		CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/interleave.$$ | tr '\n' ' '`
+		CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/bynode.$$ | tr '\n' ' '`
 		MIN_LATENCY=100000
 		if [ $ALIGNMENT -eq 2097152 ]; then
 			MIN_LATENCY=3500000
@@ -48,4 +49,5 @@ for ALIGNMENT in 64 4096 2097152; do
 	###SHELLPACK threads_powertwo_end
 done
 rm $SHELLPACK_TEMP/interleave.$$
+rm $SHELLPACK_TEMP/bynode.$$
 exit $SHELLPACK_SUCCESS
