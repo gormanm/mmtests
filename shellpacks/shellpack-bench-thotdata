@@ -92,6 +92,7 @@ rm $SHELLPACK_TEMP/interleave.*.$$
 IFS=$TIFS
 
 cpupower frequency-set -g performance
+for ALIGNMENT in 64 4096 2097152; do
 NR_THREADS=$THOTDATA_MIN_THREADS
 if [ "$NR_THREADS" = "" ]; then
 	NR_THREADS=1
@@ -110,8 +111,7 @@ for NR_THREADS in $THREADS; do
 		NR_THREADS=$THOTDATA_MAX_THREADS
 	fi
 	mmtests_activity process $NR_THREADS/$THOTDATA_MAX_THREADS
-	CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/interleave.$$ | tr '\n' ' '`
-	for ALIGNMENT in 64 4096 2097152; do
+		CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/interleave.$$ | tr '\n' ' '`
 		MIN_LATENCY=100000
 		if [ $ALIGNMENT -eq 2097152 ]; then
 			MIN_LATENCY=3500000
@@ -124,9 +124,9 @@ for NR_THREADS in $THREADS; do
 			./thotdata $ALIGNMENT $MIN_LATENCY $CPULIST			\
 				> $LOGDIR_RESULTS/threads-${NR_THREADS}-$ALIGNMENT.log 2>&1
 		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS-$ALIGNMENT
-	done
+done
 done
 rm $SHELLPACK_TEMP/interleave.$$
 exit $SHELLPACK_SUCCESS
 #### Description thotdata
-#### Details thotdata-bench 17
+#### Details thotdata-bench 21

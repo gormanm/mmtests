@@ -30,9 +30,9 @@ rm $SHELLPACK_TEMP/interleave.*.$$
 IFS=$TIFS
 
 cpupower frequency-set -g performance
-###SHELLPACK threads_powertwo_begin $THOTDATA_MIN_THREADS $THOTDATA_MAX_THREADS
-	CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/interleave.$$ | tr '\n' ' '`
-	for ALIGNMENT in 64 4096 2097152; do
+for ALIGNMENT in 64 4096 2097152; do
+	###SHELLPACK threads_powertwo_begin $THOTDATA_MIN_THREADS $THOTDATA_MAX_THREADS
+		CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/interleave.$$ | tr '\n' ' '`
 		MIN_LATENCY=100000
 		if [ $ALIGNMENT -eq 2097152 ]; then
 			MIN_LATENCY=3500000
@@ -45,7 +45,7 @@ cpupower frequency-set -g performance
 			./thotdata $ALIGNMENT $MIN_LATENCY $CPULIST			\
 				> $LOGDIR_RESULTS/threads-${NR_THREADS}-$ALIGNMENT.log 2>&1
 		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS-$ALIGNMENT
-	done
-###SHELLPACK threads_powertwo_end
+	###SHELLPACK threads_powertwo_end
+done
 rm $SHELLPACK_TEMP/interleave.$$
 exit $SHELLPACK_SUCCESS

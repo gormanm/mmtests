@@ -137,16 +137,12 @@ static unsigned int record_sample(int tid, uint64_t timestamp, uint64_t latency,
 	return index;
 }
 
-/* Allow every BIND_STRIDE threads to be unbound */
-#ifndef BIND_STRIDE
-#define BIND_STRIDE 5
-#endif
-
 static void *worker(void *data)
 {
 	uint64_t *thread_space = (uint64_t *) data;
+	uint64_t *private_space;
 	struct access_timing *latencies;
-	int tid, cpu;
+	int tid, cpu, seq = 0;
 	unsigned int index = 0;
 	uint64_t start = 0, end = 0;
 	struct timespec tv_start, tv_end;
@@ -162,34 +158,44 @@ static void *worker(void *data)
 		return NULL;
 	}
 
-	if (BIND_STRIDE == 0 || tid % BIND_STRIDE != 0) {
-		CPU_ZERO(&cpuset);
-		cpu = thread_space[0] % (sysconf(_SC_NPROCESSORS_ONLN) - 1);
-		CPU_SET(cpu, &cpuset);
-		if (pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset))
-    			fprintf(stderr, "WARNING: Thread %4d failed to set affinity to %2d\n", tid, cpu);
+	private_space = calloc(nr_samples, sizeof(uint64_t *));
+	if (!private_space) {
+		fprintf(stderr, "ERROR: Thread %d failed to allocate space for private_space\n", tid);
+		pthread_barrier_wait(&init_barrier);
+		return NULL;
 	}
+
+	CPU_ZERO(&cpuset);
+	cpu = thread_space[0] % (sysconf(_SC_NPROCESSORS_ONLN) - 1);
+	CPU_SET(cpu, &cpuset);
+	if (pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset))
+		fprintf(stderr, "WARNING: Thread %4d failed to set affinity to %2d\n", tid, cpu);
 	memset(thread_space, 0, nr_samples * sizeof(uint64_t));
 
 	pthread_barrier_wait(&init_barrier);
 
 	while (!done) {
 		int i;
+		uint64_t *space = private_space;
+		if (seq == 0)
+			space = thread_space;
 
 		clock_gettime(CLOCK_REALTIME, &tv_start);
 		for (i = 0; i < nr_samples; i++)
-			thread_space[i] += start;
+			space[i] += start;
 		clock_gettime(CLOCK_REALTIME, &tv_end);
 		start = timespec_to_ns(&tv_start);
 		end = timespec_to_ns(&tv_end);
 		index = record_sample(tid, end - born, end - start, latencies, index);
+		seq = (seq + 1) % 1000;
 	}
 
 	dump_latencies(tid, latencies);
 
 	/* Make it impossible to optimise thread_space writes */
 	fd = fopen("/tmp/thotdata", "w");
-	fwrite(thread_space, sizeof(uint64_t), 1, fd);
+	fwrite(thread_space,  sizeof(uint64_t), 1, fd);
+	fwrite(private_space, sizeof(uint64_t), 1, fd);
 	fclose(fd);
 	unlink("/tmp/thotdata");
 
@@ -245,7 +251,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	sleep(60);
+	sleep(30);
 	done = true;
 
 	for (i = 0; i < nr_threads; i++)
@@ -256,4 +262,4 @@ int main(int argc, char **argv)
 }
 ==== END thotdata.c ====
 #### Description thotdata
-#### Details thotdata 17
+#### Details thotdata 21
