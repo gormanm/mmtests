@@ -170,8 +170,6 @@ static void *worker(void *data)
 	memset(thread_space, nr_samples, sizeof(uint64_t));
 
 	pthread_barrier_wait(&init_barrier);
-	if (tid == 0)
-		fprintf(stderr, "ready\n");
 
 	while (!done) {
 		int i;
@@ -250,4 +248,4 @@ int main(int argc, char **argv)
 }
 ==== END thotdata.c ====
 #### Description thotdata
-#### Details thotdata 8
+#### Details thotdata 9

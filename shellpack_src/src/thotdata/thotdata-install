@@ -124,8 +124,6 @@ static void *worker(void *data)
 	memset(thread_space, nr_samples, sizeof(uint64_t));
 
 	pthread_barrier_wait(&init_barrier);
-	if (tid == 0)
-		fprintf(stderr, "ready\n");
 
 	while (!done) {
 		int i;

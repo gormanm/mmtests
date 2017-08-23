@@ -57,7 +57,7 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # thotdata
 export THOTDATA_MIN_THREADS=$NUMNODES
-export THOTDATA_MAX_THREADS=$((NUMCPUS*16))
+export THOTDATA_MAX_THREADS=$((NUMCPUS*2))
 
 if [ $NUMNODES -eq 1 ]; then
 	echo Skipping NUMA test configuration on single node machine

@@ -31,7 +31,7 @@ IFS=$TIFS
 
 ###SHELLPACK threads_powertwo_begin $THOTDATA_MIN_THREADS $THOTDATA_MAX_THREADS
 	CPULIST=`head -$NR_THREADS $SHELLPACK_TEMP/interleave.$$ | tr '\n' ' '`
-	for ALIGNMENT in 64 4096 2097152; do
+	for ALIGNMENT in 64 4096; do
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS-$ALIGNMENT
 		echo Starting $NR_THREADS/$THOTDATA_MAX_THREADS with alignment $ALIGNMENT
 		echo o $CPULIST
