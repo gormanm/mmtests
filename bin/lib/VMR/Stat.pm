@@ -444,6 +444,7 @@ sub calc_welch_test {
 	# compute t-value
 	my $t = ($mx - $my) / sqrt($tsx + $tsy);
 
+	require Statistics::Distributions;
 	my $q = Statistics::Distributions::tdistr($k, $alpha / 200);
 
 	# reject if |t| > t_{k;(1-alpha/2)}
