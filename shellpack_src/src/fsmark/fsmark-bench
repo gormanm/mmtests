@@ -23,10 +23,10 @@ FILESIZE=0
 
 ###SHELLPACK monitor_hooks
 
-ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
+ln -s $SHELLPACK_DATA /tmp/fsmark-$$
 
 # Scale iterations to fit on the disk
-ACTUAL_DISKSIZE=`df -k $SHELLPACK_TEMP | tail -1 | awk '{print $2}'`
+ACTUAL_DISKSIZE=`df -k $SHELLPACK_DATA | tail -1 | awk '{print $2}'`
 ACTUAL_DISKSIZE=$((ACTUAL_DISKSIZE*1024))
 USABLE_DISKSIZE=$((ACTUAL_DISKSIZE*6/10))
 ESTIMATED_USAGE=$((FILESIZE*NR_FILES_PER_ITERATION*ITERATIONS))
@@ -70,9 +70,10 @@ fi
 			2>&1 | tee $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log \
 				|| die Failed to run fsmark
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
-	rm -rf $SHELLPACK_TEMP/*
+	rm -rf $SHELLPACK_DATA/*
 ###SHELLPACK threads_stride_end
 
 rm /tmp/fsmark-$$
+rm -rf $SHELLPACK_DATA/fsmark-$$
 
 exit $SHELLPACK_SUCCESS
