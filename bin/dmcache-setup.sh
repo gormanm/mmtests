@@ -34,7 +34,8 @@ function cmd() {
 
 function parse_args() {
     local scriptname=$(basename $0) action_nr=0
-    local opts=$(getopt -o hvadb:c:s:v --long attach,detach,backing-device: \
+    local opts=$(getopt -o hvadfb:c:s:v \
+	--long attach,detach,flush,backing-device: \
 	--long block-size:,cache-mode:,caching-device:,caching-device-size: \
 	--long dry-run,show-dev,status,verbose,help \
 	-n \'${scriptname}\' -- "$@")
@@ -65,6 +66,10 @@ function parse_args() {
 		action[${action_nr}]=detach
 		action_nr=${action_nr}+1
 		shift;;
+	    -f|--flush)
+		action[${action_nr}]=flush
+		action_nr=${action_nr}+1
+		shift;;
 	    --dry-run)
 		dry_run=true
 		shift 1;;
@@ -93,6 +98,7 @@ Options:
     --block-size <size>  number of sectors to define cache block size
                          (must be between 64 and 2097152)
   -d, --detach        detach caching and backing device
+  -f, --flush         writeout and invalidate cache
     --dry-run         just print commands, don't execute
     --cache-mode <mode>  mode of cache device, one of:
                          [writeback],writethrough,writethrough,none
@@ -209,7 +215,8 @@ function dmcache_setup_dm_device() {
 	${backing_device} ${block_size} 1 ${cache_mode} default 0\""
 }
 
-function dmcache_remove_dm_device() {
+function dmcache_writeback_dm_device()
+{
     local state dirty blksz
     state=$(dmsetup status ${dm_cache_dev})
     blksz=$(echo ${state} | awk '{ print $6 }')
@@ -232,11 +239,26 @@ function dmcache_remove_dm_device() {
 	    state=$(dmsetup status ${dm_cache_dev})
 	    info "${state}"
     fi
+}
+
+function dmcache_remove_dm_device() {
+    dmcache_writeback_dm_device
     cmd "dmsetup suspend ${dm_cache_dev}"
     cmd "dmsetup clear ${dm_cache_dev}"
     cmd "dmsetup remove ${dm_cache_dev}"
     cmd "dmsetup remove ${dm_meta_cdev}"
     cmd "dmsetup remove ${dm_blck_cdev}"
+}
+
+function dmcache_flush_dm_device() {
+    dmcache_writeback_dm_device
+    cmd "dmsetup suspend ${dm_cache_dev}"
+    cmd "dmsetup clear ${dm_cache_dev}"
+    cmd "dd if=/dev/zero of=/dev/mapper/${dm_meta_cdev} bs=512 \
+	count=${metadata_sectors}"
+    cmd "dmsetup reload ${dm_cache_dev} --table \"0 ${backing_device_size} \
+	cache /dev/mapper/${dm_meta_cdev} /dev/mapper/${dm_blck_cdev} \
+	${backing_device} ${block_size} 1 ${cache_mode} default 0\""
 }
 
 function dmcache_show_dev() {
@@ -306,6 +328,10 @@ function main() {
 	    detach)
 		dmcache_calculate_sizes
 		dmcache_remove_dm_device
+		;;
+	    flush)
+		dmcache_calculate_sizes
+		dmcache_flush_dm_device
 		;;
 	    show-dev)
 		dmcache_show_dev
