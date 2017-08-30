@@ -42,7 +42,7 @@ oltp)
 		sed -e 's/,useism//' > $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/oltp-noism.f
 	cat > $LOGDIR_RESULTS/filebench.script << EOF
 	load $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/oltp-noism
-	set \$dir=$SHELLPACK_TEMP
+	set \$dir=$SHELLPACK_DATA
 	set \$filesize=$FILESIZE
 	set \$directio=$DIRECT_IO_PARAM
 	run $DURATION
@@ -70,7 +70,7 @@ varmail|webserver|webproxy)
 	###SHELLPACK threads_stride_fixed_begin $FILEBENCH_MIN_THREADS $FILEBENCH_MAX_THREADS 4
 	cat > $LOGDIR_RESULTS/filebench.script << EOF
 	load $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/$FILEBENCH_PERSONALITY
-	set \$dir=$SHELLPACK_TEMP
+	set \$dir=$SHELLPACK_DATA
 	set \$meanfilesize=$MEANFILESIZE
 	set \$nfiles=$NR_FILES
 	set \$nthreads=$NR_THREADS
