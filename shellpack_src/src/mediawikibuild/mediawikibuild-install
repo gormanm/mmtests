@@ -72,8 +72,8 @@ if [ ! -e $SHELLPACK_SOURCES/mariadb-build-${MARIADB_VERSION}-installed ]; then
 fi
 
 # With the apache base installed, put the mediawiki software into htdocs.
-MEDIAWIKI_HTDOCS=$SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/htdocs/mediawiki/
-mkdir $MEDIAWIKI_HTDOCS
+MEDIAWIKI_HTDOCS=$SHELLPACK_DATA/mediawiki-${APACHE_VERSION}/htdocs/mediawiki/
+mkdir -p $MEDIAWIKI_HTDOCS
 
 # -- see below how we set scriptpath in install.php such that urls are 'mediawiki'
 eval cp -rf $SHELLPACK_SOURCES/mediawikibuild-${MEDIAWIKI_VERSION}/* \
