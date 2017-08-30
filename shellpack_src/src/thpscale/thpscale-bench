@@ -15,7 +15,7 @@ cd $SHELLPACK_SOURCES/thpscale-${VERSION}-installed ||
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-create_random_file $THPSCALE_MAPSIZE $SHELLPACK_TEMP/workfile
+create_random_file $THPSCALE_MAPSIZE $SHELLPACK_DATA/workfile
 
 ###SHELLPACK threads_large_stride_begin $THPSCALE_MIN_THREADS $THPSCALE_MAX_THREADS
 	echo Dropping cache to avoid distorting init timings
@@ -23,9 +23,9 @@ create_random_file $THPSCALE_MAPSIZE $SHELLPACK_TEMP/workfile
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	echo Starting $NR_THREADS/$THPSCALE_MAX_THREADS
 	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
-		./thpscale $NR_THREADS $THPSCALE_MAPSIZE $SHELLPACK_TEMP/workfile	\
+		./thpscale $NR_THREADS $THPSCALE_MAPSIZE $SHELLPACK_DATA/workfile	\
 			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
-rm $SHELLPACK_TEMP/workfile
+rm $SHELLPACK_DATA/workfile
 exit $SHELLPACK_SUCCESS
