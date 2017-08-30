@@ -927,3 +927,10 @@ function create_filesystems
 		    "-b ${STORAGE_BACKING_DEVICE} -f)"; exit 1)
 	fi
 }
+
+function umount_filesystems
+{
+	for DEV in ${TESTDISK_PARTITIONS[*]}; do
+		umount $DEV
+	done
+}
