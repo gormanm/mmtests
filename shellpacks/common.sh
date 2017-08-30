@@ -838,3 +838,92 @@ EOF
 		    -c ${STORAGE_CACHING_DEVICE} -b ${STORAGE_BACKING_DEVICE})
 	fi
 }
+
+function create_filesystems
+{
+	if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
+		if [ "${STORAGE_CACHE_TYPE}" = "" ]; then
+			# Temporary hack for SLE 12 SP3 Alpha 2 testing
+			if [ "`uname -r`" != "4.4.52-0.g56e0224-default" ]; then
+				hdparm -I ${TESTDISK_PARTITIONS[*]} 2>&1 > $SHELLPACK_LOG/disk-hdparm-$RUNNAME
+			fi
+		fi
+		if [ "$TESTDISK_FILESYSTEM" != "" -a "$TESTDISK_FILESYSTEM" != "tmpfs" ]; then
+			if [ "${TESTDISK_FS_SIZE}" != "" ]; then
+				case "${TESTDISK_FILESYSTEM}" in
+				ext2|ext3|ext4)
+					TESTDISK_MKFS_PARAM_SUFFIX="${TESTDISK_FS_SIZE}"
+				;;
+				xfs)
+					TESTDISK_MKFS_PARAM="${TESTDISK_MKFS_PARAM} -d size=${TESTDISK_FS_SIZE}"
+					;;
+				btrfs)
+					TESTDISK_MKFS_PARAM="${TESTDISK_MKFS_PARAM} -b ${TESTDISK_FS_SIZE}"
+					;;
+				esac
+			fi
+			for i in ${!TESTDISK_PARTITIONS[*]}; do
+				echo Formatting test disk ${TESTDISK_PARTITIONS[$i]}: $TESTDISK_FILESYSTEM
+				mkfs.$TESTDISK_FILESYSTEM $TESTDISK_MKFS_PARAM \
+					${TESTDISK_PARTITIONS[$i]} \
+					${TESTDISK_MKFS_PARAM_SUFFIX} || exit
+			done
+		fi
+
+		echo Mounting primary test disk
+		if [ "$TESTDISK_MOUNT_ARGS" = "" ]; then
+			if [ "$TESTDISK_FILESYSTEM" != "" ]; then
+				mount -t $TESTDISK_FILESYSTEM $TESTDISK_PARTITIONS $SHELLPACK_TEST_MOUNT || exit
+			else
+				mount $TESTDISK_PARTITIONS $SHELLPACK_TEST_MOUNT || exit
+			fi
+		else
+			if [ "$TESTDISK_FILESYSTEM" != "" ]; then
+				mount -t $TESTDISK_FILESYSTEM $TESTDISK_PARTITIONS $SHELLPACK_TEST_MOUNT -o $TESTDISK_MOUNT_ARGS || exit
+			else
+				mount $TESTDISK_PARTITIONS $SHELLPACK_TEST_MOUNT -o $TESTDISK_MOUNT_ARGS || exit
+			fi
+		fi
+		export TESTDISK_PRIMARY_SIZE_BYTES=`df $SHELLPACK_TEST_MOUNT | tail -1 | awk '{print $4}'`
+		export TESTDISK_PRIMARY_SIZE_BYTES=$((TESTDISK_PRIMARY_SIZE_BYTES*1024))
+
+		rm -f $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
+		for i in ${!TESTDISK_PARTITIONS[*]}; do
+			if [ $i -eq 0 ]; then
+				SHELLPACK_TEST_MOUNTS[$i]=$SHELLPACK_TEST_MOUNT
+				echo Creating tmp, sources, and data
+				mkdir -p $SHELLPACK_SOURCES
+				mkdir -p $SHELLPACK_TEMP
+				mkdir -p $SHELLPACK_DATA
+				continue
+			fi
+			SHELLPACK_TEST_MOUNTS[$i]=${SHELLPACK_TEST_MOUNT}_$i
+
+			mkdir -p ${SHELLPACK_TEST_MOUNTS[$i]}
+			echo Mounting additional test disk
+			if [ "$TESTDISK_MOUNT_ARGS" = "" ]; then
+				mount -t $TESTDISK_FILESYSTEM ${TESTDISK_PARTITIONS[$i]} ${SHELLPACK_TEST_MOUNTS[$i]} || exit
+			else
+				mount -t $TESTDISK_FILESYSTEM ${TESTDISK_PARTITIONS[$i]} ${SHELLPACK_TEST_MOUNTS[$i]} -o $TESTDISK_MOUNT_ARGS || exit
+			fi
+		done
+	fi
+
+	# Create NFS mount
+	if [ "$TESTDISK_NFS_MOUNT" != "" ]; then
+		/etc/init.d/nfs-common start
+		/etc/init.d/rpcbind start
+		mount -t nfs $TESTDISK_NFS_MOUNT $SHELLPACK_TEST_MOUNT || exit
+	fi
+
+	# Flush dm-cache before we start real testing so that mkfs data does
+	# not pollute it
+	# FIXME: Handle bcache as well
+	if [ "${STORAGE_CACHE_TYPE}" = "dm-cache" ]; then
+		./bin/dmcache-setup.sh -c ${STORAGE_CACHING_DEVICE} \
+        	    -b ${STORAGE_BACKING_DEVICE} -f ||
+		(echo "ERROR: dmcache-setup failed" \
+		    "(dmcache-setup.sh -c ${STORAGE_CACHING_DEVICE}" \
+		    "-b ${STORAGE_BACKING_DEVICE} -f)"; exit 1)
+	fi
+}
