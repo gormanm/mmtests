@@ -28,7 +28,7 @@ while [ "$1" != "" ]; do
 	esac
 done
 
-WEB_LOCATION=http://ftp.kernel.org/pub/linux/kernel/v3.0/linux-$KERNEL_VERSION.tar.gz
+WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v3.0/linux-$KERNEL_VERSION.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$KERNEL_VERSION.tar.gz
 
 pushd $TESTDISK_DIR > /dev/null
