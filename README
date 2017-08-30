@@ -304,7 +304,7 @@ Reporting
 For reporting, there is a basic compare-kernels.sh script. It must be updated
 with a list of kernels you want to compare and in what order. It generates a
 table for each test, operation and kernel showing the relative performance
-of each. The test reporting scripts are in subreports/. compare-kernel.sh
+of each. The test reporting scripts are in subreports/. compare-kernels.sh
 should be run from the path storing the test logs. By default this is
 work/log. If you are automating tests from an external source, work/log is
 what you should be capturing after a set of tests complete.
