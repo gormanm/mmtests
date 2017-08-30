@@ -110,10 +110,10 @@ else
 fi
 if [ "`file $SHELLPACK_TEMP/in.file.gz | grep gzip`" = "" ]; then
 	echo Source file already uncompressed
-	mv $SHELLPACK_TEMP/in.file.gz $SHELLPACK_TEMP/in.file
+	mv $SHELLPACK_TEMP/in.file.gz $SHELLPACK_DATA/in.file
 else
 	echo Uncompressing source file
-	gunzip $SHELLPACK_TEMP/in.file.gz || die Failed to decompress source file
+	gzip -dc $SHELLPACK_TEMP/in.file.gz >$SHELLPACK_DATA/in.file || die Failed to decompress source file
 fi
 
 THREADS=
@@ -145,8 +145,8 @@ for ITERATION in `seq 1 $DEDUP_ITERATIONS`; do
 		save_rc $TIME_CMD -o $LOGDIR_RESULTS/dedup-${NR_THREADS}-$ITERATION.time \
 		    $SHELLPACK_SOURCES/dedup-${VERSION}-installed/dedup \
 			-v -c -p -t $NR_THREADS \
-			-i $SHELLPACK_TEMP/in.file  \
-			-o $SHELLPACK_TEMP/out.file \
+			-i $SHELLPACK_DATA/in.file  \
+			-o $SHELLPACK_DATA/out.file \
 				2>&1 | tee $LOGDIR_RESULTS/dedup-${NR_THREADS}-${ITERATION}.log
 		recover_rc
 		if [ $? -ne 0 ]; then
@@ -154,11 +154,11 @@ for ITERATION in `seq 1 $DEDUP_ITERATIONS`; do
 		fi
 
 		#cleanup
-		rm $SHELLPACK_TEMP/out.file
+		rm $SHELLPACK_DATA/out.file
 done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
-rm $SHELLPACK_TEMP/in.file
+rm -f $SHELLPACK_DATA/in.file $SHELLPACK_TEMP/in.file.gz
 exit $SHELLPACK_SUCCESS
 #### Description dedup
-#### Details dedup-bench 21
+#### Details dedup-bench 22

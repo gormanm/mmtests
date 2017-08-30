@@ -6,6 +6,11 @@
 P=compress
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 COMPRESS_METHOD=pigz
 COMPRESS_SOURCE=
@@ -18,11 +23,21 @@ install-depends pigz
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--method)
@@ -66,7 +81,7 @@ if [ "$COMPRESS_SOURCE" = "" ]; then
 fi
 
 # Download the source file
-cd $TESTDISK_DIR || die Failed to change to temp directory
+cd $SHELLPACK_DATA || die Failed to change to temp directory
 mmtests_activity Downloading
 echo Downloading $COMPRESS_SOURCE
 wget -O 0.gz -q $COMPRESS_SOURCE
@@ -168,4 +183,4 @@ done
 
 exit $EXIT_CODE
 #### Description compress
-#### Details compress-bench 25
+#### Details compress-bench 26

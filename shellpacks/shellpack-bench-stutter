@@ -7,6 +7,11 @@
 P=stutter-bench
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 MEMFAULT_SIZE=${STUTTER_MEMFAULT_SIZE:=$MEMTOTAL_BYTES}
 MEMFAULT_TMPFS=no
@@ -19,11 +24,21 @@ USE_LOCAL=no
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--memfault-size)
@@ -111,8 +126,8 @@ fi
 # Calibrate the expected time to complete
 echo Calibrating IO speeds
 $TIME_CMD -o $LOGDIR_RESULTS/calibrate.time \
-	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((1024*1048576/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/calibrate.log
-rm $TESTDISK_DIR/ddfile
+	dd if=/dev/zero of=$SHELLPACK_DATA/ddfile ibs=$DD_BLOCKSIZE count=$((1024*1048576/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/calibrate.log
+rm $SHELLPACK_DATA/ddfile
 
 # Determine where the source file should be
 SOURCEFILE_TOPLEVEL=
@@ -129,7 +144,7 @@ else
 		SOURCEFILE_TOPLEVEL=$SHELLPACK_TOPLEVEL
 	else
 		echo Using test partion for source file
-		SOURCEFILE_TOPLEVEL=$TESTDISK_DIR
+		SOURCEFILE_TOPLEVEL=$SHELLPACK_DATA
 	fi
 fi
 
@@ -177,9 +192,9 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 
 	if [ "$USE_DD_ZERO" = "no" ]; then
 		# CP
-		echo Starting cp $SOURCEFILE_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+		echo Starting cp $SOURCEFILE_TOPLEVEL/stutter-source-file $SHELLPACK_DATA/ddfile
 		echo "#!/bin/bash
-cp $SOURCEFILE_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+cp $SOURCEFILE_TOPLEVEL/stutter-source-file $SHELLPACK_DATA/ddfile
 sync" > cp-script.sh
 		chmod u+x cp-script.sh
 		$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
@@ -187,14 +202,14 @@ sync" > cp-script.sh
 		rm cp-script.sh
 	else
 		# DD
-		echo Starting dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
+		echo Starting dd if=/dev/zero of=$SHELLPACK_DATA/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
 		$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-			dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-$ITERATION.log
+			dd if=/dev/zero of=$SHELLPACK_DATA/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-$ITERATION.log
 	fi
 
 	shutdown_pid memhog $MEMHOG_PID
 done
-rm $SOURCEFILE_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+rm $SOURCEFILE_TOPLEVEL/stutter-source-file $SHELLPACK_DATA/ddfile
 
 # Shutdown monitors
 kill $LATENCY_PID
@@ -341,4 +356,4 @@ int main(int argc, char **argv)
 }
 ==== END MEMHOG FILE ====
 #### Description This test measures system stutter for a mix of anon usage and a large copy
-#### Details stutter-bench 35
+#### Details stutter-bench 36

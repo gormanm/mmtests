@@ -85,8 +85,8 @@ fi
 
 export PATH=$SHELLPACK_SOURCES/fsmark-${FSMARK_VERSION}-installed:$PATH
 
-ln -s $SHELLPACK_TEMP /tmp/fsmark-$$
-IMAGE_SIZE=`df -k $SHELLPACK_TEMP | tail -1 | awk '{print $2}'`
+ln -s $SHELLPACK_DATA /tmp/fsmark-$$
+IMAGE_SIZE=`df -k $SHELLPACK_DATA | tail -1 | awk '{print $2}'`
 IMAGE_SIZE=$((IMAGE_SIZE*9/10))
 
 # fsmark directory parameters
@@ -111,20 +111,20 @@ echo "o fsmark_iterations $FSMARK_ITERATIONS"
 for ITERATION in `seq 1 $ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 echo Creating sparse file size $((IMAGE_SIZE/1024))MB $ITERATION/$ITERATIONS 
-cd $SHELLPACK_TEMP
+cd $SHELLPACK_DATA
 $TIME_CMD -o $LOGDIR_RESULTS/time.sparsecreate.$ITERATION \
-	xfs_io -f -c "truncate ${IMAGE_SIZE}k" -c "extsize 1m" $SHELLPACK_TEMP/sparse.img || \
+	xfs_io -f -c "truncate ${IMAGE_SIZE}k" -c "extsize 1m" $SHELLPACK_DATA/sparse.img || \
 		die Failed to create sparse file
-xfs_io -c stat $SHELLPACK_TEMP/sparse.img | tee $LOGDIR_RESULTS/sparse.stat
+xfs_io -c stat $SHELLPACK_DATA/sparse.img | tee $LOGDIR_RESULTS/sparse.stat
 
 echo Creating filesystem image $ITERATION/$ITERATIONS
 $TIME_CMD -o $LOGDIR_RESULTS/time.fscreate.$ITERATION \
-	mkfs.xfs -f -l size=131072b $SHELLPACK_TEMP/sparse.img || \
+	mkfs.xfs -f -l size=131072b $SHELLPACK_DATA/sparse.img || \
 		die Failed to create filesystem
 
 echo Mounting $ITERATION/$ITERATIONS
 mkdir mnt
-mount -o loop,nobarrier,logbsize=256k $SHELLPACK_TEMP/sparse.img mnt ||
+mount -o loop,nobarrier,logbsize=256k $SHELLPACK_DATA/sparse.img mnt ||
 	die Failed to mount filesystem image
 
 echo Running fsmark $ITERATION/$ITERATIONS
@@ -143,7 +143,7 @@ echo Repairing filesystem $ITERATION/$ITERATIONS
 echo 3 > /proc/sys/vm/drop_caches
 monitor_pre_hook $LOGDIR_RESULTS xfsrepair-$ITERATION
 save_rc $TIME_CMD -o $LOGDIR_RESULTS/time.xfsrepair.$ITERATION \
-	xfs_repair -v -v -t 1 -o bhash=32768 -o ag_stride=$NR_THREADS $SHELLPACK_TEMP/sparse.img \
+	xfs_repair -v -v -t 1 -o bhash=32768 -o ag_stride=$NR_THREADS $SHELLPACK_DATA/sparse.img \
 		2>&1 | tee $SHELLPACK_TEMP/xfsrepair.${ITERATION}.log
 monitor_post_hook $LOGDIR_RESULTS xfsrepair-$ITERATION
 recover_rc
@@ -151,11 +151,11 @@ if [ $? -ne 0 ]; then
 	die xfsrepair failed
 fi
 
-rm $SHELLPACK_TEMP/sparse.img
+rm $SHELLPACK_DATA/sparse.img
 done
 
 rm /tmp/fsmark-$$
 
 exit $SHELLPACK_SUCCESS
 #### Description xfsrepair
-#### Details xfsrepair-bench 28
+#### Details xfsrepair-bench 29

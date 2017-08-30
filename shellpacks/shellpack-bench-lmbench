@@ -92,15 +92,15 @@ for LMBENCH_TEST in $LMBENCH_TESTS; do
 		for FILESIZE in `seq $LMBENCH_LATMMAP_MIN_FILESIZE $STRIDE $LMBENCH_LATMMAP_MAX_FILESIZE`; do
 			mmtests_activity filesize $FILESIZE
 			FILESIZE=$((FILESIZE&~4095))
-			dd if=/dev/zero of=$TESTDISK_DIR/lmbench.file ibs=4096 count=$((FILESIZE/4096)) conv=fsync 2> /dev/null
+			dd if=/dev/zero of=$SHELLPACK_DATA/lmbench.file ibs=4096 count=$((FILESIZE/4096)) conv=fsync 2> /dev/null
 			for ITERATION in `seq 1 $LMBENCH_LATMMAP_ITERATIONS`; do
 				./bin/$LMBENCH_TEST \
 					-N 30 \
-					$FILESIZE $TESTDISK_DIR/lmbench.file \
+					$FILESIZE $SHELLPACK_DATA/lmbench.file \
 						2>&1 | tee -a $LMBENCH_RESULTS
 			done
 		done
-		rm $TESTDISK_DIR/lmbench.file
+		rm $SHELLPACK_DATA/lmbench.file
 		;;
 	lat_ctx)
 		LMBENCH_LATCTX_SIZE=`echo $LMBENCH_LATCTX_SIZE | tr ',' ' '`
@@ -122,6 +122,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt 2 ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 			for SIZE in $LMBENCH_LATCTX_SIZE; do
 				mmtests_activity size $SIZE
@@ -149,9 +152,9 @@ done
 	esac
 	monitor_post_hook $LOGDIR_RESULTS $LMBENCH_TEST 
 
-	rm -f $TESTDISK_DIR/lmbench.file 2> /dev/null
+	rm -f $SHELLPACK_DATA/lmbench.file 2> /dev/null
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description lmbench
-#### Details lmbench-bench 54
+#### Details lmbench-bench 55

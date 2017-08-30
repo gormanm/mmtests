@@ -121,7 +121,7 @@ for WORKLOAD in $PARALLELIO_WORKLOADS; do
 	wait $WORKLOAD_PID
 
 	rm -rf $SHELLPACK_LOG/$WORKLOAD
-	rm -rf $TESTDISK_DIR/*
+	rm -rf $SHELLPACK_DATA/*
 
 done
 
@@ -183,8 +183,8 @@ for ITERATION in `seq 1 $PARALLELIO_ITERATIONS`; do
 		if [ $IO_SIZE -gt 0 ]; then
 			case $PARALLELIO_IOLOAD in
 			dd)
-				mkdir -p $TESTDISK_DIR
-				dd if=/dev/zero of=$TESTDISK_DIR/largefile \
+				mkdir -p $SHELLPACK_DATA
+				dd if=/dev/zero of=$SHELLPACK_DATA/largefile \
 					bs=1M count=$((IO_SIZE/1048576)) \
 					conv=fdatasync \
 					> $LOGDIR_RESULTS/io-$IO_STEP-$ITERATION.log 2>&1
@@ -227,13 +227,13 @@ for ITERATION in `seq 1 $PARALLELIO_ITERATIONS`; do
 		# Collect the data from the target workload and cleanup
 		gzip $LOGDIR_RESULTS/workload-$WORKLOAD-$IO_STEP-$ITERATION.log
 		mv $SHELLPACK_LOG/$WORKLOAD $LOGDIR_RESULTS/$WORKLOAD-$IO_STEP-$ITERATION
-		rm -rf $TESTDISK_DIR/*
+		rm -rf $SHELLPACK_DATA/*
 done
 	monitor_post_hook $LOGDIR_RESULTS $WORKLOAD-$IO_STEP
 	done
 done
 
-rm -rf $TESTDISK_DIR
+rm -rf $SHELLPACK_DATA
 exit $SHELLPACK_SUCCESS
 #### Description Run a workload with varying amounts of IO in the background to see the effect
-#### Details parallelio-bench 52
+#### Details parallelio-bench 53

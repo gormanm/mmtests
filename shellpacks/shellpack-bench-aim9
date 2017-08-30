@@ -92,7 +92,7 @@ spawn ./singleuser
 expect "s name"             { exp_send $HOSTNAME\\r }
 expect "s configuration"    { exp_send $RELEASE\\r  }
 expect "Number of seconds"  { exp_send $TESTTIME\\r }
-expect "Path to disk files" { exp_send $SHELLPACK_TEMP\\r }
+expect "Path to disk files" { exp_send $SHELLPACK_DATA\\r }
 while {1} {
   expect disk_rr exit
 }
@@ -123,4 +123,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description AIM9 benchmark
-#### Details aim9-bench 25
+#### Details aim9-bench 26

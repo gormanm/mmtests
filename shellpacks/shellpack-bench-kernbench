@@ -70,7 +70,7 @@ WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v3.0/linux-${VERSION}.tar.g
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS))
 
-pushd $TESTDISK_DIR > /dev/null
+pushd $SHELLPACK_DATA > /dev/null
 
 sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
 tar xf linux-$VERSION.tar.gz || die Failed to extract
@@ -123,7 +123,7 @@ done
 done
 
 # Cleanup
-rm -rf $TESTDISK_DIR/*
+rm -rf $SHELLPACK_DATA/*
 
 # clean up the tree to save space
 popd > /dev/null
@@ -131,4 +131,4 @@ rm -rf $TMPDIR/kernbench
 
 exit $SHELLPACK_SUCCESS
 #### Description Benchmark based on kernel builds
-#### Details kernbench-bench 30
+#### Details kernbench-bench 31

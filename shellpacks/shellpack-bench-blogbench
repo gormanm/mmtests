@@ -74,7 +74,7 @@ for ITERATION in `seq 1 $BLOGBENCH_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 	echo Starting interation $ITERATION/$BLOGBENCH_ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/blogbench-${ITERATION}.time \
-		$SHELLPACK_SOURCES/blogbench-${VERSION}-installed/bin/blogbench -d $SHELLPACK_TEMP 2>&1 \
+		$SHELLPACK_SOURCES/blogbench-${VERSION}-installed/bin/blogbench -d $SHELLPACK_DATA 2>&1 \
 				| tee $LOGDIR_RESULTS/blogbench-${ITERATION}.log
 	rm -rf $SHELLPACK_TEMP
 	mkdir $SHELLPACK_TEMP
@@ -85,4 +85,4 @@ monitor_post_hook $LOGDIR_RESULTS 1
 echo blogbench completed successfully
 exit $SHELLPACK_SUCCESS
 #### Description blogbench
-#### Details blogbench-bench 7
+#### Details blogbench-bench 8

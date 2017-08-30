@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
 P=postgresbuild-install
-DEFAULT_VERSION=9.6.3
+DEFAULT_VERSION=9.6.1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -57,7 +57,7 @@ install-depends bison gcc-c++ libstdc++-devel popt-devel zlib-devel
 update_entry_cnf() {
 	PARAMETER=$1
 	VALUE=$2
-	CONF=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data/postgresql.conf
+	CONF=$POSTGRES_DATADIR/postgresql.conf
 
 	LINE=`grep -n "^$PARAMETER" $CONF | cut -d: -f1 | head -1`
 	if [ "$LINE" = "" ]; then
@@ -165,7 +165,9 @@ GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
 
 echo Initialising database
 PSQL="su -s /bin/bash $POSTGRES_USER -c"
-POSTGRES_DATADIR=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data
+POSTGRES_DATADIR=$SHELLPACK_DATA/pgdata
+mkdir -p $POSTGRES_DATADIR
+chown $POSTGRES_USER $POSTGRES_DATADIR
 $PSQL "bin/initdb -D $POSTGRES_DATADIR"
 if [ $? -ne 0 ]; then
 	echo WARNING: initdb failed to execute, forcing access permissions on home
@@ -207,4 +209,4 @@ update_entry_cnf password_encryption off
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 61
+#### Details postgresbuild 62

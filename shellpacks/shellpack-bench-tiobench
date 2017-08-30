@@ -71,7 +71,7 @@ install-depends hdparm
 set_mmtests_numactl 0 0
 
 echo Recording max expected speed for reads
-PARTITION=`df -T $TESTDISK_DIR | tail -1 | awk '{print $1}'`
+PARTITION=`df -T $SHELLPACK_DATA | tail -1 | awk '{print $1}'`
 SPEED=`hdparm -t $PARTITION | grep Timing | awk '{print $(NF-1)}'`
 echo $SPEED > $LOGDIR_RESULTS/disk-read.speed
 echo Expected speed $SPEED
@@ -101,7 +101,7 @@ for NR_THREADS in $THREADS; do
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	for ITERATION in `seq 1 $TIOBENCH_ITERATIONS`; do
 		eval $MMTESTS_NUMACTL ./tiobench.pl $TIOBENCH_COMMAND_RANDOM \
-			--dir     $TESTDISK_DIR \
+			--dir     $SHELLPACK_DATA \
 			--numruns 1 \
 			--size    $((TIOBENCH_SIZE/1048576)) \
 			--block   $TIOBENCH_BLOCKSIZE \
@@ -114,4 +114,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description tiobench
-#### Details tiobench-bench 22
+#### Details tiobench-bench 23

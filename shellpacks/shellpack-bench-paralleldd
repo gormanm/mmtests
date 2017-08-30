@@ -80,7 +80,7 @@ fi
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
 if [ "$PARALLELDD_SPLITINPUT" != "yes" ]; then
-	create_random_file $PARALLELDD_SOURCESIZE $SHELLPACK_TEMP/source_file
+	create_random_file $PARALLELDD_SOURCESIZE $SHELLPACK_DATA/source_file
 	sync
 fi
 
@@ -107,9 +107,9 @@ for NR_THREADS in $THREADS; do
 	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	if [ "$PARALLELDD_SPLITINPUT" = "yes" ]; then
-		create_random_file $((PARALLELDD_SOURCESIZE/$NR_THREADS)) $SHELLPACK_TEMP/source_file.1
+		create_random_file $((PARALLELDD_SOURCESIZE/$NR_THREADS)) $SHELLPACK_DATA/source_file.1
 		for INSTANCE in `seq 2 $NR_THREADS`; do
-			cp $SHELLPACK_TEMP/source_file.1 $SHELLPACK_TEMP/source_file.$INSTANCE
+			cp $SHELLPACK_DATA/source_file.1 $SHELLPACK_DATA/source_file.$INSTANCE
 		done
 		sync
 	fi
@@ -125,9 +125,9 @@ for ITERATION in `seq 1 $PARALLELDD_ITERATIONS`; do
 		for INSTANCE in `seq 1 $NR_THREADS`; do
 			OUTPUT_FILE=/dev/null
 			if [ "$PARALLELDD_WRITEFILES" = "yes" ]; then
-				OUTPUT_FILE=$SHELLPACK_TEMP/output.$INSTANCE
+				OUTPUT_FILE=$SHELLPACK_DATA/output.$INSTANCE
 			fi
-			INPUT_FILE=$SHELLPACK_TEMP/source_file
+			INPUT_FILE=$SHELLPACK_DATA/source_file
 			if [ "$PARALLELDD_SPLITINPUT" = "yes" ]; then
 				INPUT_FILE=${INPUT_FILE}.$INSTANCE
 			fi
@@ -137,14 +137,14 @@ for ITERATION in `seq 1 $PARALLELDD_ITERATIONS`; do
 
 		echo Waiting on dd instances to complete
 		wait
-		rm -f $SHELLPACK_TEMP/output.*
+		rm -f $SHELLPACK_DATA/output.*
 		cat $LOGDIR_RESULTS/time-$NR_THREADS-*-$ITERATION | grep elapsed
 done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
 
-rm $SHELLPACK_TEMP/source_file
+rm $SHELLPACK_DATA/source_file*
 
 exit $SHELLPACK_SUCCESS
 #### Description ddread
-#### Details paralleldd-bench 16
+#### Details paralleldd-bench 17

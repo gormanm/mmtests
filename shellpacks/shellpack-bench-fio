@@ -109,15 +109,13 @@ FIO_IO_PATTERNS="write read rw randread randwrite randrw"
 
 if [ "$FIO_CMD_OPTIONS" != "" ]; then
 	monitor_pre_hook $LOGDIR_RESULTS $SIZE
-	ln -s $TESTDISK_DIR /tmp/fio-$$
 
-	./fio --directory="$TESTDISK_DIR" --minimal \
+	./fio --directory="$SHELLPACK_DATA" --minimal \
 		--write_lat_log $LOGDIR_RESULTS/fio $FIO_CMD_OPTIONS 2>&1 |
 		tee $LOGDIR_RESULTS/fio.log || \
 		die Failed to have fun with fio
 
-	rm -rf $TESTDISK_DIR/*
-	rm /tmp/fio-$$
+	rm -rf $SHELLPACK_DATA/*
 	monitor_post_hook $LOGDIR_RESULTS $SIZE
 	exit $SHELLPACK_SUCCESS
 fi
@@ -135,7 +133,7 @@ function remove_fio_files() {
 	local logfile=$1 name=$2
 	local d files
 
-	for d in ${TESTDISK_DIRS[*]}; do
+	for d in ${SHELLPACK_DATA_DIRS[*]}; do
 		files=$(ls ${d}/${name}.*[0-9].[0-9]* 2>/dev/null)
 		if [ $? -eq 0 ]; then
 			files=$(ls ${d}/${name}.*[0-9].[0-9]*)
@@ -209,15 +207,15 @@ function scaling_test() {
 
 case $FIO_TEST_TYPE in
 scaling)
-	DIR_NR=${#TESTDISK_DIRS[*]}
-	DIRS=`echo ${TESTDISK_DIRS[*]} | tr " " ":"`
+	DIR_NR=${#SHELLPACK_DATA_DIRS[*]}
+	DIRS=`echo ${SHELLPACK_DATA_DIRS[*]} | tr " " ":"`
 	monitor_pre_hook $LOGDIR_RESULTS $FIO_READWRITE
 	scaling_test
 	monitor_post_hook $LOGDIR_RESULTS $FIO_READWRITE
 	;;
 ssd)
-	DIR_NR=${#TESTDISK_DIRS[*]}
-	DIRS=$(echo ${TESTDISK_DIRS[*]} | tr " " ":")
+	DIR_NR=${#SHELLPACK_DATA_DIRS[*]}
+	DIRS=$(echo ${SHELLPACK_DATA_DIRS[*]} | tr " " ":")
 	monitor_pre_hook ${LOGDIR_RESULTS}
 	# 4k, QD  1, jobs 1 (randread, randwrite)
 	rand_read_write 1 1
@@ -236,4 +234,4 @@ esac
 
 exit $SHELLPACK_SUCCESS
 #### Description Flexible IO tester
-#### Details fio-bench 20
+#### Details fio-bench 21

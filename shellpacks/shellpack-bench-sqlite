@@ -92,8 +92,8 @@ mmtests_activity sqlite-insert
 monitor_pre_hook $LOGDIR_RESULTS 1
 
 echo Creating table
-rm -f $SHELLPACK_TEMP/benchmark.db
-./bin/sqlite3 $SHELLPACK_TEMP/benchmark.db "CREATE TABLE mmtests
+rm -f $SHELLPACK_DATA/benchmark.db
+./bin/sqlite3 $SHELLPACK_DATA/benchmark.db "CREATE TABLE mmtests
 	('SmallInt'    SMALLINT NOT NULL,
 	 'DateTime'    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	 'ShortString' VARCHAR(4) NOT NULL,
@@ -103,9 +103,9 @@ rm -f $SHELLPACK_TEMP/benchmark.db
 echo Inserting rows
 cat basic-insert.script |							\
 	$TIME_CMD -o $LOGDIR_RESULTS/sqlite.time				\
-		$SHELLPACK_TEMP/perl-trans.pl $SHELLPACK_TEMP/benchmark.db	\
+		$SHELLPACK_TEMP/perl-trans.pl $SHELLPACK_DATA/benchmark.db	\
 		| tee -a $LOGDIR_RESULTS/sqlite.log
-	ls -lh $SHELLPACK_TEMP/benchmark.db
+	ls -lh $SHELLPACK_DATA/benchmark.db
 monitor_post_hook $LOGDIR_RESULTS 1
 
 exit $SHELLPACK_SUCCESS
@@ -151,4 +151,4 @@ alarm 0;
 close(PIPE);
 ==== END perl-trans.pl ====
 #### Description sqlite
-#### Details sqlite-bench 25
+#### Details sqlite-bench 26

@@ -133,7 +133,7 @@ fi
 
 echo Configuring paths for $DBDRIVER
 export EGENDIR=$SHELLPACK_SOURCES/dbt5-${VERSION}/egen
-export DBT5PGROOT=$SHELLPACK_SOURCES/dbt5-${VERSION}-installed/data
+export DBT5PGROOT=$SHELLPACK_DATA/pgroot
 mkdir -p $DBT5PGROOT
 chmod a+x $HOME
 chmod a+rwx $DBT5PGROOT
@@ -234,4 +234,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build -v $POSTGRES_VERSION --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt5
-#### Details dbt5-bench 73
+#### Details dbt5-bench 74

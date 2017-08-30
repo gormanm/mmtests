@@ -106,7 +106,7 @@ for NR_THREADS in $THREADS; do
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	mmtests_activity interbench-$NR_THREADS
 
-	cd $SHELLPACK_TEMP/ || die Failed to change to temporary directory
+	cd $SHELLPACK_DATA/ || die Failed to change to data directory
 	rm -f interbench.*
 
 	echo Running with $NR_THREADS threads
@@ -126,4 +126,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description interbench
-#### Details interbench-bench 15
+#### Details interbench-bench 16

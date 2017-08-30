@@ -113,7 +113,7 @@ g++ -O2 -g -Wall -lpthread graphdb.cpp -o graphdb || die Failed to build driver 
 cp graphdb.cpp $LOGDIR_RESULTS
 
 # Setup input data
-cd $SHELLPACK_TEMP
+cd $SHELLPACK_DATA
 mkdir mmap_set_0
 mkdir mmap_set_1
 mkdir mmap_live_data
@@ -148,4 +148,4 @@ monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 
 exit $SHELLPACK_SUCCESS
 #### Description graphdb
-#### Details graphdb-bench 26
+#### Details graphdb-bench 27

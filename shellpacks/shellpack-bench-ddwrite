@@ -17,11 +17,21 @@ CONV=
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--targetsize)
@@ -53,14 +63,14 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 	echo Starting iteration $ITERATION/$ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-		dd if=/dev/zero of=$SHELLPACK_TEMP/input ibs=1048576 count=$((TARGETSIZE_MB)) conv=fdatasync \
+		dd if=/dev/zero of=$SHELLPACK_DATA/input ibs=1048576 count=$((TARGETSIZE_MB)) conv=fdatasync \
 			2>&1 | tee -a $LOGDIR_RESULTS/time.$ITERATION
 done
 monitor_post_hook $LOGDIR_RESULTS ddwrite
 
 cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time
-rm $SHELLPACK_TEMP/input
+rm $SHELLPACK_DATA/input
 
 exit $SHELLPACK_SUCCESS
 #### Description ddwrite
-#### Details ddwrite-bench 5
+#### Details ddwrite-bench 6

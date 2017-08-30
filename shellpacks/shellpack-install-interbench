@@ -83,4 +83,4 @@ cp interbench ../interbench-$VERSION-installed/bin || exit $SHELLPACK_ERROR
 
 exit $SHELLPACK_SUCCESS
 #### Description interbench
-#### Details interbench 15
+#### Details interbench 16

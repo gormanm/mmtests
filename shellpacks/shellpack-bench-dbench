@@ -88,12 +88,12 @@ LOADDIR=$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/
 if [ "$DBENCH_DURATION_FACTOR" != "" ]; then
 	FACTOR=$((DBENCH_DURATION_FACTOR*1000))
 else
-	./bin/dbench --run-once --skip-cleanup -D $TESTDISK_DIR \
+	./bin/dbench --run-once --skip-cleanup -D $SHELLPACK_DATA \
 		--loadfile $LOADDIR/client-warmup.txt $DBENCH_MAX_CLIENTS \
 		&>/dev/null
 	FACTOR=$(./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND \
 		$DBENCH_FSYNC_COMMAND --show-execute-time --run-once \
-		-D $TESTDISK_DIR --loadfile $LOADDIR/client-tiny.txt \
+		-D $SHELLPACK_DATA --loadfile $LOADDIR/client-tiny.txt \
 		--machine-readable -t 10000 $DBENCH_MAX_CLIENTS | \
 		grep "^@E@" | cut -d '@' -f 4 | head -n 1)
 	# We multiply the factor by 3 to get enough time for at least about 3
@@ -106,14 +106,14 @@ while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
 	# Make sure test tree is clean before the run - dbench does not clean
 	# up after itself
-	rm -rf $TESTDISK_DIR/clients &>/dev/null
+	rm -rf $SHELLPACK_DATA/clients &>/dev/null
 	sync
 	# First create directory hierarchy
-	./bin/dbench --run-once --skip-cleanup -D $TESTDISK_DIR \
+	./bin/dbench --run-once --skip-cleanup -D $SHELLPACK_DATA \
 		--loadfile $LOADDIR/client-warmup.txt $CLIENT &>/dev/null
 	# Then run the benchmark
 	./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
-		-D $TESTDISK_DIR --warmup 0 \
+		-D $SHELLPACK_DATA --warmup 0 \
 		-t $((DBENCH_DURATION_BASE + FACTOR*CLIENT/1000)) \
 		--loadfile $LOADDIR/client-tiny.txt --show-execute-time \
 		$CLIENT 2>&1 | tee $LOGDIR_RESULTS/dbench-$CLIENT.log \
@@ -128,4 +128,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description dbench
-#### Details dbench-bench 34
+#### Details dbench-bench 35

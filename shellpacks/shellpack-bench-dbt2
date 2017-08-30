@@ -130,7 +130,7 @@ fi
 
 echo Configuring paths for $DBDRIVER
 export PATH=$SHELLPACK_SOURCES/dbt2-${VERSION}-installed/bin:$PATH
-export DBT2PGROOT=$SHELLPACK_SOURCES/dbt2-${VERSION}-installed/data
+export DBT2PGROOT=$SHELLPACK_DATA/pgroot
 export DBT2DBNAME=dbt2
 export DBT2PGDATA=$DBT2PGROOT/$DBT2DBNAME
 mkdir -p $DBT2PGROOT
@@ -213,4 +213,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt2
-#### Details dbt2-bench 24
+#### Details dbt2-bench 25

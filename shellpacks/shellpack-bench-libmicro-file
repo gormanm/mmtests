@@ -70,7 +70,7 @@ cd $SHELLPACK_SOURCES/libmicro-file-${VERSION}-installed || die Failed to cd to 
 
 COMMON="-E -C 0 -D 30000 -B 10000 -L -S -W"
 
-TMPROOT=$SHELLPACK_TEMP/libmicro.$$
+TMPROOT=$SHELLPACK_DATA/libmicro.$$
 mkdir -p $TMPROOT
 trap "rm -rf $TMPROOT" 0 2
 
@@ -151,4 +151,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-file
-#### Details libmicro-file-bench 11
+#### Details libmicro-file-bench 12

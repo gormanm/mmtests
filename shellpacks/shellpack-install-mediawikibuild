@@ -93,7 +93,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=mediawiki-${MEDIAWIKI_VERSION}.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -123,8 +123,8 @@ if [ ! -e $SHELLPACK_SOURCES/mariadb-build-${MARIADB_VERSION}-installed ]; then
 fi
 
 # With the apache base installed, put the mediawiki software into htdocs.
-MEDIAWIKI_HTDOCS=$SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/htdocs/mediawiki/
-mkdir $MEDIAWIKI_HTDOCS
+MEDIAWIKI_HTDOCS=$SHELLPACK_DATA/mediawiki-${APACHE_VERSION}/htdocs/mediawiki/
+mkdir -p $MEDIAWIKI_HTDOCS
 
 # -- see below how we set scriptpath in install.php such that urls are 'mediawiki'
 eval cp -rf $SHELLPACK_SOURCES/mediawikibuild-${MEDIAWIKI_VERSION}/* \
@@ -196,4 +196,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --stop
 
 echo mediawikibuild installed successfully
 #### Description mediawikibuild
-#### Details mediawikibuild 16
+#### Details mediawikibuild 17

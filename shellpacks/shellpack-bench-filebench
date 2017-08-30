@@ -117,7 +117,7 @@ oltp)
 		sed -e 's/,useism//' > $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/oltp-noism.f
 	cat > $LOGDIR_RESULTS/filebench.script << EOF
 	load $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/oltp-noism
-	set \$dir=$SHELLPACK_TEMP
+	set \$dir=$SHELLPACK_DATA
 	set \$filesize=$FILESIZE
 	set \$directio=$DIRECT_IO_PARAM
 	run $DURATION
@@ -160,7 +160,7 @@ for NR_THREADS in $THREADS; do
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	cat > $LOGDIR_RESULTS/filebench.script << EOF
 	load $SHELLPACK_SOURCES/filebench-${VERSION}-installed/share/filebench/workloads/$FILEBENCH_PERSONALITY
-	set \$dir=$SHELLPACK_TEMP
+	set \$dir=$SHELLPACK_DATA
 	set \$meanfilesize=$MEANFILESIZE
 	set \$nfiles=$NR_FILES
 	set \$nthreads=$NR_THREADS
@@ -188,4 +188,4 @@ esac
 
 exit $SHELLPACK_SUCCESS
 #### Description filebench
-#### Details filebench-bench 23
+#### Details filebench-bench 24

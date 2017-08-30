@@ -106,7 +106,7 @@ for (( ITERATION = 1; ITERATION <= IOZONE_ITERATIONS; ITERATION++ )); do
 	$MMTESTS_NUMACTL src/current/iozone -a -n $((IOZONE_MIN_SIZE/1024)) \
 		-g $((IOZONE_MAX_SIZE/1024)) -y $((IOZONE_MIN_BLK_SIZE/1024)) \
 		-q $((IOZONE_MAX_BLK_SIZE/1024)) -i 0 -i 1 -i 2 -i 3 \
-		$IOZONE_PARAM -f $TESTDISK_DIR/iozone_file 2>&1 | \
+		$IOZONE_PARAM -f $SHELLPACK_DATA/iozone_file 2>&1 | \
 		tee $LOGDIR_RESULTS/iozone-$ITERATION.log ||
 		die "Failed to run iozone"
 done
@@ -114,4 +114,4 @@ monitor_post_hook $LOGDIR_RESULTS
 
 exit $SHELLPACK_SUCCESS
 #### Description iozone
-#### Details iozone-bench 15
+#### Details iozone-bench 16
