@@ -11,7 +11,9 @@
 ###SHELLPACK check_install_required gitsource-${VERSION}
 ###SHELLPACK monitor_hooks
 
-cd $SHELLPACK_SOURCES/gitsource-${VERSION}-installed || die Failed to cd to gitsource-$VERSION-installed
+cp -ar $SHELLPACK_SOURCES/gitsource-${VERSION}-installed $SHELLPACK_DATA || die Failed to copy gitsource-$VERSION-installed
+
+cd $SHELLPACK_DATA/gitsource-${VERSION}-installed || die Failed to cd to gitsource-$VERSION-installed
 
 echo Warming run
 make test > $LOGDIR_RESULTS/warmup.log 2>&1
@@ -29,5 +31,6 @@ monitor_pre_hook $LOGDIR_RESULTS 1
 monitor_post_hook $LOGDIR_RESULTS 1
 
 cat $LOGDIR_RESULTS/gitsource-*.time | grep elapsed | tee $LOGDIR_RESULTS/time
+rm -rf $SHELLPACK_DATA/gitsource-${VERSION}-installed
 
 exit $SHELLPACK_SUCCESS
