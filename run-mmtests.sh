@@ -639,15 +639,7 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 	if [ "$TESTDISK_FILESYSTEM" = "xfs" ]; then
 		MAJOR_KERNEL=`uname -r | awk -F . '{print $1}'`
 		MINOR_KERNEL=`uname -r | awk -F . '{print $2}'`
-		if [ "$MAJOR_KERNEL" -gt 4 ]; then
-			echo Setting temporary write through on all disks for simulated xfs nobarrier
-			for CACHE in `find -L /sys/class/scsi_disk -maxdepth 2 -name "cache_type" 2>/dev/null`; do
-				echo "write back" > $CACHE
-				echo "temporary write through" > $CACHE
-				cat $CACHE
-			done
-		fi
-		if [ "$MAJOR_KERNEL" -eq 4 -a "$MINOR_KERNEL" -ge 10 ]; then
+		if [ \( "$MAJOR_KERNEL" -gt 4 \) -o \( "$MAJOR_KERNEL" -eq 4 -a "$MINOR_KERNEL" -ge 10 \) ]; then
 			echo Setting temporary write through on all disks for simulated xfs nobarrier
 			for CACHE in `find -L /sys/class/scsi_disk -maxdepth 2 -name "cache_type" 2>/dev/null`; do
 				echo "write back" > $CACHE
