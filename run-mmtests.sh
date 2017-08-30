@@ -977,7 +977,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		cpupower frequency-info >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	fi
 	if [ "`which lstopo 2> /dev/null`" != "" ]; then
-		lstopo $SHELLPACK_LOG/lstopo-${RUNNAME}.pdf
+		lstopo $SHELLPACK_LOG/lstopo-${RUNNAME}.pdf 2>/dev/null
 		lstopo --output-format txt > $SHELLPACK_LOG/lstopo-${RUNNAME}.txt
 	fi
 	if [ "`which lsscsi 2> /dev/null`" != "" ]; then
