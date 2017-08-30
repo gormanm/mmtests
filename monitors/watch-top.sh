@@ -19,7 +19,17 @@ else
 		$filter =~ s/^\s+//;
 
 		my @elements = split(/\s+/, $filter);
-		if ($elements[0] !~ /[0-9]+/ || $elements[8] != 0) {
+
+		if (!defined $cpu_column && $filter =~ /%CPU/) {
+			foreach my $idx (0 .. @elements-1) {
+				if ($elements[$idx] eq "%CPU") {
+					$cpu_column = $idx;
+					last;
+				}
+			}
+		}
+
+		if ($elements[0] !~ /[0-9]+/ || (defined $cpu_column && $elements[$cpu_column] != 0)) {
 			print $line;
 		}
 	}'
