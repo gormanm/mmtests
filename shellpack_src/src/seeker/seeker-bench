@@ -27,9 +27,9 @@ file)
 	if [ "$SEEKER_SIZE" = "" -o $SEEKER_SIZE -eq 0 ]; then
 		die Must specify proper SEEKER_SIZE
 	fi
-	create_random_file $SEEKER_SIZE $SHELLPACK_TEMP/seeker_file
+	create_random_file $SEEKER_SIZE $SHELLPACK_DATA/seeker_file
 	sync
-	SEEKER_FILE="$SHELLPACK_TEMP/seeker_file"
+	SEEKER_FILE="$SHELLPACK_DATA/seeker_file"
 	;;
 block)
 	if [ "$SEEKER_DEVICE" = "" ]; then
