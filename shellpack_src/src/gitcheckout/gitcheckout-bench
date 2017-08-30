@@ -20,7 +20,7 @@ GITCHECKOUT_SOURCETAR=
 install-depends git-core
 
 # Get the git repository
-pushd $TESTDISK_DIR > /dev/null
+pushd $SHELLPACK_DATA > /dev/null
 if [ "$GITCHECKOUT_SOURCETAR" != "" -a "$GITCHECKOUT_SOURCETAR" != "none" ]; then
 	echo Using $GITCHECKOUT_SOURCETAR
 	wget -q -O gitcheckout.tar.gz $GITCHECKOUT_SOURCETAR
@@ -45,7 +45,7 @@ sysctl -w vm.drop_caches=3
 
 echo Warming up
 mmtests_activity warmup
-cd $TESTDISK_DIR/gitcheckout   || exit $SHELLPACK_ERROR
+cd $SHELLPACK_DATA/gitcheckout   || exit $SHELLPACK_ERROR
 for COMMIT in $GITCHECKOUT_COMMITS; do
 	git checkout $COMMIT || exit $SHELLPACK_ERROR
 done
@@ -54,8 +54,8 @@ echo "#!/bin/bash
 for COMMIT in $GITCHECKOUT_COMMITS; do
 	git checkout \$COMMIT
 done
-" > $TESTDISK_DIR/gitcheckout/gitcheckout.sh
-chmod u+x $TESTDISK_DIR/gitcheckout/gitcheckout.sh
+" > $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh
+chmod u+x $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh
 
 mkdir -p $LOGDIR_RESULTS
 ###SHELLPACK iteration_begin $GITCHECKOUT_ITERATIONS
@@ -66,13 +66,13 @@ mkdir -p $LOGDIR_RESULTS
 	fi
 
 	echo Iteration $ITERATION/$GITCHECKOUT_ITERATIONS
-	$TIME_CMD $TESTDISK_DIR/gitcheckout/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$ITERATION
+	$TIME_CMD $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$ITERATION
 	grep elapsed $LOGDIR_RESULTS/time.$ITERATION
 ###SHELLPACK iteration_end
 
 # Summarise and cleanup
 popd > /dev/null
 grep elapsed $LOGDIR_RESULTS/time.* | tee $LOGDIR_RESULTS/time
-rm -rf $TESTDISK_DIR/gitcheckout
+rm -rf $SHELLPACK_DATA/gitcheckout
 
 exit $SHELLPACK_SUCCESS
