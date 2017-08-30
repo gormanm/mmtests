@@ -24,15 +24,15 @@ PARALLELDD_WRITEFILES=
 ###SHELLPACK monitor_hooks
 
 if [ "$PARALLELDD_SPLITINPUT" != "yes" ]; then
-	create_random_file $PARALLELDD_SOURCESIZE $SHELLPACK_TEMP/source_file
+	create_random_file $PARALLELDD_SOURCESIZE $SHELLPACK_DATA/source_file
 	sync
 fi
 
 ###SHELLPACK threads_large_stride_begin $PARALLELDD_MIN_THREADS $PARALLELDD_MAX_THREADS
 	if [ "$PARALLELDD_SPLITINPUT" = "yes" ]; then
-		create_random_file $((PARALLELDD_SOURCESIZE/$NR_THREADS)) $SHELLPACK_TEMP/source_file.1
+		create_random_file $((PARALLELDD_SOURCESIZE/$NR_THREADS)) $SHELLPACK_DATA/source_file.1
 		for INSTANCE in `seq 2 $NR_THREADS`; do
-			cp $SHELLPACK_TEMP/source_file.1 $SHELLPACK_TEMP/source_file.$INSTANCE
+			cp $SHELLPACK_DATA/source_file.1 $SHELLPACK_DATA/source_file.$INSTANCE
 		done
 		sync
 	fi
@@ -47,9 +47,9 @@ fi
 		for INSTANCE in `seq 1 $NR_THREADS`; do
 			OUTPUT_FILE=/dev/null
 			if [ "$PARALLELDD_WRITEFILES" = "yes" ]; then
-				OUTPUT_FILE=$SHELLPACK_TEMP/output.$INSTANCE
+				OUTPUT_FILE=$SHELLPACK_DATA/output.$INSTANCE
 			fi
-			INPUT_FILE=$SHELLPACK_TEMP/source_file
+			INPUT_FILE=$SHELLPACK_DATA/source_file
 			if [ "$PARALLELDD_SPLITINPUT" = "yes" ]; then
 				INPUT_FILE=${INPUT_FILE}.$INSTANCE
 			fi
@@ -59,12 +59,12 @@ fi
 
 		echo Waiting on dd instances to complete
 		wait
-		rm -f $SHELLPACK_TEMP/output.*
+		rm -f $SHELLPACK_DATA/output.*
 		cat $LOGDIR_RESULTS/time-$NR_THREADS-*-$ITERATION | grep elapsed
 	###SHELLPACK iteration_end $PARALLELDD_ITERATIONS
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
 
-rm $SHELLPACK_TEMP/source_file
+rm $SHELLPACK_DATA/source_file*
 
 exit $SHELLPACK_SUCCESS
