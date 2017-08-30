@@ -25,7 +25,6 @@ FIO_IO_PATTERNS="write read rw randread randwrite randrw"
 
 if [ "$FIO_CMD_OPTIONS" != "" ]; then
 	monitor_pre_hook $LOGDIR_RESULTS $SIZE
-	ln -s $SHELLPACK_DATA /tmp/fio-$$
 
 	./fio --directory="$SHELLPACK_DATA" --minimal \
 		--write_lat_log $LOGDIR_RESULTS/fio $FIO_CMD_OPTIONS 2>&1 |
@@ -33,7 +32,6 @@ if [ "$FIO_CMD_OPTIONS" != "" ]; then
 		die Failed to have fun with fio
 
 	rm -rf $SHELLPACK_DATA/*
-	rm /tmp/fio-$$
 	monitor_post_hook $LOGDIR_RESULTS $SIZE
 	exit $SHELLPACK_SUCCESS
 fi
