@@ -500,15 +500,6 @@ if [ "${STORAGE_CACHE_TYPE}" = "dm-cache" ]; then
 		echo "ERROR: no caching and/or backing device specified"
 		exit 1
 	fi
-	if [ "${TESTDISK_FILESYSTEM}" != "" -a \
-		"${TESTDISK_FILESYSTEM}" != "tmpfs" ]; then
-		echo "Formatting test disk ${STORAGE_BACKING_DEVICE}:" \
-		    " ${TESTDISK_FILESYSTEM}"
-		mkfs.${TESTDISK_FILESYSTEM} ${TESTDISK_MKFS_PARAM} \
-		    ${STORAGE_BACKING_DEVICE} || exit
-		# quirk to prevent 2nd formatting of cache device
-		TESTDISK_FILESYSTEM=""
-	fi
 	./bin/dmcache-setup.sh -c ${STORAGE_CACHING_DEVICE} \
 	    -b ${STORAGE_BACKING_DEVICE} -a ||
 	(echo "ERROR: dmcache-setup failed" \
@@ -612,6 +603,17 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 			mount -t $TESTDISK_FILESYSTEM ${TESTDISK_PARTITIONS[$i]} ${SHELLPACK_TEST_MOUNTS[$i]} -o $TESTDISK_MOUNT_ARGS || exit
 		fi
 	done
+fi
+
+# Flush dm-cache before we start real testing so that mkfs data does not
+# pollute it
+# FIXME: Handle bcache as well
+if [ "${STORAGE_CACHE_TYPE}" = "dm-cache" ]; then
+	./bin/dmcache-setup.sh -c ${STORAGE_CACHING_DEVICE} \
+            -b ${STORAGE_BACKING_DEVICE} -f ||
+	(echo "ERROR: dmcache-setup failed" \
+	    "(dmcache-setup.sh -c ${STORAGE_CACHING_DEVICE}" \
+	    "-b ${STORAGE_BACKING_DEVICE} -f)"; exit 1)
 fi
 
 # Create NFS mount
