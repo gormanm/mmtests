@@ -17,7 +17,7 @@ WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v3.0/linux-${VERSION}.tar.g
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS))
 
-pushd $TESTDISK_DIR > /dev/null
+pushd $SHELLPACK_DATA > /dev/null
 
 sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
 tar xf linux-$VERSION.tar.gz || die Failed to extract
@@ -52,7 +52,7 @@ make clean >/dev/null
 ###SHELLPACK threads_powertwo_end
 
 # Cleanup
-rm -rf $TESTDISK_DIR/*
+rm -rf $SHELLPACK_DATA/*
 
 # clean up the tree to save space
 popd > /dev/null
