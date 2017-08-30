@@ -632,9 +632,6 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 		else
 			mount -t $TESTDISK_FILESYSTEM ${TESTDISK_PARTITIONS[$i]} ${SHELLPACK_TEST_MOUNTS[$i]} -o $TESTDISK_MOUNT_ARGS || exit
 		fi
-
-		echo "Creating tmp (${SHELLPACK_TEST_MOUNTS[$i]}/tmp/$$)"
-		mkdir -p ${SHELLPACK_TEST_MOUNTS[$i]}/tmp/$$
 	done
 
 	# For XFS parittions mounted nobarrier on later kernels, the parameter
@@ -683,20 +680,18 @@ else
 	if [ ${#SHELLPACK_TEST_MOUNTS[*]} -gt 0 -a ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 		for i in ${!SHELLPACK_TEST_MOUNTS[*]}; do
 			if [ $i -eq 0 ]; then
-				TESTDISK_DIR="$SHELLPACK_TEMP"
-				TESTDISK_DIRS[$i]="$SHELLPACK_TEMP"
 				SHELLPACK_DATA_DIRS[$i]="$SHELLPACK_DATA"
 			else
-				TESTDISK_DIRS[$i]=${SHELLPACK_TEST_MOUNTS[$i]}/tmp/$$
 				SHELLPACK_DATA_DIRS[$i]="${SHELLPACK_TEST_MOUNTS[$i]}/data"
 			fi
-			echo "Using ${TESTDISK_DIRS[$i]}"
+			echo "Using ${SHELLPACK_DATA_DIRS[$i]}"
 		done
-		export TESTDISK_DIRS
 		export SHELLPACK_DATA_DIRS
 	else
-		echo "Using default TESTDISK_DIR"
-		TESTDISK_DIR="$SHELLPACK_TEMP"
+		echo "Using default SHELLPACK_DATA"
+		# In case no special data storage is defined, we default to
+		# SHELLPACK_TEMP which gets automatically cleaned up
+		SHELLPACK_DATA="$SHELLPACK_TEMP"
 		mkdir -p "$SHELLPACK_TEMP"
 	fi
 fi
@@ -864,7 +859,7 @@ fi
 # doesn't support export of arrays. Note that the file needs to be
 # updated whenever an array is modified after this point.
 # Currently required for:
-# - TESTDISK_DIRS, SHELLPACK_DATA_DIRS
+# - SHELLPACK_DATA_DIRS
 declare -p | grep "\-ax" > $SCRIPTDIR/bash_arrays
 
 # Warm up. More appropriate warmup depends on the exact test
