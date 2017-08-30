@@ -617,9 +617,10 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 
 		if [ $i -eq 0 ]; then
 			SHELLPACK_TEST_MOUNTS[$i]=$SHELLPACK_TEST_MOUNT
-			echo Creating tmp and sources
+			echo Creating tmp, sources, and data
 			mkdir -p $SHELLPACK_SOURCES
 			mkdir -p $SHELLPACK_TEMP
+			mkdir -p $SHELLPACK_DATA
 			continue
 		fi
 		SHELLPACK_TEST_MOUNTS[$i]=${SHELLPACK_TEST_MOUNT}_$i
@@ -677,6 +678,7 @@ if [ "$TESTDISK_DIR" != "" ]; then
 		die "Can't find TESTDISK_DIR $TESTDISK_DIR"
 	fi
 	echo "Using directory $TESTDISK_DIR for test"
+	SHELLPACK_DATA=$TESTDISK_DIR
 else
 	if [ ${#SHELLPACK_TEST_MOUNTS[*]} -gt 0 -a ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 		for i in ${!SHELLPACK_TEST_MOUNTS[*]}; do

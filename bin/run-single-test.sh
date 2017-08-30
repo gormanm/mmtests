@@ -18,7 +18,7 @@ function die() {
         exit -1
 }
 
-for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG; do
+for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG $SHELLPACK_DATA; do
 	if [ ! -e "$DIRNAME" ]; then
 		mkdir -p "$DIRNAME"
 	fi
@@ -67,7 +67,7 @@ if [ "$REMOTE_SERVER_HOST" != "" ]; then
 fi
 
 function setup_dirs() {
-	for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG; do
+	for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG $SHELLPACK_DATA; do
 		if [ ! -e "$DIRNAME" ]; then
 			mkdir -p "$DIRNAME"
 		fi
