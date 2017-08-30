@@ -685,12 +685,15 @@ else
 			if [ $i -eq 0 ]; then
 				TESTDISK_DIR="$SHELLPACK_TEMP"
 				TESTDISK_DIRS[$i]="$SHELLPACK_TEMP"
+				SHELLPACK_DATA_DIRS[$i]="$SHELLPACK_DATA"
 			else
 				TESTDISK_DIRS[$i]=${SHELLPACK_TEST_MOUNTS[$i]}/tmp/$$
+				SHELLPACK_DATA_DIRS[$i]="${SHELLPACK_TEST_MOUNTS[$i]}/data"
 			fi
 			echo "Using ${TESTDISK_DIRS[$i]}"
 		done
 		export TESTDISK_DIRS
+		export SHELLPACK_DATA_DIRS
 	else
 		echo "Using default TESTDISK_DIR"
 		TESTDISK_DIR="$SHELLPACK_TEMP"
@@ -861,7 +864,7 @@ fi
 # doesn't support export of arrays. Note that the file needs to be
 # updated whenever an array is modified after this point.
 # Currently required for:
-# - TESTDISK_DIRS
+# - TESTDISK_DIRS, SHELLPACK_DATA_DIRS
 declare -p | grep "\-ax" > $SCRIPTDIR/bash_arrays
 
 # Warm up. More appropriate warmup depends on the exact test
