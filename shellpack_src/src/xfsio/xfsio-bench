@@ -21,7 +21,7 @@ for TESTCASE in $XFSIO_TESTCASES; do
 	case $TESTCASE in
 	pwrite-single-rewrite-async)
 		echo Writing file first, no measurement
-		xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_TEMP/file |
+		xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_DATA/file |
 			tee -a $TESTCASE-setup
 		;;
 	esac
@@ -31,14 +31,14 @@ for TESTCASE in $XFSIO_TESTCASES; do
 	case $TESTCASE in
 	pwrite-single-async)
 		$TIME_CMD -o $LOGDIR_RESULTS/$TESTCASE-time.$ITERATION \
-			xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_TEMP/file |
+			xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_DATA/file |
 				tee -a $LOGDIR_RESULTS/$TESTCASE-log.$ITERATION
-		rm $SHELLPACK_TEMP/file
+		rm $SHELLPACK_DATA/file
 		sync
 		;;
 	pwrite-single-rewrite-async)
 		$TIME_CMD -o $LOGDIR_RESULTS/$TESTCASE-time.$ITERATION \
-			xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_TEMP/file |
+			xfs_io -f -c "pwrite 0 $XFSIO_SIZE" $SHELLPACK_DATA/file |
 				tee -a $LOGDIR_RESULTS/$TESTCASE-log.$ITERATION
 		;;
 	*)
@@ -46,7 +46,7 @@ for TESTCASE in $XFSIO_TESTCASES; do
 		;;
 	esac
 	###SHELLPACK iteration_end $XFSIO_ITERATIONS
-	rm $SHELLPACK_TEMP/file*
+	rm $SHELLPACK_DATA/file*
 	monitor_post_hook $LOGDIR_RESULTS $TESTCASE
 done
 
