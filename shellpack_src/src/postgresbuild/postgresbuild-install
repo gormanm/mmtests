@@ -17,7 +17,7 @@ install-depends bison gcc-c++ libstdc++-devel popt-devel zlib-devel
 update_entry_cnf() {
 	PARAMETER=$1
 	VALUE=$2
-	CONF=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data/postgresql.conf
+	CONF=$POSTGRES_DATADIR/postgresql.conf
 
 	LINE=`grep -n "^$PARAMETER" $CONF | cut -d: -f1 | head -1`
 	if [ "$LINE" = "" ]; then
@@ -74,7 +74,9 @@ GROUPID=`grep ^$GROUPNAME: /etc/group | cut -d: -f3`
 
 echo Initialising database
 PSQL="su -s /bin/bash $POSTGRES_USER -c"
-POSTGRES_DATADIR=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data
+POSTGRES_DATADIR=$SHELLPACK_DATA/pgdata
+mkdir -p $POSTGRES_DATADIR
+chown $POSTGRES_USER $POSTGRES_DATADIR
 $PSQL "bin/initdb -D $POSTGRES_DATADIR"
 if [ $? -ne 0 ]; then
 	echo WARNING: initdb failed to execute, forcing access permissions on home

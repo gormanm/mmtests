@@ -20,7 +20,7 @@ POSTGRES_GROUP=nogroup
 . $SHELLPACK_INCLUDE/include-hugepage.sh
 getpagesize
 PSQL="su -s /bin/bash $POSTGRES_USER -c"
-POSTGRES_DATADIR=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data
+POSTGRES_DATADIR=$SHELLPACK_DATA/pgdata
 POSTGRES_PIDFILE=$POSTGRES_DATADIR/postmaster.pid
 POSTGRES_PID=`cat $POSTGRES_PIDFILE 2>&1`
 cd $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed
@@ -29,7 +29,7 @@ cd $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed
 update_entry_cnf() {
 	PARAMETER=$1
 	VALUE=$2
-	CONF=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data/postgresql.conf
+	CONF=$POSTGRES_DATADIR/postgresql.conf
 
 	LINE=`grep -n "^$PARAMETER" $CONF | cut -d: -f1 | head -1`
 	if [ "$LINE" = "" ]; then
