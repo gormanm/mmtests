@@ -15,6 +15,7 @@ for PACKAGE in bison gcc-c++ libstdc++-devel zlib-devel ncurses-devel libncurses
 	install-depends $PACKAGE
 done
 MARIADB_CONF=/etc/my.cnf
+MARIADB_DATADIR=$SHELLPACK_DATA/dbdata
 
 # Only updates the first occurance of the parameter
 update_entry_cnf() {
@@ -50,7 +51,7 @@ chmod a+x $HOME
 cd $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed || die Failed to change to installation directory.
 mkdir -p $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/etc
 cp support-files/my-huge.cnf $MARIADB_CONF || die Failed to copy support-files/my-huge.cnf template
-scripts/mysql_install_db --user=$MARIADB_USER || die Failed to run mysql_install_db script
+scripts/mysql_install_db --user=$MARIADB_USER --datadir=$MARIADB_DATADIR || die Failed to run mysql_install_db script
 
 # Update the max connection count if necessary
 update_entry_cnf thread_concurrency $((NUMCPUS*2))

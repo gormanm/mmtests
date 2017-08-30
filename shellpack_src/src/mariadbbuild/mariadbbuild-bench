@@ -22,8 +22,8 @@ MARIADB_ADMIN_PASSWORD=mmtests-default
 . $SHELLPACK_INCLUDE/include-hugepage.sh
 getpagesize
 
-MARIADB_DATADIR=$SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/data
-MARIADB_PIDFILE=$SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/data/mariadbd.pid
+MARIADB_DATADIR=$SHELLPACK_DATA/dbdata
+MARIADB_PIDFILE=$MARIADB_DATADIR/mariadbd.pid
 MARIADB_PID=`cat $MARIADB_PIDFILE 2>&1`
 MYSQLADMIN="bin/mysqladmin -u $MARIADB_ADMIN_USER -p$MARIADB_ADMIN_PASSWORD"
 cd $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed
@@ -92,7 +92,7 @@ if [ "$SERVER_START" = "yes" ]; then
 	echo Starting mariadb: $START_STR
 	echo o key_buffer_size buffers $SHARED_BUFFERS
 
-	./support-files/mysql.server start --pid-file=$MARIADB_PIDFILE $START_STR
+	./support-files/mysql.server start --datadir=$MARIADB_DATADIR --pid-file=$MARIADB_PIDFILE $START_STR
 	wait_on_pid_file $MARIADB_PIDFILE
 	MARIADB_PID=`cat $MARIADB_PIDFILE 2>&1`
 	./bin/mysqladmin -u $MARIADB_ADMIN_USER password $MARIADB_ADMIN_PASSWORD
