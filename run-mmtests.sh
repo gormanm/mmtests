@@ -794,16 +794,6 @@ if [ "$SWAP_CONFIGURATION" != "default" ]; then
 	swapon -s
 fi
 
-# Configure low_latency if requested
-if [ "$CFQ_LOW_LATENCY" != "" ]; then
-	echo Configuring cfq low_latency == $CFQ_LOW_LATENCY
-	cd /sys
-	for PARAM in `find -name "low_latency"`; do
-		echo $CFQ_LOW_LATENCY > $PARAM
-	done
-	cd -
-fi
-
 # Validate systemtap installation if it exists
 TESTS_STAP="stress-highalloc pagealloc highalloc"
 MONITORS_STAP="dstate stap-highorder-atomic function-frequency syscalls"
