@@ -1,12 +1,12 @@
 #!/bin/bash
 
-if [ "$TESTDISK_DIR" = "" -o ! -e "$TESTDISK_DIR" ]; then
-	echo Test directory TESTDISK_DIR \($TESTDISK_DIR\) not specified or does not exist
+if [ "$SHELLPACK_DATA" = "" -o ! -e "$SHELLPACK_DATA" ]; then
+	echo Test directory SHELLPACK_DATA \($SHELLPACK_DATA\) not specified or does not exist
 	exit -1
 fi
-cd $TESTDISK_DIR
+cd $SHELLPACK_DATA
 if [ $? -ne 0 ]; then
-	echo Test directory TESTDISK_DIR \($TESTDISK_DIR\) could not be used
+	echo Test directory SHELLPACK_DATA \($SHELLPACK_DATA\) could not be used
 	exit -1
 fi
 
