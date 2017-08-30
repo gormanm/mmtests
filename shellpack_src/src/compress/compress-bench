@@ -28,7 +28,7 @@ if [ "$COMPRESS_SOURCE" = "" ]; then
 fi
 
 # Download the source file
-cd $TESTDISK_DIR || die Failed to change to temp directory
+cd $SHELLPACK_DATA || die Failed to change to temp directory
 mmtests_activity Downloading
 echo Downloading $COMPRESS_SOURCE
 wget -O 0.gz -q $COMPRESS_SOURCE
