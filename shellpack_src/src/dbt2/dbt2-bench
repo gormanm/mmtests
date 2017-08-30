@@ -31,7 +31,7 @@ install-depends python-rpy2
 
 echo Configuring paths for $DBDRIVER
 export PATH=$SHELLPACK_SOURCES/dbt2-${VERSION}-installed/bin:$PATH
-export DBT2PGROOT=$SHELLPACK_SOURCES/dbt2-${VERSION}-installed/data
+export DBT2PGROOT=$SHELLPACK_DATA/pgroot
 export DBT2DBNAME=dbt2
 export DBT2PGDATA=$DBT2PGROOT/$DBT2DBNAME
 mkdir -p $DBT2PGROOT
