@@ -542,6 +542,9 @@ if [ "$TESTDISK_PARTITION" != "" ]; then
 	# override any TESTDISK_PARTITIONS configuration (for backwards compatibility)
 	TESTDISK_PARTITIONS=($TESTDISK_PARTITION)
 fi
+
+setup_io_scheduler
+
 # TBD: Support blktrace in case TESTDISK_PARTITIONS is set and TESTDISK_PARTITION is not
 if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 	if [ "${STORAGE_CACHE_TYPE}" = "" ]; then
@@ -591,30 +594,6 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 
 	rm -f $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
 	for i in ${!TESTDISK_PARTITIONS[*]}; do
-		DEVICE=`basename ${TESTDISK_PARTITIONS[$i]}`
-		while [ ! -e /sys/block/$DEVICE/queue/scheduler ]; do
-			DEVICE=`echo $DEVICE | sed -e 's/.$//'`
-			if [ "$DEVICE" = "" ]; then
-				break
-			fi
-		done
-
-		if [ "$TESTDISK_IO_SCHEDULER" != "" ]; then
-			if [ "$DEVICE" = "" ]; then
-				die "Unable to get an IO scheduler for $START_DEVICE"
-			fi
-			echo Set IO scheduler $TESTDISK_IO_SCHEDULER on $DEVICE
-			echo $TESTDISK_IO_SCHEDULER > /sys/block/$DEVICE/queue/scheduler || die "Failed to set IO scheduler $TESTDISK_IO_SCHEDULER on /sys/block/$DEVICE/queue/scheduler"
-
-			if [ "$TESTDISK_IO_SCHEDULER_LOW_LATENCY" != "" ]; then
-				echo Setting IO scheduler low_latency to $TESTDISK_IO_SCHEDULER_LOW_LATENCY
-				echo $TESTDISK_IO_SCHEDULER_LOW_LATENCY > /sys/block/$DEVICE/queue/iosched/low_latency || die "Failed to set IO scheduler low_latency to $TESTDISK_IO_SCHEDULER_LOW_LATENCY"
-			fi
-			grep -H . /sys/block/$DEVICE/queue/scheduler
-			lsscsi | grep $DEVICE
-		fi
-		grep -r -H . /sys/block/$DEVICE/queue/* >> $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
-
 		if [ $i -eq 0 ]; then
 			SHELLPACK_TEST_MOUNTS[$i]=$SHELLPACK_TEST_MOUNT
 			echo Creating tmp, sources, and data
@@ -633,21 +612,6 @@ if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
 			mount -t $TESTDISK_FILESYSTEM ${TESTDISK_PARTITIONS[$i]} ${SHELLPACK_TEST_MOUNTS[$i]} -o $TESTDISK_MOUNT_ARGS || exit
 		fi
 	done
-
-	# For XFS parittions mounted nobarrier on later kernels, the parameter
-	# is ignored but the system can be tuned such that it is faked
-	if [ "$TESTDISK_FILESYSTEM" = "xfs" ]; then
-		MAJOR_KERNEL=`uname -r | awk -F . '{print $1}'`
-		MINOR_KERNEL=`uname -r | awk -F . '{print $2}'`
-		if [ \( "$MAJOR_KERNEL" -gt 4 \) -o \( "$MAJOR_KERNEL" -eq 4 -a "$MINOR_KERNEL" -ge 10 \) ]; then
-			echo Setting temporary write through on all disks for simulated xfs nobarrier
-			for CACHE in `find -L /sys/class/scsi_disk -maxdepth 2 -name "cache_type" 2>/dev/null`; do
-				echo "write back" > $CACHE
-				echo "temporary write through" > $CACHE
-				cat $CACHE
-			done
-		fi
-	fi
 fi
 
 # Create NFS mount
