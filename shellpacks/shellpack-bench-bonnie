@@ -122,7 +122,7 @@ fi
 cd $SHELLPACK_SOURCES/bonnie-${VERSION}-installed
 
 echo ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
-	-d $TESTDISK_DIR \
+	-d $SHELLPACK_DATA \
 	$FILETEST_PARAM \
 	$DIRTEST_PARAM \
 	-m $MACHINE | tee $LOGDIR_RESULTS/bonnie-params
@@ -130,7 +130,7 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 	echo Starting iteration $ITERATION
 	save_rc ./sbin/bonnie++ $FSYNC_PARAM $USER_PARAM -r 0 \
-		-d $TESTDISK_DIR \
+		-d $SHELLPACK_DATA \
 		$FILETEST_PARAM \
 		$DIRTEST_PARAM \
 		-m $MACHINE \
@@ -140,8 +140,13 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 	if [ $? -ne 0 ]; then
 		die Failed to run bonnie
 	fi
+
+	if [ $ITERATION -lt $BONNIE_ITERATIONS ]; then
+		umount_filesystems
+		create_filesystems
+	fi
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description bonnie
-#### Details bonnie-bench 37
+#### Details bonnie-bench 38
