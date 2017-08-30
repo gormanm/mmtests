@@ -27,6 +27,8 @@ if [ "`which $EXPECT_UNBUFFER 2> /dev/null`" = "" ]; then
 	EXPECT_UNBUFFER=unbuffer
 fi
 
+DATADIR=$SHELLPACK_DATA/pgioperf
+
 if [ "$INIT" = "yes" ]; then
 	echo Building pgioperf program
 	rm -rf $SHELLPACK_TEMP/../pgioperf
@@ -44,12 +46,14 @@ if [ "$INIT" = "yes" ]; then
 		-DCOMMIT_REPORT_INTERVAL=$COMMIT_REPORT_INTERVAL\
 			pgioperf.c -o pgioperf || exit $SHELLPACK_ERROR
 
+	mkdir -p $DATADIR
+	cd $DATADIR
 	echo Initialising pgioperf
-	$TIME_CMD -o $LOGDIR_RESULTS/time ./pgioperf init
+	$TIME_CMD -o $LOGDIR_RESULTS/time $SHELLPACK_TEMP/../pgioperf/pgioperf init
 	exit $SHELLPACK_SUCCESS
 fi
 
-cd $SHELLPACK_TEMP/../pgioperf || exit -1
+cd $DATADIR || exit -1
 if [ ! -e wal ]; then
 	die No wal file
 fi
@@ -62,7 +66,7 @@ sysctl -w vm.drop_caches=3
 
 echo Executing pgioperf
 monitor_pre_hook $LOGDIR_RESULTS
-$EXPECT_UNBUFFER ./pgioperf > $LOGDIR_RESULTS/pgioperf.log 2>&1 &
+$EXPECT_UNBUFFER $SHELLPACK_TEMP/../pgioperf/pgioperf > $LOGDIR_RESULTS/pgioperf.log 2>&1 &
 PGIOPERF_PID=$!
 COUNT=0
 while [ $COUNT -lt $SAMPLES ]; do
