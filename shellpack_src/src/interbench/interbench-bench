@@ -19,7 +19,7 @@ INTERBENCH_DURATION=30
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	mmtests_activity interbench-$NR_THREADS
 
-	cd $SHELLPACK_TEMP/ || die Failed to change to temporary directory
+	cd $SHELLPACK_DATA/ || die Failed to change to data directory
 	rm -f interbench.*
 
 	echo Running with $NR_THREADS threads
