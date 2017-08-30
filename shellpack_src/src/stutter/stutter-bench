@@ -71,8 +71,8 @@ fi
 # Calibrate the expected time to complete
 echo Calibrating IO speeds
 $TIME_CMD -o $LOGDIR_RESULTS/calibrate.time \
-	dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((1024*1048576/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/calibrate.log
-rm $TESTDISK_DIR/ddfile
+	dd if=/dev/zero of=$SHELLPACK_DATA/ddfile ibs=$DD_BLOCKSIZE count=$((1024*1048576/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/calibrate.log
+rm $SHELLPACK_DATA/ddfile
 
 # Determine where the source file should be
 SOURCEFILE_TOPLEVEL=
@@ -89,7 +89,7 @@ else
 		SOURCEFILE_TOPLEVEL=$SHELLPACK_TOPLEVEL
 	else
 		echo Using test partion for source file
-		SOURCEFILE_TOPLEVEL=$TESTDISK_DIR
+		SOURCEFILE_TOPLEVEL=$SHELLPACK_DATA
 	fi
 fi
 
@@ -137,9 +137,9 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 
 	if [ "$USE_DD_ZERO" = "no" ]; then
 		# CP
-		echo Starting cp $SOURCEFILE_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+		echo Starting cp $SOURCEFILE_TOPLEVEL/stutter-source-file $SHELLPACK_DATA/ddfile
 		echo "#!/bin/bash
-cp $SOURCEFILE_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+cp $SOURCEFILE_TOPLEVEL/stutter-source-file $SHELLPACK_DATA/ddfile
 sync" > cp-script.sh
 		chmod u+x cp-script.sh
 		$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
@@ -147,14 +147,14 @@ sync" > cp-script.sh
 		rm cp-script.sh
 	else
 		# DD
-		echo Starting dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
+		echo Starting dd if=/dev/zero of=$SHELLPACK_DATA/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync
 		$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-			dd if=/dev/zero of=$TESTDISK_DIR/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-$ITERATION.log
+			dd if=/dev/zero of=$SHELLPACK_DATA/ddfile ibs=$DD_BLOCKSIZE count=$((DD_FILESIZE/DD_BLOCKSIZE)) conv=fdatasync 2>&1 | tee $LOGDIR_RESULTS/dd-$ITERATION.log
 	fi
 
 	shutdown_pid memhog $MEMHOG_PID
 done
-rm $SOURCEFILE_TOPLEVEL/stutter-source-file $TESTDISK_DIR/ddfile
+rm $SOURCEFILE_TOPLEVEL/stutter-source-file $SHELLPACK_DATA/ddfile
 
 # Shutdown monitors
 kill $LATENCY_PID
