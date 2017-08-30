@@ -28,7 +28,7 @@ ITERATIONS=12
 # Create benchmark directories
 SIMOOP_DIRECTORIES=
 for i in `seq 1 $SIMOOP_FILE_DIRECTORIES`; do
-	mkdir $SHELLPACK_TEMP/$i
+	mkdir $SHELLPACK_DATA/$i
 done
 
 # Create benchmark parameters
@@ -46,7 +46,7 @@ SIMOOP_PARAMS="
 	-i $SIMOOP_REPORT_FREQUENCY
 	-n $SIMOOP_NUMFILES
 	-M 128
-	$SHELLPACK_TEMP/*
+	$SHELLPACK_DATA/*
 "
 
 ulimit -n 65534
