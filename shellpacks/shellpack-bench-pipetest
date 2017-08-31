@@ -141,4 +141,4 @@ echo
 monitor_post_hook $LOGDIR_RESULTS
 exit $SHELLPACK_SUCCESS
 #### Description Run the pipe-test benchmark
-#### Details pipetest-bench 17
+#### Details pipetest-bench 18

@@ -131,4 +131,4 @@ rm -rf $TMPDIR/kernbench
 
 exit $SHELLPACK_SUCCESS
 #### Description Benchmark based on kernel builds
-#### Details kernbench-bench 31
+#### Details kernbench-bench 32

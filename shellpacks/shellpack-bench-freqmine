@@ -83,7 +83,6 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo freqmine installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
@@ -152,4 +151,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description freqmine
-#### Details freqmine-bench 6
+#### Details freqmine-bench 7

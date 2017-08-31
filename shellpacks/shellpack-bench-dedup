@@ -161,4 +161,4 @@ done
 rm -f $SHELLPACK_DATA/in.file $SHELLPACK_TEMP/in.file.gz
 exit $SHELLPACK_SUCCESS
 #### Description dedup
-#### Details dedup-bench 22
+#### Details dedup-bench 23

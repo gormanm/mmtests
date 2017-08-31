@@ -231,4 +231,4 @@ exit $SHELLPACK_SUCCESS
  	}
  	/* notreached */
 #### Description Block device seeker microbenchmark
-#### Details seeker 11
+#### Details seeker 12

@@ -78,13 +78,6 @@ fi
 . $SHELLPACK_INCLUDE/include-monitor.sh
 export PATH=$SHELLPACK_SOURCES/sysbenchcpu-${VERSION}-installed/bin:$PATH
 
-# Figure out how to use the time command
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
-
 THREADS=
 START_THREAD=1
 END_THREAD=$MAX_THREADS
@@ -128,4 +121,4 @@ done
 echo sysbenchcpu successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description sysbenchcpu
-#### Details sysbenchcpu-bench 12
+#### Details sysbenchcpu-bench 13

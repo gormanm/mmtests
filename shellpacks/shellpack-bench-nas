@@ -272,4 +272,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 53
+#### Details nas-bench 54

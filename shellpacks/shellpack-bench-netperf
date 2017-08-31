@@ -115,11 +115,9 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo netperf installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
-cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf directory
 BUFFER_SIZES=`echo $BUFFER_SIZES | sed -e 's/,/ /g'`
 
 export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-netperf
@@ -203,4 +201,4 @@ killall netserver
 
 exit $SHELLPACK_SUCCESS
 #### Description Netperf benchmark
-#### Details netperf-bench 53
+#### Details netperf-bench 54

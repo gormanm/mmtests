@@ -215,6 +215,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $REDIS_MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 for ITERATION in `seq 1 $REDIS_ITERATIONS`; do
@@ -233,4 +236,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description redis
-#### Details redis-bench 17
+#### Details redis-bench 18

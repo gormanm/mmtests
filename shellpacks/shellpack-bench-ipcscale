@@ -112,12 +112,6 @@ fi
 
 echo $IPCSCALE_WORKLOADS > $LOGDIR_RESULTS/workloads
 
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
-
 THREADS=
 START_THREAD=$IPCSCALE_MIN_THREADS
 END_THREAD=$IPCSCALE_MAX_THREADS
@@ -173,4 +167,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description ipcscale
-#### Details ipcscale-bench 8
+#### Details ipcscale-bench 9

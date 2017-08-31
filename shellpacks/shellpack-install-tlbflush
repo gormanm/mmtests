@@ -3,15 +3,30 @@
 P=tlbflush-install
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -70,4 +85,4 @@ gcc -DFILE_SIZE=$((128*1048576)) -g -O2 tlbflush.c -lpthread -o tlbflush || die 
 
 exit $SHELLPACK_SUCCESS
 #### Description Alex Shis tlb range flush benchmark
-#### Details tlbflush 31
+#### Details tlbflush 32

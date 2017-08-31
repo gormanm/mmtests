@@ -93,4 +93,4 @@ fi
 echo blogbench installed successfully
 exit $SHELLPACK_SUCCESS
 #### Description blogbench
-#### Details blogbench 8
+#### Details blogbench 9

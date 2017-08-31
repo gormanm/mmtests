@@ -74,9 +74,6 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo thpscale installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-cd $SHELLPACK_SOURCES/thpscale-${VERSION}-installed ||
-	die Failed to change to benchmark directory
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
@@ -116,4 +113,4 @@ done
 rm $SHELLPACK_DATA/workfile
 exit $SHELLPACK_SUCCESS
 #### Description thpscale
-#### Details thpscale-bench 17
+#### Details thpscale-bench 18

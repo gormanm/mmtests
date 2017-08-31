@@ -137,4 +137,4 @@ gzip $LOGDIR_RESULTS/*.log
 
 exit $RETVAL
 #### Description Non-conforming speccpu benchmark
-#### Details speccpu-bench 21
+#### Details speccpu-bench 22

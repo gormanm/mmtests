@@ -148,4 +148,4 @@ monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 
 exit $SHELLPACK_SUCCESS
 #### Description graphdb
-#### Details graphdb-bench 27
+#### Details graphdb-bench 28

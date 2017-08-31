@@ -74,10 +74,6 @@ if [ ! -d $SHELLPACK_SOURCES/usemembuild-${VERSION}-installed-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/usemembuild-${VERSION}-installed || die Failed to cd to usemembuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo usemembuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 
 MEMTOTAL_ANON=$((USEMEM_WORKLOAD_SIZE*USEMEM_PERCENTAGE_ANON/100))
 MEMTOTAL_FILE=$((USEMEM_WORKLOAD_SIZE*(100-USEMEM_PERCENTAGE_ANON)/100))
@@ -148,4 +144,4 @@ done
 exit $SHELLPACK_SUCCESS
 
 #### Description usemem
-#### Details usemem-bench 6
+#### Details usemem-bench 7

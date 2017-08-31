@@ -111,4 +111,4 @@ index d615935..7322003 100755
          # Run the benchmark.
          my $bresult = runBenchmark($bench, $params, $verbose, $logFile, $copies);
 #### Description unixbench
-#### Details unixbench 6
+#### Details unixbench 7

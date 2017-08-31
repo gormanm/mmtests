@@ -60,12 +60,8 @@ if [ ! -d $SHELLPACK_SOURCES/mavenbuild-${VERSION}-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/mavenbuild-${VERSION}-installed || die Failed to cd to mavenbuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo mavenbuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 
 echo maven successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description mavenbuild
-#### Details mavenbuild-bench 8
+#### Details mavenbuild-bench 9

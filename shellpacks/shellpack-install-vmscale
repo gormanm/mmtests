@@ -176,4 +176,4 @@ index 758d32c..138bf84 100755
  # sparse files won't work as expected on tmpfs/nfs
  create_sparse_root () {
 #### Description vm scalability test suite
-#### Details vmscale 32
+#### Details vmscale 33

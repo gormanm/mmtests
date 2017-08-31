@@ -78,4 +78,4 @@ id 123456-fsgqa || useradd 123456-fsgqa
 echo xfstests installed successfully
 exit $SHELLPACK_SUCCESS
 #### Description xfstests, a filesystem regression testsuite
-#### Details xfstests 5
+#### Details xfstests 6

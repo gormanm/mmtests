@@ -58,6 +58,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+install-depends coreutils
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/vmscale-${VERSION}
 fi
@@ -81,10 +82,6 @@ if [ ! -d $SHELLPACK_SOURCES/perfbuild-4.1-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/perfbuild-4.1-installed || die Failed to cd to perfbuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo perfbuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 	export PATH=$SHELLPACK_SOURCES/perfbuild-4.1-installed/bin:$PATH
 fi
 
@@ -93,14 +90,6 @@ fi
 
 cd $SHELLPACK_SOURCES/vmscale-${VERSION}-installed || die Failed to cd to vmscale directory
 VMSCALE_CASES=`echo $VMSCALE_CASES | sed -e 's/,/ /g'`
-
-install-depends coreutils
-
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
 
 echo Unlimiting virtual memory usage
 ulimit -v unlimited
@@ -128,4 +117,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description vm scalability test suite
-#### Details vmscale-bench 32
+#### Details vmscale-bench 33

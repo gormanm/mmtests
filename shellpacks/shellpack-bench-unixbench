@@ -108,4 +108,4 @@ done
 done
 exit $SHELLPACK_SUCCESS
 #### Description unixbench
-#### Details unixbench-bench 6
+#### Details unixbench-bench 7

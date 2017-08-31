@@ -173,4 +173,4 @@ gzip $LOGDIR_RESULTS/*.log
 
 exit $RETVAL
 #### Description speccpu2017
-#### Details speccpu2017-bench 13
+#### Details speccpu2017-bench 14

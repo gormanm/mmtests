@@ -209,4 +209,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt2
-#### Details dbt2-bench 26
+#### Details dbt2-bench 27

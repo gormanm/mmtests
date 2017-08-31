@@ -69,4 +69,4 @@ done
 echo Intel LKP installed successfully
 exit $SHELLPACK_SUCCESS
 #### Description lkp
-#### Details lkp 4
+#### Details lkp 5

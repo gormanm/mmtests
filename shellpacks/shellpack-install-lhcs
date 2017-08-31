@@ -3,17 +3,32 @@
 P=lhcs-install
 DEFAULT_VERSION=1.6
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION=https://raw.githubusercontent.com/autotest/autotest-client-tests/master/cpu_hotplug
 MIRROR_LOCATION="$WEBROOT/lhcs/"
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -31,13 +46,13 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=lhcs_regression-${VERSION}.tgz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-        error "$P: tar xf lhcs_regression-${VERSION}.tgz failed"
-        popd > /dev/null
-        exit $SHELLPACK_ERROR
+	error "$P: tar xf lhcs_regression-${VERSION}.tgz failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
 fi
 
 # Rename directory to something we expect.
@@ -47,4 +62,4 @@ pushd lhcs-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 echo lhcs installed successfully
 #### Description Linux Hotplug CPU Support
-#### Details lhcs 12
+#### Details lhcs 13

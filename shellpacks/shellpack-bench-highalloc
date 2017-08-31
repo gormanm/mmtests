@@ -147,4 +147,4 @@ stap -g /tmp/highalloc.stp | tee $LOGDIR_RESULTS/highalloc-at-end.log
 rm -rf $SHELLPACK_TEMP
 exit $SHELLPACK_SUCCESS
 #### Description Run a highorder allocation test in the background of any test
-#### Details highalloc-bench 24
+#### Details highalloc-bench 25

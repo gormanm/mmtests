@@ -144,4 +144,4 @@ fi
 echo dvdstore for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description dvdstore
-#### Details dvdstore 23
+#### Details dvdstore 24

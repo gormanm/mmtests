@@ -115,6 +115,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $FUTEXBENCH_MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	for WORKLOAD in $FUTEXBENCH_WORKLOADS; do
 		mmtests_activity $WORKLOAD-$NR_THREADS
@@ -148,4 +151,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description perf-bench futex
-#### Details futexbench-bench 19
+#### Details futexbench-bench 20

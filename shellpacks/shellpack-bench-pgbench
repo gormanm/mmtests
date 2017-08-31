@@ -1,6 +1,6 @@
 #!/bin/bash
 P=pgbench-bench
-DEFAULT_VERSION=9.6.3
+DEFAULT_VERSION=9.6.1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -314,4 +314,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 159
+#### Details pgbench-bench 160

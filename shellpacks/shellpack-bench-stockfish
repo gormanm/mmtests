@@ -80,12 +80,6 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	exit $SHELLPACK_SUCCESS
 fi
 
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-        TIME_CMD="time"
-fi
-
 # Create expect script
 EXPECT=`which expect`
 EXPECT_SCRIPT=$SHELLPACK_TEMP/stockfish-expect
@@ -140,4 +134,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description stockfish
-#### Details stockfish-bench 9
+#### Details stockfish-bench 10

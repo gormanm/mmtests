@@ -2,17 +2,32 @@
 P=ku_latency-install
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 WEB_LOCATION="https://vilimpoc.org/research/ku-latency/"
 MIRROR_LOCATION="$WEBROOT/ku-latency/"
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	*)
@@ -43,4 +58,4 @@ gcc -o send-data send-data.c -O2 -lrt -Wall || die "$P: Failed to build send-dat
 
 exit $SHELLPACK_SUCCESS
 #### Description Kernel network packet receive latency
-#### Details ku_latency 33
+#### Details ku_latency 34

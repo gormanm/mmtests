@@ -3,6 +3,11 @@
 P=timeexit-bench
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 DELAY=1
 INSTANCES=$NUMCPUS
 ITERATIONS=120
@@ -10,11 +15,21 @@ ITERATIONS=120
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--install-only)
@@ -54,7 +69,9 @@ if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/timeexit
 fi
 if [ ! -d $SHELLPACK_SOURCES/timeexit-installed ]; then
+	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-timeexit -v ${VERSION}  || die timeexit install script returned error
+	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/timeexit-${VERSION}-installed || die Failed to cd to timeexit install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -81,4 +98,4 @@ monitor_post_hook $LOGDIR_RESULTS $group
 
 exit $RETVAL
 #### Description Timed exit microbenchmark
-#### Details timeexit-bench 5
+#### Details timeexit-bench 6

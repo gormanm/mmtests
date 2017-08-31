@@ -100,6 +100,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 	THREADS="$THREADS $END_THREAD"
 fi
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $JOHNRIPPER_MIN_THREADS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	mmtests_activity client $NR_THREADS/$JOHNRIPPER_MAX_THREADS	
 
@@ -117,4 +120,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description John the ripper is a parallelised password cracked
-#### Details johnripper-bench 9
+#### Details johnripper-bench 10

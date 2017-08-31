@@ -93,4 +93,4 @@ fi
 
 echo Netperf installed successfully
 #### Description Netperf benchmark with multiple instances
-#### Details netperfmulti 21
+#### Details netperfmulti 22

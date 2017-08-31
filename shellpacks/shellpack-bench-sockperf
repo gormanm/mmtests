@@ -238,4 +238,4 @@ rm /tmp/sockperf-server.pid
 
 exit $SHELLPACK_SUCCESS
 #### Description sockperf
-#### Details sockperf-bench 23
+#### Details sockperf-bench 24

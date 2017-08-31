@@ -53,8 +53,6 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/phpbench-${VERSION}
 fi
@@ -68,6 +66,8 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo blogbench installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
 
 monitor_pre_hook $LOGDIR_RESULTS 1
 for ITERATION in `seq 1 $BLOGBENCH_ITERATIONS`; do
@@ -85,4 +85,4 @@ monitor_post_hook $LOGDIR_RESULTS 1
 echo blogbench completed successfully
 exit $SHELLPACK_SUCCESS
 #### Description blogbench
-#### Details blogbench-bench 8
+#### Details blogbench-bench 9

@@ -13,8 +13,6 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 FSMARK_VERSION=3.3
-
-install-depends xfsprogs
 ITERATIONS=3
 NR_THREADS=4
 
@@ -67,6 +65,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+install-depends xfsprogs
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/fsmark-$FSMARK_VERSION
 fi
@@ -158,4 +157,4 @@ rm /tmp/fsmark-$$
 
 exit $SHELLPACK_SUCCESS
 #### Description xfsrepair
-#### Details xfsrepair-bench 29
+#### Details xfsrepair-bench 30

@@ -114,4 +114,4 @@ monitor_post_hook $LOGDIR_RESULTS
 
 exit $SHELLPACK_SUCCESS
 #### Description iozone
-#### Details iozone-bench 16
+#### Details iozone-bench 17

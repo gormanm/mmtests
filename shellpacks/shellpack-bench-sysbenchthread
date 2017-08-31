@@ -117,4 +117,4 @@ done
 echo sysbenchthread successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description sysbenchthread
-#### Details sysbenchthread-bench 2
+#### Details sysbenchthread-bench 3

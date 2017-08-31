@@ -96,4 +96,4 @@ rm -rf $SHELLPACK_DATA/gitsource-${VERSION}-installed
 
 exit $SHELLPACK_SUCCESS
 #### Description git source unit tests
-#### Details gitsource-bench 10
+#### Details gitsource-bench 11

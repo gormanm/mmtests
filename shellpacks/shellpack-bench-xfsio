@@ -62,8 +62,6 @@ if [ -z "$VERSION" ]; then
 fi
 
 install-depends xfsprogs
-
-# Include monitor hooks
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
@@ -107,4 +105,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description xfsio
-#### Details xfsio-bench 9
+#### Details xfsio-bench 10

@@ -89,10 +89,6 @@ if [ ! -d $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed || die Failed to cd to postgresbuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo postgresbuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 . $SHELLPACK_INCLUDE/include-libhugetlbfs.sh
 . $SHELLPACK_INCLUDE/include-hugepage.sh
 getpagesize
@@ -190,4 +186,4 @@ fi
 echo postgres operation successful
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild-bench 62
+#### Details postgresbuild-bench 63

@@ -84,10 +84,6 @@ if [ ! -d $SHELLPACK_SOURCES/perfbuild-${VERSION}-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/perfbuild-${VERSION}-installed || die Failed to cd to perfbuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo perfbuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
@@ -138,4 +134,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description perfnuma
-#### Details perfnuma-bench 8
+#### Details perfnuma-bench 9

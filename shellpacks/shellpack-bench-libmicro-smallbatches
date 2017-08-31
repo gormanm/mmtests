@@ -112,4 +112,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-smallbatches
-#### Details libmicro-smallbatches-bench 4
+#### Details libmicro-smallbatches-bench 5

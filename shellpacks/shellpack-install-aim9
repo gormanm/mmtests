@@ -97,4 +97,4 @@ fork_test" >> s9workfile-short
 
 exit $SHELLPACK_SUCCESS
 #### Description AIM9 benchmark
-#### Details aim9 26
+#### Details aim9 27

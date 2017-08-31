@@ -72,4 +72,4 @@ fi
 
 echo futexwait installed successfully
 #### Description futexwait
-#### Details futexwait 9
+#### Details futexwait 10

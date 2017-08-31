@@ -141,4 +141,4 @@ int main()
 }
 ==== END syscall.c ====
 #### Description syscall
-#### Details syscall 24
+#### Details syscall 25

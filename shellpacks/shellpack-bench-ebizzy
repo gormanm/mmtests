@@ -11,7 +11,6 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 EBIZZY_DURATION=30
-ITERATIONS=5
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -109,8 +108,8 @@ for NR_THREADS in $THREADS; do
 	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-
 for ITERATION in `seq 1 $EBIZZY_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
 	echo Iteration:$ITERATION Threads:$NR_THREADS/$EBIZZY_MAX_THREADS \
 		| tee -a $LOGDIR_RESULTS/ebizzy-$NR_THREADS-$ITERATION.log
 
@@ -131,4 +130,4 @@ done
 
 exit $EXIT_CODE
 #### Description ebizzy
-#### Details ebizzy-bench 21
+#### Details ebizzy-bench 22

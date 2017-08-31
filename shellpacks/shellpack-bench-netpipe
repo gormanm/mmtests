@@ -100,11 +100,8 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo netpipe installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
-
-cd $SHELLPACK_SOURCES/netpipe-${VERSION}-installed || die Failed to cd to netpipe directory
 
 export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-netpipe
 case $SERVERSIDE_COMMAND in
@@ -161,4 +158,4 @@ killall NPtcp
 
 exit $SHELLPACK_SUCCESS
 #### Description netpipe
-#### Details netpipe-bench 8
+#### Details netpipe-bench 9

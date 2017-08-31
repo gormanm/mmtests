@@ -135,4 +135,4 @@ if [ $RETVAL -ne 0 ]; then
 fi
 exit $SHELLPACK_SUCCESS
 #### Description Block device seeker microbenchmark
-#### Details seeker-bench 11
+#### Details seeker-bench 12

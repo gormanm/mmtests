@@ -91,10 +91,6 @@ if [ ! -d $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed || die Failed to cd to mariadbbuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo mariadbbuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 . $SHELLPACK_INCLUDE/include-libhugetlbfs.sh
 . $SHELLPACK_INCLUDE/include-hugepage.sh
 getpagesize
@@ -178,4 +174,4 @@ fi
 echo mariadb operation successful
 exit $SHELLPACK_SUCCESS
 #### Description mariadbbuild
-#### Details mariadbbuild-bench 40
+#### Details mariadbbuild-bench 41

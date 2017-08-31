@@ -60,12 +60,8 @@ if [ ! -d $SHELLPACK_SOURCES/phpbuild-${VERSION}-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/phpbuild-${VERSION}-installed || die Failed to cd to phpbuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo phpbuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 
 echo php successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description phpbuild
-#### Details phpbuild-bench 8
+#### Details phpbuild-bench 9

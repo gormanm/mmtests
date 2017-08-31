@@ -74,6 +74,12 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+# Start memcached server
+$SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
+if [ $? -ne 0 ]; then
+	die Failed to start memcached server
+fi
+
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/mutilate-${VERSION}
 fi
@@ -90,12 +96,6 @@ fi
 
 if [ "$MEMCACHED_MEMPOOL" = "" ]; then
 	die Must specify memcached memory pool size
-fi
-
-# Start memcached server
-$SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
-if [ $? -ne 0 ]; then
-	die Failed to start memcached server
 fi
 
 # Include monitor hooks
@@ -154,4 +154,4 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 
 exit $SHELLPACK_SUCCESS
 #### Description mutilate
-#### Details mutilate-bench 31
+#### Details mutilate-bench 32

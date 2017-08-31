@@ -50,6 +50,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+install-depends hdparm
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/tiobench-${VERSION}
 fi
@@ -63,8 +64,6 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo tiobench installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-install-depends hdparm
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
@@ -114,4 +113,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description tiobench
-#### Details tiobench-bench 23
+#### Details tiobench-bench 24

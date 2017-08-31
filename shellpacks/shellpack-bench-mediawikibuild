@@ -78,10 +78,6 @@ if [ ! -d $SHELLPACK_SOURCES/mediawikibuild-${VERSION}-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/mediawikibuild-${VERSION}-installed || die Failed to cd to mediawikibuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo mediawikibuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 
 # see install script
 BUFF_POOL_SIZE=$(($MEMTOTAL_BYTES/2))
@@ -204,4 +200,4 @@ fi
 echo mediawikibuild successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description mediawikibuild
-#### Details mediawikibuild-bench 17
+#### Details mediawikibuild-bench 18

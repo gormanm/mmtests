@@ -66,6 +66,12 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+# Start memcached server
+$SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
+if [ $? -ne 0 ]; then
+	die Failed to start memcached server
+fi
+
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/memcachetest-${VERSION}
 fi
@@ -82,12 +88,6 @@ fi
 
 if [ "$MEMCACHED_MEMPOOL" = "" ]; then
 	die Must specify memcached memory pool size
-fi
-
-# Start memcached server
-$SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
-if [ $? -ne 0 ]; then
-	die Failed to start memcached server
 fi
 
 # Fire this sucker up
@@ -114,4 +114,4 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 
 exit $SHELLPACK_SUCCESS
 #### Description memcachetest
-#### Details memcachetest-bench 20
+#### Details memcachetest-bench 21

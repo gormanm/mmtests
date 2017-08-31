@@ -78,7 +78,6 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo cyclictest installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
@@ -97,4 +96,4 @@ for ITERATION in `seq 1 $CYCLICTEST_ITERATIONS`; do
 done
 exit $SHELLPACK_SUCCESS
 #### Description cyclictest
-#### Details cyclictest-bench 6
+#### Details cyclictest-bench 7

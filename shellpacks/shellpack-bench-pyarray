@@ -118,4 +118,4 @@ cat $LOGDIR_RESULTS/time.* | grep elapsed | tee $LOGDIR_RESULTS/time
 
 exit $SHELLPACK_SUCCESS
 #### Description pyarray
-#### Details pyarray-bench 4
+#### Details pyarray-bench 5

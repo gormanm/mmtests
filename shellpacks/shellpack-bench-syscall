@@ -93,16 +93,14 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo syscall installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
 echo Executing syscall microbenchmark
-cd $SHELLPACK_SOURCES/syscall-${VERSION}-installed || die Failed to cd to install directory
 monitor_pre_hook $LOGDIR_RESULTS
 $TASKSET_SERVER ./syscall | tee $LOGDIR_RESULTS/syscall.log
 monitor_post_hook $LOGDIR_RESULTS
 
 exit $SHELLPACK_SUCCESS
 #### Description syscall
-#### Details syscall-bench 24
+#### Details syscall-bench 25

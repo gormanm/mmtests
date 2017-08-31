@@ -51,4 +51,4 @@ mv SPECjbb2015_${VERSION} specjbb2015-${VERSION}-installed || die Failed to rena
 
 exit $SHELLPACK_SUCCESS
 #### Description specjbb2015
-#### Details specjbb2015 8
+#### Details specjbb2015 9

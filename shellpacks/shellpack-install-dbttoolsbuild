@@ -78,4 +78,4 @@ make install DESTDIR=$SHELLPACK_SOURCES/dbttoolsbuild-${VERSION}-installed || di
 
 exit $SHELLPACK_SUCCESS
 #### Description dbttoolsbuild
-#### Details dbttoolsbuild 3
+#### Details dbttoolsbuild 4

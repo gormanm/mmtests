@@ -121,4 +121,4 @@ cp mutilate ../mutilate-${VERSION}-installed/bin
 echo mutilate installed successfully
 exit $SHELLPACK_SUCCESS
 #### Description mutilate
-#### Details mutilate 31
+#### Details mutilate 32

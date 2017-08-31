@@ -96,4 +96,4 @@ EOT
 
 exit $SHELLPACK_SUCCESS
 #### Description libmicro-process
-#### Details libmicro-process-bench 4
+#### Details libmicro-process-bench 5

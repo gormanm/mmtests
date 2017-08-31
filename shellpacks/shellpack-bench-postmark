@@ -68,14 +68,8 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo postmark installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
-
-cd $SHELLPACK_SOURCES/postmark-${VERSION}-installed || die Failed to cd to postmark install directory
 
 # Write configuration file
 echo "set transactions $POSTMARK_TRANSACTIONS
@@ -166,4 +160,4 @@ monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description postmark
-#### Details postmark-bench 19
+#### Details postmark-bench 20

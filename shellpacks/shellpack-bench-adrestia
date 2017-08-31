@@ -85,8 +85,6 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	exit $SHELLPACK_SUCCESS
 fi
 
-cd $SHELLPACK_SOURCES/adrestia-${VERSION}-installed
-
 # The single test doesn't use arrival time or multiple threads, so
 # avoid needless iterations.
 if [ "$ADRESTIA_TEST" = "wakeup-single" ]; then
@@ -131,4 +129,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description Linux scheduler load balancer microbenchmark suite
-#### Details adrestia-bench 4
+#### Details adrestia-bench 5

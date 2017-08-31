@@ -159,4 +159,4 @@ monitor_post_hook $LOGDIR_RESULTS hpcg
 
 exit $SHELLPACK_SUCCESS
 #### Description hpcg
-#### Details hpcg-bench 14
+#### Details hpcg-bench 15

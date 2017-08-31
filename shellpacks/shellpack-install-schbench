@@ -72,4 +72,4 @@ fi
 
 echo schbench installed successfully
 #### Description A small-ish program to benchmark wakeup latencies.
-#### Details schbench 4
+#### Details schbench 5

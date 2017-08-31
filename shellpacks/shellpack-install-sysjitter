@@ -48,7 +48,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=sysjitter-${VERSION}.tgz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -1428,4 +1428,4 @@ exit $SHELLPACK_SUCCESS
  	signal(SIGALRM, handle_alarm);
 ==== END affinity.patch ====
 #### Description sysjitter
-#### Details sysjitter 9
+#### Details sysjitter 10

@@ -73,7 +73,6 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo dbench installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
@@ -151,4 +150,4 @@ exit $SHELLPACK_SUCCESS
 #### Description tbench
 #### Details tbench-bench 4
 #### Description tbench
-#### Details tbench-bench 19
+#### Details tbench-bench 20

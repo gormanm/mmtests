@@ -45,7 +45,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=gtarazbJaHPaAT.gtar
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -67,4 +67,4 @@ mkdir bin/
 gcc -lpthread -O2 usemem.c -o usemem || die Failed to build usemem
 exit $SHELLPACK_SUCCESS
 #### Description usemembuild
-#### Details usemembuild 3
+#### Details usemembuild 4

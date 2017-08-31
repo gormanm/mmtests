@@ -55,6 +55,7 @@ fi
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
+
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/phpbench-${VERSION}
 fi
@@ -89,4 +90,4 @@ monitor_post_hook $LOGDIR_RESULTS 1
 echo phpbench completed successfully
 exit $SHELLPACK_SUCCESS
 #### Description phpbench
-#### Details phpbench-bench 13
+#### Details phpbench-bench 14

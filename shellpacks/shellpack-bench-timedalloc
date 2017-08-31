@@ -6,6 +6,11 @@
 P=timedalloc-bench
 DEFAULT_VERSION=0
 . $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
 
 FILL_SIZE=0
 MAPPING_SIZE=0
@@ -13,11 +18,21 @@ MAPPING_SIZE=0
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "$1" != "" ]; do
 	case "$1" in
 	-v)
 		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
 		shift 2
 		;;
 	--alloc-size)
@@ -103,4 +118,4 @@ int main(int argc, char **argv)
 	exit(EXIT_SUCCESS);
 }
 #### Description timedalloc
-#### Details timedalloc-bench 10
+#### Details timedalloc-bench 11

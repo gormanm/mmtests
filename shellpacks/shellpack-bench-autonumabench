@@ -130,17 +130,8 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo autonumabench installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
-
-cd $SHELLPACK_SOURCES/autonumabench-${VERSION}/installed
-
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
 
 for TESTTYPE in $AUTONUMA_TESTS; do
 	mmtests_activity $TESTTYPE
@@ -176,4 +167,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description AutoNUMA Benchmark
-#### Details autonumabench-bench 13
+#### Details autonumabench-bench 14

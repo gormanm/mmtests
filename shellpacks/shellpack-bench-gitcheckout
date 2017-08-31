@@ -130,4 +130,4 @@ rm -rf $SHELLPACK_DATA/gitcheckout
 
 exit $SHELLPACK_SUCCESS
 #### Description Times how long it takes to checkout git repos
-#### Details gitcheckout-bench 16
+#### Details gitcheckout-bench 17

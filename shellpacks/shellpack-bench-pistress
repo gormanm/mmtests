@@ -81,6 +81,8 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo pistress installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
@@ -103,6 +105,9 @@ if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
 fi
 
 for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $PISTRESS_MIN_INVGROUPS ]; then
+		continue
+	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 for ITERATION in `seq 1 $PISTRESS_ITERATIONS`; do
@@ -115,4 +120,4 @@ done
 done
 exit $SHELLPACK_SUCCESS
 #### Description pistress
-#### Details pistress-bench 2
+#### Details pistress-bench 3

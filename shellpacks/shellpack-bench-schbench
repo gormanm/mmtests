@@ -97,7 +97,6 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo schbench installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
@@ -136,4 +135,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description A small-ish program to benchmark wakeup latencies.
-#### Details schbench-bench 4
+#### Details schbench-bench 5

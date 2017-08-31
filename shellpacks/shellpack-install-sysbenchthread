@@ -43,7 +43,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
-WEB_LOCATION=http://surfnet.dl.sourceforge.net/sourceforge/sysbench
+WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/sysbench
 MIRROR_LOCATION=$WEBROOT/sysbench
 
 echo Building sysbench cpu
@@ -98,4 +98,4 @@ fi
 echo sysbenchthread successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description sysbenchthread
-#### Details sysbenchthread 2
+#### Details sysbenchthread 3

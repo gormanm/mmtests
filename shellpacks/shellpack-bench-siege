@@ -69,6 +69,8 @@ fi
         
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
+echo Shutting down apache server...
+$SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die Failed to shutdown apache http server for restart.
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/siege-${VERSION}
 fi
@@ -169,4 +171,4 @@ done
 echo siege completed successfully
 exit $SHELLPACK_SUCCESS
 #### Description siege
-#### Details siege-bench 46
+#### Details siege-bench 47

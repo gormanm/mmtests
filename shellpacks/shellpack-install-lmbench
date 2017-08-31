@@ -79,4 +79,4 @@ cp ../bin/*/* ../bin/
 
 echo lmbench installed successfully
 #### Description lmbench
-#### Details lmbench 55
+#### Details lmbench 56

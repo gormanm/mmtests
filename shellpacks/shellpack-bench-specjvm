@@ -107,4 +107,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description SPECjvm
-#### Details specjvm-bench 14
+#### Details specjvm-bench 15

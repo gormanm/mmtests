@@ -106,4 +106,4 @@ monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description xfstests, a filesystem regression testsuite
-#### Details xfstests-bench 5
+#### Details xfstests-bench 6

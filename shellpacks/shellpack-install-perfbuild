@@ -56,7 +56,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=linux-${VERSION}.tar.xz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -88,4 +88,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description perfbuild
-#### Details perfbuild 8
+#### Details perfbuild 9

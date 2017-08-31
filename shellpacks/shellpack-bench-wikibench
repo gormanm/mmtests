@@ -133,7 +133,7 @@ HTTPCOMPONENTS_CLIENT_VERSION=4.5.1
 if [ ! -e $SHELLPACK_SOURCES/wikibench-${VERSION}-installed/wikijector/httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION ]; then
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=httpcomponents-client-$HTTPCOMPONENTS_CLIENT_VERSION-bin.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -156,7 +156,7 @@ HTTPCOMPONENTS_CORE_VERSION=4.4.4
 if [ ! -e $SHELLPACK_SOURCES/wikibench-${VERSION}-installed/wikijector/httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION ]; then
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=httpcomponents-core-$HTTPCOMPONENTS_CORE_VERSION-bin.tar.gz
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -346,4 +346,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-mediawikibuild --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description wikibench
-#### Details wikibench-bench 22
+#### Details wikibench-bench 23

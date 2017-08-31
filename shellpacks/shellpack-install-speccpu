@@ -78,4 +78,4 @@ cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed
 
 exit $SHELLPACK_SUCCESS
 #### Description Non-conforming speccpu benchmark
-#### Details speccpu 21
+#### Details speccpu 22

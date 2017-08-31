@@ -288,4 +288,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 echo dvdstore successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description dvdstore
-#### Details dvdstore-bench 23
+#### Details dvdstore-bench 24
