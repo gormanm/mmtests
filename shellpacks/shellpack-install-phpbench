@@ -57,10 +57,6 @@ if [ ! -d $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed || die Failed to cd to apachebuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo apachebuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=phpbench-${VERSION}.tar.gz
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
@@ -80,4 +76,4 @@ pushd phpbench-${VERSION}-installed > /dev/null || die Failed to rename tar
 echo phpbench successfully
 exit $SHELLPACK_SUCCESS
 #### Description phpbench
-#### Details phpbench 14
+#### Details phpbench 15

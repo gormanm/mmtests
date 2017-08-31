@@ -11,7 +11,7 @@ PCRE_VERSION=8.35
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_external_install_required apachebuild apache-build-${APACHE_VERSION} ${APACHE_VERSION}
+###SHELLPACK check_external_install_required_continue apachebuild apache-build-${APACHE_VERSION} ${APACHE_VERSION}
 ###SHELLPACK sources_fetch phpbench-${VERSION}.tar.gz phpbench-${VERSION}-installed
 
 echo phpbench successfully
