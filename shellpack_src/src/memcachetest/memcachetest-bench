@@ -10,16 +10,16 @@
 ###SHELLPACK parseargParam --value-size        MEMCACHED_VALUE_SIZE
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required memcachetest-${VERSION}
-
-if [ "$MEMCACHED_MEMPOOL" = "" ]; then
-	die Must specify memcached memory pool size
-fi
-
 # Start memcached server
 $SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
 if [ $? -ne 0 ]; then
 	die Failed to start memcached server
+fi
+
+###SHELLPACK check_install_required memcachetest-${VERSION}
+
+if [ "$MEMCACHED_MEMPOOL" = "" ]; then
+	die Must specify memcached memory pool size
 fi
 
 # Fire this sucker up

@@ -7,7 +7,7 @@ MAVEN_VERSION=3.3.9
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required mavenbuild-${VERSION}
+###SHELLPACK check_install_required_continue mavenbuild-${VERSION}
 
 echo maven successfully installed
 exit $SHELLPACK_SUCCESS

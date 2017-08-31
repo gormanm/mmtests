@@ -13,7 +13,7 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	INSTALL_SWITCH=--install-only
 fi
 
-###SHELLPACK check_install_required memcached-${VERSION} $INSTALL_SWITCH
+###SHELLPACK check_install_required_continue memcached-${VERSION} $INSTALL_SWITCH
 
 echo memcached successfully installed
 exit $SHELLPACK_SUCCESS

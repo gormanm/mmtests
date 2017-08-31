@@ -17,7 +17,7 @@ MARIADB_ADMIN_PASSWORD=mmtests-default
 ###SHELLPACK parseargYes   --stop		 SERVER_STOP
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required mariadbbuild-${VERSION}
+###SHELLPACK check_install_required_continue mariadbbuild-${VERSION}
 . $SHELLPACK_INCLUDE/include-libhugetlbfs.sh
 . $SHELLPACK_INCLUDE/include-hugepage.sh
 getpagesize
