@@ -6,9 +6,8 @@
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required tiobench-${VERSION}
 install-depends hdparm
-
+###SHELLPACK check_install_required tiobench-${VERSION}
 ###SHELLPACK monitor_hooks
 
 set_mmtests_numactl 0 0

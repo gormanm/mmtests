@@ -10,7 +10,7 @@
 ###SHELLPACK parseargParam	--max-threads		USEMEM_MAX_THREADS
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_external_install_required usemembuild usemembuild-${VERSION}-installed ${VERSION}
+###SHELLPACK check_external_install_required_continue usemembuild usemembuild-${VERSION}-installed ${VERSION}
 
 MEMTOTAL_ANON=$((USEMEM_WORKLOAD_SIZE*USEMEM_PERCENTAGE_ANON/100))
 MEMTOTAL_FILE=$((USEMEM_WORKLOAD_SIZE*(100-USEMEM_PERCENTAGE_ANON)/100))

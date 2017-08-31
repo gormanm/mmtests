@@ -7,7 +7,7 @@
 ###SHELLPACK parseargYes	--stop		SERVER_STOP
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required apachebuild-${VERSION}
+###SHELLPACK check_install_required_continue apachebuild-${VERSION}
 
 if [ "$SERVER_START" = "yes" ]; then
 	$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/bin/apachectl -k start || die Failed to start apache as requested

@@ -5,7 +5,7 @@
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required pcrebuild-${VERSION}
+###SHELLPACK check_install_required_continue pcrebuild-${VERSION}
 
 echo pcrebuild successfully installed
 exit $SHELLPACK_SUCCESS

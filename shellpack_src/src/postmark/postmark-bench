@@ -9,13 +9,7 @@ CONSUME_MEMORY=no
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required postmark-${VERSION}
-
 ###SHELLPACK monitor_hooks
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
-
-cd $SHELLPACK_SOURCES/postmark-${VERSION}-installed || die Failed to cd to postmark install directory
 
 # Write configuration file
 echo "set transactions $POSTMARK_TRANSACTIONS

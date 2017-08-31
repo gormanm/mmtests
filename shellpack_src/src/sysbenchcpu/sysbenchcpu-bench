@@ -12,13 +12,6 @@
 ###SHELLPACK monitor_hooks
 export PATH=$SHELLPACK_SOURCES/sysbenchcpu-${VERSION}-installed/bin:$PATH
 
-# Figure out how to use the time command
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
-
 ###SHELLPACK threads_large_stride_begin 1 $MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $ITERATIONS

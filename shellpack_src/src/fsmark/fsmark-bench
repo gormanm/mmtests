@@ -20,7 +20,6 @@ FILESIZE=0
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required fsmark-${VERSION}
-
 ###SHELLPACK monitor_hooks
 
 ln -s $SHELLPACK_DATA /tmp/fsmark-$$

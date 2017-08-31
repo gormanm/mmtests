@@ -13,6 +13,7 @@ PISTRESS_ITERATIONS=12
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required pistress-${VERSION}
+###SHELLPACK monitor_hooks
 
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh

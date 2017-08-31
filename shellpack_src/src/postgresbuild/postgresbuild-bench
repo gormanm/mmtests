@@ -15,7 +15,7 @@ POSTGRES_GROUP=nogroup
 ###SHELLPACK parseargYes   --stop		 SERVER_STOP
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required postgresbuild-${VERSION}
+###SHELLPACK check_install_required_continue postgresbuild-${VERSION}
 . $SHELLPACK_INCLUDE/include-libhugetlbfs.sh
 . $SHELLPACK_INCLUDE/include-hugepage.sh
 getpagesize

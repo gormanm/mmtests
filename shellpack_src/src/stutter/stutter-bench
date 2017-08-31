@@ -23,13 +23,6 @@ USE_LOCAL=no
 ###SHELLPACK parseargYes   --source-local   USE_LOCAL
 ###SHELLPACK parseargEnd
 
-# Figure out how to use the time cmd
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
-
 # Align the fault size
 MEMFAULT_SIZE=$((MEMFAULT_SIZE&~1048575))
 

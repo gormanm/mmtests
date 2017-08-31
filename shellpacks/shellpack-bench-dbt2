@@ -108,10 +108,6 @@ if [ ! -d $SHELLPACK_SOURCES/dbttoolsbuild-0-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/dbttoolsbuild-0-installed || die Failed to cd to dbttoolsbuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo dbttoolsbuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/dbt2-${VERSION}
 fi
@@ -213,4 +209,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt2
-#### Details dbt2-bench 25
+#### Details dbt2-bench 26

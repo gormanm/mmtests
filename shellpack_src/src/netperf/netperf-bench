@@ -20,10 +20,8 @@ fi
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required netperf-${VERSION}
-
 ###SHELLPACK monitor_hooks
 
-cd $SHELLPACK_SOURCES/netperf-${VERSION}-installed || die Failed to cd to netperf directory
 BUFFER_SIZES=`echo $BUFFER_SIZES | sed -e 's/,/ /g'`
 
 export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-netperf

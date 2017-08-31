@@ -4,7 +4,6 @@
 ###SHELLPACK preamble ebizzy-bench 0.3
 
 EBIZZY_DURATION=30
-ITERATIONS=5
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -22,8 +21,7 @@ set_mmtests_numactl $EBIZZY_MAX_THREADS $EBIZZY_MAX_THREADS
 
 ###SHELLPACK threads_large_stride_begin 1 $EBIZZY_MAX_THREADS
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-
-for ITERATION in `seq 1 $EBIZZY_ITERATIONS`; do
+###SHELLPACK iteration_begin $EBIZZY_ITERATIONS
 	echo Iteration:$ITERATION Threads:$NR_THREADS/$EBIZZY_MAX_THREADS \
 		| tee -a $LOGDIR_RESULTS/ebizzy-$NR_THREADS-$ITERATION.log
 
@@ -37,7 +35,7 @@ for ITERATION in `seq 1 $EBIZZY_ITERATIONS`; do
 		error ebizzy returned non-zero value with $NR_THREADS
 		EXIT_CODE=$SHELLPACK_ERROR
 	fi
-done
+###SHELLPACK iteration_end
 
 monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end

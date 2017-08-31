@@ -39,12 +39,6 @@ echo "(define (mmtests-open-image filename)
 FILENAME=`basename $GIMP_SIMPLE_IMAGE_LOCATION`
 wget $GIMP_SIMPLE_IMAGE_LOCATION -O $FILENAME || die Failed to download image from $GIMP_SIMPLE_IMAGE_LOCATION
 
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-        TIME_CMD="time"
-fi
-
 # Build a wrapper script to launch gimp
 cat > gimp-launch.sh << EOF
 /usr/bin/gimp -i -b "(mmtests-open-image \"$FILENAME\")" -b "(gimp-quit 0)" > $LOGDIR_RESULTS/gimp-out.1 2>&1

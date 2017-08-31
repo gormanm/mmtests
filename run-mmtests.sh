@@ -509,7 +509,6 @@ export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity-$RUNNAME"
 rm -f $SHELLPACK_ACTIVITY 2> /dev/null
 echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
 
-
 if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
 	install-depends numad
 
@@ -578,11 +577,18 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 
 	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
 	for TEST in $MMTESTS; do
+		export CURRENT_TEST=$TEST
 		# Configure transparent hugepage support as configured
 		reset_transhuge
 
-		export CURRENT_TEST=$TEST
-		start_monitors
+		# Run installation-only step if supported
+		grep -q INSTALL_ONLY $SCRIPTDIR/shellpacks/shellpack-bench-$CURRENT_TEST
+		if [ $? -eq 0 ]; then
+			echo Installing test $TEST
+			export INSTALL_ONLY=yes
+			./bin/run-single-test.sh $TEST
+			unset INSTALL_ONLY
+		fi
 
 		# Run the test
 		echo Starting test $TEST
@@ -602,9 +608,11 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		fi
 		RUNNING_TEST=$TEST
+		start_monitors
 		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-$RUNNAME \
 			./bin/run-single-test.sh $TEST
 		EXIT_CODE=$?
+		stop_monitors
 
 		# Record some basic information at end of test
 		for PROC_FILE in $PROC_FILES; do
@@ -633,7 +641,6 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 			opcontrol --deinit > /dev/null 2> /dev/null
 		fi
 
-		stop_monitors
 	done
 	echo finish :: `date +%s` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 else

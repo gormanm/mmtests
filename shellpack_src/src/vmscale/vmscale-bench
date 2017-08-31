@@ -8,9 +8,10 @@
 ###SHELLPACK parseargYes     --use-perf VMSCALE_USE_PERF
 ###SHELLPACK parseargEnd
 
+install-depends coreutils
 ###SHELLPACK check_install_required vmscale-${VERSION}
 if [ "$VMSCALE_USE_PERF" = "yes" ]; then
-	###SHELLPACK check_external_install_required perfbuild perfbuild-4.1 4.1
+	###SHELLPACK check_external_install_required_continue perfbuild perfbuild-4.1 4.1
 	export PATH=$SHELLPACK_SOURCES/perfbuild-4.1-installed/bin:$PATH
 fi
 
@@ -18,14 +19,6 @@ fi
 
 cd $SHELLPACK_SOURCES/vmscale-${VERSION}-installed || die Failed to cd to vmscale directory
 VMSCALE_CASES=`echo $VMSCALE_CASES | sed -e 's/,/ /g'`
-
-install-depends coreutils
-
-TIME_CMD=`which time`
-if [ "$TIME_CMD" = "" ]; then
-	TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
-	TIME_CMD="time"
-fi
 
 echo Unlimiting virtual memory usage
 ulimit -v unlimited

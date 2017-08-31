@@ -6,7 +6,7 @@
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required aprbuild-${VERSION}
+###SHELLPACK check_install_required_continue aprbuild-${VERSION}
 
 echo apr and apr-util successfully installed
 exit $SHELLPACK_SUCCESS

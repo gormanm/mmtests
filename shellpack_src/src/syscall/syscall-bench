@@ -7,11 +7,9 @@
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required syscall
-
 ###SHELLPACK monitor_hooks
 
 echo Executing syscall microbenchmark
-cd $SHELLPACK_SOURCES/syscall-${VERSION}-installed || die Failed to cd to install directory
 monitor_pre_hook $LOGDIR_RESULTS
 $TASKSET_SERVER ./syscall | tee $LOGDIR_RESULTS/syscall.log
 monitor_post_hook $LOGDIR_RESULTS

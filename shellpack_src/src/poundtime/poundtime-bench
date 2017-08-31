@@ -11,9 +11,7 @@ ITERATIONS=12
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required poundtime-${VERSION}
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK threads_large_stride_begin $POUNDTIME_MIN_THREADS $POUNDTIME_MAX_THREADS
 	for FILE in pound_times pound_clock_gettime; do

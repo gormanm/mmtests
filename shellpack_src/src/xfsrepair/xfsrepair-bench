@@ -6,8 +6,6 @@
 ###SHELLPACK preamble xfsreair-bench 1
 
 FSMARK_VERSION=3.3
-
-install-depends xfsprogs
 ITERATIONS=3
 NR_THREADS=4
 
@@ -17,6 +15,7 @@ NR_THREADS=4
 ###SHELLPACK parseargParam --threads    NR_THREADS
 ###SHELLPACK parseargEnd
 
+install-depends xfsprogs
 ###SHELLPACK check_external_install_required fsmark fsmark-$FSMARK_VERSION $FSMARK_VERSION
 ###SHELLPACK monitor_hooks
 

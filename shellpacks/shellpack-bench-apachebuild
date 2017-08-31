@@ -66,10 +66,6 @@ if [ ! -d $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed || die Failed to cd to apachebuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo apachebuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 
 if [ "$SERVER_START" = "yes" ]; then
 	$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/bin/apachectl -k start || die Failed to start apache as requested
@@ -82,4 +78,4 @@ fi
 echo Apache httpd successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description apachebuild
-#### Details apachebuild-bench 15
+#### Details apachebuild-bench 16

@@ -7,7 +7,7 @@ PHP_VERSION=5.6.15
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required phpbuild-${VERSION}
+###SHELLPACK check_install_required_continue phpbuild-${VERSION}
 
 echo php successfully installed
 exit $SHELLPACK_SUCCESS

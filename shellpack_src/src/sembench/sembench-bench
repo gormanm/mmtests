@@ -14,9 +14,7 @@ RUNTIME=30
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required sembench-${VERSION}
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+###SHELLPACK monitor_hooks
 
 echo $SEMBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 

@@ -9,11 +9,7 @@
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required thpscale-${VERSION}
-cd $SHELLPACK_SOURCES/thpscale-${VERSION}-installed ||
-	die Failed to change to benchmark directory
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+###SHELLPACK monitor_hooks
 
 create_random_file $THPSCALE_MAPSIZE $SHELLPACK_DATA/workfile
 

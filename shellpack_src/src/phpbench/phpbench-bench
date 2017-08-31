@@ -7,6 +7,7 @@
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK monitor_hooks
+
 ###SHELLPACK check_install_required phpbench-${VERSION}
 
 echo Shutting down apache server...

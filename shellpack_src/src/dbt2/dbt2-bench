@@ -25,7 +25,7 @@ install-depends python-rpy2
 ###SHELLPACK parseargYes   --bench-only          BENCH_ONLY
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_external_install_required dbttoolsbuild dbttoolsbuild-0 0
+###SHELLPACK check_external_install_required_continue dbttoolsbuild dbttoolsbuild-0 0
 ###SHELLPACK check_install_required dbt2-${VERSION} --dbdriver ${DBDRIVER}
 ###SHELLPACK monitor_hooks
 

@@ -9,8 +9,6 @@
 ###SHELLPACK parseargEnd
 
 install-depends xfsprogs
-
-# Include monitor hooks
 ###SHELLPACK monitor_hooks
 
 XFSIO_TESTCASES=`echo $XFSIO_TESTCASES | tr ',' ' '`

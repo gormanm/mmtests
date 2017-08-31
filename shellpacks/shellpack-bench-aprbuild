@@ -59,12 +59,8 @@ if [ ! -d $SHELLPACK_SOURCES/aprbuild-${VERSION}-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/aprbuild-${VERSION}-installed || die Failed to cd to aprbuild install directory
-if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo aprbuild installed only as requested.
-	exit $SHELLPACK_SUCCESS
-fi
 
 echo apr and apr-util successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description aprbuild
-#### Details aprbuild-bench 13
+#### Details aprbuild-bench 14
