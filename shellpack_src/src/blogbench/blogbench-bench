@@ -6,8 +6,8 @@
 ###SHELLPACK parseargParam --iterations        BLOGBENCH_ITERATIONS
 ###SHELLPACK parseargEnd
 
-###SHELLPACK monitor_hooks
 ###SHELLPACK check_install_required phpbench-${VERSION}
+###SHELLPACK monitor_hooks
 
 monitor_pre_hook $LOGDIR_RESULTS 1
 ###SHELLPACK iteration_begin $BLOGBENCH_ITERATIONS
