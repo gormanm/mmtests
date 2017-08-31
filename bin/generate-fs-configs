@@ -131,7 +131,6 @@ config-global-dhp__io-xfsio-profile-normal
 config-global-dhp__workload_unixbench-io-fsbuffer
 config-global-dhp__workload_unixbench-io-fsdisk
 config-global-dhp__workload_unixbench-io-fstime
-config-global-dhp__workload-interbench
 config-global-dhp__workload_simoop-short
 config-global-dhp__speccpu2017-speed
 config-global-dhp__speccpu2017-speed-parallel-quarter

@@ -506,13 +506,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT App Overhead
 		cache-mmtests.sh compare-mmtests.pl -d . -b ${SUBREPORT}overhead -n $KERNEL_LIST $FORMAT_CMD
 		;;
-	interbench)
-		echo $SUBREPORT latency
-		$COMPARE_CMD
-		echo
-		echo $SUBREPORT Missed deadlines
-		cache-mmtests.sh compare-mmtests.pl -d . -b interbenchdeadline -n $KERNEL_LIST $FORMAT_CMD
-		;;
 	johnripper)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
@@ -881,27 +874,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			generate_basic "$SUBREPORT" "--logX"
 			;;
 		highalloc)
-			;;
-		interbench)
-			COUNT=-1
-			for HEADING in `$EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sort | uniq`; do
-				COUNT=$((COUNT+1))
-				if [ $((COUNT%3)) -eq 0 ]; then
-					echo "<tr>"
-				fi
-				eval $GRAPH_PNG --logY --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				eval $GRAPH_PSC --logY --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
-				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-smooth.png --smooth
-				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-smooth.ps --smooth
-				smoothover graph-$SUBREPORT-$HEADING
-
-				if [ $((COUNT%3)) -eq 2 ]; then
-					echo "</tr>"
-				fi
-			done
-			if [ $((COUNT%3)) -ne 2 ]; then
-				echo "</tr>"
-			fi
 			;;
 		johnripper)
 			generate_ops_graphs
