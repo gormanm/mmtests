@@ -40,6 +40,7 @@ rm -rf $SHELLPACK_SOURCES/sysbench*
 
 ###SHELLPACK check_install_required sysbench-${VERSION} --dbdriver ${DBDRIVER}
 ###SHELLPACK monitor_hooks
+$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 # Calculate OLTP tablesize. 1 megabyte is around 4500 rows
 OLTP_TABLESIZE=$((WORKLOAD_SIZE/1048576*4500))

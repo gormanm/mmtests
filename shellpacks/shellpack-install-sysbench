@@ -142,4 +142,4 @@ fi
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench 81
+#### Details sysbench 82

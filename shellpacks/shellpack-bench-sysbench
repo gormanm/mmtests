@@ -130,6 +130,7 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
+$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 # Calculate OLTP tablesize. 1 megabyte is around 4500 rows
 OLTP_TABLESIZE=$((WORKLOAD_SIZE/1048576*4500))
@@ -305,4 +306,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 81
+#### Details sysbench-bench 82
