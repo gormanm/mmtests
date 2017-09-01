@@ -110,6 +110,10 @@ MARIADB_TABLE_DRIVER=innodb
 MARIADB_START_OPTIONS="--innodb_buffer_pool_size=${SHARED_BUFFERS},--innodb_log_file_size=512M"
 OLTP_TESTTYPE=complex
 
+# Always scrub sources as the benchmark in question does not properly
+# reinitialise itself if the data partitions gets scrubbed
+rm -rf $SHELLPACK_SOURCES/mariadb*
+rm -rf $SHELLPACK_SOURCES/sysbench*
 
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/sysbench-${VERSION}
@@ -301,4 +305,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 80
+#### Details sysbench-bench 81
