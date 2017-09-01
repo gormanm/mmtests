@@ -112,8 +112,10 @@ OLTP_TESTTYPE=complex
 
 # Always scrub sources as the benchmark in question does not properly
 # reinitialise itself if the data partitions gets scrubbed
-rm -rf $SHELLPACK_SOURCES/mariadb*
-rm -rf $SHELLPACK_SOURCES/sysbench*
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/mariadb*
+	rm -rf $SHELLPACK_SOURCES/sysbench*
+fi
 
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/sysbench-${VERSION}
@@ -306,4 +308,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 echo sysbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench-bench 82
+#### Details sysbench-bench 83

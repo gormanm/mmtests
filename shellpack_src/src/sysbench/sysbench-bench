@@ -35,8 +35,10 @@ OLTP_TESTTYPE=complex
 
 # Always scrub sources as the benchmark in question does not properly
 # reinitialise itself if the data partitions gets scrubbed
-rm -rf $SHELLPACK_SOURCES/mariadb*
-rm -rf $SHELLPACK_SOURCES/sysbench*
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/mariadb*
+	rm -rf $SHELLPACK_SOURCES/sysbench*
+fi
 
 ###SHELLPACK check_install_required sysbench-${VERSION} --dbdriver ${DBDRIVER}
 ###SHELLPACK monitor_hooks
