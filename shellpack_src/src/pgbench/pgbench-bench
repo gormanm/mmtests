@@ -34,6 +34,12 @@ MIN_THREADS=1
 
 ###SHELLPACK monitor_hooks
 
+# Always scrub sources as the benchmark in question does not properly
+# reinitialise itself if the data partitions gets scrubbed
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/postgres*
+fi
+
 echo Copying database configuration
 cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
 export PGHOST=localhost
