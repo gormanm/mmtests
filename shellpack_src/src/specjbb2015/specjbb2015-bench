@@ -11,6 +11,10 @@ install-depends dmidecode
 ###SHELLPACK parseargParam --instances	INSTANCES
 ###SHELLPACK parseargEnd
 
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/specjbb*
+fi
+
 ###SHELLPACK check_install_required specjbb-${VERSION}
 ###SHELLPACK monitor_hooks
 

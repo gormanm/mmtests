@@ -58,6 +58,10 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/specjbb*
+fi
+
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/specjbb-${VERSION}
 fi
@@ -201,4 +205,4 @@ done
 
 exit $EXIT_CODE
 #### Description specjbb2015
-#### Details specjbb2015-bench 9
+#### Details specjbb2015-bench 10
