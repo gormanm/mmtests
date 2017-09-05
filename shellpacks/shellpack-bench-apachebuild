@@ -68,6 +68,10 @@ fi
 cd $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed || die Failed to cd to apachebuild install directory
 
 if [ "$SERVER_START" = "yes" ]; then
+	rm -rf   $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/logs
+	mkdir -p $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/logs
+	ln -s    /dev/null $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/logs/access_log
+	ln -s    /dev/null $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/logs/error_log
 	$SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/bin/apachectl -k start || die Failed to start apache as requested
 fi
 
@@ -78,4 +82,4 @@ fi
 echo Apache httpd successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description apachebuild
-#### Details apachebuild-bench 17
+#### Details apachebuild-bench 19
