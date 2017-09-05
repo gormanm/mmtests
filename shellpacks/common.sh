@@ -609,9 +609,14 @@ function create_testdisk()
 				continue
 			fi
 			if [ "/dev/$MD_DEVICE" != "$TESTDISK_RAID_MD_DEVICE" ]; then
-				echo o MD Device $MD_DEVICE does not match expected md0
-				FULL_ASSEMBLY_REQUIRED=yes
-				continue
+				if [ ! -e $TESTDISK_RAID_MD_DEVICE ]; then
+					echo o MD Device $MD_DEVICE does not match expected md0, linking
+					ln -s /dev/$MD_DEVICE $TESTDISK_RAID_MD_DEVICE
+				else
+					echo o MD Device $MD_DEVICE does not match expected md0, doing full assembly
+					FULL_ASSEMBLY_REQUIRED=yes
+					continue
+				fi
 			fi
 			if [ "$LAST_MD_DEVICE" = "" ]; then
 				LAST_MD_DEVICE=$MD_DEVICE
