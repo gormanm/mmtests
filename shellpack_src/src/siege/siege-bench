@@ -64,10 +64,10 @@ echo Running up to $MAX_USERS users, $ITERATIONS iterations per user
 			ATTEMPTS=$((ATTEMPTS+1))
 			RETRY=0
 			$TIME_CMD -o $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.time \
-				$SHELLPACK_SOURCES/siege-${VERSION}-installed/bin/siege -q -b $ITER_ARG \
+				$SHELLPACK_SOURCES/siege-${VERSION}-installed/bin/siege -b $ITER_ARG \
 					-c $NR_THREADS \
 						http://localhost/siege.html \
-						2>&1 | tee $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.log &
+						2>/dev/null | tee $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.log &
 			PIDWAIT=$!
 			wait_on_pid_exit $! $TIMEOUT_ARG
 			if [ $? -ne 0 ]; then
