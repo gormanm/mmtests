@@ -33,6 +33,7 @@ echo Creating static test page
 LINECOUNT=`wc -l $0 | awk '{print $1}'`
 HTMLSTART=`grep -n "BEGIN HTML FILE" $0 | tail -1 | awk -F : '{print $1}'`
 tail -$(($LINECOUNT-$HTMLSTART)) $0 | grep -v "^###" > $SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/htdocs/siege.html
+wget -O $SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/htdocs/valid-html401 https://www.w3.org/Icons/valid-html401 || exit -1
 
 cat > $HOME/.siegerc << EOF
 verbose = false
@@ -83,7 +84,7 @@ Here is a bunch of text to bring the page size up to 1K.
 Here is a bunch of text to bring the page size up to 1K.
 Here is a bunch of text to bring the page size up to 1K.
 Here is a bunch of text to bring the page size up to 1K.
-<img src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Transitional" height="31" width="88">
+<img src="http://localhost/valid-html401" alt="Valid HTML 4.01 Transitional" height="31" width="88">
 </p>
 </body>
 </html>
