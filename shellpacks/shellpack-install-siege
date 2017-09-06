@@ -91,6 +91,7 @@ if [ $? -ne 0 ]; then
 	fi
 fi
 unset CFLAGS
+automake
 make -j$NUMCPUS 
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -163,4 +164,4 @@ Here is a bunch of text to bring the page size up to 1K.
 </body>
 </html>
 #### Description siege
-#### Details siege 50
+#### Details siege 51
