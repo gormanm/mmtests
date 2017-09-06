@@ -1,6 +1,6 @@
 #!/bin/bash
 P=siege-bench
-DEFAULT_VERSION=3.0.5
+DEFAULT_VERSION=4.0.2
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -181,4 +181,4 @@ done
 echo siege completed successfully
 exit $SHELLPACK_SUCCESS
 #### Description siege
-#### Details siege-bench 49
+#### Details siege-bench 50

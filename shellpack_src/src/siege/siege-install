@@ -1,6 +1,6 @@
 #!/bin/bash
 # siege installer
-###SHELLPACK preamble siege-install 3.0.5
+###SHELLPACK preamble siege-install 4.0.2
 
 
 APACHE_VERSION=2.4.17
@@ -41,7 +41,7 @@ logging = false
 protocol = HTTP/1.1
 chunked = true
 cache = false
-connection = close
+connection = keep-alive
 concurrent = 500
 file = $SHELLPACK_SOURCES/siege-${VERSION}-installed/etc/urls.txt
 delay = 1

@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble siege-bench 3.0.5
+###SHELLPACK preamble siege-bench 4.0.2
 
 ITER_REPS=150
 

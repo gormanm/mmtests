@@ -1,7 +1,7 @@
 #!/bin/bash
 # siege installer
 P=siege-install
-DEFAULT_VERSION=3.0.5
+DEFAULT_VERSION=4.0.2
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -118,7 +118,7 @@ logging = false
 protocol = HTTP/1.1
 chunked = true
 cache = false
-connection = close
+connection = keep-alive
 concurrent = 500
 file = $SHELLPACK_SOURCES/siege-${VERSION}-installed/etc/urls.txt
 delay = 1
@@ -163,4 +163,4 @@ Here is a bunch of text to bring the page size up to 1K.
 </body>
 </html>
 #### Description siege
-#### Details siege 49
+#### Details siege 50
