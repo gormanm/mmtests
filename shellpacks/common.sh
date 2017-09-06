@@ -554,6 +554,8 @@ function setup_io_scheduler() {
 
 function create_testdisk()
 {
+	rm -f $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
+
 	# Create RAID setup
 	if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
 		# Convert to megabytes
@@ -896,7 +898,6 @@ function create_filesystems
 		export TESTDISK_PRIMARY_SIZE_BYTES=`df $SHELLPACK_TEST_MOUNT | tail -1 | awk '{print $4}'`
 		export TESTDISK_PRIMARY_SIZE_BYTES=$((TESTDISK_PRIMARY_SIZE_BYTES*1024))
 
-		rm -f $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
 		for i in ${!TESTDISK_PARTITIONS[*]}; do
 			if [ $i -eq 0 ]; then
 				SHELLPACK_TEST_MOUNTS[$i]=$SHELLPACK_TEST_MOUNT
