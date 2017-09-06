@@ -25,6 +25,7 @@ fi
 export LDFLAGS=-lrt
 ###SHELLPACK build_start siege-${VERSION}
 ###SHELLPACK build_configure siege-${VERSION}
+aclocal
 automake
 ###SHELLPACK make_make_install
 
