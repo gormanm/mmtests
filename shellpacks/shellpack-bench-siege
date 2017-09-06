@@ -153,7 +153,7 @@ for NR_THREADS in $THREADS; do
 				$SHELLPACK_SOURCES/siege-${VERSION}-installed/bin/siege -b $ITER_ARG \
 					-c $NR_THREADS \
 						http://localhost/siege.html \
-						2>/dev/null | tee $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.log &
+						2>&1 | grep -v HTTP/ | tee $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.log &
 			PIDWAIT=$!
 			wait_on_pid_exit $! $TIMEOUT_ARG
 			if [ $? -ne 0 ]; then
@@ -181,4 +181,4 @@ done
 echo siege completed successfully
 exit $SHELLPACK_SUCCESS
 #### Description siege
-#### Details siege-bench 54
+#### Details siege-bench 55

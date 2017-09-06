@@ -67,7 +67,7 @@ echo Running up to $MAX_USERS users, $ITERATIONS iterations per user
 				$SHELLPACK_SOURCES/siege-${VERSION}-installed/bin/siege -b $ITER_ARG \
 					-c $NR_THREADS \
 						http://localhost/siege.html \
-						2>/dev/null | tee $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.log &
+						2>&1 | grep -v HTTP/ | tee $LOGDIR_RESULTS/siege-${NR_THREADS}-${ITER}.log &
 			PIDWAIT=$!
 			wait_on_pid_exit $! $TIMEOUT_ARG
 			if [ $? -ne 0 ]; then
