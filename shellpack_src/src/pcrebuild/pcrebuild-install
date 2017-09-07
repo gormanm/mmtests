@@ -13,6 +13,8 @@ MIRROR_LOCATION="$WEBROOT/apache/"
 ###SHELLPACK sources_fetch pcre-${VERSION}.tar.bz2 pcrebuild-${VERSION}
 ###SHELLPACK build_start pcrebuild-${VERSION}
 ###SHELLPACK build_configure pcrebuild-${VERSION}
+aclocal
+automake
 ###SHELLPACK make_make_install
 
 echo pcrebuild installed successfully
