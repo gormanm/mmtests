@@ -602,6 +602,7 @@ function create_testdisk()
 		mdadm --assemble --scan
 		FULL_ASSEMBLY_REQUIRED=no
 		LAST_MD_DEVICE=
+		SYMLINKED=no
 		for DEVICE in $TESTDISK_RAID_DEVICES; do
 			BASE_DEVICE=`basename $DEVICE`
 			MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat 2>/dev/null | sed -e 's/(auto-read-only)//' | awk '{print $1}'`
@@ -609,16 +610,6 @@ function create_testdisk()
 				echo o Device $DEVICE is not part of a RAID array, assembly required
 				FULL_ASSEMBLY_REQUIRED=yes
 				continue
-			fi
-			if [ "/dev/$MD_DEVICE" != "$TESTDISK_RAID_MD_DEVICE" ]; then
-				if [ ! -e $TESTDISK_RAID_MD_DEVICE ]; then
-					echo o MD Device $MD_DEVICE does not match expected md0, linking
-					ln -s /dev/$MD_DEVICE $TESTDISK_RAID_MD_DEVICE
-				else
-					echo o MD Device $MD_DEVICE does not match expected md0, doing full assembly
-					FULL_ASSEMBLY_REQUIRED=yes
-					continue
-				fi
 			fi
 			if [ "$LAST_MD_DEVICE" = "" ]; then
 				LAST_MD_DEVICE=$MD_DEVICE
@@ -635,12 +626,28 @@ function create_testdisk()
 				FULL_ASSEMBLY_REQUIRED=yes
 				continue
 			fi
+			if [ "/dev/$MD_DEVICE" != "$TESTDISK_RAID_MD_DEVICE" ]; then
+				if [ ! -e $TESTDISK_RAID_MD_DEVICE ]; then
+					echo o MD Device $MD_DEVICE does not match expected md0, linking
+					ln -s /dev/$MD_DEVICE $TESTDISK_RAID_MD_DEVICE
+					SYMLINKED=yes
+				else
+					echo o MD Device $MD_DEVICE does not match expected md0, doing full assembly
+					FULL_ASSEMBLY_REQUIRED=yes
+					continue
+				fi
+			fi
 		done
 
 		if [ "$FULL_ASSEMBLY_REQUIRED" = "yes" ]; then
 			echo Full assembly required for mdstat state
 			cat /proc/mdstat 2>/dev/null
 			rm -f /etc/mdadm/mdadm.conf
+
+			if [ "$SYMLINKED" != "no" ]; then
+				echo Removing symbolic link for reassembly
+				rm $TESTDISK_RAID_MD_DEVICE
+			fi
 
 			echo Creation start: `date`
 			for DEVICE in $TESTDISK_RAID_DEVICES; do
