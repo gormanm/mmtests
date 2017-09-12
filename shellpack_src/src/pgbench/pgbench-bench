@@ -41,7 +41,7 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 fi
 
 echo Copying database configuration
-cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
+cp $SHELLPACK_DATA/pgdata/postgresql.conf $LOGDIR_RESULTS
 export PGHOST=localhost
 export PGPORT=5432
 export PATH=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin:$PATH
