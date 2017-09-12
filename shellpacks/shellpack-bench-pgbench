@@ -117,7 +117,7 @@ fi
 
 echo Copying database configuration
 cp $SHELLPACK_DATA/pgdata/postgresql.conf $LOGDIR_RESULTS
-export PGHOST=localhost
+export PGHOST=127.0.0.1
 export PGPORT=5432
 export PATH=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin:$PATH
 export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/lib
@@ -320,4 +320,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 162
+#### Details pgbench-bench 163
