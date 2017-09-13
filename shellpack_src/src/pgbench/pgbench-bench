@@ -107,6 +107,11 @@ if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
 fi
 
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo pgbench installed only as requested
+	exit $SHELLPACK_SUCCESS
+fi
+
 echo Running pgbench
 echo o maximum $MAX_THREADS threads
 echo o scale factor: $SCALE_FACTOR 

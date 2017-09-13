@@ -182,6 +182,11 @@ if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
 fi
 
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo pgbench installed only as requested
+	exit $SHELLPACK_SUCCESS
+fi
+
 echo Running pgbench
 echo o maximum $MAX_THREADS threads
 echo o scale factor: $SCALE_FACTOR 
@@ -320,4 +325,4 @@ cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS
 echo pgbench successfully completed
 exit $SHELLPACK_SUCCESS
 #### Description Run the pgbench benchmark
-#### Details pgbench-bench 163
+#### Details pgbench-bench 164
