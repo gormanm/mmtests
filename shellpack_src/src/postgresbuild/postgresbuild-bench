@@ -89,7 +89,7 @@ if [ "$SERVER_START" = "yes" ]; then
 	update_entry_cnf synchronous_commit on
 
 	if [ "$OLTP_HUGETLBFS" = "yes" ]; then
-		sysctl vm.nr_overcommit_hugepages 262144
+		sysctl vm.nr_overcommit_hugepages=262144
 		update_entry_cnf huge_pages on
 	fi
 
