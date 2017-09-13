@@ -88,6 +88,11 @@ if [ "$SERVER_START" = "yes" ]; then
 
 	update_entry_cnf synchronous_commit on
 
+	if [ "$OLTP_HUGETLBFS" = "yes" ]; then
+		sysctl vm.nr_overcommit_hugepages 262144
+		update_entry_cnf huge_pages on
+	fi
+
 	# Configure shmem parameters
 	echo $TOTALBUFFER_SIZE > /proc/sys/kernel/shmmax
 	echo $(($TOTALBUFFER_SIZE*2/$PAGESIZE)) > /proc/sys/kernel/shmall

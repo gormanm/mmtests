@@ -17,6 +17,7 @@ config-global-dhp__db-pgbench-timed-ro-small-tuned
 config-global-dhp__db-pgbench-timed-rw-medium-tuned
 config-global-dhp__db-pgbench-timed-rw-small-tuned
 config-global-dhp__db-pgbench-timed-ro-small-full-tuned
+config-global-dhp__db-pgbench-timed-ro-small-full-hugetlbfs-tuned
 config-global-dhp__db-sysbench-mariadb-oltp-ro-medium
 config-global-dhp__db-sysbench-mariadb-oltp-ro-small
 config-global-dhp__db-sysbench-mariadb-oltp-rw-medium
