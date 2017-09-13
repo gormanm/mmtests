@@ -1,0 +1,96 @@
+### pgbench is a workload generator that is packaged with postgres. It
+### is relatively basic and modelled on TPC-B. In this configuration,
+### the workload is read-only and scaled so that the approximate size
+### is 80% of of the database shared buffer which itself is 20% of RAM.
+### The page cache is not flushed after the database is populated for the
+### test and starts cache-hot.
+DIRNAME=`dirname $0`
+SCRIPTDIR=`cd "$DIRNAME" && pwd`
+
+# MM Test Parameters
+export MMTESTS="pgbench"
+export RUN_WARMUP=
+
+# Profiling parameters
+export RUN_NOPROFILE=yes
+export RUN_FINEPROFILE=no
+export RUN_COARSEPROFILE=no
+export OPROFILE_REPORT_ANNOTATE=no
+
+# Fixups
+if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/bin:$PATH
+fi
+if [ "`which oprofile_report.sh 2> /dev/null`" = "" ]; then
+	export PATH=$SCRIPTDIR/vmr/bin:$PATH
+fi
+
+# Machine configuration
+# Swap configuration can be one of default, partitions, swapfile, NFS
+#export RUN_TUNINGS="$RUN_TUNINGS sysctl"
+#export VM_DIRTY_RATIO=20
+export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
+export SWAP_CONFIGURATION=default
+export SWAP_PARTITIONS=
+export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
+export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
+export SWAP_NBD_DEVICE=/dev/nbd0
+export SWAP_NBD_HOST=mcp
+export SWAP_NBD_PORT=10001
+#export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=""
+#
+# Test NFS disk to setup (optional)
+#export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
+#
+# Test NBD disk to setup (optional)
+#export TESTDISK_NBD_DEVICE=/dev/nbd0
+#export TESTDISK_NBD_HOST=mcp
+#export TESTDISK_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top iotop"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
+export MONITOR_UPDATE_FREQUENCY=10
+
+# pgbench
+export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES/2))
+export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/5))
+export OLTP_PAGESIZES="default"
+export OLTP_HUGETLBFS=yes
+export PGBENCH_MAX_TIME=300
+export PGBENCH_READONLY=yes
+export PGBENCH_MAX_THREADS=$((NUMCPUS*2))
+export PGBENCH_CACHE_COLD=no
+
+# The baseline database size is approximately 30MB. Each unit of scaling
+# factor adds approximately 15M of data to the table. Tune accordingly.
+export TARGET_WORKLOAD_SIZE=$((OLTP_SHAREDBUFFERS*4/5))
+export PGBENCH_SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)/(15*1048576)))
+export DATABASE_INIT_ONCE=yes
+
+echo Setting cpufreq to performance
+cpupower frequency-set -g performance
+
+echo Disabling THP
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+
+echo Disabling NUMA Balancing
+echo 0 > /proc/sys/kernel/numa_balancing
+
+echo Using interleave policy
+export MMTESTS_NUMA_POLICY=interleave
