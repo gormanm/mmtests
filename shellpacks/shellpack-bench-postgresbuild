@@ -92,6 +92,8 @@ cd $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed || die Failed to cd to 
 . $SHELLPACK_INCLUDE/include-libhugetlbfs.sh
 . $SHELLPACK_INCLUDE/include-hugepage.sh
 getpagesize
+set_mmtests_numactl 0 0
+
 PSQL="su -s /bin/bash $POSTGRES_USER -c"
 POSTGRES_DATADIR=$SHELLPACK_DATA/pgdata
 POSTGRES_PIDFILE=$POSTGRES_DATADIR/postmaster.pid
@@ -191,4 +193,4 @@ fi
 echo postgres operation successful
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild-bench 66
+#### Details postgresbuild-bench 67
