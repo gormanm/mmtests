@@ -108,6 +108,16 @@ if [ "$READONLY" = "yes" ]; then
 fi
 
 if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo Starting database for first time as part of init
+	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
+		--effective_cachesize $EFFECTIVE_CACHESIZE \
+		--shared_buffers $SHARED_BUFFERS \
+		--work_mem $WORK_MEM \
+		-v ${VERSION} || die Failed to get a usable postgres installation
+
+	echo Stopping database to finish init
+	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
+
 	echo pgbench installed only as requested
 	exit $SHELLPACK_SUCCESS
 fi
