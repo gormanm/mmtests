@@ -93,7 +93,7 @@ if [ "$SERVER_START" = "yes" ]; then
 	if [ "$OLTP_HUGETLBFS" = "yes" ]; then
 		# Estimate hugetlbfs pages required
 		NR_HUGEPAGES=$(((WORK_MEM+SHARED_BUFFERS)))
-		NR_HUGEPAGES=$((NR_HUGEPAGES*4/100))
+		NR_HUGEPAGES=$((NR_HUGEPAGES*104/100))
 		NR_HUGEPAGES=$((NR_HUGEPAGES/2/1048576))
 		echo Allocating $NR_HUGEPAGES huge pages
 		sysctl vm.nr_hugepages=$NR_HUGEPAGES
