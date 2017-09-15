@@ -17,31 +17,37 @@ use POSIX qw(floor);
 sub pdiff {
 	if ($_[0] == $_[1] || $_[0] == 0) {
 		return 0;
-	} elsif ($_[1] == 0) {
-		return 100;
-	} else {
-		return $_[0] * 100 / $_[1] - 100;
 	}
+
+	if ($_[1] == 0 || $_[1] eq "NaN") {
+		return 100;
+	}
+
+	return $_[0] * 100 / $_[1] - 100;
 }
 
 sub pndiff {
 	if ($_[0] == $_[1]) {
 		return 0;
-	} elsif ($_[0] == 0) {
-		return 100;
-	} elsif ($_[1] == 0 && $_[0] != 0) {
-		return -99;
-	} else {
-		return 100 - ($_[0] * 100 / $_[1]);
 	}
+
+	if ($_[0] == 0) {
+		return 100;
+	}
+	if ($_[1] == 0 && $_[0] != 0) {
+		return -99;
+	}
+	return 100 - ($_[0] * 100 / $_[1]);
 }
 
 sub rdiff {
 	if ($_[1] == 0) {
 		return 0;
-	} else {
-		return $_[0] / $_[1];
 	}
+	if ($_[2] == 0) {
+		return 1;
+	}
+	return $_[0] / $_[1];
 }
 
 sub sdiff {
