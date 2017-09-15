@@ -497,7 +497,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo
 		# all sub-headings (ie. fio-scaling-[rand]{rw,read,write}-{read,write})
 		echo $SUBREPORT scaling
-		cache-mmtests.sh compare-mmtests.pl -d . -b fioscaling -n $KERNEL_LIST
+		cache-mmtests.sh compare-mmtests.pl -d . -b fioscaling -n $KERNEL_LIST 2> /dev/null
 		;;
 	fsmark-single|fsmark-threaded)
 		echo $SUBREPORT
