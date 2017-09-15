@@ -19,6 +19,7 @@ THREADS=$(($NUMCPUS))
 
 pushd $SHELLPACK_DATA > /dev/null
 
+rm -f ./linux-$VERSION.tar.gz
 sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
 tar xf linux-$VERSION.tar.gz || die Failed to extract
 cd linux-$VERSION || die Unexpected layout
