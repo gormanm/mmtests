@@ -343,6 +343,10 @@ sub calc_coeffvar {
 	my $stddev = calc_stddev(@_);
 	my $mean = calc_mean(@_);
 
+	if ($stddev eq "NaN") {
+		$stddev = 0;
+	}
+
 	if ($mean) {
 		return ($stddev * 100) / $mean;
 	} else {
