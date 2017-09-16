@@ -44,7 +44,7 @@ sub rdiff {
 	if ($_[1] == 0) {
 		return 0;
 	}
-	if ($_[2] == 0) {
+	if ($_[0] == 0) {
 		return 1;
 	}
 	return $_[0] / $_[1];
