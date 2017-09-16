@@ -12,7 +12,7 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractLinkbench";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "thread-errorlines";
-	$self->SUPER::initialise$reportDir, $testName();
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport() {
