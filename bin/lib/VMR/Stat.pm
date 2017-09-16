@@ -41,10 +41,10 @@ sub pndiff {
 }
 
 sub rdiff {
-	if ($_[1] == 0) {
+	if ($_[1] == 0 || $_[1] eq "NaN") {
 		return 0;
 	}
-	if ($_[0] == 0) {
+	if ($_[0] == 0 || $_[0] eq "NaN") {
 		return 1;
 	}
 	return $_[0] / $_[1];
