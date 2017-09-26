@@ -101,6 +101,18 @@ fi
 echo Extracting $SHELLPACK_TEMP/0003-Check-if-parent-is-alive-once-per-loadfile.patch
 sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/0003-Check-if-parent-is-alive-once-per-loadfile.patch
 	patch -p1 <$SHELLPACK_TEMP/0003-Check-if-parent-is-alive-once-per-loadfile.patch
+
+LINESTART=`grep -n "==== BEGIN 0004-Include-stdint_h.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END 0004-Include-stdint_h.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file 0004-Include-stdint_h.patch
+fi
+echo Extracting $SHELLPACK_TEMP/0004-Include-stdint_h.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/0004-Include-stdint_h.patch
+	patch -p1 <$SHELLPACK_TEMP/0004-Include-stdint_h.patch
 fi
 pushd $SHELLPACK_SOURCES/dbench-${VERSION} || die Failed to change to source directory
 for FILE in `find -name "*"`; do
@@ -387,5 +399,32 @@ index 828295d2aad9..9ec9df011540 100644
  
  done:
 ==== END 0003-Check-if-parent-is-alive-once-per-loadfile.patch ====
+
+==== BEGIN 0004-Include-stdint_h.patch ====
+From f637b5e1af49c8dcb062e812ca47a0d800cbc2a2 Mon Sep 17 00:00:00 2001
+From: Mel Gorman <mgorman@techsingularity.net>
+Date: Tue, 26 Sep 2017 13:26:33 +0100
+Subject: [PATCH] libnfs: Include stdint.h
+
+Changes in kernel headers break build unless this is included.
+
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+---
+ libnfs.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libnfs.c b/libnfs.c
+index 1f60ef0b5af1..92711e2b9bcd 100644
+--- a/libnfs.c
++++ b/libnfs.c
+@@ -20,6 +20,7 @@
+ #include "mount.h"
+ #include "nfs.h"
+ #include "libnfs.h"
++#include <stdint.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+==== END 0004-Include-stdint_h.patch ====
 #### Description dbench
-#### Details dbench 36
+#### Details dbench 37
