@@ -40,7 +40,7 @@ MEDIAWIKI_VERSION=1.18.6
 WEB_LOCATION=https://releases.wikimedia.org/mediawiki/1.18/
 MIRROR_LOCATION="$WEBROOT/mediawiki/"
 
-MARIADB_VERSION=10.1.8
+MARIADB_VERSION=10.1.27
 MARIADB_DBNAME=my_wiki
 MARIADB_ADMIN_USER=root
 MARIADB_ADMIN_PASSWORD=mmtests-default
@@ -196,4 +196,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --stop
 
 echo mediawikibuild installed successfully
 #### Description mediawikibuild
-#### Details mediawikibuild 18
+#### Details mediawikibuild 19

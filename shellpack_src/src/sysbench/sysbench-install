@@ -17,7 +17,7 @@ MIRROR_LOCATION=$WEBROOT/sysbench
 case $DBDRIVER in
 mariadb)
 	echo Checking mariadb installation
-	DBDRIVER_VERSION=10.1.8
+	DBDRIVER_VERSION=10.1.27
 	CONFIGURE_ARGS=
 	;;
 postgres)
