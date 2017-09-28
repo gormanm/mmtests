@@ -404,15 +404,16 @@ sub calc_confidence_interval {
 			$n++;
 		}
 	}
-	require Statistics::Distributions;
 
 	my $mean = calc_mean(@_);
 	if ($variance !~ /^[-0-9]+/) {
 		$stddev = calc_stddev(@_);
-		$q = Statistics::Distributions::tdistr($n-1, (100 - $confidence_level) / 200);
+		$q = qx(echo 'qt(c((100 - $confidence_level)/200), $n-1, lower.tail = FALSE)' | R --slave);
+		$q =~ s/\[1\]|\s//g;
 	} else {
 		$stddev = sqrt($variance);
-		$q = Statistics::Distributions::udistr((100 - $confidence_level) / 200);
+		$q = qx(echo 'qnorm(c((100 - $confidence_level)/200), lower.tail = FALSE)' | R --slave);
+		$q =~ s/\[1\]|\s//g;
 	}
 
 	return ($q*($stddev/sqrt($n)));
@@ -458,8 +459,8 @@ sub calc_welch_test {
 	# compute t-value
 	my $t = ($mx - $my) / sqrt($tsx + $tsy);
 
-	require Statistics::Distributions;
-	my $q = Statistics::Distributions::tdistr($k, $alpha / 200);
+	my $q = qx(echo 'qt(c($alpha / 200), $k, lower.tail = FALSE)' | R --slave);
+	$q =~ s/\[1\]|\s//g;
 
 	# reject if |t| > t_{k;(1-alpha/2)}
 	if (abs($t) > $q) {
