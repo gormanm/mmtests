@@ -29,6 +29,13 @@ install-depends python-rpy2
 ###SHELLPACK parseargYes   --bench-only          BENCH_ONLY
 ###SHELLPACK parseargEnd
 
+# Always scrub sources as the benchmark in question does not properly
+# reinitialise itself if the data partitions gets scrubbed
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/postgres*
+	rm -rf $SHELLPACK_SOURCES/dbt5*
+fi
+
 ###SHELLPACK check_install_required dbt5-${VERSION} --dbdriver ${DBDRIVER}
 ###SHELLPACK monitor_hooks
 

@@ -115,6 +115,13 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+# Always scrub sources as the benchmark in question does not properly
+# reinitialise itself if the data partitions gets scrubbed
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/postgres*
+	rm -rf $SHELLPACK_SOURCES/dbt5*
+fi
+
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/dbt5-${VERSION}
 fi
@@ -234,4 +241,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build -v $POSTGRES_VERSION --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt5
-#### Details dbt5-bench 75
+#### Details dbt5-bench 76

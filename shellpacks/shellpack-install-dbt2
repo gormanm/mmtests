@@ -112,4 +112,4 @@ fi
 echo dbt2 for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description dbt2
-#### Details dbt2 27
+#### Details dbt2 28
