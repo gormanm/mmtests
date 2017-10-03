@@ -19,7 +19,7 @@ MIRROR_LOCATION=$WEBROOT/dvdstore
 case $DBDRIVER in
 postgres)
 	echo Checking postgres installation
-	DBDRIVER_VERSION=9.6.3
+	DBDRIVER_VERSION=9.6.1
 	DVDSTORE_DBDRIVER=postgresql
 	;;
 *)

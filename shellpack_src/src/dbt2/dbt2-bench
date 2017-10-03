@@ -6,7 +6,7 @@ DBUSER=nobody
 EFFECTIVE_CACHESIZE=$((756*1048576))
 SHARED_BUFFERS=$((32*1048576))
 WORK_MEM=$((32*1048576))
-POSTGRES_VERSION=9.6.3
+POSTGRES_VERSION=9.6.1
 
 install-depends python-singledispatch
 install-depends python-rpy2
