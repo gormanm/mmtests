@@ -29,7 +29,7 @@ install-depends python-rpy2
 # reinitialise itself if the data partitions gets scrubbed
 if [ "$INSTALL_ONLY" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/postgres*
-	rm -rf $SHELLPACK_SOURCES/dbt2*
+	rm -rf $SHELLPACK_SOURCES/dbt*
 fi
 
 ###SHELLPACK check_external_install_required_continue dbttoolsbuild dbttoolsbuild-0 0

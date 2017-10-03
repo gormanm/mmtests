@@ -103,7 +103,7 @@ fi
 # reinitialise itself if the data partitions gets scrubbed
 if [ "$INSTALL_ONLY" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/postgres*
-	rm -rf $SHELLPACK_SOURCES/dbt2*
+	rm -rf $SHELLPACK_SOURCES/dbt*
 fi
 
 if [ "$INSTALL_FORCE" = "yes" ]; then
@@ -216,4 +216,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt2
-#### Details dbt2-bench 28
+#### Details dbt2-bench 29

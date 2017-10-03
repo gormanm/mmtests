@@ -33,7 +33,7 @@ install-depends python-rpy2
 # reinitialise itself if the data partitions gets scrubbed
 if [ "$INSTALL_ONLY" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/postgres*
-	rm -rf $SHELLPACK_SOURCES/dbt5*
+	rm -rf $SHELLPACK_SOURCES/dbt*
 fi
 
 ###SHELLPACK check_install_required dbt5-${VERSION} --dbdriver ${DBDRIVER}
