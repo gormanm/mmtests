@@ -1009,6 +1009,12 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			done
 			echo "</tr>"
 			;;
+		sparsetruncate)
+			echo "<tr>"
+			generate_basic_single "$SUBREPORT truncation times"
+			generate_basic_single "$SUBREPORT truncation times" "--logY"
+			echo "</tr>"
+			;;
 		sockperf-tcp-under-load|sockperf-udp-under-load)
 			generate_subtest_graphs 4
 			;;
