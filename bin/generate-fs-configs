@@ -67,6 +67,7 @@ config-global-dhp__workload_mailserver
 config-global-dhp__workload_kerndevel
 config-global-dhp__workload_dedup
 config-global-dhp__workload_shellscripts
+config-global-dhp__workload_sparsetruncate
 config-global-dhp__reaim-io-alltests
 config-global-dhp__reaim-io-compute
 config-global-dhp__reaim-io-disk

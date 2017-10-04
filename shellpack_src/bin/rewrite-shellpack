@@ -407,6 +407,16 @@ if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
 fi
 cd \$SHELLPACK_SOURCES/$externalpack-$version-installed || die Failed to cd to $externalpack install directory
 EOC
+	} elsif ($command eq "init_only_start") {
+	print <<EOC
+if [ "\$INSTALL_ONLY" = "yes" ]; then
+EOC
+	} elsif ($command eq "init_only_end") {
+		print <<EOC
+	echo $shellpack installed only as requested.
+	exit \$SHELLPACK_SUCCESS
+fi
+EOC
 	} elsif ($command eq "monitor_hooks") {
 		print <<EOC
 # Include monitor hooks
