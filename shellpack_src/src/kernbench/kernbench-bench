@@ -10,22 +10,23 @@ ITERATIONS=5
 ###SHELLPACK parseargParam	--iterations	KERNBENCH_ITERATIONS
 ###SHELLPACK parseargEnd
 
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+###SHELLPACK monitor_hooks
 
 WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v3.0/linux-${VERSION}.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS))
 
+###SHELLPACK init_only_start
 pushd $SHELLPACK_DATA > /dev/null
-
 rm -f ./linux-$VERSION.tar.gz
 sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
 tar xf linux-$VERSION.tar.gz || die Failed to extract
 cd linux-$VERSION || die Unexpected layout
+###SHELLPACK init_only_end
 
+# Configure
+cd $SHELLPACK_DATA/linux-$VERSION
 yes '' | make defconfig > /dev/null 2>&1 || die Failed to make defconfig
-
 make -j$THREADS clean > /dev/null
 
 echo Warming run

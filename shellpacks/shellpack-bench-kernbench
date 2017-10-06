@@ -70,15 +70,19 @@ WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v3.0/linux-${VERSION}.tar.g
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS))
 
+if [ "$INSTALL_ONLY" = "yes" ]; then
 pushd $SHELLPACK_DATA > /dev/null
-
 rm -f ./linux-$VERSION.tar.gz
 sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
 tar xf linux-$VERSION.tar.gz || die Failed to extract
 cd linux-$VERSION || die Unexpected layout
+	echo kernbenc installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 
+# Configure
+cd $SHELLPACK_DATA/linux-$VERSION
 yes '' | make defconfig > /dev/null 2>&1 || die Failed to make defconfig
-
 make -j$THREADS clean > /dev/null
 
 echo Warming run
@@ -132,4 +136,4 @@ rm -rf $TMPDIR/kernbench
 
 exit $SHELLPACK_SUCCESS
 #### Description Benchmark based on kernel builds
-#### Details kernbench-bench 33
+#### Details kernbench-bench 34
