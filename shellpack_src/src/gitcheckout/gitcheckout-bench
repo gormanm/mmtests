@@ -54,8 +54,8 @@ echo "#!/bin/bash
 for COMMIT in $GITCHECKOUT_COMMITS; do
 	git checkout \$COMMIT
 done
-" > $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh
-chmod u+x $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh
+" > $SHELLPACK_TEMP/gitcheckout.sh
+chmod u+x $SHELLPACK_TEMP/gitcheckout.sh
 
 mkdir -p $LOGDIR_RESULTS
 ###SHELLPACK iteration_begin $GITCHECKOUT_ITERATIONS
@@ -66,7 +66,7 @@ mkdir -p $LOGDIR_RESULTS
 	fi
 
 	echo Iteration $ITERATION/$GITCHECKOUT_ITERATIONS
-	$TIME_CMD $SHELLPACK_TEMP/gitcheckout/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$ITERATION
+	$TIME_CMD $SHELLPACK_TEMP/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$ITERATION
 	grep elapsed $LOGDIR_RESULTS/time.$ITERATION
 ###SHELLPACK iteration_end
 
