@@ -14,6 +14,7 @@ install-depends dmidecode
 ###SHELLPACK parseargParam --instances			INSTANCES
 ###SHELLPACK parseargEnd
 
+rm -rf $SHELLPACK_SOURCES/specjbb*
 ###SHELLPACK check_install_required specjbb-${VERSION}
 ###SHELLPACK monitor_hooks
 

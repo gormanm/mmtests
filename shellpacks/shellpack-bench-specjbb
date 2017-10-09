@@ -70,6 +70,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+rm -rf $SHELLPACK_SOURCES/specjbb*
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/specjbb-${VERSION}
 fi
@@ -240,4 +241,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description SPECjbb
-#### Details specjbb-bench 28
+#### Details specjbb-bench 29
