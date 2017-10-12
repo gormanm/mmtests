@@ -1,0 +1,99 @@
+#!/bin/bash
+P=mlc-bench
+DEFAULT_VERSION=3.4
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+MAX_THREADS=$NUMCPUS
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--type)
+		MLC_TYPE=$2
+		shift 2
+		;;
+	--iterations)
+		MLC_ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/mlc-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/mlc-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-mlc -v ${VERSION}  || die mlc install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/mlc-${VERSION}-installed || die Failed to cd to mlc install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo mlc installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+echo Disabling transparent hugepages as recommended by benchmark
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+
+if [ "$MLC_TYPE" = "" ]; then
+	die mlc benchmark is not specified
+fi
+
+mmtests_activity $MLC_TYPE
+monitor_pre_hook $LOGDIR_RESULTS $MLC_TYPE
+for ITERATION in `seq 1 $MLC_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+	echo Running iteration $ITERATION/$MLC_ITERATIONS
+	$TIME_CMD -o $LOGDIR_RESULTS/$MLC_TYPE-$ITERATION.time \
+		./Linux/mlc_avx512 --$MLC_TYPE | tee $LOGDIR_RESULTS/$MLC_TYPE-$ITERATION.log
+done
+monitor_post_hook $LOGDIR_RESULTS $MLC_TYPE
+
+if [ $? -ne 0 ]; then
+	exit $SHELLPACK_ERROR
+fi
+exit $SHELLPACK_SUCCESS
+#### Description mlc
+#### Details mlc-bench 5

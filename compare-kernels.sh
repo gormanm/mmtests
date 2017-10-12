@@ -59,6 +59,10 @@ while [ "$1" != "" ]; do
 		FIRST_ITERATION_PREFIX="1/"
 		shift 2
 		;;
+	--exclude-monitors)
+		EXCLUDE_MONITORS=yes
+		shift
+		;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift
@@ -666,6 +670,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 	echo
 	eval $COMPARE_CMD --print-monitor duration
 	echo
+
+	if [ "$EXCLUDE_MONITORS" = "yes" ]; then
+		continue
+	fi
 	eval $COMPARE_CMD --print-monitor mmtests-vmstat
 
 	if [ `ls turbostat-* 2> /dev/null | wc -l` -gt 0 ]; then
@@ -904,6 +912,8 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		libmicro)
 			;;
 		micro)
+			;;
+		mlc)
 			;;
 		monitor)
 			;;
