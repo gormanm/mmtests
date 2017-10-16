@@ -21,12 +21,17 @@ if [ "$MLC_TYPE" = "" ]; then
 	die mlc benchmark is not specified
 fi
 
+ONE_HT_SWITCH=
+if [ "$MLC_ONE_PER_HT" = "yes" ]; then
+	ONE_HT_SWITCH=-X
+fi
+
 mmtests_activity $MLC_TYPE
 monitor_pre_hook $LOGDIR_RESULTS $MLC_TYPE
 ###SHELLPACK iteration_begin $MLC_ITERATIONS
 	echo Running iteration $ITERATION/$MLC_ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/$MLC_TYPE-$ITERATION.time \
-		./Linux/mlc_avx512 --$MLC_TYPE | tee $LOGDIR_RESULTS/$MLC_TYPE-$ITERATION.log
+		./Linux/mlc_avx512 --$MLC_TYPE $ONE_HT_SWITCH | tee $LOGDIR_RESULTS/$MLC_TYPE-$ITERATION.log
 ###SHELLPACK iteration_end
 monitor_post_hook $LOGDIR_RESULTS $MLC_TYPE
 

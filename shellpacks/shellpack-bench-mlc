@@ -84,13 +84,18 @@ if [ "$MLC_TYPE" = "" ]; then
 	die mlc benchmark is not specified
 fi
 
+ONE_HT_SWITCH=
+if [ "$MLC_ONE_PER_HT" = "yes" ]; then
+	ONE_HT_SWITCH=-X
+fi
+
 mmtests_activity $MLC_TYPE
 monitor_pre_hook $LOGDIR_RESULTS $MLC_TYPE
 for ITERATION in `seq 1 $MLC_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 	echo Running iteration $ITERATION/$MLC_ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/$MLC_TYPE-$ITERATION.time \
-		./Linux/mlc_avx512 --$MLC_TYPE | tee $LOGDIR_RESULTS/$MLC_TYPE-$ITERATION.log
+		./Linux/mlc_avx512 --$MLC_TYPE $ONE_HT_SWITCH | tee $LOGDIR_RESULTS/$MLC_TYPE-$ITERATION.log
 done
 monitor_post_hook $LOGDIR_RESULTS $MLC_TYPE
 
@@ -99,4 +104,4 @@ if [ $? -ne 0 ]; then
 fi
 exit $SHELLPACK_SUCCESS
 #### Description mlc
-#### Details mlc-bench 6
+#### Details mlc-bench 7
