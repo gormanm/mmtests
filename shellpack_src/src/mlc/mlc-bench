@@ -14,6 +14,9 @@ MAX_THREADS=$NUMCPUS
 echo Disabling transparent hugepages as recommended by benchmark
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
 
+echo Disabling automatic NUMA balancing
+echo 0 > /proc/sys/kernel/numa_balancing
+
 if [ "$MLC_TYPE" = "" ]; then
 	die mlc benchmark is not specified
 fi

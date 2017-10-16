@@ -67,4 +67,4 @@ done
 echo mlc installed successfully
 exit $SHELLPACK_SUCCESS
 #### Description mlc
-#### Details mlc 5
+#### Details mlc 6
