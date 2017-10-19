@@ -99,11 +99,11 @@ mkfs."$TESTDISK_FILESYSTEM" $TESTDISK_MKFS_PARAM $XFSTESTS_TEST_DEV ||
 
 monitor_pre_hook $LOGDIR_RESULTS default
 
-./check -T 2>&1 | tee $LOGDIR_RESULTS/xfstests-default.log \
+./check -T $XFSTESTS_ARGS 2>&1 | tee $LOGDIR_RESULTS/xfstests-default.log \
 	|| die Failed to run xfstests
 
 monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description xfstests, a filesystem regression testsuite
-#### Details xfstests-bench 6
+#### Details xfstests-bench 7

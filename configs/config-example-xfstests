@@ -32,3 +32,6 @@ export MONITOR_UPDATE_FREQUENCY=10
 export XFSTESTS_TEST_DEV=$TESTDISK_PARTITION
 TESTDISK_PARTITION=''
 export XFSTESTS_SCRATCH_DEV_POOL='/dev/sdc /dev/sdd /dev/sde /dev/sdf /dev/sdg'
+# extra arguments passed to ./check, could be eg. a specific test to run like
+# XFSTESTS_ARGS='generic/001'
+export XFSTESTS_ARGS
