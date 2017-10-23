@@ -1,0 +1,14 @@
+--- a/runtime/stp_helper_lock.h.orig	2017-10-23 16:08:38.457481107 +0100
++++ b/runtime/stp_helper_lock.h	2017-10-23 16:09:07.459683346 +0100
+@@ -57,7 +57,10 @@
+ static inline void stp_spin_lock(spinlock_t *lock)		{ spin_lock(lock); }
+ static inline void stp_spin_unlock(spinlock_t *lock)		{ spin_unlock(lock); }
+ 
+-static inline void stp_spin_unlock_wait(spinlock_t *lock)	{ spin_unlock_wait(lock); }
++static inline void stp_spin_unlock_wait(spinlock_t *lock)	{
++	spin_lock(lock);
++	spin_unlock(lock);
++}
+ 
+ #define stp_spin_lock_irqsave(lock, flags)		spin_lock_irqsave(lock, flags)
+ #define stp_spin_unlock_irqrestore(lock, flags)		spin_unlock_irqrestore(lock, flags)
