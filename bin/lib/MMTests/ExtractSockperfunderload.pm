@@ -11,7 +11,7 @@ sub new() {
 		_DataType    => DataTypes::DATA_TIME_USECONDS,
 		_ResultData  => [],
 		_Opname      => "Round-Trip-Time",
-		_PlotType    => "simple-filter",
+		_PlotType    => "simple-filter-points",
 	};
 	bless $self, $class;
 	return $self;

@@ -38,6 +38,10 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			PLOTTYPE="lines"
 			shift
 			;;
+		--simple-filter-points)
+			PLOTTYPE="points"
+			shift
+			;;
 		--linespoint)
 			PLOTTYPE="linespoint"
 			shift
