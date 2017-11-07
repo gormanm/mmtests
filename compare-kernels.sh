@@ -343,6 +343,22 @@ generate_subtest_graphs() {
 	fi
 }
 
+generate_subtest_graphs_sorted() {
+	SUBTEST_LIST=`eval $EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sort | uniq | sed -e 's/ /@/g'`
+	for HEADING in $SUBTEST_LIST; do
+		HEADING=`echo $HEADING | sed -e 's/@/ /g'`
+		HEADING_FILENAME=`echo $HEADING | sed -e 's/ //g'`
+		echo "<tr>"
+		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME.png
+		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME.ps
+		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted.png --sort-samples
+		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted.ps  --sort-samples
+		plain graph-$SUBREPORT-$HEADING_FILENAME
+		plain graph-$SUBREPORT-$HEADING_FILENAME-sorted
+		echo "</tr>"
+	done
+}
+
 generate_cputime_graphs() {
 	echo "<tr>"
 	for HEADING in User System Elapsed; do
@@ -1026,7 +1042,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "</tr>"
 			;;
 		sockperf-tcp-under-load|sockperf-udp-under-load)
-			generate_subtest_graphs 4
+			generate_subtest_graphs_sorted
 			;;
 		speccpu2017-*-build)
 			;;
