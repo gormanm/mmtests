@@ -32,6 +32,11 @@ sub extractReport() {
 		my @elements = split (/-/, $file);
 		$protocol = $elements[-4];
 		$protocol =~ s/.*\///;
+
+		# Do not process the max rates any more. The dropped packets
+		# confuse everything.
+		next if $elements[-2] eq "max";
+
 		push @sizes, $elements[-3];
 		push @rates, $elements[-2];
 	}
