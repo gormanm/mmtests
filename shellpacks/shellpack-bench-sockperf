@@ -226,6 +226,7 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 			--mps $RATE							\
 			--msg-size $SIZE						\
 			--no-rdtsc 2>&1 | tee $LOGDIR_RESULTS/$SOCKPERF_PROTOCOL-$SIZE-$RATE-${ITERATION}.stdout
+sync
 done
 		monitor_post_hook $LOGDIR_RESULTS $SOCKPERF_PROTOCOL-$SIZE-$RATE
 
@@ -238,4 +239,4 @@ rm /tmp/sockperf-server.pid
 
 exit $SHELLPACK_SUCCESS
 #### Description sockperf
-#### Details sockperf-bench 24
+#### Details sockperf-bench 25

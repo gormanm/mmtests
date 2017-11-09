@@ -429,6 +429,7 @@ for ITERATION in `seq 1 $iterations`; do
 	mmtests_activity iteration \$ITERATION
 EOC
 	} elsif ($command eq "iteration_end") {
+		print "sync\n";
 		print "done\n";
 	} elsif ($command eq "threads_fib_begin") {
 		my ($min_thread, $max_thread) = @details;
