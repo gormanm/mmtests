@@ -463,6 +463,11 @@ fi
 # - SHELLPACK_TEST_MOUNTS, TESTDISK_PARTITIONS, SHELLPACK_DATA_DIRS
 declare -p | grep "\-ax" > $SCRIPTDIR/bash_arrays
 
+# Wait for ntp to stabilize system clock so that time skips don't confuse
+# benchmarks (bsc#1066465)
+echo "Waiting for NTP to stabilize system clock..."
+ntp-wait -v -s 1 -n 600 || { echo "Failed to stabilize system clock!"; exit -1; }
+
 # Warm up. More appropriate warmup depends on the exact test
 if [ "$RUN_WARMUP" != "" ]; then
 	echo Entering warmup
