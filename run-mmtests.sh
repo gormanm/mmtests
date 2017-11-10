@@ -465,14 +465,13 @@ declare -p | grep "\-ax" > $SCRIPTDIR/bash_arrays
 
 # Wait for ntp to stabilize system clock so that time skips don't confuse
 # benchmarks (bsc#1066465)
-if [ "`which ntp-wait`" = "" ]; then
-	install-depends ntp-wait
-fi
-echo "Waiting for NTP to stabilize system clock..."
-ntp-wait -v -s 1 -n 600
-if [ $? -ne 0 ]; then
-	echo "Failed to stabilize system clock via ntp-wait!"
-	systemctl stop ntpd.service
+if [ "`which ntp-wait`" != "" ]; then
+	echo "Waiting for NTP to stabilize system clock..."
+	ntp-wait -v -s 1 -n 600
+	if [ $? -ne 0 ]; then
+		echo "Failed to stabilize system clock!"; }
+		systemctl stop ntpd.service
+	fi
 fi
 
 # Warm up. More appropriate warmup depends on the exact test
