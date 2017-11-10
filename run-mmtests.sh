@@ -469,7 +469,7 @@ if [ "`which ntp-wait`" != "" ]; then
 	echo "Waiting for NTP to stabilize system clock..."
 	ntp-wait -v -s 1 -n 600
 	if [ $? -ne 0 ]; then
-		echo "Failed to stabilize system clock!"; }
+		echo "Failed to stabilize system clock!";
 		systemctl stop ntpd.service
 	fi
 fi
