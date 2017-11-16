@@ -11,7 +11,6 @@ sub initialise() {
 	$self->{_DataType}   		= DataTypes::DATA_TIME_MSECONDS;
 	$self->{_PlotType}   		= "client-errorlines";
 	$self->{_SubheadingPlotType}	= "simple-clients";
-	$self->{_SubheadingFine}	= 1;
         $self->SUPER::initialise($reportDir, $testName);
 	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%-${fieldLength}.3f", "%${fieldLength}d" ];
 }
