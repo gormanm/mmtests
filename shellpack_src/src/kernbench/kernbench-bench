@@ -1,6 +1,6 @@
 #!/bin/bash
 # Benchmark a number of kernel builds
-###SHELLPACK preamble kernbench 3.0
+###SHELLPACK preamble kernbench 4.4
 ITERATIONS=5
 
 ###SHELLPACK parseargBegin
@@ -12,7 +12,7 @@ ITERATIONS=5
 
 ###SHELLPACK monitor_hooks
 
-WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v3.0/linux-${VERSION}.tar.gz
+WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v4.x/linux-${VERSION}.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS))
 
