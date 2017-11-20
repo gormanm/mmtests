@@ -68,9 +68,21 @@ sub initialise() {
 	$self->{_TestName} = $testName;
 }
 
+sub toIndexByOperation($) {
+	my ($dataref) = @_;
+	my @data = @{$dataref};
+	my %result;
+
+	foreach my $rowref (@data) {
+		push @{$result{$rowref->[0]}}, [$rowref->[1], $rowref->[2]];
+	}
+
+	return \%result;
+}
+
 sub printPlot() {
 	my ($self, $subHeading) = @_;
-	my @data = @{$self->{_ResultData}};
+	my %data = %{toIndexByOperation($self->{_ResultData})};
 	my @_operations = @{$self->{_Operations}};
 	my $fieldLength = $self->{_FieldLength};
 	my $column = 1;
@@ -107,14 +119,11 @@ sub printPlot() {
 		my @units;
 		my @row;
 		my $samples = 0;
-		$heading =~ s/\s//g;
-		foreach my $row (@data) {
-			@{$row}[0] =~ s/\s+//g;
-			if (@{$row}[0] eq $heading) {
-				push @index, @{$row}[1];
-				push @units, @{$row}[2];
-				$samples++;
-			}
+
+		foreach my $row (@{$data{$heading}}) {
+			push @index, @{$row}[0];
+			push @units, @{$row}[1];
+			$samples++;
 		}
 
 		$nr_headings++;
@@ -168,7 +177,7 @@ sub printReport() {
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = @{$self->{_Operations}};
-	my @data = @{$self->{_ResultData}};
+	my %data = %{toIndexByOperation($self->{_ResultData})};
 
 	if ($subHeading ne "") {
 		my $index = 0;
@@ -184,12 +193,9 @@ sub extractSummary() {
 	foreach my $operation (@_operations) {
 		my @units;
 		my @row;
-		my $samples = 0;
-		foreach my $row (@data) {
-			if (@{$row}[0] eq "$operation") {
-				push @units, @{$row}[2];
-				$samples++;
-			}
+
+		foreach my $row (@{$data{$operation}}) {
+			push @units, @{$row}[1];
 		}
 
 		push @row, $operation;
@@ -220,7 +226,7 @@ sub extractSummary() {
 sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = @{$self->{_Operations}};
-	my @data = @{$self->{_ResultData}};
+	my %data = %{toIndexByOperation($self->{_ResultData})};
 	my %includeOps;
 
 	$self->{_SummaryHeaders} = [ "Op", "Ratio" ];
@@ -252,12 +258,8 @@ sub extractRatioSummary() {
 	foreach my $operation (@_operations) {
 		my @units;
 		my @row;
-		my $samples = 0;
-		foreach my $row (@data) {
-			if (@{$row}[0] eq "$operation") {
-				push @units, @{$row}[2];
-				$samples++;
-			}
+		foreach my $row (@{$data{$operation}}) {
+			push @units, @{$row}[1];
 		}
 		push @row, $operation;
 		foreach my $funcName ($self->{_MeanOp}) {
