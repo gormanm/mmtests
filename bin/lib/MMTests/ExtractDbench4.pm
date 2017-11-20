@@ -18,7 +18,12 @@ sub initialise() {
 
 sub sort_time {
 	my $resultRef = shift;
-	my @new_resultRef = sort { $a->[1] <=> $b->[1] } @$resultRef;
+	my @new_resultRef = sort {
+			if ($a->[0] != $b->[0]) {
+				return $a->[0] <=> $b->[0];
+			}
+			return $a->[1] <=> $b->[1];
+		} @$resultRef;
 	return \@new_resultRef;
 }
 
