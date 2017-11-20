@@ -37,8 +37,6 @@ sub extractReport() {
 	}
 	@clients = sort { $a <=> $b } @clients;
 
-	my %client_time;
-
 	foreach my $client (@clients) {
 		my $nr_samples = 0;
 		my $file = "$reportDir/$profile/dbench-$client.log";
@@ -56,13 +54,7 @@ sub extractReport() {
 				next if ($elements[3] > (1<<31));
 
 				$nr_samples++;
-				my $runtime = $client_time{$elements[0]} += $elements[3];
-				if ($elements[7] ne "") {
-					$runtime = $elements[7];
-				}
-
-				$client_time{$elements[0]} += $elements[3];
-				push @{$self->{_ResultData}}, [ "$client", $runtime / 1000, $elements[3] ];
+				push @{$self->{_ResultData}}, [ "$client", $elements[7] / 1000, $elements[3] ];
 
 				next;
 			}
