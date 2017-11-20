@@ -11,7 +11,7 @@ use strict;
 use POSIX qw(floor);
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_lowest_mean &calc_highest_mean &calc_highest_harmmean &calc_trimmed_mean &select_lowest &select_highest &calc_mean &select_trim &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &select_lowest &select_highest &calc_mean &select_trim &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Print the percentage difference between two values
 sub pdiff {
@@ -235,30 +235,6 @@ sub select_lowest {
 	my $nr_trim = int ($nr_elements * $percentage / 100);
 
 	return select_data(0, $nr_trim, $dataref);
-}
-
-sub calc_trimmed_mean {
-	my $percentage = shift;
-
-	return calc_mean(@{select_trim($percentage, \@_)});
-}
-
-sub calc_highest_mean {
-	my $percentage = shift;
-
-	return calc_mean(@{select_highest($percentage, \@_)});
-}
-
-sub calc_highest_harmmean {
-	my $percentage = shift;
-
-	return calc_harmmean(@{select_highest($percentage, \@_)});
-}
-
-sub calc_lowest_mean {
-	my $percentage = shift;
-
-	return calc_mean(@{select_lowest($percentage, \@_)});
 }
 
 sub calc_true_mean {

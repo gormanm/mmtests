@@ -27,7 +27,6 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TIME_CYCLES ||
 	    $self->{_DataType} == DataTypes::DATA_BAD_ACTIONS) {
 		$self->{_MeanOp} = "calc_mean";
-		$self->{_MeanOpBest} = "calc_lowest_mean";
 		$self->{_MeanName} = "Amean";
 		$self->{_RatioPreferred} = "Lower";
 		$self->{_CompareOp} = "pndiff";
@@ -44,7 +43,6 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE ||
 	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
 		$self->{_MeanOp} = "calc_harmmean";
-		$self->{_MeanOpBest} = "calc_highest_harmmean";
 		$self->{_MeanName} = "Hmean";
 		$self->{_RatioPreferred} = "Higher";
 		$self->{_CompareOp} = "pdiff";
@@ -111,7 +109,7 @@ sub extractSummary() {
 	}
 
 	my $meanOp = $self->{_MeanOp};
-	my $bestOp = $self->{_MeanOpBest};
+	my $selectOp = $self->getSelectionFunc();
 
 	foreach my $operation (@_operations) {
 		no strict  "refs";
@@ -142,12 +140,12 @@ sub extractSummary() {
 		push @row, &$meanOp(@units);
 		push @row, calc_stddev(@units);
 		push @row, calc_coeffvar(@units);
-		push @row, &$bestOp(99, @units);
-		push @row, &$bestOp(95, @units);
-		push @row, &$bestOp(90, @units);
-		push @row, &$bestOp(75, @units);
-		push @row, &$bestOp(50, @units);
-		push @row, &$bestOp(25, @units);
+		push @row, &$meanOp(@{&$selectOp(99, \@units)});
+		push @row, &$meanOp(@{&$selectOp(95, \@units)});
+		push @row, &$meanOp(@{&$selectOp(90, \@units)});
+		push @row, &$meanOp(@{&$selectOp(75, \@units)});
+		push @row, &$meanOp(@{&$selectOp(50, \@units)});
+		push @row, &$meanOp(@{&$selectOp(25, \@units)});
 
 		push @{$self->{_SummaryData}}, \@row;
 	}

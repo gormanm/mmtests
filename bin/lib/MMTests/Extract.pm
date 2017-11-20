@@ -106,6 +106,18 @@ sub printDataType() {
 	}
 }
 
+sub getSelectionFunc() {
+	my ($self) = @_;
+
+	if ($self->{_RatioPreferred} eq "Lower") {
+		return "select_lowest";
+	} elsif ($self->{_RatioPreferred} eq "Higher") {
+		return "select_highest";
+	} else {
+		return "select_trim";
+	}
+}
+
 sub initialise() {
 	my ($self, $reportDir, $testName, $format) = @_;
 	my (@fieldHeaders, @plotHeaders, @summaryHeaders);

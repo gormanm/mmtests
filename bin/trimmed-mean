@@ -8,5 +8,5 @@ use VMR::Stat;
 $x[$i++] = $_;
 END {
 	$i = 0;
-	print calc_trimmed_mean(25, @x);
+	print calc_mean(@{select_trimmed(75, \@x)});
 }
