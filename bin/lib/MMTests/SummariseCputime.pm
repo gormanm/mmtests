@@ -108,7 +108,7 @@ sub extractRatioSummary() {
 		push @{$self->{_SummaryData}}, ["Elapsed", &$funcName(@elapsed) ];
 	}
 
-	push @{$self->{_SummaryStdDevs}}, calc_stddev(@elapsed);
+	push @{$self->{_SummaryCILen}}, calc_stddev(@elapsed);
 
 	return 1;
 }

@@ -111,8 +111,8 @@ sub _generateComparisonTable() {
 	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
 	my $baselineRef = $extractModules[0]->{_SummaryData};
 	my @baseline = @{$baselineRef};
-	my $baseStdDevsRef = $extractModules[0]->{_SummaryStdDevs};
-	my @baseStdDevs = @{$baseStdDevsRef // []};
+	my $baseCILenRef = $extractModules[0]->{_SummaryCILen};
+	my @baseCILen = @{$baseCILenRef // []};
 
 	for (my $column = 1; $column <= $#summaryHeaders; $column++) {
 		for (my $row = 0; $row <= $#baseline; $row++) {
@@ -140,8 +140,8 @@ sub _generateComparisonTable() {
 				no strict "refs";
 				my $summaryRef = $extractModules[$module]->{_SummaryData};
 				my @summary = @{$summaryRef};
-				my $summaryStdDevsRef = $extractModules[$module]->{_SummaryStdDevs};
-				my @summaryStdDevs = @{$summaryStdDevsRef};
+				my $summaryCILenRef = $extractModules[$module]->{_SummaryCILen};
+				my @summaryCILen = @{$summaryCILenRef};
 
 				if ($summary[$row][$column] eq "") {
 					$summary[$row][$column] = "NaN";
@@ -150,8 +150,8 @@ sub _generateComparisonTable() {
 					push @data, $summary[$row][$column];
 					push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
 					push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
-					if ($baseStdDevsRef) {
-						my $sdiff_val = sdiff($summary[$row][$column], $summaryStdDevs[$row], $baseline[$row][$column], $baseStdDevs[$row]);
+					if ($baseCILenRef) {
+						my $sdiff_val = sdiff($summary[$row][$column], $summaryCILen[$row], $baseline[$row][$column], $baseCILen[$row]);
 						if ($sdiff_val eq "NaN" || $sdiff_val eq "nan") {
 							$sdiff_val = 0;
 						}
@@ -197,8 +197,8 @@ sub _generateComparisonTable() {
 	}
 
 	$self->{_ResultsTable} = \@resultsTable;
-	$self->{_ResultsNormalizedTable} = \@normCompareTable if $baseStdDevsRef;
-	$self->{_NormalizedDiffStatsTable} = \@normcmpmean if $baseStdDevsRef;
+	$self->{_ResultsNormalizedTable} = \@normCompareTable if $baseCILenRef;
+	$self->{_NormalizedDiffStatsTable} = \@normcmpmean if $baseCILenRef;
 	$self->{_ResultsRatioTable} = \@compareRatioTable;
 	$self->{_GeometricMeanTable} = \@geomean;
 
