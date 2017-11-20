@@ -34,7 +34,6 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TIME_USECONDS ||
 	    $self->{_DataType} == DataTypes::DATA_TIME_CYCLES ||
 	    $self->{_DataType} == DataTypes::DATA_BAD_ACTIONS) {
-		$self->{_MeanOp} = "calc_mean";
 		$self->{_MeanName} = "Amean";
 		$self->{_RatioPreferred} = "Lower";
 		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
@@ -50,7 +49,6 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_SECOND ||
 	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE ||
 	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
-		$self->{_MeanOp} = "calc_harmmean";
 		$self->{_MeanName} = "Hmean";
 		$self->{_RatioPreferred} = "Higher";
 		$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff", "pdiff", "pdiff", "pdiff", ];
@@ -198,14 +196,14 @@ sub extractSummary() {
 
 		push @row, $operation;
 		my $funcName;
-		foreach $funcName ("calc_min", $self->{_MeanOp}, "calc_stddev", "calc_coeffvar", "calc_max") {
+		foreach $funcName ("calc_min", $self->getMeanFunc, "calc_stddev", "calc_coeffvar", "calc_max") {
 			no strict "refs";
 			my $value = &$funcName(@units);
 			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
 				push @row, $value;
 			}
 		}
-		$funcName = $self->{_MeanOp};
+		$funcName = $self->getMeanFunc;
 		my $selectFunc = $self->getSelectionFunc();
 		foreach my $i (50, 95, 99) {
 			no strict "refs";
@@ -261,7 +259,7 @@ sub extractRatioSummary() {
 			push @units, @{$row}[1];
 		}
 		push @row, $operation;
-		foreach my $funcName ($self->{_MeanOp}) {
+		foreach my $funcName ($self->getMeanFunc) {
 			no strict "refs";
 			my $value = &$funcName(@units);
 			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
