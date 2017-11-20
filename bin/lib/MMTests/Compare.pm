@@ -172,14 +172,14 @@ sub _generateComparisonTable() {
 	}
 
 	my @geomean;
-	my @devmean;
+	my @normcmpmean;
 	for (my $column = 1; $column <= $#summaryHeaders; $column++) {
 		for (my $module = 0; $module <= $#extractModules; $module++) {
 			my @units;
 			for (my $row = 0; $row <= $#baseline; $row++) {
 				push @units, $normCompareTable[$row][$module];
 			}
-			push @devmean, [ calc_mean(@units), calc_min(@units), calc_max(@units) ];
+			push @normcmpmean, [ calc_mean(@units), calc_min(@units), calc_max(@units) ];
 
 			@units = ();
 			for (my $row = 0; $row <= $#baseline; $row++) {
@@ -198,7 +198,7 @@ sub _generateComparisonTable() {
 
 	$self->{_ResultsTable} = \@resultsTable;
 	$self->{_ResultsNormalizedTable} = \@normCompareTable if $baseStdDevsRef;
-	$self->{_StddevMeanTable} = \@devmean if $baseStdDevsRef;
+	$self->{_NormalizedDiffStatsTable} = \@normcmpmean if $baseStdDevsRef;
 	$self->{_ResultsRatioTable} = \@compareRatioTable;
 	$self->{_GeometricMeanTable} = \@geomean;
 
@@ -350,9 +350,9 @@ sub _generateRenderRatioTable() {
 		push @finalTable, [@row];
 	}
 
-	if (defined $self->{_StddevMeanTable}) {
+	if (defined $self->{_NormalizedDiffStatsTable}) {
 		# Stddev mean table
-		my @devTable = $self->{_StddevMeanTable};
+		my @ndiffTable = $self->{_NormalizedDiffStatsTable};
 		my @extractModules = @{$self->{_ExtractModules}};
 		my (@dmeanLine, @dminLine, @dmaxLine);
 		push @dmeanLine, "Dmean";
@@ -361,10 +361,10 @@ sub _generateRenderRatioTable() {
 		push @dmeanLine, $extractModules[0]->{_RatioPreferred};
 		push @dminLine, $extractModules[0]->{_RatioPreferred};
 		push @dmaxLine, $extractModules[0]->{_RatioPreferred};
-		for (my $i = 0; $i <= $#{$devTable[0]}; $i++) {
-			push @dmeanLine, ($devTable[0][$i][0], undef, undef);
-			push @dminLine, ($devTable[0][$i][1], undef, undef);
-			push @dmaxLine, ($devTable[0][$i][2], undef, undef);
+		for (my $i = 0; $i <= $#{$ndiffTable[0]}; $i++) {
+			push @dmeanLine, ($ndiffTable[0][$i][0], undef, undef);
+			push @dminLine, ($ndiffTable[0][$i][1], undef, undef);
+			push @dmaxLine, ($ndiffTable[0][$i][2], undef, undef);
 		}
 		push @finalTable, [@dmeanLine], [@dminLine], [@dmaxLine];
 	}
