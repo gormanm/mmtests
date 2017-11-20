@@ -9,9 +9,10 @@ use vars qw (@ISA @EXPORT);
 use VMR::Report;
 use strict;
 use POSIX qw(floor);
+use FindBin qw($Bin);
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &select_lowest &select_highest &calc_mean &select_trim &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &cidiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &select_lowest &select_highest &calc_mean &select_trim &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper, &calc_submean_ci);
 
 # Print the percentage difference between two values
 sub pdiff {
@@ -63,6 +64,17 @@ sub sdiff {
 	} else {
 		return $diff / $pdev;
 	}
+}
+
+sub cidiff {
+	my ($new, $newci, $base, $baseci) = @_;
+	my $diff = $new - $base;
+	my $cisum = $newci + $baseci;
+
+	if ($cisum == 0) {
+		return $diff;
+	}
+	return $diff / $cisum;
 }
 
 sub calc_sum {
@@ -447,6 +459,47 @@ sub calc_welch_test {
 		printVerbose("Not rejecting H_0: µx=µy; t=$t, k=$k, qt=$q, alpha=$alpha%\n");
 		return 0;
 	}
+}
+
+# Get reference to data structure, a file with R script, and possible optional
+# arguments and pipe the data structure into R script. Return R output as a
+# reference to array.
+sub pipe_to_R {
+	require Cpanel::JSON::XS;
+	require IPC::Open2;
+
+	my $dataref = shift;
+	my $cmd = "Rscript ".join(" ", @_);
+	my $json = Cpanel::JSON::XS->new();
+	my @result;
+
+	$json->allow_blessed();
+	$json->convert_blessed();
+
+	IPC::Open2::open2(my $readfh, my $writefh, $cmd) || die("Cannot execute R script");
+	print $writefh $json->encode($dataref);
+	close($writefh);
+
+	while (my $row = <$readfh>) {
+		push(@result, $row);
+	}
+	close($readfh);
+
+	return \@result;
+}
+
+sub calc_submean_ci {
+	my ($meanName, $dataref) = @_;
+	my $resultref;
+	my $row;
+	my @parsedrow;
+
+	$resultref = pipe_to_R($dataref,
+		"$Bin/lib/R/subselection-confidence-interval.R", $meanName);
+	$row = @{$resultref}[0];
+	@parsedrow = split(' ', $row);
+	# Skip initial "[1]" output by R
+	return ($parsedrow[1], $parsedrow[2]);
 }
 
 1;

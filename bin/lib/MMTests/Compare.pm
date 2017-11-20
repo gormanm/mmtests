@@ -121,6 +121,7 @@ sub _generateComparisonTable() {
 			my @ratio;
 			my @normcmp;
 			my $compareOp;
+			my $ratioCompareOp = "sdiff";
 
 			if (defined $self->{_CompareOps}) {
 				$compareOp = $self->{_CompareOps}[$column];
@@ -136,6 +137,10 @@ sub _generateComparisonTable() {
 			if (defined $extractModules[0]->{_CompareLookup}{$baseline[$row][0]}) {
 				$compareOp = $extractModules[0]->{_CompareLookup}{$baseline[$row][0]};
 			}
+			if (defined $extractModules[0]->{_RatioCompareOp}) {
+				$ratioCompareOp = $extractModules[0]->{_RatioCompareOp};
+			}
+
 			for (my $module = 0; $module <= $#extractModules; $module++) {
 				no strict "refs";
 				my $summaryRef = $extractModules[$module]->{_SummaryData};
@@ -151,10 +156,13 @@ sub _generateComparisonTable() {
 					push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
 					push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
 					if ($baseCILenRef) {
-						my $sdiff_val = sdiff($summary[$row][$column], $summaryCILen[$row], $baseline[$row][$column], $baseCILen[$row]);
+						my $sdiff_val;
+
+						$sdiff_val = &$ratioCompareOp($summary[$row][$column], $summaryCILen[$row], $baseline[$row][$column], $baseCILen[$row]);
 						if ($sdiff_val eq "NaN" || $sdiff_val eq "nan") {
 							$sdiff_val = 0;
 						}
+						print "Comparing ($ratioCompareOp) $summary[$row][$column] $summaryCILen[$row] $baseline[$row][$column] $baseCILen[$row]: $sdiff_val\n";
 						push @normcmp, $sdiff_val;
 					}
 				} else {
