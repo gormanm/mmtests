@@ -105,7 +105,7 @@ sub _generateComparisonTable() {
 	my @resultsTable;
 	my @compareTable;
 	my @compareRatioTable;
-	my @stddevTable;
+	my @normCompareTable;
 
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
@@ -119,7 +119,7 @@ sub _generateComparisonTable() {
 			my @data;
 			my @compare;
 			my @ratio;
-			my @stddev;
+			my @normcmp;
 			my $compareOp;
 
 			if (defined $self->{_CompareOps}) {
@@ -155,19 +155,19 @@ sub _generateComparisonTable() {
 						if ($sdiff_val eq "NaN" || $sdiff_val eq "nan") {
 							$sdiff_val = 0;
 						}
-						push @stddev, $sdiff_val;
+						push @normcmp, $sdiff_val;
 					}
 				} else {
 					push @data, 0;
 					push @compare, 0;
 					push @ratio, 1;
-					push @stddev, 0;
+					push @normcmp, 0;
 				}
 			}
 			push @resultsTable, [@data];
 			push @compareTable, [@compare];
 			push @compareRatioTable, [@ratio];
-			push @stddevTable, [@stddev];
+			push @normCompareTable, [@normcmp];
 		}
 	}
 
@@ -177,7 +177,7 @@ sub _generateComparisonTable() {
 		for (my $module = 0; $module <= $#extractModules; $module++) {
 			my @units;
 			for (my $row = 0; $row <= $#baseline; $row++) {
-				push @units, $stddevTable[$row][$module];
+				push @units, $normCompareTable[$row][$module];
 			}
 			push @devmean, [ calc_mean(@units), calc_min(@units), calc_max(@units) ];
 
@@ -197,7 +197,7 @@ sub _generateComparisonTable() {
 	}
 
 	$self->{_ResultsTable} = \@resultsTable;
-	$self->{_ResultsStdDevTable} = \@stddevTable if $baseStdDevsRef;
+	$self->{_ResultsNormalizedTable} = \@normCompareTable if $baseStdDevsRef;
 	$self->{_StddevMeanTable} = \@devmean if $baseStdDevsRef;
 	$self->{_ResultsRatioTable} = \@compareRatioTable;
 	$self->{_GeometricMeanTable} = \@geomean;
@@ -263,7 +263,7 @@ sub _generateRenderRatioTable() {
 
 	my @titleTable = @{$self->{_TitleTable}};
 	my @resultsTable = @{$self->{_ResultsRatioTable}};
-	my @stddevTable = @{$self->{_ResultsStdDevTable}} if exists $self->{_ResultsStdDevTable};
+	my @normResultsTable = @{$self->{_ResultsNormalizedTable}} if exists $self->{_ResultsNormalizedTable};
 	my $fieldLength = $self->{_FieldLength};
 	my $compareLength = 0;
 	my $precision = 2;
@@ -341,8 +341,8 @@ sub _generateRenderRatioTable() {
 			} else {
 				push @row, [""];
 			}
-			if (defined $self->{_ResultsStdDevTable}) {
-				push @row, $stddevTable[$row][$i] // 0;
+			if (defined $self->{_ResultsNormalizedTable}) {
+				push @row, $normResultsTable[$row][$i] // 0;
 			} else {
 				push @row, [""];
 			}
