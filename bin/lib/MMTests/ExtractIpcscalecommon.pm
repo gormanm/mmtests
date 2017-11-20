@@ -39,7 +39,7 @@ sub extractReport() {
 			}
 		}
 	}
-	my @ops = sort { $a <=> $b } keys %samples;
+	my @ops = sort { $a cmp $b } keys %samples;
 	$self->{_Operations} = \@ops;
 	close INPUT;
 }
