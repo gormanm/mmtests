@@ -11,7 +11,7 @@ use strict;
 use POSIX qw(floor);
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_lowest_mean &calc_highest_mean &calc_highest_harmmean &calc_mean &calc_trimmed_mean &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
+@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &calc_lowest_mean &calc_highest_mean &calc_highest_harmmean &calc_trimmed_mean &select_lowest &select_highest &calc_mean &select_trim &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper);
 
 # Print the percentage difference between two values
 sub pdiff {
@@ -198,66 +198,67 @@ sub calc_median {
 	}
 }
 
-sub calc_trimmed_mean {
-	my $percentage = shift;
-	$percentage /= 2;
-	my $nr_elements = @_;
-	my $nr_trim = int ($nr_elements * $percentage / 100);
+sub select_data {
+	my ($low, $high, $dataref) = @_;
+	my $len = @{$dataref};
 
-	if ($nr_trim == 0 || $nr_trim * 2 > $nr_elements) {
-		return calc_mean(@_);
+	if (($low <= 0 && $high >= $len) ||
+	    ($low > $high)) {
+		return $dataref;
 	}
 
-	my @sorted = sort { $a <=> $b } @_;
-	my @trimmed = @sorted[$nr_trim..$nr_elements - $nr_trim];
+	my @sorted = sort { $a <=> $b } @{$dataref};
+	my @trimmed = @sorted[$low..$high];
 
-	return calc_mean(@trimmed);
+	return \@trimmed;
 }
 
+sub select_trim {
+	my ($percentage, $dataref) = @_;
+	my $nr_elements = @{$dataref};
+	my $nr_trim = int ($nr_elements - int ($nr_elements * $percentage / 100)) / 2;
+
+	return select_data($nr_trim, $nr_elements - $nr_trim, $dataref);
+}
+
+sub select_highest {
+	my ($percentage, $dataref) = @_;
+	my $nr_elements = @{$dataref};
+	my $nr_trim = int ($nr_elements * $percentage / 100);
+
+	return select_data($nr_elements - $nr_trim, $nr_elements, $dataref);
+}
+
+sub select_lowest {
+	my ($percentage, $dataref) = @_;
+	my $nr_elements = @{$dataref};
+	my $nr_trim = int ($nr_elements * $percentage / 100);
+
+	return select_data(0, $nr_trim, $dataref);
+}
+
+sub calc_trimmed_mean {
+	my $percentage = shift;
+
+	return calc_mean(@{select_trim($percentage, \@_)});
+}
 
 sub calc_highest_mean {
 	my $percentage = shift;
-	my $nr_elements = @_;
-	my $nr_trim = int ($nr_elements * $percentage / 100);
 
-	if ($nr_trim == 0) {
-		return calc_mean(@_);
-	}
-
-	my @sorted = sort { $a <=> $b } @_;
-	my @trimmed = @sorted[$nr_trim..$nr_elements];
-
-	return calc_mean(@trimmed);
+	return calc_mean(@{select_highest($percentage, \@_)});
 }
 
 sub calc_highest_harmmean {
 	my $percentage = shift;
-	my $nr_elements = @_;
-	my $nr_trim = int ($nr_elements * $percentage / 100);
 
-	if ($nr_trim == 0) {
-		return calc_harmmean(@_);
-	}
-
-	my @sorted = sort { $a <=> $b } @_;
-	my @trimmed = @sorted[$nr_trim..$nr_elements];
-
-	return calc_harmmean(@trimmed);
+	return calc_harmmean(@{select_highest($percentage, \@_)});
 }
 
 sub calc_lowest_mean {
 	my $percentage = shift;
-	my $nr_elements = @_;
-	my $nr_trim = int ($nr_elements * $percentage / 100);
 
-	if ($nr_trim == 0) {
-		return calc_mean(@_);
-	}
-
-	my @sorted = sort { $a <=> $b } @_;
-	my @trimmed = @sorted[0..$nr_trim];
-
-	return calc_mean(@trimmed);
+	return calc_mean(@{select_lowest($percentage, \@_)});
 }
 
 sub calc_true_mean {
