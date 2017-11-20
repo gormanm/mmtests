@@ -21,7 +21,7 @@ sub initialise() {
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = @{$self->{_Operations}};
-	my @data = @{$self->{_ResultData}};
+	my %data = %{$self->dataByOperation()};
 
 	if ($subHeading ne "") {
 		$#_operations = 0;
@@ -36,12 +36,8 @@ sub extractSummary() {
 
 		my @units;
 		my @row;
-		my $samples = 0;
-		foreach my $row (@data) {
-			if (@{$row}[0] eq "$operation") {
-				push @units, @{$row}[2];
-				$samples++;
-			}
+		foreach my $row (@{$data{$operation}}) {
+			push @units, @{$row}[1];
 		}
 
         $self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-95%", "Max-99%", "Max", "$self->{_MeanName}", "Stddev", "Coeff", "Best99%$self->{_MeanName}", "Best95%$self->{_MeanName}",  "Best90%$self->{_MeanName}", "Best75%$self->{_MeanName}", "Best50%$self->{_MeanName}", "Best25%$self->{_MeanName}" ];
@@ -76,7 +72,7 @@ sub extractSummary() {
 sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = @{$self->{_Operations}};
-	my @data = @{$self->{_ResultData}};
+	my %data = %{$self->dataByOperation()};
 
 	if ($subHeading ne "") {
 		$#_operations = 0;
@@ -89,12 +85,9 @@ sub extractRatioSummary() {
 
 		my @units;
 		my @row;
-		my $samples = 0;
-		foreach my $row (@data) {
-			if (@{$row}[0] eq "$operation") {
-				push @units, @{$row}[2];
-				$samples++;
-			}
+
+		foreach my $row (@{$data{$operation}}) {
+			push @units, @{$row}[1];
 		}
 		my $quartilesRef = calc_quartiles(@units);
 		my @quartiles = @{$quartilesRef};
