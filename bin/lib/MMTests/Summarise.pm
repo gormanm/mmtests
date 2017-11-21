@@ -39,7 +39,6 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_BAD_ACTIONS) {
 		$self->{_MeanName} = "Amean";
 		$self->{_RatioPreferred} = "Lower";
-		$self->{_CompareOp} = "pndiff";
 	}
 	if ($self->{_DataType} == DataTypes::DATA_ACTIONS ||
 	    $self->{_DataType} == DataTypes::DATA_ACTIONS_PER_SECOND ||
@@ -54,7 +53,6 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
 		$self->{_MeanName} = "Hmean";
 		$self->{_RatioPreferred} = "Higher";
-		$self->{_CompareOp} = "pdiff";
 	}
 
 	$self->SUPER::initialise($reportDir, $testName);

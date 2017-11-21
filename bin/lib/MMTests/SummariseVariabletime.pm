@@ -10,6 +10,11 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
 	$self->SUPER::initialise($reportDir, $testName);
+	if ($self->{_RatioPreferred} = "Lower") {
+		$self->{_CompareOp} = "pndiff";
+	} else {
+		$self->{_CompareOp} = "pdiff";
+	}
 	$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-95%", "Max-99%", "Max", "$self->{_MeanName}", "Stddev", "Coeff", "Best99%$self->{_MeanName}", "Best95%$self->{_MeanName}",  "Best90%$self->{_MeanName}", "Best75%$self->{_MeanName}", "Best50%$self->{_MeanName}", "Best25%$self->{_MeanName}" ];
 }
 

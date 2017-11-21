@@ -11,6 +11,11 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
 	$self->SUPER::initialise($reportDir, $testName);
+	if ($self->{_RatioPreferred} eq "Lower") {
+		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
+	} else {
+		$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff", "pdiff", "pdiff", "pdiff", ];
+	}
 	$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max", "B$self->{_MeanName}-50", "B$self->{_MeanName}-95", "B$self->{_MeanName}-99" ];
 }
 
