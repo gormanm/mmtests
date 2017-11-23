@@ -1,7 +1,7 @@
 package MMTests::ExtractDbench4;
-use MMTests::SummariseMultiops;
+use MMTests::SummariseSubselection;
 use VMR::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
+our @ISA = qw(MMTests::SummariseSubselection);
 use strict;
 
 sub initialise() {
