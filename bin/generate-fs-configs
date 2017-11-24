@@ -57,6 +57,7 @@ config-global-dhp__io-threaded
 config-global-dhp__io-metadata
 config-global-dhp__io-dbench4-async
 config-global-dhp__io-dbench4-fsync
+config-global-dhp__io-fsmark-xfsrepair
 config-global-dhp__pagereclaim-performance
 config-global-dhp__pagereclaim-shrinker
 config-global-dhp__workload-fsmark-50m-inode
