@@ -472,6 +472,9 @@ if [ "`which ntp-wait`" != "" ]; then
 		echo "Failed to stabilize system clock!";
 		systemctl stop ntpd.service
 	fi
+	systemctl stop ntpd.service
+	systemctl stop chronyd.service
+	systemctl stop time-sync.target
 fi
 
 # Warm up. More appropriate warmup depends on the exact test
