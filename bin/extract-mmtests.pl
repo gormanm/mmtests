@@ -26,7 +26,7 @@ use strict;
 my ($opt_verbose);
 my ($opt_help, $opt_manual);
 my ($opt_reportDirectory, $opt_monitor);
-my ($opt_printHeader, $opt_printPlot, $opt_printSummary, $opt_printType);
+my ($opt_printHeader, $opt_printPlot, $opt_printSummary, $opt_printType, $opt_printJSON);
 my ($opt_subheading, $opt_format);
 my ($opt_name, $opt_benchmark);
 GetOptions(
@@ -37,6 +37,7 @@ GetOptions(
 	'--print-header'	=> \$opt_printHeader,
 	'--print-plot'		=> \$opt_printPlot,
 	'--print-summary'	=> \$opt_printSummary,
+	'--print-json'		=> \$opt_printJSON,
 	'--print-monitor=s'	=> \$opt_monitor,
 	'--sub-heading=s'	=> \$opt_subheading,
 	'n|name=s'		=> \$opt_name,
@@ -53,6 +54,20 @@ if (! -d $opt_reportDirectory) {
 	printWarning("Report directory $opt_reportDirectory does not exist or was not specified.");
 	pod2usage(-exitstatus => -1, -verbose => 0);
 }
+
+sub exportJSON {
+	my ($module, $benchmark, $name) = @_;
+	require Cpanel::JSON::XS;
+	my $json = Cpanel::JSON::XS->new();
+
+	printVerbose("Exporting to JSON\n");
+
+	$json->allow_blessed();
+	$json->convert_blessed();
+
+	print $json->encode($module);
+}
+
 # If monitors are requested, extract that and exit
 if (defined $opt_monitor) {
 	my $monitorFactory = MMTests::MonitorFactory->new();
@@ -78,6 +93,8 @@ if (defined $opt_monitor) {
 	} elsif ($opt_printSummary) {
 		$monitorModule->printSummaryHeaders() if $opt_printHeader;
 		$monitorModule->printSummary($opt_subheading);
+	} elsif ($opt_printJSON) {
+		exportJSON($monitorModule, $opt_benchmark, $opt_name);
 	} else {
 		$monitorModule->printReportTop();
 		$monitorModule->printFieldHeaders() if $opt_printHeader;
@@ -117,6 +134,10 @@ if (! -e "$opt_reportDirectory/noprofile") {
 
 # Extract data from the benchmark itself and print whatever was requested
 $extractModule->extractReport($opt_reportDirectory, $opt_name, $profile);
+if ($opt_printJSON) {
+	exportJSON($extractModule, $opt_benchmark, $opt_name);
+	exit;
+}
 $extractModule->printReportTop();
 if ($opt_printPlot) {
 	$extractModule->printPlotHeaders() if $opt_printHeader;
@@ -152,6 +173,7 @@ extract-mmtest [options]
  --print-summary	Summarise the data
  --print-monitor	Print information related to a monitor
  --print-plot		Print in a format suitable for consumption by gnuplot
+ --print-json		Print extracted data in JSON format
  --sub-heading		Analyse just a sub-heading of the data, see manual page
  --manual		Print manual page
  --help			Print help message
@@ -206,6 +228,10 @@ the benchmark runs.
 Print data suitable for plotting with. The exact format this takes will
 depend on the type of data being extracted. It may be necessary to specify
 --sub-heading.
+
+=item B<--print-json>
+
+Print extracted data in JSON format.
 
 =item B<--sub-heading>
 
