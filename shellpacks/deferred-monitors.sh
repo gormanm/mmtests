@@ -215,7 +215,7 @@ function start_with_latency_monitor()
 	echo "Started monitor ${_monitor} latency pid $PID2,$PID1"
 }
 
-function start_tracing_monitor()
+function start_tracer_monitor()
 {
 	export MONITOR_PID=${MONITOR_LOG}.pid
 
