@@ -10,7 +10,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
 	$self->SUPER::initialise($reportDir, $testName);
-	if ($self->{_RatioPreferred} = "Lower") {
+	if ($self->{_RatioPreferred} eq "Lower") {
 		$self->{_CompareOp} = "pndiff";
 	} else {
 		$self->{_CompareOp} = "pdiff";
