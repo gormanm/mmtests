@@ -2,7 +2,7 @@
 # Run perf-bench numa mem benchmark
 
 P=perfnuma-bench
-DEFAULT_VERSION=4.1
+DEFAULT_VERSION=4.12
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -129,9 +129,10 @@ for ITERATION in `seq 1 $PERFNUMA_ITERATIONS`; do
 		die Unrecognised workload $WORKLOAD
 		;;
 	esac
+sync
 done
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description perfnuma
-#### Details perfnuma-bench 9
+#### Details perfnuma-bench 10
