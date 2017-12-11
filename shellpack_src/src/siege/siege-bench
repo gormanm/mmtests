@@ -78,11 +78,11 @@ echo Running up to $MAX_USERS users, $ITERATIONS iterations per user
 			fi
 
 			echo Waiting on tcp_wait state to drop to an acceptable level
-			WAITING=`netstat -n -a | grep TIME_WAIT | wc -l`
+			WAITING=`ss -Hnta state time-wait | wc -l`
 			while [ $WAITING -gt 1024 ]; do
 				echo o $WAITING
 				sleep 5
-				WAITING=`netstat -n -a | grep TIME_WAIT | wc -l`
+				WAITING=`ss -Hnta state time-wait | wc -l`
 			done
 		done
 		if [ $FAILURES -ne 0 ]; then
