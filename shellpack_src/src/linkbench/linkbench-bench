@@ -10,6 +10,13 @@ MYSQLCMD="${SHELLPACK_SOURCES}/mariadbbuild-${MARIADB_VERSION}-installed/bin/mys
 MYSQLADMIN="${SHELLPACK_SOURCES}/mariadbbuild-${MARIADB_VERSION}-installed/bin/mysqladmin -u $MARIADB_ADMIN_USER -p$MARIADB_ADMIN_PASSWORD"
 DBSTART_OPTIONS="--innodb_flush_method=nosync,--innodb_flush_log_at_trx_commit=0,--innodb_buffer_pool_size=${BUFF_POOL_SIZE},--innodb_log_file_size=512M,--max_allowed_packet=1G"
 
+# Always scrub sources as the benchmark in question does not properly
+# reinitialise itself if the data partitions gets scrubbed
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/mariadb*
+	rm -rf $SHELLPACK_SOURCES/maven*
+	rm -rf $SHELLPACK_SOURCES/linkbench*
+fi
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall

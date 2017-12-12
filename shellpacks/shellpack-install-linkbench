@@ -163,4 +163,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-mariadbbuild --stop
 
 echo linkbench installed successfully
 #### Description linkbench
-#### Details linkbench 5
+#### Details linkbench 6
