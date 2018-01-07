@@ -25,7 +25,7 @@ fi
 
 # Build Apache
 ###SHELLPACK build_start apachebuild-${VERSION}
-###SHELLPACK build_configure apachebuild-${VERSION} --with-apr=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-apr-util=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-pcre=$SHELLPACK_SOURCES/pcrebuild-${PCRE_VERSION}-installed --enable-so
+###SHELLPACK build_configure apachebuild-${VERSION} --with-apr=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-apr-util=$SHELLPACK_SOURCES/aprbuild-${APR_VERSION}-installed --with-pcre=$SHELLPACK_SOURCES/pcrebuild-${PCRE_VERSION}-installed --enable-so --disable-ssl
 ###SHELLPACK make_make_install
 
 # remove User and Group directives from httpd config file, so that it's executed as the current user
