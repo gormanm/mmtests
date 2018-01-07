@@ -81,7 +81,10 @@ $PSQL "bin/initdb -D $POSTGRES_DATADIR"
 if [ $? -ne 0 ]; then
 	echo WARNING: initdb failed to execute, forcing access permissions on home
 	chmod a+x $HOME
-	$PSQL "bin/initdb -D $POSTGRES_DATADIR" || die die Failed to init DB
+	$PSQL "bin/initdb -D $POSTGRES_DATADIR"
+	if [ $? -ne 0 ]; then
+		$PSQL "bin/initdb -D $POSTGRES_DATADIR --locale=en_GB" || die Failed to call initdb
+	fi
 fi
 
 # Update the max connection count if necessary
