@@ -103,8 +103,9 @@ for PAGES in $SPECJVM_PAGESIZES; do
 	fi
 
 	mv results $LOGDIR_RESULTS/$PAGES
+	gzip $LOGDIR_RESULTS/$PAGES/SPECjvm2008.001/SPECjvm2008.001.raw
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description SPECjvm
-#### Details specjvm-bench 15
+#### Details specjvm-bench 16
