@@ -71,6 +71,7 @@ mmtests_activity $CONN_NAME-$NR_THREADS
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 $SHELLPACK_SOURCES/graphdb-${VERSION}-installed/graphdb
 cat *-latency.dat | sort -n > $LOGDIR_RESULTS/graphdb.log
+gzip $LOGDIR_RESULTS/graphdb.log
 rm *-latency.dat
 monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 
