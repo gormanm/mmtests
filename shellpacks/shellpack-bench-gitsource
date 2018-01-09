@@ -2,7 +2,7 @@
 # This script runs the git source unit tests
 
 P=gitsource-bench
-DEFAULT_VERSION=v2.6.3
+DEFAULT_VERSION=v2.15.1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -88,6 +88,7 @@ for ITERATION in `seq 1 $GITSOURCE_ITERATIONS`; do
 		> $LOGDIR_RESULTS/gitsource-${ITERATION}.log 2>&1
 	tail $LOGDIR_RESULTS/gitsource-${ITERATION}.log
 	cat $LOGDIR_RESULTS/gitsource-${ITERATION}.time
+sync
 done
 monitor_post_hook $LOGDIR_RESULTS 1
 
@@ -96,4 +97,4 @@ rm -rf $SHELLPACK_DATA/gitsource-${VERSION}-installed
 
 exit $SHELLPACK_SUCCESS
 #### Description git source unit tests
-#### Details gitsource-bench 11
+#### Details gitsource-bench 12

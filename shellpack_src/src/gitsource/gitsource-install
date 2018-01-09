@@ -1,7 +1,9 @@
 #!/bin/bash
-###SHELLPACK preamble gitsource-install v2.6.3
+###SHELLPACK preamble gitsource-install v2.15.1
 GIT_LOCATION=https://github.com/git/git
 MIRROR_LOCATION="$WEBROOT/gitsource/"
+
+install-depends libcurl-devel
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

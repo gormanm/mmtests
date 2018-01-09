@@ -1,6 +1,6 @@
 #!/bin/bash
 P=gitsource-install
-DEFAULT_VERSION=v2.6.3
+DEFAULT_VERSION=v2.15.1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -9,6 +9,8 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 GIT_LOCATION=https://github.com/git/git
 MIRROR_LOCATION="$WEBROOT/gitsource/"
+
+install-depends libcurl-devel
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -89,4 +91,4 @@ fi
 
 echo gitsource installed successfully
 #### Description git source unit tests
-#### Details gitsource 11
+#### Details gitsource 12
