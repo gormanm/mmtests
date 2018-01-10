@@ -45,7 +45,10 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # SPECjbb - max heap 60% of memory.
 # Total heap is divided between number of instances
-export SPECJBB_JRE=/opt/java/jre/bin
+SPECJBB_JRE=
+if [ -e /opt/java/jre/bin ]; then
+	export SPECJBB_JRE=/opt/java/jre/bin
+fi
 export SPECJBB_STARTING_WAREHOUSES=1
 export SPECJBB_INCREMENT_WAREHOUSES=1
 export SPECJBB_ENDING_WAREHOUSES=$NUMCPUS
