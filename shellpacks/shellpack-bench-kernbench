@@ -85,6 +85,13 @@ cd $SHELLPACK_DATA/linux-$VERSION
 yes '' | make defconfig > /dev/null 2>&1 || die Failed to make defconfig
 make -j$THREADS clean > /dev/null
 
+if [ "`uname -m`" = "aarch64" ]; then
+	echo Removing broken entry from aarch64 defconfig
+	sed -i -e '/CONFIG_CRYPTO_CRC32_ARM64/d' .config
+	echo "# CONFIG_CRYPTO_CRC32_ARM64 is not set" >> .config
+	yes '' | make oldconfig
+fi
+
 echo Warming run
 make -j$THREADS vmlinux > /dev/null 2>&1 || die Failed to build vmlinux
 make clean >/dev/null
@@ -137,4 +144,4 @@ rm -rf $TMPDIR/kernbench
 
 exit $SHELLPACK_SUCCESS
 #### Description Benchmark based on kernel builds
-#### Details kernbench-bench 35
+#### Details kernbench-bench 36
