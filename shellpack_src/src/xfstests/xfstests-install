@@ -14,6 +14,7 @@ install-depends libuuid-devel acl-devel attr-devel xfsprogs-devel
 
 # testing users
 id fsgqa || useradd fsgqa
+getent group fsgqa || groupadd fsgqa
 id 123456-fsgqa || useradd 123456-fsgqa
 
 echo xfstests installed successfully
