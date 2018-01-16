@@ -6,7 +6,7 @@ MIRROR_LOCATION="$WEBROOT/xfstests/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-install-depends libuuid-devel acl-devel attr-devel xfsprogs-devel
+install-depends libuuid-devel acl-devel acl attr-devel attr xfsprogs-devel libaio-devel libbtrfs-devel openssl-devel
 
 ###SHELLPACK git_fetch xfstests-${VERSION}.tar.gz xfstests-${VERSION}-installed
 ###SHELLPACK build_start xfstests-${VERSION}-installed
