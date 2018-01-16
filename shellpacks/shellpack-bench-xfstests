@@ -89,6 +89,8 @@ export SCRATCH_DEV=$XFSTESTS_SCRATCH_DEV
 export SCRATCH_DEV_POOL=$XFSTESTS_SCRATCH_DEV_POOL
 export SCRATCH_MNT=$SHELLPACK_TOPLEVEL/scratch_mnt
 export FSTYP=$TESTDISK_FILESYSTEM
+export MKFS_OPTIONS=$TESTDISK_MKFS_PARAM
+export MOUNT_OPTIONS=${TESTDISK_MOUNT_ARGS:+-o "$TESTDISK_MOUNT_ARGS"}
 
 mkdir -p $TEST_DIR
 mkdir -p $SCRATCH_MNT
@@ -106,4 +108,4 @@ monitor_post_hook $LOGDIR_RESULTS $SIZE
 
 exit $SHELLPACK_SUCCESS
 #### Description xfstests, a filesystem regression testsuite
-#### Details xfstests-bench 7
+#### Details xfstests-bench 8
