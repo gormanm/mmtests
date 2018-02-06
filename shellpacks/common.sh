@@ -684,6 +684,9 @@ function create_testdisk()
 
 				echo Creating partitions on $DISK
 				parted -s --align optimal $DISK mkpart primary $TESTDISK_RAID_OFFSET $TESTDISK_RAID_SIZE || die Failed to create aligned partition with parted
+
+				echo Attempting discard on ${DISK}1
+				blkdiscard ${DISK}1
 				ATTEMPT=0
 				OUTPUT=`mdadm --zero-superblock ${DISK}1 2>&1 | grep "not zeroing"`
 				while [ "$OUTPUT" != "" ]; do

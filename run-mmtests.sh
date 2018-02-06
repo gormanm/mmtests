@@ -216,6 +216,7 @@ install-depends perl-Time-HiRes time tcl
 install-depends kpartx util-linux
 install-depends hwloc-lstopo
 install-depends cpupower
+install-depends util-linux
 
 # Check monitoring
 if [ "$FORCE_RUN_MONITOR" != "" ]; then
