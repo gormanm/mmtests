@@ -93,12 +93,21 @@ function wait_on_pid_exit() {
 
 function wait_on_pid_file() {
 	PIDFILE=$1
+	TIMEOUT=$2
 
 	sleep 1
+	ATTEMPT=1
 	echo -n "Waiting on pidfile \"`basename $PIDFILE`\" "
 	while [ ! -e $PIDFILE ]; do
 		echo -n O
 		sleep 1
+		if [ "$TIMEOUT" != "" ]; then
+			ATTEMPT=$((ATTEMPT+1))
+			if [ $ATTEMPT -gt $TIMEOUT ]; then
+				echo Pidfile failed to appear within timeout
+				exit $SHELLPACK_ERROR
+			fi
+		fi
 	done
 
 	PIDWAIT=`cat $PIDFILE`

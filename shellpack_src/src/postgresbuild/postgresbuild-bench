@@ -108,7 +108,7 @@ if [ "$SERVER_START" = "yes" ]; then
 	echo Starting postgres
 	rm logfile 2> /dev/null
 	$MMTESTS_NUMACTL $PSQL "$SHELLPACK_INCLUDE/run_background bin/pg_ctl -D $POSTGRES_DATADIR -l logfile start"
-	wait_on_pid_file $POSTGRES_PIDFILE
+	wait_on_pid_file $POSTGRES_PIDFILE 600
 	POSTGRES_PID=`cat $POSTGRES_PIDFILE 2>&1`
 
 	echo -n Waiting on postgres to accept commands
