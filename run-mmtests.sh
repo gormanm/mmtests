@@ -589,7 +589,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		lsscsi > $SHELLPACK_LOG/lsscsi-${RUNNAME}.txt
 	fi
 	if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
-		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities.txt
+		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities-${RUNNAME}.txt
 	fi
 	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
 
