@@ -6,6 +6,10 @@ use strict;
 use POSIX();
 use POSIX qw(getuid);
 
+if ($ENV{"ASSUME_PACKAGE_INSTALLED"} eq "yes") {
+	exit 0;
+}
+
 # File::Which is not always available. Bodge it
 sub which {
 	my $binary = $_[0];
@@ -41,14 +45,16 @@ my %package_map = (
 );
 	
 my %package_bin = (
-	"suse"   => "zypper install -y",
-	"debian" => "apt-get install -y --force-yes",
-	"redhat" => "yum install -y",
+	"suse"   => "zypper install",
+	"debian" => "apt-get install",
+	"redhat" => "yum install",
 );
 
-if ($ENV{"ASSUME_PACKAGE_INSTALLED"} eq "yes") {
-	exit 0;
-}
+my %force_install = (
+	"suse" => "",
+	"debian" => "",
+	"redhat" => ""
+);
 
 my $distro;
 foreach my $release_file ("debian_version", "debian_release", "redhat-release", "redhat_version", "SuSE-release", "lsb-release") {
@@ -117,7 +123,29 @@ foreach my $package (@ARGV) {
 		}
 	}
 
-	if (system("$sudo $package_bin{$distro} $package") != 0) {
+	if ($ENV{"AUTO_PACKAGE_INSTALL"} ne "yes" && ! -e $ENV{"HOME"} . "/.mmtests-auto-package-install") {
+		if (! -e $ENV{"HOME"} . "/.mmtests-never-auto-package-install") {
+			print "MMTests needs to install $package, should all pages be automatically installed (yes/no/never)? ";
+			my $input = <STDIN>;
+			chomp($input);
+			if ($input eq "yes" || $input eq "y") {
+				open(TOUCH, '>', $ENV{"HOME"} . "/.mmtests-auto-package-install");
+				close TOUCH;
+			}
+			if ($input eq "never") {
+				open(TOUCH, '>', $ENV{"HOME"} . "/.mmtests-never-auto-package-install");
+				close TOUCH;
+			}
+		}
+	}
+
+	if ($ENV{"AUTO_PACKAGE_INSTALL"} eq "yes" || -e $ENV{"HOME"} . "/.mmtests-auto-package-install") {
+		$force_install{"suse"} = "-y";
+		$force_install{"debian"} = "-y --force-yes";
+		$force_install{"redhat"} = "-y";
+	}
+
+	if (system("$sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
 		die("Failed to install package $package for distro $distro");
 	}
 
