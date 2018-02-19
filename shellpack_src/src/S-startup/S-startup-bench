@@ -1,0 +1,27 @@
+#!/bin/bash
+# Run S-startup benchmark
+
+###SHELLPACK preamble S-startup-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --iterations       S_STARTUP_REPETITIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required S-startup-${VERSION}
+
+if [ "$SUDO_USER" != "" ]; then
+	CONF_DEST_DIR=/home/$SUDO_USER
+else
+	CONF_DEST_DIR=~
+fi
+
+rm $CONF_DEST_DIR/.S-config.sh
+sed -i "s</var/lib/S<$SHELLPACK_DATA<g" def_config_params.sh
+
+echo NOTE: S-startup calls repetitions what is called iterations in mmtests
+rm -rf $LOGDIR_RESULTS/results
+cd run_multiple_benchmarks/
+./run_main_benchmarks.sh replayed-startup "" "" "" $S_STARTUP_REPETITIONS \
+			 $LOGDIR_RESULTS/results
+
+exit $SHELLPACK_SUCCESS

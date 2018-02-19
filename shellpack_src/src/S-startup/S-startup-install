@@ -1,0 +1,13 @@
+#!/bin/bash
+
+###SHELLPACK preamble S-startup-install 0
+GIT_LOCATION="https://github.com/Algodev-github/S.git"
+
+install-depends gawk gnuplot coreutils fio time sysstat gcc-c++
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch S-startup-${VERSION}.tar.gz S-startup-${VERSION}-installed
+
+echo S-startup installed successfully
