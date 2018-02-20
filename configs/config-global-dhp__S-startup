@@ -56,9 +56,8 @@ export SWAP_NBD_PORT=10001
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat mpstat perf-time-stat"
-export MONITORS_WITH_LATENCY="vmstat"
-export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
+export MONITORS_GZIP="proc-vmstat top iotop mpstat"
+export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # S-startup
