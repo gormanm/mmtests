@@ -1,0 +1,81 @@
+#!/bin/bash
+# Run S-startup benchmark
+
+P=S-startup-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--iterations)
+		S_STARTUP_REPETITIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/S-startup-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/S-startup-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-S-startup -v ${VERSION}  || die S-startup install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/S-startup-${VERSION}-installed || die Failed to cd to S-startup install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo S-startup installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+if [ "$SUDO_USER" != "" ]; then
+	CONF_DEST_DIR=/home/$SUDO_USER
+else
+	CONF_DEST_DIR=~
+fi
+
+rm $CONF_DEST_DIR/.S-config.sh
+sed -i "s</var/lib/S<$SHELLPACK_DATA<g" def_config_params.sh
+
+echo NOTE: S-startup calls repetitions what is called iterations in mmtests
+rm -rf $LOGDIR_RESULTS/results
+cd run_multiple_benchmarks/
+./run_main_benchmarks.sh replayed-startup "" "" "" $S_STARTUP_REPETITIONS \
+			 $LOGDIR_RESULTS/results
+
+exit $SHELLPACK_SUCCESS
+#### Description Application start-up time benchmark
+#### Details S-startup-bench 2
