@@ -14,7 +14,7 @@ MIRROR_LOCATION="$WEBROOT/S"
 install-depends gawk gnuplot coreutils fio time sysstat gcc-c++
 install-depends xterm libreoffice-writer gnome-terminal
 
-# Done separetly as openSUSE requires packman repo for MPlayer
+# Done separately as openSUSE requires packman repo for MPlayer
 install-depends MPlayer
 
 # Basic argument parser
@@ -66,6 +66,32 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR S-startup-${VERSION}-installed
 pushd S-startup-${VERSION}-installed > /dev/null || die Failed to rename tar
 
+# Put kernel devel tree in place that S expects
+if [ "$S_STARTUP_REQUIRES_KERNELTREE" = "yes" ]; then
+	install-depends git-core
+	pushd $SHELLPACK_DATA || exit $SHELLPACK_ERROR
+	echo Attempting fetch from $MIRROR_LOCATION/../gitcheckout/linux-2.6.tar.gz
+	wget -q $MIRROR_LOCATION/../gitcheckout/linux-2.6.tar.gz
+	if [ $? -eq 0 ]; then
+		echo Using mirrored tarball
+		tar -xf linux-2.6.tar.gz || die "Failed to extract mirrored linux-2.6 tarball"
+		DST_DIR=`tar tf linux-2.6.tar.gz | head -n 1 | awk -F / '{print $1}'`
+		mv $DST_DIR linux-2.6
+	else
+		echo Cloning git repository
+		git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6 || die "Failed to clone Linus git tree"
+	fi
+	mv linux-2.6 linux.git-for_kern_dev_benchmarks
+	cd linux-2.6-for_kern_dev_benchmarks
+
+	echo Updating git repository
+	git remote update
+
+	echo Checking out v4.15 for a consistent kernel build environment
+	git checkout v4.15 || die "Failed to checkout v4.15"
+fi
+sync
+
 echo S-startup installed successfully
 #### Description Application start-up time benchmark
-#### Details S-startup 3
+#### Details S-startup 10
