@@ -66,6 +66,10 @@ DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR S-startup-${VERSION}-installed
 pushd S-startup-${VERSION}-installed > /dev/null || die Failed to rename tar
 
+# Specify standard required to build some tools
+echo Patching S-startup for C++ standards
+sed -i -e 's/g++ -pthread/g++ -std=c++11 -pthread/' comm_startup_lat/comm_startup_lat.sh
+
 # Put kernel devel tree in place that S expects
 if [ "$S_STARTUP_REQUIRES_KERNELTREE" = "yes" ]; then
 	install-depends git-core
