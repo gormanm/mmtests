@@ -86,7 +86,7 @@ if [ "$S_STARTUP_REQUIRES_KERNELTREE" = "yes" ]; then
 		git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6 || die "Failed to clone Linus git tree"
 	fi
 	mv linux-2.6 linux.git-for_kern_dev_benchmarks
-	cd linux-2.6-for_kern_dev_benchmarks
+	cd linux.git-for_kern_dev_benchmarks
 
 	echo Updating git repository
 	git remote update
@@ -98,4 +98,4 @@ sync
 
 echo S-startup installed successfully
 #### Description Application start-up time benchmark
-#### Details S-startup 10
+#### Details S-startup 11

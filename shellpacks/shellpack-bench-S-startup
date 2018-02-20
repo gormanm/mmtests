@@ -78,4 +78,4 @@ cd run_multiple_benchmarks/
 
 exit $SHELLPACK_SUCCESS
 #### Description Application start-up time benchmark
-#### Details S-startup-bench 10
+#### Details S-startup-bench 11
