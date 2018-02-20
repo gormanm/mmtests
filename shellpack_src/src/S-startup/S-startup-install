@@ -2,6 +2,7 @@
 
 ###SHELLPACK preamble S-startup-install 0
 GIT_LOCATION="https://github.com/Algodev-github/S.git"
+MIRROR_LOCATION="$WEBROOT/S"
 
 install-depends gawk gnuplot coreutils fio time sysstat gcc-c++
 
