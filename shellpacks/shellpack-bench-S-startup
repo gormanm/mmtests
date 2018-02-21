@@ -73,9 +73,10 @@ sed -i "s</var/lib/S<$SHELLPACK_DATA<g" def_config_params.sh
 echo NOTE: S-startup calls repetitions what is called iterations in mmtests
 rm -rf $LOGDIR_RESULTS/results
 cd run_multiple_benchmarks/
-./run_main_benchmarks.sh replayed-startup "" "" "" $S_STARTUP_REPETITIONS \
+
+./run_main_benchmarks.sh replayed-startup cur-sched fs "" $S_STARTUP_REPETITIONS \
 			 $LOGDIR_RESULTS/results
 
 exit $SHELLPACK_SUCCESS
 #### Description Application start-up time benchmark
-#### Details S-startup-bench 12
+#### Details S-startup-bench 13
