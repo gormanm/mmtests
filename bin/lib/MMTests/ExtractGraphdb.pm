@@ -32,7 +32,7 @@ sub extractReport() {
 	my $file = "$reportDir/$profile/graphdb.log";
 	die if ! -e "$reportDir/$profile/graphdb.log";
 
-	open(INPUT, "sort -n $file|") || open(INPUT, "gunzip -c $FILE|");
+	open(INPUT, "sort -n $file|") || open(INPUT, "gunzip -c $file|");
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 
