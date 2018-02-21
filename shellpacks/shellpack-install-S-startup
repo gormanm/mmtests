@@ -8,7 +8,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-GIT_LOCATION="https://github.com/Algodev-github/S.git"
+GIT_LOCATION="https://github.com/paolo-github/temporary-S-will-die-soon.git"
 MIRROR_LOCATION="$WEBROOT/S"
 
 install-depends gawk gnuplot coreutils fio time sysstat gcc-c++
@@ -98,4 +98,4 @@ sync
 
 echo S-startup installed successfully
 #### Description Application start-up time benchmark
-#### Details S-startup 11
+#### Details S-startup 12
