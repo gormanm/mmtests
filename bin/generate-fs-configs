@@ -110,14 +110,6 @@ config-global-dhp__io-ddread
 config-global-dhp__io-ddwrite
 config-global-dhp__workload_thpscale
 config-global-dhp__workload_will-it-scale-io
-config-global-dhp__proprietary_saphana_memload
-config-global-dhp__proprietary_saphanahwcct
-config-global-dhp__proprietary_sapfstest_random
-config-global-dhp__proprietary_sapfstest_sequential
-config-global-dhp__proprietary_saphana_oltp
-config-global-dhp__proprietary_saphana_oltp_tuned
-config-global-dhp__proprietary_saphana_tpcds_large
-config-global-dhp__proprietary_saphana_tpcds_large_tuned
 config-global-dhp__io-iozone-doublemem-async
 config-global-dhp__io-iozone-doublemem-fsync
 config-global-dhp__db-sqlite-insert-small
