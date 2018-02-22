@@ -78,7 +78,6 @@ sub extractSummary() {
 			push @rkbs,    $row[10];
 			push @wkbs,    $row[11];
 			push @totalkbs,$row[12];
-
 		}
 
 		my $mean_avgqusz = calc_mean(@avgqusz);
@@ -115,7 +114,7 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my $readingDevices = 0;
 	my $start_timestamp = 0;
-	my $format_type = 1;
+	my $format_type = -1;
 
 	my $file = "$reportDir/iostat-$testName-$testBenchmark";
 	if (-e $file) {
@@ -145,9 +144,22 @@ sub extractReport($$$) {
 		}
 		$timestamp -= $start_timestamp;
 
-		if ($elements[5] eq "Device:") {
-			if ($elements[10] eq "rsec/s") {
-				$format_type = 0;
+		# format 0: Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
+		# format 1: Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+		# format 2: Device            r/s     w/s     rkB/s     wkB/s   rrqm/s   wrqm/s  %rrqm  %wrqm r_await w_await aqu-sz rareq-sz wareq-sz  svctm  %util
+		if ($elements[5] =~ /Device/) {
+			if ($format_type == -1) {
+				if ($elements[6] eq "rrqm/s") {
+					if ($elements[10] eq "rsec/s") {
+						$format_type = 0;
+					}
+					if ($elements[10] eq "rkB/s") {
+						$format_type = 1;
+					}
+				}
+				if ($elements[6] eq "r/s" && $elements[10]) {
+					$format_type = 2;
+				}
 			}
 			$readingDevices = 1;
 			next;
@@ -175,6 +187,7 @@ sub extractReport($$$) {
 		# Record times
 		my ($avgqusz, $avgrqsz, $await, $r_await, $w_await, $svctm, $rrqm, $wrqm, $rkbs, $wkbs, $totalkbs);
 		if ($format_type == 0) {
+			# format 0: Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
 			$rrqm = $elements[6];
 			$wrqm = $elements[7];
 			$rkbs = $elements[10];
@@ -187,6 +200,7 @@ sub extractReport($$$) {
 			$w_await = -1;
 			$svctm = $elements[15];
 		} elsif ($format_type == 1) {
+			# format 1: Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
 			$rrqm = $elements[6];
 			$wrqm = $elements[7];
 			$rkbs = $elements[10];
@@ -198,6 +212,22 @@ sub extractReport($$$) {
 			$r_await = $elements[15];
 			$w_await = $elements[16];
 			$svctm = $elements[17];
+		} elsif ($format_type == 2) {
+			#           5                 6       7       8         9       10       11      12     13    14      15      16     17       18        19     20
+			# format 2: Device            r/s     w/s     rkB/s     wkB/s   rrqm/s   wrqm/s  %rrqm  %wrqm r_await w_await aqu-sz rareq-sz wareq-sz  svctm  %util
+			$rrqm = $elements[10];
+			$wrqm = $elements[11];
+			$rkbs = $elements[8];
+			$wkbs = $elements[9];
+			$totalkbs = $rkbs + $wkbs;
+			$avgqusz = $elements[16];
+			$r_await = $elements[14];
+			$w_await = $elements[15];
+			$svctm = $elements[19];
+
+			# Approximations :(
+			$await = ($r_await + $w_await) / 2;
+			$avgrqsz = ($elements[17] + $elements[18]) / 2;
 		}
 
 		# Filter out insane values
