@@ -21,12 +21,18 @@ if [ "$VERSION" = "4.1alpha" ]; then
 	###SHELLPACK self_extract 0002-Defer-reporting-of-execution-times.patch
 	patch -p1 <$SHELLPACK_TEMP/0002-Defer-reporting-of-execution-times.patch
 
-	###SHELLPACK self_extract 0003-Check-if-parent-is-alive-once-per-loadfile.patch
-	patch -p1 <$SHELLPACK_TEMP/0003-Check-if-parent-is-alive-once-per-loadfile.patch
+	###SHELLPACK self_extract 0003-Include-stdint_h.patch
+	patch -p1 <$SHELLPACK_TEMP/0003-Include-stdint_h.patch
 
-	###SHELLPACK self_extract 0004-Include-stdint_h.patch
-	patch -p1 <$SHELLPACK_TEMP/0004-Include-stdint_h.patch
+	###SHELLPACK self_extract 0004-Check-if-parent-is-alive-once-per-loadfile.patch
+	patch -p1 <$SHELLPACK_TEMP/0004-Check-if-parent-is-alive-once-per-loadfile.patch
+else
+	###SHELLPACK self_extract 0005-Check-if-parent-is-alive-once-per-loadfile.patch
+	patch -p1 <$SHELLPACK_TEMP/0005-Check-if-parent-is-alive-once-per-loadfile.patch
 fi
+
+# Versions 4.0 and 4.1alpha both need to stop being kill-happy
+
 ###SHELLPACK build_start dbench-${VERSION}
 ###SHELLPACK build_autogen dbench-${VERSION}
 ###SHELLPACK build_configure dbench-${VERSION}
@@ -244,50 +250,7 @@ index e4ae2304f040..828295d2aad9 100644
  		fflush(stdout);
 ==== END 0002-Defer-reporting-of-execution-times.patch ====
 
-==== BEGIN 0003-Check-if-parent-is-alive-once-per-loadfile.patch ====
-From ae104306bf484563e0a761d2d9a78e222875e12a Mon Sep 17 00:00:00 2001
-From: Mel Gorman <mgorman@techsingularity.net>
-Date: Thu, 10 Aug 2017 10:49:24 +0100
-Subject: [PATCH] Check if parent is alive once per loadfile
-
-strace reports that a high percentage of time is spent calling kill()
-with 12,000,000 calls in 3 minutes. Check if the parent is alive once
-per load file processed.
-
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
----
- child.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/child.c b/child.c
-index 828295d2aad9..9ec9df011540 100644
---- a/child.c
-+++ b/child.c
-@@ -384,10 +384,6 @@ void child_run(struct child_struct *child0, const char *loadfile)
- 
- 		params = sparams;
- 
--		if (kill(parent, 0) == -1) {
--			exit(1);
--		}
--
- loop_again:
- 		/* if this is a "LOOP <xxx>" line, 
- 		 * remember the current file position and move to the next line
-@@ -580,6 +576,10 @@ void child_run(struct child_struct *child0, const char *loadfile)
- 	}
- 
- 	gzrewind(gzf);
-+	if (kill(parent, 0) == -1) {
-+		exit(1);
-+	}
-+
- 	goto again;
- 
- done:
-==== END 0003-Check-if-parent-is-alive-once-per-loadfile.patch ====
-
-==== BEGIN 0004-Include-stdint_h.patch ====
+==== BEGIN 0003-Include-stdint_h.patch ====
 From f637b5e1af49c8dcb062e812ca47a0d800cbc2a2 Mon Sep 17 00:00:00 2001
 From: Mel Gorman <mgorman@techsingularity.net>
 Date: Tue, 26 Sep 2017 13:26:33 +0100
@@ -312,4 +275,88 @@ index 1f60ef0b5af1..92711e2b9bcd 100644
  #include <sys/types.h>
  #include <sys/stat.h>
  #include <fcntl.h>
-==== END 0004-Include-stdint_h.patch ====
+==== END 0003-Include-stdint_h.patch ====
+
+==== BEGIN 0004-Check-if-parent-is-alive-once-per-loadfile.patch ====
+From 67638b44b9300a5ebc7bc1695a8f2ce2fc138e67 Mon Sep 17 00:00:00 2001
+From: Mel Gorman <mgorman@techsingularity.net>
+Date: Thu, 10 Aug 2017 10:49:24 +0100
+Subject: [PATCH] Check if parent is alive once per loadfile processed
+
+strace reports that a high percentage of time is spent calling kill()
+with 12,000,000 calls in 3 minutes. Check if the parent is alive once per
+load file processed. With later versions of apparmor, kill() is permission
+checked which is very expensive in itself and unnecessary.  Instead use
+the ligher getppid() call and check against the cached value.
+
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+---
+ child.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/child.c b/child.c
+index 828295d2aad9..7abb238ef5bd 100644
+--- a/child.c
++++ b/child.c
+@@ -371,6 +371,10 @@ void child_run(struct child_struct *child0, const char *loadfile)
+ 		nb_time_reset(child);
+ 	}
+ 
++	if (getppid() != parent) {
++		exit(1);
++	}
++
+ 	gettimeofday(&start, NULL);
+ 
+ 	while (gzgets(gzf, line, sizeof(line)-1)) {
+@@ -384,10 +388,6 @@ void child_run(struct child_struct *child0, const char *loadfile)
+ 
+ 		params = sparams;
+ 
+-		if (kill(parent, 0) == -1) {
+-			exit(1);
+-		}
+-
+ loop_again:
+ 		/* if this is a "LOOP <xxx>" line, 
+ 		 * remember the current file position and move to the next line
+==== END 0004-Check-if-parent-is-alive-once-per-loadfile.patch ====
+
+==== BEGIN 0005-Check-if-parent-is-alive-once-per-loadfile.patch ====
+From 67638b44b9300a5ebc7bc1695a8f2ce2fc138e67 Mon Sep 17 00:00:00 2001
+From: Mel Gorman <mgorman@techsingularity.net>
+Date: Thu, 10 Aug 2017 10:49:24 +0100
+Subject: [PATCH] Check if parent is alive once per loadfile processed
+
+strace reports that a high percentage of time is spent calling kill()
+with 12,000,000 calls in 3 minutes. Check if the parent is alive once per
+load file processed. With later versions of apparmor, kill() is permission
+checked which is very expensive in itself and unnecessary.  Instead use
+the ligher getppid() call and check against the cached value.
+
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+---
+ child.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--- a/child.c
++++ b/child.c
+@@ -193,13 +193,13 @@
+ 		nb_time_reset(child);
+ 	}
+ 
++	if (getppid() != parent) {
++		exit(1);
++	}
++
+ 	while (fgets(line, sizeof(line)-1, f)) {
+ 		params = sparams;
+ 
+-		if (kill(parent, 0) == -1) {
+-			exit(1);
+-		}
+-
+ 		for (child=child0;child<child0+options.clients_per_process;child++) {
+ 			if (child->done) goto done;
+ 			child->line++;
+==== END 0005-Check-if-parent-is-alive-once-per-loadfile.patch ====
