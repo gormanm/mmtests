@@ -588,6 +588,9 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	if [ "`which lsscsi 2> /dev/null`" != "" ]; then
 		lsscsi > $SHELLPACK_LOG/lsscsi-${RUNNAME}.txt
 	fi
+	if [ "`which list-cpu-toplogy.sh 2> /dev/null`" != "" ]; then
+		list-cpu-toplogy.sh > $SHELLPACK_LOG/cpu-topology-mmtests-${RUNNAME}.txt
+	fi
 	if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
 		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities-${RUNNAME}.txt
 	fi
