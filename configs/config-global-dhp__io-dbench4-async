@@ -83,6 +83,7 @@ export DBENCH_DURATION_BASE=180
 export DBENCH_OSYNC=no
 export DBENCH_SYNC_DIRECTORY=no
 export DBENCH_FSYNC=no
+export DBENCH_MIN_CLIENTS=1
 export DBENCH_MAX_CLIENTS=$((NUMCPUS*8))
 
 # Force small filesystem size to limit variations of the test due to

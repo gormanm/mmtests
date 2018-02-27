@@ -66,21 +66,6 @@ export MONITOR_UPDATE_FREQUENCY=10
 export MONITOR_INTERACTIVE_APPS="evolution akregator gnome-terminal xchat firefox konqueror"
 export MONITOR_INTERACTIVE_APPS_STACKIGNORE="poll_schedule_timeout do_wait"
 
-# DBench
-export DBENCH_DURATION=$((7*60))
-export DBENCH_OSYNC=no
-export DBENCH_SYNC_DIRECTORY=no
-export DBENCH_FSYNC=no
-export DBENCH_MAX_CLIENTS=$((NUMCPUS*64))
-
-# NetPerf
-export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
-export NETPERF_BINDING=firstsecond
-
-# TBench
-export TBENCH_DURATION=$((3*60))
-export TBENCH_MAX_CLIENTS=$((NUMCPUS*64))
-
 # Ku-latency
 # default: no
 #export KU_LATENCY_START_SEND_FIRST=yes
