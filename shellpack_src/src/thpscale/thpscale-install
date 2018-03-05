@@ -35,6 +35,10 @@ exit $SHELLPACK_SUCCESS
 
 #define PAGESIZE getpagesize()
 #define HPAGESIZE (1048576*2)
+#define __ALIGN_MASK(x, mask)    (((x) + (mask)) & ~(mask))
+#define ALIGN(x, a)            __ALIGN_MASK(x, (typeof(x))(a) - 1)
+#define PTR_ALIGN(p, a)         ((typeof(p))ALIGN((unsigned long)(p), (a)))
+#define HPAGE_ALIGN(p)          PTR_ALIGN(p, HPAGESIZE)
 
 size_t total_size;
 size_t thread_size;
@@ -84,7 +88,7 @@ static void *worker(void *data)
 
 	/* Align index to huge page boundary */
 	end_mapping = first_mapping + thread_size;
-	aligned = (char *)(((unsigned long)first_mapping + HPAGESIZE) & ~(HPAGESIZE-1));
+	aligned = HPAGE_ALIGN(first_mapping);
 	i = aligned - first_mapping;
 
 	/* Punch holes */
@@ -93,12 +97,12 @@ static void *worker(void *data)
 	}
 
 	/* Allocate second mapping but do not fault it */
-	second_mapping = mmap(NULL, second_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
+	second_mapping = mmap(NULL, second_size + HPAGESIZE, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
 	if (second_mapping == MAP_FAILED) {
 		perror("Second mapping");
 		exit(EXIT_FAILURE);
 	}
-	aligned = (char *)(((unsigned long)second_mapping + HPAGESIZE) & ~(HPAGESIZE-1));
+	aligned = HPAGE_ALIGN(second_mapping);
 	offset = aligned - second_mapping;
 	end_mapping = second_mapping + second_size;
 
@@ -179,8 +183,15 @@ int main(int argc, char **argv)
 	}
 
 	nr_hpages = total_size / nr_threads / HPAGESIZE / 2;
-	thread_size = ((total_size / nr_threads) + (HPAGESIZE*4) - 1) & ~(HPAGESIZE-1);
-	th = malloc(nr_threads * sizeof(pthread_t *));
+	thread_size = PTR_ALIGN(total_size / nr_threads, HPAGESIZE*4);
+
+        if (thread_size * nr_threads > total_size) {
+                printf("file size %zd is insufficient for thread count; requires %ld bytes.\n",
+                        total_size, thread_size * nr_threads);
+                exit(EXIT_FAILURE);
+        }
+
+	th = malloc(nr_threads * sizeof(pthread_t));
 	if (th == NULL) {
 		printf("Unable to allocate thread structures\n");
 		exit(EXIT_FAILURE);
