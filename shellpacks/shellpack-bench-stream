@@ -1,0 +1,126 @@
+#!/bin/bash
+P=stream-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+install-depends openmpi openmpi-devel openmpi-libs
+install-depends libpsm_infinipath1
+
+STREAM_METHOD=single
+OPENMP=
+OPENMPI=
+MPICPUS=
+
+if [ "$NAS_MPI_PATH" != "" ]; then
+	export PATH=$PATH:$NAS_MPI_PATH
+fi
+
+if [ "$NAS_MPI_LIBPATH" != "" ]; then
+	export LD_LIBRARY_PATH=$NAS_MPI_LIBPATH
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--workload-size)
+		STREAM_SIZE=$2
+		shift 2
+		;;
+	--nr-threads)
+		STREAM_THREADS=$2
+		shift 2
+		;;
+	--method)
+		STREAM_METHOD=$2
+		shift 2
+		;;
+	--iterations)
+		STREAM_ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/stream-0
+fi
+if [ ! -d $SHELLPACK_SOURCES/stream-0-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-stream -v ${VERSION}  || die stream install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/stream-${VERSION}-installed || die Failed to cd to stream install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo stream installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+
+SIZEOF_DOUBLE=`cpp -dD /dev/null | grep SIZEOF_DOUBLE | awk '{print $NF}'`
+if [ "$SIZEOF_DOUBLE" = "" ]; then
+	die "Failed to get the size of a double"
+fi
+STREAM_ARRAY_ELEMENTS=$((STREAM_SIZE/3/SIZEOF_DOUBLE))
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+cd $SHELLPACK_SOURCES/stream-${VERSION}-installed || die Failed to change to install directory
+
+TASKSET=
+case $STREAM_METHOD in
+single)
+	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -m64 -lm -O2 stream.c -o stream || die Failed to compile stream binary
+	;;
+single-bind)
+	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -m64 -lm -O2 stream.c -o stream || die Failed to compile stream binary
+	CPULIST=`cat /sys/devices/system/cpu/cpu1/cache/index3/shared_cpu_list`
+	TASKSET="taskset -c $CPULIST"
+	;;
+
+omp)
+	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -fopenmp -m64 -lm -O2 stream.c -o stream || die Failed to compile stream binary
+	export OMP_NUM_THREADS=$STREAM_THREADS
+	;;
+esac
+
+monitor_pre_hook $LOGDIR_RESULTS
+for ITERATION in `seq 1 $STREAM_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+	eval $TASKSET ./stream 2>&1 | tee $LOGDIR_RESULTS/stream-$ITERATION.log
+sync
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description stream
+#### Details stream-bench 7

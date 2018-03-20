@@ -1,0 +1,20 @@
+#!/bin/bash
+###SHELLPACK preamble stream-install 0
+WEB_LOCATION="https://www.cs.virginia.edu/stream/FTP/Code/mysecond.c"
+MIRROR_LOCATION="$WEBROOT/stream/mysecond.c"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf stream-${VERSION}-installed
+mkdir -p stream-${VERSION}-installed
+
+for FILE in mysecond.c stream.c stream.f; do
+	LOCATION=`echo $WEB_LOCATION | sed -e "s/mysecond.c/$FILE/"`
+	MIRROR=`echo $MIRROR_LOCATION | sed -e "s/mysecond.c/$FILE/"`
+	TARGET="$SHELLPACK_SOURCES/stream-${VERSION}-installed/$FILE"
+	sources_fetch $LOCATION $MIRROR $TARGET
+done
+
+exit $SHELLPACK_SUCCESS

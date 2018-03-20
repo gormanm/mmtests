@@ -1,0 +1,60 @@
+#!/bin/bash
+###SHELLPACK preamble stream-bench 0
+
+install-depends openmpi openmpi-devel openmpi-libs
+install-depends libpsm_infinipath1
+
+STREAM_METHOD=single
+OPENMP=
+OPENMPI=
+MPICPUS=
+
+if [ "$NAS_MPI_PATH" != "" ]; then
+	export PATH=$PATH:$NAS_MPI_PATH
+fi
+
+if [ "$NAS_MPI_LIBPATH" != "" ]; then
+	export LD_LIBRARY_PATH=$NAS_MPI_LIBPATH
+fi
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --workload-size	STREAM_SIZE
+###SHELLPACK parseargParam --nr-threads		STREAM_THREADS
+###SHELLPACK parseargParam --method		STREAM_METHOD
+###SHELLPACK parseargParam --iterations		STREAM_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required stream-0
+
+SIZEOF_DOUBLE=`cpp -dD /dev/null | grep SIZEOF_DOUBLE | awk '{print $NF}'`
+if [ "$SIZEOF_DOUBLE" = "" ]; then
+	die "Failed to get the size of a double"
+fi
+STREAM_ARRAY_ELEMENTS=$((STREAM_SIZE/3/SIZEOF_DOUBLE))
+
+###SHELLPACK monitor_hooks
+cd $SHELLPACK_SOURCES/stream-${VERSION}-installed || die Failed to change to install directory
+
+TASKSET=
+case $STREAM_METHOD in
+single)
+	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -m64 -lm -O2 stream.c -o stream || die Failed to compile stream binary
+	;;
+single-bind)
+	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -m64 -lm -O2 stream.c -o stream || die Failed to compile stream binary
+	CPULIST=`cat /sys/devices/system/cpu/cpu1/cache/index3/shared_cpu_list`
+	TASKSET="taskset -c $CPULIST"
+	;;
+
+omp)
+	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -fopenmp -m64 -lm -O2 stream.c -o stream || die Failed to compile stream binary
+	export OMP_NUM_THREADS=$STREAM_THREADS
+	;;
+esac
+
+monitor_pre_hook $LOGDIR_RESULTS
+###SHELLPACK iteration_begin $STREAM_ITERATIONS
+	eval $TASKSET ./stream 2>&1 | tee $LOGDIR_RESULTS/stream-$ITERATION.log
+###SHELLPACK iteration_end $STREAM_ITERATIONS
+
+exit $SHELLPACK_SUCCESS

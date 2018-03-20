@@ -16,6 +16,8 @@ fi
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
+LLC_INDEX=`find /sys/devices/system/cpu/ -type d -name "index*" | sed -e 's/.*index//' | sort -n | tail -1`
+NUMLLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort | uniq | wc -l`
 
 function die() {
 	rm -rf $SHELLPACK_TEMP
