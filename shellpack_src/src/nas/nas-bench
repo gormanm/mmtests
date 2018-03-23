@@ -99,11 +99,9 @@ record_procs() {
 
 round_down_power_2_cpus() {
 	POWER=1
-
-	while [ $((1<<$POWER)) -le $NAS_MAX_CPUS ]; do
+	while [ $((1<<$POWER)) -lt $NAS_MAX_CPUS ]; do
 		POWER=$((POWER+1))
 	done
-
 	MPICPUS=$((1<<(POWER-1)))
 }
 round_down_power_2_cpus
