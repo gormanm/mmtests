@@ -11,9 +11,12 @@ RUNBITS=
 HLINK=--hugepages-newrelink
 OPENMP=
 OPENMPI=
-MPICPUS=
 MEMTOTAL_MBYTES=$((MEMTOTAL_BYTES/1048576))
 HUGEPAGE_MAX=$(($MEMTOTAL_MBYTES/8*7))
+
+if [ "$NAS_MAX_CPUS" = "" ]; then
+	NAS_MAX_CPUS=$NUMCPUS
+fi
 
 if [ "$NAS_MPI_PATH" != "" ]; then
 	export PATH=$PATH:$NAS_MPI_PATH
@@ -54,6 +57,7 @@ fi
 		MPIOPT="-mca btl btl_sm_use_cma 1"
 		shift
 		;;
+###SHELLPACK parseargParam --max-cpus NAS_MAX_CPUS
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required nas-3.3
@@ -96,7 +100,7 @@ record_procs() {
 round_down_power_2_cpus() {
 	POWER=1
 
-	while [ $((1<<$POWER)) -le $NUMCPUS ]; do
+	while [ $((1<<$POWER)) -le $NAS_MAX_CPUS ]; do
 		POWER=$((POWER+1))
 	done
 

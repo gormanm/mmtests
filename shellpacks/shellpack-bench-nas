@@ -18,9 +18,12 @@ RUNBITS=
 HLINK=--hugepages-newrelink
 OPENMP=
 OPENMPI=
-MPICPUS=
 MEMTOTAL_MBYTES=$((MEMTOTAL_BYTES/1048576))
 HUGEPAGE_MAX=$(($MEMTOTAL_MBYTES/8*7))
+
+if [ "$NAS_MAX_CPUS" = "" ]; then
+	NAS_MAX_CPUS=$NUMCPUS
+fi
 
 if [ "$NAS_MPI_PATH" != "" ]; then
 	export PATH=$PATH:$NAS_MPI_PATH
@@ -79,6 +82,10 @@ while [ "$1" != "" ]; do
 	--cma)
 		MPIOPT="-mca btl btl_sm_use_cma 1"
 		shift
+		;;
+	--max-cpus)
+		NAS_MAX_CPUS=$2
+		shift 2
 		;;
 	*)
 		echo Unrecognised option: $1
@@ -146,7 +153,7 @@ record_procs() {
 round_down_power_2_cpus() {
 	POWER=1
 
-	while [ $((1<<$POWER)) -le $NUMCPUS ]; do
+	while [ $((1<<$POWER)) -le $NAS_MAX_CPUS ]; do
 		POWER=$((POWER+1))
 	done
 
@@ -269,4 +276,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 56
+#### Details nas-bench 57

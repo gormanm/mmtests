@@ -6,6 +6,11 @@ run_bench() {
 	if [ "$NAS_USE_CMA" = "yes" ]; then 
 		CMAOPT="--cma"
 	fi
-	$SCRIPTDIR/shellpacks/shellpack-bench-nas --type MPI $CMAOPT
+	if [ "$NAS_MAX_CPUS" = "" ]; then
+		NAS_MAX_CPUS=$NUMCPUS
+	fi
+	$SCRIPTDIR/shellpacks/shellpack-bench-nas $CMAOPT	\
+		--type MPI $CMAOPT				\
+		--max-cpus $NAS_MAX_CPUS
 	return $?
 }
