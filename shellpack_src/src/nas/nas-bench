@@ -193,11 +193,11 @@ for PAGES in $NAS_PAGESIZES; do
 			fi
 
 			if [ "$OPENMPI" = "" ]; then
-				$HUGECTL ./bin/$JOB.$NAS_CLASS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
+				$TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time $HUGECTL ./bin/$JOB.$NAS_CLASS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 			else
-				eval $HUGECTL mpirun $MPIOPT -np $MPICPUS ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
+				eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time $HUGECTL mpirun $MPIOPT -np $MPICPUS ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 				if [ $? -ne 0 ]; then
-					eval $HUGECTL mpirun --allow-run-as-root $MPIOPT -np $MPICPUS ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
+					eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time $HUGECTL mpirun --allow-run-as-root $MPIOPT -np $MPICPUS ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 				fi
 			fi
 
