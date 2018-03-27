@@ -153,7 +153,7 @@ record_procs() {
 
 round_down_power_2_cpus() {
 	POWER=1
-	while [ $((1<<$POWER)) -lt $NAS_MAX_CPUS ]; do
+	while [ $((1<<$POWER)) -le $NAS_MAX_CPUS ]; do
 		POWER=$((POWER+1))
 	done
 	MPICPUS=$((1<<(POWER-1)))
@@ -251,9 +251,9 @@ for PAGES in $NAS_PAGESIZES; do
 			if [ "$OPENMPI" = "" ]; then
 				$TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time $HUGECTL ./bin/$JOB.$NAS_CLASS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 			else
-				eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time $HUGECTL mpirun $MPIOPT -np $MPICPUS ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
+				eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time $HUGECTL mpirun $MPIOPT -np $MPICPUS $MPIRUN_EXTRA ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 				if [ $? -ne 0 ]; then
-					eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time $HUGECTL mpirun --allow-run-as-root $MPIOPT -np $MPICPUS ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
+					eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time $HUGECTL mpirun --allow-run-as-root $MPIOPT -np $MPICPUS $MPIRUN_EXTRA ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
 				fi
 			fi
 
@@ -275,4 +275,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 59
+#### Details nas-bench 60
