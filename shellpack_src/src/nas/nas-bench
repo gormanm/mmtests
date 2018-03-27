@@ -103,7 +103,7 @@ round_down_power_2_cpus() {
 	if [ "$NAS_ALLOW_CPU_SATURATE" = "yes" ]; then
 		NAS_MAX_CPUS=$((NAS_MAX_CPUS+1))
 	fi
-	while [ $((1<<$POWER)) -le $NAS_MAX_CPUS ]; do
+	while [ $((1<<$POWER)) -lt $NAS_MAX_CPUS ]; do
 		POWER=$((POWER+1))
 	done
 	MPICPUS=$((1<<(POWER-1)))
