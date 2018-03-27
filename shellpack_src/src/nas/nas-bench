@@ -100,6 +100,9 @@ record_procs() {
 
 round_down_power_2_cpus() {
 	POWER=1
+	if [ "$NAS_ALLOW_CPU_SATURATE" = "yes" ]; then
+		NAS_MAX_CPUS=$((NAS_MAX_CPUS+1))
+	fi
 	while [ $((1<<$POWER)) -le $NAS_MAX_CPUS ]; do
 		POWER=$((POWER+1))
 	done
