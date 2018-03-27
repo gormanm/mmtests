@@ -34,6 +34,7 @@ fi
 			OPENMP=--openmp
 		fi
 		if [ "$NAS_TYPE" = "MPI" ]; then
+			export OMPI_TMPDIR=$SHELLPACK_DATA
 			OPENMPI=--openmpi
 			case $NAS_CLASS in
 			C)
@@ -70,7 +71,6 @@ if [ "$OPENMPI" = "" ]; then
 	if [ "$NAS_CLASS" != "D" ]; then
 		JOBLIST="$JOBLIST ft"
 	fi
-	export OMPI_TMPDIR=$SHELLPACK_DATA
 else
 	JOBLIST="mg lu is ep cg"
 	if [ "$NAS_CLASS" != "D" ]; then
