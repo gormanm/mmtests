@@ -123,6 +123,7 @@ if [ "$OPENMPI" = "" ]; then
 	if [ "$NAS_CLASS" != "D" ]; then
 		JOBLIST="$JOBLIST ft"
 	fi
+	export OMPI_TMPDIR=$SHELLPACK_DATA
 else
 	JOBLIST="mg lu is ep cg"
 	if [ "$NAS_CLASS" != "D" ]; then
@@ -274,4 +275,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 58
+#### Details nas-bench 59

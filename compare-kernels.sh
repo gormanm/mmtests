@@ -559,8 +559,11 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo
 		;;
 	nas*)
-		echo $SUBREPORT Time
+		echo $SUBREPORT NAS Time
 		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		echo $SUBREPORT Real Time
+		cache-mmtests.sh compare-mmtests.pl -d . -b ${SUBREPORT}time -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Worker Mops/sec
 		cache-mmtests.sh compare-mmtests.pl -d . -b ${SUBREPORT}mops -n $KERNEL_LIST $FORMAT_CMD

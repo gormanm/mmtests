@@ -70,6 +70,7 @@ if [ "$OPENMPI" = "" ]; then
 	if [ "$NAS_CLASS" != "D" ]; then
 		JOBLIST="$JOBLIST ft"
 	fi
+	export OMPI_TMPDIR=$SHELLPACK_DATA
 else
 	JOBLIST="mg lu is ep cg"
 	if [ "$NAS_CLASS" != "D" ]; then
