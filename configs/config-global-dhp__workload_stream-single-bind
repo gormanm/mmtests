@@ -59,7 +59,7 @@ export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # stream
-export STREAM_SIZE=$((1048576*384))
+export STREAM_SIZE=$((1048576*512))
 export STREAM_THREADS=1
 export STREAM_METHOD=single-bind
 export STREAM_ITERATIONS=5
