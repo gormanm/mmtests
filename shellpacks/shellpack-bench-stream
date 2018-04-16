@@ -100,16 +100,16 @@ cd $SHELLPACK_SOURCES/stream-${VERSION}-installed || die Failed to change to ins
 TASKSET=
 case $STREAM_METHOD in
 single)
-	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -m64 -lm -O2 stream.c -o stream || die Failed to compile stream binary
+	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -m64 -lm -O3 stream.c -o stream || die Failed to compile stream binary
 	;;
 single-bind)
-	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -m64 -lm -O2 stream.c -o stream || die Failed to compile stream binary
+	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -m64 -lm -O3 stream.c -o stream || die Failed to compile stream binary
 	CPULIST=`cat /sys/devices/system/cpu/cpu1/cache/index3/shared_cpu_list`
 	TASKSET="taskset -c $CPULIST"
 	;;
 
 omp)
-	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -fopenmp -m64 -lm -O2 stream.c -o stream || die Failed to compile stream binary
+	gcc -DSTREAM_ARRAY_SIZE=$STREAM_ARRAY_ELEMENTS -fopenmp -m64 -lm -O3 stream.c -o stream || die Failed to compile stream binary
 	export OMP_NUM_THREADS=$STREAM_THREADS
 	;;
 esac
@@ -123,4 +123,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description stream
-#### Details stream-bench 7
+#### Details stream-bench 8
