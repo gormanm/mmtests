@@ -125,7 +125,7 @@ foreach my $package (@ARGV) {
 
 	if ($ENV{"AUTO_PACKAGE_INSTALL"} ne "yes" && ! -e $ENV{"HOME"} . "/.mmtests-auto-package-install") {
 		if (! -e $ENV{"HOME"} . "/.mmtests-never-auto-package-install") {
-			print "MMTests needs to install $package, should all pages be automatically installed (yes/no/never)? ";
+			print "MMTests needs to install $package, should all packages be automatically installed (yes/no/never)? ";
 			my $input = <STDIN>;
 			chomp($input);
 			if ($input eq "yes" || $input eq "y") {
