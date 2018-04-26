@@ -64,24 +64,69 @@ my %package_map = (
 	"redhat::btrfsprogs"     => "btrfs-progs",
 	"redhat::glibc-devel-static-32bit" => "glibc-static.i686",
 	"redhat::libopenssl-devel"	   => "openssl-devel",
+
+	"gentoo::acl-devel"	=> "sys-apps/acl",
+	"gentoo::attr-devel"	=> "sys-apps/attr",
+	"gentoo::binutils-devel" => "sys-devel/binutils",
+	"gentoo::blas-devel-static" => "virtual/blas",
+	"gentoo::blas-devel"	=> "virtual/blas",
+	"gentoo::btrfsprogs"	=> "sys-fs/btrfs-progs",
+	"gentoo::expect-devel"	=> "dev-tcltk/expect",
+	"gentoo::gcc-32bit"	=> "sys-devel/gcc",
+	"gentoo::gcc-c++"	=> "sys-devel/gcc",
+	"gentoo::gcc-fortran"	=> "sys-devel/gcc",
+	"gentoo::git-core"	=> "dev-vcs/git",
+	"gentoo::glibc-devel-static-32bit" => "sys-libs/glibc",
+	"gentoo::glibc-devel-static" => "sys-libs/glibc",
+	"gentoo::glibc-devel"	=> "sys-libs/glibc",
+	"gentoo::hwloc-devel"	=> "sys-apps/hwloc",
+	"gentoo::hwloc-lstopo"	=> "sys-apps/hwloc",
+	"gentoo::kpartx"	=> "sys-fs/multipath-tools",
+	"gentoo::libaio-devel"	=> "dev-libs/libaio",
+	"gentoo::libbtrfs-devel" => "sys-fs/btrfs-progs",
+	"gentoo::libcurl-devel"	=> "net-misc/curl",
+	"gentoo::libevent-devel" => "dev-libs/libevent",
+	"gentoo::libexpat-devel" => "dev-libs/expat",
+	"gentoo::libncurses5"	=> "sys-libs/ncurses",
+	"gentoo::libnuma-devel"	=> "sys-process/numactl",
+	"gentoo::libopenssl-devel" => "dev-libs/openssl",
+	"gentoo::libreoffice-writer" => "app-office/libreoffice-bin",
+	"gentoo::libstdc++-devel" => "sys-devel/gcc",
+	"gentoo::libuuid-devel"	=> "sys-apps/util-linux",
+	"gentoo::libxml2-devel"	=> "dev-libs/libxml2",
+	"gentoo::MPlayer"	=> "media-video/mplayer",
+	"gentoo::openmpi-32bit"	=> "sys-cluster/openmpi",
+	"gentoo::openmpi-devel"	=> "sys-cluster/openmpi",
+	"gentoo::openmpi-libs"	=> "sys-cluster/openmpi",
+	"gentoo::perl-Math-Round" => "dev-perl/Math-Round",
+	"gentoo::popt-devel"	=> "dev-libs/popt",
+	"gentoo::python-numpy"	=> "dev-python/numpy",
+	"gentoo::python-rpy2"	=> "dev-python/rpy",
+	"gentoo::xfsprogs-devel" => "sys-fs/xfsprogs",
+	"gentoo::xorg-x11-server" => "x11-base/xorg-server",
+	"gentoo::xz"		=> "app-arch/xz-utils",
+	"gentoo::zeromq-devel"	=> "net-libs/zeromq",
+	"gentoo::zlib-devel"	=> "sys-libs/zlib",
 );
 	
 my %package_bin = (
 	"suse"   => "zypper install",
 	"debian" => "apt-get install",
 	"redhat" => "yum install",
+	"gentoo" => "emerge",
 );
 
 my %force_install = (
 	"suse" => "",
 	"debian" => "",
-	"redhat" => ""
+	"redhat" => "",
+	"gentoo" => "",
 );
 
 my $distro;
 foreach my $release_file ("debian_version", "debian_release",
 			  "redhat-release", "redhat_version",
-			  "SuSE-release") {
+			  "SuSE-release", "gentoo-release") {
 	if (-r "/etc/$release_file" ) {
 		$distro = $release_file;
 		$distro =~ tr/[A-Z]/[a-z]/;
@@ -149,6 +194,12 @@ foreach my $package (@ARGV) {
 	# Check if the package is already installed
 	if ($distro eq "debian") {
 		if (system("dpkg --list $package > /dev/null 2>&1") == 0) {
+			next;
+		}
+	} elsif ($distro eq "gentoo") {
+		my $pn=qx(qatom -F %{PN} $package);
+		$pn =~ tr/\n//d;
+		if (system("qlist -Iv | grep -q '/$pn-[0-9]' > /dev/null 2>&1") == 0) {
 			next;
 		}
 	} else {
