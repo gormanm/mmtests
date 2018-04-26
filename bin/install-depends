@@ -57,7 +57,9 @@ my %force_install = (
 );
 
 my $distro;
-foreach my $release_file ("debian_version", "debian_release", "redhat-release", "redhat_version", "SuSE-release", "lsb-release") {
+foreach my $release_file ("debian_version", "debian_release",
+			  "redhat-release", "redhat_version",
+			  "SuSE-release") {
 	if (-r "/etc/$release_file" ) {
 		$distro = $release_file;
 		$distro =~ tr/[A-Z]/[a-z]/;
@@ -78,6 +80,20 @@ if (!defined($distro)) {
 			}
 			if (/CPE_NAME="cpe:\/o:([a-z]*):/) {
 				$distro = $1;
+				last;
+			}
+		}
+	}
+}
+
+if (!defined($distro)) {
+	if (-r "/etc/lsb-release") {
+		open(LSBRELEASE, "/etc/lsb-release");
+		foreach (<LSBRELEASE>) {
+			if (/DISTRIB_ID=(.*)/) {
+				$distro = $1;
+				$distro =~ tr/"//d;
+				$distro =~ tr/[A-Z]/[a-z]/;
 				last;
 			}
 		}
