@@ -214,7 +214,7 @@ install-depends expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile pa
 install-depends recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz wget
 install-depends perl-Time-HiRes time tcl
 install-depends kpartx util-linux
-install-depends hwloc-lstopo
+install-depends hwloc-lstopo numactl
 install-depends cpupower
 install-depends util-linux
 
