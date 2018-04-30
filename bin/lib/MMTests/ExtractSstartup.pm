@@ -1,10 +1,9 @@
 # ExtractSstartup.pm
 package MMTests::ExtractSstartup;
-use MMTests::SummariseSingleops;
+use MMTests::SummariseVariabletime;
 use MMTests::DataTypes;
-use VMR::Report;
-our @ISA = qw(MMTests::SummariseSingleops);
-
+use VMR::Stat;
+our @ISA = qw(MMTests::SummariseVariabletime);
 use strict;
 
 sub new() {
@@ -12,8 +11,9 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractSstartup",
 		_DataType    => DataTypes::DATA_TIME_SECONDS,
-		_PlotType    => "histogram",
 		_ResultData  => [],
+		_PlotType    => "simple-filter-points",
+		_PlotXaxis   => "Sample #"
 	};
 	bless $self, $class;
 	return $self;
@@ -23,71 +23,67 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 
 	my @jobnames;
-	foreach my $file (<$reportDir/noprofile/results/overall_stats-*_startup.txt>) {
-		$file =~ s/.*overall_stats-replayed_//;
+	foreach my $file (<$reportDir/noprofile/results/replayed_*_startup>) {
+		$file =~ s/.*replayed_//;
+		$file =~ s/_startup$//;
 		$file =~ s/_startup.txt$//;
 		push @jobnames, $file;
 	}
 	@jobnames = sort { $a <=> $b } @jobnames;
 
-##	Example of extracting repetitions but unused at this time
-##	---------------------------------------------------------
-##	Note that an unfortunate limitation is that we do not have a breakdown
-##	of times for each repetition so only the aggregate can be reported
-##	which will give no hint of variability
-##
-##	my @repetitions;
-##	foreach my $dir (<$reportDir/noprofile/results/$jobnames[0]_startup/repetition*>) {
-##		$dir =~ s/.*repetition([0-9]*)$/\1/;
-##		push @repetitions, $dir;
-##	}
-##	@repetitions = sort { $a > $b} @repetitions;
-##
-##	Example of extracting the scheduler and stat files but unused for time
-##	----------------------------------------------------------------------
-##	my $scheduler;
-##	my @patterns;
-##	foreach my $file (<$reportDir/noprofile/results/$jobnames[0]_startup/repetition$repetitions[0]/*.txt>) {
-##		$file =~ s/_stat\.txt//;
-##		$file =~ s/.*\///;
-##		my @elements = split /-/, $file;
-##		if ($elements[0] eq "mq") {
-##			$file =~ s/^mq-deadline-//;
-##			$scheduler = "mq-deadline";
-##		} else {
-##			$file =~ s/^[a-z]+-//;
-##			$scheduler = $elements[0];
-##		}
-##		push @patterns, $file;
-##	}
-##	@patterns = sort { $a <=> b} @patterns;
-
-	my %patterns;
-
+	my %jobnamesPatterns;
 	foreach my $jobname (@jobnames) {
 		my $reading = 0;
-		open INPUT, "$reportDir/noprofile/results/replayed_$jobname\_startup/replayed_$jobname\_startup-time-table.txt" || die "Failed to find time table file for $jobname\n";
-		while (!eof(INPUT)) {
-			my $line = <INPUT>;
-			chomp($line);
-			$line =~ s/^\s+//;
-			if ($line =~ /^# Workload/) {
-				$reading = 1;
-				next;
-			}
-			next if !$reading;
-			my @elements = split /\s+/, $line;
-			$patterns{$elements[0]} = 1;
-			push @{$self->{_ResultData}}, [ "$jobname-$elements[0]", $elements[1]];
+
+		my @schedulers;
+		foreach my $file (<$reportDir/noprofile/results/replayed_$jobname\_startup/repetition0/*-0r0w-seq-single_times.txt>) {
+			$file =~ s/.*\/repetition0\///;
+			$file =~ s/-0r0w-seq-single_times.txt$//;
+			push @schedulers, $file;
 		}
-		close INPUT;
+		@schedulers = sort { $a <=> $b } @schedulers;
+
+		# Scheduler info is extracted but not used. If its
+		# planned in the future that one benchmark run
+		# switches between I/O schedulers this extraction
+		# needs to be adapted.
+		foreach my $scheduler (@schedulers) {
+			my @patterns;
+			foreach my $file (<$reportDir/noprofile/results/replayed_$jobname\_startup/repetition0/$scheduler-*-single_times.txt>) {
+				$file =~ s/.*$scheduler-//;
+				$file =~ s/-single_times.txt//;
+				push @patterns, $file;
+			}
+			@patterns = sort { $a <=> $b } @patterns;
+
+			# Now extract data from
+			# $scheduler-$pattern-single_times.txt (not
+			# using $scheduler-$pattern-lat_thr_stat.txt
+			# at the moment).
+			foreach my $pattern (@patterns) {
+				open INPUT,
+				"$reportDir/noprofile/results/replayed_$jobname\_startup/repetition0/$scheduler-$pattern-single_times.txt"
+				|| die "Failed to find time data file
+				for $jobname\n";
+
+				my $nr_samples=0;
+				my $jobnamePattern="$jobname-$pattern";
+				while (!eof(INPUT)) {
+					my $line = <INPUT>;
+					chomp($line);
+					$line =~ s/^\s+//;
+					$jobnamesPatterns{$jobnamePattern} = 1;
+					$nr_samples++;
+					push @{$self->{_ResultData}}, [ "$jobnamePattern", $nr_samples, $line];
+				}
+				close INPUT;
+			}
+		}
 	}
 
 	my @ops;
-	foreach my $jobname (@jobnames) {
-		foreach my $pattern (sort {$a <=> $b} (keys %patterns)) {
-			push @ops, "$jobname-$pattern";
-		}
+	foreach my $jobnamePattern (sort {$a <=> $b} (keys %jobnamesPatterns)) {
+		push @ops, "$jobnamePattern";
 	}
 	$self->{_Operations} = \@ops;
 }
