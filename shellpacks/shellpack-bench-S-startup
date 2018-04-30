@@ -31,7 +31,7 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	--iterations)
-		S_STARTUP_REPETITIONS=$2
+		S_STARTUP_ITERATIONS=$2
 		shift 2
 		;;
 	*)
@@ -70,13 +70,25 @@ fi
 rm $CONF_DEST_DIR/.S-config.sh
 sed -i "s</var/lib/S<$SHELLPACK_DATA<g" def_config_params.sh
 
-echo NOTE: S-startup calls repetitions what is called iterations in mmtests
+# set the number of iterations of each benchmark to $S_STARTUP_ITERATIONS
+sed -i "s/NUM_ITER_STARTUP=.*/NUM_ITER_STARTUP=$S_STARTUP_ITERATIONS/g" \
+    run_multiple_benchmarks/run_main_benchmarks.sh
+
+# make the test leave single start-up times (raw data) in
+# $LOGDIR_RESULTS/results/
+# The names of the files containing raw data terminate in -single_times.txt
+#
+# If a raw file for a given benchmark run contains less samples than
+# expected, then the application did not start within 120 seconds at
+# some iteration, and then the benchmark was stopped.
+sed -i 's<^rm -rf results-${sched}<mv results-${sched}/lat-${sched} $STAT_DEST_DIR/${sched}-${NUM_READERS}r${NUM_WRITERS}w-${RW_TYPE}-single_times.txt 2> /dev/null; rm -rf results-${sched}<' comm_startup_lat/comm_startup_lat.sh
+
 rm -rf $LOGDIR_RESULTS/results
 cd run_multiple_benchmarks/
 
-./run_main_benchmarks.sh replayed-startup cur-sched fs "" $S_STARTUP_REPETITIONS \
+./run_main_benchmarks.sh replayed-startup cur-sched fs "" 1 \
 			 $LOGDIR_RESULTS/results
 
 exit $SHELLPACK_SUCCESS
 #### Description Application start-up time benchmark
-#### Details S-startup-bench 13
+#### Details S-startup-bench 14
