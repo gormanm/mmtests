@@ -5,7 +5,7 @@ GIT_LOCATION="https://github.com/Algodev-github/S.git"
 MIRROR_LOCATION="$WEBROOT/S"
 
 install-depends gawk gnuplot coreutils fio time sysstat gcc-c++
-install-depends xterm libreoffice-writer gnome-terminal
+install-depends xterm libreoffice-writer gnome-terminal sysstat
 
 # Done separately as openSUSE requires packman repo for MPlayer
 install-depends MPlayer
