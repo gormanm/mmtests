@@ -5,6 +5,7 @@ MIRROR_LOCATION="$WEBROOT/usemem"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
+install-depends lsscsi
 
 ###SHELLPACK sources_fetch gtarazbJaHPaAT.gtar usemembuild-${VERSION}-installed
 ###SHELLPACK build_start usemembuild-${VERSION}-installed
