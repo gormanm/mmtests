@@ -48,26 +48,21 @@ sub extractReport($$$) {
 		# switches between I/O schedulers this extraction
 		# needs to be adapted.
 		foreach my $scheduler (@schedulers) {
-			my @patterns;
-			foreach my $file (<$reportDir/noprofile/results/replayed_$jobname\_startup/repetition0/$scheduler-*-single_times.txt>) {
-				$file =~ s/.*$scheduler-//;
-				$file =~ s/-single_times.txt//;
-				push @patterns, $file;
-			}
-			@patterns = sort { $a <=> $b } @patterns;
+			my @patterns = qw{0r0w-seq 5r5w-seq 10r0w-seq};
 
 			# Now extract data from
 			# $scheduler-$pattern-single_times.txt (not
 			# using $scheduler-$pattern-lat_thr_stat.txt
 			# at the moment).
 			foreach my $pattern (@patterns) {
+				my $nr_samples=0;
+				my $jobnamePattern="$jobname-$pattern";
+				$jobnamesPatterns{$jobnamePattern} = 0;
 				open INPUT,
 				"$reportDir/noprofile/results/replayed_$jobname\_startup/repetition0/$scheduler-$pattern-single_times.txt"
 				|| die "Failed to find time data file
 				for $jobname\n";
 
-				my $nr_samples=0;
-				my $jobnamePattern="$jobname-$pattern";
 				while (!eof(INPUT)) {
 					my $line = <INPUT>;
 					chomp($line);
@@ -82,7 +77,7 @@ sub extractReport($$$) {
 	}
 
 	my @ops;
-	foreach my $jobnamePattern (sort {$a <=> $b} (keys %jobnamesPatterns)) {
+	foreach my $jobnamePattern (sort keys %jobnamesPatterns) {
 		push @ops, "$jobnamePattern";
 	}
 	$self->{_Operations} = \@ops;
