@@ -353,12 +353,12 @@ sub _generateRenderRatioTable() {
 			if (defined $self->{_CompareTable}) {
 				push @row, $compareTable[$row][$i];
 			} else {
-				push @row, [""];
+				push @row, "NaN";
 			}
 			if (defined $self->{_ResultsNormalizedTable}) {
 				push @row, $normResultsTable[$row][$i] // 0;
 			} else {
-				push @row, [""];
+				push @row, "NaN";
 			}
 		}
 		push @finalTable, [@row];
