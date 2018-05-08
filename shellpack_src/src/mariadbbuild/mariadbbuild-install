@@ -15,18 +15,6 @@ for PACKAGE in bison gcc-c++ libstdc++-devel zlib-devel ncurses-devel libncurses
 	install-depends $PACKAGE
 done
 
-# Horrendous hack to revert to old openssl until packages update
-echo Checking openssl version
-if [ "`which zypper`" != "" ]; then
-	rpm -qa | grep libopenssl-devel | grep 1.1.0g
-	if [ $? -eq 0 ]; then
-		echo WARNING: Applying horrendous openssl hack for mariadb
-		zypper remove  -y openssl-1_1_0-1.1.0g libopenssl-1_1_0-devel
-		zypper install -y openssl-1_0_0 libopenssl-1_0_0-devel
-		touch ~/OPENSSL-HACK
-	fi
-fi
-
 MARIADB_CONF=/etc/my.cnf
 MARIADB_DATADIR=$SHELLPACK_DATA/dbdata
 
