@@ -660,13 +660,19 @@ function create_testdisk()
 				rm $TESTDISK_RAID_MD_DEVICE
 			fi
 
+			echo Removing old RAID device $MD_DEVICE
+			vgremove -f mmtests-raid
+			mdadm --remove $TESTDISK_RAID_MD_DEVICE
+			mdadm --stop $TESTDISK_RAID_MD_DEVICE
+			mdadm --remove $TESTDISK_RAID_MD_DEVICE
+
 			echo Creation start: `date`
 			for DEVICE in $TESTDISK_RAID_DEVICES; do
 				BASE_DEVICE=`basename $DEVICE`
 				MD_DEVICE=`grep $BASE_DEVICE /proc/mdstat 2>/dev/null | awk '{print $1}'`
 
 				if [ "$MD_DEVICE" != "" ]; then
-					echo Cleaning up old device $MD_DEVICE
+					echo Cleaning up old device $MD_DEVICE for $BASE_DEVICE
 					vgremove -f mmtests-raid
 					mdadm --remove $TESTDISK_RAID_MD_DEVICE
 					mdadm --stop $TESTDISK_RAID_MD_DEVICE
