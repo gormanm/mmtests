@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script installs mariadb and leaves it ready for benchmarking
 P=mariadbbuild-bench
-DEFAULT_VERSION=10.1.27
+DEFAULT_VERSION=10.2.14
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -174,4 +174,4 @@ fi
 echo mariadb operation successful
 exit $SHELLPACK_SUCCESS
 #### Description mariadbbuild
-#### Details mariadbbuild-bench 46
+#### Details mariadbbuild-bench 47

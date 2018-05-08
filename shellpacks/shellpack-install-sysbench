@@ -57,7 +57,7 @@ MIRROR_LOCATION=$WEBROOT/sysbench
 case $DBDRIVER in
 mariadb)
 	echo Checking mariadb installation
-	DBDRIVER_VERSION=10.1.27
+	DBDRIVER_VERSION=10.2.14
 	CONFIGURE_ARGS=
 	;;
 postgres)
@@ -142,4 +142,4 @@ fi
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench 85
+#### Details sysbench 86
