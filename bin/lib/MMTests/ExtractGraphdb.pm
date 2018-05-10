@@ -30,9 +30,14 @@ sub extractReport() {
 
 	my $start_timestamp;
 	my $file = "$reportDir/$profile/graphdb.log";
-	die if ! -e "$reportDir/$profile/graphdb.log";
+	if (-e "$reportDir/$profile/graphdb.log") {
+		open(INPUT, "sort -n $file|");
+	} elsif (-e "$reportDir/$profile/graphdb.log.gz") {
+		open(INPUT, "gunzip -c $file | sort -n |");
+	} else {
+		die("No graphdb.log");
+	}
 
-	open(INPUT, "sort -n $file|") || open(INPUT, "gunzip -c $file|");
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 
