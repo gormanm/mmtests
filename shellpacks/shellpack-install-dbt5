@@ -65,7 +65,7 @@ sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/unistd-include.patc
 case $DBDRIVER in
 postgres)
 	echo Checking postgres installation
-	DBDRIVER_VERSION=9.3.4
+	DBDRIVER_VERSION=9.6.1
 	;;
 *)
 	die Unrecognised dbdriver $DBDRIVER
@@ -144,4 +144,4 @@ index 1fa1988..6dfb375 100644
  CSendToMarket::CSendToMarket(ofstream* pfile, int MEport)
 ==== END unistd-include.patch ====
 #### Description dbt5
-#### Details dbt5 78
+#### Details dbt5 79

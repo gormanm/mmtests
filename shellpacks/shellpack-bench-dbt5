@@ -241,4 +241,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build -v $POSTGRES_VERSION --stop
 
 exit $SHELLPACK_SUCCESS
 #### Description dbt5
-#### Details dbt5-bench 78
+#### Details dbt5-bench 79
