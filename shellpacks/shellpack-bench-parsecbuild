@@ -95,4 +95,4 @@ done
 echo Parsec successfully built
 exit $SHELLPACK_SUCCESS
 #### Description parsecbuild
-#### Details parsecbuild-bench 5
+#### Details parsecbuild-bench 6

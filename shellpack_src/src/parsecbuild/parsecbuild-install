@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###SHELLPACK preamble parsecbuild-install 0
-GIT_LOCATION="https://bitbucket.org/bosp/benchmarks-parsec.git"
+GIT_LOCATION="https://github.com/cirosantilli/parsec-benchmark"
 MIRROR_LOCATION="$WEBROOT/parsec/"
 
 for PACKAGE in gsl-devel libgsl23 libgslcblas0 libjpeg8-devel libjpeg8 xt cmake libXt-devel libXmu-devel libXi-devel; do
