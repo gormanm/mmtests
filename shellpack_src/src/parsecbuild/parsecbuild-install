@@ -37,5 +37,24 @@ if [ "`which man`" != "" ]; then
 	fi
 fi
 
+###SHELLPACK self_extract x264.patch
+cat $SHELLPACK_TEMP/x264.patch | patch -p1 || exit $SHELLPACK_FAILURE
+
 echo parsecbuild preliminary download complete
 exit $SHELLPACK_SUCCESS
+
+==== BEGIN x264.patch ====
+diff --git a/pkgs/apps/x264/src/common/set.c b/pkgs/apps/x264/src/common/set.c
+index 6c7ddc468ff2..795e7d528bf2 100644
+--- a/pkgs/apps/x264/src/common/set.c
++++ b/pkgs/apps/x264/src/common/set.c
+@@ -176,7 +176,7 @@
+ void x264_cqm_delete( x264_t *h )
+ {
+     int i, j;
+-    for( i = 0; i < 6; i++ )
++    for( i = 0; i < 5; i++ )
+     {
+         for( j = 0; j < i; j++ )
+             if( h->quant4_mf[i] == h->quant4_mf[j] )
+==== END x264.patch ====

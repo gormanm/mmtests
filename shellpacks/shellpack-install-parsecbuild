@@ -95,7 +95,35 @@ if [ "`which man`" != "" ]; then
 	fi
 fi
 
+LINESTART=`grep -n "==== BEGIN x264.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END x264.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file x264.patch
+fi
+echo Extracting $SHELLPACK_TEMP/x264.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/x264.patch
+cat $SHELLPACK_TEMP/x264.patch | patch -p1 || exit $SHELLPACK_FAILURE
+
 echo parsecbuild preliminary download complete
 exit $SHELLPACK_SUCCESS
+
+==== BEGIN x264.patch ====
+diff --git a/pkgs/apps/x264/src/common/set.c b/pkgs/apps/x264/src/common/set.c
+index 6c7ddc468ff2..795e7d528bf2 100644
+--- a/pkgs/apps/x264/src/common/set.c
++++ b/pkgs/apps/x264/src/common/set.c
+@@ -176,7 +176,7 @@
+ void x264_cqm_delete( x264_t *h )
+ {
+     int i, j;
+-    for( i = 0; i < 6; i++ )
++    for( i = 0; i < 5; i++ )
+     {
+         for( j = 0; j < i; j++ )
+             if( h->quant4_mf[i] == h->quant4_mf[j] )
+==== END x264.patch ====
 #### Description parsecbuild
-#### Details parsecbuild 8
+#### Details parsecbuild 9
