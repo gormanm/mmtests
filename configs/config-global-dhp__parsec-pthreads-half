@@ -2,7 +2,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="parsecbuild parsec-blackscholes parsec-bodytrack parsec-canneal parsec-dedup parsec-facesim parsec-ferret parsec-fluidanimate parsec-netdedup parsec-netferret parsec-netstreamcluster parsec-raytrace parsec-streamcluster parsec-swaptions parsec-vips parsec-x264"
+export MMTESTS="parsecbuild parsec-blackscholes parsec-bodytrack parsec-canneal parsec-facesim parsec-ferret parsec-fluidanimate parsec-netferret parsec-netstreamcluster parsec-raytrace parsec-streamcluster parsec-swaptions parsec-vips parsec-x264"
 export RUN_WARMUP=
 
 # Profiling parameters
