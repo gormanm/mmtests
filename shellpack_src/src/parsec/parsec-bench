@@ -8,6 +8,7 @@
 ###SHELLPACK parseargParam	--iterations    PARSEC_ITERATIONS
 ###SHELLPACK parseargParam	--size		PARSEC_SIZE
 ###SHELLPACK parseargParam	--workload	PARSEC_WORKLOAD
+###SHELLPACK parseargParam	--threads	PARSEC_THREADS
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK monitor_hooks
@@ -16,7 +17,7 @@ cd $SHELLPACK_SOURCES/parsecbuild-$VERSION-installed || die "Parsec build direct
 source env.sh || die "Failed to source env.sh"
 ###SHELLPACK iteration_begin $PARSEC_ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-		parsecmgmt -a run -c $PARSEC_PARALLEL -i $PARSEC_SIZE -p $PARSEC_WORKLOAD 2>&1 | tee $LOGDIR_RESULTS/parsec.log.$ITERATION
+		parsecmgmt -a run -c $PARSEC_PARALLEL -i $PARSEC_SIZE -p $PARSEC_WORKLOAD -n $PARSEC_THREADS 2>&1 | tee $LOGDIR_RESULTS/parsec.log.$ITERATION
 ###SHELLPACK iteration_end $PARSEC_ITERATIONS
 
 exit $SHELLPACK_SUCCESS

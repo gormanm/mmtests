@@ -53,6 +53,10 @@ while [ "$1" != "" ]; do
 		PARSEC_WORKLOAD=$2
 		shift 2
 		;;
+	--threads)
+		PARSEC_THREADS=$2
+		shift 2
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -74,10 +78,10 @@ source env.sh || die "Failed to source env.sh"
 for ITERATION in `seq 1 $PARSEC_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 	$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-		parsecmgmt -a run -c $PARSEC_PARALLEL -i $PARSEC_SIZE -p $PARSEC_WORKLOAD 2>&1 | tee $LOGDIR_RESULTS/parsec.log.$ITERATION
+		parsecmgmt -a run -c $PARSEC_PARALLEL -i $PARSEC_SIZE -p $PARSEC_WORKLOAD -n $PARSEC_THREADS 2>&1 | tee $LOGDIR_RESULTS/parsec.log.$ITERATION
 sync
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description parsec
-#### Details parsec-bench 4
+#### Details parsec-bench 5

@@ -74,12 +74,13 @@ pushd parsecbuild-${VERSION}-installed > /dev/null || die Failed to rename tar
 cd $SHELLPACK_SOURCES
 mv parsecbuild-${VERSION}-installed $SHELLPACK_DATA || die "Failed to move sources to data directory"
 ln -s $SHELLPACK_DATA/parsecbuild-${VERSION}-installed parsecbuild-${VERSION}-installed
-cd $SHELLPACK_SOURCES || die "Failed to cd to sources"
+cd $SHELLPACK_SOURCES/parsecbuild-${VERSION}-installed || die "Failed to cd to sources"
 
 echo Fetching native input data
 file_fetch http://parsec.cs.princeton.edu/download/3.0/parsec-3.0-input-native.tar.gz \
 	$MIRROR_LOCATION/parsec-3.0-input-native.tar.gz \
 	parsec-input.tar.gz
+echo Extracting native input data
 tar -xf parsec-input.tar.gz --strip-components=1 || die "Failed to download and extract parsec-input.tar.gz"
 
 # Build fixes
@@ -87,7 +88,14 @@ for FILE in `find -name "*.cpp"`; do
 	sed -i -e 's/"__PARSEC_XSTRING/" __PARSEC_XSTRING/' $FILE
 done
 
+if [ "`which man`" != "" ]; then
+	man g++ 2>&1 | grep -q no-pie
+	if [ $? -ne 0 ]; then
+		sed -i -e 's/-no-pie//g' ./pkgs/apps/x264/parsec/gcc-pthreads.bldconf
+	fi
+fi
+
 echo parsecbuild preliminary download complete
 exit $SHELLPACK_SUCCESS
 #### Description parsecbuild
-#### Details parsecbuild 7
+#### Details parsecbuild 8

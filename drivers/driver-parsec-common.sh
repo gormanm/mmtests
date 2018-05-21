@@ -10,7 +10,8 @@ run_bench() {
 		--parallel $PARSEC_PARALLEL		\
 		--size $PARSEC_SIZE			\
 		--iterations $PARSEC_ITERATIONS		\
-		--workload $PARSEC_WORKLOAD
+		--workload $PARSEC_WORKLOAD		\
+		--threads $PARSEC_THREADS
 
 	return $?
 }

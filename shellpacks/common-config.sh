@@ -8,5 +8,5 @@ export SHELLPACK_DATA=$SHELLPACK_TEST_MOUNT/data
 export SHELLPACK_INCLUDE=$SCRIPTDIR/shellpacks
 export SHELLPACK_LOG=$SCRIPTDIR/work/log
 export LINUX_GIT=/home/mel/git-public/linux-2.6
-export WEBROOT=http://laplace.suse.de/mmtests-mirror
+export WEBROOT=http://hudba.arch.suse.cz/mmtests-mirror
 export SSHROOT=`echo $WEBROOT | sed -e 's/http:\/\//ssh:\/\/root@/'`/public_html
