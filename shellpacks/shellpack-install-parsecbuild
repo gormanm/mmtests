@@ -71,6 +71,12 @@ fi
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR parsecbuild-${VERSION}-installed
 pushd parsecbuild-${VERSION}-installed > /dev/null || die Failed to rename tar
+cd $SHELLPACK_SOURCES
+mv parsecbuild-${VERSION}-installed $SHELLPACK_DATA || die "Failed to move sources to data directory"
+ln -s $SHELLPACK_DATA/parsecbuild-${VERSION}-installed parsecbuild-${VERSION}-installed
+cd $SHELLPACK_SOURCES || die "Failed to cd to sources"
+
+echo Fetching native input data
 file_fetch http://parsec.cs.princeton.edu/download/3.0/parsec-3.0-input-native.tar.gz \
 	$MIRROR_LOCATION/parsec-3.0-input-native.tar.gz \
 	parsec-input.tar.gz
@@ -84,4 +90,4 @@ done
 echo parsecbuild preliminary download complete
 exit $SHELLPACK_SUCCESS
 #### Description parsecbuild
-#### Details parsecbuild 6
+#### Details parsecbuild 7
