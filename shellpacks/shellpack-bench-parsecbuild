@@ -84,6 +84,10 @@ gcc-pthreads)
 esac
 
 for PACKAGE in $PACKAGES; do
+	unset CXXFLAGS
+	if [ "$PACKAGE" = "bodytrack" ]; then
+		export CXXFLAGS="-std=c++11"
+	fi
 	echo Building $PACKAGE
 	parsecmgmt -a build -p $PACKAGE -c $PARSEC_PARALLEL || die "Failed to build package $PACKAGE"
 done

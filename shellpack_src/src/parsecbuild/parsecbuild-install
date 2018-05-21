@@ -14,9 +14,14 @@ done
 
 ###SHELLPACK git_fetch parsecbuild-${VERSION}.tar.gz parsecbuild-${VERSION}-installed
 file_fetch http://parsec.cs.princeton.edu/download/3.0/parsec-3.0-input-native.tar.gz \
-	$MIRROR_LOCATION/parsec-3.0-input-native \
+	$MIRROR_LOCATION/parsec-3.0-input-native.tar.gz \
 	parsec-input.tar.gz
 tar -xf parsec-input.tar.gz --strip-components=1 || die "Failed to download and extract parsec-input.tar.gz"
+
+# Build fixes
+for FILE in `find -name "*.cpp"`; do
+	sed -i -e 's/"__PARSEC_XSTRING/" __PARSEC_XSTRING/' $FILE
+done
 
 echo parsecbuild preliminary download complete
 exit $SHELLPACK_SUCCESS
