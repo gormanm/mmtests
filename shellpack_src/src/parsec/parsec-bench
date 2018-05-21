@@ -21,6 +21,7 @@ round_down_power_2_cpus() {
 	PARSEC_THREADS=$((1<<(POWER-1)))
 }
 round_down_power_2_cpus
+echo $PARSEC_THREADS > $LOGDIR_RESULTS/nr-threads
 
 cd $SHELLPACK_SOURCES/parsecbuild-$VERSION-installed || die "Parsec build directory does not exist"
 source env.sh || die "Failed to source env.sh"
