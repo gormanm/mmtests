@@ -73,6 +73,15 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
+round_down_power_2_cpus() {
+	POWER=1
+	while [ $((1<<$POWER)) -lt $PARSEC_THREADS ]; do
+		POWER=$((POWER+1))
+	done
+	PARSEC_THREADS=$((1<<(POWER-1)))
+}
+round_down_power_2_cpus
+
 cd $SHELLPACK_SOURCES/parsecbuild-$VERSION-installed || die "Parsec build directory does not exist"
 source env.sh || die "Failed to source env.sh"
 for ITERATION in `seq 1 $PARSEC_ITERATIONS`; do
@@ -84,4 +93,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description parsec
-#### Details parsec-bench 5
+#### Details parsec-bench 6
