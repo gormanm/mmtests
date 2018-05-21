@@ -1,0 +1,94 @@
+#!/bin/bash
+P=parsecbuild-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--parallel)
+		PARSEC_PARALLEL=$2
+		shift 2
+		;;
+	--size)
+		PARSEC_SIZE=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/parsecbuild-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/parsecbuild-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-parsecbuild -v ${VERSION}  || die parsecbuild install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/parsecbuild-${VERSION}-installed || die Failed to cd to parsecbuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo parsecbuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+source env.sh
+case $PARSEC_PARALLEL in
+any)
+	PACKAGES="blackscholes bodytrack canneal dedup facesim ferret fluidanimate freqmine netdedup netferret netstreamcluster raytrace streamcluster swaptions vips x264 splash2.barnes splash2.cholesky splash2.fft splash2.fmm splash2.lu_cb splash2.lu_ncb splash2.ocean_cp splash2.ocean_ncp splash2.radiosity splash2.radix splash2.raytrace splash2.volrend splash2.water_nsquared splash2.water_spatial splash2x.barnes splash2x.cholesky splash2x.fft splash2x.fmm splash2x.lu_cb splash2x.lu_ncb splash2x.ocean_cp splash2x.ocean_ncp splash2x.radiosity splash2x.radix splash2x.raytrace splash2x.volrend splash2x.water_nsquared splash2x.water_spatial"
+	;;
+gcc-pthreads)
+	PACKAGES="blackscholes bodytrack canneal dedup facesim ferret fluidanimate netdedup netferret netstreamcluster raytrace streamcluster swaptions vips x264"
+	;;
+*)
+	die Unrecognised parallelisation method $PARSEC_PARALLEL
+	;;
+esac
+
+for PACKAGE in $PACKAGES; do
+	echo Building $PACKAGE
+	parsecmgmt -a build -p $PACKAGE -c $PARSEC_PARALLEL || die "Failed to build package $PACKAGE"
+done
+
+echo Parsec successfully built
+exit $SHELLPACK_SUCCESS
+#### Description parsecbuild
+#### Details parsecbuild-bench 4

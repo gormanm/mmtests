@@ -586,6 +586,9 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Swap totals
 		cache-mmtests.sh compare-mmtests.pl -d . -b parallelioswap -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	parsecbuild)
+		echo $SUBREPORT
+		;;
 	pft)
 		echo $SUBREPORT timings
 		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b pfttime -n $KERNEL_LIST $FORMAT_CMD
@@ -968,6 +971,10 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			generate_basic "$SUBREPORT" "--logX"
 			;;
 		pagealloc)
+			;;
+		parsec-*)
+			;;
+		parsecbuild)
 			;;
 		pft)
 			echo "<tr>"

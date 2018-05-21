@@ -1,0 +1,83 @@
+#!/bin/bash
+
+P=parsec-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--parallel)
+		PARSEC_PARALLEL=$2
+		shift 2
+		;;
+	--iterations)
+		PARSEC_ITERATIONS=$2
+		shift 2
+		;;
+	--size)
+		PARSEC_SIZE=$2
+		shift 2
+		;;
+	--workload)
+		PARSEC_WORKLOAD=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+cd $SHELLPACK_SOURCES/parsecbuild-$VERSION-installed || die "Parsec build directory does not exist"
+source env.sh || die "Failed to source env.sh"
+for ITERATION in `seq 1 $PARSEC_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+	$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
+		parsecmgmt -a run -c $PARSEC_PARALLEL -i $PARSEC_SIZE -p $PARSEC_WORKLOAD 2>&1 | tee $LOGDIR_RESULTS/parsec.log.$ITERATION
+sync
+done
+
+exit $SHELLPACK_SUCCESS
+#### Description parsec
+#### Details parsec-bench 4
