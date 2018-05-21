@@ -8,7 +8,7 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-GIT_LOCATION="https://github.com/cirosantilli/parsec-benchmark"
+GIT_LOCATION="https://bitbucket.org/bosp/benchmarks-parsec.git"
 MIRROR_LOCATION="$WEBROOT/parsec/"
 
 for PACKAGE in gsl-devel libgsl23 libgslcblas0 libjpeg8-devel libjpeg8 xt cmake libXt-devel libXmu-devel libXi-devel; do
@@ -84,4 +84,4 @@ done
 echo parsecbuild preliminary download complete
 exit $SHELLPACK_SUCCESS
 #### Description parsecbuild
-#### Details parsecbuild 4
+#### Details parsecbuild 5

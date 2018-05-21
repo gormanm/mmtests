@@ -76,7 +76,7 @@ any)
 	PACKAGES="blackscholes bodytrack canneal dedup facesim ferret fluidanimate freqmine netdedup netferret netstreamcluster raytrace streamcluster swaptions vips x264 splash2.barnes splash2.cholesky splash2.fft splash2.fmm splash2.lu_cb splash2.lu_ncb splash2.ocean_cp splash2.ocean_ncp splash2.radiosity splash2.radix splash2.raytrace splash2.volrend splash2.water_nsquared splash2.water_spatial splash2x.barnes splash2x.cholesky splash2x.fft splash2x.fmm splash2x.lu_cb splash2x.lu_ncb splash2x.ocean_cp splash2x.ocean_ncp splash2x.radiosity splash2x.radix splash2x.raytrace splash2x.volrend splash2x.water_nsquared splash2x.water_spatial"
 	;;
 gcc-pthreads)
-	PACKAGES="blackscholes bodytrack canneal dedup facesim ferret fluidanimate netdedup netferret netstreamcluster raytrace streamcluster swaptions vips x264"
+	PACKAGES="blackscholes bodytrack canneal facesim ferret fluidanimate netdedup netferret netstreamcluster raytrace streamcluster swaptions vips x264"
 	;;
 *)
 	die Unrecognised parallelisation method $PARSEC_PARALLEL
@@ -95,4 +95,4 @@ done
 echo Parsec successfully built
 exit $SHELLPACK_SUCCESS
 #### Description parsecbuild
-#### Details parsecbuild-bench 4
+#### Details parsecbuild-bench 5
