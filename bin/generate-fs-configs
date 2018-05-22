@@ -67,10 +67,11 @@ config-global-dhp__workload-fsmark-50m-zerofile-inode
 config-global-dhp__io-xfsrepair
 config-global-dhp__io-compress
 config-global-dhp__nas-c-class-mpi-full
-config-global-dhp__nas-c-class-omp-full
+config-global-dhp__nas-c-class-mpi-half
+config-global-dhp__nas-d-class-mpi-bind-full
+config-global-dhp__nas-d-class-mpi-bind-half
 config-global-dhp__nas-d-class-mpi-full
-config-global-dhp__nas-d-class-omp-bind-full
-config-global-dhp__nas-d-class-omp-full
+config-global-dhp__nas-d-class-mpi-half
 config-global-dhp__workload_mailserver
 config-global-dhp__workload_kerndevel
 config-global-dhp__workload_dedup
