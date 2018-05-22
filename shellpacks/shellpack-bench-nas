@@ -15,11 +15,9 @@ install-depends libpsm_infinipath1
 
 NAS_TYPE=SER
 RUNBITS=
-HLINK=--hugepages-newrelink
 OPENMP=
 OPENMPI=
 MEMTOTAL_MBYTES=$((MEMTOTAL_BYTES/1048576))
-HUGEPAGE_MAX=$(($MEMTOTAL_MBYTES/8*7))
 
 if [ "$NAS_MAX_CPUS" = "" ]; then
 	NAS_MAX_CPUS=$NUMCPUS
@@ -129,7 +127,6 @@ MPI)
 	if [ "$NAS_CLASS" = "D" ]; then
 		JOBLIST=`echo $JOB_LIST | sed -e 's/ft //'`
 	fi
-
 	if [ "$NAS_ALLOW_CPU_SATURATE" = "yes" ]; then
 		NAS_MAX_CPUS=$((NAS_MAX_CPUS+1))
 	fi
@@ -158,14 +155,6 @@ if [ "$RUNBITS" = "" ]; then
 fi
 export PATH=$SHELLPACK_TOPLEVEL/nas/bin:$PATH
 
-record_procs() {
-	echo -n > $1/procstats-$2 || die Failed to record procstats-$1
-	for i in vmstat meminfo; do
-		cat /proc/$i >> $1/procstats-$2
-		cat /proc/$i >> $1/procstats-$2
-	done
-}
-
 # Generate suite.def
 pushd $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB3.3-$NAS_TYPE > /dev/null || die Failed to cd to nas-$VERSION-installed/NPB3.3-$NAS_TYPE
 echo -n > config/suite.def
@@ -175,110 +164,42 @@ done
 
 # Run the benchmark ##########################################################
 GENSPECSH="generate-nas.sh --bitness ${RUNBITS} $OPENMP $OPENMPI"
-$GENSPECSH > config/make-base.def
-cp config/make-base.def config/make-default.def
-if [ $? -ne 0 ]; then
-	cat config/make-base.def 
-	die Failed to generate base make.def file
-fi
-$GENSPECSH --hugepages-heaponly > config/make-huge-heap.def
-if [ $? -ne 0 ]; then
-	cat config/make-huge-heap.def
-	die Failed to generate huge-heap make.def file
-fi
-$GENSPECSH $HLINK > config/make-huge-all.def
-if [ $? -ne 0 ]; then
-	cat config/make-huge-all.def
-	die Failed to generate huge-all make.def file
-fi
-cp config/make-*.def $LOGDIR_RESULTS
+$GENSPECSH > config/make.def
+cp config/make.def $LOGDIR_RESULTS || die "Failed to generate make.def"
 
-for PAGES in $NAS_PAGESIZES; do
-	mkdir -p $LOGDIR_RESULTS/$PAGES
-	cp config/make-$PAGES.def config/make.def
-	make clean || die Failed to clean
-	make suite || die Failed to build for $PAGES
+make clean || die "Failed to clean"
+make suite || die "Failed to build"
 
-	# Should not be necessary on modern kernels
-	HUGECTL=
-	case $PAGES in
-		default)
-			echo Using default pagesize configuration
-			;;
-		base)
-			hugeadm --pool-pages-min DEFAULT:0MB
-			hugeadm --pool-pages-max DEFAULT:${MEMTOTAL_MBYTES}MB
-			HUGECTL=
-			disable_transhuge
-			;;
-		huge-heap)
-			hugeadm --hard --pool-pages-min DEFAULT:${HUGEPAGE_MAX}MB
-			hugeadm --hard --pool-pages-min DEFAULT:0
-			hugeadm --pool-pages-max DEFAULT:${MEMTOTAL_MBYTES}MB
-			HUGECTL="hugectl --verbose 0 --heap"
-			disable_transhuge
-			;;
-		huge-all)
-			hugeadm --hard --pool-pages-min DEFAULT:${HUGEPAGE_MAX}MB
-			hugeadm --hard --pool-pages-min DEFAULT:$((HUGEPAGE_MAX*3/4))MB
-			hugeadm --pool-pages-max DEFAULT:${MEMTOTAL_MBYTES}MB
-			HUGECTL="hugectl --verbose 0 --text --data --bss --heap"
-			disable_transhuge
-			;;
-		transhuge)
-			hugeadm --pool-pages-min DEFAULT:0MB
-			hugeadm --pool-pages-max DEFAULT:${MEMTOTAL_MBYTES}MB
-			HUGECTL=
-			if [ "$TRANSHUGE_AVAILABLE" = "yes" ]; then
-				enable_transhuge
-			else
-				echo THP support unavailable for transhuge
-				continue
-			fi
-			;;
+for JOB in $JOBLIST; do
+	mmtests_activity $JOB
+	if [ "$RUNBITS" = "32" -a ! -x ./bin/$JOB.$NAS_CLASS ]; then
+		echo "Skipping $JOB.$NAS_CLASS"
+		continue
+	fi
+
+	echo Executing $JOB.$NAS_CLASS
+	monitor_pre_hook $LOGDIR_RESULTS $JOB.$NAS_CLASS
+	case $NAS_TYPE in
+	SER|OMP)
+		$TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time	\
+			./bin/$JOB.$NAS_CLASS				\
+			> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log 2>&1
+		;;
+	MPI)
+		$TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time \
+			mpirun --allow-run-as-root $MPIOPT -np $MPICPUS $MPIRUN_EXTRA ./bin/$JOB.$NAS_CLASS.$MPICPUS \
+			> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log 2>&1
+		;;
 	esac
 
-	for JOB in $JOBLIST; do
-		mmtests_activity $JOB
-		if [ "$RUNBITS" = "32" -a ! -x ./bin/$JOB.$NAS_CLASS ]; then
-			echo Skipping $JOB.$NAS_CLASS for $PAGES - no exist
-			continue
-		fi
+	if [ $? -ne 0 ]; then
+		die "Failed to execute $JOB.$NAS_CLASS"
+	fi
+	monitor_post_hook $LOGDIR_RESULTS $JOB.$NAS_CLASS
 
-		echo Executing $JOB.$NAS_CLASS for $PAGES
-		ATTEMPT=0
-		while [ $ATTEMPT -lt 3 ]; do
-			ATTEMPT=$((ATTEMPT+1))
-			record_procs $LOGDIR_RESULTS/$PAGES before-$PAGES-$JOB.$NAS_CLASS
-			if [ "$MONITOR_PRE_HOOK" != "" ]; then
-				$MONITOR_PRE_HOOK
-			fi
-
-			if [ "$OPENMPI" = "" ]; then
-				$TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time $HUGECTL ./bin/$JOB.$NAS_CLASS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
-			else
-				eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time $HUGECTL mpirun $MPIOPT -np $MPICPUS $MPIRUN_EXTRA ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
-				if [ $? -ne 0 ]; then
-					eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time $HUGECTL mpirun --allow-run-as-root $MPIOPT -np $MPICPUS $MPIRUN_EXTRA ./bin/$JOB.$NAS_CLASS.$MPICPUS 2>&1 > $LOGDIR_RESULTS/$PAGES/$JOB.$NAS_CLASS.log
-				fi
-			fi
-
-			if [ $? -eq 0 ]; then
-				ATTEMPT=3
-			else
-				if [ $ATTEMPT -eq 3 ]; then
-					die Failed to execute $JOB.$NAS_CLASS
-				fi
-			fi
-			if [ "$MONITOR_POST_HOOK" != "" ]; then
-				$MONITOR_POST_HOOK $LOGDIR_RESULTS/$PAGES $PAGES-$JOB.$NAS_CLASS
-			fi
-			record_procs $LOGDIR_RESULTS/$PAGES after-$PAGES-$JOB.$NAS_CLASS
-		done
-	done
 	rm `find -name "ADC.view.dat*"` 2> /dev/null
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 71
+#### Details nas-bench 74
