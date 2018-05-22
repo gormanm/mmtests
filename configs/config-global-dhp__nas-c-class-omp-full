@@ -66,7 +66,6 @@ export MONITOR_UPDATE_FREQUENCY=10
 # NAS Parallel Benchmark
 export NAS_MPI_PATH=/usr/lib64/mpi/gcc/openmpi/bin
 export NAS_MPI_LIBPATH=/usr/lib64/mpi/gcc/openmpi/lib64
-export NAS_CLASS=D
+export NAS_CLASS=C
 export NAS_USE_CMA=no
-export NAS_PAGESIZES="default"
-#export NAS_PAGESIZES="base huge-heap huge-all"
+export NAS_MAX_CPUS=$NUMCPUS

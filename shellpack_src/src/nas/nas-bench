@@ -84,6 +84,7 @@ OMP)
 	if [ "$NAS_CLASS" = "D" ]; then
 		JOBLIST=`echo $JOB_LIST | sed -e 's/ft //'`
 	fi
+	export OMP_NUM_THREADS=$NAS_MAX_CPUS
 	;;
 *)
 	die "Unrecognised NAS type $NAS_TYPE"
