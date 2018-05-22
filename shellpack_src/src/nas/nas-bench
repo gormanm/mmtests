@@ -67,17 +67,26 @@ fi
 ###SHELLPACK monitor_hooks
 
 # Additional test parameters
-if [ "$OPENMPI" = "" ]; then
-	JOBLIST="mg sp lu bt is ep cg ua"
-	if [ "$NAS_CLASS" != "D" ]; then
-		JOBLIST="$JOBLIST ft"
+case $NAS_TYPE in
+SER)
+	JOBLIST="bt cg dc ep ft is lu mg sp ua"
+	;;
+MPI)
+	JOBLIST="bt cg ep ft is lu mg sp"
+	if [ "$NAS_CLASS" = "D" ]; then
+		JOBLIST=`echo $JOB_LIST | sed -e 's/ft //'`
 	fi
-else
-	JOBLIST="mg lu is ep cg"
-	if [ "$NAS_CLASS" != "D" ]; then
-		JOBLIST="$JOBLIST ft"
+	;;
+OMP)
+	JOBLIST="bt cg dc ep ft is lu mg sp ua"
+	if [ "$NAS_CLASS" = "D" ]; then
+		JOBLIST=`echo $JOB_LIST | sed -e 's/ft //'`
 	fi
-fi
+	;;
+*)
+	die "Unrecognised NAS type $NAS_TYPE"
+	;;
+esac
 
 if [ "$RUNBITS" = "" ]; then
 	case `uname -m` in
