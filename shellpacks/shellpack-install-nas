@@ -1,13 +1,13 @@
 #!/bin/bash
 P=nas-install
-DEFAULT_VERSION=3.3
+DEFAULT_VERSION=3.3.1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-WEB_LOCATION="NOT_AVAILABLE"
+WEB_LOCATION="https://www.nas.nasa.gov/assets/npb"
 MIRROR_LOCATION="$WEBROOT/nas/"
 
 install-depends gcc-fortran
@@ -46,7 +46,7 @@ if [ -z "$VERSION" ]; then
 fi
 
 cd $SHELLPACK_SOURCES || die Sources directory does not exist
-rm -rf NPB3.3
+rm -rf NPB3.3*
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=NPB${VERSION}.tar.gz
@@ -66,4 +66,4 @@ pushd nas-$VERSION-installed > /dev/null || die Failed to rename tar
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas 75
+#### Details nas 79

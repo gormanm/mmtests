@@ -1,7 +1,7 @@
 #!/bin/bash
 # This is the script for running the NAS Parallel Benchmark
 #
-###SHELLPACK preamble nas-bench 3.3
+###SHELLPACK preamble nas-bench 3.3.1
 
 install-depends openmpi openmpi-devel
 install-depends libpsm_infinipath1
@@ -60,7 +60,7 @@ fi
 ###SHELLPACK parseargParam --max-cpus NAS_MAX_CPUS
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required nas-3.3
+###SHELLPACK check_install_required nas-$VERSION
 
 ###SHELLPACK monitor_hooks
 
@@ -110,7 +110,11 @@ fi
 export PATH=$SHELLPACK_TOPLEVEL/nas/bin:$PATH
 
 # Generate suite.def
-pushd $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB3.3-$NAS_TYPE > /dev/null || die Failed to cd to nas-$VERSION-installed/NPB3.3-$NAS_TYPE
+SUBVERSION=$VERSION
+if [ ! -e $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$VERSION-$NAS_TYPE ]; then
+	SUBVERSION=`echo $VERSION | sed -e 's/\.[0-9]*$//'`
+fi
+pushd $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE > /dev/null || die Failed to cd to nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE
 echo -n > config/suite.def
 for JOB in $JOBLIST; do
 	echo "$JOB      $NAS_CLASS $MPICPUS" >> config/suite.def

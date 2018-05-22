@@ -1,6 +1,6 @@
 #!/bin/bash
-###SHELLPACK preamble nas-install 3.3
-WEB_LOCATION="NOT_AVAILABLE"
+###SHELLPACK preamble nas-install 3.3.1
+WEB_LOCATION="https://www.nas.nasa.gov/assets/npb"
 MIRROR_LOCATION="$WEBROOT/nas/"
 
 install-depends gcc-fortran
@@ -9,7 +9,7 @@ install-depends gcc-fortran
 ###SHELLPACK parseargEnd
 
 cd $SHELLPACK_SOURCES || die Sources directory does not exist
-rm -rf NPB3.3
+rm -rf NPB3.3*
 
 ###SHELLPACK sources_fetch NPB${VERSION}.tar.gz nas-$VERSION-installed
 

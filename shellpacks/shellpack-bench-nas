@@ -2,7 +2,7 @@
 # This is the script for running the NAS Parallel Benchmark
 #
 P=nas-bench
-DEFAULT_VERSION=3.3
+DEFAULT_VERSION=3.3.1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -101,9 +101,9 @@ if [ -z "$VERSION" ]; then
 fi
 
 if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/nas-3.3
+	rm -rf $SHELLPACK_SOURCES/nas-$VERSION
 fi
-if [ ! -d $SHELLPACK_SOURCES/nas-3.3-installed ]; then
+if [ ! -d $SHELLPACK_SOURCES/nas-$VERSION-installed ]; then
 	mmtests_activity source-install
 	$SHELLPACK_INCLUDE/shellpack-install-nas -v ${VERSION}  || die nas install script returned error
 	mmtests_activity source-installed
@@ -131,6 +131,9 @@ MPI)
 		NAS_MAX_CPUS=$((NAS_MAX_CPUS+1))
 	fi
 	MPICPUS=$(round_down_power_2 $NAS_MAX_CPUS)
+	if [ "$NAS_BIND" = "yes" ]; then
+		MPIRUN_EXTRA="--bind-to numa"
+	fi
 	;;
 OMP)
 	JOBLIST="bt cg dc ep ft is lu mg sp ua"
@@ -138,6 +141,9 @@ OMP)
 		JOBLIST=`echo $JOB_LIST | sed -e 's/ft //'`
 	fi
 	export OMP_NUM_THREADS=$NAS_MAX_CPUS
+	if [ "$NAS_BIND" = "yes" ]; then
+		export OMP_PROC_BIND=true
+	fi
 	;;
 *)
 	die "Unrecognised NAS type $NAS_TYPE"
@@ -157,7 +163,11 @@ fi
 export PATH=$SHELLPACK_TOPLEVEL/nas/bin:$PATH
 
 # Generate suite.def
-pushd $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB3.3-$NAS_TYPE > /dev/null || die Failed to cd to nas-$VERSION-installed/NPB3.3-$NAS_TYPE
+SUBVERSION=$VERSION
+if [ ! -e $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$VERSION-$NAS_TYPE ]; then
+	SUBVERSION=`echo $VERSION | sed -e 's/\.[0-9]*$//'`
+fi
+pushd $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE > /dev/null || die Failed to cd to nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE
 echo -n > config/suite.def
 for JOB in $JOBLIST; do
 	echo "$JOB      $NAS_CLASS $MPICPUS" >> config/suite.def
@@ -182,12 +192,12 @@ for JOB in $JOBLIST; do
 	monitor_pre_hook $LOGDIR_RESULTS $JOB.$NAS_CLASS
 	case $NAS_TYPE in
 	SER|OMP)
-		$TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time	\
-			./bin/$JOB.$NAS_CLASS				\
+		eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time	\
+			./bin/$JOB.$NAS_CLASS					\
 			> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log 2>&1
 		;;
 	MPI)
-		$TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time \
+		eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time \
 			mpirun --allow-run-as-root $MPIOPT -np $MPICPUS $MPIRUN_EXTRA ./bin/$JOB.$NAS_CLASS.$MPICPUS \
 			> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log 2>&1
 		;;
@@ -203,4 +213,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 75
+#### Details nas-bench 79
