@@ -73,3 +73,4 @@ export NAS_MPI_LIBPATH=/usr/lib64/mpi/gcc/openmpi/lib64
 export NAS_CLASS=C
 export NAS_USE_CMA=no
 export NAS_MAX_CPUS=$((NUMCPUS/2))
+export NAS_ITERATIONS=5

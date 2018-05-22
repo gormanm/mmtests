@@ -7,6 +7,7 @@ run_bench() {
 	fi
 	$SCRIPTDIR/shellpacks/shellpack-bench-nas	\
 		--type OMP				\
-		--max-cpus $NAS_MAX_CPUS
+		--max-cpus $NAS_MAX_CPUS		\
+		--iterations $NAS_ITERATIONS
 	return $?
 }

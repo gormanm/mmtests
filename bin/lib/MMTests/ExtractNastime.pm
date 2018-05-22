@@ -1,8 +1,8 @@
 # ExtractNastime.pm
 package MMTests::ExtractNastime;
-use MMTests::SummariseSingleops;
+use MMTests::SummariseMultiops;
 use VMR::Stat;
-our @ISA = qw(MMTests::SummariseSingleops);
+our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 
@@ -16,40 +16,50 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
-	my ($tm, $tput, $latency);
-	my $iteration;
 	$reportDir =~ s/mpitime/mpi/;
 	$reportDir =~ s/omptime/omp/;
 
-	my @files = <$reportDir/$profile/*.time>;
+	my @files = <$reportDir/$profile/*.log.1>;
 	my @kernels;
 	foreach my $file (@files) {
 		my @split = split /\//, $file;
-		$split[-1] =~ s/.time//;
+		$split[-1] =~ s/.log.1//;
 		push @kernels, $split[-1];
 	}
 
-	die("No data") if $kernels[0] eq "";
+	foreach my $kernel (@kernels) {
+		my $nr_samples = 0;
 
-	foreach my $kernel (@kernels) {
-		my $file = "$reportDir/$profile/$kernel.time";
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
-			next if $_ !~ /elapsed/;
-			push @{$self->{_ResultData}}, [ "sys-$kernel", $self->_time_to_sys($_) ];
+		foreach my $file (<$reportDir/$profile/time-$kernel.*>) {
+			open(INPUT, $file) || die("Failed to open $file\n");
+			while (<INPUT>) {
+				next if $_ !~ /elapsed/;
+				push @{$self->{_ResultData}}, [ "sys-$kernel", ++$nr_samples, $self->_time_to_sys($_) ];
+			}
+			close(INPUT);
 		}
-		close(INPUT);
-	}
-	foreach my $kernel (@kernels) {
-		my $file = "$reportDir/$profile/$kernel.time";
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
-			next if $_ !~ /elapsed/;
-			push @{$self->{_ResultData}}, [ "elspd-$kernel", $self->_time_to_elapsed($_) ];
-		}
-		close(INPUT);
 	}
 
+	foreach my $kernel (@kernels) {
+		my $nr_samples = 0;
+
+		foreach my $file (<$reportDir/$profile/time-$kernel.*>) {
+			open(INPUT, $file) || die("Failed to open $file\n");
+			while (<INPUT>) {
+				next if $_ !~ /elapsed/;
+				push @{$self->{_ResultData}}, [ "elspd-$kernel", ++$nr_samples, $self->_time_to_elapsed($_) ];
+			}
+			close(INPUT);
+		}
+	}
+
+	my @operations;
+	foreach my $cpu ("sys", "elspd") {
+		foreach my $kernel (@kernels) {
+			push @operations, "$cpu-$kernel";
+		}
+	}
+	$self->{_Operations} = \@operations;
 }
 
 1;

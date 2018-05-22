@@ -10,7 +10,8 @@ run_bench() {
 		NAS_MAX_CPUS=$NUMCPUS
 	fi
 	$SCRIPTDIR/shellpacks/shellpack-bench-nas $CMAOPT	\
-		--type MPI $CMAOPT				\
-		--max-cpus $NAS_MAX_CPUS
+		--type MPI 					\
+		--max-cpus $NAS_MAX_CPUS			\
+		--iterations $NAS_ITERATIONS
 	return $?
 }
