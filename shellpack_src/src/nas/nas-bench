@@ -78,6 +78,9 @@ MPI)
 		NAS_MAX_CPUS=$((NAS_MAX_CPUS+1))
 	fi
 	MPICPUS=$(round_down_power_2 $NAS_MAX_CPUS)
+	if [ "$NAS_BIND" = "yes" ]; then
+		MPIRUN_EXTRA="--bind-to numa"
+	fi
 	;;
 OMP)
 	JOBLIST="bt cg dc ep ft is lu mg sp ua"
@@ -85,6 +88,9 @@ OMP)
 		JOBLIST=`echo $JOB_LIST | sed -e 's/ft //'`
 	fi
 	export OMP_NUM_THREADS=$NAS_MAX_CPUS
+	if [ "$NAS_BIND" = "yes" ]; then
+		export OMP_PROC_BIND=true
+	fi
 	;;
 *)
 	die "Unrecognised NAS type $NAS_TYPE"
@@ -129,12 +135,12 @@ for JOB in $JOBLIST; do
 	monitor_pre_hook $LOGDIR_RESULTS $JOB.$NAS_CLASS
 	case $NAS_TYPE in
 	SER|OMP)
-		$TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time	\
-			./bin/$JOB.$NAS_CLASS				\
+		eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time	\
+			./bin/$JOB.$NAS_CLASS					\
 			> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log 2>&1
 		;;
 	MPI)
-		$TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time \
+		eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.time \
 			mpirun --allow-run-as-root $MPIOPT -np $MPICPUS $MPIRUN_EXTRA ./bin/$JOB.$NAS_CLASS.$MPICPUS \
 			> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log 2>&1
 		;;
