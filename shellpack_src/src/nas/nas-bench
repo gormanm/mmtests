@@ -59,22 +59,31 @@ fi
 		;;
 ###SHELLPACK parseargParam --max-cpus   NAS_MAX_CPUS
 ###SHELLPACK parseargParam --iterations NAS_ITERATIONS
+###SHELLPACK parseargParam --joblist    NAS_JOBLIST
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required nas-$VERSION
 
 ###SHELLPACK monitor_hooks
 
+JOBLIST="bt cg dc ep ft is lu mg sp ua"
+if [ "$NAS_JOBLIST" != "" ]; then
+	JOBLIST=$NAS_JOBLIST
+fi
+
 # Additional test parameters
 case $NAS_TYPE in
 SER)
-	JOBLIST="bt cg dc ep ft is lu mg sp ua"
+	echo
 	;;
 MPI)
-	JOBLIST="bt cg ep ft is lu mg sp"
+	REMOVE_LIST="dc ua"
 	if [ "$NAS_CLASS" = "D" ]; then
-		JOBLIST=`echo $JOB_LIST | sed -e 's/ft //'`
+		REMOVE_LIST="$REMOVE_LIST ft"
 	fi
+	for REMOVE in $REMOVE_LIST; do
+		JOBLIST=`echo $JOBLIST | sed -e "s/$REMOVE//"`
+	done
 	if [ "$NAS_ALLOW_CPU_SATURATE" = "yes" ]; then
 		NAS_MAX_CPUS=$((NAS_MAX_CPUS+1))
 	fi
@@ -84,10 +93,13 @@ MPI)
 	fi
 	;;
 OMP)
-	JOBLIST="bt cg dc ep ft is lu mg sp ua"
+	REMOVE_LIST="xx"
 	if [ "$NAS_CLASS" = "D" ]; then
-		JOBLIST=`echo $JOB_LIST | sed -e 's/ft //'`
+		REMOVE_LIST="ft"
 	fi
+	for REMOVE in $REMOVE_LIST; do
+		JOBLIST=`echo $JOBLIST | sed -e "s/$REMOVE//"`
+	done
 	export OMP_NUM_THREADS=$NAS_MAX_CPUS
 	if [ "$NAS_BIND" = "yes" ]; then
 		export OMP_PROC_BIND=true
@@ -142,7 +154,7 @@ for JOB in $JOBLIST; do
 		case $NAS_TYPE in
 		SER|OMP)
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
-				./bin/$JOB.$NAS_CLASS						\
+				./bin/$JOB.$NAS_CLASS.x						\
 				> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
 		MPI)

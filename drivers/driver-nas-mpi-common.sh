@@ -12,6 +12,7 @@ run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-nas $CMAOPT	\
 		--type MPI 					\
 		--max-cpus $NAS_MAX_CPUS			\
-		--iterations $NAS_ITERATIONS
+		--iterations $NAS_ITERATIONS			\
+		--joblist $NAS_JOBLIST
 	return $?
 }

@@ -91,6 +91,10 @@ while [ "$1" != "" ]; do
 		NAS_ITERATIONS=$2
 		shift 2
 		;;
+	--joblist)
+		NAS_JOBLIST=$2
+		shift 2
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -121,16 +125,24 @@ fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
+JOBLIST="bt cg dc ep ft is lu mg sp ua"
+if [ "$NAS_JOBLIST" != "" ]; then
+	JOBLIST=$NAS_JOBLIST
+fi
+
 # Additional test parameters
 case $NAS_TYPE in
 SER)
-	JOBLIST="bt cg dc ep ft is lu mg sp ua"
+	echo
 	;;
 MPI)
-	JOBLIST="bt cg ep ft is lu mg sp"
+	REMOVE_LIST="dc ua"
 	if [ "$NAS_CLASS" = "D" ]; then
-		JOBLIST=`echo $JOB_LIST | sed -e 's/ft //'`
+		REMOVE_LIST="$REMOVE_LIST ft"
 	fi
+	for REMOVE in $REMOVE_LIST; do
+		JOBLIST=`echo $JOBLIST | sed -e "s/$REMOVE//"`
+	done
 	if [ "$NAS_ALLOW_CPU_SATURATE" = "yes" ]; then
 		NAS_MAX_CPUS=$((NAS_MAX_CPUS+1))
 	fi
@@ -140,10 +152,13 @@ MPI)
 	fi
 	;;
 OMP)
-	JOBLIST="bt cg dc ep ft is lu mg sp ua"
+	REMOVE_LIST="xx"
 	if [ "$NAS_CLASS" = "D" ]; then
-		JOBLIST=`echo $JOB_LIST | sed -e 's/ft //'`
+		REMOVE_LIST="ft"
 	fi
+	for REMOVE in $REMOVE_LIST; do
+		JOBLIST=`echo $JOBLIST | sed -e "s/$REMOVE//"`
+	done
 	export OMP_NUM_THREADS=$NAS_MAX_CPUS
 	if [ "$NAS_BIND" = "yes" ]; then
 		export OMP_PROC_BIND=true
@@ -199,7 +214,7 @@ for ITERATION in `seq 1 $NAS_ITERATIONS`; do
 		case $NAS_TYPE in
 		SER|OMP)
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
-				./bin/$JOB.$NAS_CLASS						\
+				./bin/$JOB.$NAS_CLASS.x						\
 				> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
 		MPI)
@@ -221,4 +236,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 81
+#### Details nas-bench 87

@@ -18,6 +18,8 @@ sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
 	$reportDir =~ s/mpitime/mpi/;
 	$reportDir =~ s/omptime/omp/;
+	$reportDir =~ s/mpi-([a-z][a-z])time/mpi-\1/;
+	$reportDir =~ s/omp-([a-z][a-z])time/omp-\1/;
 
 	my @files = <$reportDir/$profile/*.log.1>;
 	my @kernels;
