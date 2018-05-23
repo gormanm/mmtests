@@ -89,7 +89,7 @@ MPI)
 	fi
 	MPICPUS=$(round_down_power_2 $NAS_MAX_CPUS)
 	if [ "$NAS_BIND" = "yes" ]; then
-		MPIRUN_EXTRA="--bind-to numa"
+		MPIRUN_EXTRA="--bind-to socket"
 	fi
 	;;
 OMP)

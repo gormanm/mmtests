@@ -6,7 +6,7 @@ DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
-export MMTESTS="nas-mpi-bt nas-mpi-cg nas-mpi-ep nas-mpi-ft nas-mpi-is nas-mpi-lu nas-mpi-mg nas-mpi-sp"
+export MMTESTS="nas-mpi-bt nas-mpi-cg nas-mpi-ep nas-mpi-is nas-mpi-lu nas-mpi-mg nas-mpi-sp"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -73,4 +73,4 @@ export NAS_MPI_LIBPATH=/usr/lib64/mpi/gcc/openmpi/lib64
 export NAS_CLASS=D
 export NAS_USE_CMA=no
 export NAS_MAX_CPUS=$((NUMCPUS/2))
-export NAS_ITERATIONS=5
+export NAS_ITERATIONS=3
