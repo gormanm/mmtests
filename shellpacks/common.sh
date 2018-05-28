@@ -975,11 +975,19 @@ function umount_filesystems
 function round_down_power_2()
 {
 	local input_val=$1
-	local rounded_val
 	local power=1
 
 	while [ $((1<<$power)) -lt $input_val ]; do
 		power=$((power+1))
 	done
 	echo $((1<<(power-1)))
+}
+
+function round_down_nearest_square()
+{
+	local input_val=$1
+	local square
+
+	square=`echo "sqrt($input_val) / 1" | bc`
+	echo $((square*square))
 }

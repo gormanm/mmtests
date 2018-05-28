@@ -87,7 +87,7 @@ MPI)
 	if [ "$NAS_ALLOW_CPU_SATURATE" = "yes" ]; then
 		NAS_MAX_CPUS=$((NAS_MAX_CPUS+1))
 	fi
-	MPICPUS=$(round_down_power_2 $NAS_MAX_CPUS)
+	MPICPUS=$(round_down_nearest_square $NAS_MAX_CPUS)
 	if [ "$NAS_BIND" = "yes" ]; then
 		MPIRUN_EXTRA="--bind-to socket"
 	fi
