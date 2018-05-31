@@ -1,0 +1,126 @@
+#!/bin/bash
+P=microtput-bench
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+ITERATIONS=1
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--min-threads)
+		MICROTPUT_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		MICROTPUT_MAX_THREADS=$2
+		shift 2
+		;;
+	--iterations)
+		MICROTPUT_ITERATIONS=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/microtput
+fi
+if [ ! -d $SHELLPACK_SOURCES/microtput-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-microtput -v ${VERSION}  || die microtput install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/microtput-${VERSION}-installed || die Failed to cd to microtput install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo microtput installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+pushd $SHELLPACK_SOURCES/microtput-${VERSION}-installed > /dev/null
+
+THREADS=
+START_THREAD=$MICROTPUT_MIN_THREADS
+END_THREAD=$MICROTPUT_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 2 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
+for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $MICROTPUT_MIN_THREADS ]; then
+		continue
+	fi
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	mmtests_activity microtput-$NR_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+
+for ITERATION in `seq 1 $MICROTPUT_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+		echo Executing microtput $NR_THREADS threads iteration $ITERATION/$MICROTPUT_ITERATIONS
+		REAL_ARGS=`echo $MICROTPUT_ARGS | sed -e "s/NR_THREADS/$NR_THREADS/g"`
+		eval $TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION	\
+			./microtput $REAL_ARGS					\
+				> $LOGDIR_RESULTS/microtput-$NR_THREADS-$ITERATION
+		if [ $? -ne 0 ]; then
+			die Failed to execute microtput $NR_THREADS
+		fi
+sync
+done
+	
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+done
+
+exit $RETVAL
+#### Description microtput
+#### Details microtput-bench 8

@@ -1,0 +1,73 @@
+#!/bin/bash
+P=microtput-install
+DEFAULT_VERSION=0
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+WEB_LOCATION=$MICROTPUT_LOCATION
+MICROTPUT_BASENAME=`basename $WEB_LOCATION`
+MIRROR_LOCATION="$WEBROOT/microtput/`basename $MICROTPUT_BASENAME`"
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+cd $SHELLPACK_SOURCES || die Sources directory does not exist
+rm -rf microtput-${VERSION}-installed
+mkdir -p microtput-${VERSION}-installed
+
+sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/microtput-${VERSION}-installed/$MICROTPUT_BASENAME
+pushd $SHELLPACK_SOURCES/microtput-${VERSION}-installed || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
+case $MICROTPUT_BUILD in
+gcc)
+	gcc -O2 -pthread --std=c99 -D_GNU_SOURCE -pthread $MICROTPUT_BASENAME -o microtput
+	if [ $? -ne 0 ]; then
+		die Failed to build $MICROTPUT_BASENAME
+	fi
+	;;
+none)
+	mv $MICROTPUT_BASENAME microtput
+	;;
+*)
+	die Unrecognised build method \"$MICROTPUT_BUILD\"
+	;;
+esac
+	
+exit $SHELLPACK_SUCCESS
+#### Description microtput
+#### Details microtput 8
