@@ -82,8 +82,10 @@ config-global-dhp__workload_sparsetruncate-large
 config-global-dhp__reaim-io-alltests
 config-global-dhp__reaim-io-compute
 config-global-dhp__reaim-io-disk
+config-global-dhp__reaim-io-disk-large
 config-global-dhp__reaim-io-new_dbase
 config-global-dhp__reaim-io-new_fserver
+config-global-dhp__reaim-io-new_fserver-large
 config-global-dhp__reaim-io-shared
 config-global-dhp__reaim-highsys
 config-global-dhp__reaim-stress
