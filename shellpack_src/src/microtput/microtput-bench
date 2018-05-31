@@ -1,0 +1,35 @@
+#!/bin/bash
+###SHELLPACK preamble microtput-bench 0
+ITERATIONS=1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --min-threads MICROTPUT_MIN_THREADS
+###SHELLPACK parseargParam --max-threads MICROTPUT_MAX_THREADS
+###SHELLPACK parseargParam --iterations  MICROTPUT_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_install_required microtput
+###SHELLPACK monitor_hooks
+
+pushd $SHELLPACK_SOURCES/microtput-${VERSION}-installed > /dev/null
+
+###SHELLPACK threads_large_stride_begin $MICROTPUT_MIN_THREADS $MICROTPUT_MAX_THREADS
+	mmtests_activity microtput-$NR_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+
+	###SHELLPACK iteration_begin $MICROTPUT_ITERATIONS
+		echo Executing microtput $NR_THREADS threads iteration $ITERATION/$MICROTPUT_ITERATIONS
+		REAL_ARGS=`echo $MICROTPUT_ARGS | sed -e "s/NR_THREADS/$NR_THREADS/g"`
+		eval $TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION	\
+			./microtput $REAL_ARGS					\
+				> $LOGDIR_RESULTS/microtput-$NR_THREADS-$ITERATION
+		if [ $? -ne 0 ]; then
+			die Failed to execute microtput $NR_THREADS
+		fi
+	###SHELLPACK iteration_end $MICROTPUT_ITERATIONS
+	
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+
+exit $RETVAL

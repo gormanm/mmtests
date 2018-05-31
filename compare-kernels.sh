@@ -2000,6 +2000,20 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
 			gzip -f $OUTPUT_DIRECTORY/*.ps
 		fi
+
+		if [ `ls proc-interrupts-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+			echo "<table>"
+			echo "<tr>"
+			for HEADING in TLB-shootdowns Rescheduling-interrupts Function-call-interrupts; do
+				eval $GRAPH_PNG --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING.png
+				eval $GRAPH_PSC --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING.ps
+				eval $GRAPH_PNG --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING-smooth.png --smooth
+				eval $GRAPH_PSC --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING-smooth.ps  --smooth
+				smoothover graph-$SUBREPORT-proc-interrupts-$HEADING
+			done
+			echo "</tr>"
+			echo "</table>"
+		fi
 	fi
 done
 cat $SCRIPTDIR/shellpacks/common-footer-$FORMAT 2> /dev/null

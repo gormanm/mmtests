@@ -100,7 +100,7 @@ sub extractReport($$$$) {
 			$source =~ s/msix[0-9]+/msixN/;
 			$source =~ s/MSI-[0-9]+/MSI-N/g;
 			$source =~ s/TxRx-[0-9]+/TxRx-N/g;
-			$sources{"$source;"} += $nr;
+			$sources{"$source"} += $nr;
 		}
 	}
 
