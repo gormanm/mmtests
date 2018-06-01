@@ -2012,6 +2012,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				smoothover graph-$SUBREPORT-proc-interrupts-$HEADING
 			done
 			echo "</tr>"
+			echo "<tr>"
+			for HEADING in TLB-shootdowns Rescheduling-interrupts Function-call-interrupts; do
+				eval $GRAPH_PNG --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING-logY.png --logY
+				eval $GRAPH_PSC --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING-logY.ps --logY
+				plain graph-$SUBREPORT-proc-interrupts-$HEADING-logY
+			done
+			echo "</tr>"
 			echo "</table>"
 		fi
 	fi
