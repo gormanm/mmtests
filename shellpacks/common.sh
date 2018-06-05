@@ -545,6 +545,7 @@ function setup_io_scheduler() {
 			lsscsi | grep $DEVICE
 		fi
 		grep -r -H . /sys/block/$DEVICE/queue/* >> $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
+		grep -r -H . /sys/block/*/queue/* >> $SHELLPACK_LOG/storageioqueue-all-${RUNNAME}.txt
 	done
 
 	# For XFS partitions mounted nobarrier on later kernels, the parameter
