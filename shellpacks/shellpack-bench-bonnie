@@ -125,7 +125,8 @@ echo ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
 	-d $SHELLPACK_DATA \
 	$FILETEST_PARAM \
 	$DIRTEST_PARAM \
-	-m $MACHINE | tee $LOGDIR_RESULTS/bonnie-params
+	-m $MACHINE \
+	-R 128 | tee $LOGDIR_RESULTS/bonnie-params
 for ITERATION in `seq 1 $ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 	echo Starting iteration $ITERATION
@@ -134,6 +135,8 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 		$FILETEST_PARAM \
 		$DIRTEST_PARAM \
 		-m $MACHINE \
+		-R 128 \
+		-l $LOGDIR_RESULTS/bonnie-detail.$ITERATION \
 		2>&1 | tee $LOGDIR_RESULTS/bonnie.$ITERATION
 
 	recover_rc

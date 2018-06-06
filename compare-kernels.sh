@@ -477,6 +477,14 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		echo $SUBREPORT Per-VFS Operation latency Latency
 		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4opslatency -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	bonnie)
+		echo "$SUBREPORT IO Execution Time"
+		$COMPARE_CMD
+		echo
+		echo "$SUBREPORT Throughput"
+		cache-mmtests.sh compare-mmtests.pl -d . -b bonnietput -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		;;
 	dbt5-bench)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
