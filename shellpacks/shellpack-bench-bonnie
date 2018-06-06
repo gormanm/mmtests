@@ -145,8 +145,9 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 		umount_filesystems
 		create_filesystems
 	fi
+sync
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description bonnie
-#### Details bonnie-bench 39
+#### Details bonnie-bench 43
