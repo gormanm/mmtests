@@ -611,7 +611,6 @@ function create_testdisk()
 
 		# Check if a suitable device is already assembled
 		echo Scanning and assembling existing devices: $TESTDISK_RAID_DEVICES
-		modprobe md
 		mdadm --assemble --scan
 		FULL_ASSEMBLY_REQUIRED=no
 		LAST_MD_DEVICE=
