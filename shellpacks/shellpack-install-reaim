@@ -47,6 +47,7 @@ if [ -z "$VERSION" ]; then
 fi
 
 # Unconditionally fetch the tar to find out the real version number
+rm -rf $SHELLPACK_SOURCES/reaim-* $SHELLPACK_SOURCES/osdl*.tar.gz
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=osdl-aim-${VERSION}.tar.gz
 sources_fetch $WEB_LOCATION/$VERSION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$VERSION/$TARFILE
@@ -390,4 +391,4 @@ diff -rup a/src/drv_funcs.c b/src/drv_funcs.c
  	strcat(stmp,s2);
 ==== END controlled-sync.patch ====
 #### Description reaim
-#### Details reaim 59
+#### Details reaim 60

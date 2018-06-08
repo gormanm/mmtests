@@ -10,6 +10,7 @@ install-depends libaio-devel
 ###SHELLPACK parseargEnd
 
 # Unconditionally fetch the tar to find out the real version number
+rm -rf $SHELLPACK_SOURCES/reaim-* $SHELLPACK_SOURCES/osdl*.tar.gz
 ###SHELLPACK sources_fetch $VERSION/osdl-aim-${VERSION}.tar.gz reaim-${VERSION}
 
 # Bootstrap
