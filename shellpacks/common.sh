@@ -667,6 +667,12 @@ function create_testdisk()
 			mdadm --stop $TESTDISK_RAID_MD_DEVICE
 			mdadm --remove $TESTDISK_RAID_MD_DEVICE
 
+			echo Stopping other RAID devices
+			for DEVICE in `grep ^md /proc/mdstat | awk '{print $1}'`; do
+				echo o /dev/$DEVICE
+				mdadm --stop /dev/$DEVICE
+			done
+
 			echo Creation start: `date`
 			for DEVICE in $TESTDISK_RAID_DEVICES; do
 				BASE_DEVICE=`basename $DEVICE`
