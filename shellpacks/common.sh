@@ -792,6 +792,8 @@ EOF
 		# monitor is in use. For reasons I did not bother tracking down,
 		# blktrace does not capture events from MD devices properly on
 		# at least kernel 3.0
+		echo Destroying logical volume
+		vgremove -f mmtests-raid
 		echo Creating logical volume
 		yes y | pvcreate -ff $TESTDISK_RAID_MD_DEVICE || exit
 		vgcreate mmtests-raid $TESTDISK_RAID_MD_DEVICE || exit
