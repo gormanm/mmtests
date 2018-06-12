@@ -17,6 +17,7 @@ NAS_TYPE=SER
 RUNBITS=
 OPENMP=
 OPENMPI=
+MPICPUS=
 MEMTOTAL_MBYTES=$((MEMTOTAL_BYTES/1048576))
 
 if [ "$NAS_MAX_CPUS" = "" ]; then
@@ -146,7 +147,6 @@ MPI)
 	if [ "$NAS_ALLOW_CPU_SATURATE" = "yes" ]; then
 		NAS_MAX_CPUS=$((NAS_MAX_CPUS+1))
 	fi
-	MPICPUS=$(round_down_nearest_square $NAS_MAX_CPUS)
 	if [ "$NAS_BIND" = "yes" ]; then
 		MPIRUN_EXTRA="--bind-to socket"
 	fi
@@ -181,6 +181,19 @@ if [ "$RUNBITS" = "" ]; then
 fi
 export PATH=$SHELLPACK_TOPLEVEL/nas/bin:$PATH
 
+function lookup_mpicpus
+{
+	local NAS_JOB=$1
+	case $NAS_JOB in
+	cg|ft|is|mg)
+		MPICPUS=$(round_down_power_2 $NAS_MAX_CPUS)
+		;;
+	*)
+		MPICPUS=$(round_down_nearest_square $NAS_MAX_CPUS)
+		;;
+	esac
+}
+
 # Generate suite.def
 SUBVERSION=$VERSION
 if [ ! -e $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$VERSION-$NAS_TYPE ]; then
@@ -189,6 +202,7 @@ fi
 pushd $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE > /dev/null || die Failed to cd to nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE
 echo -n > config/suite.def
 for JOB in $JOBLIST; do
+	lookup_mpicpus $JOB
 	echo "$JOB      $NAS_CLASS $MPICPUS" >> config/suite.def
 done
 
@@ -218,6 +232,7 @@ for ITERATION in `seq 1 $NAS_ITERATIONS`; do
 				> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
 		MPI)
+			lookup_mpicpus $JOB
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
 				mpirun --allow-run-as-root $MPIOPT -np $MPICPUS $MPIRUN_EXTRA ./bin/$JOB.$NAS_CLASS.$MPICPUS \
 				> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
@@ -236,4 +251,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 89
+#### Details nas-bench 90
