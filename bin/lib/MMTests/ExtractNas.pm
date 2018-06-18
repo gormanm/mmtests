@@ -21,10 +21,13 @@ sub extractReport() {
 
 	my @files = <$reportDir/$profile/*.log.1>;
 	my @kernels;
+	my $class;
 	foreach my $file (@files) {
 		my @split = split /\//, $file;
 		$split[-1] =~ s/.log.1//;
-		push @kernels, $split[-1];
+		my $kernel = $split[-1];
+		($kernel, $class) = split /\./, $kernel;
+		push @kernels, $kernel;
 	}
 
 	die("No data") if $kernels[0] eq "";
@@ -32,7 +35,7 @@ sub extractReport() {
 	foreach my $kernel (@kernels) {
 		my $nr_samples = 0;
 
-		foreach my $file (<$reportDir/$profile/$kernel.log.*>) {
+		foreach my $file (<$reportDir/$profile/$kernel.$class.log.*>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				my $line = $_;
