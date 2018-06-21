@@ -17,7 +17,6 @@ sub new() {
 	return $self;
 }
 
-my $new_compaction_stats = 0;
 my $autonuma_enabled = 1;
 
 my %_fieldNameMap = (
@@ -56,7 +55,8 @@ my %_fieldNameMap = (
 	"kswapd_skip_congestion_wait"	=> "Kswapd skipped wait",
 	"thp_fault_alloc"		=> "THP fault alloc",
 	"thp_collapse_alloc"		=> "THP collapse alloc",
-	"thp_split"			=> "THP splits",
+	"thp_split_page"		=> "THP split",
+	"thp_split_page_failed"		=> "THP split failed",
 	"thp_fault_fallback"		=> "THP fault fallback",
 	"thp_collapse_alloc_failed"	=> "THP collapse fail",
 	"compact_stall"			=> "Compaction stalls",
@@ -84,11 +84,6 @@ my %_fieldNameMap = (
 	"mmtests_autonuma_cost"		=> "AutoNUMA cost",
 );
 
-my @_old_migrate_stats = (
-	"compact_pages_moved",
-	"compact_pagemigrate_failed",
-);
-
 my @_new_migrate_stats = (
 	"compact_migrate_scanned",
 	"compact_free_scanned",
@@ -103,6 +98,13 @@ my @_autonuma_stats = (
 	"numa_hint_faults_local",
 	"numa_pages_migrated",
 	"mmtests_autonuma_cost",
+);
+
+my %_renamed_fields = (
+	"compact_pages_moved"		=> "pgmigrate_success",
+	"compact_pagemigrate_failed"	=> "pgmigrate_failed",
+	"thp_split"  			=> "thp_split_page",
+	"thp_failed" 			=> "thp_split_page_failed",
 );
 
 my @_fieldOrder = (
@@ -141,10 +143,11 @@ my @_fieldOrder = (
         "kswapd_inodesteal",
         "kswapd_skip_congestion_wait",
         "thp_fault_alloc",
-        "thp_collapse_alloc",
-        "thp_split",
         "thp_fault_fallback",
+        "thp_collapse_alloc",
         "thp_collapse_alloc_failed",
+        "thp_split_page",
+        "thp_split_page_failed",
         "compact_stall",
         "compact_success",
         "compact_fail",
@@ -183,6 +186,11 @@ sub extractReport($$$$) {
 	my %zones_seen;
 
 	my $file = "$reportDir/tests-timestamp-$testName";
+
+	foreach my $key (keys %_renamed_fields) {
+		$vmstat_before{$_renamed_fields{$key}} = 0;
+		$vmstat_after{$_renamed_fields{$key}} = 0;
+	}
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
@@ -223,13 +231,14 @@ sub extractReport($$$$) {
 			}
 
 			my ($key, $value) = split(/\s/, $_);
+			if (defined $_renamed_fields{$key}) {
+				print "DEBUG: remapping $key -> $_renamed_fields{$key}\n";
+				$key = $_renamed_fields{$key};
+			}
 			if ($reading_before) {
 				$vmstat_before{$key} = $value;
 			} elsif ($reading_after) {
 				$vmstat_after{$key} = $value;
-			}
-			if ($key eq "pgmigrate_success") {
-				$new_compaction_stats = 1;
 			}
 			if ($key eq "numa_hint_faults") {
 				$autonuma_enabled = 1;
@@ -347,7 +356,8 @@ sub extractReport($$$$) {
 			 "numa_hint_faults",
         		 "numa_hint_faults_local", "numa_pages_migrated",
 			 "thp_fault_alloc", "thp_collapse_alloc",
-			 "thp_split", "thp_fault_fallback",
+			 "thp_split_page", "thp_split_page_failed",
+			 "thp_fault_fallback",
 			 "thp_collapse_alloc_failed") {
 		if (!defined($vmstat_after{$key}) && $padded_compat) {
 			$vmstat{$key} = 0;
@@ -440,17 +450,9 @@ key:	foreach my $key (@keys) {
 
 		# Some stats for migration may have changed
 		if (!$padded_compat) {
-			if ($new_compaction_stats) {
-				foreach my $compareKey (@_old_migrate_stats) {
-					if ($compareKey eq $key) {
-						next key;
-					}
-				}
-			} else {
-				foreach my $compareKey (@_new_migrate_stats) {
-					if ($compareKey eq $key) {
-						next key;
-					}
+			foreach my $compareKey (@_new_migrate_stats) {
+				if ($compareKey eq $key) {
+					next key;
 				}
 			}
 
