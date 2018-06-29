@@ -559,6 +559,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 
 	# Run tests in single mode
 	dmesg > $SHELLPACK_LOG/dmesg-$RUNNAME
+	gzip $SHELLPACK_LOG/dmesg-$RUNNAME
 	ip addr show > $SHELLPACK_LOG/ip-addr-$RUNNAME
 	echo start :: `date +%s` > $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	if [ "$RAID_CREATE_END" != "" ]; then
@@ -595,6 +596,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities-${RUNNAME}.txt
 	fi
 	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
+	gzip $SHELLPACK_LOG/kconfig-`uname -r`.txt
 
 	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
 	for TEST in $MMTESTS; do
