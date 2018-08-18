@@ -145,6 +145,7 @@ for ITERATION in `seq 1 $MUTILATE_ITERATIONS`; do
 		-r $MUTILATE_ITEMS \
 		-t $MUTILATE_DURATION \
 		    | tee -a $LOGDIR_RESULTS/mutilate-$NR_THREADS-$ITERATION.log
+sync
 done
 
 monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
@@ -154,4 +155,4 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 
 exit $SHELLPACK_SUCCESS
 #### Description mutilate
-#### Details mutilate-bench 32
+#### Details mutilate-bench 33
