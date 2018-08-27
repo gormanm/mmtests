@@ -190,7 +190,7 @@ for CONFIG in $RAMCONFIGS; do
 		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/ram0/' \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
-		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=inode64,logbsize=262144,nobarrier/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=/' \
 			> $CONFIG-xfs
 
 #	for FS in ext3 ext4 btrfs xfs; do
@@ -242,7 +242,7 @@ for CONFIG in $FSCONFIGS; do
 		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
-		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=inode64,nobarrier/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=/' \
 			> $CONFIG-xfs
 
 done
@@ -283,7 +283,7 @@ for CONFIG in $DEADLINE_FSCONFIGS; do
 		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
-		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=inode64,nobarrier/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=/' \
 			> $OUT_CONFIG-xfs
 	echo "export TESTDISK_IO_SCHEDULER=deadline" >> $OUT_CONFIG-ext3
 	echo "export TESTDISK_IO_SCHEDULER=deadline" >> $OUT_CONFIG-ext4
@@ -326,7 +326,7 @@ for CONFIG in $NOATIME_FSCONFIGS; do
 		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
-		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=noatime,inode64,logbsize=262144,nobarrier/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=noatime/' \
 			> $CONFIG-xfs
 
 done
@@ -362,7 +362,7 @@ for CONFIG in $LIMITMEM_CONFIGS; do
 		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
-		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=inode64,logbsize=262144,nobarrier/' \
+		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=/' \
 			> $DESTCONFIG-xfs
 done
 
