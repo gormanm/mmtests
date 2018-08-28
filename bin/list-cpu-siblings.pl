@@ -3,8 +3,10 @@
 use strict;
 die if !defined $ARGV[0];
 die if !defined $ARGV[1];
+die if !defined $ARGV[2];
 
 my @ht_list;
+my @node_core_list;
 my @sibling_list;
 
 open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/topology/thread_siblings_list") ||
@@ -32,6 +34,30 @@ while (!eof(INPUT)) {
 	}
 }
 close INPUT;
+
+open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/node$ARGV[2]/cpulist") ||
+	open(INPUT, "/sys/devices/system/cpu/cpu$ARGV[0]/node$ARGV[2]/cpulist") ||
+	die("Failed to open node cpulist file for CPU $ARGV[0]");
+while (!eof(INPUT)) {
+	my $line = <INPUT>;
+
+	foreach my $range (split /,/, $line) {
+		chomp($range);
+		if ($line =~ /-/) {
+			my ($from, $to) = split(/-/, $range);
+			for (my $i = $from; $i <= $to; $i++) {
+				if ($i == $ARGV[0] || grep {$_ == $i} @ht_list) {
+					next;
+				}
+				push @node_core_list, $i;
+			}
+		} else {
+			if ($range != $ARGV[0] || grep {$_ == $range} @ht_list) {
+				push @node_core_list, $range;
+			}
+		}
+	}
+}
 
 open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/topology/core_siblings_list") ||
 	open(INPUT, "/sys/devices/system/cpu/cpu$ARGV[0]/topology/core_siblings_list") ||
@@ -61,6 +87,8 @@ while (!eof(INPUT)) {
 
 if ($ARGV[1] eq "threads") {
 	print join ",", @ht_list;
+} elsif ($ARGV[1] eq "node_cores") {
+	print join ",", @node_core_list;
 } elsif ($ARGV[1] eq "cores") {
 	print join ",", @sibling_list;
 } else {
