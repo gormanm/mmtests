@@ -232,7 +232,6 @@ sub extractReport($$$$) {
 
 			my ($key, $value) = split(/\s/, $_);
 			if (defined $_renamed_fields{$key}) {
-				print "DEBUG: remapping $key -> $_renamed_fields{$key}\n";
 				$key = $_renamed_fields{$key};
 			}
 			if ($reading_before) {
