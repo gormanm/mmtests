@@ -123,8 +123,11 @@ $TIME_CMD -o $LOGDIR_RESULTS/time.fscreate.$ITERATION \
 
 echo Mounting $ITERATION/$ITERATIONS
 mkdir mnt
-mount -o loop,nobarrier,logbsize=256k $SHELLPACK_DATA/sparse.img mnt ||
-	die Failed to mount filesystem image
+mount -o loop,nobarrier,logbsize=256k $SHELLPACK_DATA/sparse.img mnt
+if [ $? -ne 0 ]; then
+	mount -o loop,logbsize=256k $SHELLPACK_DATA/sparse.img mnt ||
+		die Failed to mount filesystem image
+fi
 
 echo Running fsmark $ITERATION/$ITERATIONS
 monitor_pre_hook $LOGDIR_RESULTS fsmark-$ITERATION
@@ -151,10 +154,11 @@ if [ $? -ne 0 ]; then
 fi
 
 rm $SHELLPACK_DATA/sparse.img
+sync
 done
 
 rm /tmp/fsmark-$$
 
 exit $SHELLPACK_SUCCESS
 #### Description xfsrepair
-#### Details xfsrepair-bench 30
+#### Details xfsrepair-bench 31
