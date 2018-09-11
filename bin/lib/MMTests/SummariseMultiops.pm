@@ -103,7 +103,8 @@ sub extractRatioSummary() {
 		my $index = 0;
 		while ($index <= $#_operations) {
 			if ($includeOps{$_operations[$index]} == 1) {
-				$index++
+				$index++;
+				next;
 			}
 			splice(@_operations, $index, 1);
 		}
