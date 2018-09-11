@@ -64,36 +64,10 @@ sub extractSummary() {
 
 sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
-	my @_operations = @{$self->{_Operations}};
+	my @_operations = $self->ratioSummaryOps($subHeading);
 	my %data = %{$self->dataByOperation()};
-	my %includeOps;
 
 	$self->{_SummaryHeaders} = [ "Op", "Ratio" ];
-
-	if (defined $self->{_MultiInclude}) {
-		%includeOps = %{$self->{_MultiInclude}};
-	}
-
-	if ($subHeading ne "") {
-		my $index = 0;
-		while ($index <= $#_operations) {
-			if ($_operations[$index] =~ /^$subHeading.*/) {
-				$index++;
-				next;
-			}
-			splice(@_operations, $index, 1);
-		}
-	}
-	if (%includeOps) {
-		my $index = 0;
-		while ($index <= $#_operations) {
-			if ($includeOps{$_operations[$index]} == 1) {
-				$index++;
-				next;
-			}
-			splice(@_operations, $index, 1);
-		}
-	}
 
 	foreach my $operation (@_operations) {
 		my @units;

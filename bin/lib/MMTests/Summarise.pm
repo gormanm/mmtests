@@ -77,6 +77,28 @@ sub dataByOperation() {
 	return \%result;
 }
 
+sub ratioSummaryOps() {
+	my ($self, $subHeading) = @_;
+	my @ops;
+
+	if ($subHeading eq "" && ! defined $self->{_MultiInclude}) {
+		return @{$self->{_Operations}};
+	}
+
+	foreach my $operation (@{$self->{_Operations}}) {
+		if ($subHeading ne "" && !($operation =~ /^$subHeading.*/)) {
+			next;
+		}
+		if (defined $self->{_MultiInclude} &&
+		    $self->{_MultiInclude}->{$operation} != 1) {
+			next;
+		}
+		push @ops, $operation;
+	}
+
+	return @ops;
+}
+
 sub printPlot() {
 	my ($self, $subHeading) = @_;
 	my %data = %{$self->dataByOperation()};

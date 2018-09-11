@@ -701,6 +701,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		else
 			false
 		fi || eval $COMPARE_CMD
+		echo $COMPARE_CMD
 	esac
 	echo
 	eval $COMPARE_CMD --print-monitor duration
