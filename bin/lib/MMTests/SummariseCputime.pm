@@ -1,8 +1,8 @@
 # SummariseCputime.pm
 package MMTests::SummariseCputime;
-use MMTests::Extract;
+use MMTests::SummariseMultiops;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract);
+our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub initialise() {
@@ -12,117 +12,19 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 
 	my $fieldLength = $self->{_FieldLength} = 12;
-	$self->{_FieldHeaders} = [ "User", "System", "Elapsed", "CPU" ];
-	$self->{_SummaryHeaders} = [ "Operation", "User", "System", "Elapsed", "CPU" ];
 	$self->{_SummaryLength} = $fieldLength;
 	$self->{_PlotLength} = $fieldLength;
-        $self->{_PlotHeaders} = [ "LowStddev", "Min", "Max", "HighStddev", "Mean" ];
-	$self->{_RatioPreferred} = "Lower";
-	$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
-	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
-}
-
-sub printDataType() {
-	print "CPUTime,TestName,Time (seconds),operation-candlesticks";
-}
-
-sub printPlot() {
-	my ($self, $subheading) = @_;
-	my $fieldLength = $self->{_PlotLength};
-	my $column;
-
-	# Figure out which column we need
-	if ($subheading eq "User") {
-		$column = 0;
-	} elsif ($subheading eq "System") {
-		$column = 1;
-	} elsif ($subheading eq "Elapsed") {
-		$column = 2;
-	} elsif ($subheading eq "CPU") {
-		$column = 3;
-	} else {
-		print("Unknown sub-heading '$subheading', specify --sub-heading\n");
-		return;
-	}
-	my @units;
-	push @units, $column;
-	printf "%d %-${fieldLength}s ", 1, ".";
-	$self->_printCandlePlot($fieldLength - 1, @units);
-}
-
-sub extractSummary() {
-	my ($self, $subHeading) = @_;
-	my @formatList;
-	my $fieldLength = $self->{_FieldLength};
-	if (defined $self->{_FieldFormat}) {
-		@formatList = @{$self->{_FieldFormat}};
-	}
-
-	my (@user, @sys, @elapsed, @cpu);
-
-	foreach my $row (@{$self->{_ResultData}}) {
-		my @rowArray = @{$row};
-		push @user,    $rowArray[0];
-		push @sys,     $rowArray[1];
-		push @elapsed, $rowArray[2];
-		push @cpu,     $rowArray[3];
-	}
-
-	$self->{_FieldFormat} = [ "%-${fieldLength}s" ];
-	foreach my $funcName ("calc_min", "calc_mean", "calc_stddev", "calc_coeffvar", "calc_max") {
-		no strict "refs";
-		my $op = $funcName;
-		$op =~ s/calc_//;
-
-		push @{$self->{_SummaryData}}, [$op,
-						&$funcName(@user),
-						&$funcName(@sys),
-						&$funcName(@elapsed),
-						&$funcName(@cpu) ];
-	}
-
-	return 1;
-}
-
-sub extractRatioSummary() {
-	my ($self, $subHeading) = @_;
-	my @formatList;
-	my $fieldLength = $self->{_FieldLength};
-	if (defined $self->{_FieldFormat}) {
-		@formatList = @{$self->{_FieldFormat}};
-	}
-
-	$self->{_SummaryHeaders} = [ "Time", "Ratio" ];
-
-	my (@elapsed);
-
-	foreach my $row (@{$self->{_ResultData}}) {
-		my @rowArray = @{$row};
-		push @elapsed, $rowArray[2];
-	}
-
-	$self->{_FieldFormat} = [ "%-${fieldLength}s" ];
-	foreach my $funcName ("calc_mean") {
-		no strict "refs";
-
-		push @{$self->{_SummaryData}}, ["Elapsed", &$funcName(@elapsed) ];
-	}
-
-	push @{$self->{_SummaryCILen}}, calc_stddev(@elapsed);
-
-	return 1;
-}
-
-
-sub printReport() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
+	$self->{_PlotType} = "operation-candlesticks";
+	$self->{_PlotXaxis}  = "TestName";
+	$self->{_PlotHeaders} = [ "LowStddev", "Min", "Max", "HighStddev", "Mean" ];
+	$self->{_MultiInclude} = { "Elapsed" => 1 };
 }
 
 sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($user, $system, $elapsed, $cpu);
 	my $file = "$reportDir/$profile/time";
+	my $cnt = 0;
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
@@ -141,9 +43,15 @@ sub extractReport() {
 		}
 		$elapsed = $hours * 60 * 60 + $minutes * 60 + $seconds;
 
-		push @{$self->{_ResultData}}, [ $user, $system, $elapsed, $cpu ];
+		push @{$self->{_ResultData}}, [ "User",    $cnt, $user    ];
+		push @{$self->{_ResultData}}, [ "System",  $cnt, $system  ];
+		push @{$self->{_ResultData}}, [ "Elapsed", $cnt, $elapsed ];
+		push @{$self->{_ResultData}}, [ "CPU",     $cnt, $cpu     ];
+		$cnt++;
 	}
 	close INPUT;
+
+	$self->{_Operations} = [ "User", "System", "Elapsed", "CPU" ];
 }
 
 1;
