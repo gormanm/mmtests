@@ -1,5 +1,5 @@
-# SummariseCputime.pm
-package MMTests::SummariseCputime;
+# ExtractCputime.pm
+package MMTests::ExtractCputime;
 use MMTests::SummariseMultiops;
 use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
