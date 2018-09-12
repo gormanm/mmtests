@@ -81,7 +81,6 @@ sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = $self->ratioSummaryOps($subHeading);
 	my %data = %{$self->dataByOperation()};
-	my %includeOps;
 
 	$self->{_SummaryHeaders} = [ "Op", "Ratio" ];
 
