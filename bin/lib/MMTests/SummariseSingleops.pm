@@ -90,7 +90,10 @@ sub initialise() {
 
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
+
 	$self->{_SummaryData} = $self->{_ResultData};
+	my @ops = map {$_ -> [0]} @{$self->{_ResultData}};
+	$self->{_Operations} = \@ops;
 	return 1;
 }
 
@@ -98,6 +101,7 @@ sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
 	my @data = @{$self->{_ResultData}};
 	my %includeOps;
+	my @ops;
 
 	if (!defined $self->{_SingleType}) {
 		print "Unsupported\n";
@@ -116,11 +120,13 @@ sub extractRatioSummary() {
 		if (%includeOps && $includeOps{@{$rowLine}[0]} != 1) {
 			next;
 		}
+		push @ops, @{$rowLine}[0];
 		push @row, @{$rowLine}[0];
 		push @row, @{$rowLine}[1];
 		push @{$self->{_SummaryData}}, \@row;
 	}
 
+	$self->{_Operations} = \@ops;
 	return 1;
 }
 
