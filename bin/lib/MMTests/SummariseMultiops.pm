@@ -39,34 +39,26 @@ sub extractSummary() {
 		my @units;
 		my @row;
 
-		my $nrUnits = 0;
 		foreach my $row (@{$data{$operation}}) {
-			$nrUnits++;
 			push @units, @{$row}[1];
 		}
 
 		push @row, $operation;
-
-		if ($nrUnits == 0) {
-			# no data for $operation
-			push @row, qw{NaN NaN NaN NaN NaN NaN NaN NaN};
-		} else {
-			my $funcName;
-			foreach $funcName ("calc_min", $self->getMeanFunc, "calc_stddev", "calc_coeffvar", "calc_max") {
-				no strict "refs";
-				my $value = &$funcName(@units);
-				if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-					push @row, $value;
-				}
+		my $funcName;
+		foreach $funcName ("calc_min", $self->getMeanFunc, "calc_stddev", "calc_coeffvar", "calc_max") {
+			no strict "refs";
+			my $value = &$funcName(@units);
+			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
+				push @row, $value;
 			}
-			$funcName = $self->getMeanFunc;
-			my $selectFunc = $self->getSelectionFunc();
-			foreach my $i (50, 95, 99) {
-				no strict "refs";
-				my $value = &$funcName(@{&$selectFunc($i, \@units)});
-				if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-					push @row, $value;
-				}
+		}
+		$funcName = $self->getMeanFunc;
+		my $selectFunc = $self->getSelectionFunc();
+		foreach my $i (50, 95, 99) {
+			no strict "refs";
+			my $value = &$funcName(@{&$selectFunc($i, \@units)});
+			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
+				push @row, $value;
 			}
 		}
 		if ($#row > 1) {

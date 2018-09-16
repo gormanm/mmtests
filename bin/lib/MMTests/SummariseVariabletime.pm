@@ -15,16 +15,8 @@ sub initialise() {
 	} else {
 		$self->{_CompareOp} = "pdiff";
 	}
-
-	$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle",
-		"2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-95%",
-		"Max-99%", "Max", "$self->{_MeanName}", "Stddev",
-		"Coeff", "Best99%$self->{_MeanName}",
-		"Best95%$self->{_MeanName}",
-		"Best90%$self->{_MeanName}",
-		"Best75%$self->{_MeanName}",
-		"Best50%$self->{_MeanName}",
-		"Best25%$self->{_MeanName}" ]; }
+	$self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-95%", "Max-99%", "Max", "$self->{_MeanName}", "Stddev", "Coeff", "Best99%$self->{_MeanName}", "Best95%$self->{_MeanName}",  "Best90%$self->{_MeanName}", "Best75%$self->{_MeanName}", "Best50%$self->{_MeanName}", "Best25%$self->{_MeanName}" ];
+}
 
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
@@ -44,39 +36,32 @@ sub extractSummary() {
 
 		my @units;
 		my @row;
-		my $nrUnits=0;
 		foreach my $row (@{$data{$operation}}) {
-			$nrUnits++;
 			push @units, @{$row}[1];
 		}
 
-		push @row, $operation;
+        $self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-95%", "Max-99%", "Max", "$self->{_MeanName}", "Stddev", "Coeff", "Best99%$self->{_MeanName}", "Best95%$self->{_MeanName}",  "Best90%$self->{_MeanName}", "Best75%$self->{_MeanName}", "Best50%$self->{_MeanName}", "Best25%$self->{_MeanName}" ];
 
-		if ($nrUnits == 0) {
-			# no data for $operation
-			push @row, qw{NaN NaN NaN NaN NaN NaN NaN NaN
-			NaN NaN NaN NaN NaN NaN NaN NaN NaN};
-		} else {
-			my $quartilesRef = calc_quartiles(@units);
-			my @quartiles = @{$quartilesRef};
-			push @row, calc_min(@units);
-			push @row, $quartiles[1];
-			push @row, $quartiles[2];
-			push @row, $quartiles[3];
-			push @row, $quartiles[90];
-			push @row, $quartiles[95];
-			push @row, $quartiles[99];
-			push @row, $quartiles[4];
-			push @row, &$meanOp(@units);
-			push @row, calc_stddev(@units);
-			push @row, calc_coeffvar(@units);
-			push @row, &$meanOp(@{&$selectOp(99, \@units)});
-			push @row, &$meanOp(@{&$selectOp(95, \@units)});
-			push @row, &$meanOp(@{&$selectOp(90, \@units)});
-			push @row, &$meanOp(@{&$selectOp(75, \@units)});
-			push @row, &$meanOp(@{&$selectOp(50, \@units)});
-			push @row, &$meanOp(@{&$selectOp(25, \@units)});
-		}
+		my $quartilesRef = calc_quartiles(@units);
+		my @quartiles = @{$quartilesRef};
+		push @row, $operation;
+		push @row, calc_min(@units);
+		push @row, $quartiles[1];
+		push @row, $quartiles[2];
+		push @row, $quartiles[3];
+		push @row, $quartiles[90];
+		push @row, $quartiles[95];
+		push @row, $quartiles[99];
+		push @row, $quartiles[4];
+		push @row, &$meanOp(@units);
+		push @row, calc_stddev(@units);
+		push @row, calc_coeffvar(@units);
+		push @row, &$meanOp(@{&$selectOp(99, \@units)});
+		push @row, &$meanOp(@{&$selectOp(95, \@units)});
+		push @row, &$meanOp(@{&$selectOp(90, \@units)});
+		push @row, &$meanOp(@{&$selectOp(75, \@units)});
+		push @row, &$meanOp(@{&$selectOp(50, \@units)});
+		push @row, &$meanOp(@{&$selectOp(25, \@units)});
 
 		push @{$self->{_SummaryData}}, \@row;
 	}

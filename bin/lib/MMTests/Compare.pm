@@ -151,13 +151,7 @@ sub _generateComparisonTable() {
 				if ($summary[$row][$column] eq "") {
 					$summary[$row][$column] = "NaN";
 				}
-
-				if ($summary[$row][$column] eq "NaN") {
-					push @data, "NaN";
-					push @compare, "NaN";
-					push @ratio, "NaN";
-					push @normcmp, "NaN";
-				} elsif ($summary[$row][$column] != -1 && $baseline[$row][$column] != -1) {
+				if ($summary[$row][$column] != -1 && $summary[$row][$column] ne "NaN" && $baseline[$row][$column] != -1) {
 					push @data, $summary[$row][$column];
 					push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
 					push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
