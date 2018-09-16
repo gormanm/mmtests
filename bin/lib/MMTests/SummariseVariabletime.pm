@@ -29,6 +29,7 @@ sub extractSummary() {
 
 	my $meanOp = $self->getMeanFunc;
 	my $selectOp = $self->getSelectionFunc();
+	my %summary;
 
 	foreach my $operation (@_operations) {
 		no strict  "refs";
@@ -39,11 +40,10 @@ sub extractSummary() {
 			push @units, @{$row}[1];
 		}
 
-        $self->{_SummaryHeaders} = [ "Unit", "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-95%", "Max-99%", "Max", "$self->{_MeanName}", "Stddev", "Coeff", "Best99%$self->{_MeanName}", "Best95%$self->{_MeanName}",  "Best90%$self->{_MeanName}", "Best75%$self->{_MeanName}", "Best50%$self->{_MeanName}", "Best25%$self->{_MeanName}" ];
+		$self->{_SummaryHeaders} = [ "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-95%", "Max-99%", "Max", "$self->{_MeanName}", "Stddev", "Coeff", "Best99%$self->{_MeanName}", "Best95%$self->{_MeanName}",  "Best90%$self->{_MeanName}", "Best75%$self->{_MeanName}", "Best50%$self->{_MeanName}", "Best25%$self->{_MeanName}" ];
 
 		my $quartilesRef = calc_quartiles(@units);
 		my @quartiles = @{$quartilesRef};
-		push @row, $operation;
 		push @row, calc_min(@units);
 		push @row, $quartiles[1];
 		push @row, $quartiles[2];
@@ -62,8 +62,9 @@ sub extractSummary() {
 		push @row, &$meanOp(@{&$selectOp(50, \@units)});
 		push @row, &$meanOp(@{&$selectOp(25, \@units)});
 
-		push @{$self->{_SummaryData}}, \@row;
+		$summary{$operation} = \@row;
 	}
+	$self->{_SummaryData} = \%summary;
 
 	return 1;
 }
@@ -78,7 +79,8 @@ sub extractRatioSummary() {
 		$_operations[0] = $subHeading;
 	}
 
-	$self->{_SummaryHeaders} = [ "Time", "Ratio" ];
+	$self->{_SummaryHeaders} = [ "Ratio" ];
+	my %summary;
 
 	foreach my $operation (@_operations) {
 
@@ -90,11 +92,9 @@ sub extractRatioSummary() {
 		}
 		my $quartilesRef = calc_quartiles(@units);
 		my @quartiles = @{$quartilesRef};
-		push @row, $operation;
-		push @row, $quartiles[95];
-
-		push @{$self->{_SummaryData}}, \@row;
+		$summary{$operation} = [$quartiles[95]];
 	}
+	$self->{_SummaryData} = \%summary;
 
 	return 1;
 }

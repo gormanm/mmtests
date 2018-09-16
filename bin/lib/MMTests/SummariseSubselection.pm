@@ -12,11 +12,11 @@ sub initialise() {
 
 	$self->SUPER::initialise($reportDir, $testName);
 	if ($self->{_RatioPreferred} eq "Lower") {
-		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
+		$self->{_CompareOps} = [ "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
 	} else {
-		$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff", "pdiff" ];
+		$self->{_CompareOps} = [ "pdiff", "pdiff", "pndiff", "pndiff", "pdiff", "pdiff" ];
 	}
-	$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "Max", "Sub$self->{_MeanName}", "Sub$self->{_MeanName}CI" ];
+	$self->{_SummaryHeaders} = [ "Min", $self->{_MeanName}, "Stddev", "Max", "Sub$self->{_MeanName}", "Sub$self->{_MeanName}CI" ];
 	$self->{_RatioCompareOp} = "cidiff";
 }
 
@@ -36,6 +36,7 @@ sub extractSummary() {
 		}
 	}
 
+	my %summary;
 	foreach my $operation (@_operations) {
 		my @units;
 		my @row;
@@ -44,20 +45,18 @@ sub extractSummary() {
 			push @units, @{$row}[1];
 		}
 
-		push @row, $operation;
 		my $funcName;
+		$summary{$operation} = [];
 		foreach $funcName ("calc_min", $self->getMeanFunc, "calc_stddev", "calc_max") {
 			no strict "refs";
 			my $value = &$funcName(@units);
 			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-				push @row, $value;
+				push @{$summary{$operation}}, $value;
 			}
 		}
-		push @row, calc_submean_ci($self->{_MeanName}, \@units);
-		if ($#row > 1) {
-			push @{$self->{_SummaryData}}, \@row;
-		}
+		push @{$summary{$operation}}, calc_submean_ci($self->{_MeanName}, \@units);
 	}
+	$self->{_SummaryData} = \%summary;
 
 	return 1;
 }
@@ -67,28 +66,25 @@ sub extractRatioSummary() {
 	my @_operations = $self->ratioSummaryOps($subHeading);
 	my %data = %{$self->dataByOperation()};
 
-	$self->{_SummaryHeaders} = [ "Op", "Ratio" ];
+	$self->{_SummaryHeaders} = [ "Ratio" ];
 
+	my %summary;
+	my %summaryCILen;
 	foreach my $operation (@_operations) {
 		my @units;
-		my @row;
 		foreach my $row (@{$data{$operation}}) {
 			push @units, @{$row}[1];
 		}
-		push @row, $operation;
-
 		my $subMean;
 		my $ciLen;
-
 		($subMean, $ciLen) = calc_submean_ci($self->{_MeanName}, \@units);
 		if (($subMean ne "NaN" && $subMean ne "nan") || $self->{_FilterNaN} != 1) {
-			push @row, $subMean;
-		}
-		if ($#row > 0) {
-			push @{$self->{_SummaryData}}, \@row;
-			push @{$self->{_SummaryCILen}}, $ciLen;
+			$summary{$operation} = [$subMean];
+			$summaryCILen{$operation} = $ciLen;
 		}
 	}
+	$self->{_SummaryData} = \%summary;
+	$self->{_SummaryCILen} = \%summaryCILen;
 
 	return 1;
 }

@@ -12,11 +12,11 @@ sub initialise() {
 
 	$self->SUPER::initialise($reportDir, $testName);
 	if ($self->{_RatioPreferred} eq "Lower") {
-		$self->{_CompareOps} = [ "none", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
+		$self->{_CompareOps} = [ "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff", "pndiff" ];
 	} else {
-		$self->{_CompareOps} = [ "none", "pdiff", "pdiff", "pndiff", "pndiff", "pdiff", "pdiff", "pdiff", "pdiff", ];
+		$self->{_CompareOps} = [ "pdiff", "pdiff", "pndiff", "pndiff", "pdiff", "pdiff", "pdiff", "pdiff", ];
 	}
-	$self->{_SummaryHeaders} = [ "Op", "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max", "B$self->{_MeanName}-50", "B$self->{_MeanName}-95", "B$self->{_MeanName}-99" ];
+	$self->{_SummaryHeaders} = [ "Min", $self->{_MeanName}, "Stddev", "CoeffVar", "Max", "B$self->{_MeanName}-50", "B$self->{_MeanName}-95", "B$self->{_MeanName}-99" ];
 }
 
 sub extractSummary() {
@@ -35,6 +35,7 @@ sub extractSummary() {
 		}
 	}
 
+	my %summary;
 	foreach my $operation (@_operations) {
 		my @units;
 		my @row;
@@ -43,13 +44,13 @@ sub extractSummary() {
 			push @units, @{$row}[1];
 		}
 
-		push @row, $operation;
 		my $funcName;
+		$summary{$operation} = [];
 		foreach $funcName ("calc_min", $self->getMeanFunc, "calc_stddev", "calc_coeffvar", "calc_max") {
 			no strict "refs";
 			my $value = &$funcName(@units);
 			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-				push @row, $value;
+				push @{$summary{$operation}}, $value;
 			}
 		}
 		$funcName = $self->getMeanFunc;
@@ -58,13 +59,11 @@ sub extractSummary() {
 			no strict "refs";
 			my $value = &$funcName(@{&$selectFunc($i, \@units)});
 			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-				push @row, $value;
+				push @{$summary{$operation}}, $value;
 			}
 		}
-		if ($#row > 1) {
-			push @{$self->{_SummaryData}}, \@row;
-		}
 	}
+	$self->{_SummaryData} = \%summary;
 
 	return 1;
 }
@@ -74,29 +73,31 @@ sub extractRatioSummary() {
 	my @_operations = $self->ratioSummaryOps($subHeading);
 	my %data = %{$self->dataByOperation()};
 
-	$self->{_SummaryHeaders} = [ "Op", "Ratio" ];
+	$self->{_SummaryHeaders} = [ "Ratio" ];
 
+	my %summary;
+	my %summaryCILen;
 	foreach my $operation (@_operations) {
 		my @units;
-		my @row;
+		my $value;
 		foreach my $row (@{$data{$operation}}) {
 			push @units, @{$row}[1];
 		}
-		push @row, $operation;
-		foreach my $funcName ($self->getMeanFunc) {
+		{
 			no strict "refs";
-			my $value = &$funcName(@units);
-			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-				push @row, $value;
-			}
+			my $funcName = $self->getMeanFunc();
+			$value = &$funcName(@units);
 		}
-		if ($#row > 0) {
-			push @{$self->{_SummaryData}}, \@row;
+		if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
+			$summary{$operation} = [$value];
 			if (!$self->{_SuppressDmean}) {
-				push @{$self->{_SummaryCILen}}, calc_stddev(@units);
+				$summaryCILen{$operation} = calc_stddev(@units);
 			}
 		}
 	}
+	$self->{_SummaryData} = \%summary;
+	# we rely on _SummaryCILen being undef to honor _SuppressDmean
+	$self->{_SummaryCILen} = \%summaryCILen if %summaryCILen;
 
 	return 1;
 }

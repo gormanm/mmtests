@@ -56,7 +56,7 @@ sub initialise() {
 	$self->{_FieldHeaders} = [ "Type", "Sample", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
 
 	$self->{_SummaryLength} = 16;
-	$self->{_SummaryHeaders} = [ "Type", $self->{_Opname} ? $self->{_Opname} : "Ops"  ];
+	$self->{_SummaryHeaders} = [ $self->{_Opname} ? $self->{_Opname} : "Ops"  ];
 	$self->{_SummariseColumn} = 2;
 	$self->{_RatioPreferred} = "Higher";
 
@@ -91,7 +91,12 @@ sub initialise() {
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
 
-	$self->{_SummaryData} = $self->{_ResultData};
+	$self->{_SummaryData} = {};
+	for my $row (@{$self->{_ResultData}}) {
+		my $op = $row->[0];
+		my $value = $row->[1];
+		$self->{_SummaryData}->{$op} = [ $value ];
+	}
 	my @ops = map {$_ -> [0]} @{$self->{_ResultData}};
 	$self->{_Operations} = \@ops;
 	return 1;
@@ -111,20 +116,17 @@ sub extractRatioSummary() {
 		%includeOps = %{$self->{_SingleInclude}};
 	}
 
-	$self->{_SummaryHeaders} = [ "Op", "Ratio" ];
+	$self->{_SummaryHeaders} = [ "Ratio" ];
 
+	my %summaryData;
 	foreach my $rowLine (@data) {
-		my @units;
-		my @row;
-		my $samples = 0;
 		if (%includeOps && $includeOps{@{$rowLine}[0]} != 1) {
 			next;
 		}
 		push @ops, @{$rowLine}[0];
-		push @row, @{$rowLine}[0];
-		push @row, @{$rowLine}[1];
-		push @{$self->{_SummaryData}}, \@row;
+		$summaryData{$rowLine->[0]} = [$rowLine->[1]];
 	}
+	$self->{_SummaryData} = \%summaryData;
 
 	$self->{_Operations} = \@ops;
 	return 1;

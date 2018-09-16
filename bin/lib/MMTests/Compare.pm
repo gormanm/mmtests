@@ -81,41 +81,27 @@ sub printFieldHeaders() {
 		$self->{_FieldHeaderFormat});
 }
 
-sub _generateTitleTable() {
-	my ($self) = @_;
-	my @titleTable;
-
-	my @extractModules = @{$self->{_ExtractModules}};
-	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
-	my $baselineRef = $extractModules[0]->{_SummaryData};
-	my @baseline = @{$baselineRef};
-
-	for (my $column = 1; $column <= $#summaryHeaders; $column++) {
-		for (my $row = 0; $row <= $#baseline; $row++) {
-			push @titleTable, [$summaryHeaders[$column],
-				   	$baseline[$row][0]];
-		}
-	}
-
-	$self->{_TitleTable} = \@titleTable;
-}
-
 sub _generateComparisonTable() {
 	my ($self, $subHeading, $showCompare) = @_;
-	my @resultsTable;
-	my @compareTable;
-	my @compareRatioTable;
-	my @normCompareTable;
+	my %resultsTable;
+	my %compareTable;
+	my %compareRatioTable;
+	my %normCompareTable;
 
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
 	my $baselineRef = $extractModules[0]->{_SummaryData};
-	my @baseline = @{$baselineRef};
+	my %baseline = %{$baselineRef};
 	my $baseCILenRef = $extractModules[0]->{_SummaryCILen};
-	my @baseCILen = @{$baseCILenRef // []};
+	my %baseCILen = %{$baseCILenRef // {}};
 
-	for (my $column = 1; $column <= $#summaryHeaders; $column++) {
-		for (my $row = 0; $row <= $#baseline; $row++) {
+	for my $operation (keys %baseline) {
+		$resultsTable{$operation} = [];
+		$compareTable{$operation} = [];
+		$compareRatioTable{$operation} = [];
+		$normCompareTable{$operation} = [];
+
+		for (my $column = 0; $column <= $#summaryHeaders; $column++) {
 			my @data;
 			my @compare;
 			my @ratio;
@@ -134,8 +120,8 @@ sub _generateComparisonTable() {
 				$compareOp = $extractModules[0]->{_CompareOp};
 			}
 			die if !defined($compareOp);
-			if (defined $extractModules[0]->{_CompareLookup}{$baseline[$row][0]}) {
-				$compareOp = $extractModules[0]->{_CompareLookup}{$baseline[$row][0]};
+			if (defined $extractModules[0]->{_CompareLookup}{$operation}) {
+				$compareOp = $extractModules[0]->{_CompareLookup}{$operation};
 			}
 			if (defined $extractModules[0]->{_RatioCompareOp}) {
 				$ratioCompareOp = $extractModules[0]->{_RatioCompareOp};
@@ -144,25 +130,25 @@ sub _generateComparisonTable() {
 			for (my $module = 0; $module <= $#extractModules; $module++) {
 				no strict "refs";
 				my $summaryRef = $extractModules[$module]->{_SummaryData};
-				my @summary = @{$summaryRef};
+				my %summary = %{$summaryRef};
 				my $summaryCILenRef = $extractModules[$module]->{_SummaryCILen};
-				my @summaryCILen = @{$summaryCILenRef};
+				my %summaryCILen = %{$summaryCILenRef};
 
-				if ($summary[$row][$column] eq "") {
-					$summary[$row][$column] = "NaN";
+				if ($summary{$operation}[$column] eq "") {
+					$summary{$operation}[$column] = "NaN";
 				}
-				if ($summary[$row][$column] != -1 && $summary[$row][$column] ne "NaN" && $baseline[$row][$column] != -1) {
-					push @data, $summary[$row][$column];
-					push @compare, &$compareOp($summary[$row][$column], $baseline[$row][$column]);
-					push @ratio,   rdiff($summary[$row][$column], $baseline[$row][$column]);
+				if ($summary{$operation}[$column] != -1 && $summary{$operation}[$column] ne "NaN" && $baseline{$operation}[$column] != -1) {
+					push @data, $summary{$operation}[$column];
+					push @compare, &$compareOp($summary{$operation}[$column], $baseline{$operation}[$column]);
+					push @ratio,   rdiff($summary{$operation}[$column], $baseline{$operation}[$column]);
 					if ($baseCILenRef) {
 						my $sdiff_val;
 
-						$sdiff_val = &$ratioCompareOp($summary[$row][$column], $summaryCILen[$row], $baseline[$row][$column], $baseCILen[$row]);
+						$sdiff_val = &$ratioCompareOp($summary{$operation}[$column], $summaryCILen{$operation}, $baseline{$operation}[$column], $baseCILen{$operation});
 						if ($sdiff_val eq "NaN" || $sdiff_val eq "nan") {
 							$sdiff_val = 0;
 						}
-						print "Comparing ($ratioCompareOp) $summary[$row][$column] $summaryCILen[$row] $baseline[$row][$column] $baseCILen[$row]: $sdiff_val\n";
+						print "Comparing ($ratioCompareOp) $summary{$operation}[$column] $summaryCILen{$operation} $baseline{$operation}[$column] $baseCILen{$operation}: $sdiff_val\n";
 						push @normcmp, $sdiff_val;
 					}
 				} else {
@@ -172,30 +158,31 @@ sub _generateComparisonTable() {
 					push @normcmp, 0;
 				}
 			}
-			push @resultsTable, [@data];
-			push @compareTable, [@compare];
-			push @compareRatioTable, [@ratio];
-			push @normCompareTable, [@normcmp];
+			push @{$resultsTable{$operation}}, [@data];
+			push @{$compareTable{$operation}}, [@compare];
+			push @{$compareRatioTable{$operation}}, [@ratio];
+			push @{$normCompareTable{$operation}}, [@normcmp];
 		}
 	}
 
 	my @geomean;
 	my @normcmpmean;
-	for (my $column = 1; $column <= $#summaryHeaders; $column++) {
+	my $cmpRatio;
+	for (my $column = 0; $column <= $#summaryHeaders; $column++) {
 		for (my $module = 0; $module <= $#extractModules; $module++) {
 			my @units;
-			for (my $row = 0; $row <= $#baseline; $row++) {
-				push @units, $normCompareTable[$row][$module];
+			for my $operation (keys %baseline) {
+				push @units, $normCompareTable{$operation}[$column][$module];
 			}
 			push @normcmpmean, [ calc_mean(@units), calc_min(@units), calc_max(@units) ];
 
 			@units = ();
-			for (my $row = 0; $row <= $#baseline; $row++) {
-				if ($compareRatioTable[$row][$module] eq "NaN" ||
-				    $compareRatioTable[$row][$module] eq "") {
+			for my $operation (keys %baseline) {
+				$cmpRatio = $compareRatioTable{$operation}[$column][$module];
+				if ($cmpRatio eq "NaN" || $cmpRatio eq "") {
 					push @units, 1;
-				} elsif ($compareRatioTable[$row][$module] != 0) {
-					push @units, $compareRatioTable[$row][$module];
+				} elsif ($cmpRatio != 0) {
+					push @units, $cmpRatio;
 				} else {
 					push @units, 0.00001;
 				}
@@ -204,14 +191,14 @@ sub _generateComparisonTable() {
 		}
 	}
 
-	$self->{_ResultsTable} = \@resultsTable;
-	$self->{_ResultsNormalizedTable} = \@normCompareTable if $baseCILenRef;
+	$self->{_ResultsTable} = \%resultsTable;
+	$self->{_ResultsNormalizedTable} = \%normCompareTable if $baseCILenRef;
 	$self->{_NormalizedDiffStatsTable} = \@normcmpmean if $baseCILenRef;
-	$self->{_ResultsRatioTable} = \@compareRatioTable;
+	$self->{_ResultsRatioTable} = \%compareRatioTable;
 	$self->{_GeometricMeanTable} = \@geomean;
 
 	if ($showCompare) {
-		$self->{_CompareTable} = \@compareTable;
+		$self->{_CompareTable} = \%compareTable;
 	}
 }
 
@@ -269,29 +256,27 @@ sub _generateRenderRatioTable() {
 	my @formatTable;
 	my @compareTable;
 
-	my @titleTable = @{$self->{_TitleTable}};
-	my @resultsTable = @{$self->{_ResultsRatioTable}};
-	my @normResultsTable = @{$self->{_ResultsNormalizedTable}} if exists $self->{_ResultsNormalizedTable};
+	my %resultsTable = %{$self->{_ResultsRatioTable}};
+	my %normResultsTable = %{$self->{_ResultsNormalizedTable}} if exists $self->{_ResultsNormalizedTable};
 	my $fieldLength = $self->{_FieldLength};
 	my $compareLength = 0;
 	my $precision = 2;
 	if ($self->{_Precision}) {
 		$precision = $self->{_Precision};
 	}
-	my @compareTable;
+	my %compareTable;
 	if (defined $self->{_CompareTable}) {
-		@compareTable = @{$self->{_CompareTable}};
+		%compareTable = %{$self->{_CompareTable}};
 		$compareLength = $self->{_CompareLength};
 	}
 
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
-	my $baselineRef = $extractModules[0]->{_SummaryData};
-	my @baseline = @{$baselineRef};
+	my @operations = @{$extractModules[0]->{_Operations}};
 
 	# Format string for columns
 	my $maxLength = 0;
-	for (my $column = 1; $column <= $#summaryHeaders; $column++) {
+	for (my $column = 0; $column <= $#summaryHeaders; $column++) {
 		my $len = length($summaryHeaders[$column]);
 		if ($len > $maxLength) {
 			$maxLength = $len;
@@ -302,8 +287,8 @@ sub _generateRenderRatioTable() {
 
 	# Format string for source table rows
 	$maxLength = 0;
-	for (my $row = 0; $row <= $#baseline; $row++) {
-		my $length = length($baseline[$row][0]);
+	for my $operation (@operations) {
+		my $length = length($operation);
 		if ($length > $maxLength) {
 			$maxLength = $length;
 		}
@@ -312,7 +297,7 @@ sub _generateRenderRatioTable() {
 	$self->{_OperationLength} += $maxLength + 1;
 
 	# Build column format table
-	for (my $i = 0; $i <= $#{$resultsTable[0]}; $i++) {
+	for (my $i = 0; $i <= scalar @operations; $i++) {
 		my $fieldFormat = "%${fieldLength}.${precision}f";
 		if (defined $self->{_CompareTable}) {
 			push @formatTable, ($fieldFormat, " (%${compareLength}.2f%%)", " (\%+${compareLength}.2fs)");
@@ -324,38 +309,36 @@ sub _generateRenderRatioTable() {
 	my $maxCols = 0;
 
 	# Final comparison table
-	for (my $row = 0; $row <= $#titleTable; $row++) {
-		my @row;
-		foreach my $elements ($titleTable[$row]) {
-			foreach my $element (@{$elements}) {
-				push @row, $element;
-			}
-		}
+	my @extractModules = @{$self->{_ExtractModules}};
+	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
+	my @rowLine;
+	for (my $header = 0; $header <= $#summaryHeaders; $header++) {
 		if (defined $extractModules[0]->{_RatioMatch}) {
-			if ($row[1] !~ $extractModules[0]->{_RatioMatch}) {
+			if ($summaryHeaders[$header] !~ $extractModules[0]->{_RatioMatch}) {
 				next;
 			}
 		}
-
-		if ($#{$resultsTable[$row]} > $maxCols) {
-			$maxCols = $#{$resultsTable[$row]};
-		}
-		next if $#{$resultsTable[$row]} < $maxCols;
-
-		for (my $i = 0; $i <= $#{$resultsTable[$row]}; $i++) {
-			push @row, $resultsTable[$row][$i];
-			if (defined $self->{_CompareTable}) {
-				push @row, $compareTable[$row][$i];
-			} else {
-				push @row, "NaN";
+		for my $operation (@operations) {
+			@rowLine = ($summaryHeaders[$header], $operation);
+			if ($#{$resultsTable{$operation}} > $maxCols) {
+				$maxCols = $#{$resultsTable{$operation}};
 			}
-			if (defined $self->{_ResultsNormalizedTable}) {
-				push @row, $normResultsTable[$row][$i] // 0;
-			} else {
-				push @row, "NaN";
+			next if $#{$resultsTable{$operation}} < $maxCols;
+			for (my $i = 0; $i < scalar(@{$resultsTable{$operation}[$header]}); $i++) {
+				push @rowLine, $resultsTable{$operation}[$header][$i];
+				if (defined $self->{_CompareTable}) {
+					push @rowLine, $compareTable{$operation}[$header][$i];
+				} else {
+					push @rowLine, "NaN";
+				}
+				if (defined $self->{_ResultsNormalizedTable}) {
+					push @rowLine, $normResultsTable{$operation}[$header][$i] // 0;
+				} else {
+					push @rowLine, "NaN";
+				}
 			}
+			push @finalTable, [@rowLine];
 		}
-		push @finalTable, [@row];
 	}
 
 	if (defined $self->{_NormalizedDiffStatsTable}) {
@@ -399,31 +382,28 @@ sub _generateRenderTable() {
 	my @formatTable;
 	my @compareTable;
 
-	my @titleTable = @{$self->{_TitleTable}};
-	my @resultsTable = @{$self->{_ResultsTable}};
+	my @extractModules = @{$self->{_ExtractModules}};
+	my @operations = @{$extractModules[0]->{_Operations}};
 	my $fieldLength = $self->{_FieldLength};
 	my $compareLength = 0;
 	my $precision = 2;
 	if ($self->{_Precision}) {
 		$precision = $self->{_Precision};
 	}
-	my @compareTable;
+	my %compareTable;
 	if (defined $self->{_CompareTable}) {
-		@compareTable = @{$self->{_CompareTable}};
+		%compareTable = %{$self->{_CompareTable}};
 		$compareLength = $self->{_CompareLength};
 		if (! defined $compareLength) {
 			$compareLength = 7;
 		}
 	}
 
-	my @extractModules = @{$self->{_ExtractModules}};
 	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
-	my $baselineRef = $extractModules[0]->{_SummaryData};
-	my @baseline = @{$baselineRef};
 
 	# Format string for columns
 	my $maxLength = 0;
-	for (my $column = 1; $column <= $#summaryHeaders; $column++) {
+	for (my $column = 0; $column <= $#summaryHeaders; $column++) {
 		my $len = length($summaryHeaders[$column]);
 		if ($len > $maxLength) {
 			$maxLength = $len;
@@ -435,8 +415,8 @@ sub _generateRenderTable() {
 	# Format string for source table rows
 	if (!$rowOrientated) {
 		$maxLength = 0;
-		for (my $row = 0; $row <= $#baseline; $row++) {
-			my $length = length($baseline[$row][0]);
+		for my $operation (@operations) {
+			my $length = length($operation);
 			if ($length > $maxLength) {
 				$maxLength = $length;
 			}
@@ -448,7 +428,8 @@ sub _generateRenderTable() {
 	}
 
 	# Build column format table
-	for (my $i = 0; $i <= $#{$resultsTable[0]}; $i++) {
+	my %resultsTable = %{$self->{_ResultsTable}};
+	for (my $i = 0; $i <= scalar(@{$resultsTable{$operations[0]}}) + 1; $i++) {
 		my $fieldFormat = "ROW";
 		if (!$rowOrientated) {
 			$fieldFormat = "%${fieldLength}.${precision}f"
@@ -461,22 +442,22 @@ sub _generateRenderTable() {
 	}
 
 	# Final comparison table
-	for (my $row = 0; $row <= $#titleTable; $row++) {
-		my @rowLine;
-		foreach my $elements ($titleTable[$row]) {
-			foreach my $element (@{$elements}) {
-				push @rowLine, $element;
+	my @extractModules = @{$self->{_ExtractModules}};
+	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
+	my @rowLine;
+	for (my $header = 0; $header <= $#summaryHeaders; $header++) {
+		for my $operation (@operations) {
+			@rowLine = ($summaryHeaders[$header], $operation);
+			for (my $i = 0; $i < scalar(@{$resultsTable{$operation}[$header]}); $i++) {
+				push @rowLine, $resultsTable{$operation}[$header][$i];
+				if (defined $self->{_CompareTable}) {
+					push @rowLine, $compareTable{$operation}[$header][$i];
+				} else {
+					push @rowLine, [""];
+				}
 			}
+			push @finalTable, [@rowLine];
 		}
-		for (my $i = 0; $i <= $#{$resultsTable[$row]}; $i++) {
-			push @rowLine, $resultsTable[$row][$i];
-			if (defined $self->{_CompareTable}) {
-				push @rowLine, $compareTable[$row][$i];
-			} else {
-				push @rowLine, [""];
-			}
-		}
-		push @finalTable, [@rowLine];
 	}
 
 	$self->{_RenderTable} = \@finalTable;
@@ -486,7 +467,6 @@ sub _generateRenderTable() {
 sub extractComparison() {
 	my ($self, $subHeading, $showCompare) = @_;
 
-	$self->_generateTitleTable();
 	$self->_generateComparisonTable($subHeading, $showCompare);
 }
 
