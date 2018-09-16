@@ -111,7 +111,7 @@ my $compareModule;
 printVerbose("Loading compare $opt_benchmark\n");
 eval {
 	if ($opt_monitor) {
-		$compareModule = $compareFactory->loadModule("cputime", $opt_format, \@extractModules);
+		$compareModule = $compareFactory->loadModule("monitor", $opt_format, \@extractModules);
 	} else {
 		$compareModule = $compareFactory->loadModule($opt_benchmark, $opt_format, \@extractModules);
 	}
