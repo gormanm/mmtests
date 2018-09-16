@@ -137,7 +137,7 @@ sub _generateComparisonTable() {
 				if ($summary{$operation}[$column] eq "") {
 					$summary{$operation}[$column] = "NaN";
 				}
-				if ($summary{$operation}[$column] != -1 && $summary{$operation}[$column] ne "NaN" && $baseline{$operation}[$column] != -1) {
+				if (exists $summary{$operation} && $summary{$operation}[$column] != -1 && $summary{$operation}[$column] ne "NaN" && $baseline{$operation}[$column] != -1) {
 					push @data, $summary{$operation}[$column];
 					push @compare, &$compareOp($summary{$operation}[$column], $baseline{$operation}[$column]);
 					push @ratio,   rdiff($summary{$operation}[$column], $baseline{$operation}[$column]);
