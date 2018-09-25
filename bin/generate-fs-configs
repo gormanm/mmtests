@@ -34,7 +34,6 @@ config-global-dhp__workload_usemem
 config-global-dhp__workload_linkbench
 config-global-dhp__workload-graphdb-small
 config-global-dhp__workload-graphdb-large
-config-global-dhp__workload_usemem-stress-numa-compact
 "
 
 RAMCONFIGS="

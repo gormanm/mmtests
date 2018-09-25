@@ -69,7 +69,7 @@ export MONITOR_UPDATE_FREQUENCY=10
 # larger machines when defrag is set to always
 echo always > /sys/kernel/mm/transparent_hugepage/defrag
 export USEMEM_WORKLOAD_SIZE=$((MEMTOTAL_BYTES*4/5))
-export USEMEM_PERCENTAGE_ANON=80
+export USEMEM_PERCENTAGE_ANON=100
 export USEMEM_LOOPS=30
 export USEMEM_ITERATIONS=7
 export USEMEM_MIN_THREADS=1
