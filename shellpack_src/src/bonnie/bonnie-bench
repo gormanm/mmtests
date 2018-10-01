@@ -69,6 +69,7 @@ echo ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
 		die Failed to run bonnie
 	fi
 
+	gzip $LOGDIR_RESULTS/bonnie-detail.$ITERATION
 	if [ $ITERATION -lt $BONNIE_ITERATIONS ]; then
 		umount_filesystems
 		create_filesystems

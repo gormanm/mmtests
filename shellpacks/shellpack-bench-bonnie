@@ -144,6 +144,7 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 		die Failed to run bonnie
 	fi
 
+	gzip $LOGDIR_RESULTS/bonnie-detail.$ITERATION
 	if [ $ITERATION -lt $BONNIE_ITERATIONS ]; then
 		umount_filesystems
 		create_filesystems
@@ -153,4 +154,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description bonnie
-#### Details bonnie-bench 43
+#### Details bonnie-bench 44

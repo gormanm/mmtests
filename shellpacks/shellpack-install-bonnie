@@ -848,4 +848,4 @@ diff -rupNX /crypted/home/jack/.kerndiffexclude bonnie++-1.03e/Makefile.in bonni
  INSTALL=@INSTALL@
 ==== END bonnie-detailed-io-report.patch ====
 #### Description bonnie
-#### Details bonnie 43
+#### Details bonnie 44

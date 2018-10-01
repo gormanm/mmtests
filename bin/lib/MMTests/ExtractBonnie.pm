@@ -38,7 +38,11 @@ sub extractReport() {
 	my %present = ();
 
 	foreach my $file (@files) {
-		open(INPUT, $file) || die("Failed to open $file\n");
+		if ($file =~ /.*\.gz$/) {
+			open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
+		} else {
+			open(INPUT, $file) || die("Failed to open $file\n");
+		}
 		while (<INPUT>) {
 			my $line = $_;
 			my @elements = split(/ /, $line);
