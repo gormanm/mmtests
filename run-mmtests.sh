@@ -558,8 +558,6 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	EXIT_CODE=$SHELLPACK_SUCCESS
 
 	# Run tests in single mode
-	dmesg > $SHELLPACK_LOG/dmesg-$RUNNAME
-	gzip -f $SHELLPACK_LOG/dmesg-$RUNNAME
 	ip addr show > $SHELLPACK_LOG/ip-addr-$RUNNAME
 	echo start :: `date +%s` > $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 	if [ "$RAID_CREATE_END" != "" ]; then
@@ -666,6 +664,8 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 
 	done
 	echo finish :: `date +%s` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	dmesg > $SHELLPACK_LOG/dmesg-$RUNNAME
+	gzip -f $SHELLPACK_LOG/dmesg-$RUNNAME
 else
 	# Create memory control group if requested
 	if [ "$MEMCG_SIZE" != "" ]; then
