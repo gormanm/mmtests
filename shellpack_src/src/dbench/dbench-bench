@@ -62,6 +62,7 @@ while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 		$CLIENT 2>&1 | tee $LOGDIR_RESULTS/dbench-$CLIENT.log \
 			|| die Failed to run dbench
 	monitor_post_hook $LOGDIR_RESULTS $CLIENT
+	gzip $LOGDIR_RESULTS/dbench-$CLIENT.log
 	if [ $CLIENT -lt $NUMCPUS ]; then
 		CLIENT=$((CLIENT*2))
 	else
