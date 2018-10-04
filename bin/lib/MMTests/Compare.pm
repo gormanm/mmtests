@@ -601,7 +601,10 @@ sub _significanceTest() {
 	my $num_samples_base = $baseline[2];
 	my $num_samples_rdata = $rdata[2];
 
-	my $stderror = sqrt(($variance_base**2/$num_samples_base) + ($variance_rdata**2/$num_samples_rdata));
+	my $stderror = 0;
+	if ($num_samples_base && $num_samples_rdata) {
+		$stderror = sqrt(($variance_base**2/$num_samples_base) + ($variance_rdata**2/$num_samples_rdata));
+	}
 
 	# Special case the situation where the variance of both data sets
 	# is zero, which means we can't perform a t-test.
