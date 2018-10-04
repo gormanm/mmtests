@@ -36,6 +36,7 @@ sub extractSummary() {
 	}
 
 	my %summary;
+	my %significance;
 	foreach my $operation (@_operations) {
 		my @units;
 		my @row;
@@ -62,8 +63,21 @@ sub extractSummary() {
 				push @{$summary{$operation}}, $value;
 			}
 		}
+
+		$significance{$operation} = [];
+		no strict "refs";
+		push @{$significance{$operation}}, $self->getMeanFunc(@units);
+		push @{$significance{$operation}}, calc_stddev(@units);
+		push @{$significance{$operation}}, $#units+1;
+
+		if ($self->{_SignificanceLevel}) {
+			push @{$significance{$operation}}, $self->{_SignificanceLevel};
+		} else {
+			push @{$significance{$operation}}, 0.10;
+		}
 	}
 	$self->{_SummaryData} = \%summary;
+	$self->{_SignificanceData} = \%significance;
 
 	return 1;
 }

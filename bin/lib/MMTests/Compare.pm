@@ -10,6 +10,8 @@ use VMR::Blessless qw(blessless);
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
 use strict;
+use POSIX;
+use Statistics::Distributions;
 
 sub new() {
 	my $class = shift;
@@ -87,6 +89,7 @@ sub _generateComparisonTable() {
 	my %compareTable;
 	my %compareRatioTable;
 	my %normCompareTable;
+	my %significanceTable;
 
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
@@ -94,6 +97,8 @@ sub _generateComparisonTable() {
 	my %baseline = %{$baselineRef};
 	my $baseCILenRef = $extractModules[0]->{_SummaryCILen};
 	my %baseCILen = %{$baseCILenRef // {}};
+	my $baseSignificanceRef = $extractModules[0]->{_SignificanceData};
+	my %baseSignificance = %{$baseSignificanceRef // {}};
 
 	for my $operation (keys %baseline) {
 		$resultsTable{$operation} = [];
@@ -191,6 +196,33 @@ sub _generateComparisonTable() {
 		}
 	}
 
+	my %significance;
+	for my $operation (keys %baseline) {
+		$significance{$operation} = [];
+		my %baselineSignificance;
+		for (my $module = 0; $module <= $#extractModules; $module++) {
+			my $significanceRef = $extractModules[$module]->{_SignificanceData};
+			if ($significanceRef) {
+				my %rdata = %{$significanceRef};
+
+				if ($module == 0) {
+					%baselineSignificance = %{$significanceRef};
+					push @{$significance{$operation}}, 0;
+					push @{$significance{$operation}}, 0;
+				} else {
+						my $baselineRRef = \@{$baselineSignificance{$operation}};
+						my $rowRef = \@{$rdata{$operation}};
+						my ($val, $prob) = $self->_significanceTest($baselineRRef, $rowRef);
+						push @{$significance{$operation}}, $val;
+						push @{$significance{$operation}}, $prob;
+				}
+			} else {
+				push @{$significance{$operation}}, 0;
+				push @{$significance{$operation}}, 0;
+			}
+		}
+	}
+
 	$self->{_ResultsTable} = \%resultsTable;
 	$self->{_ResultsNormalizedTable} = \%normCompareTable if $baseCILenRef;
 	$self->{_NormalizedDiffStatsTable} = \@normcmpmean if $baseCILenRef;
@@ -199,11 +231,12 @@ sub _generateComparisonTable() {
 
 	if ($showCompare) {
 		$self->{_CompareTable} = \%compareTable;
+		$self->{_ResultsSignificanceTable} = \%significance;
 	}
 }
 
 sub _generateHeaderTable() {
-	my ($self) = @_;
+	my ($self, $printSignificance) = @_;
 	my @headerTable;
 	my @headerFormat;
 
@@ -377,7 +410,7 @@ sub _generateRenderRatioTable() {
 
 # Construct final table for printing
 sub _generateRenderTable() {
-	my ($self, $rowOrientated) = @_;
+	my ($self, $rowOrientated, $printSignificance) = @_;
 	my @finalTable;
 	my @formatTable;
 	my @compareTable;
@@ -460,6 +493,18 @@ sub _generateRenderTable() {
 		}
 	}
 
+	if ($printSignificance && defined $self->{_ResultsSignificanceTable}) {
+		my %significanceTable = %{$self->{_ResultsSignificanceTable}};
+		my @rowLine;
+		for my $operation (@operations) {
+			@rowLine = ("Significant", $operation);
+			for (my $i = 0; $i <= scalar(@{$significanceTable{$operation}}); $i++) {
+				push @rowLine, $significanceTable{$operation}[$i];
+			}
+			push @finalTable, [@rowLine];
+		}
+	}
+
 	$self->{_RenderTable} = \@finalTable;
 	$self->{_FieldFormat} = \@formatTable;
 }
@@ -486,8 +531,8 @@ sub _printComparisonRow() {
 	my ($self) = @_;
 	my @extractModules = @{$self->{_ExtractModules}};
 
-	$self->_generateRenderTable(1);
-	$self->_generateHeaderTable();
+	$self->_generateRenderTable(1, 0);
+	$self->_generateHeaderTable(0);
 
 	$self->{_PrintHandler}->printHeaderRow($self->{_HeaderTable},
 		$self->{_FieldLength},
@@ -499,7 +544,7 @@ sub _printComparisonRow() {
 }
 
 sub printComparison() {
-	my ($self, $printRatio) = @_;
+	my ($self, $printRatio, $printSignificance) = @_;
 	my @extractModules = @{$self->{_ExtractModules}};
 
 	if ($extractModules[0]->{_RowOrientated}) {
@@ -512,9 +557,9 @@ sub printComparison() {
 	if ($printRatio) {
 		$self->_generateRenderRatioTable();
 	} else {
-		$self->_generateRenderTable(0);
+		$self->_generateRenderTable(0, $printSignificance);
 	}
-	$self->_generateHeaderTable();
+	$self->_generateHeaderTable($printSignificance);
 
 	$self->{_PrintHandler}->printTop();
 	$self->{_PrintHandler}->printHeaderRow($self->{_HeaderTable},
@@ -529,6 +574,51 @@ sub printComparison() {
 sub printReport() {
 	my ($self) = @_;
 	print "Unknown data type for reporting raw data\n";
+}
+
+# Two sample t-test
+sub _significanceTest() {
+	my ($self, $baselineref, $rdataref) = @_;
+
+	my @baseline = @$baselineref;
+	my @rdata = @$rdataref;
+
+	my $variance_base = $baseline[1];
+	my $variance_rdata = $rdata[1];
+	my $num_samples_base = $baseline[2];
+	my $num_samples_rdata = $rdata[2];
+
+	my $stderror = sqrt(($variance_base**2/$num_samples_base) + ($variance_rdata**2/$num_samples_rdata));
+
+	# Special case the situation where the variance of both data sets
+	# is zero, which means we can't perform a t-test.
+
+	if (!$stderror) {
+		my $delta = $baseline[0] - $rdata[0];
+		my $sig = $delta ? 1 : 0;
+
+		# If there is a difference in means then there's 0%
+		# probability of $delta being described by our model
+		# (with zero variance, our model has a single value for
+		# the mean). No difference is 100% described by the model.
+
+		my $prob = $delta ? 0 : 100;
+
+		return ($sig, $prob);
+	}
+
+	my $t_stat = abs(($baseline[0] - $rdata[0]) / $stderror);
+
+	# Each sample variance as N-1 degrees of freedom.
+	my $df = $num_samples_base + $num_samples_rdata - 2;
+
+	my $t_prob = Statistics::Distributions::tprob($df, $t_stat);
+
+	my $p_value = $t_prob*2;
+
+	my $significance_level = $baseline[3];
+
+	return ($p_value < $significance_level, $p_value*100);
 }
 
 1;

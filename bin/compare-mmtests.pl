@@ -127,7 +127,7 @@ if ($opt_Rsummary) {
 
 $compareModule->extractComparison($opt_subheading, !$opt_hideCompare);
 
-$compareModule->printComparison($opt_printRatio);
+$compareModule->printComparison($opt_printRatio, $opt_printSignificance);
 
 if ($opt_JSONExport && $opt_benchmark) {
 	my $fname = "$opt_reportDirectory/$opt_benchmark.json";
