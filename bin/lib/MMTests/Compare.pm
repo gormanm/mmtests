@@ -492,8 +492,7 @@ sub _generateRenderTable() {
 				if (defined $self->{_CompareTable}) {
 					my $sig = "";
 					# Determine if this is a good row to mark significance
-					if ($headerName =~ /^.mean/ ||
-						$headerName =~ /^Elapsed/) {
+					if ($headerName =~ /^.mean/) {
 						if ($significanceTable{$operation}[$i*2]) {
 							$sig = ":SIG:";
 						} else {
