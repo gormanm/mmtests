@@ -11,7 +11,6 @@ use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
 use strict;
 use POSIX;
-use Statistics::Distributions;
 
 sub new() {
 	my $class = shift;
@@ -626,7 +625,8 @@ sub _significanceTest() {
 	# Each sample variance as N-1 degrees of freedom.
 	my $df = $num_samples_base + $num_samples_rdata - 2;
 
-	my $t_prob = Statistics::Distributions::tprob($df, $t_stat);
+	my $t_prob = qx(echo 'pt(c($t_stat), $df, lower.tail = FALSE)' | R --slave);
+	$t_prob =~ s/\[1\]|\s//g;
 
 	my $p_value = $t_prob*2;
 
