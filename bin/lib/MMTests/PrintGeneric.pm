@@ -51,13 +51,19 @@ sub printRow($$@) {
 
 		foreach my $column (@rowArr) {
 			my $out;
-			$column =~ s/:SIG:$//;
-			$column =~ s/:NSIG:$//;
+
 			if (defined $formatColumnList[$columnIndex]) {
 				my $format = $formatColumnList[$columnIndex];
 				if ($format eq "ROW") {
 					$format = $formatRowList[$rowIndex];
 				}
+				if ($column =~ /:SIG:$/) {
+					$format =~ s/\(/*/;
+					$format =~ s/\)/*/;
+					$column =~ /:SIG:/;
+				}
+
+				$column =~ /:SIG:/;
 				$out = sprintf($format, $column);
 			} else {
 				$out = sprintf("%${fieldLength}.2f", $column);
