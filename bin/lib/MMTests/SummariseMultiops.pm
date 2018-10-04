@@ -73,7 +73,10 @@ sub extractSummary() {
 			$mean = &$funcName(@units);
 		}
 		push @{$significance{$operation}}, $mean;
-		push @{$significance{$operation}}, calc_stddev(@units);
+
+		my $stderr = calc_stddev(@units);
+		push @{$significance{$operation}}, $stderr ne "NaN" ? $stderr : 0;
+
 		push @{$significance{$operation}}, $#units+1;
 
 		if ($self->{_SignificanceLevel}) {
