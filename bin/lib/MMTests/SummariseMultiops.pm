@@ -65,8 +65,14 @@ sub extractSummary() {
 		}
 
 		$significance{$operation} = [];
-		no strict "refs";
-		push @{$significance{$operation}}, $self->getMeanFunc(@units);
+
+		$funcName = $self->getMeanFunc;
+		my $mean;
+		{
+			no strict "refs";
+			$mean = &$funcName(@units);
+		}
+		push @{$significance{$operation}}, $mean;
 		push @{$significance{$operation}}, calc_stddev(@units);
 		push @{$significance{$operation}}, $#units+1;
 
