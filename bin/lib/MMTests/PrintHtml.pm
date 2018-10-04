@@ -62,7 +62,19 @@ sub _printRow($$@) {
 				if ($format eq "ROW") {
 					$format = $formatRowList[$rowIndex];
 				}
-				$format = "<$elementOpen>$format</$elementClose>";
+				my $cellcolor = "";
+
+				if ($column =~ /:SIG:$/) {
+					$column =~ s/:SIG:$//;
+					if ($column > 0) {
+						$cellcolor = "bgcolor=\"#A0FFA0\"";
+					} else {
+						$cellcolor = "bgcolor=\"#FFA0A0\"";
+					}
+				}
+				$column =~ s/:NSIG:$//;
+
+				$format = "<$elementOpen $cellcolor>$format</$elementClose>";
 				printf($format, $column);
 			} else {
 				printf("<$elementOpen>%${fieldLength}.2f</$elementClose>", $column);

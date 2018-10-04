@@ -51,6 +51,8 @@ sub printRow($$@) {
 
 		foreach my $column (@rowArr) {
 			my $out;
+			$column =~ s/:SIG:$//;
+			$column =~ s/:NSIG:$//;
 			if (defined $formatColumnList[$columnIndex]) {
 				my $format = $formatColumnList[$columnIndex];
 				if ($format eq "ROW") {

@@ -474,17 +474,33 @@ sub _generateRenderTable() {
 		}
 	}
 
+	my %significanceTable;
+	if (defined $self->{_ResultsSignificanceTable}) {
+		%significanceTable = %{$self->{_ResultsSignificanceTable}};
+	}
+
 	# Final comparison table
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
 	my @rowLine;
 	for (my $header = 0; $header <= $#summaryHeaders; $header++) {
+		my $headerName = $summaryHeaders[$header];
 		for my $operation (@operations) {
-			@rowLine = ($summaryHeaders[$header], $operation);
+			@rowLine = ($headerName, $operation);
 			for (my $i = 0; $i < scalar(@{$resultsTable{$operation}[$header]}); $i++) {
 				push @rowLine, $resultsTable{$operation}[$header][$i];
 				if (defined $self->{_CompareTable}) {
-					push @rowLine, $compareTable{$operation}[$header][$i];
+					my $sig = "";
+					# Determine if this is a good row to mark significance
+					if ($headerName =~ /^.mean/ ||
+						$headerName =~ /^Elapsed/) {
+						if ($significanceTable{$operation}[$i*2]) {
+							$sig = ":SIG:";
+						} else {
+							$sig = ":NSIG:";
+						}
+					}
+					push @rowLine, "$compareTable{$operation}[$header][$i]$sig";
 				} else {
 					push @rowLine, [""];
 				}
@@ -494,7 +510,6 @@ sub _generateRenderTable() {
 	}
 
 	if ($printSignificance && defined $self->{_ResultsSignificanceTable}) {
-		my %significanceTable = %{$self->{_ResultsSignificanceTable}};
 		my @rowLine;
 		for my $operation (@operations) {
 			@rowLine = ("Significant", $operation);
