@@ -27,7 +27,7 @@ sub extractReport() {
 	my ($protocol);
 
 	my (@sizes, @rates);
-	my @files = <$reportDir/$profile/*-*-1.log>;
+	my @files = <$reportDir/$profile/*-*-1.log*>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		$protocol = $elements[-4];
@@ -47,7 +47,11 @@ sub extractReport() {
 	foreach my $size (@sizes) {
 		foreach my $rate (@rates) {
 			my $file = "$reportDir/$profile/$protocol-$size-$rate-1.log";
-			open(INPUT, $file) || die("Failed to open $file\n");
+			if (-e $file) {
+				open(INPUT, $file) || die("Failed to open $file\n");
+			} else {
+				open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz\n");
+			}
 			my $start_time = 0;
 
 			my $sample = 0;

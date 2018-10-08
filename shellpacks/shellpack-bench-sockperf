@@ -229,6 +229,7 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 sync
 done
 		monitor_post_hook $LOGDIR_RESULTS $SOCKPERF_PROTOCOL-$SIZE-$RATE
+		gzip $LOGDIR_RESULTS/$SOCKPERF_PROTOCOL-$SIZE-${RATE}-$ITERATION.log
 
 		mmtests_server_ctl stop --serverside-name $SOCKPERF_PROTOCOL-$SIZE-$RATE
 	done
@@ -239,4 +240,4 @@ rm /tmp/sockperf-server.pid
 
 exit $SHELLPACK_SUCCESS
 #### Description sockperf
-#### Details sockperf-bench 25
+#### Details sockperf-bench 26
