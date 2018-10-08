@@ -24,6 +24,12 @@ backup_systemtap() {
 }
 
 restore_systemtap() {
+	if [ "`which rpm`" != "" ]; then
+		rpm -qf /usr/share/systemtap/runtime/linux/timer_compatibility.h > /dev/null
+		if [ $? -ne 0 ]; then
+			/usr/share/systemtap/runtime/linux/timer_compatibility.h
+		fi
+	fi
 	for STAP_FILE in $STAP_FILES; do
 		if [ -e $STAP_FILE.orig ]; then
 			cp $STAP_FILE.orig $STAP_FILE 2> /dev/null
