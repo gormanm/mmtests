@@ -21,7 +21,11 @@ sub extractReport() {
 	my $file = "$reportDir/$profile/fio.log";
 	my @ops;
 
-	open(INPUT, $file) || die("Failed to open $file\n");
+	if (-e $file) {
+		open(INPUT, $file) || die("Failed to open $file\n");
+	} else {
+		open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz\n");
+	}
 	while (<INPUT>) {
 		my @elements;
 		my $worker;

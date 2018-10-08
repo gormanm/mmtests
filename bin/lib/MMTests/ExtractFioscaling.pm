@@ -27,7 +27,11 @@ sub extractOneFile {
 
 	$file = "$reportDir/$profile/$worker";
 
-	open(INPUT, $file) || die("Failed to open $file\n");
+	if (-e $file) {
+		open(INPUT, $file) || die("Failed to open $file\n");
+	} else {
+		open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz\n");
+	}
 	while (<INPUT>) {
 		if ( /^fio/ ) {
 			# fio command line, parse for number of jobs

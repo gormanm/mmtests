@@ -29,10 +29,11 @@ if [ "$FIO_CMD_OPTIONS" != "" ]; then
 	./fio --directory="$SHELLPACK_DATA" --minimal \
 		--write_lat_log $LOGDIR_RESULTS/fio $FIO_CMD_OPTIONS 2>&1 |
 		tee $LOGDIR_RESULTS/fio.log || \
-		die Failed to have fun with fio
+		die "Failed to have fun with fio"
 
 	rm -rf $SHELLPACK_DATA/*
 	monitor_post_hook $LOGDIR_RESULTS $SIZE
+	gzip $LOGDIR/fio*.log
 	exit $SHELLPACK_SUCCESS
 fi
 
@@ -148,4 +149,5 @@ ssd)
 	;;
 esac
 
+gzip $LOGDIR/fio*.log
 exit $SHELLPACK_SUCCESS
