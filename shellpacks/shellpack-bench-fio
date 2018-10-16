@@ -117,7 +117,7 @@ if [ "$FIO_CMD_OPTIONS" != "" ]; then
 
 	rm -rf $SHELLPACK_DATA/*
 	monitor_post_hook $LOGDIR_RESULTS $SIZE
-	gzip $LOGDIR/fio*.log
+	gzip $LOGDIR_RESULTS/fio*.log
 	exit $SHELLPACK_SUCCESS
 fi
 
@@ -233,7 +233,7 @@ ssd)
 	;;
 esac
 
-gzip $LOGDIR/fio*.log
+gzip $LOGDIR_RESULTS/fio*.log
 exit $SHELLPACK_SUCCESS
 #### Description Flexible IO tester
-#### Details fio-bench 23
+#### Details fio-bench 24
