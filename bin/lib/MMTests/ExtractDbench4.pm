@@ -36,7 +36,7 @@ sub extractReport() {
 	}
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
-		$split[-1] =~ s/.log//;
+		$split[-1] =~ s/.log.*//;
 		push @clients, $split[-1];
 	}
 	@clients = sort { $a <=> $b } @clients;

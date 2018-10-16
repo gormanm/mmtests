@@ -21,24 +21,35 @@ sub extractReport() {
 	my @clients;
 	$reportDir =~ s/4latency/4/;
 
-	my @files = <$reportDir/$profile/dbench-*.log>;
+	my @files = <$reportDir/$profile/dbench-*.log*>;
 	if ($files[0] eq "") {
-		@files = <$reportDir/$profile/tbench-*.log>;
+		@files = <$reportDir/$profile/tbench-*.log*>;
 	}
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
-		$split[-1] =~ s/.log//;
+		$split[-1] =~ s/.log.*//;
 		push @clients, $split[-1];
 	}
 	@clients = sort { $a <=> $b } @clients;
 
 	foreach my $client (@clients) {
 		my $nr_samples = 0;
+
 		my $file = "$reportDir/$profile/dbench-$client.log";
+		if (! -e $file) {
+			$file = "$reportDir/$profile/dbench-$client.log.gz";
+		}
 		if (! -e $file) {
 			$file = "$reportDir/$profile/tbench-$client.log";
 		}
-		open(INPUT, $file) || die("Failed to open $file\n");
+		if (! -e $file) {
+			$file = "$reportDir/$profile/tbench-$client.log.gz";
+		}
+		if ($file =~ /.*\.gz$/) {
+			open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
+		} else {
+			open(INPUT, $file) || die("Failed to open $file\n");
+		}
 		while (<INPUT>) {
 			my $line = $_;
 			if ($line =~ /execute/) {
