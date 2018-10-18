@@ -1,0 +1,38 @@
+#!/bin/bash
+###SHELLPACK preamble scimarkc-bench 2_1c
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-runtime SCIMARKC_MINRUNTIME
+###SHELLPACK parseargParam	--iterations  SCIMARKC_ITERATIONS
+###SHELLPACK parseargYes	--large       SCIMARKC_LARGE
+###SHELLPACK parseargEnd
+
+INSTALL_SWITCH=
+if [ "$INSTALL_ONLY" = "yes" ]; then
+        INSTALL_SWITCH=--install-only
+fi
+
+###SHELLPACK check_install_required scimarkc-${VERSION} $INSTALL_SWITCH
+###SHELLPACK monitor_hooks
+
+LARGE_SWITCH=
+if [ "$SCIMARKC_LARGE" = "yes" ]; then
+	LARGE_SWITCH=-large
+fi
+
+monitor_pre_hook $LOGDIR_RESULTS scimarkc
+###SHELLPACK iteration_begin $SCIMARKC_ITERATIONS
+	echo Running iteration $ITERATION/$SCIMARKC_ITERATIONS
+	save_rc $SHELLPACK_SOURCES/scimarkc-${VERSION}-installed/scimark2 \
+		$LARGE_SWITCH $SCIMARKC_MINRUNTIME 2>&1 		  \
+		| tee $LOGDIR_RESULTS/scimarkc.$ITERATION
+	recover_rc
+	if [ $? -ne 0 ]; then
+		die "Failed to run scimark"
+	fi
+###SHELLPACK iteration_end $SCIMARKC_ITERATIONS
+monitor_post_hook $LOGDIR_RESULTS scimarkc
+
+echo scimarkc successful
+exit $SHELLPACK_SUCCESS

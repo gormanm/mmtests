@@ -1,0 +1,108 @@
+#!/bin/bash
+P=scimarkc-bench
+DEFAULT_VERSION=2_1c
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--min-runtime)
+		SCIMARKC_MINRUNTIME=$2
+		shift 2
+		;;
+	--iterations)
+		SCIMARKC_ITERATIONS=$2
+		shift 2
+		;;
+	--large)
+		SCIMARKC_LARGE=yes
+		shift
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+INSTALL_SWITCH=
+if [ "$INSTALL_ONLY" = "yes" ]; then
+        INSTALL_SWITCH=--install-only
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/scimarkc-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/scimarkc-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-scimarkc -v ${VERSION} $INSTALL_SWITCH || die scimarkc install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/scimarkc-${VERSION}-installed || die Failed to cd to scimarkc install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo scimarkc installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+LARGE_SWITCH=
+if [ "$SCIMARKC_LARGE" = "yes" ]; then
+	LARGE_SWITCH=-large
+fi
+
+monitor_pre_hook $LOGDIR_RESULTS scimarkc
+for ITERATION in `seq 1 $SCIMARKC_ITERATIONS`; do
+	mmtests_activity iteration $ITERATION
+	echo Running iteration $ITERATION/$SCIMARKC_ITERATIONS
+	save_rc $SHELLPACK_SOURCES/scimarkc-${VERSION}-installed/scimark2 \
+		$LARGE_SWITCH $SCIMARKC_MINRUNTIME 2>&1 		  \
+		| tee $LOGDIR_RESULTS/scimarkc.$ITERATION
+	recover_rc
+	if [ $? -ne 0 ]; then
+		die "Failed to run scimark"
+	fi
+sync
+done
+monitor_post_hook $LOGDIR_RESULTS scimarkc
+
+echo scimarkc successful
+exit $SHELLPACK_SUCCESS
+#### Description scimarkc
+#### Details scimarkc-bench 2
