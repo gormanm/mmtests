@@ -81,7 +81,6 @@ export LARGECOPY_TARGETSIZE_MB=$((MEMTOTAL_BYTES*2/1048576))
 export LARGECOPY_THREADS=1
 
 # GIMP simple test
-export GIMP_SIMPLE_IMAGE_LOCATION=$WEBROOT/gimp-simple/large-image.tif
 
 # Git checkout
 export GITCHECKOUT_SOURCETAR=$WEBROOT/gitcheckout/linux-2.6.tar.gz
