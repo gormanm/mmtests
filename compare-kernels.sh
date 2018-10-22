@@ -485,15 +485,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		cache-mmtests.sh compare-mmtests.pl -d . -b bonnietput -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	dbt5-bench)
-		echo $SUBREPORT Transactions
-		eval $COMPARE_CMD
-		echo
-
-		echo $SUBREPORT Execution time
-		cache-mmtests.sh compare-mmtests.pl -d . -b dbt5exectime -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		;;
 	dvdstore)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
@@ -864,8 +855,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			generate_basic_single "$SUBREPORT Completion times" "--logX --logY"
 			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`" "Estimated time"
 			echo "</tr>"
-			;;
-		dbt2-bench|dbt5-branch)
 			;;
 		dedup)
 			generate_basic "$SUBREPORT" "--wide --logX"

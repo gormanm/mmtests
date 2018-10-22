@@ -28,8 +28,6 @@ config-global-dhp__db-sysbench-postgres-oltp-rw-medium
 config-global-dhp__db-sysbench-postgres-oltp-rw-small
 config-global-dhp__workload_wikibench
 config-global-dhp__pgioperf
-config-global-dhp__db-dbt2-postgres-small
-config-global-dhp__db-dbt5-postgres-smallest
 config-global-dhp__workload_usemem
 config-global-dhp__workload_linkbench
 config-global-dhp__workload-graphdb-small
