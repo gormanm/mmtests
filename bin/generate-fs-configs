@@ -83,6 +83,7 @@ config-global-dhp__workload_sparsetruncate-tiny
 config-global-dhp__workload_sparsetruncate-small
 config-global-dhp__workload_sparsetruncate-large
 config-global-dhp__workload_thpfioscale
+config-global-dhp__workload_thpfioscale-defrag
 config-global-dhp__reaim-io-alltests
 config-global-dhp__reaim-io-compute
 config-global-dhp__reaim-io-disk
