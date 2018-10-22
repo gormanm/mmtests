@@ -1,8 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble thpfioscale-bench 2.99
 
-THPFIOSCALE_FIO_FILESIZE=${THPFIOSCALE_FIO_FILESIZE:-8192}
-THPFIOSCALE_FIO_WARMUP=${THPFIOSCALE_FIO_WARMUP:-300}
+THPFIOSCALE_FIO_FILESIZE=${THPFIOSCALE_FIO_FILESIZE:-65536}
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -20,13 +19,18 @@ THPFIOSCALE_FIO_WARMUP=${THPFIOSCALE_FIO_WARMUP:-300}
 # Initialise files
 echo Initialising fio files
 FIO_NR_FILES=$((THPFIOSCALE_FIO_SIZE/THPFIOSCALE_FIO_FILESIZE/THPFIOSCALE_FIO_THREADS))
+FIO_NR_BLOCKS=$((THPFIOSCALE_FIO_SIZE/4096))
 FIO_JOBFILE="/tmp/fio-jobfile-$$"
+FIO_ALLOCSIZE=$((FIO_NR_BLOCKS*4/1024))
+ulimit -n $((FIO_NR_FILES+1024))
 cat >$FIO_JOBFILE <<END
 [global]
 direct=0
 ioengine=sync
 blocksize=4096
-invalidate=1
+invalidate=0
+fallocate=none
+create_on_open=1
 
 [writer]
 nrfiles=$FIO_NR_FILES
@@ -34,11 +38,31 @@ filesize=$THPFIOSCALE_FIO_FILESIZE
 readwrite=write
 numjobs=$THPFIOSCALE_FIO_THREADS
 END
+echo Parameters
+echo "o Directory   $SHELLPACK_DATA"
+echo "o Total sz    $((THPFIOSCALE_FIO_SIZE/1048576/1024))gb"
+echo "o Thread sz   $((THPFIOSCALE_FIO_SIZE/THPFIOSCALE_FIO_THREADS/1048576/1024))gb"
+echo "o Alloc size  ${FIO_ALLOCSIZE}kb"
+echo "o nr blocks   ${FIO_NR_BLOCKS}"
+echo "o nr files    ${FIO_NR_FILES}"
+echo "o total files $((FIO_NR_FILES*THPFIOSCALE_FIO_THREADS))"
+echo "o nr jobs     ${THPFIOSCALE_FIO_THREADS}"
+echo "o thp min     ${THPFIOSCALE_MIN_THREADS}"
+echo "o thp max     ${THPFIOSCALE_MAX_THREADS}"
+ulimit -a
+START=`date +%s`
 $SHELLPACK_SOURCES/fio-${VERSION}-installed/fio \
 	--directory="$SHELLPACK_DATA" 		\
+	--alloc-size=$FIO_ALLOCSIZE		\
 	--minimal				\
 	$FIO_JOBFILE				\
 	&> $LOGDIR_RESULTS/fio-init.log
+if [ $? -ne 0 ]; then
+	cat $LOGDIR_RESULTS/fio-init.log
+	die "Failed to initialse files"
+fi
+END=`date +%s`
+INIT_TIME=$((END-START))
 sync
 
 # Initialise random reader
@@ -50,7 +74,7 @@ runtime=3600
 time_based
 ioengine=sync
 blocksize=4096
-invalidate=1
+invalidate=0
 
 [reader]
 nrfiles=$FIO_NR_FILES
@@ -61,14 +85,18 @@ numjobs=$THPFIOSCALE_FIO_THREADS
 END
 $SHELLPACK_SOURCES/fio-${VERSION}-installed/fio \
 	--directory="$SHELLPACK_DATA" 		\
+	--alloc-size=$FIO_ALLOCSIZE		\
 	--minimal				\
 	$FIO_JOBFILE				\
 	&> $LOGDIR_RESULTS/fio-read.log &
 FIO_PID=$!
 
+THPFIOSCALE_FIO_WARMUP=${THPFIOSCALE_FIO_WARMUP:-$INIT_TIME}
+date
 echo Warming up fio pid $FIO_PID for $THPFIOSCALE_FIO_WARMUP seconds
 sleep $THPFIOSCALE_FIO_WARMUP
 
+echo Warmup complete, starting THP
 ###SHELLPACK threads_large_stride_begin $THPFIOSCALE_MIN_THREADS $THPFIOSCALE_MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	echo Starting $NR_THREADS/$THPFIOSCALE_MAX_THREADS
@@ -81,5 +109,9 @@ sleep $THPFIOSCALE_FIO_WARMUP
 echo Shutting down fio
 kill $FIO_PID
 wait $FIO_PID
+
+echo Cleaning up fio
+rm $FIO_JOBFILE
+rm -rf $SHELLPACK_DATA
 
 exit $SHELLPACK_SUCCESS

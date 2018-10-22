@@ -7,6 +7,11 @@ export RUN_NOPROFILE=yes
 export RUN_FINEPROFILE=no
 export RUN_COARSEPROFILE=no
 
+echo always > /sys/kernel/mm/transparent_hugepage/defrag
+if [ $? -ne 0 ]; then
+	die "Failed to set defrag option for THP to always"
+fi
+
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
 #export TESTDISK_RAID_MD_DEVICE=/dev/md0
@@ -23,7 +28,7 @@ export MONITOR_FTRACE_EVENTS="kmem/mm_page_alloc_extfrag"
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat proc-buddyinfo ftrace top"
+export MONITORS_GZIP="proc-vmstat proc-buddyinfo proc-pagetypeinfo ftrace top"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
@@ -32,13 +37,9 @@ export MONITOR_UPDATE_FREQUENCY=10
 get_numa_details
 export THPFIOSCALE_FIO_THREADS=4
 export THPFIOSCALE_MIN_THREADS=$((((NUMCPUS/NUMNODES)-THPFIOSCALE_FIO_THREADS)/4))
-export THPFIOSCALE_MAX_THREADS=1
+export THPFIOSCALE_MAX_THREADS=$THPFIOSCALE_MIN_THREADS
 if [ $THPFIOSCALE_MAX_THREADS -le 0 ]; then
 	die "Insufficient number of CPUs to run benchmark"
 fi
-export THPFIOSCALE_THP_SIZE=$((${MMTESTS_NODE_SIZE[0]}/2))
-export THPFIOSCALE_FIO_SIZE=$((${MMTESTS_NODE_SIZE[0]}*3/2))
-echo always > /sys/kernel/mm/transparent_hugepage/defrag
-if [ $? -ne 0 ]; then
-	die "Failed to set defrag option for THP to always"
-fi
+export THPFIOSCALE_THP_SIZE=$((${MMTESTS_NODE_SIZE[0]}*3/4))
+export THPFIOSCALE_FIO_SIZE=$(($MEMTOTAL_BYTES*3/2))
