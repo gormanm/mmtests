@@ -43,6 +43,7 @@ size_t total_size;
 size_t thread_size;
 unsigned long *anon_init;
 int nr_hpages;
+int madvise_huge;
 
 /* barrier for all threads to finish initialisation on */
 static pthread_barrier_t init_barrier;
@@ -79,6 +80,9 @@ static void *worker(void *data)
 	aligned = HPAGE_ALIGN(mapping);
 	offset = aligned - mapping;
 
+	if (madvise_huge)
+		madvise(mapping, thread_size + HPAGESIZE, MADV_HUGEPAGE);
+
 	/* Record anon init timings */
 	gettimeofday(&tv_end, NULL);
 	anon_init[thread_idx] = timeval_to_us(&tv_end) - timeval_to_us(&tv_start);
@@ -110,13 +114,14 @@ int main(int argc, char **argv)
 {
 	pthread_t *th;
 	int nr_threads, i, j;
-	if (argc != 3) {
-		printf("Usage: thpfioscale [nr_threads] [total_size]\n");
+	if (argc != 4) {
+		printf("Usage: thpfioscale [nr_threads] [total_size] [madvise_hugepage]\n");
 		exit(EXIT_FAILURE);
 	}
 
 	nr_threads = atoi(argv[1]);
 	total_size = atol(argv[2]);
+	madvise_huge = atoi(argv[3]);
 	printf("Running with %d thread%c\n", nr_threads, nr_threads > 1 ? 's' : ' ');
 	anon_init = malloc(nr_threads * sizeof(unsigned long));
 	if (anon_init == NULL) {

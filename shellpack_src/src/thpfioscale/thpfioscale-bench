@@ -2,6 +2,7 @@
 ###SHELLPACK preamble thpfioscale-bench 2.99
 
 THPFIOSCALE_FIO_FILESIZE=${THPFIOSCALE_FIO_FILESIZE:-65536}
+MADV_HUGEPAGE=0
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -10,11 +11,16 @@ THPFIOSCALE_FIO_FILESIZE=${THPFIOSCALE_FIO_FILESIZE:-65536}
 ###SHELLPACK parseargParam	--fio-threads	THPFIOSCALE_FIO_THREADS
 ###SHELLPACK parseargParam	--thp-size	THPFIOSCALE_THP_SIZE
 ###SHELLPACK parseargParam	--fio-size	THPFIOSCALE_FIO_SIZE
+###SHELLPACK parseargParam	--madv-huge	THPFIOSCALE_MADV_HUGEPAGE
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_external_install_required fio fio-${VERSION} ${VERSION}
 ###SHELLPACK check_install_required thpfioscale-${VERSION}
 ###SHELLPACK monitor_hooks
+
+if [ "$THPFIOSCALE_MADV_HUGEPAGE" = "yes" ]; then
+	MADV_HUGEPAGE=1
+fi
 
 # Initialise directories
 for i in `seq 0 $((THPFIOSCALE_FIO_THREADS-1))`; do
@@ -109,7 +115,7 @@ echo Warmup complete, starting THP
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	echo Starting $NR_THREADS/$THPFIOSCALE_MAX_THREADS
 	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
-		./thpfioscale $NR_THREADS $THPFIOSCALE_THP_SIZE \
+		./thpfioscale $NR_THREADS $THPFIOSCALE_THP_SIZE $MADV_HUGEPAGE \
 			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end

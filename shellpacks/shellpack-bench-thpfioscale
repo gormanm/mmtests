@@ -9,6 +9,7 @@ if [ "$TIME_CMD" = "" ]; then
 fi
 
 THPFIOSCALE_FIO_FILESIZE=${THPFIOSCALE_FIO_FILESIZE:-65536}
+MADV_HUGEPAGE=0
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -58,6 +59,10 @@ while [ "$1" != "" ]; do
 		THPFIOSCALE_FIO_SIZE=$2
 		shift 2
 		;;
+	--madv-huge)
+		THPFIOSCALE_MADV_HUGEPAGE=$2
+		shift 2
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -99,6 +104,10 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
+
+if [ "$THPFIOSCALE_MADV_HUGEPAGE" = "yes" ]; then
+	MADV_HUGEPAGE=1
+fi
 
 # Initialise directories
 for i in `seq 0 $((THPFIOSCALE_FIO_THREADS-1))`; do
@@ -214,7 +223,7 @@ for NR_THREADS in $THREADS; do
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	echo Starting $NR_THREADS/$THPFIOSCALE_MAX_THREADS
 	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
-		./thpfioscale $NR_THREADS $THPFIOSCALE_THP_SIZE \
+		./thpfioscale $NR_THREADS $THPFIOSCALE_THP_SIZE $MADV_HUGEPAGE \
 			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
@@ -229,4 +238,4 @@ rm -rf $SHELLPACK_DATA/thpfilescale
 
 exit $SHELLPACK_SUCCESS
 #### Description thpfioscale
-#### Details thpfioscale-bench 6
+#### Details thpfioscale-bench 7
