@@ -238,4 +238,4 @@ rm -rf $SHELLPACK_DATA/thpfilescale
 
 exit $SHELLPACK_SUCCESS
 #### Description thpfioscale
-#### Details thpfioscale-bench 7
+#### Details thpfioscale-bench 8

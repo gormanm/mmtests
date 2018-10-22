@@ -80,8 +80,12 @@ static void *worker(void *data)
 	aligned = HPAGE_ALIGN(mapping);
 	offset = aligned - mapping;
 
-	if (madvise_huge)
+	if (madvise_huge) {
+		printf("Using madv_hugepage 0x%lu %lu gb\n", (unsigned long)mapping, (thread_size + HPAGESIZE)/1048576/1024);
 		madvise(mapping, thread_size + HPAGESIZE, MADV_HUGEPAGE);
+	} else {
+		printf("Using default advice\n");
+	}
 
 	/* Record anon init timings */
 	gettimeofday(&tv_end, NULL);
