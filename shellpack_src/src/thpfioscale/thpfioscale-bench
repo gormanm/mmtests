@@ -1,0 +1,85 @@
+#!/bin/bash
+###SHELLPACK preamble thpfioscale-bench 2.99
+
+THPFIOSCALE_FIO_FILESIZE=${THPFIOSCALE_FIO_FILESIZE:-8192}
+THPFIOSCALE_FIO_WARMUP=${THPFIOSCALE_FIO_WARMUP:-300}
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-threads	THPFIOSCALE_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads	THPFIOSCALE_MAX_THREADS
+###SHELLPACK parseargParam	--fio-threads	THPFIOSCALE_FIO_THREADS
+###SHELLPACK parseargParam	--thp-size	THPFIOSCALE_THP_SIZE
+###SHELLPACK parseargParam	--fio-size	THPFIOSCALE_FIO_SIZE
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_external_install_required fio fio-${VERSION} ${VERSION}
+###SHELLPACK check_install_required thpfioscale-${VERSION}
+###SHELLPACK monitor_hooks
+
+# Initialise files
+echo Initialising fio files
+FIO_NR_FILES=$((THPFIOSCALE_FIO_SIZE/THPFIOSCALE_FIO_FILESIZE/THPFIOSCALE_FIO_THREADS))
+FIO_JOBFILE="/tmp/fio-jobfile-$$"
+cat >$FIO_JOBFILE <<END
+[global]
+direct=0
+ioengine=sync
+blocksize=4096
+invalidate=1
+
+[writer]
+nrfiles=$FIO_NR_FILES
+filesize=$THPFIOSCALE_FIO_FILESIZE
+readwrite=write
+numjobs=$THPFIOSCALE_FIO_THREADS
+END
+$SHELLPACK_SOURCES/fio-${VERSION}-installed/fio \
+	--directory="$SHELLPACK_DATA" 		\
+	--minimal				\
+	$FIO_JOBFILE				\
+	&> $LOGDIR_RESULTS/fio-init.log
+sync
+
+# Initialise random reader
+echo Initialising random reader
+cat >$FIO_JOBFILE <<END
+[global]
+direct=0
+runtime=3600
+time_based
+ioengine=sync
+blocksize=4096
+invalidate=1
+
+[reader]
+nrfiles=$FIO_NR_FILES
+filesize=$THPFIOSCALE_FIO_FILESIZE
+file_service_type=random:16
+readwrite=randread
+numjobs=$THPFIOSCALE_FIO_THREADS
+END
+$SHELLPACK_SOURCES/fio-${VERSION}-installed/fio \
+	--directory="$SHELLPACK_DATA" 		\
+	--minimal				\
+	$FIO_JOBFILE				\
+	&> $LOGDIR_RESULTS/fio-read.log &
+FIO_PID=$!
+
+echo Warming up fio pid $FIO_PID for $THPFIOSCALE_FIO_WARMUP seconds
+sleep $THPFIOSCALE_FIO_WARMUP
+
+###SHELLPACK threads_large_stride_begin $THPFIOSCALE_MIN_THREADS $THPFIOSCALE_MAX_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	echo Starting $NR_THREADS/$THPFIOSCALE_MAX_THREADS
+	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
+		./thpfioscale $NR_THREADS $THPFIOSCALE_THP_SIZE \
+			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+
+echo Shutting down fio
+kill $FIO_PID
+wait $FIO_PID
+
+exit $SHELLPACK_SUCCESS

@@ -1,0 +1,192 @@
+#!/bin/bash
+P=thpfioscale-bench
+DEFAULT_VERSION=2.99
+. $SHELLPACK_INCLUDE/common.sh
+TIME_CMD=`which time`
+if [ "$TIME_CMD" = "" ]; then
+        TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
+        TIME_CMD="time"
+fi
+
+THPFIOSCALE_FIO_FILESIZE=${THPFIOSCALE_FIO_FILESIZE:-8192}
+THPFIOSCALE_FIO_WARMUP=${THPFIOSCALE_FIO_WARMUP:-300}
+
+# Basic argument parser
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVERSIDE_COMMAND=none
+SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
+
+while [ "$1" != "" ]; do
+	case "$1" in
+	-v)
+		VERSION=$2
+		shift 2
+		;;
+	--serverside-command)
+		SERVERSIDE_COMMAND=$2
+		shift 2
+		;;
+	--serverside-name)
+		SERVERSIDE_NAME=$2
+		shift 2
+		;;
+	--install-only)
+		INSTALL_ONLY=yes
+		shift
+		;;
+	--install-force)
+		INSTALL_FORCE=yes
+		shift
+		;;
+	--min-threads)
+		THPFIOSCALE_MIN_THREADS=$2
+		shift 2
+		;;
+	--max-threads)
+		THPFIOSCALE_MAX_THREADS=$2
+		shift 2
+		;;
+	--fio-threads)
+		THPFIOSCALE_FIO_THREADS=$2
+		shift 2
+		;;
+	--thp-size)
+		THPFIOSCALE_THP_SIZE=$2
+		shift 2
+		;;
+	--fio-size)
+		THPFIOSCALE_FIO_SIZE=$2
+		shift 2
+		;;
+	*)
+		echo Unrecognised option: $1
+		shift
+	esac
+done
+if [ "$TASKSET_SERVER" != "" ]; then
+	echo TASKSET_SERVER: $TASKSET_SERVER
+	echo TASKSET_CLIENT: $TASKSET_CLIENT
+fi
+if [ -z "$VERSION" ]; then
+	VERSION=$DEFAULT_VERSION
+fi
+
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/fio-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/fio-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-fio -v ${VERSION}  || die fio install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/fio-${VERSION}-installed || die Failed to cd to fio install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo fio installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+if [ "$INSTALL_FORCE" = "yes" ]; then
+	rm -rf $SHELLPACK_SOURCES/thpfioscale-${VERSION}
+fi
+if [ ! -d $SHELLPACK_SOURCES/thpfioscale-${VERSION}-installed ]; then
+	mmtests_activity source-install
+	$SHELLPACK_INCLUDE/shellpack-install-thpfioscale -v ${VERSION}  || die thpfioscale install script returned error
+	mmtests_activity source-installed
+fi
+cd $SHELLPACK_SOURCES/thpfioscale-${VERSION}-installed || die Failed to cd to thpfioscale install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo thpfioscale installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
+
+# Initialise files
+echo Initialising fio files
+FIO_NR_FILES=$((THPFIOSCALE_FIO_SIZE/THPFIOSCALE_FIO_FILESIZE/THPFIOSCALE_FIO_THREADS))
+FIO_JOBFILE="/tmp/fio-jobfile-$$"
+cat >$FIO_JOBFILE <<END
+[global]
+direct=0
+ioengine=sync
+blocksize=4096
+invalidate=1
+
+[writer]
+nrfiles=$FIO_NR_FILES
+filesize=$THPFIOSCALE_FIO_FILESIZE
+readwrite=write
+numjobs=$THPFIOSCALE_FIO_THREADS
+END
+$SHELLPACK_SOURCES/fio-${VERSION}-installed/fio \
+	--directory="$SHELLPACK_DATA" 		\
+	--minimal				\
+	$FIO_JOBFILE				\
+	&> $LOGDIR_RESULTS/fio-init.log
+sync
+
+# Initialise random reader
+echo Initialising random reader
+cat >$FIO_JOBFILE <<END
+[global]
+direct=0
+runtime=3600
+time_based
+ioengine=sync
+blocksize=4096
+invalidate=1
+
+[reader]
+nrfiles=$FIO_NR_FILES
+filesize=$THPFIOSCALE_FIO_FILESIZE
+file_service_type=random:16
+readwrite=randread
+numjobs=$THPFIOSCALE_FIO_THREADS
+END
+$SHELLPACK_SOURCES/fio-${VERSION}-installed/fio \
+	--directory="$SHELLPACK_DATA" 		\
+	--minimal				\
+	$FIO_JOBFILE				\
+	&> $LOGDIR_RESULTS/fio-read.log &
+FIO_PID=$!
+
+echo Warming up fio pid $FIO_PID for $THPFIOSCALE_FIO_WARMUP seconds
+sleep $THPFIOSCALE_FIO_WARMUP
+
+THREADS=
+START_THREAD=$THPFIOSCALE_MIN_THREADS
+END_THREAD=$THPFIOSCALE_MAX_THREADS
+if [ $END_THREAD -gt 32 ]; then
+	THREADS=`seq $START_THREAD 3 8`
+	THREADS="$THREADS `seq 12 9 32`"
+	THREADS="$THREADS `seq 48 31 $END_THREAD`"
+elif [ $END_THREAD -gt 8 ]; then
+	THREADS=`seq $START_THREAD 2 8`
+	THREADS="$THREADS `seq 12 6 $END_THREAD`"
+else
+	THREADS=`seq $START_THREAD 2 $END_THREAD`
+fi
+if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+	THREADS="$THREADS $END_THREAD"
+fi
+
+for NR_THREADS in $THREADS; do
+	if [ $NR_THREADS -lt $THPFIOSCALE_MIN_THREADS ]; then
+		continue
+	fi
+	mmtests_activity process $NR_THREADS/$END_THREAD
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	echo Starting $NR_THREADS/$THPFIOSCALE_MAX_THREADS
+	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
+		./thpfioscale $NR_THREADS $THPFIOSCALE_THP_SIZE \
+			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+done
+
+echo Shutting down fio
+kill $FIO_PID
+wait $FIO_PID
+
+exit $SHELLPACK_SUCCESS
+#### Description thpfioscale
+#### Details thpfioscale-bench 3

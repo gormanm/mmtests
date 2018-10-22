@@ -668,12 +668,12 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		cache-mmtests.sh compare-mmtests.pl -d . -b sysbenchexectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	thpscale)
+	thp*scale)
 		echo $SUBREPORT Fault Latencies
 		eval $COMPARE_CMD
 		echo
 		echo $SUBREPORT Percentage Faults Huge
-		cache-mmtests.sh compare-mmtests.pl -d . -b thpscalecounts -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b ${SUBREPORT}counts -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	tiobench)
