@@ -16,6 +16,11 @@ THPFIOSCALE_FIO_FILESIZE=${THPFIOSCALE_FIO_FILESIZE:-65536}
 ###SHELLPACK check_install_required thpfioscale-${VERSION}
 ###SHELLPACK monitor_hooks
 
+# Initialise directories
+for i in `seq 0 $((THPFIOSCALE_FIO_THREADS-1))`; do
+	mkdir -p $SHELLPACK_DATA/thpfilescale/$i
+done
+
 # Initialise files
 echo Initialising fio files
 FIO_NR_FILES=$((THPFIOSCALE_FIO_SIZE/THPFIOSCALE_FIO_FILESIZE/THPFIOSCALE_FIO_THREADS))
@@ -37,6 +42,7 @@ nrfiles=$FIO_NR_FILES
 filesize=$THPFIOSCALE_FIO_FILESIZE
 readwrite=write
 numjobs=$THPFIOSCALE_FIO_THREADS
+filename_format=thpfilescale/\$jobnum/workfile.\$filenum
 END
 echo Parameters
 echo "o Directory   $SHELLPACK_DATA"
@@ -81,6 +87,8 @@ nrfiles=$FIO_NR_FILES
 filesize=$THPFIOSCALE_FIO_FILESIZE
 file_service_type=random:16
 readwrite=randread
+filename_format=thpfilescale/\$jobnum/workfile.\$filenum
+
 numjobs=$THPFIOSCALE_FIO_THREADS
 END
 $SHELLPACK_SOURCES/fio-${VERSION}-installed/fio \
@@ -112,6 +120,6 @@ wait $FIO_PID
 
 echo Cleaning up fio
 rm $FIO_JOBFILE
-rm -rf $SHELLPACK_DATA
+rm -rf $SHELLPACK_DATA/thpfilescale
 
 exit $SHELLPACK_SUCCESS
