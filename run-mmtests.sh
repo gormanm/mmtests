@@ -2,6 +2,7 @@
 DEFAULT_CONFIG=config
 DIRNAME=`dirname $0`
 export SCRIPTDIR=`cd "$DIRNAME" && pwd`
+export PATH="$SCRIPTDIR/bin:$PATH"
 RUNNING_TEST=
 KVM=
 export EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer

@@ -315,6 +315,9 @@ function disable_transhuge() {
 }
 
 function reset_transhuge() {
+	if [ "$VM_TRANSPARENT_HUGEPAGES_DEFAULT" = "" ]; then
+		VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
+	fi
 	if [ -e /sys/kernel/mm/transparent_hugepage/enabled ]; then
 		if [ "$VM_TRANSPARENT_HUGEPAGES_DEFAULT" = "default" ]; then
 			echo $TRANSHUGE_DEFAULT > /sys/kernel/mm/transparent_hugepage/enabled

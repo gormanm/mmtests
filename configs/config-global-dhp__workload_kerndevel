@@ -9,8 +9,6 @@
 ###
 ### gitcheckout checks out two kernel version from a git tree in rapid succession
 ### and measures how long it takes
-DIRNAME=`dirname $0`
-SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
 export MMTESTS="kernbench gitcheckout"
@@ -22,26 +20,7 @@ export RUN_FINEPROFILE=no
 export RUN_COARSEPROFILE=no
 export OPROFILE_REPORT_ANNOTATE=no
 
-# Fixups
-if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
-	export PATH=$SCRIPTDIR/bin:$PATH
-fi
-if [ "`which oprofile_report.sh 2> /dev/null`" = "" ]; then
-	export PATH=$SCRIPTDIR/vmr/bin:$PATH
-fi
-
 # Machine configuration
-# Swap configuration can be one of default, partitions, swapfile, NFS
-#export VM_DIRTY_RATIO=20
-export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
-export SWAP_CONFIGURATION=default
-export SWAP_PARTITIONS=
-export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
-export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
-export SWAP_NBD_DEVICE=/dev/nbd0
-export SWAP_NBD_HOST=mcp
-export SWAP_NBD_PORT=10001
-#export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
@@ -53,14 +32,6 @@ export SWAP_NBD_PORT=10001
 #export TESTDISK_FILESYSTEM=ext3
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
 #export TESTDISK_MOUNT_ARGS=""
-#
-# Test NFS disk to setup (optional)
-#export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
-#
-# Test NBD disk to setup (optional)
-#export TESTDISK_NBD_DEVICE=/dev/nbd0
-#export TESTDISK_NBD_HOST=mcp
-#export TESTDISK_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
 
 # List of monitors
 export RUN_MONITOR=yes

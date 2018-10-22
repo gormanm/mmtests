@@ -1,6 +1,4 @@
 ### xfstests are a filesystem regression testsuite
-DIRNAME=`dirname $0`
-SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
 export MMTESTS="xfstests"
@@ -11,14 +9,6 @@ export RUN_NOPROFILE=yes
 export RUN_FINEPROFILE=no
 export RUN_COARSEPROFILE=no
 export OPROFILE_REPORT_ANNOTATE=no
-
-# Fixups
-if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
-        export PATH=$SCRIPTDIR/bin:$PATH
-fi
-if [ "`which oprofile_report.sh 2> /dev/null`" = "" ]; then
-        export PATH=$SCRIPTDIR/vmr/bin:$PATH
-fi
 
 # List of monitors
 export RUN_MONITOR=yes
