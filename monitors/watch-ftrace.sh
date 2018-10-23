@@ -11,7 +11,7 @@ for EVENT in $MONITOR_FTRACE_EVENTS; do
 		perf probe "$EVENT%return"
 		EVENT="probe/$EVENT"
 	fi
-	echo 1 > /sys/kernel/debug/tracing/events/$EVENT/enable 2>&1 || exit -1
+	echo 1 > /sys/kernel/debug/tracing/events/$EVENT/enable
 done
 
 exec cat /sys/kernel/debug/tracing/trace_pipe
