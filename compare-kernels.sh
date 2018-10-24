@@ -5,6 +5,7 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/config
+export PATH=$SCRIPTDIR/bin:$PATH
 
 KERNEL_BASE=
 KERNEL_COMPARE=
