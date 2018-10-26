@@ -120,9 +120,15 @@ echo Warmup complete, starting THP
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
 
-echo Shutting down fio
-kill $FIO_PID
-wait $FIO_PID
+echo -n Shutting down fio pid $FIO_PID
+SIGNAL="INT"
+while [ $? -ne 0 ]; do
+	echo .
+	kill -$SIGNAL $FIO_PID
+	SIGNAL="KILL"
+	sleep 5
+	ps -p $FIO_PID
+done
 
 echo Cleaning up fio
 rm $FIO_JOBFILE
