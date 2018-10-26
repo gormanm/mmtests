@@ -238,10 +238,11 @@ while [ $? -ne 0 ]; do
 	ps -p $FIO_PID
 done
 
+echo
 echo Cleaning up fio
 rm $FIO_JOBFILE
 rm -rf $SHELLPACK_DATA/thpfilescale
 
 exit $SHELLPACK_SUCCESS
 #### Description thpfioscale
-#### Details thpfioscale-bench 9
+#### Details thpfioscale-bench 10
