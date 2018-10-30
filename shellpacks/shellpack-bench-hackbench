@@ -136,6 +136,8 @@ for NR_THREADS in $THREADS; do
 for ITERATION in `seq 1 $HACKBENCH_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 		echo Running $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS
+		echo pwd: `pwd`
+		echo cmd: hackbench $CONN_TYPE $NR_THREADS $HACKBENCH_TYPE $HACKBENCH_LOOPS
 		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  \
 			./hackbench $CONN_TYPE $NR_THREADS $HACKBENCH_TYPE $HACKBENCH_LOOPS \
 				> $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
@@ -146,6 +148,7 @@ for ITERATION in `seq 1 $HACKBENCH_ITERATIONS`; do
 			rm $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
 			exit $SHELLPACK_SUCCESS
 		fi
+sync
 done
 	
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
@@ -153,4 +156,4 @@ done
 
 exit $RETVAL
 #### Description Run the HackBench benchmark
-#### Details hackbench-bench 33
+#### Details hackbench-bench 34
