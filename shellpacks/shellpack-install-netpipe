@@ -13,6 +13,7 @@ MIRROR_LOCATION="$WEBROOT/netpipe/"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -72,4 +73,4 @@ fi
 
 echo netpipe installed successfully
 #### Description netpipe
-#### Details netpipe 9
+#### Details netpipe 10

@@ -13,6 +13,7 @@ MIRROR_LOCATION="$WEBROOT/pipetest/pipe-test.c"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -58,4 +59,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description Run the pipe-test benchmark
-#### Details pipetest 18
+#### Details pipetest 19

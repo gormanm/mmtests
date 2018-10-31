@@ -18,6 +18,7 @@ fi
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -47,6 +48,7 @@ while [ "$1" != "" ]; do
 		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
 		TASKSET_SERVER="taskset -c $CPUA"
 		TASKSET_CLIENT="taskset -c $CPUA"
+		TASKSET_ALL="taskset -c $CPUA"
 		shift
 		;;
 	--bind-cross-node)
@@ -54,24 +56,27 @@ while [ "$1" != "" ]; do
 		CPUB=`numactl --hardware | grep ^node | grep cpus: | tail -1 | awk '{print $NF}'`
 		TASKSET_SERVER="taskset -c $CPUA"
 		TASKSET_CLIENT="taskset -c $CPUB"
+		TASKSET_ALL="taskset -c $CPUA,$CPUB"
 		shift
 		;;
 	--bind-cross-socket)
 		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
-		CPUB=`list-cpu-siblings.pl $CPUA cores | awk -F , '{print $1}'`
+		CPUB=`list-cpu-siblings.pl $CPUA cores 0 | awk -F , '{print $1}'`
 		TASKSET_SERVER="taskset -c $CPUA"
 		TASKSET_CLIENT="taskset -c $CPUB"
+		TASKSET_ALL="taskset -c $CPUA,$CPUB"
 		shift
 		;;
 	--bind-cross-ht)
 		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print $4}'`
-		CPUB=`list-cpu-siblings.pl $CPUA threads | awk -F , '{print $1}'`
+		CPUB=`list-cpu-siblings.pl $CPUA threads 0 | awk -F , '{print $1}'`
 		if [ "$CPUB" = "" ]; then
 			echo ERROR: Could not identify HT thread for CPU $CPUA
 			exit $SHELLPACK_ERROR
 		fi
 		TASKSET_SERVER="taskset -c $CPUA"
 		TASKSET_CLIENT="taskset -c $CPUB"
+		TASKSET_ALL="taskset -c $CPUA,$CPUB"
 		shift
 		;;
 	*)
@@ -158,4 +163,4 @@ killall NPtcp
 
 exit $SHELLPACK_SUCCESS
 #### Description netpipe
-#### Details netpipe-bench 9
+#### Details netpipe-bench 10

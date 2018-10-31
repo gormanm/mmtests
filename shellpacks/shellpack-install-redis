@@ -14,6 +14,7 @@ MIRROR_LOCATION="$WEBROOT/redis/"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -78,4 +79,4 @@ cp redis.conf $SHELLPACK_SOURCES/redis-${VERSION}-installed/etc/redis-default-pe
 
 echo Redis installed successfully
 #### Description redis
-#### Details redis 18
+#### Details redis 19
