@@ -7,6 +7,7 @@ PERFPIPE_ITERATIONS=30
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
 ###SHELLPACK parseargParam   --loops       PERFPIPE_LOOPS
 ###SHELLPACK parseargParam   --iterations  PERFPIPE_ITERATIONS
 ###SHELLPACK parseargEnd
