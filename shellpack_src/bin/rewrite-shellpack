@@ -36,6 +36,7 @@ EOC
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -87,6 +88,7 @@ EOC
 		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print \$4}'`
 		TASKSET_SERVER="taskset -c \$CPUA"
 		TASKSET_CLIENT="taskset -c \$CPUA"
+		TASKSET_ALL="taskset -c \$CPUA"
 		shift
 		;;
 	--bind-cross-node)
@@ -94,6 +96,7 @@ EOC
 		CPUB=`numactl --hardware | grep ^node | grep cpus: | tail -1 | awk '{print \$NF}'`
 		TASKSET_SERVER="taskset -c \$CPUA"
 		TASKSET_CLIENT="taskset -c \$CPUB"
+		TASKSET_ALL="taskset -c \$CPUA,\$CPUB"
 		shift
 		;;
 	--bind-cross-socket)
@@ -101,6 +104,7 @@ EOC
 		CPUB=`list-cpu-siblings.pl \$CPUA cores | awk -F , '{print \$1}'`
 		TASKSET_SERVER="taskset -c \$CPUA"
 		TASKSET_CLIENT="taskset -c \$CPUB"
+		TASKSET_ALL="taskset -c \$CPUA,\$CPUB"
 		shift
 		;;
 	--bind-cross-ht)
@@ -112,6 +116,7 @@ EOC
 		fi
 		TASKSET_SERVER="taskset -c \$CPUA"
 		TASKSET_CLIENT="taskset -c \$CPUB"
+		TASKSET_ALL="taskset -c \$CPUA,\$CPUB"
 		shift
 		;;
 EOC

@@ -1,0 +1,24 @@
+#!/bin/bash
+# Run perf-bench pipe benchmark
+
+###SHELLPACK preamble perfpipe-bench 4.19
+PERFPIPE_LOOPS=500000
+PERFPIPE_ITERATIONS=30
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --loops       PERFPIPE_LOOPS
+###SHELLPACK parseargParam   --iterations  PERFPIPE_ITERATIONS
+###SHELLPACK parseargEnd
+
+###SHELLPACK check_external_install_required_continue perfbuild perfbuild-${VERSION} ${VERSION}
+PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
+PERF_CMD=${PERF_DIR}/perf
+
+echo Perf invocation: $TASKSET_ALL $PERF_CMD bench sched pipe -l $PERFPIPE_LOOPS
+###SHELLPACK iteration_begin $PERFPIPE_ITERATIONS
+	$TASKSET_ALL $PERF_CMD bench sched pipe -l $PERFPIPE_LOOPS \
+			2>&1 | tee $LOGDIR_RESULTS/pipe-${ITERATION}.log
+###SHELLPACK iteration_end
+
+exit $SHELLPACK_SUCCESS
