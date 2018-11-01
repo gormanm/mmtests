@@ -1,0 +1,26 @@
+#!/bin/bash
+# Run perf-bench syscall benchmark
+
+###SHELLPACK preamble perfsyscall-bench 4.19
+PERFSYSCALL_LOOPS=500000
+PERFSYSCALL_ITERATIONS=30
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargParam   --loops       PERFSYSCALL_LOOPS
+###SHELLPACK parseargParam   --iterations  PERFSYSCALL_ITERATIONS
+###SHELLPACK parseargEnd
+
+export PERFBUILD_ADD_SYSCALL=yes
+###SHELLPACK check_external_install_required perfbuild perfbuild-${VERSION} ${VERSION}
+PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
+PERF_CMD=${PERF_DIR}/perf
+
+echo Perf invocation: $TASKSET_ALL $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS
+###SHELLPACK iteration_begin $PERFSYSCALL_ITERATIONS
+	$TASKSET_ALL $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS \
+			2>&1 | tee $LOGDIR_RESULTS/syscall-${ITERATION}.log
+###SHELLPACK iteration_end
+
+exit $SHELLPACK_SUCCESS
