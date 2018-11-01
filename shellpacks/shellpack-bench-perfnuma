@@ -17,6 +17,7 @@ MAX_THREADS=$NUMCPUS
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -75,6 +76,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+export PERFBUILD_ADD_SYSCALL=yes
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/perfbuild-${VERSION}
 fi
@@ -135,4 +137,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description perfnuma
-#### Details perfnuma-bench 10
+#### Details perfnuma-bench 11

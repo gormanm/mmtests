@@ -12,6 +12,7 @@ PERFPIPE_ITERATIONS=30
 ###SHELLPACK parseargParam   --iterations  PERFPIPE_ITERATIONS
 ###SHELLPACK parseargEnd
 
+export PERFBUILD_ADD_SYSCALL=yes
 ###SHELLPACK check_external_install_required perfbuild perfbuild-${VERSION} ${VERSION}
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf

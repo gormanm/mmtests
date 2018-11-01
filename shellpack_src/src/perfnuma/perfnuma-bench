@@ -16,6 +16,7 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargParam   --iterations     PERFNUMA_ITERATIONS
 ###SHELLPACK parseargEnd
 
+export PERFBUILD_ADD_SYSCALL=yes
 ###SHELLPACK check_external_install_required_continue perfbuild perfbuild-${VERSION} ${VERSION}
 
 # Include monitor hooks

@@ -97,6 +97,7 @@ if [ -z "$VERSION" ]; then
 	VERSION=$DEFAULT_VERSION
 fi
 
+export PERFBUILD_ADD_SYSCALL=yes
 if [ "$INSTALL_FORCE" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/perfbuild-${VERSION}
 fi
@@ -123,4 +124,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description perfpipe
-#### Details perfpipe-bench 8
+#### Details perfpipe-bench 9
