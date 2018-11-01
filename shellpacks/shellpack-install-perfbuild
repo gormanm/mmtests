@@ -16,6 +16,7 @@ install-depends python3-devel bison flex
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -73,6 +74,21 @@ pushd $SHELLPACK_SOURCES/perfbuild-${VERSION}/tools/perf || die Failed to change
 for FILE in `find -name "*"`; do
 	touch $FILE
 done
+
+if [ "$PERFBUILD_ADD_SYSCALL" = "yes" ]; then
+LINESTART=`grep -n "==== BEGIN 0001-perf-add-syscall-benchmark.patch" $0 | tail -1 | awk -F : '{print $1}'`
+LINEEND=`grep -n "==== END 0001-perf-add-syscall-benchmark.patch" $0 | tail -1 | awk -F : '{print $1}'`
+if [ "$LINEEND" = "" ]; then
+	LINECOUNT=`wc -l $0 | awk '{print $1}'`
+fi
+if [ "$LINESTART" = "" ]; then
+	die Failed to find start of file 0001-perf-add-syscall-benchmark.patch
+fi
+echo Extracting $SHELLPACK_TEMP/0001-perf-add-syscall-benchmark.patch
+sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/0001-perf-add-syscall-benchmark.patch
+	cat -p1 < $SHELLPACK_TEMP/0001-perf-add-syscall-benchmark.patch || die "Failed to apply perf add syscall patch"
+fi
+
 make -j$NUMCPUS prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -87,5 +103,165 @@ if [ $? -ne 0 ]; then
 fi
 
 exit $SHELLPACK_SUCCESS
+
+==== BEGIN 0001-perf-add-syscall-benchmark.patch ====
+diff --git a/tools/perf/bench/Build b/tools/perf/bench/Build
+index 60bf119..0b7395d 100644
+--- a/tools/perf/bench/Build
++++ b/tools/perf/bench/Build
+@@ -1,5 +1,6 @@
+ perf-y += sched-messaging.o
+ perf-y += sched-pipe.o
++perf-y += syscall.o
+ perf-y += mem-functions.o
+ perf-y += futex-hash.o
+ perf-y += futex-wake.o
+diff --git a/tools/perf/bench/bench.h b/tools/perf/bench/bench.h
+index 579a592..bdd6cdc 100644
+--- a/tools/perf/bench/bench.h
++++ b/tools/perf/bench/bench.h
+@@ -28,6 +28,7 @@
+ int bench_numa(int argc, const char **argv, const char *prefix);
+ int bench_sched_messaging(int argc, const char **argv, const char *prefix);
+ int bench_sched_pipe(int argc, const char **argv, const char *prefix);
++int bench_syscall_basic(int argc, const char **argv, const char *prefix);
+ int bench_mem_memcpy(int argc, const char **argv, const char *prefix);
+ int bench_mem_memset(int argc, const char **argv, const char *prefix);
+ int bench_futex_hash(int argc, const char **argv, const char *prefix);
+diff --git a/tools/perf/bench/syscall.c b/tools/perf/bench/syscall.c
+new file mode 100644
+index 0000000..0dc782a
+--- /dev/null
++++ b/tools/perf/bench/syscall.c
+@@ -0,0 +1,80 @@
++/*
++ *
++ * syscall.c
++ *
++ * syscall: Benchmark for system call performance
++ */
++#include "../perf.h"
++#include "../util/util.h"
++#include <subcmd/parse-options.h>
++#include "../builtin.h"
++#include "bench.h"
++
++#include <stdio.h>
++#include <locale.h>
++#include <sys/time.h>
++#include <sys/syscall.h>
++
++#define LOOPS_DEFAULT 10000000
++static	int loops = LOOPS_DEFAULT;
++
++static const struct option options[] = {
++	OPT_INTEGER('l', "loop",	&loops,		"Specify number of loops"),
++	OPT_END()
++};
++
++static const char * const bench_syscall_usage[] = {
++	"perf bench syscall <options>",
++	NULL
++};
++
++int bench_syscall_basic(int argc, const char **argv, const char *prefix __maybe_unused)
++{
++	struct timeval start, stop, diff;
++	unsigned long long result_usec = 0;
++	int i;
++
++	argc = parse_options(argc, argv, options, bench_syscall_usage, 0);
++
++	gettimeofday(&start, NULL);
++
++	for (i = 0; i < loops; i++)
++		getppid();
++
++	gettimeofday(&stop, NULL);
++	timersub(&stop, &start, &diff);
++
++	switch (bench_format) {
++	case BENCH_FORMAT_DEFAULT:
++		setlocale(LC_NUMERIC, "");
++		printf("# Executed %'d getppid() calls\n", loops);
++
++		result_usec = diff.tv_sec * 1000000;
++		result_usec += diff.tv_usec;
++
++		printf(" %14s: %lu.%03lu [sec]\n\n", "Total time",
++		       diff.tv_sec,
++		       (unsigned long) (diff.tv_usec/1000));
++
++		printf(" %14lf usecs/op\n",
++		       (double)result_usec / (double)loops);
++		printf(" %'14d ops/sec\n",
++		       (int)((double)loops /
++			     ((double)result_usec / (double)1000000)));
++		break;
++
++	case BENCH_FORMAT_SIMPLE:
++		printf("%lu.%03lu\n",
++		       diff.tv_sec,
++		       (unsigned long) (diff.tv_usec / 1000));
++		break;
++
++	default:
++		/* reaching here is something disaster */
++		fprintf(stderr, "Unknown format:%d\n", bench_format);
++		exit(1);
++		break;
++	}
++
++	return 0;
++}
+diff --git a/tools/perf/builtin-bench.c b/tools/perf/builtin-bench.c
+index a1cddc6..f32a503 100644
+--- a/tools/perf/builtin-bench.c
++++ b/tools/perf/builtin-bench.c
+@@ -9,10 +9,11 @@
+ /*
+  * Available benchmark collection list:
+  *
+- *  sched ... scheduler and IPC performance
+- *  mem   ... memory access performance
+- *  numa  ... NUMA scheduling and MM performance
+- *  futex ... Futex performance
++ *  sched   ... Scheduler and IPC performance
++ *  syscall ... System call performance
++ *  mem     ... Memory access performance
++ *  numa    ... NUMA scheduling and MM performance
++ *  futex   ... Futex performance
+  */
+ #include "perf.h"
+ #include "util/util.h"
+@@ -44,10 +45,16 @@ static struct bench numa_benchmarks[] = {
+ static struct bench sched_benchmarks[] = {
+ 	{ "messaging",	"Benchmark for scheduling and IPC",		bench_sched_messaging	},
+ 	{ "pipe",	"Benchmark for pipe() between two processes",	bench_sched_pipe	},
+-	{ "all",	"Run all scheduler benchmarks",		NULL			},
++	{ "all",	"Run all scheduler benchmarks",			NULL			},
+ 	{ NULL,		NULL,						NULL			}
+ };
+ 
++static struct bench syscall_benchmarks[] = {
++	{ "basic",	"Benchmark for basic getppid() system calls",	bench_syscall_basic	},
++	{ "all",	"Run all syscall benchmarks",			NULL			},
++	{ NULL,		NULL,						NULL			},
++};
++
+ static struct bench mem_benchmarks[] = {
+ 	{ "memcpy",	"Benchmark for memcpy() functions",		bench_mem_memcpy	},
+ 	{ "memset",	"Benchmark for memset() functions",		bench_mem_memset	},
+@@ -74,6 +81,7 @@ struct collection {
+ 
+ static struct collection collections[] = {
+ 	{ "sched",	"Scheduler and IPC benchmarks",			sched_benchmarks	},
++	{ "syscall",	"System call benchmarks",			syscall_benchmarks	},
+ 	{ "mem",	"Memory access benchmarks",			mem_benchmarks		},
+ #ifdef HAVE_LIBNUMA_SUPPORT
+ 	{ "numa",	"NUMA scheduling and MM benchmarks",		numa_benchmarks		},
+-- 
+2.4.11
+==== END 0001-perf-add-syscall-benchmark.patch ====
 #### Description perfbuild
-#### Details perfbuild 9
+#### Details perfbuild 10
