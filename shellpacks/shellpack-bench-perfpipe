@@ -106,6 +106,10 @@ if [ ! -d $SHELLPACK_SOURCES/perfbuild-${VERSION}-installed ]; then
 	mmtests_activity source-installed
 fi
 cd $SHELLPACK_SOURCES/perfbuild-${VERSION}-installed || die Failed to cd to perfbuild install directory
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	echo perfbuild installed only as requested.
+	exit $SHELLPACK_SUCCESS
+fi
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf
 
@@ -119,4 +123,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description perfpipe
-#### Details perfpipe-bench 7
+#### Details perfpipe-bench 8

@@ -70,7 +70,7 @@ fi
 DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
 mv $DST_DIR perfbuild-${VERSION}
 pushd perfbuild-${VERSION} > /dev/null || die Failed to rename tar
-pushd $SHELLPACK_SOURCES/perfbuild-${VERSION}/tools/perf || die Failed to change to source directory
+pushd $SHELLPACK_SOURCES/perfbuild-${VERSION} || die Failed to change to source directory
 for FILE in `find -name "*"`; do
 	touch $FILE
 done
@@ -86,9 +86,13 @@ if [ "$LINESTART" = "" ]; then
 fi
 echo Extracting $SHELLPACK_TEMP/0001-perf-add-syscall-benchmark.patch
 sed -n $((LINESTART+1)),$((LINEEND-1))p $0 > $SHELLPACK_TEMP/0001-perf-add-syscall-benchmark.patch
-	cat -p1 < $SHELLPACK_TEMP/0001-perf-add-syscall-benchmark.patch || die "Failed to apply perf add syscall patch"
+	patch -p1 < $SHELLPACK_TEMP/0001-perf-add-syscall-benchmark.patch || die "Failed to apply perf add syscall patch"
 fi
 
+pushd $SHELLPACK_SOURCES/perfbuild-${VERSION}/tools/perf || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch $FILE
+done
 make -j$NUMCPUS prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed
 if [ $? -ne 0 ]; then
 	error "$P: make failed"
@@ -106,7 +110,7 @@ exit $SHELLPACK_SUCCESS
 
 ==== BEGIN 0001-perf-add-syscall-benchmark.patch ====
 diff --git a/tools/perf/bench/Build b/tools/perf/bench/Build
-index 60bf119..0b7395d 100644
+index eafce1a130a1..abc461b16ff0 100644
 --- a/tools/perf/bench/Build
 +++ b/tools/perf/bench/Build
 @@ -1,5 +1,6 @@
@@ -117,20 +121,20 @@ index 60bf119..0b7395d 100644
  perf-y += futex-hash.o
  perf-y += futex-wake.o
 diff --git a/tools/perf/bench/bench.h b/tools/perf/bench/bench.h
-index 579a592..bdd6cdc 100644
+index 6c9fcd757f31..128823ab0a2d 100644
 --- a/tools/perf/bench/bench.h
 +++ b/tools/perf/bench/bench.h
-@@ -28,6 +28,7 @@
- int bench_numa(int argc, const char **argv, const char *prefix);
- int bench_sched_messaging(int argc, const char **argv, const char *prefix);
- int bench_sched_pipe(int argc, const char **argv, const char *prefix);
-+int bench_syscall_basic(int argc, const char **argv, const char *prefix);
- int bench_mem_memcpy(int argc, const char **argv, const char *prefix);
- int bench_mem_memset(int argc, const char **argv, const char *prefix);
- int bench_futex_hash(int argc, const char **argv, const char *prefix);
+@@ -29,6 +29,7 @@
+ int bench_numa(int argc, const char **argv);
+ int bench_sched_messaging(int argc, const char **argv);
+ int bench_sched_pipe(int argc, const char **argv);
++int bench_syscall_basic(int argc, const char **argv);
+ int bench_mem_memcpy(int argc, const char **argv);
+ int bench_mem_memset(int argc, const char **argv);
+ int bench_futex_hash(int argc, const char **argv);
 diff --git a/tools/perf/bench/syscall.c b/tools/perf/bench/syscall.c
 new file mode 100644
-index 0000000..0dc782a
+index 000000000000..149129cca639
 --- /dev/null
 +++ b/tools/perf/bench/syscall.c
 @@ -0,0 +1,80 @@
@@ -164,7 +168,7 @@ index 0000000..0dc782a
 +	NULL
 +};
 +
-+int bench_syscall_basic(int argc, const char **argv, const char *prefix __maybe_unused)
++int bench_syscall_basic(int argc, const char **argv)
 +{
 +	struct timeval start, stop, diff;
 +	unsigned long long result_usec = 0;
@@ -215,10 +219,10 @@ index 0000000..0dc782a
 +	return 0;
 +}
 diff --git a/tools/perf/builtin-bench.c b/tools/perf/builtin-bench.c
-index a1cddc6..f32a503 100644
+index 17a6bcd01aa6..66a4cce0b18d 100644
 --- a/tools/perf/builtin-bench.c
 +++ b/tools/perf/builtin-bench.c
-@@ -9,10 +9,11 @@
+@@ -10,10 +10,11 @@
  /*
   * Available benchmark collection list:
   *
@@ -234,7 +238,7 @@ index a1cddc6..f32a503 100644
   */
  #include "perf.h"
  #include "util/util.h"
-@@ -44,10 +45,16 @@ static struct bench numa_benchmarks[] = {
+@@ -45,10 +46,16 @@ static struct bench numa_benchmarks[] = {
  static struct bench sched_benchmarks[] = {
  	{ "messaging",	"Benchmark for scheduling and IPC",		bench_sched_messaging	},
  	{ "pipe",	"Benchmark for pipe() between two processes",	bench_sched_pipe	},
@@ -252,7 +256,7 @@ index a1cddc6..f32a503 100644
  static struct bench mem_benchmarks[] = {
  	{ "memcpy",	"Benchmark for memcpy() functions",		bench_mem_memcpy	},
  	{ "memset",	"Benchmark for memset() functions",		bench_mem_memset	},
-@@ -74,6 +81,7 @@ struct collection {
+@@ -75,6 +82,7 @@ struct collection {
  
  static struct collection collections[] = {
  	{ "sched",	"Scheduler and IPC benchmarks",			sched_benchmarks	},
@@ -260,8 +264,6 @@ index a1cddc6..f32a503 100644
  	{ "mem",	"Memory access benchmarks",			mem_benchmarks		},
  #ifdef HAVE_LIBNUMA_SUPPORT
  	{ "numa",	"NUMA scheduling and MM benchmarks",		numa_benchmarks		},
--- 
-2.4.11
 ==== END 0001-perf-add-syscall-benchmark.patch ====
 #### Description perfbuild
-#### Details perfbuild 10
+#### Details perfbuild 13
