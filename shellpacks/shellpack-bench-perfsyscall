@@ -114,14 +114,14 @@ fi
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf
 
-echo Perf invocation: $TASKSET_ALL $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS
+echo Perf invocation: $TASKSET_SERVER $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS
 for ITERATION in `seq 1 $PERFSYSCALL_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
-	$TASKSET_ALL $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS \
+	$TASKSET_SERVER $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS \
 			2>&1 | tee $LOGDIR_RESULTS/syscall-${ITERATION}.log
 sync
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description perfsyscall
-#### Details perfsyscall-bench 5
+#### Details perfsyscall-bench 6

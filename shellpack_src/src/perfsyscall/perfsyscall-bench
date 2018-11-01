@@ -17,9 +17,9 @@ export PERFBUILD_ADD_SYSCALL=yes
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf
 
-echo Perf invocation: $TASKSET_ALL $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS
+echo Perf invocation: $TASKSET_SERVER $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS
 ###SHELLPACK iteration_begin $PERFSYSCALL_ITERATIONS
-	$TASKSET_ALL $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS \
+	$TASKSET_SERVER $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS \
 			2>&1 | tee $LOGDIR_RESULTS/syscall-${ITERATION}.log
 ###SHELLPACK iteration_end
 

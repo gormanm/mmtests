@@ -35,5 +35,5 @@ export MONITOR_UPDATE_FREQUENCY=10
 # Perf pipe
 export PERFSYSCALL_LOOPS=5000000
 export PERFSYSCALL_ITERATIONS=60
-export PERFSYSCALL_BINDING=cross-socket
+export PERFSYSCALL_BINDING=pinned
 cpupower frequency-set -g performance
