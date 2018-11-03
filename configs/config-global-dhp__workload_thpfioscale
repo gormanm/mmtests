@@ -19,7 +19,7 @@ export RUN_COARSEPROFILE=no
 #export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
 
 # List of monitors
-export MONITOR_FTRACE_EVENTS="kmem/mm_page_alloc_extfrag compaction/mm_compaction_kcompactd_migrated compaction/mm_compaction_wakeup_kcompactd_queue compaction/mm_compaction_kcompactd_wake"
+export MONITOR_FTRACE_EVENTS="kmem/mm_page_alloc_extfrag kmem/mm_fragmentation_stall compaction/mm_compaction_kcompactd_migrated compaction/mm_compaction_wakeup_kcompactd_queue compaction/mm_compaction_kcompactd_wake"
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
