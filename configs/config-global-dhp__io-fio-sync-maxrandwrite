@@ -41,10 +41,10 @@ if [ "$TESTDISK_SIZE" = "" -o "$TESTDISK_PARTITION_SIZE" = "0" ]; then
 	echo `hostname`: Tried blockdev --getsize64 $TESTDISK_PARTITION
 	die "Unable to detect test partition $TESTDISK_PARTITION size ($TESTDISK_SIZE)"
 fi
-if [ $TESTDISK_SIZE -le $((MEMTOTAL_BYTES*2)) ]; then
+export FIO_SIZE=$((TESTDISK_SIZE*6/10))
+if [ $FIO_SIZE -le $((MEMTOTAL_BYTES*2)) ]; then
 	die "Test disk partition is too small"
 fi
-export FIO_SIZE=$((TESTDISK_SIZE*8/10))
 
 cat >$JOBFILE <<END
 [global]
