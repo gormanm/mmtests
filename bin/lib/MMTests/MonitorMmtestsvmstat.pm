@@ -27,7 +27,7 @@ my %_fieldNameMap = (
 	"pswpin"			=> "Swap Ins",
 	"pswpout"			=> "Swap Outs",
 	"allocstall"			=> "Allocation stalls",
-	"fragmentstall"			=> "Fragmentation stalls",
+	"fragment_stall"		=> "Fragmentation stalls",
 	"pgalloc_dma"			=> "DMA allocs",
 	"pgalloc_dma32"			=> "DMA32 allocs",
 	"pgalloc_normal"		=> "Normal allocs",
@@ -115,7 +115,7 @@ my @_fieldOrder = (
         "pswpin",
         "pswpout",
 	"allocstall",
-	"fragmentstall",
+	"fragment_stall",
 	"pgalloc_dma",
 	"pgalloc_dma32",
 	"pgalloc_normal",
@@ -341,7 +341,7 @@ sub extractReport($$$$) {
 
 	# Flat values
 	foreach my $key ("pgpgin", "pgpgout", "pswpin", "pswpout",
-			 "pgfault", "pgmajfault", "allocstall", "fragmentstall",
+			 "pgfault", "pgmajfault", "allocstall", "fragment_stall",
 			 "pgalloc_dma", "pgalloc_dma32", "pgalloc_normal", "pgalloc_movable",
 			 "kswapd_inodesteal", "pginodesteal", "slabs_scanned",
 			 "compact_pages_moved", "compact_pagemigrate_failed",
