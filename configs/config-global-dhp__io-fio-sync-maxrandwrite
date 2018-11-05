@@ -38,7 +38,8 @@ if [ "$TESTDISK_PARTITION" = "" ]; then
 fi
 export TESTDISK_PARTITION_SIZE=`blockdev --getsize64 $TESTDISK_PARTITION`
 if [ "$TESTDISK_PARTITION_SIZE" = "" -o "$TESTDISK_PARTITION_SIZE" = "0" ]; then
-	die "Unable to detect test partition size"
+	echo `hostname`: Tried blockdev --getsize64 $TESTDISK_PARTITION
+	die "Unable to detect test partition $TESTDISK_PARTITION size ($TESTDISK_PARTITION_SIZE)"
 fi
 if [ $TESTDISK_PARTITION_SIZE -le $((MEMTOTAL_BYTES*2)) ]; then
 	die "Test disk partition is too small"
