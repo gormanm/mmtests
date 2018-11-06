@@ -106,6 +106,11 @@ my %_renamed_fields = (
 	"compact_pagemigrate_failed"	=> "pgmigrate_failed",
 	"thp_split"  			=> "thp_split_page",
 	"thp_failed" 			=> "thp_split_page_failed",
+	"allocstall_dma"		=> "allocstall",
+	"allocstall_dma32"		=> "allocstall",
+	"allocstall_normal"		=> "allocstall",
+	"allocstall_movable"		=> "allocstall",
+	"allocstall_highmem"		=> "allocstall",
 );
 
 my @_fieldOrder = (
