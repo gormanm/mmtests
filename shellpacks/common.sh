@@ -238,6 +238,11 @@ function git_fetch() {
 	TREE=$2
 	MIRROR=$3
 	OUTPUT=$4
+	COMMIT=${5:-master}
+
+	if [ $COMMIT = "0" ]; then
+		COMMIT=master
+	fi
 
 	install-depends git-core
 
@@ -258,8 +263,9 @@ function git_fetch() {
 			die "$P: Could not clone $GIT"
 		fi
 		cd $TREE || die "$P: Could not cd $TREE"
+		git checkout $COMMIT
 		echo Creating $OUTPUT
-		git archive --format=tar --prefix=$TREE/ master | gzip -c > $OUTPUT
+		git archive --format=tar --prefix=$TREE/ $COMMIT | gzip -c > $OUTPUT
 		cd -
 	fi
 }
