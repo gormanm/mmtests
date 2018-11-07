@@ -233,6 +233,11 @@ function sources_fetch() {
 	fi
 }
 
+function git_commit_exists() {
+	git show $1 >/dev/null 2>&1
+	echo $?
+}
+
 function git_fetch() {
 	GIT=$1
 	TREE=$2
@@ -241,6 +246,11 @@ function git_fetch() {
 	COMMIT=${5:-master}
 
 	if [ $COMMIT = "0" ]; then
+		COMMIT=master
+	fi
+
+	if [ $(git_commit_exists $COMMIT) != 0 ]; then
+		echo "$P: $COMMIT is not a tag/commit. Fetching master"
 		COMMIT=master
 	fi
 
