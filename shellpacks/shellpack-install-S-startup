@@ -1,7 +1,8 @@
 #!/bin/bash
 
+# shellpack bound to commit b4d0dd3 ("S benchmark suite 2.5")
 P=S-startup-install
-DEFAULT_VERSION=0
+DEFAULT_VERSION=b4d0dd3
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -20,6 +21,7 @@ install-depends MPlayer
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -52,7 +54,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=S-startup-${VERSION}.tar.gz
-git_fetch $GIT_LOCATION S-startup-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+git_fetch $GIT_LOCATION S-startup-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $VERSION
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -98,4 +100,4 @@ sync
 
 echo S-startup installed successfully
 #### Description Application start-up time benchmark
-#### Details S-startup 14
+#### Details S-startup 15
