@@ -17,8 +17,6 @@ sub new() {
 	return $self;
 }
 
-my $autonuma_enabled = 1;
-
 my %_fieldNameMap = (
 	"mmtests_minor_faults"		=> "Minor Faults",
 	"pgmajfault"			=> "Major Faults",
@@ -180,11 +178,6 @@ my @_fieldOrder = (
 	"mmtests_autonuma_cost",
 );
 
-my $padded_compat = 0;
-if ($ENV{"MMTESTS_PADDED_COMPAT"} ne "") {
-	$padded_compat = 1;
-}
-
 sub extractReport($$$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my (%vmstat_before, %vmstat_after, %vmstat);
@@ -245,9 +238,6 @@ sub extractReport($$$$) {
 				$vmstat_before{$key} = $value;
 			} elsif ($reading_after) {
 				$vmstat_after{$key} = $value;
-			}
-			if ($key eq "numa_hint_faults") {
-				$autonuma_enabled = 1;
 			}
 		}
 	}
@@ -365,7 +355,7 @@ sub extractReport($$$$) {
 			 "thp_split_page", "thp_split_page_failed",
 			 "thp_fault_fallback",
 			 "thp_collapse_alloc_failed") {
-		if (!defined($vmstat_after{$key}) && $padded_compat) {
+		if (!defined($vmstat_after{$key})) {
 			$vmstat{$key} = 0;
 		} else {
 			my $value = $vmstat_after{$key} - $vmstat_before{$key};
@@ -385,10 +375,6 @@ sub extractReport($$$$) {
 		$vmstat{"mmtests_numa_pte_updates"} += $vmstat{"numa_huge_pte_updates"} * 512;
 	}
 
-	if ($padded_compat) {
-		$autonuma_enabled = 1;
-	}
-
 	# Compaction cost model
 	my $Ca  = 56 / 8;	# Values for x86-64
 	my $Cpagerw = ($Ca + (4096 / 8));
@@ -397,9 +383,7 @@ sub extractReport($$$$) {
 	my $Ci  = $Ca + 12;	# 4 for list operations, 8 for locks
 	my $Csm = $Ca;
 	my $Csf = $Ca;
-	if ($padded_compat) {
-		$vmstat{"mmtests_compaction_cost"} = -1;
-	}
+	$vmstat{"mmtests_compaction_cost"} = -1;
 	if (defined $vmstat_before{"compact_migrate_scanned"} ) {
 		$vmstat{"mmtests_compaction_cost"} =
 			$Csm * $vmstat{"compact_migrate_scanned"} +
@@ -417,25 +401,21 @@ sub extractReport($$$$) {
 	$vmstat{"mmtests_compaction_cost"} /= 1000000;
 
 	# AutoNUMA cost model
-	if ($autonuma_enabled) {
-		my $Cpte = $Ca;
-		my $Cupdate = (2 * $Cpte) + (2 * 8);
-		my $Cnumahint = 5000;
-		$Cmc = $Cpagerw + $Cpagerw * 1.5;
+	my $Cpte = $Ca;
+	my $Cupdate = (2 * $Cpte) + (2 * 8);
+	my $Cnumahint = 5000;
+	$Cmc = $Cpagerw + $Cpagerw * 1.5;
 
-		$vmstat{"mmtests_autonuma_cost"} =
-				$Cpte * $vmstat{"numa_pte_updates"} +
-				$Cnumahint * $vmstat{"numa_hint_faults"} +
-				$Ci * $vmstat{"numa_pages_migrated"};
-				$Cpagerw * $vmstat{"numa_pages_migrated"};
-		$vmstat{"mmtests_autonuma_cost"} /= 1000000;
-	}
+	$vmstat{"mmtests_autonuma_cost"} =
+			$Cpte * $vmstat{"numa_pte_updates"} +
+			$Cnumahint * $vmstat{"numa_hint_faults"} +
+			$Ci * $vmstat{"numa_pages_migrated"};
+			$Cpagerw * $vmstat{"numa_pages_migrated"};
+	$vmstat{"mmtests_autonuma_cost"} /= 1000000;
 
-	if ($padded_compat) {
-		foreach my $key (@_fieldOrder) {
-			if (!defined($vmstat{$key})) {
-				$vmstat{$key} = 0;
-			}
+	foreach my $key (@_fieldOrder) {
+		if (!defined($vmstat{$key})) {
+			$vmstat{$key} = 0;
 		}
 	}
 
@@ -455,27 +435,16 @@ key:	foreach my $key (@keys) {
 		my $suppress = 0;
 
 		# Some stats for migration may have changed
-		if (!$padded_compat) {
-			foreach my $compareKey (@_new_migrate_stats) {
-				if ($compareKey eq $key) {
-					next key;
-				}
+		foreach my $compareKey (@_new_migrate_stats) {
+			if ($compareKey eq $key) {
+				next key;
 			}
+		}
 
-			# AutoNUMA may not be available
-			if (!$autonuma_enabled) {
-				foreach my $compareKey (@_autonuma_stats) {
-					if ($compareKey eq $key) {
-						next key;
-					}
-				}
-			}
-
-			foreach my $zone ("movable", "highmem", "normal", "dma32", "dma") {
-				if ($key eq "mmtests_${zone}_velocity" &&
-				    !$zones_seen{"$zone"}) {
-					next key;
-				}
+		foreach my $zone ("movable", "highmem", "normal", "dma32", "dma") {
+			if ($key eq "mmtests_${zone}_velocity" &&
+			    !$zones_seen{"$zone"}) {
+				next key;
 			}
 		}
 
