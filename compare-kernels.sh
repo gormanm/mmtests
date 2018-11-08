@@ -1915,7 +1915,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			echo "</tr>"
 		fi
 
-		if [ `ls ftrace-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		if [ `ls ftrace-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ] && [ `zgrep mm_migrate_misplaced_pages ftrace-$KERNEL_BASE-* | wc -l` -gt 1 ]; then
 			PLOT_TITLES=
 			for NAME in `echo $KERNEL_LIST | sed -e 's/,/ /g'`; do
 				cache-mmtests.sh extract-mmtests.pl -d . -b $SUBREPORT -n $NAME --print-monitor Ftracenumatraffic > /tmp/mmtests-numatraffic-$$-$NAME
