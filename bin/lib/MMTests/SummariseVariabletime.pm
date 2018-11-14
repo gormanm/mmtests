@@ -31,6 +31,14 @@ sub extractSummary() {
 	my $selectOp = $self->getSelectionFunc();
 	my %summary;
 
+	$self->{_SummaryHeaders} =
+		[ "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%",
+		  "Max-95%", "Max-99%", "Max", "$self->{_MeanName}", "Stddev",
+		  "Coeff", "Best99%$self->{_MeanName}",
+		  "Best95%$self->{_MeanName}", "Best90%$self->{_MeanName}",
+		  "Best75%$self->{_MeanName}", "Best50%$self->{_MeanName}",
+		  "Best25%$self->{_MeanName}" ];
+
 	foreach my $operation (@_operations) {
 		no strict  "refs";
 
@@ -39,8 +47,6 @@ sub extractSummary() {
 		foreach my $row (@{$data{$operation}}) {
 			push @units, @{$row}[1];
 		}
-
-		$self->{_SummaryHeaders} = [ "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle", "Max-90%", "Max-95%", "Max-99%", "Max", "$self->{_MeanName}", "Stddev", "Coeff", "Best99%$self->{_MeanName}", "Best95%$self->{_MeanName}",  "Best90%$self->{_MeanName}", "Best75%$self->{_MeanName}", "Best50%$self->{_MeanName}", "Best25%$self->{_MeanName}" ];
 
 		my $quartilesRef = calc_quartiles(@units);
 		my @quartiles = @{$quartilesRef};
