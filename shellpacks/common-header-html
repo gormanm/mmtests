@@ -23,6 +23,9 @@
 	text-align: right;
 	font-family: monospace;
 }
+.resultsTable tr:nth-child(odd) {
+	background: #DDD;
+}
 </style>
 </head>
 
