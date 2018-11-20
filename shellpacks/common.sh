@@ -249,11 +249,6 @@ function git_fetch() {
 		COMMIT=master
 	fi
 
-	if [ $(git_commit_exists $COMMIT) != 0 ]; then
-		echo "$P: $COMMIT is not a tag/commit. Fetching master"
-		COMMIT=master
-	fi
-
 	install-depends git-core
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
@@ -273,6 +268,10 @@ function git_fetch() {
 			die "$P: Could not clone $GIT"
 		fi
 		cd $TREE || die "$P: Could not cd $TREE"
+		if [ $(git_commit_exists $COMMIT) != 0 ]; then
+			echo "$P: $COMMIT is not a tag/commit. Fetching master"
+			COMMIT=master
+		fi
 		git checkout $COMMIT
 		echo Creating $OUTPUT
 		git archive --format=tar --prefix=$TREE/ $COMMIT | gzip -c > $OUTPUT
