@@ -12,7 +12,8 @@ sub new() {
 		_DataType    => DataTypes::DATA_TIME_MSECONDS,
 		_ResultData  => [],
 		_PlotType    => "simple-filter",
-		_PlotXaxis   => "Time (seconds)"
+		_PlotXaxis   => "Time (seconds)",
+		_FieldLength => 16,
 	};
 	bless $self, $class;
 	return $self;
