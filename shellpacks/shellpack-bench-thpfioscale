@@ -243,6 +243,14 @@ while [ $? -ne 0 ]; do
 	ps -p $FIO_PID
 done
 
+echo -n Checking remaining fio processes
+ps auxw | grep "fio " | grep -v grep
+NR=`ps auxw | grep "fio " | grep -v grep`
+if [ $NR -gt 0 ]; then
+	echo Warning: Killing all fio processes
+	killall -KILL fio
+fi
+
 echo
 echo Cleaning up fio
 rm $FIO_JOBFILE
@@ -250,4 +258,4 @@ rm -rf $SHELLPACK_DATA/thpfilescale
 
 exit $SHELLPACK_SUCCESS
 #### Description thpfioscale
-#### Details thpfioscale-bench 11
+#### Details thpfioscale-bench 12
