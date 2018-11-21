@@ -234,20 +234,20 @@ ATTEMPT=0
 echo -n Shutting down fio pid $FIO_PID
 kill -$SIGNAL $FIO_PID
 while [ $? -eq 0 ]; do
-	echo .
+	echo -n .
 	kill -$SIGNAL $FIO_PID
 	ATTEMPT=$((ATTEMPT+1))
 	if [ $ATTEMPT -gt 20 ]; then
 		SIGNAL="KILL"
 	fi
 	sleep 5
-	ps -p $FIO_PID
+	ps -p $FIO_PID &> /dev/null
 done
 
 echo
 echo Checking remaining fio processes
 ps auxw | grep "fio " | grep -v grep
-NR=`ps auxw | grep "fio " | grep -v grep`
+NR=`ps auxw | grep "fio " | grep -v grep | wc -l`
 if [ $NR -gt 0 ]; then
 	echo Warning: Killing all fio processes
 	killall -KILL fio
@@ -260,4 +260,4 @@ rm -rf $SHELLPACK_DATA/thpfilescale
 
 exit $SHELLPACK_SUCCESS
 #### Description thpfioscale
-#### Details thpfioscale-bench 13
+#### Details thpfioscale-bench 14
