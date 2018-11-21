@@ -11,6 +11,7 @@ fi
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -227,4 +228,4 @@ int main(int argc, char **argv)
 }
 ==== END thpfioscale.c ====
 #### Description thpfioscale
-#### Details thpfioscale 10
+#### Details thpfioscale 11

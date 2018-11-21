@@ -122,10 +122,14 @@ echo Warmup complete, starting THP
 
 echo -n Shutting down fio pid $FIO_PID
 SIGNAL="INT"
+ATTEMPT=0
 while [ $? -ne 0 ]; do
 	echo .
 	kill -$SIGNAL $FIO_PID
-	SIGNAL="KILL"
+	ATTEMPT=$((ATTEMPT+1))
+	if [ $ATTEMPT -gt 20 ]; then
+		SIGNAL="KILL"
+	fi
 	sleep 5
 	ps -p $FIO_PID
 done
