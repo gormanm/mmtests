@@ -120,10 +120,11 @@ echo Warmup complete, starting THP
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
 
-echo -n Shutting down fio pid $FIO_PID
 SIGNAL="INT"
 ATTEMPT=0
-while [ $? -ne 0 ]; do
+echo -n Shutting down fio pid $FIO_PID
+kill -$SIGNAL $FIO_PID
+while [ $? -eq 0 ]; do
 	echo .
 	kill -$SIGNAL $FIO_PID
 	ATTEMPT=$((ATTEMPT+1))
@@ -134,7 +135,8 @@ while [ $? -ne 0 ]; do
 	ps -p $FIO_PID
 done
 
-echo -n Checking remaining fio processes
+echo
+echo Checking remaining fio processes
 ps auxw | grep "fio " | grep -v grep
 NR=`ps auxw | grep "fio " | grep -v grep`
 if [ $NR -gt 0 ]; then
