@@ -144,7 +144,6 @@ if [ $NR -gt 0 ]; then
 	killall -KILL fio
 fi
 
-echo
 echo Cleaning up fio
 rm $FIO_JOBFILE
 rm -rf $SHELLPACK_DATA/thpfilescale
