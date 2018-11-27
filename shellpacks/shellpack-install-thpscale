@@ -158,7 +158,7 @@ static void *worker(void *data)
 		printf("Using madv_hugepage 0x%lu %lu gb\n", (unsigned long)second_mapping, (second_size + HPAGESIZE)/1048576/1024);
 		madvise(mapping, second_size + HPAGESIZE, MADV_HUGEPAGE);
 	} else {
-		printk("Using default advice\n");
+		printf("Using default advice\n");
 	}
 
 	/* Record anon init timings */
@@ -295,4 +295,4 @@ int main(int argc, char **argv)
 }
 ==== END thpscale.c ====
 #### Description thpscale
-#### Details thpscale 19
+#### Details thpscale 20
