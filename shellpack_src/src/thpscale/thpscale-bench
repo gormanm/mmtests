@@ -12,7 +12,7 @@
 ###SHELLPACK check_install_required thpscale-${VERSION}
 ###SHELLPACK monitor_hooks
 
-create_random_file $THPSCALE_MAPSIZE $SHELLPACK_DATA/workfile
+create_random_file $((THPSCALE_MAPSIZE+1048576*16)) $SHELLPACK_DATA/workfile
 
 MADV_HUGEPAGE=0
 if [ "$THPFIOSCALE_MADV_HUGEPAGE" = "yes" ]; then

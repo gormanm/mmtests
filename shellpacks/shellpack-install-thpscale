@@ -239,7 +239,7 @@ int main(int argc, char **argv)
 	}
 
 	nr_hpages = total_size / nr_threads / HPAGESIZE / 2;
-	thread_size = PTR_ALIGN((total_size / nr_threads - HPAGESIZE*4), HPAGESIZE*4);
+	thread_size = PTR_ALIGN((total_size / nr_threads) & ~(HPAGESIZE-1), HPAGESIZE*4);
 
         if (thread_size * nr_threads > total_size) {
                 printf("file size %zd is insufficient for thread count; requires %ld bytes.\n",
