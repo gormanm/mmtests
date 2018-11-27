@@ -121,6 +121,7 @@ config-global-dhp__io-filebench-webproxy-large
 config-global-dhp__io-ddread
 config-global-dhp__io-ddwrite
 config-global-dhp__workload_thpscale
+config-global-dhp__workload_thpscale-madvhugepage
 config-global-dhp__workload_will-it-scale-io
 config-global-dhp__io-iozone-doublemem-async
 config-global-dhp__io-iozone-doublemem-fsync
