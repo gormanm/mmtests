@@ -11,6 +11,7 @@ fi
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -48,6 +49,10 @@ while [ "$1" != "" ]; do
 		THPSCALE_MAPSIZE=$2
 		shift 2
 		;;
+	--madv-huge)
+		THPSCALE_MADV_HUGEPAGE=$2
+		shift 2
+		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -79,6 +84,11 @@ fi
 
 create_random_file $THPSCALE_MAPSIZE $SHELLPACK_DATA/workfile
 
+MADV_HUGEPAGE=0
+if [ "$THPFIOSCALE_MADV_HUGEPAGE" = "yes" ]; then
+	MADV_HUGEPAGE=1
+fi
+
 THREADS=
 START_THREAD=$THPSCALE_MIN_THREADS
 END_THREAD=$THPSCALE_MAX_THREADS
@@ -106,11 +116,11 @@ for NR_THREADS in $THREADS; do
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	echo Starting $NR_THREADS/$THPSCALE_MAX_THREADS
 	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
-		./thpscale $NR_THREADS $THPSCALE_MAPSIZE $SHELLPACK_DATA/workfile	\
+		./thpscale $NR_THREADS $THPSCALE_MAPSIZE $SHELLPACK_DATA/workfile $MADV_HUGEPAGE \
 			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
 rm $SHELLPACK_DATA/workfile
 exit $SHELLPACK_SUCCESS
 #### Description thpscale
-#### Details thpscale-bench 18
+#### Details thpscale-bench 19

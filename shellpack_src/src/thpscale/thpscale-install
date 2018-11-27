@@ -45,6 +45,7 @@ size_t thread_size;
 unsigned long *anon_init;
 unsigned long *file_init;
 int nr_hpages;
+int madvise_huge;
 char *filename;
 
 /* barrier for all threads to finish initialisation on */
@@ -106,6 +107,13 @@ static void *worker(void *data)
 	offset = aligned - second_mapping;
 	end_mapping = second_mapping + second_size;
 
+	if (madvise_huge) {
+		printf("Using madv_hugepage 0x%lu %lu gb\n", (unsigned long)second_mapping, (second_size + HPAGESIZE)/1048576/1024);
+		madvise(mapping, second_size + HPAGESIZE, MADV_HUGEPAGE);
+	} else {
+		printk("Using default advice\n");
+	}
+
 	/* Record anon init timings */
 	gettimeofday(&tv_end, NULL);
 	anon_init[thread_idx] = timeval_to_us(&tv_end) - timeval_to_us(&tv_start);
@@ -161,14 +169,15 @@ int main(int argc, char **argv)
 {
 	pthread_t *th;
 	int nr_threads, i, j;
-	if (argc != 4) {
-		printf("Usage: thpscale [nr_threads] [total_size] [filename]\n");
+	if (argc != 5) {
+		printf("Usage: thpscale [nr_threads] [total_size] [filename] [madvise_hugepage]\n");
 		exit(EXIT_FAILURE);
 	}
 
 	nr_threads = atoi(argv[1]);
 	total_size = atol(argv[2]);
 	filename = argv[3];
+	madvise_huge = atoi(argv[4]);
 	printf("Running with %d thread%c\n", nr_threads, nr_threads > 1 ? 's' : ' ');
 	anon_init = malloc(nr_threads * sizeof(unsigned long));
 	if (anon_init == NULL) {
