@@ -20,19 +20,10 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile, $subHeading) = @_;
+	my ($self, $reportDir, $reportName, $profile) = @_;
 	my $seen_read = 0;
 	my $seen_write = 0;
 	$reportDir =~ s/fiolatency/fio/;
-
-	my $skip_latency_read = 0;
-	my $skip_latency_write = 0;
-
-	if ($subHeading eq "latency-read") {
-		$skip_latency_write = 1;
-	} elsif ($subHeading eq "latency-write") {
-		$skip_latency_read = 1;
-	}
 
 	my @resultData;
 
@@ -51,10 +42,10 @@ sub extractReport() {
 		}
 		while (<INPUT>) {
 			($time, $lat, $dir, $size) = split(/, /, $_);
-			if ($dir == 0 && $skip_latency_read == 0) {
+			if ($dir == 0) {
 				$dir = "read";
 				$seen_read = 1;
-			} elsif ($dir == 1 && $skip_latency_write == 0) {
+			} elsif ($dir == 1) {
 				$dir = "write";
 				$seen_write = 1;
 			} else {
