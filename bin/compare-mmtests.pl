@@ -75,10 +75,10 @@ if (!defined($opt_monitor)) {
 			if ($opt_Rsummary) {
 				$extractModules[$nrModules++]->extractSummaryR($opt_subheading, $opt_Rsummary);
 			} elsif ($opt_printRatio) {
-				$extractModules[$nrModules]->extractReport($reportDirectory, $name, $profile);
+				$extractModules[$nrModules]->extractReport($reportDirectory, $name, $profile, $opt_subheading);
 				$extractModules[$nrModules++]->extractRatioSummary($opt_subheading);
 			} else {
-				$extractModules[$nrModules]->extractReport($reportDirectory, $name, $profile);
+				$extractModules[$nrModules]->extractReport($reportDirectory, $name, $profile, $opt_subheading);
 				$extractModules[$nrModules++]->extractSummary($opt_subheading);
 			}
 		} or do {
