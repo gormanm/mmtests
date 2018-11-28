@@ -295,4 +295,4 @@ int main(int argc, char **argv)
 }
 ==== END thpscale.c ====
 #### Description thpscale
-#### Details thpscale 23
+#### Details thpscale 24

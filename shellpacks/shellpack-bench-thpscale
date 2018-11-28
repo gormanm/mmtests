@@ -85,7 +85,7 @@ fi
 create_random_file $((THPSCALE_MAPSIZE+1048576*16)) $SHELLPACK_DATA/workfile
 
 MADV_HUGEPAGE=0
-if [ "$THPFIOSCALE_MADV_HUGEPAGE" = "yes" ]; then
+if [ "$THPSCALE_MADV_HUGEPAGE" = "yes" ]; then
 	MADV_HUGEPAGE=1
 fi
 
@@ -123,4 +123,4 @@ done
 rm $SHELLPACK_DATA/workfile
 exit $SHELLPACK_SUCCESS
 #### Description thpscale
-#### Details thpscale-bench 23
+#### Details thpscale-bench 24
