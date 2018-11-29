@@ -77,6 +77,20 @@ sub dataByOperation() {
 	return \%result;
 }
 
+sub summaryOps() {
+	my ($self, $subHeading) = @_;
+	my @ops;
+
+	foreach my $operation (@{$self->{_Operations}}) {
+		if ($subHeading ne "" && !($operation =~ /^$subHeading.*/)) {
+			next;
+		}
+		push @ops, $operation;
+	}
+
+	return @ops;
+}
+
 sub ratioSummaryOps() {
 	my ($self, $subHeading) = @_;
 	my @ops;

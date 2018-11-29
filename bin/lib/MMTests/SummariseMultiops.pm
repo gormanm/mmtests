@@ -21,19 +21,8 @@ sub initialise() {
 
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
-	my @_operations = @{$self->{_Operations}};
+	my @_operations = $self->summaryOps($subHeading);
 	my %data = %{$self->dataByOperation()};
-
-	if ($subHeading ne "") {
-		my $index = 0;
-		while ($index <= $#_operations) {
-			if ($_operations[$index] =~ /^$subHeading.*/) {
-				$index++;
-				next;
-			}
-			splice(@_operations, $index, 1);
-		}
-	}
 
 	my %summary;
 	my %significance;

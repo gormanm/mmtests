@@ -19,13 +19,8 @@ sub initialise() {
 
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
-	my @_operations = @{$self->{_Operations}};
+	my @_operations = $self->summaryOps($subHeading);
 	my %data = %{$self->dataByOperation()};
-
-	if ($subHeading ne "") {
-		$#_operations = 0;
-		$_operations[0] = $subHeading;
-	}
 
 	my $meanOp = $self->getMeanFunc;
 	my $selectOp = $self->getSelectionFunc();

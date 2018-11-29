@@ -283,7 +283,7 @@ sub _generateHeaderTable() {
 
 # Construct final table for printing
 sub _generateRenderRatioTable() {
-	my ($self) = @_;
+	my ($self, $subHeading) = @_;
 	my @finalTable;
 	my @formatTable;
 	my @compareTable;
@@ -304,7 +304,7 @@ sub _generateRenderRatioTable() {
 
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
-	my @operations = @{$extractModules[0]->{_Operations}};
+	my @operations = $extractModules[0]->ratioSummaryOps($subHeading);
 
 	# Format string for columns
 	my $maxLength = 0;
@@ -409,13 +409,13 @@ sub _generateRenderRatioTable() {
 
 # Construct final table for printing
 sub _generateRenderTable() {
-	my ($self, $rowOrientated, $printSignificance) = @_;
+	my ($self, $rowOrientated, $printSignificance, $subHeading) = @_;
 	my @finalTable;
 	my @formatTable;
 	my @compareTable;
 
 	my @extractModules = @{$self->{_ExtractModules}};
-	my @operations = @{$extractModules[0]->{_Operations}};
+	my @operations = $extractModules[0]->summaryOps($subHeading);
 	my $fieldLength = $self->{_FieldLength};
 	my $compareLength = 0;
 	my $precision = 2;
@@ -557,7 +557,7 @@ sub _printComparisonRow() {
 }
 
 sub printComparison() {
-	my ($self, $printRatio, $printSignificance) = @_;
+	my ($self, $printRatio, $printSignificance, $subHeading) = @_;
 	my @extractModules = @{$self->{_ExtractModules}};
 
 	if ($extractModules[0]->{_RowOrientated}) {
@@ -568,9 +568,9 @@ sub printComparison() {
 	}
 
 	if ($printRatio) {
-		$self->_generateRenderRatioTable();
+		$self->_generateRenderRatioTable($subHeading);
 	} else {
-		$self->_generateRenderTable(0, $printSignificance);
+		$self->_generateRenderTable(0, $printSignificance, $subHeading);
 	}
 	$self->_generateHeaderTable($printSignificance);
 
