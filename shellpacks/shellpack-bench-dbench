@@ -11,6 +11,7 @@ fi
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -129,4 +130,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description dbench
-#### Details dbench-bench 42
+#### Details dbench-bench 43

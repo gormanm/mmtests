@@ -105,8 +105,8 @@ fi
 THREADS=$NR_THREADS
 NR_THREADS=$((NR_THREADS*2))
 if [ "$MMTESTS_THREAD_CUTOFF" != "" ]; then
-	echo Forcing $KERNBENCH_MAX_THREADS to $MMTESTS_THREAD_CUTOFF
-	$KERNBENCH_MAX_THREADS=$MMTESTS_THREAD_CUTOFF
+	echo Forcing KERNBENCH_MAX_THREADS to $MMTESTS_THREAD_CUTOFF
+	KERNBENCH_MAX_THREADS=$MMTESTS_THREAD_CUTOFF
 fi
 while [ $NR_THREADS -le $KERNBENCH_MAX_THREADS ]; do
 	THREADS="$THREADS $NR_THREADS"
@@ -149,4 +149,4 @@ rm -rf $TMPDIR/kernbench
 
 exit $SHELLPACK_SUCCESS
 #### Description Benchmark based on kernel builds
-#### Details kernbench-bench 37
+#### Details kernbench-bench 39

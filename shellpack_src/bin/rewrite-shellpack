@@ -457,6 +457,8 @@ EOC
 		print "done\n";
 	} elsif ($command eq "threads_powertwo_begin") {
 		my ($min_thread, $max_thread) = @details;
+		my $max_thread_varname = $max_thread;
+		$max_thread_varname =~ s/^\$//;
 		print <<EOC
 NR_THREADS=$min_thread
 if [ "\$NR_THREADS" = "" ]; then
@@ -465,8 +467,8 @@ fi
 THREADS=\$NR_THREADS
 NR_THREADS=\$((NR_THREADS*2))
 if [ "\$MMTESTS_THREAD_CUTOFF" != "" ]; then
-	echo Forcing $max_thread to \$MMTESTS_THREAD_CUTOFF
-	$max_thread=\$MMTESTS_THREAD_CUTOFF
+	echo Forcing $max_thread_varname to \$MMTESTS_THREAD_CUTOFF
+	$max_thread_varname=\$MMTESTS_THREAD_CUTOFF
 fi
 while [ \$NR_THREADS -le $max_thread ]; do
 	THREADS="\$THREADS \$NR_THREADS"
@@ -525,9 +527,15 @@ for NR_THREADS in \$THREADS; do
 EOC
 	} elsif ($command eq "threads_large_stride_begin") {
 		my ($min_thread, $max_thread) = @details;
+		my $max_thread_varname = $max_thread;
+		$max_thread_varname =~ s/^\$//;
 		print <<EOC
 THREADS=
 START_THREAD=$min_thread
+if [ "\$MMTESTS_THREAD_CUTOFF" != "" ]; then
+	echo Forcing $max_thread_varname to \$MMTESTS_THREAD_CUTOFF
+	$max_thread_varname=\$MMTESTS_THREAD_CUTOFF
+fi
 END_THREAD=$max_thread
 if [ \$END_THREAD -gt 32 ]; then
 	THREADS=`seq \$START_THREAD 3 8`

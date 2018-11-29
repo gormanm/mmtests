@@ -17,6 +17,7 @@ install-depends popt-devel zlib-devel
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -50,7 +51,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=dbench-${VERSION}.tar.gz
-git_fetch $GIT_LOCATION dbench-${VERSION} $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+git_fetch $GIT_LOCATION dbench-${VERSION} $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $VERSION
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -483,4 +484,4 @@ Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
  			child->line++;
 ==== END 0005-Check-if-parent-is-alive-once-per-loadfile.patch ====
 #### Description dbench
-#### Details dbench 42
+#### Details dbench 43

@@ -13,6 +13,7 @@ MIRROR_LOCATION="$WEBROOT/hackbench/hackbench.c"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -56,4 +57,4 @@ fi
 
 exit $SHELLPACK_SUCCESS
 #### Description Run the HackBench benchmark
-#### Details hackbench 34
+#### Details hackbench 37

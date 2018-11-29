@@ -16,6 +16,7 @@ HACKBENCH_TYPE=process
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -110,6 +111,10 @@ ulimit -n $((HACKBENCH_MAX_GROUPS * 40 * 2))
 
 THREADS=
 START_THREAD=$HACKBENCH_MIN_GROUPS
+if [ "$MMTESTS_THREAD_CUTOFF" != "" ]; then
+	echo Forcing HACKBENCH_MAX_GROUPS to $MMTESTS_THREAD_CUTOFF
+	HACKBENCH_MAX_GROUPS=$MMTESTS_THREAD_CUTOFF
+fi
 END_THREAD=$HACKBENCH_MAX_GROUPS
 if [ $END_THREAD -gt 32 ]; then
 	THREADS=`seq $START_THREAD 3 8`
@@ -156,4 +161,4 @@ done
 
 exit $RETVAL
 #### Description Run the HackBench benchmark
-#### Details hackbench-bench 34
+#### Details hackbench-bench 37
