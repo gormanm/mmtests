@@ -1,8 +1,9 @@
 # SummariseSingleops.pm
 package MMTests::SummariseSingleops;
 use MMTests::Extract;
+use MMTests::Summarise;
 use VMR::Stat;
-our @ISA = qw(MMTests::Extract);
+our @ISA = qw(MMTests::Summarise);
 use strict;
 
 sub new() {
