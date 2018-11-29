@@ -464,6 +464,10 @@ if [ "\$NR_THREADS" = "" ]; then
 fi
 THREADS=\$NR_THREADS
 NR_THREADS=\$((NR_THREADS*2))
+if [ "\$MMTESTS_THREAD_CUTOFF" != "" ]; then
+	echo Forcing $max_thread to \$MMTESTS_THREAD_CUTOFF
+	$max_thread=\$MMTESTS_THREAD_CUTOFF
+fi
 while [ \$NR_THREADS -le $max_thread ]; do
 	THREADS="\$THREADS \$NR_THREADS"
 	NR_THREADS=\$((NR_THREADS*2))
