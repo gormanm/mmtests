@@ -64,3 +64,4 @@ if [ $SIZE -lt 1024 ]; then
 	SIZE=1024
 fi
 export TESTDISK_FS_SIZE=${SIZE}m
+export MMTESTS_THREAD_CUTOFF=
