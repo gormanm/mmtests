@@ -1,7 +1,6 @@
 # MonitorSyscalls.pm
 package MMTests::MonitorSyscalls;
 use MMTests::Monitor;
-use VMR::Report;
 use VMR::Stat;
 our @ISA = qw(MMTests::Monitor);
 use strict;

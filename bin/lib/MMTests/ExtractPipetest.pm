@@ -1,7 +1,6 @@
 # ExtractPipetest.pm
 package MMTests::ExtractPipetest;
 use MMTests::SummariseVariabletime;
-use VMR::Report;
 use Math::Round;
 our @ISA = qw(MMTests::SummariseVariabletime);
 

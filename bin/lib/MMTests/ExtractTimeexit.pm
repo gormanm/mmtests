@@ -1,7 +1,6 @@
 # ExtractTimeexit.pm
 package MMTests::ExtractTimeexit;
 use MMTests::SummariseVariabletime;
-use VMR::Report;
 our @ISA = qw(MMTests::SummariseVariabletime);
 
 sub new() {

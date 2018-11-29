@@ -1,7 +1,6 @@
 # ExtractSockperfunderload.pm
 package MMTests::ExtractSockperfunderload;
 use MMTests::SummariseVariabletime;
-use VMR::Report;
 our @ISA = qw(MMTests::SummariseVariabletime);
 
 sub new() {

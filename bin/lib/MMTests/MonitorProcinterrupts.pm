@@ -1,7 +1,6 @@
 # MonitorProcinterrupts.pm
 package MMTests::MonitorProcinterrupts;
 use MMTests::SummariseMultiops;
-use VMR::Report;
 use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;

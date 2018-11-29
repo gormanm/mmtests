@@ -1,7 +1,6 @@
 # ExtractSparsetruncate.pm
 package MMTests::ExtractSparsetruncate;
 use MMTests::SummariseVariabletime;
-use VMR::Report;
 our @ISA = qw(MMTests::SummariseVariabletime);
 
 sub new() {

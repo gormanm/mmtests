@@ -1,7 +1,6 @@
 # MonitorProcnetdev.pm
 package MMTests::MonitorProcnetdev;
 use MMTests::Monitor;
-use VMR::Report;
 our @ISA = qw(MMTests::Monitor);
 use strict;
 

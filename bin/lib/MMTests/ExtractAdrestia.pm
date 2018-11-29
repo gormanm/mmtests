@@ -1,7 +1,6 @@
 # ExtractAdrestia.pm
 package MMTests::ExtractAdrestia;
 use MMTests::SummariseMultiops;
-use VMR::Report;
 our @ISA = qw(MMTests::SummariseMultiops);
 
 sub initialise() {

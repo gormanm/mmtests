@@ -1,7 +1,6 @@
 # ExtractHackbench.pm
 package MMTests::ExtractHackbench;
 use MMTests::SummariseMultiops;
-use VMR::Report;
 our @ISA = qw(MMTests::SummariseMultiops);
 
 sub initialise() {

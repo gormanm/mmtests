@@ -1,7 +1,6 @@
 # ExtractMediawikibuild.pm
 package MMTests::ExtractMediawikibuild;
 use MMTests::SummariseVariableops;
-use VMR::Report;
 our @ISA = qw(MMTests::SummariseVariableops);
 
 use strict;

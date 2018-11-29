@@ -1,7 +1,6 @@
 # MonitorTop.pm
 package MMTests::MonitorTop;
 use MMTests::Monitor;
-use VMR::Report;
 our @ISA = qw(MMTests::Monitor);
 use strict;
 

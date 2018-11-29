@@ -1,7 +1,6 @@
 # ExtractMicrotput.pm
 package MMTests::ExtractMicrotput;
 use MMTests::SummariseMultiops;
-use VMR::Report;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 

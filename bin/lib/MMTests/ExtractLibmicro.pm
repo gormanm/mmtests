@@ -1,7 +1,6 @@
 # ExtractLibmicro.pm
 package MMTests::ExtractLibmicro;
 use MMTests::SummariseSingleops;
-use VMR::Report;
 our @ISA = qw(MMTests::SummariseSingleops);
 
 sub initialise() {

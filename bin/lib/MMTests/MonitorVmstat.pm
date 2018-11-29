@@ -1,7 +1,6 @@
 # MonitorVmstat.pm
 package MMTests::MonitorVmstat;
 use MMTests::Monitor;
-use VMR::Report;
 our @ISA = qw(MMTests::Monitor);
 use strict;
 

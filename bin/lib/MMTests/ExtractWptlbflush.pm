@@ -1,7 +1,6 @@
 # ExtractWptlbflush.pm
 package MMTests::ExtractWptlbflush;
 use MMTests::SummariseMultiops;
-use VMR::Report;
 use Math::Round;
 our @ISA = qw(MMTests::SummariseMultiops);
 

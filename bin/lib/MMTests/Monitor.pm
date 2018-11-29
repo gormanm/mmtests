@@ -5,7 +5,6 @@
 
 package MMTests::Monitor;
 
-use VMR::Report;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
 use constant MONITOR_CPUTIME_SINGLE	=> 1;

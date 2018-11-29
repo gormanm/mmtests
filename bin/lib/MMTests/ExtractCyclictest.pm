@@ -1,7 +1,6 @@
 # ExtractCyclictest.pm
 package MMTests::ExtractCyclictest;
 use MMTests::SummariseMultiops;
-use VMR::Report;
 our @ISA = qw(MMTests::SummariseMultiops);
 
 sub new() {

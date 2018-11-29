@@ -11,7 +11,6 @@
 #
 package MMTests::MonitorLatency;
 use MMTests::Monitor;
-use VMR::Report;
 use VMR::Stat;
 our @ISA = qw(MMTests::Monitor);
 use strict;

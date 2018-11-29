@@ -1,7 +1,6 @@
 # ExtractPerfsyscall.pm
 package MMTests::ExtractPerfsyscall;
 use MMTests::SummariseVariabletime;
-use VMR::Report;
 our @ISA = qw(MMTests::SummariseVariabletime);
 
 sub new() {

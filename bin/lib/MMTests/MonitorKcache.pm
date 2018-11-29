@@ -1,7 +1,6 @@
 # MonitorKcache.pm
 package MMTests::MonitorKcache;
 use MMTests::SummariseMultiops;
-use VMR::Report;
 use VMR::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;

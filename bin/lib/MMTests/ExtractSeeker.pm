@@ -1,7 +1,6 @@
 # ExtractSeeker.pm
 package MMTests::ExtractSeeker;
 use MMTests::SummariseMultiops;
-use VMR::Report;
 our @ISA = qw(MMTests::SummariseMultiops);
 
 sub initialise() {
