@@ -1,7 +1,6 @@
 # MonitorMmtestsvmstat.pm
 package MMTests::MonitorMmtestsvmstat;
 use MMTests::Monitor;
-use VMR::Report;
 our @ISA = qw(MMTests::Monitor);
 use strict;
 
@@ -60,6 +59,7 @@ my %_fieldNameMap = (
 	"thp_collapse_alloc_failed"	=> "THP collapse fail",
 	"compact_stall"			=> "Compaction stalls",
 	"compact_success"		=> "Compaction success",
+	"mmtests_compact_efficiency"	=> "Compaction efficiency",
 	"pgmigrate_success"		=> "Page migrate success",
 	"pgmigrate_fail"		=> "Page migrate failure",
 	"compact_isolated"		=> "Compaction pages isolated",
@@ -81,22 +81,9 @@ my %_fieldNameMap = (
 	"mmtests_hint_local"		=> "NUMA hint local percent",
 	"numa_pages_migrated"		=> "NUMA pages migrated",
 	"mmtests_autonuma_cost"		=> "AutoNUMA cost",
-);
-
-my @_new_migrate_stats = (
-	"compact_migrate_scanned",
-	"compact_free_scanned",
-	"compact_isolated",
-	"pgmigrate_success",
-	"pgmigrate_fail",
-);
-
-my @_autonuma_stats = (
-	"numa_pte_updates",
-	"numa_hint_faults",
-	"numa_hint_faults_local",
-	"numa_pages_migrated",
-	"mmtests_autonuma_cost",
+	"compact_daemon_wake",		=> "Kcompactd wake",
+	"compact_daemon_migrate_scanned"=> "Kcompactd migrate scanned",
+	"compact_daemon_free_scanned"	=> "Kcompactd free scanned",
 );
 
 my %_renamed_fields = (
@@ -132,10 +119,10 @@ my @_fieldOrder = (
         "mmtests_direct_efficiency",
         "mmtests_direct_velocity",
         "mmtests_direct_percentage",
-	"mmtests_highmem_velocity",
-	"mmtests_normal_velocity",
-	"mmtests_dma32_velocity",
-	"mmtests_dma_velocity",
+	# "mmtests_highmem_velocity",
+	# "mmtests_normal_velocity",
+	# "mmtests_dma32_velocity",
+	# "mmtests_dma_velocity",
         "nr_vmscan_write",
         "mmtests_vmscan_write_file",
         "mmtests_vmscan_write_anon",
@@ -156,6 +143,7 @@ my @_fieldOrder = (
         "compact_stall",
         "compact_success",
         "compact_fail",
+	"mmtests_compact_efficiency",
         "pgmigrate_success",
         "pgmigrate_fail",
         "compact_pages_moved",
@@ -164,6 +152,9 @@ my @_fieldOrder = (
         "compact_migrate_scanned",
         "compact_free_scanned",
 	"mmtests_compaction_cost",
+	"compact_daemon_wake",
+	"compact_daemon_migrate_scanned",
+	"compact_daemon_free_scanned",
 	"numa_hit",
 	"numa_miss",
 	"numa_interleave",
@@ -183,13 +174,17 @@ sub extractReport($$$$) {
 	my (%vmstat_before, %vmstat_after, %vmstat);
 	my ($reading_test, $reading_before, $reading_after);
 	my $elapsed_time;
-	my %zones_seen;
 
 	my $file = "$reportDir/tests-timestamp-$testName";
 
 	foreach my $key (keys %_renamed_fields) {
 		$vmstat_before{$_renamed_fields{$key}} = 0;
 		$vmstat_after{$_renamed_fields{$key}} = 0;
+	}
+
+	foreach my $key (keys @_fieldOrder) {
+		$vmstat_before{$key} = 0;
+		$vmstat_after{$key} = 0;
 	}
 
 	open(INPUT, $file) || die("Failed to open $file\n");
@@ -283,7 +278,6 @@ sub extractReport($$$$) {
 			$zone = "normal";
 		}
 		$vmstat{"mmtests_${zone}_scanned"} += $value;
-		$zones_seen{$zone} = 1;
 	}
 	$vmstat{"mmtests_kswapd_velocity"} = $vmstat{"mmtests_kswapd_scan"} / $elapsed_time;
 
@@ -315,7 +309,7 @@ sub extractReport($$$$) {
 	$vmstat{"mmtests_dma32_velocity"}   = $vmstat{"mmtests_dma32_scanned"}   / $elapsed_time;
 	$vmstat{"mmtests_dma_velocity"}     = $vmstat{"mmtests_dma_scanned"}     / $elapsed_time;
 
-	# efficiency
+	# kswapd efficiency
 	if ($vmstat{"mmtests_direct_scan"}) {
 		$vmstat{"mmtests_direct_efficiency"} = $vmstat{"mmtests_direct_steal"} * 100 / $vmstat{"mmtests_direct_scan"};
 	} else {
@@ -341,12 +335,14 @@ sub extractReport($$$$) {
 			 "kswapd_inodesteal", "pginodesteal", "slabs_scanned",
 			 "compact_pages_moved", "compact_pagemigrate_failed",
 			 "compact_fail", "compact_success", "compact_stall",
+			 "compact_daemon_wake", "compact_daemon_migrate_scanned",
+			 "compact_daemon_free_scanned",
 			 "nr_vmscan_write", "kswapd_skip_congestion_wait",
 			 "nr_vmscan_immediate_reclaim", "pgrescued",
         		 "pgmigrate_success", "pgmigrate_fail",
 			 "compact_blocks_moved",
-        		 "compact_isolated", "compact_migrate_scanned",
-        		 "compact_free_scanned",
+			 "compact_isolated",
+			 "compact_migrate_scanned", "compact_free_scanned",
 			 "numa_hit", "numa_miss", "numa_interleave", "numa_local",
         		 "numa_pte_updates", "numa_huge_pte_updates",
 			 "numa_hint_faults",
@@ -413,10 +409,9 @@ sub extractReport($$$$) {
 			$Cpagerw * $vmstat{"numa_pages_migrated"};
 	$vmstat{"mmtests_autonuma_cost"} /= 1000000;
 
-	foreach my $key (@_fieldOrder) {
-		if (!defined($vmstat{$key})) {
-			$vmstat{$key} = 0;
-		}
+	# Compaction efficiency
+	if ($vmstat{"compact_stall"}) {
+		$vmstat{"mmtests_compact_efficiency"} = $vmstat{"compact_success"} * 100 / $vmstat{"compact_stall"};
 	}
 
 	# Pick order to display keys in
@@ -433,20 +428,6 @@ sub extractReport($$$$) {
 key:	foreach my $key (@keys) {
 		my $keyName = $key;
 		my $suppress = 0;
-
-		# Some stats for migration may have changed
-		foreach my $compareKey (@_new_migrate_stats) {
-			if ($compareKey eq $key) {
-				next key;
-			}
-		}
-
-		foreach my $zone ("movable", "highmem", "normal", "dma32", "dma") {
-			if ($key eq "mmtests_${zone}_velocity" &&
-			    !$zones_seen{"$zone"}) {
-				next key;
-			}
-		}
 
 		if ($rowOrientated && $_fieldNameMap{$key}) {
 			$keyName = $_fieldNameMap{$key};
@@ -474,7 +455,8 @@ key:	foreach my $key (@keys) {
 		    $key eq "mmtests_direct_efficiency" ||
 		    $key eq "mmtests_direct_percentage" ||
 		    $key eq "mmtests_hint_local" ||
-		    $key eq "numa_hint_faults_local") {
+		    $key eq "numa_hint_faults_local" ||
+		    $key eq "mmtests_compact_efficiency") {
 			my $length = $fieldLength - 1;
 			push @format, "%${length}d%%";
 		} elsif ($key eq "mmtests_kswapd_velocity" ||
