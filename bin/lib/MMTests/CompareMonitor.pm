@@ -1,7 +1,7 @@
 # CompareMonitor.pm
 package MMTests::CompareMonitor;
 use MMTests::Compare;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::Compare);
 use strict;
 

@@ -2,6 +2,6 @@
 
 use FindBin qw($Bin);
 use lib "$Bin/lib/";
-use VMR::Stat;
+use MMTests::Stat;
 
 print pdiff($ARGV[0], $ARGV[1]);

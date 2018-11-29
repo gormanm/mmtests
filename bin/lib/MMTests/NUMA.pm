@@ -1,11 +1,11 @@
 #
 # NUMA.pm
 #
-package VMR::NUMA;
+package MMTests::NUMA;
 require Exporter;
 use vars qw (@ISA @EXPORT);
-use VMR::Stat;
-use VMR::Report;
+use MMTests::Stat;
+use MMTests::Report;
 use strict;
 
 @ISA    = qw(Exporter);

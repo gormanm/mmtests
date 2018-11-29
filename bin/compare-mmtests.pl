@@ -9,8 +9,8 @@ use lib "$Bin/lib";
 
 use Getopt::Long;
 use Pod::Usage;
-use VMR::Report;
-use VMR::Stat;
+use MMTests::Report;
+use MMTests::Stat;
 use MMTests::Compare;
 use MMTests::CompareFactory;
 use MMTests::Extract;

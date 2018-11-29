@@ -1,6 +1,6 @@
 # MonitorFactory.pm
 package MMTests::MonitorFactory;
-use VMR::Report;
+use MMTests::Report;
 use strict;
 
 sub new() {

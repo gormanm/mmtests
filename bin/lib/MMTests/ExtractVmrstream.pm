@@ -1,7 +1,7 @@
 # ExtractVmrstream.pm
 package MMTests::ExtractVmrstream;
 use MMTests::SummariseMultiops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 

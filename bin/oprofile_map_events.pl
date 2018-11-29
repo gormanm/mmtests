@@ -8,7 +8,7 @@ use Getopt::Long;
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 
-use VMR::Report;
+use MMTests::Report;
 use strict;
 
 my ($arch, $cputype);

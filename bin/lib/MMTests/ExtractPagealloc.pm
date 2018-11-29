@@ -1,7 +1,7 @@
 # ExtractPagealloc.pm
 package MMTests::ExtractPagealloc;
 use MMTests::SummariseMultiops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 

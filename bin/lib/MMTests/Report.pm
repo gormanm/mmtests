@@ -2,7 +2,7 @@
 #
 # Glorified print statements
 #
-package VMR::Report;
+package MMTests::Report;
 require Exporter;
 use vars qw (@ISA @EXPORT);
 use strict;

@@ -2,7 +2,7 @@
 package MMTests::ExtractStream;
 use MMTests::SummariseSingleops;
 our @ISA = qw(MMTests::SummariseSingleops);
-use VMR::Stat;
+use MMTests::Stat;
 use strict;
 
 sub initialise() {

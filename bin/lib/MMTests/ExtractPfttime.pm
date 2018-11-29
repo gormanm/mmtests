@@ -3,7 +3,7 @@ package MMTests::ExtractPfttime;
 use MMTests::SummariseMultiops;
 our @ISA = qw(MMTests::SummariseMultiops);
 
-use VMR::Stat;
+use MMTests::Stat;
 use strict;
 
 sub new() {

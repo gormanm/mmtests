@@ -1,7 +1,7 @@
 # ExtractSysbenchcpu.pm
 package MMTests::ExtractSysbenchcpu;
 use MMTests::SummariseMultiops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 

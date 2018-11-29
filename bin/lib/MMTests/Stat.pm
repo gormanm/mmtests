@@ -3,10 +3,10 @@
 #
 # Basic stats module
 
-package VMR::Stat;
+package MMTests::Stat;
 require Exporter;
 use vars qw (@ISA @EXPORT);
-use VMR::Report;
+use MMTests::Report;
 use strict;
 use POSIX qw(floor);
 use FindBin qw($Bin);

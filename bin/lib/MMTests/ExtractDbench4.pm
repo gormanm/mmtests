@@ -1,6 +1,6 @@
 package MMTests::ExtractDbench4;
 use MMTests::SummariseSubselection;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSubselection);
 use strict;
 

@@ -1,7 +1,7 @@
 # ExtractStutter.pm
 package MMTests::ExtractStutter;
 use MMTests::SummariseVariabletime;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseVariabletime);
 
 use strict;

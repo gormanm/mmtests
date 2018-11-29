@@ -3,7 +3,7 @@ package MMTests::SummariseSubselection;
 use MMTests::Extract;
 use MMTests::Summarise;
 use MMTests::DataTypes;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::Summarise);
 use strict;
 

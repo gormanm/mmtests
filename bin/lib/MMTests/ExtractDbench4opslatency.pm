@@ -1,7 +1,7 @@
 # ExtractDbench4.pm
 package MMTests::ExtractDbench4opslatency;
 use MMTests::SummariseSingleops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 

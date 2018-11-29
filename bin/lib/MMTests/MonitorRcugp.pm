@@ -1,7 +1,7 @@
 # MonitorRcugp.pm
 package MMTests::MonitorRcugp;
 use MMTests::Monitor;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::Monitor);
 use strict;
 

@@ -1,7 +1,7 @@
 # ExtractTbench4
 package MMTests::ExtractTbench4;
 use MMTests::SummariseMultiops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 

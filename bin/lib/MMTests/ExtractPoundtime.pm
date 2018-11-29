@@ -1,7 +1,7 @@
 # ExtractPoundtime.pm
 package MMTests::ExtractPoundtime;
 use MMTests::SummariseMultiops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 

@@ -1,7 +1,7 @@
 # ExtractDbt2install.pm
 package MMTests::ExtractDbt2install;
 use MMTests::SummariseSingleops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 

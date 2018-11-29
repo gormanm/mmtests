@@ -2,7 +2,7 @@
 package MMTests::Summarise;
 use MMTests::Extract;
 use MMTests::DataTypes;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::Extract);
 use strict;
 

@@ -1,7 +1,7 @@
 # ExtractFiolatency
 package MMTests::ExtractFiolatency;
 use MMTests::SummariseVariabletime;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseVariabletime);
 use strict;
 

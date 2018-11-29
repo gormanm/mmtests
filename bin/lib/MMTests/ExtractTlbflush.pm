@@ -1,7 +1,7 @@
 # ExtractTlbflush.pm
 package MMTests::ExtractTlbflush;
 use MMTests::SummariseVariabletime;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseVariabletime);
 use strict;
 

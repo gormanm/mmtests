@@ -1,7 +1,7 @@
 # MonitorFtracesinglelatency.pm
 package MMTests::MonitorFtracesinglelatency;
 use MMTests::MonitorFtrace;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::MonitorFtrace);
 use strict;
 

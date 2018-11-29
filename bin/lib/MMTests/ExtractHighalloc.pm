@@ -1,7 +1,7 @@
 # ExtractHighalloc.pm
 package MMTests::ExtractHighalloc;
 use MMTests::Extract;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::Extract);
 use strict;
 

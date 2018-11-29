@@ -1,7 +1,7 @@
 # ExtractAim9.pm
 package MMTests::ExtractAim9;
 use MMTests::SummariseMultiops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 

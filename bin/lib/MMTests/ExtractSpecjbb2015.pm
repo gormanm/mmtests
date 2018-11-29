@@ -1,7 +1,7 @@
 # ExtractSpecjbb2015.pm
 package MMTests::ExtractSpecjbb2015;
 use MMTests::SummariseSingleops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 

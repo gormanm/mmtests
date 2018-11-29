@@ -1,7 +1,7 @@
 # ExtractStuttercalibrate.pm
 package MMTests::ExtractStuttercalibrate;
 use MMTests::SummariseSingleops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
 
 use strict;

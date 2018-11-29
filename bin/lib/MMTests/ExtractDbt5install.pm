@@ -1,7 +1,7 @@
 # ExtractDbt5install.pm
 package MMTests::ExtractDbt5install;
 use MMTests::SummariseSingleops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 

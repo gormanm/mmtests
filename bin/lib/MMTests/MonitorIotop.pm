@@ -1,7 +1,7 @@
 # MonitorIotop.pm
 package MMTests::MonitorIotop;
 use MMTests::Monitor;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::Monitor);
 use strict;
 

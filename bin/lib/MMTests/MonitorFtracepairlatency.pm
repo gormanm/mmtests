@@ -1,7 +1,7 @@
 # MonitorFtracepairlatency.pm
 package MMTests::MonitorFtracepairlatency;
 use MMTests::MonitorFtrace;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::MonitorFtrace);
 use strict;
 

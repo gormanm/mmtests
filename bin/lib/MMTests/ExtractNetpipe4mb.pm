@@ -1,7 +1,7 @@
 # ExtractNetpipe4mb
 package MMTests::ExtractNetpipe4mb;
 use MMTests::SummariseMultiops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 

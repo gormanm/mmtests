@@ -9,7 +9,7 @@
 # the blessed and the unblessed hash. This is suitable for JSON-serializing
 # multi-gigabyte objects that cannot be copied in memory as they wouldn't fit.
 
-package VMR::Blessless;
+package MMTests::Blessless;
 require Exporter;
 use vars qw (@ISA @EXPORT);
 use strict;

@@ -5,7 +5,7 @@
 use FindBin qw($Bin);
 use lib "$Bin/lib/";
 
-use VMR::Stat;
+use MMTests::Stat;
 use strict;
 
 die if ($ARGV[0] eq "");

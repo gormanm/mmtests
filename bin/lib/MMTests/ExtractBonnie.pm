@@ -1,7 +1,7 @@
 # ExtractBonnie.pm
 package MMTests::ExtractBonnie;
 use MMTests::SummariseVariabletime;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseVariabletime);
 use strict;
 

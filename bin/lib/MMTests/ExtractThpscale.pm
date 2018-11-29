@@ -1,7 +1,7 @@
 # ExtractThpscale.pm
 package MMTests::ExtractThpscale;
 use MMTests::SummariseMultiops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 

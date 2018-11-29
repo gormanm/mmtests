@@ -15,7 +15,7 @@ use lib "$Bin/lib";
 
 use Getopt::Long;
 use Pod::Usage;
-use VMR::Report;
+use MMTests::Report;
 use MMTests::Extract;
 use MMTests::ExtractFactory;
 use MMTests::Monitor;

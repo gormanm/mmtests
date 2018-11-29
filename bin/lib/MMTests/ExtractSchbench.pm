@@ -1,7 +1,7 @@
 # ExtractSchbench.pm
 package MMTests::ExtractSchbench;
 use MMTests::SummariseSingleops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
 
 use strict;

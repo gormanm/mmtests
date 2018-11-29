@@ -1,7 +1,7 @@
 # ExtractMediawikibuildloadtime.pm
 package MMTests::ExtractMediawikibuildloadtime;
 use MMTests::SummariseSingleops;
-use VMR::Stat;
+use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 

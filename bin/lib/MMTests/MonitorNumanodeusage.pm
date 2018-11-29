@@ -2,7 +2,7 @@
 
 package MMTests::MonitorNumanodeusage;
 use MMTests::Monitor;
-use VMR::NUMA;
+use MMTests::NUMA;
 our @ISA    = qw(MMTests::Monitor);
 use strict;
 

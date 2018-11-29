@@ -5,8 +5,8 @@
 
 package MMTests::Extract;
 use MMTests::DataTypes;
-use VMR::Stat;
-use VMR::Blessless qw(blessless);
+use MMTests::Stat;
+use MMTests::Blessless qw(blessless);
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
 use List::Util ();
