@@ -3,7 +3,7 @@
 # The biggest factor is the amount it smacks the shrinker. Note that there may
 # be different results based on the filesystem storing the disk image
 
-P=xfsreair-bench
+P=xfsrepair-bench
 DEFAULT_VERSION=1
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
@@ -19,6 +19,7 @@ NR_THREADS=4
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -161,4 +162,4 @@ rm /tmp/fsmark-$$
 
 exit $SHELLPACK_SUCCESS
 #### Description xfsrepair
-#### Details xfsrepair-bench 31
+#### Details xfsrepair-bench 32

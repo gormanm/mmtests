@@ -3,7 +3,7 @@
 # The biggest factor is the amount it smacks the shrinker. Note that there may
 # be different results based on the filesystem storing the disk image
 
-###SHELLPACK preamble xfsreair-bench 1
+###SHELLPACK preamble xfsrepair-bench 1
 
 FSMARK_VERSION=3.3
 ITERATIONS=3
