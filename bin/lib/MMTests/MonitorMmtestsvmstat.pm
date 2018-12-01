@@ -68,6 +68,7 @@ my %_fieldNameMap = (
 	"compact_fail"			=> "Compaction failures",
 	"compact_pages_moved"		=> "Compaction pages moved",
 	"compact_pagemigrate_failed"	=> "Compaction move failure",
+	"mmtests_cscan_efficiency"	=> "Compact scan efficiency",
 	"mmtests_compaction_cost"	=> "Compaction cost",
 	"numa_hit"			=> "NUMA alloc hit",
 	"numa_miss"			=> "NUMA alloc miss",
@@ -151,6 +152,7 @@ my @_fieldOrder = (
         "compact_isolated",
         "compact_migrate_scanned",
         "compact_free_scanned",
+	"mmtests_cscan_efficiency",
 	"mmtests_compaction_cost",
 	"compact_daemon_wake",
 	"compact_daemon_migrate_scanned",
@@ -414,6 +416,11 @@ sub extractReport($$$$) {
 		$vmstat{"mmtests_compact_efficiency"} = $vmstat{"compact_success"} * 100 / $vmstat{"compact_stall"};
 	}
 
+	# Compact scan efficiency
+	if ($vmstat{"compact_migrate_scanned"}) {
+		$vmstat{"mmtests_cscan_efficiency"} = $vmstat{"compact_migrate_scanned"} * 100 / $vmstat{"compact_free_scanned"};
+	}
+
 	# Pick order to display keys in
 	my @keys;
 	if ($rowOrientated) {
@@ -456,6 +463,7 @@ key:	foreach my $key (@keys) {
 		    $key eq "mmtests_direct_percentage" ||
 		    $key eq "mmtests_hint_local" ||
 		    $key eq "numa_hint_faults_local" ||
+		    $key eq "mmtests_cscan_efficiency" ||
 		    $key eq "mmtests_compact_efficiency") {
 			my $length = $fieldLength - 1;
 			push @format, "%${length}d%%";
