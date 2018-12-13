@@ -42,6 +42,7 @@ sub extractReport() {
 			if ($line =~ /^fault/) {
 				my @elements = split(/\s+/, $line);
 				push @{$self->{_ResultData}}, [ "fault-$elements[2]-$client", ++$faults, $elements[3] ];
+				push @{$self->{_ResultData}}, [ "fault-both-$client", ++$faults, $elements[3] ];
 				$seen{$elements[2]} = 1;
 			}
 		}
@@ -60,6 +61,9 @@ sub extractReport() {
 	}
 	foreach my $client (@clients) {
 		push @ops, "fault-huge-$client";
+	}
+	foreach my $client (@clients) {
+		push @ops, "fault-both-$client";
 	}
 
 	$self->{_Operations} = \@ops;
