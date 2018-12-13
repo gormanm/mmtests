@@ -147,8 +147,6 @@ my @_fieldOrder = (
 	"mmtests_compact_efficiency",
         "pgmigrate_success",
         "pgmigrate_fail",
-        "compact_pages_moved",
-        "compact_pagemigrate_failed",
         "compact_isolated",
         "compact_migrate_scanned",
         "compact_free_scanned",
@@ -462,7 +460,6 @@ key:	foreach my $key (@keys) {
 		    $key eq "mmtests_direct_efficiency" ||
 		    $key eq "mmtests_direct_percentage" ||
 		    $key eq "mmtests_hint_local" ||
-		    $key eq "numa_hint_faults_local" ||
 		    $key eq "mmtests_cscan_efficiency" ||
 		    $key eq "mmtests_compact_efficiency") {
 			my $length = $fieldLength - 1;
