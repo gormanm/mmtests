@@ -20,7 +20,8 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorLatency",
 		_DataType      => MMTests::Monitor::MONITOR_LATENCY,
-		_ResultData    => []
+		_ResultData    => [],
+		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -59,7 +60,7 @@ sub extractSummaryBreakdown() {
 
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}d" ];
-	$self->{_SummaryHeaders} = [ "Heading", "" ];
+	$self->{_SummaryHeaders} = [ "Statistic", "Value" ];
 
 	foreach my $option (split(/,/, $subHeading)) {
 		my ($type, $value) = split(/=/, $subHeading);
@@ -75,12 +76,12 @@ sub extractSummaryBreakdown() {
 		my @row = @{$rowRef};
 
 		# Ouch on memory usage but hey.
-		push @samples, $row[1];
+		push @samples, $row[2];
 
-		if ($row[1] < $min_latency) {
+		if ($row[2] < $min_latency) {
 			$min_samples++;
 		} else {
-			$stalled += $row[1];
+			$stalled += $row[2];
 		}
 	}
 
@@ -124,7 +125,7 @@ sub extractSummaryPercentages() {
 		my $lastBinsize = 0;
 
 		for ($i = 0; $i < $nr_binsizes; $i++) {
-			if ($row[1] < $binSizes[$i]) {
+			if ($row[2] < $binSizes[$i]) {
 				last;
 			}
 		}
@@ -179,8 +180,8 @@ sub extractReport($$$$) {
 	# TODO: Auto-discover lengths and handle multi-column reports
 	my $fieldLength = 16;
 	$self->{_FieldLength} = $self->{_SummaryLength} = $fieldLength;
-	$self->{_FieldHeaders} = [ "Time", "Latency" ];
-	$self->{_FieldFormat} = [ "%${fieldLength}f", "%${fieldLength}f" ];
+	$self->{_FieldHeaders} = [ "Op", "Time", "Latency" ];
+	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}f", "%${fieldLength}f" ];
 
 	$file = "$reportDir/".$self->{_Heading}."-$testName-$testBenchmark";
 	if (-e $file) {
@@ -201,12 +202,13 @@ sub extractReport($$$$) {
 
 		$count++;
 		if ($batch == 0) {
-			push @{$self->{_ResultData}},
-				[ $timestamp - $start_timestamp, $latency ];
+			push @{$self->{_ResultData}}, [ "latency",
+				$timestamp - $start_timestamp, $latency ];
 		} else {
 			if ($count % $batch == 0) {
 				push @{$self->{_ResultData}},
-					[ $last_timestamp - $start_timestamp,
+					[ "batch-latency",
+					  $last_timestamp - $start_timestamp,
 					  $cumulative_latency];
 				$cumulative_latency = 0;
 				$last_timestamp = $timestamp;
