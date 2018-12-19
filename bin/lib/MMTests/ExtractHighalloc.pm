@@ -1,8 +1,8 @@
 # ExtractHighalloc.pm
 package MMTests::ExtractHighalloc;
-use MMTests::Extract;
+use MMTests::SummariseSingleops;
 use MMTests::Stat;
-our @ISA = qw(MMTests::Extract);
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub new() {
@@ -16,14 +16,20 @@ sub new() {
 	return $self;
 }
 
-my @_workloads;
-
-sub printDataType() {
-	print "PercentageAllocated";
-}
-
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
+
+	$self->SUPER::initialise($reportDir, $testName);
+
+	my $fieldLength = $self->{_FieldLength} = 25;
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "", "%$fieldLength.2f" ];
+	$self->{_FieldHeaders} = [ "Workload", "Op" ];
+}
+
+sub extractReport() {
+	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($tm, $tput, $latency);
+	my @_workloads;
 	my $lastWorkload = "";
 
 	open(WORKLOG, "$reportDir/$profile/mmtests.log") || die("Failed to open mmtests.log");
@@ -36,36 +42,6 @@ sub initialise() {
 			$lastWorkload = $1;
 		}
 	}
-
-	$self->SUPER::initialise();
-
-	$self->{_TestName} = $testName;
-	my $fieldLength = $self->{_FieldLength} = 25;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f" ];
-	$self->{_FieldHeaders} = [ "Workload", "Op" ];
-	$self->{_SummaryLength} = 16;
-	$self->{_SummaryHeaders} = [ "Workload", "Op" ];
-}
-
-sub printSummary() {
-	my ($self, $subHeading) = @_;
-	$self->printReport();
-}
-
-sub printReport() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
-}
-
-sub extractSummary() {
-	my ($self) = @_;
-	$self->{_SummaryData} = $self->{_ResultData};
-	return 1;
-}
-
-sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
-	my ($tm, $tput, $latency);
 
 	foreach my $workload (@_workloads) {
 		my @files = <$reportDir/$profile/highalloc-$workload-*.log>;
@@ -89,9 +65,9 @@ sub extractReport() {
 			}
 			close(INPUT);
 		}
-		push @{$self->{_ResultData}}, [ "$workload-pass", $iterations ];
-		push @{$self->{_ResultData}}, [ "$workload-success", $nr_success * 100 / $nr_attempt ];
-		push @{$self->{_ResultData}}, [ "$workload-mean-lat", calc_mean(@latencies) ];
+		push @{$self->{_ResultData}}, [ "$workload-pass", 0, $iterations ];
+		push @{$self->{_ResultData}}, [ "$workload-success", 0, $nr_success * 100 / $nr_attempt ];
+		push @{$self->{_ResultData}}, [ "$workload-mean-lat", 0, calc_mean(@latencies) ];
 	}
 
 	return 1;
