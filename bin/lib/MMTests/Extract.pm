@@ -328,11 +328,7 @@ sub printPlot() {
 
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
-	my @formatList;
 	my $fieldLength = $self->{_FieldLength};
-	if (defined $self->{_FieldFormat}) {
-		@formatList = @{$self->{_FieldFormat}};
-	}
 
 	print "Unknown data type for summarising\n";
 
@@ -345,11 +341,7 @@ sub extractRatioSummary() {
 
 sub extractSummaryR() {
 	my ($self, $subHeading, $RstatsFile) = @_;
-	my @formatList;
 	my $fieldLength = $self->{_FieldLength};
-	if (defined $self->{_FieldFormat}) {
-		@formatList = @{$self->{_FieldFormat}};
-	}
 
 	open(INPUT, $RstatsFile) || die("Failed to open $RstatsFile\n");
 
@@ -387,11 +379,7 @@ sub extractSummaryR() {
 
 sub printSummary() {
 	my ($self, $subHeading) = @_;
-	my @formatList;
 	my $fieldLength = $self->{_FieldLength};
-	if (defined $self->{_FieldFormat}) {
-		@formatList = @{$self->{_FieldFormat}};
-	}
 
 	$self->extractSummary($subHeading);
 	$self->{_PrintHandler}->printRow($self->{_SummaryData}, $fieldLength, $self->{_FieldFormat});

@@ -119,11 +119,7 @@ sub printPlot() {
 
 sub printSummary() {
 	my ($self, $subHeading) = @_;
-	my @formatList;
 	my $fieldLength = $self->{_FieldLength};
-	if (defined $self->{_FieldFormat}) {
-		@formatList = @{$self->{_FieldFormat}};
-	}
 
 	$self->extractSummary($subHeading);
 	$self->{_PrintHandler}->printRow($self->{_SummaryData}, $fieldLength, $self->{_FieldFormat});
