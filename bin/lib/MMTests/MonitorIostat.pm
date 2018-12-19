@@ -51,63 +51,48 @@ sub printDataType() {
 
 sub extractSummary() {
 	my ($self, $subheading) = @_;
-	my @data = @{$self->{_ResultData}};
+	my %data = %{$self->dataByOperation()};
 
 	my $fieldLength = 12;
 	$self->{_SummaryHeaders} = [ "Statistic", "Mean", "Max" ];
         $self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.2f", ];
 
-	# Yes, this could be done as one pass. Could not be arsed as I'm
-	# playing settlers in 10 minutes.
 	foreach my $device (sort keys %devices) {
-		my (@avgqusz, @avgrqsz, @await, @r_await, @w_await, @svctm, @rrqm, @wrqm, @rkbs, @wkbs, @totalkbs);
+		my $mean_avgqusz;
+		my @units;
 
-		foreach my $rowRef (@data) {
-			my @row = @{$rowRef};
-
-			next if ($row[1] ne $device);
-
-			push @avgqusz, $row[2];
-			push @await,   $row[3];
-			push @r_await, $row[4];
-			push @w_await, $row[5];
-			push @svctm,   $row[6];
-			push @avgrqsz, $row[7];
-			push @rrqm,    $row[8];
-			push @wrqm,    $row[9];
-			push @rkbs,    $row[10];
-			push @wkbs,    $row[11];
-			push @totalkbs,$row[12];
+		foreach my $row (@{$data{"$device-avgqusz"}}) {
+			push @units, @{$row}[1];
 		}
 
-		my $mean_avgqusz = calc_mean(@avgqusz);
+		$mean_avgqusz = calc_mean(@units);
 		next if $mean_avgqusz < 0.01;
 
 		push @{$self->{_SummaryData}}, [ "$device-avgqusz",
-				 $mean_avgqusz, calc_max(@avgqusz) ];
-		push @{$self->{_SummaryData}}, [ "$device-avgrqsz",
-				 calc_mean(@avgrqsz), calc_max(@avgrqsz) ];
-		push @{$self->{_SummaryData}}, [ "$device-await",
-				 calc_mean(@await), calc_max(@await) ];
-		push @{$self->{_SummaryData}}, [ "$device-r_await",
-			 calc_mean(@r_await), calc_max(@r_await) ];
-		push @{$self->{_SummaryData}}, [ "$device-w_await",
-			 calc_mean(@w_await), calc_max(@w_await) ];
-		push @{$self->{_SummaryData}}, [ "$device-svctm",
-				 calc_mean(@svctm), calc_max(@svctm) ];
-		push @{$self->{_SummaryData}}, [ "$device-rrqm",
-				 calc_mean(@rrqm), calc_max(@rrqm) ];
-		push @{$self->{_SummaryData}}, [ "$device-wrqm",
-				 calc_mean(@wrqm), calc_max(@wrqm) ];
+			 $mean_avgqusz, calc_max(@units) ];
+		foreach my $op ("avgrqsz", "await", "r_await", "w_await",
+				"svctm", "rrqm", "wrqm") {
+			@units = ();
+			foreach my $row (@{$data{"$device-$op"}}) {
+				push @units, @{$row}[1];
+			}
+			push @{$self->{_SummaryData}}, [ "$device-$op",
+				calc_mean(@units), calc_max(@units) ];
+		}
 	}
 
 	return 1;
 }
 
 sub printPlot() {
-	my ($self) = @_;
-	$self->{_FieldFormat}[1] = "";
-	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
+	my ($self, $subHeading) = @_;
+	my %data = %{$self->dataByOperation()};
+
+	if ($subHeading eq "") {
+		$subHeading = "await";
+	}
+
+	$self->{_PrintHandler}->printRow($data{"$subHeading"}, $self->{_FieldLength}, $self->{_FieldFormat});
 }
 
 sub extractReport($$$) {
@@ -126,16 +111,11 @@ sub extractReport($$$) {
 
 	my $fieldLength = 12;
         $self->{_FieldLength} = $fieldLength;
-        $self->{_FieldHeaders} = [ "Time", "Device", "AvgQueueSz", "AWait", "R_AWait", "W_AWait", "SVCtm", "AvgRqSz", "Rrqm", "Wrqm", "Rkbs", "Wkbs", "Totalkbs" ];
-        $self->{_FieldFormat} = [ "%${fieldLength}.4f", "%${fieldLength}s",
-				  "%${fieldLength}.2f", "%${fieldLength}.2f",
-				  "%${fieldLength}.2f", "%${fieldLength}.2f",
-				  "%${fieldLength}.2f", "%${fieldLength}.2f",
-				  "%${fieldLength}.2f", "%${fieldLength}.2f",
-				  "%${fieldLength}.2f", "%${fieldLength}.2f" ];
+        $self->{_FieldHeaders} = [ "Op", "Time", "Value" ];
+        $self->{_FieldFormat} = ["%${fieldLength}s", "%${fieldLength}.4f", 
+				  "%${fieldLength}.2f" ];
 
 	my %samples;
-
 	while (<INPUT>) {
 		my @elements = split (/\s+/, $_);
 		my $timestamp = $elements[1];
@@ -245,16 +225,16 @@ sub extractReport($$$) {
 		}
 
 		if ($subHeading eq "") {
-			# Pushing time avgqu-sz await r_await w_await push
-			push @{$self->{_ResultData}}, [ $timestamp, $dev,
-					$iostat{"avgqusz"}, $iostat{"await"},
-					$iostat{"r_await"}, $iostat{"w_await"},
-					$iostat{"svctm"}, $iostat{"avgrqsz"},
-					$iostat{"rrqm"}, $iostat{"wrqm"} ];
+			foreach my $op ("avgqusz", "await", "r_await",
+			  "w_await", "svctm", "avgrqsz", "rrqm", "wrqm") {
+				push @{$self->{_ResultData}}, [ "$dev-$op",
+					$timestamp, $iostat{$op} ];
+			}
 		} else {
 			my @elements = split(/-/, $subHeading);
 			if ($elements[0] eq $dev) {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $iostat{$elements[1]} ];
+				push @{$self->{_ResultData}}, [ "$subHeading",
+					$timestamp, $iostat{$elements[1]} ];
 			}
 		}
 	} close INPUT;
