@@ -119,7 +119,7 @@ eval {
 	printWarning("Failed to compare module for benchmark $opt_benchmark\n$@");
 	exit(-1);
 };
-printVerbose("Loaded $nrModules compare modules\n");
+printVerbose("Loaded compare module\n");
 
 if ($opt_Rsummary) {
 	$compareModule->prepareForRSummary();
