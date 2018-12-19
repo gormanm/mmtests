@@ -409,7 +409,7 @@ sub _generateRenderRatioTable() {
 
 # Construct final table for printing
 sub _generateRenderTable() {
-	my ($self, $rowOrientated, $printSignificance, $subHeading) = @_;
+	my ($self, $printSignificance, $subHeading) = @_;
 	my @finalTable;
 	my @formatTable;
 	my @compareTable;
@@ -445,27 +445,20 @@ sub _generateRenderTable() {
 	$self->{_OperationLength} = $maxLength;
 
 	# Format string for source table rows
-	if (!$rowOrientated) {
-		$maxLength = 0;
-		for my $operation (@operations) {
-			my $length = length($operation);
-			if ($length > $maxLength) {
-				$maxLength = $length;
-			}
+	$maxLength = 0;
+	for my $operation (@operations) {
+		my $length = length($operation);
+		if ($length > $maxLength) {
+			$maxLength = $length;
 		}
-		push @formatTable, " %-${maxLength}s";
-		$self->{_OperationLength} += $maxLength + 1;
-	} else {
-		push @formatTable, "";
 	}
+	push @formatTable, " %-${maxLength}s";
+	$self->{_OperationLength} += $maxLength + 1;
 
 	# Build column format table
 	my %resultsTable = %{$self->{_ResultsTable}};
 	for (my $i = 0; $i <= scalar(@{$resultsTable{$operations[0]}}) + 1; $i++) {
-		my $fieldFormat = "ROW";
-		if (!$rowOrientated) {
-			$fieldFormat = "%${fieldLength}.${precision}f"
-		}
+		my $fieldFormat = "%${fieldLength}.${precision}f";
 		if (defined $self->{_CompareTable}) {
 			push @formatTable, ($fieldFormat, " (%${compareLength}.2f%%)");
 		} else {
@@ -540,37 +533,14 @@ sub saveJSONExport() {
 	close $fh;
 }
 
-sub _printComparisonRow() {
-	my ($self) = @_;
-	my @extractModules = @{$self->{_ExtractModules}};
-
-	$self->_generateRenderTable(1, 0);
-	$self->_generateHeaderTable(0);
-
-	$self->{_PrintHandler}->printHeaderRow($self->{_HeaderTable},
-		$self->{_FieldLength},
-		$self->{_HeaderFormat});
-	$self->{_PrintHandler}->printRow($self->{_RenderTable},
-		$self->{_FieldLength},
-		$self->{_FieldFormat},
-		$extractModules[0]->{_RowFieldFormat});
-}
-
 sub printComparison() {
 	my ($self, $printRatio, $printSignificance, $subHeading) = @_;
 	my @extractModules = @{$self->{_ExtractModules}};
 
-	if ($extractModules[0]->{_RowOrientated}) {
-		$self->{_PrintHandler}->printTop();
-		$self->_printComparisonRow();
-		$self->{_PrintHandler}->printBottom();
-		return;
-	}
-
 	if ($printRatio) {
 		$self->_generateRenderRatioTable($subHeading);
 	} else {
-		$self->_generateRenderTable(0, $printSignificance, $subHeading);
+		$self->_generateRenderTable($printSignificance, $subHeading);
 	}
 	$self->_generateHeaderTable($printSignificance);
 
