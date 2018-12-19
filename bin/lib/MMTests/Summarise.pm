@@ -65,18 +65,6 @@ sub initialise() {
 	$self->{_TestName} = $testName;
 }
 
-sub dataByOperation() {
-	my ($self) = @_;
-	my @data = @{$self->{_ResultData}};
-	my %result;
-
-	foreach my $rowref (@data) {
-		push @{$result{$rowref->[0]}}, [$rowref->[1], $rowref->[2]];
-	}
-
-	return \%result;
-}
-
 sub summaryOps() {
 	my ($self, $subHeading) = @_;
 	my @ops;

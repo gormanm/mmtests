@@ -400,4 +400,16 @@ sub printReport() {
 	print "Unknown data type for reporting extracted raw data\n";
 }
 
+sub dataByOperation() {
+	my ($self) = @_;
+	my @data = @{$self->{_ResultData}};
+	my %result;
+
+	foreach my $rowref (@data) {
+		push @{$result{$rowref->[0]}}, [$rowref->[1], $rowref->[2]];
+	}
+
+	return \%result;
+}
+
 1;
