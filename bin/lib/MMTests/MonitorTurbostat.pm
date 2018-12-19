@@ -135,8 +135,9 @@ sub extractReport() {
 		$file .= ".gz";
 		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
 	}
-	my $timestamp;
+	my $timestamp = 0;
 	my $start_timestamp = 0;
+	my $offset;
 	my @row;
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
@@ -144,39 +145,32 @@ sub extractReport() {
 		$line =~ s/^\s+//;
 		my @elements = split(/\s+/, $line);
 
-		if ($line =~ /Core\s+CPU/ || $line =~ /CPU\s+Avg_MHz/) {
-			if ($start_timestamp) {
-				push @{$self->{_ResultData}}, [ @row ];
-				$#row = -1;
-			}
-
-			if ($elements[3] eq "--") {
-				$timestamp = $elements[0];
-				if ($start_timestamp == 0) {
-					$start_timestamp = $elements[0];
-				}
-			} else {
-				$timestamp++;
-				if ($start_timestamp == 0) {
-					$timestamp = $start_timestamp = 1;
-				}
-			}
-			push @row, $timestamp - $start_timestamp;
-			next;
-		}
-
-		my $offset = 0;
+		# Monitor in with timestamps prepended?
 		if ($elements[3] eq "--") {
 			$offset = 4;
+		} else {
+			$offset = 0;
 		}
-		next if @elements[$offset] ne "-" && @elements[$offset] ne "-";
+		# We gather data only from the turbostat summary line
+		next if $elements[$offset] ne "-";
 
+		if ($elements[3] eq "--") {
+			$timestamp = $elements[0];
+		} else {
+			$timestamp++;
+		}
+		if ($start_timestamp == 0) {
+			$start_timestamp = $timestamp;
+		}
+		push @row, $timestamp - $start_timestamp;
 		foreach my $header (@fieldHeaders) {
 			next if ($header eq "Time");
 			if ($subHeading eq "" || $header eq $subHeading) {
 				push @row, $elements[$_colMap{$header}];
 			}
 		}
+		push @{$self->{_ResultData}}, [ @row ];
+		$#row = -1;
 	}
 	close(INPUT);
 }
