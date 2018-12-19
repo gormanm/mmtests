@@ -48,7 +48,7 @@ sub extractReport() {
 			}
 
 			if ($ops ne "") {
-				push @{$self->{_ResultData}}, [ $bench, $ops ];
+				push @{$self->{_ResultData}}, [ $bench, 0, $ops ];
 			}
 		}
 	}

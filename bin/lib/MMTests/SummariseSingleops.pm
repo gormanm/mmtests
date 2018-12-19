@@ -53,7 +53,7 @@ sub initialise() {
 
 	$self->SUPER::initialise($reportDir, $testName);
 
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}.2f" ];
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "", "%${fieldLength}.2f" ];
 	$self->{_FieldHeaders} = [ "Type", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
 
 	$self->{_SummaryLength} = 16;
@@ -95,7 +95,7 @@ sub extractSummary() {
 	$self->{_SummaryData} = {};
 	for my $row (@{$self->{_ResultData}}) {
 		my $op = $row->[0];
-		my $value = $row->[1];
+		my $value = $row->[2];
 		$self->{_SummaryData}->{$op} = [ $value ];
 	}
 	my @ops = map {$_ -> [0]} @{$self->{_ResultData}};
@@ -125,7 +125,7 @@ sub extractRatioSummary() {
 			next;
 		}
 		push @ops, @{$rowLine}[0];
-		$summaryData{$rowLine->[0]} = [$rowLine->[1]];
+		$summaryData{$rowLine->[0]} = [$rowLine->[2]];
 	}
 	$self->{_SummaryData} = \%summaryData;
 

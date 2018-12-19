@@ -27,7 +27,7 @@ sub extractReport() {
 		open(INPUT, "$reportDir/$profile/time-import-$import");
 		while (<INPUT>) {
 			next if $_ !~ /elapsed/;
-			push @{$self->{_ResultData}}, [ "$import", $self->_time_to_elapsed($_) ];
+			push @{$self->{_ResultData}}, [ "$import", 0, $self->_time_to_elapsed($_) ];
 		}
 		close(INPUT);
 	}

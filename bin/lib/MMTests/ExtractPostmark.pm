@@ -30,22 +30,22 @@ sub extractReport() {
 		my $line = $_;
 
 		if ($line =~ /seconds of transactions \(([0-9\.]+)/) {
-			push @{$self->{_ResultData}}, [ "Transactions", $1 ];
+			push @{$self->{_ResultData}}, [ "Transactions", 0, $1 ];
 		} elsif ($line =~ /megabytes read \(([0-9\.]+)/) {
-			push @{$self->{_ResultData}}, [ "DataRead/MB", $1 ];
+			push @{$self->{_ResultData}}, [ "DataRead/MB", 0, $1 ];
 		} elsif ($line =~ /megabytes written \(([0-9\.]+)/) {
-			push @{$self->{_ResultData}}, [ "DataWrite/MB", $1 ];
+			push @{$self->{_ResultData}}, [ "DataWrite/MB", 0, $1 ];
 		} elsif ($line =~ /Creation alone:.*\(([0-9\.]+)/) {
-			push @{$self->{_ResultData}}, [ "FilesCreate", $1 ];
+			push @{$self->{_ResultData}}, [ "FilesCreate", 0, $1 ];
 			$recent = 1;
 		} elsif ($line =~ /Deletion alone:.*\(([0-9\.]+)/) {
-			push @{$self->{_ResultData}}, [ "FilesDeleted", $1 ];
+			push @{$self->{_ResultData}}, [ "FilesDeleted", 0, $1 ];
 			$recent = 2;
 		} elsif ($line =~ /Mixed with transactions.*\(([0-9\.]+)/) {
 			if ($recent == 1) {
-				push @{$self->{_ResultData}}, [ "CreateTransact", $1 ];
+				push @{$self->{_ResultData}}, [ "CreateTransact", 0, $1 ];
 			} elsif ($recent == 2) {
-				push @{$self->{_ResultData}}, [ "DeleteTransact", $1 ];
+				push @{$self->{_ResultData}}, [ "DeleteTransact", 0, $1 ];
 			}
 		}
 	}

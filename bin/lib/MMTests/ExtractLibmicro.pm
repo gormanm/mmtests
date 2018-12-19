@@ -30,7 +30,7 @@ sub extractReport() {
 		while (<INPUT>) {
 			my @elements = split(/\s+/);
 			if ($_ =~ /^#\s+mean of 95.*/) {
-				push @{$self->{_ResultData}}, [ "mean95-$testname", $elements[-1]];
+				push @{$self->{_ResultData}}, [ "mean95-$testname", 0, $elements[-1]];
 				push @ops, "mean95-$testname";
 				next;
 			}

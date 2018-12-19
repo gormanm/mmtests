@@ -11,7 +11,7 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractVmscale";
 	$self->{_DataType} = DataTypes::DATA_TIME_SECONDS;
 	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%$fieldLength.2f" ];
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "", "%$fieldLength.2f" ];
 	$self->{_FieldHeaders} = [ "Test-Metric", "Value" ];
 	$self->{_SingleType} = 1;
 
@@ -39,7 +39,7 @@ sub extractReport() {
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;
 			next if $line !~ /elapsed/;
-			push @{$self->{_ResultData}}, [ "$case-elapsed", $self->_time_to_elapsed($line) ];
+			push @{$self->{_ResultData}}, [ "$case-elapsed", 0, $self->_time_to_elapsed($line) ];
 			$ops{"$case-elapsed"} = 1;
 		}
 		close(INPUT);
@@ -54,8 +54,8 @@ sub extractReport() {
 				next if $line !~ /elapsed/;
 				push @values, $self->_time_to_elapsed($line);
 			}
-			push @{$self->{_ResultData}}, [ "$case-time_range",  calc_range(@values) ];
-			push @{$self->{_ResultData}}, [ "$case-time_stddv", calc_stddev(@values) ];
+			push @{$self->{_ResultData}}, [ "$case-time_range", 0, calc_range(@values) ];
+			push @{$self->{_ResultData}}, [ "$case-time_stddv", 0, calc_stddev(@values) ];
 		}
 
 		close(INPUT);

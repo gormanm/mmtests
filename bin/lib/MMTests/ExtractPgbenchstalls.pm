@@ -71,17 +71,17 @@ sub extractReport() {
 		}
 		close INPUT;
 
-		push @{$self->{_ResultData}}, [ "NrStalls-$client", $#values + 1];
+		push @{$self->{_ResultData}}, [ "NrStalls-$client", 0, $#values + 1];
 		if ($#values >= 0) {
-			push @{$self->{_ResultData}}, [ "MinStall-$client", calc_min(@values) ];
-			push @{$self->{_ResultData}}, [ "AvgStall-$client", calc_mean(@values) ];
-			push @{$self->{_ResultData}}, [ "MaxStall-$client", calc_max(@values) ];
-			push @{$self->{_ResultData}}, [ "TotStall-$client", calc_sum(@values) ];
+			push @{$self->{_ResultData}}, [ "MinStall-$client", 0, calc_min(@values) ];
+			push @{$self->{_ResultData}}, [ "AvgStall-$client", 0, calc_mean(@values) ];
+			push @{$self->{_ResultData}}, [ "MaxStall-$client", 0, calc_max(@values) ];
+			push @{$self->{_ResultData}}, [ "TotStall-$client", 0, calc_sum(@values) ];
 		} else {
-			push @{$self->{_ResultData}}, [ "MinStall-$client", 0 ];
-			push @{$self->{_ResultData}}, [ "AvgStall-$client", 0 ];
-			push @{$self->{_ResultData}}, [ "MaxStall-$client", 0 ];
-			push @{$self->{_ResultData}}, [ "TotStall-$client", 0 ];
+			push @{$self->{_ResultData}}, [ "MinStall-$client", 0, 0 ];
+			push @{$self->{_ResultData}}, [ "AvgStall-$client", 0, 0 ];
+			push @{$self->{_ResultData}}, [ "MaxStall-$client", 0, 0 ];
+			push @{$self->{_ResultData}}, [ "TotStall-$client", 0, 0 ];
 		}
 	}
 }

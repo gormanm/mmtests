@@ -55,7 +55,7 @@ sub extractReport() {
 	foreach my $heading ("User", "System", "Elapsed", "CPU") {
 		foreach my $key (sort(keys %times)) {
 			if ($key =~ /$heading-/) {
-				push @{$self->{_ResultData}}, [ $key, $times{$key} ];
+				push @{$self->{_ResultData}}, [ $key, 0, $times{$key} ];
 			}
 		}
 	}

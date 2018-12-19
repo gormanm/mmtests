@@ -38,7 +38,7 @@ sub extractReport() {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			next if $_ !~ /elapsed/;
-			push @{$self->{_ResultData}}, [ $client, $self->_time_to_elapsed($_) ];
+			push @{$self->{_ResultData}}, [ $client, 0, $self->_time_to_elapsed($_) ];
 		}
 		close(INPUT);
 	}

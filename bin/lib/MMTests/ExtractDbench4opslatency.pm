@@ -77,7 +77,7 @@ sub extractReport() {
 
 				my @elements = split(/\s+/, $line);
 				if ($dbench_ops{$elements[1]} == 1) {
-					push @{$self->{_ResultData}}, [ "$header-$elements[1]-$client", $elements[$index] ];
+					push @{$self->{_ResultData}}, [ "$header-$elements[1]-$client", 0, $elements[$index] ];
 				}
 			}
 			close INPUT;

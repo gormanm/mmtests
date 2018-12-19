@@ -20,8 +20,8 @@ sub extractReport() {
 		die("Failed to open $reportDir/$profile/time-install.log");
 	while (<INPUT>) {
 		next if $_ !~ /elapsed/;
-		push @{$self->{_ResultData}}, [ "Sys",     $self->_time_to_sys($_) ];
-		push @{$self->{_ResultData}}, [ "Elapsed", $self->_time_to_elapsed($_) ];
+		push @{$self->{_ResultData}}, [ "Sys",     0, $self->_time_to_sys($_) ];
+		push @{$self->{_ResultData}}, [ "Elapsed", 0, $self->_time_to_elapsed($_) ];
 	}
 	$self->{_Operations} = [ "Sys", "Elapsed"];
 }
