@@ -9,8 +9,8 @@ sub new() {
 	my $self = {
 		_ModuleName    => "Mmtestsvmstat",
 		_DataType      => MMTests::Monitor::MONITOR_VMSTAT,
-		_RowOrientated => 1,
-		_ResultData    => []
+		_ResultData    => [],
+		_MultiopMonitor => 1,
 	};
 	bless $self, $class;
 	return $self;
@@ -33,9 +33,9 @@ my %_fieldNameMap = (
 	"mmtests_kswapd_scan"		=> "Kswapd pages scanned",
 	"mmtests_kswapd_steal"		=> "Kswapd pages reclaimed",
 	"mmtests_direct_steal"		=> "Direct pages reclaimed",
-	"mmtests_kswapd_efficiency"	=> "Kswapd efficiency",
+	"mmtests_kswapd_efficiency"	=> "Kswapd efficiency %",
 	"mmtests_kswapd_velocity"	=> "Kswapd velocity",
-	"mmtests_direct_efficiency"	=> "Direct efficiency",
+	"mmtests_direct_efficiency"	=> "Direct efficiency %",
 	"mmtests_direct_velocity"	=> "Direct velocity",
 	"mmtests_direct_percentage"	=> "Percentage direct scans",
 	"mmtests_highmem_velocity"	=> "Zone highmem velocity",
@@ -78,7 +78,7 @@ my %_fieldNameMap = (
 	"numa_huge_pte_updates"		=> "NUMA huge PMD updates",
 	"mmtests_numa_pte_updates"	=> "NUMA page range updates",
 	"numa_hint_faults"		=> "NUMA hint faults",
-	"numa_hint_faults_local"	=> "NUMA hint local faults",
+	"numa_hint_faults_local"	=> "NUMA hint local faults %",
 	"mmtests_hint_local"		=> "NUMA hint local percent",
 	"numa_pages_migrated"		=> "NUMA pages migrated",
 	"mmtests_autonuma_cost"		=> "AutoNUMA cost",
@@ -100,7 +100,6 @@ my %_renamed_fields = (
 );
 
 my @_fieldOrder = (
-	"blank",
 	"mmtests_minor_faults",
 	"pgmajfault",
         "pswpin",
@@ -419,67 +418,25 @@ sub extractReport($$$$) {
 		$vmstat{"mmtests_cscan_efficiency"} = $vmstat{"compact_migrate_scanned"} * 100 / $vmstat{"compact_free_scanned"};
 	}
 
-	# Pick order to display keys in
-	my @keys;
-	if ($rowOrientated) {
-		@keys = @_fieldOrder;
-	} else {
-		@keys = sort keys %vmstat;
-	}
-
 	my $fieldLength = 0;
-	my (@headers, @fields, @format);
-	my $count = 0;
-key:	foreach my $key (@keys) {
+key:	foreach my $key (@_fieldOrder) {
 		my $keyName = $key;
 		my $suppress = 0;
 
-		if ($rowOrientated && $_fieldNameMap{$key}) {
-			$keyName = $_fieldNameMap{$key};
-		}
-		push @headers, $keyName;
-		push @fields, $vmstat{$key};
+		my $keyName = $_fieldNameMap{$key};
+		push @{$self->{_ResultData}}, [ $keyName, 0, $vmstat{$key} ];
 
 		# Work out the length of the largest field
-		my $length = length($key);
+		my $length = length($keyName);
 		if ($length > $fieldLength) {
 			$fieldLength = $length;
 		}
-		$count++;
 	}
 	$fieldLength++;
 
-	# Override the field length if requested. In practice this happens when the
-	# columns of one table are being turned into the rows of the other.
-	if ($rowOrientated) {
-		$fieldLength = 12;
-	}
-
-	foreach my $key (@keys) {
-		if ($key eq "mmtests_kswapd_efficiency" ||
-		    $key eq "mmtests_direct_efficiency" ||
-		    $key eq "mmtests_direct_percentage" ||
-		    $key eq "mmtests_hint_local" ||
-		    $key eq "mmtests_cscan_efficiency" ||
-		    $key eq "mmtests_compact_efficiency") {
-			my $length = $fieldLength - 1;
-			push @format, "%${length}d%%";
-		} elsif ($key eq "mmtests_kswapd_velocity" ||
-			 $key eq "mmtests_direct_velocity" ||
-			 $key eq "mmtests_movable_velocity" ||
-			 $key eq "mmtests_highmem_velocity" ||
-			 $key eq "mmtests_normal_velocity" ||
-			 $key eq "mmtests_dma32_velocity" ||
-			 $key eq "mmtests_dma_velocity") {
-			push @format, "%${fieldLength}.3f";
-		} else {
-			push @format, "%${fieldLength}d";
-		}
-	}
-	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldHeaders} = \@headers;
-	$self->{_RowFieldFormat} = \@format;
-	push @{$self->{_ResultData}}, \@fields;
+	$self->{_FieldLength} = 15;
+	$self->{_FieldHeaders} = [ "Op", "Value" ];
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "", "%12.2f" ];
 }
 
 1;
