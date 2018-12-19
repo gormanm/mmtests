@@ -36,19 +36,6 @@ sub testcompare() {
 	return $blksizea <=> $blksizeb;
 }
 
-sub _calcStats() {
-	my ($self, $prevop, $subHeading, $ops) = @_;
-	my @row;
-
-	push @row, "$prevop-$subHeading";
-	foreach my $funcName ("calc_min", "calc_mean", "calc_stddev", "calc_max") {
-		no strict "refs";
-		push @row, &$funcName(@{$ops})
-	}
-
-	push @{$self->{_SummaryData}}, \@row;
-}
-
 sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
 
