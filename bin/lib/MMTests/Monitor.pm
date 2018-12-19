@@ -39,22 +39,7 @@ sub new() {
 
 sub printReport() {
 	my ($self) = @_;
-	if ($self->{_DataType} == MONITOR_CPUTIME_SINGLE ||
-	    $self->{_DataType} == MONITOR_PROCVMSTAT ||
-	    $self->{_DataType} == MONITOR_LATENCY ||
-	    $self->{_DataType} == MONITOR_TOP ||
-	    $self->{_DataType} == MONITOR_IOTOP ||
-	    $self->{_DataType} == MONITOR_FTRACE ||
-	    $self->{_DataType} == MONITOR_IOSTAT ||
-	    $self->{_DataType} == MONITOR_PERFTIMESTAT ||
-	    $self->{_DataType} == MONITOR_SYSCALLS ||
-	    $self->{_DataType} == MONITOR_KCACHE ||
-	    $self->{_DataType} == MONITOR_VMSTAT ||
-	    $self->{_DataType} == MONITOR_PROCNETDEV) {
-		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
-	} else {
-		print "Unknown data type for reporting monitor raw data\n";
-	}
+	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 }
 
 sub printPlot() {
