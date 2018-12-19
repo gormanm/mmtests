@@ -9,8 +9,8 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorTop",
 		_DataType      => MMTests::Monitor::MONITOR_TOP,
-		_RowOrientated => 1,
-		_ResultData    => []
+		_ResultData    => [],
+		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -65,8 +65,8 @@ sub extractReport($$$$) {
 	# TODO: Auto-discover lengths and handle multi-column reports
 	my $fieldLength = 12;
 	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldHeaders} = [ "time", $subHeading ];
-	$self->{_FieldFormat} = [ "%${fieldLength}d", "%${fieldLength}f" ];
+	$self->{_FieldHeaders} = [ "Op", "Time", "Value" ];
+	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}d", "%${fieldLength}f" ];
 
 	my $file = "$reportDir/top-$testName-$testBenchmark";
 	if (-e $file) {
@@ -91,7 +91,8 @@ sub extractReport($$$$) {
 						$val = 0;
 					}
 					push @{$self->{_ResultData}},
-						[ $timestamp - $start_timestamp,
+						[ "$subHeading",
+						$timestamp - $start_timestamp,
 					  	$val
 						];
 				}
