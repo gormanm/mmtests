@@ -90,6 +90,7 @@ sub ftraceInit {
 	%latencyState = ();
 
 	$self->{_FieldLength} = 12;
+	$self->{_FieldFormat} = [ "%-$self->{_FieldLength}s", "", "%$self->{_FieldLength}d" ];
 	$self->{_FtraceCounters} = \@ftraceCounters;
 	$self->{_PerProcessStats} = \%perprocessStats;
 }
@@ -142,7 +143,7 @@ sub ftraceCallback {
 		if ($latencyState{$pidprocess}) {
 			$delayed = $timestamp_ms - $latencyState{$pidprocess};
 			if ($delayed > $delay_threshold) {
-				push @{$self->{_ResultData}}, [ ($latencyState{$pidprocess} - $self->{_StartTimestampMs}) / 1000, $delayed ];
+				push @{$self->{_ResultData}}, [ "delay", ($latencyState{$pidprocess} - $self->{_StartTimestampMs}) / 1000, $delayed ];
 			}
 		}
 		$latencyState{$pidprocess} = 0;
@@ -154,7 +155,6 @@ sub extractSummary() {
 	my @data = @{$self->{_ResultData}};
 
 	my $fieldLength = $self->{_FieldLength} = 12;
-	$self->{_RowOrientated} = 0;
 	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.4f", ];
 	$self->{_SummaryLength} = 12;
 	$self->{_SummaryHeaders} = [ "Latency", "" ];
@@ -167,10 +167,10 @@ sub extractSummary() {
 
 	my @units;
 	foreach my $row (@data) {
-		push @units, @{$row}[1];
+		push @units, @{$row}[2];
 
 		for (my $i = 0; $i <= $#thresholds; $i++) {
-			if (@{$row}[1] >= $thresholds[$i] && ($i == $#thresholds || @{$row}[1] < $thresholds[$i+1])) {
+			if (@{$row}[2] >= $thresholds[$i] && ($i == $#thresholds || @{$row}[2] < $thresholds[$i+1])) {
 				$samples[$i]++;
 			}
 		}

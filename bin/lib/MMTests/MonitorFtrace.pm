@@ -9,8 +9,8 @@ sub new() {
 	my $self = {
 		_ModuleName  => "MonitorFtrace",
 		_DataType    => MMTests::Monitor::MONITOR_FTRACE,
-		_RowOrientated => 1,
-		_ResultData  => []
+		_ResultData  => [],
+		_MultiopMonitor => 1,
 	};
 	bless $self, $class;
 	return $self;

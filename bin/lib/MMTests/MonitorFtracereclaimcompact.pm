@@ -451,14 +451,11 @@ sub ftraceReport {
 			$keyName = $_fieldNameMap{$keyName};
 		}
 
-		push @headers, $keyName;
-		push @fields, @$ftraceCounterRef[$key];
-		push @format, "%12d";
+		push @{$self->{_ResultData}}, [ $keyName, 0, $ftraceCounterRef->[$key] ];
 	}
 
-	$self->{_FieldHeaders} = \@headers;
-	$self->{_RowFieldFormat} = \@format;
-	push @{$self->{_ResultData}}, \@fields;
+	$self->{_FieldHeaders} = [ "Op", "Value" ];
+	$self->{_FieldFormat} = [ "%-$self->{_FieldLength}s", "", "%12d" ];
 }
 
 1;
