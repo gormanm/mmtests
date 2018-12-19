@@ -9,8 +9,8 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorProcvmstat",
 		_DataType      => MMTests::Monitor::MONITOR_PROCVMSTAT,
-		_RowOrientated => 1,
-		_ResultData    => []
+		_ResultData    => [],
+		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -392,8 +392,8 @@ sub extractReport($$$$) {
 	# TODO: Auto-discover lengths and handle multi-column reports
 	my $fieldLength = 12;
 	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldHeaders} = [ "time", $subHeading ];
-	$self->{_FieldFormat} = [ "%${fieldLength}d", "%${fieldLength}d" ];
+	$self->{_FieldHeaders} = [ "Op", "Time", "Value" ];
+	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}d", "%${fieldLength}d" ];
 
 	my $file = "$reportDir/proc-vmstat-$testName-$testBenchmark";
 	if (-e $file) {
@@ -411,7 +411,7 @@ sub extractReport($$$$) {
 				$start_timestamp = $timestamp;
 			} else {
 				push @{$self->{_ResultData}},
-					[ $timestamp - $start_timestamp,
+					[ $subHeading, $timestamp - $start_timestamp,
 					  $self->parseVMStat($vmstat, $subHeading)
 					];
 				$vmstat = "";
