@@ -7,6 +7,7 @@ package MMTests::Monitor;
 
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
+use parent MMTests::Extract;
 use constant MONITOR_CPUTIME_SINGLE	=> 1;
 use constant MONITOR_VMSTAT		=> 2;
 use constant MONITOR_PROCVMSTAT		=> 3;
@@ -36,47 +37,6 @@ sub new() {
 	return $self;
 }
 
-sub getModuleName() {
-	my ($self) = @_;
-	return $self->{_ModuleName};
-}
-
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-	my (@fieldHeaders);
-	my $fieldLength = 12;
-
-	$self->{_FieldLength}  = $fieldLength if !defined($self->{_FieldLength});
-	$self->{_FieldHeaders} = \@fieldHeaders;
-	$self->{_TestName} = $testName;
-}
-
-sub setFormat() {
-	my ($self, $format) = @_;
-	if ($format eq "html") {
-		$self->{_PrintHandler} = MMTests::PrintHtml->new();
-	} else {
-		$self->{_PrintHandler} = MMTests::PrintGeneric->new();
-	}
-}
-
-sub printReportTop() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printTop();
-}
-
-sub printReportBottom() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printBottom();
-}
-
-sub printFieldHeaders() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printHeaders(
-		$self->{_FieldLength}, $self->{_FieldHeaders},
-		$self->{_FieldHeaderFormat});
-}
-
 sub printReport() {
 	my ($self) = @_;
 	if ($self->{_DataType} == MONITOR_CPUTIME_SINGLE ||
@@ -97,28 +57,9 @@ sub printReport() {
 	}
 }
 
-sub printSummaryHeaders() {
-	my ($self) = @_;
-	if (defined $self->{_SummaryLength}) {
-		$self->{_PrintHandler}->printHeaders(
-			$self->{_SummaryLength}, $self->{_SummaryHeaders},
-			$self->{_FieldHeaderFormat});
-	} else {
-		$self->printFieldHeaders();
-	}
-}
-
 sub printPlot() {
         my ($self, $subheading) = @_;
 	$self->printSummary($subheading);
-}
-
-sub printSummary() {
-	my ($self, $subHeading) = @_;
-	my $fieldLength = $self->{_FieldLength};
-
-	$self->extractSummary($subHeading);
-	$self->{_PrintHandler}->printRow($self->{_SummaryData}, $fieldLength, $self->{_FieldFormat});
 }
 
 sub extractSummary() {
