@@ -12,7 +12,7 @@ sub initialise() {
 	$self->{_DataType} = DataTypes::DATA_TIME_SECONDS;
 	$self->{_TestName} = $testName;
 	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders} = [ "Test", "Metric", "Value" ];
+	$self->{_FieldHeaders} = [ "Test-Metric", "Value" ];
 	$self->{_SingleType} = 1;
 
 	$self->SUPER::initialise($reportDir, $testName);

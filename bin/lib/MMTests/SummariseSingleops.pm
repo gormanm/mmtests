@@ -53,8 +53,8 @@ sub initialise() {
 
 	$self->SUPER::initialise($reportDir, $testName);
 
-	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
-	$self->{_FieldHeaders} = [ "Type", "Sample", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}.2f" ];
+	$self->{_FieldHeaders} = [ "Type", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
 
 	$self->{_SummaryLength} = 16;
 	$self->{_SummaryHeaders} = [ $self->{_Opname} ? $self->{_Opname} : "Ops"  ];
