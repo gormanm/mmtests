@@ -9,8 +9,8 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorVmstat",
 		_DataType      => MMTests::Monitor::MONITOR_VMSTAT,
-		_RowOrientated => 1,
-		_ResultData    => []
+		_ResultData    => [],
+		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -94,12 +94,12 @@ sub extractReport($$$$) {
 	# TODO: Auto-discover lengths and handle multi-column reports
 	my $fieldLength = 12;
 	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldHeaders} = [ "time", $subHeading ];
+	$self->{_FieldHeaders} = [ "Op", "Time", "Value" ];
 
 	if ($subHeading eq "ussy") {
-		$self->{_FieldFormat} = [ "%${fieldLength}f", "%${fieldLength}f" ];
+		$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}f", "%${fieldLength}f" ];
 	} else {
-		$self->{_FieldFormat} = [ "%${fieldLength}f", "%${fieldLength}d" ];
+		$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}f", "%${fieldLength}d" ];
 	}
 
 	my $file = "$reportDir/vmstat-$testName-$testBenchmark";
@@ -156,10 +156,7 @@ sub extractReport($$$$) {
 			}
 		}
 
-		push @{$self->{_ResultData}},
-			[ $timestamp - $start_timestamp,
-		  	  $val
-			];
+		push @{$self->{_ResultData}}, [ $subHeading, $timestamp - $start_timestamp, $val ];
 	}
 }
 
