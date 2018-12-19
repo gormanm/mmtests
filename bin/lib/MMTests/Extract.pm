@@ -385,16 +385,6 @@ sub printSummary() {
 	$self->{_PrintHandler}->printRow($self->{_SummaryData}, $fieldLength, $self->{_FieldFormat});
 }
 
-sub _printClientReport() {
-	my ($self, $reportDir, @clients) = @_;
-	my @data = @{$self->{_ResultData}};
-
-	my $fieldLength = $self->{_FieldLength};
-	foreach my $client (@clients) {
-		$self->{_PrintHandler}->printRow($data[$client], $fieldLength, $self->{_FieldFormat}, "%-${fieldLength}d", $client);
-	}
-}
-
 sub printReport() {
 	my ($self) = @_;
 	print "Unknown data type for reporting extracted raw data\n";

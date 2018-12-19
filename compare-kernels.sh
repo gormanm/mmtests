@@ -624,9 +624,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		;;
 	specjbb)
 		echo $SUBREPORT
-		$COMPARE_CMD
-		echo $SUBREPORT Peaks
-		cache-mmtests.sh compare-mmtests.pl -d . -b specjbbpeak -n $KERNEL_LIST $FORMAT_CMD
+		eval $COMPARE_CMD
 		;;
 	speccpu2017-*-build)
 		echo $SUBREPORT
