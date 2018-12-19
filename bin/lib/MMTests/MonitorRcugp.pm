@@ -10,7 +10,8 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorRcugp",
 		_DataType      => MMTests::Monitor::MONITOR_READLATENCY,
-		_ResultData    => []
+		_ResultData    => [],
+		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -29,9 +30,8 @@ sub initialise() {
 
 	my $fieldLength = 12;
 	$self->{_FieldLength} = 12;
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%-${fieldLength}s", "%${fieldLength}d" ];
-	$self->{_FieldHeaders} = [ "time", "rcu", "completedInterval", "completedCumulative" ];
-	$self->{_SummaryHeaders} = [ "Statistic", "Mean", "Max", "Total" ];
+	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.2f", "%${fieldLength}d" ];
+	$self->{_FieldHeaders} = [ "Flavor", "Time", "completedCumulative" ];
 	$self->{_TestName} = $testName;
 }
 
@@ -39,7 +39,7 @@ my %rcuFlavours;
 
 sub extractSummary() {
 	my ($self, $subheading) = @_;
-	my @data = @{$self->{_ResultData}};
+	my %data = %{$self->dataByOperation()};
 
 	my $fieldLength = 12;
 	$self->{_SummaryHeaders} = [ "Statistic", "Mean", "Max", "Total" ];
@@ -47,20 +47,24 @@ sub extractSummary() {
 
 	foreach my $rcuFlavour (sort keys %rcuFlavours) {
 		my @gpCompleted;
-		my $totalCompleted;
+		my ($lastTime, $lastCompleted);
 
-		foreach my $rowRef (@data) {
+		$lastTime = 0;
+		$lastCompleted = 0;
+		foreach my $rowRef (@{$data{$rcuFlavour}}) {
 			my @row = @{$rowRef};
-			next if ($row[1] ne $rcuFlavour);
 
-			push @gpCompleted, $row[2];
-			$totalCompleted = $row[3];
+			if ($row[1] > 0) {
+				push @gpCompleted, ($row[2] - $lastCompleted) / ($row[1] - $lastTime);
+			}
+			$lastTime = $row[1];
+			$lastCompleted = $row[2];
 		}
 
 		my $meanCompleted  = calc_mean(@gpCompleted);
 		my $maxCompleted   = calc_max(@gpCompleted);
 
-		push @{$self->{_SummaryData}}, [ "$rcuFlavour-gpCompleted", $meanCompleted, $maxCompleted, $totalCompleted ];
+		push @{$self->{_SummaryData}}, [ "$rcuFlavour-gpCompleted", $meanCompleted, $maxCompleted, $lastCompleted ];
 	}
 
 	return 1;
@@ -86,10 +90,9 @@ sub extractReport($$$$) {
 				if (defined $lastGrace{"timestamp"}) {
 					my $nrSeconds = $thisGrace{"timestamp"} - $lastGrace{"timestamp"};
 					push @{$self->{_ResultData}},
-						[ $thisGrace{"timestamp"} - $startTimestamp,
-					  	$rcuFlavour,
-					  	($thisGrace{"$rcuFlavour-gpCompleted"} - $lastGrace{"$rcuFlavour-gpCompleted"}) / $nrSeconds,
-						$thisGrace{"$rcuFlavour-gpCompleted"} - $firstGrace{"$rcuFlavour-gpCompleted"} ];
+						[ $rcuFlavour,
+						  $thisGrace{"timestamp"} - $startTimestamp,
+						  $thisGrace{"$rcuFlavour-gpCompleted"} - $firstGrace{"$rcuFlavour-gpCompleted"} ];
 				}
 			}
 			%lastGrace = %thisGrace;
