@@ -185,7 +185,8 @@ sub extractReport($$$) {
 		}
 
 		# Record times
-		my ($avgqusz, $avgrqsz, $await, $r_await, $w_await, $svctm, $rrqm, $wrqm, $rkbs, $wkbs, $totalkbs);
+		my ($dev, $avgqusz, $avgrqsz, $await, $r_await, $w_await, $svctm, $rrqm, $wrqm, $rkbs, $wkbs, $totalkbs);
+		$dev = $elements[5];
 		if ($format_type == 0) {
 			# format 0: Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
 			$rrqm = $elements[6];
@@ -238,39 +239,39 @@ sub extractReport($$$) {
 			next;
 		}
 
-		$samples{$elements[5]}++;
-		if ($samples{$elements[5]} == 1) {
+		$samples{$dev}++;
+		if ($samples{$dev} == 1) {
 			next;
 		}
 
 		if ($subHeading eq "") {
 			# Pushing time avgqu-sz await r_await w_await push
-			push @{$self->{_ResultData}}, [ $timestamp, $elements[5],
+			push @{$self->{_ResultData}}, [ $timestamp, $dev,
 					$avgqusz, $await, $r_await, $w_await,
 					$svctm, $avgrqsz, $rrqm, $wrqm ];
 		} else {
-			if ($subHeading eq "$elements[5]-avgqusz") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $avgqusz ];
-			} elsif ($subHeading eq "$elements[5]-avgrqsz") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $avgrqsz ];
-			} elsif ($subHeading eq "$elements[5]-await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $await ];
-			} elsif ($subHeading eq "$elements[5]-r_await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $r_await ];
-			} elsif ($subHeading eq "$elements[5]-w_await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $w_await ];
-			} elsif ($subHeading eq "$elements[5]-svctm") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $svctm ];
-			} elsif ($subHeading eq "$elements[5]-rrqm") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $rrqm ];
-			} elsif ($subHeading eq "$elements[5]-wrqm") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $wrqm ];
-			} elsif ($subHeading eq "$elements[5]-rkbs") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $rkbs ];
-			} elsif ($subHeading eq "$elements[5]-wkbs") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $wkbs ];
-			} elsif ($subHeading eq "$elements[5]-totalkbs") {
-				push @{$self->{_ResultData}}, [ $timestamp, $elements[5], $totalkbs ];
+			if ($subHeading eq "$dev-avgqusz") {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $avgqusz ];
+			} elsif ($subHeading eq "$dev-avgrqsz") {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $avgrqsz ];
+			} elsif ($subHeading eq "$dev-await") {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $await ];
+			} elsif ($subHeading eq "$dev-r_await") {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $r_await ];
+			} elsif ($subHeading eq "$dev-w_await") {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $w_await ];
+			} elsif ($subHeading eq "$dev-svctm") {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $svctm ];
+			} elsif ($subHeading eq "$dev-rrqm") {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $rrqm ];
+			} elsif ($subHeading eq "$dev-wrqm") {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $wrqm ];
+			} elsif ($subHeading eq "$dev-rkbs") {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $rkbs ];
+			} elsif ($subHeading eq "$dev-wkbs") {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $wkbs ];
+			} elsif ($subHeading eq "$dev-totalkbs") {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $totalkbs ];
 			}
 		}
 	} close INPUT;
