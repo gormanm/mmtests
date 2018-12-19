@@ -10,7 +10,8 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorSyscalls",
 		_DataType      => MMTests::Monitor::MONITOR_SYSCALLS,
-		_ResultData    => []
+		_ResultData    => [],
+		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -21,8 +22,8 @@ sub initialise() {
 
         my $fieldLength = 24;
         $self->{_FieldLength} = $fieldLength;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%-${fieldLength}s", "%${fieldLength}.2f" ];
-	$self->{_FieldHeaders} = [ "Source", "Mean" ];
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}.2f", "%${fieldLength}.2f" ];
+	$self->{_FieldHeaders} = [ "Thread", "Time", "Count" ];
         $self->SUPER::initialise($reportDir, $testName);
 }
 
@@ -48,31 +49,24 @@ my %activity;
 
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
-	my @data = @{$self->{_ResultData}};
+	my %data = %{$self->dataByOperation()};
 
 	my $fieldLength = 24;
 
-	my @headers;
-	my @summaryRow;
-	push @headers, "dummy";
-	push @summaryRow, "mean";
+	$self->{_SummaryHeaders} = [ "Thread", "Mean" ];
+	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.2f" ];
+
 	foreach my $thread (sort keys %activity) {
 		my @event;
 
-		push @headers, $thread;
-
-		foreach my $rowRef (@data) {
+		foreach my $rowRef (@{$data{$thread}}) {
 			my @row = @{$rowRef};
-			next if ($row[1] ne $thread);
 
-			push @event, $row[2];
+			push @event, $row[1];
 		}
 
-		push @summaryRow, calc_mean(@event);
+		push @{$self->{_SummaryData}}, [ $thread, calc_mean(@event) ];
 	}
-
-	push @{$self->{_SummaryData}}, \@summaryRow;
-	$self->{_SummaryHeaders} = \@headers;
 
 	return 1;
 }
@@ -115,7 +109,7 @@ sub extractReport($$$$) {
 			} else {
 				foreach my $thread (sort keys %totalEvents) {
 					push @{$self->{_ResultData}},
-						[ $timestamp - $start_timestamp, $thread, $totalEvents{$thread} ];
+						[ $thread, $timestamp - $start_timestamp, $totalEvents{$thread} ];
 				}
 				$timestamp = $1;
 			}
