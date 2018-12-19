@@ -46,10 +46,6 @@ sub initialise() {
 	my (@fieldHeaders);
 	my $fieldLength = 12;
 
-	if ($self->{_DataType} == MONITOR_CPUTIME_SINGLE) {
-		$fieldLength = 12;
-		@fieldHeaders = ("", "User", "System", "Elapsed");
-	}
 	$self->{_FieldLength}  = $fieldLength if !defined($self->{_FieldLength});
 	$self->{_FieldHeaders} = \@fieldHeaders;
 	$self->{_TestName} = $testName;

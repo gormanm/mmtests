@@ -20,6 +20,9 @@ sub extractReport($$$) {
 
 	my $file = "$reportDir/tests-timestamp-$testName";
 
+	$self->{_FieldLength} = 12;
+	$self->{_FieldHeaders} = ["", "User", "System", "Elapsed"];
+
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		if ($_ =~ /^time \:\: $testBenchmark (.*)/) {
