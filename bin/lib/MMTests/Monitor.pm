@@ -44,13 +44,28 @@ sub printReport() {
 
 sub printPlot() {
         my ($self, $subheading) = @_;
+
+	# Monitors with multiop format have operation name in column 0. Ignore it.
+	if ($self->{_MultiopMonitor}) {
+		$self->{_FieldFormat}->[0] = "";
+	}
 	$self->printSummary($subheading);
 }
 
 sub extractSummary() {
 	my ($self) = @_;
-	$self->{_SummaryData} = $self->{_ResultData};
-	$self->{_SummaryHeaders} = $self->{_FieldHeaders};
+
+	if ($self->{_MultiopMonitor}) {
+		# Drop second column for summarization
+		foreach my $rowRef (@{$self->{_ResultData}}) {
+			push @{$self->{_SummaryData}}, [ $rowRef->[0], $rowRef->[2] ];
+		}
+		$self->{_SummaryHeaders} = [ "", "" ];
+		$self->{_FieldFormat} = [ $self->{_FieldFormat}->[0], $self->{_FieldFormat}->[2] ];
+	} else {
+		$self->{_SummaryData} = $self->{_ResultData};
+		$self->{_SummaryHeaders} = $self->{_FieldHeaders};
+	}
 	return 1;
 }
 

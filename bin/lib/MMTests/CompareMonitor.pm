@@ -321,6 +321,8 @@ sub _generateRenderTable() {
 
 	# Format string for source table rows
 	if (!$rowOrientated) {
+		my $separator = "";
+
 		$maxLength = 0;
 		for (my $row = 0; $row <= $#baseline; $row++) {
 			my $length = length($baseline[$row][0]);
@@ -328,8 +330,12 @@ sub _generateRenderTable() {
 				$maxLength = $length;
 			}
 		}
-		push @formatTable, " %-${maxLength}s";
-		$self->{_OperationLength} += $maxLength + 1;
+		
+		if ($self->{_OperationLength} > 0) {
+			$separator = " ";
+		}
+		push @formatTable, $separator."%-${maxLength}s";
+		$self->{_OperationLength} += $maxLength + length($separator);
 	} else {
 		push @formatTable, "";
 	}
