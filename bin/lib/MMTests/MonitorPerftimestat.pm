@@ -24,69 +24,43 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-my @fieldHeaders = ();
 my %_colMap;
 
 sub printDataType() {
-	my ($self) = @_;
-	my $headingName = $self->{_HeadingName};
+	my ($self, $subHeading) = @_;
 
-	if ($headingName eq "cpu-migrations") {
+	if ($subHeading eq "cpu-migrations") {
 		print "CPU Migrations,Events,Migrations\n";
-	} elsif ($headingName eq "context-switches") {
+	} elsif ($subHeading eq "context-switches") {
 		print "Context Switches,Time,Context Switches\n";
-	} elsif ($headingName eq "task-clock") {
+	} elsif ($subHeading eq "task-clock") {
 		print "Task Clock,Time,Task Clock\n";
-	} elsif ($headingName eq "page-faults") {
+	} elsif ($subHeading eq "page-faults") {
 		print "Page Faults,Events,Page Faults\n";
-	} elsif ($headingName eq "cycles") {
+	} elsif ($subHeading eq "cycles") {
 		print "Cycles,Events,Cycles\n";
-	} elsif ($headingName eq "instructions") {
+	} elsif ($subHeading eq "instructions") {
 		print "Instructions,Events,Instructions\n";
-	} elsif ($headingName eq "branches") {
+	} elsif ($subHeading eq "branches") {
 		print "Branches,Events,Branches\n";
-	} elsif ($headingName eq "branch-misses") {
+	} elsif ($subHeading eq "branch-misses") {
 		print "Branch Misses,Events,Branch Misses";
 	}
 }
 
 sub extractSummary() {
 	my ($self, $subheading) = @_;
-	my @data = @{$self->{_ResultData}};
+	my %data = %{$self->dataByOperation()};
 
 	my $fieldLength = 18;
 	$self->{_SummaryHeaders} = [ "Statistic", "Mean", "Max" ];
 	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.2f", ];
 
-	# Array of potential headers and the samples
-	my @headerCounters;
-	my $index = 1;
-	$headerCounters[0] = [];
-	foreach my $header (@fieldHeaders) {
-		next if $index == 0;
-		$headerCounters[$index] = [];
-		$index++;
-	}
+	foreach my $header (keys %data) {
+		my @samples = map {$_ -> [2]} @{$data{$header}};
 
-	# Collect the samples
-	foreach my $rowRef (@data) {
-		my @row = @{$rowRef};
-
-		$index = 1;
-		foreach my $header (@fieldHeaders) {
-			next if $index == 0;
-			push @{$headerCounters[$index]}, $row[$index];
-			$index++;
-		}
-	}
-
-	# Summarise
-	$index = 1;
-	foreach my $header (@fieldHeaders) {
 		push @{$self->{_SummaryData}}, [ "$header",
-			 calc_mean(@{@headerCounters[$index]}), calc_max(@{@headerCounters[$index]}) ];
-
-		$index++;
+			 calc_mean(@samples), calc_max(@samples) ];
 	}
 
 	return 1;
@@ -111,71 +85,26 @@ sub extractReport($$$$) {
 		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
 	}
 
-	# Read what counters ar active
-	my $reading = 0;
-	my $headingIndex = 0;
-	if ($#fieldHeaders == -1) {
-COLRD:		while (!eof(INPUT)) {
-			my $line = <INPUT>;
-			if ($line =~ /Performance counter stats for.*/) {
-				$reading = 1;
-				next;
-			}
-			next if $reading != 1;
-			if ($line =~ /\s+([0-9,.]+)\s+([A-Za-z-]+).*/ && $line !~ /seconds time elapsed/) {
-				$_colMap{$2} = ++$headingIndex;
-				push @fieldHeaders, $2;
-			}
-			if ($line =~ /seconds time elapsed/) {
-				last COLRD;
-			}
-		}
-	}
 
-	# Reopen file. Cannot seek a pipe
-	my $file = "$reportDir/perf-time-stat-$testName-$testBenchmark";
-	close(INPUT);
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
-
-	if ($subHeading ne "") {
-		$self->{_FieldHeaders}  = [ "", "$subHeading" ];
-		if (!defined $_colMap{$subHeading}) {
-			die("Unrecognised heading $subHeading");
-		}
-		my $headingIndex = $_colMap{$subHeading};
-		$self->{_HeadingIndex} = $_colMap{$subHeading};
-		$self->{_HeadingName} = $subHeading;
-	} else {
-		$self->{_FieldHeaders}  = \@fieldHeaders;
+	$self->{_FieldHeaders}  = [ "Op", "Time", "Value" ];
+	if (!defined $_colMap{$subHeading}) {
+		die("Unrecognised heading $subHeading");
 	}
 
 	# Read all counters
 	my $timestamp;
 	my $start_timestamp = 0;
-	my @row;
-	$headingIndex = 0;
-	$reading = 0;
+	my $reading = 0;
+
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 
 		if ($line =~ /^time: ([0-9]+)/) {
-			if ($start_timestamp) {
-				push @{$self->{_ResultData}}, [ @row ];
-				$#row = -1;
-			}
-
 			$reading = 0;
 			$timestamp = $1;
 			if ($start_timestamp == 0) {
 				$start_timestamp = $timestamp;
 			}
-			push @row, $timestamp - $start_timestamp;
-			$headingIndex = 0;
 		}
 
 		if ($line =~ /Performance counter stats for.*/) {
@@ -184,12 +113,12 @@ COLRD:		while (!eof(INPUT)) {
 		}
 		next if $reading != 1;
 		if ($line =~ /\s+([0-9,\.]+)\s+([A-Za-z-]+).*/) {
-			my $counter = $1;
+			my ($counter, $heading) = ($1, $2);
+
+			next if ($subHeading ne "" && $heading ne $subHeading);
+
 			$counter =~ s/,//g;
-			$headingIndex++;
-			if ($subHeading eq "" || $self->{_HeadingIndex} == $headingIndex) {
-				push @row, $counter;
-			}
+			push @{$self->{_ResultData}}, [ $heading, $timestamp - $start_timestamp, $counter ];
 		}
 	}
 }
