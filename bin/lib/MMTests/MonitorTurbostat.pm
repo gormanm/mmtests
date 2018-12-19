@@ -77,8 +77,8 @@ sub extractSummary() {
 	return 1;
 }
 
-sub extractReport($$$$) {
-	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
+sub extractReport() {
+	my ($self, $reportDir, $testName, $testBenchmark, $subHeading) = @_;
 	my $timestamp;
 	my $start_timestamp = 0;
 
@@ -123,9 +123,6 @@ sub extractReport($$$$) {
 		if (!defined $_colMap{$subHeading}) {
 			die("Unrecognised heading $subHeading");
 		}
-		my $headingIndex = $_colMap{$subHeading};
-		$self->{_HeadingIndex} = $_colMap{$subHeading};
-		$self->{_HeadingName} = $subHeading;
 	} else {
 		$self->{_FieldHeaders}  = \@fieldHeaders;
 	}
@@ -138,7 +135,6 @@ sub extractReport($$$$) {
 		$file .= ".gz";
 		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
 	}
-	my $reading = 0;
 	my $timestamp;
 	my $start_timestamp = 0;
 	my @row;
@@ -154,7 +150,6 @@ sub extractReport($$$$) {
 				$#row = -1;
 			}
 
-			$reading = 0;
 			if ($elements[3] eq "--") {
 				$timestamp = $elements[0];
 				if ($start_timestamp == 0) {
@@ -167,13 +162,9 @@ sub extractReport($$$$) {
 				}
 			}
 			push @row, $timestamp - $start_timestamp;
-		}
-
-		if ($line =~ /Core\s+CPU/ || $line =~ /CPU\s+Avg_MHz/) {
-			$reading = 1;
 			next;
 		}
-		next if $reading != 1;
+
 		my $offset = 0;
 		if ($elements[3] eq "--") {
 			$offset = 4;
