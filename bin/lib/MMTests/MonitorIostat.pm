@@ -185,57 +185,57 @@ sub extractReport($$$) {
 		}
 
 		# Record times
-		my ($dev, $avgqusz, $avgrqsz, $await, $r_await, $w_await, $svctm, $rrqm, $wrqm, $rkbs, $wkbs, $totalkbs);
+		my ($dev, %iostat);
 		$dev = $elements[5];
 		if ($format_type == 0) {
 			# format 0: Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util
-			$rrqm = $elements[6];
-			$wrqm = $elements[7];
-			$rkbs = $elements[10];
-			$wkbs = $elements[11];
-			$totalkbs = $rkbs + $wkbs;
-			$avgrqsz = $elements[12];
-			$avgqusz = $elements[13];
-			$await = $elements[14];
-			$r_await = -1;
-			$w_await = -1;
-			$svctm = $elements[15];
+			$iostat{"rrqm"} = $elements[6];
+			$iostat{"wrqm"} = $elements[7];
+			$iostat{"rkbs"} = $elements[10];
+			$iostat{"wkbs"} = $elements[11];
+			$iostat{"totalkbs"} = $iostat{"rkbs"} + $iostat{"wkbs"};
+			$iostat{"avgrqsz"} = $elements[12];
+			$iostat{"avgqusz"} = $elements[13];
+			$iostat{"await"} = $elements[14];
+			$iostat{"r_await"} = -1;
+			$iostat{"w_await"} = -1;
+			$iostat{"svctm"} = $elements[15];
 		} elsif ($format_type == 1) {
 			# format 1: Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
-			$rrqm = $elements[6];
-			$wrqm = $elements[7];
-			$rkbs = $elements[10];
-			$wkbs = $elements[11];
-			$totalkbs = $rkbs + $wkbs;
-			$avgrqsz = $elements[12];
-			$avgqusz = $elements[13];
-			$await = $elements[14];
-			$r_await = $elements[15];
-			$w_await = $elements[16];
-			$svctm = $elements[17];
+			$iostat{"rrqm"} = $elements[6];
+			$iostat{"wrqm"} = $elements[7];
+			$iostat{"rkbs"} = $elements[10];
+			$iostat{"wkbs"} = $elements[11];
+			$iostat{"totalkbs"} = $iostat{"rkbs"} + $iostat{"wkbs"};
+			$iostat{"avgrqsz"} = $elements[12];
+			$iostat{"avgqusz"} = $elements[13];
+			$iostat{"await"} = $elements[14];
+			$iostat{"r_await"} = $elements[15];
+			$iostat{"w_await"} = $elements[16];
+			$iostat{"svctm"} = $elements[17];
 		} elsif ($format_type == 2) {
 			#           5                 6       7       8         9       10       11      12     13    14      15      16     17       18        19     20
 			# format 2: Device            r/s     w/s     rkB/s     wkB/s   rrqm/s   wrqm/s  %rrqm  %wrqm r_await w_await aqu-sz rareq-sz wareq-sz  svctm  %util
-			$rrqm = $elements[10];
-			$wrqm = $elements[11];
-			$rkbs = $elements[8];
-			$wkbs = $elements[9];
-			$totalkbs = $rkbs + $wkbs;
-			$avgqusz = $elements[16];
-			$r_await = $elements[14];
-			$w_await = $elements[15];
-			$svctm = $elements[19];
+			$iostat{"rrqm"} = $elements[10];
+			$iostat{"wrqm"} = $elements[11];
+			$iostat{"rkbs"} = $elements[8];
+			$iostat{"wkbs"} = $elements[9];
+			$iostat{"totalkbs"} = $iostat{"rkbs"} + $iostat{"wkbs"};
+			$iostat{"avgqusz"} = $elements[16];
+			$iostat{"r_await"} = $elements[14];
+			$iostat{"w_await"} = $elements[15];
+			$iostat{"svctm"} = $elements[19];
 
 			# Approximations :(
-			$await = ($r_await + $w_await) / 2;
-			$avgrqsz = ($elements[17] + $elements[18]) / 2;
+			$iostat{"await"} = ($iostat{"r_await"} + $iostat{"w_await"}) / 2;
+			$iostat{"avgrqsz"} = ($elements[17] + $elements[18]) / 2;
 		}
 
 		# Filter out insane values
-		if ($avgqusz > 1000000 ||
-		    $await > 3600000 ||
-		    $r_await > 3600000 ||
-		    $w_await > 3600000) {
+		if ($iostat{"avgqusz"} > 1000000 ||
+		    $iostat{"await"} > 3600000 ||
+		    $iostat{"r_await"} > 3600000 ||
+		    $iostat{"w_await"} > 3600000) {
 			next;
 		}
 
@@ -247,31 +247,14 @@ sub extractReport($$$) {
 		if ($subHeading eq "") {
 			# Pushing time avgqu-sz await r_await w_await push
 			push @{$self->{_ResultData}}, [ $timestamp, $dev,
-					$avgqusz, $await, $r_await, $w_await,
-					$svctm, $avgrqsz, $rrqm, $wrqm ];
+					$iostat{"avgqusz"}, $iostat{"await"},
+					$iostat{"r_await"}, $iostat{"w_await"},
+					$iostat{"svctm"}, $iostat{"avgrqsz"},
+					$iostat{"rrqm"}, $iostat{"wrqm"} ];
 		} else {
-			if ($subHeading eq "$dev-avgqusz") {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $avgqusz ];
-			} elsif ($subHeading eq "$dev-avgrqsz") {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $avgrqsz ];
-			} elsif ($subHeading eq "$dev-await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $await ];
-			} elsif ($subHeading eq "$dev-r_await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $r_await ];
-			} elsif ($subHeading eq "$dev-w_await") {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $w_await ];
-			} elsif ($subHeading eq "$dev-svctm") {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $svctm ];
-			} elsif ($subHeading eq "$dev-rrqm") {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $rrqm ];
-			} elsif ($subHeading eq "$dev-wrqm") {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $wrqm ];
-			} elsif ($subHeading eq "$dev-rkbs") {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $rkbs ];
-			} elsif ($subHeading eq "$dev-wkbs") {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $wkbs ];
-			} elsif ($subHeading eq "$dev-totalkbs") {
-				push @{$self->{_ResultData}}, [ $timestamp, $dev, $totalkbs ];
+			my @elements = split(/-/, $subHeading);
+			if ($elements[0] eq $dev) {
+				push @{$self->{_ResultData}}, [ $timestamp, $dev, $iostat{$elements[1]} ];
 			}
 		}
 	} close INPUT;
