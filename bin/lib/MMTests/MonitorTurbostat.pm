@@ -30,48 +30,32 @@ sub printDataType() {
 }
 
 sub printPlot() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
+	my ($self, $subHeading) = @_;
+	my %data = %{$self->dataByOperation()};
+
+	if ($subHeading eq "") {
+		$subHeading = "Avg_MHz";
+	}
+	$self->{_PrintHandler}->printRow($data{"$subHeading"}, $self->{_FieldLength}, $self->{_FieldFormat});
 }
 
 sub extractSummary() {
 	my ($self, $subheading) = @_;
-	my @data = @{$self->{_ResultData}};
+	my %data = %{$self->dataByOperation()};
 
 	my $fieldLength = 18;
 	$self->{_SummaryHeaders} = [ "Statistic", "Mean", "Max" ];
 	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.2f", ];
 
-	# Array of potential headers and the samples
-	shift @fieldHeaders;
-	my @headerCounters;
-	my $index = 1;
-	$headerCounters[0] = [];
 	foreach my $header (@fieldHeaders) {
-		next if $index == 0;
-		$headerCounters[$index] = [];
-		$index++;
-	}
+		my @units;
 
-	# Collect the samples
-	foreach my $rowRef (@data) {
-		my @row = @{$rowRef};
-
-		$index = 1;
-		foreach my $header (@fieldHeaders) {
-			next if $index == 0;
-			push @{$headerCounters[$index]}, $row[$index];
-			$index++;
+		foreach my $row (@{$data{$header}}) {
+			push @units, @{$row}[1];
 		}
-	}
 
-	# Summarise
-	$index = 1;
-	foreach my $header (@fieldHeaders) {
 		push @{$self->{_SummaryData}}, [ "$header",
-			 calc_mean(@{@headerCounters[$index]}), calc_max(@{@headerCounters[$index]}) ];
-
-		$index++;
+			 calc_mean(@units), calc_max(@units) ];
 	}
 
 	return 1;
@@ -115,16 +99,15 @@ sub extractReport() {
 		close(INPUT);
 		@fieldHeaders = sort keys %_colMap;
 	}
-	unshift @fieldHeaders, "Time";
 
 	# Fill in the headers
 	if ($subHeading ne "") {
-		$self->{_FieldHeaders}  = [ "", "$subHeading" ];
 		if (!defined $_colMap{$subHeading}) {
 			die("Unrecognised heading $subHeading");
 		}
+		$self->{_FieldHeaders}  = [ "Op", "Time", "$subHeading" ];
 	} else {
-		$self->{_FieldHeaders}  = \@fieldHeaders;
+		$self->{_FieldHeaders}  = [ "Op", "Time", "Value" ];
 	}
 
 	# Read all counters
@@ -138,7 +121,6 @@ sub extractReport() {
 	my $timestamp = 0;
 	my $start_timestamp = 0;
 	my $offset;
-	my @row;
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 
@@ -162,15 +144,14 @@ sub extractReport() {
 		if ($start_timestamp == 0) {
 			$start_timestamp = $timestamp;
 		}
-		push @row, $timestamp - $start_timestamp;
 		foreach my $header (@fieldHeaders) {
-			next if ($header eq "Time");
 			if ($subHeading eq "" || $header eq $subHeading) {
-				push @row, $elements[$_colMap{$header}];
+				push @{$self->{_ResultData}},
+					[ "$header",
+					$timestamp - $start_timestamp,
+					$elements[$_colMap{$header}]];
 			}
 		}
-		push @{$self->{_ResultData}}, [ @row ];
-		$#row = -1;
 	}
 	close(INPUT);
 }
