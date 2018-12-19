@@ -49,7 +49,7 @@ sub extractReport() {
 				}
 
 				if ($line =~ /[0-9]+: ([0-9.]+): IO Summary:\s+([0-9]+) ops, ([0-9.]+) ops.*/) {
-					push @{$self->{_ResultData}}, [ "$case-$client", ++$iteration, $3 ];
+					$self->addData("$case-$client", ++$iteration, $3);
 					if ($iteration == 1) {
 						push @ops, "$case-$client";
 					}

@@ -36,7 +36,7 @@ sub extractReport() {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;
-				push @{$self->{_ResultData}}, [ "sys-$kernel", ++$nr_samples, $self->_time_to_sys($_) ];
+				$self->addData("sys-$kernel", ++$nr_samples, $self->_time_to_sys($_));
 			}
 			close(INPUT);
 		}
@@ -49,7 +49,7 @@ sub extractReport() {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;
-				push @{$self->{_ResultData}}, [ "elspd-$kernel", ++$nr_samples, $self->_time_to_elapsed($_) ];
+				$self->addData("elspd-$kernel", ++$nr_samples, $self->_time_to_elapsed($_));
 			}
 			close(INPUT);
 		}

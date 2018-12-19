@@ -112,7 +112,7 @@ sub extractReport() {
 				$included = "";
 			}
 			$warehouses{$warehouse}++;
-			push @{$self->{_ResultData}}, [ "tput-$warehouse", $warehouses{$warehouse}, $throughput ];
+			$self->addData("tput-$warehouse", $warehouses{$warehouse}, $throughput);
 		}
 	}
 

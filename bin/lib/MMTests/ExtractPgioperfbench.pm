@@ -49,7 +49,7 @@ sub extractReport() {
 					$start_time = $time;
 				}
 			}
-			push @{$self->{_ResultData}}, [ $op, $time - $start_time, $max ];
+			$self->addData($op, $time - $start_time, $max );
 
 		}
 	}

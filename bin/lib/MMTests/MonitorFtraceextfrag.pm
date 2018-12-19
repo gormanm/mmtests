@@ -97,7 +97,7 @@ sub ftraceReport {
 			$keyName = $_fieldNameMap{$keyName};
 		}
 
-		push @{$self->{_ResultData}}, [ $keyName, 0, $ftraceCounterRef->[$key] ];
+		$self->addData($keyName, 0, $ftraceCounterRef->[$key] );
 	}
 
 	$self->{_FieldHeaders} = [ "Op", "Value" ];

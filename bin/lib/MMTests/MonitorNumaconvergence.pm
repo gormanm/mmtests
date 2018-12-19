@@ -137,11 +137,9 @@ sub extractReport($$$$$) {
 			if ($vmstat ne "") {
 				$self->parseVMStat($vmstat);
 				$vmstat = "";
-				push @{$self->{_ResultData}},
-					[ "convergence",
+				$self->addData("convergence",
 					  $timestamp - $start_timestamp,
-					  $self->currentConvergence()
-					];
+					  $self->currentConvergence());
 			}
 			next;
 		}

@@ -39,7 +39,7 @@ sub extractReport() {
 				}
 			}
 			close INPUT;
-			push @{$self->{_ResultData}}, [ "Rsec-$client", $iteration, $records ];
+			$self->addData("Rsec-$client", $iteration, $records);
 		}
 	}
 

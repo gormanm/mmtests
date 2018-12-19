@@ -45,7 +45,7 @@ sub extractReport() {
 
 		my $i = 0;
 		foreach my $value (@elements) {
-			push @{$self->{_ResultData}}, [ "cpu$cpus[$i]-$metric", 0, $value ];
+			$self->addData("cpu$cpus[$i]-$metric", 0, $value);
 			$i++;
 		}
 	}

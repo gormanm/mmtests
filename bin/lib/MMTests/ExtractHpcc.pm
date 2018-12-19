@@ -29,7 +29,7 @@ sub extractReport() {
 
 			foreach my $metric (@metric_list) {
 				if ($line =~ /^$metric=(.*)/) {
-					push @{$self->{_ResultData}}, [ "$metric", $iteration, $1 ];
+					$self->addData("$metric", $iteration, $1);
 				}
 			}
 		}

@@ -46,8 +46,8 @@ sub extractReport() {
 					if ($elements[6] =~ /#/) {
 						$elements[6] = -1;
 					}
-					push @{$self->{_ResultData}}, [ "$op-avglat-$client", $iteration, $elements[6] ];
-					push @{$self->{_ResultData}}, [ "$op-maxlat-$client", $iteration, $elements[7] ];
+					$self->addData("$op-avglat-$client", $iteration, $elements[6]);
+					$self->addData("$op-maxlat-$client", $iteration, $elements[7]);
 					$reading = 0;
 					next;
 				}

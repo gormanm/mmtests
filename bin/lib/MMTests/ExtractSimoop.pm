@@ -55,17 +55,17 @@ sub extractReport() {
 			$fp95{$op} = $p95;
 			$fp99{$op} = $p99;
 
-			push @{$self->{_ResultData}}, [ "p50-$op", $timestamp, $p50 ];
-			push @{$self->{_ResultData}}, [ "p95-$op", $timestamp, $p95 ];
-			push @{$self->{_ResultData}}, [ "p99-$op", $timestamp, $p99 ];
+			$self->addData("p50-$op", $timestamp, $p50);
+			$self->addData("p95-$op", $timestamp, $p95);
+			$self->addData("p99-$op", $timestamp, $p99);
 		}
 
 	}
 	close(INPUT);
 	for my $op ("Read", "Write", "Allocation") {
-		push @{$self->{_ResultData}}, [ "final-p50-$op", $timestamp, $fp50{$op} ];
-		push @{$self->{_ResultData}}, [ "final-p95-$op", $timestamp, $fp95{$op} ];
-		push @{$self->{_ResultData}}, [ "final-p99-$op", $timestamp, $fp99{$op} ];
+		$self->addData("final-p50-$op", $timestamp, $fp50{$op});
+		$self->addData("final-p95-$op", $timestamp, $fp95{$op});
+		$self->addData("final-p99-$op", $timestamp, $fp99{$op});
 	}
 
 	$self->{_Operations} = [

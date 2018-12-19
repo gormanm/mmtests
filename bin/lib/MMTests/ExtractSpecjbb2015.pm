@@ -49,13 +49,13 @@ sub extractReport() {
 		my $line = $_;
 
 		if ($line =~ /jbb2015.result.metric.max-jOPS = ([0-9]+)/) {
-			push @{$self->{_ResultData}}, [ "Max-JOPS", 0, $1 ];
+			$self->addData("Max-JOPS", 0, $1);
 		}
 		if ($line =~ /jbb2015.result.metric.critical-jOPS = ([0-9]+)/) {
-			push @{$self->{_ResultData}}, [ "Critical-JOPS", 0, $1 ];
+			$self->addData("Critical-JOPS", 0, $1);
 		}
 		if ($line =~ /jbb2015.result.SLA-([0-9]+)-jOPS = ([0-9]+)/) {
-			push @{$self->{_ResultData}}, [ "SLA-$1us", 0, $2 ];
+			$self->addData("SLA-$1us", 0, $2);
 		}
 	}
 	close INPUT;

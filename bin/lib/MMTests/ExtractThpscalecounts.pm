@@ -52,9 +52,9 @@ sub extractReport() {
 		close INPUT;
 
 		if ($huge + $base != 0) {
-			push @{$self->{_ResultData}}, [ "huge-$client", 0, $huge * 100 / ($huge + $base) ];
+			$self->addData("huge-$client", 0, $huge * 100 / ($huge + $base) );
 		} else {
-			push @{$self->{_ResultData}}, [ "huge-$client", 0, -1 ];
+			$self->addData("huge-$client", 0, -1);
 		}
 	}
 

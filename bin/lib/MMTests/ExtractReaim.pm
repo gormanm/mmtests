@@ -41,7 +41,7 @@ sub extractReport() {
 			while (<INPUT>) {
 				my $line = $_;
 				@elements = split(/,/, $line);
-				push @{$self->{_ResultData}}, [ "$worktitle-$elements[0]", $iteration, $elements[$index] ];
+				$self->addData("$worktitle-$elements[0]", $iteration, $elements[$index]);
 				if ($iteration == 1) {
 					push @{$self->{_Operations}}, "$worktitle-$elements[0]";
 				}

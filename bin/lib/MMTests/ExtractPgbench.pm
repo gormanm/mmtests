@@ -71,7 +71,7 @@ sub extractReport() {
 					if ($trans == 0) {
 						$trans = 1;
 					}
-					push @{$self->{_ResultData}}, [ $client, $elements[0] - $testStart, $trans ];
+					$self->addData($client, $elements[0] - $testStart, $trans );
 					$thisBatch = 0;
 					$sumTransactions = 0;
 					$nr_readings++;
@@ -85,7 +85,7 @@ sub extractReport() {
 			while (!eof(INPUT)) {
 				my $line = <INPUT>;
 				if ($line =~ /^tps = ([0-9.]+) \(including.*/) {
-					push @{$self->{_ResultData}}, [ $client, 0, $1 ];
+					$self->addData($client, 0, $1);
 				}
 			}
 			close INPUT;

@@ -108,8 +108,9 @@ sub extractReport($$$$) {
 				$start_timestamp = $timestamp;
 			} else {
 				foreach my $thread (sort keys %totalEvents) {
-					push @{$self->{_ResultData}},
-						[ $thread, $timestamp - $start_timestamp, $totalEvents{$thread} ];
+					$self->addData($thread,
+						$timestamp - $start_timestamp,
+						$totalEvents{$thread});
 				}
 				$timestamp = $1;
 			}

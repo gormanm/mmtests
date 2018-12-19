@@ -30,7 +30,7 @@ sub extractReport() {
 		next if $line !~ /[0-9,]+ pages \(([0-9,.]+)\/sec\),/;
 		my $val = $1;
 		$val =~ s/,//;
-		push @{$self->{_ResultData}}, ["Pages/sec", $nr_sample++, $val];
+		$self->addData("Pages/sec", $nr_sample++, $val);
 	}
 
 	$self->{_Operations} = [ "Pages/sec" ];

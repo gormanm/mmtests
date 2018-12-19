@@ -29,7 +29,7 @@ sub extractReport() {
 				$line =~ /thirdquartile_TEPS: ([0-9e.+]*)/) {
 			my $mteps = $1 / 1e+6;
 			$iteration++;
-			push @{$self->{_ResultData}}, [ "megaTEPS", $iteration, $mteps ];
+			$self->addData("megaTEPS", $iteration, $mteps);
 		}
 	}
 	close (INPUT);

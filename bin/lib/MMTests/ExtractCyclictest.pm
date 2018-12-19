@@ -23,8 +23,8 @@ sub extractReport() {
 		while (<INPUT>) {
 			next if ($_ !~ /^T.*Avg:\s+([0-9]+).*Max:\s+([0-9]+)/);
 			$iteration++;
-			push @{$self->{_ResultData}}, [ "LatAvg", $iteration, $1];
-			push @{$self->{_ResultData}}, [ "LatMax", $iteration, $2];
+			$self->addData("LatAvg", $iteration, $1);
+			$self->addData("LatMax", $iteration, $2);
 		}
 		close INPUT;
 	}

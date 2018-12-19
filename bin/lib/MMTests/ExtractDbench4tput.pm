@@ -52,7 +52,7 @@ sub extractReport() {
 			if ($line =~ /sec  execute/) {
 				my @elements = split(/\s+/, $line);
 
-				push @{$self->{_ResultData}}, [ "$client", $elements[5], $elements[2] ];
+				$self->addData("$client", $elements[5], $elements[2]);
 
 				next;
 			}

@@ -40,7 +40,7 @@ sub extractReport() {
 			while (<INPUT>) {
 				my $line = $_;
 				if ($line =~ /\s+Time in seconds =\s+([0-9.]+)/) {
-					push @{$self->{_ResultData}}, [ $kernel, ++$nr_samples, $1 ];
+					$self->addData($kernel, ++$nr_samples, $1);
 					last;
 				}
 			}

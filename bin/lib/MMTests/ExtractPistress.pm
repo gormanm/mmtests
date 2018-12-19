@@ -39,7 +39,7 @@ sub extractReport() {
 			while (<INPUT>) {
 				my $line = $_;
 				if ($line =~ /Total inversion performed: ([0-9]+)/) {
-					push @{$self->{_ResultData}}, [ $nthr, ++$nr_samples, $1 ];
+					$self->addData($nthr, ++$nr_samples, $1);
 				}
 			}
 			close INPUT;

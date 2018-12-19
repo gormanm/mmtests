@@ -46,11 +46,10 @@ sub printHeaders($$$) {
 }
 
 sub _printRow($$@) {
-	my ($self, $dataRef, $fieldLength, $elementOpen, $elementClose, $formatColumnRef, $formatRowRef) = @_;
+	my ($self, $dataRef, $fieldLength, $elementOpen, $elementClose, $formatColumnRef) = @_;
 	my (@formatColumnList, @formatRowList);
 	my $rowIndex = 1;
 	@formatColumnList = @{$formatColumnRef};
-	@formatRowList = @{$formatRowRef};
 
 	foreach my $row (@{$dataRef}) {
 		my $columnIndex = 0;
@@ -59,9 +58,6 @@ sub _printRow($$@) {
 		foreach my $column (@$row) {
 			if (defined $formatColumnList[$columnIndex]) {
 				my $format = $formatColumnList[$columnIndex];
-				if ($format eq "ROW") {
-					$format = $formatRowList[$rowIndex];
-				}
 				my $cellcolor = "";
 
 				if ($column =~ /:SIG:$/) {
@@ -87,13 +83,13 @@ sub _printRow($$@) {
 }
 
 sub printHeaderRow($$@) {
-	my ($self, $dataRef, $fieldLength, $formatColumnRef, $formatRowRef) = @_;
-	$self->_printRow($dataRef, $fieldLength, "th $_colspan", "th", $formatColumnRef, $formatRowRef);
+	my ($self, $dataRef, $fieldLength, $formatColumnRef) = @_;
+	$self->_printRow($dataRef, $fieldLength, "th $_colspan", "th", $formatColumnRef);
 }
 
 sub printRow($$@) {
-	my ($self, $dataRef, $fieldLength, $formatColumnRef, $formatRowRef) = @_;
-	$self->_printRow($dataRef, $fieldLength, "td", "td", $formatColumnRef, $formatRowRef);
+	my ($self, $dataRef, $fieldLength, $formatColumnRef) = @_;
+	$self->_printRow($dataRef, $fieldLength, "td", "td", $formatColumnRef);
 }
 
 sub printRowFineFormat($$@) {

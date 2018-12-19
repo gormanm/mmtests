@@ -32,7 +32,7 @@ sub extractReport() {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			next if $_ !~ /.*and ([0-9.]+) ops\/sec.*/;
-			push @{$self->{_ResultData}}, [ "$testcase-ops", ++$iteration, $1 ];
+			$self->addData("$testcase-ops", ++$iteration, $1);
 		}
 		close(INPUT);
 	}

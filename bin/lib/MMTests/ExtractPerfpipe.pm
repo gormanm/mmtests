@@ -27,7 +27,7 @@ sub extractReport() {
 
 			my @elements = split(/\s/, $line);
 			next if ($elements[1] ne "usecs/op");
-			push @{$self->{_ResultData}}, ["Time", ++$iteration, $elements[0]];
+			$self->addData("Time", ++$iteration, $elements[0]);
 		}
 		close(INPUT);
 	}

@@ -25,7 +25,7 @@ sub extractReport() {
 	while (<INPUT>) {
 		my @elements = split(/\s/);
 		my $t = nearest(.5, $elements[0]);
-		push @{$self->{_ResultData}}, ["Time", ++$iteration, $t];
+		$self->addData("Time", ++$iteration, $t);
 	}
 
 	$self->{_Operations} = [ "Time" ];

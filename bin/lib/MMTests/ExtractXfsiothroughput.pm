@@ -43,7 +43,7 @@ sub extractReport() {
 				next;
 			}
 
-			push @{$self->{_ResultData}}, [ "$testcase-tput", ++$iteration, $tput ];
+			$self->addData("$testcase-tput", ++$iteration, $tput);
 		}
 		close(INPUT);
 	}

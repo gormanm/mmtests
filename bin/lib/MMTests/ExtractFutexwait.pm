@@ -40,7 +40,7 @@ sub extractReport() {
 			while (<INPUT>) {
 				my $line = $_;
 				if ($line =~ /Result: ([0-9]+) Kiter\/s/) {
-					push @{$self->{_ResultData}}, [ $nthr, ++$nr_samples, $1 ];
+					$self->addData($nthr, ++$nr_samples, $1);
 				}
 			}
 			close INPUT;

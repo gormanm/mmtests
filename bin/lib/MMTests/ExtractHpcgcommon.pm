@@ -58,20 +58,20 @@ sub extractReport() {
 			next if $reading eq "";
 
 			if ($line =~ /Total with convergence overhead: ([0-9.]*)/ && $reading eq "hpcg-gflops") {
-				push @{$self->{_ResultData}}, [ "hpcg-gflops", $iteration, $1 ];
+				$self->addData("hpcg-gflops", $iteration, $1);
 			}
 
 			foreach my $pattern (keys %metric_map) {
 				my $metric = $metric_map{$pattern};
 
 				if ($line =~ /^  $pattern: ([0-9.]*)/) {
-					push @{$self->{_ResultData}}, [ $metric, $iteration, $1 ];
+					$self->addData($metric, $iteration, $1);
 				}
 			}
 
 			foreach my $metric (keys %metric_map) {
 				if ($line =~ /^$metric=(.*)/) {
-					push @{$self->{_ResultData}}, [ "$metric", $iteration, $1 ];
+					$self->addData("$metric", $iteration, $1);
 				}
 			}
 		}

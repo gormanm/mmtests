@@ -39,7 +39,7 @@ sub extractReport() {
 		if ($section == 4 && $line =~ /iteration [0-9]+/) {
 			my ($bench, $dA, $dB, $dC, $dD, $dE, $ops) = split(/\s+/, $line);
 			if ($bench !~ /startup/) {
-				push @{$self->{_ResultData}}, [ $bench, 0, $ops ];
+				$self->addData($bench, 0, $ops);
 			}
 		}
 	}

@@ -66,7 +66,7 @@ sub extractReport() {
 				}
 
 				$futexTypesSeen{$futexType} = 1;
-				push @{$self->{_ResultData}}, [ "$wl-$futexType-$nthr", ++$nr_samples, $tp ];
+				$self->addData("$wl-$futexType-$nthr", ++$nr_samples, $tp);
 			}
 
 			close INPUT;

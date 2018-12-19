@@ -56,7 +56,7 @@ sub extractReport() {
 				my @elements = split(/\s+/, $_);
 
 				$nr_samples++;
-				push @{$self->{_ResultData}}, [ "latency-$client", $nr_samples, $elements[9] ];
+				$self->addData("latency-$client", $nr_samples, $elements[9]);
 
 				next;
 			}

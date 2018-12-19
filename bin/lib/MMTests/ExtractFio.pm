@@ -34,12 +34,12 @@ sub extractReport() {
 		$worker = $elements[2];
 		# Total read KB > 0?
 		if ($elements[5] > 0) {
-			push @{$self->{_ResultData}}, [ "kb/sec-$worker-read", 1, $elements[44] ];
+			$self->addData("kb/sec-$worker-read", 1, $elements[44]);
 			push @ops, "kb/sec-$worker-read";
 		}
 		# Total written KB > 0?
 		if ($elements[46] > 0) {
-			push @{$self->{_ResultData}}, [ "kb/sec-$worker-write", 1, $elements[85] ];
+			$self->addData("kb/sec-$worker-write", 1, $elements[85]);
 			push @ops, "kb/sec-$worker-write";
 		}
 	}

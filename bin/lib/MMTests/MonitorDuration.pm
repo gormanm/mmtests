@@ -35,9 +35,9 @@ sub extractReport($$$) {
 			 $system, $dummy,
 			 $elapsed, $dummy) = split(/\s/, $1);
 
-			push @{$self->{_ResultData}}, [ "User", 0, $user ];
-			push @{$self->{_ResultData}}, [ "System", 0, $system ];
-			push @{$self->{_ResultData}}, [ "Elapsed", 0, $elapsed ];
+			$self->addData("User", 0, $user );
+			$self->addData("System", 0, $system );
+			$self->addData("Elapsed", 0, $elapsed );
 		}
 	}
 	close INPUT;

@@ -156,7 +156,7 @@ sub extractReport($$$$) {
 			}
 		}
 
-		push @{$self->{_ResultData}}, [ $subHeading, $timestamp - $start_timestamp, $val ];
+		$self->addData($subHeading, $timestamp - $start_timestamp, $val );
 	}
 }
 

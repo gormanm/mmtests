@@ -69,7 +69,7 @@ sub extractReport() {
 						next;
 					}
 
-					push @{$self->{_ResultData}}, [ "unixbench-$wl-$nthr", ++$nr_samples, $tp ];
+					$self->addData("unixbench-$wl-$nthr", ++$nr_samples, $tp);
 				}
 
 				close INPUT;

@@ -32,7 +32,7 @@ sub extractReport() {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				if ($_ =~ /throughput:\s*([0-9.]*)/) {
-					push @{$self->{_ResultData}}, [$thread, ++$nr_samples, $1];
+					$self->addData($thread, ++$nr_samples, $1);
 				}
 			}
 			close INPUT;

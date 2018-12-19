@@ -42,7 +42,7 @@ sub extractReport() {
 				my @elements = split(/\s+/, $line);
 
 				$nr_samples++;
-				push @{$self->{_ResultData}}, [ "mb/sec-$client", $nr_samples, $elements[2] ];
+				$self->addData("mb/sec-$client", $nr_samples, $elements[2]);
 
 				next;
 			}

@@ -38,9 +38,9 @@ sub extractReport() {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;
-				push @{$self->{_ResultData}}, [ "User-$client", ++$iteration, $self->_time_to_user($_) ];
-				push @{$self->{_ResultData}}, [ "System-$client", ++$iteration, $self->_time_to_sys($_) ];
-				push @{$self->{_ResultData}}, [ "Elapsd-$client", ++$iteration, $self->_time_to_elapsed($_) ];
+				$self->addData("User-$client", ++$iteration, $self->_time_to_user($_));
+				$self->addData("System-$client", ++$iteration, $self->_time_to_sys($_));
+				$self->addData("Elapsd-$client", ++$iteration, $self->_time_to_elapsed($_));
 			}
 			close(INPUT);
 		}

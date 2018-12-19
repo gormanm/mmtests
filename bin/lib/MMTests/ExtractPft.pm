@@ -51,8 +51,8 @@ sub extractReport() {
 		 	$faultsCpu, $faultsSec) = split(/\s+/, $line);
 
 			$nr_samples++;
-			push @{$self->{_ResultData}}, [ "faults/cpu-$client",   $nr_samples, $faultsCpu ];
-			push @{$self->{_ResultData}}, [ "faults/sec-$client", $nr_samples, $faultsSec ];
+			$self->addData("faults/cpu-$client", $nr_samples, $faultsCpu);
+			$self->addData("faults/sec-$client", $nr_samples, $faultsSec);
 		}
 		close INPUT;
 	}

@@ -30,6 +30,6 @@ sub extractReport() {
 	my @elements = split(/ /, <INPUT>);
 	@elements = split(/:/, $elements[2]);
 	close(INPUT);
-	push @{$self->{_ResultData}}, [ "Write", 0, (1024) / ($elements[0] * 60 + $elements[1]) ];
+	$self->addData("Write", 0, (1024) / ($elements[0] * 60 + $elements[1]) );
 }
 1;

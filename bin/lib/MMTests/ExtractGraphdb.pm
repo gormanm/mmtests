@@ -48,7 +48,7 @@ sub extractReport() {
 		if ($start_timestamp == 0) {
 			$start_timestamp = $timestamp;
 		}
-		push @{$self->{_ResultData}}, [ $op, $timestamp - $start_timestamp, $latency ];
+		$self->addData($op, $timestamp - $start_timestamp, $latency );
 	}
 
 	$self->{_Operations} = [ "read", "write", "mmap", "munmap" ];

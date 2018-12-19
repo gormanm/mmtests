@@ -37,10 +37,10 @@ sub extractReport() {
 			while (<INPUT>) {
 				my $line = $_;
 #				if ($line =~ /^info.*nps ([0-9]+) time/) {
-#					push @{$self->{_ResultData}}, [ "nps-$client", ++$iteration, $1 ];
+#					$self->addData("nps-$client", ++$iteration, $1);
 #				}
 				if ($line =~ /^info nodes ([0-9]+) time ([0-9]+)/) {
-					push @{$self->{_ResultData}}, [ "totalnps-$client", ++$iteration, $1/$2 ];
+					$self->addData("totalnps-$client", ++$iteration, $1/$2);
 				}
 			}
 			close(INPUT);

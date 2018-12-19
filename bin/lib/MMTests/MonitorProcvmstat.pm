@@ -410,10 +410,9 @@ sub extractReport($$$$) {
 			if ($start_timestamp == 0) {
 				$start_timestamp = $timestamp;
 			} else {
-				push @{$self->{_ResultData}},
-					[ $subHeading, $timestamp - $start_timestamp,
-					  $self->parseVMStat($vmstat, $subHeading)
-					];
+				$self->addData($subHeading,
+					$timestamp - $start_timestamp,
+					$self->parseVMStat($vmstat, $subHeading));
 				$vmstat = "";
 			}
 			next;

@@ -32,7 +32,7 @@ sub extractReport() {
 	while (<INPUT>) {
 		my @elements = split(/\s+/);
 		next if $exclude_warmup && $elements[0] eq "warmup";
-		push @{$self->{_ResultData}}, ["Trans", $nr_sample++, $elements[1]];
+		$self->addData("Trans", $nr_sample++, $elements[1]);
 	}
 	close INPUT;
 

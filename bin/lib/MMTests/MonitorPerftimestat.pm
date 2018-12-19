@@ -118,7 +118,7 @@ sub extractReport($$$$) {
 			next if ($subHeading ne "" && $heading ne $subHeading);
 
 			$counter =~ s/,//g;
-			push @{$self->{_ResultData}}, [ $heading, $timestamp - $start_timestamp, $counter ];
+			$self->addData($heading, $timestamp - $start_timestamp, $counter );
 		}
 	}
 }

@@ -34,7 +34,7 @@ sub extractReport() {
 					next;
 				}
 				my $walltime = $1;
-				push @{$self->{_ResultData}}, [$group, ++$nr_samples, $walltime];
+				$self->addData($group, ++$nr_samples, $walltime);
 			}
 			close INPUT;
 		}

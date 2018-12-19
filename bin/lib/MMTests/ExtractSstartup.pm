@@ -69,7 +69,7 @@ sub extractReport($$$) {
 					$line =~ s/^\s+//;
 					$jobnamesPatterns{$jobnamePattern} = 1;
 					$nr_samples++;
-					push @{$self->{_ResultData}}, [ "$jobnamePattern", $nr_samples, $line];
+					$self->addData("$jobnamePattern", $nr_samples, $line);
 				}
 				close INPUT;
 			}

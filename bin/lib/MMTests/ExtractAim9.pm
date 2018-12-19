@@ -38,7 +38,7 @@ sub extractReport() {
 			while (<INPUT>) {
 				if ($_ =~ /$workload/) {
 					my @elements = split(/\s+/, $_);
-					push @{$self->{_ResultData}}, [ $workload, $iteration, $elements[6] ];
+					$self->addData($workload, $iteration, $elements[6]);
 				}
 			}
 			close(INPUT);

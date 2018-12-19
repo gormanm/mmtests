@@ -57,8 +57,8 @@ sub extractReport($$$$) {
 			if ($start_timestamp == 0) {
 				$start_timestamp = $1;
 			} else {
-				push @{$self->{_ResultData}}, [ "allocs", $timestamp - $start_timestamp, $allocs ];
-				push @{$self->{_ResultData}}, [ "frees", $timestamp - $start_timestamp, $frees ];
+				$self->addData("allocs", $timestamp - $start_timestamp, $allocs );
+				$self->addData("frees", $timestamp - $start_timestamp, $frees );
 				$allocs = 0;
 				$frees = 0;
 			}

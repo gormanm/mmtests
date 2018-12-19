@@ -48,7 +48,7 @@ sub extractReport() {
 				my @tmp = split(/\s+/, $line);
 
 				if ($line =~ /^throughput: ([0-9.]*)/) {
-					push @{$self->{_ResultData}}, [ "tput-$nthr", ++$nr_samples, $1 ];
+					$self->addData("tput-$nthr", ++$nr_samples, $1);
 				}
 			}
 			close INPUT;

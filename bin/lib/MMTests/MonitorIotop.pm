@@ -91,8 +91,9 @@ sub extractReport($$$$) {
 			} else {
 				if ($subCalc ne "" && $#vals >= 0) {
 					no strict "refs";
-					push @{$self->{_ResultData}},
-						[ "threads", $timestamp - $start_timestamp, &$subCalc(@vals) ];
+					$self->addData("threads",
+						$timestamp - $start_timestamp,
+						&$subCalc(@vals));
 				}
 				$timestamp = $1;
 			}
@@ -114,8 +115,9 @@ sub extractReport($$$$) {
 
 			if ($val > 5) {
 				if ($subCalc eq "") {
-					push @{$self->{_ResultData}},
-						[ $shortTask, $timestamp - $start_timestamp, $val ];
+					$self->addData($shortTask,
+						$timestamp - $start_timestamp,
+						$val);
 				}
 				push @vals, $val;
 			}

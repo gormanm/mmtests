@@ -31,7 +31,7 @@ sub extractReport() {
 	while (<INPUT>) {
 		my ($instances, $latency) = split(/ /);
 		for (my $i = 0; $i < $instances; $i++) {
-			push @{$self->{_ResultData}}, [ "mmap", $nr_samples++, $latency / 1000000];
+			$self->addData("mmap", $nr_samples++, $latency / 1000000);
 		}
 		if ($latency > 5000000) {
 			$nr_delayed += $instances;

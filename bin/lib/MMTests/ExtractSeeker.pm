@@ -20,7 +20,7 @@ sub extractReport() {
 	my $iteration = 0;
 	while (<INPUT>) {
 		if ($_ =~ /^mark: ([0-9]*).*/) {
-			push @{$self->{_ResultData}}, ["Seeks", ++$iteration, $1];
+			$self->addData("Seeks", ++$iteration, $1);
 		}
 	}
 	close INPUT;

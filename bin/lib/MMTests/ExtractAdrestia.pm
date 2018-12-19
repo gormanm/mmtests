@@ -46,7 +46,7 @@ sub extractReport() {
 						next;
 					}
 					my $walltime = $1;
-					push @{$self->{_ResultData}}, ["$thread-$group", ++$nr_samples, $walltime];
+					$self->addData("$thread-$group", ++$nr_samples, $walltime);
 				}
 
 				close INPUT;

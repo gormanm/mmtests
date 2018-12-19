@@ -75,7 +75,7 @@ sub extractReport() {
 						my $line = $_;
 
 						if ($line =~ /[+-]?(\d+\.\d+|\d+\.|\.\d+)/) {
-							push @{$self->{_ResultData}}, [ "$wl-$type-$nthr", $iter, $1 ];
+							$self->addData("$wl-$type-$nthr", $iter, $1);
 						}
 					}
 					close INPUT;

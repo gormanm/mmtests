@@ -49,7 +49,7 @@ sub extractReport() {
 			}
 
 			if ($line =~ /^et=\s*([0-9]+).*opm=([0-9]+).*/) {
-				push @{$self->{_ResultData}}, [ $client, $1, $2 ];
+				$self->addData($client, $1, $2);
 			}
 		}
 		close INPUT;

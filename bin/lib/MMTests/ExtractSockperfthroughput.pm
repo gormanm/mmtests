@@ -41,7 +41,7 @@ sub extractReport() {
 					next;
 				}
 
-				push @{$self->{_ResultData}}, [ "$size", ++$iteration, $1 ];
+				$self->addData("$size", ++$iteration, $1);
 			}
 			close(INPUT);
 		}

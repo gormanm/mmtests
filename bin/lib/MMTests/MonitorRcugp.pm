@@ -89,10 +89,9 @@ sub extractReport($$$$) {
 				}
 				if (defined $lastGrace{"timestamp"}) {
 					my $nrSeconds = $thisGrace{"timestamp"} - $lastGrace{"timestamp"};
-					push @{$self->{_ResultData}},
-						[ $rcuFlavour,
+					$self->addData($rcuFlavour,
 						  $thisGrace{"timestamp"} - $startTimestamp,
-						  $thisGrace{"$rcuFlavour-gpCompleted"} - $firstGrace{"$rcuFlavour-gpCompleted"} ];
+						  $thisGrace{"$rcuFlavour-gpCompleted"} - $firstGrace{"$rcuFlavour-gpCompleted"});
 				}
 			}
 			%lastGrace = %thisGrace;

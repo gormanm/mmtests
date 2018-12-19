@@ -146,10 +146,9 @@ sub extractReport() {
 		}
 		foreach my $header (@fieldHeaders) {
 			if ($subHeading eq "" || $header eq $subHeading) {
-				push @{$self->{_ResultData}},
-					[ "$header",
+				$self->addData($header,
 					$timestamp - $start_timestamp,
-					$elements[$_colMap{$header}]];
+					$elements[$_colMap{$header}]);
 			}
 		}
 	}

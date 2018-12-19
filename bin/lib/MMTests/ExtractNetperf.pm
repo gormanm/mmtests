@@ -80,12 +80,12 @@ sub extractReport() {
 #				next;
 #			}
 			if ($protocol ne "UDP_STREAM") {
-				push @{$self->{_ResultData}}, [ $size, ++$iteration, $send_tput ];
+				$self->addData($size, ++$iteration, $send_tput);
 			} else {
-				push @{$self->{_ResultData}}, [ "send-$size", ++$iteration, $send_tput ];
-				push @{$self->{_ResultData}}, [ "recv-$size", ++$iteration, $recv_tput ];
+				$self->addData("send-$size", ++$iteration, $send_tput);
+				$self->addData("recv-$size", ++$iteration, $recv_tput);
 				if ($loss || ($send_tput - $recv_tput) > ($send_tput / 10)) {
-					push @{$self->{_ResultData}}, [ "loss-$size", ++$iteration, $send_tput - $recv_tput ];
+					$self->addData("loss-$size", ++$iteration, $send_tput - $recv_tput );
 					$loss++;
 				}
 			}

@@ -47,7 +47,7 @@ sub extractReport() {
 				my $line = $_;
 				if ($line =~ /cost ([0-9.]+) seconds, the FPgrowth cost ([0-9.]+) seconds/) {
 					my $tottime = $1 + $2;
-					push @{$self->{_ResultData}}, [ $nthr, ++$nr_samples, $tottime ];
+					$self->addData($nthr, ++$nr_samples, $tottime);
 				}
 			}
 			close INPUT;

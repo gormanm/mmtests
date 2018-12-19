@@ -281,7 +281,7 @@ sub _generateRenderRatioTable() {
 
 # Construct final table for printing
 sub _generateRenderTable() {
-	my ($self, $rowOrientated) = @_;
+	my ($self, $printSignificance) = @_;
 	my @finalTable;
 	my @formatTable;
 	my @compareTable;
@@ -320,32 +320,26 @@ sub _generateRenderTable() {
 	$self->{_OperationLength} = $maxLength;
 
 	# Format string for source table rows
-	if (!$rowOrientated) {
-		my $separator = "";
+	my $separator = "";
 
-		$maxLength = 0;
-		for (my $row = 0; $row <= $#baseline; $row++) {
-			my $length = length($baseline[$row][0]);
-			if ($length > $maxLength) {
-				$maxLength = $length;
-			}
-		}
-		
-		if ($self->{_OperationLength} > 0) {
-			$separator = " ";
-		}
-		push @formatTable, $separator."%-${maxLength}s";
-		$self->{_OperationLength} += $maxLength + length($separator);
-	} else {
-		push @formatTable, "";
+	if ($self->{_OperationLength} > 0) {
+		$separator = " ";
 	}
+
+	$maxLength = 0;
+	for (my $row = 0; $row <= $#baseline; $row++) {
+		my $length = length($baseline[$row][0]);
+		if ($length > $maxLength) {
+			$maxLength = $length;
+		}
+	}
+
+	push @formatTable, $separator."%-${maxLength}s";
+	$self->{_OperationLength} += $maxLength + length($separator);
 
 	# Build column format table
 	for (my $i = 0; $i <= $#{$resultsTable[0]}; $i++) {
-		my $fieldFormat = "ROW";
-		if (!$rowOrientated) {
-			$fieldFormat = "%${fieldLength}.${precision}f"
-		}
+		my $fieldFormat = "%${fieldLength}.${precision}f";
 		if (defined $self->{_CompareTable}) {
 			push @formatTable, ($fieldFormat, " (%${compareLength}.2f%%)");
 		} else {

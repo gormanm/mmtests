@@ -26,7 +26,7 @@ sub extractReport() {
 			next if $line !~ /^Score/;
 			my @elements = split(/\s+/, $line);
 
-			push @{$self->{_ResultData}}, [ "Score",     $iteration, $elements[2] ];
+			$self->addData("Score", $iteration, $elements[2]);
 
 		}
 		close INPUT;

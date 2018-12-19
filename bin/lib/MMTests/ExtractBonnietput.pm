@@ -67,40 +67,40 @@ sub extractReport() {
 			# 26    random create dele cpu
 
 			if ($elements[2] != 0) {
-				push @{$self->{_ResultData}}, [ "SeqOut Char",     $iteration, $elements[2] ];
+				$self->addData("SeqOut Char", $iteration, $elements[2]);
 			}
 			if ($elements[4] != 0) {
-				push @{$self->{_ResultData}}, [ "SeqOut Block",    $iteration, $elements[4] ];
+				$self->addData("SeqOut Block", $iteration, $elements[4]);
 			}
 			if ($elements[6] != 0) {
-				push @{$self->{_ResultData}}, [ "SeqOut Rewrite",  $iteration, $elements[6] ];
+				$self->addData("SeqOut Rewrite", $iteration, $elements[6]);
 			}
 			if ($elements[8] != 0) {
-				push @{$self->{_ResultData}}, [ "SeqIn Char",     $iteration, $elements[8] ];
+				$self->addData("SeqIn Char", $iteration, $elements[8]);
 			}
 			if ($elements[10] != 0) {
-				push @{$self->{_ResultData}}, [ "SeqIn Block",    $iteration, $elements[10] ];
+				$self->addData("SeqIn Block", $iteration, $elements[10]);
 			}
 			if ($elements[12] != 0) {
-				push @{$self->{_ResultData}}, [ "Random seeks",    $iteration, $elements[12] ];
+				$self->addData("Random seeks", $iteration, $elements[12]);
 			}
 			if ($elements[15] != 0) {
-				push @{$self->{_ResultData}}, [ "SeqCreate ops",   $iteration, $elements[15] ];
+				$self->addData("SeqCreate ops", $iteration, $elements[15]);
 			}
 			if ($elements[17] != 0) {
-				push @{$self->{_ResultData}}, [ "SeqCreate read",  $iteration, $elements[17] ];
+				$self->addData("SeqCreate read", $iteration, $elements[17]);
 			}
 			if ($elements[19] != 0) {
-				push @{$self->{_ResultData}}, [ "SeqCreate del",   $iteration, $elements[19] ];
+				$self->addData("SeqCreate del", $iteration, $elements[19]);
 			}
 			if ($elements[21] != 0) {
-				push @{$self->{_ResultData}}, [ "RandCreate ops",  $iteration, $elements[21] ];
+				$self->addData("RandCreate ops", $iteration, $elements[21]);
 			}
 			if ($elements[23] != 0) {
-				push @{$self->{_ResultData}}, [ "RandCreate read", $iteration, $elements[23] ];
+				$self->addData("RandCreate read", $iteration, $elements[23]);
 			}
 			if ($elements[25] != 0) {
-				push @{$self->{_ResultData}}, [ "RandCreate del",  $iteration, $elements[25] ];
+				$self->addData("RandCreate del", $iteration, $elements[25]);
 			}
 
 			# Populate the operations table without cut and pasting the above block

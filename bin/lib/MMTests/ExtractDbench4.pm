@@ -68,7 +68,7 @@ sub extractReport() {
 				next if ($elements[3] > (1<<31));
 
 				$nr_samples++;
-				push @{$self->{_ResultData}}, [ "$client", $elements[7] / 1000, $elements[3] ];
+				$self->addData("$client", $elements[7] / 1000, $elements[3] );
 
 				next;
 			}

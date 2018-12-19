@@ -34,7 +34,7 @@ sub extractReport() {
 
 				if ($delay == 0) {
 					my $op = "$nr_threads-i$interleave-d$delay";
-					push @{$self->{_ResultData}}, [ $op, ++$samples{$op}, $opSec ];
+					$self->addData($op, ++$samples{$op}, $opSec);
 				}
 			}
 		}

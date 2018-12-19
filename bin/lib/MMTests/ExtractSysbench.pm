@@ -40,7 +40,7 @@ sub extractReport() {
 				my @elements = split(/\s+/, $line);
 				my $ops = $elements[3];
 				$ops =~ s/\(//;
-				push @{$self->{_ResultData}}, [ $client, $iteration, $ops ];
+				$self->addData($client, $iteration, $ops);
 				$iteration++;
 			}
 			close INPUT;

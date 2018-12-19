@@ -93,10 +93,10 @@ sub extractReport() {
 			}
 
 			$iteration++;
-			push @{$self->{_ResultData}}, [ "swaptotal-$ioSizes[$ioStep]",      $iteration, $swapInOut ];
-			push @{$self->{_ResultData}}, [ "swapin-$ioSizes[$ioStep]",      $iteration, $swapIns ];
-			push @{$self->{_ResultData}}, [ "minorfaults-$ioSizes[$ioStep]", $iteration, $minorFaults ];
-			push @{$self->{_ResultData}}, [ "majorfaults-$ioSizes[$ioStep]", $iteration, $majorFaults ];
+			$self->addData("swaptotal-$ioSizes[$ioStep]", $iteration, $swapInOut);
+			$self->addData("swapin-$ioSizes[$ioStep]", $iteration, $swapIns);
+			$self->addData("minorfaults-$ioSizes[$ioStep]", $iteration, $minorFaults);
+			$self->addData("majorfaults-$ioSizes[$ioStep]", $iteration, $majorFaults);
 		}
 	}
 

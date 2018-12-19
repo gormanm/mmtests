@@ -143,7 +143,7 @@ sub ftraceCallback {
 		if ($latencyState{$pidprocess}) {
 			$delayed = $timestamp_ms - $latencyState{$pidprocess};
 			if ($delayed > $delay_threshold) {
-				push @{$self->{_ResultData}}, [ "delay", ($latencyState{$pidprocess} - $self->{_StartTimestampMs}) / 1000, $delayed ];
+				$self->addData("delay", ($latencyState{$pidprocess} - $self->{_StartTimestampMs}) / 1000, $delayed );
 			}
 		}
 		$latencyState{$pidprocess} = 0;

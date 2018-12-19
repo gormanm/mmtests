@@ -24,7 +24,7 @@ sub extractReport() {
 	my @elements = split(/ /, <INPUT>);
 	@elements = split(/:/, $elements[2]);
 	close(INPUT);
-	push @{$self->{_ResultData}}, [ "PotentialWriteSpeed", 1, (1024) / ($elements[0] * 60 + $elements[1]) ];
+	$self->addData("PotentialWriteSpeed", 1, (1024) / ($elements[0] * 60 + $elements[1]) );
 
 	# Extract filesize of write
 	my $file = "$reportDir/$profile/dd.filesize";
@@ -40,7 +40,7 @@ sub extractReport() {
 		my $line = <INPUT>;
 		my @elements = split(/ /, $line);
 		@elements = split(/:/, $elements[2]);
-		push @{$self->{_ResultData}}, [ "tput", ++$nr_samples, $filesize / 1048576 / ($elements[0] * 60 + $elements[1] + 1) ];
+		$self->addData("tput", ++$nr_samples, $filesize / 1048576 / ($elements[0] * 60 + $elements[1] + 1) );
 		close(INPUT);
 	}
 

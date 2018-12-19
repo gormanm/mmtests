@@ -40,7 +40,7 @@ sub extractReport() {
 			while (<INPUT>) {
 				my $line = $_;
 				if ($line =~ /REQUEST PHASE COMPLETED. ([0-9]+) requests done in ([0-9]+) seconds. Requests\/second = ([0-9]+)/) {
-					push @{$self->{_ResultData}}, [ $nthr, ++$nr_samples, $3 ];
+					$self->addData($nthr, ++$nr_samples, $3);
 				}
 			}
 			close INPUT;

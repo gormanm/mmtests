@@ -76,7 +76,7 @@ sub extractReport($$$$$) {
 					push @tuples, $nodeUsage[$i];
 					push @tuples, $nodeSize[$i];
 				}
-				push @{$self->{_ResultData}}, [ "Balance", $timestamp - $start_timestamp, numa_memory_balance(@tuples) ];
+				$self->addData("Balance", $timestamp - $start_timestamp, numa_memory_balance(@tuples) );
 
 				$#nodeUsage = -1;
 				$#nodeSize  = -1;
@@ -87,7 +87,7 @@ sub extractReport($$$$$) {
 		}
 		if ($_ =~ /^Node ([0-9]+) MemUsed:\s+([0-9]*)/) {
 			if ($subHeading eq "Usage") {
-				push @{$self->{_ResultData}}, [ "Node$1", $timestamp - $start_timestamp, $2 * 1024 ];
+				$self->addData("Node$1", $timestamp - $start_timestamp, $2 * 1024 );
 			} else {
 				push @nodeUsage, $2 * 1024;
 			}

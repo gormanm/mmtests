@@ -70,7 +70,7 @@ sub extractReport() {
 					$start_time = $time;
 				}
 
-				push @{$self->{_ResultData}}, ["size-$size-rate-$rate", ($time - $start_time), $rtt];
+				$self->addData("size-$size-rate-$rate", ($time - $start_time), $rtt);
 			}
 			close(INPUT);
 			push @ops, "size-$size-rate-$rate";

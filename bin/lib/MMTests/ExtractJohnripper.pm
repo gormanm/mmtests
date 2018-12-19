@@ -73,7 +73,7 @@ sub extractReport() {
 
 				if ($value != -1) {
 					$benchmarks{"$benchmark$salt"} = 1;
-					push @{$self->{_ResultData}}, [ "$client-$benchmark$salt", $iteration, $value ];
+					$self->addData("$client-$benchmark$salt", $iteration, $value);
 				}
 				
 			}

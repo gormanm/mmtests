@@ -66,11 +66,11 @@ sub extractReport() {
 			close(INPUT);
 
 			if ($protocol ne "UDP_STREAM") {
-				push @{$self->{_ResultData}}, [ $client, ++$iteration, $send_tput ];
+				$self->addData($client, ++$iteration, $send_tput);
 			} else {
-				push @{$self->{_ResultData}}, [ "send-$client", ++$iteration, $send_tput ];
-				push @{$self->{_ResultData}}, [ "recv-$client", ++$iteration, $recv_tput ];
-				push @{$self->{_ResultData}}, [ "loss-$client", ++$iteration, $send_tput - $recv_tput ];
+				$self->addData("send-$client", ++$iteration, $send_tput);
+				$self->addData("recv-$client", ++$iteration, $recv_tput);
+				$self->addData("loss-$client", ++$iteration, $send_tput - $recv_tput );
 				if (($send_tput - $recv_tput) > ($send_tput / 10)) {
 					$loss++;
 				}

@@ -34,7 +34,7 @@ sub extractReport() {
 				my $line = <INPUT>;
 				next if $line !~ /Transaction rate:/;
 				my @elements = split(/\s+/, $line);
-				push @{$self->{_ResultData}}, [ $client, ++$iteration, $elements[-2] ];
+				$self->addData($client, ++$iteration, $elements[-2]);
 				if ($iteration == 1) {
 					push @ops, $client;
 				}

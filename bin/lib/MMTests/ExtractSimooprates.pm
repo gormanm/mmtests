@@ -42,7 +42,7 @@ sub extractReport() {
 			my $op = $1;
 			my $rate = $2;
 			$op =~ s/alloc stall/stall/;
-			push @{$self->{_ResultData}}, [ "$op", $timestamp, $rate ];
+			$self->addData("$op", $timestamp, $rate);
 		}
 
 	}

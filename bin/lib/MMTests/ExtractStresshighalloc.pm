@@ -42,7 +42,7 @@ sub extractReport() {
 
 		if ($_ =~ /% Success/) {
 			($dummy, $dummy, $success) = split(/\s+/, $_);
-			push @{$self->{_ResultData}}, [ $pass, 0, $success ];
+			$self->addData($pass, 0, $success);
 		}
 	}
 	close INPUT;

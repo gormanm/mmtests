@@ -63,7 +63,7 @@ sub extractReport($$$$) {
 					foreach my $source (sort keys %sources) {
 						my $count = $sources{$source} - $last_sources{$source};
 						if ($count > 10) {
-							push @{$self->{_ResultData}}, [ $source, $timestamp - $start_timestamp, $sources{$source} - $last_sources{$source} ];
+							$self->addData($source, $timestamp - $start_timestamp, $sources{$source} - $last_sources{$source} );
 							$fired{$source} = 1;
 						}
 					}

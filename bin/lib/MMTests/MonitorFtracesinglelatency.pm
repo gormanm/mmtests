@@ -121,7 +121,7 @@ sub ftraceCallback {
 		}
 
 		if ($delayed > $delay_threshold) {
-			push @{$self->{_ResultData}}, [ "latency", ($timestamp_ms - $self->{_StartTimestampMs}) / 1000, $delayed ];
+			$self->addData("latency", ($timestamp_ms - $self->{_StartTimestampMs}) / 1000, $delayed );
 		}
 	}
 }

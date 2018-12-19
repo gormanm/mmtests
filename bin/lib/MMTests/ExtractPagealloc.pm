@@ -42,9 +42,9 @@ sub extractReport() {
 			push @batch_sizes, $batch;
 		}
 		if ($samples{$batch} >= 3) {
-			push @{$self->{_ResultData}}, ["alloc-odr$order-$batch", $samples{$batch} - 3, $latency_alloc];
-			push @{$self->{_ResultData}}, ["free-odr$order-$batch", $samples{$batch} - 3, $latency_free];
-			push @{$self->{_ResultData}}, ["total-odr$order-$batch", $samples{$batch} - 3, $latency_total];
+			$self->addData("alloc-odr$order-$batch", $samples{$batch} - 3, $latency_alloc);
+			$self->addData("free-odr$order-$batch", $samples{$batch} - 3, $latency_free);
+			$self->addData("total-odr$order-$batch", $samples{$batch} - 3, $latency_total);
 		}
 	}
 

@@ -38,7 +38,7 @@ sub extractReport() {
 			while (<INPUT>) {
 				next if ($_ !~ /^Total QPS/);
 				my @elements = split(/\s+/, $_);
-				push @{$self->{_ResultData}}, [ $client, $iteration, $elements[3] ];
+				$self->addData($client, $iteration, $elements[3]);
 			}
 			close INPUT;
 			$iteration++;

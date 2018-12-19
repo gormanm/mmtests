@@ -30,7 +30,7 @@ sub extractReport() {
 			$elements[0] =~ s/ /_/;
 
 			$opNames{$elements[0]} = 1;
-			push @{$self->{_ResultData}}, [ "$elements[0]", $iteration, $elements[2] ];
+			$self->addData("$elements[0]", $iteration, $elements[2]);
 		}
 		close(INPUT);
 	}

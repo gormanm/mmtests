@@ -227,14 +227,12 @@ sub extractReport($$$) {
 		if ($subHeading eq "") {
 			foreach my $op ("avgqusz", "await", "r_await",
 			  "w_await", "svctm", "avgrqsz", "rrqm", "wrqm") {
-				push @{$self->{_ResultData}}, [ "$dev-$op",
-					$timestamp, $iostat{$op} ];
+				$self->addData("$dev-$op", $timestamp, $iostat{$op});
 			}
 		} else {
 			my @elements = split(/-/, $subHeading);
 			if ($elements[0] eq $dev) {
-				push @{$self->{_ResultData}}, [ "$subHeading",
-					$timestamp, $iostat{$elements[1]} ];
+				$self->addData("$subHeading", $timestamp, $iostat{$elements[1]});
 			}
 		}
 	} close INPUT;

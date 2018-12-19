@@ -27,7 +27,7 @@ sub extractReport() {
 		$line =~ s/^\s+//;
 		my @elements = split(/\s+/, $line);
 
-		push @{$self->{_ResultData}}, [ "tput", $elements[0] / 1024, $elements[1] ];
+		$self->addData("tput", $elements[0] / 1024, $elements[1] );
 	}
 	close INPUT;
 

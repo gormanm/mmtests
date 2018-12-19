@@ -29,7 +29,7 @@ sub extractReport() {
 			my @elements = split(/\s+/, $line);
 			$elements[1] =~ s/Reads-Writes/RW/;
 			$elements[0] =~ s/ALL/All/;
-			push @{$self->{_ResultData}}, [ "$elements[1]-$elements[0]", ++$iteration, $elements[3] ];
+			$self->addData("$elements[1]-$elements[0]", ++$iteration, $elements[3]);
 		}
 		close(INPUT);
 	}

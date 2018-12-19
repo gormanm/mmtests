@@ -40,7 +40,7 @@ sub extractReport() {
 				if ($line =~ /([0-9]*) records.*/) {
 					my @elements = split(/\s+/, $line);
 					for (my $i = 2; $i <= $#elements; $i++) {
-						push @{$self->{_ResultData}}, [ "Rsec-$client", $sample, $elements[$i] ];
+						$self->addData("Rsec-$client", $sample, $elements[$i]);
 						$sample++;
 					}
 				}

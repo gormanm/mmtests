@@ -44,7 +44,7 @@ sub extractReport() {
 				my $quartile = $1;
 				my $lat = $2;
 				$quartile =~ s/00$//;
-				push @{$self->{_ResultData}}, ["${quartile}th-qrtle-$group", 0, $lat];
+				$self->addData("${quartile}th-qrtle-$group", 0, $lat);
 				if ($quartile == 99) {
 					$singleInclude{"${quartile}th-qrtle-$group"} = 1;
 				}

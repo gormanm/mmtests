@@ -35,28 +35,20 @@ sub printHeaders($$$) {
 }
 
 sub printRow($$@) {
-	my ($self, $dataRef, $fieldLength, $formatColumnRef, $formatRowRef, $prefix) = @_;
-	my (@formatColumnList, @formatRowList);
+	my ($self, $dataRef, $fieldLength, $formatColumnRef) = @_;
+	my (@formatColumnList);
 	my $rowIndex = 1;
 	@formatColumnList = @{$formatColumnRef};
-	@formatRowList = @{$formatRowRef};
 
 	foreach my $row (@{$dataRef}) {
 		my $columnIndex = 0;
 		my @rowArr = @$row;
-
-		if ($prefix ne "") {
-			unshift @rowArr, $prefix;
-		}
 
 		foreach my $column (@rowArr) {
 			my $out;
 
 			if (defined $formatColumnList[$columnIndex]) {
 				my $format = $formatColumnList[$columnIndex];
-				if ($format eq "ROW") {
-					$format = $formatRowList[$rowIndex];
-				}
 				if ($column =~ /:SIG:$/) {
 					$format =~ s/\(/*/;
 					$format =~ s/\)/*/;
@@ -77,8 +69,8 @@ sub printRow($$@) {
 }
 
 sub printHeaderRow($$@) {
-	my ($self, $dataRef, $fieldLength, $formatColumnRef, $formatRowRef) = @_;
-	$self->printRow($dataRef, $fieldLength, $formatColumnRef, $formatRowRef);
+	my ($self, $dataRef, $fieldLength, $formatColumnRef) = @_;
+	$self->printRow($dataRef, $fieldLength, $formatColumnRef);
 }
 
 sub printRowFineFormat($$@) {

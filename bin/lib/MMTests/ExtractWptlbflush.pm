@@ -49,7 +49,7 @@ sub extractReport() {
 				next;
 			}
 			$last = $t;
-			push @{$self->{_ResultData}}, ["procs-$client", ++$iteration, $t];
+			$self->addData("procs-$client", ++$iteration, $t);
 		}
 		push @ops, "procs-$client";
 	}

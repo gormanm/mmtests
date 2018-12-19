@@ -46,7 +46,7 @@ sub extractReport() {
 			while (<INPUT>) {
 				my $line = $_;
 				if ($line =~ /([0-9]):([0-9.]+)elapsed/) {
-					push @{$self->{_ResultData}}, [ $nthr, ++$nr_samples, $self->_time_to_elapsed($line) ];
+					$self->addData($nthr, ++$nr_samples, $self->_time_to_elapsed($line));
 				}
 			}
 			close INPUT;

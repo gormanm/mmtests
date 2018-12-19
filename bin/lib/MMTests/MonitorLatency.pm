@@ -202,14 +202,12 @@ sub extractReport($$$$) {
 
 		$count++;
 		if ($batch == 0) {
-			push @{$self->{_ResultData}}, [ "latency",
-				$timestamp - $start_timestamp, $latency ];
+			$self->addData("latency", $timestamp - $start_timestamp, $latency);
 		} else {
 			if ($count % $batch == 0) {
-				push @{$self->{_ResultData}},
-					[ "batch-latency",
+				$self->addData("batch-latency",
 					  $last_timestamp - $start_timestamp,
-					  $cumulative_latency];
+					  $cumulative_latency);
 				$cumulative_latency = 0;
 				$last_timestamp = $timestamp;
 				$count = 0;

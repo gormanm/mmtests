@@ -109,11 +109,9 @@ sub extractReport($$$$) {
 					$current_value = $fields[%_colMap{$field}];
 				}
 
-				push @{$self->{_ResultData}},
-					[ $subHeading,
+				$self->addData($subHeading,
 					  $timestamp - $start_timestamp,
-					  $delta
-					];
+					  $delta);
 			}
 		}
 	}

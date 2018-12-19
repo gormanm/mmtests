@@ -22,7 +22,7 @@ sub extractReport() {
 	my $iteration = 0;
 	while (<INPUT>) {
 		my @elements = split(/\s/);
-		push @{$self->{_ResultData}}, ["Time", ++$iteration, $elements[3]];
+		$self->addData("Time", ++$iteration, $elements[3]);
 	}
 
 	$self->{_Operations} = [ "Time" ];

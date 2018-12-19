@@ -40,7 +40,7 @@ sub extractReport() {
 		} elsif ($name eq "Total Average") {
 			# only here we are sure that printing time_user was not interrupted in the middle
 			my $delta = ($time_user - $time_kernel) * 1000000;
-			push @{$self->{_ResultData}}, ["Time", ++$nr_samples, $delta];
+			$self->addData("Time", ++$nr_samples, $delta);
 		}
 	}
 	close INPUT;

@@ -61,7 +61,7 @@ sub extractReport() {
 				} else {
 					next;
 				}
-				push @{$self->{_ResultData}}, [ "sembench-$wl-$nthr", ++$nr_samples, $tp ];
+				$self->addData("sembench-$wl-$nthr", ++$nr_samples, $tp);
 			}
 
 			close INPUT;

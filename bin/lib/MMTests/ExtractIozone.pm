@@ -63,7 +63,7 @@ sub extractReport() {
 			my $blksize = $elements[2];
 
 			foreach my $op (sort keys(%loadindex)) {
-				push @{$self->{_ResultData}}, [ "$op-$size-$blksize", $iteration, $elements[$loadindex{$op}] ];
+				$self->addData("$op-$size-$blksize", $iteration, $elements[$loadindex{$op}]);
 				if ($sizesSeen{"$size-$blksize"} != 1) {
 					push @sizes, "$size-$blksize";
 					$sizesSeen{"$size-$blksize"} = 1;

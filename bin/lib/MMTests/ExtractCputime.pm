@@ -43,10 +43,10 @@ sub extractReport() {
 		}
 		$elapsed = $hours * 60 * 60 + $minutes * 60 + $seconds;
 
-		push @{$self->{_ResultData}}, [ "User",    $cnt, $user    ];
-		push @{$self->{_ResultData}}, [ "System",  $cnt, $system  ];
-		push @{$self->{_ResultData}}, [ "Elapsed", $cnt, $elapsed ];
-		push @{$self->{_ResultData}}, [ "CPU",     $cnt, $cpu     ];
+		$self->addData("User", $cnt, $user);
+		$self->addData("System", $cnt, $system);
+		$self->addData("Elapsed", $cnt, $elapsed);
+		$self->addData("CPU", $cnt, $cpu);
 		$cnt++;
 	}
 	close INPUT;

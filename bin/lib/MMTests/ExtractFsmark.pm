@@ -62,7 +62,7 @@ sub extractReport() {
 			}
 
 			my @elements = split(/\s+/, $_);
-			push @{$self->{_ResultData}}, [ "$client-files/sec", ++$iteration, $elements[4] ];
+			$self->addData("$client-files/sec", ++$iteration, $elements[4]);
 		}
 		close INPUT;
 		push @ops, "$client-files/sec";

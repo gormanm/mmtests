@@ -402,4 +402,10 @@ sub dataByOperation() {
 	return \%result;
 }
 
+sub addData() {
+	my ($self, $op, $sample, $val) = @_;
+
+	push @{$self->{_ResultData}}, [$op, $sample, $val];
+}
+
 1;

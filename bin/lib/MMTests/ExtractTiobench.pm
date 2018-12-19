@@ -21,7 +21,7 @@ sub extractReport() {
 		$max_read = <INPUT>;
 		close(INPUT);
 	}
-	push @{$self->{_ResultData}}, [ "PotentialReadSpeed", 1, $max_read ];
+	$self->addData("PotentialReadSpeed", 1, $max_read);
 
 	my @clients;
 	my @files = <$reportDir/$profile/tiobench-*-1.log>;
@@ -48,7 +48,7 @@ sub extractReport() {
 					if ($elements[4] =~ /#/) {
 						$elements[4] = -1;
 					}
-					push @{$self->{_ResultData}}, [ "$op-MB/sec-$client", $iteration, $elements[4] ];
+					$self->addData("$op-MB/sec-$client", $iteration, $elements[4]);
 					$reading = 0;
 					next;
 				}

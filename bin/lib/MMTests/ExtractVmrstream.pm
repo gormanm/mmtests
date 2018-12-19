@@ -49,7 +49,7 @@ sub extractReport() {
 				my @elements = split(/\s+/, $_);
 				my $size = int ($elements[0] / 1024);
 				my $op = "$operation-${size}K";
-				push @{$self->{_ResultData}}, [$op, ++$samples{$op}, $elements[1]];
+				$self->addData($op, ++$samples{$op}, $elements[1]);
 				if ($samples{$op} == 1) {
 					push @ops, $op;
 				}

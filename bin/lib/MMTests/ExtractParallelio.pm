@@ -71,7 +71,7 @@ sub extractReport() {
 				close(INPUT);
 
 				$iteration++;
-				push @{$self->{_ResultData}}, [ "memcachetest-$ioSizes[$ioStep]", $iteration, $ops ];
+				$self->addData("memcachetest-$ioSizes[$ioStep]", $iteration, $ops);
 			}
 			push @{$self->{_Operations}}, "memcachetest-$ioSizes[$ioStep]";
 		}

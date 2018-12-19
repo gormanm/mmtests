@@ -54,7 +54,7 @@ sub extractReport() {
 			}
 
 			my @elements = split(/\s+/, $_);
-			push @{$self->{_ResultData}}, [ "overhead-$client",  ++$iteration, $elements[5] ];
+			$self->addData("overhead-$client", ++$iteration, $elements[5]);
 		}
 		close INPUT;
 		push @ops, "overhead-$client";

@@ -35,7 +35,7 @@ sub extractReport() {
 		if (open (INPUT, "$reportDir/$profile/default/load-$client.time")) {
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;
-				push @{$self->{_ResultData}}, [ "loadtime", ++$iteration, $self->_time_to_elapsed($_) ];
+				$self->addData("loadtime", ++$iteration, $self->_time_to_elapsed($_));
 			}
 			close INPUT;
 		}

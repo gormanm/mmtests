@@ -48,7 +48,7 @@ sub extractReport() {
 			my @elements = split(/ /, $line);
 
 			if (defined($ops{$elements[0]})) {
-				push @{$self->{_ResultData}}, [ $ops{$elements[0]}, $iteration, $elements[1] ];
+				$self->addData($ops{$elements[0]}, $iteration, $elements[1]);
 				$present{$elements[0]} = 1;
 			}
 		}

@@ -26,16 +26,16 @@ sub extractReport() {
 		my @elements = split(/\s+/, $line);
 
 		if ($elements[0] > 1000000 && $elements[0] <= 2000000) {
-			push @{$self->{_ResultData}}, [ "tput-1-2mb", ++$nr_samples, $elements[1] ];
+			$self->addData("tput-1-2mb", ++$nr_samples, $elements[1]);
 		}
 		if ($elements[0] > 2000000 && $elements[0] <= 3000000) {
-			push @{$self->{_ResultData}}, [ "tput-2-3mb", ++$nr_samples, $elements[1] ];
+			$self->addData("tput-2-3mb", ++$nr_samples, $elements[1]);
 		}
 		if ($elements[0] > 3000000 && $elements[0] <= 4000000) {
-			push @{$self->{_ResultData}}, [ "tput-3-4mb", ++$nr_samples, $elements[1] ];
+			$self->addData("tput-3-4mb", ++$nr_samples, $elements[1]);
 		}
 		if ($elements[0] > 4000000) {
-			push @{$self->{_ResultData}}, [ "tput-g-4mb", ++$nr_samples, $elements[1] ];
+			$self->addData("tput-g-4mb", ++$nr_samples, $elements[1]);
 		}
 	}
 	close INPUT;

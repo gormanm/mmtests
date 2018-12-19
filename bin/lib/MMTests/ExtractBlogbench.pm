@@ -26,8 +26,8 @@ sub extractReport() {
 			next if $line !~ /^Final score/;
 			my @elements = split(/\s+/, $line);
 
-			push @{$self->{_ResultData}}, [ "ReadScore", $iteration, $elements[-1] ] if $line =~ /reads/;
-			push @{$self->{_ResultData}}, [ "WriteScore", $iteration, $elements[-1] ] if $line =~ /writes/;
+			push $self->addData("ReadScore", $iteration, $elements[-1]) if $line =~ /reads/;
+			push $self->addData("WriteScore", $iteration, $elements[-1]) if $line =~ /writes/;
 
 		}
 		close INPUT;

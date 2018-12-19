@@ -26,9 +26,9 @@ sub extractReport() {
 		while (<INPUT>) {
 			my $line = $_;
 			if ($line =~ /([0-9]):([0-9.]+)elapsed/) {
-				push @{$self->{_ResultData}}, [ "user", ++$nr_samples, $self->_time_to_user($line) ];
-				push @{$self->{_ResultData}}, [ "syst", ++$nr_samples, $self->_time_to_sys($line) ];
-				push @{$self->{_ResultData}}, [ "elsp", ++$nr_samples, $self->_time_to_elapsed($line) ];
+				$self->addData("user", ++$nr_samples, $self->_time_to_user($line));
+				$self->addData("syst", ++$nr_samples, $self->_time_to_sys($line));
+				$self->addData("elsp", ++$nr_samples, $self->_time_to_elapsed($line));
 			}
 		}
 		close INPUT;

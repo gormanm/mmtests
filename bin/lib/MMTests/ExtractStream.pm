@@ -48,10 +48,10 @@ sub extractReport() {
 		close INPUT;
 	}
 
-	push @{$self->{_ResultData}}, [ "copy",  0, $copy  / $iterations ];
-	push @{$self->{_ResultData}}, [ "scale", 0, $scale / $iterations ];
-	push @{$self->{_ResultData}}, [ "add",   0, $add   / $iterations ];
-	push @{$self->{_ResultData}}, [ "triad", 0, $triad / $iterations ];
+	$self->addData("copy", 0, $copy  / $iterations );
+	$self->addData("scale", 0, $scale / $iterations );
+	$self->addData("add", 0, $add   / $iterations );
+	$self->addData("triad", 0, $triad / $iterations );
 }
 
 1;

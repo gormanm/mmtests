@@ -42,7 +42,7 @@ sub extractReport() {
 				$elements[1] =~ s/"//g;
 
 				$opNames{$elements[0]} = 1;
-				push @{$self->{_ResultData}}, [ "$client-$elements[0]", $iteration, $elements[1] ];
+				$self->addData("$client-$elements[0]", $iteration, $elements[1]);
 			}
 			$iteration++;
 			close(INPUT);

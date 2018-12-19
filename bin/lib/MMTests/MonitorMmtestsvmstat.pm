@@ -424,7 +424,7 @@ key:	foreach my $key (@_fieldOrder) {
 		my $suppress = 0;
 
 		my $keyName = $_fieldNameMap{$key};
-		push @{$self->{_ResultData}}, [ $keyName, 0, $vmstat{$key} ];
+		$self->addData($keyName, 0, $vmstat{$key} );
 
 		# Work out the length of the largest field
 		my $length = length($keyName);

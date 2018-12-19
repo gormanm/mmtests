@@ -39,13 +39,13 @@ sub extractReport() {
 			while (<INPUT>) {
 				my $line = $_;
 				if ($line =~ /\s+([0-9.]+), secs,\s+NUMA-convergence-latency/) {
-					push @{$self->{_ResultData}}, [ "converged-$convergance", $iteration, $1 ];
+					$self->addData("converged-$convergance", $iteration, $1);
 				}
 				if ($line =~ /\s+([0-9.]+), GB\/sec,\s+thread-speed/) {
-					push @{$self->{_ResultData}}, [ "threadspeed-$convergance", $iteration, $1 ];
+					$self->addData("threadspeed-$convergance", $iteration, $1);
 				}
 				if ($line =~ /\s+([0-9.]+), GB\/sec,\s+total-speed/) {
-					push @{$self->{_ResultData}}, [ "totalspeed-$convergance", $iteration, $1 ];
+					$self->addData("totalspeed-$convergance", $iteration, $1);
 				}
 			}
 			close(INPUT);

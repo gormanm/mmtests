@@ -34,7 +34,7 @@ sub extractReport() {
 		my ($user, $sys, $records);
 		while (<INPUT>) {
 			if ($_ =~ /.*, cost ([0-9]*)ns.*/) {
-				push @{$self->{_ResultData}}, [ "nsec-$client", ++$iteration, $1 ];
+				$self->addData("nsec-$client", ++$iteration, $1);
 				if ($iteration == 1) {
 					push(@ops, "nsec-$client");
 				}

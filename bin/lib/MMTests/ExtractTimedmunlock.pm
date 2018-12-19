@@ -34,7 +34,7 @@ sub extractReport() {
 		$_ =~ tr/[a-zA-Z]%//d;
 		$elapsed = $_ / 1000000000;
 
-		push @{$self->{_ResultData}}, [ "latency", $iteration, $elapsed ];
+		$self->addData("latency", $iteration, $elapsed );
 		$iteration++;
 	}
 	close INPUT;

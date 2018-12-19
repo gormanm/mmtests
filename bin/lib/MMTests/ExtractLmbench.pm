@@ -42,7 +42,7 @@ sub extractReport() {
 		if ($caseName eq "lat_mmap") {
 			my @elements = split(/\s+/, $_);
 			my $size = (int $elements[0]) . "M";
-			push @{$self->{_ResultData}}, [ "$size", ++$sampleSizes{$elements[0]}, $elements[1] ];
+			$self->addData("$size", ++$sampleSizes{$elements[0]}, $elements[1]);
 			if ($sampleSizes{$elements[0]} == 1) {
 				push @ops, "$size";
 			}
@@ -55,7 +55,7 @@ sub extractReport() {
 			if ($line =~ /^[0-9].*/) {
 				my @elements = split(/\s+/, $_);
 				$elements[0] =~ s/\..*/M/;
-				push @{$self->{_ResultData}}, [ "$elements[0]-$size", ++$nr_samples, $elements[1] ];
+				$self->addData("$elements[0]-$size", ++$nr_samples, $elements[1]);
 				if ($nr_samples == 1) {
 					push @ops, "$elements[0]-$size";
 				}

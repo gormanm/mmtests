@@ -50,12 +50,12 @@ sub extractOneFile {
 			@elements = split(/;/, $_);
 			# Total read KB > 0?
 			if ($elements[5] > 0) {
-				push @{$self->{_ResultData}}, [ "$worker-read", $jobs, $elements[44] ];
+				$self->addData("$worker-read", $jobs, $elements[44]);
 				$rw = $rw | 1;
 			}
 			# Total written KB > 0?
 			if ($elements[52] > 0) {
-				push @{$self->{_ResultData}}, [ "$worker-write", $jobs, $elements[91] ];
+				$self->addData("$worker-write", $jobs, $elements[91]);
 				$rw = $rw | 2;
 			}
 		}
