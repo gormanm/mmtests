@@ -1,7 +1,7 @@
 # ExtractTimedmunlock.pm
 package MMTests::ExtractTimedmunlock;
-use MMTests::Extract;
-our @ISA = qw(MMTests::Extract);
+use MMTests::SummariseMultiops;
+our @ISA = qw(MMTests::SummariseMultiops);
 
 sub new() {
 	my $class = shift;
@@ -14,17 +14,28 @@ sub new() {
 	return $self;
 }
 
+sub initialise()
+{
+	my ($self, $reportDir, $testName) = @_;
+
+	$self->SUPER::initialise($reportDir, $testName);
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}d", "%$fieldLength.2f" ];
+	$self->{_FieldHeaders} = [ "munlock", "Iteration", "Latency" ];
+}
+
 sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
-	my ($user, $system, $elapsed, $cpu);
+	my ($elapsed, $iteration);
 	my $file = "$reportDir/$profile/timedmunlock.time";
 
 	open(INPUT, $file) || die("Failed to open $file\n");
+	$iteration = 0;
 	while (<INPUT>) {
 		$_ =~ tr/[a-zA-Z]%//d;
 		$elapsed = $_ / 1000000000;
 
-		push @{$self->{_ResultData}}, [ 0, 0, $elapsed, 0 ];
+		push @{$self->{_ResultData}}, [ "latency", $iteration, $elapsed ];
+		$iteration++;
 	}
 	close INPUT;
 }
