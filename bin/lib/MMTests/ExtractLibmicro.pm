@@ -34,16 +34,6 @@ sub extractReport() {
 				push @ops, "mean95-$testname";
 				next;
 			}
-
-#			if ($elements[1] eq "min" ||
-#					$elements[1] eq "max" ||
-#					$elements[1] eq "mean" ||
-#					$elements[1] eq "median" ||
-#					$elements[1] eq "stddev") {
-#				push @{$self->{_ResultData}}, [ "$elements[1]-$testname", $elements[-1]];
-#				push @ops, "$elements[1]-$testname";
-#				next;
-#			}
 		}
 		close INPUT;
 	}
