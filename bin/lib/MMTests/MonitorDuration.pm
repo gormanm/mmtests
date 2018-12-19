@@ -9,7 +9,8 @@ sub new() {
 	my $self = {
 		_ModuleName  => "MonitorDuration",
 		_DataType    => MMTests::Monitor::MONITOR_CPUTIME_SINGLE,
-		_ResultData  => []
+		_ResultData  => [],
+		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -17,11 +18,12 @@ sub new() {
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $testName, $testBenchmark) = @_;
-
+	my $fieldLength = 12;
 	my $file = "$reportDir/tests-timestamp-$testName";
 
-	$self->{_FieldLength} = 12;
-	$self->{_FieldHeaders} = ["", "User", "System", "Elapsed"];
+	$self->{_FieldLength} = $fieldLength;
+	$self->{_FieldHeaders} = [ "Op", "", "Duration" ];
+	$self->{_FieldFormat} = [ "${fieldLength}s", "", "%${fieldLength}.2f" ];
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
@@ -33,7 +35,9 @@ sub extractReport($$$) {
 			 $system, $dummy,
 			 $elapsed, $dummy) = split(/\s/, $1);
 
-			push @{$self->{_ResultData}}, [ "", $user, $system, $elapsed];
+			push @{$self->{_ResultData}}, [ "User", 0, $user ];
+			push @{$self->{_ResultData}}, [ "System", 0, $system ];
+			push @{$self->{_ResultData}}, [ "Elapsed", 0, $elapsed ];
 		}
 	}
 	close INPUT;
