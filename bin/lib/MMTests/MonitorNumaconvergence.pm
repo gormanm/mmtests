@@ -16,7 +16,8 @@ sub new() {
 	my $self = {
 		_ModuleName  => "MonitorDuration",
 		_DataType    => MMTests::Monitor::MONITOR_NUMA_CONVERGENCE,
-		_ResultData  => []
+		_ResultData  => [],
+		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -31,8 +32,8 @@ sub initialise() {
 	my $fieldLength = 12;
 	$self->{_Window} = \@window;
 	$self->{_FieldLength} = 12;
-	$self->{_FieldFormat} = [ "%${fieldLength}d", "%${fieldLength}.4f" ];
-	$self->{_FieldHeaders} = [ "time", "convergence" ];
+	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}d", "%${fieldLength}.4f" ];
+	$self->{_FieldHeaders} = [ "Op", "Time", "Convergence" ];
 }
 
 sub printDataType() {
@@ -137,7 +138,8 @@ sub extractReport($$$$$) {
 				$self->parseVMStat($vmstat);
 				$vmstat = "";
 				push @{$self->{_ResultData}},
-					[ $timestamp - $start_timestamp,
+					[ "convergence",
+					  $timestamp - $start_timestamp,
 					  $self->currentConvergence()
 					];
 			}
