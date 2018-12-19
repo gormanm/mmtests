@@ -10,8 +10,8 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorIoop",
 		_DataType      => MMTests::Monitor::MONITOR_IOTOP,
-		_RowOrientated => 1,
-		_ResultData    => []
+		_ResultData    => [],
+		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -67,8 +67,8 @@ sub extractReport($$$$) {
 	# TODO: Auto-discover lengths and handle multi-column reports
 	my $fieldLength = 25;
 	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldHeaders} = [ "time", "process", $subHeading ];
-	$self->{_FieldFormat} = [ "%${fieldLength}d", "%${fieldLength}s", "%${fieldLength}.2f" ];
+	$self->{_FieldHeaders} = [ "Process", "Time", $subHeading ];
+	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}d", "%${fieldLength}.2f" ];
 
 	my $file = "$reportDir/iotop-$testName-$testBenchmark";
 	if (-e $file) {
@@ -92,7 +92,7 @@ sub extractReport($$$$) {
 				if ($subCalc ne "" && $#vals >= 0) {
 					no strict "refs";
 					push @{$self->{_ResultData}},
-						[ $timestamp - $start_timestamp, "threads", &$subCalc(@vals) ];
+						[ "threads", $timestamp - $start_timestamp, &$subCalc(@vals) ];
 				}
 				$timestamp = $1;
 			}
@@ -115,7 +115,7 @@ sub extractReport($$$$) {
 			if ($val > 5) {
 				if ($subCalc eq "") {
 					push @{$self->{_ResultData}},
-						[ $timestamp - $start_timestamp, $shortTask, $val ];
+						[ $shortTask, $timestamp - $start_timestamp, $val ];
 				}
 				push @vals, $val;
 			}
