@@ -39,6 +39,10 @@ while [ "$1" != "" ]; do
 		fi
 		shift 2
 		;;
+	--exclude)
+		KERNEL_EXCLUDE=$2
+		shift 2
+		;;
 	--result-dir)
 		cd "$2" || die Result directory does not exist or is not directory
 		shift 2
