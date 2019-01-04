@@ -16,6 +16,7 @@ install-depends libaio-devel
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -391,4 +392,4 @@ diff -rup a/src/drv_funcs.c b/src/drv_funcs.c
  	strcat(stmp,s2);
 ==== END controlled-sync.patch ====
 #### Description reaim
-#### Details reaim 60
+#### Details reaim 61

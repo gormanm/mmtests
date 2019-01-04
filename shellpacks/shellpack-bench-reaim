@@ -20,6 +20,7 @@ REAIM_WORKFILE=workfile.fserver
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -150,4 +151,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description reaim
-#### Details reaim-bench 60
+#### Details reaim-bench 61

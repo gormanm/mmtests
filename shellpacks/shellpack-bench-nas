@@ -35,6 +35,7 @@ fi
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -154,7 +155,7 @@ MPI)
 OMP)
 	REMOVE_LIST="xx"
 	if [ "$NAS_CLASS" = "D" ]; then
-		REMOVE_LIST="ft"
+		REMOVE_LIST="ft dc"
 	fi
 	for REMOVE in $REMOVE_LIST; do
 		JOBLIST=`echo $JOBLIST | sed -e "s/$REMOVE//"`
@@ -251,4 +252,4 @@ done
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas-bench 90
+#### Details nas-bench 91
