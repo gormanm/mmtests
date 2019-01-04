@@ -15,6 +15,7 @@ install-depends gcc-fortran
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -66,4 +67,4 @@ pushd nas-$VERSION-installed > /dev/null || die Failed to rename tar
 
 exit $SHELLPACK_SUCCESS
 #### Description NAS Parallel Benchmark
-#### Details nas 90
+#### Details nas 91

@@ -95,7 +95,7 @@ MPI)
 OMP)
 	REMOVE_LIST="xx"
 	if [ "$NAS_CLASS" = "D" ]; then
-		REMOVE_LIST="ft"
+		REMOVE_LIST="ft dc"
 	fi
 	for REMOVE in $REMOVE_LIST; do
 		JOBLIST=`echo $JOBLIST | sed -e "s/$REMOVE//"`
