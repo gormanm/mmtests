@@ -7,7 +7,7 @@ MIRROR_LOCATION="$WEBROOT/spec"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK sources_fetch speccpu2017-${VERSION}.tar.gz speccpu2017-${VERSION}-installed
+###SHELLPACK sources_fetch speccpu2017-${VERSION}.tar.xz speccpu2017-${VERSION}-installed
 ###SHELLPACK build_start speccpu2017-${VERSION}-installed
 
 SCRIPT=`mktemp`

@@ -46,12 +46,12 @@ if [ -z "$VERSION" ]; then
 fi
 
 # Unconditionally fetch the tar to find out the real version number
-TARFILE=speccpu2017-${VERSION}.tar.gz
+TARFILE=speccpu2017-${VERSION}.tar.xz
 sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_LOCATION_ALT/$TARFILE
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
-	error "$P: tar xf speccpu2017-${VERSION}.tar.gz failed"
+	error "$P: tar xf speccpu2017-${VERSION}.tar.xz failed"
 	popd > /dev/null
 	exit $SHELLPACK_ERROR
 fi
@@ -76,4 +76,4 @@ rm $SCRIPT
 
 exit $SHELLPACK_SUCCESS
 #### Description speccpu2017
-#### Details speccpu2017 15
+#### Details speccpu2017 16
