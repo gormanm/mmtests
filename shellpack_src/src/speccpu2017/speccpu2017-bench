@@ -1,6 +1,6 @@
 #!/bin/bash
 # This is the script for running SPECcpu
-###SHELLPACK preamble speccpu2017-bench 1.0.1
+###SHELLPACK preamble speccpu2017-bench 1.0.5
 
 SPECCPU_DATA_SIZE=ref
 SPECCPU_ITERATIONS=3

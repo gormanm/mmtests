@@ -1,7 +1,7 @@
 #!/bin/bash
 
 P=speccpu2017-install
-DEFAULT_VERSION=1.0.1
+DEFAULT_VERSION=1.0.5
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -14,6 +14,7 @@ MIRROR_LOCATION="$WEBROOT/spec"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -75,4 +76,4 @@ rm $SCRIPT
 
 exit $SHELLPACK_SUCCESS
 #### Description speccpu2017
-#### Details speccpu2017 14
+#### Details speccpu2017 15
