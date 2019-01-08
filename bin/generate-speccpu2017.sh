@@ -289,8 +289,9 @@ emit_portall() {
       preENV_OMP_STACKSIZE = 120M
 %endif
 
-default=base:         # flags for all base
-   OPTIMIZE       = -g -O3 -march=native -fno-unsafe-math-optimizations $VECTORISE
+default=base:		# flags for all base
+   OPTIMIZE		= -g -O3 -march=native -fno-unsafe-math-optimizations $VECTORISE
+   EXTRA_CXXOPTIMIZE	= -std=c++03
 
 intrate,intspeed=base: # flags for integer base
 %if %{bits} == 32
