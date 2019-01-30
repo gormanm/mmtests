@@ -119,11 +119,6 @@ kernbench
 	An average time is stored. This is sensitive to the overall
 	performance of the system as it hits a number of subsystems.
 
-multibuild
-	Similar to kernbench except it runs a number of kernel compiles
-	in parallel. Can be useful for stressing the system and seeing
-	how well it deals with simple fork-based parallelism.
-
 aim9
 	Runs a short version of aim9 by default. Each test runs for 60
 	seconds. This is a micro-benchmark of a number of VM operations. It's
