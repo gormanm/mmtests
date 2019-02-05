@@ -349,7 +349,10 @@ generate_subtest_graphs() {
 }
 
 generate_subtest_graphs_sorted() {
-	SUBTEST_LIST=`eval $EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sort | uniq | sed -e 's/ /@/g'`
+	SUBTEST_LIST=$1
+	if [ "$SUBTEST_LIST" = "" ]; then
+		SUBTEST_LIST=`eval $EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sort | uniq | sed -e 's/ /@/g'`
+	fi
 	for HEADING in $SUBTEST_LIST; do
 		HEADING=`echo $HEADING | sed -e 's/@/ /g'`
 		HEADING_FILENAME=`echo $HEADING | sed -e 's/ //g'`
@@ -844,7 +847,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		bonnie)
 			SUBTEST_LIST=`$EXTRACT_CMD -n $KERNEL | awk '{print $1" "$2}' | sort | uniq | sed -e 's/ /@/g'`
-			generate_subtest_graphs 3 "$SUBTEST_LIST"
+			generate_subtest_graphs_sorted "$SUBTEST_LIST"
 			;;
 		autonumabench)
 			generate_cputime_graphs
