@@ -153,13 +153,24 @@ sub printPlot() {
 
 		$nr_headings++;
 		if ($self->{_PlotType} =~ /simple.*/) {
+			my $fake_samples = 0;
 			my @data = @{$self->{_ResultData}};
+
+			if ($self->{_PlotType} =~ /simple-samples/) {
+				$fake_samples = 1;
+			}
+
 			for ($samples = 0; $samples <= $#index; $samples++) {
+				my $stamp = $index[$samples] - $index[0];
+				if ($fake_samples) {
+					$stamp = $samples;
+				}
+
 				# Use %d for integers to avoid strangely looking graphs
 				if (int $index[$samples] != $index[$samples]) {
-					printf("%-${fieldLength}.3f %${fieldLength}.3f\n", $index[$samples] - $index[0], $units[$samples]);
+					printf("%-${fieldLength}.3f %${fieldLength}.3f\n", $stamp, $units[$samples]);
 				} else {
-					printf("%-${fieldLength}d %${fieldLength}.3f\n", $index[$samples] - $index[0], $units[$samples]);
+					printf("%-${fieldLength}d %${fieldLength}.3f\n", $stamp, $units[$samples]);
 				}
 			}
 		} elsif ($self->{_PlotType} eq "candlesticks") {

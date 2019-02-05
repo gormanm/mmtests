@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_ModuleName} = "ExtractBonnie";
 	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
-	$self->{_PlotType}   = "operation-errorlines";
+	$self->{_PlotType}   = "simple-samples";
 	$self->{_DefaultPlot} = "SeqOut Block";
 	$self->{_ExactSubheading} = 1;
 	$self->SUPER::initialise($reportDir, $testName);
