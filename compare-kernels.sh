@@ -363,6 +363,11 @@ generate_subtest_graphs_sorted() {
 		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted.ps  --sort-samples
 		plain graph-$SUBREPORT-$HEADING_FILENAME
 		plain graph-$SUBREPORT-$HEADING_FILENAME-sorted
+		if [ "$2" = "--logY" ]; then
+			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY.png --sort-samples --logY
+			eval $GRAPH_PSC --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY.ps  --sort-samples --logY
+			plain graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY
+		fi
 		echo "</tr>"
 	done
 }
@@ -847,7 +852,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		bonnie)
 			SUBTEST_LIST=`$EXTRACT_CMD -n $KERNEL | awk '{print $1" "$2}' | sort | uniq | sed -e 's/ /@/g'`
-			generate_subtest_graphs_sorted "$SUBTEST_LIST"
+			generate_subtest_graphs_sorted "$SUBTEST_LIST" --logY
 			;;
 		autonumabench)
 			generate_cputime_graphs
