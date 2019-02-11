@@ -319,6 +319,18 @@ generate_client_subtest_graphs() {
 	fi
 }
 
+SAVE_CACHE_MMTESTS=
+
+save_cache_mmtests() {
+	SAVE_CACHE_MMTESTS=$CACHE_MMTESTS
+	unset CACHE_MMTESTS
+}
+
+restore_cache_mmtests() {
+	export CACHE_MMTESTS=$SAVE_CACHE_MMTESTS
+	unset SAVE_CACHE_MMTESTS
+}
+
 generate_subtest_graphs() {
 	COUNT=-1
 	WRAP=$1
@@ -329,6 +341,7 @@ generate_subtest_graphs() {
 	if [ "$SUBTEST_LIST" = "" ]; then
 		SUBTEST_LIST=`eval $EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sort | uniq | sed -e 's/ /@/g'`
 	fi
+	save_cache_mmtests
 	for HEADING in $SUBTEST_LIST; do
 		HEADING=`echo $HEADING | sed -e 's/@/ /g'`
 		HEADING_FILENAME=`echo $HEADING | sed -e 's/ //g'`
@@ -346,6 +359,7 @@ generate_subtest_graphs() {
 	if [ $((COUNT%$WRAP)) -ne $((WRAP-1)) ]; then
 		echo "</tr>"
 	fi
+	restore_cache_mmtests
 }
 
 generate_subtest_graphs_sorted() {
@@ -353,6 +367,7 @@ generate_subtest_graphs_sorted() {
 	if [ "$SUBTEST_LIST" = "" ]; then
 		SUBTEST_LIST=`eval $EXTRACT_CMD -n $KERNEL | awk '{print $1}' | sort | uniq | sed -e 's/ /@/g'`
 	fi
+	save_cache_mmtests
 	for HEADING in $SUBTEST_LIST; do
 		HEADING=`echo $HEADING | sed -e 's/@/ /g'`
 		HEADING_FILENAME=`echo $HEADING | sed -e 's/ //g'`
@@ -370,6 +385,7 @@ generate_subtest_graphs_sorted() {
 		fi
 		echo "</tr>"
 	done
+	restore_cache_mmtests
 }
 
 generate_cputime_graphs() {
