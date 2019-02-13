@@ -356,25 +356,13 @@ sub calc_coeffvar {
 sub calc_quartiles {
 	my @x = sort { $a <=> $b} @_;
 	my @quartiles;
+	my $i;
 
 	$quartiles[0] = 0;
-	$quartiles[1] = $x[int($#x * 0.25 + 0.5)];
-	$quartiles[2] = $x[int($#x * 0.50 + 0.5)];
-	$quartiles[3] = $x[int($#x * 0.75 + 0.5)];
-	$quartiles[4] = $x[$#x];
-	$quartiles[90] = $x[int($#x * 0.90 + 0.5)];
-	$quartiles[93] = $x[int($#x * 0.93 + 0.5)];
-	$quartiles[95] = $x[int($#x * 0.95 + 0.5)];
-	$quartiles[99] = $x[int($#x * 0.99 + 0.5)];
-
-	chomp($quartiles[1]);
-	chomp($quartiles[2]);
-	chomp($quartiles[3]);
-	chomp($quartiles[4]);
-	chomp($quartiles[90]);
-	chomp($quartiles[93]);
-	chomp($quartiles[95]);
-	chomp($quartiles[99]);
+	for ($i = 1; $i <= 100; $i++) {
+		$quartiles[$i] = $x[int($#x * ($i / 100) + 0.5)];
+		chomp($quartiles[$i]);
+	}
 
 	return \@quartiles;
 }

@@ -185,9 +185,9 @@ sub extractSummary() {
 
 	my @row;
 	push @{$self->{_SummaryData}}, [ "Min", calc_min(@units) ];
-	push @{$self->{_SummaryData}}, [ "1st-qrtle", $quartiles[1]  ];
-	push @{$self->{_SummaryData}}, [ "2nd-qrtle", $quartiles[2]  ];
-	push @{$self->{_SummaryData}}, [ "3rd-qrtle", $quartiles[3]  ];
+	push @{$self->{_SummaryData}}, [ "1st-qrtle", $quartiles[25]  ];
+	push @{$self->{_SummaryData}}, [ "2nd-qrtle", $quartiles[50]  ];
+	push @{$self->{_SummaryData}}, [ "3rd-qrtle", $quartiles[75]  ];
 	push @{$self->{_SummaryData}}, [ "Max-90%",   $quartiles[90] ];
 	push @{$self->{_SummaryData}}, [ "Max-93%",   $quartiles[93] ];
 	push @{$self->{_SummaryData}}, [ "Max-95%",   $quartiles[95] ];
