@@ -28,8 +28,9 @@ sub extractSummary() {
 
 	$self->{_SummaryHeaders} =
 		[ "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle",
-		  "Max-10%",
-		  "Max-90%", "Max-95%", "Max-99%", "Max",
+		  "Max-1%", "Max-5%", "Max-10%",
+		  "Max-90%", "Max-95%", "Max-99%",
+		  "Max",
 		  "$self->{_MeanName}", "Stddev",
 		  "Coeff", "Best99%$self->{_MeanName}",
 		  "Best95%$self->{_MeanName}", "Best90%$self->{_MeanName}",
@@ -51,6 +52,8 @@ sub extractSummary() {
 		push @row, $quartiles[25];
 		push @row, $quartiles[50];
 		push @row, $quartiles[75];
+		push @row, $quartiles[1];
+		push @row, $quartiles[5];
 		push @row, $quartiles[10];
 		push @row, $quartiles[90];
 		push @row, $quartiles[95];
