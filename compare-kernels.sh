@@ -213,6 +213,16 @@ smoothover() {
 	fi
 }
 
+logyover() {
+	IMG_SRC=$1
+	IMG_LOGY=$1-logY
+	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
+		echo -n "  <td><a href=\"$IMG_LOGY.ps.gz\"><img src=\"$IMG_LOGY.png\" onmouseover=\"this.src='$IMG_SRC.png'\" onmouseout=\"this.src='$IMG_LOGY.png'\"></a></td>"
+	else
+		echo -n "  <td><img src=\"$IMG_LOGY.png\" onmouseover=\"this.src='$IMG_SRC.png'\" onmouseout=\"this.src='$IMG_LOGY.png'\"></td>"
+	fi
+}
+
 generate_latency_table() {
 	LATTYPE="$1"
 	if [ `ls $LATTYPE-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
@@ -376,12 +386,15 @@ generate_subtest_graphs_sorted() {
 		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME.ps
 		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted.png --sort-samples --sort-percentages 5
 		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted.ps  --sort-samples --sort-percentages 5
-		plain graph-$SUBREPORT-$HEADING_FILENAME
-		plain graph-$SUBREPORT-$HEADING_FILENAME-sorted
-		if [ "$2" = "--logY" ]; then
-			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY.png --sort-samples --logY --sort-percentages 5
-			eval $GRAPH_PSC --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY.ps  --sort-samples --logY --sort-percentages 5
-			plain graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY
+		if [ "$2" != "--logY" ]; then
+			plain graph-$SUBREPORT-$HEADING_FILENAME
+			plain graph-$SUBREPORT-$HEADING_FILENAME-sorted
+		else
+			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-logY.png --logY
+			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY.png --sort-samples --sort-percentages 5 --logY
+
+			logyover graph-$SUBREPORT-$HEADING_FILENAME
+			logyover graph-$SUBREPORT-$HEADING_FILENAME-sorted
 		fi
 		echo "</tr>"
 	done
