@@ -94,6 +94,11 @@ while [ "$1" != "" ]; do
 		XRANGE_COMMAND="--xrange $2"
 		shift 2
 		;;
+	--sort-percentages)
+		XTICS_CMD="--xtics $2"
+		SORT_PERCENTAGES=$2
+		shift 2
+		;;
 	--sort-samples)
 		SORT_SAMPLES=yes
 		shift
@@ -183,15 +188,21 @@ for TEST in $TEST_LIST; do
 			sed -e 's/_/\\\\_/g'	  \
 			> $PLOTFILE || exit
 
+		NR_SAMPLES=`cat $PLOTFILE | wc -l`
+
 		if [ "$SORT_SAMPLES" = "yes" ]; then
-			NR_SAMPLES=0
+			NR_SAMPLE=0
 			SORT_SWITCH=
 			if [ "$SORT_REVERSE" = "yes" ]; then
 				SORT_SWITCH=-r
 			fi
 			for SAMPLE in `awk '{print $2}' $PLOTFILE | sort $SORT_SWITCH -n`; do
-				NR_SAMPLES=$((NR_SAMPLES+1))
-				echo $NR_SAMPLES $SAMPLE >> $PLOTFILE.tmp
+				NR_SAMPLE=$((NR_SAMPLE+1))
+				PRINT_SAMPLE=$NR_SAMPLE
+				if [ "$SORT_PERCENTAGES" != "" ]; then
+					PRINT_SAMPLE=`echo "$NR_SAMPLE*100/$NR_SAMPLES" | bc -l`
+				fi
+				echo $PRINT_SAMPLE $SAMPLE >> $PLOTFILE.tmp
 			done
 			mv $PLOTFILE.tmp $PLOTFILE
 		fi
@@ -242,7 +253,7 @@ PLOTSCRIPTS="plot"
 
 for PLOTSCRIPT in $PLOTSCRIPTS; do
 	COMMAND="$SCRIPTDIR/$PLOTSCRIPT $TITLE $PLOTTYPE $SEPARATE_TESTS $SMOOTH $FORMAT_CMD $OUTPUT_CMD $OUTPUT \
-		$LOGX $LOGY $WIDE $SUBREPORT_ARGS $XRANGE $XRANGE_COMMAND $YRANGE_COMMAND \
+		$LOGX $LOGY $WIDE $SUBREPORT_ARGS $XRANGE $XRANGE_COMMAND $YRANGE_COMMAND $XTICS_CMD \
 		--xlabel \"$XLABEL\" \
 		--ylabel \"$YLABEL\" \
 		--titles $TITLES \
