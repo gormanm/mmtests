@@ -374,13 +374,13 @@ generate_subtest_graphs_sorted() {
 		echo "<tr>"
 		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME.png
 		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME.ps
-		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted.png --sort-samples
-		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted.ps  --sort-samples
+		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted.png --sort-samples --sort-percentages 5
+		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted.ps  --sort-samples --sort-percentages 5
 		plain graph-$SUBREPORT-$HEADING_FILENAME
 		plain graph-$SUBREPORT-$HEADING_FILENAME-sorted
 		if [ "$2" = "--logY" ]; then
-			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY.png --sort-samples --logY
-			eval $GRAPH_PSC --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY.ps  --sort-samples --logY
+			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY.png --sort-samples --logY --sort-percentages 5
+			eval $GRAPH_PSC --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY.ps  --sort-samples --logY --sort-percentages 5
 			plain graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY
 		fi
 		echo "</tr>"

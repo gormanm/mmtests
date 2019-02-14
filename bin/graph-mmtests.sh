@@ -95,6 +95,8 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	--sort-percentages)
+		XRANGE_COMMAND="--xrange 0:102"
+		FORCE_X_LABEL="Max at percentage of samples"
 		XTICS_CMD="--xtics $2"
 		SORT_PERCENTAGES=$2
 		shift 2
@@ -196,14 +198,11 @@ for TEST in $TEST_LIST; do
 			if [ "$SORT_REVERSE" = "yes" ]; then
 				SORT_SWITCH=-r
 			fi
-			for SAMPLE in `awk '{print $2}' $PLOTFILE | sort $SORT_SWITCH -n`; do
-				NR_SAMPLE=$((NR_SAMPLE+1))
-				PRINT_SAMPLE=$NR_SAMPLE
-				if [ "$SORT_PERCENTAGES" != "" ]; then
-					PRINT_SAMPLE=`echo "$NR_SAMPLE*100/$NR_SAMPLES" | bc -l`
-				fi
-				echo $PRINT_SAMPLE $SAMPLE >> $PLOTFILE.tmp
-			done
+			if [ "$SORT_PERCENTAGES" = "" ]; then
+				sort $SORT_SWITCH -k2 -n $PLOTFILE | awk '{print NR" "$2}' > $PLOTFILE.tmp
+			else
+				sort $SORT_SWITCH -k2 -n $PLOTFILE | awk "{print (NR*100/$NR_SAMPLES)\" \"\$2}" > $PLOTFILE.tmp
+			fi
 			mv $PLOTFILE.tmp $PLOTFILE
 		fi
 
