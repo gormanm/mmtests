@@ -58,7 +58,7 @@ sub extractSummary() {
 		push @row, $quartiles[90];
 		push @row, $quartiles[95];
 		push @row, $quartiles[99];
-		push @row, $quartiles[4];
+		push @row, calc_max(@units);
 		push @row, &$meanOp(@units);
 		push @row, calc_stddev(@units);
 		push @row, calc_coeffvar(@units);
