@@ -19,6 +19,12 @@ NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
 LLC_INDEX=`find /sys/devices/system/cpu/ -type d -name "index*" | sed -e 's/.*index//' | sort -n | tail -1`
 NUMLLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort | uniq | wc -l`
 
+grep -q nosmt /proc/cmdline
+if [ $? -eq 0 ]; then
+	echo WARNING: Artifically boosting NUMCPUS to account for nosmt comparison
+	NUMCPUS=$((NUMCPUS*2))
+fi
+
 function die() {
 	rm -rf $SHELLPACK_TEMP
 	if [ "$P" != "" ]; then
