@@ -52,9 +52,21 @@ sub extractSummary() {
 	my ($self) = @_;
 
 	if ($self->{_MultiopMonitor}) {
-		# Drop second column for summarization
-		foreach my $rowRef (@{$self->{_ResultData}}) {
-			push @{$self->{_SummaryData}}, [ $rowRef->[1], $rowRef->[2] ];
+		if ($self->{_SingleSample}) {
+			# Drop second column for summarization as it has a
+			# sample or timestamp which is meaningless in the
+			# context of a single sample
+			foreach my $rowRef (@{$self->{_ResultData}}) {
+				push @{$self->{_SummaryData}}, [ $rowRef->[0], $rowRef->[2] ];
+			}
+		} else {
+			# Drop the first column as it has an operation.
+			# Typically this is used in the context of a
+			# graph where the operation is filtered but
+			# the timestamp or sample is relevant.
+			foreach my $rowRef (@{$self->{_ResultData}}) {
+				push @{$self->{_SummaryData}}, [ $rowRef->[1], $rowRef->[2] ];
+			}
 		}
 		$self->{_SummaryHeaders} = [ "", "" ];
 		$self->{_FieldFormat} = [ $self->{_FieldFormat}->[0], $self->{_FieldFormat}->[2] ];

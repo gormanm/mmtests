@@ -10,7 +10,8 @@ sub new() {
 		_ModuleName  => "MonitorDuration",
 		_DataType    => MMTests::Monitor::MONITOR_CPUTIME_SINGLE,
 		_ResultData  => [],
-		_MultiopMonitor => 1
+		_MultiopMonitor => 1,
+		_SingleSample => 1,
 	};
 	bless $self, $class;
 	return $self;
