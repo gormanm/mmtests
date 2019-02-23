@@ -889,7 +889,7 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		blogbench)
 			generate_subheading_graphs "Read Write"
 			;;
-		dbench4|tbench4)
+		dbench4)
 			echo "<tr>"
 			generate_basic_single "$SUBREPORT Completion times" "--logX"
 			generate_basic_single "$SUBREPORT Completion times" "--logX --logY"
@@ -1154,6 +1154,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 				plain graph-$SUBREPORT-$HEADING
 				echo "</tr>"
 			done
+			;;
+		tbench4)
+			echo "<tr>"
+			generate_basic_single "$SUBREPORT Throughput" "--logX"
+			generate_basic_single "$SUBREPORT Throughput" "--logX --logY"
+			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`" "Estimated time"
+			echo "</tr>"
 			;;
 		thpscale)
 			echo "<tr>"
