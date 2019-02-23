@@ -44,7 +44,7 @@ sub extractReport() {
 				my @elements = split(/\s+/, $line);
 
 				$nr_samples++;
-				$self->addData("mb/sec-$client", $nr_samples, $elements[2]);
+				$self->addData("$client", $nr_samples, $elements[2]);
 
 				next;
 			}
@@ -54,7 +54,7 @@ sub extractReport() {
 
 	my @ops;
 	foreach my $client (@clients) {
-		push @ops, "mb/sec-$client";
+		push @ops, "$client";
 	}
 
 	$self->{_Operations} = \@ops;
