@@ -57,6 +57,7 @@ config-global-dhp__io-dbench4-async
 config-global-dhp__io-dbench4-fsync
 config-global-dhp__io-dbench4-single-async
 config-global-dhp__io-dbench4-single-fsync
+config-global-dhp__io-fio-randread-direct-multi
 config-global-dhp__io-fsmark-xfsrepair
 config-global-dhp__pagereclaim-performance
 config-global-dhp__pagereclaim-shrinker
