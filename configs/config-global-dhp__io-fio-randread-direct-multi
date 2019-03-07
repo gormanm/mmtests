@@ -39,6 +39,7 @@ export FIO_CMD_OPTIONS="$JOBFILE"
 cat >$JOBFILE <<END
 [global]
 direct=1
+iodepth=128
 ioengine=libaio
 runtime=900
 blocksize=4k
