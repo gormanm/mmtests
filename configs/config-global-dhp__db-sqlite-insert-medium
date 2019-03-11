@@ -34,5 +34,5 @@ export MONITORS_GZIP="proc-vmstat top"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# sqlite, assumes a row is roughly 52 bytes to create a 16M table
+# sqlite, assumes a row is roughly 52 bytes to create a 2M table
 export SQLITE_SIZE=$((2*1048576/52))
