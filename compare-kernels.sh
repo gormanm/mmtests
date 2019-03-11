@@ -981,8 +981,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			;;
 		monitor)
 			;;
-		mutilate)
-			;;
 		netpipe)
 			echo "<tr>"
 			generate_basic_single "$SUBREPORT Throughput"

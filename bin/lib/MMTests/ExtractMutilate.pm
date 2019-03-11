@@ -10,7 +10,8 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractMutilate",
 		_DataType    => DataTypes::DATA_ACTIONS_PER_SECOND,
-		_ResultData  => []
+		_ResultData  => [],
+		_PlotType    => "client-errorlines",
 	};
 	bless $self, $class;
 	return $self;
