@@ -9,6 +9,7 @@ use MMTests::Stat;
 use MMTests::Blessless qw(blessless);
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
+use MMTests::PrintDocbook;
 use strict;
 use POSIX;
 
@@ -57,6 +58,8 @@ sub setFormat() {
 
 	if ($format eq "html") {
 		$self->{_PrintHandler} = MMTests::PrintHtml->new(1);
+	} elsif ($format eq "docbook") {
+		$self->{_PrintHandler} = MMTests::PrintDocbook->new(1);
 	} else {
 		$self->{_PrintHandler} = MMTests::PrintGeneric->new(1);
 	}
