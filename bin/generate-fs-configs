@@ -68,12 +68,15 @@ config-global-dhp__io-compress
 config-global-dhp__nas-c-class-mpi-full
 config-global-dhp__nas-c-class-mpi-half
 config-global-dhp__nas-c-class-mpi-third
+config-global-dhp__nas-c-class-mpi-quarter
 config-global-dhp__nas-d-class-mpi-bind-full
 config-global-dhp__nas-d-class-mpi-bind-half
 config-global-dhp__nas-d-class-mpi-bind-third
+config-global-dhp__nas-d-class-mpi-bind-quarter
 config-global-dhp__nas-d-class-mpi-full
 config-global-dhp__nas-d-class-mpi-half
 config-global-dhp__nas-d-class-mpi-third
+config-global-dhp__nas-d-class-mpi-quarter
 config-global-dhp__workload_mailserver
 config-global-dhp__workload_kerndevel
 config-global-dhp__workload_dedup
