@@ -9,7 +9,6 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 LTP_RUN_TESTS="controllers"
-LTP_RUN_ITERATIONS=1
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -48,10 +47,6 @@ while [ "$1" != "" ]; do
 		LTP_RUN_ARGS=$2
 		shift 2
 		;;
-	--ltp-iterations)
-		LTP_RUN_ITERATIONS=$2
-		shift 2
-		;;
 	*)
 		echo Unrecognised option: $1
 		shift
@@ -78,46 +73,30 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	echo ltp installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
-
-# Run the testsuite
-cd $SHELLPACK_SOURCES/ltp-${VERSION}-installed || die "Failed to cd to ltp install directory"
-export PATH=$PATH:$SHELLPACK_SOURCES/ltp-${VERSION}-installed/testcases/bin
+# Include monitor hooks
+. $SHELLPACK_INCLUDE/include-monitor.sh
 
 for TESTNAME in $LTP_RUN_TESTS; do
 	echo Executing $TEST LTP test
-	RESULTS="$LOGDIR_RESULTS"
 
-	for ITER in `seq 1 $LTP_RUN_ITERATIONS`; do
-		if [ "$TESTNAME" = "test-direct-process" ]; then
-			# This is part of a CPU hotplug reproduction case. It hammers
-			# process creation and is intended as a scheduler stress test
-			save_rc ./testcases/bin/process -b 10 -d 5 | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
-		elif [ -e runtest/$TESTNAME ]; then
-			save_rc ./runltp -f $TESTNAME $LTP_RUN_ARGS  | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
-		elif [ -e testcases/bin/$TESTNAME ]; then
-			save_rc ./testcases/bin/$TESTNAME $LTP_RUN_ARGS | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
-		else
-			die "No method available to run $TESTNAME"
-		fi
-		recover_rc
-		echo $? > $LOGDIR_RESULTS/${TESTNAME}.status
-	done
-
-	# Check for failures
-	#grep -v PASS $RESULTS/log-$TEST.txt > $RESULTS/failed_tests.txt
-	#TEST=`cat $RESULTS/failed_tests.txt`
-	#if [ "$TEST" != "" ]; then
-	#	echo
-	#	echo Some ltp regression tests reported failure | tee -a $LOGDIR/summary
-	#	cat $RESULTS/failed_tests.txt | tee -a $LOGDIR/summary
-	#	echo
-	#
-	#	echo ltp successfully installed but some regression tests failed | tee -a $LOGDIR/summary
-	#	exit $SHELLPACK_ERROR
-	#fi
+	if [ "$TESTNAME" = "test-direct-process" ]; then
+		# This is part of a CPU hotplug reproduction case. It hammers
+		# process creation and is intended as a scheduler stress test
+		save_rc ./testcases/bin/process -b 10 -d 5 | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
+	elif [ -e runtest/$TESTNAME ]; then
+		save_rc ./runltp -f $TESTNAME $LTP_RUN_ARGS		\
+			-l $LOGDIR_RESULTS/ltp-${TESTNAME}.log 		\
+			-C $LOGDIR_RESULTS/ltp-${TESTNAME}.failed	\
+			-d $SHELLPACK_DATA				\
+				| tee $LOGDIR_RESULTS/log-${TESTNAME}
+	else
+		die "No method available to run $TESTNAME"
+	fi
+	recover_rc
+	echo $? > $LOGDIR_RESULTS/${TESTNAME}.status
 done
 
 echo
 exit $SHELLPACK_SUCCESS
 #### Description LTP Regression Test Suite
-#### Details ltp-bench 32
+#### Details ltp-bench 33

@@ -122,8 +122,6 @@ config-global-dhp__io-filebench-webserver-small
 config-global-dhp__io-filebench-webproxy-small
 config-global-dhp__io-filebench-webproxy-medium
 config-global-dhp__io-filebench-webproxy-large
-config-global-dhp__io-ddread
-config-global-dhp__io-ddwrite
 config-global-dhp__workload_thpscale
 config-global-dhp__workload_thpscale-madvhugepage
 config-global-dhp__workload_will-it-scale-io
@@ -162,6 +160,7 @@ config-global-dhp__speccpu2017-rate-parallel-full
 config-global-dhp__S-startup
 config-global-dhp__parsec-pthreads-half
 config-global-dhp__parsec-pthreads-full
+config-global-dhp__ltp-lite
 "
 
 rm -f *-ext3 *-ext4 *-btrfs *-btrfs-nocow *-xfs *-raid0 *-raid1 *-raid5
