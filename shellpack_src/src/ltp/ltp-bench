@@ -14,6 +14,8 @@ LTP_RUN_TESTS="controllers"
 
 grep -v oom runtest/mm > runtest/mm-lite
 
+LTP_RUN_TESTS=`echo $LTP_RUN_TESTS | tr ',' ' '`
+
 for TESTNAME in $LTP_RUN_TESTS; do
 	echo Executing $TEST LTP test
 
