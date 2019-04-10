@@ -13,6 +13,7 @@ MIRROR_LOCATION="$WEBROOT/stockfish/"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -45,7 +46,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=stockfish-${VERSION}.tar.gz
-git_fetch $GIT_LOCATION stockfish-${VERSION} $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+git_fetch $GIT_LOCATION stockfish-${VERSION} $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $VERSION
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -70,4 +71,4 @@ make install ARCH=$ARCH PREFIX=$SHELLPACK_SOURCES/stockfish-${VERSION}-installed
 
 echo stockfish installed successfully
 #### Description stockfish
-#### Details stockfish 10
+#### Details stockfish 11

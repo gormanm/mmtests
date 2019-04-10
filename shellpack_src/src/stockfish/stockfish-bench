@@ -37,6 +37,9 @@ while {1} {
   expect bestmove exit
 }
 EOF
+
+ulimit -s unlimited
+
 chmod u+x $EXPECT_SCRIPT
 ###SHELLPACK iteration_begin $STOCKFISH_ITERATIONS
 	echo Starting iteration $ITERATION threads $NR_THREADS

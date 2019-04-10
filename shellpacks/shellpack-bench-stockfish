@@ -16,6 +16,7 @@ TESTLIST=
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -90,6 +91,10 @@ fi
 
 THREADS=
 START_THREAD=$STOCKFISH_MIN_THREADS
+if [ "$MMTESTS_THREAD_CUTOFF" != "" ]; then
+	echo Forcing STOCKFISH_MAX_THREADS to $MMTESTS_THREAD_CUTOFF
+	STOCKFISH_MAX_THREADS=$MMTESTS_THREAD_CUTOFF
+fi
 END_THREAD=$STOCKFISH_MAX_THREADS
 if [ $END_THREAD -gt 32 ]; then
 	THREADS=`seq $START_THREAD 3 8`
@@ -123,15 +128,19 @@ while {1} {
   expect bestmove exit
 }
 EOF
+
+ulimit -s unlimited
+
 chmod u+x $EXPECT_SCRIPT
 for ITERATION in `seq 1 $STOCKFISH_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 	echo Starting iteration $ITERATION threads $NR_THREADS
 	$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION \
 		$EXPECT -f $EXPECT_SCRIPT > $LOGDIR_RESULTS/stockfish-$NR_THREADS-$ITERATION
+sync
 done
 done
 
 exit $SHELLPACK_SUCCESS
 #### Description stockfish
-#### Details stockfish-bench 10
+#### Details stockfish-bench 11
