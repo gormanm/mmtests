@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script installs ltp and runs the regression tests
 P=ltp-bench
-DEFAULT_VERSION=full-20120104
+DEFAULT_VERSION=20190115
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -9,10 +9,12 @@ if [ "$TIME_CMD" = "" ]; then
         TIME_CMD="time"
 fi
 LTP_RUN_TESTS="controllers"
+LTP_RUN_ITERATIONS=1
 
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -78,31 +80,27 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 fi
 
 # Run the testsuite
-cd $SHELLPACK_SOURCES/ltp-${VERSION}-installed || die Failed to cd to ltp install directory
-export LTPROOT=`pwd`
-export PATH=$PATH:$LTPROOT/testcases/bin
+cd $SHELLPACK_SOURCES/ltp-${VERSION}-installed || die "Failed to cd to ltp install directory"
+export PATH=$PATH:$SHELLPACK_SOURCES/ltp-${VERSION}-installed/testcases/bin
 
-if [ "$LTP_RUN_ITERATIONS" = "" ]; then
-	LTP_RUN_ITERATIONS=1
-fi
-
-for TEST in $LTP_RUN_TESTS; do
+for TESTNAME in $LTP_RUN_TESTS; do
 	echo Executing $TEST LTP test
 	RESULTS="$LOGDIR_RESULTS"
-	mkdir -p $RESULTS
 
 	for ITER in `seq 1 $LTP_RUN_ITERATIONS`; do
-		if [ "$TEST" = "test-direct-process" ]; then
+		if [ "$TESTNAME" = "test-direct-process" ]; then
 			# This is part of a CPU hotplug reproduction case. It hammers
 			# process creation and is intended as a scheduler stress test
-			( ./testcases/bin/process -b 10 -d 5 || die ltp $TEST failed ) | tee $RESULTS/log-$TEST.txt
-		elif [ -e runtest/$TEST ]; then
-			( ./runltp -f $TEST $LTP_RUN_ARGS 2>&1 || die ltp $TEST failed ) | tee $RESULTS/log-$TEST.txt
-		elif [ -e testcases/bin/$TEST ]; then
-			( ./testcases/bin/$TEST $LTP_RUN_ARGS 2>&1 || die ltp $TEST failed ) | tee $RESULTS/log-$TEST.txt
+			save_rc ./testcases/bin/process -b 10 -d 5 | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
+		elif [ -e runtest/$TESTNAME ]; then
+			save_rc ./runltp -f $TESTNAME $LTP_RUN_ARGS  | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
+		elif [ -e testcases/bin/$TESTNAME ]; then
+			save_rc ./testcases/bin/$TESTNAME $LTP_RUN_ARGS | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
 		else
-			( ./runltp $TEST $LTP_RUN_ARGS 2>&1 || die ltp $TEST failed ) | tee $RESULTS/log-$TEST.txt
+			die "No method available to run $TESTNAME"
 		fi
+		recover_rc
+		echo $? > $LOGDIR_RESULTS/${TESTNAME}.status
 	done
 
 	# Check for failures
@@ -122,4 +120,4 @@ done
 echo
 exit $SHELLPACK_SUCCESS
 #### Description LTP Regression Test Suite
-#### Details ltp-bench 27
+#### Details ltp-bench 32

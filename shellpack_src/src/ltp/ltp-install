@@ -1,20 +1,16 @@
 #!/bin/bash
 # LTP installer
-P=ltp-install
-INSTALL_TESTS=0
-VERSION=
-DEFAULT_VERSION=20150420
-WEB_LOCATION=http://netcologne.dl.sourceforge.net/project/ltp/LTP%20Source
-MIRROR_LOCATION=$WEBROOT/ltp
-LTP_SOURCE_REPO=http://mcp/mmtests-mirror
-. $SHELLPACK_INCLUDE/common.sh
+###SHELLPACK preamble ltp-install 20190115
+GIT_LOCATION=https://github.com/linux-test-project/ltp
+MIRROR_LOCATION="$WEBROOT/ltp"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
 
-###SHELLPACK sources_fetch ltp-${VERSION}/ltp-full-${VERSION}.tar.bz2 ltp-$VERSION
-###SHELLPACK build_start ltp-$VERSION
+###SHELLPACK git_fetch ltp-${VERSION}.tar.gz ltp-$VERSION
+###SHELLPACK build_start ltp-${VERSION}
+make autotools || die "Failed to make autotools"
 ###SHELLPACK build_configure ltp-${VERSION}
 ###SHELLPACK make_make_install
 
