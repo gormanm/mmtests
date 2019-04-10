@@ -12,6 +12,8 @@ LTP_RUN_TESTS="controllers"
 ###SHELLPACK check_install_required ltp-${VERSION}
 ###SHELLPACK monitor_hooks
 
+grep -v oom runtest/mm > runtest/mm-lite
+
 for TESTNAME in $LTP_RUN_TESTS; do
 	echo Executing $TEST LTP test
 

@@ -4,6 +4,8 @@
 GIT_LOCATION=https://github.com/linux-test-project/ltp
 MIRROR_LOCATION="$WEBROOT/ltp"
 
+install-depends mkisofs
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
