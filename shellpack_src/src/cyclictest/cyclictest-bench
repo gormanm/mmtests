@@ -1,7 +1,6 @@
 #!/bin/bash
 # cyclictest
-
-###SHELLPACK preamble cyclictest-bench 0
+###SHELLPACK preamble cyclictest-bench v1.3
 
 CYCLICTEST_ITERATIONS=5
 
@@ -12,8 +11,9 @@ CYCLICTEST_ITERATIONS=5
 ###SHELLPACK parseargYes     --affinity		CYCLICTEST_AFFINITY
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required cyclictest-${VERSION}
+###SHELLPACK check_external_install_required rttestbuild rttestbuild-${VERSION} ${VERSION}
 ###SHELLPACK monitor_hooks
+cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change to rttest directory"
 
 if [ "$CYCLICTEST_AFFINITY" = "yes" ]; then
 	CYCLICTEST_AFFINITY_PARAM=-a
@@ -23,7 +23,7 @@ fi
 	echo Starting iteration $ITERATION/$CYCLICTEST_ITERATIONS
 	monitor_pre_hook $LOGDIR_RESULTS
 	./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
-		-n --distance=0 --duration=$CYCLICTEST_DURATION --quiet 2>&1 | \
+		--distance=0 --duration=$CYCLICTEST_DURATION --quiet 2>&1 | \
 		tee $LOGDIR_RESULTS/cyclictest-$ITERATION.log
 	monitor_post_hook $LOGDIR_RESULTS
 ###SHELLPACK iteration_end $CYCLICTEST_ITERATIONS

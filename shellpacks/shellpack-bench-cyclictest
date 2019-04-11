@@ -1,8 +1,7 @@
 #!/bin/bash
 # cyclictest
-
 P=cyclictest-bench
-DEFAULT_VERSION=0
+DEFAULT_VERSION=v1.3
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -15,6 +14,7 @@ CYCLICTEST_ITERATIONS=5
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -66,20 +66,21 @@ if [ -z "$VERSION" ]; then
 fi
 
 if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/cyclictest-${VERSION}
+	rm -rf $SHELLPACK_SOURCES/rttestbuild-${VERSION}
 fi
-if [ ! -d $SHELLPACK_SOURCES/cyclictest-${VERSION}-installed ]; then
+if [ ! -d $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed ]; then
 	mmtests_activity source-install
-	$SHELLPACK_INCLUDE/shellpack-install-cyclictest -v ${VERSION}  || die cyclictest install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-rttestbuild -v ${VERSION}  || die rttestbuild install script returned error
 	mmtests_activity source-installed
 fi
-cd $SHELLPACK_SOURCES/cyclictest-${VERSION}-installed || die Failed to cd to cyclictest install directory
+cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die Failed to cd to rttestbuild install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo cyclictest installed only as requested.
+	echo rttestbuild installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
+cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change to rttest directory"
 
 if [ "$CYCLICTEST_AFFINITY" = "yes" ]; then
 	CYCLICTEST_AFFINITY_PARAM=-a
@@ -90,10 +91,11 @@ for ITERATION in `seq 1 $CYCLICTEST_ITERATIONS`; do
 	echo Starting iteration $ITERATION/$CYCLICTEST_ITERATIONS
 	monitor_pre_hook $LOGDIR_RESULTS
 	./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
-		-n --distance=0 --duration=$CYCLICTEST_DURATION --quiet 2>&1 | \
+		--distance=0 --duration=$CYCLICTEST_DURATION --quiet 2>&1 | \
 		tee $LOGDIR_RESULTS/cyclictest-$ITERATION.log
 	monitor_post_hook $LOGDIR_RESULTS
+sync
 done
 exit $SHELLPACK_SUCCESS
 #### Description cyclictest
-#### Details cyclictest-bench 7
+#### Details cyclictest-bench 10

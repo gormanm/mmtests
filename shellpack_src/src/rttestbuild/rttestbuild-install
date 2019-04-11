@@ -1,0 +1,16 @@
+#!/bin/bash
+###SHELLPACK preamble rttestbuild-install v1.3
+GIT_LOCATION=git://git.kernel.org/pub/scm/utils/rt-tests/rt-tests.git
+MIRROR_LOCATION="$WEBROOT/rttestbuild/"
+
+install-depends libnuma-devel
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch rttestbuild-${VERSION}.tar.gz rttestbuild-${VERSION}-installed
+###SHELLPACK build_start rttestbuild-${VERSION}-installed
+git checkout $VERSION || die "Failed to checkout version $VERSION"
+###SHELLPACK make
+
+echo rttestbuild installed successfully
