@@ -9,7 +9,8 @@ sub new() {
 		_ModuleName  => "ExtractCyclictest",
 		_DataType    => DataTypes::DATA_TIME_USECONDS,
 		_ResultData  => [],
-		_PlotType    => "simple-filter",
+		_PlotType    => "simple",
+		_PlotStripSubheading => 1,
 		_PlotXaxis   => "CPU",
 		_Opname      => "Lat",
 	};

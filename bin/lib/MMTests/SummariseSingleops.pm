@@ -26,11 +26,14 @@ sub printPlot() {
 		foreach my $row (@{$self->{_ResultData}}) {
 			if ($self->{_ClientSubheading} == 1) {
 				if (@{$row}[0] =~ /.*-$subHeading$/) {
+					if ($self->{_PlotStripSubheading}) {
+						@{$row}[0] =~ s/-$subHeading$//;
+					}
 					push @filteredData, $row;
 				}
 			} else {
 				if (@{$row}[0] =~ /^$subHeading.*/) {
-					if ($self->{_PlotType} eq "simple-filter") {
+					if ($self->{_PlotStripSubheading}) {
 						@{$row}[0] =~ s/^$subHeading-//;
 					}
 					push @filteredData, $row;
