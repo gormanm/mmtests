@@ -116,7 +116,7 @@ for NR_THREADS in $THREADS; do
 for ITERATION in `seq 1 $PISTRESS_ITERATIONS`; do
 	mmtests_activity iteration $ITERATION
 		echo Starting thread-groups $NR_THREADS/$PISTRESS_MAX_INVGROUPS iteration $ITERATION/$PISTRESS_ITERATIONS
-		save_rc ./pi_stress --groups=$NR_THREADS --duration=$PISTRESS_RUNTIME --quiet 2>&1 | \
+		save_rc ./pi_stress --groups=$NR_THREADS --duration=$PISTRESS_RUNTIME 2>&1 | \
 			tee $LOGDIR_RESULTS/pistress-${NR_THREADS}-${ITERATION}.log
 		recover_rc
 		echo $? > $LOGDIR_RESULTS/pistress-${NR_THREADS}-${ITERATION}.status
@@ -126,4 +126,4 @@ done
 done
 exit $SHELLPACK_SUCCESS
 #### Description pistress
-#### Details pistress-bench 5
+#### Details pistress-bench 6

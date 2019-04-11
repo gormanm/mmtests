@@ -20,7 +20,7 @@ cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $PISTRESS_ITERATIONS
 		echo Starting thread-groups $NR_THREADS/$PISTRESS_MAX_INVGROUPS iteration $ITERATION/$PISTRESS_ITERATIONS
-		save_rc ./pi_stress --groups=$NR_THREADS --duration=$PISTRESS_RUNTIME --quiet 2>&1 | \
+		save_rc ./pi_stress --groups=$NR_THREADS --duration=$PISTRESS_RUNTIME 2>&1 | \
 			tee $LOGDIR_RESULTS/pistress-${NR_THREADS}-${ITERATION}.log
 		recover_rc
 		echo $? > $LOGDIR_RESULTS/pistress-${NR_THREADS}-${ITERATION}.status
