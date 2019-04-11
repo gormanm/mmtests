@@ -2,13 +2,11 @@
 # pistress
 
 ###SHELLPACK preamble pistress-bench v1.3
-PISTRESS_ITERATIONS=12
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam   --min-invgroups    PISTRESS_MIN_INVGROUPS
 ###SHELLPACK parseargParam   --max-invgroups    PISTRESS_MAX_INVGROUPS
-###SHELLPACK parseargParam   --iterations	PISTRESS_ITERATIONS
 ###SHELLPACK parseargParam   --runtime		PISTRESS_RUNTIME
 ###SHELLPACK parseargEnd
 
@@ -16,15 +14,13 @@ PISTRESS_ITERATIONS=12
 ###SHELLPACK monitor_hooks
 cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change to rttest directory"
 
-###SHELLPACK threads_large_stride_begin $PISTRESS_MIN_INVGROUPS $PISTRESS_MAX_INVGROUPS $PISTRESS_ITERATIONS
+###SHELLPACK threads_large_stride_begin $PISTRESS_MIN_INVGROUPS $PISTRESS_MAX_INVGROUPS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	###SHELLPACK iteration_begin $PISTRESS_ITERATIONS
-		echo Starting thread-groups $NR_THREADS/$PISTRESS_MAX_INVGROUPS iteration $ITERATION/$PISTRESS_ITERATIONS
-		save_rc ./pi_stress --groups=$NR_THREADS --duration=$PISTRESS_RUNTIME 2>&1 | \
-			tee $LOGDIR_RESULTS/pistress-${NR_THREADS}-${ITERATION}.log
-		recover_rc
-		echo $? > $LOGDIR_RESULTS/pistress-${NR_THREADS}-${ITERATION}.status
-	###SHELLPACK iteration_end
+	echo Starting thread-groups $NR_THREADS/$PISTRESS_MAX_INVGROUPS
+	save_rc ./pi_stress --groups=$NR_THREADS --duration=$PISTRESS_RUNTIME 2>&1 | \
+		tee $LOGDIR_RESULTS/pistress-${NR_THREADS}.log
+	recover_rc
+	echo $? > $LOGDIR_RESULTS/pistress-${NR_THREADS}.status
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
 exit $SHELLPACK_SUCCESS

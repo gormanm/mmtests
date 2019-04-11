@@ -32,8 +32,7 @@ export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # pistress
-export PISTRESS_ITERATIONS=5
-export PISTRESS_RUNTIME=10 # seconds
+export PISTRESS_RUNTIME=60
 # min/max inversion groups -- benchmark will create 3 threads
 # per-group, with low, mid and high priorities.
 export PISTRESS_MIN_INVGROUPS=1

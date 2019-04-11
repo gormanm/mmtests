@@ -9,7 +9,6 @@ if [ "$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
-PISTRESS_ITERATIONS=12
 
 # Basic argument parser
 TASKSET_SERVER=
@@ -46,10 +45,6 @@ while [ "$1" != "" ]; do
 		;;
 	--max-invgroups)
 		PISTRESS_MAX_INVGROUPS=$2
-		shift 2
-		;;
-	--iterations)
-		PISTRESS_ITERATIONS=$2
 		shift 2
 		;;
 	--runtime)
@@ -113,17 +108,13 @@ for NR_THREADS in $THREADS; do
 	fi
 	mmtests_activity process $NR_THREADS/$END_THREAD
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-for ITERATION in `seq 1 $PISTRESS_ITERATIONS`; do
-	mmtests_activity iteration $ITERATION
-		echo Starting thread-groups $NR_THREADS/$PISTRESS_MAX_INVGROUPS iteration $ITERATION/$PISTRESS_ITERATIONS
-		save_rc ./pi_stress --groups=$NR_THREADS --duration=$PISTRESS_RUNTIME 2>&1 | \
-			tee $LOGDIR_RESULTS/pistress-${NR_THREADS}-${ITERATION}.log
-		recover_rc
-		echo $? > $LOGDIR_RESULTS/pistress-${NR_THREADS}-${ITERATION}.status
-sync
-done
+	echo Starting thread-groups $NR_THREADS/$PISTRESS_MAX_INVGROUPS
+	save_rc ./pi_stress --groups=$NR_THREADS --duration=$PISTRESS_RUNTIME 2>&1 | \
+		tee $LOGDIR_RESULTS/pistress-${NR_THREADS}.log
+	recover_rc
+	echo $? > $LOGDIR_RESULTS/pistress-${NR_THREADS}.status
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
 exit $SHELLPACK_SUCCESS
 #### Description pistress
-#### Details pistress-bench 6
+#### Details pistress-bench 7
