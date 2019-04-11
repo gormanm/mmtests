@@ -9,6 +9,7 @@ sub new() {
 		_ModuleName  => "ExtractCyclictest",
 		_DataType    => DataTypes::DATA_TIME_USECONDS,
 		_ResultData  => [],
+		_PlotType    => "simple",
 	};
 	bless $self, $class;
 	return $self;

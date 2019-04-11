@@ -23,5 +23,4 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # cyclictest
-export CYCLICTEST_DURATION=60
-export CYCLICTEST_ITERATIONS=30
+export CYCLICTEST_DURATION=600
