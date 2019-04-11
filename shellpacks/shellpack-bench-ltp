@@ -77,6 +77,7 @@ fi
 . $SHELLPACK_INCLUDE/include-monitor.sh
 
 grep -v oom runtest/mm > runtest/mm-lite
+grep -v fanotify runtest/syscalls > runtest/syscalls-lite
 
 LTP_RUN_TESTS=`echo $LTP_RUN_TESTS | tr ',' ' '`
 
@@ -103,4 +104,4 @@ done
 echo
 exit $SHELLPACK_SUCCESS
 #### Description LTP Regression Test Suite
-#### Details ltp-bench 35
+#### Details ltp-bench 36

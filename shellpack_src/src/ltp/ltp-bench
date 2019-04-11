@@ -13,6 +13,7 @@ LTP_RUN_TESTS="controllers"
 ###SHELLPACK monitor_hooks
 
 grep -v oom runtest/mm > runtest/mm-lite
+grep -v fanotify runtest/syscalls > runtest/syscalls-lite
 
 LTP_RUN_TESTS=`echo $LTP_RUN_TESTS | tr ',' ' '`
 
