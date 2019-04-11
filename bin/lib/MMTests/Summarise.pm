@@ -112,6 +112,7 @@ sub printPlot() {
 		$subHeading = $self->{_DefaultPlot}
 	}
 
+
 	if ($subHeading ne "") {
 		my $index = 0;
 		while ($index <= $#_operations) {

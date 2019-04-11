@@ -889,6 +889,13 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 		blogbench)
 			generate_subheading_graphs "Read Write"
 			;;
+		cyclictest-*)
+			for HEADING in Max Avg; do
+				eval $GRAPH_PNG --title \"$SUBREPORT Latency $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT Latency $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				plain graph-$SUBREPORT-$HEADING
+			done
+			;;
 		dbench4)
 			echo "<tr>"
 			generate_basic_single "$SUBREPORT Completion times" "--logX"

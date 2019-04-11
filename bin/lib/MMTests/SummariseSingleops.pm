@@ -30,6 +30,9 @@ sub printPlot() {
 				}
 			} else {
 				if (@{$row}[0] =~ /^$subHeading.*/) {
+					if ($self->{_PlotType} eq "simple-filter") {
+						@{$row}[0] =~ s/^$subHeading-//;
+					}
 					push @filteredData, $row;
 				}
 			}
