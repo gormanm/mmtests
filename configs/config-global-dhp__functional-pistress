@@ -1,6 +1,6 @@
 
 # MM Test Parameters
-export MMTESTS="futexbench-hash futexbench-requeue futexbench-wake sembench-futex futexwait pistress"
+export MMTESTS="pistress"
 export RUN_WARMUP=
 
 # Profiling parameters
@@ -30,20 +30,6 @@ export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat mpstat"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
-
-# futexbench
-export FUTEXBENCH_MIN_THREADS=2
-export FUTEXBENCH_MAX_THREADS=$((NUMCPUS*64))
-export FUTEXBENCH_SHARED=no
-
-# sembench
-export SEMBENCH_MIN_THREADS=2
-export SEMBENCH_MAX_THREADS=$((NUMCPUS*64))
-
-# futexwait
-export FUTEXWAIT_ITERATIONS=5
-export FUTEXWAIT_MIN_THREADS=2
-export FUTEXWAIT_MAX_THREADS=$((NUMCPUS*64))
 
 # pistress
 export PISTRESS_ITERATIONS=5
