@@ -109,6 +109,7 @@ for ITERATION in `seq 1 $CYCLICTEST_ITERATIONS`; do
 		;;
 	esac
 	monitor_pre_hook $LOGDIR_RESULTS
+	echo Starting cyclictest threads
 	./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
 		--distance=0 --duration=$CYCLICTEST_DURATION --quiet 2>&1 | \
 		tee $LOGDIR_RESULTS/cyclictest-$ITERATION.log
@@ -120,4 +121,4 @@ sync
 done
 exit $SHELLPACK_SUCCESS
 #### Description cyclictest
-#### Details cyclictest-bench 12
+#### Details cyclictest-bench 13
