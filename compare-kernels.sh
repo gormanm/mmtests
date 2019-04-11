@@ -1044,7 +1044,6 @@ for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp
 			generate_client_trans_graphs
 			;;
 		pistress)
-			generate_basic "$SUBREPORT" "--logX --wide"
 			;;
 		postmark)
 			generate_basic "$SUBREPORT" "--logY"

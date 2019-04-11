@@ -1,51 +1,48 @@
 # ExtractPistress.pm
 package MMTests::ExtractPistress;
-use MMTests::SummariseMultiops;
-use MMTests::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
+use MMTests::SummariseSingleops;
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
-use Data::Dumper qw(Dumper);
 
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_ModuleName} = "ExtractPistress";
-	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
-	$self->{_PlotType}   = "thread-errorlines";
-	$self->SUPER::initialise();
+	$self->{_DataType}   = DataTypes::DATA_BAD_ACTIONS;
+	$self->{_SingleType} = 1;
+	$self->{_Opname} = "Test";
+
+	$self->SUPER::initialise($reportDir, $testName);
 }
+
+my %status_code = (
+	"exit=exited"	=> 0,
+	"exit=signaled"	=> 10,
+	"exit=stopped"	=> 20,
+	"exit=unknown"	=> 30,
+);
 
 sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
-	my ($tp, $name);
-	my @threads;
 
-	my @files = <$reportDir/$profile/pistress-*-1.log>;
-	foreach my $file (@files) {
-		my @elements = split (/-/, $file);
-		my $thr = $elements[-2];
-		$thr =~ s/.log//;
-		push @threads, $thr;
+	my @clients;
+	foreach my $file (<$reportDir/$profile/pistress-*.log>) {
+		my @split = split /-/, $file;
+		$split[-1] =~ s/.log.*//;
+		push @clients, $split[-1];
 	}
+	sort { $a <=> $b} @clients;
 
-	foreach my $nthr (@threads) {
-		my @files = <$reportDir/$profile/pistress-$nthr-*.log>;
+	foreach my $client (@clients) {
+		my $file = "$reportDir/$profile/pistress-$client.status";
 
-		foreach my $file (@files) {
-			my @split = split /-/, $file;
-			$split[-1] =~ s/.log//;
-			my $nr_samples = 0;
-
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
-				my $line = $_;
-				if ($line =~ /Total inversion performed: ([0-9]+)/) {
-					$self->addData($nthr, ++$nr_samples, $1);
-				}
-			}
-			close INPUT;
+		open(INPUT, $file) || die("Failed to open $file\n");
+		while (!eof(INPUT)) {
+			my $line = <INPUT>;
+			chomp($line);
+			$self->addData($client, 0, $line);
 		}
+		close(INPUT);
 	}
-
-	my @ops = sort {$a <=> $b} @threads;
-	$self->{_Operations} = \@ops;
 }
+
+1;
