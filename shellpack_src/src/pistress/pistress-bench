@@ -1,7 +1,7 @@
 #!/bin/bash
 # pistress
 
-###SHELLPACK preamble pistress-bench 0
+###SHELLPACK preamble pistress-bench v1.3
 PISTRESS_ITERATIONS=12
 
 ###SHELLPACK parseargBegin
@@ -12,11 +12,9 @@ PISTRESS_ITERATIONS=12
 ###SHELLPACK parseargParam   --runtime		PISTRESS_RUNTIME
 ###SHELLPACK parseargEnd
 
-###SHELLPACK check_install_required pistress-${VERSION}
+###SHELLPACK check_external_install_required rttestbuild rttestbuild-${VERSION} ${VERSION}
 ###SHELLPACK monitor_hooks
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change to rttest directory"
 
 ###SHELLPACK threads_large_stride_begin $PISTRESS_MIN_INVGROUPS $PISTRESS_MAX_INVGROUPS $PISTRESS_ITERATIONS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS

@@ -2,7 +2,7 @@
 # pistress
 
 P=pistress-bench
-DEFAULT_VERSION=0
+DEFAULT_VERSION=v1.3
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -14,6 +14,7 @@ PISTRESS_ITERATIONS=12
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -69,26 +70,28 @@ if [ -z "$VERSION" ]; then
 fi
 
 if [ "$INSTALL_FORCE" = "yes" ]; then
-	rm -rf $SHELLPACK_SOURCES/pistress-${VERSION}
+	rm -rf $SHELLPACK_SOURCES/rttestbuild-${VERSION}
 fi
-if [ ! -d $SHELLPACK_SOURCES/pistress-${VERSION}-installed ]; then
+if [ ! -d $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed ]; then
 	mmtests_activity source-install
-	$SHELLPACK_INCLUDE/shellpack-install-pistress -v ${VERSION}  || die pistress install script returned error
+	$SHELLPACK_INCLUDE/shellpack-install-rttestbuild -v ${VERSION}  || die rttestbuild install script returned error
 	mmtests_activity source-installed
 fi
-cd $SHELLPACK_SOURCES/pistress-${VERSION}-installed || die Failed to cd to pistress install directory
+cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die Failed to cd to rttestbuild install directory
 if [ "$INSTALL_ONLY" = "yes" ]; then
-	echo pistress installed only as requested.
+	echo rttestbuild installed only as requested.
 	exit $SHELLPACK_SUCCESS
 fi
 # Include monitor hooks
 . $SHELLPACK_INCLUDE/include-monitor.sh
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
+cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change to rttest directory"
 
 THREADS=
 START_THREAD=$PISTRESS_MIN_INVGROUPS
+if [ "$MMTESTS_THREAD_CUTOFF" != "" ]; then
+	echo Forcing PISTRESS_MAX_INVGROUPS to $MMTESTS_THREAD_CUTOFF
+	PISTRESS_MAX_INVGROUPS=$MMTESTS_THREAD_CUTOFF
+fi
 END_THREAD=$PISTRESS_MAX_INVGROUPS
 if [ $END_THREAD -gt 32 ]; then
 	THREADS=`seq $START_THREAD 3 8`
@@ -115,9 +118,10 @@ for ITERATION in `seq 1 $PISTRESS_ITERATIONS`; do
 		echo Starting thread-groups $NR_THREADS/$PISTRESS_MAX_INVGROUPS iteration $ITERATION/$PISTRESS_ITERATIONS
 		./pi_stress --groups=$NR_THREADS --duration=$PISTRESS_RUNTIME --quiet 2>&1 | \
 			tee $LOGDIR_RESULTS/pistress-${NR_THREADS}-${ITERATION}.log
+sync
 done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
 exit $SHELLPACK_SUCCESS
 #### Description pistress
-#### Details pistress-bench 3
+#### Details pistress-bench 4
