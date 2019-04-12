@@ -24,7 +24,7 @@ if [ "$XFSTESTS_TEST_DEV" = "" ]; then
 fi
 
 if [ -z "$XFSTESTS_SCRATCH_DEV" -a -z "$XFSTESTS_SCRATCH_DEV_POOL" ]; then
-	die XFSTESTS_SCRATCH_DEV or XFSTESTS_SCRATCH_DEV_POOL must be configured
+	warn "XFSTESTS_SCRATCH_DEV or XFSTESTS_SCRATCH_DEV_POOL should be configured"
 fi
 if [ "$TESTDISK_FILESYSTEM" = "" ]; then
 	die TESTDISK_FILESYSTEM must be configured
@@ -35,15 +35,17 @@ export TEST_DEV=$XFSTESTS_TEST_DEV
 export TEST_DIR=$SHELLPACK_TOPLEVEL/test_dir
 # exactly one of the SCRATCH_DEV* variables can be set, but we'll not validate
 # it here and let xfstests do that
-export SCRATCH_DEV=$XFSTESTS_SCRATCH_DEV
-export SCRATCH_DEV_POOL=$XFSTESTS_SCRATCH_DEV_POOL
-export SCRATCH_MNT=$SHELLPACK_TOPLEVEL/scratch_mnt
+if [ "$SCRATCH_DEV" != "" ]; then
+	export SCRATCH_DEV=$XFSTESTS_SCRATCH_DEV
+	export SCRATCH_DEV_POOL=$XFSTESTS_SCRATCH_DEV_POOL
+	export SCRATCH_MNT=$SHELLPACK_TOPLEVEL/scratch_mnt
+	mkdir -p $SCRATCH_MNT
+fi
 export FSTYP=$TESTDISK_FILESYSTEM
 export MKFS_OPTIONS=$TESTDISK_MKFS_PARAM
 export MOUNT_OPTIONS=${TESTDISK_MOUNT_ARGS:+-o "$TESTDISK_MOUNT_ARGS"}
 
 mkdir -p $TEST_DIR
-mkdir -p $SCRATCH_MNT
 
 # FIXME: as we're not using mmtests-provided mkfs step, do that here manually
 mkfs."$TESTDISK_FILESYSTEM" $TESTDISK_MKFS_PARAM $XFSTESTS_TEST_DEV ||

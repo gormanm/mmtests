@@ -13,6 +13,7 @@ MIRROR_LOCATION="$WEBROOT/xfstests/"
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -47,7 +48,7 @@ install-depends libuuid-devel acl-devel acl attr-devel attr xfsprogs-devel libai
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=xfstests-${VERSION}.tar.gz
-git_fetch $GIT_LOCATION xfstests-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+git_fetch $GIT_LOCATION xfstests-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $VERSION
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -79,4 +80,4 @@ id 123456-fsgqa || useradd 123456-fsgqa
 echo xfstests installed successfully
 exit $SHELLPACK_SUCCESS
 #### Description xfstests, a filesystem regression testsuite
-#### Details xfstests 8
+#### Details xfstests 11

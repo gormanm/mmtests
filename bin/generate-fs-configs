@@ -161,6 +161,7 @@ config-global-dhp__S-startup
 config-global-dhp__parsec-pthreads-half
 config-global-dhp__parsec-pthreads-full
 config-global-dhp__functional-ltp-lite
+config-global-dhp__functional-xfstests-auto
 "
 
 rm -f *-ext3 *-ext4 *-btrfs *-btrfs-nocow *-xfs *-raid0 *-raid1 *-raid5
