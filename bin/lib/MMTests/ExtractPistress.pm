@@ -30,12 +30,16 @@ sub extractReport() {
 		$split[-1] =~ s/.log.*//;
 		push @clients, $split[-1];
 	}
-	sort { $a <=> $b} @clients;
+	@clients = sort { $a <=> $b} @clients;
 
 	foreach my $client (@clients) {
 		my $file = "$reportDir/$profile/pistress-$client.status";
 
-		open(INPUT, $file) || die("Failed to open $file\n");
+		if (!open(INPUT, $file)) {
+			$self->addData($client, 0, 1);
+			next;
+		}
+
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;
 			chomp($line);

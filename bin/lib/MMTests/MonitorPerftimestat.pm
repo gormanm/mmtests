@@ -10,7 +10,8 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorPerftimestat",
 		_DataType      => MMTests::Monitor::MONITOR_PERFTIMESTAT,
-		_ResultData    => []
+		_ResultData    => [],
+		_MultiopMonitor => 1,
 	};
 	bless $self, $class;
 	return $self;
@@ -23,8 +24,6 @@ sub initialise() {
 	$self->{_TestName}      = $testName;
 	$self->SUPER::initialise($reportDir, $testName);
 }
-
-my %_colMap;
 
 sub printDataType() {
 	my ($self, $subHeading) = @_;
@@ -57,7 +56,7 @@ sub extractSummary() {
 	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.2f", ];
 
 	foreach my $header (keys %data) {
-		my @samples = map {$_ -> [2]} @{$data{$header}};
+		my @samples = map {$_ -> [1]} @{$data{$header}};
 
 		push @{$self->{_SummaryData}}, [ "$header",
 			 calc_mean(@samples), calc_max(@samples) ];
@@ -87,9 +86,6 @@ sub extractReport($$$$) {
 
 
 	$self->{_FieldHeaders}  = [ "Op", "Time", "Value" ];
-	if (!defined $_colMap{$subHeading}) {
-		die("Unrecognised heading $subHeading");
-	}
 
 	# Read all counters
 	my $timestamp;
@@ -112,6 +108,7 @@ sub extractReport($$$$) {
 			next;
 		}
 		next if $reading != 1;
+		next if $line =~ /seconds time elapsed/;
 		if ($line =~ /\s+([0-9,\.]+)\s+([A-Za-z-]+).*/) {
 			my ($counter, $heading) = ($1, $2);
 

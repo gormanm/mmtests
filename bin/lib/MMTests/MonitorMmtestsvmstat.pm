@@ -173,7 +173,7 @@ sub extractReport($$$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my (%vmstat_before, %vmstat_after, %vmstat);
 	my ($reading_test, $reading_before, $reading_after);
-	my $elapsed_time;
+	my $elapsed_time = 1;
 
 	my $file = "$reportDir/tests-timestamp-$testName";
 
