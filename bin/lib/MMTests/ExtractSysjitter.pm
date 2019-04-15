@@ -44,10 +44,15 @@ sub extractReport() {
 		my $metric = shift @elements;
 
 		my $i = 0;
+		my $worst = 0;
 		foreach my $value (@elements) {
+			if ($value > $worst) {
+				$worst = $value;
+			}
 			$self->addData("cpu$cpus[$i]-$metric", 0, $value);
 			$i++;
 		}
+		$self->addData("cpuXX-$metric", 0, $worst + 0.01);
 	}
 
 }

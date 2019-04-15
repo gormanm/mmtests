@@ -59,7 +59,7 @@ sub extractReport($$$$) {
 		}
 	}
 	if (!defined $_colMap{$subOp}) {
-		die("Unrecognised heading");
+		die("Unrecognised heading '$subOp'");
 	}
 	my $headingIndex = $_colMap{$subOp};
 	$self->{_HeadingIndex} = $headingIndex;
