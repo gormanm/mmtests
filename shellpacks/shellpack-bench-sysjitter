@@ -11,6 +11,7 @@ fi
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -78,9 +79,10 @@ cd $SHELLPACK_SOURCES/sysjitter-${VERSION}-installed
 
 monitor_pre_hook $LOGDIR_RESULTS sysjitter
 mmtests_activity sysjitter
+sync
 echo Running sysjitter for $DURATION seconds, min_threshold $THRESHOLD
 ./sysjitter --runtime $DURATION $THRESHOLD 2>&1 | tee $LOGDIR_RESULTS/sysjitter.log
 
 exit $SHELLPACK_SUCCESS
 #### Description sysjitter
-#### Details sysjitter-bench 10
+#### Details sysjitter-bench 11

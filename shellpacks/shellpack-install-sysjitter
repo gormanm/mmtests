@@ -16,6 +16,7 @@ install-depends popt-devel
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -1428,4 +1429,4 @@ exit $SHELLPACK_SUCCESS
  	signal(SIGALRM, handle_alarm);
 ==== END affinity.patch ====
 #### Description sysjitter
-#### Details sysjitter 10
+#### Details sysjitter 11
