@@ -11,6 +11,7 @@ sub new() {
 		_ResultData  => [],
 		_PlotType    => "simple",
 		_PlotStripSubheading => 1,
+		_SingleType  => 1,
 		_PlotXaxis   => "CPU",
 		_Opname      => "Lat",
 	};
