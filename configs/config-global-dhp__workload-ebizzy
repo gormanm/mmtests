@@ -36,23 +36,7 @@ export MONITORS_GZIP="proc-vmstat top"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# AIM9
-export AIM9_TESTTIME=15
-export AIM9_TESTLIST=page_test,brk_test,exec_test,fork_test
-
 # EBizzy
 export EBIZZY_MAX_THREADS=$((NUMCPUS*4))
 export EBIZZY_DURATION=30
 export EBIZZY_ITERATIONS=5
-
-# Page allocator microbench
-export PAGEALLOC_GFPFLAGS=GFP_KERNEL
-export PAGEALLOC_ORDER_MIN=0
-export PAGEALLOC_ORDER_MAX=4
-
-# Page Fault Test (PFT)
-export PFT_ITERATIONS=80
-export PFT_MAPPING_SIZE=$((MEMTOTAL_BYTES/5))
-export PFT_MAX_CLIENTS=$NUMCPUS
-export PFT_USE_PROCESSES=yes
-export PFT_PAGESIZES=base

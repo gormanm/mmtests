@@ -38,5 +38,6 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # EBizzy
 export EBIZZY_MAX_THREADS=$((NUMCPUS*4))
-export EBIZZY_DURATION=3
-export EBIZZY_ITERATIONS=100
+export EBIZZY_DURATION=30
+export EBIZZY_ITERATIONS=5
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
