@@ -50,3 +50,4 @@ if [ $NUMNODES -eq 1 ]; then
 	echo Skipping NUMA test configuration on single node machine
 	exit $SHELLPACK_SUCCESS
 fi
+export CPUIDLE_CSTATE=C1

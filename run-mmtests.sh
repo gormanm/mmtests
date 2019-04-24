@@ -638,11 +638,38 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
 		fi
 		RUNNING_TEST=$TEST
+
+		# Set CPU idle latency limits
+		if [ "$CPUIDLE_CSTATE" != "" ]; then
+			set-cstate-latency.pl --cstate $CPUIDLE_CSTATE &
+		fi
+		if [ "$CPUIDLE_LATENCY" != "" ]; then
+			set-cstate-latency.pl --latency $CPUIDLE_LATENCY &
+		fi
+		if [ "$CPUIDLE_INDEX" != "" ]; then
+			set-cstate-latency.pl --index $CPUIDLE_INDEX &
+		fi
+		CSTATE_PID=$!
+		ps -p $CSTATE_PID
+		if [ $? -ne 0 ]; then
+			die "CPU Cstate latency script is not running"
+		fi
+
+		# Run single test
 		start_monitors
 		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-$RUNNAME \
 			./bin/run-single-test.sh $TEST
 		EXIT_CODE=$?
 		stop_monitors
+
+		# Kill CPU idle limited
+		if [ -e /tmp/mmtests-cstate.pid ]; then
+			kill -INT `cat /tmp/mmtests-cstate.pid`
+			sleep 2
+			if [ -e /tmp/mmtests-cstate.pid ]; then
+				kill -9 `cat /tmp/mmtests-cstate.pid`
+			fi
+		fi
 
 		# Record some basic information at end of test
 		for PROC_FILE in $PROC_FILES; do
