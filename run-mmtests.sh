@@ -596,6 +596,9 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	if [ "`which list-cpu-toplogy.sh 2> /dev/null`" != "" ]; then
 		list-cpu-toplogy.sh > $SHELLPACK_LOG/cpu-topology-mmtests-${RUNNAME}.txt
 	fi
+	if [ "`which print-cstate-latency.sh 2> /dev/null`" != "" ]; then
+		print-cstate-latency.sh > $SHELLPACK_LOG/cstate-latencies-${RUNNAME}.txt
+	fi
 	if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
 		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities-${RUNNAME}.txt
 	fi
