@@ -12,7 +12,6 @@ sub new() {
 		_DataType    => DataTypes::DATA_ACTIONS,
 		_PlotType    => "histogram",
 		_SingleType  => 1,
-		_ResultData  => [],
 	};
 	bless $self, $class;
 	return $self;

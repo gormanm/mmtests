@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractPerfpipe",
 		_DataType    => DataTypes::DATA_TIME_USECONDS,
-		_ResultData  => [],
 		_PlotType    => "simple",
 	};
 	bless $self, $class;

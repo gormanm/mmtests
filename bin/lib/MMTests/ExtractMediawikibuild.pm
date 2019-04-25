@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractMediawikibuild",
 		_DataType    => DataTypes::DATA_TRANS_PER_SECOND,
-		_ResultData  => [],
 		_PlotType    => "simple",
 	};
 

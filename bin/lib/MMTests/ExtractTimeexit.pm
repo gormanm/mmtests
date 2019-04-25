@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractTimeexit",
 		_DataType    => DataTypes::DATA_TIME_MSECONDS,
-		_ResultData  => [],
 		_Precision   => 6,
 		_UseTrueMean => 1,
 	};

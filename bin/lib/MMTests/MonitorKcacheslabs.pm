@@ -11,7 +11,6 @@ sub new() {
 		_ModuleName    => "MonitorKcacheslabs",
 		_DataType      => DataTypes::DATA_OPS_PER_SECOND,
 		_FieldLength   => 12,
-		_ResultData    => [],
 		_PlotType      => "simple",
 		_PlotXaxis     => "Time"
 	};

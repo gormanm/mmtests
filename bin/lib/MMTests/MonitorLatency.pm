@@ -20,7 +20,6 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorLatency",
 		_DataType      => MMTests::Monitor::MONITOR_LATENCY,
-		_ResultData    => [],
 		_MultiopMonitor => 1
 	};
 	bless $self, $class;

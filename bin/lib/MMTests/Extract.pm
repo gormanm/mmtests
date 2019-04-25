@@ -146,6 +146,7 @@ sub initialise() {
 	$self->{_PlotHeaders} = \@plotHeaders;
 	$self->{_SummaryLength}  = $summaryLength;
 	$self->{_SummaryHeaders} = \@summaryHeaders;
+	$self->{_ResultData} = [];
 
 	if ($self->{_PlotType} eq "client-errorlines") {
 		$self->{_PlotXaxis}  = "Clients";

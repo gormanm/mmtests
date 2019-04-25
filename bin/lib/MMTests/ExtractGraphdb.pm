@@ -11,7 +11,6 @@ sub new() {
 		_ModuleName  => "ExtractGraphdb",
 		_DataType    => DataTypes::DATA_TIME_USECONDS,
 		_PlotType    => "simple-filter",
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

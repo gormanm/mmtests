@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorTurbostat",
 		_DataType      => MMTests::Monitor::MONITOR_PERFTIMESTAT,
-		_ResultData    => []
 	};
 	bless $self, $class;
 	return $self;

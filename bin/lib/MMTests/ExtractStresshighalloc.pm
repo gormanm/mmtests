@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractStresshighalloc",
 		_DataType    => DATA_SUCCESS_PERCENT,
-		_ResultData  => [],
 		_ExtraData   => [],
 		_PlotData    => [],
 	};

@@ -9,7 +9,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractParallelioswap",
 		_DataType    => DataTypes::DATA_BAD_ACTIONS,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

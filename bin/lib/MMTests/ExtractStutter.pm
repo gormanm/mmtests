@@ -12,7 +12,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractStutter",
 		_DataType    => DataTypes::DATA_TIME_MSECONDS,
-		_ResultData  => [],
 		_Precision   => 4,
 	};
 	bless $self, $class;

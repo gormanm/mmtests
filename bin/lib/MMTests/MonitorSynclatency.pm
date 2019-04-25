@@ -9,7 +9,6 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorSynclatency",
 		_DataType      => MMTests::Monitor::MONITOR_LATENCY,
-		_ResultData    => [],
 		_Heading       => "sync-latency",
 		_NiceHeading   => "Sync Latency",
 		_Units         => "s"

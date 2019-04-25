@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractHighalloc",
 		_DataType    => DataTypes::DATA_SUCCESS_PERCENT,
-		_ResultData  => [],
 	};
 	bless $self, $class;
 	return $self;

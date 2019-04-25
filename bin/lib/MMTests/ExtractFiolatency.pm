@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "Fiolatency.pm",
 		_DataType    => DataTypes::DATA_TIME_NSECONDS,
-		_ResultData  => [],
 		_PlotType    => "simple-filter",
 		_PlotXaxis   => "Time (seconds)",
 		_FieldLength => 16,

@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractKu_latency",
 		_DataType    => DATA_TIME_USECONDS;
-		_ResultData  => [],
 		_Precision   => 6,
 		_UseTrueMean => 1,
 	};

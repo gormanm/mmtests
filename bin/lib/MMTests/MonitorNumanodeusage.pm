@@ -11,7 +11,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "MonitorDuration",
 		_DataType    => MMTests::Monitor::MONITOR_NUMA_USAGE,
-		_ResultData  => [],
 		_MultiopMonitor => 1
 	};
 	bless $self, $class;

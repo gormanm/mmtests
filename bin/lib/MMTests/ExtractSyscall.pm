@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractSyscall",
 		_DataType    => DataTypes::DATA_TIME_CYCLES,
-		_ResultData  => [],
 	};
 	bless $self, $class;
 	return $self;

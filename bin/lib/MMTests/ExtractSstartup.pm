@@ -11,7 +11,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractSstartup",
 		_DataType    => DataTypes::DATA_TIME_SECONDS,
-		_ResultData  => [],
 		_PlotType    => "simple-filter-points",
 		_PlotXaxis   => "Sample #"
 	};

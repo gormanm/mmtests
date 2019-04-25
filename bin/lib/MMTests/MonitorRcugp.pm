@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorRcugp",
 		_DataType      => MMTests::Monitor::MONITOR_READLATENCY,
-		_ResultData    => [],
 		_MultiopMonitor => 1
 	};
 	bless $self, $class;

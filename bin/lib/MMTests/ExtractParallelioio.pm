@@ -9,7 +9,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractParallelioio",
 		_DataType    => DataTypes::DATA_TIME_SECONDS,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

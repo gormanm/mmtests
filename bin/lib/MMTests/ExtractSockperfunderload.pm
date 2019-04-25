@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractSockperfunderload",
 		_DataType    => DataTypes::DATA_TIME_USECONDS,
-		_ResultData  => [],
 		_Opname      => "Round-Trip-Time",
 		_PlotType    => "simple-filter-points",
 	};

@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractLmbench",
 		_DataType    => DataTypes::DATA_TIME_USECONDS,
-		_ResultData  => [],
 		_FieldLength => 16,
 		_Precision   => 4,
 	};

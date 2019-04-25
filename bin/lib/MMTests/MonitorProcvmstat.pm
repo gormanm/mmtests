@@ -9,7 +9,6 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorProcvmstat",
 		_DataType      => MMTests::Monitor::MONITOR_PROCVMSTAT,
-		_ResultData    => [],
 		_MultiopMonitor => 1
 	};
 	bless $self, $class;

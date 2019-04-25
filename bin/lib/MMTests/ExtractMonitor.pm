@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractMonitor",
 		_DataType    => DataTypes::DATA_NONE,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

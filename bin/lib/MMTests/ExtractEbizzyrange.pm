@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractEbizzyrange",
 		_DataType    => DataTypes::DATA_ACTIONS_PER_SECOND,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

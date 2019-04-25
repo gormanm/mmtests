@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractTimedmunlock",
 		_DataType    => DataTypes::DATA_TIME_USECONDS,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

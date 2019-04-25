@@ -10,7 +10,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "Dbench4latency.pm",
 		_DataType    => DataTypes::DATA_TIME_MSECONDS,
-		_ResultData  => []
 	};
 	bless $self, $class;
 	return $self;

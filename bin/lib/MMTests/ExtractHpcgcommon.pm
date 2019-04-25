@@ -9,7 +9,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractHpcg",
 		_DataType    => DataTypes::DATA_OPS_PER_SECOND,
-		_ResultData  => [],
 		_PlotType    => "histogram",
 		_Precision   => 4,
 	};

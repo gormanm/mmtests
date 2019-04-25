@@ -8,7 +8,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractSparsetruncate",
 		_DataType    => DataTypes::DATA_TIME_USECONDS,
-		_ResultData  => [],
 		_PlotType    => "simple",
 		_PlotXaxis   => "File",
 	};
