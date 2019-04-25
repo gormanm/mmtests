@@ -642,15 +642,15 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		# Set CPU idle latency limits
 		CSTATE_PID=
 		if [ "$CPUIDLE_CSTATE" != "" ]; then
-			set-cstate-latency.pl --cstate $CPUIDLE_CSTATE &
+			$EXPECT_UNBUFFER set-cstate-latency.pl --cstate $CPUIDLE_CSTATE &
 			CSTATE_PID=$!
 		fi
 		if [ "$CPUIDLE_LATENCY" != "" ]; then
-			set-cstate-latency.pl --latency $CPUIDLE_LATENCY &
+			$EXPECT_UNBUFFER set-cstate-latency.pl --latency $CPUIDLE_LATENCY &
 			CSTATE_PID=$!
 		fi
 		if [ "$CPUIDLE_INDEX" != "" ]; then
-			set-cstate-latency.pl --index $CPUIDLE_INDEX &
+			$EXPECT_UNBUFFER set-cstate-latency.pl --index $CPUIDLE_INDEX &
 			CSTATE_PID=$!
 		fi
 		if [ "$CSTATE_PID" != "" ]; then
