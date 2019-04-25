@@ -1,15 +1,13 @@
 # MonitorProcvmstat.pm
 package MMTests::MonitorProcvmstat;
-use MMTests::Monitor;
-our @ISA = qw(MMTests::Monitor);
+use MMTests::SummariseMonitor;
+our @ISA = qw(MMTests::SummariseMonitor);
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName    => "MonitorProcvmstat",
-		_DataType      => MMTests::Monitor::MONITOR_PROCVMSTAT,
-		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -168,15 +166,17 @@ my @_fieldOrder = (
 	"mmtests_autonuma_cost",
 );
 
-sub printDataType() {
-	my ($self) = @_;
-	my $heading = $self->{_Heading};
-	my $niceHeading = $_fieldNameMap{$heading};
-	if ($niceHeading eq "") {
-		$niceHeading = $heading;
-	}
+sub initialise()
+{
+	my ($self, $reportDir, $testName) = @_;
 
-	print "Vmstat,Time,$niceHeading\n";
+	$self->{_ExactSubheading} = 1;
+	$self->{_DataType} = DataTypes::DATA_ACTIONS;
+	$self->{_PlotXaxis} = "Time";
+	$self->{_PlotYaxes} = \%_fieldNameMap;
+	$self->{_DefaultPlot} = "pgpgin";
+	$self->{_PlotType} = "simple";
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub parseVMStat($)
@@ -386,13 +386,6 @@ sub extractReport($$$$) {
 	if ($subHeading eq "") {
 		$subHeading = "pgpgin";
 	}
-	$self->{_Heading} = $subHeading;
-
-	# TODO: Auto-discover lengths and handle multi-column reports
-	my $fieldLength = 12;
-	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldHeaders} = [ "Op", "Time", "Value" ];
-	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}d", "%${fieldLength}d" ];
 
 	my $file = "$reportDir/proc-vmstat-$testName-$testBenchmark";
 	if (-e $file) {
