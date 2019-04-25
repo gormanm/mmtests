@@ -69,15 +69,6 @@ sub initialise() {
 	$self->{_TestName} = $testName;
 }
 
-sub getMeanFunc() {
-	my ($self) = @_;
-
-	if ($self->{_RatioPreferred} eq "Higher") {
-		return "calc_hmean";
-	}
-	return "calc_amean";
-}
-
 sub summaryOps() {
 	my ($self, $subHeading) = @_;
 	my @ops;
@@ -349,7 +340,6 @@ sub extractSummary() {
 
 		$summary{$operation} = [];
 		foreach my $func (@{$self->{_SummaryStats}}) {
-			no strict "refs";
 			my @values = $self->runStatFunc($func, \@units);
 			foreach my $value (@values) {
 				if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
@@ -360,12 +350,7 @@ sub extractSummary() {
 
 		$significance{$operation} = [];
 
-		my $mean;
-		{
-			no strict "refs";
-			my $funcName = $self->getMeanFunc;
-			$mean = &$funcName(\@units);
-		}
+		my $mean = $self->runStatFunc("_mean", \@units);
 		push @{$significance{$operation}}, $mean;
 
 		my $stderr = calc_stddev(\@units);
