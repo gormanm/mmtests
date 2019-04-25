@@ -101,6 +101,23 @@ sub summaryOps() {
 	return @ops;
 }
 
+sub getStatCompareFunc() {
+	my ($self, $opnum) = @_;
+	my $op = $self->{_SummaryStats}->[$opnum];
+	my $value;
+
+	($op, $value) = split("-", $op);
+	# We don't bother to convert _mean here to appropriate mean type as
+	# that is always based on $self->{_RatioPreferred} anyway
+	if (!defined(MMTests::Stat::stat_compare->{$op})) {
+		if ($self->{_RatioPreferred} eq "Higher") {
+			return "pdiff";
+		}
+		return "pndiff";
+	}
+	return MMTests::Stat::stat_compare->{$op};
+}
+
 sub ratioSummaryOps() {
 	my ($self, $subHeading) = @_;
 	my @ratioops;

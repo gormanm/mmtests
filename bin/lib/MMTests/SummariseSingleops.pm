@@ -34,31 +34,9 @@ sub initialise() {
 	$self->{_FieldHeaders} = [ "Type", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
 
 	$self->{_SummaryLength} = 16;
+	$self->{_SummaryStats} = [ "value" ];
 	$self->{_SummaryHeaders} = [ $self->{_Opname} ? $self->{_Opname} : "Ops"  ];
 	$self->{_SummariseColumn} = 2;
-
-	if ($self->{_DataType} == DataTypes::DATA_TIME_SECONDS ||
-	    $self->{_DataType} == DataTypes::DATA_TIME_NSECONDS ||
-	    $self->{_DataType} == DataTypes::DATA_TIME_MSECONDS ||
-	    $self->{_DataType} == DataTypes::DATA_TIME_USECONDS ||
-	    $self->{_DataType} == DataTypes::DATA_TIME_CYCLES ||
-	    $self->{_DataType} == DataTypes::DATA_BAD_ACTIONS) {
-		$self->{_CompareOp} = "pndiff";
-	}
-	if ($self->{_DataType} == DataTypes::DATA_ACTIONS ||
-	    $self->{_DataType} == DataTypes::DATA_ACTIONS_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_ACTIONS_PER_MINUTE ||
-	    $self->{_DataType} == DataTypes::DATA_OPS_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_OPS_PER_MINUTE ||
-	    $self->{_DataType} == DataTypes::DATA_KBYTES_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_MBYTES_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_MBITS_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE ||
-	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT  ||
-	    $self->{_DataType} == DataTypes::DATA_RATIO_SPEEDUP) {
-		$self->{_CompareOp} = "pdiff";
-	}
 
 	$self->{_TestName} = $testName;
 }

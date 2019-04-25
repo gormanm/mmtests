@@ -10,11 +10,11 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
 	$self->SUPER::initialise($reportDir, $testName);
-	if ($self->{_RatioPreferred} eq "Lower") {
-		$self->{_CompareOp} = "pndiff";
-	} else {
-		$self->{_CompareOp} = "pdiff";
-	}
+	$self->{_SummaryStats} = [ "min", "percentile-25", "percentile-50",
+		"percentile-75", "percentile-90",  "percentile-95",
+		"percentile-99", "max", "_mean", "stddev", "coeffvar",
+		"_mean-99", "_mean-95", "_mean-90", "_mean-75", "_mean-50",
+		"_mean-25" ];
 }
 
 sub extractSummary() {

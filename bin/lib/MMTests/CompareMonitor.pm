@@ -9,7 +9,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "CompareMonitor",
-		_CompareOp   => "pndiff",
 	};
 	bless $self, $class;
 	return $self;
@@ -54,24 +53,13 @@ sub _generateComparisonTable() {
 			my @compare;
 			my @ratio;
 			my @normcmp;
-			my $compareOp;
+			my $compareOp = "pndiff";
 			my $ratioCompareOp = "sdiff";
 
-			if (defined $self->{_CompareOps}) {
-				$compareOp = $self->{_CompareOps}[$column];
-			} elsif (defined @{$extractModules[0]->{_CompareOps}}[$column]) {
-				$compareOp = @{$extractModules[0]->{_CompareOps}}[$column];
+			# Some monitors are based on SummariseMultiops
+			if (defined($extractModules[0]->{_SummaryStats})) {
+				$compareOp = $extractModules[0]->getStatCompareFunc($column);
 			}
-			if (defined $self->{_CompareOp}) {
-				$compareOp = $self->{_CompareOp};
-			} elsif (defined $extractModules[0]->{_CompareOp}) {
-				$compareOp = $extractModules[0]->{_CompareOp};
-			}
-			die if !defined($compareOp);
-			if (defined $extractModules[0]->{_RatioCompareOp}) {
-				$ratioCompareOp = $extractModules[0]->{_RatioCompareOp};
-			}
-
 			for (my $module = 0; $module <= $#extractModules; $module++) {
 				no strict "refs";
 				my $summaryRef = $extractModules[$module]->{_SummaryData};

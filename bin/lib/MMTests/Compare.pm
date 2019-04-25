@@ -116,17 +116,7 @@ sub _generateComparisonTable() {
 			my $compareOp;
 			my $ratioCompareOp = "sdiff";
 
-			if (defined $self->{_CompareOps}) {
-				$compareOp = $self->{_CompareOps}[$column];
-			} elsif (defined @{$extractModules[0]->{_CompareOps}}[$column]) {
-				$compareOp = @{$extractModules[0]->{_CompareOps}}[$column];
-			}
-			if (defined $self->{_CompareOp}) {
-				$compareOp = $self->{_CompareOp};
-			} elsif (defined $extractModules[0]->{_CompareOp}) {
-				$compareOp = $extractModules[0]->{_CompareOp};
-			}
-			die if !defined($compareOp);
+			$compareOp = $extractModules[0]->getStatCompareFunc($column);
 			if (defined $extractModules[0]->{_RatioCompareOp}) {
 				$ratioCompareOp = $extractModules[0]->{_RatioCompareOp};
 			}
