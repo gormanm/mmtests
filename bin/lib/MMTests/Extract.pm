@@ -106,29 +106,6 @@ sub printDataType() {
 	}
 }
 
-sub getSelectionFunc() {
-	my ($self) = @_;
-
-	if ($self->{_RatioPreferred} eq "Lower") {
-		return "select_lowest";
-	} elsif ($self->{_RatioPreferred} eq "Higher") {
-		return "select_highest";
-	} else {
-		return "select_trim";
-	}
-}
-
-sub getMeanFunc() {
-	my ($self) = @_;
-
-	if ($self->{_MeanName} eq "Hmean") {
-		return "calc_harmmean";
-	} elsif ($self->{_MeanName} eq "Gmean") {
-		return "calc_geomean";
-	}
-	return "calc_mean";
-}
-
 sub initialise() {
 	my ($self, $reportDir, $testName, $format) = @_;
 	my (@fieldHeaders, @plotHeaders, @summaryHeaders);
