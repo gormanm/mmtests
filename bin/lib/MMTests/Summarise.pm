@@ -374,9 +374,6 @@ sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = $self->ratioSummaryOps($subHeading);
 	my %data = %{$self->dataByOperation()};
-
-	$self->{_SummaryHeaders} = [ "Ratio" ];
-
 	my %summary;
 	my %summaryCILen;
 	foreach my $operation (@_operations) {

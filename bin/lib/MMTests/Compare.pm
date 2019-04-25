@@ -328,24 +328,20 @@ sub _generateRenderRatioTable() {
 	}
 
 	my @extractModules = @{$self->{_ExtractModules}};
-	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
 	my @operations = $extractModules[0]->ratioSummaryOps($subHeading);
 
-	# Ratio comparison has always only one header
-	my $maxLength = length($summaryHeaders[0]);
-	push @formatTable, "%-${maxLength}s";
-	$self->{_OperationLength} = $maxLength;
-
 	# Format string for source table rows
-	$maxLength = 0;
+	my $maxLength = 0;
 	for my $operation (@operations) {
 		my $length = length($operation);
 		if ($length > $maxLength) {
 			$maxLength = $length;
 		}
 	}
-	push @formatTable, " %-${maxLength}s";
-	$self->{_OperationLength} += $maxLength + 1;
+	# Account for 'Ratio ' prefix
+	$maxLength += 6;
+	push @formatTable, "%-${maxLength}s";
+	$self->{_OperationLength} = $maxLength;
 
 	# Build column format table
 	for (my $i = 0; $i <= scalar @operations; $i++) {
@@ -361,10 +357,9 @@ sub _generateRenderRatioTable() {
 
 	# Final comparison table
 	my @extractModules = @{$self->{_ExtractModules}};
-	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
 	my @rowLine;
 	for my $operation (@operations) {
-		@rowLine = ($summaryHeaders[0], $operation);
+		@rowLine = ("Ratio $operation");
 		if ($#{$resultsTable{$operation}} > $maxCols) {
 			$maxCols = $#{$resultsTable{$operation}};
 		}
@@ -390,12 +385,9 @@ sub _generateRenderRatioTable() {
 		my @ndiffTable = $self->{_NormalizedDiffStatsTable};
 		my @extractModules = @{$self->{_ExtractModules}};
 		my (@dmeanLine, @dminLine, @dmaxLine);
-		push @dmeanLine, "Dmean";
-		push @dminLine, "Dmin";
-		push @dmaxLine, "Dmax";
-		push @dmeanLine, $extractModules[0]->{_RatioPreferred};
-		push @dminLine, $extractModules[0]->{_RatioPreferred};
-		push @dmaxLine, $extractModules[0]->{_RatioPreferred};
+		push @dmeanLine, "Dmean ".$extractModules[0]->{_RatioPreferred};
+		push @dminLine, "Dmin  ".$extractModules[0]->{_RatioPreferred};
+		push @dmaxLine, "Dmax  ".$extractModules[0]->{_RatioPreferred};
 		for (my $i = 0; $i <= $#{$ndiffTable[0]}; $i++) {
 			push @dmeanLine, ($ndiffTable[0][$i][0], undef, undef);
 			push @dminLine, ($ndiffTable[0][$i][1], undef, undef);
@@ -408,8 +400,7 @@ sub _generateRenderRatioTable() {
 	my @geomeanTable = $self->{_GeometricMeanTable};
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @rowLine;
-	push @rowLine, "Gmean";
-	push @rowLine, $extractModules[0]->{_RatioPreferred};
+	push @rowLine, "Gmean ".$extractModules[0]->{_RatioPreferred};
 	for (my $i = 0; $i <= $#{$geomeanTable[0]}; $i++) {
 		push @rowLine, ($geomeanTable[0][$i], undef, undef);
 	}
