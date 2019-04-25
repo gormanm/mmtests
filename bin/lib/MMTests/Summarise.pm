@@ -69,18 +69,6 @@ sub initialise() {
 	$self->{_TestName} = $testName;
 }
 
-sub getSelectionFunc() {
-	my ($self) = @_;
-
-	if ($self->{_RatioPreferred} eq "Lower") {
-		return "select_lowest";
-	} elsif ($self->{_RatioPreferred} eq "Higher") {
-		return "select_highest";
-	} else {
-		return "select_trim";
-	}
-}
-
 sub getMeanFunc() {
 	my ($self) = @_;
 
