@@ -180,7 +180,7 @@ sub extractSummary() {
 		$units[0] = 0;
 	}
 
-	my $quartilesRef = calc_quartiles(@units);
+	my $quartilesRef = calc_quartiles(\@units);
 	my @quartiles = @{$quartilesRef};
 
 	push @{$self->{_SummaryData}}, [ "Min", calc_min(\@units) ];

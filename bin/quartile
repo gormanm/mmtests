@@ -8,7 +8,7 @@ use MMTests::Stat;
 $x[$i++] = $_;
 END {
 	$i = 0;
-	$quartiles = calc_quartiles(@x);
+	$quartiles = calc_quartiles(\@x);
 	#$mean = calc_amean(\@x);
 	#$stddev = calc_stddev(\@x);
 	#$range = $$quartiles[3] - $$quartiles[1];

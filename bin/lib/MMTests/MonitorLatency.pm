@@ -84,7 +84,7 @@ sub extractSummaryBreakdown() {
 		}
 	}
 
-	my $quartiles = calc_quartiles(@samples);
+	my $quartiles = calc_quartiles(\@samples);
 
 	push @{$self->{_SummaryData}}, [ "Percentage <$min_latency ", $self->{_Units}, " ", $min_samples * 100 / $#samples ];
 	push @{$self->{_SummaryData}}, [ "Seconds Stalled Longer", $stalled / $self->unitMultiplier($self->{_Units}) ];

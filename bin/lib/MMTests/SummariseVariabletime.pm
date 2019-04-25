@@ -36,7 +36,7 @@ sub extractSummary() {
 			push @units, @{$row}[1];
 		}
 
-		my $quartilesRef = calc_quartiles(@units);
+		my $quartilesRef = calc_quartiles(\@units);
 		my @quartiles = @{$quartilesRef};
 		push @row, calc_min(\@units);
 		push @row, $quartiles[25];
@@ -82,7 +82,7 @@ sub extractRatioSummary() {
 		foreach my $row (@{$data{$operation}}) {
 			push @units, @{$row}[1];
 		}
-		my $quartilesRef = calc_quartiles(@units);
+		my $quartilesRef = calc_quartiles(\@units);
 		my @quartiles = @{$quartilesRef};
 		$summary{$operation} = [$quartiles[95]];
 	}

@@ -119,7 +119,7 @@ sub _generateComparisonTable() {
 					push @units, 0.00001;
 				}
 			}
-			push @geomean, calc_geomean(@units);
+			push @geomean, calc_geomean(\@units);
 		}
 	}
 

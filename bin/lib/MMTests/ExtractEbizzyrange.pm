@@ -40,7 +40,7 @@ sub extractReport() {
 					my @elements = split(/\s+/, $line);
 					shift @elements;
 					shift @elements;
-					$self->addData("spread-$client", $sample, calc_range(@elements));
+					$self->addData("spread-$client", $sample, calc_range(\@elements));
 					$sample++;
 				}
 			}

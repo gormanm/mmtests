@@ -106,12 +106,14 @@ sub cidiff {
 }
 
 sub calc_sum {
-	if (! defined $_[0]) {
+	my $dataref = shift;
+
+	if (! defined $dataref->[0]) {
 		return "NaN";
 	}
 
 	my $sum = 0;
-	foreach my $value (@_) {
+	foreach my $value (@{$dataref}) {
 		$sum += $value;
 	}
 
@@ -155,11 +157,13 @@ sub calc_max {
 }
 
 sub calc_range {
-	if (! defined $_[0]) {
+	my $dataref = shift;
+
+	if (! defined $dataref->[0]) {
 		return "NaN";
 	}
 
-	return calc_max(\@_) - calc_min(\@_);
+	return calc_max($dataref) - calc_min($dataref);
 }
 
 sub calc_amean {
@@ -187,17 +191,18 @@ sub calc_amean {
 }
 
 sub calc_geomean {
+	my $dataref = shift;
 	my $mult = 1;
 	my $n = 0;
-	my $elements = $#_ + 1;
+	my $elements = @{$dataref};
 	my $i;
 
 	for ($i = 0; $i < $elements; $i++) {
-		if (defined $_[$i]) {
-			if ($_[$i] !~ /^[-0-9]+/) {
+		if (defined $dataref->[$i]) {
+			if ($dataref->[$i] !~ /^[-0-9]+/) {
 				return "NaN";
 			}
-			$mult *= $_[$i];
+			$mult *= $dataref->[$i];
 			$n++;
 		}
 	}
@@ -237,10 +242,11 @@ sub calc_harmmean {
 }
 
 sub calc_median {
-	my $nr_elements = @_;
+	my $dataref = shift;
+	my $nr_elements = @{$dataref};
 	my $mid = int $nr_elements / 2 - 1;
 
-	my @sorted = sort { $a <=> $b } @_;
+	my @sorted = sort { $a <=> $b } @{$dataref};
 	if ($nr_elements % 2 == 0) {
 		return $sorted[$mid];
 	} else {
@@ -396,7 +402,8 @@ sub calc_coeffvar {
 }
 
 sub calc_quartiles {
-	my @x = sort { $a <=> $b} @_;
+	my $dataref = shift;
+	my @x = sort { $a <=> $b} @{$dataref};
 	my @quartiles;
 	my $i;
 

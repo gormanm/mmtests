@@ -50,7 +50,7 @@ sub numa_memory_balance {
 		push @averageDrift, $imbalance;
 	}
 
-	return calc_geomean(@averageDrift);
+	return calc_geomean(\@averageDrift);
 }
 
 1;

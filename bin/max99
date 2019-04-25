@@ -8,6 +8,6 @@ use MMTests::Stat;
 $x[$i++] = $_;
 END {
 	$i = 0;
-	$quartiles = calc_quartiles(@x);
+	$quartiles = calc_quartiles(\@x);
 	print "$$quartiles[99]";
 }
