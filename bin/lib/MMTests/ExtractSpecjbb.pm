@@ -71,7 +71,6 @@ sub extractReport() {
 			close OUTPUT;
 		}
 	} else {
-		$self->{_SuppressDmean} = 1;
 		$single_instance = 1;
 		$file = "$reportDir/$profile/$pagesize/SPECjbbSingleJVM/SPECjbb.001.txt";
 	}

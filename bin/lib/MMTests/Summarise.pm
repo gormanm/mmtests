@@ -401,13 +401,12 @@ sub extractRatioSummary() {
 		if (($values[0] ne "NaN" && $values[0] ne "nan") ||
 		    $self->{_FilterNaN} != 1) {
 			$summary{$operation} = [$values[0]];
-			if (!$self->{_SuppressDmean} && $#values == 1) {
+			if ($#values == 1 && $values[1] ne "NaN") {
 				$summaryCILen{$operation} = $values[1];
 			}
 		}
 	}
 	$self->{_SummaryData} = \%summary;
-	# we rely on _SummaryCILen being undef to honor _SuppressDmean
 	$self->{_SummaryCILen} = \%summaryCILen if %summaryCILen;
 
 	return 1;
