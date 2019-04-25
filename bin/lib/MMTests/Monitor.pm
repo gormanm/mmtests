@@ -37,6 +37,22 @@ sub new() {
 	return $self;
 }
 
+sub printSummary() {
+	my ($self, $subHeading) = @_;
+	my $length;
+
+
+	if (!defined($self->{_SummaryLength})) {
+		$length = $self->{_FieldLength};
+	} else {
+		$length = $self->{_SummaryLength};
+	}
+
+	$self->extractSummary($subHeading);
+	$self->{_PrintHandler}->printRow($self->{_SummaryData}, $length,
+					 $self->{_FieldFormat});
+}
+
 sub printPlot() {
         my ($self, $subheading) = @_;
 
