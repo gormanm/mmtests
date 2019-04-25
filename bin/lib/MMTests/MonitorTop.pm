@@ -1,15 +1,13 @@
 # MonitorTop.pm
 package MMTests::MonitorTop;
-use MMTests::Monitor;
-our @ISA = qw(MMTests::Monitor);
+use MMTests::SummariseMonitor;
+our @ISA = qw(MMTests::SummariseMonitor);
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName    => "MonitorTop",
-		_DataType      => MMTests::Monitor::MONITOR_TOP,
-		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -29,17 +27,36 @@ my %_colMap = (
 	"TIME"	=> 10,
 );
 
-sub printDataType() {
-	my ($self) = @_;
-	my $headingIndex = $self->{_HeadingIndex};
+use constant typeMap => {
+	"VIRT"	=> DataTypes::DATA_SIZE_KBYTES,
+	"RES"	=> DataTypes::DATA_SIZE_KBYTES,
+	"SHR"	=> DataTypes::DATA_SIZE_KBYTES,
+	"CPU"	=> DataTypes::DATA_USAGE_PERCENT,
+	"MEM"	=> DataTypes::DATA_USAGE_PERCENT,
+	"TIME"	=> DataTypes::DATA_TIME_SECONDS,
+};
 
-	if ($headingIndex == 8) {
-		print "CPUUsage,Time,CPU Usage\n";
-	} elsif ($headingIndex == 10) {
-		print "Time,Time,Accumulated CPU Time\n";
-	} else {
-		print "Unknown\n";
-	}
+use constant headingnames => {
+	"VIRT"	=> "Virtual memory (KiB)",
+	"RES"	=> "Resident memory (KiB)",
+	"SHR"	=> "Shared memory (KiB)",
+	"CPU"	=> "Cpu Usage",
+	"MEM"	=> "Memory Usage",
+	"TIME"	=> "Accumulated CPU Time",
+};
+
+sub getDataType() {
+	my ($self, $op) = @_;
+	my @elements = split(/-/, $op);
+
+	return typeMap->{$elements[1]};
+}
+
+sub getPlotYaxis() {
+	my ($self, $op) = @_;
+	my @elements = split(/-/, $op);
+
+	return headingnames->{$elements[1]};
 }
 
 sub extractReport($$$$) {
@@ -59,13 +76,6 @@ sub extractReport($$$$) {
 		die("Unrecognised heading");
 	}
 	my $headingIndex = $_colMap{$heading};
-	$self->{_HeadingIndex} = $headingIndex;
-
-	# TODO: Auto-discover lengths and handle multi-column reports
-	my $fieldLength = 12;
-	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldHeaders} = [ "Op", "Time", "Value" ];
-	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}d", "%${fieldLength}f" ];
 
 	my $file = "$reportDir/top-$testName-$testBenchmark";
 	if (-e $file) {

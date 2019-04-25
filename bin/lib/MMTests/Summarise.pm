@@ -57,7 +57,8 @@ sub typeToPreferredVal() {
 	    $type == DataTypes::DATA_BAD_ACTIONS ||
 	    $type == DataTypes::DATA_SIZE_QUEUED ||
 	    $type == DataTypes::DATA_CONSUMPTION_WATT ||
-	    $type == DataTypes::DATA_USAGE_PERCENT) {
+	    $type == DataTypes::DATA_USAGE_PERCENT ||
+	    $type == DataTypes::DATA_SIZE_KBYTES) {
 		return "Lower";
 	}
 	return "Higher";

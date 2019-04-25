@@ -118,6 +118,9 @@ sub printDataType() {
 	} elsif ($dtype == DataTypes::DATA_SIZE_SECTOR) {
 		$yaxis = "Size (sectors)";
 		$units = "Size";
+	} elsif ($dtype == DataTypes::DATA_SIZE_KBYTES) {
+		$yaxis = "Size (KiB)";
+		$units = "Size";
 	} elsif ($dtype == DataTypes::DATA_SIZE_QUEUED) {
 		$yaxis = "Queue size";
 		$units = "Size";
