@@ -155,7 +155,6 @@ sub _generateComparisonTable() {
 						if ($sdiff_val eq "NaN" || $sdiff_val eq "nan") {
 							$sdiff_val = 0;
 						}
-						print "Comparing ($ratioCompareOp) $summary{$operation}[$column] $summaryCILen{$operation} $baseline{$operation}[$column] $baseCILen{$operation}: $sdiff_val\n";
 						push @normcmp, $sdiff_val;
 					}
 				} else {
