@@ -310,6 +310,9 @@ sub runStatFunc
 	if ($func eq "submeanci") {
 		return ();
 	}
+	if ($func eq "_value") {
+		return $dataref->[0];
+	}
 	$func =~ s/^_mean/$mean/;
 
 	($func, $arg) = split("-", $func);
