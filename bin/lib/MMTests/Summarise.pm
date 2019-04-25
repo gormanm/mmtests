@@ -410,19 +410,28 @@ sub extractRatioSummary() {
 	my %summaryCILen;
 	foreach my $operation (@_operations) {
 		my @units;
-		my $value;
+		my @values;
+
 		foreach my $row (@{$data{$operation}}) {
 			push @units, @{$row}[1];
 		}
-		{
-			no strict "refs";
-			my $funcName = $self->getMeanFunc();
-			$value = &$funcName(\@units);
+
+		if ($self->{_RatioPreferred} eq "Lower") {
+			@units = sort { $a <=> $b} @units;
+		} else {
+			@units = sort { $b <=> $a} @units;
 		}
-		if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-			$summary{$operation} = [$value];
-			if (!$self->{_SuppressDmean}) {
-				$summaryCILen{$operation} = calc_stddev(\@units);
+
+		foreach my $func (@{$self->{_RatioSummaryStat}}) {
+			no strict "refs";
+			push @values, $self->runStatFunc($func, \@units);
+		}
+
+		if (($values[0] ne "NaN" && $values[0] ne "nan") ||
+		    $self->{_FilterNaN} != 1) {
+			$summary{$operation} = [$values[0]];
+			if (!$self->{_SuppressDmean} && $#values == 1) {
+				$summaryCILen{$operation} = $values[1];
 			}
 		}
 	}

@@ -12,6 +12,7 @@ sub initialise() {
 
 	$self->{_SummaryStats} = [ "min", "_mean", "stddev", "coeffvar", "max",
 		"_mean-50", "_mean-95", "_mean-99" ];
+	$self->{_RatioSummaryStat} = [ "_mean", "stddev" ];
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
