@@ -12,27 +12,18 @@ sub new() {
 }
 
 sub loadModule($$$) {
-	my ($self, $moduleName, $format, $extractModules) = @_;
-	printVerbose("Loading module $moduleName\n");
+	my ($self, $format, $extractModules) = @_;
+	printVerbose("Loading compare module\n");
 
-	my $pmName = $moduleName;
-	$pmName = ucfirst($pmName);
-	$pmName =~ s/-//g;
-	my $modName = "MMTests/Compare$pmName.pm";
-	if (!eval "require \"$modName\"") {
-		$pmName = "";
-		require "MMTests/Compare.pm";
-	} else {
-		require "MMTests/Compare$pmName.pm";
-	}
+	require "MMTests/Compare.pm";
 
-	my $className = "MMTests::Compare$pmName";
+	my $className = "MMTests::Compare";
 	my $classInstance = $className->new();
 	$classInstance->initialise($extractModules);
 	$classInstance->setFormat($format);
 	printVerbose("Loaded  module " . $classInstance->getModuleName() . "\n");
 
-	bless $classInstance, "MMTests::Compare$pmName";
+	bless $classInstance, "MMTests::Compare";
 }
 
 1;

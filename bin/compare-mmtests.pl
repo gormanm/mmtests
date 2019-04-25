@@ -107,11 +107,7 @@ my $compareFactory = MMTests::CompareFactory->new();
 my $compareModule;
 printVerbose("Loading compare $opt_benchmark\n");
 eval {
-	if ($opt_monitor) {
-		$compareModule = $compareFactory->loadModule("monitor", $opt_format, \@extractModules);
-	} else {
-		$compareModule = $compareFactory->loadModule($opt_benchmark, $opt_format, \@extractModules);
-	}
+	$compareModule = $compareFactory->loadModule($opt_format, \@extractModules);
 } or do {
 	printWarning("Failed to compare module for benchmark $opt_benchmark\n$@");
 	exit(-1);
