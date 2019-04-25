@@ -31,8 +31,9 @@ use constant DATA_SIZE_QUEUED		=> 22;
 use constant DATA_FREQUENCY_MHZ		=> 23;
 use constant DATA_CONSUMPTION_WATT	=> 24;
 use constant DATA_USAGE_PERCENT		=> 25;
-use constant DATA_SIZE_KBYTES		=> 26;
-use constant DATA_SIZE_MBYTES		=> 27;
-use constant DATA_SIZE_PAGES		=> 28;
+use constant DATA_SIZE_BYTES		=> 26;
+use constant DATA_SIZE_KBYTES		=> 27;
+use constant DATA_SIZE_MBYTES		=> 28;
+use constant DATA_SIZE_PAGES		=> 29;
 
 1;

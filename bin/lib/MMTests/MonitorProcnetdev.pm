@@ -1,15 +1,13 @@
 # MonitorProcnetdev.pm
 package MMTests::MonitorProcnetdev;
-use MMTests::Monitor;
-our @ISA = qw(MMTests::Monitor);
+use MMTests::SummariseMonitor;
+our @ISA = qw(MMTests::SummariseMonitor);
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName    => "MonitorProcnetdev",
-		_DataType      => MMTests::Monitor::MONITOR_PROCNETDEV,
-		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
@@ -35,27 +33,48 @@ my %_colMap = (
 	"tcompressed"	=> 16,
 );
 
-sub printDataType() {
-	my ($self) = @_;
-	my $headingIndex = $self->{_HeadingIndex};
+use constant typeMap => {
+	"rbytes"	=> DataTypes::DATA_SIZE_BYTES,
+	"rpackets"	=> DataTypes::DATA_ACTIONS,
+	"rerrs"		=> DataTypes::DATA_ACTIONS,
+	"rdrop"		=> DataTypes::DATA_ACTIONS,
+	"rfifo"		=> DataTypes::DATA_ACTIONS,
+	"rframe"	=> DataTypes::DATA_ACTIONS,
+	"rcompressed"	=> DataTypes::DATA_ACTIONS,
+	"rmulticast"	=> DataTypes::DATA_ACTIONS,
+	"tbytes"	=> DataTypes::DATA_SIZE_BYTES,
+	"tpackets"	=> DataTypes::DATA_ACTIONS,
+	"terrs"		=> DataTypes::DATA_ACTIONS,
+	"tdrop"		=> DataTypes::DATA_ACTIONS,
+	"tfifo"		=> DataTypes::DATA_ACTIONS,
+	"tcolls"	=> DataTypes::DATA_ACTIONS,
+	"tcarrier"	=> DataTypes::DATA_ACTIONS,
+	"tcompressed"	=> DataTypes::DATA_ACTIONS,
+};
 
-	if ($headingIndex == 1) {
-		print "Netdev,Time,Received Bytes\n";
-	} elsif ($headingIndex == 2){
-		print "Netdev,Time,Received Packets\n";
-	} elsif ($headingIndex == 9){
-		print "Netdev,Time,Transmitted Bytes\n";
-	} elsif ($headingIndex == 10){
-		print "Netdev,Time,Transmitted Packets\n";
-	} else {
-		print "Unknown\n";
-	}
+use constant headings => {
+	"rbytes"	=> "Received Bytes",
+	"rpackets"	=> "Received Packets",
+	"tbytes"	=> "Transmitted Bytes",
+	"tpackets"	=> "Transmitted Packets",
+};
+
+sub getDataType() {
+	my ($self, $op) = @_;
+	my ($interface, $field) = split(/-/, $op);
+
+	return typeMap->{$field};
+}
+
+sub getPlotYaxis() {
+	my ($self, $op) = @_;
+	my ($interface, $field) = split(/-/, $op);
+
+	return headings->{$field};
 }
 
 sub extractReport($$$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
-	my ($reading_before, $reading_after);
-	my $elapsed_time;
 	my $timestamp;
 	my $start_timestamp = 0;
 	my $current_value = 0;
@@ -69,15 +88,6 @@ sub extractReport($$$$) {
 	if (!defined $_colMap{$field}) {
 		die("Unrecognised heading");
 	}
-
-	my $headingIndex = $_colMap{$field};
-	$self->{_HeadingIndex} = $headingIndex;
-
-	# TODO: Auto-discover lengths and handle multi-column reports
-	my $fieldLength = 12;
-	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldHeaders} = [ "Op", "Time", "Value" ];
-	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}d", "%${fieldLength}d" ];
 
 	my $file = "$reportDir/proc-net-dev-$testName-$testBenchmark";
 	if (-e $file) {

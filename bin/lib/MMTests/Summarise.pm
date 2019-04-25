@@ -58,6 +58,7 @@ sub typeToPreferredVal() {
 	    $type == DataTypes::DATA_SIZE_QUEUED ||
 	    $type == DataTypes::DATA_CONSUMPTION_WATT ||
 	    $type == DataTypes::DATA_USAGE_PERCENT ||
+	    $type == DataTypes::DATA_SIZE_BYTES ||
 	    $type == DataTypes::DATA_SIZE_KBYTES ||
 	    $type == DataTypes::DATA_SIZE_MBYTES ||
 	    $type == DataTypes::DATA_SIZE_PAGES) {
