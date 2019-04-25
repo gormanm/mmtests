@@ -121,6 +121,12 @@ sub printDataType() {
 	} elsif ($dtype == DataTypes::DATA_SIZE_KBYTES) {
 		$yaxis = "Size (KiB)";
 		$units = "Size";
+	} elsif ($dtype == DataTypes::DATA_SIZE_MBYTES) {
+		$yaxis = "Size (MiB)";
+		$units = "Size";
+	} elsif ($dtype == DataTypes::DATA_SIZE_PAGES) {
+		$yaxis = "Size (pages)";
+		$units = "Size";
 	} elsif ($dtype == DataTypes::DATA_SIZE_QUEUED) {
 		$yaxis = "Queue size";
 		$units = "Size";
@@ -139,7 +145,7 @@ sub printDataType() {
 		$xaxis = $self->{_PlotXaxis};
 	}
 	my $yaxis_extra = $self->getPlotYaxis($subHeading);
-	if ($yaxis_extra ne "UNKNOWN") {
+	if (defined $yaxis_extra && $yaxis_extra ne "UNKNOWN") {
 		$yaxis = $yaxis_extra;
 	}
 	my $plotType = "UNKNOWN";

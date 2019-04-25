@@ -32,5 +32,7 @@ use constant DATA_FREQUENCY_MHZ		=> 23;
 use constant DATA_CONSUMPTION_WATT	=> 24;
 use constant DATA_USAGE_PERCENT		=> 25;
 use constant DATA_SIZE_KBYTES		=> 26;
+use constant DATA_SIZE_MBYTES		=> 27;
+use constant DATA_SIZE_PAGES		=> 28;
 
 1;

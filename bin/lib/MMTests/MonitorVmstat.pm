@@ -1,15 +1,14 @@
 # MonitorVmstat.pm
 package MMTests::MonitorVmstat;
-use MMTests::Monitor;
-our @ISA = qw(MMTests::Monitor);
+use MMTests::SummariseMonitor;
+our @ISA = qw(MMTests::SummariseMonitor);
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName    => "MonitorVmstat",
-		_DataType      => MMTests::Monitor::MONITOR_VMSTAT,
-		_MultiopMonitor => 1
+		_ExactSubheading  => 1,
 	};
 	bless $self, $class;
 	return $self;
@@ -37,41 +36,52 @@ my %_colMap = (
 	"totalcpu"  => 18,
 );
 
-sub printDataType() {
-	my ($self) = @_;
-	my $headingIndex = $self->{_HeadingIndex};
+use constant typeMap => {
+	"r"	=> DataTypes::DATA_ACTIONS,
+	"b"	=> DataTypes::DATA_ACTIONS,
+	"swpd"	=> DataTypes::DATA_SIZE_PAGES,
+	"free"	=> DataTypes::DATA_SIZE_MBYTES,
+	"buff"	=> DataTypes::DATA_SIZE_KBYTES,
+	"cache"	=> DataTypes::DATA_SIZE_KBYTES,
+	"si"	=> DataTypes::DATA_KBYTES_PER_SECOND,
+	"so"	=> DataTypes::DATA_KBYTES_PER_SECOND,
+	"bi"	=> DataTypes::DATA_KBYTES_PER_SECOND,
+	"bo"	=> DataTypes::DATA_KBYTES_PER_SECOND,
+	"in"	=> DataTypes::DATA_ACTIONS_PER_SECOND,
+	"cs"	=> DataTypes::DATA_ACTIONS_PER_SECOND,
+	"us"	=> DataTypes::DATA_USAGE_PERCENT,
+	"sy"	=> DataTypes::DATA_USAGE_PERCENT,
+	"id"	=> DataTypes::DATA_USAGE_PERCENT,
+	"wa"	=> DataTypes::DATA_USAGE_PERCENT,
+	"st"	=> DataTypes::DATA_USAGE_PERCENT,
+	"ussy"	=> DataTypes::DATA_RATIO_SPEEDUP,
+	"totalcpu" => DataTypes::DATA_USAGE_PERCENT,
+};
 
-	if ($headingIndex == 0) {
-		print "Processes,Time,Runnable Processes\n";
-	} elsif ($headingIndex == 1) {
-		print "Processes,Time,Blocked Processes\n";
-	} elsif ($headingIndex == 2) {
-		print "Pages,Time,Swap usage (pages)\n";
-	} elsif ($headingIndex == 3) {
-		print "Time,Time,Free Memory (mb)\n";
-	} elsif ($headingIndex == 6) {
-		print "Time,Time,Swap Ins";
-	} elsif ($headingIndex == 7) {
-		print "Time,Time,Swap Outs";
-	} elsif ($headingIndex == 10) {
-		print "Time,Time,Interrupts\n";
-	} elsif ($headingIndex == 11) {
-		print "CPUUsage,Time,Context Switches\n";
-	} elsif ($headingIndex == 12) {
-		print "CPUUsage,Time,%age CPU User\n";
-	} elsif ($headingIndex == 13) {
-		print "CPUUsage,Time,%age CPU System\n";
-	} elsif ($headingIndex == 14) {
-		print "CPUUsage,Time,%age CPU Idle\n";
-	} elsif ($headingIndex == 15) {
-		print "CPUUsage,Time,%age CPU Blocked\n";
-	} elsif ($headingIndex == 17) {
-		print "CPUUsage,Time,User/Kernel Ratio\n";
-	} elsif ($headingIndex == 18) {
-		print "CPUUsage,Time,Total CPU Usage\n";
-	} else {
-		print "Unknown\n";
-	}
+use constant headings => {
+	"r"	=> "Runnable Processes",
+	"b"	=> "Blocked Processes",
+	"swpd"	=> "Swap usage (pages)",
+	"free"	=> "Free Memory (mb)",
+	"si"	=> "Swap Ins",
+	"so"	=> "Swap Outs",
+	"in"	=> "Interrupts",
+	"cs"	=> "Context Switches",
+	"us"	=> "%age CPU User",
+	"sy"	=> "%age CPU System",
+	"id"	=> "%age CPU Idle",
+	"wa"	=> "%age CPU Blocked",
+	"ussy"	=> "User/Kernel Ratio",
+	"totalcpu" => "Total CPU Usage",
+};
+
+sub initialise() {
+	my ($self, $reportDir, $testName, $format, $subHeading) = @_;
+
+	$self->{_DataTypes} = typeMap;
+	$self->{_PlotYaxes} = headings;
+	$self->{_PlotType} = "simple";
+	$self->SUPER::initialise($reportDir, $testName, $format, $subHeading);
 }
 
 sub extractReport($$$$) {
@@ -88,18 +98,6 @@ sub extractReport($$$$) {
 		die("Unrecognised heading");
 	}
 	my $headingIndex = $_colMap{$subHeading};
-	$self->{_HeadingIndex} = $headingIndex;
-
-	# TODO: Auto-discover lengths and handle multi-column reports
-	my $fieldLength = 12;
-	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldHeaders} = [ "Op", "Time", "Value" ];
-
-	if ($subHeading eq "ussy") {
-		$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}f", "%${fieldLength}f" ];
-	} else {
-		$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}f", "%${fieldLength}d" ];
-	}
 
 	my $file = "$reportDir/vmstat-$testName-$testBenchmark";
 	if (-e $file) {
