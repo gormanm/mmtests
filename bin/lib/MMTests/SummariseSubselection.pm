@@ -16,36 +16,6 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
-sub extractSummary() {
-	my ($self, $subHeading) = @_;
-	my @_operations = $self->summaryOps($subHeading);
-	my %data = %{$self->dataByOperation()};
-
-	my %summary;
-	foreach my $operation (@_operations) {
-		my @units;
-		my @row;
-
-		foreach my $row (@{$data{$operation}}) {
-			push @units, @{$row}[1];
-		}
-
-		my $funcName;
-		$summary{$operation} = [];
-		foreach $funcName ("calc_min", $self->getMeanFunc, "calc_stddev", "calc_max") {
-			no strict "refs";
-			my $value = &$funcName(\@units);
-			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-				push @{$summary{$operation}}, $value;
-			}
-		}
-		push @{$summary{$operation}}, calc_submean_ci($self->{_MeanName}, \@units);
-	}
-	$self->{_SummaryData} = \%summary;
-
-	return 1;
-}
-
 sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = $self->ratioSummaryOps($subHeading);
