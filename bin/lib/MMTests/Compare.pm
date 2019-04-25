@@ -84,7 +84,7 @@ sub printFieldHeaders() {
 }
 
 sub _generateComparisonTable() {
-	my ($self, $subHeading, $showCompare) = @_;
+	my ($self, $printRatio, $showCompare) = @_;
 	my %resultsTable;
 	my %compareTable;
 	my %compareRatioTable;
@@ -498,9 +498,9 @@ sub _generateRenderTable() {
 }
 
 sub extractComparison() {
-	my ($self, $subHeading, $showCompare) = @_;
+	my ($self, $printRatio, $showCompare) = @_;
 
-	$self->_generateComparisonTable($subHeading, $showCompare);
+	$self->_generateComparisonTable($printRatio, $showCompare);
 }
 
 sub saveJSONExport() {

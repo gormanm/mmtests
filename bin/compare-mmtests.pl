@@ -125,7 +125,7 @@ if ($opt_Rsummary) {
 	$compareModule->prepareForRSummary();
 }
 
-$compareModule->extractComparison($opt_subheading, !$opt_hideCompare);
+$compareModule->extractComparison($opt_printRatio, !$opt_hideCompare);
 
 $compareModule->printComparison($opt_printRatio, $opt_printSignificance, $opt_subheading);
 
