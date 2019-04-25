@@ -127,9 +127,6 @@ sub _generateComparisonTable() {
 				$compareOp = $extractModules[0]->{_CompareOp};
 			}
 			die if !defined($compareOp);
-			if (defined $extractModules[0]->{_CompareLookup}{$operation}) {
-				$compareOp = $extractModules[0]->{_CompareLookup}{$operation};
-			}
 			if (defined $extractModules[0]->{_RatioCompareOp}) {
 				$ratioCompareOp = $extractModules[0]->{_RatioCompareOp};
 			}

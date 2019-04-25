@@ -19,12 +19,6 @@ sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($user, $system, $elapsed, $cpu);
 	my $iteration = 1;
-
-	$self->{_CompareLookup} = {
-		"files/sec" => "pdiff",
-		"overhead"  => "pndiff"
-	};
-
 	my @clients;
 	my @files = <$reportDir/$profile/fsmark-*.log>;
 	foreach my $file (@files) {

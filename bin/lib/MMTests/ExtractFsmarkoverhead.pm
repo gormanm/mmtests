@@ -18,11 +18,6 @@ sub extractReport() {
 	$reportDir =~ s/overhead//;
 	my $iteration = 1;
 
-	$self->{_CompareLookup} = {
-		"files/sec" => "pdiff",
-		"overhead"  => "pndiff"
-	};
-
 	$reportDir =~ s/fsmark-singleoverhead/fsmark-single/;
 	$reportDir =~ s/fsmark-threadedoverhead/fsmark-threaded/;
 

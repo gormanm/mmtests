@@ -68,9 +68,6 @@ sub _generateComparisonTable() {
 				$compareOp = $extractModules[0]->{_CompareOp};
 			}
 			die if !defined($compareOp);
-			if (defined $extractModules[0]->{_CompareLookup}{$baseline[$row][0]}) {
-				$compareOp = $extractModules[0]->{_CompareLookup}{$baseline[$row][0]};
-			}
 			if (defined $extractModules[0]->{_RatioCompareOp}) {
 				$ratioCompareOp = $extractModules[0]->{_RatioCompareOp};
 			}
