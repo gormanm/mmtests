@@ -19,6 +19,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	my $plotType = "candlesticks";
 	my $opName = "Ops";
+	my @sumheaders;
 
 	if (defined $self->{_Opname}) {
 		$opName = $self->{_Opname};
@@ -62,7 +63,11 @@ sub initialise() {
 	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
 	$self->{_FieldHeaders} = [ "Type", "Sample", $opName ];
 	$self->{_SummaryLength} = $self->{_FieldLength} + 4 if !defined $self->{_SummaryLength};
-	$self->{_SummariseColumn} = 2;
+	for (my $header = 0; $header < scalar @{$self->{_SummaryStats}};
+	     $header++) {
+		push @sumheaders, $self->getStatName($header);
+	}
+	$self->{_SummaryHeaders} = \@sumheaders;
 	$self->{_TestName} = $testName;
 }
 
@@ -116,6 +121,30 @@ sub getStatCompareFunc() {
 		return "pndiff";
 	}
 	return MMTests::Stat::stat_compare->{$op};
+}
+
+sub getStatName() {
+	my ($self, $opnum) = @_;
+	my $op = $self->{_SummaryStats}->[$opnum];
+	my ($opname, $value, $mean);
+
+	if ($self->{_RatioPreferred} eq "Higher") {
+		$mean = "hmean";
+	} else {
+		$mean = "amean";
+	}
+	$op =~ s/^_mean/$mean/;
+	$op =~ s/^_value/$self->{_Opname}/;
+
+	if (defined(MMTests::Stat::stat_names->{$op})) {
+		return MMTests::Stat::stat_names->{$op};
+	}
+	($opname, $value) = split("-", $op);
+	$opname .= "-";
+	if (!defined(MMTests::Stat::stat_names->{$opname})) {
+		return $op;
+	}
+	return sprintf(MMTests::Stat::stat_names->{$opname}, $value);
 }
 
 sub ratioSummaryOps() {

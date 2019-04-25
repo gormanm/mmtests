@@ -23,6 +23,25 @@ use constant stat_compare => {
 	"submeanci" => "pndiff",
 };
 
+# Names of statistic functions for summarization titles
+use constant stat_names => {
+	"min"		=> "Min",
+	"max"		=> "Max",
+	"amean"		=> "Amean",
+	"amean-sub"	=> "SubAmean",
+	"amean-"	=> "BAmean-%d",
+	"hmean"		=> "Hmean",
+	"hmean-sub"	=> "SubHmean",
+	"hmean-"	=> "BHmean-%d",
+	"stddev"	=> "Stddev",
+	"coeffvar"	=> "CoeffVar",
+	"percentile-25" => "1st-qrtle",
+	"percentile-50" => "2nd-qrtle",
+	"percentile-75" => "3rd-qrtle",
+	"percentile-"	=> "Max-%d",
+	"submeanci"	=> "SubmeanCI",
+};
+
 # Print the percentage difference between two values
 sub pdiff {
 	if ($_[0] == $_[1] || $_[0] == 0) {

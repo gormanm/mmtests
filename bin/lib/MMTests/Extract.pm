@@ -108,7 +108,7 @@ sub printDataType() {
 
 sub initialise() {
 	my ($self, $reportDir, $testName, $format) = @_;
-	my (@fieldHeaders, @plotHeaders, @summaryHeaders);
+	my @fieldHeaders;
 	my ($fieldLength, $plotLength, $summaryLength);
 
 	$fieldLength = 12;
@@ -119,8 +119,6 @@ sub initialise() {
 	$self->{_FieldLength}  = $fieldLength;
 	$self->{_FieldHeaders} = \@fieldHeaders;
 	$self->{_PlotLength} = $plotLength;
-	$self->{_PlotHeaders} = \@plotHeaders;
-	$self->{_SummaryHeaders} = \@summaryHeaders;
 	$self->{_ResultData} = [];
 	$self->{_ResultDataUnsorted} = 0;
 	$self->{_LastSample} = {};
@@ -186,9 +184,9 @@ sub printPlotHeaders() {
 sub printSummaryHeaders() {
 	my ($self) = @_;
 	if (defined $self->{_SummaryLength}) {
-		$self->{_PrintHandler}->printHeaders(
-			$self->{_SummaryLength}, $self->{_SummaryHeaders},
-			$self->{_FieldHeaderFormat});
+		$self->{_PrintHandler}->printHeaders($self->{_SummaryLength},
+				$self->{_SummaryHeaders},
+				$self->{_FieldHeaderFormat});
 	} else {
 		$self->printFieldHeaders();
 	}

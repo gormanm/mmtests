@@ -10,11 +10,10 @@ use strict;
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
-	$self->SUPER::initialise($reportDir, $testName);
 	$self->{_SummaryStats} = [ "min", "_mean", "stddev", "coeffvar", "max",
 		"_mean-sub", "submeanci" ];
-	$self->{_SummaryHeaders} = [ "Min", $self->{_MeanName}, "Stddev", "Max", "Sub$self->{_MeanName}", "Sub$self->{_MeanName}CI" ];
 	$self->{_RatioCompareOp} = "cidiff";
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractSummary() {

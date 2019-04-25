@@ -28,15 +28,13 @@ sub initialise() {
 		$self->{_Opname} = "Ops";
 	}
 
+	$self->{_SummaryLength} = 16;
+	$self->{_SummaryStats} = [ "_value" ];
+
 	$self->SUPER::initialise($reportDir, $testName);
 
 	$self->{_FieldFormat} = [ "%-${fieldLength}s", "", "%${fieldLength}.2f" ];
 	$self->{_FieldHeaders} = [ "Type", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
-
-	$self->{_SummaryLength} = 16;
-	$self->{_SummaryStats} = [ "value" ];
-	$self->{_SummaryHeaders} = [ $self->{_Opname} ? $self->{_Opname} : "Ops"  ];
-	$self->{_SummariseColumn} = 2;
 
 	$self->{_TestName} = $testName;
 }

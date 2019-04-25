@@ -39,8 +39,6 @@ sub getModuleName() {
 
 sub initialise() {
 	my ($self, $extractModulesRef) = @_;
-	my (@fieldHeaders, @plotHeaders, @summaryHeaders);
-	my ($fieldLength, $plotLength, $summaryLength);
 
 	$self->{_ExtractModules} = $extractModulesRef;
 	my @extractModules = @{$extractModulesRef};

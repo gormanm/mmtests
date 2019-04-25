@@ -9,12 +9,13 @@ use strict;
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
-	$self->SUPER::initialise($reportDir, $testName);
 	$self->{_SummaryStats} = [ "min", "percentile-25", "percentile-50",
-		"percentile-75", "percentile-90",  "percentile-95",
+		"percentile-75", "percentile-1", "percentile-5",
+		"percentile-10", "percentile-90",  "percentile-95",
 		"percentile-99", "max", "_mean", "stddev", "coeffvar",
 		"_mean-99", "_mean-95", "_mean-90", "_mean-75", "_mean-50",
 		"_mean-25" ];
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractSummary() {
@@ -25,17 +26,6 @@ sub extractSummary() {
 	my $meanOp = $self->getMeanFunc;
 	my $selectOp = $self->getSelectionFunc();
 	my %summary;
-
-	$self->{_SummaryHeaders} =
-		[ "Min", "1st-qrtle", "2nd-qrtle", "3rd-qrtle",
-		  "Max-1%", "Max-5%", "Max-10%",
-		  "Max-90%", "Max-95%", "Max-99%",
-		  "Max",
-		  "$self->{_MeanName}", "Stddev",
-		  "Coeff", "Best99%$self->{_MeanName}",
-		  "Best95%$self->{_MeanName}", "Best90%$self->{_MeanName}",
-		  "Best75%$self->{_MeanName}", "Best50%$self->{_MeanName}",
-		  "Best25%$self->{_MeanName}" ];
 
 	foreach my $operation (@_operations) {
 		no strict  "refs";
