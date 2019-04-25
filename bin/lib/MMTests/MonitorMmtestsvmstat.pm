@@ -1,16 +1,15 @@
 # MonitorMmtestsvmstat.pm
 package MMTests::MonitorMmtestsvmstat;
-use MMTests::Monitor;
-our @ISA = qw(MMTests::Monitor);
+use MMTests::SummariseSingleops;
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName	=> "Mmtestsvmstat",
-		_DataType	=> MMTests::Monitor::MONITOR_VMSTAT,
-		_MultiopMonitor => 1,
-		_SingleSample	=> 1,
+		_ModuleName    => "Mmtestsvmstat",
+		_DataType      => DataTypes::DATA_ACTIONS,
+		_FieldLength   => 15,
 	};
 	bless $self, $class;
 	return $self;
@@ -418,25 +417,13 @@ sub extractReport($$$$) {
 		$vmstat{"mmtests_cscan_efficiency"} = $vmstat{"compact_migrate_scanned"} * 100 / $vmstat{"compact_free_scanned"};
 	}
 
-	my $fieldLength = 0;
 key:	foreach my $key (@_fieldOrder) {
 		my $keyName = $key;
 		my $suppress = 0;
 
 		my $keyName = $_fieldNameMap{$key};
 		$self->addData($keyName, 0, $vmstat{$key} );
-
-		# Work out the length of the largest field
-		my $length = length($keyName);
-		if ($length > $fieldLength) {
-			$fieldLength = $length;
-		}
 	}
-	$fieldLength++;
-
-	$self->{_FieldLength} = 15;
-	$self->{_FieldHeaders} = [ "Op", "Value" ];
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "", "%12.2f" ];
 }
 
 1;
