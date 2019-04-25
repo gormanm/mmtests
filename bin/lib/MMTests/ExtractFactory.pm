@@ -12,7 +12,7 @@ sub new() {
 }
 
 sub loadModule($$$) {
-	my ($self, $moduleName, $opt_reportDirectory, $testName, $format) = @_;
+	my ($self, $moduleName, $opt_reportDirectory, $testName, $format, $subheading) = @_;
 	printVerbose("Loading module $moduleName\n");
 
 	my $pmName = $moduleName;
@@ -24,7 +24,7 @@ sub loadModule($$$) {
 
 	my $className = "MMTests::Extract$pmName";
 	my $classInstance = $className->new(0);
-	$classInstance->initialise($opt_reportDirectory, $testName);
+	$classInstance->initialise($opt_reportDirectory, $testName, $subheading);
 	$classInstance->setFormat($format);
 	printVerbose("Loaded  module " . $classInstance->getModuleName() . "\n");
 

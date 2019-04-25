@@ -71,7 +71,7 @@ if (!defined($opt_monitor)) {
 					$profile = "fine-profile-timer";
 				}
 			}
-			$extractModules[$nrModules] = $extractFactory->loadModule($opt_benchmark, $reportDirectory, $name);
+			$extractModules[$nrModules] = $extractFactory->loadModule($opt_benchmark, $reportDirectory, $name, $opt_format, $opt_subheading);
 			if ($opt_Rsummary) {
 				$extractModules[$nrModules++]->extractSummaryR($opt_subheading, $opt_Rsummary);
 			} elsif ($opt_printRatio) {
@@ -93,7 +93,7 @@ if (!defined($opt_monitor)) {
 		printVerbose("Loading extract $opt_benchmark $name\n");
 		eval {
 			my $reportDirectory = $opt_reportDirectory;
-			$extractModules[$nrModules] = $extractFactory->loadModule($opt_monitor, $reportDirectory, $name);
+			$extractModules[$nrModules] = $extractFactory->loadModule($opt_monitor, $reportDirectory, $name, $opt_format, $opt_subheading);
 			$extractModules[$nrModules]->extractReport($reportDirectory, $name, $opt_benchmark, $opt_subheading, 1);
 			$extractModules[$nrModules++]->extractSummary($opt_subheading);
 		} or do {
