@@ -328,7 +328,8 @@ sub runStatFunc
 		# compute function from.
 		my $nr_elements = scalar(@{$dataref});
 		my $count = int ($nr_elements * $arg / 100);
-		my @data = @{$dataref}[0..($count)];
+		$count = $count < 1 ? 1 : $count;
+		my @data = @{$dataref}[0..($count-1)];
 
 		no strict "refs";
 		return &$func(\@data);

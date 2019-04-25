@@ -258,6 +258,12 @@ sub select_data {
 	my ($low, $high, $dataref) = @_;
 	my $len = @{$dataref};
 
+	if ($low < 0) {
+		$low = 0;
+	}
+	if ($high >= $len) {
+		$high = $len - 1;
+	}
 	if (($low <= 0 && $high >= $len) ||
 	    ($low > $high)) {
 		return $dataref;
@@ -282,7 +288,7 @@ sub select_highest {
 	my $nr_elements = @{$dataref};
 	my $nr_trim = int ($nr_elements * $percentage / 100);
 
-	return select_data($nr_elements - $nr_trim, $nr_elements, $dataref);
+	return select_data($nr_elements - $nr_trim - 1, $nr_elements - 1, $dataref);
 }
 
 sub select_lowest {
@@ -290,7 +296,7 @@ sub select_lowest {
 	my $nr_elements = @{$dataref};
 	my $nr_trim = int ($nr_elements * $percentage / 100);
 
-	return select_data(0, $nr_trim, $dataref);
+	return select_data(0, $nr_trim - 1, $dataref);
 }
 
 sub calc_true_mean {
