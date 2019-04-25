@@ -10,7 +10,7 @@ END {
 	$i = 0;
 	$quartiles = calc_quartiles(@x);
 	#$mean = calc_amean(\@x);
-	#$stddev = calc_stddev(@x);
+	#$stddev = calc_stddev(\@x);
 	#$range = $$quartiles[3] - $$quartiles[1];
 	#print "$$quartiles[1] $$quartiles[2] $$quartiles[3]";
 	print "$$quartiles[90] $$quartiles[93] $$quartiles[95] $$quartiles[99]";

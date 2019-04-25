@@ -8,5 +8,5 @@ use MMTests::Stat;
 $x[$i++] = $_;
 END {
 	$i = 0;
-	print calc_min(@x);
+	print calc_min(\@x);
 }

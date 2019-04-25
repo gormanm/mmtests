@@ -93,7 +93,7 @@ sub extractSummaryBreakdown() {
 	push @{$self->{_SummaryData}}, [ "Latency 93%", $$quartiles[93] ];
 	push @{$self->{_SummaryData}}, [ "Latency 95%", $$quartiles[95] ];
 	push @{$self->{_SummaryData}}, [ "Latency 99%", $$quartiles[99] ];
-	push @{$self->{_SummaryData}}, [ "Latency Max", calc_max(@samples) ];
+	push @{$self->{_SummaryData}}, [ "Latency Max", calc_max(\@samples) ];
 }
 
 sub extractSummaryPercentages() {

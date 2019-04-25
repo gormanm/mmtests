@@ -92,7 +92,7 @@ sub extractReport($$$$) {
 					no strict "refs";
 					$self->addData("threads",
 						$timestamp - $start_timestamp,
-						&$subCalc(@vals));
+						&$subCalc(\@vals));
 				}
 				$timestamp = $1;
 			}

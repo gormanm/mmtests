@@ -54,7 +54,7 @@ sub extractReport() {
 				push @values, $self->_time_to_elapsed($line);
 			}
 			$self->addData("$case-time_range", 0, calc_range(@values));
-			$self->addData("$case-time_stddv", 0, calc_stddev(@values));
+			$self->addData("$case-time_stddv", 0, calc_stddev(\@values));
 		}
 
 		close(INPUT);

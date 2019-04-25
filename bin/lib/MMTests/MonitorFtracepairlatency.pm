@@ -183,7 +183,7 @@ sub extractSummary() {
 	my $quartilesRef = calc_quartiles(@units);
 	my @quartiles = @{$quartilesRef};
 
-	push @{$self->{_SummaryData}}, [ "Min", calc_min(@units) ];
+	push @{$self->{_SummaryData}}, [ "Min", calc_min(\@units) ];
 	push @{$self->{_SummaryData}}, [ "1st-qrtle", $quartiles[25]  ];
 	push @{$self->{_SummaryData}}, [ "2nd-qrtle", $quartiles[50]  ];
 	push @{$self->{_SummaryData}}, [ "3rd-qrtle", $quartiles[75]  ];

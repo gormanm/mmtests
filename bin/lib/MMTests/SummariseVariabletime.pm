@@ -38,7 +38,7 @@ sub extractSummary() {
 
 		my $quartilesRef = calc_quartiles(@units);
 		my @quartiles = @{$quartilesRef};
-		push @row, calc_min(@units);
+		push @row, calc_min(\@units);
 		push @row, $quartiles[25];
 		push @row, $quartiles[50];
 		push @row, $quartiles[75];
@@ -48,16 +48,16 @@ sub extractSummary() {
 		push @row, $quartiles[90];
 		push @row, $quartiles[95];
 		push @row, $quartiles[99];
-		push @row, calc_max(@units);
-		push @row, &$meanOp(@units);
-		push @row, calc_stddev(@units);
-		push @row, calc_coeffvar(@units);
-		push @row, &$meanOp(@{&$selectOp(99, \@units)});
-		push @row, &$meanOp(@{&$selectOp(95, \@units)});
-		push @row, &$meanOp(@{&$selectOp(90, \@units)});
-		push @row, &$meanOp(@{&$selectOp(75, \@units)});
-		push @row, &$meanOp(@{&$selectOp(50, \@units)});
-		push @row, &$meanOp(@{&$selectOp(25, \@units)});
+		push @row, calc_max(\@units);
+		push @row, &$meanOp(\@units);
+		push @row, calc_stddev(\@units);
+		push @row, calc_coeffvar(\@units);
+		push @row, &$meanOp(&$selectOp(99, \@units));
+		push @row, &$meanOp(&$selectOp(95, \@units));
+		push @row, &$meanOp(&$selectOp(90, \@units));
+		push @row, &$meanOp(&$selectOp(75, \@units));
+		push @row, &$meanOp(&$selectOp(50, \@units));
+		push @row, &$meanOp(&$selectOp(25, \@units));
 
 		$summary{$operation} = \@row;
 	}

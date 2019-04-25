@@ -307,7 +307,7 @@ sub extractSummary() {
 		$summary{$operation} = [];
 		foreach $funcName ("calc_min", $self->getMeanFunc, "calc_stddev", "calc_coeffvar", "calc_max") {
 			no strict "refs";
-			my $value = &$funcName(@units);
+			my $value = &$funcName(\@units);
 			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
 				push @{$summary{$operation}}, $value;
 			}
@@ -316,7 +316,7 @@ sub extractSummary() {
 		my $selectFunc = $self->getSelectionFunc();
 		foreach my $i (50, 95, 99) {
 			no strict "refs";
-			my $value = &$funcName(@{&$selectFunc($i, \@units)});
+			my $value = &$funcName(&$selectFunc($i, \@units));
 			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
 				push @{$summary{$operation}}, $value;
 			}
@@ -328,11 +328,11 @@ sub extractSummary() {
 		my $mean;
 		{
 			no strict "refs";
-			$mean = &$funcName(@units);
+			$mean = &$funcName(\@units);
 		}
 		push @{$significance{$operation}}, $mean;
 
-		my $stderr = calc_stddev(@units);
+		my $stderr = calc_stddev(\@units);
 		push @{$significance{$operation}}, $stderr ne "NaN" ? $stderr : 0;
 
 		push @{$significance{$operation}}, $#units+1;
@@ -367,12 +367,12 @@ sub extractRatioSummary() {
 		{
 			no strict "refs";
 			my $funcName = $self->getMeanFunc();
-			$value = &$funcName(@units);
+			$value = &$funcName(\@units);
 		}
 		if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
 			$summary{$operation} = [$value];
 			if (!$self->{_SuppressDmean}) {
-				$summaryCILen{$operation} = calc_stddev(@units);
+				$summaryCILen{$operation} = calc_stddev(\@units);
 			}
 		}
 	}

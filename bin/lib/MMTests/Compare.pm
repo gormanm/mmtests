@@ -165,7 +165,7 @@ sub _generateComparisonTable() {
 			for my $operation (keys %baseline) {
 				push @units, $normCompareTable{$operation}[$column][$module];
 			}
-			push @normcmpmean, [ calc_amean(\@units), calc_min(@units), calc_max(@units) ];
+			push @normcmpmean, [ calc_amean(\@units), calc_min(\@units), calc_max(\@units) ];
 
 			@units = ();
 			for my $operation (keys %baseline) {

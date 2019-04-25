@@ -73,9 +73,9 @@ sub extractReport() {
 
 		$self->addData("NrStalls-$client", 0, $#values + 1);
 		if ($#values >= 0) {
-			$self->addData("MinStall-$client", 0, calc_min(@values));
+			$self->addData("MinStall-$client", 0, calc_min(\@values));
 			$self->addData("AvgStall-$client", 0, calc_amean(\@values));
-			$self->addData("MaxStall-$client", 0, calc_max(@values));
+			$self->addData("MaxStall-$client", 0, calc_max(\@values));
 			$self->addData("TotStall-$client", 0, calc_sum(@values));
 		} else {
 			$self->addData("MinStall-$client", 0, 0);

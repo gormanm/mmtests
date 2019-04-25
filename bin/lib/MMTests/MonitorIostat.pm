@@ -68,7 +68,7 @@ sub extractSummary() {
 		next if $mean_avgqusz < 0.01;
 
 		push @{$self->{_SummaryData}}, [ "$device-avgqusz",
-			 $mean_avgqusz, calc_max(@units) ];
+			 $mean_avgqusz, calc_max(\@units) ];
 		foreach my $op ("avgrqsz", "await", "r_await", "w_await",
 				"svctm", "rrqm", "wrqm") {
 			@units = ();
@@ -76,7 +76,7 @@ sub extractSummary() {
 				push @units, @{$row}[1];
 			}
 			push @{$self->{_SummaryData}}, [ "$device-$op",
-				calc_amean(\@units), calc_max(@units) ];
+				calc_amean(\@units), calc_max(\@units) ];
 		}
 	}
 

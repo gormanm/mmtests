@@ -34,7 +34,7 @@ sub extractSummary() {
 		$summary{$operation} = [];
 		foreach $funcName ("calc_min", $self->getMeanFunc, "calc_stddev", "calc_max") {
 			no strict "refs";
-			my $value = &$funcName(@units);
+			my $value = &$funcName(\@units);
 			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
 				push @{$summary{$operation}}, $value;
 			}

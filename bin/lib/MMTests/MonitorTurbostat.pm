@@ -54,7 +54,7 @@ sub extractSummary() {
 		}
 
 		push @{$self->{_SummaryData}}, [ "$header",
-			 calc_amean(\@units), calc_max(@units) ];
+			 calc_amean(\@units), calc_max(\@units) ];
 	}
 
 	return 1;

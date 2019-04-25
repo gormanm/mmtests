@@ -205,12 +205,12 @@ sub _printSimplePlotData() {
 sub _printCandlePlotData() {
 	my ($self, $fieldLength, @data) = @_;
 
-	my $stddev = calc_stddev(@data);
+	my $stddev = calc_stddev(\@data);
 	my $mean = calc_amean(\@data);
-	my $min  = calc_min(@data);
-	my $max  = calc_max(@data);
-	my $low_stddev = calc_max( ($mean - $stddev, $min) );
-	my $high_stddev = calc_min( ($mean + $stddev, $max) );
+	my $min  = calc_min(\@data);
+	my $max  = calc_max(\@data);
+	my $low_stddev = ($mean - $stddev > $min) ? ($mean - $stddev) : $min;
+	my $high_stddev = ($mean + $stddev < $max) ? ($mean + $stddev) : $max;
 
 	printf("%${fieldLength}.3f %${fieldLength}.3f %${fieldLength}.3f %${fieldLength}.3f %${fieldLength}.3f	# stddev=%-${fieldLength}.3f\n", $low_stddev, $min, $max, $high_stddev, $mean, $stddev);
 }
@@ -218,7 +218,7 @@ sub _printCandlePlotData() {
 sub _printErrorBarData() {
 	my ($self, $fieldLength, @data) = @_;
 
-	my $stddev = calc_stddev(@data);
+	my $stddev = calc_stddev(\@data);
 	my $mean = calc_amean(\@data);
 
 	printf("%${fieldLength}.3f %${fieldLength}.3f\n", $mean, $stddev);

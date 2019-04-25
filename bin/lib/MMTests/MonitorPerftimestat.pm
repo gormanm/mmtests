@@ -58,7 +58,7 @@ sub extractSummary() {
 		my @samples = map {$_ -> [1]} @{$data{$header}};
 
 		push @{$self->{_SummaryData}}, [ "$header",
-			 calc_amean(\@samples), calc_max(@samples) ];
+			 calc_amean(\@samples), calc_max(\@samples) ];
 	}
 
 	return 1;

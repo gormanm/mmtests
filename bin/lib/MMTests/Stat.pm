@@ -119,12 +119,15 @@ sub calc_sum {
 }
 
 sub calc_min {
-	if (! defined $_[0]) {
+	my $dataref = shift;
+	my @data = @{$dataref};
+
+	if (! defined $data[0]) {
 		return "NaN";
 	}
 
-	my $min = $_[0];
-	foreach my $value (@_) {
+	my $min = $data[0];
+	foreach my $value (@data) {
 		if ($value < $min) {
 			$min = $value;
 		}
@@ -134,12 +137,15 @@ sub calc_min {
 }
 
 sub calc_max {
-	if (! defined $_[0]) {
+	my $dataref = shift;
+	my @data = @{$dataref};
+
+	if (! defined $data[0]) {
 		return "NaN";
 	}
 
-	my $max = $_[0];
-	foreach my $value (@_) {
+	my $max = $data[0];
+	foreach my $value (@data) {
 		if ($value > $max) {
 			$max = $value;
 		}
@@ -153,11 +159,11 @@ sub calc_range {
 		return "NaN";
 	}
 
-	return calc_max(@_) - calc_min(@_);
+	return calc_max(\@_) - calc_min(\@_);
 }
 
 sub calc_amean {
-	my $dataref = $0;
+	my $dataref = shift;
 	my @data = @{$dataref};
 	my $sum = 0;
 	my $n = 0;
@@ -203,18 +209,20 @@ sub calc_geomean {
 }
 
 sub calc_harmmean {
+	my $dataref = shift;
+	my @data = @{$dataref};
 	my $sum = 0;
 	my $n = 0;
-	my $elements = $#_ + 1;
+	my $elements = $#data + 1;
 	my $i;
 
 	for ($i = 0; $i < $elements; $i++) {
-		if (defined $_[$i]) {
-			if ($_[$i] !~ /^[-0-9]+/) {
+		if (defined $data[$i]) {
+			if ($data[$i] !~ /^[-0-9]+/) {
 				return "NaN";
 			}
-			if ($_[$i] > 0) {
-				$sum += 1/$_[$i];
+			if ($data[$i] > 0) {
+				$sum += 1/$data[$i];
 				$n++;
 			} else {
 				return -1;
@@ -289,7 +297,7 @@ sub calc_true_mean {
 		return "NaN";
 	}
 
-	my $stddev = calc_stddev(@samples);
+	my $stddev = calc_stddev($samplesref);
 	my $conf = calc_confidence_interval_lower("NaN", $confidenceLevel, $samplesref);
 	my $limit = $mean * $confidenceLimit / 100;
 	my $conf_delta = $mean - $conf; 
@@ -324,7 +332,7 @@ CONF_LOOP:
 			$usable_samples--;
 
 			$mean = calc_amean($samplesref);
-			$stddev = calc_stddev(@samples);
+			$stddev = calc_stddev($samplesref);
 			$conf = calc_confidence_interval_lower("NaN", $confidenceLevel, $samplesref);
 			$limit = $mean * $confidenceLimit / 100;
 			$conf_delta = $mean - $conf;
@@ -341,19 +349,21 @@ CONF_LOOP:
 }
 
 sub calc_stddev {
+	my $dataref = shift;
+	my @data = @{$dataref};
 	my $n = 0;
-	my $elements = $#_ + 1;
+	my $elements = $#data + 1;
 	my $diff;
 	my $i;
 
-	my $mean = calc_amean(\@_);
+	my $mean = calc_amean($dataref);
 
 	for ($i = 0; $i < $elements; $i++) {
-		if (defined $_[$i]) {
-			if ($_[$i] !~ /^[-0-9]+/) {
+		if (defined $data[$i]) {
+			if ($data[$i] !~ /^[-0-9]+/) {
 				return "NaN";
 			}
-			$diff += ($_[$i] - $mean) ** 2;
+			$diff += ($data[$i] - $mean) ** 2;
 			$n++;
 		}
 	}
@@ -366,8 +376,9 @@ sub calc_stddev {
 }
 
 sub calc_coeffvar {
-	my $stddev = calc_stddev(@_);
-	my $mean = calc_amean(\@_);
+	my $dataref = shift;
+	my $stddev = calc_stddev($dataref);
+	my $mean = calc_amean($dataref);
 
 	if ($stddev eq "NaN") {
 		$stddev = 0;
@@ -415,7 +426,7 @@ sub calc_confidence_interval {
 
 	my $mean = calc_amean($dataref);
 	if ($variance !~ /^[-0-9]+/) {
-		$stddev = calc_stddev(@data);
+		$stddev = calc_stddev($dataref);
 		$q = qx(echo 'qt(c((100 - $confidence_level)/200), $n-1, lower.tail = FALSE)' | R --slave);
 		$q =~ s/\[1\]|\s//g;
 	} else {

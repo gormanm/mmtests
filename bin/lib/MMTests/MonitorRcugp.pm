@@ -61,7 +61,7 @@ sub extractSummary() {
 		}
 
 		my $meanCompleted  = calc_amean(\@gpCompleted);
-		my $maxCompleted   = calc_max(@gpCompleted);
+		my $maxCompleted   = calc_max(\@gpCompleted);
 
 		push @{$self->{_SummaryData}}, [ "$rcuFlavour-gpCompleted", $meanCompleted, $maxCompleted, $lastCompleted ];
 	}
