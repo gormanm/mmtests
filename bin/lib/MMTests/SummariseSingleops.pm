@@ -68,22 +68,24 @@ sub initialise() {
 
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
+	my %data = %{$self->dataByOperation()};
+	my @ops = sort { $a cmp $b } keys %data;
 
-	$self->{_SummaryData} = {};
-	for my $row (@{$self->{_ResultData}}) {
-		my $op = $row->[0];
-		my $value = $row->[2];
-		$self->{_SummaryData}->{$op} = [ $value ];
-	}
-	my @ops = map {$_ -> [0]} @{$self->{_ResultData}};
 	$self->{_Operations} = \@ops;
+	$self->{_SummaryData} = {};
+	foreach my $op (@ops) {
+		# There should be only one entry in the array...
+		foreach my $row (@{$data{$op}}) {
+			$self->{_SummaryData}->{$op} = [ @{$row}[1] ];
+		}
+	}
 	return 1;
 }
 
 sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
 	my %data = %{$self->dataByOperation()};
-	my @ops = map {$_ -> [0]} @{$self->{_ResultData}};
+	my @ops = sort { $a cmp $b } keys %data;
 	my @ratioops;
 
 	if (!defined $self->{_SingleType}) {
@@ -95,14 +97,15 @@ sub extractRatioSummary() {
 	@ratioops = $self->ratioSummaryOps($subHeading);
 
 	$self->{_SummaryHeaders} = [ "Ratio" ];
+	$self->{_Operations} = \@ops;
 
-	my %summaryData;
+	$self->{_SummaryData} = {};
 	foreach my $op (@ratioops) {
-		foreach my $rowLine (@{$data{$op}}) {
-			$summaryData{$op} = [$rowLine->[1]];
+		# There should be only one entry in the array...
+		foreach my $row (@{$data{$op}}) {
+			$self->{_SummaryData}->{$op} = [ @{$row}[1] ];
 		}
 	}
-	$self->{_SummaryData} = \%summaryData;
 
 	return 1;
 }
