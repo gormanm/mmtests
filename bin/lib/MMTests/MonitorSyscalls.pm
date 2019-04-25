@@ -1,29 +1,16 @@
 # MonitorSyscalls.pm
 package MMTests::MonitorSyscalls;
-use MMTests::Monitor;
-use MMTests::Stat;
-our @ISA = qw(MMTests::Monitor);
+use MMTests::SummariseMonitor;
+our @ISA = qw(MMTests::SummariseMonitor);
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName    => "MonitorSyscalls",
-		_DataType      => MMTests::Monitor::MONITOR_SYSCALLS,
-		_MultiopMonitor => 1
 	};
 	bless $self, $class;
 	return $self;
-}
-
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-
-        my $fieldLength = 24;
-        $self->{_FieldLength} = $fieldLength;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}.2f", "%${fieldLength}.2f" ];
-	$self->{_FieldHeaders} = [ "Thread", "Time", "Count" ];
-        $self->SUPER::initialise($reportDir, $testName);
 }
 
 my %_colMap = (
@@ -31,52 +18,31 @@ my %_colMap = (
 	"Latency"	=> 5,
 );
 
-sub printDataType() {
-	my ($self) = @_;
-	my $headingIndex = $self->{_HeadingIndex};
+use constant typeMap => {
+	"Count"		=> DataTypes::DATA_ACTIONS,
+	"Latency"	=> DataTypes::DATA_TIME_NSECONDS,
+};
 
-	if ($headingIndex == 4) {
-		print "Syscall,Count,Events\n";
-	} elsif ($headingIndex == 5) {
-		print "Syscall,Time,Latency (ms)\n";
-	} else {
-		print "Unknown\n";
+use constant headings => {
+	"Count"		=> "Syscalls",
+	"Latency"	=> "Syscall time (ns)",
+};
+
+sub initialise() {
+	my ($self, $reportDir, $testName, $format, $subHeading) = @_;
+	my ($subHeading, $subSummary) = split(/-/, $subHeading);
+
+	if (!defined $_colMap{$subHeading}) {
+		die("Unrecognised heading $subHeading");
 	}
+	$self->{_DataType} = typeMap->{$subHeading};
+	$self->{_PlotYAxis} = headings->{$subHeading};
+	$self->SUPER::initialise($reportDir, $testName, $format, $subHeading);
 }
-
-my %activity;
-
-sub extractSummary() {
-	my ($self, $subHeading) = @_;
-	my %data = %{$self->dataByOperation()};
-
-	my $fieldLength = 24;
-
-	$self->{_SummaryHeaders} = [ "Thread", "Mean" ];
-	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.2f" ];
-
-	foreach my $thread (sort keys %activity) {
-		my @event;
-
-		foreach my $rowRef (@{$data{$thread}}) {
-			my @row = @{$rowRef};
-
-			push @event, $row[1];
-		}
-
-		push @{$self->{_SummaryData}}, [ $thread, calc_amean(\@event) ];
-	}
-
-	return 1;
-}
-
 
 sub extractReport($$$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
-	my ($reading_before, $reading_after);
-	my $elapsed_time;
 	my $timestamp;
-	my $format;
 	my $start_timestamp = 0;
 
 	my ($subHeading, $subSummary) = split(/-/, $subHeading);
@@ -84,8 +50,7 @@ sub extractReport($$$$) {
 	if (!defined $_colMap{$subHeading}) {
 		die("Unrecognised heading $subHeading");
 	}
-	my $headingIndex = $_colMap{$subHeading};
-	$self->{_HeadingIndex} = $headingIndex;
+	my $headingindex = $_colmap{$subheading};
 
 	my $file = "$reportDir/syscalls-$testName-$testBenchmark";
 	if (-e $file) {
@@ -127,7 +92,6 @@ sub extractReport($$$$) {
 			$thread = "$elements[3]";
 		}
 		$totalEvents{$thread} += $elements[$headingIndex];
-		$activity{$thread} = 1;
 	}
 }
 
