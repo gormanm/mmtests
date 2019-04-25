@@ -640,6 +640,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		RUNNING_TEST=$TEST
 
 		# Set CPU idle latency limits
+		CSTATE_PID=
 		if [ "$CPUIDLE_CSTATE" != "" ]; then
 			set-cstate-latency.pl --cstate $CPUIDLE_CSTATE &
 			CSTATE_PID=$!
