@@ -358,7 +358,17 @@ sub printSummary() {
 	}
 
 	$self->extractSummary($subHeading);
-	$self->{_PrintHandler}->printRow($self->{_SummaryData}, $length, $self->{_FieldFormat});
+	if (defined $self->{_Operations}) {
+		foreach my $op (@{$self->{_Operations}}) {
+			$self->{_PrintHandler}->printRow([$self->{_SummaryData}->{$op}],
+							 $length,
+							 $self->{_FieldFormat});
+		}
+	} else {
+		$self->{_PrintHandler}->printRow($self->{_SummaryData},
+						 $length,
+						 $self->{_FieldFormat});
+	}
 }
 
 sub printReport() {
