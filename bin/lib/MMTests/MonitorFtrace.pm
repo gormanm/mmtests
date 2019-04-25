@@ -1,18 +1,36 @@
 # MonitorFtrace.pm
 package MMTests::MonitorFtrace;
-use MMTests::Monitor;
-our @ISA = qw(MMTests::Monitor);
+use MMTests::Summarise;
+our @ISA = qw(MMTests::Summarise);
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "MonitorFtrace",
-		_DataType    => MMTests::Monitor::MONITOR_FTRACE,
-		_MultiopMonitor => 1,
 	};
 	bless $self, $class;
 	return $self;
+}
+
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
+
+	$self->{_FieldLength} = 16;
+	$self->{_Opname} = "Ops";
+	if (!defined($self->{_SummaryStats})) {
+		$self->{_SummaryStats} = [ "_value" ];
+	}
+	if (!defined($self->{_RatioSummaryStat})) {
+		$self->{_RatioSummaryStat} = [ "_value" ];
+	}
+	if (!defined($self->{_DataType}) && !defined($self->{_DataTypes})) {
+		$self->{_DataType} = DataTypes::DATA_ACTIONS;
+	}
+	$self->SUPER::initialise($reportDir, $testName);
+
+	$self->{_FieldHeaders} = [ "Type", "Ops" ];
+	$self->{_FieldFormat} = [ "%-$self->{_FieldLength}s", "", "%12d" ];
 }
 
 sub ftraceCallback {

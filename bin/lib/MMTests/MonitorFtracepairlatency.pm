@@ -16,6 +16,22 @@ use constant LATENCY_START	=> 0;
 use constant LATENCY_END	=> 1;
 use constant LATENCY_STALLED	=> 2;
 
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
+
+	$self->{_PlotXaxis} = "Time";
+	$self->{_PlotType} = "points";
+	$self->{_DataType} = DataTypes::DATA_TIME_MSECONDS;
+	$self->{_SummaryStats} = [ "min", "percentile-25", "percentile-50",
+		"percentile-75", "percentile-1", "percentile-5",
+		"percentile-10", "percentile-90",  "percentile-95",
+		"percentile-99", "max", "_mean", "samples", "samples-0,5",
+		"samples-5,10", "samples-10,100", "samples-100,500",
+		"samples-500,1000", "samples-1000,5000", "samples-5000,max" ]
+	$self->{_RatioSummaryStat} = [ "percentile-95" ];
+	$self->SUPER::initialise($reportDir, $testName);
+}
+
 sub add_regex_start($$$)
 {
 	my $self = shift @_;
@@ -71,17 +87,6 @@ sub set_delay_threshold
 	$delay_threshold = shift @_;
 }
 
-sub printDataType() {
-	my ($self) = @_;
-
-	print "ms,Time,Latency,points\n";
-}
-
-sub printPlot() {
-	my ($self, $subheading) = @_;
-	$self->printReport($subheading);
-}
-
 sub ftraceInit {
 	my $self = shift @_;
 	my @ftraceCounters;
@@ -89,8 +94,6 @@ sub ftraceInit {
 
 	%latencyState = ();
 
-	$self->{_FieldLength} = 12;
-	$self->{_FieldFormat} = [ "%-$self->{_FieldLength}s", "", "%$self->{_FieldLength}d" ];
 	$self->{_FtraceCounters} = \@ftraceCounters;
 	$self->{_PerProcessStats} = \%perprocessStats;
 }
@@ -148,57 +151,6 @@ sub ftraceCallback {
 		}
 		$latencyState{$pidprocess} = 0;
 	}
-}
-
-sub extractSummary() {
-	my $self = shift @_;
-	my @data = @{{$self->dataByOperation()}->["delay"]};
-
-	my $fieldLength = $self->{_FieldLength} = 12;
-	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.4f", ];
-	$self->{_SummaryLength} = 12;
-	$self->{_SummaryHeaders} = [ "Latency", "" ];
-
-	my @thresholds = ( 0, 5, 10, 100, 500, 1000, 5000 );
-	my @samples;
-	for (my $i; $i <= $#thresholds; $i++) {
-		$samples[$i] = 0;
-	}
-
-	my @units;
-	foreach my $row (@data) {
-		push @units, @{$row}[1];
-
-		for (my $i = 0; $i <= $#thresholds; $i++) {
-			if (@{$row}[1] >= $thresholds[$i] && ($i == $#thresholds || @{$row}[1] < $thresholds[$i+1])) {
-				$samples[$i]++;
-			}
-		}
-	}
-
-	if ($#units == -1) {
-		$units[0] = 0;
-	}
-
-	my $quartilesRef = calc_quartiles(\@units);
-	my @quartiles = @{$quartilesRef};
-
-	push @{$self->{_SummaryData}}, [ "Min", calc_min(\@units) ];
-	push @{$self->{_SummaryData}}, [ "1st-qrtle", $quartiles[25]  ];
-	push @{$self->{_SummaryData}}, [ "2nd-qrtle", $quartiles[50]  ];
-	push @{$self->{_SummaryData}}, [ "3rd-qrtle", $quartiles[75]  ];
-	push @{$self->{_SummaryData}}, [ "Max-90%",   $quartiles[90] ];
-	push @{$self->{_SummaryData}}, [ "Max-93%",   $quartiles[93] ];
-	push @{$self->{_SummaryData}}, [ "Max-95%",   $quartiles[95] ];
-	push @{$self->{_SummaryData}}, [ "Max-99%",   $quartiles[99] ];
-	push @{$self->{_SummaryData}}, [ "Max",       $quartiles[4]  ];
-	push @{$self->{_SummaryData}}, [ "Mean",      calc_amean(\@units) ];
-	push @{$self->{_SummaryData}}, [ "Samples",   $#units ];
-	for (my $i = 0; $i <= $#thresholds; $i++) {
-		push @{$self->{_SummaryData}}, [ "Samples-$thresholds[$i]", $samples[$i] ];
-	}
-
-	return 1;
 }
 
 1;

@@ -183,8 +183,6 @@ sub ftraceInit {
 	$regex_vmscan_shrink_slab_start = $regex_vmscan_shrink_slab_start_default;
 	$regex_vmscan_shrink_slab_end = $regex_vmscan_shrink_slab_end_default;
 
-	$self->{_FieldLength} = 16;
-
 	my @ftraceCounters;
 	my %perprocessStats;
 	$self->{_FtraceCounters} = \@ftraceCounters;
@@ -433,13 +431,7 @@ sub ftraceCallback {
 
 sub ftraceReport {
 	my ($self, $rowOrientated) = @_;
-	my $i;
-	my (@headers, @fields, @format);
 	my $ftraceCounterRef = $self->{_FtraceCounters};
-
-	push @headers, "Unit";
-	push @fields, 0;
-	push @format, "";
 
 	for (my $key = 0; $key < EVENT_UNKNOWN; $key++) {
 		if (!defined($_fieldIndexMap[$key])) {
@@ -453,9 +445,6 @@ sub ftraceReport {
 
 		$self->addData($keyName, 0, $ftraceCounterRef->[$key] );
 	}
-
-	$self->{_FieldHeaders} = [ "Op", "Value" ];
-	$self->{_FieldFormat} = [ "%-$self->{_FieldLength}s", "", "%12d" ];
 }
 
 1;

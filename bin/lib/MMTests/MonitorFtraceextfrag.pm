@@ -39,8 +39,6 @@ sub ftraceInit {
 		$regex_mm_page_alloc_extfrag_default,
 		"page", "pfn", "alloc_order", "fallback_order", "pageblock_order", "alloc_migratetype", "fallback_migratetype", "fragmenting", "change_ownership");
 
-	$self->{_FieldLength} = 16;
-
 	my @ftraceCounters;
 	$self->{_FtraceCounters} = \@ftraceCounters;
 }
@@ -99,9 +97,6 @@ sub ftraceReport {
 
 		$self->addData($keyName, 0, $ftraceCounterRef->[$key] );
 	}
-
-	$self->{_FieldHeaders} = [ "Op", "Value" ];
-	$self->{_FieldFormat} = [ "%-$self->{_FieldLength}s", "", "%12d" ];
 }
 
 1;

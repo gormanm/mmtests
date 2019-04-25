@@ -24,8 +24,6 @@ sub ftraceInit {
 		$regex_mm_migrate_misplaced_pages_default,
 		"comm", "pid", "tgid", "src_nid", "dst_nid", "nr_pages");
 
-	$self->{_FieldLength} = 12;
-
 	my @ftraceCounters;
 	my %migrateFrom;
 	my %migrateTo;

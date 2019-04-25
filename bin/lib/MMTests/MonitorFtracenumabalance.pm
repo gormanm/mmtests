@@ -164,13 +164,7 @@ sub ftraceCallback {
 
 sub ftraceReport {
 	my ($self, $rowOrientated) = @_;
-	my $i;
-	my (@headers, @fields, @format);
 	my $ftraceCounterRef = $self->{_FtraceCounters};
-
-	push @headers, "Unit";
-	push @fields, 0;
-	push @format, "";
 
 	for (my $key = 0; $key < EVENT_UNKNOWN; $key++) {
 		if (!defined($_fieldIndexMap[$key])) {
@@ -184,9 +178,6 @@ sub ftraceReport {
 
 		$self->addData($keyName, 0, $ftraceCounterRef->[$key] );
 	}
-
-	$self->{_FieldHeaders} = [ "Op", "Value" ];
-	$self->{_FieldFormat} = [ "%-$self->{_FieldLength}s", "", "%12d" ];
 }
 
 1;
