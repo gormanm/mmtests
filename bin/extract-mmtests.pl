@@ -18,7 +18,6 @@ use Pod::Usage;
 use MMTests::Report;
 use MMTests::Extract;
 use MMTests::ExtractFactory;
-use MMTests::MonitorFactory;
 use strict;
 
 # Option variable
@@ -69,10 +68,10 @@ sub exportJSON {
 
 # If monitors are requested, extract that and exit
 if (defined $opt_monitor) {
-	my $monitorFactory = MMTests::MonitorFactory->new();
+	my $monitorFactory = MMTests::ExtractFactory->new();
 	my $monitorModule;
 	eval {
-		$monitorModule = $monitorFactory->loadModule($opt_monitor, $opt_reportDirectory, $opt_name, $opt_format, $opt_subheading);
+		$monitorModule = $monitorFactory->loadModule("monitor", $opt_monitor, $opt_reportDirectory, $opt_name, $opt_format, $opt_subheading);
 	} or do {
 		printWarning("Failed to load module for monitor $opt_monitor\n$@");
 		exit(-1);
@@ -111,7 +110,7 @@ eval {
 	if ($opt_name ne "") {
 		$opt_reportDirectory = "$opt_reportDirectory/$opt_benchmark-$opt_name";
 	}
-	$extractModule = $extractFactory->loadModule($opt_benchmark, $opt_reportDirectory, $opt_name, $opt_format, $opt_subheading);
+	$extractModule = $extractFactory->loadModule("extract", $opt_benchmark, $opt_reportDirectory, $opt_name, $opt_format, $opt_subheading);
 } or do {
 	printWarning("Failed to load module for benchmark $opt_benchmark\n$@");
 	exit(-1);

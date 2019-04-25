@@ -12,23 +12,22 @@ sub new() {
 }
 
 sub loadModule($$$) {
-	my ($self, $moduleName, $opt_reportDirectory, $testName, $format, $subheading) = @_;
+	my ($self, $type, $moduleName, $opt_reportDirectory, $testName, $format, $subheading) = @_;
 	printVerbose("Loading module $moduleName\n");
 
-	my $pmName = $moduleName;
-	$pmName = $moduleName;
-	$pmName = ucfirst($pmName);
+	my $pmName = ucfirst($moduleName);
 	$pmName =~ s/-//g;
-   	require "MMTests/Extract$pmName.pm";
+	$type = ucfirst($type);
+   	require "MMTests/$type$pmName.pm";
     	$pmName->import();
 
-	my $className = "MMTests::Extract$pmName";
+	my $className = "MMTests::$type$pmName";
 	my $classInstance = $className->new(0);
 	$classInstance->initialise($opt_reportDirectory, $testName, $subheading);
 	$classInstance->setFormat($format);
 	printVerbose("Loaded  module " . $classInstance->getModuleName() . "\n");
 
-	bless $classInstance, "MMTests::Extract$pmName";
+	bless $classInstance, $className;
 }
 
 1;

@@ -15,7 +15,6 @@ use MMTests::Compare;
 use MMTests::CompareFactory;
 use MMTests::Extract;
 use MMTests::ExtractFactory;
-use MMTests::MonitorFactory;
 use strict;
 
 # Option variable
@@ -57,9 +56,9 @@ if (! -d $opt_reportDirectory) {
 
 my @extractModules;
 my $nrModules = 0;
+my $extractFactory = MMTests::ExtractFactory->new();
 if (!defined($opt_monitor)) {
 	# Instantiate extract handlers for the requested type for the benchmark
-	my $extractFactory = MMTests::ExtractFactory->new();
 	for my $name (split /,/, $opt_names) {
 		printVerbose("Loading extract $opt_benchmark $name\n");
 		eval {
@@ -70,7 +69,7 @@ if (!defined($opt_monitor)) {
 					$profile = "fine-profile-timer";
 				}
 			}
-			$extractModules[$nrModules] = $extractFactory->loadModule($opt_benchmark, $reportDirectory, $name, $opt_format, $opt_subheading);
+			$extractModules[$nrModules] = $extractFactory->loadModule("extract", $opt_benchmark, $reportDirectory, $name, $opt_format, $opt_subheading);
 			if ($opt_Rsummary) {
 				$extractModules[$nrModules++]->extractSummaryR($opt_subheading, $opt_Rsummary);
 			} elsif ($opt_printRatio) {
@@ -87,12 +86,11 @@ if (!defined($opt_monitor)) {
 	};
 } else {
 	$opt_hideCompare = 1;
-	my $extractFactory = MMTests::MonitorFactory->new();
 	for my $name (split /,/, $opt_names) {
 		printVerbose("Loading extract $opt_benchmark $name\n");
 		eval {
 			my $reportDirectory = $opt_reportDirectory;
-			$extractModules[$nrModules] = $extractFactory->loadModule($opt_monitor, $reportDirectory, $name, $opt_format, $opt_subheading);
+			$extractModules[$nrModules] = $extractFactory->loadModule("monitor", $opt_monitor, $reportDirectory, $name, $opt_format, $opt_subheading);
 			$extractModules[$nrModules]->extractReport($reportDirectory, $name, $opt_benchmark, $opt_subheading, 1);
 			$extractModules[$nrModules++]->extractSummary($opt_subheading);
 		} or do {

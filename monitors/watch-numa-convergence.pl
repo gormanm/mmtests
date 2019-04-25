@@ -2,7 +2,6 @@
 
 use FindBin qw($Bin);
 use lib "$Bin/../bin/lib/";
-use MMTests::MonitorFactory;
 use MMTests::MonitorNumaconvergence;
 
 my $exiting = 0;
