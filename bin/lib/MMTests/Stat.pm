@@ -16,7 +16,7 @@ use FindBin qw($Bin);
 
 # This defines function to use for comparison of a particular statistic
 # (computed by calc_xxx function). If the statistic does not have comparison
-# function defined, base the comparison function on $self->{_RatioPreferred}.
+# function defined, base the comparison function on preferred value.
 use constant stat_compare => {
 	"stddev" => "pndiff",
 	"coeffvar" => "pndiff",

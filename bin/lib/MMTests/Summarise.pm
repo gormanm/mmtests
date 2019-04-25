@@ -32,29 +32,6 @@ sub initialise() {
 		$self->{_PlotType} = $plotType;
 	}
 
-	if ($self->{_DataType} == DataTypes::DATA_TIME_SECONDS ||
-	    $self->{_DataType} == DataTypes::DATA_TIME_NSECONDS ||
-	    $self->{_DataType} == DataTypes::DATA_TIME_MSECONDS ||
-	    $self->{_DataType} == DataTypes::DATA_TIME_USECONDS ||
-	    $self->{_DataType} == DataTypes::DATA_TIME_CYCLES ||
-	    $self->{_DataType} == DataTypes::DATA_BAD_ACTIONS) {
-		$self->{_RatioPreferred} = "Lower";
-	}
-	if ($self->{_DataType} == DataTypes::DATA_ACTIONS ||
-	    $self->{_DataType} == DataTypes::DATA_ACTIONS_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_ACTIONS_PER_MINUTE ||
-	    $self->{_DataType} == DataTypes::DATA_OPS_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_OPS_PER_MINUTE ||
-	    $self->{_DataType} == DataTypes::DATA_KBYTES_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_MBYTES_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_MBITS_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_SECOND ||
-	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE ||
-	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT ||
-	    $self->{_DataType} == DataTypes::DATA_RATIO_SPEEDUP) {
-		$self->{_RatioPreferred} = "Higher";
-	}
-
 	$self->SUPER::initialise($reportDir, $testName);
 	$self->{_FieldLength} = 12 if ($self->{_FieldLength} == 0);
 	my $fieldLength = $self->{_FieldLength};
@@ -67,6 +44,37 @@ sub initialise() {
 	}
 	$self->{_SummaryHeaders} = \@sumheaders;
 	$self->{_TestName} = $testName;
+}
+
+sub typeToPreferredVal() {
+	my ($self, $type) = @_;
+
+	if ($type == DataTypes::DATA_TIME_SECONDS ||
+	    $type == DataTypes::DATA_TIME_NSECONDS ||
+	    $type == DataTypes::DATA_TIME_MSECONDS ||
+	    $type == DataTypes::DATA_TIME_USECONDS ||
+	    $type == DataTypes::DATA_TIME_CYCLES ||
+	    $type == DataTypes::DATA_BAD_ACTIONS) {
+		return "Lower";
+	}
+	return "Higher";
+}
+
+sub getPreferredValue() {
+	my ($self, $op) = @_;
+	return $self->typeToPreferredVal($self->{_DataType});
+}
+
+# If there's single data type for the module, use its direction even for
+# ratio comparisons. Otherwise create ratios so that lower values are always
+# preferred.
+sub getRatioPreferredValue() {
+	my $self = $_;
+
+	if (defined($self->{_DataType})) {
+		return $self->typeToPreferredVal($self->{_DataType});
+	}
+	return "Lower";
 }
 
 sub summaryOps() {
@@ -84,42 +92,40 @@ sub summaryOps() {
 }
 
 sub getStatCompareFunc() {
-	my ($self, $opnum) = @_;
-	my $op = $self->{_SummaryStats}->[$opnum];
+	my ($self, $operation, $sumop) = @_;
 	my $value;
 
-	($op, $value) = split("-", $op);
+	($sumop, $value) = split("-", $sumop);
 	# We don't bother to convert _mean here to appropriate mean type as
-	# that is always based on $self->{_RatioPreferred} anyway
-	if (!defined(MMTests::Stat::stat_compare->{$op})) {
-		if ($self->{_RatioPreferred} eq "Higher") {
+	# that is always based on preferred value anyway
+	if (!defined(MMTests::Stat::stat_compare->{$sumop})) {
+		if ($self->getPreferredValue($operation) eq "Higher") {
 			return "pdiff";
 		}
 		return "pndiff";
 	}
-	return MMTests::Stat::stat_compare->{$op};
+	return MMTests::Stat::stat_compare->{$sumop};
 }
 
 sub getStatName() {
-	my ($self, $opnum) = @_;
-	my $op = $self->{_SummaryStats}->[$opnum];
+	my ($self, $operation, $sumop) = @_;
 	my ($opname, $value, $mean);
 
-	if ($self->{_RatioPreferred} eq "Higher") {
+	if ($self->getPreferredValue($operation) eq "Higher") {
 		$mean = "hmean";
 	} else {
 		$mean = "amean";
 	}
-	$op =~ s/^_mean/$mean/;
-	$op =~ s/^_value/$self->{_Opname}/;
+	$sumop =~ s/^_mean/$mean/;
+	$sumop =~ s/^_value/$self->{_Opname}/;
 
-	if (defined(MMTests::Stat::stat_names->{$op})) {
-		return MMTests::Stat::stat_names->{$op};
+	if (defined(MMTests::Stat::stat_names->{$sumop})) {
+		return MMTests::Stat::stat_names->{$sumop};
 	}
-	($opname, $value) = split("-", $op);
+	($opname, $value) = split("-", $sumop);
 	$opname .= "-";
 	if (!defined(MMTests::Stat::stat_names->{$opname})) {
-		return $op;
+		return $sumop;
 	}
 	return sprintf(MMTests::Stat::stat_names->{$opname}, $value);
 }
@@ -267,11 +273,11 @@ sub printPlot() {
 
 sub runStatFunc
 {
-	my ($self, $func, $dataref) = @_;
+	my ($self, $operation, $func, $dataref) = @_;
 	my ($mean, $arg);
 
 	# $dataref is expected to be already sorted in appropriate order
-	if ($self->{_RatioPreferred} eq "Higher") {
+	if ($self->getPreferredValue($operation) eq "Higher") {
 		$mean = "hmean";
 	} else {
 		$mean = "amean";
@@ -332,7 +338,7 @@ sub extractSummary() {
 			push @units, @{$row}[1];
 		}
 
-		if ($self->{_RatioPreferred} eq "Lower") {
+		if ($self->getPreferredValue($operation) eq "Lower") {
 			@units = sort { $a <=> $b} @units;
 		} else {
 			@units = sort { $b <=> $a} @units;
@@ -340,7 +346,8 @@ sub extractSummary() {
 
 		$summary{$operation} = [];
 		foreach my $func (@{$self->{_SummaryStats}}) {
-			my @values = $self->runStatFunc($func, \@units);
+			my @values = $self->runStatFunc($operation, $func,
+							\@units);
 			foreach my $value (@values) {
 				if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
 					push @{$summary{$operation}}, $value;
@@ -350,7 +357,7 @@ sub extractSummary() {
 
 		$significance{$operation} = [];
 
-		my $mean = $self->runStatFunc("_mean", \@units);
+		my $mean = $self->runStatFunc($operation, "_mean", \@units);
 		push @{$significance{$operation}}, $mean;
 
 		my $stderr = calc_stddev(\@units);
@@ -384,7 +391,7 @@ sub extractRatioSummary() {
 			push @units, @{$row}[1];
 		}
 
-		if ($self->{_RatioPreferred} eq "Lower") {
+		if ($self->getPreferredValue($operation) eq "Lower") {
 			@units = sort { $a <=> $b} @units;
 		} else {
 			@units = sort { $b <=> $a} @units;
@@ -392,7 +399,8 @@ sub extractRatioSummary() {
 
 		foreach my $func (@{$self->{_RatioSummaryStat}}) {
 			no strict "refs";
-			push @values, $self->runStatFunc($func, \@units);
+			push @values, $self->runStatFunc($operation, $func,
+				\@units);
 		}
 
 		if (($values[0] ne "NaN" && $values[0] ne "nan") ||

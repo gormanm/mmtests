@@ -16,7 +16,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName 	=> "Extract",
-		_DataType	=> 0,
 		_FieldHeaders	=> [],
 		_FieldLength	=> 0,
 		_Headers	=> [ "Base" ],

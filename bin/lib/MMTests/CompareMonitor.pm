@@ -58,7 +58,7 @@ sub _generateComparisonTable() {
 
 			# Some monitors are based on SummariseMultiops
 			if (defined($extractModules[0]->{_SummaryStats})) {
-				$compareOp = $extractModules[0]->getStatCompareFunc($column);
+				$compareOp = $extractModules[0]->getStatCompareFunc($extractModules[0]->{_SummaryStats}->[$column]);
 			}
 			for (my $module = 0; $module <= $#extractModules; $module++) {
 				no strict "refs";

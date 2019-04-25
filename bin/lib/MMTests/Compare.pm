@@ -17,7 +17,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName 	=> "Compare",
-		_DataType	=> 0,
 		_FieldHeaders	=> [],
 		_ResultData	=> [],
 		_FieldLength	=> 0,
@@ -42,7 +41,6 @@ sub initialise() {
 
 	$self->{_ExtractModules} = $extractModulesRef;
 	my @extractModules = @{$extractModulesRef};
-	$self->{_DataType} = $extractModules[0]->{_DataType};
 	$self->{_FieldLength} = $extractModules[0]->{_FieldLength};
 	$self->{_Precision} = $extractModules[0]->{_Precision};
 	if ($self->{_ModuleName} eq "" || $self->{_ModuleName} eq "Compare") {
@@ -90,7 +88,6 @@ sub _generateComparisonTable() {
 	my %significanceTable;
 
 	my @extractModules = @{$self->{_ExtractModules}};
-	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
 	my $baselineRef = $extractModules[0]->{_SummaryData};
 	my %baseline = %{$baselineRef};
 	my $baseSignificanceRef = $extractModules[0]->{_SignificanceData};
@@ -106,7 +103,9 @@ sub _generateComparisonTable() {
 			my @compare;
 			my $compareOp;
 
-			$compareOp = $extractModules[0]->getStatCompareFunc($column);
+			$compareOp = $extractModules[0]->getStatCompareFunc(
+				$operation,
+				$extractModules[0]->{_SummaryStats}->[$column]);
 
 			for (my $module = 0; $module <= $#extractModules; $module++) {
 				no strict "refs";
@@ -172,11 +171,11 @@ sub _generateRatioComparisonTable() {
 	my %normCompareTable;
 
 	my @extractModules = @{$self->{_ExtractModules}};
-	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
 	my $baselineRef = $extractModules[0]->{_SummaryData};
 	my %baseline = %{$baselineRef};
 	my $baseCILenRef = $extractModules[0]->{_SummaryCILen};
 	my %baseCILen = %{$baseCILenRef // {}};
+	my $preferred = $extractModules[0]->getRatioPreferredValue();
 
 	for my $operation (keys %baseline) {
 		my ($ratioCompareOp, $compareOp);
@@ -190,7 +189,7 @@ sub _generateRatioComparisonTable() {
 			$ratioCompareOp = $extractModules[0]->{_RatioCompareOp};
 		}
 		$compareOp = "pdiff";
-		if ($extractModules[0]->{_RatioPreferred} eq "Lower") {
+		if ($preferred eq "Lower") {
 			$compareOp = "pndiff";
 		}
 
@@ -201,16 +200,28 @@ sub _generateRatioComparisonTable() {
 			my $summaryCILenRef = $extractModules[$module]->{_SummaryCILen};
 			my %summaryCILen = %{$summaryCILenRef};
 			my ($ratio, $ratiocmp, $normcmp);
+			my ($aval, $aci, $bval, $bci);
 
 			if ($summary{$operation}[0] eq "") {
 				$summary{$operation}[0] = "NaN";
 			}
-			if (exists $summary{$operation} && $summary{$operation}[0] != -1 && $summary{$operation}[0] ne "NaN" && $baseline{$operation}[0] != -1) {
-				$ratio =
-				     rdiff($summary{$operation}[0], $baseline{$operation}[0]);
+			$aval = $summary{$operation}[0];
+			$aci = $summaryCILen{$operation};
+			$bval = $baseline{$operation}[0];
+			$bci = $baseCILen{$operation};
+			if ($aval != -1 && $aval ne "NaN" && $bval != -1 && $bval ne "NaN") {
+				# If preferred value for current operation is
+				# different from preferred value for the whole
+				# comparison, swap values to make ratios
+				# comparable.
+				if ($extractModules[$module]->getPreferredValue($operation) ne $preferred) {
+					($aval, $bval) = ($bval, $aval);
+					($aci, $bci) = ($bci, $aci);
+				}
+				$ratio = rdiff($aval, $bval);
 				$ratiocmp = &$compareOp($ratio, 1);
 				if ($baseCILenRef) {
-					$normcmp = &$ratioCompareOp($summary{$operation}[0], $summaryCILen{$operation}, $baseline{$operation}[0], $baseCILen{$operation});
+					$normcmp = &$ratioCompareOp($aval, $aci, $bval, $bci);
 					if ($normcmp eq "NaN" || $normcmp eq "nan") {
 						$normcmp = 0;
 					}
@@ -358,6 +369,7 @@ sub _generateRenderRatioTable() {
 	# Final comparison table
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @rowLine;
+	my $preferred = $extractModules[0]->getRatioPreferredValue();
 	for my $operation (@operations) {
 		@rowLine = ("Ratio $operation");
 		if ($#{$resultsTable{$operation}} > $maxCols) {
@@ -385,9 +397,9 @@ sub _generateRenderRatioTable() {
 		my @ndiffTable = $self->{_NormalizedDiffStatsTable};
 		my @extractModules = @{$self->{_ExtractModules}};
 		my (@dmeanLine, @dminLine, @dmaxLine);
-		push @dmeanLine, "Dmean ".$extractModules[0]->{_RatioPreferred};
-		push @dminLine, "Dmin  ".$extractModules[0]->{_RatioPreferred};
-		push @dmaxLine, "Dmax  ".$extractModules[0]->{_RatioPreferred};
+		push @dmeanLine, "Dmean $preferred";
+		push @dminLine, "Dmin  $preferred";
+		push @dmaxLine, "Dmax  $preferred";
 		for (my $i = 0; $i <= $#{$ndiffTable[0]}; $i++) {
 			push @dmeanLine, ($ndiffTable[0][$i][0], undef, undef);
 			push @dminLine, ($ndiffTable[0][$i][1], undef, undef);
@@ -400,7 +412,7 @@ sub _generateRenderRatioTable() {
 	my @geomeanTable = $self->{_GeometricMeanTable};
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @rowLine;
-	push @rowLine, "Gmean ".$extractModules[0]->{_RatioPreferred};
+	push @rowLine, "Gmean $preferred";
 	for (my $i = 0; $i <= $#{$geomeanTable[0]}; $i++) {
 		push @rowLine, ($geomeanTable[0][$i], undef, undef);
 	}
@@ -434,14 +446,15 @@ sub _generateRenderTable() {
 		}
 	}
 
-	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
-
 	# Format string for columns
 	my $maxLength = 0;
-	for (my $column = 0; $column <= $#summaryHeaders; $column++) {
-		my $len = length($summaryHeaders[$column]);
-		if ($len > $maxLength) {
-			$maxLength = $len;
+	for my $operation (@operations) {
+		for my $header (@{$extractModules[0]->{_SummaryStats}}) {
+			my $len = length($extractModules[0]->getStatName(
+							$operation, $header));
+			if ($len > $maxLength) {
+				$maxLength = $len;
+			}
 		}
 	}
 	push @formatTable, "%-${maxLength}s";
@@ -476,11 +489,14 @@ sub _generateRenderTable() {
 
 	# Final comparison table
 	my @extractModules = @{$self->{_ExtractModules}};
-	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
 	my @rowLine;
-	for (my $header = 0; $header <= $#summaryHeaders; $header++) {
-		my $headerName = $summaryHeaders[$header];
+	for (my $header = 0;
+	     $header < scalar(@{$extractModules[0]->{_SummaryStats}});
+	     $header++) {
 		for my $operation (@operations) {
+			my $headerName = $extractModules[0]->getStatName(
+				$operation,
+				$extractModules[0]->{_SummaryStats}->[$header]);
 			@rowLine = ($headerName, $operation);
 			for (my $i = 0; $i < scalar(@{$resultsTable{$operation}[$header]}); $i++) {
 				push @rowLine, $resultsTable{$operation}[$header][$i];
