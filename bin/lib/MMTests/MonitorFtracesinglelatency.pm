@@ -128,7 +128,7 @@ sub ftraceCallback {
 
 sub extractSummary() {
 	my $self = shift @_;
-	my @data = @{$self->{_ResultData}};
+	my @data = @{{$self->dataByOperation()}->["latency"]};
 
 	my $fieldLength = $self->{_FieldLength} = 12;
 	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.4f", ];
@@ -142,10 +142,10 @@ sub extractSummary() {
 
 	my @units;
 	foreach my $row (@data) {
-		push @units, @{$row}[2];
+		push @units, @{$row}[1];
 
 		for (my $i = 0; $i <= $#thresholds; $i++) {
-			if (@{$row}[2] >= $thresholds[$i] && ($i == $#thresholds || @{$row}[2] < $thresholds[$i+1])) {
+			if (@{$row}[1] >= $thresholds[$i] && ($i == $#thresholds || @{$row}[1] < $thresholds[$i+1])) {
 				$samples[$i]++;
 			}
 		}
@@ -158,7 +158,6 @@ sub extractSummary() {
 	my $quartilesRef = calc_quartiles(@units);
 	my @quartiles = @{$quartilesRef};
 
-	my @row;
 	push @{$self->{_SummaryData}}, [ "Min", calc_min(@units) ];
 	push @{$self->{_SummaryData}}, [ "1st-qrtle", $quartiles[25]  ];
 	push @{$self->{_SummaryData}}, [ "2nd-qrtle", $quartiles[50]  ];

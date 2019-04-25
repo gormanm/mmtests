@@ -50,7 +50,7 @@ sub unitMultiplier()
 
 sub extractSummaryBreakdown() {
 	my ($self,$subHeading) = @_;
-	my @data = @{$self->{_ResultData}};
+	my @data = @{{$self->dataByOperation()}->["latency"]};
 	my @samples;
 	my $min_latency;
 	my $min_samples = 0;
@@ -75,12 +75,12 @@ sub extractSummaryBreakdown() {
 		my @row = @{$rowRef};
 
 		# Ouch on memory usage but hey.
-		push @samples, $row[2];
+		push @samples, $row[1];
 
-		if ($row[2] < $min_latency) {
+		if ($row[1] < $min_latency) {
 			$min_samples++;
 		} else {
-			$stalled += $row[2];
+			$stalled += $row[1];
 		}
 	}
 
@@ -98,7 +98,7 @@ sub extractSummaryBreakdown() {
 
 sub extractSummaryPercentages() {
 	my ($self) = @_;
-	my @data = @{$self->{_ResultData}};
+	my @data = @{{$self->dataByOperation()}->["latency"]};
 	my @bins;
 	my @binSizes;
 	my $nr_binsizes = 15;
@@ -124,7 +124,7 @@ sub extractSummaryPercentages() {
 		my $lastBinsize = 0;
 
 		for ($i = 0; $i < $nr_binsizes; $i++) {
-			if ($row[2] < $binSizes[$i]) {
+			if ($row[1] < $binSizes[$i]) {
 				last;
 			}
 		}
@@ -204,7 +204,7 @@ sub extractReport($$$$) {
 			$self->addData("latency", $timestamp - $start_timestamp, $latency);
 		} else {
 			if ($count % $batch == 0) {
-				$self->addData("batch-latency",
+				$self->addData("latency",
 					  $last_timestamp - $start_timestamp,
 					  $cumulative_latency);
 				$cumulative_latency = 0;
