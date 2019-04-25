@@ -1,16 +1,15 @@
 # MonitorDuration.pm
 package MMTests::MonitorDuration;
-use MMTests::Monitor;
-our @ISA = qw(MMTests::Monitor);
+use MMTests::SummariseSingleops;
+our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "MonitorDuration",
-		_DataType    => MMTests::Monitor::MONITOR_CPUTIME_SINGLE,
-		_MultiopMonitor => 1,
-		_SingleSample => 1,
+		_DataType => DataTypes::DATA_TIME_SECONDS,
+		_Opname	=> "Duration",
 	};
 	bless $self, $class;
 	return $self;
@@ -18,12 +17,7 @@ sub new() {
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $testName, $testBenchmark) = @_;
-	my $fieldLength = 12;
 	my $file = "$reportDir/tests-timestamp-$testName";
-
-	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldHeaders} = [ "Op", "", "Duration" ];
-	$self->{_FieldFormat} = [ "${fieldLength}s", "", "%${fieldLength}.2f" ];
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
