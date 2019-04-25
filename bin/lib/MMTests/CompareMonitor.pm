@@ -218,11 +218,6 @@ sub _generateRenderRatioTable() {
 				push @row, $element;
 			}
 		}
-		if (defined $extractModules[0]->{_RatioMatch}) {
-			if ($row[1] !~ $extractModules[0]->{_RatioMatch}) {
-				next;
-			}
-		}
 
 		if ($#{$resultsTable[$row]} > $maxCols) {
 			$maxCols = $#{$resultsTable[$row]};

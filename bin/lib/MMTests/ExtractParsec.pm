@@ -12,7 +12,9 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractParsec";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "process-errorlines";
-	$self->{_RatioMatch} = "^elsp-.*";
+	$self->{_MultiInclude} = {
+		"elsp" => 1,
+	};
 	$self->SUPER::initialise($reportDir, $testName);
 }
 

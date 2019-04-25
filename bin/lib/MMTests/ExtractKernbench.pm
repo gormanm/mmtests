@@ -12,7 +12,6 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractKernbench";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "process-errorlines";
-	$self->{_RatioMatch} = "^elsp-.*";
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
@@ -51,11 +50,15 @@ sub extractReport() {
 
 	}
 
-	my @ops;
+	my (@ops, %ratioops);
 	foreach my $type ("user", "syst", "elsp") {
 		foreach my $thread (sort {$a <=> $b} @threads) {
 			push @ops, "$type-$thread";
 		}
 	}
+	foreach my $thread (sort {$a <=> $b} @threads) {
+		$ratioops{"elsp-$thread"} = 1;
+	}
 	$self->{_Operations} = \@ops;
+	$self->{_MultiInclude} = \%ratioops;
 }

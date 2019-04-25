@@ -347,11 +347,6 @@ sub _generateRenderRatioTable() {
 	my @summaryHeaders = @{$extractModules[0]->{_SummaryHeaders}};
 	my @rowLine;
 	for (my $header = 0; $header <= $#summaryHeaders; $header++) {
-		if (defined $extractModules[0]->{_RatioMatch}) {
-			if ($summaryHeaders[$header] !~ $extractModules[0]->{_RatioMatch}) {
-				next;
-			}
-		}
 		for my $operation (@operations) {
 			@rowLine = ($summaryHeaders[$header], $operation);
 			if ($#{$resultsTable{$operation}} > $maxCols) {
