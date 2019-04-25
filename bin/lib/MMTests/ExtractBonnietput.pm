@@ -103,14 +103,6 @@ sub extractReport() {
 				$self->addData("RandCreate del", $iteration, $elements[25]);
 			}
 
-			# Populate the operations table without cut and pasting the above block
-			if ($iteration == 1) {
-				my @operations;
-				foreach my $row (@{$self->{_ResultData}}) {
-					push @operations, @{$row}[0];
-				}
-				$self->{_Operations} = \@operations;
-			}
 			$iteration++;
 		}
 		close INPUT;

@@ -35,7 +35,6 @@ sub extractReport() {
 		"sr" => "RandCreate read",
 		"dr" => "RandCreate del"
 	);
-	my %present = ();
 
 	foreach my $file (@files) {
 		if ($file =~ /.*\.gz$/) {
@@ -50,18 +49,11 @@ sub extractReport() {
 
 			if (defined($ops{$elements[0]})) {
 				$self->addData($ops{$elements[0]}, $iteration, $elements[1]);
-				$present{$elements[0]} = 1;
 			}
 		}
 		close INPUT;
 		$iteration++;
 	}
-
-	my @operations;
-	for my $op (keys(%present)) {
-		push @operations, $ops{$op};
-	}
-	$self->{_Operations} = \@operations;
 }
 
 1;
