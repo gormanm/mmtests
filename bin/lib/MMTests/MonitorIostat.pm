@@ -1,97 +1,42 @@
 # MonitorIostat
 package MMTests::MonitorIostat;
-use MMTests::Monitor;
+use MMTests::SummariseMonitor;
 use MMTests::Stat;
-our @ISA = qw(MMTests::Monitor);
+our @ISA = qw(MMTests::SummariseMonitor);
 
 use strict;
 
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "MonitorIostat",
-		_DataType    => MMTests::Monitor::MONITOR_IOSTAT,
-	};
-	bless $self, $class;
-	return $self;
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
+
+	$self->{_ModuleName} = "MonitorIostat";
+	$self->{_PlotType} = "simple";
+	$self->{_DefaultPlot} = "sda-await";
+	$self->{_ExactSubheading} = 1;
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 my %devices;
 
-my %plotMap = (
-	"avgqusz" => "Average Queue Size (requests)",
-	"await"   => "Average Wait Time (ms)",
-	"r_await" => "Average Read Wait Time (ms)",
-	"w_await" => "Average Write Wait Time (ms)",
-	"avgrqsz" => "Average Request Size (sectors)",
-	"rrqm"    => "Read Requests Merged/sec (req/sec)",
-	"wrqm"    => "Write Requests Merged/sec (req/sec)",
-	"rkbs"    => "Reads (kb/sec)",
-	"wkbs"	  => "Writes (kb/sec)",
-	"totalkbs"   => "Total IO (kb/sec)",
+my %typeMap = (
+	"avgqusz" => DataTypes::DATA_SIZE_QUEUED,
+	"await"   => DataTypes::DATA_TIME_MSECONDS,
+	"r_await" => DataTypes::DATA_TIME_MSECONDS,
+	"w_await" => DataTypes::DATA_TIME_MSECONDS,
+	"avgrqsz" => DataTypes::DATA_SIZE_SECTOR,
+	"rrqm"    => DataTypes::DATA_REQ_PER_SECOND,
+	"wrqm"    => DataTypes::DATA_REQ_PER_SECOND,
+	"rkbs"    => DataTypes::DATA_KBYTES_PER_SECOND,
+	"wkbs"	  => DataTypes::DATA_KBYTES_PER_SECOND,
+	"totalkbs" => DataTypes::DATA_KBYTES_PER_SECOND,
+	"svctm"   => DataTypes::DATA_TIME_MSECONDS,
 );
 
-sub printDataType() {
-	my ($self, $subHeading) = @_;
-	my $yLabel;
+sub getDataType() {
+	my ($self, $op) = @_;
+	my @elements = split(/-/, $op);
 
-	if (!defined $subHeading) {
-		$yLabel = "Await (ms)";
-	} else {
-		$yLabel = $plotMap{$subHeading};
-		if ($yLabel eq "") {
-			my @elements = split(/-/, $subHeading);
-			$yLabel = $plotMap{$elements[-1]};
-		}
-	}
-
-	print "Time,Time,$yLabel\n";
-}
-
-sub extractSummary() {
-	my ($self, $subheading) = @_;
-	my %data = %{$self->dataByOperation()};
-
-	my $fieldLength = 12;
-	$self->{_SummaryHeaders} = [ "Statistic", "Mean", "Max" ];
-        $self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.2f", ];
-
-	foreach my $device (sort keys %devices) {
-		my $mean_avgqusz;
-		my @units;
-
-		foreach my $row (@{$data{"$device-avgqusz"}}) {
-			push @units, @{$row}[1];
-		}
-
-		$mean_avgqusz = calc_amean(\@units);
-		next if $mean_avgqusz < 0.01;
-
-		push @{$self->{_SummaryData}}, [ "$device-avgqusz",
-			 $mean_avgqusz, calc_max(\@units) ];
-		foreach my $op ("avgrqsz", "await", "r_await", "w_await",
-				"svctm", "rrqm", "wrqm") {
-			@units = ();
-			foreach my $row (@{$data{"$device-$op"}}) {
-				push @units, @{$row}[1];
-			}
-			push @{$self->{_SummaryData}}, [ "$device-$op",
-				calc_amean(\@units), calc_max(\@units) ];
-		}
-	}
-
-	return 1;
-}
-
-sub printPlot() {
-	my ($self, $subHeading) = @_;
-	my %data = %{$self->dataByOperation()};
-
-	if ($subHeading eq "") {
-		$subHeading = "await";
-	}
-
-	$self->{_PrintHandler}->printRow($data{"$subHeading"}, $self->{_FieldLength}, $self->{_FieldFormat});
+	return $typeMap{$elements[1]};
 }
 
 sub extractReport($$$) {
