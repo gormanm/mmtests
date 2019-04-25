@@ -3,15 +3,11 @@ package MMTests::ExtractStresshighalloc;
 use MMTests::SummariseSingleops;
 our @ISA = qw(MMTests::SummariseSingleops);
 
-use constant DATA_STRESSHIGHALLOC	=> 400;
-
 sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractStresshighalloc",
 		_DataType    => DATA_SUCCESS_PERCENT,
-		_ExtraData   => [],
-		_PlotData    => [],
 	};
 	bless $self, $class;
 	return $self;
