@@ -10,7 +10,6 @@ sub initialise() {
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Time";
 	$self->{_Precision}  = 4;
-	$self->{_SingleType} = 1;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

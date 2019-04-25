@@ -11,7 +11,6 @@ sub initialise() {
 	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "MB/sec";
-	$self->{_SingleType} = 1;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

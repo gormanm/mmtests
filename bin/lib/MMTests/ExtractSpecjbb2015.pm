@@ -11,7 +11,6 @@ sub new() {
 		_ModuleName  => "ExtractSpecjbb2015",
 		_DataType    => DataTypes::DATA_ACTIONS,
 		_PlotType    => "histogram",
-		_SingleType  => 1,
 	};
 	bless $self, $class;
 	return $self;

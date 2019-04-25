@@ -10,7 +10,6 @@ sub initialise() {
 	$self->{_DataType}   = DataTypes::DATA_TRANS_PER_SECOND;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Time";
-	$self->{_SingleType} = 1;
 	$self->{_RatioOperations} = [ "Transactions", "DataRead/MB",
 		"DataWrite/MB" ];
 

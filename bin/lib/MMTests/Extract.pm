@@ -140,7 +140,6 @@ sub initialise() {
 	}
 	if ($self->{_PlotType} eq "histogram-single") {
 		$self->{_PlotType} = "histogram-time";
-		$self->{_SingleType} = 1;
 	}
 	if ($self->{_SubheadingPlotType} eq "simple-clients") {
 		$self->{_ExactSubheading} = 1;

@@ -10,7 +10,6 @@ sub initialise() {
 	$self->{_DataType}   = DataTypes::DATA_TRANS_PER_SECOND;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Trans/sec";
-	$self->{_SingleType} = 1;
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
