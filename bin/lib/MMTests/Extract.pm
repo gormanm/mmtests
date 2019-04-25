@@ -118,6 +118,12 @@ sub printDataType() {
 	} elsif ($dtype == DataTypes::DATA_SIZE_QUEUED) {
 		$yaxis = "Queue size";
 		$units = "Size";
+	} elsif ($dtype == DataTypes::DATA_FREQUENCY_MHZ) {
+		$yaxis = "MHz";
+		$units = "Frequency";
+	} elsif ($dtype == DataTypes::DATA_CONSUMPTION_WATT) {
+		$yaxis = "Watt";
+		$units = "Consumption";
 	} elsif ($dtype == DataTypes::DATA_RATIO_SPEEDUP) {
 		$yaxis = "Speedup (ratio)";
 	}

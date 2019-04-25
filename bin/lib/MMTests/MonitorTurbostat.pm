@@ -1,63 +1,40 @@
 # MonitorTurbostat.pm
 package MMTests::MonitorTurbostat;
-use MMTests::Monitor;
+use MMTests::SummariseMonitor;
 use MMTests::Stat;
-our @ISA = qw(MMTests::Monitor);
+our @ISA = qw(MMTests::SummariseMonitor);
 use strict;
-
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName    => "MonitorTurbostat",
-		_DataType      => MMTests::Monitor::MONITOR_PERFTIMESTAT,
-	};
-	bless $self, $class;
-	return $self;
-}
 
 my %_colMap;
 my @fieldHeaders;
 
-sub printDataType() {
-	my ($self, $subHeading) = @_;
+my %datatypes = (
+	"CorWatt" => DataTypes::DATA_SUCCESS_PERCENT,
+	"PkgWatt" => DataTypes::DATA_SUCCESS_PERCENT,
+	"CPU%c0"  => DataTypes::DATA_SUCCESS_PERCENT,
+	"CPU%c1"  => DataTypes::DATA_SUCCESS_PERCENT,
+	"CPU%c2"  => DataTypes::DATA_SUCCESS_PERCENT,
+	"CPU%c3"  => DataTypes::DATA_SUCCESS_PERCENT,
+	"CPU%c4"  => DataTypes::DATA_SUCCESS_PERCENT,
+	"CPU%c5"  => DataTypes::DATA_SUCCESS_PERCENT,
+	"CPU%c6"  => DataTypes::DATA_SUCCESS_PERCENT,
+	"CPU%c7"  => DataTypes::DATA_SUCCESS_PERCENT,
+	"CPU%c8"  => DataTypes::DATA_SUCCESS_PERCENT,
+	"CPU%c9"  => DataTypes::DATA_SUCCESS_PERCENT,
+	"Busy%"   => DataTypes::DATA_SUCCESS_PERCENT,
+	"%Busy"   => DataTypes::DATA_SUCCESS_PERCENT,
+	"Avg_MHz" => DataTypes::DATA_FREQUENCY_MHZ,
+);
 
-	if ($subHeading eq "CorWatt" || $subHeading eq "PkgWatt") {
-		print "Watt,Time,Watt";
-	} else {
-		print "Percentage,Time,Percentage";
-	}
-}
+sub initialise() {
+	my ($self, $reportDir, $testName) = @_;
 
-sub printPlot() {
-	my ($self, $subHeading) = @_;
-	my %data = %{$self->dataByOperation()};
-
-	if ($subHeading eq "") {
-		$subHeading = "Avg_MHz";
-	}
-	$self->{_PrintHandler}->printRow($data{"$subHeading"}, $self->{_FieldLength}, $self->{_FieldFormat});
-}
-
-sub extractSummary() {
-	my ($self, $subheading) = @_;
-	my %data = %{$self->dataByOperation()};
-
-	my $fieldLength = 18;
-	$self->{_SummaryHeaders} = [ "Statistic", "Mean", "Max" ];
-	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}.2f", ];
-
-	foreach my $header (@fieldHeaders) {
-		my @units;
-
-		foreach my $row (@{$data{$header}}) {
-			push @units, @{$row}[1];
-		}
-
-		push @{$self->{_SummaryData}}, [ "$header",
-			 calc_amean(\@units), calc_max(\@units) ];
-	}
-
-	return 1;
+	$self->{_ModuleName} = "MonitorTurbostat";
+	$self->{_PlotType} = "simple";
+	$self->{_DefaultPlot} = "Avg_Mhz";
+	$self->{_ExactSubheading} = 1;
+	$self->{_DataTypes} = \%datatypes;
+	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport() {

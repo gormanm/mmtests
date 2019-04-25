@@ -28,5 +28,7 @@ use constant DATA_RATIO_SPEEDUP		=> 19;
 use constant DATA_REQ_PER_SECOND	=> 20;
 use constant DATA_SIZE_SECTOR		=> 21;
 use constant DATA_SIZE_QUEUED		=> 22;
+use constant DATA_FREQUENCY_MHZ		=> 23;
+use constant DATA_CONSUMPTION_WATT	=> 24;
 
 1;
