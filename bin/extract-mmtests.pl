@@ -120,7 +120,7 @@ eval {
 
 # Just print the type if asked
 if ($opt_printType) {
-	$extractModule->printDataType();
+	$extractModule->printDataType($opt_subheading);
 	exit;
 }
 

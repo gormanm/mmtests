@@ -34,55 +34,70 @@ sub getModuleName() {
 	return $self->{_ModuleName};
 }
 
+sub getDataType() {
+	my ($self, $op) = @_;
+
+	if (defined($self->{_DataType})) {
+		return $self->{_DataType};
+	}
+	return $self->{_DataTypes}->{$op};
+}
+
 sub printDataType() {
-	my ($self) = @_;
+	my ($self, $subHeading) = @_;
 	my $yaxis = "UNKNOWN AXIS";
 	my $units = "Time";
+	my $dtype;
 
-	if ($self->{_DataType} == DataTypes::DATA_TIME_USECONDS) {
+	if ($subHeading eq "") {
+		$subHeading = $self->{_DefaultPlot};
+	}
+	$dtype = $self->getDataType($subHeading);
+
+	if ($dtype == DataTypes::DATA_TIME_USECONDS) {
 		$yaxis = "Time (usec)";
-	} elsif ($self->{_DataType} == DataTypes::DATA_TIME_NSECONDS) {
+	} elsif ($dtype == DataTypes::DATA_TIME_NSECONDS) {
 		$yaxis = "Time (nanosec)";
-	} elsif ($self->{_DataType} == DataTypes::DATA_TIME_MSECONDS) {
+	} elsif ($dtype == DataTypes::DATA_TIME_MSECONDS) {
 		$yaxis = "Time (msec)";
-	} elsif ($self->{_DataType} == DataTypes::DATA_TIME_SECONDS) {
+	} elsif ($dtype == DataTypes::DATA_TIME_SECONDS) {
 		$yaxis = "Time (seconds)";
-	} elsif ($self->{_DataType} == DataTypes::DATA_TIME_CYCLES) {
+	} elsif ($dtype == DataTypes::DATA_TIME_CYCLES) {
 		$yaxis = "Time (cpu cycles)";
-	} elsif ($self->{_DataType} == DataTypes::DATA_ACTIONS) {
+	} elsif ($dtype == DataTypes::DATA_ACTIONS) {
 		$yaxis = "Actions";
 		$units = "VarAction";
-	} elsif ($self->{_DataType} == DataTypes::DATA_ACTIONS_PER_SECOND) {
+	} elsif ($dtype == DataTypes::DATA_ACTIONS_PER_SECOND) {
 		$yaxis = "Actions/sec";
 		$units = "Actions";
-	} elsif ($self->{_DataType} == DataTypes::DATA_ACTIONS_PER_MINUTE) {
+	} elsif ($dtype == DataTypes::DATA_ACTIONS_PER_MINUTE) {
 		$yaxis = "Actions/minute";
 		$units = "Actions";
-	} elsif ($self->{_DataType} == DataTypes::DATA_OPS_PER_SECOND) {
+	} elsif ($dtype == DataTypes::DATA_OPS_PER_SECOND) {
 		$yaxis = "Ops/sec";
 		$units = "Operations";
-	} elsif ($self->{_DataType} == DataTypes::DATA_OPS_PER_MINUTE) {
+	} elsif ($dtype == DataTypes::DATA_OPS_PER_MINUTE) {
 		$yaxis = "Ops/minute";
 		$units = "Operations";
-	} elsif ($self->{_DataType} == DataTypes::DATA_TRANS_PER_SECOND) {
+	} elsif ($dtype == DataTypes::DATA_TRANS_PER_SECOND) {
 		$yaxis = "Transactions/sec";
 		$units = "Transactions";
-	} elsif ($self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE) {
+	} elsif ($dtype == DataTypes::DATA_TRANS_PER_MINUTE) {
 		$yaxis = "Transactions/minute";
 		$units = "Transactions";
-	} elsif ($self->{_DataType} == DataTypes::DATA_MBITS_PER_SECOND) {
+	} elsif ($dtype == DataTypes::DATA_MBITS_PER_SECOND) {
 		$yaxis = "MBits/sec";
 		$units = "Throughput";
-	} elsif ($self->{_DataType} == DataTypes::DATA_MBYTES_PER_SECOND) {
+	} elsif ($dtype == DataTypes::DATA_MBYTES_PER_SECOND) {
 		$yaxis = "MBytes/sec";
 		$units = "Throughput";
-	} elsif ($self->{_DataType} == DataTypes::DATA_KBYTES_PER_SECOND) {
+	} elsif ($dtype == DataTypes::DATA_KBYTES_PER_SECOND) {
 		$yaxis = "KBytes/sec";
 		$units = "Throughput";
-	} elsif ($self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT) {
+	} elsif ($dtype == DataTypes::DATA_SUCCESS_PERCENT) {
 		$yaxis = "Percentage";
 		$units = "Success";
-	} elsif ($self->{_DataType} == DataTypes::DATA_RATIO_SPEEDUP) {
+	} elsif ($dtype == DataTypes::DATA_RATIO_SPEEDUP) {
 		$yaxis = "Speedup (ratio)";
 	}
 

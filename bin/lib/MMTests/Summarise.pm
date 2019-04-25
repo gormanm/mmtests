@@ -62,7 +62,7 @@ sub typeToPreferredVal() {
 
 sub getPreferredValue() {
 	my ($self, $op) = @_;
-	return $self->typeToPreferredVal($self->{_DataType});
+	return $self->typeToPreferredVal($self->getDataType($op));
 }
 
 # If there's single data type for the module, use its direction even for
