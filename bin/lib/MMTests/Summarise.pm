@@ -288,6 +288,55 @@ sub printPlot() {
 	}
 }
 
+sub runStatFunc
+{
+	my ($self, $func, $dataref) = @_;
+	my ($mean, $arg);
+
+	# $dataref is expected to be already sorted in appropriate order
+	if ($self->{_RatioPreferred} eq "Higher") {
+		$mean = "hmean";
+	} else {
+		$mean = "amean";
+	}
+	# Subselection means are a bit special...
+	if ($func eq "_mean-sub") {
+		return calc_submean_ci($mean, $dataref);
+	}
+	# calc_submean_ci returns two element list, thus following 'submeanci'
+	# has nothing to do and must return empty list. This is because
+	# calculating submean is relatively expensive and we get CI with it
+	# as well so it would be stupid to recompute it again.
+	if ($func eq "submeanci") {
+		return ();
+	}
+	$func =~ s/^_mean/$mean/;
+
+	($func, $arg) = split("-", $func);
+	# Percentiles are trivial, no need to copy the whole data array for them
+	if ($func eq "percentile") {
+		my $nr_elements = scalar(@{$dataref});
+		my $count = int ($nr_elements * $arg / 100);
+
+		$count = $count < 1 ? 1 : $count;
+		return $dataref->[$count-1];
+	}
+	$func = "calc_$func";
+	# Another argument to statistics function?
+	if ($arg > 0) {
+		# So far all numeric arguments are just a percentage of data to
+		# compute function from.
+		my $nr_elements = scalar(@{$dataref});
+		my $count = int ($nr_elements * $arg / 100);
+		my @data = @{$dataref}[0..($count)];
+
+		no strict "refs";
+		return &$func(\@data);
+	}
+	no strict "refs";
+	return &$func($dataref);
+}
+
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = $self->summaryOps($subHeading);
@@ -297,37 +346,34 @@ sub extractSummary() {
 	my %significance;
 	foreach my $operation (@_operations) {
 		my @units;
-		my @row;
 
 		foreach my $row (@{$data{$operation}}) {
 			push @units, @{$row}[1];
 		}
 
-		my $funcName;
-		$summary{$operation} = [];
-		foreach $funcName ("calc_min", $self->getMeanFunc, "calc_stddev", "calc_coeffvar", "calc_max") {
-			no strict "refs";
-			my $value = &$funcName(\@units);
-			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-				push @{$summary{$operation}}, $value;
-			}
+		if ($self->{_RatioPreferred} eq "Lower") {
+			@units = sort { $a <=> $b} @units;
+		} else {
+			@units = sort { $b <=> $a} @units;
 		}
-		$funcName = $self->getMeanFunc;
-		my $selectFunc = $self->getSelectionFunc();
-		foreach my $i (50, 95, 99) {
+
+		$summary{$operation} = [];
+		foreach my $func (@{$self->{_SummaryStats}}) {
 			no strict "refs";
-			my $value = &$funcName(&$selectFunc($i, \@units));
-			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-				push @{$summary{$operation}}, $value;
+			my @values = $self->runStatFunc($func, \@units);
+			foreach my $value (@values) {
+				if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
+					push @{$summary{$operation}}, $value;
+				}
 			}
 		}
 
 		$significance{$operation} = [];
 
-		$funcName = $self->getMeanFunc;
 		my $mean;
 		{
 			no strict "refs";
+			my $funcName = $self->getMeanFunc;
 			$mean = &$funcName(\@units);
 		}
 		push @{$significance{$operation}}, $mean;

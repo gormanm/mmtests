@@ -34,10 +34,10 @@ subselection.confidence.interval <- function(x, mean.func="mean", selections=100
 
 mean.name.to.func <- function(name)
 {
-	if (name == "Gmean") {
+	if (name == "gmean") {
 		return("gmean")
 	}
-	if (name == "Hmean") {
+	if (name == "hmean") {
 		return("hmean")
 	}
 	return("mean")
