@@ -31,7 +31,7 @@ sub extractReport() {
 	}
 	close(INPUT);
 	$self->{_Cases} = \@cases;
-	my %ops;
+	my @ratioops;
 
 	foreach my $case (@cases) {
 		open(INPUT, "$reportDir/$profile/$case.time") ||
@@ -40,7 +40,7 @@ sub extractReport() {
 			my $line = <INPUT>;
 			next if $line !~ /elapsed/;
 			$self->addData("$case-elapsed", 0, $self->_time_to_elapsed($line));
-			$ops{"$case-elapsed"} = 1;
+			push @ratioops, "$case-elapsed";
 		}
 		close(INPUT);
 
@@ -60,7 +60,7 @@ sub extractReport() {
 
 		close(INPUT);
 	}
-	$self->{_SingleInclude} = \%ops;
+	$self->{_RatioOperations} = \@ratioops;
 }
 
 1;

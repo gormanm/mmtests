@@ -78,13 +78,8 @@ sub extractSummary() {
 
 sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
-	my @_operations = @{$self->{_Operations}};
+	my @_operations = $self->ratioSummaryOps($subHeading);
 	my %data = %{$self->dataByOperation()};
-
-	if ($subHeading ne "") {
-		$#_operations = 0;
-		$_operations[0] = $subHeading;
-	}
 
 	$self->{_SummaryHeaders} = [ "Ratio" ];
 	my %summary;

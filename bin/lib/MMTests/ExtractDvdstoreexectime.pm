@@ -42,8 +42,6 @@ sub extractReport() {
 		}
 		close(INPUT);
 	}
-
-	$self->{_SingleInclude} = \@clients;
 }
 
 1;

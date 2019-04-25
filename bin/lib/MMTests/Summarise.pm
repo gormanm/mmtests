@@ -81,18 +81,21 @@ sub summaryOps() {
 
 sub ratioSummaryOps() {
 	my ($self, $subHeading) = @_;
+	my @ratioops;
 	my @ops;
 
-	if ($subHeading eq "" && ! defined $self->{_MultiInclude}) {
-		return @{$self->{_Operations}};
+	if (!defined($self->{_RatioOperations})) {
+		@ratioops = @{$self->{_Operations}};
+	} else {
+		@ratioops = @{$self->{_RatioOperations}};
 	}
 
-	foreach my $operation (@{$self->{_Operations}}) {
-		if ($subHeading ne "" && !($operation =~ /^$subHeading.*/)) {
-			next;
-		}
-		if (defined $self->{_MultiInclude} &&
-		    $self->{_MultiInclude}->{$operation} != 1) {
+	if ($subHeading eq "") {
+		return @ratioops;
+	}
+
+	foreach my $operation (@ratioops) {
+		if (!($operation =~ /^$subHeading.*/)) {
 			next;
 		}
 		push @ops, $operation;

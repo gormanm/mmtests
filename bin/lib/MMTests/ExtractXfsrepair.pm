@@ -10,9 +10,7 @@ sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_ModuleName} = "ExtractXfsrepair";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
-	$self->{_MultiInclude} = {
-		"elapsd-xfsrepair" => 1,
-	};
+	$self->{_RatioOperations} = [ "elapsd-xfsrepair" ];
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

@@ -11,12 +11,6 @@ sub initialise() {
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Time";
 	$self->{_SingleType} = 1;
-	$self->{_SingleInclude}  = {
-		"Elapsed-NUMA01" => 1,
-		"Elapsed-NUMA01_THEADLOCAL"  => 1,
-		"Elapsed-NUMA02" => 1,
-		"Elapsed-NUMA02_SMT" => 1,
-	};
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
@@ -25,6 +19,7 @@ sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
 	my ($user, $system, $elapsed, $cpu);
 	my $bindTypes;
+	my @ratioops;
 
 	my @files = <$reportDir/$profile/time.*>;
 	if (!@files) {
@@ -48,6 +43,7 @@ sub extractReport() {
 		$times{"System-$bindType"} = $system;
 		$times{"Elapsed-$bindType"} = $elapsed;
 		$times{"CPU-$bindType"} = $cpu;
+		push @ratioops, "Elapsed-$bindType";
 
 		close INPUT;
 	}
@@ -59,6 +55,8 @@ sub extractReport() {
 			}
 		}
 	}
+
+	$self->{_RatioOperations} = \@ratioops;
 }
 
 1;

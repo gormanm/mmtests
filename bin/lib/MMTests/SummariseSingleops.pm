@@ -111,31 +111,28 @@ sub extractSummary() {
 
 sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
-	my @data = @{$self->{_ResultData}};
-	my %includeOps;
-	my @ops;
+	my %data = %{$self->dataByOperation()};
+	my @ops = map {$_ -> [0]} @{$self->{_ResultData}};
+	my @ratioops;
 
 	if (!defined $self->{_SingleType}) {
 		print "Unsupported\n";
 		return 1;
 	}
-	if (defined $self->{_SingleInclude}) {
-		%includeOps = %{$self->{_SingleInclude}};
-	}
+
+	$self->{_Operations} = \@ops;
+	@ratioops = $self->ratioSummaryOps($subHeading);
 
 	$self->{_SummaryHeaders} = [ "Ratio" ];
 
 	my %summaryData;
-	foreach my $rowLine (@data) {
-		if (%includeOps && $includeOps{@{$rowLine}[0]} != 1) {
-			next;
+	foreach my $op (@ratioops) {
+		foreach my $rowLine (@{$data{$op}}) {
+			$summaryData{$op} = [$rowLine->[1]];
 		}
-		push @ops, @{$rowLine}[0];
-		$summaryData{$rowLine->[0]} = [$rowLine->[2]];
 	}
 	$self->{_SummaryData} = \%summaryData;
 
-	$self->{_Operations} = \@ops;
 	return 1;
 }
 

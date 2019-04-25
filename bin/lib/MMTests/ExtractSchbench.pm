@@ -22,7 +22,7 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir, $reportName, $profile) = @_;
-	my %singleInclude;
+	my @ratioops;
 
 	my @files = <$reportDir/$profile/schbench-*.log>;
 	my @groups;
@@ -46,12 +46,12 @@ sub extractReport() {
 				$quartile =~ s/00$//;
 				$self->addData("${quartile}th-qrtle-$group", 0, $lat);
 				if ($quartile == 99) {
-					$singleInclude{"${quartile}th-qrtle-$group"} = 1;
+					push @ratioops, "${quartile}th-qrtle-$group";
 				}
 			}
 		}
 		close INPUT;
 	}
 
-	$self->{_SingleInclude} = \%singleInclude;
+	$self->{_RatioOperations} = \@ratioops;
 }

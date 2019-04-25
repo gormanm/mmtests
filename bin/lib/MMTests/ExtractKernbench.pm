@@ -50,15 +50,15 @@ sub extractReport() {
 
 	}
 
-	my (@ops, %ratioops);
+	my (@ops, @ratioops);
 	foreach my $type ("user", "syst", "elsp") {
 		foreach my $thread (sort {$a <=> $b} @threads) {
 			push @ops, "$type-$thread";
 		}
 	}
 	foreach my $thread (sort {$a <=> $b} @threads) {
-		$ratioops{"elsp-$thread"} = 1;
+		push @ratioops, "elsp-$thread";
 	}
 	$self->{_Operations} = \@ops;
-	$self->{_MultiInclude} = \%ratioops;
+	$self->{_RatioOperations} = \@ratioops;
 }

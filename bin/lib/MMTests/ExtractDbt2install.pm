@@ -12,9 +12,7 @@ sub initialise() {
 	$self->{_PlotType}   = "histogram";
 	$self->{_FieldLength} = 12;
 	$self->{_SingleType} = 1;
-	$self->{_SingleInclude} = {
-		"Elapsed" => 1,
-	};
+	$self->{_RatioOperations} = [ "Elapsed" ];
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

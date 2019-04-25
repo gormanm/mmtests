@@ -17,7 +17,8 @@ sub initialise() {
 	$self->{_PlotType} = "operation-candlesticks";
 	$self->{_PlotXaxis}  = "TestName";
 	$self->{_PlotHeaders} = [ "LowStddev", "Min", "Max", "HighStddev", "Mean" ];
-	$self->{_MultiInclude} = { "Elapsed" => 1 };
+	$self->{_Operations} = [ "User", "System", "Elapsed", "CPU" ];
+	$self->{_RatioOperations} = [ "Elapsed" ];
 }
 
 sub extractReport() {
@@ -50,8 +51,6 @@ sub extractReport() {
 		$cnt++;
 	}
 	close INPUT;
-
-	$self->{_Operations} = [ "User", "System", "Elapsed", "CPU" ];
 }
 
 1;
