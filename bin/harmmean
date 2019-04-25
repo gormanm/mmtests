@@ -8,5 +8,5 @@ use MMTests::Stat;
 $x[$i++] = $_;
 END {
 	$i = 0;
-	print calc_harmmean(\@x);
+	print calc_hmean(\@x);
 }

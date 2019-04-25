@@ -50,7 +50,7 @@ sub extractReport($$$$) {
 	my ($subOp, $subCalc) = split(/-/, $subHeading);
 	if ($subCalc ne "") {
 		if ($subCalc eq "mean") {
-			$subCalc = "calc_harmmean";
+			$subCalc = "calc_hmean";
 		} elsif ($subCalc eq "stddev") {
 			$subCalc = "calc_stddev";
 		} else {
