@@ -43,6 +43,18 @@ sub getDataType() {
 	return $self->{_DataTypes}->{$op};
 }
 
+sub getPlotYaxis() {
+	my ($self, $op) = @_;
+
+	if (defined($self->{_PlotYaxis})) {
+		return $self->{_PlotYaxis};
+	}
+	if (defined($self->{_PlotYaxes})) {
+		return $self->{_PlotYaxes}->{$op};
+	}
+	return "UNKNOWN";
+}
+
 sub printDataType() {
 	my ($self, $subHeading) = @_;
 	my $yaxis = "UNKNOWN AXIS";
@@ -104,6 +116,10 @@ sub printDataType() {
 	my $xaxis = "UNKNOWN";
 	if (defined($self->{_PlotXaxis})) {
 		$xaxis = $self->{_PlotXaxis};
+	}
+	my $yaxis_extra = $self->getPlotYaxis($subHeading);
+	if ($yaxis_extra ne "UNKNOWN") {
+		$yaxis = $yaxis_extra;
 	}
 	my $plotType = "UNKNOWN";
 	if (defined($self->{_PlotType})) {
