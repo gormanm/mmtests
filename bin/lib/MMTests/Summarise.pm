@@ -160,7 +160,6 @@ sub printPlot() {
 		$nr_headings++;
 		if ($self->{_PlotType} =~ /simple.*/) {
 			my $fake_samples = 0;
-			my @data = @{$self->{_ResultData}};
 
 			if ($self->{_PlotType} =~ /simple-samples/) {
 				$fake_samples = 1;
@@ -204,9 +203,9 @@ sub printPlot() {
 			printf "%-${fieldLength}s ", $heading;
 			$self->_printErrorBarData($fieldLength, @units);
 		} elsif ($self->{_PlotType} =~ "histogram") {
-			my @data = @{$self->{_ResultData}};
-			foreach my $row (@data) {
-				printf("%-${fieldLength}s %${fieldLength}.3f\n", @{$row}[0], @{$row}[2]);
+			for ($samples = 0; $samples <= $#units; $samples++) {
+				printf("%-${fieldLength}s %${fieldLength}.3f\n",
+					$heading, $units[$samples]);
 			}
 		}
 	}
