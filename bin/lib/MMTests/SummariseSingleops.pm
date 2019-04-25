@@ -136,9 +136,4 @@ sub extractRatioSummary() {
 	return 1;
 }
 
-sub printReport() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
-}
-
 1;

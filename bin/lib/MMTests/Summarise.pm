@@ -212,9 +212,4 @@ sub printPlot() {
 	}
 }
 
-sub printReport() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
-}
-
 1;

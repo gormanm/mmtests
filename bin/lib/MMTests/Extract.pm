@@ -390,7 +390,7 @@ sub printSummary() {
 
 sub printReport() {
 	my ($self) = @_;
-	print "Unknown data type for reporting extracted raw data\n";
+	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 }
 
 sub dataByOperation() {

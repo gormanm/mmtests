@@ -37,11 +37,6 @@ sub new() {
 	return $self;
 }
 
-sub printReport() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
-}
-
 sub printPlot() {
         my ($self, $subheading) = @_;
 
