@@ -25,5 +25,8 @@ use constant DATA_TRANS_PER_MINUTE	=> 17;
 use constant DATA_SUCCESS_PERCENT	=> 18;
 
 use constant DATA_RATIO_SPEEDUP		=> 19;
+use constant DATA_REQ_PER_SECOND	=> 20;
+use constant DATA_SIZE_SECTOR		=> 21;
+use constant DATA_SIZE_QUEUED		=> 22;
 
 1;

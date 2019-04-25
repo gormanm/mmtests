@@ -54,7 +54,8 @@ sub typeToPreferredVal() {
 	    $type == DataTypes::DATA_TIME_MSECONDS ||
 	    $type == DataTypes::DATA_TIME_USECONDS ||
 	    $type == DataTypes::DATA_TIME_CYCLES ||
-	    $type == DataTypes::DATA_BAD_ACTIONS) {
+	    $type == DataTypes::DATA_BAD_ACTIONS ||
+	    $type == DataTypes::DATA_SIZE_QUEUED) {
 		return "Lower";
 	}
 	return "Higher";
