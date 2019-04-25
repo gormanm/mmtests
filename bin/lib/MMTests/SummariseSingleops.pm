@@ -36,7 +36,6 @@ sub initialise() {
 	$self->{_SummaryLength} = 16;
 	$self->{_SummaryHeaders} = [ $self->{_Opname} ? $self->{_Opname} : "Ops"  ];
 	$self->{_SummariseColumn} = 2;
-	$self->{_RatioPreferred} = "Higher";
 
 	if ($self->{_DataType} == DataTypes::DATA_TIME_SECONDS ||
 	    $self->{_DataType} == DataTypes::DATA_TIME_NSECONDS ||
@@ -44,7 +43,6 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TIME_USECONDS ||
 	    $self->{_DataType} == DataTypes::DATA_TIME_CYCLES ||
 	    $self->{_DataType} == DataTypes::DATA_BAD_ACTIONS) {
-		$self->{_RatioPreferred} = "Lower";
 		$self->{_CompareOp} = "pndiff";
 	}
 	if ($self->{_DataType} == DataTypes::DATA_ACTIONS ||
@@ -59,7 +57,6 @@ sub initialise() {
 	    $self->{_DataType} == DataTypes::DATA_TRANS_PER_MINUTE ||
 	    $self->{_DataType} == DataTypes::DATA_SUCCESS_PERCENT  ||
 	    $self->{_DataType} == DataTypes::DATA_RATIO_SPEEDUP) {
-		$self->{_RatioPreferred} = "Higher";
 		$self->{_CompareOp} = "pdiff";
 	}
 

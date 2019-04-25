@@ -19,7 +19,6 @@ sub new() {
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_Opname} = "Latency";
-	$self->{_RatioPreferred} = "Lower";
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
