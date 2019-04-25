@@ -143,7 +143,6 @@ if ($opt_printPlot) {
 	$extractModule->printPlotHeaders() if $opt_printHeader;
 	$extractModule->printPlot($opt_subheading);
 } elsif ($opt_printSummary) {
-	$extractModule->setSummaryLength($opt_subheading);
 	$extractModule->printSummaryHeaders() if $opt_printHeader;
 	$extractModule->printSummary($opt_subheading);
 } else {

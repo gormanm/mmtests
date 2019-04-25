@@ -114,14 +114,12 @@ sub initialise() {
 	$fieldLength = 12;
 	@fieldHeaders = ("UnknownType");
 	$fieldLength = $self->{_FieldLength}   if defined $self->{_FieldLength};
-	$fieldLength = $self->{_SummaryLength} if defined $self->{_SummaryLength};
 
 	$self->{_TestName} = $testName;
 	$self->{_FieldLength}  = $fieldLength;
 	$self->{_FieldHeaders} = \@fieldHeaders;
 	$self->{_PlotLength} = $plotLength;
 	$self->{_PlotHeaders} = \@plotHeaders;
-	$self->{_SummaryLength}  = $summaryLength;
 	$self->{_SummaryHeaders} = \@summaryHeaders;
 	$self->{_ResultData} = [];
 	$self->{_ResultDataUnsorted} = 0;
@@ -183,12 +181,6 @@ sub printPlotHeaders() {
 	$self->{_PrintHandler}->printHeaders(
 		$self->{_PlotLength}, $self->{_PlotHeaders},
 		$self->{_FieldHeaderFormat});
-}
-
-sub setSummaryLength() {
-	my ($self, $subHeading);
-
-	$self->{_SummaryLength} = $self->{_FieldLength};
 }
 
 sub printSummaryHeaders() {
@@ -359,10 +351,16 @@ sub extractSummaryR() {
 
 sub printSummary() {
 	my ($self, $subHeading) = @_;
-	my $fieldLength = $self->{_FieldLength};
+	my $length;
+
+	if (!defined($self->{_SummaryLength})) {
+		$length = $self->{_FieldLength};
+	} else {
+		$length = $self->{_SummaryLength};
+	}
 
 	$self->extractSummary($subHeading);
-	$self->{_PrintHandler}->printRow($self->{_SummaryData}, $fieldLength, $self->{_FieldFormat});
+	$self->{_PrintHandler}->printRow($self->{_SummaryData}, $length, $self->{_FieldFormat});
 }
 
 sub printReport() {
