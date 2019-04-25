@@ -1,34 +1,37 @@
 # MonitorNumausage.pm
 
 package MMTests::MonitorNumanodeusage;
-use MMTests::Monitor;
+use MMTests::SummariseMonitor;
 use MMTests::NUMA;
-our @ISA    = qw(MMTests::Monitor);
+our @ISA    = qw(MMTests::SummariseMonitor);
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "MonitorDuration",
-		_DataType    => MMTests::Monitor::MONITOR_NUMA_USAGE,
-		_MultiopMonitor => 1
+		_ModuleName  => "MonitorNumanodeusage",
+		_FieldLength => 18,
 	};
 	bless $self, $class;
 	return $self;
 }
 
 sub initialise() {
-	my ($self) = @_;
-	$self->SUPER::initialise();
+	my ($self, $reportDir, $testName, $format, $subHeading) = @_;
 
-	my $fieldLength = 18;
-	$self->{_FieldLength} = $fieldLength;
-}
+	if ($subHeading eq "") {
+		$subHeading = "Usage";
+	}
+	die if $subHeading ne "Usage" && $subHeading ne "MemoryBalance";
 
-sub printDataType() {
-	my ($self) = @_;
+	if ($subHeading eq "Usage") {
+		$self->{_DataType} = DataTypes::DATA_SIZE_BYTES;
+	} else {
+		$self->{_DataType} = DataTypes::DATA_BALANCE;
+		$self->{_PlotYaxis} = "Memory Balance";
+	}
 
-	print "Nodestat,Time,$self->{_Heading}\n";
+	$self->SUPER::initialise($reportDir, $testName, $format, $subHeading);
 }
 
 sub extractReport($$$$$) {
@@ -40,24 +43,12 @@ sub extractReport($$$$$) {
 		$subHeading = "Usage";
 	}
 
-	die if $subHeading ne "Usage" && $subHeading ne "MemoryBalance";
-
 	my $file = "$reportDir/numa-meminfo-$testName-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {
 		$file = $file . ".gz";
 		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
-
-	if ($subHeading eq "Usage") {
-		$self->{_FieldHeaders} = [ "Node", "Time", "Bytes" ];
-		$self->{_FieldFormat} = ["%${fieldLength}s", "%${fieldLength}d",
-				 "%${fieldLength}d" ];
-	} else {
-		$self->{_FieldHeaders} = [ "Node", "Time", "MemoryBalance" ];
-		$self->{_FieldFormat} = ["%${fieldLength}s", "%${fieldLength}d",
-				 "%${fieldLength}.6f" ];
 	}
 
 	my @nodeUsage;

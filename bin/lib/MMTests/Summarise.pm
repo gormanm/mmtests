@@ -61,7 +61,8 @@ sub typeToPreferredVal() {
 	    $type == DataTypes::DATA_SIZE_BYTES ||
 	    $type == DataTypes::DATA_SIZE_KBYTES ||
 	    $type == DataTypes::DATA_SIZE_MBYTES ||
-	    $type == DataTypes::DATA_SIZE_PAGES) {
+	    $type == DataTypes::DATA_SIZE_PAGES ||
+	    $type == DataTypes::DATA_BALANCE) {
 		return "Lower";
 	}
 	return "Higher";

@@ -141,6 +141,9 @@ sub printDataType() {
 		$units = "Consumption";
 	} elsif ($dtype == DataTypes::DATA_RATIO_SPEEDUP) {
 		$yaxis = "Speedup (ratio)";
+	} elsif ($dtype == DataTypes::DATA_BALANCE) {
+		$units = "Balance";
+		$yaxis = "Balance";
 	}
 
 	my $xaxis = "UNKNOWN";
