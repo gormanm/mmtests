@@ -18,7 +18,7 @@ sub new() {
 sub printPlot() {
 	my ($self, $subHeading) = @_;
 
-
+	$self->sortResults();
 	if ($subHeading eq "") {
 		$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
 	} else {

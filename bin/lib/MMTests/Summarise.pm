@@ -142,6 +142,8 @@ sub printPlot() {
 		}
 	}
 
+	$self->sortResults();
+
 	my $nr_headings = 0;
 	foreach my $heading (@_operations) {
 		my @index;

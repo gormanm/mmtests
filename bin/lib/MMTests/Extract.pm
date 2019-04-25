@@ -147,6 +147,8 @@ sub initialise() {
 	$self->{_SummaryLength}  = $summaryLength;
 	$self->{_SummaryHeaders} = \@summaryHeaders;
 	$self->{_ResultData} = [];
+	$self->{_ResultDataUnsorted} = 0;
+	$self->{_LastSample} = {};
 
 	if ($self->{_PlotType} eq "client-errorlines") {
 		$self->{_PlotXaxis}  = "Clients";
@@ -406,7 +408,30 @@ sub dataByOperation() {
 sub addData() {
 	my ($self, $op, $sample, $val) = @_;
 
+	if (!$self->{_ResultDataUnsorted}) {
+		if (defined($self->{_LastSample}->{$op}) &&
+		    $self->{_LastSample}->{$op} > $sample) {
+			$self->{_ResultDataUnsorted} = 1;
+		} else {
+			$self->{_LastSample}->{$op} = $sample;
+		}
+	}
 	push @{$self->{_ResultData}}, [$op, $sample, $val];
+}
+
+sub sortResults() {
+	my ($self) = @_;
+
+	if ($self->{_ResultDataUnsorted}) {
+		my @newdata = sort {
+			if ($a->[0] != $b->[0]) {
+				return $a->[0] <=> $b->[0];
+			}
+			return $a->[1] <=> $b->[1];
+		} @{$self->{_ResultData}};
+
+		$self->{_ResultData} = \@newdata;
+	}
 }
 
 1;

@@ -45,6 +45,7 @@ sub printReport() {
 sub printPlot() {
         my ($self, $subheading) = @_;
 
+	$self->sortResults();
 	$self->printSummary($subheading);
 }
 

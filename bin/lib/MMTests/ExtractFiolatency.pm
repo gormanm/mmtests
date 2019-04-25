@@ -24,8 +24,6 @@ sub extractReport() {
 	my $seen_write = 0;
 	$reportDir =~ s/fiolatency/fio/;
 
-	my @resultData;
-
 	my @files = <$reportDir/$profile/fio_lat.*.log*>;
 	foreach my $file (@files) {
 		my $nr_samples = 0;
@@ -52,13 +50,10 @@ sub extractReport() {
 			}
 			$nr_samples++;
 			$time /= 1000;
-			push @resultData, [ "latency-$dir", $time, $lat ];
+			$self->addData("latency-$dir", $time, $lat);
 		}
 		close INPUT;
 	}
-
-	@resultData = sort { $a->[1] <=> $b->[1] } @resultData;
-	$self->{_ResultData} = \@resultData;
 
 	my @ops;
 
