@@ -5,8 +5,8 @@
 # the majority of faults are local.
 
 package MMTests::MonitorNumaconvergence;
-use MMTests::Monitor;
-our @ISA    = qw(MMTests::Monitor);
+use MMTests::SummariseMonitor;
+our @ISA    = qw(MMTests::SummariseMonitor);
 use strict;
 
 my $windowSize = 20000;
@@ -14,31 +14,21 @@ my $windowSize = 20000;
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "MonitorDuration",
-		_DataType    => MMTests::Monitor::MONITOR_NUMA_CONVERGENCE,
-		_MultiopMonitor => 1
+		_ModuleName  => "MonitorNumaconvergence",
+		_PlotYaxis   => "Convergence",
+		_DataType    => DataTypes::DATA_CONVERGENCE,
 	};
 	bless $self, $class;
 	return $self;
 }
 
 sub initialise() {
-	my ($self) = @_;
-	$self->SUPER::initialise();
+	my ($self, $reportDir, $testName, $format, $subHeading) = @_;
+	$self->SUPER::initialise($reportDir, $testName, $format, $subHeading);
 
 	my @window;
 	$window[$windowSize] = 0;
-	my $fieldLength = 12;
 	$self->{_Window} = \@window;
-	$self->{_FieldLength} = 12;
-	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}d", "%${fieldLength}.4f" ];
-	$self->{_FieldHeaders} = [ "Op", "Time", "Convergence" ];
-}
-
-sub printDataType() {
-	my ($self) = @_;
-
-	print "Convergence,Time,Convergence\n";
 }
 
 sub currentConvergence()

@@ -36,5 +36,6 @@ use constant DATA_SIZE_KBYTES		=> 27;
 use constant DATA_SIZE_MBYTES		=> 28;
 use constant DATA_SIZE_PAGES		=> 29;
 use constant DATA_BALANCE		=> 30;
+use constant DATA_CONVERGENCE		=> 31;
 
 1;

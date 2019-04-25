@@ -144,6 +144,9 @@ sub printDataType() {
 	} elsif ($dtype == DataTypes::DATA_BALANCE) {
 		$units = "Balance";
 		$yaxis = "Balance";
+	} elsif ($dtype == DataTypes::DATA_CONVERGENCE) {
+		$units = "Convergence";
+		$yaxis = "Convergence";
 	}
 
 	my $xaxis = "UNKNOWN";
