@@ -13,7 +13,7 @@ use FindBin qw($Bin);
 use List::BinarySearch qw(binsearch_range);
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &cidiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &select_lowest &select_highest &calc_amean &select_trim &calc_geomean &calc_hmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper &calc_submean_ci &stat_compare);
+@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &cidiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &select_lowest &select_highest &calc_amean &select_trim &calc_geomean &calc_hmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper &calc_submean_ci &stat_compare &calc_samplespct);
 
 # This defines function to use for comparison of a particular statistic
 # (computed by calc_xxx function). If the statistic does not have comparison
@@ -43,6 +43,7 @@ use constant stat_names => {
 	"percentile-"	=> "Max-%d",
 	"samples"	=> "Samples",
 	"samples-"	=> "Samples-[%s)",
+	"samplespct-"	=> "Samples%%-[%s)",
 	"submeanci"	=> "SubmeanCI",
 };
 
@@ -565,6 +566,12 @@ sub calc_samples {
 	}
 	my ($lowidx, $highidx) = binsearch_range { $a <=> $b }  $low, $high, @data;
 	return $highidx - $lowidx + 1;
+}
+
+sub calc_samplespct {
+	my ($dataref, $arg) = @_;
+
+	return calc_samples($dataref, $arg) * 100 / scalar(@{$dataref});
 }
 
 1;

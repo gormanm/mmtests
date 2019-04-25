@@ -8,10 +8,9 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName    => "MonitorReadlatency",
-		_DataType      => MMTests::Monitor::MONITOR_LATENCY,
+		_DataType      => DataTypes::DATA_TIME_MSECONDS,
 		_Heading       => "read-latency",
-		_NiceHeading   => "Read Latency",
-		_Units         => "ms"
+		_PlotYaxis     => "Read Latency (ms)",
 	};
 	bless $self, $class;
 	return $self;

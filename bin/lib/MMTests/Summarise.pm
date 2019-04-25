@@ -269,6 +269,8 @@ sub runStatFunc
 	}
 	if ($func eq "samples") {
 		return calc_samples($dataref, $arg);
+	} elsif ($func eq "samplespct") {
+		return calc_samplespct($dataref, $arg);
 	}
 	$func = "calc_$func";
 	# Another argument to statistics function?
