@@ -15,7 +15,6 @@ use MMTests::Compare;
 use MMTests::CompareFactory;
 use MMTests::Extract;
 use MMTests::ExtractFactory;
-use MMTests::Monitor;
 use MMTests::MonitorFactory;
 use strict;
 

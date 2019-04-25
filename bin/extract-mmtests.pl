@@ -18,7 +18,6 @@ use Pod::Usage;
 use MMTests::Report;
 use MMTests::Extract;
 use MMTests::ExtractFactory;
-use MMTests::Monitor;
 use MMTests::MonitorFactory;
 use strict;
 
