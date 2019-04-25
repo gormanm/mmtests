@@ -44,6 +44,7 @@ sub extractReport() {
 			open(INPUT, $file) || die("Failed to open $file\n");
 		}
 		while (<INPUT>) {
+			chomp;
 			my $line = $_;
 			my @elements = split(/ /, $line);
 
