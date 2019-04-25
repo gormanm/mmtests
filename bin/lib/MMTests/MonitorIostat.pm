@@ -64,7 +64,7 @@ sub extractSummary() {
 			push @units, @{$row}[1];
 		}
 
-		$mean_avgqusz = calc_mean(@units);
+		$mean_avgqusz = calc_amean(\@units);
 		next if $mean_avgqusz < 0.01;
 
 		push @{$self->{_SummaryData}}, [ "$device-avgqusz",
@@ -76,7 +76,7 @@ sub extractSummary() {
 				push @units, @{$row}[1];
 			}
 			push @{$self->{_SummaryData}}, [ "$device-$op",
-				calc_mean(@units), calc_max(@units) ];
+				calc_amean(\@units), calc_max(@units) ];
 		}
 	}
 

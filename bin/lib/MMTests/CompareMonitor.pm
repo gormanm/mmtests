@@ -106,7 +106,7 @@ sub _generateComparisonTable() {
 			for (my $row = 0; $row <= $#baseline; $row++) {
 				push @units, $normCompareTable[$row][$module];
 			}
-			push @normcmpmean, [ calc_mean(@units), calc_min(@units), calc_max(@units) ];
+			push @normcmpmean, [ calc_amean(\@units), calc_min(@units), calc_max(@units) ];
 
 			@units = ();
 			for (my $row = 0; $row <= $#baseline; $row++) {

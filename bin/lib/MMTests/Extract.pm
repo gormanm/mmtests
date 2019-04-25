@@ -206,7 +206,7 @@ sub _printCandlePlotData() {
 	my ($self, $fieldLength, @data) = @_;
 
 	my $stddev = calc_stddev(@data);
-	my $mean = calc_mean(@data);
+	my $mean = calc_amean(\@data);
 	my $min  = calc_min(@data);
 	my $max  = calc_max(@data);
 	my $low_stddev = calc_max( ($mean - $stddev, $min) );
@@ -219,7 +219,7 @@ sub _printErrorBarData() {
 	my ($self, $fieldLength, @data) = @_;
 
 	my $stddev = calc_stddev(@data);
-	my $mean = calc_mean(@data);
+	my $mean = calc_amean(\@data);
 
 	printf("%${fieldLength}.3f %${fieldLength}.3f\n", $mean, $stddev);
 }

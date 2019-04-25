@@ -12,7 +12,7 @@ use POSIX qw(floor);
 use FindBin qw($Bin);
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &cidiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &select_lowest &select_highest &calc_mean &select_trim &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper &calc_submean_ci &stat_compare);
+@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &cidiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &select_lowest &select_highest &calc_amean &select_trim &calc_geomean &calc_harmmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper &calc_submean_ci &stat_compare);
 
 # This defines function to use for comparison of a particular statistic
 # (computed by calc_xxx function). If the statistic does not have comparison
@@ -156,18 +156,20 @@ sub calc_range {
 	return calc_max(@_) - calc_min(@_);
 }
 
-sub calc_mean {
+sub calc_amean {
+	my $dataref = $0;
+	my @data = @{$dataref};
 	my $sum = 0;
 	my $n = 0;
-	my $elements = $#_ + 1;
+	my $elements = scalar(@data);
 	my $i;
 
 	for ($i = 0; $i < $elements; $i++) {
-		if (defined $_[$i]) {
-			if ($_[$i] !~ /^[-0-9]+/) {
+		if (defined $data[$i]) {
+			if ($data[$i] !~ /^[-0-9]+/) {
 				return "NaN";
 			}
-			$sum += $_[$i];
+			$sum += $data[$i];
 			$n++;
 		}
 	}
@@ -280,7 +282,7 @@ sub select_lowest {
 sub calc_true_mean {
 	my ($confidenceLevel, $confidenceLimit, @samples) = @_;
 	my $nr_samples = $#samples;
-	my $mean = calc_mean(@samples);
+	my $mean = calc_amean(\@samples);
 	my $standardMean = $mean;
 	if ($standardMean eq "NaN") {
 		return "NaN";
@@ -320,7 +322,7 @@ CONF_LOOP:
 			undef $samples[$max_index];
 			$usable_samples--;
 
-			$mean = calc_mean(@samples);
+			$mean = calc_amean(\@samples);
 			$stddev = calc_stddev(@samples);
 			$conf = calc_confidence_interval_lower("NaN", $confidenceLevel, @samples);
 			$limit = $mean * $confidenceLimit / 100;
@@ -334,7 +336,7 @@ CONF_LOOP:
 		}
 	}
 
-	return calc_mean(@samples);
+	return calc_amean(\@samples);
 }
 
 sub calc_stddev {
@@ -343,7 +345,7 @@ sub calc_stddev {
 	my $diff;
 	my $i;
 
-	my $mean = calc_mean(@_);
+	my $mean = calc_amean(\@_);
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined $_[$i]) {
@@ -364,7 +366,7 @@ sub calc_stddev {
 
 sub calc_coeffvar {
 	my $stddev = calc_stddev(@_);
-	my $mean = calc_mean(@_);
+	my $mean = calc_amean(\@_);
 
 	if ($stddev eq "NaN") {
 		$stddev = 0;
@@ -410,7 +412,7 @@ sub calc_confidence_interval {
 		}
 	}
 
-	my $mean = calc_mean(@_);
+	my $mean = calc_amean(\@_);
 	if ($variance !~ /^[-0-9]+/) {
 		$stddev = calc_stddev(@_);
 		$q = qx(echo 'qt(c((100 - $confidence_level)/200), $n-1, lower.tail = FALSE)' | R --slave);
@@ -427,14 +429,14 @@ sub calc_confidence_interval {
 sub calc_confidence_interval_lower {
 	my $variance = shift;
 	my $confidence_level = shift;
-	my $mean = calc_mean(@_);
+	my $mean = calc_amean(\@_);
 	return $mean - calc_confidence_interval($variance, $confidence_level, @_);
 }
 
 sub calc_confidence_interval_upper {
 	my $variance = shift;
 	my $confidence_level = shift;
-	my $mean = calc_mean(@_);
+	my $mean = calc_amean(\@_);
 	return $mean + calc_confidence_interval($variance, $confidence_level, @_);
 }
 

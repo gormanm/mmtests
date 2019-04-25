@@ -89,7 +89,7 @@ sub getMeanFunc() {
 	if ($self->{_RatioPreferred} eq "Higher") {
 		return "calc_harmmean";
 	}
-	return "calc_mean";
+	return "calc_amean";
 }
 
 sub summaryOps() {

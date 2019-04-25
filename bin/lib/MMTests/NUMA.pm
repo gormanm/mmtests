@@ -39,7 +39,7 @@ sub numa_memory_balance {
 		push @Nu, ($_[$i] / $_[$i+1]);
 	}
 
-	my $Au = calc_mean(@Nu);
+	my $Au = calc_amean(\@Nu);
 	my $nodes = $#Nu + 1;
 
 	my @averageDrift;

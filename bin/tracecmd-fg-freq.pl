@@ -78,7 +78,7 @@ foreach my $trace (sort {$sample_freq{$b} <=> $sample_freq{$a}} keys %sample_fre
 	printf "SAMPLE occurred %4d times, min: %8.4fus mean: %8.4fus max: %8.4fus\n",
 			$sample_freq{$trace},
 			calc_min(@latencies),
-			calc_mean(@latencies),
+			calc_amean(\@latencies),
 			calc_max(@latencies);
 	printf "Comparing samples with      min:%8.4fus max:%8.4fus\n", $min_latency{$trace}, $max_latency{$trace};
 	# print "$trace\n";

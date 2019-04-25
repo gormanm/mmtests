@@ -167,7 +167,7 @@ sub extractSummary() {
 	push @{$self->{_SummaryData}}, [ "Max-95%",   $quartiles[95] ];
 	push @{$self->{_SummaryData}}, [ "Max-99%",   $quartiles[99] ];
 	push @{$self->{_SummaryData}}, [ "Max",       $quartiles[4]  ];
-	push @{$self->{_SummaryData}}, [ "Mean",      calc_mean(@units) ];
+	push @{$self->{_SummaryData}}, [ "Mean",      calc_amean(\@units) ];
 	push @{$self->{_SummaryData}}, [ "Samples",   $#units ];
 	for (my $i = 0; $i <= $#thresholds; $i++) {
 		push @{$self->{_SummaryData}}, [ "Samples-$thresholds[$i]", $samples[$i] ];

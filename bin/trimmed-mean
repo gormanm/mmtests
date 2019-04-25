@@ -8,5 +8,5 @@ use MMTests::Stat;
 $x[$i++] = $_;
 END {
 	$i = 0;
-	print calc_mean(@{select_trimmed(75, \@x)});
+	print calc_amean(select_trim(75, \@x));
 }

@@ -64,7 +64,7 @@ sub extractSummary() {
 			push @event, $row[1];
 		}
 
-		push @{$self->{_SummaryData}}, [ $thread, calc_mean(@event) ];
+		push @{$self->{_SummaryData}}, [ $thread, calc_amean(\@event) ];
 	}
 
 	return 1;
