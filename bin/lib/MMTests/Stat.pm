@@ -280,16 +280,17 @@ sub select_lowest {
 }
 
 sub calc_true_mean {
-	my ($confidenceLevel, $confidenceLimit, @samples) = @_;
+	my ($confidenceLevel, $confidenceLimit, $samplesref) = @_;
+	my @samples = @{$samplesref};
 	my $nr_samples = $#samples;
-	my $mean = calc_amean(\@samples);
+	my $mean = calc_amean($samplesref);
 	my $standardMean = $mean;
 	if ($standardMean eq "NaN") {
 		return "NaN";
 	}
 
 	my $stddev = calc_stddev(@samples);
-	my $conf = calc_confidence_interval_lower("NaN", $confidenceLevel, @samples);
+	my $conf = calc_confidence_interval_lower("NaN", $confidenceLevel, $samplesref);
 	my $limit = $mean * $confidenceLimit / 100;
 	my $conf_delta = $mean - $conf; 
 	my $usable_samples = $nr_samples;
@@ -322,9 +323,9 @@ CONF_LOOP:
 			undef $samples[$max_index];
 			$usable_samples--;
 
-			$mean = calc_amean(\@samples);
+			$mean = calc_amean($samplesref);
 			$stddev = calc_stddev(@samples);
-			$conf = calc_confidence_interval_lower("NaN", $confidenceLevel, @samples);
+			$conf = calc_confidence_interval_lower("NaN", $confidenceLevel, $samplesref);
 			$limit = $mean * $confidenceLimit / 100;
 			$conf_delta = $mean - $conf;
 
@@ -336,7 +337,7 @@ CONF_LOOP:
 		}
 	}
 
-	return calc_amean(\@samples);
+	return calc_amean($samplesref);
 }
 
 sub calc_stddev {
@@ -398,23 +399,23 @@ sub calc_quartiles {
 }
 
 sub calc_confidence_interval {
-	my $variance = shift;
-	my $confidence_level = shift;
-	my $elements = $#_ + 1;
+	my ($variance, $confidence_level, $dataref) = @_;
+	my @data = @{$dataref};
+	my $elements = $#data + 1;
 	my $n = 0;
 	my $i;
 	my $stddev;
 	my $q; my $q1;
 
 	for ($i = 0; $i < $elements; $i++) {
-		if (defined $_[$i]) {
+		if (defined $data[$i]) {
 			$n++;
 		}
 	}
 
-	my $mean = calc_amean(\@_);
+	my $mean = calc_amean($dataref);
 	if ($variance !~ /^[-0-9]+/) {
-		$stddev = calc_stddev(@_);
+		$stddev = calc_stddev(@data);
 		$q = qx(echo 'qt(c((100 - $confidence_level)/200), $n-1, lower.tail = FALSE)' | R --slave);
 		$q =~ s/\[1\]|\s//g;
 	} else {
@@ -427,17 +428,15 @@ sub calc_confidence_interval {
 }
 
 sub calc_confidence_interval_lower {
-	my $variance = shift;
-	my $confidence_level = shift;
-	my $mean = calc_amean(\@_);
-	return $mean - calc_confidence_interval($variance, $confidence_level, @_);
+	my ($variance, $confidence_level, $dataref) = @_;
+	my $mean = calc_amean($dataref);
+	return $mean - calc_confidence_interval($variance, $confidence_level, $dataref);
 }
 
 sub calc_confidence_interval_upper {
-	my $variance = shift;
-	my $confidence_level = shift;
-	my $mean = calc_amean(\@_);
-	return $mean + calc_confidence_interval($variance, $confidence_level, @_);
+	my ($variance, $confidence_level, $dataref) = @_;
+	my $mean = calc_amean($dataref);
+	return $mean + calc_confidence_interval($variance, $confidence_level, $dataref);
 }
 
 # Perform Welch's t-test.

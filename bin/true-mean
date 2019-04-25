@@ -8,5 +8,5 @@ use MMTests::Stat;
 $x[$i++] = $_;
 END {
 	$i = 0;
-	print calc_true_mean(99, 1, @x);
+	print calc_true_mean(99, 1, \@x);
 }
