@@ -109,6 +109,9 @@ sub printDataType() {
 	} elsif ($dtype == DataTypes::DATA_SUCCESS_PERCENT) {
 		$yaxis = "Percentage";
 		$units = "Success";
+	} elsif ($dtype == DataTypes::DATA_USAGE_PERCENT) {
+		$yaxis = "Percentage";
+		$units = "Usage";
 	} elsif ($dtype == DataTypes::DATA_REQ_PER_SECOND) {
 		$yaxis = "Requests/sec";
 		$units = "Throughput";

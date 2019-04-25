@@ -1,16 +1,15 @@
 # MonitorIotop.pm
 package MMTests::MonitorIotop;
-use MMTests::Monitor;
+use MMTests::SummariseMonitor;
 use MMTests::Stat;
-our @ISA = qw(MMTests::Monitor);
+our @ISA = qw(MMTests::SummariseMonitor);
 use strict;
 
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName    => "MonitorIoop",
-		_DataType      => MMTests::Monitor::MONITOR_IOTOP,
-		_MultiopMonitor => 1
+		_ModuleName    => "MonitorIotop",
+		_FieldLength   => 25,
 	};
 	bless $self, $class;
 	return $self;
@@ -26,17 +25,26 @@ my %_colMap = (
 	"Proc"		=> 11,
 );
 
-sub printDataType() {
-	my ($self) = @_;
-	my $headingIndex = $self->{_HeadingIndex};
+my %typeMap = (
+	"Read"		=> DataTypes::DATA_KBYTES_PER_SECOND,
+	"Write"		=> DataTypes::DATA_KBYTES_PER_SECOND,
+	"Swapin"	=> DataTypes::DATA_USAGE_PERCENT,
+	"IO"		=> DataTypes::DATA_USAGE_PERCENT,
+);
 
-	if ($headingIndex == 3) {
-		print "Read,Time,Read\n";
-	} elsif ($headingIndex == 5) {
-		print "Write,Time,Write\n";
-	} else {
-		print "Unknown\n";
-	}
+sub getDataType() {
+	my ($self, $op) = @_;
+	my @elements = split(/-/, $op);
+
+	return $typeMap{$elements[0]};
+}
+
+# For iotop monitor subHeading defines processing during extraction. Not
+# selection of operations.
+sub filterSubheading() {
+	my ($self, $subHeading, $opref) = @_;
+
+	return @{$opref};
 }
 
 sub extractReport($$$$) {
@@ -61,13 +69,6 @@ sub extractReport($$$$) {
 		die("Unrecognised heading '$subOp'");
 	}
 	my $headingIndex = $_colMap{$subOp};
-	$self->{_HeadingIndex} = $headingIndex;
-
-	# TODO: Auto-discover lengths and handle multi-column reports
-	my $fieldLength = 25;
-	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldHeaders} = [ "Process", "Time", $subHeading ];
-	$self->{_FieldFormat} = [ "%${fieldLength}s", "%${fieldLength}d", "%${fieldLength}.2f" ];
 
 	my $file = "$reportDir/iotop-$testName-$testBenchmark";
 	if (-e $file) {
