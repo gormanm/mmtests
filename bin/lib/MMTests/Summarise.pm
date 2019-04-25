@@ -152,7 +152,16 @@ sub printPlot() {
 		my $samples = 0;
 
 		foreach my $row (@{$data{$heading}}) {
-			push @index, @{$row}[0];
+			my $head = @{$row}[0];
+
+			if ($self->{_PlotStripSubheading}) {
+				if ($self->{_ClientSubheading} == 1) {
+					$head =~ s/-$subHeading$//;
+				} else {
+					$head =~ s/^$subHeading-//;
+				}
+			}
+			push @index, $head;
 			push @units, @{$row}[1];
 			$samples++;
 		}
