@@ -10,6 +10,7 @@ use MMTests::Report;
 use strict;
 use POSIX qw(floor);
 use FindBin qw($Bin);
+use List::BinarySearch qw(binsearch_range);
 
 @ISA    = qw(Exporter);
 @EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &cidiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &select_lowest &select_highest &calc_amean &select_trim &calc_geomean &calc_hmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper &calc_submean_ci &stat_compare);
@@ -21,6 +22,7 @@ use constant stat_compare => {
 	"stddev" => "pndiff",
 	"coeffvar" => "pndiff",
 	"submeanci" => "pndiff",
+	"samples" => "pdiff",
 };
 
 # Names of statistic functions for summarization titles
@@ -39,6 +41,8 @@ use constant stat_names => {
 	"percentile-50" => "2nd-qrtle",
 	"percentile-75" => "3rd-qrtle",
 	"percentile-"	=> "Max-%d",
+	"samples"	=> "Samples",
+	"samples-"	=> "Samples-[%s)",
 	"submeanci"	=> "SubmeanCI",
 };
 
@@ -541,6 +545,26 @@ sub calc_submean_ci {
 	@parsedrow = split(' ', $row);
 	# Skip initial "[1]" output by R
 	return ($parsedrow[1], $parsedrow[2]);
+}
+
+sub calc_samples {
+	my ($dataref, $arg) = @_;
+	my @data = @{$dataref};
+
+	# Simple sample count?
+	if (!defined($arg)) {
+		return scalar(@data);
+	}
+	# Range specified
+	my ($low,$high) = split(',', $arg);
+
+	if ($low eq "min") {
+		$low = $data[0];
+	} elsif ($high eq "max") {
+		$high = $data[$#data];
+	}
+	my ($lowidx, $highidx) = binsearch_range { $a <=> $b }  $low, $high, @data;
+	return $highidx - $lowidx + 1;
 }
 
 1;

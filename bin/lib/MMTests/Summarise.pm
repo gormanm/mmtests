@@ -265,10 +265,13 @@ sub runStatFunc
 		$count = $count < 1 ? 1 : $count;
 		return $dataref->[$count-1];
 	}
+	if ($func eq "samples") {
+		return calc_samples($dataref, $arg);
+	}
 	$func = "calc_$func";
 	# Another argument to statistics function?
 	if ($arg > 0) {
-		# So far all numeric arguments are just a percentage of data to
+		# All other numeric arguments are just a percentage of data to
 		# compute function from.
 		my $nr_elements = scalar(@{$dataref});
 		my $count = int ($nr_elements * $arg / 100);
