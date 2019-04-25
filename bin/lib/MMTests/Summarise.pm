@@ -79,16 +79,8 @@ sub getRatioPreferredValue() {
 
 sub summaryOps() {
 	my ($self, $subHeading) = @_;
-	my @ops;
 
-	foreach my $operation (@{$self->{_Operations}}) {
-		if ($subHeading ne "" && !($operation =~ /^$subHeading.*/)) {
-			next;
-		}
-		push @ops, $operation;
-	}
-
-	return @ops;
+	return $self->filterSubheading($subHeading, $self->{_Operations});
 }
 
 sub getStatCompareFunc() {
@@ -132,64 +124,28 @@ sub getStatName() {
 
 sub ratioSummaryOps() {
 	my ($self, $subHeading) = @_;
-	my @ratioops;
-	my @ops;
 
 	if (!defined($self->{_RatioOperations})) {
-		@ratioops = @{$self->{_Operations}};
-	} else {
-		@ratioops = @{$self->{_RatioOperations}};
+		return $self->filterSubheading($subHeading, $self->{_Operations});
 	}
-
-	if ($subHeading eq "") {
-		return @ratioops;
-	}
-
-	foreach my $operation (@ratioops) {
-		if (!($operation =~ /^$subHeading.*/)) {
-			next;
-		}
-		push @ops, $operation;
-	}
-
-	return @ops;
+	return $self->filterSubheading($subHeading, $self->{_RatioOperations});
 }
 
 sub printPlot() {
 	my ($self, $subHeading) = @_;
 	my %data = %{$self->dataByOperation()};
-	my @_operations = @{$self->{_Operations}};
+	my @_operations;
 	my $fieldLength = $self->{_FieldLength};
 	my $column = 1;
 
 	if ($subHeading eq "") {
 		$subHeading = $self->{_DefaultPlot}
 	}
+	@_operations = $self->filterSubheading($subHeading, $self->{_Operations});
 
-
-	if ($subHeading ne "") {
-		my $index = 0;
-		while ($index <= $#_operations) {
-			if ($self->{_ExactSubheading} == 1) {
-				if (defined $self->{_ExactPlottype}) {
-					$self->{_PlotType} = $self->{_ExactPlottype};
-				}
-				if ($_operations[$index] eq "$subHeading") {
-					$index++;
-					next;
-				}
-			} elsif ($self->{_ClientSubheading} == 1) {
-				if ($_operations[$index] =~ /.*-$subHeading$/) {
-					$index++;
-					next;
-				}
-			} else {
-				if ($_operations[$index] =~ /^$subHeading.*/) {
-					$index++;
-					next;
-				}
-			}
-			splice(@_operations, $index, 1);
+	if ($subHeading ne "" && $self->{_ExactSubheading} == 1) {
+		if (defined $self->{_ExactPlottype}) {
+			$self->{_PlotType} = $self->{_ExactPlottype};
 		}
 	}
 

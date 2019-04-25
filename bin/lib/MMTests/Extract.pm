@@ -360,6 +360,34 @@ sub extractSummaryR() {
 	$self->{_SummaryHeaders} = \@rowNames;
 }
 
+sub filterSubheading() {
+	my ($self, $subHeading, $opref) = @_;
+	my @ops;
+
+	if ($subHeading eq "") {
+		return @{$opref};
+	}
+
+	foreach my $operation (@{$opref}) {
+		if ($self->{_ExactSubheading} == 1) {
+			if ($operation ne "$subHeading") {
+				next;
+			}
+		} elsif ($self->{_ClientSubheading} == 1) {
+			if (!($operation =~ /.*-$subHeading$/)) {
+				next;
+			}
+		} else {
+			if (!($operation =~ /^$subHeading.*/)) {
+				next;
+			}
+		}
+		push @ops, $operation;
+	}
+
+	return @ops;
+}
+
 sub printSummary() {
 	my ($self, $subHeading) = @_;
 	my $length;
