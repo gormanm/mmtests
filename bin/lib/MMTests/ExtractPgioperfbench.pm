@@ -12,16 +12,13 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractPgioperfbench";
 	$self->{_DataType}   = DataTypes::DATA_TIME_MSECONDS;
 	$self->{_ExactSubheading} = 1;
-	$self->{_PlotType} = "simple-filter";
+	$self->{_PlotType} = "simple-filter-points";
+	$self->{_PlotXaxis} = "Sample Index";
 	$self->{_DefaultPlot} = "1";
 
 	$self->SUPER::initialise($reportDir, $testName);
 	$self->{_FieldLength} = $fieldLength;
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.4f" , "%${fieldLength}.2f%%" ];
-}
-
-sub printDataType() {
-	print "Time,Sample Index,Latency,points";
 }
 
 sub extractReport() {
