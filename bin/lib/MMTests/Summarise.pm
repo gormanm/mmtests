@@ -80,7 +80,7 @@ sub getRatioPreferredValue() {
 sub summaryOps() {
 	my ($self, $subHeading) = @_;
 
-	return $self->filterSubheading($subHeading, $self->{_Operations});
+	return $self->getOperations($subHeading);
 }
 
 sub getStatCompareFunc() {
@@ -126,7 +126,7 @@ sub ratioSummaryOps() {
 	my ($self, $subHeading) = @_;
 
 	if (!defined($self->{_RatioOperations})) {
-		return $self->filterSubheading($subHeading, $self->{_Operations});
+		return $self->getOperations($subHeading);
 	}
 	return $self->filterSubheading($subHeading, $self->{_RatioOperations});
 }
@@ -141,7 +141,7 @@ sub printPlot() {
 	if ($subHeading eq "") {
 		$subHeading = $self->{_DefaultPlot}
 	}
-	@_operations = $self->filterSubheading($subHeading, $self->{_Operations});
+	@_operations = $self->getOperations($subHeading);
 
 	if ($subHeading ne "" && $self->{_ExactSubheading} == 1) {
 		if (defined $self->{_ExactPlottype}) {

@@ -152,6 +152,8 @@ sub initialise() {
 	$self->{_ResultData} = [];
 	$self->{_ResultDataUnsorted} = 0;
 	$self->{_LastSample} = {};
+	$self->{_GeneratedOperations} = [];
+	$self->{_OperationsSeen} = {};
 
 	if ($self->{_PlotType} eq "client-errorlines") {
 		$self->{_PlotXaxis}  = "Clients";
@@ -404,6 +406,18 @@ sub filterSubheading() {
 	return @ops;
 }
 
+sub getOperations() {
+	my ($self, $subHeading) = @_;
+	my $opref;
+
+	if (!defined($self->{_Operations})) {
+		$opref = $self->{_GeneratedOperations};
+	} else {
+		$opref = $self->{_Operations};
+	}
+	return $self->filterSubheading($subHeading, $opref);
+}
+
 sub printSummary() {
 	my ($self, $subHeading) = @_;
 	my $length;
@@ -415,7 +429,7 @@ sub printSummary() {
 	}
 
 	$self->extractSummary($subHeading);
-	foreach my $op (@{$self->{_Operations}}) {
+	foreach my $op ($self->getOperations($subHeading)) {
 		$self->{_PrintHandler}->printRow([$self->{_SummaryData}->{$op}],
 						 $length,
 						 $self->{_FieldFormat});
@@ -448,6 +462,12 @@ sub addData() {
 			$self->{_ResultDataUnsorted} = 1;
 		} else {
 			$self->{_LastSample}->{$op} = $sample;
+		}
+	}
+	if (!defined($self->{_Operations})) {
+		if (!defined($self->{_OperationsSeen}->{$op})) {
+			push @{$self->{_GeneratedOperations}}, $op;
+			$self->{_OperationsSeen}->{$op} = 1;
 		}
 	}
 	push @{$self->{_ResultData}}, [$op, $sample, $val];
