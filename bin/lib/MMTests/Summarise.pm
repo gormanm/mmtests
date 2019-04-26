@@ -77,7 +77,7 @@ sub getPreferredValue() {
 # ratio comparisons. Otherwise create ratios so that lower values are always
 # preferred.
 sub getRatioPreferredValue() {
-	my $self = $_;
+	my ($self) = @_;
 
 	if (defined($self->{_DataType})) {
 		return $self->typeToPreferredVal($self->{_DataType});
