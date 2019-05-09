@@ -14,7 +14,7 @@ sub new() {
 	return $self;
 }
 
-use constant headingnames => {
+my %headingnames => {
 	"cpu-migrations"	=> "CPU Migrations",
 	"context-switches"	=> "Context Switches",
 	"task-clock"		=> "Task Clock",
@@ -32,7 +32,8 @@ sub initialise() {
 	$self->{_ExactSubheading} = 1;
 	$self->{_DataType} = DataTypes::DATA_ACTIONS;
 	$self->{_PlotXaxis} = "Time";
-	$self->{_PlotYaxes} = $headingnames;
+	$self->{_PlotYaxes} = "cpu-migrations";
+	$self->{_PlotType}  = "simple";
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
@@ -40,6 +41,10 @@ sub extractReport($$$$) {
 	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my $timestamp;
 	my $start_timestamp = 0;
+
+	if ($subHeading ne "") {
+		$self->{_PlotYaxes} = $headingnames{$subHeading};
+	}
 
 	# Figure out what file to open
 	my $file = "$reportDir/perf-time-stat-$testName-$testBenchmark";
