@@ -1,0 +1,14 @@
+#!/bin/bash
+###SHELLPACK preamble stressng-install 0
+GIT_LOCATION=git://kernel.ubuntu.com/cking/stress-ng.git
+MIRROR_LOCATION="$WEBROOT/stressng/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch stressng-${VERSION}.tar.gz stressng-${VERSION}-installed
+
+###SHELLPACK build_start stressng-${VERSION}-installed
+###SHELLPACK make
+
+echo stressng installed successfully
