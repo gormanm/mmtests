@@ -111,7 +111,6 @@ my %package_map = (
 	
 my %package_bin = (
 	"suse"		=> "zypper install",
-	"suse opensuse"	=> "zypper install",
 	"debian"	=> "apt-get install",
 	"redhat"	=> "yum install",
 	"gentoo"	=> "emerge",
@@ -172,6 +171,10 @@ if (!defined($distro)) {
 	die("Failed to identify distribution\n");
 }
 
+# If we're "suse"-like (no matter whether "suse", "suse opensuse" or
+# "opensuse suse"), we want zypper
+$distro =~ s/(.*)(\bsuse\b)(.*)/$2/;
+
 if (!defined($package_bin{$distro})) {
 	die("Do not know how to invoke package manager for distro $distro");
 }
@@ -231,7 +234,6 @@ foreach my $package (@ARGV) {
 
 	if ($ENV{"AUTO_PACKAGE_INSTALL"} eq "yes" || -e $ENV{"HOME"} . "/.mmtests-auto-package-install") {
 		$force_install{"suse"} = "-y";
-		$force_install{"suse opensuse"} = "-y";
 		$force_install{"debian"} = "-y --force-yes";
 		$force_install{"redhat"} = "-y";
 	}
