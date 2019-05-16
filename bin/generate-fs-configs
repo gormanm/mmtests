@@ -160,6 +160,7 @@ config-global-dhp__speccpu2017-rate-parallel-full
 config-global-dhp__S-startup
 config-global-dhp__parsec-pthreads-half
 config-global-dhp__parsec-pthreads-full
+config-global-dhp__functional-ltp-cve
 config-global-dhp__functional-ltp-lite
 config-global-dhp__functional-xfstests-auto
 "
