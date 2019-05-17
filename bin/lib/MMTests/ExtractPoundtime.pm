@@ -7,12 +7,12 @@ use strict;
 
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractPoundtime";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "thread-errorlines";
 	$self->{_ClientSubheading} = 1;
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

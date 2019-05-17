@@ -7,13 +7,13 @@ use MMTests::Stat;
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractPft";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_Precision} = 4;
 	$self->{_FieldLength} = 14;
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 my $_pagesize = "base";

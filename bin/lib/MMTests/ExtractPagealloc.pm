@@ -6,10 +6,10 @@ our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_DataType} = DataTypes::DATA_TIME_CYCLES;
 	$self->{_FilterNaN} = 1;
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

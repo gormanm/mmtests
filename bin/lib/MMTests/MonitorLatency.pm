@@ -26,7 +26,7 @@ sub new() {
 }
 
 sub initialise() {
-	my ($self, $reportDir, $testName, $format, $subHeading) = @_;
+	my ($self, $subHeading) = @_;
 
 	if ($subHeading ne "") {
 		foreach my $option (split(/,/, $subHeading)) {
@@ -62,7 +62,7 @@ sub initialise() {
 		}
 	}
 	$self->{_RatioSummaryStat} = [ "percentile-95" ];
-	$self->SUPER::initialise($reportDir, $testName, $format, $subheading);
+	$self->SUPER::initialise($subheading);
 }
 
 sub extractReport($$$$) {

@@ -6,12 +6,12 @@ our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub initialise() {
-        my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractNetpipe4mb";
 	$self->{_DataType}   = DataTypes::DATA_MBITS_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_Operations} = [ "tput-1-2mb", "tput-2-3mb", "tput-3-4mb", "tput-g-4mb" ];
-        $self->SUPER::initialise($reportDir, $testName);
+        $self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

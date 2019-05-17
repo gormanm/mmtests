@@ -6,14 +6,14 @@ our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractDbt2install";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "histogram";
 	$self->{_FieldLength} = 12;
 	$self->{_RatioOperations} = [ "Elapsed" ];
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

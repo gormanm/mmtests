@@ -176,7 +176,7 @@ sub initialise()
 	$self->{_PlotYaxes} = \%_fieldNameMap;
 	$self->{_DefaultPlot} = "pgpgin";
 	$self->{_PlotType} = "simple";
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub parseVMStat($)

@@ -17,7 +17,7 @@ use constant LATENCY_END	=> 1;
 use constant LATENCY_STALLED	=> 2;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_PlotXaxis} = "Time";
 	$self->{_PlotType} = "points";
@@ -29,7 +29,7 @@ sub initialise() {
 		"samples-5,10", "samples-10,100", "samples-100,500",
 		"samples-500,1000", "samples-1000,5000", "samples-5000,max" ]
 	$self->{_RatioSummaryStat} = [ "percentile-95" ];
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub add_regex_start($$$)

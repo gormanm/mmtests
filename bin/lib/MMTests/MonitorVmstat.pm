@@ -76,12 +76,12 @@ use constant headings => {
 };
 
 sub initialise() {
-	my ($self, $reportDir, $testName, $format, $subHeading) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_DataTypes} = typeMap;
 	$self->{_PlotYaxes} = headings;
 	$self->{_PlotType} = "simple";
-	$self->SUPER::initialise($reportDir, $testName, $format, $subHeading);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport($$$$) {

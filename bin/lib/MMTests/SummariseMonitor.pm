@@ -8,11 +8,11 @@ our @ISA = qw(MMTests::Summarise);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_SummaryStats} = [ "_mean", "max" ];
 	$self->{_RatioSummaryStat} = [ "_mean", "stddev" ];
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 1;

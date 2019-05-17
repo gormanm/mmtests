@@ -5,13 +5,13 @@ our @ISA = qw(MMTests::SummariseSubselection);
 use strict;
 
 sub initialise() {
-        my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	my $fieldLength = 12;
 	$self->{_ModuleName} 		= "ExtractDbench4";
 	$self->{_DataType}   		= DataTypes::DATA_TIME_MSECONDS;
 	$self->{_PlotType}   		= "client-errorlines";
 	$self->{_SubheadingPlotType}	= "simple-clients";
-        $self->SUPER::initialise($reportDir, $testName);
+        $self->SUPER::initialise($subHeading);
 	$self->{_FieldFormat} = [ "%-${fieldLength}.3f", "%${fieldLength}d" ];
 }
 

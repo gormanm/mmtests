@@ -4,12 +4,12 @@ use MMTests::SummariseMultiops;
 our @ISA = qw(MMTests::SummariseMultiops);
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSeeker";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "operation-candlesticks";
 	$self->{_DefaultPlot} = "Seeks";
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

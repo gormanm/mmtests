@@ -6,7 +6,7 @@ use MMTests::Stat;
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSysjitter";
 	$self->{_DataType}   = DataTypes::DATA_TIME_NSECONDS;
 	$self->{_PlotType}   = "histogram";
@@ -14,7 +14,7 @@ sub initialise() {
 	$self->{_FieldLength} = 14;
 	$self->{_ClientSubheading} = 1;
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

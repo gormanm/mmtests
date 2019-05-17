@@ -7,8 +7,8 @@ use strict;
 use Data::Dumper qw(Dumper);
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-	$self->SUPER::initialise($reportDir, $testName);
+	my ($self, $subHeading) = @_;
+	$self->SUPER::initialise($subHeading);
 }
 
 sub uniq {

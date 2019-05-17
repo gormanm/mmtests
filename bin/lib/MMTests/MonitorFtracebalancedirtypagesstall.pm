@@ -13,7 +13,7 @@ sub initialise() {
 		"samples-30,35", "samples-35,40", "samples-40,50",
 		"samples-50,60", "samples-60,100", "samples-100,500",
 		"samples-500,1000", "samples-1000,5000", "samples-5000,max" ]
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub ftraceInit() {

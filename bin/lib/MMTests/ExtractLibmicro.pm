@@ -4,14 +4,14 @@ use MMTests::SummariseSingleops;
 our @ISA = qw(MMTests::SummariseSingleops);
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractLibmicro";
 	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Time";
 	$self->{_Precision}  = 4;
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

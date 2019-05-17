@@ -6,13 +6,13 @@ our @ISA = qw(MMTests::SummariseVariabletime);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractBonnie";
 	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
 	$self->{_PlotType}   = "simple-samples";
 	$self->{_DefaultPlot} = "SeqOut Block";
 	$self->{_ExactSubheading} = 1;
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

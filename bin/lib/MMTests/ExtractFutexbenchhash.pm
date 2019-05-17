@@ -4,12 +4,12 @@ use MMTests::ExtractFutexbenchcommon;
 our @ISA = qw(MMTests::ExtractFutexbenchcommon);
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractFutexbenchhash";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "thread-errorlines";
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 1;

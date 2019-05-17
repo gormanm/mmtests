@@ -7,7 +7,7 @@ our @ISA = qw(MMTests::Summarise);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_SummaryStats} = [ "min", "percentile-25", "percentile-50",
 		"percentile-75", "percentile-1", "percentile-5",
@@ -16,7 +16,7 @@ sub initialise() {
 		"_mean-99", "_mean-95", "_mean-90", "_mean-75", "_mean-50",
 		"_mean-25" ];
 	$self->{_RatioSummaryStat} = [ "percentile-95" ];
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 1;

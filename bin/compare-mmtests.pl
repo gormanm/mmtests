@@ -63,7 +63,7 @@ if (!defined($opt_monitor)) {
 			my $reportDirectory = "$opt_reportDirectory/$name";
 			my @iterdirs = <"$reportDirectory/iter-*">;
 
-			$extractModules[$nrModules] = $extractFactory->loadModule("extract", $opt_benchmark, $reportDirectory, $name, $opt_format, $opt_subheading);
+			$extractModules[$nrModules] = $extractFactory->loadModule("extract", $opt_benchmark, $name, $opt_subheading);
 			foreach my $iterdir (@iterdirs) {
 				my $profile = "noprofile";
 				$iterdir = "$iterdir/$opt_benchmark";
@@ -92,7 +92,7 @@ if (!defined($opt_monitor)) {
 		eval {
 			my $reportDirectory = "$opt_reportDirectory/$name";
 			my @iterdirs = <$reportDirectory/iter-*>;
-			$extractModules[$nrModules] = $extractFactory->loadModule("monitor", $opt_monitor, $reportDirectory, $name, $opt_format, $opt_subheading);
+			$extractModules[$nrModules] = $extractFactory->loadModule("monitor", $opt_monitor, $name, $opt_subheading);
 			foreach my $iterdir (@iterdirs) {
 				$extractModules[$nrModules]->extractReport($iterdir, $opt_benchmark, $opt_subheading, 1);
 				$extractModules[$nrModules]->nextIteration();

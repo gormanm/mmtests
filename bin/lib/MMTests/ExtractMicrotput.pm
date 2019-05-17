@@ -5,13 +5,13 @@ our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractMicrotput";
 	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
 	$self->{_PlotType}   = "group-errorlines";
 	$self->{_Precision} = 4;
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

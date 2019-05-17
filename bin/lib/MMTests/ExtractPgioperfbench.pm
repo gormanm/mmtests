@@ -6,7 +6,7 @@ our @ISA = qw(MMTests::SummariseVariabletime);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	my $fieldLength = 12;
 
 	$self->{_ModuleName} = "ExtractPgioperfbench";
@@ -17,7 +17,7 @@ sub initialise() {
 	$self->{_DefaultPlot} = "1";
 	$self->{_Operations} = [ "commit", "read", "wal" ];
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 	$self->{_FieldLength} = $fieldLength;
 	$self->{_FieldFormat} = [ "%$fieldLength.4f" , "%${fieldLength}.2f" ];
 }

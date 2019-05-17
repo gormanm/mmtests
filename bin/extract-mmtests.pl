@@ -73,7 +73,7 @@ if (defined $opt_monitor) {
 	my $monitorFactory = MMTests::ExtractFactory->new();
 	my $monitorModule;
 	eval {
-		$monitorModule = $monitorFactory->loadModule("monitor", $opt_monitor, $reportDir, $opt_name, $opt_format, $opt_subheading);
+		$monitorModule = $monitorFactory->loadModule("monitor", $opt_monitor, $opt_name, $opt_subheading);
 	} or do {
 		printWarning("Failed to load module for monitor $opt_monitor\n$@");
 		exit(-1);
@@ -110,7 +110,7 @@ if (defined $opt_monitor) {
 my $extractFactory = MMTests::ExtractFactory->new();
 my $extractModule;
 eval {
-	$extractModule = $extractFactory->loadModule("extract", $opt_benchmark, $reportDir, $opt_name, $opt_format, $opt_subheading);
+	$extractModule = $extractFactory->loadModule("extract", $opt_benchmark, $opt_name, $opt_subheading);
 } or do {
 	printWarning("Failed to load module for benchmark $opt_benchmark\n$@");
 	exit(-1);

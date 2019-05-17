@@ -6,13 +6,13 @@ use MMTests::Stat;
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractStream";
 	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "MB/sec";
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

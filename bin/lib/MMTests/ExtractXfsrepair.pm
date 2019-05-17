@@ -7,12 +7,12 @@ use strict;
 
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractXfsrepair";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_RatioOperations} = [ "elapsd-xfsrepair" ];
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

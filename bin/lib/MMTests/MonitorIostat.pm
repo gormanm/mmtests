@@ -7,13 +7,13 @@ our @ISA = qw(MMTests::SummariseMonitor);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "MonitorIostat";
 	$self->{_PlotType} = "simple";
 	$self->{_DefaultPlot} = "sda-await";
 	$self->{_ExactSubheading} = 1;
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 my %devices;

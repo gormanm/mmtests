@@ -17,7 +17,7 @@ sub new() {
 }
 
 sub initialise() {
-	my ($self, $reportDir, $testName, $format, $subHeading) = @_;
+	my ($self, $subHeading) = @_;
 
 	if ($subHeading eq "") {
 		$subHeading = "Usage";
@@ -31,7 +31,7 @@ sub initialise() {
 		$self->{_PlotYaxis} = "Memory Balance";
 	}
 
-	$self->SUPER::initialise($reportDir, $testName, $format, $subHeading);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport($$$$$) {

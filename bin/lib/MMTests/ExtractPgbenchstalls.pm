@@ -6,7 +6,7 @@ our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractPgbenchstalls";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "client-errorlines";
@@ -14,7 +14,7 @@ sub initialise() {
 	$self->{_FieldLength} = 12;
 	$self->{_DefaultPlot} = "1";
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

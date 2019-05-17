@@ -7,12 +7,12 @@ use strict;
 use Data::Dumper qw(Dumper);
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "ExtractLkpthroughput";
 	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
 	$self->{_PlotType}   = "thread-errorlines";
-	$self->SUPER::initialise();
+	$self->SUPER::initialise($subHeading);
 }
 
 sub uniq {

@@ -4,13 +4,13 @@ use MMTests::SummariseMultiops;
 our @ISA = qw(MMTests::SummariseMultiops);
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractHackbench";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "group-errorlines";
 	$self->{_Precision} = 4;
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

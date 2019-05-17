@@ -6,7 +6,7 @@ our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	my $class = shift;
 	$self->{_ModuleName} = "ExtractFio";
 	$self->{_DataType}   = DataTypes::DATA_KBYTES_PER_SECOND;
@@ -14,7 +14,7 @@ sub initialise() {
 	$self->{_PlotXaxis}  = "Clients";
 	$self->{_FieldLength} = 12;
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractOneFile {

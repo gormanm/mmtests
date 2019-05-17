@@ -5,14 +5,14 @@ our @ISA = qw(MMTests::SummariseVariableops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractFsmark";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
         $self->{_ExactSubheading} = 1;
         $self->{_PlotType} = "simple-filter";
         $self->{_DefaultPlot} = "1";
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

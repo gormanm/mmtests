@@ -27,14 +27,14 @@ my %datatypes = (
 );
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "MonitorTurbostat";
 	$self->{_PlotType} = "simple";
 	$self->{_DefaultPlot} = "Avg_Mhz";
 	$self->{_ExactSubheading} = 1;
 	$self->{_DataTypes} = \%datatypes;
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

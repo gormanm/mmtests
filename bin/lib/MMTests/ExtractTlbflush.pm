@@ -6,11 +6,11 @@ our @ISA = qw(MMTests::SummariseVariabletime);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractTlbflush";
 	$self->{_DataType}   = DataTypes::DATA_TIME_NSECONDS;
 	$self->{_PlotType}   = "client-errorlines";
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

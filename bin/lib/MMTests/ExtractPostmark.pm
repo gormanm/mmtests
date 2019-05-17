@@ -5,7 +5,7 @@ our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractPostmark";
 	$self->{_DataType}   = DataTypes::DATA_TRANS_PER_SECOND;
 	$self->{_PlotType}   = "histogram";
@@ -13,7 +13,7 @@ sub initialise() {
 	$self->{_RatioOperations} = [ "Transactions", "DataRead/MB",
 		"DataWrite/MB" ];
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

@@ -5,13 +5,13 @@ our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractPistress";
 	$self->{_DataType}   = DataTypes::DATA_BAD_ACTIONS;
 	$self->{_SingleType} = 1;
 	$self->{_Opname} = "Test";
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 my %status_code = (

@@ -6,14 +6,14 @@ our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractThpfioscalecounts";
 	$self->{_DataType}   = DataTypes::DATA_ACTIONS;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Percentage";
 	$self->{_FieldLength} = 12;
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

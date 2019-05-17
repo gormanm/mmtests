@@ -7,7 +7,7 @@ our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSchbench";
 	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
 	$self->{_PlotXaxis}  = "Threads";
@@ -16,7 +16,7 @@ sub initialise() {
 	$self->{_ExactSubheading} = 1;
 	$self->{_ExactPlottype} = "simple";
 	$self->{_DefaultPlot} = "1";
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

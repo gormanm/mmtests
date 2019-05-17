@@ -7,7 +7,7 @@ use strict;
 use Data::Dumper qw(Dumper);
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "ExtractMlc";
 	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
@@ -16,7 +16,7 @@ sub initialise() {
 		"RW-3:1",
 		"RW-2:1",
 		"RW-1:1" ];
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

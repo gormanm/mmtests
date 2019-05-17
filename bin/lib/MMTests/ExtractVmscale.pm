@@ -5,7 +5,7 @@ our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	my $fieldLength = $self->{_FieldLength} = 25;
 	$self->{_ModuleName} = "ExtractVmscale";
@@ -13,7 +13,7 @@ sub initialise() {
 	$self->{_TestName} = $testName;
 	$self->{_Opname} = "Value";
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

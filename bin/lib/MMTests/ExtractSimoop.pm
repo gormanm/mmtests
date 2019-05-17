@@ -6,7 +6,7 @@ use MMTests::Stat;
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSimoop";
 	$self->{_DataType}   = DataTypes::DATA_TIME_NSECONDS;
 	$self->{_Opname}     = "Time";
@@ -14,7 +14,7 @@ sub initialise() {
 	$self->{_ExactPlottype}   = "simple";
 	$self->{_PlotType}   = "simple";
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

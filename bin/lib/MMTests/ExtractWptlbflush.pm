@@ -9,7 +9,7 @@ sub printDataType() {
 }
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractWptlbflush";
 	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
 	$self->{_PlotType}   = "client-errorlines";
@@ -19,7 +19,7 @@ sub initialise() {
 	$self->{_ExactPlottype} = "simple";
 	$self->{_DefaultPlot} = "1";
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

@@ -6,11 +6,11 @@ our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractIozone";
 	$self->{_DataType}   = DataTypes::DATA_KBYTES_PER_SECOND;
 	$self->{_PlotType}   = "operation-candlesticks";
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 

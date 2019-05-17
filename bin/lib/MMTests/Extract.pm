@@ -172,7 +172,7 @@ sub printDataType() {
 }
 
 sub initialise() {
-	my ($self, $reportDir, $testName, $format) = @_;
+	my ($self, $subHeading) = @_;
 	my @fieldHeaders;
 	my ($fieldLength, $plotLength, $summaryLength);
 
@@ -180,7 +180,6 @@ sub initialise() {
 	@fieldHeaders = ("UnknownType");
 	$fieldLength = $self->{_FieldLength}   if defined $self->{_FieldLength};
 
-	$self->{_TestName} = $testName;
 	$self->{_FieldLength}  = $fieldLength;
 	$self->{_FieldHeaders} = \@fieldHeaders;
 	$self->{_PlotLength} = $plotLength;

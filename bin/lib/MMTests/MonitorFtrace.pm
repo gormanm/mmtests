@@ -14,7 +14,7 @@ sub new() {
 }
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_FieldLength} = 16;
 	$self->{_Opname} = "Ops";
@@ -27,7 +27,7 @@ sub initialise() {
 	if (!defined($self->{_DataType}) && !defined($self->{_DataTypes})) {
 		$self->{_DataType} = DataTypes::DATA_ACTIONS;
 	}
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 
 	$self->{_FieldFormat} = [ "", "%12d" ];
 }

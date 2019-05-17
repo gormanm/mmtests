@@ -6,11 +6,11 @@ our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractPhpbench";
 	$self->{_DataType}   = DataTypes::DATA_ACTIONS;
 	$self->{_PlotType}   = "operation-candlesticks";
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

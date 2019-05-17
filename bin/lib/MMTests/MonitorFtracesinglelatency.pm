@@ -12,7 +12,7 @@ my $name_start;
 my $start_timestamp;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_PlotXaxis} = "Time";
 	$self->{_PlotType} = "points";
@@ -28,7 +28,7 @@ sub initialise() {
 			"samples-1000,5000", "samples-5000,max" ];
 	}
 	$self->{_RatioSummaryStat} = [ "percentile-95" ];
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub add_regex($$$$)

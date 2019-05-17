@@ -4,11 +4,11 @@ use MMTests::ExtractHpcgcommon;
 our @ISA = qw(MMTests::ExtractHpcgcommon);
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractHpcggccmpi";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 1;

@@ -5,13 +5,13 @@ our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractFfsb";
 	$self->{_DataType}   = DataTypes::DATA_TRANS_PER_SECOND;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Trans/sec";
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

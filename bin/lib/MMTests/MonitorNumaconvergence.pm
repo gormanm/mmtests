@@ -23,8 +23,8 @@ sub new() {
 }
 
 sub initialise() {
-	my ($self, $reportDir, $testName, $format, $subHeading) = @_;
-	$self->SUPER::initialise($reportDir, $testName, $format, $subHeading);
+	my ($self, $subHeading) = @_;
+	$self->SUPER::initialise($subHeading);
 
 	my @window;
 	$window[$windowSize] = 0;

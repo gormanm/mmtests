@@ -26,7 +26,7 @@ my %headingnames => {
 };
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_FieldLength}   = 18;
 	$self->{_ExactSubheading} = 1;
@@ -34,7 +34,7 @@ sub initialise() {
 	$self->{_PlotXaxis} = "Time";
 	$self->{_PlotYaxes} = "cpu-migrations";
 	$self->{_PlotType}  = "simple";
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport($$$$) {

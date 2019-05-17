@@ -7,14 +7,14 @@ use strict;
 use Data::Dumper qw(Dumper);
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
-	$self->SUPER::initialise();
+	$self->SUPER::initialise($subHeading);
 
 	$self->{_ModuleName} = "ExtractFreqmine";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "thread-errorlines";
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub uniq {

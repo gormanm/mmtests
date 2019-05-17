@@ -16,7 +16,7 @@ sub new() {
 }
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	my $plotType = "candlesticks";
 	my $opName = "Ops";
 	my @sumheaders;
@@ -32,7 +32,7 @@ sub initialise() {
 		$self->{_PlotType} = $plotType;
 	}
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 	$self->{_FieldLength} = 12 if ($self->{_FieldLength} == 0);
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%${fieldLength}d", "%${fieldLength}.2f" ];
@@ -42,7 +42,6 @@ sub initialise() {
 		push @sumheaders, $self->getStatName($header);
 	}
 	$self->{_SummaryHeaders} = \@sumheaders;
-	$self->{_TestName} = $testName;
 }
 
 sub typeToPreferredVal() {

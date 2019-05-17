@@ -17,7 +17,7 @@ sub initialise()
 {
 	my ($self, $reportDir, $testName) = @_;
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

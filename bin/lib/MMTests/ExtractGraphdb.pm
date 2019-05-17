@@ -17,10 +17,10 @@ sub new() {
 }
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_Opname} = "Latency";
 	$self->{_Operations} = [ "read", "write", "mmap", "munmap" ];
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {

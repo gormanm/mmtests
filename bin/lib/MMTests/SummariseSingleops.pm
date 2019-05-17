@@ -16,7 +16,7 @@ sub new() {
 }
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	my $fieldLength = 12;
 	if (defined $self->{_FieldLength}) {
 		$fieldLength = $self->{_FieldLength};
@@ -25,7 +25,7 @@ sub initialise() {
 	$self->{_SummaryStats} = [ "_value" ];
 	$self->{_RatioSummaryStat} = [ "_value" ];
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 
 	$self->{_FieldFormat} = [ "", "%${fieldLength}.2f" ];
 	$self->{_FieldHeaders} = [ $self->{_Opname} ? $self->{_Opname} : "Ops" ];

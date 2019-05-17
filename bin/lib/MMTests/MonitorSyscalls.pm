@@ -29,7 +29,7 @@ use constant headings => {
 };
 
 sub initialise() {
-	my ($self, $reportDir, $testName, $format, $subHeading) = @_;
+	my ($self, $subHeading) = @_;
 	my ($subHeading, $subSummary) = split(/-/, $subHeading);
 
 	if (!defined $_colMap{$subHeading}) {
@@ -37,7 +37,7 @@ sub initialise() {
 	}
 	$self->{_DataType} = typeMap->{$subHeading};
 	$self->{_PlotYAxis} = headings->{$subHeading};
-	$self->SUPER::initialise($reportDir, $testName, $format, $subHeading);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport($$$$) {
