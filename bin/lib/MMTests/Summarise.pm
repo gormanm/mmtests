@@ -37,7 +37,6 @@ sub initialise() {
 	my $fieldLength = $self->{_FieldLength};
 	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
 	$self->{_FieldHeaders} = [ "Type", "Sample", $opName ];
-	$self->{_SummaryLength} = $self->{_FieldLength} + 4 if !defined $self->{_SummaryLength};
 	for (my $header = 0; $header < scalar @{$self->{_SummaryStats}};
 	     $header++) {
 		push @sumheaders, $self->getStatName($header);

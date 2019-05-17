@@ -22,7 +22,6 @@ sub initialise() {
 		$fieldLength = $self->{_FieldLength};
 	}
 
-	$self->{_SummaryLength} = 16;
 	$self->{_SummaryStats} = [ "_value" ];
 	$self->{_RatioSummaryStat} = [ "_value" ];
 

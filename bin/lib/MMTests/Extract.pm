@@ -248,18 +248,6 @@ sub printPlotHeaders() {
 		$self->{_FieldHeaderFormat});
 }
 
-sub printSummaryHeaders() {
-	my ($self) = @_;
-	if (defined $self->{_SummaryLength}) {
-		$self->{_PrintHandler}->printHeaders($self->{_SummaryLength},
-				$self->{_SummaryHeaders},
-				$self->{_FieldHeaderFormat});
-	} else {
-		$self->printFieldHeaders();
-	}
-}
-
-
 sub _printSimplePlotData() {
 	my ($self, $fieldLength, @data) = @_;
 	my $nrSample = 1;
@@ -452,24 +440,6 @@ sub getOperations() {
 		$opref = $self->{_Operations};
 	}
 	return $self->filterSubheading($subHeading, $opref);
-}
-
-sub printSummary() {
-	my ($self, $subHeading) = @_;
-	my $length;
-
-	if (!defined($self->{_SummaryLength})) {
-		$length = $self->{_FieldLength};
-	} else {
-		$length = $self->{_SummaryLength};
-	}
-
-	$self->extractSummary($subHeading);
-	foreach my $op ($self->getOperations($subHeading)) {
-		$self->{_PrintHandler}->printRow([$self->{_SummaryData}->{$op}],
-						 $length,
-						 $self->{_FieldFormat});
-	}
 }
 
 sub printReport() {

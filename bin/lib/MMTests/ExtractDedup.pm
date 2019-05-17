@@ -11,7 +11,6 @@ sub initialise() {
 
 	my $fieldLength = $self->{_FieldLength} = 12;
 	$self->{_FieldLength} = $fieldLength;
-	$self->{_SummaryLength} = $fieldLength;
 	$self->{_TestName} = $testName;
 	$self->{_ModuleName} = "ExtractDedup";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;

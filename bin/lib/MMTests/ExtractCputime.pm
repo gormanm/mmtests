@@ -12,7 +12,6 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 
 	my $fieldLength = $self->{_FieldLength} = 12;
-	$self->{_SummaryLength} = $fieldLength;
 	$self->{_PlotLength} = $fieldLength;
 	$self->{_PlotType} = "operation-candlesticks";
 	$self->{_PlotXaxis}  = "TestName";

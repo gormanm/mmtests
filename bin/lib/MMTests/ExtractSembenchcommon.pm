@@ -13,7 +13,6 @@ sub initialise() {
 
 	my $fieldLength = $self->{_FieldLength} = 12;
 	$self->{_FieldLength} = $fieldLength;
-	$self->{_SummaryLength} = $fieldLength;
 	$self->{_TestName} = $testName;
 	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
 }

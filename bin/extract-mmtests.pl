@@ -24,7 +24,7 @@ use strict;
 my ($opt_verbose);
 my ($opt_help, $opt_manual);
 my ($opt_reportDirectory, $opt_monitor);
-my ($opt_printHeader, $opt_printPlot, $opt_printSummary, $opt_printType, $opt_printJSON);
+my ($opt_printHeader, $opt_printPlot, $opt_printType, $opt_printJSON);
 my ($opt_subheading, $opt_format);
 my ($opt_name, $opt_benchmark);
 GetOptions(
@@ -34,7 +34,6 @@ GetOptions(
 	'--print-type'		=> \$opt_printType,
 	'--print-header'	=> \$opt_printHeader,
 	'--print-plot'		=> \$opt_printPlot,
-	'--print-summary'	=> \$opt_printSummary,
 	'--print-json'		=> \$opt_printJSON,
 	'--print-monitor=s'	=> \$opt_monitor,
 	'--sub-heading=s'	=> \$opt_subheading,
@@ -88,9 +87,6 @@ if (defined $opt_monitor) {
 	if ($opt_printPlot) {
 		$monitorModule->printPlotHeaders() if $opt_printHeader;
 		$monitorModule->printPlot($opt_subheading);
-	} elsif ($opt_printSummary) {
-		$monitorModule->printSummaryHeaders() if $opt_printHeader;
-		$monitorModule->printSummary($opt_subheading);
 	} elsif ($opt_printJSON) {
 		exportJSON($monitorModule, $opt_benchmark, $opt_name);
 	} else {
@@ -140,9 +136,6 @@ $extractModule->printReportTop();
 if ($opt_printPlot) {
 	$extractModule->printPlotHeaders() if $opt_printHeader;
 	$extractModule->printPlot($opt_subheading);
-} elsif ($opt_printSummary) {
-	$extractModule->printSummaryHeaders() if $opt_printHeader;
-	$extractModule->printSummary($opt_subheading);
 } else {
 	$extractModule->printFieldHeaders() if $opt_printHeader;
 	$extractModule->printReport();
@@ -167,7 +160,6 @@ extract-mmtest [options]
  --format=text		Output format, valid are html or text (default)
  --print-type		Print benchmark metric type
  --print-header		Print a header
- --print-summary	Summarise the data
  --print-monitor	Print information related to a monitor
  --print-plot		Print in a format suitable for consumption by gnuplot
  --print-json		Print extracted data in JSON format
@@ -206,12 +198,6 @@ Print what type of metric the benchmark produces.
 =item B<--print-header>
 
 Print a header that briefly describes what each of the fields are.
-
-=item B<--print-summary>
-
-Summarise the data depending on the type. For CPUTime data for example it
-will print the four columns User, Sys, Elapsed and CPU with four rows for
-the min, mean, stddev and max values for each of those columns.
 
 =item B<--print-monitor>
 
