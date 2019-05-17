@@ -53,7 +53,7 @@ for i in `seq 1 $#`; do
 		fi
 
 		echo "Log directory `pwd`" >> $HASHFILE
-		if [ `ls tests-timestamp* 2> /dev/null | wc -l` -eq 0 ]; then
+		if ! have_run_results; then
 			cd $ORIG_PWD
 			exec "$@"
 		fi

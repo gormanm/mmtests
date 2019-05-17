@@ -1024,3 +1024,12 @@ function round_down_nearest_square()
 	square=`echo "sqrt($input_val) / 1" | bc`
 	echo $((square*square))
 }
+
+function have_run_results()
+{
+	if [ -n "$1" ]; then
+		[ -e tests-timestamp-$1 ]
+	else
+		ls tests-timestamp-* &>/dev/null
+	fi
+}

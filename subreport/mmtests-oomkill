@@ -3,7 +3,7 @@ echo MMTests: OOM Killer
 # Work out times running test
 printf "%-40s" "OOM Kill Firings"
 for DIRNAME in $KERNEL_BASE $KERNEL_COMPARE; do
-	if [ ! -e tests-timestamp-$DIRNAME ]; then
+	if ! have_run_results $DIRNAME; then
 		continue
 	fi
 	TRIGGERED=`grep "Out of memory: " ../*$DIRNAME-*-console.log | wc -l`

@@ -119,13 +119,13 @@ if [ "$OUTPUT_DIRECTORY" != "" -a ! -d "$OUTPUT_DIRECTORY" ]; then
 	exit -1
 fi
 
-if [ `ls tests-timestamp-* 2> /dev/null | wc -l` -eq 0 ]; then
+if ! have_run_results; then
 	die This does not look like a mmtests results directory
 fi
 
 if [ -n "$KERNEL_BASE" ]; then
 	for KERNEL in $KERNEL_COMPARE $KERNEL_BASE; do
-		if [ ! -e tests-timestamp-$KERNEL ]; then
+		if ! have_run_results $KERNEL; then
 			die "Cannot find results for kernel '$KERNEL'."
 		fi
 	done
