@@ -9,12 +9,8 @@ use Data::Dumper qw(Dumper);
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
-	my $fieldLength = $self->{_FieldLength} = 12;
-	$self->{_FieldLength} = $fieldLength;
-	$self->{_TestName} = $testName;
 	$self->{_ModuleName} = "ExtractDedup";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
 	$self->{_PlotType}   = "thread-errorlines";
 	$self->SUPER::initialise($reportDir, $testName);
 }

@@ -6,17 +6,6 @@ our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 use Data::Dumper qw(Dumper);
 
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-
-	$self->SUPER::initialise();
-
-	my $fieldLength = $self->{_FieldLength} = 12;
-	$self->{_FieldLength} = $fieldLength;
-	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.2f" , "%${fieldLength}.3f%%" ];
-}
-
 sub uniq {
 	my %seen;
 	grep !$seen{$_}++, @_;
