@@ -142,7 +142,7 @@ if [ "$KERNEL_BASE" != "" ]; then
 		KERNEL_LIST=$KERNEL_LIST,$KERNEL
 	done
 else
-	for KERNEL in `grep -H ^start tests-timestamp-* | awk -F : '{print $4" "$1}' | sort -n | awk '{print $2}' | sed -e 's/tests-timestamp-//'`; do
+	for KERNEL in $(run_results); do
 		EXCLUDE=no
 		for TEST_KERNEL in $KERNEL_EXCLUDE; do
 			if [ "$TEST_KERNEL" = "$KERNEL" ]; then
@@ -482,7 +482,7 @@ generate_subheading_trans_graphs() {
 }
 
 cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
-for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
+for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	EXTRACT_CMD="cache-mmtests.sh extract-mmtests.pl -d . -b $SUBREPORT"
 	COMPARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD $AUTO_DETECT_SIGNIFICANCE"
 	COMPARE_BARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"

@@ -1033,3 +1033,14 @@ function have_run_results()
 		ls tests-timestamp-* &>/dev/null
 	fi
 }
+
+function run_report_name()
+{
+	grep "test begin :: " tests-timestamp-$1 | awk '{print $4}'
+}
+
+function run_results()
+{
+	grep -H ^start tests-timestamp-* | awk -F : '{print $4" "$1}' | \
+		sort -n | awk '{print $2}' | sed -e 's/tests-timestamp-//'
+}
