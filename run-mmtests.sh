@@ -522,6 +522,7 @@ function stop_monitors() {
 }
 
 export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity-$RUNNAME"
+export SHELLPACK_LOGFILE="$SHELLPACK_LOG/tests-timestamp-$RUNNAME"
 rm -f $SHELLPACK_ACTIVITY 2> /dev/null
 echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
 
@@ -565,26 +566,26 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 
 	# Run tests in single mode
 	ip addr show > $SHELLPACK_LOG/ip-addr-$RUNNAME
-	echo start :: `date +%s` > $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	echo start :: `date +%s` > $SHELLPACK_LOGFILE
 	if [ "$RAID_CREATE_END" != "" ]; then
-		echo raid-create :: $((RAID_CREATE_END-RAID_CREATE_START)) >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		echo raid-create :: $((RAID_CREATE_END-RAID_CREATE_START)) >> $SHELLPACK_LOGFILE
 	fi
-	echo arch :: `uname -m` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	echo mount :: `uname -m` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	mount >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	echo /proc/mounts :: `uname -m` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	cat /proc/mounts >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	echo arch :: `uname -m` >> $SHELLPACK_LOGFILE
+	echo mount :: `uname -m` >> $SHELLPACK_LOGFILE
+	mount >> $SHELLPACK_LOGFILE
+	echo /proc/mounts :: `uname -m` >> $SHELLPACK_LOGFILE
+	cat /proc/mounts >> $SHELLPACK_LOGFILE
 	if [ "`which numactl 2> /dev/null`" != "" ]; then
-		echo numactl :: configuration >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		numactl --hardware >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		echo numactl :: configuration >> $SHELLPACK_LOGFILE
+		numactl --hardware >> $SHELLPACK_LOGFILE
 	fi
 	if [ "`which lscpu 2> /dev/null`" != "" ]; then
-		echo lscpu :: configuration >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		lscpu >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		echo lscpu :: configuration >> $SHELLPACK_LOGFILE
+		lscpu >> $SHELLPACK_LOGFILE
 	fi
 	if [ "`which cpupower 2> /dev/null`" != "" ]; then
-		echo cpupower :: frequency-info >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		cpupower frequency-info >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		echo cpupower :: frequency-info >> $SHELLPACK_LOGFILE
+		cpupower frequency-info >> $SHELLPACK_LOGFILE
 	fi
 	if [ "`which lstopo 2> /dev/null`" != "" ]; then
 		lstopo $SHELLPACK_LOG/lstopo-${RUNNAME}.pdf 2>/dev/null
@@ -622,20 +623,20 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 
 		# Run the test
 		echo Starting test $TEST
-		echo test begin :: $TEST `date +%s` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		echo test begin :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
 
 		# Record some files at start of test
 		for PROC_FILE in $PROC_FILES; do
-			echo file start :: $PROC_FILE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-			cat $PROC_FILE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+			echo file start :: $PROC_FILE >> $SHELLPACK_LOGFILE
+			cat $PROC_FILE >> $SHELLPACK_LOGFILE
 		done
-		cat /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		cat /proc/meminfo >> $SHELLPACK_LOGFILE
 		if [ -e /proc/lock_stat ]; then
 			echo 0 > /proc/lock_stat
 		fi
 		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
-			echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+			echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
 		fi
 		RUNNING_TEST=$TEST
 
@@ -678,22 +679,22 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 
 		# Record some basic information at end of test
 		for PROC_FILE in $PROC_FILES; do
-			echo file end :: $PROC_FILE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-			cat $PROC_FILE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+			echo file end :: $PROC_FILE >> $SHELLPACK_LOGFILE
+			cat $PROC_FILE >> $SHELLPACK_LOGFILE
 		done
 		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
-			echo file end :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+			echo file end :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
 		fi
 		if [ -e /proc/lock_stat ]; then
-			echo file end :: /proc/lock_stat >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-			cat /proc/lock_stat >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+			echo file end :: /proc/lock_stat >> $SHELLPACK_LOGFILE
+			cat /proc/lock_stat >> $SHELLPACK_LOGFILE
 		fi
 
 		# Mark the finish of the test
 		echo test exit :: $TEST $EXIT_CODE
-		echo test end :: $TEST `date +%s` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-		cat $SHELLPACK_LOG/timestamp-$RUNNAME >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+		echo test end :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
+		cat $SHELLPACK_LOG/timestamp-$RUNNAME >> $SHELLPACK_LOGFILE
 		rm $SHELLPACK_LOG/timestamp-$RUNNAME
 
 		# Reset some parameters in case tests are sloppy
@@ -704,7 +705,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		fi
 
 	done
-	echo finish :: `date +%s` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
 	dmesg > $SHELLPACK_LOG/dmesg-$RUNNAME
 	gzip -f $SHELLPACK_LOG/dmesg-$RUNNAME
 else
@@ -713,13 +714,13 @@ else
 	MIN_END_TIME=$((START_TIME+MMTESTS_SIMULTANEOUS_DURATION))
 	FORCE_END_TIME=$((START_TIME+MMTESTS_SIMULTANEOUS_MAX_DURATION))
 
-	echo start :: $START_TIME > $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	echo file start :: /proc/vmstat >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	cat /proc/vmstat >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	echo file start :: /proc/zoneinfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	cat /proc/zoneinfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	echo file start :: /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	cat /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	echo start :: $START_TIME > $SHELLPACK_LOGFILE
+	echo file start :: /proc/vmstat >> $SHELLPACK_LOGFILE
+	cat /proc/vmstat >> $SHELLPACK_LOGFILE
+	echo file start :: /proc/zoneinfo >> $SHELLPACK_LOGFILE
+	cat /proc/zoneinfo >> $SHELLPACK_LOGFILE
+	echo file start :: /proc/meminfo >> $SHELLPACK_LOGFILE
+	cat /proc/meminfo >> $SHELLPACK_LOGFILE
 
 	start_monitors
 
@@ -743,7 +744,7 @@ else
 			RUNNING=`ps h --pid $CURRENTPID`
 			if [ "$RUNNING" = "" ]; then
 				echo Completed test $TEST pid $CURRENTPID
-				cat $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+				cat $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID >> $SHELLPACK_LOGFILE
 				rm $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID
 
 				/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./bin/run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
@@ -770,7 +771,7 @@ else
 				sleep 10
 			done
 
-			cat $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+			cat $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID >> $SHELLPACK_LOGFILE
 			rm $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID
 			echo
 		fi
@@ -778,13 +779,13 @@ else
 
 	stop_monitors
 
-	echo file end :: /proc/vmstat >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	cat /proc/vmstat >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	echo file end :: /proc/zoneinfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	cat /proc/zoneinfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	echo file end :: /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	cat /proc/meminfo >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
-	echo finish :: `date +%s` >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+	echo file end :: /proc/vmstat >> $SHELLPACK_LOGFILE
+	cat /proc/vmstat >> $SHELLPACK_LOGFILE
+	echo file end :: /proc/zoneinfo >> $SHELLPACK_LOGFILE
+	cat /proc/zoneinfo >> $SHELLPACK_LOGFILE
+	echo file end :: /proc/meminfo >> $SHELLPACK_LOGFILE
+	cat /proc/meminfo >> $SHELLPACK_LOGFILE
+	echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
 fi
 
 if [ "$MMTESTS_FORCE_DATE" != "" ]; then
@@ -820,5 +821,5 @@ if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 fi
 
 echo `date +%s` run-mmtests: End >> $SHELLPACK_ACTIVITY
-echo status :: $EXIT_CODE >> $SHELLPACK_LOG/tests-timestamp-$RUNNAME
+echo status :: $EXIT_CODE >> $SHELLPACK_LOGFILE
 exit $EXIT_CODE
