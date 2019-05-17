@@ -137,8 +137,8 @@ done
 
 # Mount the log directory on the requested partition if requested
 if [ "$LOGDISK_PARTITION" != "" ]; then
-	echo Unmounting log partition: $SHELLPACK_LOG
-	umount $SHELLPACK_LOG
+	echo Unmounting log partition: $SHELLPACK_LOG_BASE
+	umount $SHELLPACK_LOG_BASE
 
 	echo $LOGDISK_PARTITION | grep \/ram
 	if [ $? -eq 0 ]; then
@@ -156,9 +156,9 @@ if [ "$LOGDISK_PARTITION" != "" ]; then
 
 	echo Mounting log disk
 	if [ "$LOGDISK_MOUNT_ARGS" = "" ]; then
-		mount -t $LOGDISK_FILESYSTEM $LOGDISK_PARTITION $SHELLPACK_LOG || exit
+		mount -t $LOGDISK_FILESYSTEM $LOGDISK_PARTITION $SHELLPACK_LOG_BASE || exit
 	else
-		mount -t $LOGDISK_FILESYSTEM $LOGDISK_PARTITION $SHELLPACK_LOG -o $LOGDISK_MOUNT_ARGS || exit
+		mount -t $LOGDISK_FILESYSTEM $LOGDISK_PARTITION $SHELLPACK_LOG_BASE -o $LOGDISK_MOUNT_ARGS || exit
 	fi
 fi
 
@@ -178,11 +178,11 @@ if [ "$KVM" = "yes" ]; then
 
 	echo Executing mmtest inside KVM: run-mmtests.sh $KVM_ARGS $RUNNAME
 	echo MMtests toplevel: $SHELLPACK_TOPLEVEL
-	echo MMTests logs: $SHELLPACK_LOG
+	echo MMTests logs: $SHELLPACK_LOG_BASE
 	$RCMD "cd $SHELLPACK_TOPLEVEL && ./run-mmtests.sh $KVM_ARGS $RUNNAME"
 	RETVAL=$?
 	echo Copying KVM logs
-	scp -r -P 30022 "root@localhost:$SHELLPACK_LOG/*" "$SHELLPACK_LOG/"
+	scp -r -P 30022 "root@localhost:$SHELLPACK_LOG_BASE/*" "$SHELLPACK_LOG_BASE/"
 	scp -r -P 30022 "root@localhost:$SHELLPACK_TOPLEVEL/kvm-console.log" "$SHELLPACK_LOG/kvm-console.log-$RUNNAME"
 
 	echo Shutting down KVM

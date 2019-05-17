@@ -1047,7 +1047,7 @@ function run_results()
 }
 
 function setup_dirs() {
-	for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG $SHELLPACK_DATA; do
+	for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG_BASE $SHELLPACK_DATA; do
 		if [ ! -e "$DIRNAME" ]; then
 			mkdir -p "$DIRNAME"
 		fi
