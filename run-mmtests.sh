@@ -230,6 +230,42 @@ else
 	fi
 fi
 
+# Validate systemtap installation if it exists
+TESTS_STAP="stress-highalloc pagealloc highalloc"
+MONITORS_STAP="dstate stap-highorder-atomic function-frequency syscalls"
+STAP_USED=
+MONITOR_STAP=
+for TEST in $MMTESTS; do
+	for CHECK in $TESTS_STAP; do
+		if [ "$TEST" = "$CHECK" ]; then
+			STAP_USED=test-$TEST
+		fi
+	done
+done
+for MONITOR in $MONITORS_ALWAYS $MONITORS_PLAIN $MONITORS_GZIP $MONITORS_WITH_LATENCY $MONITORS_TRACER; do
+	for CHECK in $MONITORS_STAP; do
+		if [ "$MONITOR" = "$CHECK" ]; then
+			STAP_USED=monitor-$MONITOR
+			MONITOR_STAP=monitor-$MONITOR
+		fi
+	done
+done
+if [ "$STAP_USED" != "" ]; then
+	if [ "`which stap`" = "" ]; then
+		echo ERROR: systemtap required for $STAP_USED but not installed
+		exit -1
+	fi
+
+	stap-fix.sh
+	if [ $? != 0 ]; then
+		echo "ERROR: systemtap required for $STAP_USED but systemtap is broken and unable"
+		echo "       to workaround with stap-fix.sh"
+		if [ "`uname -m`" != "aarch64" ]; then
+			exit $SHELLPACK_ERROR
+		fi
+	fi
+fi
+
 # Run tunings
 if [ "$RUN_TUNINGS" != "" ]; then
 	echo Tuning the system before running: $RUNNAME
@@ -238,6 +274,44 @@ if [ "$RUN_TUNINGS" != "" ]; then
 		export TUNING_LOG=$SHELLPACK_LOG/$T-$TEST
 		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $TUNING_LOG || exit $SHELLPACK_ERROR
 	done
+fi
+
+# If profiling is enabled, make sure the necessary oprofile helpers are
+# available and that there is a unable vmlinux file in the expected
+# place
+export EXPANDED_VMLINUX=no
+if [ "$RUN_FINEPROFILE" = "yes" -o "$RUN_COARSEPROFILE" = "yes" ]; then
+	VMLINUX=/boot/vmlinux-`uname -r`
+	if [ ! -e $VMLINUX -a -e $VMLINUX.gz ]; then
+		echo Expanding vmlinux.gz file
+		gunzip $VMLINUX.gz || die "Failed to expand vmlinux file for profiling"
+		export EXPANDED_VMLINUX=yes
+	fi
+
+	if [ "`cat /proc/sys/kernel/nmi_watchdog`" = "1" ]; then
+		echo Disabling NMI watchdog for profiling
+		echo 0 > /proc/sys/kernel/nmi_watchdog
+	fi
+fi
+
+# Disable any inadvertent profiling going on right now
+if [ "`lsmod | grep oprofile`" != "" ]; then
+	opcontrol --stop > /dev/null 2> /dev/null
+	opcontrol --deinit > /dev/null 2> /dev/null
+fi
+
+# Wait for ntp to stabilize system clock so that time skips don't confuse
+# benchmarks (bsc#1066465)
+if [ "`which ntp-wait`" != "" ]; then
+	echo "Waiting for NTP to stabilize system clock..."
+	ntp-wait -v -s 1 -n 600
+	if [ $? -ne 0 ]; then
+		echo "Failed to stabilize system clock!";
+		systemctl stop ntpd.service
+	fi
+	systemctl stop ntpd.service
+	systemctl stop chronyd.service
+	systemctl stop time-sync.target
 fi
 
 create_testdisk
@@ -390,66 +464,6 @@ if [ "$SWAP_CONFIGURATION" != "default" ]; then
 	swapon -s
 fi
 
-# Validate systemtap installation if it exists
-TESTS_STAP="stress-highalloc pagealloc highalloc"
-MONITORS_STAP="dstate stap-highorder-atomic function-frequency syscalls"
-STAP_USED=
-MONITOR_STAP=
-for TEST in $MMTESTS; do
-	for CHECK in $TESTS_STAP; do
-		if [ "$TEST" = "$CHECK" ]; then
-			STAP_USED=test-$TEST
-		fi
-	done
-done
-for MONITOR in $MONITORS_ALWAYS $MONITORS_PLAIN $MONITORS_GZIP $MONITORS_WITH_LATENCY $MONITORS_TRACER; do
-	for CHECK in $MONITORS_STAP; do
-		if [ "$MONITOR" = "$CHECK" ]; then
-			STAP_USED=monitor-$MONITOR
-			MONITOR_STAP=monitor-$MONITOR
-		fi
-	done
-done
-if [ "$STAP_USED" != "" ]; then
-	if [ "`which stap`" = "" ]; then
-		echo ERROR: systemtap required for $STAP_USED but not installed
-		exit -1
-	fi
-
-	stap-fix.sh
-	if [ $? != 0 ]; then
-		echo "ERROR: systemtap required for $STAP_USED but systemtap is broken and unable"
-		echo "       to workaround with stap-fix.sh"
-		if [ "`uname -m`" != "aarch64" ]; then
-			exit $SHELLPACK_ERROR
-		fi
-	fi
-fi
-
-# If profiling is enabled, make sure the necessary oprofile helpers are
-# available and that there is a unable vmlinux file in the expected
-# place
-export EXPANDED_VMLINUX=no
-if [ "$RUN_FINEPROFILE" = "yes" -o "$RUN_COARSEPROFILE" = "yes" ]; then
-	VMLINUX=/boot/vmlinux-`uname -r`
-	if [ ! -e $VMLINUX -a -e $VMLINUX.gz ]; then
-		echo Expanding vmlinux.gz file
-		gunzip $VMLINUX.gz || die "Failed to expand vmlinux file for profiling"
-		export EXPANDED_VMLINUX=yes
-	fi
-
-	if [ "`cat /proc/sys/kernel/nmi_watchdog`" = "1" ]; then
-		echo Disabling NMI watchdog for profiling
-		echo 0 > /proc/sys/kernel/nmi_watchdog
-	fi
-fi
-
-# Disable any inadvertent profiling going on right now
-if [ "`lsmod | grep oprofile`" != "" ]; then
-	opcontrol --stop > /dev/null 2> /dev/null
-	opcontrol --deinit > /dev/null 2> /dev/null
-fi
-
 # Save bash arrays (marked as exported) to separate file. They are
 # read-in via common.sh in subshells. This quirk is req'd as bash
 # doesn't support export of arrays. Note that the file needs to be
@@ -457,20 +471,6 @@ fi
 # Currently required for:
 # - SHELLPACK_TEST_MOUNTS, TESTDISK_PARTITIONS, SHELLPACK_DATA_DIRS
 declare -p | grep "\-ax" > $SCRIPTDIR/bash_arrays
-
-# Wait for ntp to stabilize system clock so that time skips don't confuse
-# benchmarks (bsc#1066465)
-if [ "`which ntp-wait`" != "" ]; then
-	echo "Waiting for NTP to stabilize system clock..."
-	ntp-wait -v -s 1 -n 600
-	if [ $? -ne 0 ]; then
-		echo "Failed to stabilize system clock!";
-		systemctl stop ntpd.service
-	fi
-	systemctl stop ntpd.service
-	systemctl stop chronyd.service
-	systemctl stop time-sync.target
-fi
 
 # Warm up. More appropriate warmup depends on the exact test
 if [ "$RUN_WARMUP" != "" ]; then
@@ -782,14 +782,6 @@ else
 	echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
 fi
 
-if [ "$MMTESTS_FORCE_DATE" != "" ]; then
-	MMTESTS_FORCE_DATE_END=`date +%s`
-	OFFSET=$((MMTESTS_FORCE_DATE_END-MMTESTS_FORCE_DATE_START))
-	date -s "$(echo $((MMTESTS_FORCE_DATE_BASE+OFFSET)) | awk '{print strftime("%c", $0)}')"
-	echo Restoring after forced date update: `date`
-	killall -CONT ntpd
-fi
-
 if [ "$MMTEST_NUMA_POLICY" = "numad" ]; then
 	echo Shutting down numad pid $NUMAD_PID
 	kill $NUMAD_PID
@@ -801,16 +793,6 @@ echo Cleaning up
 for TEST in $MMTESTS; do
 	uname -a > $SHELLPACK_LOG/kernel.version
 done
-
-# Restore system to original state
-if [ "$STAP_USED" != "" ]; then
-	stap-fix.sh --restore-only
-fi
-
-if [ "$EXPANDED_VMLINUX" = "yes" ]; then
-	echo Recompressing vmlinux
-	gzip /boot/vmlinux-`uname -r`
-fi
 
 if [ "$MEMCG_SIZE" != "" ]; then
 	echo $$ >/cgroups/tasks
@@ -839,6 +821,24 @@ esac
 umount_filesystems
 
 destroy_testdisk
+
+# Restore system to original state
+if [ "$STAP_USED" != "" ]; then
+	stap-fix.sh --restore-only
+fi
+
+if [ "$EXPANDED_VMLINUX" = "yes" ]; then
+	echo Recompressing vmlinux
+	gzip /boot/vmlinux-`uname -r`
+fi
+
+if [ "$MMTESTS_FORCE_DATE" != "" ]; then
+	MMTESTS_FORCE_DATE_END=`date +%s`
+	OFFSET=$((MMTESTS_FORCE_DATE_END-MMTESTS_FORCE_DATE_START))
+	date -s "$(echo $((MMTESTS_FORCE_DATE_BASE+OFFSET)) | awk '{print strftime("%c", $0)}')"
+	echo Restoring after forced date update: `date`
+	killall -CONT ntpd
+fi
 
 echo `date +%s` run-mmtests: End >> $SHELLPACK_ACTIVITY
 echo status :: $EXIT_CODE >> $SHELLPACK_LOGFILE
