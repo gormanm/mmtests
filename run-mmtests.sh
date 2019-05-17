@@ -173,7 +173,6 @@ if [ "$KVM" = "yes" ]; then
 	fi
 	reset
 	cd $SHELLPACK_TOPLEVEL
-	rm -rf $SHELLPACK_LOG
 
 	RCMD="ssh -p 30022 root@localhost"
 
