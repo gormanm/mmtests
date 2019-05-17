@@ -360,6 +360,10 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-$MMTEST_ITERATION
 	mkdir -p $SHELLPACK_LOG
 
+	# Test interrupted? Abort iteration
+	if [ "$INTERRUPT_COUNT" -gt 0 ]; then
+		break
+	fi
 	create_testdisk
 
 	# Create test disk(s)
