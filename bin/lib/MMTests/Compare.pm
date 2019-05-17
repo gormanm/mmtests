@@ -58,9 +58,6 @@ sub setFormat() {
 	}
 }
 
-sub prepareForRSummary($) {
-}
-
 sub printReportTop($) {
 	my ($self) = @_;
 	$self->{_PrintHandler}->printTop();

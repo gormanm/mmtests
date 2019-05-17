@@ -25,7 +25,6 @@ my ($opt_printHeader, $opt_printRatio, $opt_printSignificance);
 my ($opt_subheading, $opt_format);
 my ($opt_names, $opt_benchmark);
 my ($opt_monitor, $opt_hideCompare);
-my ($opt_Rsummary);
 my ($opt_JSONExport);
 GetOptions(
 	'verbose|v'		=> \$opt_verbose,
@@ -37,7 +36,6 @@ GetOptions(
 	'--no-compare'		=> \$opt_hideCompare,
 	'--sub-heading=s'	=> \$opt_subheading,
 	'--format=s'		=> \$opt_format,
-	'--R-summary|R=s'	=> \$opt_Rsummary,
 	'--json-export'		=> \$opt_JSONExport,
 	'n|names=s'		=> \$opt_names,
 	'b|benchmark=s'		=> \$opt_benchmark,
@@ -77,9 +75,7 @@ if (!defined($opt_monitor)) {
 				$extractModules[$nrModules]->extractReport("$iterdir/$profile");
 				$extractModules[$nrModules]->nextIteration();
 			}
-			if ($opt_Rsummary) {
-				$extractModules[$nrModules++]->extractSummaryR($opt_subheading, $opt_Rsummary);
-			} elsif ($opt_printRatio) {
+			if ($opt_printRatio) {
 				$extractModules[$nrModules++]->extractRatioSummary($opt_subheading);
 			} else {
 				$extractModules[$nrModules++]->extractSummary($opt_subheading);
@@ -123,10 +119,6 @@ eval {
 };
 printVerbose("Loaded compare module\n");
 
-if ($opt_Rsummary) {
-	$compareModule->prepareForRSummary();
-}
-
 $compareModule->extractComparison($opt_printRatio, !$opt_hideCompare);
 
 $compareModule->printComparison($opt_printRatio, $opt_printSignificance, $opt_subheading);
@@ -156,7 +148,6 @@ compare-mmtests.pl [options]
  -d, --directory	Work log directory to extract data from
  -n, --names		Titles for the series if tests given to run-mmtests.sh
  -b, --benchmark	Benchmark to extract data for
- -R, --R-summary	Read summary data from a table pre-calculated by R
  -v, --verbose		Verbose output
  --format		Output format
  --json-export		Saves comparison data in JSON format (gzip'ed)

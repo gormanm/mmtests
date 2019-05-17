@@ -346,44 +346,6 @@ sub extractRatioSummary() {
 	print "Unsupported\n";
 }
 
-sub extractSummaryR() {
-	my ($self, $subHeading, $RstatsFile) = @_;
-	my $fieldLength = $self->{_FieldLength};
-
-	open(INPUT, $RstatsFile) || die("Failed to open $RstatsFile\n");
-
-	my @row;
-	my @rowNames;
-
-	# TODO: This might depend on the data type?
-	push @row, "";
-	push @rowNames, "Unit";
-
-	# find the position of our test in the table header
-	my $testName = $self->{_TestName};
-	my $header = readline INPUT;
-	chomp $header;
-
-	my @tests = split(/;/, $header);
-	my $testIndex = List::Util::first { $tests[$_] eq $testName } 0..$#tests;
-	die ("Test $testName not found in $RstatsFile\n") unless defined $testIndex;
-
-	# the following rows with values have an extra column in the beginning
-	$testIndex++;
-
-	while (<INPUT>) {
-		my $line = $_;
-		chomp $line;
-		my @values = split(/;/, $line);
-		push @rowNames, $values[0];
-		push @row, $values[$testIndex];
-	}
-	close INPUT;
-
-	push @{$self->{_SummaryData}}, \@row;
-	$self->{_SummaryHeaders} = \@rowNames;
-}
-
 sub filterSubheading() {
 	my ($self, $subHeading, $opref) = @_;
 	my @ops;
