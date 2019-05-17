@@ -9,7 +9,6 @@ export PATH=$SCRIPTDIR/bin:$PATH
 
 KERNEL_BASE=
 KERNEL_COMPARE=
-KERNEL_EXCLUDE=
 POSTSCRIPT_OUTPUT=no
 
 while [ "$1" != "" ]; do
@@ -143,19 +142,11 @@ if [ "$KERNEL_BASE" != "" ]; then
 	done
 else
 	for KERNEL in $(run_results); do
-		EXCLUDE=no
-		for TEST_KERNEL in $KERNEL_EXCLUDE; do
-			if [ "$TEST_KERNEL" = "$KERNEL" ]; then
-				EXCLUDE=yes
-			fi
-		done
-		if [ "$EXCLUDE" = "no" ]; then
-			if [ "$KERNEL_BASE" = "" ]; then
-				KERNEL_BASE=$KERNEL
-				KERNEL_LIST=$KERNEL
-			else
-				KERNEL_LIST="$KERNEL_LIST,$KERNEL"
-			fi
+		if [ "$KERNEL_BASE" = "" ]; then
+			KERNEL_BASE=$KERNEL
+			KERNEL_LIST=$KERNEL
+		else
+			KERNEL_LIST="$KERNEL_LIST,$KERNEL"
 		fi
 	done
 fi
