@@ -164,18 +164,24 @@ sub printPlot() {
 		my @units;
 		my @row;
 		my $samples = 0;
+		my $niceheading = $heading;
 
-		foreach my $row (@{$data{$heading}}) {
-			my $head = @{$row}[0];
-
-			if ($self->{_PlotStripSubheading}) {
-				if ($self->{_ClientSubheading} == 1) {
-					$head =~ s/-$subHeading$//;
-				} else {
-					$head =~ s/^$subHeading-//;
-				}
+		if ($self->{_PlotStripSubheading}) {
+			if ($self->{_ClientSubheading} == 1) {
+				$niceheading =~ s/-$subHeading$//;
+			} else {
+				$niceheading =~ s/^$subHeading-//;
 			}
-			push @index, $head;
+		}
+		if ($self->{_PlotType} =~ /client-.*/) {
+			if ($self->{_ClientSubheading} == 1) {
+				$niceheading =~ s/-.*//;
+			} else {
+				$niceheading =~ s/.*-//;
+			}
+		}
+		foreach my $row (@{$data{$heading}}) {
+			push @index, @{$row}[0];
 			push @units, @{$row}[1];
 			$samples++;
 		}
@@ -202,33 +208,26 @@ sub printPlot() {
 				}
 			}
 		} elsif ($self->{_PlotType} eq "candlesticks") {
-			printf "%-${fieldLength}s ", $heading;
+			printf "%-${fieldLength}s ", $niceheading;
 			$self->_printCandlePlotData($fieldLength, @units);
 		} elsif ($self->{_PlotType} eq "operation-candlesticks") {
-			printf "%d %-${fieldLength}s ", $nr_headings, $heading;
+			printf "%d %-${fieldLength}s ", $nr_headings, $niceheading;
 			$self->_printCandlePlotData($fieldLength, @units);
 		} elsif ($self->{_PlotType} eq "client-candlesticks") {
-			$heading =~ s/.*-//;
-			printf "%-${fieldLength}s ", $heading;
+			printf "%-${fieldLength}s ", $niceheading;
 			$self->_printCandlePlotData($fieldLength, @units);
 		} elsif ($self->{_PlotType} eq "single-candlesticks") {
 			$self->_printCandlePlotData($fieldLength, @units);
 		} elsif ($self->{_PlotType} eq "client-errorbars") {
-			$heading =~ s/.*-//;
-			printf "%-${fieldLength}s ", $heading;
+			printf "%-${fieldLength}s ", $niceheading;
 			$self->_printErrorBarData($fieldLength, @units);
 		} elsif ($self->{_PlotType} eq "client-errorlines") {
-			if ($self->{_ClientSubheading} == 1) {
-				$heading =~ s/-.*//;
-			} else {
-				$heading =~ s/.*-//;
-			}
-			printf "%-${fieldLength}s ", $heading;
+			printf "%-${fieldLength}s ", $niceheading;
 			$self->_printErrorBarData($fieldLength, @units);
 		} elsif ($self->{_PlotType} =~ "histogram") {
 			for ($samples = 0; $samples <= $#units; $samples++) {
 				printf("%-${fieldLength}s %${fieldLength}.3f\n",
-					$heading, $units[$samples]);
+					$niceheading, $units[$samples]);
 			}
 		}
 	}
