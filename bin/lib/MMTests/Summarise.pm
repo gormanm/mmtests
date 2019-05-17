@@ -180,10 +180,15 @@ sub printPlot() {
 				$niceheading =~ s/.*-//;
 			}
 		}
-		foreach my $row (@{$data{$heading}}) {
-			push @index, @{$row}[0];
-			push @units, @{$row}[1];
-			$samples++;
+
+		my $iteroff = 0;
+		for (my $iter = 0; $iter < scalar(@{$data{$heading}}); $iter++) {
+			foreach my $row (@{$data{$heading}->[$iter]}) {
+				push @index, $iteroff + @{$row}[0];
+				push @units, @{$row}[1];
+				$samples++;
+			}
+			$iteroff = $index[$#index] + 1;
 		}
 
 		$nr_headings++;
@@ -301,8 +306,10 @@ sub extractSummary() {
 	foreach my $operation (@_operations) {
 		my @units;
 
-		foreach my $row (@{$data{$operation}}) {
-			push @units, @{$row}[1];
+		for (my $iter = 0; $iter < scalar(@{$data{$operation}}); $iter++) {
+			foreach my $row (@{$data{$operation}->[$iter]}) {
+				push @units, @{$row}[1];
+			}
 		}
 
 		if ($self->getPreferredValue($operation) eq "Lower") {
@@ -354,8 +361,10 @@ sub extractRatioSummary() {
 		my @units;
 		my @values;
 
-		foreach my $row (@{$data{$operation}}) {
-			push @units, @{$row}[1];
+		for (my $iter = 0; $iter < scalar(@{$data{$operation}}); $iter++) {
+			foreach my $row (@{$data{$operation}->[$iter]}) {
+				push @units, @{$row}[1];
+			}
 		}
 
 		if ($self->getPreferredValue($operation) eq "Lower") {

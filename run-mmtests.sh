@@ -121,7 +121,6 @@ rm -f $SCRIPTDIR/bash_arrays # remove stale bash_arrays file
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/shellpacks/deferred-monitors.sh
-export SHELLPACK_LOG=$SHELLPACK_LOG_BASE/$RUNNAME
 
 for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
 	source "${CONFIGS[$i]}"
@@ -158,10 +157,6 @@ if [ "$LOGDISK_PARTITION" != "" ]; then
 		mount -t $LOGDISK_FILESYSTEM $LOGDISK_PARTITION $SHELLPACK_LOG_BASE -o $LOGDISK_MOUNT_ARGS || exit
 	fi
 fi
-
-# Delete old runs
-rm -rf $SHELLPACK_LOG &>/dev/null
-mkdir -p $SHELLPACK_LOG
 
 # Run inside KVM if requested
 if [ "$KVM" = "yes" ]; then
@@ -353,6 +348,18 @@ if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
 	fi
 fi
 
+MMTEST_ITERATIONS=${MMTEST_ITERATIONS:-1}
+export SHELLPACK_LOG_RUNBASE=$SHELLPACK_LOG_BASE/$RUNNAME
+export SHELLPACK_ACTIVITY="$SHELLPACK_LOG_RUNBASE/tests-activity"
+# Delete old runs
+rm -rf $SHELLPACK_LOG_RUNBASE &>/dev/null
+mkdir -p $SHELLPACK_LOG_RUNBASE
+echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
+
+for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERATION++ )); do
+export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-$MMTEST_ITERATION
+mkdir -p $SHELLPACK_LOG
+
 create_testdisk
 
 # Create test disk(s)
@@ -521,10 +528,8 @@ if [ "$RUN_WARMUP" != "" ]; then
 	echo Warmup complete, beginning tests
 fi
 	
-export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity"
 export SHELLPACK_LOGFILE="$SHELLPACK_LOG/tests-timestamp"
-rm -f $SHELLPACK_ACTIVITY 2> /dev/null
-echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
+echo `date +%s` "run-mmtests: Iteration $MMTEST_ITERATION start" >> $SHELLPACK_ACTIVITY
 
 if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
 	echo Restart numad and purge log as per MMTESTS_NUMA_POLICY
@@ -791,6 +796,7 @@ if [ "$MMTEST_NUMA_POLICY" = "numad" ]; then
 	mv /var/log/numad.log $SHELLPACK_LOG/numad-log
 fi
 
+echo `date +%s` "run-mmtests: Iteration $MMTEST_ITERATION end" >> $SHELLPACK_ACTIVITY
 echo Cleaning up
 for TEST in $MMTESTS; do
 	uname -a > $SHELLPACK_LOG/kernel.version
@@ -823,6 +829,7 @@ esac
 umount_filesystems
 
 destroy_testdisk
+done
 
 # Restore system to original state
 if [ "$STAP_USED" != "" ]; then

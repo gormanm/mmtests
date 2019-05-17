@@ -62,21 +62,26 @@ if (!defined($opt_monitor)) {
 	for my $name (split /,/, $opt_names) {
 		printVerbose("Loading extract $opt_benchmark $name\n");
 		eval {
-			my $reportDirectory = "$opt_reportDirectory/$name/$opt_benchmark";
-			my $profile = "noprofile";
-			if (! -e "$reportDirectory/noprofile") {
-				if (-e "$reportDirectory/fine-profile-timer") {
-					$profile = "fine-profile-timer";
-				}
-			}
+			my $reportDirectory = "$opt_reportDirectory/$name";
+			my @iterdirs = <"$reportDirectory/iter-*">;
+
 			$extractModules[$nrModules] = $extractFactory->loadModule("extract", $opt_benchmark, $reportDirectory, $name, $opt_format, $opt_subheading);
+			foreach my $iterdir (@iterdirs) {
+				my $profile = "noprofile";
+				$iterdir = "$iterdir/$opt_benchmark";
+				if (! -e "$iterdir/noprofile") {
+					if (-e "$iterdir/fine-profile-timer") {
+						$profile = "fine-profile-timer";
+					}
+				}
+				$extractModules[$nrModules]->extractReport("$iterdir/$profile");
+				$extractModules[$nrModules]->nextIteration();
+			}
 			if ($opt_Rsummary) {
 				$extractModules[$nrModules++]->extractSummaryR($opt_subheading, $opt_Rsummary);
 			} elsif ($opt_printRatio) {
-				$extractModules[$nrModules]->extractReport("$reportDirectory/$profile");
 				$extractModules[$nrModules++]->extractRatioSummary($opt_subheading);
 			} else {
-				$extractModules[$nrModules]->extractReport("$reportDirectory/$profile");
 				$extractModules[$nrModules++]->extractSummary($opt_subheading);
 			}
 		} or do {
@@ -90,8 +95,12 @@ if (!defined($opt_monitor)) {
 		printVerbose("Loading extract $opt_benchmark $name\n");
 		eval {
 			my $reportDirectory = "$opt_reportDirectory/$name";
+			my @iterdirs = <$reportDirectory/iter-*>;
 			$extractModules[$nrModules] = $extractFactory->loadModule("monitor", $opt_monitor, $reportDirectory, $name, $opt_format, $opt_subheading);
-			$extractModules[$nrModules]->extractReport($reportDirectory, $opt_benchmark, $opt_subheading, 1);
+			foreach my $iterdir (@iterdirs) {
+				$extractModules[$nrModules]->extractReport($iterdir, $opt_benchmark, $opt_subheading, 1);
+				$extractModules[$nrModules]->nextIteration();
+			}
 			$extractModules[$nrModules++]->extractSummary($opt_subheading);
 		} or do {
 			printWarning("Failed to load module for benchmark $opt_benchmark, $name\n$@");

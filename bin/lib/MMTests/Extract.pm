@@ -189,6 +189,7 @@ sub initialise() {
 	$self->{_LastSample} = {};
 	$self->{_GeneratedOperations} = [];
 	$self->{_OperationsSeen} = {};
+	$self->{_CurrentIteration} = 0;
 
 	if ($self->{_PlotType} eq "client-errorlines") {
 		$self->{_PlotXaxis}  = "Clients";
@@ -429,18 +430,33 @@ sub printReport() {
 	my $fieldLength = $self->{_FieldLength};
 
 	push @format, "%-${fieldLength}s";
+	push @format, "%-2d";
 	push @format, @{$self->{_FieldFormat}};
 
 	foreach my $op ($self->getOperations("")) {
-		for my $rowref (@{$self->{_ResultData}->{$op}}) {
-			my @row = ();
-			my @table = ();
+		for (my $iter = 0;
+		     $iter < scalar(@{$self->{_ResultData}->{$op}});
+		     $iter++) {
+			for my $rowref (@{$self->{_ResultData}->{$op}->[$iter]}) {
+				my @row = ($op, $iter);
+				my @table = ();
 
-			push @row, $op;
-			push @row, @{$rowref};
-			push @table, \@row;
-			$self->{_PrintHandler}->printRow(\@table, $fieldLength,
-							 \@format);
+				push @row, @{$rowref};
+				push @table, \@row;
+				$self->{_PrintHandler}->printRow(\@table, $fieldLength,
+								 \@format);
+			}
+		}
+	}
+}
+
+sub nextIteration() {
+	my $self = shift;
+
+	$self->{_CurrentIteration}++;
+	if (!$self->{_ResultDataUnsorted}) {
+		foreach my $op (keys %{$self->{_LastSample}}) {
+			undef $self->{_LastSample}->{$op};
 		}
 	}
 }
@@ -462,7 +478,8 @@ sub addData() {
 			$self->{_OperationsSeen}->{$op} = 1;
 		}
 	}
-	push @{$self->{_ResultData}->{$op}}, [$sample, $val];
+	push @{$self->{_ResultData}->{$op}->[$self->{_CurrentIteration}]},
+		[$sample, $val];
 }
 
 sub sortResults() {
@@ -470,14 +487,18 @@ sub sortResults() {
 
 	if ($self->{_ResultDataUnsorted}) {
 		for my $op (keys %{$self->{_ResultData}}) {
-			my @newdata = sort {
-				if ($a->[0] != $b->[0]) {
-					return $a->[0] <=> $b->[0];
-				}
-				return $a->[1] <=> $b->[1];
-			} @{$self->{_ResultData}->{$op}};
+			for (my $iter = 0;
+			     $iter < scalar(@{$self->{_ResultData}->{$op}});
+			     $iter++) {
+				my @newdata = sort {
+					if ($a->[0] != $b->[0]) {
+						return $a->[0] <=> $b->[0];
+					}
+					return $a->[1] <=> $b->[1];
+				} @{$self->{_ResultData}->{$op}->[$iter]};
 
-			$self->{_ResultData}->{$op} = \@newdata;
+				$self->{_ResultData}->{$op}->[$iter] = \@newdata;
+			}
 		}
 	}
 }

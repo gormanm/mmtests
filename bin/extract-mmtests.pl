@@ -79,7 +79,12 @@ if (defined $opt_monitor) {
 		exit(-1);
 	};
 
-	$monitorModule->extractReport($reportDir, $opt_benchmark, $opt_subheading);
+	my @iterdirs = <$reportDir/iter-*>;
+	foreach my $iterdir (@iterdirs) {
+		$monitorModule->extractReport($iterdir, $opt_benchmark,
+					      $opt_subheading);
+		$monitorModule->nextIteration();
+	}
 
 	# Just print the type if asked
 	if ($opt_printType) {
@@ -105,8 +110,6 @@ if (defined $opt_monitor) {
 my $extractFactory = MMTests::ExtractFactory->new();
 my $extractModule;
 eval {
-	# Make a guess at the sub-directory name if one is not specified
-	$reportDir = "$reportDir/$opt_benchmark";
 	$extractModule = $extractFactory->loadModule("extract", $opt_benchmark, $reportDir, $opt_name, $opt_format, $opt_subheading);
 } or do {
 	printWarning("Failed to load module for benchmark $opt_benchmark\n$@");
@@ -119,16 +122,21 @@ if ($opt_printType) {
 	exit;
 }
 
-# Guess profile name
-my $profile = "noprofile";
-if (! -e "$reportDir/noprofile") {
-	if (-e "$reportDir/fine-profile-timer") {
-		$profile = "fine-profile-timer";
-	}
-}
-
 # Extract data from the benchmark itself and print whatever was requested
-$extractModule->extractReport("$reportDir/$profile");
+my @iterdirs = <$reportDir/iter-*>;
+foreach my $iterdir (@iterdirs) {
+	# Make a guess at the sub-directory name if one is not specified
+	$iterdir = "$iterdir/$opt_benchmark";
+	# Guess profile name
+	my $profile = "noprofile";
+	if (! -e "$iterdir/noprofile") {
+		if (-e "$iterdir/fine-profile-timer") {
+			$profile = "fine-profile-timer";
+		}
+	}
+	$extractModule->extractReport("$iterdir/$profile");
+	$extractModule->nextIteration();
+}
 if ($opt_printJSON) {
 	exportJSON($extractModule, $opt_benchmark, $opt_name);
 	exit;
