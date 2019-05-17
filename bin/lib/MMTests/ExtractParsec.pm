@@ -12,7 +12,6 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractParsec";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "process-errorlines";
-	$self->{_Operations} = [ "user", "syst", "elsp" ];
 	$self->{_RatioOperations} = [ "elsp" ];
 	$self->SUPER::initialise($reportDir, $testName);
 }

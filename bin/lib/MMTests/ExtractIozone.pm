@@ -39,8 +39,6 @@ sub testcompare() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 
-	my @sizes;
-	my %sizesSeen;
 	my @files = <$reportDir/iozone-*.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
@@ -62,24 +60,12 @@ sub extractReport() {
 			my $size = $elements[1];
 			my $blksize = $elements[2];
 
-			foreach my $op (sort keys(%loadindex)) {
+			foreach my $op ("SeqWrite", "Rewrite", "SeqRead", "Reread", "RandRead", "RandWrite", "BackRead") {
 				$self->addData("$op-$size-$blksize", $iteration, $elements[$loadindex{$op}]);
-				if ($sizesSeen{"$size-$blksize"} != 1) {
-					push @sizes, "$size-$blksize";
-					$sizesSeen{"$size-$blksize"} = 1;
-				}
 			}
 		}
 		close INPUT;
 	}
-
-	my @ops;
-	foreach my $opName ("SeqWrite", "Rewrite", "SeqRead", "Reread", "RandRead", "RandWrite", "BackRead") {
-		foreach my $size (@sizes) {
-			push @ops, "$opName-$size";
-		}
-	}
-	$self->{_Operations} = \@ops;
 }
 
 1;

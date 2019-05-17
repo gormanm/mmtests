@@ -40,7 +40,6 @@ sub extractReport() {
 			close INPUT;
 		}
 	}
-	$self->{_Operations} = [ "loadtime" ];
 }
 
 1;

@@ -10,13 +10,13 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractAim9";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "operation-candlesticks";
+	$self->{_Operations} = [ "page_test", "brk_test", "exec_test", "fork_test" ];
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @workloads = ( "page_test", "brk_test", "exec_test", "fork_test" );
 
 	# List of report files, sort them to be purty
 	my @files = <$reportDir/aim9-*>;
@@ -28,7 +28,7 @@ sub extractReport() {
 
 	# Multiple reads of the same file, don't really care as this is hardly
 	# performance critical code.
-	foreach my $workload (@workloads) {
+	foreach my $workload (@{$self->{_Operations}}) {
 		foreach my $file (@files) {
 			my @split = split /-/, $file;
 			$split[-1] =~ s/.log//;
@@ -44,8 +44,6 @@ sub extractReport() {
 			close(INPUT);
 		}
 	}
-
-	$self->{_Operations} = \@workloads;
 }
 
 1;

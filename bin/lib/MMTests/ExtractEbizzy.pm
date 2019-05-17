@@ -42,12 +42,6 @@ sub extractReport() {
 			$self->addData("Rsec-$client", $iteration, $records);
 		}
 	}
-
-	my @ops;
-	foreach my $client (@clients) {
-		push @ops, "Rsec-$client";
-	}
-	$self->{_Operations} = \@ops;
 }
 
 1;

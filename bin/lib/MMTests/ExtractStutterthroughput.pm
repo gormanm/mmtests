@@ -43,7 +43,5 @@ sub extractReport() {
 		$self->addData("tput", ++$nr_samples, $filesize / 1048576 / ($elements[0] * 60 + $elements[1] + 1) );
 		close(INPUT);
 	}
-
-	$self->{_Operations} = [ "tput" ];
 }
 1;

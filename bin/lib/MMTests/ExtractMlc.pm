@@ -11,6 +11,11 @@ sub initialise() {
 
 	$self->{_ModuleName} = "ExtractMlc";
 	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
+	$self->{_Operations} = [
+		"Reads-All",
+		"RW-3:1",
+		"RW-2:1",
+		"RW-1:1" ];
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
@@ -33,10 +38,4 @@ sub extractReport() {
 		}
 		close(INPUT);
 	}
-
-	$self->{_Operations} = [
-		"Reads-All",
-		"RW-3:1",
-		"RW-2:1",
-		"RW-1:1" ];
 }

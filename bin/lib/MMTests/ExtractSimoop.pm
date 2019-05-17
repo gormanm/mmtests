@@ -67,28 +67,6 @@ sub extractReport() {
 		$self->addData("final-p95-$op", $timestamp, $fp95{$op});
 		$self->addData("final-p99-$op", $timestamp, $fp99{$op});
 	}
-
-	$self->{_Operations} = [
-		"p50-Read",
-		"p95-Read",
-		"p99-Read",
-		"p50-Write",
-		"p95-Write",
-		"p99-Write",
-		"p50-Allocation",
-		"p95-Allocation",
-		"p99-Allocation",
-		"final-p50-Read",
-		"final-p95-Read",
-		"final-p99-Read",
-		"final-p50-Write",
-		"final-p95-Write",
-		"final-p99-Write",
-		"final-p50-Allocation",
-		"final-p95-Allocation",
-		"final-p99-Allocation"
-
-	];
 }
 
 1;

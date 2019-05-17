@@ -24,9 +24,6 @@ sub extractReport() {
 	while (<INPUT>) {
 		my @elements = split(/\s+/);
 		$self->addData("procs-$elements[0]", ++$nr_samples, $elements[1] * 1000);
-		if ($nr_samples == 1) {
-			push @{$self->{_Operations}}, "procs-$elements[0]";
-		}
 	}
 	close INPUT;
 }

@@ -16,7 +16,6 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my %opNames;
 
 	my @clients;
 	my @files = <$reportDir/redis-*-1.log>;
@@ -41,22 +40,12 @@ sub extractReport() {
 				$elements[0] =~ s/"//g;
 				$elements[1] =~ s/"//g;
 
-				$opNames{$elements[0]} = 1;
 				$self->addData("$client-$elements[0]", $iteration, $elements[1]);
 			}
 			$iteration++;
 			close(INPUT);
 		}
 	}
-
-	my @ops;
-	my @opNameSorted = sort keys %opNames;
-	foreach my $client (@clients) {
-		foreach my $opName (@opNameSorted) {
-			push @ops, "$client-$opName";
-		}
-	}
-	$self->{_Operations} = \@ops;
 }
 
 1;

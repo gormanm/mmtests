@@ -31,8 +31,6 @@ sub extractReport() {
 		}
 		close INPUT;
 	}
-
-	$self->{_Operations} = [ "Score" ];
 }
 
 1;

@@ -46,7 +46,6 @@ sub extractReport() {
 			close(INPUT);
 		}
 	}
-	$self->{_Operations} = \@sizes;
 }
 
 1;

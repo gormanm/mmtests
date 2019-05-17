@@ -49,9 +49,9 @@ sub extractReport() {
 	@threads = sort {$a <=> $b} @threads;
 	@threads = uniq(@threads);
 
-	foreach my $wl (@workloads) {
-		foreach my $nthr (@threads) {
-			foreach my $model (@models) {
+	foreach my $model (@models) {
+		foreach my $wl (@workloads) {
+			foreach my $nthr (@threads) {
 				chomp($model);
 				my $file = "$reportDir/wis-$wl-$model-$nthr.log";
 				my $nr_samples = 0;
@@ -75,13 +75,4 @@ sub extractReport() {
 			}
 		}
 	}
-	my @ops;
-	foreach my $model (@models) {
-		foreach my $wl (@workloads) {
-			foreach my $nthr (@threads) {
-				push @ops, "$wl-$model-$nthr"
-			}
-		}
-	}
-	$self->{_Operations} = \@ops;
 }

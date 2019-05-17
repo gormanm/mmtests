@@ -59,13 +59,6 @@ sub extractReport() {
 		}
 		close INPUT;
 	}
-
-	my @ops;
-	foreach my $client (@clients) {
-		push @ops, "$client";
-	}
-
-	$self->{_Operations} = \@ops;
 }
 
 1;

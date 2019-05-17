@@ -26,8 +26,6 @@ sub extractReport() {
 		my $t = nearest(.5, $elements[0]);
 		$self->addData("Time", ++$iteration, $t);
 	}
-
-	$self->{_Operations} = [ "Time" ];
 	close INPUT;
 }
 1;

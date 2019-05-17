@@ -19,6 +19,7 @@ sub new() {
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 	$self->{_Opname} = "Latency";
+	$self->{_Operations} = [ "read", "write", "mmap", "munmap" ];
 	$self->SUPER::initialise($reportDir, $testName);
 }
 
@@ -49,7 +50,6 @@ sub extractReport() {
 		$self->addData($op, $timestamp - $start_timestamp, $latency );
 	}
 
-	$self->{_Operations} = [ "read", "write", "mmap", "munmap" ];
 	close INPUT;
 }
 

@@ -31,12 +31,6 @@ sub extractReport() {
 		}
 		close(INPUT);
 	}
-
-	my @ops;
-	foreach my $import (@import_list) {
-		push @ops, $import;
-	}
-	$self->{_Operations} = \@ops;
 }
 
 1;

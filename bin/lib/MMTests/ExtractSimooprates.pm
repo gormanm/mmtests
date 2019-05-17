@@ -13,6 +13,7 @@ sub initialise() {
 	$self->{_ExactSubheading} = 1;
 	$self->{_ExactPlottype}   = "simple";
 	$self->{_PlotType}   = "simple";
+	$self->{_Operations} = [ "work", "stall" ];
 
 	$self->SUPER::initialise($reportDir, $testName);
 }
@@ -47,7 +48,6 @@ sub extractReport() {
 
 	}
 	close(INPUT);
-	$self->{_Operations} = [ "work", "stall" ];
 }
 
 1;

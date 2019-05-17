@@ -40,12 +40,6 @@ sub extractReport() {
 			close(INPUT);
 		}
 	}
-
-	foreach my $heading ("Elapsd") {
-		foreach my $client (@clients) {
-			push @{$self->{_Operations}}, "$heading-$client";
-		}
-	}
 }
 
 1;

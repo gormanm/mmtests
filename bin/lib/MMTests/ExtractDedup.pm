@@ -48,6 +48,4 @@ sub extractReport() {
 		}
 
 	}
-
-	$self->{_Operations} = \@threads;
 }

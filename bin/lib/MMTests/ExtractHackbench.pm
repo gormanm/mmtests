@@ -39,7 +39,5 @@ sub extractReport() {
 			close INPUT;
 		}
 	}
-
-	$self->{_Operations} = \@groups;
 }
 1;

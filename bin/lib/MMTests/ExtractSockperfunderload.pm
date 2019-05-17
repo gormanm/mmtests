@@ -41,7 +41,6 @@ sub extractReport() {
 	@sizes = uniq(sort {$a <=> $b} @sizes);
 	@rates = uniq(sort {$a <=> $b} @rates);
 
-	my @ops;
 	foreach my $size (@sizes) {
 		foreach my $rate (@rates) {
 			my $file = "$reportDir/$protocol-$size-$rate-1.log";
@@ -72,11 +71,8 @@ sub extractReport() {
 				$self->addData("size-$size-rate-$rate", ($time - $start_time), $rtt);
 			}
 			close(INPUT);
-			push @ops, "size-$size-rate-$rate";
 		}
 	}
-
-	$self->{_Operations} = \@ops;
 	close INPUT;
 }
 1;

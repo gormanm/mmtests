@@ -42,15 +42,6 @@ sub extractReport() {
 			close(INPUT);
 		}
 	}
-
-	my @ops;
-	for my $heading ("elapsed") {
-		foreach my $client (@clients) {
-			push @ops, "$heading-$client";
-		}
-	}
-
-	$self->{_Operations} = \@ops;
 }
 
 1;

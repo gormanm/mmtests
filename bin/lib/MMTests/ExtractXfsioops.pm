@@ -19,15 +19,12 @@ sub extractReport() {
 	my ($tm, $tput, $latency);
 	my $iteration;
 	my $testcase;
-	my %testcases;
 	$reportDir =~ s/xfsioops/xfsio/;
 
 	foreach my $file (<$reportDir/*-log.*>) {
 		$testcase = $file;
 		$testcase =~ s/.*\///;
 		$testcase =~ s/-log.*//;
-
-		$testcases{$testcase} = 1;
 
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
@@ -36,12 +33,6 @@ sub extractReport() {
 		}
 		close(INPUT);
 	}
-
-	my @operations;
-	foreach $testcase (sort { $a <=> $b } keys %testcases) {
-		push @operations, "$testcase-ops";
-	}
-	$self->{_Operations} = \@operations;
 }
 
 1;

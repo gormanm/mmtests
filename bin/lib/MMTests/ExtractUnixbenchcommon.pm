@@ -39,8 +39,8 @@ sub extractReport() {
 	@threads = sort {$a <=> $b} @threads;
 	@threads = uniq(@threads);
 
-	foreach my $nthr (@threads) {
-		foreach my $wl (@workloads) {
+	foreach my $wl (@workloads) {
+		foreach my $nthr (@threads) {
 			my $nr_samples = 0;
 
 			foreach my $file (<$reportDir/$wl-$nthr-*.log>) {
@@ -76,12 +76,4 @@ sub extractReport() {
 			}
 		}
 	}
-
-	my @ops;
-	foreach my $wl (@workloads) {
-		foreach my $nthr (@threads) {
-			push @ops, "unixbench-$wl-$nthr"
-		}
-	}
-	$self->{_Operations} = \@ops;
 }

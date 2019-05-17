@@ -34,6 +34,7 @@ sub extractReport() {
 		push @threads, $thr;
 	}
 
+	@threads = sort {$a <=> $b} @threads;
 	foreach my $nthr (@threads) {
 		my @files = <$reportDir/freqmine-$nthr-*.log>;
 
@@ -54,8 +55,4 @@ sub extractReport() {
 		}
 
 	}
-
-	my @ops = sort {$a <=> $b} @threads;
-	$self->{_Operations} = \@ops;
-
 }

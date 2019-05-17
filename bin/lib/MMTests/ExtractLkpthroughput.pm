@@ -54,9 +54,4 @@ sub extractReport() {
 			close INPUT;
 		}
 	}
-	my @ops;
-	foreach my $nthr (@threads) {
-		push @ops, "tput-$nthr"
-	}
-	$self->{_Operations} = \@ops;
 }

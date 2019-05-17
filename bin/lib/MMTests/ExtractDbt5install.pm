@@ -23,7 +23,6 @@ sub extractReport() {
 		$self->addData("Sys", 0, $self->_time_to_sys($_));
 		$self->addData("Elapsed", 0, $self->_time_to_elapsed($_));
 	}
-	$self->{_Operations} = [ "Sys", "Elapsed"];
 }
 
 1;

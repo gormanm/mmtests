@@ -23,8 +23,6 @@ sub extractReport() {
 		my @elements = split(/\s/);
 		$self->addData("Time", ++$iteration, $elements[3]);
 	}
-
-	$self->{_Operations} = [ "Time" ];
 	close INPUT;
 }
 1;

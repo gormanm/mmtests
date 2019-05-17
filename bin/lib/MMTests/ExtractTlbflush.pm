@@ -35,15 +35,10 @@ sub extractReport() {
 		while (<INPUT>) {
 			if ($_ =~ /.*, cost ([0-9]*)ns.*/) {
 				$self->addData("nsec-$client", ++$iteration, $1);
-				if ($iteration == 1) {
-					push(@ops, "nsec-$client");
-				}
 			}
 		}
 		close INPUT;
 	}
-
-	$self->{_Operations} = \@ops;
 }
 
 1;

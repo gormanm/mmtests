@@ -40,7 +40,6 @@ sub extractReport() {
 	close INPUT;
 
 	my %samples;
-	my @ops;
 	foreach my $pagesize_type (@pagesize_types) {
 		foreach my $operation ("Add", "Copy", "Scale", "Triad") {
 			my $file = "$reportDir/default/$pagesize_type/stream-$operation.instances";
@@ -50,14 +49,10 @@ sub extractReport() {
 				my $size = int ($elements[0] / 1024);
 				my $op = "$operation-${size}K";
 				$self->addData($op, ++$samples{$op}, $elements[1]);
-				if ($samples{$op} == 1) {
-					push @ops, $op;
-				}
 			}
 			close INPUT;
 		}
 	}
-	$self->{_Operations} = \@ops;
 }
 
 1;

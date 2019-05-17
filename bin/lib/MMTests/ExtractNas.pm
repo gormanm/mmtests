@@ -46,8 +46,6 @@ sub extractReport() {
 			close INPUT;
 		}
 	}
-
-	$self->{_Operations} = \@kernels;
 }
 
 1;

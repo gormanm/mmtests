@@ -16,7 +16,6 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my %opNames;
 	my $iteration = 0;
 
 	foreach my $file (<$reportDir/scimarkc.*>) {
@@ -29,18 +28,10 @@ sub extractReport() {
 			my @elements = split(/\s+/, $line);
 			$elements[0] =~ s/ /_/;
 
-			$opNames{$elements[0]} = 1;
 			$self->addData("$elements[0]", $iteration, $elements[2]);
 		}
 		close(INPUT);
 	}
-
-	my @ops;
-	my @opNameSorted = sort keys %opNames;
-	foreach my $opName (@opNameSorted) {
-		push @ops, "$opName";
-	}
-	$self->{_Operations} = \@ops;
 }
 
 1;

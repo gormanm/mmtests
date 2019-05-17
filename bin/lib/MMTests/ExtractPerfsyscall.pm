@@ -31,8 +31,6 @@ sub extractReport() {
 		}
 		close(INPUT);
 	}
-
-	$self->{_Operations} = [ "Time" ];
 	close INPUT;
 }
 1;

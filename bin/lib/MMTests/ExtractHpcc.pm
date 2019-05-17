@@ -9,6 +9,10 @@ sub new() {
 	my $self = {
 		_ModuleName  => "ExtractHpcc",
 		_DataType    => DataTypes::DATA_OPS_PER_SECOND,
+		_Operations  => [ "HPL_Tflops", "PTRANS_GBs",
+			"MPIRandomAccess_GUPs", "MPIFFT_Gflops",
+			"StarSTREAM_Triad", "StarDGEMM_Gflops",
+			"RandomlyOrderedRingBandwidth_GBytes" ],
 	};
 	bless $self, $class;
 	return $self;
@@ -17,7 +21,6 @@ sub new() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $iteration = 0;
-	my @metric_list = ("HPL_Tflops", "PTRANS_GBs", "MPIRandomAccess_GUPs", "MPIFFT_Gflops", "StarSTREAM_Triad", "StarDGEMM_Gflops", "RandomlyOrderedRingBandwidth_GBytes");
 
 	foreach my $file (<$reportDir/hpccoutf-*.txt>) {
 		$iteration++;
@@ -26,7 +29,7 @@ sub extractReport() {
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;
 
-			foreach my $metric (@metric_list) {
+			foreach my $metric (@{$self->{_Operations}}) {
 				if ($line =~ /^$metric=(.*)/) {
 					$self->addData("$metric", $iteration, $1);
 				}
@@ -34,8 +37,6 @@ sub extractReport() {
 		}
 		close (INPUT);
 	}
-
-	$self->{_Operations} = \@metric_list;
 }
 
 1;

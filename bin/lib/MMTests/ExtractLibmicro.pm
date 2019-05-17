@@ -19,7 +19,6 @@ sub extractReport() {
 	my ($user, $system, $elapsed, $cpu);
 
 	my @files = <$reportDir/*.log>;
-	my @ops;
 	foreach my $file (@files) {
 		my $testname = $file;
 		$testname =~ s/.*\///;
@@ -30,12 +29,10 @@ sub extractReport() {
 			my @elements = split(/\s+/);
 			if ($_ =~ /^#\s+mean of 95.*/) {
 				$self->addData("mean95-$testname", 0, $elements[-1]);
-				push @ops, "mean95-$testname";
 				next;
 			}
 		}
 		close INPUT;
 	}
-	$self->{_Operations} = \@ops;
 }
 1;

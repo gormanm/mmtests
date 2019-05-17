@@ -18,7 +18,6 @@ sub initialise() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my @clients;
-	my %benchmarks;
 
 	my @files = <$reportDir/johnripper-*-1.log>;
 	foreach my $file (@files) {
@@ -72,7 +71,6 @@ sub extractReport() {
 				}
 
 				if ($value != -1) {
-					$benchmarks{"$benchmark$salt"} = 1;
 					$self->addData("$client-$benchmark$salt", $iteration, $value);
 				}
 				
@@ -80,14 +78,6 @@ sub extractReport() {
 			close(INPUT);
 		}
 	}
-
-	my @ops;
-	foreach my $client (@clients) {
-		foreach my $benchmark (sort keys %benchmarks) {
-			push @ops, "$client-$benchmark";
-		}
-	}
-	$self->{_Operations} = \@ops;
 }
 
 1;

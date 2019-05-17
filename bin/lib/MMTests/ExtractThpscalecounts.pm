@@ -57,12 +57,6 @@ sub extractReport() {
 			$self->addData("huge-$client", 0, -1);
 		}
 	}
-
-	foreach my $client (@clients) {
-		push @ops, "huge-$client";
-	}
-
-	$self->{_Operations} = \@ops;
 }
 
 1;

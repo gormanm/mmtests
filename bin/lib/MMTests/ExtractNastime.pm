@@ -54,14 +54,6 @@ sub extractReport() {
 			close(INPUT);
 		}
 	}
-
-	my @operations;
-	foreach my $cpu ("sys", "elspd") {
-		foreach my $kernel (@kernels) {
-			push @operations, "$cpu-$kernel";
-		}
-	}
-	$self->{_Operations} = \@operations;
 }
 
 1;

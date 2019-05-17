@@ -54,8 +54,6 @@ sub extractReport() {
 		}
 		close INPUT;
 	}
-
-	$self->{_Operations} = \@clients;
 }
 
 1;

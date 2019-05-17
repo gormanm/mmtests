@@ -28,6 +28,7 @@ sub extractReport() {
 		push @threads, $thr;
 	}
 
+	@threads = sort {$a <=> $b} @threads;
 	foreach my $nthr (@threads) {
 		my @files = <$reportDir/futexwait-$nthr-*.log>;
 
@@ -46,7 +47,4 @@ sub extractReport() {
 			close INPUT;
 		}
 	}
-
-	my @ops = sort {$a <=> $b} @threads;
-	$self->{_Operations} = \@ops;
 }

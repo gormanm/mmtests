@@ -15,7 +15,6 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @ops;
 	my @clients;
 	my @files = <$reportDir/siege-*-1.log>;
 	foreach my $file (@files) {
@@ -35,14 +34,10 @@ sub extractReport() {
 				next if $line !~ /Transaction rate:/;
 				my @elements = split(/\s+/, $line);
 				$self->addData($client, ++$iteration, $elements[-2]);
-				if ($iteration == 1) {
-					push @ops, $client;
-				}
 			}
 			close INPUT;
 		}
 	}
-	$self->{_Operations} = \@ops;
 }
 
 1;

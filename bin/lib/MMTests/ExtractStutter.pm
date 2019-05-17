@@ -38,6 +38,5 @@ sub extractReport() {
 	}
 	close(INPUT);
 	$self->{_DelayedSamples} = $nr_delayed;
-	$self->{_Operations} = [ "mmap" ];
 }
 1;

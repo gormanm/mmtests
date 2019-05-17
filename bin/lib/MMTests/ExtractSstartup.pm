@@ -30,7 +30,6 @@ sub extractReport($$$) {
 	}
 	@jobnames = sort { $a <=> $b } @jobnames;
 
-	my %jobnamesPatterns;
 	foreach my $jobname (@jobnames) {
 		my $reading = 0;
 
@@ -55,8 +54,6 @@ sub extractReport($$$) {
 			# at the moment).
 			foreach my $pattern (@patterns) {
 				my $nr_samples=0;
-				my $jobnamePattern="$jobname-$pattern";
-				$jobnamesPatterns{$jobnamePattern} = 0;
 				open INPUT,
 				"$reportDir/results/replayed_$jobname\_startup/repetition0/$scheduler-$pattern-single_times.txt"
 				|| die "Failed to find time data file
@@ -66,7 +63,6 @@ sub extractReport($$$) {
 					my $line = <INPUT>;
 					chomp($line);
 					$line =~ s/^\s+//;
-					$jobnamesPatterns{$jobnamePattern} = 1;
 					$nr_samples++;
 					$self->addData("$jobnamePattern", $nr_samples, $line);
 				}
@@ -74,11 +70,5 @@ sub extractReport($$$) {
 			}
 		}
 	}
-
-	my @ops;
-	foreach my $jobnamePattern (sort keys %jobnamesPatterns) {
-		push @ops, "$jobnamePattern";
-	}
-	$self->{_Operations} = \@ops;
 }
 1;

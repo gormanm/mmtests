@@ -34,8 +34,8 @@ sub extractReport() {
 	@threads = sort {$a <=> $b} @threads;
 	@threads = uniq(@threads);
 
-	foreach my $nthr (@threads) {
-		foreach my $wl (@workloads) {
+	foreach my $wl (@workloads) {
+		foreach my $nthr (@threads) {
 			my $file = "$reportDir/$wl-$nthr.log";
 			my $nr_samples = 0;
 
@@ -55,12 +55,4 @@ sub extractReport() {
 			close INPUT;
 		}
 	}
-
-	my @ops;
-	foreach my $wl (@workloads) {
-		foreach my $nthr (@threads) {
-			push @ops, "sembench-$wl-$nthr"
-		}
-	}
-	$self->{_Operations} = \@ops;
 }

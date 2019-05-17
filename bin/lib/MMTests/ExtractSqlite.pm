@@ -35,7 +35,5 @@ sub extractReport() {
 		$self->addData("Trans", $nr_sample++, $elements[1]);
 	}
 	close INPUT;
-
-	$self->{_Operations} = [ "Trans" ];
 }
 1;

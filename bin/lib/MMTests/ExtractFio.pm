@@ -19,7 +19,6 @@ sub initialise() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $file = "$reportDir/fio.log";
-	my @ops;
 
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file\n");
@@ -35,17 +34,13 @@ sub extractReport() {
 		# Total read KB > 0?
 		if ($elements[5] > 0) {
 			$self->addData("kb/sec-$worker-read", 1, $elements[44]);
-			push @ops, "kb/sec-$worker-read";
 		}
 		# Total written KB > 0?
 		if ($elements[46] > 0) {
 			$self->addData("kb/sec-$worker-write", 1, $elements[85]);
-			push @ops, "kb/sec-$worker-write";
 		}
 	}
 	close INPUT;
-
-	$self->{_Operations} = \@ops;
 }
 
 1;

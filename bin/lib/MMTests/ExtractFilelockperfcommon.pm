@@ -61,12 +61,11 @@ sub extractReport() {
 	@threads = sort {$a <=> $b} @threads;
 	@threads = uniq(@threads);
 
-	foreach my $wl (@workloads) {
-		chomp($wl);
-		foreach my $nthr (@threads) {
-			foreach my $type (@locktypes) {
-				chomp($type);
-
+	foreach my $type (@locktypes) {
+		chomp($type);
+		foreach my $wl (@workloads) {
+			chomp($wl);
+			foreach my $nthr (@threads) {
 				foreach my $iter (1..$iterations) {
 					my $file = "$reportDir/filelockperf-$wl-$iter-$type-$nthr.log";
 
@@ -83,14 +82,4 @@ sub extractReport() {
 			}
 		}
 	}
-
-	my @ops;
-	foreach my $type (@locktypes) {
-		foreach my $wl (@workloads) {
-			foreach my $nthr (@threads) {
-				push @ops, "$wl-$type-$nthr"
-			}
-		}
-	}
-	$self->{_Operations} = \@ops;
 }

@@ -33,7 +33,6 @@ sub extractReport() {
 	}
 	@clients = sort { $a <=> $b } @clients;
 
-	my @ops;
 	foreach my $client (@clients) {
 		my $preamble = 1;
 		my $file = "$reportDir/fsmark-$client.log";
@@ -52,10 +51,7 @@ sub extractReport() {
 			$self->addData("overhead-$client", ++$iteration, $elements[5]);
 		}
 		close INPUT;
-		push @ops, "overhead-$client";
 	}
-
-	$self->{_Operations} = \@ops;
 }
 
 1;

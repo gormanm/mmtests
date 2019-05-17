@@ -62,13 +62,6 @@ sub extractReport() {
 		}
 		close INPUT;
 	}
-
-	my @ops;
-	foreach my $client (@clients) {
-		push @ops, "latency-$client";
-	}
-
-	$self->{_Operations} = \@ops;
 }
 
 1;

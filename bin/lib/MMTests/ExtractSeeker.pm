@@ -24,6 +24,5 @@ sub extractReport() {
 		}
 	}
 	close INPUT;
-	push @{$self->{_Operations}}, "Seeks";
 }
 1;

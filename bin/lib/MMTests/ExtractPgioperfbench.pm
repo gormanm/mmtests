@@ -15,6 +15,7 @@ sub initialise() {
 	$self->{_PlotType} = "simple-filter-points";
 	$self->{_PlotXaxis} = "Sample Index";
 	$self->{_DefaultPlot} = "1";
+	$self->{_Operations} = [ "commit", "read", "wal" ];
 
 	$self->SUPER::initialise($reportDir, $testName);
 	$self->{_FieldLength} = $fieldLength;
@@ -50,7 +51,6 @@ sub extractReport() {
 
 		}
 	}
-	$self->{_Operations} = [ "commit", "read", "wal" ];
 	close INPUT;
 }
 

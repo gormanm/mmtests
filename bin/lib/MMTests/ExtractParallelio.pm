@@ -72,7 +72,6 @@ sub extractReport() {
 				$iteration++;
 				$self->addData("memcachetest-$ioSizes[$ioStep]", $iteration, $ops);
 			}
-			push @{$self->{_Operations}}, "memcachetest-$ioSizes[$ioStep]";
 		}
 	} else {
 		die("Unable to handle parallel workload memcachetest");

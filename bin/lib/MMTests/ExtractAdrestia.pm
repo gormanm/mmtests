@@ -34,9 +34,9 @@ sub extractReport() {
 	@groups = sort { $a <=> $b} @groups;
 	@threads = sort { $a <=> $b} @threads;
 
-	foreach my $group (@groups) {
-		my $nr_samples = 0;
-		foreach my $thread (@threads) {
+	foreach my $thread (@threads) {
+		foreach my $group (@groups) {
+			my $nr_samples = 0;
 			foreach my $file (<$reportDir/adrestia-$group-$thread-*.log>) {
 				my @split = split /-/, $file;
 
@@ -53,13 +53,5 @@ sub extractReport() {
 			}
 		}
 	}
-
-	my @ops;
-	foreach my $metric (@threads) {
-		foreach my $group (@groups) {
-			push @ops, "$metric-$group";
-		}
-	}
-	$self->{_Operations} = \@ops;
 }
 1;

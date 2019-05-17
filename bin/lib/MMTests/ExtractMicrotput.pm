@@ -38,7 +38,5 @@ sub extractReport() {
 			close INPUT;
 		}
 	}
-
-	$self->{_Operations} = \@threads;
 }
 1;

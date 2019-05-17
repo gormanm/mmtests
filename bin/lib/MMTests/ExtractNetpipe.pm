@@ -30,8 +30,6 @@ sub extractReport() {
 		$self->addData("tput", $elements[0] / 1024, $elements[1] );
 	}
 	close INPUT;
-
-	$self->{_Operations} = [ "tput" ];
 }
 
 1;

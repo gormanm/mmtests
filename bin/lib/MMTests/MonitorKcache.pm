@@ -67,9 +67,6 @@ sub extractReport($$$$) {
 			$frees += $elements[3];
 		}
 	}
-
-	my @operations = ( "allocs", "frees");
-	$self->{_Operations} = \@operations;
 }
 
 1;

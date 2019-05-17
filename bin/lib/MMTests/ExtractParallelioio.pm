@@ -52,9 +52,6 @@ sub extractReport() {
 		my @elements = split(/\s/);
 
 		$self->addData("io-duration-$ioSizes[$elements[0]]", $elements[2], $elements[3]);
-		if ($elements[2] == 1) {
-			push @{$self->{_Operations}}, "io-duration-$ioSizes[$elements[0]]";
-		}
 	}
 	close(INPUT);
 }

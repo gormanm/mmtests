@@ -27,7 +27,6 @@ sub extractReport() {
 		push @clients, $split[-2];
 	}
 	@clients = sort { $a <=> $b } @clients;
-	$self->{_Operations} = \@clients;
 
 	foreach my $client (@clients) {
 		my $iteration = 1;

@@ -51,10 +51,7 @@ sub extractReport() {
 			$last = $t;
 			$self->addData("procs-$client", ++$iteration, $t);
 		}
-		push @ops, "procs-$client";
 	}
-
-	$self->{_Operations} = \@ops;
 	close INPUT;
 }
 1;

@@ -31,8 +31,6 @@ sub extractReport() {
 		$val =~ s/,//;
 		$self->addData("Pages/sec", $nr_sample++, $val);
 	}
-
-	$self->{_Operations} = [ "Pages/sec" ];
 	close INPUT;
 }
 1;

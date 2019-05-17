@@ -31,7 +31,6 @@ sub extractReport() {
         }
         @clients = sort { $a <=> $b } @clients;
 
-	my @ops;
 	foreach my $client (@clients) {
 		my $iteration = 0;
 		foreach my $file (<$reportDir/$case-$client.*>) {
@@ -50,16 +49,11 @@ sub extractReport() {
 
 				if ($line =~ /[0-9]+: ([0-9.]+): IO Summary:\s+([0-9]+) ops, ([0-9.]+) ops.*/) {
 					$self->addData("$case-$client", ++$iteration, $3);
-					if ($iteration == 1) {
-						push @ops, "$case-$client";
-					}
 				}
 			}
 			close(INPUT);
 		}
 	}
-
-	$self->{_Operations} = \@ops;
 }
 
 1;

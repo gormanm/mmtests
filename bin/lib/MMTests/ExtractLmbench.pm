@@ -35,7 +35,6 @@ sub extractReport() {
 	die("Failed to open any of @candidates") if (tell(INPUT) == -1) ;
 	my $nr_samples = 0;
 	my %sampleSizes;
-	my @ops;
 	while (<INPUT>) {
 		my $line = $_;
 		if ($caseName eq "lat_mmap") {
@@ -55,15 +54,11 @@ sub extractReport() {
 				my @elements = split(/\s+/, $_);
 				$elements[0] =~ s/\..*/M/;
 				$self->addData("$elements[0]-$size", ++$nr_samples, $elements[1]);
-				if ($nr_samples == 1) {
-					push @ops, "$elements[0]-$size";
-				}
 				next;
 			}
 		}
 	}
 	close INPUT;
-	$self->{_Operations} = \@ops;
 }
 
 1;
