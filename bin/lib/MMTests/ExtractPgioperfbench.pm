@@ -18,7 +18,7 @@ sub initialise() {
 
 	$self->SUPER::initialise($reportDir, $testName);
 	$self->{_FieldLength} = $fieldLength;
-	$self->{_FieldFormat} = [ "%-${fieldLength}d", "%$fieldLength.4f" , "%${fieldLength}.2f%%" ];
+	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%$fieldLength.4f" , "%${fieldLength}.2f" ];
 }
 
 sub extractReport() {
