@@ -53,7 +53,7 @@ fi
 echo Creating reference tree
 mkdir -p $SHELLPACK_TEMP || die Failed to create temporary directory
 cd $SHELLPACK_TOPLEVEL
-if [ ! -e rn-mmtests.sh -a ! -e .git ]; then
+if [ ! -e run-mmtests.sh -a ! -e .git ]; then
 	die Failed to identify top-level mmtests git tree
 	exit -1
 fi
