@@ -14,13 +14,13 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 	my $testcase;
 	my %testcases;
 
-	foreach my $file (<$reportDir/$profile/*-time.*>) {
+	foreach my $file (<$reportDir/*-time.*>) {
 		$testcase = $file;
 		$testcase =~ s/.*\///;
 		$testcase =~ s/-time.*//;

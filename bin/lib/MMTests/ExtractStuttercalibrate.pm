@@ -19,12 +19,12 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($user, $system, $elapsed, $cpu);
 	$reportDir =~ s/stuttercalibrate/stutter/;
 
 	# Extract calibration write test throughput
-	my $file = "$reportDir/$profile/calibrate.time";
+	my $file = "$reportDir/calibrate.time";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	my @elements = split(/ /, <INPUT>);
 	@elements = split(/:/, $elements[2]);

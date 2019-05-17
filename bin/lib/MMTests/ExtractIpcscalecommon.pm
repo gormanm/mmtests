@@ -16,10 +16,10 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $recent = 0;
 
-	my @files = <$reportDir/$profile/semscale.*>;
+	my @files = <$reportDir/semscale.*>;
 	my %samples;
 	foreach my $file (@files) {
 		open(INPUT, $file) || die("Failed to open $file");

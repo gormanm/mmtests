@@ -15,10 +15,10 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $section = 0;
 
-	foreach my $file (<$reportDir/$profile/CPU2017.001.*.txt>) {
+	foreach my $file (<$reportDir/CPU2017.001.*.txt>) {
 		open(INPUT, $file) || next;
 		my $reading = 0;
 

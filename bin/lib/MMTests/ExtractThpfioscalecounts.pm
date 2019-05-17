@@ -17,12 +17,12 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	$reportDir =~ s/thpfioscalecounts/thpfioscale/;
 
 	my @ops;
 	my @clients;
-	my @files = <$reportDir/$profile/threads-*.log>;
+	my @files = <$reportDir/threads-*.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-1] =~ s/.log//;
@@ -36,7 +36,7 @@ sub extractReport() {
 		my $base = 0;
 		my $huge = 0;
 
-		my $file = "$reportDir/$profile/threads-$client.log";
+		my $file = "$reportDir/threads-$client.log";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;

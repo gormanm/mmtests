@@ -16,11 +16,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my @clients;
 	my %benchmarks;
 
-	my @files = <$reportDir/$profile/johnripper-*-1.log>;
+	my @files = <$reportDir/johnripper-*-1.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		push @clients, $split[-2];
@@ -31,7 +31,7 @@ sub extractReport() {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		my @files = <$reportDir/$profile/johnripper-$client-*.log>;
+		my @files = <$reportDir/johnripper-$client-*.log>;
 		foreach my $file (@files) {
 			my $benchmark;
 			my $salt;

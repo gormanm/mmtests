@@ -18,9 +18,9 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
-	my $file = "$reportDir/$profile/import-mwdump.log";
+	my $file = "$reportDir/import-mwdump.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	my $nr_sample = 0;
 	while (<INPUT>) {

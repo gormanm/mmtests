@@ -23,10 +23,10 @@ sub uniq {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my @threads;
 
-	my @files = <$reportDir/$profile/freqmine-*-1.log>;
+	my @files = <$reportDir/freqmine-*-1.log>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		my $thr = $elements[-2];
@@ -35,7 +35,7 @@ sub extractReport() {
 	}
 
 	foreach my $nthr (@threads) {
-		my @files = <$reportDir/$profile/freqmine-$nthr-*.log>;
+		my @files = <$reportDir/freqmine-$nthr-*.log>;
 
 		foreach my $file (@files) {
 			my @split = split /-/, $file;

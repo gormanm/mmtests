@@ -21,9 +21,9 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($user, $system, $elapsed, $cpu);
-	my $file = "$reportDir/$profile/time";
+	my $file = "$reportDir/time";
 	my $cnt = 0;
 
 	open(INPUT, $file) || die("Failed to open $file\n");

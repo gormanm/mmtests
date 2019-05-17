@@ -15,13 +15,13 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 	my @clients;
 	$reportDir =~ s/dvdstoreexectime/dvdstore/;
 
-	my @files = <$reportDir/$profile/dvdstore-*>;
+	my @files = <$reportDir/dvdstore-*>;
 	foreach my $file (@files) {
 		next if $file =~ /.*\.failed$/;
 		my @split = split /-/, $file;
@@ -34,7 +34,7 @@ sub extractReport() {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		my $file = "$reportDir/$profile/time-$client";
+		my $file = "$reportDir/time-$client";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			next if $_ !~ /elapsed/;

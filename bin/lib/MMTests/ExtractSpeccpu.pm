@@ -15,23 +15,23 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $section = 0;
 	my $pagesize = "base";
 
-	if (! -e "$reportDir/$profile/$pagesize") {
+	if (! -e "$reportDir/$pagesize") {
 		$pagesize = "transhuge";
 	}
-	if (! -e "$reportDir/$profile/$pagesize") {
+	if (! -e "$reportDir/$pagesize") {
 		$pagesize = "default";
 	}
 
 	my $size = "test";
-	if (! -e "$reportDir/$profile/$pagesize/CINT2006.001.test.txt") {
+	if (! -e "$reportDir/$pagesize/CINT2006.001.test.txt") {
 		$size = "ref";
 	}
 
-	foreach my $file ("$reportDir/$profile/$pagesize/CINT2006.001.$size.txt", "$reportDir/$profile/$pagesize/CFP2006.001.$size.txt") {
+	foreach my $file ("$reportDir/$pagesize/CINT2006.001.$size.txt", "$reportDir/$pagesize/CFP2006.001.$size.txt") {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		my $reading = 0;
 

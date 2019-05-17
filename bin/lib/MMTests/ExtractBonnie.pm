@@ -16,10 +16,10 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $recent = 0;
 
-	my @files = <$reportDir/$profile/bonnie-detail.*>;
+	my @files = <$reportDir/bonnie-detail.*>;
 	my $iteration = 1;
 	my %ops = (
 		"pc" => "SeqOut Char",

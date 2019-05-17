@@ -22,10 +22,10 @@ my %status_code = (
 );
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
 	my @clients;
-	foreach my $file (<$reportDir/$profile/pistress-*.log>) {
+	foreach my $file (<$reportDir/pistress-*.log>) {
 		my @split = split /-/, $file;
 		$split[-1] =~ s/.log.*//;
 		push @clients, $split[-1];
@@ -33,7 +33,7 @@ sub extractReport() {
 	@clients = sort { $a <=> $b} @clients;
 
 	foreach my $client (@clients) {
-		my $file = "$reportDir/$profile/pistress-$client.status";
+		my $file = "$reportDir/pistress-$client.status";
 
 		if (!open(INPUT, $file)) {
 			$self->addData($client, 0, 1);

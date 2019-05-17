@@ -15,15 +15,15 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
-	open(INPUT, "$reportDir/$profile/model") || die("Failed to detect model");
+	open(INPUT, "$reportDir/model") || die("Failed to detect model");
 	my $case = <INPUT>;
 	chomp($case);
 	close(INPUT);
 
         my @clients;
-        my @files = <$reportDir/$profile/$case-*.1>;
+        my @files = <$reportDir/$case-*.1>;
         foreach my $file (@files) {
                 my @split = split /-/, $file;
                 $split[-1] =~ s/\.1//;
@@ -34,7 +34,7 @@ sub extractReport() {
 	my @ops;
 	foreach my $client (@clients) {
 		my $iteration = 0;
-		foreach my $file (<$reportDir/$profile/$case-$client.*>) {
+		foreach my $file (<$reportDir/$case-$client.*>) {
 			open(INPUT, $file) || die("Failed to open $file");
 			my ($startSetup, $endSetup, $endRun);
 			while (!eof(INPUT)) {

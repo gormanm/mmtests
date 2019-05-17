@@ -15,10 +15,10 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $iteration = 0;
 
-	foreach my $file (<$reportDir/$profile/peak_injection_bandwidth-*.log>) {
+	foreach my $file (<$reportDir/peak_injection_bandwidth-*.log>) {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;

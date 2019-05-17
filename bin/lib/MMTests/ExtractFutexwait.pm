@@ -16,11 +16,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tp, $name);
 	my @threads;
 
-	my @files = <$reportDir/$profile/futexwait-*-1.log>;
+	my @files = <$reportDir/futexwait-*-1.log>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		my $thr = $elements[-2];
@@ -29,7 +29,7 @@ sub extractReport() {
 	}
 
 	foreach my $nthr (@threads) {
-		my @files = <$reportDir/$profile/futexwait-$nthr-*.log>;
+		my @files = <$reportDir/futexwait-$nthr-*.log>;
 
 		foreach my $file (@files) {
 			my @split = split /-/, $file;

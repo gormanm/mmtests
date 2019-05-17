@@ -22,10 +22,10 @@ my %status_code = (
 );
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
 	my @collections;
-	foreach my $file (<$reportDir/$profile/ltp-*.log>) {
+	foreach my $file (<$reportDir/ltp-*.log>) {
 		my @split = split /\//, $file;
 		$split[-1] =~ s/.log.*//;
 		$split[-1] =~ s/^ltp-//;
@@ -34,7 +34,7 @@ sub extractReport() {
 	sort @collections;
 
 	foreach my $collection (@collections) {
-		my $file = "$reportDir/$profile/ltp-$collection.log";
+		my $file = "$reportDir/ltp-$collection.log";
 
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (!eof(INPUT)) {

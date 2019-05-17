@@ -18,9 +18,9 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
-	foreach my $file (<$reportDir/$profile/time.*>) {
+	foreach my $file (<$reportDir/time.*>) {
 		my $nr_samples = 0;
 
 		open(INPUT, $file) || die("Failed to open $file\n");

@@ -15,14 +15,14 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 	my $testcase;
 	my %testcases;
 	$reportDir =~ s/xfsiothroughput/xfsio/;
 
-	foreach my $file (<$reportDir/$profile/*-log.*>) {
+	foreach my $file (<$reportDir/*-log.*>) {
 		$testcase = $file;
 		$testcase =~ s/.*\///;
 		$testcase =~ s/-log.*//;

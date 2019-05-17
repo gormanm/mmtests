@@ -14,10 +14,10 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $required_heading = "JPM";
 
-	my @workfiles = <$reportDir/$profile/workfile.*>;
+	my @workfiles = <$reportDir/workfile.*>;
 	foreach my $workfile (@workfiles) {
 		my $worktitle = $workfile;
 		$worktitle =~ s/.*\.//;

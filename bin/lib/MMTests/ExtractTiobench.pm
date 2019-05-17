@@ -14,17 +14,17 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $max_read = -1;
 
-	if (open(INPUT, "$reportDir/$profile/disk-read.speed")) {
+	if (open(INPUT, "$reportDir/disk-read.speed")) {
 		$max_read = <INPUT>;
 		close(INPUT);
 	}
 	$self->addData("PotentialReadSpeed", 1, $max_read);
 
 	my @clients;
-	my @files = <$reportDir/$profile/tiobench-*-1.log>;
+	my @files = <$reportDir/tiobench-*-1.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		push @clients, $split[-2];
@@ -33,7 +33,7 @@ sub extractReport() {
 
 	foreach my $client (@clients) {
 		my $reading = 0;
-		my @files = <$reportDir/$profile/tiobench-$client-*.log>;
+		my @files = <$reportDir/tiobench-$client-*.log>;
 		foreach my $file (@files) {
 			my $op;
 			my @split = split /-/, $file;

@@ -16,9 +16,9 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
-	my $file = "$reportDir/$profile/timeexit.log";
+	my $file = "$reportDir/timeexit.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	my $nr_samples = 0;
 	while (<INPUT>) {

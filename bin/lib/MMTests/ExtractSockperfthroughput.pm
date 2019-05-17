@@ -15,11 +15,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $protocol;
 
 	my @sizes;
-	my @files = <$reportDir/$profile/*-max-1.stdout>;
+	my @files = <$reportDir/*-max-1.stdout>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		$protocol = $elements[-4];
@@ -32,7 +32,7 @@ sub extractReport() {
 		my $file;
 		my $iteration = 0;
 
-		foreach $file (<$reportDir/$profile/$protocol-$size-max-*.stdout>) {
+		foreach $file (<$reportDir/$protocol-$size-max-*.stdout>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (!eof(INPUT)) {
 				my $line = <INPUT>;

@@ -15,12 +15,12 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($user, $system, $elapsed, $cpu);
 	my $bindTypes;
 	my @ratioops;
 
-	my @files = <$reportDir/$profile/time.*>;
+	my @files = <$reportDir/time.*>;
 	if (!@files) {
 		die("Failed to open any time files\n")
 	}

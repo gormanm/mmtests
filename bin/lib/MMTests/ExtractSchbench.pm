@@ -20,10 +20,10 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my @ratioops;
 
-	my @files = <$reportDir/$profile/schbench-*.log>;
+	my @files = <$reportDir/schbench-*.log>;
 	my @groups;
 
 	foreach my $file (@files) {
@@ -37,7 +37,7 @@ sub extractReport() {
 	@groups = sort { $a <=> $b } @groups;
 
 	foreach my $group (@groups) {
-		open(INPUT, "$reportDir/$profile/schbench-$group.log") || die("Failed to open $group\n");
+		open(INPUT, "$reportDir/schbench-$group.log") || die("Failed to open $group\n");
 		while (<INPUT>) {
 			if ($_ =~ /[ \t\*]+([0-9]+\.[0-9]+)th: ([0-9]+)/) {
 				my $quartile = $1;

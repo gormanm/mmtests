@@ -16,7 +16,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 
@@ -25,7 +25,7 @@ sub extractReport() {
 
 	foreach my $testcase (@testcases) {
 		my $iteration = 0;
-		my @files = <$reportDir/$profile/time.$testcase.*>;
+		my @files = <$reportDir/time.$testcase.*>;
 		foreach my $file (@files) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {

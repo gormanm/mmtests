@@ -14,9 +14,9 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $exclude_warmup = 0;
-	my $file = "$reportDir/$profile/sqlite.log";
+	my $file = "$reportDir/sqlite.log";
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {

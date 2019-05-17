@@ -18,11 +18,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $nr_cpus;
 	my @cpus;
 
-	open(INPUT, "$reportDir/$profile/sysjitter.log") || die "Failed to open sysjitter.log";
+	open(INPUT, "$reportDir/sysjitter.log") || die "Failed to open sysjitter.log";
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 		chomp($line);

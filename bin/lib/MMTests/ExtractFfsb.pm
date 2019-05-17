@@ -15,10 +15,10 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $reading_totals = 0;
 
-	my $file = "$reportDir/$profile/ffsb.log";
+	my $file = "$reportDir/ffsb.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my $line = $_;

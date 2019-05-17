@@ -16,9 +16,9 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
-	my @files = <$reportDir/$profile/*.log.1>;
+	my @files = <$reportDir/*.log.1>;
 	my @kernels;
 	my $class;
 	foreach my $file (@files) {
@@ -34,7 +34,7 @@ sub extractReport() {
 	foreach my $kernel (@kernels) {
 		my $nr_samples = 0;
 
-		foreach my $file (<$reportDir/$profile/$kernel.$class.log.*>) {
+		foreach my $file (<$reportDir/$kernel.$class.log.*>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				my $line = $_;

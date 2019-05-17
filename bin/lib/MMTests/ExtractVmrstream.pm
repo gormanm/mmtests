@@ -15,12 +15,12 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my @pagesize_types;
 	my %wss_sizes;
 
 	# Get a list of backing buffer types: malloc, static etc.
-	my @files = <$reportDir/$profile/default/stream-*>;
+	my @files = <$reportDir/default/stream-*>;
 	foreach my $file (@files) {
 		my @split = split /\//, $file;
 		push @pagesize_types, $split[-1];
@@ -32,7 +32,7 @@ sub extractReport() {
 	}
 
 	# Get the list of buffer sizes used during the test
-	open(INPUT, "$reportDir/$profile/default/$pagesize_types[0]/stream-Add.instances") || die("Failed to open file for wss_sizes");
+	open(INPUT, "$reportDir/default/$pagesize_types[0]/stream-Add.instances") || die("Failed to open file for wss_sizes");
 	while (<INPUT>) {
 		my @elements = split(/\s+/, $_);
 		$wss_sizes{$elements[0]} = 1;
@@ -43,7 +43,7 @@ sub extractReport() {
 	my @ops;
 	foreach my $pagesize_type (@pagesize_types) {
 		foreach my $operation ("Add", "Copy", "Scale", "Triad") {
-			my $file = "$reportDir/$profile/default/$pagesize_type/stream-$operation.instances";
+			my $file = "$reportDir/default/$pagesize_type/stream-$operation.instances";
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				my @elements = split(/\s+/, $_);

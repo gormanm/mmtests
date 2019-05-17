@@ -14,7 +14,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my %warehouses;
 	my $jvm_instance = -1;
 	my $reading_tput = 0;
@@ -22,23 +22,23 @@ sub extractReport() {
 	my $single_instance = 0;
 	my $pagesize = "base";
 
-	if (! -e "$reportDir/$profile/$pagesize") {
+	if (! -e "$reportDir/$pagesize") {
 		$pagesize = "transhuge";
 	}
-	if (! -e "$reportDir/$profile/$pagesize") {
+	if (! -e "$reportDir/$pagesize") {
 		$pagesize = "default";
 	}
 
 	my $file;
-	if (-e "$reportDir/$profile/$pagesize/SPECjbbMultiJVM.001") {
-		$file = "$reportDir/$profile/$pagesize/SPECjbbMultiJVM.001/MultiVMReport.txt";
+	if (-e "$reportDir/$pagesize/SPECjbbMultiJVM.001") {
+		$file = "$reportDir/$pagesize/SPECjbbMultiJVM.001/MultiVMReport.txt";
 		if (! -e $file) {
 			my $instances = 0;
 
-			$file = "$reportDir/$profile/$pagesize/SPECjbbMultiJVM.001/MultiVMMmtests.txt";
+			$file = "$reportDir/$pagesize/SPECjbbMultiJVM.001/MultiVMMmtests.txt";
 			open(OUTPUT, ">$file") || die("Failed to open $file\n");
 
-			foreach my $report (<$reportDir/$profile/$pagesize/SPECjbbMultiJVM.001/SPECjbb.*.txt>) {
+			foreach my $report (<$reportDir/$pagesize/SPECjbbMultiJVM.001/SPECjbb.*.txt>) {
 				my ($included, $warehouse, $throughput);
 				my $line = "";
 
@@ -72,7 +72,7 @@ sub extractReport() {
 		}
 	} else {
 		$single_instance = 1;
-		$file = "$reportDir/$profile/$pagesize/SPECjbbSingleJVM/SPECjbb.001.txt";
+		$file = "$reportDir/$pagesize/SPECjbbSingleJVM/SPECjbb.001.txt";
 	}
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {

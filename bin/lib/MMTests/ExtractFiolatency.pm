@@ -19,12 +19,12 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $seen_read = 0;
 	my $seen_write = 0;
 	$reportDir =~ s/fiolatency/fio/;
 
-	my @files = <$reportDir/$profile/fio_lat.*.log*>;
+	my @files = <$reportDir/fio_lat.*.log*>;
 	foreach my $file (@files) {
 		my $nr_samples = 0;
 		my $time;

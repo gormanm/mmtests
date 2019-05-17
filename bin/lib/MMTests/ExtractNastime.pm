@@ -15,13 +15,13 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	$reportDir =~ s/mpitime/mpi/;
 	$reportDir =~ s/omptime/omp/;
 	$reportDir =~ s/mpi-([a-z][a-z])time/mpi-\1/;
 	$reportDir =~ s/omp-([a-z][a-z])time/omp-\1/;
 
-	my @files = <$reportDir/$profile/*.log.1>;
+	my @files = <$reportDir/*.log.1>;
 	my @kernels;
 	foreach my $file (@files) {
 		my @split = split /\//, $file;
@@ -32,7 +32,7 @@ sub extractReport() {
 	foreach my $kernel (@kernels) {
 		my $nr_samples = 0;
 
-		foreach my $file (<$reportDir/$profile/time-$kernel.*>) {
+		foreach my $file (<$reportDir/time-$kernel.*>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;
@@ -45,7 +45,7 @@ sub extractReport() {
 	foreach my $kernel (@kernels) {
 		my $nr_samples = 0;
 
-		foreach my $file (<$reportDir/$profile/time-$kernel.*>) {
+		foreach my $file (<$reportDir/time-$kernel.*>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;

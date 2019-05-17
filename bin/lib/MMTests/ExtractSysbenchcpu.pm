@@ -15,11 +15,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $iteration;
 
 	my @clients;
-	my @files = <$reportDir/$profile/sysbench-raw-*-1>;
+	my @files = <$reportDir/sysbench-raw-*-1>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
@@ -31,7 +31,7 @@ sub extractReport() {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		my @files = <$reportDir/$profile/time-$client-*>;
+		my @files = <$reportDir/time-$client-*>;
 		foreach my $file (@files) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {

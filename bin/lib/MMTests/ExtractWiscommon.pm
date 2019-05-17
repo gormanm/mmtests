@@ -21,15 +21,15 @@ sub uniq {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tp, $name);
-	my $file_wk = "$reportDir/$profile/workloads";
+	my $file_wk = "$reportDir/workloads";
 	open(INPUT, "$file_wk") || die("Failed to open $file_wk\n");
 	my @workloads = split(/,/, <INPUT>);
 	$self->{_Workloads} = \@workloads;
 	close(INPUT);
 
-	my $file_models = "$reportDir/$profile/models";
+	my $file_models = "$reportDir/models";
 	open(INPUT, "$file_models") || die("Failed to open $file_models\n");
 	my @models = split(/,/, <INPUT>);
 	$self->{_Models} = \@models;
@@ -38,7 +38,7 @@ sub extractReport() {
 	my @threads;
 	foreach my $wl (@workloads) {
 		chomp($wl);
-		my @files = <$reportDir/$profile/wis-$wl-*.log>;
+		my @files = <$reportDir/wis-$wl-*.log>;
 		foreach my $file (@files) {
 			my @elements = split (/-/, $file);
 			my $thr = $elements[-1];
@@ -53,7 +53,7 @@ sub extractReport() {
 		foreach my $nthr (@threads) {
 			foreach my $model (@models) {
 				chomp($model);
-				my $file = "$reportDir/$profile/wis-$wl-$model-$nthr.log";
+				my $file = "$reportDir/wis-$wl-$model-$nthr.log";
 				my $nr_samples = 0;
 
 				open(INPUT, $file) || die("$! Failed to open $file\n");

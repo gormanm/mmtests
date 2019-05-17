@@ -16,7 +16,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($wallTime);
 	my $dummy;
 	my $copy = 0;
@@ -25,7 +25,7 @@ sub extractReport() {
 	my $triad = 0;
 	my $iterations = 0;
 
-	foreach my $file (<$reportDir/$profile/stream-*.log>) {
+	foreach my $file (<$reportDir/stream-*.log>) {
 		$iterations++;
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {

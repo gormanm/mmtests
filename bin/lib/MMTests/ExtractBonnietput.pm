@@ -16,11 +16,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	$reportDir =~ s/bonnietput/bonnie/;
 	my $recent = 0;
 
-	my @files = <$reportDir/$profile/bonnie.*>;
+	my @files = <$reportDir/bonnie.*>;
 	my $iteration = 1;
 	foreach my $file (@files) {
 		open(INPUT, $file) || die("Failed to open $file\n");

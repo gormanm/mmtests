@@ -23,11 +23,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
 	my @ops;
 	my @clients;
-	my @files = <$reportDir/$profile/wp-tlbflush-*.log>;
+	my @files = <$reportDir/wp-tlbflush-*.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-1] =~ s/.log//;
@@ -36,7 +36,7 @@ sub extractReport() {
 	@clients = sort { $a <=> $b } @clients;
 
 	foreach my $client (@clients) {
-		my $file = "$reportDir/$profile/wp-tlbflush-$client.log";
+		my $file = "$reportDir/wp-tlbflush-$client.log";
 
 		open(INPUT, $file) || die("Failed to open $file\n");
 		my $iteration = 0;

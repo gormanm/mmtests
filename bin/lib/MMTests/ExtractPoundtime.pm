@@ -16,13 +16,13 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 
 	my %hashCases;
 	my @testcases;
-	my @files = <$reportDir/$profile/*-*.time>;
+	my @files = <$reportDir/*-*.time>;
 	foreach my $file (@files) {
 		$file =~ s/.*\///;
 		$file =~ s/-.*//;
@@ -32,7 +32,7 @@ sub extractReport() {
 	undef %hashCases;
 
 	my @clients;
-	my @files = <$reportDir/$profile/$testcases[0]-*-1.time>;
+	my @files = <$reportDir/$testcases[0]-*-1.time>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		push @clients, $split[-2];
@@ -42,7 +42,7 @@ sub extractReport() {
 	foreach my $client (@clients) {
 		foreach my $testcase (@testcases) {
 			my $iteration = 0;
-			my @files = <$reportDir/$profile/$testcase-$client-*.time>;
+			my @files = <$reportDir/$testcase-$client-*.time>;
 			foreach my $file (@files) {
 				open(INPUT, $file) || die("Failed to open $file\n");
 				while (<INPUT>) {

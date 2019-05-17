@@ -22,11 +22,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $recent = 0;
 	my $start_time = 0;
 
-	open(INPUT, "$reportDir/$profile/pgioperf.log") || die("Failed to open $reportDir/$profile/pgioperf.log");
+	open(INPUT, "$reportDir/pgioperf.log") || die("Failed to open $reportDir/pgioperf.log");
 	my $samples = 0;
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;

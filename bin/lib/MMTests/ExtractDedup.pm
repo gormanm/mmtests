@@ -16,11 +16,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tp, $name);
 	my @threads;
 
-	my @files = <$reportDir/$profile/dedup-*-1.time>;
+	my @files = <$reportDir/dedup-*-1.time>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		my $thr = $elements[-2];
@@ -30,7 +30,7 @@ sub extractReport() {
 	@threads = sort { $a <=> $b } @threads;
 
 	foreach my $nthr (@threads) {
-		my @files = <$reportDir/$profile/dedup-$nthr-*.time>;
+		my @files = <$reportDir/dedup-$nthr-*.time>;
 
 		foreach my $file (@files) {
 			my @split = split /-/, $file;

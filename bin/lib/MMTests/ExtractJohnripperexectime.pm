@@ -15,13 +15,13 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 	my @clients;
 	$reportDir =~ s/johnripperexectime/johnripper/;
 
-	my @files = <$reportDir/$profile/load-*-1.time>;
+	my @files = <$reportDir/load-*-1.time>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		push @clients, $split[-2];
@@ -32,7 +32,7 @@ sub extractReport() {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		foreach my $file (<$reportDir/$profile/load-$client-*.time>) {
+		foreach my $file (<$reportDir/load-$client-*.time>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;

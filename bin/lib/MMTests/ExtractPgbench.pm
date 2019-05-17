@@ -16,11 +16,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	my @clients;
 
-	my @files = <$reportDir/$profile/default/pgbench-raw-*>;
+	my @files = <$reportDir/default/pgbench-raw-*>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
@@ -35,7 +35,7 @@ sub extractReport() {
 		my $startSamples = 1;
 		my $endSamples = 0;
 
-		my $file = "$reportDir/$profile/default/pgbench-transactions-$client-1";
+		my $file = "$reportDir/default/pgbench-transactions-$client-1";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my @elements = split(/\s+/, $_);
@@ -80,7 +80,7 @@ sub extractReport() {
 		}
 		close INPUT;
 		if ($nr_readings == 0) {
-			$file = "$reportDir/$profile/default/pgbench-raw-$client";
+			$file = "$reportDir/default/pgbench-raw-$client";
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (!eof(INPUT)) {
 				my $line = <INPUT>;

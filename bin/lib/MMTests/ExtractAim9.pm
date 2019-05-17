@@ -15,11 +15,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my @workloads = ( "page_test", "brk_test", "exec_test", "fork_test" );
 
 	# List of report files, sort them to be purty
-	my @files = <$reportDir/$profile/aim9-*>;
+	my @files = <$reportDir/aim9-*>;
 	@files = sort {
 		my ($dummy, $aIndex) = split(/-([^-]+)$/, $a);
 		my ($dummy, $bIndex) = split(/-([^-]+)$/, $b);

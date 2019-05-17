@@ -15,10 +15,10 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($user, $system, $elapsed, $cpu);
 
-	my @files = <$reportDir/$profile/*.log>;
+	my @files = <$reportDir/*.log>;
 	my @ops;
 	foreach my $file (@files) {
 		my $testname = $file;

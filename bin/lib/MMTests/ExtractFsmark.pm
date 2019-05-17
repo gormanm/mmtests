@@ -16,11 +16,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($user, $system, $elapsed, $cpu);
 	my $iteration = 1;
 	my @clients;
-	my @files = <$reportDir/$profile/fsmark-*.log>;
+	my @files = <$reportDir/fsmark-*.log>;
 	foreach my $file (@files) {
 		if ($file =~ /-cmd-/) {
 			next;
@@ -33,7 +33,7 @@ sub extractReport() {
 
 	my @ops;
 	foreach my $client (@clients) {
-		my $file = "$reportDir/$profile/fsmark-$client.log";
+		my $file = "$reportDir/fsmark-$client.log";
 		my $preamble = 1;
 		my $enospace = 0;
 		open(INPUT, $file) || die("Failed to open $file\n");

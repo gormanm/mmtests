@@ -17,7 +17,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $jvm_instance = -1;
 	my $reading_tput = 0;
 	my @jvm_instances;
@@ -26,18 +26,18 @@ sub extractReport() {
 	my $single_instance;
 	my $pagesize = "base";
 
-	if (! -e "$reportDir/$profile/$pagesize") {
+	if (! -e "$reportDir/$pagesize") {
 		$pagesize = "transhuge";
 	}
-	if (! -e "$reportDir/$profile/$pagesize") {
+	if (! -e "$reportDir/$pagesize") {
 		$pagesize = "default";
 	}
 
-	my @files = <$reportDir/$profile/$pagesize/result/specjbb2015-*/report-*/*.raw>;
+	my @files = <$reportDir/$pagesize/result/specjbb2015-*/report-*/*.raw>;
 	my $file = $files[0];
 	if ($file eq "") {
-		system("tar -C $reportDir/$profile/$pagesize -xf $reportDir/$profile/$pagesize/result.tar.gz");
-		@files = <$reportDir/$profile/$pagesize/result/specjbb2015-*/report-*/*.raw>;
+		system("tar -C $reportDir/$pagesize -xf $reportDir/$pagesize/result.tar.gz");
+		@files = <$reportDir/$pagesize/result/specjbb2015-*/report-*/*.raw>;
 		$file = $files[0];
 		die if ($file eq "");
 	}

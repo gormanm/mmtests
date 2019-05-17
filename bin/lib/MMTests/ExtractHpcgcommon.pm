@@ -28,10 +28,10 @@ my %metric_map = (
 );
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $iteration = 0;
 
-	foreach my $file (<$reportDir/$profile/hpcg-*.yaml>) {
+	foreach my $file (<$reportDir/hpcg-*.yaml>) {
 		$iteration++;
 
 		my $reading;

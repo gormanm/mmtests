@@ -15,9 +15,9 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
-	my $file = "$reportDir/$profile/xfstests-default.log";
+	my $file = "$reportDir/xfstests-default.log";
 
 	my %status;
 	my @all_tests;

@@ -15,10 +15,10 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($user, $system, $elapsed, $cpu);
 
-	my @files = <$reportDir/$profile/microtput-*-1>;
+	my @files = <$reportDir/microtput-*-1>;
 	my @threads;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
@@ -28,7 +28,7 @@ sub extractReport() {
 
 	foreach my $thread (@threads) {
 		my $nr_samples = 0;
-		foreach my $file (<$reportDir/$profile/microtput-$thread-*>) {
+		foreach my $file (<$reportDir/microtput-$thread-*>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				if ($_ =~ /throughput:\s*([0-9.]*)/) {

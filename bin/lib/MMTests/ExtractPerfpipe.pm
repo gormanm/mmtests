@@ -15,10 +15,10 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $iteration = 0;
 
-	foreach my $file (<$reportDir/$profile/pipe-*.log>) {
+	foreach my $file (<$reportDir/pipe-*.log>) {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;

@@ -22,21 +22,21 @@ sub uniq {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tp, $name);
-	my $file_wk = "$reportDir/$profile/workloads";
+	my $file_wk = "$reportDir/workloads";
 	open(INPUT, "$file_wk") || die("Failed to open $file_wk\n");
 	my @workloads = split(/,/, <INPUT>);
 	$self->{_Workloads} = \@workloads;
 	close(INPUT);
 
-	my $file_locktypes = "$reportDir/$profile/locktypes";
+	my $file_locktypes = "$reportDir/locktypes";
 	open(INPUT, "$file_locktypes") || die("Failed to open $file_locktypes\n");
 	my @locktypes = split(/,/, <INPUT>);
 	$self->{_Locktypes} = \@locktypes;
 	close(INPUT);
 
-	my $file_iter = "$reportDir/$profile/iterations";
+	my $file_iter = "$reportDir/iterations";
 	open(INPUT, "$file_iter") || die("Failed to open $file_iter\n");
 	my @i = <INPUT>;
 	my $iterations = $i[0];
@@ -48,7 +48,7 @@ sub extractReport() {
 	    foreach my $type (@locktypes) {
 		chomp($type);
 
-		my @files = <$reportDir/$profile/filelockperf-$wl-1-$type-*.log>;
+		my @files = <$reportDir/filelockperf-$wl-1-$type-*.log>;
 		foreach my $file (@files) {
 			my @elements = split (/-/, $file);
 			my $thr = $elements[-1];
@@ -68,7 +68,7 @@ sub extractReport() {
 				chomp($type);
 
 				foreach my $iter (1..$iterations) {
-					my $file = "$reportDir/$profile/filelockperf-$wl-$iter-$type-$nthr.log";
+					my $file = "$reportDir/filelockperf-$wl-$iter-$type-$nthr.log";
 
 					open(INPUT, $file) || die("$! Failed to open $file\n");
 					while (<INPUT>) {

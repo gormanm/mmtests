@@ -16,11 +16,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tp, $name);
 	my @threads;
 
-	my @files = <$reportDir/$profile/kernbench-*-1.time>;
+	my @files = <$reportDir/kernbench-*-1.time>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		my $thr = $elements[-2];
@@ -29,7 +29,7 @@ sub extractReport() {
 	}
 
 	foreach my $nthr (@threads) {
-		my @files = <$reportDir/$profile/kernbench-$nthr-*.time>;
+		my @files = <$reportDir/kernbench-$nthr-*.time>;
 
 		foreach my $file (@files) {
 			my @split = split /-/, $file;

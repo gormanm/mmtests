@@ -14,11 +14,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $nr_samples = 0;
 	$reportDir =~ s/netpipe4mb/netpipe/;
 
-	my $file = "$reportDir/$profile/netpipe.log";
+	my $file = "$reportDir/netpipe.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my $line = $_;

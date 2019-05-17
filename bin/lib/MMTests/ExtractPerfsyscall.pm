@@ -16,10 +16,10 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $iteration = 0;
 
-	foreach my $file (<$reportDir/$profile/syscall-*.log>) {
+	foreach my $file (<$reportDir/syscall-*.log>) {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;

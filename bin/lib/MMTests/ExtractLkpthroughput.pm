@@ -21,14 +21,14 @@ sub uniq {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tp, $name);
 	my @workloads = split(/,/, <INPUT>);
 	$self->{_Workloads} = \@workloads;
 	close(INPUT);
 
 	my @threads;
-	my @files = <$reportDir/$profile/lkp-*-1.log>;
+	my @files = <$reportDir/lkp-*-1.log>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		my $thr = $elements[-2];
@@ -39,7 +39,7 @@ sub extractReport() {
 	@threads = uniq(@threads);
 
 	foreach my $nthr (@threads) {
-		foreach my $file (<$reportDir/$profile/lkp-$nthr-*.log>) {
+		foreach my $file (<$reportDir/lkp-$nthr-*.log>) {
 			my $nr_samples = 0;
 
 			open(INPUT, $file) || die("$! Failed to open $file\n");

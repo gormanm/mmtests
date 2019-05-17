@@ -22,7 +22,7 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $reportName) = @_;
 
 	my @jobnames;
-	foreach my $file (<$reportDir/noprofile/results/replayed_*_startup>) {
+	foreach my $file (<$reportDir/results/replayed_*_startup>) {
 		$file =~ s/.*replayed_//;
 		$file =~ s/_startup$//;
 		$file =~ s/_startup.txt$//;
@@ -35,7 +35,7 @@ sub extractReport($$$) {
 		my $reading = 0;
 
 		my @schedulers;
-		foreach my $file (<$reportDir/noprofile/results/replayed_$jobname\_startup/repetition0/*-0r0w-seq-single_times.txt>) {
+		foreach my $file (<$reportDir/results/replayed_$jobname\_startup/repetition0/*-0r0w-seq-single_times.txt>) {
 			$file =~ s/.*\/repetition0\///;
 			$file =~ s/-0r0w-seq-single_times.txt$//;
 			push @schedulers, $file;
@@ -58,7 +58,7 @@ sub extractReport($$$) {
 				my $jobnamePattern="$jobname-$pattern";
 				$jobnamesPatterns{$jobnamePattern} = 0;
 				open INPUT,
-				"$reportDir/noprofile/results/replayed_$jobname\_startup/repetition0/$scheduler-$pattern-single_times.txt"
+				"$reportDir/results/replayed_$jobname\_startup/repetition0/$scheduler-$pattern-single_times.txt"
 				|| die "Failed to find time data file
 				for $jobname\n";
 

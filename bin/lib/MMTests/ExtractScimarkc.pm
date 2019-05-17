@@ -15,11 +15,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my %opNames;
 	my $iteration = 0;
 
-	foreach my $file (<$reportDir/$profile/scimarkc.*>) {
+	foreach my $file (<$reportDir/scimarkc.*>) {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		$iteration++;
 		while (<INPUT>) {

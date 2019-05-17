@@ -16,9 +16,9 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
-	my $file = "$reportDir/$profile/pipetest.log";
+	my $file = "$reportDir/pipetest.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	my $iteration = 0;
 	while (<INPUT>) {

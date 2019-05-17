@@ -18,12 +18,12 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
 	my $reading = 0;
 	my $timestamp;
 	my (%fp50, %fp95, %fp99);
-	open(INPUT, "$reportDir/$profile/simoop.log") || die "Failed to open simoop.log";
+	open(INPUT, "$reportDir/simoop.log") || die "Failed to open simoop.log";
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 		chomp($line);

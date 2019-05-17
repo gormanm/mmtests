@@ -128,7 +128,7 @@ if (! -e "$reportDir/noprofile") {
 }
 
 # Extract data from the benchmark itself and print whatever was requested
-$extractModule->extractReport($reportDir, $opt_name, $profile);
+$extractModule->extractReport("$reportDir/$profile", $opt_name);
 if ($opt_printJSON) {
 	exportJSON($extractModule, $opt_benchmark, $opt_name);
 	exit;

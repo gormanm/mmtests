@@ -17,10 +17,10 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $recent = 0;
 
-	my $file = "$reportDir/$profile/postmark.log";
+	my $file = "$reportDir/postmark.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my $line = $_;

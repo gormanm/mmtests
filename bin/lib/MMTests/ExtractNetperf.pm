@@ -15,16 +15,16 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 
-	open (INPUT, "$reportDir/$profile/protocols");
+	open (INPUT, "$reportDir/protocols");
 	my $protocol = <INPUT>;
 	chomp($protocol);
 	close(INPUT);
 
 	my @sizes;
-	my @files = <$reportDir/$profile/$protocol-*.1>;
+	my @files = <$reportDir/$protocol-*.1>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		my $size = $elements[-1];
@@ -35,11 +35,11 @@ sub extractReport() {
 
 	my $loss;
 	foreach my $size (@sizes) {
-		my $file = "$reportDir/$profile/$protocol-$size.log";
+		my $file = "$reportDir/$protocol-$size.log";
 		my $confidenceLimit;
 		my $iteration = 0;
 
-		foreach $file (<$reportDir/$profile/$protocol-$size.*>) {
+		foreach $file (<$reportDir/$protocol-$size.*>) {
 			my $send_tput = 0;
 			my $recv_tput = 0;
 			my $skip = 0;

@@ -17,14 +17,14 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	$reportDir =~ s/mediawikibuildloadtime/mediawikibuild/;
 
 	my @import_list = ("mwdump", "image", "imagelinks", "logging", "pagelinks");
 
 	foreach my $import (@import_list) {
-		open(INPUT, "$reportDir/$profile/time-import-$import");
+		open(INPUT, "$reportDir/time-import-$import");
 		while (<INPUT>) {
 			next if $_ !~ /elapsed/;
 			$self->addData("$import", 0, $self->_time_to_elapsed($_));

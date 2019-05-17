@@ -18,14 +18,14 @@ sub initialise() {
 }
 
 sub extractOneFile {
-	my ($self, $reportDir, $reportName, $profile, $worker) = @_;
+	my ($self, $reportDir, $reportName, $worker) = @_;
 	my $file;
 	my $jobs = 0;
 	my $rw = 0;
 
 	$reportDir =~ s/fioscaling/fio/;
 
-	$file = "$reportDir/$profile/$worker";
+	$file = "$reportDir/$worker";
 
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file\n");
@@ -65,7 +65,7 @@ sub extractOneFile {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my @file_types = ('read', 'write', 'rw', 'randread', 'randwrite', 'randrw');
 	my @ops;
 	my $worker;

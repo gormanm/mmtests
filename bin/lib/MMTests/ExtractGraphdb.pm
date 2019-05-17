@@ -23,14 +23,14 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my @ops;
 
 	my $start_timestamp;
-	my $file = "$reportDir/$profile/graphdb.log";
-	if (-e "$reportDir/$profile/graphdb.log") {
+	my $file = "$reportDir/graphdb.log";
+	if (-e "$reportDir/graphdb.log") {
 		open(INPUT, "sort -n $file|");
-	} elsif (-e "$reportDir/$profile/graphdb.log.gz") {
+	} elsif (-e "$reportDir/graphdb.log.gz") {
 		open(INPUT, "gunzip -c $file | sort -n |");
 	} else {
 		die("No graphdb.log");

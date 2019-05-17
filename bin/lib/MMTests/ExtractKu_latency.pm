@@ -16,9 +16,9 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
-	my $file = "$reportDir/$profile/ku-latency.log";
+	my $file = "$reportDir/ku-latency.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 
 	my $time_kernel;

@@ -21,9 +21,9 @@ sub initialise()
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($elapsed, $iteration);
-	my $file = "$reportDir/$profile/timedmunlock.time";
+	my $file = "$reportDir/timedmunlock.time";
 
 	open(INPUT, $file) || die("Failed to open $file\n");
 	$iteration = 0;

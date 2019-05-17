@@ -17,9 +17,9 @@ sub uniq {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tp, $name);
-	my $file_wk = "$reportDir/$profile/workloads";
+	my $file_wk = "$reportDir/workloads";
 	open(INPUT, "$file_wk") || die("Failed to open $file_wk\n");
 	my @workloads = split(/ /, <INPUT>);
 	$self->{_Workloads} = \@workloads;
@@ -28,7 +28,7 @@ sub extractReport() {
 	my @threads;
 	foreach my $wl (@workloads) {
 		chomp($wl);
-		my @files = <$reportDir/$profile/$wl-*.log>;
+		my @files = <$reportDir/$wl-*.log>;
 		foreach my $file (@files) {
 			my @elements = split (/-/, $file);
 			my $thr = $elements[-1];
@@ -42,7 +42,7 @@ sub extractReport() {
 
 	foreach my $nthr (@threads) {
 		foreach my $wl (@workloads) {
-			my $file = "$reportDir/$profile/$wl-$nthr.log";
+			my $file = "$reportDir/$wl-$nthr.log";
 			my $futexType = "private";
 			my $nr_samples = 0;
 

@@ -15,7 +15,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my $lastIOStep = -1;
 	my @ioSteps;
 	my @ioSizes;
@@ -23,7 +23,7 @@ sub extractReport() {
 	$reportDir =~ s/parallelioswap/parallelio/;
 
 	# Read the IO steps and workload type
-	my $file = "$reportDir/$profile/workload-durations.log";
+	my $file = "$reportDir/workload-durations.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my @elements = split(/\s/);
@@ -37,7 +37,7 @@ sub extractReport() {
 
 	# Read the corresponding IO sizes
 	$ioSizes[0] = "0M";
-	$file = "$reportDir/$profile/io-durations.log";
+	$file = "$reportDir/io-durations.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
 	while (<INPUT>) {
 		my @elements = split(/\s/);
@@ -49,7 +49,7 @@ sub extractReport() {
 	foreach my $ioStep (@ioSteps) {
 		my $readingBefore;
 
-		my @files = <$reportDir/$profile/vmstat-$workload-$ioStep-*.log>;
+		my @files = <$reportDir/vmstat-$workload-$ioStep-*.log>;
 		my $minOps = -1;
 		my $iteration = 0;
 

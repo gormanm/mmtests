@@ -14,10 +14,10 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
-	open (INPUT, "$reportDir/$profile/time-install.log") ||
-		die("Failed to open $reportDir/$profile/time-install.log");
+	open (INPUT, "$reportDir/time-install.log") ||
+		die("Failed to open $reportDir/time-install.log");
 	while (<INPUT>) {
 		next if $_ !~ /elapsed/;
 		$self->addData("Sys", 0, $self->_time_to_sys($_));

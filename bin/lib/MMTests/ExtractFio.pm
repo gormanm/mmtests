@@ -17,8 +17,8 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
-	my $file = "$reportDir/$profile/fio.log";
+	my ($self, $reportDir, $reportName) = @_;
+	my $file = "$reportDir/fio.log";
 	my @ops;
 
 	if (-e $file) {

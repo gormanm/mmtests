@@ -16,11 +16,11 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	my @clients;
 
-	my @files = <$reportDir/$profile/dvdstore-*.log>;
+	my @files = <$reportDir/dvdstore-*.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-1] =~ s/.log//;
@@ -39,7 +39,7 @@ sub extractReport() {
 		my $endSamples = 0;
 
 		my $reading = 0;
-		my $file = "$reportDir/$profile/dvdstore-$client.log";
+		my $file = "$reportDir/dvdstore-$client.log";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (!eof(INPUT)) {
 			my $line = <INPUT>;

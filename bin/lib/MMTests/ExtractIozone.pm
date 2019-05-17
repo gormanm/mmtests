@@ -37,11 +37,11 @@ sub testcompare() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 
 	my @sizes;
 	my %sizesSeen;
-	my @files = <$reportDir/$profile/iozone-*.log>;
+	my @files = <$reportDir/iozone-*.log>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-1] =~ s/.log//;

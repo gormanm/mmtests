@@ -21,11 +21,11 @@ sub uniq {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($protocol);
 
 	my (@sizes, @rates);
-	my @files = <$reportDir/$profile/*-*-1.log*>;
+	my @files = <$reportDir/*-*-1.log*>;
 	foreach my $file (@files) {
 		my @elements = split (/-/, $file);
 		$protocol = $elements[-4];
@@ -44,7 +44,7 @@ sub extractReport() {
 	my @ops;
 	foreach my $size (@sizes) {
 		foreach my $rate (@rates) {
-			my $file = "$reportDir/$profile/$protocol-$size-$rate-1.log";
+			my $file = "$reportDir/$protocol-$size-$rate-1.log";
 			if (-e $file) {
 				open(INPUT, $file) || die("Failed to open $file\n");
 			} else {

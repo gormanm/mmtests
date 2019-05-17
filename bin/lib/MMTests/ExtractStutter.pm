@@ -19,11 +19,11 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($user, $system, $elapsed, $cpu);
 
 	# Extract parallel mmap latency
-	my $file = "$reportDir/$profile/mmap-latency.log";
+	my $file = "$reportDir/mmap-latency.log";
 	my $nr_samples = 1;
 	my $nr_delayed = 0;
 	open(INPUT, $file) || die("Failed to open $file\n");

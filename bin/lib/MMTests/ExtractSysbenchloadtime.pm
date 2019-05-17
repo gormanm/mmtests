@@ -15,13 +15,13 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir, $reportName) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
 	$reportDir =~ s/sysbenchloadtime/sysbench/;
 
 	my @clients;
-	my @files = <$reportDir/$profile/default/sysbench-raw-*-1>;
+	my @files = <$reportDir/default/sysbench-raw-*-1>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
@@ -32,7 +32,7 @@ sub extractReport() {
 	# Extract load times if available
 	$iteration = 0;
 	foreach my $client (@clients) {
-		if (open (INPUT, "$reportDir/$profile/default/load-$client.time")) {
+		if (open (INPUT, "$reportDir/default/load-$client.time")) {
 			while (<INPUT>) {
 				next if $_ !~ /elapsed/;
 				$self->addData("loadtime", ++$iteration, $self->_time_to_elapsed($_));
