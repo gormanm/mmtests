@@ -10,22 +10,12 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorKcacheslabs",
 		_DataType      => DataTypes::DATA_OPS_PER_SECOND,
-		_FieldLength   => 12,
+		_FieldLength   => 24,
 		_PlotType      => "simple",
 		_PlotXaxis     => "Time"
 	};
 	bless $self, $class;
 	return $self;
-}
-
-sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
-
-        my $fieldLength = 24;
-        $self->{_FieldLength} = $fieldLength;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%-${fieldLength}s", "%${fieldLength}.2f" ];
-	$self->{_FieldHeaders} = [ "Source", "Mean" ];
-        $self->SUPER::initialise($reportDir, $testName);
 }
 
 sub extractReport($$$$) {

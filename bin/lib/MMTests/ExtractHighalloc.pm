@@ -18,11 +18,8 @@ sub new() {
 sub initialise() {
 	my ($self, $reportDir, $testName) = @_;
 
+	$self->{_FieldLength} = 25;
 	$self->SUPER::initialise($reportDir, $testName);
-
-	my $fieldLength = $self->{_FieldLength} = 25;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders} = [ "Workload", "Op" ];
 }
 
 sub extractReport() {

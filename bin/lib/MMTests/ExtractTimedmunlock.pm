@@ -18,8 +18,6 @@ sub initialise()
 	my ($self, $reportDir, $testName) = @_;
 
 	$self->SUPER::initialise($reportDir, $testName);
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%${fieldLength}d", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders} = [ "munlock", "Iteration", "Latency" ];
 }
 
 sub extractReport() {

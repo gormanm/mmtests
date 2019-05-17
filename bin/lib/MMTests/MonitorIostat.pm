@@ -55,7 +55,6 @@ sub extractReport($$$) {
 
 	my $fieldLength = 12;
         $self->{_FieldLength} = $fieldLength;
-        $self->{_FieldHeaders} = [ "Op", "Time", "Value" ];
         $self->{_FieldFormat} = ["%${fieldLength}s", "%${fieldLength}.4f", 
 				  "%${fieldLength}.2f" ];
 

@@ -11,8 +11,7 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractVmscale";
 	$self->{_DataType} = DataTypes::DATA_TIME_SECONDS;
 	$self->{_TestName} = $testName;
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "", "%$fieldLength.2f" ];
-	$self->{_FieldHeaders} = [ "Test-Metric", "Value" ];
+	$self->{_Opname} = "Value";
 
 	$self->SUPER::initialise($reportDir, $testName);
 }

@@ -29,7 +29,6 @@ sub initialise() {
 	}
 	$self->SUPER::initialise($reportDir, $testName);
 
-	$self->{_FieldHeaders} = [ "Type", "Ops" ];
 	$self->{_FieldFormat} = [ "%-$self->{_FieldLength}s", "", "%12d" ];
 }
 

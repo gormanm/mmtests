@@ -81,9 +81,6 @@ sub extractReport() {
 		if (!defined $_colMap{$subHeading}) {
 			die("Unrecognised heading $subHeading");
 		}
-		$self->{_FieldHeaders}  = [ "Op", "Time", "$subHeading" ];
-	} else {
-		$self->{_FieldHeaders}  = [ "Op", "Time", "Value" ];
 	}
 
 	# Read all counters
