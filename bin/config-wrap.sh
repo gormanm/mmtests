@@ -12,7 +12,7 @@ if [ "$MMTESTS" = "" ]; then
 	. $SCRIPTDIR/config
 fi
 
-mkdir -p $SCRIPTDIR/work/log
-mkdir -p $SCRIPTDIR/work/testdisk
-mkdir -p $SCRIPTDIR/work/sources
+mkdir -p $SHELLPACK_LOG_BASE
+mkdir -p $SHELLPACK_TEST_MOUNT
+mkdir -p $SHELLPACK_SOURCES
 eval $@

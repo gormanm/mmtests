@@ -142,7 +142,7 @@ if [ \$? -ne 0 ]; then
 fi
 ./run-mmtests.sh $RUNNAME
 PACKAGENAME="logs-$RUNNAME-\`date +%Y%m%d-%H%M-%S\`.tar.gz"
-tar -czf ../\$PACKAGENAME work/log
+tar -czf ../\$PACKAGENAME $SHELLPACK_LOG_BASE_SUBDIR
 if [ \$? -ne 0 ]; then
 	cd ..
 	rm -rf mmtests-monitor-$RUNNAME

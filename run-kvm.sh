@@ -51,8 +51,8 @@ echo Executing mmtests on the guest
 ssh root@$GUEST_IP "cd git-private/$NAME && ./run-mmtests.sh $@"
 RETVAL=$!
 
-echo Syncing work/log
-ssh root@$GUEST_IP "cd git-private/$NAME && tar -czf work.tar.gz work/log" || die Failed to archive work/log
+echo Syncing $SHELLPACK_LOG_BASE_SUBDIR
+ssh root@$GUEST_IP "cd git-private/$NAME && tar -czf work.tar.gz $SHELLPACK_LOG_BASE_SUBDIR" || die Failed to archive $SHELLPACK_LOG_BASE_SUBDIR
 scp root@$GUEST_IP:git-private/$NAME/work.tar.gz . || die Failed to download work.tar.gz
 tar -xf work.tar.gz || die Failed to extract work.tar.gz
 
