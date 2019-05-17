@@ -17,7 +17,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName 	=> "Compare",
-		_FieldHeaders	=> [],
 		_ResultData	=> [],
 		_FieldLength	=> 0,
 		_Headers	=> [ "Base" ],
@@ -72,13 +71,6 @@ sub printReportTop($) {
 sub printReportBottom($) {
 	my ($self) = @_;
 	$self->{_PrintHandler}->printBottom();
-}
-
-sub printFieldHeaders() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printHeaders(
-		$self->{_FieldLength}, $self->{_FieldHeaders},
-		$self->{_FieldHeaderFormat});
 }
 
 sub _generateComparisonTable() {
