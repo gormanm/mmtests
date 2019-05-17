@@ -40,7 +40,7 @@ sub getDataType() {
 }
 
 sub extractReport($$$) {
-	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
+	my ($self, $reportDir, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my $readingDevices = 0;
 	my $start_timestamp = 0;
 	my $format_type = -1;

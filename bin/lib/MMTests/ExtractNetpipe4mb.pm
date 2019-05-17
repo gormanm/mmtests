@@ -14,7 +14,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $nr_samples = 0;
 	$reportDir =~ s/netpipe4mb/netpipe/;
 

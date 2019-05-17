@@ -17,7 +17,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $nr_samples = 0;
 
 	my $file = "$reportDir/netpipe.log";

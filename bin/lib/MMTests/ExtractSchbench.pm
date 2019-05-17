@@ -20,7 +20,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my @ratioops;
 
 	my @files = <$reportDir/schbench-*.log>;

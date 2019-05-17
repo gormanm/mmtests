@@ -15,7 +15,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	$reportDir =~ s/mpitime/mpi/;
 	$reportDir =~ s/omptime/omp/;
 	$reportDir =~ s/mpi-([a-z][a-z])time/mpi-\1/;

@@ -17,7 +17,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $jvm_instance = -1;
 	my $reading_tput = 0;
 	my @jvm_instances;

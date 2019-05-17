@@ -18,7 +18,7 @@ sub initialise() {
 }
 
 sub extractOneFile {
-	my ($self, $reportDir, $reportName, $worker) = @_;
+	my ($self, $reportDir, $worker) = @_;
 	my $file;
 	my $jobs = 0;
 	my $rw = 0;
@@ -65,7 +65,7 @@ sub extractOneFile {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my @file_types = ('read', 'write', 'rw', 'randread', 'randwrite', 'randrw');
 	my @ops;
 	my $worker;

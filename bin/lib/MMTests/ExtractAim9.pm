@@ -15,7 +15,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my @workloads = ( "page_test", "brk_test", "exec_test", "fork_test" );
 
 	# List of report files, sort them to be purty

@@ -16,7 +16,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my @clients;
 	$reportDir =~ s/4latency/4/;
 

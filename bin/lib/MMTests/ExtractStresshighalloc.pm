@@ -14,7 +14,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $file = "$reportDir/log.txt";
 	my $pass = 0;
 

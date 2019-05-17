@@ -41,7 +41,7 @@ sub initialise() {
 }
 
 sub extractReport($$$$) {
-	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
+	my ($self, $reportDir, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my $timestamp;
 	my $start_timestamp = 0;
 

@@ -18,7 +18,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my ($tm, $tput, $latency);
 	my $size = 0;
 

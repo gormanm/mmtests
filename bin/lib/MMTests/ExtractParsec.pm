@@ -18,7 +18,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 
 	foreach my $file (<$reportDir/time.*>) {
 		my $nr_samples = 0;

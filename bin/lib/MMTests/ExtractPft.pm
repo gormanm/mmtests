@@ -19,7 +19,7 @@ sub initialise() {
 my $_pagesize = "base";
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my ($user, $system, $wallTime, $faultsCpu, $faultsSec);
 	my $dummy;
 	$reportDir =~ s/pfttime-/pft-/;

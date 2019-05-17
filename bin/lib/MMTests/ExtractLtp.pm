@@ -22,7 +22,7 @@ my %status_code = (
 );
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 
 	my @collections;
 	foreach my $file (<$reportDir/ltp-*.log>) {

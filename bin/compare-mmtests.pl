@@ -73,10 +73,10 @@ if (!defined($opt_monitor)) {
 			if ($opt_Rsummary) {
 				$extractModules[$nrModules++]->extractSummaryR($opt_subheading, $opt_Rsummary);
 			} elsif ($opt_printRatio) {
-				$extractModules[$nrModules]->extractReport("$reportDirectory/$profile", $name);
+				$extractModules[$nrModules]->extractReport("$reportDirectory/$profile");
 				$extractModules[$nrModules++]->extractRatioSummary($opt_subheading);
 			} else {
-				$extractModules[$nrModules]->extractReport("$reportDirectory/$profile", $name);
+				$extractModules[$nrModules]->extractReport("$reportDirectory/$profile");
 				$extractModules[$nrModules++]->extractSummary($opt_subheading);
 			}
 		} or do {
@@ -91,7 +91,7 @@ if (!defined($opt_monitor)) {
 		eval {
 			my $reportDirectory = "$opt_reportDirectory/$name";
 			$extractModules[$nrModules] = $extractFactory->loadModule("monitor", $opt_monitor, $reportDirectory, $name, $opt_format, $opt_subheading);
-			$extractModules[$nrModules]->extractReport($reportDirectory, $name, $opt_benchmark, $opt_subheading, 1);
+			$extractModules[$nrModules]->extractReport($reportDirectory, $opt_benchmark, $opt_subheading, 1);
 			$extractModules[$nrModules++]->extractSummary($opt_subheading);
 		} or do {
 			printWarning("Failed to load module for benchmark $opt_benchmark, $name\n$@");

@@ -17,7 +17,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	$reportDir =~ s/thpscalecounts/thpscale/;
 
 	my @ops;

@@ -16,7 +16,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 
 	my $file = "$reportDir/ku-latency.log";
 	open(INPUT, $file) || die("Failed to open $file\n");

@@ -79,7 +79,7 @@ if (defined $opt_monitor) {
 		exit(-1);
 	};
 
-	$monitorModule->extractReport($reportDir, $opt_name, $opt_benchmark, $opt_subheading);
+	$monitorModule->extractReport($reportDir, $opt_benchmark, $opt_subheading);
 
 	# Just print the type if asked
 	if ($opt_printType) {
@@ -128,7 +128,7 @@ if (! -e "$reportDir/noprofile") {
 }
 
 # Extract data from the benchmark itself and print whatever was requested
-$extractModule->extractReport("$reportDir/$profile", $opt_name);
+$extractModule->extractReport("$reportDir/$profile");
 if ($opt_printJSON) {
 	exportJSON($extractModule, $opt_benchmark, $opt_name);
 	exit;

@@ -15,7 +15,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $iteration = 0;
 
 	foreach my $file (<$reportDir/peak_injection_bandwidth-*.log>) {

@@ -13,7 +13,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my ($user, $system, $elapsed, $cpu);
 	$reportDir =~ s/overhead//;
 	my $iteration = 1;

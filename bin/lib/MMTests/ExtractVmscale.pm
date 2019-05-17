@@ -17,7 +17,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my @cases;
 
 	open(INPUT, "$reportDir/cases") || die "Failed to open cases file";

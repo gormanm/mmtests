@@ -22,7 +22,7 @@ my %status_code = (
 );
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 
 	my @clients;
 	foreach my $file (<$reportDir/pistress-*.log>) {

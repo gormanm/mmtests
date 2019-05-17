@@ -21,7 +21,7 @@ sub uniq {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my ($tp, $name);
 	my $file_wk = "$reportDir/workloads";
 	open(INPUT, "$file_wk") || die("Failed to open $file_wk\n");

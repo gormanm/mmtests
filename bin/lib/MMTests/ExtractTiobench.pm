@@ -14,7 +14,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $max_read = -1;
 
 	if (open(INPUT, "$reportDir/disk-read.speed")) {

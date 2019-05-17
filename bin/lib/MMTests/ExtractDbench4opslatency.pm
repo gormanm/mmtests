@@ -22,7 +22,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my ($tm, $tput, $latency);
 	my $readingOperations = 0;
 	my @clients;

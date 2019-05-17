@@ -15,7 +15,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $lastIOStep = -1;
 	my @ioSteps;
 	my @ioSizes;

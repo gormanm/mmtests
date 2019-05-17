@@ -376,7 +376,7 @@ sub parseVMStat($)
 }
 
 sub extractReport($$$$) {
-	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
+	my ($self, $reportDir, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my (%vmstat_before, %vmstat_after, %vmstat);
 	my ($reading_before, $reading_after);
 	my $elapsed_time;

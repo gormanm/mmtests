@@ -16,7 +16,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $max_read = -1;
 	$reportDir =~ s/tiobenchlatency-/tiobench-/;
 

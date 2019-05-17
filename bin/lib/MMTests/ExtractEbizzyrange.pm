@@ -16,7 +16,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 
 	$reportDir =~ s/ebizzyrange/ebizzy/;
 	my @clients;

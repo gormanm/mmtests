@@ -19,7 +19,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $seen_read = 0;
 	my $seen_write = 0;
 	$reportDir =~ s/fiolatency/fio/;

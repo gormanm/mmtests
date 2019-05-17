@@ -19,7 +19,7 @@ sub new() {
 }
 
 sub extractReport($$$$) {
-	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
+	my ($self, $reportDir, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my ($reading_before, $reading_after);
 	my $elapsed_time;
 	my $timestamp;

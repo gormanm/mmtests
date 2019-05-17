@@ -19,7 +19,7 @@ sub new() {
 }
 
 sub extractReport($$$) {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 
 	my @jobnames;
 	foreach my $file (<$reportDir/results/replayed_*_startup>) {

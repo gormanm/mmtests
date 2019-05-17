@@ -15,7 +15,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $section = 0;
 
 	foreach my $file (<$reportDir/CPU2017.001.*.txt>) {

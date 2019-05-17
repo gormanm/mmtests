@@ -17,7 +17,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 
 	open (INPUT, "$reportDir/time-install.log") ||
 		die("Failed to open $reportDir/time-install.log");

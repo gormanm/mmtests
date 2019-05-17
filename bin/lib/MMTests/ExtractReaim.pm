@@ -14,7 +14,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $required_heading = "JPM";
 
 	my @workfiles = <$reportDir/workfile.*>;

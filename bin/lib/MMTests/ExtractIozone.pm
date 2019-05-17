@@ -37,7 +37,7 @@ sub testcompare() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 
 	my @sizes;
 	my %sizesSeen;

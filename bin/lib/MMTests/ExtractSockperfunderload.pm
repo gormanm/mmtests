@@ -21,7 +21,7 @@ sub uniq {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my ($protocol);
 
 	my (@sizes, @rates);

@@ -17,7 +17,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 
 	my @files = <$reportDir/mutilate-*-1.log>;
 	my @clients;

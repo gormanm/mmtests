@@ -21,7 +21,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my ($user, $system, $elapsed, $cpu);
 	my $file = "$reportDir/time";
 	my $cnt = 0;

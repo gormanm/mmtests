@@ -17,7 +17,7 @@ sub initialise() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $recent = 0;
 
 	my $file = "$reportDir/postmark.log";

@@ -16,7 +16,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $iteration = 0;
 
 	foreach my $file (<$reportDir/syscall-*.log>) {

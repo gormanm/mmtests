@@ -102,7 +102,7 @@ sub timestamp_to_ms($) {
 my %processMap;
 
 sub extractReport($$$) {
-	my ($self, $reportDir, $testName, $testBenchmark, $subHeading, $rowOrientated) = @_;
+	my ($self, $reportDir, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my %last_procmap;
 
 	$self->{_SubHeading} = $subHeading;

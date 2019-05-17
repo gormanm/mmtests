@@ -16,7 +16,7 @@ sub new() {
 }
 
 sub extractReport($$$) {
-	my ($self, $reportDir, $testName, $testBenchmark) = @_;
+	my ($self, $reportDir, $testBenchmark) = @_;
 	my $file = "$reportDir/tests-timestamp";
 
 	open(INPUT, $file) || die("Failed to open $file\n");

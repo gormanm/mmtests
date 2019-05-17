@@ -23,7 +23,7 @@ sub uniq {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my @threads;
 
 	my @files = <$reportDir/freqmine-*-1.log>;

@@ -15,7 +15,7 @@ sub new() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName) = @_;
+	my ($self, $reportDir) = @_;
 	my $iteration = 0;
 	my @metric_list = ("HPL_Tflops", "PTRANS_GBs", "MPIRandomAccess_GUPs", "MPIFFT_Gflops", "StarSTREAM_Triad", "StarDGEMM_Gflops", "RandomlyOrderedRingBandwidth_GBytes");
 
