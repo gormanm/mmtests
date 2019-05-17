@@ -35,7 +35,7 @@ sub initialise() {
 	$self->SUPER::initialise($reportDir, $testName);
 	$self->{_FieldLength} = 12 if ($self->{_FieldLength} == 0);
 	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f", "%${fieldLength}.2f", "%${fieldLength}d" ];
+	$self->{_FieldFormat} = [ "%-${fieldLength}s",  "%${fieldLength}d", "%${fieldLength}.2f" ];
 	$self->{_FieldHeaders} = [ "Type", "Sample", $opName ];
 	for (my $header = 0; $header < scalar @{$self->{_SummaryStats}};
 	     $header++) {
