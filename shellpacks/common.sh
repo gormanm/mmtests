@@ -1028,19 +1028,20 @@ function round_down_nearest_square()
 function have_run_results()
 {
 	if [ -n "$1" ]; then
-		[ -e tests-timestamp-$1 ]
+		[ -e tests-activity-$1 ]
 	else
-		ls tests-timestamp-* &>/dev/null
+		ls tests-activity-* &>/dev/null
 	fi
 }
 
 function run_report_name()
 {
-	grep "test begin :: " tests-timestamp-$1 | awk '{print $4}'
+	grep "run-mmtests: begin" tests-activity-$1 | awk '{print $4}'
 }
 
 function run_results()
 {
-	grep -H ^start tests-timestamp-* | awk -F : '{print $4" "$1}' | \
-		sort -n | awk '{print $2}' | sed -e 's/tests-timestamp-//'
+	grep -H "run-mmtests: Start$" tests-activity-* | \
+		awk '{print $2" "$1}' | \
+		sort -n | awk '{print $2}' | sed -e 's/tests-activity-\(.*\):/\1/'
 }

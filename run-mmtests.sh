@@ -619,6 +619,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		# Run the test
 		echo Starting test $TEST
 		echo test begin :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
+		echo `date +%s` "run-mmtests: begin $TEST" >> $SHELLPACK_ACTIVITY
 
 		# Record some files at start of test
 		for PROC_FILE in $PROC_FILES; do
