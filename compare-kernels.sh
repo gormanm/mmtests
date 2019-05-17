@@ -726,17 +726,17 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	fi
 	eval $COMPARE_CMD --print-monitor mmtests-vmstat
 
-	if [ `ls turbostat-* 2> /dev/null | wc -l` -gt 0 ]; then
+	if have_monitor_results turbostat $KERNEL_BASE; then
 		eval $COMPARE_CMD --print-monitor turbostat
 	fi
 
-	if [ `ls perf-time-stat-* 2> /dev/null | wc -l` -gt 0 ]; then
+	if have_monitor_results perf-time-stat $KERNEL_BASE; then
 		eval $COMPARE_CMD --print-monitor perf-time-stat
 	fi
 
 	IOSTAT_GRAPH=no
 	TEST=
-	if [ `ls iostat-* 2> /dev/null | wc -l` -gt 0 ]; then
+	if have_monitor_results iostat $KERNEL_BASE; then
 		eval $COMPARE_BARE_CMD --print-monitor iostat 2> /dev/null > /tmp/iostat-$$
 		TEST=`head -4 /tmp/iostat-$$ | tail -1 | awk '{print $3}' | cut -d. -f1`
 	fi
@@ -756,7 +756,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	fi
 
 	KCACHE_GRAPH=no
-	if [ `ls kcache-slabs-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
+	if have_monitor_results kcache-slabs $KERNEL_BASE; then
 		eval $COMPARE_BARE_CMD --print-monitor kcacheslabs > /tmp/kcache.$$
 		ALLOCS=`grep ^Max /tmp/kcache.$$ | grep allocs | awk '{print $3}' | sed -e 's/\..*//'`
 		FREES=`grep ^Max /tmp/kcache.$$ | grep frees | awk '{print $3}' | sed -e 's/\..*//'`
@@ -768,84 +768,66 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	fi
 
 	FTRACE_ALLOCLATENCY_GRAPH=no
-	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
-		zgrep -q mm_vmscan_direct_reclaim_begin ftrace-$KERNEL_BASE*
-		if [ $? -eq 0 ]; then
-			echo Ftrace direct reclaim allocation stalls
-			eval $COMPARE_CMD --print-monitor ftraceallocstall
-			echo
-			FTRACE_ALLOCLATENCY_GRAPH=yes
-		fi
+	if have_monitor_results ftrace $KERNEL_BASE mm_vmscan_direct_reclaim_begin; then
+		echo Ftrace direct reclaim allocation stalls
+		eval $COMPARE_CMD --print-monitor ftraceallocstall
+		echo
+		FTRACE_ALLOCLATENCY_GRAPH=yes
 	fi
 
 	FTRACE_SHRINKERLATENCY_GRAPH=no
-	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
-		zgrep -q mm_shrink_slab_start ftrace-$KERNEL_BASE*
-		if [ $? -eq 0 ]; then
-			echo Ftrace slab shrinker stalls kswapd
-			eval $COMPARE_CMD --print-monitor ftraceshrinkerstall --sub-heading kswapd
-			echo Ftrace slab shrinker stalls not kswapd
-			eval $COMPARE_CMD --print-monitor ftraceshrinkerstall --sub-heading no-kswapd
-			echo
+	if have_monitor_results ftrace $KERNEL_BASE mm_shrink_slab_start; then
+		echo Ftrace slab shrinker stalls kswapd
+		eval $COMPARE_CMD --print-monitor ftraceshrinkerstall --sub-heading kswapd
+		echo Ftrace slab shrinker stalls not kswapd
+		eval $COMPARE_CMD --print-monitor ftraceshrinkerstall --sub-heading no-kswapd
+		echo
 
-			FTRACE_SHRINKERLATENCY_GRAPH=yes
-		fi
+		FTRACE_SHRINKERLATENCY_GRAPH=yes
 	fi
 
 	FTRACE_COMPACTLATENCY_GRAPH=no
-	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
-		zgrep -q mm_compaction_begin ftrace-$KERNEL_BASE*
-		if [ $? -eq 0 ]; then
-			echo Ftrace compaction stalls khugepaged
-			eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading khugepaged
-			echo Ftrace compaction stalls kswapd or kcompactd
-			eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd
-			echo Ftrace compaction stalls not kswapd, kcompactd or khugepaged
-			eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged
-			echo
+	if have_monitor_results ftrace $KERNEL_BASE mm_compaction_begin; then
+		echo Ftrace compaction stalls khugepaged
+		eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading khugepaged
+		echo Ftrace compaction stalls kswapd or kcompactd
+		eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd
+		echo Ftrace compaction stalls not kswapd, kcompactd or khugepaged
+		eval $COMPARE_CMD --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged
+		echo
 
-			FTRACE_COMPACTLATENCY_GRAPH=yes
-		fi
+		FTRACE_COMPACTLATENCY_GRAPH=yes
 	fi
 
 	FTRACE_WAITIFFCONGESTED_GRAPH=no
-	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
-		zgrep -q wait_iff_congested ftrace-$KERNEL_BASE* | grep -v "usec_delayed=0"
-		if [ $? -eq 0 ]; then
-			echo Ftrace wait_iff_congested kswapd
-			eval $COMPARE_CMD --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd
-			echo Ftrace wait_iff_congested not kswapd
-			eval $COMPARE_CMD --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd
-			echo
+	if have_monitor_results ftrace $KERNEL_BASE wait_iff_congested; then
+		echo Ftrace wait_iff_congested kswapd
+		eval $COMPARE_CMD --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd
+		echo Ftrace wait_iff_congested not kswapd
+		eval $COMPARE_CMD --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd
+		echo
 
-			FTRACE_WAITIFFCONGESTED_GRAPH=yes
-		fi
+		FTRACE_WAITIFFCONGESTED_GRAPH=yes
 	fi
 
 	FTRACE_CONGESTIONWAIT_GRAPH=no
-	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
-		zgrep -q congestion_wait ftrace-$KERNEL_BASE* | grep -v "usec_delayed=0"
-		if [ $? -eq 0 ]; then
-			echo Ftrace congestion_wait kswapd
-			eval $COMPARE_CMD --print-monitor ftracecongestionwaitstall --sub-heading kswapd
-			echo Ftrace congestion_wait not kswapd
-			eval $COMPARE_CMD --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd
-			echo
+	if have_monitor_results ftrace $KERNEL_BASE "congestion_wait.*usec_delayed=[1-9]"; then
+		echo Ftrace congestion_wait kswapd
+		eval $COMPARE_CMD --print-monitor ftracecongestionwaitstall --sub-heading kswapd
+		echo Ftrace congestion_wait not kswapd
+		eval $COMPARE_CMD --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd
+		echo
 
-			FTRACE_CONGESTIONWAIT_GRAPH=yes
-		fi
+		FTRACE_CONGESTIONWAIT_GRAPH=yes
 	fi
 
 	FTRACE_BALANCEDIRTYPAGES_GRAPH=no
-	if [ `ls ftrace-$KERNEL_BASE* 2> /dev/null | wc -l` -gt 0 ]; then
-		zgrep -q balance_dirty_pages ftrace-$KERNEL_BASE*
-		if [ $? -eq 0 ]; then
-			echo Ftrace balance_dirty_pages
-			eval $COMPARE_CMD --print-monitor ftracebalancedirtypagesstall --sub-heading no-kswapd
-			echo
+	if have_monitor_results ftrace $KERNEL_BASE balance_dirty_pages; then
+		echo Ftrace balance_dirty_pages
+		eval $COMPARE_CMD --print-monitor ftracebalancedirtypagesstall --sub-heading no-kswapd
+		echo
 
-			FTRACE_BALANCEDIRTYPAGES_GRAPH=yes
-		fi
+		FTRACE_BALANCEDIRTYPAGES_GRAPH=yes
 	fi
 
 	GRANULARITY=
@@ -1434,7 +1416,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		generate_latency_graph "inbox-open" '"Mail Read Latency"'
 		generate_latency_graph "sync-latency" '"Sync Latency"'
 
-		if [ `ls iotop-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		if have_monitor_results iotop $KERNEL_BASE; then
 			mkdir /tmp/iotop-mmtests-$$
 			for OP in Read Write; do
 				echo "<tr>"
@@ -1521,7 +1503,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			rm -rf /tmp/iotop-mmtests-$$
 		fi
 
-		if [ `ls turbostat-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		if have_monitor_results turbostat $KERNEL_BASE; then
 			EVENTS=`$EXTRACT_CMD -n $KERNEL_BASE --print-monitor turbostat --print-header | head -1 | sed -e 's/Time //'`
 			COUNT=-1
 			for EVENT in $EVENTS; do
@@ -1549,7 +1531,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 
-		if [ `ls perf-time-stat-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		if have_monitor_results perf-time-stat $KERNEL_BASE; then
 			EVENTS=`$EXTRACT_CMD -n $KERNEL_BASE --print-monitor perf-time-stat --print-header | head -1`
 			COUNT=-1
 			for EVENT in $EVENTS; do
@@ -1571,7 +1553,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			fi
 		fi
 
-		if [ `ls vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ]; then
+		if have_monitor_results vmstat $KERNEL_BASE; then
 			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.png
 			eval $GRAPH_PSC --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.ps
 			eval $GRAPH_PNG --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy.png
@@ -1615,7 +1597,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			eval $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy-smooth.png --smooth
 			eval $GRAPH_PSC --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy-smooth.ps --smooth
 
-			if [ `ls proc-vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ]; then
+			if have_monitor_results proc-vmstat $KERNEL_BASE; then
 				eval $GRAPH_PNG --title \"Minor Faults\" --logY   --print-monitor proc-vmstat --sub-heading mmtests_minor_faults --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults.png
 				eval $GRAPH_PSC --title \"Minor Faults\" --logY   --print-monitor proc-vmstat --sub-heading mmtests_minor_faults --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults.ps
 				eval $GRAPH_PNG --title \"Major Faults\" --logY   --print-monitor proc-vmstat --sub-heading pgmajfault --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults.png
@@ -1642,7 +1624,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "</tr>"
 		fi
 
-		if [ `ls vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ]; then
+		if have_monitor_results vmstat $KERNEL_BASE; then
 			eval $GRAPH_PNG --title \"Free Memory\"      --print-monitor vmstat --sub-heading free --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-free.png
 			eval $GRAPH_PSC --title \"Free Memory\"      --print-monitor vmstat --sub-heading free --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-free.ps
 			eval $GRAPH_PNG --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs.png
@@ -1660,7 +1642,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			smoothover graph-$SUBREPORT-vmstat-in
 			echo "</tr>"
 		fi
-		if [ `ls proc-vmstat-$KERNEL_BASE-* 2> /dev/null| wc -l` -gt 0 ]; then
+		if have_monitor_results proc-vmstat $KERNEL_BASE; then
 			eval $GRAPH_PNG --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty.png 2> /dev/null
 			eval $GRAPH_PSC --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty.ps 2> /dev/null
 			eval $GRAPH_PNG --title \"Writeback Pages\"    --print-monitor proc-vmstat --sub-heading nr_writeback --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_writeback.png 2> /dev/null
@@ -1734,8 +1716,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			smoothover graph-$SUBREPORT-proc-vmstat-pgpin
 			smoothover graph-$SUBREPORT-proc-vmstat-pgpout
 			echo "</tr>"
-		fi
-		if [ `ls proc-vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ] && [ `awk '{print $12}' vmstat-* | grep -v '^$' | max` -gt 0 ]; then
+
 			eval $GRAPH_PNG --title \"Swap Usage\" --print-monitor vmstat --sub-heading swpd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-swpd.png
 			eval $GRAPH_PSC --title \"Swap Usage\" --print-monitor vmstat --sub-heading swpd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-swpd.ps
 			eval $GRAPH_PNG --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si.png
@@ -1759,7 +1740,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		SLAB_ACTIVITY=no
 		KSWAPD_INODE_STEAL_ACTIVITY=no
 		DIRECT_INODE_STEAL_ACTIVITY=no
-		if [ `ls proc-vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ]; then
+		if have_monitor_results proc-vmstat $KERNEL_BASE; then
 			for KERNEL in $KERNEL_LIST_ITER; do
 				$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan | grep -q -v " 0"
 				if [ $? -eq 0 ]; then
@@ -1873,7 +1854,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "</tr>"
 		fi
 
-		if [ `ls proc-vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ] && [ `zgrep compact_stall proc-vmstat-$KERNEL_BASE-* | awk '{print $2}' | sort -n | tail -1` -gt 0 ]; then
+		if have_monitor_results proc-vmstat $KERNEL_BASE "^compact_stall [1-9]"; then
 			eval $GRAPH_PNG --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall.png
 			eval $GRAPH_PSC --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall.ps
 			eval $GRAPH_PNG --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall-smooth.png --smooth
@@ -1896,7 +1877,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "</tr>"
 		fi
 
-		if [ `ls proc-vmstat-$KERNEL_BASE-* 2>/dev/null | wc -l` -gt 0 ] && [ `zgrep numa_hint_faults proc-vmstat-$KERNEL_BASE-* | awk '{print $2}' | sort -n | tail -1` -gt 0 ]; then
+		if have_monitor_results proc-vmstat $KERNEL_BASE "^numa_hint_faults [1-9]"; then
 			eval $GRAPH_PNG --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.png
 			eval $GRAPH_PSC --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.ps
 			eval $GRAPH_PNG --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.png --smooth
@@ -1936,20 +1917,22 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "</tr>"
 		fi
 
-		if [ `ls numa-meminfo-* 2> /dev/null | wc -l` -gt 0 ] && [ `zgrep ^Node numa-meminfo-* | awk '{print $2}' | sort | uniq | wc -l` -gt 1 ]; then
-			eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.png
-			eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.ps
-			eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.png
-			eval $GRAPH_PSC --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.ps
-			echo "<tr>"
-			smoothover graph-$SUBREPORT-numa-memory-balance
-			plain graph-$SUBREPORT-numa-convergence
-			echo "</tr>"
+		if have_monitor_results numa-meminfo $KERNEL_BASE; then
+			if [ `zgrep ^Node numa-meminfo-* | awk '{print $2}' | sort | uniq | wc -l` -gt 1 ]; then
+				eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.png
+				eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.ps
+				eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance-smooth.png --smooth
+				eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance-smooth.ps --smooth
+				eval $GRAPH_PNG --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.png
+				eval $GRAPH_PSC --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.ps
+				echo "<tr>"
+				smoothover graph-$SUBREPORT-numa-memory-balance
+				plain graph-$SUBREPORT-numa-convergence
+				echo "</tr>"
+			fi
 		fi
 
-		if [ `ls ftrace-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ] && [ `zgrep mm_migrate_misplaced_pages ftrace-$KERNEL_BASE-* | wc -l` -gt 1 ]; then
+		if have_monitor_results ftrace $KERNEL_BASE "mm_migrate_misplaced_pages"; then
 			PLOT_TITLES=
 			for NAME in `echo $KERNEL_LIST | sed -e 's/,/ /g'`; do
 				cache-mmtests.sh extract-mmtests.pl -d . -b $SUBREPORT -n $NAME --print-monitor Ftracenumatraffic > /tmp/mmtests-numatraffic-$$-$NAME
@@ -1986,7 +1969,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			rm -f /tmp/mmtests-numatraffic-$$-*
 		fi
 
-		if [ `ls proc-net-dev-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		if have_monitor_results proc-net-dev $KERNEL_BASE; then
 			INTERFACE_LIST=""
 			if [ -e ip-addr-$KERNEL_BASE ]; then
 				INTERFACE_LIST=`read-ip-addr.pl -u -f ip-addr-$KERNEL_BASE`
@@ -2033,7 +2016,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			gzip -f $OUTPUT_DIRECTORY/*.ps
 		fi
 
-		if [ `ls proc-interrupts-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
+		if have_monitor_results proc-interrupts $KERNEL_BASE; then
 			echo "<table>"
 			echo "<tr>"
 			for HEADING in TLB-shootdowns Rescheduling-interrupts Function-call-interrupts; do

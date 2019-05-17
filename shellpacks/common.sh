@@ -1034,6 +1034,21 @@ function have_run_results()
 	fi
 }
 
+function have_monitor_results()
+{
+	local monitor=$1
+	local runname=$2
+	local contains=$3
+
+	if [ -z "$contains" ]; then
+		ls $monitor-$runname-* &>/dev/null
+	else
+		# Here we grep all runnames to check whether event occured
+		# in any run
+		zgrep -q "$contains" $monitor-*-* &>/dev/null
+	fi
+}
+
 function run_report_name()
 {
 	grep "run-mmtests: begin" tests-activity-$1 | awk '{print $4}'
