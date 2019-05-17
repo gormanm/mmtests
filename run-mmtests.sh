@@ -812,6 +812,34 @@ if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 	gzip /boot/vmlinux-`uname -r`
 fi
 
+if [ "$MEMCG_SIZE" != "" ]; then
+	echo $$ >/cgroups/tasks
+	rmdir /cgroups/[0-9]*
+	umount /cgroups
+fi
+
+# Unconfigure swap
+case $SWAP_CONFIGURATION in
+partitions | swapfile)
+	swapoff -a
+	;;
+NFS)
+	swapoff -a
+	umount $SWAP_NFS_MOUNT
+	;;
+nbd)
+	swapoff -a
+	nbd-client -d $SWAP_NBD_DEVICE
+	;;
+default)
+	;;
+esac
+
+# Unmount test disks
+umount_filesystems
+
+destroy_testdisk
+
 echo `date +%s` run-mmtests: End >> $SHELLPACK_ACTIVITY
 echo status :: $EXIT_CODE >> $SHELLPACK_LOGFILE
 exit $EXIT_CODE

@@ -910,6 +910,23 @@ EOF
 	fi
 }
 
+function destroy_testdisk
+{
+	if [ "${STORAGE_CACHE_TYPE}" = "dm-cache" ]; then
+		./bin/dmcache-setup.sh -c ${STORAGE_CACHING_DEVICE} \
+			-b ${STORAGE_BACKING_DEVICE} -d
+	elif [ "${STORAGE_CACHE_TYPE}" = "bcache" ]; then
+		./bin/bcache-setup.sh -c ${STORAGE_CACHING_DEVICE} \
+		    -b ${STORAGE_BACKING_DEVICE} -d
+	fi
+	if [ "$TESTDISK_RD_SIZE" != "" ]; then
+		rmmod brd
+	fi
+	if [ "$TESTDISK_NBD_DEVICE" != "" ]; then
+		nbd-client -d $TESTDISK_NBD_DEVICE
+	fi
+}
+
 function create_filesystems
 {
 	if [ ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
@@ -1000,7 +1017,7 @@ function create_filesystems
 
 function umount_filesystems
 {
-	for DEV in ${TESTDISK_PARTITIONS[*]}; do
+	for DEV in ${TESTDISK_PARTITIONS[*]} $TESTDISK_NFS_MOUNT; do
 		umount $DEV
 	done
 }
