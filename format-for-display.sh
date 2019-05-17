@@ -77,13 +77,13 @@ if [ "$OUTPUT_DIRECTORY" != "" -a ! -d "$OUTPUT_DIRECTORY" ]; then
 	exit -1
 fi
 
-if [ `ls "$FIRST_ITERATION_PREFIX"tests-timestamp-* 2> /dev/null | wc -l` -eq 0 ]; then
+if [ `ls tests-timestamp-* 2> /dev/null | wc -l` -eq 0 ]; then
 	die This does not look like a mmtests results directory
 fi
 
 if [ -n "$KERNEL_BASE" ]; then
 	for KERNEL in $KERNEL_COMPARE $KERNEL_BASE; do
-		if [ ! -e "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL ]; then
+		if [ ! -e tests-timestamp-$KERNEL ]; then
 			die "Cannot find results for kernel '$KERNEL'."
 		fi
 	done
@@ -100,7 +100,6 @@ if [ "$KERNEL_BASE" != "" ]; then
 		KERNEL_LIST=$KERNEL_LIST,$KERNEL
 	done
 else
-	[ -n "$ITERATIONS" ] && pushd $FIRST_ITERATION_PREFIX > /dev/null
 	for KERNEL in `grep -H ^start tests-timestamp-* | awk -F : '{print $4" "$1}' | sort -n | awk '{print $2}' | sed -e 's/tests-timestamp-//'`; do
 		EXCLUDE=no
 		for TEST_KERNEL in $KERNEL_EXCLUDE; do
@@ -117,7 +116,6 @@ else
 			fi
 		fi
 	done
-	[ -n "$ITERATIONS" ] && popd > /dev/null
 fi
 
 if [ "$SORT_VERSION" = "yes" ]; then
@@ -249,7 +247,7 @@ KERNEL_LIST_SPACE=`echo $KERNEL_LIST | sed -e 's/,/ /g'`
 read -a KERNEL_NAMES <<< $KERNEL_LIST_SPACE
 
 SUBREPORTSJSON=
-for SUBREPORT in `grep "test begin :: " "$FIRST_ITERATION_PREFIX"tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
+for SUBREPORT in `grep "test begin :: " tests-timestamp-$KERNEL_BASE | awk '{print $4}'`; do
 	COMPARE_CMD="cache-mmtests.sh compare-mmtests.pl --json-export --print-ratio -d . -b $SUBREPORT -n $KERNEL_LIST"
 
 	case $SUBREPORT in

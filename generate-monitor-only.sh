@@ -38,7 +38,6 @@ done
 # Take the unparsed option as the parameter
 shift
 export RUNNAME=$1
-export MMTEST_ITERATION=$2
 
 if [ -z "$RUNNAME" ]; then
 	echo "ERROR: Runname parameter must be specified"

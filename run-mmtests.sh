@@ -101,7 +101,6 @@ fi
 # Take the unparsed option as the parameter
 shift
 export RUNNAME=$1
-export MMTEST_ITERATION=$2
 
 if [ -z "$RUNNAME" ]; then
 	echo "ERROR: Runname parameter must be specified"
@@ -122,10 +121,6 @@ rm -f $SCRIPTDIR/bash_arrays # remove stale bash_arrays file
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/shellpacks/deferred-monitors.sh
-
-if [ -n "$MMTEST_ITERATION" ]; then
-	export SHELLPACK_LOG="$SHELLPACK_LOG/$MMTEST_ITERATION"
-fi
 
 for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
 	source "${CONFIGS[$i]}"
