@@ -357,478 +357,478 @@ mkdir -p $SHELLPACK_LOG_RUNBASE
 echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
 
 for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERATION++ )); do
-export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-$MMTEST_ITERATION
-mkdir -p $SHELLPACK_LOG
+	export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-$MMTEST_ITERATION
+	mkdir -p $SHELLPACK_LOG
 
-create_testdisk
+	create_testdisk
 
-# Create test disk(s)
-if [ "$TESTDISK_PARTITION" != "" ]; then
-	# override any TESTDISK_PARTITIONS configuration (for backwards compatibility)
-	TESTDISK_PARTITIONS=($TESTDISK_PARTITION)
-fi
-
-# Export variables needed for successful setup of filesystems
-export STORAGE_CACHE_TYPE STORAGE_CACHING_DEVICE STORAGE_BACKING_DEVICE
-export TESTDISK_PARTITIONS
-export TESTDISK_FILESYSTEM
-export TESTDISK_FS_SIZE
-export TESTDISK_MKFS_PARAM
-export TESTDISK_MOUNT_ARGS
-export TESTDISK_NFS_MOUNT
-export SHELLPACK_TEST_MOUNTS
-export SHELLPACK_DATA_DIRS
-
-setup_io_scheduler
-
-create_filesystems
-
-# Prepared environment in a directory, does not work together with
-# TESTDISK_PARTITION and co.
-if [ "$TESTDISK_DIR" != "" ]; then
-	if [ "$SHELLPACK_TEST_MOUNT" != "" -a ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
-		die "Can't use TESTDISK_PARTITION(S) together with TESTDISK_DIR"
+	# Create test disk(s)
+	if [ "$TESTDISK_PARTITION" != "" ]; then
+		# override any TESTDISK_PARTITIONS configuration (for backwards compatibility)
+		TESTDISK_PARTITIONS=($TESTDISK_PARTITION)
 	fi
-	if ! [ -d "$TESTDISK_DIR" ]; then
-		die "Can't find TESTDISK_DIR $TESTDISK_DIR"
-	fi
-	echo "Using directory $TESTDISK_DIR for test"
-	SHELLPACK_DATA=$TESTDISK_DIR
-else
-	if [ ${#SHELLPACK_TEST_MOUNTS[*]} -gt 0 -a ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
-		for i in ${!SHELLPACK_TEST_MOUNTS[*]}; do
-			if [ $i -eq 0 ]; then
-				SHELLPACK_DATA_DIRS[$i]="$SHELLPACK_DATA"
-			else
-				SHELLPACK_DATA_DIRS[$i]="${SHELLPACK_TEST_MOUNTS[$i]}/data"
-			fi
-			echo "Using ${SHELLPACK_DATA_DIRS[$i]}"
-		done
+
+	# Export variables needed for successful setup of filesystems
+	export STORAGE_CACHE_TYPE STORAGE_CACHING_DEVICE STORAGE_BACKING_DEVICE
+	export TESTDISK_PARTITIONS
+	export TESTDISK_FILESYSTEM
+	export TESTDISK_FS_SIZE
+	export TESTDISK_MKFS_PARAM
+	export TESTDISK_MOUNT_ARGS
+	export TESTDISK_NFS_MOUNT
+	export SHELLPACK_TEST_MOUNTS
+	export SHELLPACK_DATA_DIRS
+
+	setup_io_scheduler
+
+	create_filesystems
+
+	# Prepared environment in a directory, does not work together with
+	# TESTDISK_PARTITION and co.
+	if [ "$TESTDISK_DIR" != "" ]; then
+		if [ "$SHELLPACK_TEST_MOUNT" != "" -a ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
+			die "Can't use TESTDISK_PARTITION(S) together with TESTDISK_DIR"
+		fi
+		if ! [ -d "$TESTDISK_DIR" ]; then
+			die "Can't find TESTDISK_DIR $TESTDISK_DIR"
+		fi
+		echo "Using directory $TESTDISK_DIR for test"
+		SHELLPACK_DATA=$TESTDISK_DIR
 	else
-		echo "Using default SHELLPACK_DATA"
-		# In case no special data storage is defined, we default to
-		# SHELLPACK_TEMP which gets automatically cleaned up
-		SHELLPACK_DATA="$SHELLPACK_TEMP"
-	fi
-fi
-
-if [ "$SWAP_CONFIGURATION" = "" ]; then
-	export SWAP_CONFIGURATION=default
-fi
-
-# Configure swap
-case $SWAP_CONFIGURATION in
-partitions)
-	echo Disabling existing swap
-	swapoff -a
-	for SWAP_PART in $SWAP_PARTITIONS; do
-		echo Enabling swap on partition $SWAP_PART
-		swapon $SWAP_PART
-		if [ $? -ne 0 ]; then
-			mkswap $SWAP_PART || die Failed to mkswap $SWAP_PART
-			swapon $SWAP_PART || die Failed to enable swap on $SWAP_PART
+		if [ ${#SHELLPACK_TEST_MOUNTS[*]} -gt 0 -a ${#TESTDISK_PARTITIONS[*]} -gt 0 ]; then
+			for i in ${!SHELLPACK_TEST_MOUNTS[*]}; do
+				if [ $i -eq 0 ]; then
+					SHELLPACK_DATA_DIRS[$i]="$SHELLPACK_DATA"
+				else
+					SHELLPACK_DATA_DIRS[$i]="${SHELLPACK_TEST_MOUNTS[$i]}/data"
+				fi
+				echo "Using ${SHELLPACK_DATA_DIRS[$i]}"
+			done
+		else
+			echo "Using default SHELLPACK_DATA"
+			# In case no special data storage is defined, we default to
+			# SHELLPACK_TEMP which gets automatically cleaned up
+			SHELLPACK_DATA="$SHELLPACK_TEMP"
 		fi
-	done
-	;;
-swapfile)
-	echo Disabling existing swap
-	swapoff -a
-
-	CREATE_SWAP=no
-	if [ -e $SHELLPACK_TEMP/swapfile ]; then
-		EXISTING_SIZE=`stat $SHELLPACK_TEMP/swapfile | grep Size: | awk '{print $2}'`
-		EXISTING_SIZE=$((EXISTING_SIZE/1048576))
-		if [ $EXISTING_SIZE -ne $SWAP_SWAPFILE_SIZEMB ]; then
-			CREATE_SWAP=yes
-		fi
-	else
-		CREATE_SWAP=yes
-	fi
-	if [ "$CREATE_SWAP" = "yes" ]; then
-		echo Creating local swapfile
-		dd if=/dev/zero of=$SHELLPACK_TEMP/swapfile ibs=1048576 count=$SWAP_SWAPFILE_SIZEMB
-		mkswap $SHELLPACK_TEMP/swapfile || die Failed to mkswap $SHELLPACK_TEMP/swapfile
-	fi
-	echo Activating swap
-	swapon $SHELLPACK_TEMP/swapfile || die Failed to activate $SHELLPACK_TEMP/swapfile
-	echo Activated swap
-	;;
-NFS)
-	if [ "$SWAP_NFS_MOUNT" = "" ]; then
-		die "SWAP_NFS_MOUNT not specified in config"
 	fi
 
-	/etc/init.d/rpcbind start
-	MNTPNT=$SHELLPACK_TOPLEVEL/work/nfs-swapfile
-	mkdir -p $MNTPNT || die "Failed to create NFS mount for swap"
-	mount $SWAP_NFS_MOUNT $MNTPNT || die "Failed to mount NFS mount for swap"
-
-	echo Disabling existing swap
-	swapoff -a
-
-	CREATE_SWAP=no
-	if [ -e $MNTPNT/swapfile ]; then
-		EXISTING_SIZE=`stat $MNTPNT/swapfile | grep Size: | awk '{print $2}'`
-		EXISTING_SIZE=$((EXISTING_SIZE/1048576))
-		if [ $((EXISTING_SIZE/20)) -ne $((SWAP_SWAPFILE_SIZEMB/20)) ]; then
-			echo Slightly annoying: $EXISTING_SIZE -ne $SWAP_SWAPFILE_SIZEMB
-			CREATE_SWAP=yes
-		fi
-	else
-		CREATE_SWAP=yes
-	fi
-	if [ "$CREATE_SWAP" = "yes" ]; then
-		echo Creating nfs swapfile
-		dd if=/dev/zero of=$MNTPNT/swapfile ibs=1048576 count=$SWAP_SWAPFILE_SIZEMB
-		mkswap $MNTPNT/swapfile || die Failed to mkswap $MNTPNT/swapfile
-	fi
-	echo Activating swap
-	swapon $MNTPNT/swapfile || die Failed to activate $MNTPNT/swapfile
-	echo Activated swap
-	;;
-nbd)
-	modprobe nbd || exit
-	nbd-client -d $SWAP_NBD_DEVICE
-	echo Connecting NBD client $SWAP_NBD_HOST $SWAP_NBD_PORT $SWAP_NBD_DEVICE
-	nbd-client $SWAP_NBD_HOST -swap $SWAP_NBD_PORT $SWAP_NBD_DEVICE || exit
-
-	echo Disabling existing swap
-	swapoff -a
-
-	echo Formatting as swap
-	mkswap $SWAP_NBD_DEVICE
-
-	echo Activating swap
-	swapon $SWAP_NBD_DEVICE || die Failed to activate NBD swap
-	;;
-default)
-	;;
-esac
-
-if [ "$SWAP_CONFIGURATION" != "default" ]; then
-	echo Swap configuration
-	swapon -s
-fi
-
-# Save bash arrays (marked as exported) to separate file. They are
-# read-in via common.sh in subshells. This quirk is req'd as bash
-# doesn't support export of arrays. Note that the file needs to be
-# updated whenever an array is modified after this point.
-# Currently required for:
-# - SHELLPACK_TEST_MOUNTS, TESTDISK_PARTITIONS, SHELLPACK_DATA_DIRS
-declare -p | grep "\-ax" > $SCRIPTDIR/bash_arrays
-
-# Warm up. More appropriate warmup depends on the exact test
-if [ "$RUN_WARMUP" != "" ]; then
-	echo Entering warmup
-	RUNNING_TEST=$RUN_WARMUP
-	./bin/run-single-test.sh $RUN_WARMUP
-	RUNNING_TEST=
-	rm -rf $SHELLPACK_LOG/$RUN_WARMUP
-	echo Warmup complete, beginning tests
-fi
-	
-export SHELLPACK_LOGFILE="$SHELLPACK_LOG/tests-timestamp"
-echo `date +%s` "run-mmtests: Iteration $MMTEST_ITERATION start" >> $SHELLPACK_ACTIVITY
-
-if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
-	echo Restart numad and purge log as per MMTESTS_NUMA_POLICY
-	killall -KILL numad
-	rm -f /var/log/numad.log
-	numad -F -d &> $SHELLPACK_LOG/numad-stdout &
-	export NUMAD_PID=$!
-	echo -n Waiting on numad.log
-	while [ ! -e /var/log/numad.log ]; do
-		echo .
-		sleep 1
-	done
-	echo
-	echo Numad started: pid $NUMAD_PID
-fi
-
-if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
-	# Create memory control group if requested
-	if [ "$CGROUP_MEMORY_SIZE" != "" ]; then
-		mkdir -p /sys/fs/cgroup/memory/0 || die "Failed to create memory cgroup"
-		echo $CGROUP_MEMORY_SIZE > /sys/fs/cgroup/memory/0/memory.limit_in_bytes || die "Failed to set memory limit"
-		echo $$ > /sys/fs/cgroup/memory/0/tasks
-		echo Memory limit configured: `cat /sys/fs/cgroup/memory/0/memory.limit_in_bytes`
+	if [ "$SWAP_CONFIGURATION" = "" ]; then
+		export SWAP_CONFIGURATION=default
 	fi
 
-	if [ "$CGROUP_CPU_TAG" != "" ]; then
-		mkdir -p /sys/fs/cgroup/cpu/0 || die "Failed to create cpu cgroup"
-		echo $CGROUP_CPU_TAG > /sys/fs/cgroup/cpu/0/cpu.tag || die "Failed to create CPU sched tag"
-		echo $$ > /sys/fs/cgroup/cpu/0/tasks
-		echo CPU Tags set: `cat /sys/fs/cgroup/cpu/0/cpu.tag`
-	fi
-
-	EXIT_CODE=$SHELLPACK_SUCCESS
-
-	# Run tests in single mode
-	ip addr show > $SHELLPACK_LOG/ip-addr
-	echo start :: `date +%s` > $SHELLPACK_LOGFILE
-	if [ "$RAID_CREATE_END" != "" ]; then
-		echo raid-create :: $((RAID_CREATE_END-RAID_CREATE_START)) >> $SHELLPACK_LOGFILE
-	fi
-	echo arch :: `uname -m` >> $SHELLPACK_LOGFILE
-	echo mount :: `uname -m` >> $SHELLPACK_LOGFILE
-	mount >> $SHELLPACK_LOGFILE
-	echo /proc/mounts :: `uname -m` >> $SHELLPACK_LOGFILE
-	cat /proc/mounts >> $SHELLPACK_LOGFILE
-	if [ "`which numactl 2> /dev/null`" != "" ]; then
-		echo numactl :: configuration >> $SHELLPACK_LOGFILE
-		numactl --hardware >> $SHELLPACK_LOGFILE
-	fi
-	if [ "`which lscpu 2> /dev/null`" != "" ]; then
-		echo lscpu :: configuration >> $SHELLPACK_LOGFILE
-		lscpu >> $SHELLPACK_LOGFILE
-	fi
-	if [ "`which cpupower 2> /dev/null`" != "" ]; then
-		echo cpupower :: frequency-info >> $SHELLPACK_LOGFILE
-		cpupower frequency-info >> $SHELLPACK_LOGFILE
-	fi
-	if [ "`which lstopo 2> /dev/null`" != "" ]; then
-		lstopo $SHELLPACK_LOG/lstopo.pdf 2>/dev/null
-		lstopo --output-format txt > $SHELLPACK_LOG/lstopo.txt
-	fi
-	if [ "`which lsscsi 2> /dev/null`" != "" ]; then
-		lsscsi > $SHELLPACK_LOG/lsscsi.txt
-	fi
-	if [ "`which list-cpu-toplogy.sh 2> /dev/null`" != "" ]; then
-		list-cpu-toplogy.sh > $SHELLPACK_LOG/cpu-topology-mmtests.txt
-	fi
-	if [ "`which set-cstate-latency.pl 2> /dev/null`" != "" ]; then
-		set-cstate-latency.pl > $SHELLPACK_LOG/cstate-latencies-${RUNNAME}.txt
-	fi
-	if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
-		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities.txt
-	fi
-	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
-	gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
-
-	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
-	for TEST in $MMTESTS; do
-		export CURRENT_TEST=$TEST
-		# Configure transparent hugepage support as configured
-		reset_transhuge
-
-		# Run installation-only step if supported
-		grep -q INSTALL_ONLY $SCRIPTDIR/shellpacks/shellpack-bench-$CURRENT_TEST
-		if [ $? -eq 0 ]; then
-			echo Installing test $TEST
-			export INSTALL_ONLY=yes
-			./bin/run-single-test.sh $TEST
-			unset INSTALL_ONLY
-		fi
-
-		# Run the test
-		echo Starting test $TEST
-		echo test begin :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
-		echo `date +%s` "run-mmtests: begin $TEST" >> $SHELLPACK_ACTIVITY
-
-		# Record some files at start of test
-		for PROC_FILE in $PROC_FILES; do
-			echo file start :: $PROC_FILE >> $SHELLPACK_LOGFILE
-			cat $PROC_FILE >> $SHELLPACK_LOGFILE
-		done
-		cat /proc/meminfo >> $SHELLPACK_LOGFILE
-		if [ -e /proc/lock_stat ]; then
-			echo 0 > /proc/lock_stat
-		fi
-		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
-			echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
-			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
-		fi
-		RUNNING_TEST=$TEST
-
-		# Set CPU idle latency limits
-		CSTATE_PID=
-		if [ "$CPUIDLE_CSTATE" != "" ]; then
-			$EXPECT_UNBUFFER set-cstate-latency.pl --cstate $CPUIDLE_CSTATE &
-			CSTATE_PID=$!
-		fi
-		if [ "$CPUIDLE_LATENCY" != "" ]; then
-			$EXPECT_UNBUFFER set-cstate-latency.pl --latency $CPUIDLE_LATENCY &
-			CSTATE_PID=$!
-		fi
-		if [ "$CPUIDLE_INDEX" != "" ]; then
-			$EXPECT_UNBUFFER set-cstate-latency.pl --index $CPUIDLE_INDEX &
-			CSTATE_PID=$!
-		fi
-		if [ "$CSTATE_PID" != "" ]; then
-			ps -p $CSTATE_PID
+	# Configure swap
+	case $SWAP_CONFIGURATION in
+	partitions)
+		echo Disabling existing swap
+		swapoff -a
+		for SWAP_PART in $SWAP_PARTITIONS; do
+			echo Enabling swap on partition $SWAP_PART
+			swapon $SWAP_PART
 			if [ $? -ne 0 ]; then
-				die "CPU Cstate latency script is not running"
+				mkswap $SWAP_PART || die Failed to mkswap $SWAP_PART
+				swapon $SWAP_PART || die Failed to enable swap on $SWAP_PART
 			fi
-		fi
-
-		# Run single test
-		start_monitors
-		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
-			./bin/run-single-test.sh $TEST
-		EXIT_CODE=$?
-		stop_monitors
-
-		# Kill CPU idle limited
-		if [ -e /tmp/mmtests-cstate.pid ]; then
-			kill -INT `cat /tmp/mmtests-cstate.pid`
-			sleep 2
-			if [ -e /tmp/mmtests-cstate.pid ]; then
-				kill -9 `cat /tmp/mmtests-cstate.pid`
-			fi
-		fi
-
-		# Record some basic information at end of test
-		for PROC_FILE in $PROC_FILES; do
-			echo file end :: $PROC_FILE >> $SHELLPACK_LOGFILE
-			cat $PROC_FILE >> $SHELLPACK_LOGFILE
 		done
-		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
-			echo file end :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
-			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+		;;
+	swapfile)
+		echo Disabling existing swap
+		swapoff -a
+
+		CREATE_SWAP=no
+		if [ -e $SHELLPACK_TEMP/swapfile ]; then
+			EXISTING_SIZE=`stat $SHELLPACK_TEMP/swapfile | grep Size: | awk '{print $2}'`
+			EXISTING_SIZE=$((EXISTING_SIZE/1048576))
+			if [ $EXISTING_SIZE -ne $SWAP_SWAPFILE_SIZEMB ]; then
+				CREATE_SWAP=yes
+			fi
+		else
+			CREATE_SWAP=yes
 		fi
-		if [ -e /proc/lock_stat ]; then
-			echo file end :: /proc/lock_stat >> $SHELLPACK_LOGFILE
-			cat /proc/lock_stat >> $SHELLPACK_LOGFILE
+		if [ "$CREATE_SWAP" = "yes" ]; then
+			echo Creating local swapfile
+			dd if=/dev/zero of=$SHELLPACK_TEMP/swapfile ibs=1048576 count=$SWAP_SWAPFILE_SIZEMB
+			mkswap $SHELLPACK_TEMP/swapfile || die Failed to mkswap $SHELLPACK_TEMP/swapfile
+		fi
+		echo Activating swap
+		swapon $SHELLPACK_TEMP/swapfile || die Failed to activate $SHELLPACK_TEMP/swapfile
+		echo Activated swap
+		;;
+	NFS)
+		if [ "$SWAP_NFS_MOUNT" = "" ]; then
+			die "SWAP_NFS_MOUNT not specified in config"
 		fi
 
-		# Mark the finish of the test
-		echo test exit :: $TEST $EXIT_CODE
-		echo test end :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
-		cat $SHELLPACK_LOG/timestamp >> $SHELLPACK_LOGFILE
-		rm $SHELLPACK_LOG/timestamp
+		/etc/init.d/rpcbind start
+		MNTPNT=$SHELLPACK_TOPLEVEL/work/nfs-swapfile
+		mkdir -p $MNTPNT || die "Failed to create NFS mount for swap"
+		mount $SWAP_NFS_MOUNT $MNTPNT || die "Failed to mount NFS mount for swap"
 
-		# Reset some parameters in case tests are sloppy
-		hugeadm --pool-pages-min DEFAULT:0 2> /dev/null
-		if [ "`lsmod | grep oprofile`" != "" ]; then
-			opcontrol --stop   > /dev/null 2> /dev/null
-			opcontrol --deinit > /dev/null 2> /dev/null
+		echo Disabling existing swap
+		swapoff -a
+
+		CREATE_SWAP=no
+		if [ -e $MNTPNT/swapfile ]; then
+			EXISTING_SIZE=`stat $MNTPNT/swapfile | grep Size: | awk '{print $2}'`
+			EXISTING_SIZE=$((EXISTING_SIZE/1048576))
+			if [ $((EXISTING_SIZE/20)) -ne $((SWAP_SWAPFILE_SIZEMB/20)) ]; then
+				echo Slightly annoying: $EXISTING_SIZE -ne $SWAP_SWAPFILE_SIZEMB
+				CREATE_SWAP=yes
+			fi
+		else
+			CREATE_SWAP=yes
+		fi
+		if [ "$CREATE_SWAP" = "yes" ]; then
+			echo Creating nfs swapfile
+			dd if=/dev/zero of=$MNTPNT/swapfile ibs=1048576 count=$SWAP_SWAPFILE_SIZEMB
+			mkswap $MNTPNT/swapfile || die Failed to mkswap $MNTPNT/swapfile
+		fi
+		echo Activating swap
+		swapon $MNTPNT/swapfile || die Failed to activate $MNTPNT/swapfile
+		echo Activated swap
+		;;
+	nbd)
+		modprobe nbd || exit
+		nbd-client -d $SWAP_NBD_DEVICE
+		echo Connecting NBD client $SWAP_NBD_HOST $SWAP_NBD_PORT $SWAP_NBD_DEVICE
+		nbd-client $SWAP_NBD_HOST -swap $SWAP_NBD_PORT $SWAP_NBD_DEVICE || exit
+
+		echo Disabling existing swap
+		swapoff -a
+
+		echo Formatting as swap
+		mkswap $SWAP_NBD_DEVICE
+
+		echo Activating swap
+		swapon $SWAP_NBD_DEVICE || die Failed to activate NBD swap
+		;;
+	default)
+		;;
+	esac
+
+	if [ "$SWAP_CONFIGURATION" != "default" ]; then
+		echo Swap configuration
+		swapon -s
+	fi
+
+	# Save bash arrays (marked as exported) to separate file. They are
+	# read-in via common.sh in subshells. This quirk is req'd as bash
+	# doesn't support export of arrays. Note that the file needs to be
+	# updated whenever an array is modified after this point.
+	# Currently required for:
+	# - SHELLPACK_TEST_MOUNTS, TESTDISK_PARTITIONS, SHELLPACK_DATA_DIRS
+	declare -p | grep "\-ax" > $SCRIPTDIR/bash_arrays
+
+	# Warm up. More appropriate warmup depends on the exact test
+	if [ "$RUN_WARMUP" != "" ]; then
+		echo Entering warmup
+		RUNNING_TEST=$RUN_WARMUP
+		./bin/run-single-test.sh $RUN_WARMUP
+		RUNNING_TEST=
+		rm -rf $SHELLPACK_LOG/$RUN_WARMUP
+		echo Warmup complete, beginning tests
+	fi
+		
+	export SHELLPACK_LOGFILE="$SHELLPACK_LOG/tests-timestamp"
+	echo `date +%s` "run-mmtests: Iteration $MMTEST_ITERATION start" >> $SHELLPACK_ACTIVITY
+
+	if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
+		echo Restart numad and purge log as per MMTESTS_NUMA_POLICY
+		killall -KILL numad
+		rm -f /var/log/numad.log
+		numad -F -d &> $SHELLPACK_LOG/numad-stdout &
+		export NUMAD_PID=$!
+		echo -n Waiting on numad.log
+		while [ ! -e /var/log/numad.log ]; do
+			echo .
+			sleep 1
+		done
+		echo
+		echo Numad started: pid $NUMAD_PID
+	fi
+
+	if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
+		# Create memory control group if requested
+		if [ "$CGROUP_MEMORY_SIZE" != "" ]; then
+			mkdir -p /sys/fs/cgroup/memory/0 || die "Failed to create memory cgroup"
+			echo $CGROUP_MEMORY_SIZE > /sys/fs/cgroup/memory/0/memory.limit_in_bytes || die "Failed to set memory limit"
+			echo $$ > /sys/fs/cgroup/memory/0/tasks
+			echo Memory limit configured: `cat /sys/fs/cgroup/memory/0/memory.limit_in_bytes`
 		fi
 
-	done
-	echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
-	dmesg > $SHELLPACK_LOG/dmesg
-	gzip -f $SHELLPACK_LOG/dmesg
-else
-	# Run tests in simultaneous mode
-	START_TIME=`date +%s`
-	MIN_END_TIME=$((START_TIME+MMTESTS_SIMULTANEOUS_DURATION))
-	FORCE_END_TIME=$((START_TIME+MMTESTS_SIMULTANEOUS_MAX_DURATION))
+		if [ "$CGROUP_CPU_TAG" != "" ]; then
+			mkdir -p /sys/fs/cgroup/cpu/0 || die "Failed to create cpu cgroup"
+			echo $CGROUP_CPU_TAG > /sys/fs/cgroup/cpu/0/cpu.tag || die "Failed to create CPU sched tag"
+			echo $$ > /sys/fs/cgroup/cpu/0/tasks
+			echo CPU Tags set: `cat /sys/fs/cgroup/cpu/0/cpu.tag`
+		fi
 
-	echo start :: $START_TIME > $SHELLPACK_LOGFILE
-	echo file start :: /proc/vmstat >> $SHELLPACK_LOGFILE
-	cat /proc/vmstat >> $SHELLPACK_LOGFILE
-	echo file start :: /proc/zoneinfo >> $SHELLPACK_LOGFILE
-	cat /proc/zoneinfo >> $SHELLPACK_LOGFILE
-	echo file start :: /proc/meminfo >> $SHELLPACK_LOGFILE
-	cat /proc/meminfo >> $SHELLPACK_LOGFILE
+		EXIT_CODE=$SHELLPACK_SUCCESS
 
-	start_monitors
+		# Run tests in single mode
+		ip addr show > $SHELLPACK_LOG/ip-addr
+		echo start :: `date +%s` > $SHELLPACK_LOGFILE
+		if [ "$RAID_CREATE_END" != "" ]; then
+			echo raid-create :: $((RAID_CREATE_END-RAID_CREATE_START)) >> $SHELLPACK_LOGFILE
+		fi
+		echo arch :: `uname -m` >> $SHELLPACK_LOGFILE
+		echo mount :: `uname -m` >> $SHELLPACK_LOGFILE
+		mount >> $SHELLPACK_LOGFILE
+		echo /proc/mounts :: `uname -m` >> $SHELLPACK_LOGFILE
+		cat /proc/mounts >> $SHELLPACK_LOGFILE
+		if [ "`which numactl 2> /dev/null`" != "" ]; then
+			echo numactl :: configuration >> $SHELLPACK_LOGFILE
+			numactl --hardware >> $SHELLPACK_LOGFILE
+		fi
+		if [ "`which lscpu 2> /dev/null`" != "" ]; then
+			echo lscpu :: configuration >> $SHELLPACK_LOGFILE
+			lscpu >> $SHELLPACK_LOGFILE
+		fi
+		if [ "`which cpupower 2> /dev/null`" != "" ]; then
+			echo cpupower :: frequency-info >> $SHELLPACK_LOGFILE
+			cpupower frequency-info >> $SHELLPACK_LOGFILE
+		fi
+		if [ "`which lstopo 2> /dev/null`" != "" ]; then
+			lstopo $SHELLPACK_LOG/lstopo.pdf 2>/dev/null
+			lstopo --output-format txt > $SHELLPACK_LOG/lstopo.txt
+		fi
+		if [ "`which lsscsi 2> /dev/null`" != "" ]; then
+			lsscsi > $SHELLPACK_LOG/lsscsi.txt
+		fi
+		if [ "`which list-cpu-toplogy.sh 2> /dev/null`" != "" ]; then
+			list-cpu-toplogy.sh > $SHELLPACK_LOG/cpu-topology-mmtests.txt
+		fi
+		if [ "`which set-cstate-latency.pl 2> /dev/null`" != "" ]; then
+			set-cstate-latency.pl > $SHELLPACK_LOG/cstate-latencies-${RUNNAME}.txt
+		fi
+		if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
+			grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities.txt
+		fi
+		cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
+		gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
 
-	echo -n > test.pids
-	NR_TEST=1
-	while [ `date +%s` -lt $MIN_END_TIME ]; do
+		PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
 		for TEST in $MMTESTS; do
-			CURRENTPID=`grep $TEST: test.pids | tail -1 | awk -F : '{print $2}'`
-			TESTID=`grep $TEST: test.pids | tail -1 | awk -F : '{print $3}'`
+			export CURRENT_TEST=$TEST
+			# Configure transparent hugepage support as configured
+			reset_transhuge
 
-			# Start tests for the first time if necessary
-			if [ "$CURRENTPID" = "" ]; then
-				/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./bin/run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
-				PID=$!
-				echo Started first test $TEST pid $PID
-				echo $TEST:$PID:$NR_TEST >> test.pids
-				NR_TEST=$((NR_TEST+1))
-				continue
+			# Run installation-only step if supported
+			grep -q INSTALL_ONLY $SCRIPTDIR/shellpacks/shellpack-bench-$CURRENT_TEST
+			if [ $? -eq 0 ]; then
+				echo Installing test $TEST
+				export INSTALL_ONLY=yes
+				./bin/run-single-test.sh $TEST
+				unset INSTALL_ONLY
 			fi
 
-			RUNNING=`ps h --pid $CURRENTPID`
-			if [ "$RUNNING" = "" ]; then
-				echo Completed test $TEST pid $CURRENTPID
+			# Run the test
+			echo Starting test $TEST
+			echo test begin :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
+			echo `date +%s` "run-mmtests: begin $TEST" >> $SHELLPACK_ACTIVITY
+
+			# Record some files at start of test
+			for PROC_FILE in $PROC_FILES; do
+				echo file start :: $PROC_FILE >> $SHELLPACK_LOGFILE
+				cat $PROC_FILE >> $SHELLPACK_LOGFILE
+			done
+			cat /proc/meminfo >> $SHELLPACK_LOGFILE
+			if [ -e /proc/lock_stat ]; then
+				echo 0 > /proc/lock_stat
+			fi
+			if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
+				echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+				cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+			fi
+			RUNNING_TEST=$TEST
+
+			# Set CPU idle latency limits
+			CSTATE_PID=
+			if [ "$CPUIDLE_CSTATE" != "" ]; then
+				$EXPECT_UNBUFFER set-cstate-latency.pl --cstate $CPUIDLE_CSTATE &
+				CSTATE_PID=$!
+			fi
+			if [ "$CPUIDLE_LATENCY" != "" ]; then
+				$EXPECT_UNBUFFER set-cstate-latency.pl --latency $CPUIDLE_LATENCY &
+				CSTATE_PID=$!
+			fi
+			if [ "$CPUIDLE_INDEX" != "" ]; then
+				$EXPECT_UNBUFFER set-cstate-latency.pl --index $CPUIDLE_INDEX &
+				CSTATE_PID=$!
+			fi
+			if [ "$CSTATE_PID" != "" ]; then
+				ps -p $CSTATE_PID
+				if [ $? -ne 0 ]; then
+					die "CPU Cstate latency script is not running"
+				fi
+			fi
+
+			# Run single test
+			start_monitors
+			/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
+				./bin/run-single-test.sh $TEST
+			EXIT_CODE=$?
+			stop_monitors
+
+			# Kill CPU idle limited
+			if [ -e /tmp/mmtests-cstate.pid ]; then
+				kill -INT `cat /tmp/mmtests-cstate.pid`
+				sleep 2
+				if [ -e /tmp/mmtests-cstate.pid ]; then
+					kill -9 `cat /tmp/mmtests-cstate.pid`
+				fi
+			fi
+
+			# Record some basic information at end of test
+			for PROC_FILE in $PROC_FILES; do
+				echo file end :: $PROC_FILE >> $SHELLPACK_LOGFILE
+				cat $PROC_FILE >> $SHELLPACK_LOGFILE
+			done
+			if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
+				echo file end :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+				cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+			fi
+			if [ -e /proc/lock_stat ]; then
+				echo file end :: /proc/lock_stat >> $SHELLPACK_LOGFILE
+				cat /proc/lock_stat >> $SHELLPACK_LOGFILE
+			fi
+
+			# Mark the finish of the test
+			echo test exit :: $TEST $EXIT_CODE
+			echo test end :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
+			cat $SHELLPACK_LOG/timestamp >> $SHELLPACK_LOGFILE
+			rm $SHELLPACK_LOG/timestamp
+
+			# Reset some parameters in case tests are sloppy
+			hugeadm --pool-pages-min DEFAULT:0 2> /dev/null
+			if [ "`lsmod | grep oprofile`" != "" ]; then
+				opcontrol --stop   > /dev/null 2> /dev/null
+				opcontrol --deinit > /dev/null 2> /dev/null
+			fi
+
+		done
+		echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
+		dmesg > $SHELLPACK_LOG/dmesg
+		gzip -f $SHELLPACK_LOG/dmesg
+	else
+		# Run tests in simultaneous mode
+		START_TIME=`date +%s`
+		MIN_END_TIME=$((START_TIME+MMTESTS_SIMULTANEOUS_DURATION))
+		FORCE_END_TIME=$((START_TIME+MMTESTS_SIMULTANEOUS_MAX_DURATION))
+
+		echo start :: $START_TIME > $SHELLPACK_LOGFILE
+		echo file start :: /proc/vmstat >> $SHELLPACK_LOGFILE
+		cat /proc/vmstat >> $SHELLPACK_LOGFILE
+		echo file start :: /proc/zoneinfo >> $SHELLPACK_LOGFILE
+		cat /proc/zoneinfo >> $SHELLPACK_LOGFILE
+		echo file start :: /proc/meminfo >> $SHELLPACK_LOGFILE
+		cat /proc/meminfo >> $SHELLPACK_LOGFILE
+
+		start_monitors
+
+		echo -n > test.pids
+		NR_TEST=1
+		while [ `date +%s` -lt $MIN_END_TIME ]; do
+			for TEST in $MMTESTS; do
+				CURRENTPID=`grep $TEST: test.pids | tail -1 | awk -F : '{print $2}'`
+				TESTID=`grep $TEST: test.pids | tail -1 | awk -F : '{print $3}'`
+
+				# Start tests for the first time if necessary
+				if [ "$CURRENTPID" = "" ]; then
+					/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./bin/run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
+					PID=$!
+					echo Started first test $TEST pid $PID
+					echo $TEST:$PID:$NR_TEST >> test.pids
+					NR_TEST=$((NR_TEST+1))
+					continue
+				fi
+
+				RUNNING=`ps h --pid $CURRENTPID`
+				if [ "$RUNNING" = "" ]; then
+					echo Completed test $TEST pid $CURRENTPID
+					cat $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID >> $SHELLPACK_LOGFILE
+					rm $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID
+
+					/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./bin/run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
+					PID=$!
+					echo Started test $TEST pid $PID
+					echo $TEST:$PID:$NR_TEST >> test.pids
+					NR_TEST=$((NR_TEST+1))
+					continue
+				fi
+			done
+			sleep 3
+		done
+
+		# Wait for current tests to exit
+		for JOB in `cat test.pids`; do
+			TEST=`echo $JOB | awk -F : '{print $1}'`
+			PID=`echo $JOB | awk -F : '{print $2}'`
+			TESTID=`echo $JOB | awk -F : '{print $3}'`
+
+			if [ "`ps h --pid $PID`" != "" -a `date +%s` -lt $FORCE_END_TIME ]; then
+				echo -n "Waiting on test $TEST to complete: $PID "
+				while [ "`ps h --pid $PID`" != "" -a `date +%s` -lt $FORCE_END_TIME ]; do
+					echo -n .
+					sleep 10
+				done
+
 				cat $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID >> $SHELLPACK_LOGFILE
 				rm $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID
-
-				/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./bin/run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
-				PID=$!
-				echo Started test $TEST pid $PID
-				echo $TEST:$PID:$NR_TEST >> test.pids
-				NR_TEST=$((NR_TEST+1))
-				continue
+				echo
 			fi
 		done
-		sleep 3
+
+		stop_monitors
+
+		echo file end :: /proc/vmstat >> $SHELLPACK_LOGFILE
+		cat /proc/vmstat >> $SHELLPACK_LOGFILE
+		echo file end :: /proc/zoneinfo >> $SHELLPACK_LOGFILE
+		cat /proc/zoneinfo >> $SHELLPACK_LOGFILE
+		echo file end :: /proc/meminfo >> $SHELLPACK_LOGFILE
+		cat /proc/meminfo >> $SHELLPACK_LOGFILE
+		echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
+	fi
+
+	if [ "$MMTEST_NUMA_POLICY" = "numad" ]; then
+		echo Shutting down numad pid $NUMAD_PID
+		kill $NUMAD_PID
+		sleep 10
+		mv /var/log/numad.log $SHELLPACK_LOG/numad-log
+	fi
+
+	echo `date +%s` "run-mmtests: Iteration $MMTEST_ITERATION end" >> $SHELLPACK_ACTIVITY
+	echo Cleaning up
+	for TEST in $MMTESTS; do
+		uname -a > $SHELLPACK_LOG/kernel.version
 	done
 
-	# Wait for current tests to exit
-	for JOB in `cat test.pids`; do
-		TEST=`echo $JOB | awk -F : '{print $1}'`
-		PID=`echo $JOB | awk -F : '{print $2}'`
-		TESTID=`echo $JOB | awk -F : '{print $3}'`
+	if [ "$MEMCG_SIZE" != "" ]; then
+		echo $$ >/cgroups/tasks
+		rmdir /cgroups/[0-9]*
+		umount /cgroups
+	fi
 
-		if [ "`ps h --pid $PID`" != "" -a `date +%s` -lt $FORCE_END_TIME ]; then
-			echo -n "Waiting on test $TEST to complete: $PID "
-			while [ "`ps h --pid $PID`" != "" -a `date +%s` -lt $FORCE_END_TIME ]; do
-				echo -n .
-				sleep 10
-			done
+	# Unconfigure swap
+	case $SWAP_CONFIGURATION in
+	partitions | swapfile)
+		swapoff -a
+		;;
+	NFS)
+		swapoff -a
+		umount $SWAP_NFS_MOUNT
+		;;
+	nbd)
+		swapoff -a
+		nbd-client -d $SWAP_NBD_DEVICE
+		;;
+	default)
+		;;
+	esac
 
-			cat $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID >> $SHELLPACK_LOGFILE
-			rm $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID
-			echo
-		fi
-	done
+	# Unmount test disks
+	umount_filesystems
 
-	stop_monitors
-
-	echo file end :: /proc/vmstat >> $SHELLPACK_LOGFILE
-	cat /proc/vmstat >> $SHELLPACK_LOGFILE
-	echo file end :: /proc/zoneinfo >> $SHELLPACK_LOGFILE
-	cat /proc/zoneinfo >> $SHELLPACK_LOGFILE
-	echo file end :: /proc/meminfo >> $SHELLPACK_LOGFILE
-	cat /proc/meminfo >> $SHELLPACK_LOGFILE
-	echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
-fi
-
-if [ "$MMTEST_NUMA_POLICY" = "numad" ]; then
-	echo Shutting down numad pid $NUMAD_PID
-	kill $NUMAD_PID
-	sleep 10
-	mv /var/log/numad.log $SHELLPACK_LOG/numad-log
-fi
-
-echo `date +%s` "run-mmtests: Iteration $MMTEST_ITERATION end" >> $SHELLPACK_ACTIVITY
-echo Cleaning up
-for TEST in $MMTESTS; do
-	uname -a > $SHELLPACK_LOG/kernel.version
-done
-
-if [ "$MEMCG_SIZE" != "" ]; then
-	echo $$ >/cgroups/tasks
-	rmdir /cgroups/[0-9]*
-	umount /cgroups
-fi
-
-# Unconfigure swap
-case $SWAP_CONFIGURATION in
-partitions | swapfile)
-	swapoff -a
-	;;
-NFS)
-	swapoff -a
-	umount $SWAP_NFS_MOUNT
-	;;
-nbd)
-	swapoff -a
-	nbd-client -d $SWAP_NBD_DEVICE
-	;;
-default)
-	;;
-esac
-
-# Unmount test disks
-umount_filesystems
-
-destroy_testdisk
+	destroy_testdisk
 done
 
 # Restore system to original state
