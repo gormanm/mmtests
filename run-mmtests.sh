@@ -121,6 +121,7 @@ rm -f $SCRIPTDIR/bash_arrays # remove stale bash_arrays file
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/shellpacks/deferred-monitors.sh
+export SHELLPACK_LOG=$SHELLPACK_LOG_BASE/$RUNNAME
 
 for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
 	source "${CONFIGS[$i]}"
@@ -130,10 +131,6 @@ done
 cd $SHELLPACK_TOPLEVEL
 
 setup_dirs
-
-for TEST in $MMTESTS; do
-	rm -rf $SHELLPACK_LOG/$TEST
-done
 
 # Mount the log directory on the requested partition if requested
 if [ "$LOGDISK_PARTITION" != "" ]; then
@@ -162,6 +159,10 @@ if [ "$LOGDISK_PARTITION" != "" ]; then
 	fi
 fi
 
+# Delete old runs
+rm -rf $SHELLPACK_LOG &>/dev/null
+mkdir -p $SHELLPACK_LOG
+
 # Run inside KVM if requested
 if [ "$KVM" = "yes" ]; then
 	echo Launching KVM
@@ -172,7 +173,7 @@ if [ "$KVM" = "yes" ]; then
 	fi
 	reset
 	cd $SHELLPACK_TOPLEVEL
-	rm -rf work/log/*-$RUNNAME
+	rm -rf $SHELLPACK_LOG
 
 	RCMD="ssh -p 30022 root@localhost"
 
@@ -183,7 +184,7 @@ if [ "$KVM" = "yes" ]; then
 	RETVAL=$?
 	echo Copying KVM logs
 	scp -r -P 30022 "root@localhost:$SHELLPACK_LOG_BASE/*" "$SHELLPACK_LOG_BASE/"
-	scp -r -P 30022 "root@localhost:$SHELLPACK_TOPLEVEL/kvm-console.log" "$SHELLPACK_LOG/kvm-console.log-$RUNNAME"
+	scp -r -P 30022 "root@localhost:$SHELLPACK_TOPLEVEL/kvm-console.log" "$SHELLPACK_LOG/kvm-console.log"
 
 	echo Shutting down KVM
 	$RCMD shutdown -h now
@@ -234,7 +235,7 @@ if [ "$RUN_TUNINGS" != "" ]; then
 	echo Tuning the system before running: $RUNNAME
 	for T in $RUN_TUNINGS; do
 		discover_script ./tunings/tuning-$T
-		export TUNING_LOG=$SHELLPACK_LOG/$T-$RUNNAME-$TEST
+		export TUNING_LOG=$SHELLPACK_LOG/$T-$TEST
 		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $TUNING_LOG || exit $SHELLPACK_ERROR
 	done
 fi
@@ -513,8 +514,8 @@ function stop_monitors() {
 		shutdown_monitors ${GLOBAL_MONITOR_DIR}/monitor.pids
 }
 
-export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity-$RUNNAME"
-export SHELLPACK_LOGFILE="$SHELLPACK_LOG/tests-timestamp-$RUNNAME"
+export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity"
+export SHELLPACK_LOGFILE="$SHELLPACK_LOG/tests-timestamp"
 rm -f $SHELLPACK_ACTIVITY 2> /dev/null
 echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
 
@@ -527,7 +528,7 @@ if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
 		die numad requested but unavailable
 	fi
 	rm -f /var/log/numad.log
-	numad -F -d &> $SHELLPACK_LOG/numad-stdout-$RUNNAME &
+	numad -F -d &> $SHELLPACK_LOG/numad-stdout &
 	export NUMAD_PID=$!
 	echo -n Waiting on numad.log
 	while [ ! -e /var/log/numad.log ]; do
@@ -557,7 +558,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 	EXIT_CODE=$SHELLPACK_SUCCESS
 
 	# Run tests in single mode
-	ip addr show > $SHELLPACK_LOG/ip-addr-$RUNNAME
+	ip addr show > $SHELLPACK_LOG/ip-addr
 	echo start :: `date +%s` > $SHELLPACK_LOGFILE
 	if [ "$RAID_CREATE_END" != "" ]; then
 		echo raid-create :: $((RAID_CREATE_END-RAID_CREATE_START)) >> $SHELLPACK_LOGFILE
@@ -580,20 +581,20 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		cpupower frequency-info >> $SHELLPACK_LOGFILE
 	fi
 	if [ "`which lstopo 2> /dev/null`" != "" ]; then
-		lstopo $SHELLPACK_LOG/lstopo-${RUNNAME}.pdf 2>/dev/null
-		lstopo --output-format txt > $SHELLPACK_LOG/lstopo-${RUNNAME}.txt
+		lstopo $SHELLPACK_LOG/lstopo.pdf 2>/dev/null
+		lstopo --output-format txt > $SHELLPACK_LOG/lstopo.txt
 	fi
 	if [ "`which lsscsi 2> /dev/null`" != "" ]; then
-		lsscsi > $SHELLPACK_LOG/lsscsi-${RUNNAME}.txt
+		lsscsi > $SHELLPACK_LOG/lsscsi.txt
 	fi
 	if [ "`which list-cpu-toplogy.sh 2> /dev/null`" != "" ]; then
-		list-cpu-toplogy.sh > $SHELLPACK_LOG/cpu-topology-mmtests-${RUNNAME}.txt
+		list-cpu-toplogy.sh > $SHELLPACK_LOG/cpu-topology-mmtests.txt
 	fi
 	if [ "`which set-cstate-latency.pl 2> /dev/null`" != "" ]; then
 		set-cstate-latency.pl > $SHELLPACK_LOG/cstate-latencies-${RUNNAME}.txt
 	fi
 	if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
-		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities-${RUNNAME}.txt
+		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities.txt
 	fi
 	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
 	gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
@@ -656,7 +657,7 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 
 		# Run single test
 		start_monitors
-		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-$RUNNAME \
+		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
 			./bin/run-single-test.sh $TEST
 		EXIT_CODE=$?
 		stop_monitors
@@ -687,8 +688,8 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 		# Mark the finish of the test
 		echo test exit :: $TEST $EXIT_CODE
 		echo test end :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
-		cat $SHELLPACK_LOG/timestamp-$RUNNAME >> $SHELLPACK_LOGFILE
-		rm $SHELLPACK_LOG/timestamp-$RUNNAME
+		cat $SHELLPACK_LOG/timestamp >> $SHELLPACK_LOGFILE
+		rm $SHELLPACK_LOG/timestamp
 
 		# Reset some parameters in case tests are sloppy
 		hugeadm --pool-pages-min DEFAULT:0 2> /dev/null
@@ -699,8 +700,8 @@ if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
 
 	done
 	echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
-	dmesg > $SHELLPACK_LOG/dmesg-$RUNNAME
-	gzip -f $SHELLPACK_LOG/dmesg-$RUNNAME
+	dmesg > $SHELLPACK_LOG/dmesg
+	gzip -f $SHELLPACK_LOG/dmesg
 else
 	# Run tests in simultaneous mode
 	START_TIME=`date +%s`
@@ -793,14 +794,12 @@ if [ "$MMTEST_NUMA_POLICY" = "numad" ]; then
 	echo Shutting down numad pid $NUMAD_PID
 	kill $NUMAD_PID
 	sleep 10
-	mv /var/log/numad.log $SHELLPACK_LOG/numad-log-$RUNNAME
+	mv /var/log/numad.log $SHELLPACK_LOG/numad-log
 fi
 
 echo Cleaning up
 for TEST in $MMTESTS; do
-	uname -a > $SHELLPACK_LOG/$TEST/kernel.version
-	rm -rf $SHELLPACK_LOG/$TEST-$RUNNAME
-	mv $SHELLPACK_LOG/$TEST $SHELLPACK_LOG/$TEST-$RUNNAME
+	uname -a > $SHELLPACK_LOG/kernel.version
 done
 
 # Restore system to original state

@@ -107,7 +107,7 @@ sub extractReport($$$) {
 
 	$self->{_SubHeading} = $subHeading;
 
-	my $file = "$reportDir/ftrace-$testName-$testBenchmark";
+	my $file = "$reportDir/ftrace-$testBenchmark";
 
 	if (-e "$file.start") {
 		if (open(INPUT, $file)) {

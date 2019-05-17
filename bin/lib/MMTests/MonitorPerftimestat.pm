@@ -47,7 +47,7 @@ sub extractReport($$$$) {
 	}
 
 	# Figure out what file to open
-	my $file = "$reportDir/perf-time-stat-$testName-$testBenchmark";
+	my $file = "$reportDir/perf-time-stat-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

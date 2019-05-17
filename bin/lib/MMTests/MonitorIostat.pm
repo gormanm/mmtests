@@ -45,7 +45,7 @@ sub extractReport($$$) {
 	my $start_timestamp = 0;
 	my $format_type = -1;
 
-	my $file = "$reportDir/iostat-$testName-$testBenchmark";
+	my $file = "$reportDir/iostat-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

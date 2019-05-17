@@ -99,7 +99,7 @@ sub extractReport($$$$) {
 	}
 	my $headingIndex = $_colMap{$subHeading};
 
-	my $file = "$reportDir/vmstat-$testName-$testBenchmark";
+	my $file = "$reportDir/vmstat-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

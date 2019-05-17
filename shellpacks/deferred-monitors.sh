@@ -83,7 +83,7 @@ function start_monitor
 	_type=$1
 	_monitor=$2
 
-	export MONITOR_LOG=${MONITOR_DIR}/${_monitor}-${RUNNAME}-${CURRENT_TEST}
+	export MONITOR_LOG=${MONITOR_DIR}/${_monitor}-${CURRENT_TEST}
 	discover_script ${_monitor}
 	start_${_type}_monitor $_monitor
 	echo `date +%s` > ${MONITOR_LOG}.start

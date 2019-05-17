@@ -387,7 +387,7 @@ sub extractReport($$$$) {
 		$subHeading = "pgpgin";
 	}
 
-	my $file = "$reportDir/proc-vmstat-$testName-$testBenchmark";
+	my $file = "$reportDir/proc-vmstat-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

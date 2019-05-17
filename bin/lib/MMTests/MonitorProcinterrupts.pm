@@ -32,7 +32,7 @@ sub extractReport($$$$) {
 	my %last_sources;
 	my %fired;
 
-	my $file = "$reportDir/proc-interrupts-$testName-$testBenchmark";
+	my $file = "$reportDir/proc-interrupts-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

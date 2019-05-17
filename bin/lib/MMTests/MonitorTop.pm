@@ -77,7 +77,7 @@ sub extractReport($$$$) {
 	}
 	my $headingIndex = $_colMap{$heading};
 
-	my $file = "$reportDir/top-$testName-$testBenchmark";
+	my $file = "$reportDir/top-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

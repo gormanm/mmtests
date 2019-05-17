@@ -28,7 +28,7 @@ sub extractReport($$$$) {
 
 	my ($subHeading, $subSummary) = split(/-/, $subHeading);
 
-	my $file = "$reportDir/kcache-$testName-$testBenchmark";
+	my $file = "$reportDir/kcache-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

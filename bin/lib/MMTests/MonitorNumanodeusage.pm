@@ -43,7 +43,7 @@ sub extractReport($$$$$) {
 		$subHeading = "Usage";
 	}
 
-	my $file = "$reportDir/numa-meminfo-$testName-$testBenchmark";
+	my $file = "$reportDir/numa-meminfo-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

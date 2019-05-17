@@ -76,7 +76,7 @@ sub extractReport($$$$) {
 	my $count = 0;
 	my $file;
 
-	$file = "$reportDir/".$self->{_Heading}."-$testName-$testBenchmark";
+	$file = "$reportDir/".$self->{_Heading}."-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} elsif (-e "$file.gz") {

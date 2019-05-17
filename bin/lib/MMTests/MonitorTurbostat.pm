@@ -43,7 +43,7 @@ sub extractReport() {
 	my $start_timestamp = 0;
 
 	# Discover column header names
-	my $file = "$reportDir/turbostat-$testName-$testBenchmark";
+	my $file = "$reportDir/turbostat-$testBenchmark";
 	if (scalar keys %_colMap == 0) {
 		if (-e $file) {
 			open(INPUT, $file) || die("Failed to open $file: $!\n");
@@ -84,7 +84,7 @@ sub extractReport() {
 	}
 
 	# Read all counters
-	$file = "$reportDir/turbostat-$testName-$testBenchmark";
+	$file = "$reportDir/turbostat-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

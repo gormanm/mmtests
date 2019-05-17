@@ -1918,7 +1918,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if have_monitor_results numa-meminfo $KERNEL_BASE; then
-			if [ `zgrep ^Node numa-meminfo-* | awk '{print $2}' | sort | uniq | wc -l` -gt 1 ]; then
+			if [ `zgrep ^Node */numa-meminfo-* | awk '{print $2}' | sort | uniq | wc -l` -gt 1 ]; then
 				eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.png
 				eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.ps
 				eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance-smooth.png --smooth
@@ -1971,10 +1971,10 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 
 		if have_monitor_results proc-net-dev $KERNEL_BASE; then
 			INTERFACE_LIST=""
-			if [ -e ip-addr-$KERNEL_BASE ]; then
-				INTERFACE_LIST=`read-ip-addr.pl -u -f ip-addr-$KERNEL_BASE`
+			if [ -e $KERNEL_BASE/ip-addr ]; then
+				INTERFACE_LIST=`read-ip-addr.pl -u -f $KERNEL_BASE/ip-addr`
 			else
-				for NET_DEV in proc-net-dev-$KERNEL_BASE-*; do
+				for NET_DEV in $KERNEL_BASE/proc-net-dev-*; do
 					if [[ $NET_DEV == *".gz" ]]; then
 						LIST=`gunzip -c $NET_DEV | awk '{ if($1 != "time:")  print $1 }' | sort -u`
 					else

@@ -173,7 +173,7 @@ sub extractReport($$$$) {
 	my ($reading_test, $reading_before, $reading_after);
 	my $elapsed_time = 1;
 
-	my $file = "$reportDir/tests-timestamp-$testName";
+	my $file = "$reportDir/tests-timestamp";
 
 	foreach my $key (keys %_renamed_fields) {
 		$vmstat_before{$_renamed_fields{$key}} = 0;

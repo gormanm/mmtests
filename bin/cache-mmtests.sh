@@ -97,7 +97,7 @@ if [ -d "$CACHE_MMTESTS/$HASHDIR" ]; then
 	if [ "$MMTESTS_LOGDIR" != "" ]; then
 
 		cd $MMTESTS_LOGDIR
-		for FILE in `ls tests-timestamp-*`; do
+		for FILE in `ls */tests-timestamp`; do
 			if [ -e "$CACHE_MMTESTS/$HASHDIR/$FILE" ]; then
 				OLD_HASH=`cat "$CACHE_MMTESTS/$HASHDIR/$FILE"`
 				NEW_HASH=`cat $FILE | md5sum | awk '{print $1}'`
@@ -186,7 +186,8 @@ fi
 # Cache tests-timestamp md5sums
 if [ "$MMTESTS_LOGDIR" != "" ]; then
 	cd $MMTESTS_LOGDIR
-	for FILE in `ls tests-timestamp-*`; do
+	for FILE in `ls */tests-timestamp`; do
+		mkdir -p $(dirname "$CACHE_MMTESTS/$HASHDIR/$FILE")
 		cat $FILE | md5sum | awk '{print $1}' > "$CACHE_MMTESTS/$HASHDIR/$FILE"
 	done
 fi

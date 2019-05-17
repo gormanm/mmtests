@@ -46,9 +46,12 @@ setVerbose if $opt_verbose;
 pod2usage(-exitstatus => 0, -verbose => 0) if $opt_help;
 pod2usage(-exitstatus => 0, -verbose => 2) if $opt_manual;
 
+my ($reportDir);
+$reportDir = "$opt_reportDirectory/$opt_name";
+
 # Sanity check directory
-if (! -d $opt_reportDirectory) {
-	printWarning("Report directory $opt_reportDirectory does not exist or was not specified.");
+if (! -d $reportDir) {
+	printWarning("Report directory $reportDir does not exist or was not specified.");
 	pod2usage(-exitstatus => -1, -verbose => 0);
 }
 
@@ -70,13 +73,13 @@ if (defined $opt_monitor) {
 	my $monitorFactory = MMTests::ExtractFactory->new();
 	my $monitorModule;
 	eval {
-		$monitorModule = $monitorFactory->loadModule("monitor", $opt_monitor, $opt_reportDirectory, $opt_name, $opt_format, $opt_subheading);
+		$monitorModule = $monitorFactory->loadModule("monitor", $opt_monitor, $reportDir, $opt_name, $opt_format, $opt_subheading);
 	} or do {
 		printWarning("Failed to load module for monitor $opt_monitor\n$@");
 		exit(-1);
 	};
 
-	$monitorModule->extractReport($opt_reportDirectory, $opt_name, $opt_benchmark, $opt_subheading);
+	$monitorModule->extractReport($reportDir, $opt_name, $opt_benchmark, $opt_subheading);
 
 	# Just print the type if asked
 	if ($opt_printType) {
@@ -103,10 +106,8 @@ my $extractFactory = MMTests::ExtractFactory->new();
 my $extractModule;
 eval {
 	# Make a guess at the sub-directory name if one is not specified
-	if ($opt_name ne "") {
-		$opt_reportDirectory = "$opt_reportDirectory/$opt_benchmark-$opt_name";
-	}
-	$extractModule = $extractFactory->loadModule("extract", $opt_benchmark, $opt_reportDirectory, $opt_name, $opt_format, $opt_subheading);
+	$reportDir = "$reportDir/$opt_benchmark";
+	$extractModule = $extractFactory->loadModule("extract", $opt_benchmark, $reportDir, $opt_name, $opt_format, $opt_subheading);
 } or do {
 	printWarning("Failed to load module for benchmark $opt_benchmark\n$@");
 	exit(-1);
@@ -120,14 +121,14 @@ if ($opt_printType) {
 
 # Guess profile name
 my $profile = "noprofile";
-if (! -e "$opt_reportDirectory/noprofile") {
-	if (-e "$opt_reportDirectory/fine-profile-timer") {
+if (! -e "$reportDir/noprofile") {
+	if (-e "$reportDir/fine-profile-timer") {
 		$profile = "fine-profile-timer";
 	}
 }
 
 # Extract data from the benchmark itself and print whatever was requested
-$extractModule->extractReport($opt_reportDirectory, $opt_name, $profile);
+$extractModule->extractReport($reportDir, $opt_name, $profile);
 if ($opt_printJSON) {
 	exportJSON($extractModule, $opt_benchmark, $opt_name);
 	exit;

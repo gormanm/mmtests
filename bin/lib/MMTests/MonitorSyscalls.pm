@@ -52,7 +52,7 @@ sub extractReport($$$$) {
 	}
 	my $headingindex = $_colmap{$subheading};
 
-	my $file = "$reportDir/syscalls-$testName-$testBenchmark";
+	my $file = "$reportDir/syscalls-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

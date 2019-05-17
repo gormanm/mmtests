@@ -62,7 +62,7 @@ if (!defined($opt_monitor)) {
 	for my $name (split /,/, $opt_names) {
 		printVerbose("Loading extract $opt_benchmark $name\n");
 		eval {
-			my $reportDirectory = "$opt_reportDirectory/$opt_benchmark-$name";
+			my $reportDirectory = "$opt_reportDirectory/$name/$opt_benchmark";
 			my $profile = "noprofile";
 			if (! -e "$reportDirectory/noprofile") {
 				if (-e "$reportDirectory/fine-profile-timer") {
@@ -89,7 +89,7 @@ if (!defined($opt_monitor)) {
 	for my $name (split /,/, $opt_names) {
 		printVerbose("Loading extract $opt_benchmark $name\n");
 		eval {
-			my $reportDirectory = $opt_reportDirectory;
+			my $reportDirectory = "$opt_reportDirectory/$name";
 			$extractModules[$nrModules] = $extractFactory->loadModule("monitor", $opt_monitor, $reportDirectory, $name, $opt_format, $opt_subheading);
 			$extractModules[$nrModules]->extractReport($reportDirectory, $name, $opt_benchmark, $opt_subheading, 1);
 			$extractModules[$nrModules++]->extractSummary($opt_subheading);

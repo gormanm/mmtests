@@ -23,6 +23,10 @@ if [ "$NAME" = "" ]; then
 	echo Specify a test to run
 	exit -1
 fi
+if [ -z "$SHELLPACK_LOG" ]; then
+	echo "SHELLPACK_LOG has to be set"
+	exit -1
+fi
 if [ ! -e $SCRIPTDIR/drivers/driver-$NAME.sh ]; then
 	echo A driver script called driver-$NAME.sh does not exist
 fi

@@ -89,7 +89,7 @@ sub extractReport($$$$) {
 		die("Unrecognised heading");
 	}
 
-	my $file = "$reportDir/proc-net-dev-$testName-$testBenchmark";
+	my $file = "$reportDir/proc-net-dev-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

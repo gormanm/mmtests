@@ -110,7 +110,7 @@ sub extractReport($$$$$) {
 	my $timestamp = 0;
 	my $start_timestamp = 0;
 
-	my $file = "$reportDir/proc-vmstat-$testName-$testBenchmark";
+	my $file = "$reportDir/proc-vmstat-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {

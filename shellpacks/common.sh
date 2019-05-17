@@ -568,8 +568,8 @@ function setup_io_scheduler() {
 			grep -H . /sys/block/$DEVICE/queue/scheduler
 			lsscsi | grep $DEVICE
 		fi
-		grep -r -H . /sys/block/$DEVICE/queue/* 2> /dev/null >> $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
-		grep -r -H . /sys/block/*/queue/* 2> /dev/null >> $SHELLPACK_LOG/storageioqueue-all-${RUNNAME}.txt
+		grep -r -H . /sys/block/$DEVICE/queue/* 2> /dev/null >> $SHELLPACK_LOG/storageioqueue.txt
+		grep -r -H . /sys/block/*/queue/* 2> /dev/null >> $SHELLPACK_LOG/storageioqueue-all.txt
 	done
 
 	# For XFS partitions mounted nobarrier on later kernels, the parameter
@@ -590,7 +590,7 @@ function setup_io_scheduler() {
 
 function create_testdisk()
 {
-	rm -f $SHELLPACK_LOG/storageioqueue-${RUNNAME}.txt
+	rm -f $SHELLPACK_LOG/storageioqueue.txt
 
 	# Create RAID setup
 	if [ "$TESTDISK_RAID_DEVICES" != "" ]; then
@@ -624,12 +624,12 @@ function create_testdisk()
 		done
 
 		# Record basic device information
-		echo -n > $SHELLPACK_LOG/disk-raid-hdparm-$RUNNAME
-		echo -n > $SHELLPACK_LOG/disk-raid-smartctl-$RUNNAME
+		echo -n > $SHELLPACK_LOG/disk-raid-hdparm
+		echo -n > $SHELLPACK_LOG/disk-raid-smartctl
 		for DISK in $TESTDISK_RAID_DEVICES; do
 			if [ "`uname -r`" != "4.4.52-0.g56e0224-default" ]; then
-				hdparm -I $DISK 2>&1 >> $SHELLPACK_LOG/disk-raid-hdparm-$RUNNAME
-				smartctl -a $DISK 2>&1 >> $SHELLPACK_LOG/dks-raid-smartctl-$RUNNAME
+				hdparm -I $DISK 2>&1 >> $SHELLPACK_LOG/disk-raid-hdparm
+				smartctl -a $DISK 2>&1 >> $SHELLPACK_LOG/dks-raid-smartctl
 			fi
 		done
 
@@ -806,8 +806,8 @@ EOF
 		mdadm --misc --wait $TESTDISK_RAID_MD_DEVICE
 
 		echo Dumping final md state
-		cat /proc/mdstat			| tee    md-stat-$RUNNAME
-		mdadm --detail $TESTDISK_RAID_MD_DEVICE | tee -a md-stat-$RUNNAME
+		cat /proc/mdstat			| tee    $SHELLPACK_LOG/md-stat
+		mdadm --detail $TESTDISK_RAID_MD_DEVICE | tee -a $SHELLPACK_LOG/md-stat
 
 		mkdir -p /etc/mdadm
 		mdadm --detail --scan > /etc/mdadm/mdadm.conf
@@ -916,7 +916,7 @@ function create_filesystems
 		if [ "${STORAGE_CACHE_TYPE}" = "" ]; then
 			# Temporary hack for SLE 12 SP3 Alpha 2 testing
 			if [ "`uname -r`" != "4.4.52-0.g56e0224-default" ]; then
-				hdparm -I ${TESTDISK_PARTITIONS[*]} 2>&1 > $SHELLPACK_LOG/disk-hdparm-$RUNNAME
+				hdparm -I ${TESTDISK_PARTITIONS[*]} 2>&1 > $SHELLPACK_LOG/disk-hdparm
 			fi
 		fi
 		if [ "$TESTDISK_FILESYSTEM" != "" -a "$TESTDISK_FILESYSTEM" != "tmpfs" ]; then
@@ -1028,9 +1028,9 @@ function round_down_nearest_square()
 function have_run_results()
 {
 	if [ -n "$1" ]; then
-		[ -e tests-activity-$1 ]
+		[ -e $1/tests-activity ]
 	else
-		ls tests-activity-* &>/dev/null
+		ls */tests-activity &>/dev/null
 	fi
 }
 
@@ -1041,24 +1041,24 @@ function have_monitor_results()
 	local contains=$3
 
 	if [ -z "$contains" ]; then
-		ls $monitor-$runname-* &>/dev/null
+		ls $runname/$monitor-* &>/dev/null
 	else
 		# Here we grep all runnames to check whether event occured
 		# in any run
-		zgrep -q "$contains" $monitor-*-* &>/dev/null
+		zgrep -q "$contains" */$monitor-* &>/dev/null
 	fi
 }
 
 function run_report_name()
 {
-	grep "run-mmtests: begin" tests-activity-$1 | awk '{print $4}'
+	grep "run-mmtests: begin" $1/tests-activity | awk '{print $4}'
 }
 
 function run_results()
 {
-	grep -H "run-mmtests: Start$" tests-activity-* | \
-		awk '{print $2" "$1}' | \
-		sort -n | awk '{print $2}' | sed -e 's/tests-activity-\(.*\):/\1/'
+	grep -H "run-mmtests: Start$" */tests-activity | \
+		cut -d ' ' -f 1 | sort -n -k 2 -t ':' | \
+		cut -d ':' -f 1 | sed -e 's|/tests-activity||'
 }
 
 function setup_dirs() {
