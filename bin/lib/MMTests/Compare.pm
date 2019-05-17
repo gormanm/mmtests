@@ -17,9 +17,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName 	=> "Compare",
-		_ResultData	=> [],
 		_FieldLength	=> 0,
-		_Headers	=> [ "Base" ],
 	};
 	bless $self, $class;
 	return $self;

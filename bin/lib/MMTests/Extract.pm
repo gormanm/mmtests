@@ -18,7 +18,6 @@ sub new() {
 		_ModuleName 	=> "Extract",
 		_FieldHeaders	=> [],
 		_FieldLength	=> 0,
-		_Headers	=> [ "Base" ],
 	};
 	bless $self, $class;
 	return $self;
@@ -185,7 +184,7 @@ sub initialise() {
 	$self->{_FieldLength}  = $fieldLength;
 	$self->{_FieldHeaders} = \@fieldHeaders;
 	$self->{_PlotLength} = $plotLength;
-	$self->{_ResultData} = [];
+	$self->{_ResultData} = {};
 	$self->{_ResultDataUnsorted} = 0;
 	$self->{_LastSample} = {};
 	$self->{_GeneratedOperations} = [];
@@ -248,15 +247,6 @@ sub printPlotHeaders() {
 		$self->{_FieldHeaderFormat});
 }
 
-sub _printSimplePlotData() {
-	my ($self, $fieldLength, @data) = @_;
-	my $nrSample = 1;
-
-	foreach my $value (@data) {
-		printf("%-${fieldLength}d %${fieldLength}.3f\n", $nrSample++, $value);
-	}
-}
-
 sub _printCandlePlotData() {
 	my ($self, $fieldLength, @data) = @_;
 
@@ -279,19 +269,6 @@ sub _printErrorBarData() {
 	printf("%${fieldLength}.3f %${fieldLength}.3f\n", $mean, $stddev);
 }
 
-
-sub _printCandlePlot() {
-	my ($self, $fieldLength, $column) = @_;
-	my @data;
-
-	# Extract the data
-	foreach my $row (@{$self->{_ResultData}}) {
-		my @rowArray = @{$row};
-		push @data, $rowArray[$column];
-	}
-
-	$self->_printCandlePlotData($fieldLength, @data);
-}
 
 sub _time_to_user {
 	my ($self, $line) = @_;
@@ -444,19 +421,20 @@ sub getOperations() {
 
 sub printReport() {
 	my ($self) = @_;
-	$self->{_PrintHandler}->printRow($self->{_ResultData}, $self->{_FieldLength}, $self->{_FieldFormat});
-}
 
-sub dataByOperation() {
-	my ($self) = @_;
-	my @data = @{$self->{_ResultData}};
-	my %result;
+	foreach my $op ($self->getOperations("")) {
+		for my $rowref (@{$self->{_ResultData}->{$op}}) {
+			my @row = ();
+			my @table = ();
 
-	foreach my $rowref (@data) {
-		push @{$result{$rowref->[0]}}, [$rowref->[1], $rowref->[2]];
+			push @row, $op;
+			push @row, @{$rowref};
+			push @table, \@row;
+			$self->{_PrintHandler}->printRow(\@table,
+						 $self->{_FieldLength},
+						 $self->{_FieldFormat});
+		}
 	}
-
-	return \%result;
 }
 
 sub addData() {
@@ -476,21 +454,23 @@ sub addData() {
 			$self->{_OperationsSeen}->{$op} = 1;
 		}
 	}
-	push @{$self->{_ResultData}}, [$op, $sample, $val];
+	push @{$self->{_ResultData}->{$op}}, [$sample, $val];
 }
 
 sub sortResults() {
 	my ($self) = @_;
 
 	if ($self->{_ResultDataUnsorted}) {
-		my @newdata = sort {
-			if ($a->[0] != $b->[0]) {
-				return $a->[0] <=> $b->[0];
-			}
-			return $a->[1] <=> $b->[1];
-		} @{$self->{_ResultData}};
+		for my $op (keys %{$self->{_ResultData}}) {
+			my @newdata = sort {
+				if ($a->[0] != $b->[0]) {
+					return $a->[0] <=> $b->[0];
+				}
+				return $a->[1] <=> $b->[1];
+			} @{$self->{_ResultData}->{$op}};
 
-		$self->{_ResultData} = \@newdata;
+			$self->{_ResultData}->{$op} = \@newdata;
+		}
 	}
 }
 

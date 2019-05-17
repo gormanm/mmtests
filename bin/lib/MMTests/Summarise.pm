@@ -140,7 +140,7 @@ sub ratioSummaryOps() {
 
 sub printPlot() {
 	my ($self, $subHeading) = @_;
-	my %data = %{$self->dataByOperation()};
+	my %data = %{$self->{_ResultData}};
 	my @_operations;
 	my $fieldLength = $self->{_FieldLength};
 	my $column = 1;
@@ -295,7 +295,7 @@ sub runStatFunc
 sub extractSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = $self->summaryOps($subHeading);
-	my %data = %{$self->dataByOperation()};
+	my %data = %{$self->{_ResultData}};
 
 	my %summary;
 	my %significance;
@@ -348,7 +348,7 @@ sub extractSummary() {
 sub extractRatioSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = $self->ratioSummaryOps($subHeading);
-	my %data = %{$self->dataByOperation()};
+	my %data = %{$self->{_ResultData}};
 	my %summary;
 	my %summaryCILen;
 	foreach my $operation (@_operations) {
