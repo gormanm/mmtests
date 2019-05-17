@@ -346,6 +346,14 @@ if [ "`which ntp-wait`" != "" ]; then
 	systemctl stop time-sync.target
 fi
 
+if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
+	install-depends numad
+
+	if [ `which numad 2>/dev/null` = "" ]; then
+		die numad requested but unavailable
+	fi
+fi
+
 create_testdisk
 
 # Create test disk(s)
@@ -520,13 +528,8 @@ rm -f $SHELLPACK_ACTIVITY 2> /dev/null
 echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
 
 if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
-	install-depends numad
-
 	echo Restart numad and purge log as per MMTESTS_NUMA_POLICY
 	killall -KILL numad
-	if [ `which numad 2>/dev/null` = "" ]; then
-		die numad requested but unavailable
-	fi
 	rm -f /var/log/numad.log
 	numad -F -d &> $SHELLPACK_LOG/numad-stdout &
 	export NUMAD_PID=$!
