@@ -128,13 +128,11 @@ done
 
 # Create directories that must exist
 cd $SHELLPACK_TOPLEVEL
+
+setup_dirs
+
 for TEST in $MMTESTS; do
 	rm -rf $SHELLPACK_LOG/$TEST
-done
-for DIRNAME in $SHELLPACK_SOURCES $SHELLPACK_LOG $SHELLPACK_DATA; do
-	if [ ! -e "$DIRNAME" ]; then
-		mkdir -p "$DIRNAME"
-	fi
 done
 
 # Mount the log directory on the requested partition if requested
@@ -290,7 +288,6 @@ else
 		# In case no special data storage is defined, we default to
 		# SHELLPACK_TEMP which gets automatically cleaned up
 		SHELLPACK_DATA="$SHELLPACK_TEMP"
-		mkdir -p "$SHELLPACK_TEMP"
 	fi
 fi
 

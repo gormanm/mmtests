@@ -15,11 +15,7 @@ function die() {
         exit -1
 }
 
-for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG $SHELLPACK_DATA; do
-	if [ ! -e "$DIRNAME" ]; then
-		mkdir -p "$DIRNAME"
-	fi
-done
+setup_dirs
 
 # Load the driver script
 NAME=$1
@@ -62,14 +58,6 @@ if [ "$REMOTE_SERVER_HOST" != "" ]; then
 	export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/$SERVER_SIDE_BENCH_SCRIPT
 	mmtests_server_init
 fi
-
-function setup_dirs() {
-	for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG $SHELLPACK_DATA; do
-		if [ ! -e "$DIRNAME" ]; then
-			mkdir -p "$DIRNAME"
-		fi
-	done
-}
 
 # no-profile run
 if [ "$RUN_NOPROFILE" = "yes" ]; then

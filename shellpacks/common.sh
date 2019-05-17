@@ -1045,3 +1045,11 @@ function run_results()
 		awk '{print $2" "$1}' | \
 		sort -n | awk '{print $2}' | sed -e 's/tests-activity-\(.*\):/\1/'
 }
+
+function setup_dirs() {
+	for DIRNAME in $SHELLPACK_TEMP $SHELLPACK_SOURCES $SHELLPACK_LOG $SHELLPACK_DATA; do
+		if [ ! -e "$DIRNAME" ]; then
+			mkdir -p "$DIRNAME"
+		fi
+	done
+}

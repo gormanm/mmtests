@@ -8,11 +8,8 @@ ARCH=`uname -m`
 . $SCRIPTDIR/shellpacks/common-config.sh
 cd $SHELLPACK_TOPLEVEL
 
-for DIRNAME in $SHELLPACK_SOURCES $SHELLPACK_LOG $SHELLPACK_TEMP; do
-	if [ ! -e "$DIRNAME" ]; then
-		mkdir -p "$DIRNAME"
-	fi
-done
+setup_dirs
+
 mkdir -p $SHELLPACK_TOPLEVEL/prebuilds/$ARCH/
 
 for PACKAGE in ffsb fsmark hackbench lmbench memcached memcachetest netperf pft pipetest postgresbuild postmark starve sysbench; do
