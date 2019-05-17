@@ -235,8 +235,12 @@ sub printReportBottom() {
 
 sub printFieldHeaders() {
 	my ($self) = @_;
+	my @headers = ();
+
+	push @headers, "Operation";
+	push @headers, @{$self->{_FieldHeaders}};
 	$self->{_PrintHandler}->printHeaders(
-		$self->{_FieldLength}, $self->{_FieldHeaders},
+		$self->{_FieldLength}, \@headers,
 		$self->{_FieldHeaderFormat});
 }
 
@@ -421,6 +425,11 @@ sub getOperations() {
 
 sub printReport() {
 	my ($self) = @_;
+	my @format = ();
+	my $fieldLength = $self->{_FieldLength};
+
+	push @format, "%-${fieldLength}s";
+	push @format, @{$self->{_FieldFormat}};
 
 	foreach my $op ($self->getOperations("")) {
 		for my $rowref (@{$self->{_ResultData}->{$op}}) {
@@ -430,9 +439,8 @@ sub printReport() {
 			push @row, $op;
 			push @row, @{$rowref};
 			push @table, \@row;
-			$self->{_PrintHandler}->printRow(\@table,
-						 $self->{_FieldLength},
-						 $self->{_FieldFormat});
+			$self->{_PrintHandler}->printRow(\@table, $fieldLength,
+							 \@format);
 		}
 	}
 }

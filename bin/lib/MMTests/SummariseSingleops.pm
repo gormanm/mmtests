@@ -27,8 +27,8 @@ sub initialise() {
 
 	$self->SUPER::initialise($reportDir, $testName);
 
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "", "%${fieldLength}.2f" ];
-	$self->{_FieldHeaders} = [ "Type", $self->{_Opname} ? $self->{_Opname} : "Ops" ];
+	$self->{_FieldFormat} = [ "", "%${fieldLength}.2f" ];
+	$self->{_FieldHeaders} = [ $self->{_Opname} ? $self->{_Opname} : "Ops" ];
 }
 
 1;

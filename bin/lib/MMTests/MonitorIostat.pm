@@ -55,8 +55,7 @@ sub extractReport($$$) {
 
 	my $fieldLength = 12;
         $self->{_FieldLength} = $fieldLength;
-        $self->{_FieldFormat} = ["%${fieldLength}s", "%${fieldLength}.4f", 
-				  "%${fieldLength}.2f" ];
+        $self->{_FieldFormat} = [ "%${fieldLength}.4f", "%${fieldLength}.2f" ];
 
 	my %samples;
 	while (<INPUT>) {

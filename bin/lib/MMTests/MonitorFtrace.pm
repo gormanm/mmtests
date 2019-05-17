@@ -29,7 +29,7 @@ sub initialise() {
 	}
 	$self->SUPER::initialise($reportDir, $testName);
 
-	$self->{_FieldFormat} = [ "%-$self->{_FieldLength}s", "", "%12d" ];
+	$self->{_FieldFormat} = [ "", "%12d" ];
 }
 
 sub ftraceCallback {

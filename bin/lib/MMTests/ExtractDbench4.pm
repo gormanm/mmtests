@@ -12,7 +12,7 @@ sub initialise() {
 	$self->{_PlotType}   		= "client-errorlines";
 	$self->{_SubheadingPlotType}	= "simple-clients";
         $self->SUPER::initialise($reportDir, $testName);
-	$self->{_FieldFormat} = [ "%-${fieldLength}s", "%-${fieldLength}.3f", "%${fieldLength}d" ];
+	$self->{_FieldFormat} = [ "%-${fieldLength}.3f", "%${fieldLength}d" ];
 }
 
 sub extractReport() {
