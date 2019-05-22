@@ -59,8 +59,7 @@ while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 		-D $SHELLPACK_DATA --warmup 0 \
 		-t $((DBENCH_DURATION_BASE + FACTOR*CLIENT/1000)) \
 		--loadfile $LOADDIR/client-tiny.txt --show-execute-time \
-		$CLIENT 2>&1 | tee $LOGDIR_RESULTS/dbench-$CLIENT.log \
-			|| die Failed to run dbench
+		$CLIENT 2>&1 > $LOGDIR_RESULTS/dbench-$CLIENT.log
 	monitor_post_hook $LOGDIR_RESULTS $CLIENT
 	gzip $LOGDIR_RESULTS/dbench-$CLIENT.log
 	if [ $CLIENT -lt $NUMCPUS ]; then
