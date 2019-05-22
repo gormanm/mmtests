@@ -60,7 +60,6 @@ fi
 		echo Waiting on dd instances to complete
 		wait
 		rm -f $SHELLPACK_DATA/output.*
-		cat $LOGDIR_RESULTS/time-$NR_THREADS-*-$ITERATION | grep elapsed
 	###SHELLPACK iteration_end $PARALLELDD_ITERATIONS
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end

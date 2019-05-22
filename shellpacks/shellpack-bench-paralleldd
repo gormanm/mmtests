@@ -22,6 +22,7 @@ PARALLELDD_WRITEFILES=
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -86,6 +87,10 @@ fi
 
 THREADS=
 START_THREAD=$PARALLELDD_MIN_THREADS
+if [ "$MMTESTS_THREAD_CUTOFF" != "" ]; then
+	echo Forcing PARALLELDD_MAX_THREADS to $MMTESTS_THREAD_CUTOFF
+	PARALLELDD_MAX_THREADS=$MMTESTS_THREAD_CUTOFF
+fi
 END_THREAD=$PARALLELDD_MAX_THREADS
 if [ $END_THREAD -gt 32 ]; then
 	THREADS=`seq $START_THREAD 3 8`
@@ -138,7 +143,7 @@ for ITERATION in `seq 1 $PARALLELDD_ITERATIONS`; do
 		echo Waiting on dd instances to complete
 		wait
 		rm -f $SHELLPACK_DATA/output.*
-		cat $LOGDIR_RESULTS/time-$NR_THREADS-*-$ITERATION | grep elapsed
+sync
 done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 done
@@ -147,4 +152,4 @@ rm $SHELLPACK_DATA/source_file*
 
 exit $SHELLPACK_SUCCESS
 #### Description ddread
-#### Details paralleldd-bench 18
+#### Details paralleldd-bench 19
