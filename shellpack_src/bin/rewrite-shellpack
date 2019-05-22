@@ -388,6 +388,9 @@ if [ "\$INSTALL_FORCE" = "yes" ]; then
 fi
 if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
 	mmtests_activity source-install
+	if [ ! -e  \$SHELLPACK_INCLUDE/shellpack-install-$externalpack ]; then
+		\$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh $externalpack
+	fi
 	\$SHELLPACK_INCLUDE/shellpack-install-$externalpack -v $version @other || die $externalpack install script returned error
 	mmtests_activity source-installed
 fi

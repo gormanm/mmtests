@@ -1,5 +1,5 @@
 #!/bin/bash
-# A shellpack consists of an install script, a benchmark script, a version, a
+# A shellpack consists of an install script, a benchmark script, a
 # name and a description.
 #
 DIRNAME=`dirname $0`
@@ -8,7 +8,6 @@ SRC=.
 INSTALL=install
 BENCH=bench
 OUTPUT=$SRC/testpack.tar.gz
-VERSION=
 NAME=
 TEMP=
 
@@ -58,10 +57,6 @@ while true; do
 		DESCRIPTION="$2"
 		shift 2
 		;;
-	-v)
-		VERSION="$2"
-		shift 2
-		;;
 	-o)
 		OUTPUT="$2"
 		shift 2
@@ -87,7 +82,6 @@ fi
 pushd "$SRC" > /dev/null
 SRC=`pwd`
 popd > /dev/null
-echo Source directory: $SRC
 
 # Check script names
 INSTALL="$SRC/$INSTALL"
@@ -99,40 +93,17 @@ if [ ! -f "$BENCH" ]; then
 	die "Benchmark script $BENCH does not exist. Use -b"
 fi
 
-# Get the version number and update
-if [ "$VERSION" != "" ]; then
-	echo Using specified version: $VERSION
-else
-	if [ -f "$SRC/version" ]; then
-		VERSION=`cat "$SRC/version"`
-		VERSION=$(($VERSION+1))
-		if [ "$VERSION" = "" ]; then
-			die Unable to read version file or version file corrupt
-		fi
-		echo Updating version number: $VERSION
-	else
-		VERSION=1
-		echo Starting at version: $VERSION
-	fi
+if [ ! -f "$SRC/description" ]; then
+	die "Specify a description with -d"
 fi
+DESCRIPTION=`cat "$SRC/description"`
 
 if [ "$NAME" = "" ]; then
-	if [ -f "$SRC/name" ]; then
-		NAME=`cat "$SRC/name"`
-		echo Name: $NAME
-	else
-		die Specify a name with -n
+	if [ ! -f "$SRC/name" ]; then
+		die "Specify a name with -n"
 	fi
-fi
-
-# Get the description of the benchmark
-if [ "$DESCRIPTION" = "" ]; then
-	if [ -f "$SRC/description" ]; then
-		DESCRIPTION=`cat "$SRC/description"`
-		echo Description: $DESCRIPTION
-	else
-		die Specify a description with -n
-	 fi
+	NAME=`cat "$SRC/name"`
+	echo Shellpack: $NAME :: $DESCRIPTION
 fi
 
 ##### Start building the pack
@@ -147,30 +118,26 @@ mkdir $TEMP.dir
 rm $TEMP
 TEMP=$TEMP.dir
 
-echo "$VERSION" > "$SRC/version"
 echo "$NAME" > "$SRC/name"
 echo "$DESCRIPTION" > "$SRC/description"
 
 pushd $TEMP > /dev/null
 cat "$BENCH" | $SCRIPTDIR/rewrite-shellpack > ./bench
 cat "$INSTALL" | $SCRIPTDIR/rewrite-shellpack > ./install
-cp "$SRC/version" .
 cp "$SRC/name" .
 cp "$SRC/description" .
 echo "#### Description $DESCRIPTION" >> ./bench
 echo "#### Description $DESCRIPTION" >> ./install
-echo "#### Details `basename $BENCH | sed -e 's/ /_/g'` $VERSION" >> ./bench
-echo "#### Details `basename $NAME	| sed -e 's/ /_/g'` $VERSION" >> ./install
+echo "#### Details `basename $BENCH | sed -e 's/ /_/g'`" >> ./bench
+echo "#### Details `basename $NAME	| sed -e 's/ /_/g'`" >> ./install
 
-echo Creating pack
-tar -cz --exclude testpack.tar.gz -f testpack.tar.gz .
+tar -cz --exclude testpack.tar.gz -f testpack.tar.gz . 2>/dev/null
 popd > /dev/null
 mv $TEMP/testpack.tar.gz "$OUTPUT"
 if [ ! -f "$OUTPUT" ]; then
 	die Failed to create testpack
 fi
 
-echo Pack: $OUTPUT
 cd /
 rm -rf $TEMP
 exit 0

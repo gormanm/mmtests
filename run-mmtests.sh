@@ -224,6 +224,13 @@ else
 	fi
 fi
 
+# Generate shellpack from template
+echo Building shellpacks
+for TEST in $MMTESTS; do
+	$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh $TEST
+done
+echo
+
 # Validate systemtap installation if it exists
 TESTS_STAP="highalloc pagealloc highalloc"
 MONITORS_STAP="dstate stap-highorder-atomic function-frequency syscalls"

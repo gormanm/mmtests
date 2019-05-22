@@ -82,26 +82,18 @@ tar -xf "$PACK"
 if [ ! -f install ];         then die File install is not in pack; fi
 if [ ! -f bench ];           then die File bench is not in pack; fi
 if [ ! -f name  ];           then die File name is not in pack; fi
-if [ ! -f version ];         then die File version is not in pack; fi
 if [ ! -f description ];     then die File description is not in pack; fi
 NAME=`cat name`
-VERSION=`cat version`
 DESCRIPTION=`cat description`
 if [ "$NAME" = "" ];         then die File name is empty; fi
-if [ "$VERSION" = "" ];      then die File version is empty; fi
-
-VERIFY=$(($VERSION+0))
-if [ "$VERSION" != "$VERIFY" ]; then die Version is garbage; fi
 
 cd $INSTALL
 
 if [ -f "shellpack-bench-$NAME" ]; then
 	LINE=`tail -1 "shellpack-bench-$NAME"`
 	OLD_NAME=`tail -1 "shellpack-bench-$NAME" | awk '{print $3}'`
-	OLD_VERS=`tail -1 "shellpack-bench-$NAME" | awk '{print $4}'`
 	OLD_DESC=`tail -2 "shellpack-bench-$NAME" | head -1 | sed -e 's/^#### Description //'`
 	NEW_NAME=`tail -1 $TEMP/bench | awk '{print $3}'`
-	NEW_VERS=`tail -1 $TEMP/bench | awk '{print $4}'`
 	NEW_DESC=`tail -2 $TEMP/bench | head -1 | sed -e 's/^#### Description //'`
 	if [ "$OLD_NAME" != "$NEW_NAME" ]; then
 		die Original benchmark script name of $OLD_NAME does not match $NEW_NAME. Possible shellpack naming collision. Playing safe
@@ -111,25 +103,17 @@ if [ -f "shellpack-bench-$NAME" ]; then
 		echo New description: $NEW_DESC
 		die "Original description details do not match the new description. Possible shellpack naming collision. Playing safe"
 	fi
-	if [ $OLD_VERS -ge $NEW_VERS ]; then
-		echo "Existing benchmark has greater than or matching version than pack ($OLD_VERS > $NEW_VERS)"
-	else
-		echo "Updating shellpack benchmark"
-		rm ./shellpack-bench-$NAME
-		cp $TEMP/bench ./shellpack-bench-$NAME
-	fi
+	rm ./shellpack-bench-$NAME
+	cp $TEMP/bench ./shellpack-bench-$NAME
 else
-	echo "Installing shellpack benchmark"
 	cp $TEMP/bench ./shellpack-bench-$NAME
 fi
 
 if [ -f "shellpack-install-$NAME" ]; then
 	LINE=`tail -1 "shellpack-install-$NAME"`
 	OLD_NAME=`tail -1 "shellpack-install-$NAME" | awk '{print $3}'`
-	OLD_VERS=`tail -1 "shellpack-install-$NAME" | awk '{print $4}'`
 	OLD_DESC=`tail -2 "shellpack-install-$NAME" | head -1 | sed -e 's/^#### Description //'`
 	NEW_NAME=`tail -1 $TEMP/install | awk '{print $3}'`
-	NEW_VERS=`tail -1 $TEMP/install | awk '{print $4}'`
 	NEW_DESC=`tail -2 $TEMP/install | head -1 | sed -e 's/^#### Description //'`
 	if [ "$OLD_NAME" != "$NEW_NAME" ]; then
 		die Original install script name of $OLD_NAME does not match $NEW_NAME
@@ -139,15 +123,9 @@ if [ -f "shellpack-install-$NAME" ]; then
 		echo New description: $NEW_DESC
 		die Original description details does not match the new description
 	fi
-	if [ $OLD_VERS -ge $NEW_VERS ]; then
-		echo "Existing install has greater than or matching version than pack ($OLD_VERS > $NEW_VERS)"
-	else
-		echo "Updating shellpack install script"
-		rm ./shellpack-install-$NAME
-		cp $TEMP/install ./shellpack-install-$NAME
-	fi
+	rm ./shellpack-install-$NAME
+	cp $TEMP/install ./shellpack-install-$NAME
 else
-	echo "Installing shellpack install script"
 	cp $TEMP/install ./shellpack-install-$NAME
 fi
 
@@ -160,5 +138,4 @@ rm -rf $TEMP
 if [ "$DOWNLOADED" = "yes" ]; then
 	rm $PACK
 fi
-echo Installation $NEW_NAME shellpack complete
 exit 0

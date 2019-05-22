@@ -1,5 +1,9 @@
 #!/bin/bash
 
+DIRNAME=`dirname $0`
+export SCRIPTDIR=`cd "$DIRNAME" && pwd`
+cd $SCRIPTDIR
+
 if [ "$1" = "" ]; then
 	echo Specify package to refresh
 	exit -1
