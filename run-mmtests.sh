@@ -356,6 +356,10 @@ rm -rf $SHELLPACK_LOG_RUNBASE &>/dev/null
 mkdir -p $SHELLPACK_LOG_RUNBASE
 echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
 
+teststate_log() {
+	echo "$@" >> $SHELLPACK_LOGFILE
+}
+
 for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERATION++ )); do
 	export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-$MMTEST_ITERATION
 	mkdir -p $SHELLPACK_LOG
@@ -569,26 +573,27 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	# Run tests in single mode
 	ip addr show > $SHELLPACK_LOG/ip-addr
-	echo start :: `date +%s` > $SHELLPACK_LOGFILE
+	rm -f $SHELLPACK_LOGFILE
+	teststate_log "start :: `date +%s`"
 	if [ "$RAID_CREATE_END" != "" ]; then
-		echo raid-create :: $((RAID_CREATE_END-RAID_CREATE_START)) >> $SHELLPACK_LOGFILE
+		teststate_log "raid-create :: $((RAID_CREATE_END-RAID_CREATE_START))"
 	fi
-	echo arch :: `uname -m` >> $SHELLPACK_LOGFILE
-	echo mount :: `uname -m` >> $SHELLPACK_LOGFILE
-	mount >> $SHELLPACK_LOGFILE
-	echo /proc/mounts :: `uname -m` >> $SHELLPACK_LOGFILE
-	cat /proc/mounts >> $SHELLPACK_LOGFILE
+	teststate_log "arch :: `uname -m`"
+	teststate_log "mount :: `uname -m`"
+	teststate_log "`mount`"
+	teststate_log "/proc/mounts :: `uname -m`"
+	teststate_log "`cat /proc/mounts`"
 	if [ "`which numactl 2> /dev/null`" != "" ]; then
-		echo numactl :: configuration >> $SHELLPACK_LOGFILE
-		numactl --hardware >> $SHELLPACK_LOGFILE
+		teststate_log "numactl :: configuration"
+		teststate_log "`numactl --hardware`"
 	fi
 	if [ "`which lscpu 2> /dev/null`" != "" ]; then
-		echo lscpu :: configuration >> $SHELLPACK_LOGFILE
-		lscpu >> $SHELLPACK_LOGFILE
+		teststate_log "lscpu :: configuration"
+		teststate_log "`lscpu`"
 	fi
 	if [ "`which cpupower 2> /dev/null`" != "" ]; then
-		echo cpupower :: frequency-info >> $SHELLPACK_LOGFILE
-		cpupower frequency-info >> $SHELLPACK_LOGFILE
+		teststate_log "cpupower :: frequency-info"
+		teststate_log "`cpupower frequency-info`"
 	fi
 	if [ "`which lstopo 2> /dev/null`" != "" ]; then
 		lstopo $SHELLPACK_LOG/lstopo.pdf 2>/dev/null
@@ -627,21 +632,20 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 		# Run the test
 		echo Starting test $TEST
-		echo test begin :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
+		teststate_log "test begin :: $TEST `date +%s`"
 		echo `date +%s` "run-mmtests: begin $TEST" >> $SHELLPACK_ACTIVITY
 
 		# Record some files at start of test
 		for PROC_FILE in $PROC_FILES; do
-			echo file start :: $PROC_FILE >> $SHELLPACK_LOGFILE
-			cat $PROC_FILE >> $SHELLPACK_LOGFILE
+			teststate_log "file start :: $PROC_FILE"
+			teststate_log "`cat $PROC_FILE`"
 		done
-		cat /proc/meminfo >> $SHELLPACK_LOGFILE
 		if [ -e /proc/lock_stat ]; then
 			echo 0 > /proc/lock_stat
 		fi
 		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
-			echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
-			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+			teststate_log "file start :: /sys/kernel/debug/tracing/stack_trace"
+			teststate_log "`cat /sys/kernel/debug/tracing/stack_trace`"
 		fi
 		RUNNING_TEST=$TEST
 
@@ -684,22 +688,22 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 		# Record some basic information at end of test
 		for PROC_FILE in $PROC_FILES; do
-			echo file end :: $PROC_FILE >> $SHELLPACK_LOGFILE
-			cat $PROC_FILE >> $SHELLPACK_LOGFILE
+			teststate_log "file end :: $PROC_FILE"
+			teststate_log "`cat $PROC_FILE`"
 		done
 		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
-			echo file end :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
-			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+			teststate_log "file end :: /sys/kernel/debug/tracing/stack_trace"
+			teststate_log "`cat /sys/kernel/debug/tracing/stack_trace`"
 		fi
 		if [ -e /proc/lock_stat ]; then
-			echo file end :: /proc/lock_stat >> $SHELLPACK_LOGFILE
-			cat /proc/lock_stat >> $SHELLPACK_LOGFILE
+			teststate_log "file end :: /proc/lock_stat"
+			teststate_log "`cat /proc/lock_stat`"
 		fi
 
 		# Mark the finish of the test
 		echo test exit :: $TEST $EXIT_CODE
-		echo test end :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
-		cat $SHELLPACK_LOG/timestamp >> $SHELLPACK_LOGFILE
+		teststate_log "test end :: $TEST `date +%s`"
+		teststate_log "`cat $SHELLPACK_LOG/timestamp`"
 		rm $SHELLPACK_LOG/timestamp
 
 		# Reset some parameters in case tests are sloppy
@@ -710,7 +714,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		fi
 
 	done
-	echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
+	teststate_log "finish :: `date +%s`"
 	dmesg > $SHELLPACK_LOG/dmesg
 	gzip -f $SHELLPACK_LOG/dmesg
 
@@ -775,5 +779,5 @@ if [ "$MMTESTS_FORCE_DATE" != "" ]; then
 fi
 
 echo `date +%s` run-mmtests: End >> $SHELLPACK_ACTIVITY
-echo status :: $EXIT_CODE >> $SHELLPACK_LOGFILE
+teststate_log "status :: $EXIT_CODE"
 exit $EXIT_CODE
