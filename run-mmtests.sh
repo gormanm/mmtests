@@ -594,6 +594,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		if [ "`which lstopo 2> /dev/null`" != "" ]; then
 			lstopo $SHELLPACK_LOG/lstopo.pdf 2>/dev/null
 			lstopo --output-format txt > $SHELLPACK_LOG/lstopo.txt
+			gzip $SHELLPACK_LOG/lstopo.txt
 		fi
 		if [ "`which lsscsi 2> /dev/null`" != "" ]; then
 			lsscsi > $SHELLPACK_LOG/lsscsi.txt
