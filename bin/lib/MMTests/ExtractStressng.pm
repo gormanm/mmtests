@@ -6,18 +6,18 @@ our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub initialise() {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractStressng";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "operation-candlesticks";
 
-	$self->SUPER::initialise($reportDir, $testName);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $reportName, $profile) = @_;
+	my ($self, $reportDir) = @_;
 
-	my @files = <$reportDir/$profile/stressng-*-1.log>;
+	my @files = <$reportDir/stressng-*-1.log>;
 	my @clients;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
@@ -26,7 +26,7 @@ sub extractReport() {
 	@clients = sort { $a <=> $b } @clients;
 
 	foreach my $client (@clients) {
-		foreach my $file (<$reportDir/$profile/stressng-$client-*>) {
+		foreach my $file (<$reportDir/stressng-$client-*>) {
 			my @split = split /-/, $file;
 			$split[-1] =~ s/.log//;
 			my $iteration = $split[-1];
