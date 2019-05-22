@@ -511,14 +511,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		cache-mmtests.sh compare-mmtests.pl -d . -b bonnietput -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	dvdstore)
-		echo $SUBREPORT Transactions
-		eval $COMPARE_CMD
-		echo
-		echo $SUBREPORT Time
-		cache-mmtests.sh compare-mmtests.pl -d . -b dvdstoreexectime -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		;;
 	ebizzy)
 		echo $SUBREPORT Overall Throughput
 		$COMPARE_CMD

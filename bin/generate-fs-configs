@@ -5,9 +5,6 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
 cd $SCRIPTDIR/configs || exit
 
 NOATIME_FSCONFIGS="
-config-global-dhp__db-dvdstore-tiny
-config-global-dhp__db-dvdstore-small
-config-global-dhp__db-dvdstore-medium
 config-global-dhp__db-pgbench-timed-ro-medium
 config-global-dhp__db-pgbench-timed-ro-small
 config-global-dhp__db-pgbench-timed-rw-medium
