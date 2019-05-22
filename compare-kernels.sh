@@ -1084,15 +1084,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			plain graph-$SUBREPORT-time
 			echo "</tr>"
 			;;
-		stress-highalloc)
-			echo "<tr>"
-			for HEADING in latency-1 latency-2 latency-3; do
-				eval $GRAPH_PNG --logY --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				eval $GRAPH_PSC --logY --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
-				plain graph-$SUBREPORT-$HEADING
-			done
-			echo "</tr>"
-			;;
 		stutter)
 			;;
 		sysbench)

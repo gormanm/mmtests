@@ -271,18 +271,6 @@ ltp-pounder (untested)
 	without major errors.  Useful for testing general VM stability in
 	high-pressure low-memory situations.
 
-stress-highalloc
-	This test requires that the system not have too much memory and
-	that systemtap is available. Typically, it's tested with 3GB of
-	RAM. It builds a number of kernels in parallel such that total
-	memory usage is 1.5 times physical memory. When this is running
-	for 5 minutes, it tries to allocate a large percentage of memory
-	(e.g. 95%) as huge pages recording the latency of each operation as it
-	goes. It does this twice. It then cancels the kernel compiles, cleans
-	the system and tries to allocate huge pages at rest again. It's a
-	basic test for fragmentation avoidance and the performance of huge
-	page allocation.
-
 xfstests (untested)
 	This is still at prototype level and aimed at running testcase 180
 	initially to reproduce some figures provided by the filesystems people.

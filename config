@@ -11,14 +11,6 @@ export RUN_FINEPROFILE=no
 export RUN_COARSEPROFILE=no
 export OPROFILE_REPORT_ANNOTATE=no
 
-# Fixups
-if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
-	export PATH=$SCRIPTDIR/bin:$PATH
-fi
-if [ "`which oprofile_report.sh 2> /dev/null`" = "" ]; then
-	export PATH=$SCRIPTDIR/vmr/bin:$PATH
-fi
-
 # Machine configuration
 # Swap configuration can be one of default, partitions, swapfile, NFS
 #export RUN_TUNINGS="$RUN_TUNINGS sysctl"

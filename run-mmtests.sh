@@ -225,7 +225,7 @@ else
 fi
 
 # Validate systemtap installation if it exists
-TESTS_STAP="stress-highalloc pagealloc highalloc"
+TESTS_STAP="highalloc pagealloc highalloc"
 MONITORS_STAP="dstate stap-highorder-atomic function-frequency syscalls"
 STAP_USED=
 MONITOR_STAP=
