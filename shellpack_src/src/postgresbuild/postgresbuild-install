@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
-###SHELLPACK preamble postgresbuild-install 9.6.1
+###SHELLPACK preamble postgresbuild-install 11.3
 
 POSTGRES_USER=nobody
 POSTGRES_GROUP=nogroup
@@ -116,7 +116,7 @@ update_entry_cnf log_duration off
 update_entry_cnf log_hostname off
 
 # Disable encryption
-update_entry_cnf password_encryption off
+# update_entry_cnf password_encryption false
 
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS

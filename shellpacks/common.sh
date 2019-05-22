@@ -118,7 +118,7 @@ function wait_on_pid_file() {
 		fi
 	done
 
-	PIDWAIT=`cat $PIDFILE`
+	PIDWAIT=`cat $PIDFILE | head -1`
 	while [ "$PIDWAIT" = "" ]; do
 		echo -n o
 		sleep 1

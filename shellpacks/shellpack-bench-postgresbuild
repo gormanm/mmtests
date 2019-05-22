@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
 P=postgresbuild-bench
-DEFAULT_VERSION=9.6.1
+DEFAULT_VERSION=11.3
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -14,6 +14,7 @@ POSTGRES_GROUP=nogroup
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -198,4 +199,4 @@ fi
 echo postgres operation successful
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild-bench 71
+#### Details postgresbuild-bench 74

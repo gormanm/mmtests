@@ -16,6 +16,7 @@ DBDRIVER=postgres
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -62,7 +63,7 @@ mariadb)
 	;;
 postgres)
 	echo Checking postgres installation
-	DBDRIVER_VERSION=9.6.1
+	DBDRIVER_VERSION=11.3
 	CONFIGURE_ARGS="--without-mysql --with-pgsql"
 	;;
 *)
@@ -142,4 +143,4 @@ fi
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Run the sysbench benchmark
-#### Details sysbench 86
+#### Details sysbench 87

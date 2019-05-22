@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
 P=postgresbuild-install
-DEFAULT_VERSION=9.6.1
+DEFAULT_VERSION=11.3
 . $SHELLPACK_INCLUDE/common.sh
 TIME_CMD=`which time`
 if [ "$TIME_CMD" = "" ]; then
@@ -17,6 +17,7 @@ NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -207,9 +208,9 @@ update_entry_cnf log_duration off
 update_entry_cnf log_hostname off
 
 # Disable encryption
-update_entry_cnf password_encryption off
+# update_entry_cnf password_encryption false
 
 echo postgres successfully installed
 exit $SHELLPACK_SUCCESS
 #### Description Build and setup postgres
-#### Details postgresbuild 71
+#### Details postgresbuild 74
