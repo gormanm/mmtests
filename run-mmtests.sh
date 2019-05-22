@@ -356,7 +356,12 @@ rm -rf $SHELLPACK_LOG_RUNBASE &>/dev/null
 mkdir -p $SHELLPACK_LOG_RUNBASE
 echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
 
+sysstate_log() {
+	echo "$@" >> $SHELLPACK_SYSSTATEFILE
+}
+
 teststate_log() {
+	sysstate_log "$@"
 	echo "$@" >> $SHELLPACK_LOGFILE
 }
 
@@ -537,6 +542,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	fi
 		
 	export SHELLPACK_LOGFILE="$SHELLPACK_LOG/tests-timestamp"
+	export SHELLPACK_SYSSTATEFILE="$SHELLPACK_LOG/tests-sysstate"
 	echo `date +%s` "run-mmtests: Iteration $MMTEST_ITERATION start" >> $SHELLPACK_ACTIVITY
 
 	if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
@@ -572,39 +578,42 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	EXIT_CODE=$SHELLPACK_SUCCESS
 
 	# Run tests in single mode
-	ip addr show > $SHELLPACK_LOG/ip-addr
-	rm -f $SHELLPACK_LOGFILE
+	rm -f $SHELLPACK_LOGFILE $SHELLPACK_SYSSTATEFILE
 	teststate_log "start :: `date +%s`"
 	if [ "$RAID_CREATE_END" != "" ]; then
 		teststate_log "raid-create :: $((RAID_CREATE_END-RAID_CREATE_START))"
 	fi
-	teststate_log "arch :: `uname -m`"
-	teststate_log "mount :: `uname -m`"
-	teststate_log "`mount`"
-	teststate_log "/proc/mounts :: `uname -m`"
-	teststate_log "`cat /proc/mounts`"
+	sysstate_log "arch :: `uname -m`"
+	sysstate_log "`ip addr show`"
+	sysstate_log "mount :: start"
+	sysstate_log "`mount`"
+	sysstate_log "/proc/mounts :: start"
+	sysstate_log "`cat /proc/mounts`"
 	if [ "`which numactl 2> /dev/null`" != "" ]; then
-		teststate_log "numactl :: configuration"
-		teststate_log "`numactl --hardware`"
+		numactl --hardware > $SHELLPACK_LOG/numactl.txt
+		gzip $SHELLPACK_LOG/numactl.txt
 	fi
 	if [ "`which lscpu 2> /dev/null`" != "" ]; then
-		teststate_log "lscpu :: configuration"
-		teststate_log "`lscpu`"
+		lscpu > $SHELLPACK_LOG/lscpu.txt
+		gzip $SHELLPACK_LOG/lscpu.txt
 	fi
 	if [ "`which cpupower 2> /dev/null`" != "" ]; then
-		teststate_log "cpupower :: frequency-info"
-		teststate_log "`cpupower frequency-info`"
+		cpupower frequency-info > $SHELLPACK_LOG/cpupower.txt
+		gzip $SHELLPACK_LOG/cpupower.txt
 	fi
 	if [ "`which lstopo 2> /dev/null`" != "" ]; then
 		lstopo $SHELLPACK_LOG/lstopo.pdf 2>/dev/null
 		lstopo --output-format txt > $SHELLPACK_LOG/lstopo.txt
+		gzip $SHELLPACK_LOG/lstopo.pdf
 		gzip $SHELLPACK_LOG/lstopo.txt
 	fi
 	if [ "`which lsscsi 2> /dev/null`" != "" ]; then
 		lsscsi > $SHELLPACK_LOG/lsscsi.txt
+		gzip $SHELLPACK_LOG/lsscsi.txt
 	fi
 	if [ "`which list-cpu-toplogy.sh 2> /dev/null`" != "" ]; then
 		list-cpu-toplogy.sh > $SHELLPACK_LOG/cpu-topology-mmtests.txt
+		gzip $SHELLPACK_LOG/cpu-topology-mmtests.txt
 	fi
 	if [ "`which set-cstate-latency.pl 2> /dev/null`" != "" ]; then
 		set-cstate-latency.pl > $SHELLPACK_LOG/cstate-latencies-${RUNNAME}.txt
@@ -637,15 +646,15 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 		# Record some files at start of test
 		for PROC_FILE in $PROC_FILES; do
-			teststate_log "file start :: $PROC_FILE"
-			teststate_log "`cat $PROC_FILE`"
+			sysstate_log "file start :: $PROC_FILE"
+			sysstate_log "`cat $PROC_FILE`"
 		done
 		if [ -e /proc/lock_stat ]; then
 			echo 0 > /proc/lock_stat
 		fi
 		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
-			teststate_log "file start :: /sys/kernel/debug/tracing/stack_trace"
-			teststate_log "`cat /sys/kernel/debug/tracing/stack_trace`"
+			sysstate_log "file start :: /sys/kernel/debug/tracing/stack_trace"
+			sysstate_log "`cat /sys/kernel/debug/tracing/stack_trace`"
 		fi
 		RUNNING_TEST=$TEST
 
@@ -688,16 +697,16 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 		# Record some basic information at end of test
 		for PROC_FILE in $PROC_FILES; do
-			teststate_log "file end :: $PROC_FILE"
-			teststate_log "`cat $PROC_FILE`"
+			sysstate_log "file end :: $PROC_FILE"
+			sysstate_log "`cat $PROC_FILE`"
 		done
 		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
-			teststate_log "file end :: /sys/kernel/debug/tracing/stack_trace"
-			teststate_log "`cat /sys/kernel/debug/tracing/stack_trace`"
+			sysstate_log "file end :: /sys/kernel/debug/tracing/stack_trace"
+			sysstate_log "`cat /sys/kernel/debug/tracing/stack_trace`"
 		fi
 		if [ -e /proc/lock_stat ]; then
-			teststate_log "file end :: /proc/lock_stat"
-			teststate_log "`cat /proc/lock_stat`"
+			sysstate_log "file end :: /proc/lock_stat"
+			sysstate_log "`cat /proc/lock_stat`"
 		fi
 
 		# Mark the finish of the test
@@ -780,4 +789,5 @@ fi
 
 echo `date +%s` run-mmtests: End >> $SHELLPACK_ACTIVITY
 teststate_log "status :: $EXIT_CODE"
+gzip $SHELLPACK_SYSSTATEFILE
 exit $EXIT_CODE
