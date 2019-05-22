@@ -550,249 +550,169 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		echo Numad started: pid $NUMAD_PID
 	fi
 
-	if [ "$MMTESTS_SIMULTANEOUS" != "yes" ]; then
-		# Create memory control group if requested
-		if [ "$CGROUP_MEMORY_SIZE" != "" ]; then
-			mkdir -p /sys/fs/cgroup/memory/0 || die "Failed to create memory cgroup"
-			echo $CGROUP_MEMORY_SIZE > /sys/fs/cgroup/memory/0/memory.limit_in_bytes || die "Failed to set memory limit"
-			echo $$ > /sys/fs/cgroup/memory/0/tasks
-			echo Memory limit configured: `cat /sys/fs/cgroup/memory/0/memory.limit_in_bytes`
+	# Create memory control group if requested
+	if [ "$CGROUP_MEMORY_SIZE" != "" ]; then
+		mkdir -p /sys/fs/cgroup/memory/0 || die "Failed to create memory cgroup"
+		echo $CGROUP_MEMORY_SIZE > /sys/fs/cgroup/memory/0/memory.limit_in_bytes || die "Failed to set memory limit"
+		echo $$ > /sys/fs/cgroup/memory/0/tasks
+		echo Memory limit configured: `cat /sys/fs/cgroup/memory/0/memory.limit_in_bytes`
+	fi
+
+	if [ "$CGROUP_CPU_TAG" != "" ]; then
+		mkdir -p /sys/fs/cgroup/cpu/0 || die "Failed to create cpu cgroup"
+		echo $CGROUP_CPU_TAG > /sys/fs/cgroup/cpu/0/cpu.tag || die "Failed to create CPU sched tag"
+		echo $$ > /sys/fs/cgroup/cpu/0/tasks
+		echo CPU Tags set: `cat /sys/fs/cgroup/cpu/0/cpu.tag`
+	fi
+
+	EXIT_CODE=$SHELLPACK_SUCCESS
+
+	# Run tests in single mode
+	ip addr show > $SHELLPACK_LOG/ip-addr
+	echo start :: `date +%s` > $SHELLPACK_LOGFILE
+	if [ "$RAID_CREATE_END" != "" ]; then
+		echo raid-create :: $((RAID_CREATE_END-RAID_CREATE_START)) >> $SHELLPACK_LOGFILE
+	fi
+	echo arch :: `uname -m` >> $SHELLPACK_LOGFILE
+	echo mount :: `uname -m` >> $SHELLPACK_LOGFILE
+	mount >> $SHELLPACK_LOGFILE
+	echo /proc/mounts :: `uname -m` >> $SHELLPACK_LOGFILE
+	cat /proc/mounts >> $SHELLPACK_LOGFILE
+	if [ "`which numactl 2> /dev/null`" != "" ]; then
+		echo numactl :: configuration >> $SHELLPACK_LOGFILE
+		numactl --hardware >> $SHELLPACK_LOGFILE
+	fi
+	if [ "`which lscpu 2> /dev/null`" != "" ]; then
+		echo lscpu :: configuration >> $SHELLPACK_LOGFILE
+		lscpu >> $SHELLPACK_LOGFILE
+	fi
+	if [ "`which cpupower 2> /dev/null`" != "" ]; then
+		echo cpupower :: frequency-info >> $SHELLPACK_LOGFILE
+		cpupower frequency-info >> $SHELLPACK_LOGFILE
+	fi
+	if [ "`which lstopo 2> /dev/null`" != "" ]; then
+		lstopo $SHELLPACK_LOG/lstopo.pdf 2>/dev/null
+		lstopo --output-format txt > $SHELLPACK_LOG/lstopo.txt
+		gzip $SHELLPACK_LOG/lstopo.txt
+	fi
+	if [ "`which lsscsi 2> /dev/null`" != "" ]; then
+		lsscsi > $SHELLPACK_LOG/lsscsi.txt
+	fi
+	if [ "`which list-cpu-toplogy.sh 2> /dev/null`" != "" ]; then
+		list-cpu-toplogy.sh > $SHELLPACK_LOG/cpu-topology-mmtests.txt
+	fi
+	if [ "`which set-cstate-latency.pl 2> /dev/null`" != "" ]; then
+		set-cstate-latency.pl > $SHELLPACK_LOG/cstate-latencies-${RUNNAME}.txt
+	fi
+	if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
+		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities.txt
+	fi
+	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
+	gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
+
+	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
+	for TEST in $MMTESTS; do
+		export CURRENT_TEST=$TEST
+		# Configure transparent hugepage support as configured
+		reset_transhuge
+
+		# Run installation-only step if supported
+		grep -q INSTALL_ONLY $SCRIPTDIR/shellpacks/shellpack-bench-$CURRENT_TEST
+		if [ $? -eq 0 ]; then
+			echo Installing test $TEST
+			export INSTALL_ONLY=yes
+			./bin/run-single-test.sh $TEST
+			unset INSTALL_ONLY
 		fi
 
-		if [ "$CGROUP_CPU_TAG" != "" ]; then
-			mkdir -p /sys/fs/cgroup/cpu/0 || die "Failed to create cpu cgroup"
-			echo $CGROUP_CPU_TAG > /sys/fs/cgroup/cpu/0/cpu.tag || die "Failed to create CPU sched tag"
-			echo $$ > /sys/fs/cgroup/cpu/0/tasks
-			echo CPU Tags set: `cat /sys/fs/cgroup/cpu/0/cpu.tag`
-		fi
+		# Run the test
+		echo Starting test $TEST
+		echo test begin :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
+		echo `date +%s` "run-mmtests: begin $TEST" >> $SHELLPACK_ACTIVITY
 
-		EXIT_CODE=$SHELLPACK_SUCCESS
-
-		# Run tests in single mode
-		ip addr show > $SHELLPACK_LOG/ip-addr
-		echo start :: `date +%s` > $SHELLPACK_LOGFILE
-		if [ "$RAID_CREATE_END" != "" ]; then
-			echo raid-create :: $((RAID_CREATE_END-RAID_CREATE_START)) >> $SHELLPACK_LOGFILE
-		fi
-		echo arch :: `uname -m` >> $SHELLPACK_LOGFILE
-		echo mount :: `uname -m` >> $SHELLPACK_LOGFILE
-		mount >> $SHELLPACK_LOGFILE
-		echo /proc/mounts :: `uname -m` >> $SHELLPACK_LOGFILE
-		cat /proc/mounts >> $SHELLPACK_LOGFILE
-		if [ "`which numactl 2> /dev/null`" != "" ]; then
-			echo numactl :: configuration >> $SHELLPACK_LOGFILE
-			numactl --hardware >> $SHELLPACK_LOGFILE
-		fi
-		if [ "`which lscpu 2> /dev/null`" != "" ]; then
-			echo lscpu :: configuration >> $SHELLPACK_LOGFILE
-			lscpu >> $SHELLPACK_LOGFILE
-		fi
-		if [ "`which cpupower 2> /dev/null`" != "" ]; then
-			echo cpupower :: frequency-info >> $SHELLPACK_LOGFILE
-			cpupower frequency-info >> $SHELLPACK_LOGFILE
-		fi
-		if [ "`which lstopo 2> /dev/null`" != "" ]; then
-			lstopo $SHELLPACK_LOG/lstopo.pdf 2>/dev/null
-			lstopo --output-format txt > $SHELLPACK_LOG/lstopo.txt
-			gzip $SHELLPACK_LOG/lstopo.txt
-		fi
-		if [ "`which lsscsi 2> /dev/null`" != "" ]; then
-			lsscsi > $SHELLPACK_LOG/lsscsi.txt
-		fi
-		if [ "`which list-cpu-toplogy.sh 2> /dev/null`" != "" ]; then
-			list-cpu-toplogy.sh > $SHELLPACK_LOG/cpu-topology-mmtests.txt
-		fi
-		if [ "`which set-cstate-latency.pl 2> /dev/null`" != "" ]; then
-			set-cstate-latency.pl > $SHELLPACK_LOG/cstate-latencies-${RUNNAME}.txt
-		fi
-		if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
-			grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities.txt
-		fi
-		cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
-		gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
-
-		PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
-		for TEST in $MMTESTS; do
-			export CURRENT_TEST=$TEST
-			# Configure transparent hugepage support as configured
-			reset_transhuge
-
-			# Run installation-only step if supported
-			grep -q INSTALL_ONLY $SCRIPTDIR/shellpacks/shellpack-bench-$CURRENT_TEST
-			if [ $? -eq 0 ]; then
-				echo Installing test $TEST
-				export INSTALL_ONLY=yes
-				./bin/run-single-test.sh $TEST
-				unset INSTALL_ONLY
-			fi
-
-			# Run the test
-			echo Starting test $TEST
-			echo test begin :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
-			echo `date +%s` "run-mmtests: begin $TEST" >> $SHELLPACK_ACTIVITY
-
-			# Record some files at start of test
-			for PROC_FILE in $PROC_FILES; do
-				echo file start :: $PROC_FILE >> $SHELLPACK_LOGFILE
-				cat $PROC_FILE >> $SHELLPACK_LOGFILE
-			done
-			cat /proc/meminfo >> $SHELLPACK_LOGFILE
-			if [ -e /proc/lock_stat ]; then
-				echo 0 > /proc/lock_stat
-			fi
-			if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
-				echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
-				cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
-			fi
-			RUNNING_TEST=$TEST
-
-			# Set CPU idle latency limits
-			CSTATE_PID=
-			if [ "$CPUIDLE_CSTATE" != "" ]; then
-				$EXPECT_UNBUFFER set-cstate-latency.pl --cstate $CPUIDLE_CSTATE &
-				CSTATE_PID=$!
-			fi
-			if [ "$CPUIDLE_LATENCY" != "" ]; then
-				$EXPECT_UNBUFFER set-cstate-latency.pl --latency $CPUIDLE_LATENCY &
-				CSTATE_PID=$!
-			fi
-			if [ "$CPUIDLE_INDEX" != "" ]; then
-				$EXPECT_UNBUFFER set-cstate-latency.pl --index $CPUIDLE_INDEX &
-				CSTATE_PID=$!
-			fi
-			if [ "$CSTATE_PID" != "" ]; then
-				ps -p $CSTATE_PID
-				if [ $? -ne 0 ]; then
-					die "CPU Cstate latency script is not running"
-				fi
-			fi
-
-			# Run single test
-			start_monitors
-			/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
-				./bin/run-single-test.sh $TEST
-			EXIT_CODE=$?
-			stop_monitors
-
-			# Kill CPU idle limited
-			if [ -e /tmp/mmtests-cstate.pid ]; then
-				kill -INT `cat /tmp/mmtests-cstate.pid`
-				sleep 2
-				if [ -e /tmp/mmtests-cstate.pid ]; then
-					kill -9 `cat /tmp/mmtests-cstate.pid`
-				fi
-			fi
-
-			# Record some basic information at end of test
-			for PROC_FILE in $PROC_FILES; do
-				echo file end :: $PROC_FILE >> $SHELLPACK_LOGFILE
-				cat $PROC_FILE >> $SHELLPACK_LOGFILE
-			done
-			if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
-				echo file end :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
-				cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
-			fi
-			if [ -e /proc/lock_stat ]; then
-				echo file end :: /proc/lock_stat >> $SHELLPACK_LOGFILE
-				cat /proc/lock_stat >> $SHELLPACK_LOGFILE
-			fi
-
-			# Mark the finish of the test
-			echo test exit :: $TEST $EXIT_CODE
-			echo test end :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
-			cat $SHELLPACK_LOG/timestamp >> $SHELLPACK_LOGFILE
-			rm $SHELLPACK_LOG/timestamp
-
-			# Reset some parameters in case tests are sloppy
-			hugeadm --pool-pages-min DEFAULT:0 2> /dev/null
-			if [ "`lsmod | grep oprofile`" != "" ]; then
-				opcontrol --stop   > /dev/null 2> /dev/null
-				opcontrol --deinit > /dev/null 2> /dev/null
-			fi
-
+		# Record some files at start of test
+		for PROC_FILE in $PROC_FILES; do
+			echo file start :: $PROC_FILE >> $SHELLPACK_LOGFILE
+			cat $PROC_FILE >> $SHELLPACK_LOGFILE
 		done
-		echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
-		dmesg > $SHELLPACK_LOG/dmesg
-		gzip -f $SHELLPACK_LOG/dmesg
-	else
-		# Run tests in simultaneous mode
-		START_TIME=`date +%s`
-		MIN_END_TIME=$((START_TIME+MMTESTS_SIMULTANEOUS_DURATION))
-		FORCE_END_TIME=$((START_TIME+MMTESTS_SIMULTANEOUS_MAX_DURATION))
-
-		echo start :: $START_TIME > $SHELLPACK_LOGFILE
-		echo file start :: /proc/vmstat >> $SHELLPACK_LOGFILE
-		cat /proc/vmstat >> $SHELLPACK_LOGFILE
-		echo file start :: /proc/zoneinfo >> $SHELLPACK_LOGFILE
-		cat /proc/zoneinfo >> $SHELLPACK_LOGFILE
-		echo file start :: /proc/meminfo >> $SHELLPACK_LOGFILE
 		cat /proc/meminfo >> $SHELLPACK_LOGFILE
+		if [ -e /proc/lock_stat ]; then
+			echo 0 > /proc/lock_stat
+		fi
+		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
+			echo file start :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+		fi
+		RUNNING_TEST=$TEST
 
-		start_monitors
-
-		echo -n > test.pids
-		NR_TEST=1
-		while [ `date +%s` -lt $MIN_END_TIME ]; do
-			for TEST in $MMTESTS; do
-				CURRENTPID=`grep $TEST: test.pids | tail -1 | awk -F : '{print $2}'`
-				TESTID=`grep $TEST: test.pids | tail -1 | awk -F : '{print $3}'`
-
-				# Start tests for the first time if necessary
-				if [ "$CURRENTPID" = "" ]; then
-					/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./bin/run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
-					PID=$!
-					echo Started first test $TEST pid $PID
-					echo $TEST:$PID:$NR_TEST >> test.pids
-					NR_TEST=$((NR_TEST+1))
-					continue
-				fi
-
-				RUNNING=`ps h --pid $CURRENTPID`
-				if [ "$RUNNING" = "" ]; then
-					echo Completed test $TEST pid $CURRENTPID
-					cat $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID >> $SHELLPACK_LOGFILE
-					rm $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID
-
-					/usr/bin/time -f "time :: $TEST:$NR_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp-mmtestsimul-$NR_TEST ./bin/run-single-test.sh $TEST > $SHELLPACK_LOG/mmtests-log-$TEST-$NR_TEST.log 2>&1 &
-					PID=$!
-					echo Started test $TEST pid $PID
-					echo $TEST:$PID:$NR_TEST >> test.pids
-					NR_TEST=$((NR_TEST+1))
-					continue
-				fi
-			done
-			sleep 3
-		done
-
-		# Wait for current tests to exit
-		for JOB in `cat test.pids`; do
-			TEST=`echo $JOB | awk -F : '{print $1}'`
-			PID=`echo $JOB | awk -F : '{print $2}'`
-			TESTID=`echo $JOB | awk -F : '{print $3}'`
-
-			if [ "`ps h --pid $PID`" != "" -a `date +%s` -lt $FORCE_END_TIME ]; then
-				echo -n "Waiting on test $TEST to complete: $PID "
-				while [ "`ps h --pid $PID`" != "" -a `date +%s` -lt $FORCE_END_TIME ]; do
-					echo -n .
-					sleep 10
-				done
-
-				cat $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID >> $SHELLPACK_LOGFILE
-				rm $SHELLPACK_LOG/timestamp-mmtestsimul-$TESTID
-				echo
+		# Set CPU idle latency limits
+		CSTATE_PID=
+		if [ "$CPUIDLE_CSTATE" != "" ]; then
+			$EXPECT_UNBUFFER set-cstate-latency.pl --cstate $CPUIDLE_CSTATE &
+			CSTATE_PID=$!
+		fi
+		if [ "$CPUIDLE_LATENCY" != "" ]; then
+			$EXPECT_UNBUFFER set-cstate-latency.pl --latency $CPUIDLE_LATENCY &
+			CSTATE_PID=$!
+		fi
+		if [ "$CPUIDLE_INDEX" != "" ]; then
+			$EXPECT_UNBUFFER set-cstate-latency.pl --index $CPUIDLE_INDEX &
+			CSTATE_PID=$!
+		fi
+		if [ "$CSTATE_PID" != "" ]; then
+			ps -p $CSTATE_PID
+			if [ $? -ne 0 ]; then
+				die "CPU Cstate latency script is not running"
 			fi
-		done
+		fi
 
+		# Run single test
+		start_monitors
+		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
+			./bin/run-single-test.sh $TEST
+		EXIT_CODE=$?
 		stop_monitors
 
-		echo file end :: /proc/vmstat >> $SHELLPACK_LOGFILE
-		cat /proc/vmstat >> $SHELLPACK_LOGFILE
-		echo file end :: /proc/zoneinfo >> $SHELLPACK_LOGFILE
-		cat /proc/zoneinfo >> $SHELLPACK_LOGFILE
-		echo file end :: /proc/meminfo >> $SHELLPACK_LOGFILE
-		cat /proc/meminfo >> $SHELLPACK_LOGFILE
-		echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
-	fi
+		# Kill CPU idle limited
+		if [ -e /tmp/mmtests-cstate.pid ]; then
+			kill -INT `cat /tmp/mmtests-cstate.pid`
+			sleep 2
+			if [ -e /tmp/mmtests-cstate.pid ]; then
+				kill -9 `cat /tmp/mmtests-cstate.pid`
+			fi
+		fi
+
+		# Record some basic information at end of test
+		for PROC_FILE in $PROC_FILES; do
+			echo file end :: $PROC_FILE >> $SHELLPACK_LOGFILE
+			cat $PROC_FILE >> $SHELLPACK_LOGFILE
+		done
+		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
+			echo file end :: /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+			cat /sys/kernel/debug/tracing/stack_trace >> $SHELLPACK_LOGFILE
+		fi
+		if [ -e /proc/lock_stat ]; then
+			echo file end :: /proc/lock_stat >> $SHELLPACK_LOGFILE
+			cat /proc/lock_stat >> $SHELLPACK_LOGFILE
+		fi
+
+		# Mark the finish of the test
+		echo test exit :: $TEST $EXIT_CODE
+		echo test end :: $TEST `date +%s` >> $SHELLPACK_LOGFILE
+		cat $SHELLPACK_LOG/timestamp >> $SHELLPACK_LOGFILE
+		rm $SHELLPACK_LOG/timestamp
+
+		# Reset some parameters in case tests are sloppy
+		hugeadm --pool-pages-min DEFAULT:0 2> /dev/null
+		if [ "`lsmod | grep oprofile`" != "" ]; then
+			opcontrol --stop   > /dev/null 2> /dev/null
+			opcontrol --deinit > /dev/null 2> /dev/null
+		fi
+
+	done
+	echo finish :: `date +%s` >> $SHELLPACK_LOGFILE
+	dmesg > $SHELLPACK_LOG/dmesg
+	gzip -f $SHELLPACK_LOG/dmesg
 
 	if [ "$MMTEST_NUMA_POLICY" = "numad" ]; then
 		echo Shutting down numad pid $NUMAD_PID
