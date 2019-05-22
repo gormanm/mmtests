@@ -7,7 +7,7 @@ MIRROR_LOCATION=$WEBROOT/wikibench
 TESTTIME=15
 ITERATIONS=12
 
-APACHE_VERSION=2.4.17
+APACHE_VERSION=2.4.39
 
 # It is suggested that no other java process be running along with
 # this benchmark. C'mon, java is a bitch already, you can uncomment

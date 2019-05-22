@@ -1,6 +1,6 @@
 #!/bin/bash
 # Perl Compatible RE installer for Apache httpd
-###SHELLPACK preamble pcrebuild-install 8.37
+###SHELLPACK preamble pcrebuild-install 8.43
 
 WEB_LOCATION=ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre
 WEB_LOCATION_ALT=http://www.skynet.ie/~mel/mmtests-archive/apache/

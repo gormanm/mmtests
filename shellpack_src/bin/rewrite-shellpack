@@ -333,6 +333,9 @@ EOC
 		print <<EOC
 make -j\$NUMCPUS $opts
 if [ \$? -ne 0 ]; then
+	if [ "\$MAKE_RETRY" = "yes" ]; then
+		make -j\$NUMCPUS $opts
+	fi
 	error "\$P: make failed"
 	popd > /dev/null
 	exit \$SHELLPACK_ERROR
@@ -410,6 +413,9 @@ if [ "\$INSTALL_FORCE" = "yes" ]; then
 fi
 if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
 	mmtests_activity source-install
+	if [ ! -e  \$SHELLPACK_INCLUDE/shellpack-install-$externalpack ]; then
+		\$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh $externalpack
+	fi
 	\$SHELLPACK_INCLUDE/shellpack-install-$externalpack -v $version @other || die $externalpack install script returned error
 	mmtests_activity source-installed
 fi

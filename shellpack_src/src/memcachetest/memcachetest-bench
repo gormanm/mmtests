@@ -11,6 +11,7 @@
 ###SHELLPACK parseargEnd
 
 # Start memcached server
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh memcached
 $SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
 if [ $? -ne 0 ]; then
 	die Failed to start memcached server

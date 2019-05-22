@@ -2,10 +2,7 @@
 # siege installer
 ###SHELLPACK preamble siege-install 4.0.2
 
-
-APACHE_VERSION=2.4.17
-APR_VERSION=1.5.2
-PCRE_VERSION=8.35
+APACHE_VERSION=2.4.39
 
 WEB_LOCATION=http://download.joedog.org/siege
 
@@ -17,6 +14,7 @@ MIRROR_LOCATION="$WEBROOT/siege/"
 ###SHELLPACK sources_fetch siege-${VERSION}.tar.gz siege-${VERSION}
 if [ ! -e $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}-installed ]; then
 	echo Installing apache server
+	$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh apachebuild
 	$SHELLPACK_INCLUDE/shellpack-install-apachebuild -v ${APACHE_VERSION} || die Failed to install apache httpd
 	echo Apache server successfully installed.
 fi

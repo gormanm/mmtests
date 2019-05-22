@@ -1,11 +1,11 @@
 #!/bin/bash
 # PHP installer for Apache httpd.
-###SHELLPACK preamble phpbuild-install 5.6.15
-WEB_LOCATION=http://linux-scalability.org/benchmarks/
+###SHELLPACK preamble phpbuild-install 7.3.5
+WEB_LOCATION=https://www.php.net/distributions
 MIRROR_LOCATION="$WEBROOT/php/"
 
-PHP_VERSION=5.6.15
-APACHE_VERSION=2.4.17
+PHP_VERSION=7.3.5
+APACHE_VERSION=2.4.39
 
 # PHP XCache version to use for PHP 5.6
 XCACHE_VERSION=3.2.0
@@ -13,7 +13,7 @@ XCACHE_VERSION=3.2.0
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK sources_fetch php-${PHP_VERSION}.tar.gz phpbuild-${PHP_VERSION}
+###SHELLPACK sources_fetch php-${PHP_VERSION}.tar.bz2 phpbuild-${PHP_VERSION}
 ###SHELLPACK build_start phpbuild-${PHP_VERSION}
 ###SHELLPACK build_configure phpbuild-${PHP_VERSION} --with-apxs2=$SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/bin/apxs --with-mysql --with-config-file-path=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/
 ###SHELLPACK make_make_install
