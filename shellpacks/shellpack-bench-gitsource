@@ -13,6 +13,7 @@ fi
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -87,6 +88,7 @@ for ITERATION in `seq 1 $GITSOURCE_ITERATIONS`; do
 		make test \
 		> $LOGDIR_RESULTS/gitsource-${ITERATION}.log 2>&1
 	tail $LOGDIR_RESULTS/gitsource-${ITERATION}.log
+	gzip $LOGDIR_RESULTS/gitsource-${ITERATION}.log
 	cat $LOGDIR_RESULTS/gitsource-${ITERATION}.time
 sync
 done
@@ -97,4 +99,4 @@ rm -rf $SHELLPACK_DATA/gitsource-${VERSION}-installed
 
 exit $SHELLPACK_SUCCESS
 #### Description git source unit tests
-#### Details gitsource-bench 12
+#### Details gitsource-bench 13

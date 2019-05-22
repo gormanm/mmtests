@@ -26,6 +26,7 @@ monitor_pre_hook $LOGDIR_RESULTS 1
 		make test \
 		> $LOGDIR_RESULTS/gitsource-${ITERATION}.log 2>&1
 	tail $LOGDIR_RESULTS/gitsource-${ITERATION}.log
+	gzip $LOGDIR_RESULTS/gitsource-${ITERATION}.log
 	cat $LOGDIR_RESULTS/gitsource-${ITERATION}.time
 ###SHELLPACK iteration_end
 monitor_post_hook $LOGDIR_RESULTS 1

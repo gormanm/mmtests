@@ -15,6 +15,7 @@ install-depends libcurl-devel
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
+TASKSET_ALL=
 SERVERSIDE_COMMAND=none
 SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
@@ -47,7 +48,7 @@ fi
 
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=gitsource-${VERSION}.tar.gz
-git_fetch $GIT_LOCATION gitsource-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+git_fetch $GIT_LOCATION gitsource-${VERSION}-installed $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $VERSION
 cd $SHELLPACK_SOURCES
 tar -xf $TARFILE
 if [ $? -ne 0 ]; then
@@ -91,4 +92,4 @@ fi
 
 echo gitsource installed successfully
 #### Description git source unit tests
-#### Details gitsource 12
+#### Details gitsource 13
