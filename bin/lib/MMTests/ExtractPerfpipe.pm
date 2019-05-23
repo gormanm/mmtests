@@ -1,6 +1,7 @@
 # ExtractPerfpipe.pm
 package MMTests::ExtractPerfpipe;
 use MMTests::SummariseVariabletime;
+use Math::Round;
 our @ISA = qw(MMTests::SummariseVariabletime);
 
 sub new() {
@@ -26,7 +27,7 @@ sub extractReport() {
 
 			my @elements = split(/\s/, $line);
 			next if ($elements[1] ne "usecs/op");
-			$self->addData("Time", ++$iteration, $elements[0]);
+			$self->addData("Time", ++$iteration, nearest(0.5, $elements[0]));
 		}
 		close(INPUT);
 	}

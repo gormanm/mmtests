@@ -15,7 +15,7 @@
 ### pipetest is a scheduler ping-pong test that measures context switch latency.
 
 # MM Test Parameters
-export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets pipetest"
+export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets perfpipe"
 export RUN_WARMUP=
 
 
@@ -51,8 +51,8 @@ fi
 if [ $HACKBENCH_MAX_GROUPS -gt 296 ]; then
 	export HACKBENCH_MAX_GROUPS=296
 fi
-export HACKBENCH_LOOPS=20000
+export HACKBENCH_LOOPS=10000
 export MMTESTS_THREAD_CUTOFF=
 
 # PipeTest
-export PIPETEST_ITERATIONS=120
+export PERFPIPE_ITERATIONS=30
