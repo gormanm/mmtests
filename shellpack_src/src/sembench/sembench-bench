@@ -12,9 +12,9 @@ RUNTIME=30
 ###SHELLPACK parseargParam   --max-threads      SEMBENCH_MAX_THREADS
 ###SHELLPACK parseargParam   --workloads	SEMBENCH_WORKLOADS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required sembench-${VERSION}
-###SHELLPACK monitor_hooks
 
 echo $SEMBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 

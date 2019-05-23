@@ -11,11 +11,9 @@ FUTEXWAIT_MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargParam   --max-threads      FUTEXWAIT_MAX_THREADS
 ###SHELLPACK parseargParam   --iterations	FUTEXWAIT_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required futexwait-${VERSION}
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
 
 FUTEXWAIT_DIR=$SHELLPACK_SOURCES/futexwait-${VERSION}-installed/performance/
 FUTEXWAIT_CMD=${FUTEXWAIT_DIR}/futex_wait

@@ -16,6 +16,7 @@ GITCHECKOUT_SOURCETAR=
 ###SHELLPACK parseargParam --iterations GITCHECKOUT_ITERATIONS
 ###SHELLPACK parseargParam --cache      GITCHECKOUT_CACHE
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 install-depends git-core
 
@@ -58,6 +59,7 @@ done
 chmod u+x $SHELLPACK_TEMP/gitcheckout.sh
 
 mkdir -p $LOGDIR_RESULTS
+monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $GITCHECKOUT_ITERATIONS
 	if [ "$GITCHECKOUT_CACHE" = "cold" ]; then
 		echo Dropping caches as per requested
@@ -69,6 +71,7 @@ mkdir -p $LOGDIR_RESULTS
 	$TIME_CMD $SHELLPACK_TEMP/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$ITERATION
 	grep elapsed $LOGDIR_RESULTS/time.$ITERATION
 ###SHELLPACK iteration_end
+monitor_post_hook $LOGDIR_RESULTS $P
 
 # Summarise and cleanup
 popd > /dev/null

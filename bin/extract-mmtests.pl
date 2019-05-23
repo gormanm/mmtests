@@ -127,14 +127,7 @@ my @iterdirs = <$reportDir/iter-*>;
 foreach my $iterdir (@iterdirs) {
 	# Make a guess at the sub-directory name if one is not specified
 	$iterdir = "$iterdir/$opt_benchmark";
-	# Guess profile name
-	my $profile = "noprofile";
-	if (! -e "$iterdir/noprofile") {
-		if (-e "$iterdir/fine-profile-timer") {
-			$profile = "fine-profile-timer";
-		}
-	}
-	$extractModule->extractReport("$iterdir/$profile");
+	$extractModule->extractReport("$iterdir/logs");
 	$extractModule->nextIteration();
 }
 if ($opt_printJSON) {

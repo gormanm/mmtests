@@ -7,9 +7,9 @@
 ###SHELLPACK parseargParam	--size		XFSIO_SIZE
 ###SHELLPACK parseargParam	--testcases	XFSIO_TESTCASES
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 install-depends xfsprogs
-###SHELLPACK monitor_hooks
 
 XFSIO_TESTCASES=`echo $XFSIO_TESTCASES | tr ',' ' '`
 

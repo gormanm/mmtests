@@ -11,6 +11,7 @@ MPIOPT=
 ###SHELLPACK parseargParam	--parallelize		GRAPH500_PARALLELIZE
 ###SHELLPACK parseargYes	--use-hugetlbfs		GRAPH500_HUGETLBFS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 # Approximate equation for memory usage in gigabytes is
 # ((2**SCALE) * (2 * EDGE + 1))*8/1048576/1024
@@ -83,7 +84,6 @@ if [ $APPROXIMATE_USAGE -gt $((MEMTOTAL_BYTES*4/5)) ]; then
 fi
 
 ###SHELLPACK check_install_required graph500-${VERSION}
-###SHELLPACK monitor_hooks
 
 round_down_power_2_cpus() {
 	POWER=1
@@ -133,10 +133,10 @@ if [ $? -ne 0 ]; then
 	make || die Failed to build
 fi
 
-monitor_pre_hook $LOGDIR_RESULTS graph500
+monitor_pre_hook $LOGDIR_RESULTS $P
 mmtests_activity hpcg-$ITERATION
 echo Running graph500 scale $SCALE edge $EDGE
 eval $MPIRUN $MPIOPT $GRAPH500_COMMAND 2>&1 | tee $LOGDIR_RESULTS/graph500.log
-monitor_post_hook $LOGDIR_RESULTS graph500
+monitor_post_hook $LOGDIR_RESULTS $P
 
 exit $SHELLPACK_SUCCESS

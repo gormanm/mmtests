@@ -6,13 +6,11 @@
 ###SHELLPACK parseargParam	--min-threads	THOTDATA_MIN_THREADS
 ###SHELLPACK parseargParam	--max-threads	THOTDATA_MAX_THREADS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required thotdata-${VERSION}
 cd $SHELLPACK_SOURCES/thotdata-${VERSION}-installed ||
 	die Failed to change to benchmark directory
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
 
 # Get a list of interleaved CPU between available nodes
 TIFS=$IFS

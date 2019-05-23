@@ -21,9 +21,9 @@ ITERATIONS=12
 ###SHELLPACK parseargParam --nr-directories      SIMOOP_FILE_DIRECTORIES
 ###SHELLPACK parseargParam --nr-files            SIMOOP_NUMFILES
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required simoop-${VERSION}
-###SHELLPACK monitor_hooks
 
 # Create benchmark directories
 SIMOOP_DIRECTORIES=
@@ -52,10 +52,10 @@ SIMOOP_PARAMS="
 ulimit -n 65534
 
 echo Executing simoop $SIMOOP_PARAMS
-monitor_pre_hook $LOGDIR_RESULTS simoop
+monitor_pre_hook $LOGDIR_RESULTS $P
 save_rc eval ./simoop $SIMOOP_PARAMS 2>&1 | tee $LOGDIR_RESULTS/simoop.log
 recover_rc
-monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+monitor_post_hook $LOGDIR_RESULTS $P
 
 if [ $EXIT_CODE -ne 0 ]; then
 	exit $SHELLPACK_ERROR

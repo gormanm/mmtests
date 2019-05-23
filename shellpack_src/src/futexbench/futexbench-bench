@@ -14,10 +14,10 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargParam   --shared           FUTEXBENCH_SHARED
 ###SHELLPACK parseargParam   --workloads	FUTEXBENCH_WORKLOADS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 export PERFBUILD_ADD_SYSCALL=yes
 ###SHELLPACK check_external_install_required perfbuild perfbuild-${VERSION} ${VERSION}
-###SHELLPACK monitor_hooks
 
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf

@@ -13,10 +13,10 @@ MADV_HUGEPAGE=0
 ###SHELLPACK parseargParam	--fio-size	THPFIOSCALE_FIO_SIZE
 ###SHELLPACK parseargParam	--madv-huge	THPFIOSCALE_MADV_HUGEPAGE
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_external_install_required fio fio-${VERSION} ${VERSION}
 ###SHELLPACK check_install_required thpfioscale-${VERSION}
-###SHELLPACK monitor_hooks
 
 if [ "$THPFIOSCALE_MADV_HUGEPAGE" = "yes" ]; then
 	MADV_HUGEPAGE=1

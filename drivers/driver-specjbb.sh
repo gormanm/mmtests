@@ -1,4 +1,3 @@
-FINEGRAINED_SUPPORTED=no
 NAMEEXTRA=
 
 run_bench() {

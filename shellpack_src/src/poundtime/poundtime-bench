@@ -9,9 +9,9 @@ ITERATIONS=12
 ###SHELLPACK parseargParam	--max-threads	POUNDTIME_MAX_THREADS
 ###SHELLPACK parseargParam	--iterations	POUNDTIME_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required poundtime-${VERSION}
-###SHELLPACK monitor_hooks
 
 ###SHELLPACK threads_large_stride_begin $POUNDTIME_MIN_THREADS $POUNDTIME_MAX_THREADS
 	for FILE in pound_times pound_clock_gettime; do

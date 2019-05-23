@@ -7,9 +7,9 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargParam   --type		MLC_TYPE
 ###SHELLPACK parseargParam   --iterations	MLC_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required mlc-${VERSION}
-###SHELLPACK monitor_hooks
 
 echo Disabling transparent hugepages as recommended by benchmark
 echo never > /sys/kernel/mm/transparent_hugepage/enabled

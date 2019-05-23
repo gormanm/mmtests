@@ -8,9 +8,9 @@
 ###SHELLPACK parseargParam	--mapsize	THPSCALE_MAPSIZE
 ###SHELLPACK parseargParam	--madv-huge	THPSCALE_MADV_HUGEPAGE
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required thpscale-${VERSION}
-###SHELLPACK monitor_hooks
 
 create_random_file $((THPSCALE_MAPSIZE+1048576*16)) $SHELLPACK_DATA/workfile
 

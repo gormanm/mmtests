@@ -6,10 +6,10 @@
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required lmbench-${VERSION}
 
-###SHELLPACK monitor_hooks
 
 cd $SHELLPACK_SOURCES/lmbench-${VERSION}-installed || die Failed to cd to lmbench directory
 for LMBENCH_TEST in $LMBENCH_TESTS; do

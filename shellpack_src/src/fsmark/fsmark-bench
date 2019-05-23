@@ -18,9 +18,9 @@ FILESIZE=0
 ###SHELLPACK parseargParam --nr-sub-directories     NR_SUB_DIRECTORIES
 ###SHELLPACK parseargParam --iterations             ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required fsmark-${VERSION}
-###SHELLPACK monitor_hooks
 
 ln -s $SHELLPACK_DATA /tmp/fsmark-$$
 

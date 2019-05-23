@@ -14,9 +14,9 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargParam   --iterations	UNIXBENCH_ITERATIONS
 ###SHELLPACK parseargParam   --workloads	UNIXBENCH_WORKLOADS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required unixbench-${VERSION}
-###SHELLPACK monitor_hooks
 
 echo $UNIXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 

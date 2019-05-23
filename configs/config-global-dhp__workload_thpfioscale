@@ -2,10 +2,6 @@
 export MMTESTS="thpfioscale"
 export RUN_WARMUP=
 
-# Profiling parameters
-export RUN_NOPROFILE=yes
-export RUN_FINEPROFILE=no
-export RUN_COARSEPROFILE=no
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=

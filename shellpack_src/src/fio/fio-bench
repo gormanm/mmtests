@@ -16,10 +16,9 @@ FIO_CMD_OPTIONS=
 ###SHELLPACK parseargParam --iodepth		    FIO_IODEPTH
 ###SHELLPACK parseargParam --reusefiles		    FIO_REUSE_FILES
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required fio-${VERSION}
-
-###SHELLPACK monitor_hooks
 
 FIO_IO_PATTERNS="write read rw randread randwrite randrw"
 

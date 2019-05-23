@@ -5,11 +5,6 @@
 # MM Test Parameters (no particular order)
 export MMTESTS="lkp-pigz lkp-pbzip2 lkp-pixz lkp-plzip"
 
-# Profiling parameters
-export RUN_NOPROFILE=yes
-export RUN_FINEPROFILE=no
-export RUN_COARSEPROFILE=no
-#export OPROFILE_REPORT_ANNOTATE=yes
 #export OPROFILE_REPORT_CALLGRAPH=8
 
 # Machine configuration

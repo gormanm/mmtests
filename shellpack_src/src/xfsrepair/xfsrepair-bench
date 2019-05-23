@@ -14,10 +14,10 @@ NR_THREADS=4
 ###SHELLPACK parseargParam --iterations	ITERATIONS
 ###SHELLPACK parseargParam --threads    NR_THREADS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 install-depends xfsprogs
 ###SHELLPACK check_external_install_required fsmark fsmark-$FSMARK_VERSION $FSMARK_VERSION
-###SHELLPACK monitor_hooks
 
 export PATH=$SHELLPACK_SOURCES/fsmark-${FSMARK_VERSION}-installed:$PATH
 
@@ -66,11 +66,11 @@ if [ $? -ne 0 ]; then
 fi
 
 echo Running fsmark $ITERATION/$ITERATIONS
-monitor_pre_hook $LOGDIR_RESULTS fsmark-$ITERATION
+monitor_pre_hook $LOGDIR_RESULTS $ITERATION
 eval save_rc time -o $LOGDIR_RESULTS/time.fsmark.$ITERATION \
 	fs_mark  -D $NR_SUB_DIRECTORIES -S0 -n $FSMARK_FILES -s  0  -L $FSMARK_ITERATIONS $PARAM \
 		2>&1 | tee $SHELLPACK_TEMP/fsmark.${ITERATION}.log
-monitor_post_hook $LOGDIR_RESULTS fsmark-$ITERATION
+monitor_post_hook $LOGDIR_RESULTS $ITERATION
 umount mnt
 recover_rc
 if [ $? -ne 0 ]; then

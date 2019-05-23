@@ -6,10 +6,9 @@
 ###SHELLPACK parseargParam   --min-processes   WPTLBFLUSH_MIN_PROCESSES
 ###SHELLPACK parseargParam   --max-processes   WPTLBFLUSH_MAX_PROCESSES
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required wptlbflush
-
-###SHELLPACK monitor_hooks
 
 # Run the benchmark
 ###SHELLPACK threads_large_stride_begin $WPTLBFLUSH_MIN_PROCESSES $WPTLBFLUSH_MAX_PROCESSES
@@ -17,11 +16,11 @@
 	sed -i -e "s/define NUM_PROCESS.*/define NUM_PROCESS $NR_THREADS/" $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush.c
 	gcc -Wall -lpthread $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush.c -o $SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush || die Failed to build
 
-	monitor_pre_hook $NR_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS \
 		$SHELLPACK_SOURCES/wptlbflush-${VERSION}-installed/wp-tlbflush > $LOGDIR_RESULTS/wp-tlbflush-$NR_THREADS.log || \
 		die wp-flush aborted due to possible corruption
-	monitor_post_hook $NR_THREADS
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
 
 exit $SHELLPACK_SUCCESS

@@ -1,4 +1,3 @@
-FINEGRAINED_SUPPORTED=yes
 NAMEEXTRA=
 
 if [ "$STREAM_METHOD" = "single" ]; then

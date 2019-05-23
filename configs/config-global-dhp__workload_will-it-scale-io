@@ -9,11 +9,6 @@
 export MMTESTS="wis-pread wis-pwrite wis-unlink wis-mmap wis-open wis-poll wis-filelock wis-read wis-fallocate"
 export RUN_WARMUP=
 
-# Profiling parameters
-export RUN_NOPROFILE=yes
-export RUN_FINEPROFILE=no
-export RUN_COARSEPROFILE=no
-#export OPROFILE_REPORT_ANNOTATE=yes
 #export OPROFILE_REPORT_CALLGRAPH=8
 
 # Machine configuration

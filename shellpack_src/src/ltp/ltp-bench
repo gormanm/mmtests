@@ -8,9 +8,9 @@ LTP_RUN_TESTS="controllers"
 ###SHELLPACK parseargParam --ltp-tests LTP_RUN_TESTS
 ###SHELLPACK parseargParam --ltp-args LTP_RUN_ARGS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required ltp-${VERSION}
-###SHELLPACK monitor_hooks
 
 grep -v oom runtest/mm > runtest/mm-lite
 grep -v fanotify runtest/syscalls > runtest/syscalls-lite
@@ -20,6 +20,7 @@ LTP_RUN_TESTS=`echo $LTP_RUN_TESTS | tr ',' ' '`
 for TESTNAME in $LTP_RUN_TESTS; do
 	echo Executing $TEST LTP test
 
+	monitor_pre_hook $LOGDIR_RESULTS $TESTNAME
 	if [ "$TESTNAME" = "test-direct-process" ]; then
 		# This is part of a CPU hotplug reproduction case. It hammers
 		# process creation and is intended as a scheduler stress test
@@ -35,6 +36,7 @@ for TESTNAME in $LTP_RUN_TESTS; do
 	fi
 	recover_rc
 	echo $? > $LOGDIR_RESULTS/${TESTNAME}.status
+	monitor_post_hook $LOGDIR_RESULTS $TESTNAME
 done
 
 echo

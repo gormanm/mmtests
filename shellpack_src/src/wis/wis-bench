@@ -13,9 +13,9 @@ ITERATIONS=12
 ###SHELLPACK parseargParam	--iterations    WIS_ITERATIONS
 ###SHELLPACK parseargParam	--models        WIS_MODELS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required wis-${VERSION}
-###SHELLPACK monitor_hooks
 
 echo $WIS_WORKLOADS > $LOGDIR_RESULTS/workloads
 echo $WIS_MODELS > $LOGDIR_RESULTS/models

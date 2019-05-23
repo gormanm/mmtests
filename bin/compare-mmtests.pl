@@ -65,14 +65,8 @@ if (!defined($opt_monitor)) {
 
 			$extractModules[$nrModules] = $extractFactory->loadModule("extract", $opt_benchmark, $name, $opt_subheading);
 			foreach my $iterdir (@iterdirs) {
-				my $profile = "noprofile";
 				$iterdir = "$iterdir/$opt_benchmark";
-				if (! -e "$iterdir/noprofile") {
-					if (-e "$iterdir/fine-profile-timer") {
-						$profile = "fine-profile-timer";
-					}
-				}
-				$extractModules[$nrModules]->extractReport("$iterdir/$profile");
+				$extractModules[$nrModules]->extractReport("$iterdir/logs");
 				$extractModules[$nrModules]->nextIteration();
 			}
 			if ($opt_printRatio) {

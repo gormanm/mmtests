@@ -8,10 +8,9 @@
 ###SHELLPACK parseargParam    --min-threads  JOHNRIPPER_MIN_THREADS
 ###SHELLPACK parseargParam    --max-threads  JOHNRIPPER_MAX_THREADS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required johnripper-${VERSION}
-
-###SHELLPACK monitor_hooks
 
 cd $SHELLPACK_SOURCES/johnripper-${VERSION}-installed/run || die Failed to cd to johnripper install directory
 ###SHELLPACK threads_huge_stride_begin $JOHNRIPPER_MIN_THREADS $JOHNRIPPER_MAX_THREADS

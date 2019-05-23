@@ -24,9 +24,9 @@ HACKBENCH_TYPE=process
 ###SHELLPACK parseargParam --type       HACKBENCH_TYPE
 ###SHELLPACK parseargParam --loops	HACKBENCH_LOOPS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required hackbench
-###SHELLPACK monitor_hooks
 
 pushd $SHELLPACK_SOURCES/hackbench-${VERSION}-installed > /dev/null
 RESULTSLOG=$LOGDIR_RESULTS/hackbench

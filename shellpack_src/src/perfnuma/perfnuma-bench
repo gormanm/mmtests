@@ -15,12 +15,10 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargParam   --workloads      PERFNUMA_WORKLOADS
 ###SHELLPACK parseargParam   --iterations     PERFNUMA_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 export PERFBUILD_ADD_SYSCALL=yes
 ###SHELLPACK check_external_install_required_continue perfbuild perfbuild-${VERSION} ${VERSION}
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
 
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf
@@ -33,6 +31,7 @@ for WORKLOAD in $PERFNUMA_WORKLOADS; do
 ###SHELLPACK iteration_begin $PERFNUMA_ITERATIONS
 	echo Running workload $WORKLOAD iteration $ITERATION/$PERFNUMA_ITERATIONS
 	mmtests_activity $WORKLOAD-$ITERATION
+	monitor_pre_hook $LOGDIR_RESULTS $WORKLOAD
 	case $WORKLOAD in
 	light_converge)
 		NR_THREADS=$((PERFNUMA_NR_THREADS/2))
@@ -62,6 +61,7 @@ for WORKLOAD in $PERFNUMA_WORKLOADS; do
 		die Unrecognised workload $WORKLOAD
 		;;
 	esac
+	monitor_post_hook $LOGDIR_RESULTS $WORKLOAD
 ###SHELLPACK iteration_end
 done
 

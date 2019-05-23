@@ -10,8 +10,8 @@ ITER_REPS=150
 ###SHELLPACK parseargParam --reps-per-iter     ITER_REPS
 ###SHELLPACK parseargParam --time-per-iter     ITER_TIME
 ###SHELLPACK parseargEnd
-        
 ###SHELLPACK monitor_hooks
+
 echo Shutting down apache server...
 $SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die Failed to shutdown apache http server for restart.
 ###SHELLPACK check_install_required siege-${VERSION}

@@ -3,11 +3,6 @@
 export RUN_WARMUP=
 export MMTESTS="unixbench-fsbuffer unixbench-fsbuffer-r unixbench-fsbuffer-w unixbench-fsdisk unixbench-fsdisk-r unixbench-fsdisk-w unixbench-fstime unixbench-fstime-r unixbench-fstime-w"
 
-# Profiling parameters
-export RUN_NOPROFILE=yes
-export RUN_FINEPROFILE=no
-export RUN_COARSEPROFILE=no
-#export OPROFILE_REPORT_ANNOTATE=yes
 #export OPROFILE_REPORT_CALLGRAPH=8
 
 # Machine configuration

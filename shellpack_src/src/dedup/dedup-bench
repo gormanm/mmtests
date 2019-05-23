@@ -13,11 +13,9 @@ TESTLIST=
 ###SHELLPACK parseargParam	--iterations	DEDUP_ITERATIONS
 ###SHELLPACK parseargParam	--file          DEDUP_FILE
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required dedup-${VERSION}
-
-# Include monitor hooks
-. $SHELLPACK_INCLUDE/include-monitor.sh
 
 # Copy/download test file into the test partition
 if [ "$DEDUP_FILE" = "" ]; then

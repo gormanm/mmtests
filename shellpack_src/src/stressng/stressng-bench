@@ -16,9 +16,9 @@ STRESSNG_TESTNAME=context
 ###SHELLPACK parseargParam    --iterations  STRESSNG_ITERATIONS
 ###SHELLPACK parseargParam    --testname    STRESSNG_TESTNAME
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required stressng-${VERSION}
-###SHELLPACK monitor_hooks
 
 TESTSWITCH=
 case $STRESSNG_TESTNAME in

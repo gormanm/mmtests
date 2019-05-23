@@ -15,11 +15,6 @@
 export MMTESTS="seeker"
 export RUN_WARMUP=
 
-# Profiling parameters
-export RUN_NOPROFILE=yes
-export RUN_FINEPROFILE=no
-export RUN_COARSEPROFILE=no
-export OPROFILE_REPORT_ANNOTATE=no
 
 # Machine configuration
 #export RUN_TUNINGS="$RUN_TUNINGS sysctl"

@@ -5,11 +5,11 @@
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam    --size         SQLITE_SIZE
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required sqlite-${VERSION}
 install-depends util-linux
 
-###SHELLPACK monitor_hooks
 ###SHELLPACK self_extract perl-trans.pl
 chmod a+x $SHELLPACK_TEMP/perl-trans.pl
 
@@ -20,7 +20,7 @@ cat /dev/urandom | base64 -w 20 | head -$SQLITE_SIZE | sed "s/\(.\{4\}\)\(.\{16\
 cp basic-insert.script $LOGDIR_RESULTS/
 
 mmtests_activity sqlite-insert
-monitor_pre_hook $LOGDIR_RESULTS 1
+monitor_pre_hook $LOGDIR_RESULTS $P
 
 echo Creating table
 rm -f $SHELLPACK_DATA/benchmark.db
@@ -37,7 +37,7 @@ cat basic-insert.script |							\
 		$SHELLPACK_TEMP/perl-trans.pl $SHELLPACK_DATA/benchmark.db	\
 		| tee -a $LOGDIR_RESULTS/sqlite.log
 	ls -lh $SHELLPACK_DATA/benchmark.db
-monitor_post_hook $LOGDIR_RESULTS 1
+monitor_post_hook $LOGDIR_RESULTS $P
 
 exit $SHELLPACK_SUCCESS
 

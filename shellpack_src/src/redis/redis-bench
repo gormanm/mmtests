@@ -19,10 +19,9 @@ fi
 ###SHELLPACK parseargParam    --min-threads  REDIS_MIN_THREADS
 ###SHELLPACK parseargParam    --max-threads  REDIS_MAX_THREADS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required redis-${VERSION}
-
-###SHELLPACK monitor_hooks
 
 export PATH=$SHELLPACK_SOURCES/redis-${VERSION}-installed/bin:$PATH
 REDIS_CONF=$SHELLPACK_SOURCES/redis-${VERSION}-installed/etc/redis-${REDIS_PERSISTENCE}.conf

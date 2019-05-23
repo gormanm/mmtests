@@ -10,13 +10,13 @@ install-depends dmidecode
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --instances	INSTANCES
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 if [ "$INSTALL_ONLY" = "yes" ]; then
 	rm -rf $SHELLPACK_SOURCES/specjbb*
 fi
 
 ###SHELLPACK check_install_required specjbb-${VERSION}
-###SHELLPACK monitor_hooks
 
 export PATH=$SPECJBB_JRE:$PATH
 STARTING_HUGEPAGES=`cat /proc/sys/vm/nr_hugepages`
@@ -60,7 +60,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 
 	esac
 
-	monitor_pre_hook $LOGDIR_RESULTS specjbb
+	monitor_pre_hook $LOGDIR_RESULTS $P
 	mkdir $LOGDIR_RESULTS/$PAGES
 
 	# Use default configuration
@@ -138,7 +138,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 		done
 	fi
 
-	monitor_post_hook $LOGDIR_RESULTS specjbb
+	monitor_post_hook $LOGDIR_RESULTS $P
 	tar -czf $LOGDIR_RESULTS/$PAGES/result.tar.gz result
 	rm -rf result
 done

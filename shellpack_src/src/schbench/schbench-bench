@@ -15,9 +15,9 @@ SCHBENCH_ITERATIONS=1
 ###SHELLPACK parseargParam    --pipe            SCHBENCH_PIPE_SIZE
 ###SHELLPACK parseargParam    --rps             SCHBENCH_REQS_PER_SECOND
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required schbench-${VERSION}
-###SHELLPACK monitor_hooks
 
 ###SHELLPACK threads_powertwo_begin 1 $SCHBENCH_THREADS
 	mmtests_activity $NR_THREADS

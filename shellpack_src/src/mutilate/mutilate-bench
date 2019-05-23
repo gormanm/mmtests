@@ -11,6 +11,7 @@
 ###SHELLPACK parseargParam --memcached-mempool MEMCACHED_MEMPOOL
 ###SHELLPACK parseargParam --value-size        MEMCACHED_VALUE_SIZE
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 # Start memcached server
 $SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh memcached
@@ -24,8 +25,6 @@ fi
 if [ "$MEMCACHED_MEMPOOL" = "" ]; then
 	die Must specify memcached memory pool size
 fi
-
-###SHELLPACK monitor_hooks
 
 cd $SHELLPACK_SOURCES/mutilate-${VERSION}-installed || die Failed to cd to mutilate directory
 MUTILATE_ITEMS=$(($MEMCACHED_MEMPOOL/$MUTILATE_VALUE_SIZE))

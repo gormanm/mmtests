@@ -7,11 +7,6 @@
 export MMTESTS="wis-futex wis-malloc wis-pf wis-getppid wis-sched wis-pthreadmutex wis-signal wis-pipe wis-eventfd wis-posixsems"
 export RUN_WARMUP=
 
-# Profiling parameters
-export RUN_NOPROFILE=yes
-export RUN_FINEPROFILE=no
-export RUN_COARSEPROFILE=no
-#export OPROFILE_REPORT_ANNOTATE=yes
 #export OPROFILE_REPORT_CALLGRAPH=8
 
 # Machine configuration

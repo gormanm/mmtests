@@ -11,6 +11,7 @@ PERFSYSCALL_ITERATIONS=30
 ###SHELLPACK parseargParam   --loops       PERFSYSCALL_LOOPS
 ###SHELLPACK parseargParam   --iterations  PERFSYSCALL_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 export PERFBUILD_ADD_SYSCALL=yes
 ###SHELLPACK check_external_install_required perfbuild perfbuild-${VERSION} ${VERSION}
@@ -18,9 +19,11 @@ PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf
 
 echo Perf invocation: $TASKSET_SERVER $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS
+monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $PERFSYSCALL_ITERATIONS
 	$TASKSET_SERVER $PERF_CMD bench syscall basic -l $PERFSYSCALL_LOOPS \
 			2>&1 | tee $LOGDIR_RESULTS/syscall-${ITERATION}.log
 ###SHELLPACK iteration_end
+monitor_post_hook $LOGDIR_RESULTS $P
 
 exit $SHELLPACK_SUCCESS

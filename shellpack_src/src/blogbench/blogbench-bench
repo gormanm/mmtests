@@ -5,11 +5,11 @@
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --iterations        BLOGBENCH_ITERATIONS
 ###SHELLPACK parseargEnd
-
-###SHELLPACK check_install_required phpbench-${VERSION}
 ###SHELLPACK monitor_hooks
 
-monitor_pre_hook $LOGDIR_RESULTS 1
+###SHELLPACK check_install_required phpbench-${VERSION}
+
+monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $BLOGBENCH_ITERATIONS
 	echo Starting interation $ITERATION/$BLOGBENCH_ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/blogbench-${ITERATION}.time \
@@ -19,7 +19,7 @@ monitor_pre_hook $LOGDIR_RESULTS 1
 	mkdir $SHELLPACK_TEMP
 	sync
 ###SHELLPACK iteration_end $BLOGBENCH_ITERATIONS
-monitor_post_hook $LOGDIR_RESULTS 1
+monitor_post_hook $LOGDIR_RESULTS $P
 
 echo blogbench completed successfully
 exit $SHELLPACK_SUCCESS

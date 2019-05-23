@@ -20,10 +20,9 @@ fi
 ###SHELLPACK parseargParam    --msg-sizes    SOCKPERF_MESSAGE_SIZES
 ###SHELLPACK parseargParam    --msg-rates    SOCKPERF_MESSAGE_RATES
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required sockperf-${VERSION}
-
-###SHELLPACK monitor_hooks
 
 SOCKPERF_MESSAGE_SIZES=`echo $SOCKPERF_MESSAGE_SIZES | tr ',' ' '`
 SOCKPERF_MESSAGE_RATES=`echo $SOCKPERF_MESSAGE_RATES | tr ',' ' '`

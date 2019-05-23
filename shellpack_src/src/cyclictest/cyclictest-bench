@@ -10,9 +10,9 @@ CYCLICTEST_BACKGROUND=none
 ###SHELLPACK parseargParam   --background	CYCLICTEST_BACKGROUND
 ###SHELLPACK parseargYes     --affinity		CYCLICTEST_AFFINITY
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_external_install_required rttestbuild rttestbuild-${VERSION} ${VERSION}
-###SHELLPACK monitor_hooks
 cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change to rttest directory"
 
 if [ "$CYCLICTEST_AFFINITY" = "yes" ]; then
@@ -33,7 +33,7 @@ none)
 	die "Unrecognised background task $CYCLICTEST_BACKGROUND"
 	;;
 esac
-monitor_pre_hook $LOGDIR_RESULTS
+monitor_pre_hook $LOGDIR_RESULTS $P
 echo Starting cyclictest threads
 ./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
 	--distance=0 --duration=$CYCLICTEST_DURATION --quiet 2>&1 | \
@@ -41,5 +41,5 @@ echo Starting cyclictest threads
 if [ "$BACKGROUND_PID" != "" ]; then
 	shutdown_pid $CYCLICTEST_BACKGROUND $BACKGROUND_PID
 fi
-monitor_post_hook $LOGDIR_RESULTS
+monitor_post_hook $LOGDIR_RESULTS $P
 exit $SHELLPACK_SUCCESS

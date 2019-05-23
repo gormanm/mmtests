@@ -8,10 +8,9 @@ ITERATIONS=30
 ###SHELLPACK parseargBindings
 ###SHELLPACK parseargParam -i ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required pipetest
-
-###SHELLPACK monitor_hooks
 
 # Start it reading in the background
 EXPECT_UNBUFFER=expect_unbuffer
@@ -21,7 +20,7 @@ fi
 
 # Run the benchmark
 RETVAL=0
-monitor_pre_hook $LOGDIR_RESULTS
+monitor_pre_hook $LOGDIR_RESULTS $P
 
 pushd $SHELLPACK_SOURCES/pipetest-${VERSION}-installed > /dev/null
 $TASKSET_SERVER $EXPECT_UNBUFFER ./pipe-test | tee $LOGDIR_RESULTS/pipetest.log &
@@ -48,5 +47,5 @@ for PID in $PID_TEE $PID_PIPETEST; do
 done
 echo
 
-monitor_post_hook $LOGDIR_RESULTS
+monitor_post_hook $LOGDIR_RESULTS $P
 exit $SHELLPACK_SUCCESS

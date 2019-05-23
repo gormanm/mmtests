@@ -4,10 +4,9 @@
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required dbench-${VERSION}
-
-###SHELLPACK monitor_hooks
 
 if [ "$DBENCH_OSYNC" = "yes" ]; then
 	DBENCH_OSYNC_COMMAND=-s

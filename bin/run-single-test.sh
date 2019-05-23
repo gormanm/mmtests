@@ -39,16 +39,6 @@ rm -rf $SHELLPACK_LOG/$NAME$NAMEEXTRA
 mkdir -p $LOGDIR_TOPLEVEL
 cd $LOGDIR_TOPLEVEL
 
-# Force the running of a coarse-grained profile if a fine-grained
-# profile is requested but the underlying test does not support
-# the necessary hooks
-if [ "$RUN_FINEPROFILE" = "yes" ]; then
-	if [ "$FINEGRAINED_SUPPORTED" = "no" ]; then
-		RUN_FINEPROFILE=no
-		RUN_COARSEPROFILE=yes
-	fi
-fi
-
 # Check that server/client execution is supported if requested
 if [ "$REMOTE_SERVER_HOST" != "" ]; then
 	if [ "$SERVER_SIDE_SUPPORT" != "yes" ]; then
@@ -63,85 +53,26 @@ if [ "$REMOTE_SERVER_HOST" != "" ]; then
 	mmtests_server_init
 fi
 
-# no-profile run
-if [ "$RUN_NOPROFILE" = "yes" ]; then
-unset PROFILE_EVENTS
-unset MONITOR_PRE_HOOK
-unset MONITOR_POST_HOOK
-unset MONITOR_CLEANUP_HOOK
-if [ -e noprofile ]; then
-	echo No profile run already exists
-else
-	mkdir noprofile
-	export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/noprofile
+NR_HOOKS=`ls $PROFILE_PATH/profile-hooks* 2> /dev/null | wc -l`
+if [ $NR_HOOKS -gt 0 ]; then
+	for PROFILE_HOOK in `ls $PROFILE_PATH/profile-hooks-*.sh 2> /dev/null`; do
+		echo Processing profile hook $PROFILE_HOOK title $PROFILE_TITLE
+		. $PROFILE_HOOK
+	done
 
-	setup_dirs
-	save_rc run_bench 2>&1 | tee /tmp/mmtests-$$.log
-	mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
-	recover_rc
-	check_status $NAME "returned failure, unable to continue"
-	gzip $LOGDIR_RESULTS/mmtests.log
-fi
+	export MONITOR_PRE_HOOK=`pwd`/monitor-pre-hook
+	export MONITOR_POST_HOOK=`pwd`/monitor-post-hook
+	export MONITOR_CLEANUP_HOOK=`pwd`/monitor-cleanup-hook
 fi
 
-# Fine-grained profile
-for PROFILE_HOOK in `ls $PROFILE_PATH/profile-hooks-*.sh 2> /dev/null`; do
-. $PROFILE_HOOK
-echo Processing profile hook $PROFILE_HOOK title $PROFILE_TITLE
-if [ "$PROFILE_TITLE" = "none" ]; then
-	continue
-fi
-
-if [ "$RUN_FINEPROFILE" = "yes" ]; then
-export MONITOR_PRE_HOOK=`pwd`/monitor-pre-hook
-export MONITOR_POST_HOOK=`pwd`/monitor-post-hook
-export MONITOR_CLEANUP_HOOK=`pwd`/monitor-cleanup-hook
-if [ -e fine-profile-$PROFILE_TITLE ]; then
-	echo Fine-grained profile run already exists
-else
-	mkdir fine-profile-$PROFILE_TITLE
-	export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/fine-profile-$PROFILE_TITLE
-
-	setup_dirs
-	save_rc run_bench 2>&1 | tee /tmp/mmtests-$$.log
-	mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
-	./monitor-reset
-	recover_rc
-	check_status $NAME "returned failure, unable to continue"
-fi
-fi
-
-# Fine-grained profile
-if [ "$RUN_COARSEPROFILE" = "yes" ]; then
-for PROFILE_HOOK in `ls $PROFILE_PATH/profile-hooks-*.sh 2> /dev/null`; do
-. $PROFILE_HOOK
-echo Processing profile hook $PROFILE_HOOK title $PROFILE_TITLE
-if [ "$PROFILE_TITLE" = "none" ]; then
-	continue
-fi
-
-unset MONITOR_PRE_HOOK
-unset MONITOR_POST_HOOK
-unset MONITOR_CLEANUP_HOOK
-unset PROFILE_EVENTS
-if [ -e coarse-profile-$PROFILE_TITLE ]; then
-	echo Global profile run already exists
-else
-	mkdir coarse-profile-$PROFILE_TITLE
-	export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/coarse-profile-$PROFILE_TITLE
-
-	setup_dirs
-	./monitor-pre-hook || die Failed to start profiler
-	save_rc run_bench 2>&1 | tee /tmp/mmtests-$$.log
-	mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
-	./monitor-post-hook $LOGDIR_RESULTS $NAME || die Failed to stop profiler
-	./monitor-reset
-	recover_rc
-	check_status $NAME "returned failure, unable to continue"
-fi
-done
-fi
-done
+export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/logs
+mkdir logs
+setup_dirs
+save_rc run_bench 2>&1 | tee /tmp/mmtests-$$.log
+mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
+recover_rc
+check_status $NAME "returned failure, unable to continue"
+gzip $LOGDIR_RESULTS/mmtests.log
 
 rm -rf $SHELLPACK_TEMP
 exit $EXIT_CODE

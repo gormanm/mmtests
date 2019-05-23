@@ -6,17 +6,17 @@
 ###SHELLPACK parseargParam --duration           DURATION
 ###SHELLPACK parseargParam --threshold		THRESHOLD
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required sysjitter-${VERSION}
 
-###SHELLPACK monitor_hooks
-
 cd $SHELLPACK_SOURCES/sysjitter-${VERSION}-installed
 
-monitor_pre_hook $LOGDIR_RESULTS sysjitter
 mmtests_activity sysjitter
 sync
+monitor_pre_hook $LOGDIR_RESULTS $P
 echo Running sysjitter for $DURATION seconds, min_threshold $THRESHOLD
 ./sysjitter --runtime $DURATION $THRESHOLD 2>&1 | tee $LOGDIR_RESULTS/sysjitter.log
+monitor_post_hook $LOGDIR_RESULTS $P
 
 exit $SHELLPACK_SUCCESS

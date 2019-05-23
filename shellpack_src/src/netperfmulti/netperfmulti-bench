@@ -21,10 +21,9 @@ fi
 ###SHELLPACK parseargParam    --min-threads  NETPERFMULTI_MIN_THREADS
 ###SHELLPACK parseargParam    --max-threads  NETPERFMULTI_MAX_THREADS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required netperfmulti-${VERSION}
-
-###SHELLPACK monitor_hooks
 
 cd $SHELLPACK_SOURCES/netperfmulti-${VERSION}-installed || die Failed to cd to netperf directory
 

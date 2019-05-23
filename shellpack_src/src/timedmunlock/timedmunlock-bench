@@ -42,14 +42,14 @@ for i in `seq 1 $ITERATIONS`; do
         done
         rm -f $READY_SIGNAL_FILE
 
-        monitor_pre_hook $LOGDIR_RESULTS timedmunlock $PROG_PID
+        monitor_pre_hook $LOGDIR_RESULTS $P
         echo "Sending munlock signal"
         kill -SIGUSR1 $PROG_PID
         while [[ ! -f $MUNLOCK_COMPLETE_FILE ]]; do
                 jobs 1 > /dev/null || die "timedmunlock failed prematurely"
                 sleep 1
         done
-        monitor_post_hook $LOGDIR_RESULTS timedmunlock
+        monitor_post_hook $LOGDIR_RESULTS $P
         rm -f $MUNLOCK_COMPLETE_FILE
 
         echo "Sending exit signal"

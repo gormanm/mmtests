@@ -11,10 +11,10 @@ fi
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --max-clients         TBENCH_MAX_CLIENTS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 install-depends popt-devel
 ###SHELLPACK check_install_required dbench-${VERSION}
-###SHELLPACK monitor_hooks
 
 server_start() {
 	echo Starting tbench_srv

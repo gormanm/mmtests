@@ -5,7 +5,6 @@
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --iterations        PHPBENCH_ITERATIONS
 ###SHELLPACK parseargEnd
-
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required phpbench-${VERSION}
@@ -13,13 +12,13 @@
 echo Shutting down apache server...
 $SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die Failed to shutdown apache http server
 
-monitor_pre_hook $LOGDIR_RESULTS 1
 sed -i -e 's/return TRUE/return FALSE/' $SHELLPACK_SOURCES/phpbench-${VERSION}-installed/tests/test_arithmetic.php
 sed -i -e 's/return TRUE/return FALSE/' $SHELLPACK_SOURCES/phpbench-${VERSION}-installed/tests/test_casting.php
 sed -i -e 's/return TRUE/return FALSE/' $SHELLPACK_SOURCES/phpbench-${VERSION}-installed/tests/test_ereg.php
 sed -i -e 's/return TRUE/return FALSE/' $SHELLPACK_SOURCES/phpbench-${VERSION}-installed/tests/test_unordered_functions.php
 sed -i -e 's/return TRUE/return FALSE/' $SHELLPACK_SOURCES/phpbench-${VERSION}-installed/tests/test_ordered_functions.php
 sed -i -e 's/return TRUE/return FALSE/' $SHELLPACK_SOURCES/phpbench-${VERSION}-installed/tests/test_ordered_functions_references.php
+monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $PHPBENCH_ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/phpbench-${ITERATION}.time \
 		$SHELLPACK_SOURCES/phpbuild-7.3.5-installed/bin/php \
@@ -30,7 +29,7 @@ sed -i -e 's/return TRUE/return FALSE/' $SHELLPACK_SOURCES/phpbench-${VERSION}-i
 				| grep -E -v "^$"	      \
 				| tee $LOGDIR_RESULTS/phpbench-${ITERATION}.log
 ###SHELLPACK iteration_end $PHPBENCH_ITERATIONS
-monitor_post_hook $LOGDIR_RESULTS 1
+monitor_post_hook $LOGDIR_RESULTS $P
 
 echo phpbench completed successfully
 exit $SHELLPACK_SUCCESS

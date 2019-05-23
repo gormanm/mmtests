@@ -9,9 +9,9 @@ MPIOPT="--allow-run-as-root -mca btl ^openib,udapl"
 ###SHELLPACK parseargParam	--workload-size		HPCC_WORKLOAD_SIZE
 ###SHELLPACK parseargParam	--iterations		HPCC_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required hpcc-${VERSION}
-###SHELLPACK monitor_hooks
 
 round_down_power_2_cpus() {
 	POWER=1
@@ -77,13 +77,13 @@ $Q           Qs
 EOF
 cp hpccinf.txt $LOGDIR_RESULTS/
 
-monitor_pre_hook $LOGDIR_RESULTS hpcc
+monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $HPCC_ITERATIONS
 	mmtests_activity hpcc-$ITERATION
 	echo Running hpcc iteration $ITERATION/$HPCC_ITERATIONS
 	$HPCC_MPI_PATH/mpirun $MPIOPT -np $MPICPUS ./hpcc 2>&1 | tee $LOGDIR_RESULTS/hpcc-${ITERATION}.log
 	mv hpccoutf.txt $LOGDIR_RESULTS/hpccoutf-${ITERATION}.txt
 ###SHELLPACK iteration_end
-monitor_post_hook $LOGDIR_RESULTS hpcc
+monitor_post_hook $LOGDIR_RESULTS $P
 
 exit $SHELLPACK_SUCCESS

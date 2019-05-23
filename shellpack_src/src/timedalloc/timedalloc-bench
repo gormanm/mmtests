@@ -47,9 +47,9 @@ if [ $FILL_SIZE -gt 0 ]; then
 fi
 sync
 
-monitor_pre_hook $LOGDIR_RESULTS timedalloc
+monitor_pre_hook $LOGDIR_RESULTS $P
 /usr/bin/time $TEMPFILE 2>&1 | tee $LOGDIR_RESULTS/time.1
-monitor_post_hook $LOGDIR_RESULTS timedalloc
+monitor_post_hook $LOGDIR_RESULTS $P
 grep elapsed $LOGDIR_RESULTS/time.1 > $LOGDIR_RESULTS/time
 
 # Cleanup

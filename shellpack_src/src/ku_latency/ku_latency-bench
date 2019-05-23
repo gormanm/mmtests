@@ -25,10 +25,9 @@ TASKSET_RECV=""
 		shift
 		;;
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required ku_latency
-
-###SHELLPACK monitor_hooks
 
 RUN_SECONDS="${KU_LATENCY_RUN_SECONDS:-10}"
 START_SEND_FIRST="${KU_LATENCY_START_SEND_FIRST:-no}"

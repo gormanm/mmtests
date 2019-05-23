@@ -5,11 +5,6 @@
 export MMTESTS="stressng"
 export RUN_WARMUP=
 
-# Profiling parameters
-export RUN_NOPROFILE=no
-export RUN_FINEPROFILE=yes
-export RUN_COARSEPROFILE=no
-export OPROFILE_REPORT_ANNOTATE=no
 
 # Machine configuration
 

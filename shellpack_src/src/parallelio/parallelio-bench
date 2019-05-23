@@ -17,7 +17,6 @@
 ###SHELLPACK parseargParam --iterations  PARALLELIO_ITERATIONS
 ###SHELLPACK parseargParam --workload-duration PARALLELIO_WORKLOAD_DURATION
 ###SHELLPACK parseargEnd
-
 ###SHELLPACK monitor_hooks
 
 # Warmup runs

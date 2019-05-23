@@ -7,6 +7,7 @@
 ###SHELLPACK parseargParam   --cases	VMSCALE_CASES
 ###SHELLPACK parseargYes     --use-perf VMSCALE_USE_PERF
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 install-depends coreutils
 ###SHELLPACK check_install_required vmscale-${VERSION}
@@ -14,8 +15,6 @@ if [ "$VMSCALE_USE_PERF" = "yes" ]; then
 	###SHELLPACK check_external_install_required_continue perfbuild perfbuild-4.1 4.1
 	export PATH=$SHELLPACK_SOURCES/perfbuild-4.1-installed/bin:$PATH
 fi
-
-###SHELLPACK monitor_hooks
 
 cd $SHELLPACK_SOURCES/vmscale-${VERSION}-installed || die Failed to cd to vmscale directory
 VMSCALE_CASES=`echo $VMSCALE_CASES | sed -e 's/,/ /g'`

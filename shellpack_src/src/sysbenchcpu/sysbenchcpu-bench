@@ -7,9 +7,9 @@
 ###SHELLPACK parseargParam --max-threads MAX_THREADS
 ###SHELLPACK parseargParam --iterations  ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required sysbenchcpu-${VERSION}
-###SHELLPACK monitor_hooks
 export PATH=$SHELLPACK_SOURCES/sysbenchcpu-${VERSION}-installed/bin:$PATH
 
 ###SHELLPACK threads_large_stride_begin 1 $MAX_THREADS

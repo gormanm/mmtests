@@ -9,7 +9,6 @@ ITERATIONS=5
 ###SHELLPACK parseargParam	--max-threads	KERNBENCH_MAX_THREADS
 ###SHELLPACK parseargParam	--iterations	KERNBENCH_ITERATIONS
 ###SHELLPACK parseargEnd
-
 ###SHELLPACK monitor_hooks
 
 WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v4.x/linux-${VERSION}.tar.gz

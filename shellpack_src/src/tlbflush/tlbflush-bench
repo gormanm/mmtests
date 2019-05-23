@@ -13,9 +13,9 @@ TLBFLUSH_ITERATIONS=200
 ###SHELLPACK parseargParam --max-entries       TLBFLUSH_MAX_ENTRIES
 ###SHELLPACK parseargParam --iterations        TLBFLUSH_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required tlbflush-${VERSION}
-###SHELLPACK monitor_hooks
 
 EXIT_CODE=$SHELLPACK_SUCCESS
 

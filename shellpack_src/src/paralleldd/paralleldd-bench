@@ -20,7 +20,6 @@ PARALLELDD_WRITEFILES=
 ###SHELLPACK parseargYes   --write-files  PARALLELDD_WRITEFILES
 ###SHELLPACK parseargYes   --split-input  PARALLELDD_SPLITINPUT
 ###SHELLPACK parseargEnd
-
 ###SHELLPACK monitor_hooks
 
 if [ "$PARALLELDD_SPLITINPUT" != "yes" ]; then

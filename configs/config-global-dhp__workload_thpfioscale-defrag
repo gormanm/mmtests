@@ -2,10 +2,6 @@
 export MMTESTS="thpfioscale"
 export RUN_WARMUP=
 
-# Profiling parameters
-export RUN_NOPROFILE=yes
-export RUN_FINEPROFILE=no
-export RUN_COARSEPROFILE=no
 
 echo always > /sys/kernel/mm/transparent_hugepage/defrag
 if [ $? -ne 0 ]; then

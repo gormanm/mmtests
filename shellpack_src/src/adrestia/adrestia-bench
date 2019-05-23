@@ -12,6 +12,7 @@
 ###SHELLPACK parseargParam --test             ADRESTIA_TEST
 ###SHELLPACK parseargParam --iterations       ADRESTIA_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required adrestia-${VERSION}
 
@@ -25,12 +26,14 @@ fi
 ATIME=$ADRESTIA_MIN_ATIME
 while [ $ATIME -le $ADRESTIA_MAX_ATIME ]; do
 	###SHELLPACK threads_large_stride_begin 1 $ADRESTIA_THREADS
+		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 		###SHELLPACK iteration_begin $ADRESTIA_ITERATIONS
 		echo Running $ADRESTIA_TEST $ATIME:$ADRESTIA_STIME threads $NR_THREADS $ITERATION/$ADRESTIA_ITERATIONS
 		$TIME_CMD -o $LOGDIR_RESULTS/time-$ATIME-$NR_THREADS-$ITERATION \
 			./adrestia -a $ATIME -l $ADRESTIA_LOOPS -s $ADRESTIA_STIME -t $NR_THREADS $ADRESTIA_TEST \
 				> $LOGDIR_RESULTS/adrestia-$ATIME-$NR_THREADS-$ITERATION.log
 		###SHELLPACK iteration_end $ADRESTIA_ITERATIONS
+		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK threads_stride_end
 	((ATIME *= 2))
 done

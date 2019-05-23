@@ -25,10 +25,9 @@ fi
 ###SHELLPACK parseargParam    --max-threads  LINKBENCH_MAX_THREADS
 ###SHELLPACK parseargParam    --iterations   LINKBENCH_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required linkbench-${VERSION}
-
-###SHELLPACK monitor_hooks
 
 if [ ! -e $JAVA_HOME ]; then
 	install-depends java-1_7_0-openjdk

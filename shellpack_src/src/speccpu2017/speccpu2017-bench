@@ -16,6 +16,7 @@ install-depends dmidecode gcc gcc-c++ gcc-fortran
 ###SHELLPACK parseargParam --parallel		SPECCPU_PARALLEL
 ###SHELLPACK parseargYes   --build		SPECCPU_BUILDONLY
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 # Detect bitness
 case `uname -m` in
@@ -36,7 +37,6 @@ if [ "$TESTS" != "specspeed" -a "$TESTS" != "specrate" ]; then
 fi
 
 ###SHELLPACK check_install_required speccpu2017-${VERSION}
-###SHELLPACK monitor_hooks
 
 # Prepare system
 cd $SHELLPACK_SOURCES/speccpu2017-${VERSION}-installed > /dev/null || die Failed to cd to speccpu
@@ -89,6 +89,7 @@ ulimit -s unlimited
 
 # Run the benchmark
 mmtests_activity runcpu
+monitor_pre_hook $LOGDIR_RESULTS $P
 $MMTESTS_HUGECTL runcpu --config gen-m${RUNBITS}.cfg	\
 	$REPORTABLE					\
 	--tune base					\
@@ -96,6 +97,7 @@ $MMTESTS_HUGECTL runcpu --config gen-m${RUNBITS}.cfg	\
 	--iterations $SPECCPU_ITERATIONS		\
 	$SPECCPU_TESTS
 RETVAL=$?
+monitor_post_hook $LOGDIR_RESULTS $P
 mv result/* $LOGDIR_RESULTS/
 gzip $LOGDIR_RESULTS/*.log
 

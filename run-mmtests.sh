@@ -313,7 +313,8 @@ fi
 # available and that there is a unable vmlinux file in the expected
 # place
 export EXPANDED_VMLINUX=no
-if [ "$RUN_FINEPROFILE" = "yes" -o "$RUN_COARSEPROFILE" = "yes" ]; then
+NR_HOOKS=`ls profile-hooks* 2> /dev/null | wc -l`
+if [ NR_HOOKS -gt 0 ]; then
 	VMLINUX=/boot/vmlinux-`uname -r`
 	if [ ! -e $VMLINUX -a -e $VMLINUX.gz ]; then
 		echo Expanding vmlinux.gz file

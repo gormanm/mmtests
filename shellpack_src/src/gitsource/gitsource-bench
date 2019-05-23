@@ -7,9 +7,9 @@
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam	--iterations GITSOURCE_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required gitsource-${VERSION}
-###SHELLPACK monitor_hooks
 
 cp -ar $SHELLPACK_SOURCES/gitsource-${VERSION}-installed $SHELLPACK_DATA || die Failed to copy gitsource-$VERSION-installed
 
@@ -19,7 +19,7 @@ echo Warming run
 make test > $LOGDIR_RESULTS/warmup.log 2>&1
 tail $LOGDIR_RESULTS/warmup.log
 
-monitor_pre_hook $LOGDIR_RESULTS 1
+monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $GITSOURCE_ITERATIONS
 	echo Starting iteration $ITERATION/$GITSOURCE_ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/gitsource-${ITERATION}.time \
@@ -29,7 +29,7 @@ monitor_pre_hook $LOGDIR_RESULTS 1
 	gzip $LOGDIR_RESULTS/gitsource-${ITERATION}.log
 	cat $LOGDIR_RESULTS/gitsource-${ITERATION}.time
 ###SHELLPACK iteration_end
-monitor_post_hook $LOGDIR_RESULTS 1
+monitor_post_hook $LOGDIR_RESULTS $P
 
 cat $LOGDIR_RESULTS/gitsource-*.time | grep elapsed | tee $LOGDIR_RESULTS/time
 rm -rf $SHELLPACK_DATA/gitsource-${VERSION}-installed

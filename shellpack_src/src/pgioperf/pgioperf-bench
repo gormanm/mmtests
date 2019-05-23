@@ -65,7 +65,7 @@ echo Dropping caches for a cold run
 sysctl -w vm.drop_caches=3
 
 echo Executing pgioperf
-monitor_pre_hook $LOGDIR_RESULTS
+monitor_pre_hook $LOGDIR_RESULTS $P
 $EXPECT_UNBUFFER $SHELLPACK_TEMP/../pgioperf/pgioperf > $LOGDIR_RESULTS/pgioperf.log 2>&1 &
 PGIOPERF_PID=$!
 COUNT=0
@@ -84,7 +84,7 @@ mv $LOGDIR_RESULTS/pgioperf.log.tmp $LOGDIR_RESULTS/pgioperf.log
 cd $SHELLPACK_TEMP/..
 rm -rf pgioperf
 
-monitor_post_hook $LOGDIR_RESULTS
+monitor_post_hook $LOGDIR_RESULTS $P
 
 exit $SHELLPACK_SUCCESS
 ==== BEGIN C FILE ====

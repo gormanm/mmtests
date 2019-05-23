@@ -11,9 +11,9 @@
 ###SHELLPACK parseargYes	--direct-io	FILEBENCH_DIRECT_IO
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required filebench-${VERSION}
-###SHELLPACK monitor_hooks
 
 echo Disabling VA randomisation as recommended by benchmark
 echo 0 > /proc/sys/kernel/randomize_va_space

@@ -11,9 +11,9 @@
 ###SHELLPACK parseargParam	--duration	LKP_DURATION
 ###SHELLPACK parseargParam	--iterations	LKP_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required lkp-${VERSION}
-###SHELLPACK monitor_hooks
 
 echo $LKP_WORKLOAD > $LOGDIR_RESULTS/workload
 

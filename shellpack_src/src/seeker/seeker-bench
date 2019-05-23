@@ -12,10 +12,9 @@ SEEKER_SIZE=$((MEMTOTAL_BYTES*2))
 ###SHELLPACK parseargParam   --size	SEEKER_SIZE
 ###SHELLPACK parseargParam   --device	SEEKER_DEVICE
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required seeker
-
-###SHELLPACK monitor_hooks
 
 pushd $SHELLPACK_SOURCES/seeker-${VERSION}-installed > /dev/null || die Benchmark not installed
 RESULTSLOG=$LOGDIR_RESULTS/seeker
@@ -42,7 +41,7 @@ block)
 	;;
 esac
 
-
+monitor_pre_hook $LOGDIR_RESULTS $P
 case $SEEKER_IO in
 read)
 	save_rc
@@ -60,6 +59,7 @@ write)
 	die Unrecognised IO param $SEEKER_IO
 	;;
 esac
+monitor_post_hook $LOGDIR_RESULTS $P
 
 if [ $RETVAL -ne 0 ]; then
 	exit $SHELLPACK_FAILURE

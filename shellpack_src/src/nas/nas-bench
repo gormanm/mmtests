@@ -62,10 +62,9 @@ fi
 ###SHELLPACK parseargParam --iterations NAS_ITERATIONS
 ###SHELLPACK parseargParam --joblist    NAS_JOBLIST
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required nas-$VERSION
-
-###SHELLPACK monitor_hooks
 
 JOBLIST="bt cg dc ep ft is lu mg sp ua"
 if [ "$NAS_JOBLIST" != "" ]; then

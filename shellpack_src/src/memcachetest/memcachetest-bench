@@ -9,6 +9,7 @@
 ###SHELLPACK parseargParam --memcached-mempool MEMCACHED_MEMPOOL
 ###SHELLPACK parseargParam --value-size        MEMCACHED_VALUE_SIZE
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 # Start memcached server
 $SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh memcached
@@ -34,6 +35,7 @@ echo o $MEMCACHETEST_VALUE_SIZE value size
 echo o $MEMCACHETEST_DURATION second duration
 echo o $MEMCACHETEST_ITEMS items per iteration
 
+monitor_pre_hook $LOGDIR_RESULTS $P
 ./bin/memcachetest \
 	-h 127.0.0.1 \
 	-t $MEMCACHETEST_CONCURRENCY \
@@ -41,6 +43,7 @@ echo o $MEMCACHETEST_ITEMS items per iteration
 	-i $MEMCACHETEST_ITEMS \
 	-T $MEMCACHETEST_DURATION -l \
 		    | tee $LOGDIR_RESULTS/memcachetest.log
+monitor_post_hook $LOGDIR_RESULTS $P
 
 gzip $LOGDIR_RESULTS/memcachetest.log
 $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown

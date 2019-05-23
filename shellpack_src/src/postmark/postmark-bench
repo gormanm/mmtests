@@ -7,9 +7,9 @@ CONSUME_MEMORY=no
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargYes --consume-memory CONSUME_MEMORY
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required postmark-${VERSION}
-###SHELLPACK monitor_hooks
 
 # Write configuration file
 echo "set transactions $POSTMARK_TRANSACTIONS

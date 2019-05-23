@@ -12,6 +12,7 @@ TESTLIST=
 ###SHELLPACK parseargParam	--max-threads	STOCKFISH_MAX_THREADS
 ###SHELLPACK parseargParam	--iterations	STOCKFISH_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required stockfish-${VERSION}
 
@@ -41,11 +42,13 @@ EOF
 ulimit -s unlimited
 
 chmod u+x $EXPECT_SCRIPT
+monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK iteration_begin $STOCKFISH_ITERATIONS
 	echo Starting iteration $ITERATION threads $NR_THREADS
 	$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION \
 		$EXPECT -f $EXPECT_SCRIPT > $LOGDIR_RESULTS/stockfish-$NR_THREADS-$ITERATION
 ###SHELLPACK iteration_end $ITERATIONS
+monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
 
 exit $SHELLPACK_SUCCESS

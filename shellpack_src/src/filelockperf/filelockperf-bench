@@ -12,9 +12,9 @@
 ###SHELLPACK parseargParam   --lockiters	FILELOCKPERF_LOCKITERS
 ###SHELLPACK parseargParam   --locktypes        FILELOCKPERF_LOCKTYPES
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required filelockperf-${VERSION}
-###SHELLPACK monitor_hooks
 
 echo $FILELOCKPERF_WORKLOADS > $LOGDIR_RESULTS/workloads
 echo $FILELOCKPERF_LOCKTYPES > $LOGDIR_RESULTS/locktypes

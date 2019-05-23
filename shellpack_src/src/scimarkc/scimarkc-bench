@@ -7,6 +7,7 @@
 ###SHELLPACK parseargParam	--iterations  SCIMARKC_ITERATIONS
 ###SHELLPACK parseargYes	--large       SCIMARKC_LARGE
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 INSTALL_SWITCH=
 if [ "$INSTALL_ONLY" = "yes" ]; then
@@ -14,14 +15,13 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 fi
 
 ###SHELLPACK check_install_required scimarkc-${VERSION} $INSTALL_SWITCH
-###SHELLPACK monitor_hooks
 
 LARGE_SWITCH=
 if [ "$SCIMARKC_LARGE" = "yes" ]; then
 	LARGE_SWITCH=-large
 fi
 
-monitor_pre_hook $LOGDIR_RESULTS scimarkc
+monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $SCIMARKC_ITERATIONS
 	echo Running iteration $ITERATION/$SCIMARKC_ITERATIONS
 	save_rc $SHELLPACK_SOURCES/scimarkc-${VERSION}-installed/scimark2 \
@@ -32,7 +32,7 @@ monitor_pre_hook $LOGDIR_RESULTS scimarkc
 		die "Failed to run scimark"
 	fi
 ###SHELLPACK iteration_end $SCIMARKC_ITERATIONS
-monitor_post_hook $LOGDIR_RESULTS scimarkc
+monitor_post_hook $LOGDIR_RESULTS $P
 
 echo scimarkc successful
 exit $SHELLPACK_SUCCESS

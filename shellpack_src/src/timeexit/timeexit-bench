@@ -11,13 +11,12 @@ ITERATIONS=120
 ###SHELLPACK parseargParam -c INSTANCES
 ###SHELLPACK parseargParam -i ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required timeexit
 
-###SHELLPACK monitor_hooks
-
 pushd $SHELLPACK_SOURCES/timeexit-${VERSION}-installed > /dev/null
-monitor_pre_hook $LOGDIR_RESULTS $group
+monitor_pre_hook $LOGDIR_RESULTS $P
 for ITERATION in `seq 1 $ITERATIONS`; do
 	echo -n "$INSTANCES " | tee -a $LOGDIR_RESULTS/timeexit.log
 	save_rc ./timeexit -p $DELAY $INSTANCES | tee -a $LOGDIR_RESULTS/timeexit.log
@@ -28,6 +27,6 @@ for ITERATION in `seq 1 $ITERATIONS`; do
 		exit $SHELLPACK_ERROR
 	fi
 done
-monitor_post_hook $LOGDIR_RESULTS $group
+monitor_post_hook $LOGDIR_RESULTS $P
 
 exit $RETVAL

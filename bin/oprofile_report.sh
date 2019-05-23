@@ -68,25 +68,23 @@ else
 	opreport $MODULES -l >> $1 || exit -1
 fi
 
-if [ "$OPROFILE_REPORT_ANNOTATE" != "no" ]; then
-	if [ "`which recode`" != "" ]; then
-		# Decode with
-		# grep -A 9999999 "=== annotate ===" oprofile-compressed.report | grep -v annotate | recode /b64..char | gunzip -c | less
-		if [ "$1" = "" ]; then
-			echo ====== annotate ========
-			opannotate --assembly $MODULES | gzip -c | recode ../b64
-		else
-			echo ====== annotate ======== >> $1
-			opannotate --assembly $MODULES | gzip -c | recode ../b64 >> $1
-		fi
+if [ "`which recode`" != "" ]; then
+	# Decode with
+	# grep -A 9999999 "=== annotate ===" oprofile-compressed.report | grep -v annotate | recode /b64..char | gunzip -c | less
+	if [ "$1" = "" ]; then
+		echo ====== annotate ========
+		opannotate --assembly $MODULES | gzip -c | recode ../b64
 	else
-		if [ "$1" = "" ]; then
-			echo ====== annotate ========
-			opannotate --assembly $MODULES
-		else
-			echo ====== annotate ======== >> $1
-			opannotate --assembly $MODULES >> $1
-		fi
+		echo ====== annotate ======== >> $1
+		opannotate --assembly $MODULES | gzip -c | recode ../b64 >> $1
+	fi
+else
+	if [ "$1" = "" ]; then
+		echo ====== annotate ========
+		opannotate --assembly $MODULES
+	else
+		echo ====== annotate ======== >> $1
+		opannotate --assembly $MODULES >> $1
 	fi
 fi
 

@@ -22,6 +22,7 @@ USE_LOCAL=no
 ###SHELLPACK parseargYes   --use-dd         USE_DD_ZERO
 ###SHELLPACK parseargYes   --source-local   USE_LOCAL
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 # Align the fault size
 MEMFAULT_SIZE=$((MEMFAULT_SIZE&~1048575))
@@ -102,6 +103,7 @@ echo Starting mapping latency monitor
 echo Logging: $LOGDIR_RESULTS/mmap-latency.log
 $LATENCY_FILE > $LOGDIR_RESULTS/mmap-latency.log &
 LATENCY_PID=$!
+monitor_pre_hook $LOGDIR_RESULTS $P
 
 # Begin the copy or dd
 echo $DD_BLOCKSIZE > $LOGDIR_RESULTS/dd.blocksize
@@ -147,6 +149,7 @@ sync" > cp-script.sh
 
 	shutdown_pid memhog $MEMHOG_PID
 done
+monitor_post_hook $LOGDIR_RESULTS $P
 rm $SOURCEFILE_TOPLEVEL/stutter-source-file $SHELLPACK_DATA/ddfile
 
 # Shutdown monitors

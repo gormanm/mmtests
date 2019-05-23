@@ -31,7 +31,6 @@ MIN_THREADS=1
 ###SHELLPACK parseargYes   --read-only           READONLY
 ###SHELLPACK parseargYes   --cache-cold          RUN_CACHE_COLD
 ###SHELLPACK parseargEnd
-
 ###SHELLPACK monitor_hooks
 
 # Always scrub sources as the benchmark in question does not properly

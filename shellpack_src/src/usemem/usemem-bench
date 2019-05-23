@@ -10,6 +10,7 @@
 ###SHELLPACK parseargParam	--max-threads		USEMEM_MAX_THREADS
 ###SHELLPACK parseargParam	--fake-swap		USEMEM_FAKE_SWAP_MB
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_external_install_required_continue usemembuild usemembuild-${VERSION}-installed ${VERSION}
 
@@ -35,8 +36,6 @@ fi
 
 echo Anon portion: $((MEMTOTAL_ANON/1048576))M
 echo File portion: $((MEMTOTAL_FILE/1048576))M
-
-###SHELLPACK monitor_hooks
 
 ###SHELLPACK threads_large_stride_begin $USEMEM_MIN_THREADS $USEMEM_MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS

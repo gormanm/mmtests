@@ -5,10 +5,9 @@
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required pft-${VERSION}
-
-###SHELLPACK monitor_hooks
 
 PFT_CLIENT_SWITCH=-t
 if [ "$PFT_USE_PROCESSES" = "yes" ]; then

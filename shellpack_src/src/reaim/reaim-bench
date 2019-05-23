@@ -21,9 +21,9 @@ REAIM_WORKFILE=workfile.fserver
 ###SHELLPACK parseargParam   --workfiles     REAIM_WORKFILES
 ###SHELLPACK parseargParam   --exclude       REAIM_EXCLUDE
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required reaim-${VERSION}
-###SHELLPACK monitor_hooks
 
 for REAIM_WORKFILE in $REAIM_WORKFILES; do
 	mmtests_activity $REAIM_WORKFILE

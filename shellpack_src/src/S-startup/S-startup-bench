@@ -6,6 +6,7 @@
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --iterations       S_STARTUP_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required S-startup-${VERSION}
 
@@ -34,7 +35,9 @@ sed -i 's<^rm -rf results-${sched}<mv results-${sched}/lat-${sched} $STAT_DEST_D
 rm -rf $LOGDIR_RESULTS/results
 cd run_multiple_benchmarks/
 
+monitor_pre_hook $LOGDIR_RESULTS $P
 ./run_main_benchmarks.sh replayed-startup cur-sched fs "" 1 \
 			 $LOGDIR_RESULTS/results
+monitor_post_hook $LOGDIR_RESULTS $P
 
 exit $SHELLPACK_SUCCESS

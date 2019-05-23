@@ -23,6 +23,7 @@ fi
 ###SHELLPACK parseargParam --method		STREAM_METHOD
 ###SHELLPACK parseargParam --iterations		STREAM_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required stream-0
 
@@ -32,7 +33,6 @@ if [ "$SIZEOF_DOUBLE" = "" ]; then
 fi
 STREAM_ARRAY_ELEMENTS=$((STREAM_SIZE/3/SIZEOF_DOUBLE))
 
-###SHELLPACK monitor_hooks
 cd $SHELLPACK_SOURCES/stream-${VERSION}-installed || die Failed to change to install directory
 
 TASKSET=
@@ -52,9 +52,10 @@ omp)
 	;;
 esac
 
-monitor_pre_hook $LOGDIR_RESULTS
+monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $STREAM_ITERATIONS
 	eval $TASKSET ./stream 2>&1 | tee $LOGDIR_RESULTS/stream-$ITERATION.log
 ###SHELLPACK iteration_end $STREAM_ITERATIONS
+monitor_post_hook $LOGDIR_RESULTS $P
 
 exit $SHELLPACK_SUCCESS

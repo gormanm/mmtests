@@ -28,6 +28,7 @@ RUN_CACHE_COLD=no
 ###SHELLPACK parseargYes   --read-only           READONLY
 ###SHELLPACK parseargYes   --cache-cold          RUN_CACHE_COLD
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 MARIADB_TABLE_DRIVER=innodb
 MARIADB_START_OPTIONS="--innodb_buffer_pool_size=${SHARED_BUFFERS},--innodb_log_file_size=512M"
@@ -41,7 +42,6 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 fi
 
 ###SHELLPACK check_install_required sysbench-${VERSION} --dbdriver ${DBDRIVER}
-###SHELLPACK monitor_hooks
 $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 
 # Calculate OLTP tablesize. 1 megabyte is around 4500 rows

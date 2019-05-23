@@ -15,6 +15,7 @@ install-depends dmidecode gcc gcc-c++ gcc-fortran
 ###SHELLPACK parseargParam --tests		SPECCPU_TESTS
 ###SHELLPACK parseargParam --pagesize		SPECCPU_PAGESIZE
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 # Detect bitness
 case `uname -m` in
@@ -33,7 +34,6 @@ if [ "$TESTS" != "all" -o "$SPECCPU_ITERATIONS" = "1" -o "$SPECCPU_DATA_SIZE" !=
 fi
 
 ###SHELLPACK check_install_required speccpu-${VERSION}
-###SHELLPACK monitor_hooks
 
 # Prepare system
 cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed > /dev/null || die Failed to cd to speccpu
@@ -55,6 +55,7 @@ $GENSPECSH --hugepages-heaponly > config/gen-m${RUNBITS}huge-heap.cfg || die Fai
 $GENSPECSH $HLINK > config/gen-m${RUNBITS}huge-all.cfg || die Failed to generate huge-all spec config file
 cp config/gen-m${RUNBITS}base.cfg config/gen-m${RUNBITS}huge-*.cfg $LOGDIR_RESULTS/
 
+monitor_pre_hook $LOGDIR_RESULTS $P
 $MMTESTS_HUGECTL runspec -c gen-m${RUNBITS}${SPECCPU_PAGESIZE}.cfg \
 	$REPORTABLE \
 	--tune base \
@@ -62,6 +63,7 @@ $MMTESTS_HUGECTL runspec -c gen-m${RUNBITS}${SPECCPU_PAGESIZE}.cfg \
 	--iterations $SPECCPU_ITERATIONS \
 	$SPECCPU_TESTS
 RETVAL=$?
+monitor_post_hook $LOGDIR_RESULTS $P
 rm -rf /tmp/OPiter*
 mv result/* $LOGDIR_RESULTS/
 gzip $LOGDIR_RESULTS/*.log

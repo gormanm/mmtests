@@ -8,9 +8,9 @@ ITERATIONS=1
 ###SHELLPACK parseargParam --max-threads MICROTPUT_MAX_THREADS
 ###SHELLPACK parseargParam --iterations  MICROTPUT_ITERATIONS
 ###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required microtput
-###SHELLPACK monitor_hooks
 
 pushd $SHELLPACK_SOURCES/microtput-${VERSION}-installed > /dev/null
 
