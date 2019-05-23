@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	if [ "$SEEKER_TYPE" = "block" ]; then

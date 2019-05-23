@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	USEMEM_FAKE_SWAP_MB_SWITCH=

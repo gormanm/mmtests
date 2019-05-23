@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	LTP_RUN_ARGS_SWITCH=

@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	$SHELLPACK_INCLUDE/shellpack-bench-pgioperf $PGIOPERF_INIT_SWITCH \

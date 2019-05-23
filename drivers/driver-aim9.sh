@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	AIM9_FULL_COMMAND=

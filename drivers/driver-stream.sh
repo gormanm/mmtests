@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 if [ "$STREAM_METHOD" = "single" ]; then
 	STREAM_THREADS=1

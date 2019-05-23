@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	PGBENCH_MAX_TIME_COMMAND=

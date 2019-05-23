@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	if [ "$NAS_MAX_CPUS" = "" ]; then

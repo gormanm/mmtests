@@ -1,20 +1,21 @@
 #!/bin/bash
-# This is the script for running the hackbench benchmark
-###SHELLPACK preamble hackbench-bench 0
-iterations=1
+# This is the script for running the hackbench benchmark via
+# perf sched bench messaging
+###SHELLPACK preamble hackbench-bench 5.1
 CONN_NAME=
-CONN_TYPE=
+CONN_SWITCH=
+TASK_SWITCH=
 HACKBENCH_TYPE=process
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 	--pipes)
-		CONN_TYPE="-pipe"
+		CONN_SWITCH="--pipe"
 		CONN_NAME=pipes
 		shift
 		;;
 	--sockets)
-		CONN_TYPE=
+		CONN_SWITCH=
 		CONN_NAME=sockets
 		shift
 		;;
@@ -26,7 +27,13 @@ HACKBENCH_TYPE=process
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required hackbench
+if [ "$HACKBENCH_TYPE" = "thread" ]; then
+	TASK_SWITCH="--thread"
+fi
+
+###SHELLPACK check_external_install_required perfbuild perfbuild-${VERSION} ${VERSION}
+PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
+PERF_CMD=${PERF_DIR}/perf
 
 pushd $SHELLPACK_SOURCES/hackbench-${VERSION}-installed > /dev/null
 RESULTSLOG=$LOGDIR_RESULTS/hackbench
@@ -42,10 +49,9 @@ ulimit -n $((HACKBENCH_MAX_GROUPS * 40 * 2))
 
 	###SHELLPACK iteration_begin $HACKBENCH_ITERATIONS
 		echo Running $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS
-		echo pwd: `pwd`
-		echo cmd: hackbench $CONN_TYPE $NR_THREADS $HACKBENCH_TYPE $HACKBENCH_LOOPS
-		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  \
-			./hackbench $CONN_TYPE $NR_THREADS $HACKBENCH_TYPE $HACKBENCH_LOOPS \
+		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  			\
+			$PERF_CMD bench sched messaging 					\
+				$CONN_SWITCH $TASK_SWITCH -g $NR_THREADS -l $HACKBENCH_LOOPS 	\
 				> $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
 
 		# Failure likely due to open file or pid limitations

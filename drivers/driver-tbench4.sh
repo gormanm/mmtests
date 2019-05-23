@@ -1,6 +1,5 @@
 SERVER_SIDE_BENCH_SCRIPT=shellpacks/shellpack-bench-tbench
 SERVER_SIDE_SUPPORT=yes
-NAMEEXTRA=
 
 run_bench() {
 	$SHELLPACK_INCLUDE/shellpack-bench-tbench 	\

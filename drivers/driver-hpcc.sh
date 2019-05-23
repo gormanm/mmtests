@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-hpcc \

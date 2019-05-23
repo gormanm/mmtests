@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	if [ "$BONNIE_FSYNC" = "yes" ]; then

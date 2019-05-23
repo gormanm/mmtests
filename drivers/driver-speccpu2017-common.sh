@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-speccpu2017 $SPECCPU_BUILDONLY	\

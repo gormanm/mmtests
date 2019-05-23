@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	SYSBENCH_MAX_TIME_COMMAND=

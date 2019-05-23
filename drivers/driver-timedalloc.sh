@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	if [ "$TIMEDALLOC_FILL_SIZE" = "" ]; then

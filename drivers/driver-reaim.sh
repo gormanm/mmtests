@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	if [ "$REAIM_EXCLUDE" = "" ]; then

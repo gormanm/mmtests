@@ -304,7 +304,7 @@ function stop_monitors() {
 # place
 export EXPANDED_VMLINUX=no
 NR_HOOKS=`ls profile-hooks* 2> /dev/null | wc -l`
-if [ NR_HOOKS -gt 0 ]; then
+if [ $NR_HOOKS -gt 0 ]; then
 	VMLINUX=/boot/vmlinux-`uname -r`
 	if [ ! -e $VMLINUX -a -e $VMLINUX.gz ]; then
 		echo Expanding vmlinux.gz file

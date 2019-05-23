@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	eval $SHELLPACK_INCLUDE/shellpack-bench-blogbench \

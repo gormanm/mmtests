@@ -1,4 +1,3 @@
-NAMEEXTRA=
 
 run_bench() {
 	if [ "$CYCLICTEST_PINNED" = "yes" ]; then
