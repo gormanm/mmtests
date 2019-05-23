@@ -5,7 +5,6 @@ export RUN_WARMUP=
 
 
 # Machine configuration
-#export RUN_TUNINGS="$RUN_TUNINGS sysctl"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=

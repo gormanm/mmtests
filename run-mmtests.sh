@@ -299,16 +299,6 @@ function stop_monitors() {
 		shutdown_monitors ${GLOBAL_MONITOR_DIR}/monitor.pids
 }
 
-# Run tunings
-if [ "$RUN_TUNINGS" != "" ]; then
-	echo Tuning the system before running: $RUNNAME
-	for T in $RUN_TUNINGS; do
-		discover_script ./tunings/tuning-$T
-		export TUNING_LOG=$SHELLPACK_LOG/$T-$TEST
-		$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $TUNING_LOG || exit $SHELLPACK_ERROR
-	done
-fi
-
 # If profiling is enabled, make sure the necessary oprofile helpers are
 # available and that there is a unable vmlinux file in the expected
 # place

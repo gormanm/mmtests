@@ -8,7 +8,6 @@ export RUN_WARMUP=
 export OPROFILE_REPORT_CALLGRAPH=
 
 # Machine configuration
-#export RUN_TUNINGS="$RUN_TUNINGS sysctl"
 
 # List of monitors
 export RUN_MONITOR=yes

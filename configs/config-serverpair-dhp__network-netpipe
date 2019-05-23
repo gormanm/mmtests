@@ -13,7 +13,6 @@ export RUN_WARMUP=
 
 
 # Machine configuration
-#export RUN_TUNINGS="$RUN_TUNINGS sysctl"
 export REMOTE_SERVER_USER=root
 export REMOTE_SERVER_HOST=unknownhost
 

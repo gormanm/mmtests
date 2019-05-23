@@ -21,7 +21,6 @@ export OPROFILE_REPORT_CALLGRAPH=
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
 #export TESTDISK_MOUNT_ARGS=""
 
-#export RUN_TUNINGS="$RUN_TUNINGS sysctl"
 
 # List of monitors
 export RUN_MONITOR=yes
