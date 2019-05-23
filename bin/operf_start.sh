@@ -7,7 +7,7 @@ usage() {
 	echo "This script starts operf to monitor the process with given pid"
 	echo "Operf's pid is written into operf.pid and killing operf finishes this script as well"
 	echo
-	echo "Usage: oprofile_start.sh [options] --pid <pid> &"
+	echo "Usage: operf_start.sh [options] --pid <pid> &"
 	echo "    --event               High-level oprofile event to track"
 	echo "    --vmlinux             Path to vmlinux"
 	echo "    --sample-cycle-factor Factor which to slow down CPU cycle sampling by"
