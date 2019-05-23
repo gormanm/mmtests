@@ -1,7 +1,3 @@
-### vmscale is the VM scalability benchmarks from Intel and running just
-### the test cases that exercise LRU rotations and reclaim by running
-### one process per CPU to hit the page reclaim paths.
-###
 ### lmbench is running  the lat_mmap tests to track how quickly maps of
 ### different sizes can be created. The expectation is that this has
 ### little or no impact on page reclaim but it needs to be verified.
@@ -22,9 +18,9 @@
 
 # MM Test Parameters
 if [ "`uname -m`" != "aarch64" ]; then
-	export MMTESTS="vmscale lmbench stutter parallelio"
+	export MMTESTS="lmbench stutter parallelio"
 else
-	export MMTESTS="vmscale lmbench stutter"
+	export MMTESTS="lmbench stutter"
 fi
 export RUN_WARMUP=
 
@@ -77,6 +73,3 @@ export STUTTER_MEMFAULT_SIZE=$((MEMTOTAL_BYTES*3/4))
 export STUTTER_MEMFAULT_TMPFS=no
 export STUTTER_FILESIZE=$(($MEMTOTAL_BYTES*2))
 export STUTTER_BLOCKSIZE=$((2*1048576))
-
-# VMScale
-export VMSCALE_CASES="lru-file-mmap-read,lru-file-readonce,lru-file-readtwice,lru-memcg"

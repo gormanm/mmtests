@@ -1,1 +1,0 @@
-Time the call of munlock() on mmapped area of given size.

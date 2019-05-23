@@ -882,9 +882,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		futexwait)
 			generate_basic "$SUBREPORT" "--wide --logX"
 			;;
-		graphdb)
-			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`"
-			;;
 		ipcscale-waitforzero|ipcscale-sysvsempp|ipcscale-posixsempp)
 			generate_ops_graphs
 			;;
@@ -995,9 +992,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		postmark)
 			generate_basic "$SUBREPORT" "--logY"
 			;;
-		poundtime)
-			generate_ops_graphs
-			;;
 		reaim)
 			generate_client_subtest_graphs
 			;;
@@ -1106,8 +1100,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 				plain graph-$SUBREPORT-$SIZE
 			done
 			echo "</tr>"
-			;;
-		timeexit)
 			;;
 		tiobench)
 			echo "<tr>"
