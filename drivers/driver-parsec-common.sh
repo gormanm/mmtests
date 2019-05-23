@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh parsec
 
 run_bench() {
 	if [ "$PARSEC_WORKLOAD" = "" ]; then

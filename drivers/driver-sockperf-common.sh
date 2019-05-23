@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh sockperf
 SERVER_SIDE_SUPPORT=yes
 SERVER_SIDE_BENCH_SCRIPT=shellpacks/shellpack-bench-sockperf
 

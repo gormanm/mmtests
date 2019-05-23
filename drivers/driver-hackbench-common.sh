@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh hackbench
 
 run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-hackbench \

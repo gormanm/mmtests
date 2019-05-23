@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh nas-mpi
 
 run_bench() {
 	CMAOPT=

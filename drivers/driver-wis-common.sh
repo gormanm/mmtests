@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh wis
 
 run_bench() {
 	VERSION_PARAM=

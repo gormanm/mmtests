@@ -30,7 +30,7 @@ sub extractReport() {
 		foreach my $file (<$reportDir/hackbench-$group-*>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
-				if ($_ !~ /^Time: (.*)/) {
+				if ($_ !~ /Total time: ([0-9.]*)/) {
 					next;
 				}
 				my $walltime = $1;

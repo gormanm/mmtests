@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh sembench
 
 run_bench() {
 	VERSION_PARAM=

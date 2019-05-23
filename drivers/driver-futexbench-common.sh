@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh futexbench
 
 run_bench() {
 	VERSION_PARAM=

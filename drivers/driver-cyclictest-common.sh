@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh cyclictest
 
 run_bench() {
 	if [ "$CYCLICTEST_PINNED" = "yes" ]; then

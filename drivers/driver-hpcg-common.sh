@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh hpcg
 
 run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-hpcg \
