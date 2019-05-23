@@ -171,12 +171,6 @@ The name of the benchmark to extract data from. For example, if a given
 test ran kernbench and sysbench and the sysbench results were required
 then specify "-b sysbench".
 
-=item B<R, --R-summary>
-
-Path to a file containing table with summary produced by R, as produced
-by compare-mmtests-R.sh. Summarization by perl modules is skipped in the
-presence of R-based results.
-
 =item B<--format>
 
 Output format for the report. Valid options are html and text. By default
