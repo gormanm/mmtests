@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run perf-bench numa mem benchmark
 
-###SHELLPACK preamble perfnuma-bench 4.12
+###SHELLPACK preamble perfnuma-bench 5.1
 TESTTIME=15
 ITERATIONS=12
 TESTLIST=
@@ -17,7 +17,6 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-export PERFBUILD_ADD_SYSCALL=yes
 ###SHELLPACK check_external_install_required_continue perfbuild perfbuild-${VERSION} ${VERSION}
 
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin

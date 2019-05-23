@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run perf-bench futex benchmark
 
-###SHELLPACK preamble futexbench-bench 4.19
+###SHELLPACK preamble futexbench-bench 5.1
 TESTTIME=15
 ITERATIONS=12
 TESTLIST=
@@ -16,7 +16,6 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-export PERFBUILD_ADD_SYSCALL=yes
 ###SHELLPACK check_external_install_required perfbuild perfbuild-${VERSION} ${VERSION}
 
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
