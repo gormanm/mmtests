@@ -920,8 +920,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			done
 			echo "</tr>"
 			;;
-		ku_latency)
-			;;
 		libmicro)
 			;;
 		micro)
