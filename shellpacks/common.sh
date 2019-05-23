@@ -1058,7 +1058,7 @@ function have_monitor_results()
 	local contains=$3
 
 	if [ -z "$contains" ]; then
-		ls $runname/$monitor-* &>/dev/null
+		ls $runname/iter-*/$monitor-* &>/dev/null
 	else
 		# Here we grep all runnames to check whether event occured
 		# in any run

@@ -168,7 +168,7 @@ my @_fieldOrder = (
 
 sub initialise()
 {
-	my ($self, $reportDir, $testName) = @_;
+	my ($self, $subHeading) = @_;
 
 	$self->{_ExactSubheading} = 1;
 	$self->{_DataType} = DataTypes::DATA_ACTIONS;
