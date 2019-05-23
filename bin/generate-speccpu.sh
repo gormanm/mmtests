@@ -35,7 +35,6 @@ Usage: generate-speccpu.sh [options]
   --conf file  Read default configuration values from file
   --bitness    32/64 bitness (Default: $BITNESS)
   --emit-conf  Print detected values for later use by --conf
-  --monitor    Monitor these events as they occur (depends on vmregress)
   --hugepages-heaponly   Use hugepages in the configuration
   --hugepages-oldrelink  Use hugepages in the configuration
   --hugepages-newrelink  Use hugepages in the configuration
@@ -315,36 +314,6 @@ emit_sconf() {
 	echo "# Commented out as reportable runs ignore them, set env externally"
 	echo "## ENV_HUGETLB_MORECORE = yes"
 	echo "## ENV_HUGETLB_ELFMAP = RW"
-	echo
-}
-
-##
-# emit_monitor - Emit monitoring hooks
-emit_monitor() {
- 	EMIT_UPITER="echo iter >> /tmp/OPiter.\${lognum}.\${size_class}.\${benchmark}"
-	EMIT_LOCKBEFORE="echo no_lock_stat > /dev/null"
-	EMIT_LOCKAFTER="echo no_lock_stat > /dev/null"
-	EMIT_PROCBEFORE="gather-proc-info.sh \`dirname \${logname}\`/procinfo-before.\${lognum}.\${size_class}.iter\`cat /tmp/OPiter.\${lognum}.\${size_class}.\${benchmark} | wc -l\`.\${benchmark}.txt"
-	EMIT_PROCAFTER="gather-proc-info.sh \`dirname \${logname}\`/procinfo-after.\${lognum}.\${size_class}.iter\`cat /tmp/OPiter.\${lognum}.\${size_class}.\${benchmark} | wc -l\`.\${benchmark}.txt"
-	echo "## Monitor hooks"
-	if [ "$EVENTS" = "" ]; then
-		echo "monitor_pre_bench = $EMIT_UPITER; $EMIT_PROCBEFORE; $EMIT_LOCKBEFORE"
-		echo "monitor_post_bench = $EMIT_PROCAFTER; $EMIT_LOCKAFTER"
-		return
-	fi
-
-	if [ "`which opcontrol`" = "" ]; then
-		die oprofile not installed
-	fi
-	EVENT=
-	for i in $EVENTS; do
-		EVENT="$EVENT --event $i"
-	done
-	EMIT_OPSTART="oprofile_start.sh --sample-cycle-factor $SAMPLE_CYCLE_FACTOR --sample-event-factor $SAMPLE_EVENT_FACTOR $EVENT"
-	EMIT_OPREPORT="opcontrol --stop ; oprofile_report.sh > \`dirname \${logname}\`/OP.\${lognum}.\${size_class}.iter\`cat /tmp/OPiter.\${lognum}.\${size_class}.\${benchmark} | wc -l\`.\${benchmark}.txt"
-
-	echo "monitor_pre_bench = $EMIT_UPITER; $EMIT_PROCBEFORE; $EMIT_LOCKBEFORE; $EMIT_OPSTART"
-	echo "monitor_post_bench = $EMIT_PROCAFTER; $EMIT_LOCKAFTER; $EMIT_OPREPORT"
 	echo
 }
 
