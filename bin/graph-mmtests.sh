@@ -110,10 +110,6 @@ while [ "$1" != "" ]; do
 		SORT_REVERSE=yes
 		shift
 		;;
-	--R)
-		USE_R="yes"
-		shift
-		;;
 	-b)
 		SUBREPORT="$2"
 		EXTRACT_ARGS="$EXTRACT_ARGS $1 $2"
@@ -163,61 +159,44 @@ done
 if [ "$PLOTTYPE_OVERRIDE" != "" ]; then
 	PLOTTYPE="--plottype $PLOTTYPE_OVERRIDE"
 fi
-if [ "$SEPARATE_TESTS" != "" ] && [ "$USE_R" == "" ]; then
-	echo "--separate-tests only supported together with --R" >&2
-	exit 1
-fi
-
-# This is far from ideal...
-R_SUPPORTED_PLOTTYPES="boxplot candlestick candlesticks run-sequence"
-if [[ -n "$USE_R" && $R_SUPPORTED_PLOTTYPES =~ $PLOTTYPE ]]; then
-	echo "Plottype $PLOTTYPE not supported by R, fallback to Perl" >&2
-	USE_R=""
-fi
 
 TITLES=
 COUNT=0
 for TEST in $TEST_LIST; do
-	if [ "$USE_R" != "" ]; then
-		PLOTFILE="$R_TMPDIR/$SUBREPORT-$TEST"
-		if [ ! -f "$R_TMPDIR/$SUBREPORT.Rdata" ]; then
-			eval $SCRIPTDIR/cache-mmtests.sh $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-header > $PLOTFILE || exit
-		fi
-	else
-		PLOTFILE="$TMPDIR/$TEST"
-		eval $SCRIPTDIR/cache-mmtests.sh $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | \
-			grep -v nan 		| \
-			sed -e 's/_/\\\\_/g'	  \
-			> $PLOTFILE || exit
+	PLOTFILE="$TMPDIR/$TEST"
+	eval $SCRIPTDIR/cache-mmtests.sh $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | \
+		grep -v nan 		| \
+		sed -e 's/_/\\\\_/g'	  \
+		> $PLOTFILE || exit
 
-		NR_SAMPLES=`cat $PLOTFILE | wc -l`
+	NR_SAMPLES=`cat $PLOTFILE | wc -l`
 
-		if [ "$SORT_SAMPLES" = "yes" ]; then
-			NR_SAMPLE=0
-			SORT_SWITCH=
-			if [ "$SORT_REVERSE" = "yes" ]; then
-				SORT_SWITCH=-r
-			fi
-			if [ "$SORT_PERCENTAGES" = "" ]; then
-				sort $SORT_SWITCH -k2 -n $PLOTFILE | awk '{print NR" "$2}' > $PLOTFILE.tmp
-			else
-				sort $SORT_SWITCH -k2 -n $PLOTFILE | awk "{print (NR*100/$NR_SAMPLES)\" \"\$2}" > $PLOTFILE.tmp
-			fi
-			mv $PLOTFILE.tmp $PLOTFILE
+	if [ "$SORT_SAMPLES" = "yes" ]; then
+		NR_SAMPLE=0
+		SORT_SWITCH=
+		if [ "$SORT_REVERSE" = "yes" ]; then
+			SORT_SWITCH=-r
 		fi
-
-		if [ "$GRAPH_DEBUG" = "yes" ]; then
-			echo TRACE: $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot
-			echo TRACE: Writing /tmp/lastplot
-			cp $PLOTFILE /tmp/lastplot
+		if [ "$SORT_PERCENTAGES" = "" ]; then
+			sort $SORT_SWITCH -k2 -n $PLOTFILE | awk '{print NR" "$2}' > $PLOTFILE.tmp
+		else
+			sort $SORT_SWITCH -k2 -n $PLOTFILE | awk "{print (NR*100/$NR_SAMPLES)\" \"\$2}" > $PLOTFILE.tmp
 		fi
-		if [ "$PLOTTYPE" = "--operation-candlesticks" ]; then
-			OFFSET=`perl -e "print (1+$COUNT*0.3)"`
-			awk "\$1=(\$1+$COUNT*0.3)" $PLOTFILE > $PLOTFILE.tmp
-			mv $PLOTFILE.tmp $PLOTFILE
-			COUNT=$((COUNT+1))
-		fi
+		mv $PLOTFILE.tmp $PLOTFILE
 	fi
+
+	if [ "$GRAPH_DEBUG" = "yes" ]; then
+		echo TRACE: $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot
+		echo TRACE: Writing /tmp/lastplot
+		cp $PLOTFILE /tmp/lastplot
+	fi
+	if [ "$PLOTTYPE" = "--operation-candlesticks" ]; then
+		OFFSET=`perl -e "print (1+$COUNT*0.3)"`
+		awk "\$1=(\$1+$COUNT*0.3)" $PLOTFILE > $PLOTFILE.tmp
+		mv $PLOTFILE.tmp $PLOTFILE
+		COUNT=$((COUNT+1))
+	fi
+
 	if [ `wc -l $PLOTFILE | awk '{print $1}'` -eq 0 ]; then
 		continue
 	fi
@@ -246,7 +225,6 @@ if [ "$FORCE_Y_LABEL" != "" ]; then
 fi
 
 PLOTSCRIPTS="plot"
-[ "$USE_R" != "" ] && PLOTSCRIPTS="plot-R plot"
 
 [ "$TITLES" == "" ] && exit 0
 

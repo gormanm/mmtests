@@ -50,10 +50,6 @@ while [ "$1" != "" ]; do
 		SORT_VERSION=yes
 		shift
 		;;
-	--R)
-		USE_R="--R"
-		shift
-		;;
 	--plot-details)
 		PLOT_DETAILS="yes"
 		shift
@@ -98,13 +94,6 @@ cleanup() {
 	fi
 	exit
 }
-
-if [ "$USE_R" != "" ]; then
-	export R_TMPDIR="`mktemp -d`"
-	trap cleanup EXIT
-	trap cleanup INT
-	trap cleanup TERM
-fi
 
 FORMAT_CMD=
 if [ "$FORMAT" != "" ]; then
@@ -478,9 +467,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	COMPARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD $AUTO_DETECT_SIGNIFICANCE"
 	COMPARE_BARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
 	COMPARE_R_CMD="compare-mmtests-R.sh -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
-	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format png"
+	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
 	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
-		GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST $USE_R --format \"postscript color solid\""
+		GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format \"postscript color solid\""
 	else
 		GRAPH_PSC="#"
 	fi
@@ -702,12 +691,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		;;
 	*)
 		echo $SUBREPORT
-		# Try R if requested, fallback to perl when datatype is unsupported
-		if [ "$USE_R" != "" ]; then
-			eval $COMPARE_R_CMD
-		else
-			false
-		fi || eval $COMPARE_CMD
+		eval $COMPARE_CMD
 	esac
 	echo
 	eval $COMPARE_CMD --print-monitor duration
@@ -1204,10 +1188,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		*)
 			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png
 			eval $GRAPH_PSC --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps
-			if [ "$USE_R" != "" ]; then
-				eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.png --smooth
-				eval $GRAPH_PSC --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.ps --smooth
-			fi
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT.png ]; then
 				if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.png ]; then
 					smoothover graph-$SUBREPORT
