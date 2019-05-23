@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs mariadb and leaves it ready for benchmarking
-###SHELLPACK preamble mariadbbuild-bench 10.2.14
+###SHELLPACK preamble mariadbbuild-bench 10.3.15
 MARIADB_USER=nobody
 MARIADB_GROUP=nogroup
 MARIADB_ADMIN_USER=root
@@ -77,7 +77,7 @@ if [ "$SERVER_START" = "yes" ]; then
 	echo $GROUPID > /proc/sys/vm/hugetlb_shm_group
 
 	# Update the memory configurations
-	update_entry_cnf key_buffer_size $SHARED_BUFFERS
+	# update_entry_cnf key_buffer_size $SHARED_BUFFERS
 
 	# Configure shmem parameters
 	echo $SHARED_BUFFERS > /proc/sys/kernel/shmmax

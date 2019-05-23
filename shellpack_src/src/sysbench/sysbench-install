@@ -17,7 +17,7 @@ MIRROR_LOCATION=$WEBROOT/sysbench
 case $DBDRIVER in
 mariadb)
 	echo Checking mariadb installation
-	DBDRIVER_VERSION=10.2.14
+	DBDRIVER_VERSION=10.3.15
 	CONFIGURE_ARGS=
 	;;
 postgres)
@@ -31,6 +31,7 @@ postgres)
 esac
 
 # Build database and start it for sysbench config
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh ${DBDRIVER}build
 $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
         --effective_cachesize $((MEMTOTAL_BYTES*6/10)) \
         --shared_buffers $((MEMTOTAL_BYTES/4)) \

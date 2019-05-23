@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs mariadb and leaves it ready for benchmarking
-###SHELLPACK preamble mariadb-install 10.2.14
+###SHELLPACK preamble mariadb-install 10.3.15
 
 MARIADB_USER=nobody
 MARIADB_GROUP=nogroup
@@ -51,19 +51,24 @@ echo Initialising database for user $MARIADB_USER
 chmod a+x $HOME
 cd $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed || die Failed to change to installation directory.
 mkdir -p $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/etc
-cp support-files/my-huge.cnf $MARIADB_CONF || die Failed to copy support-files/my-huge.cnf template
-scripts/mysql_install_db --user=$MARIADB_USER --datadir=$MARIADB_DATADIR || die Failed to run mysql_install_db script
+mkdir -p /etc/mysql/conf.d/
+mkdir -p /var/log/mysql/
+
+# cp $SHELLPACK_SOURCES/mariadbbuild-${VERSION}/debian/additions/my.cnf $MARIADB_CONF || die "Failed to copy debian/additions/my.cnf template"
+scripts/mysql_install_db --user=$MARIADB_USER --basedir=`pwd` --datadir=$MARIADB_DATADIR || die Failed to run mysql_install_db script
 
 # Update the max connection count if necessary
-update_entry_cnf thread_concurrency $((NUMCPUS*2))
+# update_entry_cnf thread_concurrency $((NUMCPUS*2))
 
 # Write user directive
-HEAD=`grep -n "\[mysqld\]" $MARIADB_CONF | awk -F : '{print $1}'`
-LINECOUNT=`wc -l $MARIADB_CONF | awk '{print $1}'`
-head -$HEAD $MARIADB_CONF > ${MARIADB_CONF}.tmp
-echo "user = $MARIADB_USER" >> ${MARIADB_CONF}.tmp
-tail -$((LINECOUNT-HEAD)) $MARIADB_CONF >> ${MARIADB_CONF}.tmp
-mv ${MARIADB_CONF}.tmp $MARIADB_CONF
+# HEAD=`grep -n "\[mysqld\]" $MARIADB_CONF | awk -F : '{print $1}'`
+# LINECOUNT=`wc -l $MARIADB_CONF | awk '{print $1}'`
+# head -$HEAD $MARIADB_CONF > ${MARIADB_CONF}.tmp
+# echo "user = $MARIADB_USER" >> ${MARIADB_CONF}.tmp
+# tail -$((LINECOUNT-HEAD)) $MARIADB_CONF >> ${MARIADB_CONF}.tmp
+# mv ${MARIADB_CONF}.tmp $MARIADB_CONF
+echo "[mysqld]" > $MARIADB_CONF
+echo "user = nobody" >> $MARIADB_CONF
 
 echo mariadb successfully installed
 exit $SHELLPACK_SUCCESS
