@@ -551,15 +551,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		echo $SUBREPORT CPU-Time
 		eval $COMPARE_CMD --sub-heading elapsed
 		;;
-	mediawikibuild)
-		echo $SUBREPORT WikiMedia import pages/sec
-		eval $COMPARE_CMD
-
-		echo
-		echo $SUBREPORT Data import times
-		cache-mmtests.sh compare-mmtests.pl -d . -b mediawikibuildloadtime -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		;;
 	monitor)
 		echo No meaningful extraction script for monitor
 		echo
