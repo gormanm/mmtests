@@ -46,13 +46,8 @@ sub extractReport() {
 				next;
 			}
 
-			if ($line =~ /Insufficient free space/) {
-				$enospace = 1;
-			}
-
-			if ($enospace) {
-				next;
-			}
+			next if ($line =~ /Insufficient free space/);
+			next if ($line =~ /No space/);
 
 			my @elements = split(/\s+/, $_);
 			$self->addData("$client-files/sec", ++$iteration, $elements[4]);
