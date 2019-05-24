@@ -139,6 +139,10 @@ function start_deferred_monitors()
 	local _monitor
 	local _arg
 
+	if [ "$MONITORS_TO_DEFER" = "" ]; then
+		return
+	fi
+
 	if [ -n "$1" ]
 	then
 		create_monitor_dir -d -t "$1"
