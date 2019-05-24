@@ -924,7 +924,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			generate_basic_single "$SUBREPORT Throughput" "--logX"
 			echo "</tr>"
 			;;
-		netperf-udp|netperfmulti-udp)
+		netperf-udp)
 			echo "<tr>"
 			eval $GRAPH_PNG --xrange 16:32768 --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send.png
 			eval $GRAPH_PSC --xrange 16:32768 --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send.ps
@@ -934,7 +934,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			plain graph-$SUBREPORT-recv
 			echo "</tr>"
 			;;
-		netperf-tcp|netperf-udp-rr|netperf-tcp-rr|netperfmulti-tcp|netperfmulti-udp-rr|netperfmulti-tcp-rr)
+		netperf-tcp|netperf-udp-rr|netperf-tcp-rr)
 			generate_basic "$SUBREPORT" "--logX --xrange 16:32768"
 			;;
 		pagealloc)
