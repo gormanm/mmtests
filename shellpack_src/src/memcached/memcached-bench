@@ -11,9 +11,10 @@ install-depends libevent-devel
 INSTALL_SWITCH=
 ###SHELLPACK init_only_start
 	INSTALL_SWITCH=--install-only
-###SHELLPACK init_only_end
+###SHELLPACK init_only_continue
 
 ###SHELLPACK check_install_required_continue memcached-${VERSION} $INSTALL_SWITCH
+###SHELLPACK init_complete
 
 echo memcached successfully installed
 exit $SHELLPACK_SUCCESS

@@ -36,12 +36,13 @@ OLTP_TESTTYPE=complex
 
 # Always scrub sources as the benchmark in question does not properly
 # reinitialise itself if the data partitions gets scrubbed
-if [ "$INSTALL_ONLY" = "yes" ]; then
+###SHELLPACK init_only_start
 	rm -rf $SHELLPACK_SOURCES/mariadb*
 	rm -rf $SHELLPACK_SOURCES/sysbench*
-fi
+###SHELLPACK init_only_continue
 
 ###SHELLPACK check_install_required sysbench-${VERSION} --dbdriver ${DBDRIVER}
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh ${DBDRIVER}build
 $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 ###SHELLPACK init_complete
 

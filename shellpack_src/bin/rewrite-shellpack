@@ -431,6 +431,11 @@ EOC
 	exit \$SHELLPACK_SUCCESS
 fi
 EOC
+	} elsif ($command eq "init_only_continue") {
+		print <<EOC
+	echo Initialisation step complete, continuing
+fi
+EOC
 	} elsif ($command eq "init_complete") {
 		print <<EOC
 if [ "\$INSTALL_ONLY" = "yes" ]; then

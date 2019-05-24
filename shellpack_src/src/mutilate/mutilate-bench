@@ -20,9 +20,9 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
 if [ $? -ne 0 ]; then
 	die Failed to start memcached server
 fi
-###SHELLPACK init_only_end
 
 ###SHELLPACK check_install_required mutilate-${VERSION}
+###SHELLPACK init_only_end
 
 if [ "$MEMCACHED_MEMPOOL" = "" ]; then
 	die Must specify memcached memory pool size

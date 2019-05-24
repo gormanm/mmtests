@@ -37,10 +37,10 @@ MIN_THREADS=1
 # reinitialise itself if the data partitions gets scrubbed
 ###SHELLPACK init_only_start
 	rm -rf $SHELLPACK_SOURCES/postgres*
-###SHELLPACK init_only_end
+	$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh postgresbuild
+###SHELLPACK init_only_continue
 
 echo Copying database configuration
-cp $SHELLPACK_DATA/pgdata/postgresql.conf $LOGDIR_RESULTS
 export PGHOST=127.0.0.1
 export PGPORT=5432
 export PATH=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin:$PATH
@@ -122,6 +122,7 @@ fi
 ###SHELLPACK init_only_end
 
 echo Running pgbench
+cp $SHELLPACK_DATA/pgdata/postgresql.conf $LOGDIR_RESULTS
 echo o maximum $MAX_THREADS threads
 echo o scale factor: $SCALE_FACTOR 
 echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
