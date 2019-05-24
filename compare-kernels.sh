@@ -672,13 +672,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		cache-mmtests.sh compare-mmtests.pl -d . -b ${SUBREPORT}counts -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	tiobench)
-		echo $SUBREPORT Throughput
-		$COMPARE_CMD
-		echo
-		echo $SUBREPORT average and max operation latencies
-		cache-mmtests.sh compare-mmtests.pl -d . -b tiobenchlatency -n $KERNEL_LIST $FORMAT_CMD
-		;;
 	xfsio)
 		echo $SUBREPORT Time
 		$COMPARE_CMD
@@ -1098,15 +1091,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 				eval $GRAPH_PNG        -b thpscale --title \"$SUBREPORT $SIZE\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$SIZE.png --sub-heading $SIZE
 				eval $GRAPH_PSC        -b thpscale --title \"$SUBREPORT $SIZE\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$SIZE.ps --sub-heading $SIZE
 				plain graph-$SUBREPORT-$SIZE
-			done
-			echo "</tr>"
-			;;
-		tiobench)
-			echo "<tr>"
-			for HEADING in SeqRead SeqWrite RandRead RandWrite ; do
-				eval $GRAPH_PNG --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				eval $GRAPH_PSC --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
-				plain graph-$SUBREPORT-$HEADING
 			done
 			echo "</tr>"
 			;;

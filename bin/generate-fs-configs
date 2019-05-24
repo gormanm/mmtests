@@ -45,7 +45,6 @@ config-global-dhp__io-bonnie-dir-fsync
 "
 
 FSCONFIGS="
-config-global-dhp__io-threaded
 config-global-dhp__io-metadata
 config-global-dhp__io-dbench4-async
 config-global-dhp__io-dbench4-fsync
