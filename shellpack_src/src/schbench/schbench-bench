@@ -18,6 +18,7 @@ SCHBENCH_ITERATIONS=1
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required schbench-${VERSION}
+###SHELLPACK init_complete
 
 ###SHELLPACK threads_powertwo_begin 1 $SCHBENCH_THREADS
 	mmtests_activity $NR_THREADS

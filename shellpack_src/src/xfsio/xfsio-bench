@@ -10,6 +10,7 @@
 ###SHELLPACK monitor_hooks
 
 install-depends xfsprogs
+###SHELLPACK init_complete
 
 XFSIO_TESTCASES=`echo $XFSIO_TESTCASES | tr ',' ' '`
 

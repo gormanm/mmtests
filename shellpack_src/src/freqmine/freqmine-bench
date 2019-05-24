@@ -16,6 +16,7 @@ TESTLIST=
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required freqmine-${VERSION}
+###SHELLPACK init_complete
 
 ###SHELLPACK threads_large_stride_begin $FREQMINE_MIN_THREADS $FREQMINE_MAX_THREADS $FREQMINE_ITERATIONS
 	for SIZE in $FREQMINE_SIZE; do

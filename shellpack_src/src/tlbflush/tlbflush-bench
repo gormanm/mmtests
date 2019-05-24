@@ -16,6 +16,7 @@ TLBFLUSH_ITERATIONS=200
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required tlbflush-${VERSION}
+###SHELLPACK init_complete
 
 EXIT_CODE=$SHELLPACK_SUCCESS
 

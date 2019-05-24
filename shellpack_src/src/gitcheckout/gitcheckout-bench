@@ -21,25 +21,27 @@ GITCHECKOUT_SOURCETAR=
 install-depends git-core
 
 # Get the git repository
-pushd $SHELLPACK_DATA > /dev/null
-if [ "$GITCHECKOUT_SOURCETAR" != "" -a "$GITCHECKOUT_SOURCETAR" != "none" ]; then
-	echo Using $GITCHECKOUT_SOURCETAR
-	wget -q -O gitcheckout.tar.gz $GITCHECKOUT_SOURCETAR
-	if [ $? -ne 0 ]; then
-		rm -f gitcheckout.tar.gz
+###SHELLPACK init_only_start
+	pushd $SHELLPACK_DATA > /dev/null
+	if [ "$GITCHECKOUT_SOURCETAR" != "" -a "$GITCHECKOUT_SOURCETAR" != "none" ]; then
+		echo Using $GITCHECKOUT_SOURCETAR
+		wget -q -O gitcheckout.tar.gz $GITCHECKOUT_SOURCETAR
+		if [ $? -ne 0 ]; then
+			rm -f gitcheckout.tar.gz
+		fi
 	fi
-fi
-if [ -e gitcheckout.tar.gz ]; then
-	tar -xf gitcheckout.tar.gz
-	if [ $? -ne 0 ]; then
-		die "$P: tar xf gitcheckout.tar.gz failed"
+	if [ -e gitcheckout.tar.gz ]; then
+		tar -xf gitcheckout.tar.gz
+		if [ $? -ne 0 ]; then
+			die "$P: tar xf gitcheckout.tar.gz failed"
+		fi
+		DST_DIR=`tar tf gitcheckout.tar.gz | head -n 1 | awk -F / '{print $1}'`
+		mv $DST_DIR gitcheckout
+	else
+		echo Cloning $GITCHECKOUT_SOURCE
+		git clone $GITCHECKOUT_SOURCE gitcheckout || exit $SHELLPACK_ERROR
 	fi
-	DST_DIR=`tar tf gitcheckout.tar.gz | head -n 1 | awk -F / '{print $1}'`
-	mv $DST_DIR gitcheckout
-else
-	echo Cloning $GITCHECKOUT_SOURCE
-	git clone $GITCHECKOUT_SOURCE gitcheckout || exit $SHELLPACK_ERROR
-fi
+###SHELLPACK init_only_end
 
 GITCHECKOUT_COMMITS=`echo $GITCHECKOUT_COMMITS | sed -e 's/,/ /g'`
 sysctl -w vm.drop_caches=3

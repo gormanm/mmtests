@@ -24,6 +24,7 @@ ITERATIONS=12
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required simoop-${VERSION}
+###SHELLPACK init_complete
 
 # Create benchmark directories
 SIMOOP_DIRECTORIES=

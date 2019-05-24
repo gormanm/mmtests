@@ -19,6 +19,7 @@ if [ $? -ne 0 ]; then
 fi
 
 ###SHELLPACK check_install_required memcachetest-${VERSION}
+###SHELLPACK init_complete
 
 if [ "$MEMCACHED_MEMPOOL" = "" ]; then
 	die Must specify memcached memory pool size

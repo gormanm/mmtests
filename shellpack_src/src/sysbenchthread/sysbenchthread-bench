@@ -9,6 +9,8 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required sysbenchthread-${VERSION}
+###SHELLPACK init_complete
+
 export PATH=$SHELLPACK_SOURCES/sysbenchthread-${VERSION}-installed/bin:$PATH
 
 ###SHELLPACK threads_large_stride_begin 1 $MAX_THREADS

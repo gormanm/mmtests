@@ -9,9 +9,9 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required lmbench-${VERSION}
+###SHELLPACK init_complete
 
-
-cd $SHELLPACK_SOURCES/lmbench-${VERSION}-installed || die Failed to cd to lmbench directory
+cd $SHELLPACK_SOURCES/lmbench-${VERSION}-installed || die "Failed to cd to lmbench directory"
 for LMBENCH_TEST in $LMBENCH_TESTS; do
 	# Prepare test
 	case $LMBENCH_TEST in

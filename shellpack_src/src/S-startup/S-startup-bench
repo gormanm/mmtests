@@ -9,6 +9,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required S-startup-${VERSION}
+###SHELLPACK init_complete
 
 if [ "$SUDO_USER" != "" ]; then
 	CONF_DEST_DIR=/home/$SUDO_USER

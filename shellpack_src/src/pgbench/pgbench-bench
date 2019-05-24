@@ -35,9 +35,9 @@ MIN_THREADS=1
 
 # Always scrub sources as the benchmark in question does not properly
 # reinitialise itself if the data partitions gets scrubbed
-if [ "$INSTALL_ONLY" = "yes" ]; then
+###SHELLPACK init_only_start
 	rm -rf $SHELLPACK_SOURCES/postgres*
-fi
+###SHELLPACK init_only_end
 
 echo Copying database configuration
 cp $SHELLPACK_DATA/pgdata/postgresql.conf $LOGDIR_RESULTS
@@ -106,7 +106,7 @@ if [ "$READONLY" = "yes" ]; then
 	READONLY_ARG=-S
 fi
 
-if [ "$INSTALL_ONLY" = "yes" ]; then
+###SHELLPACK init_only_start
 	echo Starting database for first time as part of init
 	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
 		--effective_cachesize $EFFECTIVE_CACHESIZE \
@@ -119,7 +119,7 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 
 	echo pgbench installed only as requested
 	exit $SHELLPACK_SUCCESS
-fi
+###SHELLPACK init_only_end
 
 echo Running pgbench
 echo o maximum $MAX_THREADS threads

@@ -11,6 +11,7 @@ LTP_RUN_TESTS="controllers"
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required ltp-${VERSION}
+###SHELLPACK init_complete
 
 grep -v oom runtest/mm > runtest/mm-lite
 grep -v fanotify runtest/syscalls > runtest/syscalls-lite

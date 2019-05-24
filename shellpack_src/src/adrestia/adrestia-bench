@@ -15,6 +15,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required adrestia-${VERSION}
+###SHELLPACK init_complete
 
 # The single test doesn't use arrival time or multiple threads, so
 # avoid needless iterations.

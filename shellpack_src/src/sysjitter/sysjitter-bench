@@ -9,6 +9,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required sysjitter-${VERSION}
+###SHELLPACK init_complete
 
 cd $SHELLPACK_SOURCES/sysjitter-${VERSION}-installed
 

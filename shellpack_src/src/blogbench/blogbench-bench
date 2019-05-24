@@ -8,6 +8,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required phpbench-${VERSION}
+###SHELLPACK init_complete
 
 monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $BLOGBENCH_ITERATIONS

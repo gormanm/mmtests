@@ -15,6 +15,7 @@ fi
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required netpipe-${VERSION}
+###SHELLPACK init_complete
 
 export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-netpipe
 case $SERVERSIDE_COMMAND in

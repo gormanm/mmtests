@@ -8,6 +8,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required pft-${VERSION}
+###SHELLPACK init_complete
 
 PFT_CLIENT_SWITCH=-t
 if [ "$PFT_USE_PROCESSES" = "yes" ]; then

@@ -16,6 +16,7 @@ SYSCALL=
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required trinity-${VERSION}
+###SHELLPACK init_complete
 
 GROUP_PARAM=
 if [ "$GROUP" != "" ]; then

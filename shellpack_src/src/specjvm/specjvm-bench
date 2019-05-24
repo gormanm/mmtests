@@ -30,6 +30,7 @@ if [ ! \( -e $SHELLPACK_SOURCES/specjvm \) ]; then
   	$SHELLPACK_INCLUDE/shellpack-install-specjvm
 	check_status "$P: Installing specjvm"
 fi
+###SHELLPACK init_complete
 
 # Ensure everything is where it is expected to be
 pushd $SHELLPACK_SOURCES/specjvm > /dev/null || die Failed to cd to specjvm

@@ -21,6 +21,7 @@ FILESIZE=0
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required fsmark-${VERSION}
+###SHELLPACK init_complete
 
 ln -s $SHELLPACK_DATA /tmp/fsmark-$$
 

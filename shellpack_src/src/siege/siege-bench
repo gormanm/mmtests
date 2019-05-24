@@ -12,12 +12,11 @@ ITER_REPS=150
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-echo Shutting down apache server...
-$SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die Failed to shutdown apache http server for restart.
 ###SHELLPACK check_install_required siege-${VERSION}
-
 echo Shutting down apache server...
 $SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die Failed to shutdown apache http server for restart.
+###SHELLPACK init_complete
+
 echo Starting apache server...
 $SHELLPACK_INCLUDE/shellpack-bench-apachebuild --start || die Failed to start apache http server.
 sleep 5

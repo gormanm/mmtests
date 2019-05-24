@@ -9,9 +9,9 @@ install-depends libevent-devel
 ###SHELLPACK parseargEnd
 
 INSTALL_SWITCH=
-if [ "$INSTALL_ONLY" = "yes" ]; then
+###SHELLPACK init_only_start
 	INSTALL_SWITCH=--install-only
-fi
+###SHELLPACK init_only_end
 
 ###SHELLPACK check_install_required_continue memcached-${VERSION} $INSTALL_SWITCH
 

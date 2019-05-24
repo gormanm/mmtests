@@ -12,6 +12,7 @@ MPIOPT="--allow-run-as-root -mca btl ^openib,udapl"
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required hpcc-${VERSION}
+###SHELLPACK init_complete
 
 round_down_power_2_cpus() {
 	POWER=1

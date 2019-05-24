@@ -30,5 +30,6 @@ for PACKAGE in $PACKAGES; do
 	parsecmgmt -a build -p $PACKAGE -c $PARSEC_PARALLEL || die "Failed to build package $PACKAGE"
 done
 
+###SHELLPACK init_complete
 echo Parsec successfully built
 exit $SHELLPACK_SUCCESS

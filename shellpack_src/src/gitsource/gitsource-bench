@@ -11,7 +11,9 @@
 
 ###SHELLPACK check_install_required gitsource-${VERSION}
 
+###SHELLPACK init_only_start
 cp -ar $SHELLPACK_SOURCES/gitsource-${VERSION}-installed $SHELLPACK_DATA || die Failed to copy gitsource-$VERSION-installed
+###SHELLPACK init_only_end
 
 cd $SHELLPACK_DATA/gitsource-${VERSION}-installed || die Failed to cd to gitsource-$VERSION-installed
 

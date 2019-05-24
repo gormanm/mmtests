@@ -17,6 +17,7 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 fi
 
 ###SHELLPACK check_install_required specjbb-${VERSION}
+###SHELLPACK init_complete
 
 export PATH=$SPECJBB_JRE:$PATH
 STARTING_HUGEPAGES=`cat /proc/sys/vm/nr_hugepages`

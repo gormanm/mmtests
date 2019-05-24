@@ -15,6 +15,7 @@ RUNTIME=30
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required sembench-${VERSION}
+###SHELLPACK init_complete
 
 echo $SEMBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 

@@ -14,6 +14,7 @@ MPIOPT=
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required hpcg-${VERSION}
+###SHELLPACK init_complete
 
 TEMPLATE=
 template_set_param() {

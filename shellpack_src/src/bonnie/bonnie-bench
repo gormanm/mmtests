@@ -21,6 +21,7 @@ FSYNC_PARAM=
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required bonnie-${VERSION}
+###SHELLPACK init_complete
 
 DIRTEST_PARAM="-n 0"
 FILETEST_PARAM="-s 0"

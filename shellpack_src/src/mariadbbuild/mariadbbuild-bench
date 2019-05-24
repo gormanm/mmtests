@@ -98,5 +98,6 @@ if [ "$SERVER_START" = "yes" ]; then
 	./bin/mysqladmin -u $MARIADB_ADMIN_USER password $MARIADB_ADMIN_PASSWORD
 fi
 
+###SHELLPACK init_complete
 echo mariadb operation successful
 exit $SHELLPACK_SUCCESS

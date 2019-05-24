@@ -122,5 +122,6 @@ if [ "$SERVER_START" = "yes" ]; then
 	echo
 fi
 
+###SHELLPACK init_complete
 echo postgres operation successful
 exit $SHELLPACK_SUCCESS

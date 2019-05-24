@@ -17,6 +17,7 @@ MADV_HUGEPAGE=0
 
 ###SHELLPACK check_external_install_required fio fio-${VERSION} ${VERSION}
 ###SHELLPACK check_install_required thpfioscale-${VERSION}
+###SHELLPACK init_complete
 
 if [ "$THPFIOSCALE_MADV_HUGEPAGE" = "yes" ]; then
 	MADV_HUGEPAGE=1

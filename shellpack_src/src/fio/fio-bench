@@ -19,6 +19,7 @@ FIO_CMD_OPTIONS=
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required fio-${VERSION}
+###SHELLPACK init_complete
 
 FIO_IO_PATTERNS="write read rw randread randwrite randrw"
 

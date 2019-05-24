@@ -11,6 +11,7 @@
 
 echo Shutting down apache server...
 $SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die Failed to shutdown apache http server
+###SHELLPACK init_complete
 
 sed -i -e 's/return TRUE/return FALSE/' $SHELLPACK_SOURCES/phpbench-${VERSION}-installed/tests/test_arithmetic.php
 sed -i -e 's/return TRUE/return FALSE/' $SHELLPACK_SOURCES/phpbench-${VERSION}-installed/tests/test_casting.php

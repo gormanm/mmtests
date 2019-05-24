@@ -16,28 +16,28 @@ MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS))
 
 ###SHELLPACK init_only_start
-pushd $SHELLPACK_DATA > /dev/null
-rm -f ./linux-$VERSION.tar.gz
-sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
-tar xf linux-$VERSION.tar.gz || die Failed to extract
-cd linux-$VERSION || die Unexpected layout
+	pushd $SHELLPACK_DATA > /dev/null
+	rm -f ./linux-$VERSION.tar.gz
+	sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
+	tar xf linux-$VERSION.tar.gz || die Failed to extract
+	cd linux-$VERSION || die Unexpected layout
+
+	# Configure
+	cd $SHELLPACK_DATA/linux-$VERSION
+	yes '' | make defconfig > /dev/null 2>&1 || die Failed to make defconfig
+	make -j$THREADS clean > /dev/null
+
+	if [ "`uname -m`" = "aarch64" ]; then
+		echo Removing broken entry from aarch64 defconfig
+		sed -i -e '/CONFIG_CRYPTO_CRC32_ARM64/d' .config
+		echo "# CONFIG_CRYPTO_CRC32_ARM64 is not set" >> .config
+		yes '' | make oldconfig
+	fi
+
+	echo Warming run
+	make -j$THREADS vmlinux > /dev/null 2>&1 || die Failed to build vmlinux
+	make clean >/dev/null
 ###SHELLPACK init_only_end
-
-# Configure
-cd $SHELLPACK_DATA/linux-$VERSION
-yes '' | make defconfig > /dev/null 2>&1 || die Failed to make defconfig
-make -j$THREADS clean > /dev/null
-
-if [ "`uname -m`" = "aarch64" ]; then
-	echo Removing broken entry from aarch64 defconfig
-	sed -i -e '/CONFIG_CRYPTO_CRC32_ARM64/d' .config
-	echo "# CONFIG_CRYPTO_CRC32_ARM64 is not set" >> .config
-	yes '' | make oldconfig
-fi
-
-echo Warming run
-make -j$THREADS vmlinux > /dev/null 2>&1 || die Failed to build vmlinux
-make clean >/dev/null
 
 # Build pass
 ###SHELLPACK threads_powertwo_begin $KERNBENCH_MIN_THREADS $KERNBENCH_MAX_THREADS $KERNBENCH_ITERATIONS

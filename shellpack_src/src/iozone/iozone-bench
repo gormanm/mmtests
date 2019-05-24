@@ -8,6 +8,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required iozone-${VERSION}
+###SHELLPACK init_complete
 
 if [ -z "$IOZONE_MAX_SIZE" ]; then
 	IOZONE_MAX_SIZE=$((MEMTOTAL_BYTES*2))

@@ -18,6 +18,7 @@
 ###SHELLPACK parseargParam --workload-duration PARALLELIO_WORKLOAD_DURATION
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
+###SHELLPACK init_complete
 
 # Warmup runs
 for WORKLOAD in $PARALLELIO_WORKLOADS; do

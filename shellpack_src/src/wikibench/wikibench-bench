@@ -31,6 +31,7 @@ APACHE_VERSION=2.4.39
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required wikibench-${VERSION}
+###SHELLPACK init_complete
 
 if [ ! -e $JAVA_HOME ]; then
 	install-depends java-1_7_0-openjdk

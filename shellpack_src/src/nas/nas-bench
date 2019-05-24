@@ -65,6 +65,7 @@ fi
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required nas-$VERSION
+###SHELLPACK init_complete
 
 JOBLIST="bt cg dc ep ft is lu mg sp ua"
 if [ "$NAS_JOBLIST" != "" ]; then

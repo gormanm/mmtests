@@ -17,6 +17,7 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required unixbench-${VERSION}
+###SHELLPACK init_complete
 
 echo $UNIXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 

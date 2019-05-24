@@ -17,6 +17,7 @@ install-depends dmidecode
 
 rm -rf $SHELLPACK_SOURCES/specjbb*
 ###SHELLPACK check_install_required specjbb-${VERSION}
+###SHELLPACK init_complete
 
 export PATH=$SPECJBB_JRE:$PATH
 STARTING_HUGEPAGES=`cat /proc/sys/vm/nr_hugepages`

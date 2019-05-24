@@ -6,6 +6,7 @@
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required lhcs-${VERSION}
+###SHELLPACK init_complete
 
 # Run test
 cd $SHELLPACK_SOURCES/lhcs-${VERSION}-installed || die Failed to cd to lhcs directory

@@ -15,6 +15,7 @@ SEEKER_SIZE=$((MEMTOTAL_BYTES*2))
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required seeker
+###SHELLPACK init_complete
 
 pushd $SHELLPACK_SOURCES/seeker-${VERSION}-installed > /dev/null || die Benchmark not installed
 RESULTSLOG=$LOGDIR_RESULTS/seeker

@@ -24,6 +24,7 @@ REAIM_WORKFILE=workfile.fserver
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required reaim-${VERSION}
+###SHELLPACK init_complete
 
 for REAIM_WORKFILE in $REAIM_WORKFILES; do
 	mmtests_activity $REAIM_WORKFILE

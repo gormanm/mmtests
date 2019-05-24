@@ -10,6 +10,7 @@ CONSUME_MEMORY=no
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required postmark-${VERSION}
+###SHELLPACK init_complete
 
 # Write configuration file
 echo "set transactions $POSTMARK_TRANSACTIONS

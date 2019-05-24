@@ -37,6 +37,7 @@ if [ "$TESTS" != "specspeed" -a "$TESTS" != "specrate" ]; then
 fi
 
 ###SHELLPACK check_install_required speccpu2017-${VERSION}
+###SHELLPACK init_complete
 
 # Prepare system
 cd $SHELLPACK_SOURCES/speccpu2017-${VERSION}-installed > /dev/null || die Failed to cd to speccpu

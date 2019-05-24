@@ -13,6 +13,14 @@ MPIOPT=
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
+# Check available memory
+if [ $APPROXIMATE_USAGE -gt $((MEMTOTAL_BYTES*4/5)) ]; then
+	die "Estimated memory usage $APPROXIMATE_USAGE bytes exceeds estimated available $((MEMTOTAL_BYTES*4/5))"
+fi
+
+###SHELLPACK check_install_required graph500-${VERSION}
+###SHELLPACK init_complete
+
 # Approximate equation for memory usage in gigabytes is
 # ((2**SCALE) * (2 * EDGE + 1))*8/1048576/1024
 #
@@ -77,13 +85,6 @@ mpi-custom)
 	die Unrecognised parallelize method $GRAPH500_PARALLELIZE
 	;;
 esac
-
-# Check available memory
-if [ $APPROXIMATE_USAGE -gt $((MEMTOTAL_BYTES*4/5)) ]; then
-	die Estimated memory usage $APPROXIMATE_USAGE bytes exceeds estimated available $((MEMTOTAL_BYTES*4/5))
-fi
-
-###SHELLPACK check_install_required graph500-${VERSION}
 
 round_down_power_2_cpus() {
 	POWER=1

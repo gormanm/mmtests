@@ -106,6 +106,19 @@ if [ "$NAME" = "" ]; then
 	echo Shellpack: $NAME :: $DESCRIPTION
 fi
 
+# Check required hooks are available
+HOOK_AVAILABLE=0
+for HOOK in init_complete init_only_end; do
+	grep -q $HOOK $BENCH
+	if [ $? -eq 0 ]; then
+		HOOK_AVAILABLE=1
+	fi
+done
+if [ $HOOK_AVAILABLE -eq 0 ]; then
+	echo SHELLPACK hook init_complete or init_only_end is required
+	exit -1
+fi
+
 ##### Start building the pack
 TEMP=`mktemp 2> /dev/null`
 if [ "$TEMP" = "" ]; then

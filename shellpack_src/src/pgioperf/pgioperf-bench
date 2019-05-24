@@ -52,6 +52,7 @@ if [ "$INIT" = "yes" ]; then
 	$TIME_CMD -o $LOGDIR_RESULTS/time $SHELLPACK_TEMP/../pgioperf/pgioperf init
 	exit $SHELLPACK_SUCCESS
 fi
+###SHELLPACK init_complete
 
 cd $DATADIR || exit -1
 if [ ! -e wal ]; then

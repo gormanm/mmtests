@@ -7,6 +7,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required libmicro-contextswitch-${VERSION}
+###SHELLPACK init_complete
 
 cd $SHELLPACK_SOURCES/libmicro-contextswitch-${VERSION}-installed || die Failed to cd to libmicro directory
 

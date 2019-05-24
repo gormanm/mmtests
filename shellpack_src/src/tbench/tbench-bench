@@ -15,6 +15,7 @@ fi
 
 install-depends popt-devel
 ###SHELLPACK check_install_required dbench-${VERSION}
+###SHELLPACK init_complete
 
 server_start() {
 	echo Starting tbench_srv

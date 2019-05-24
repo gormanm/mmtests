@@ -22,8 +22,10 @@ HIGHALLOC_GFPFLAGS=GFP_ALLOC_LIKE_HUGETLB
 # Systemtap required
 if [ "`which stap`" = "" ]; then
 	echo systemtap is required
-	exit -1
+	exit $SHELLPACK_FAILURE
 fi
+
+###SHELLPACK init_complete
 
 # Calculate number of huge pages to allocate
 if [ "$HIGHALLOC_COUNT" = "0" ]; then

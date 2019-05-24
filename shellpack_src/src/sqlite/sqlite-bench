@@ -7,8 +7,9 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required sqlite-${VERSION}
 install-depends util-linux
+###SHELLPACK check_install_required sqlite-${VERSION}
+###SHELLPACK init_complete
 
 ###SHELLPACK self_extract perl-trans.pl
 chmod a+x $SHELLPACK_TEMP/perl-trans.pl

@@ -12,6 +12,8 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_external_install_required rttestbuild rttestbuild-${VERSION} ${VERSION}
+###SHELLPACK init_complete
+
 cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change to rttest directory"
 
 ###SHELLPACK threads_large_stride_begin $PISTRESS_MIN_INVGROUPS $PISTRESS_MAX_INVGROUPS

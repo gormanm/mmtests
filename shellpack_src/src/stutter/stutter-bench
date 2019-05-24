@@ -23,6 +23,7 @@ USE_LOCAL=no
 ###SHELLPACK parseargYes   --source-local   USE_LOCAL
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
+###SHELLPACK init_complete
 
 # Align the fault size
 MEMFAULT_SIZE=$((MEMFAULT_SIZE&~1048575))

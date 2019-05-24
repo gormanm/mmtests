@@ -11,6 +11,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required thpscale-${VERSION}
+###SHELLPACK init_complete
 
 create_random_file $((THPSCALE_MAPSIZE+1048576*16)) $SHELLPACK_DATA/workfile
 

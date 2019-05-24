@@ -34,6 +34,7 @@ TESTLIST=
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required ipcscale-${VERSION}
+###SHELLPACK init_complete
 
 echo $IPCSCALE_WORKLOADS > $LOGDIR_RESULTS/workloads
 

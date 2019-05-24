@@ -5,5 +5,6 @@
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required_continue schedctlbuild
+###SHELLPACK init_complete
 
 exit $RETVAL

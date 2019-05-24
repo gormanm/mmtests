@@ -8,6 +8,7 @@
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required_continue apachebuild-${VERSION}
+###SHELLPACK init_complete
 
 if [ "$SERVER_START" = "yes" ]; then
 	rm -rf   $SHELLPACK_SOURCES/apachebuild-${VERSION}-installed/logs

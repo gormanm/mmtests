@@ -7,8 +7,9 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required libmicro-file-${VERSION}
+###SHELLPACK init_complete
 
-cd $SHELLPACK_SOURCES/libmicro-file-${VERSION}-installed || die Failed to cd to libmicro directory
+cd $SHELLPACK_SOURCES/libmicro-file-${VERSION}-installed || die "Failed to cd to libmicro directory"
 
 COMMON="-E -C 0 -D 30000 -B 10000 -L -S -W"
 

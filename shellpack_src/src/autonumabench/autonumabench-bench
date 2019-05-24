@@ -75,6 +75,7 @@ install-depends numactl libnuma-devel gnuplot
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required autonumabench-${VERSION}
+###SHELLPACK init_complete
 
 for TESTTYPE in $AUTONUMA_TESTS; do
 	mmtests_activity $TESTTYPE

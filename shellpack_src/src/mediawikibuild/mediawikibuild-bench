@@ -17,6 +17,7 @@ MYSQLADMIN="${SHELLPACK_SOURCES}/mariadbbuild-${MARIADB_VERSION}-installed/bin/m
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required_continue mediawikibuild-${VERSION}
+###SHELLPACK init_complete
 
 # see install script
 BUFF_POOL_SIZE=$(($MEMTOTAL_BYTES/2))

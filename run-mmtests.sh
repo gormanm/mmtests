@@ -628,14 +628,11 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		# Configure transparent hugepage support as configured
 		reset_transhuge
 
-		# Run installation-only step if supported
-		grep -q INSTALL_ONLY $SCRIPTDIR/shellpacks/shellpack-bench-$CURRENT_TEST
-		if [ $? -eq 0 ]; then
-			echo Installing test $TEST
-			export INSTALL_ONLY=yes
-			./bin/run-single-test.sh $TEST
-			unset INSTALL_ONLY
-		fi
+		# Run installation-only steps
+		echo Installing test $TEST
+		export INSTALL_ONLY=yes
+		./bin/run-single-test.sh $TEST
+		unset INSTALL_ONLY
 
 		# Run the test
 		echo Starting test $TEST

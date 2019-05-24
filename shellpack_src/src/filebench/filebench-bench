@@ -14,6 +14,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required filebench-${VERSION}
+###SHELLPACK init_complete
 
 echo Disabling VA randomisation as recommended by benchmark
 echo 0 > /proc/sys/kernel/randomize_va_space

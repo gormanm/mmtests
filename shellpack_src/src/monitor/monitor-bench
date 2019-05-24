@@ -1,5 +1,6 @@
 #!/bin/bash
 ###SHELLPACK preamble monitor 0
+###SHELLPACK init_complete
 
 cleanup()
 {

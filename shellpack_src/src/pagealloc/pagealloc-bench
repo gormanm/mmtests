@@ -12,6 +12,7 @@ BATCH_SIZE=$((128*1048576))
 ###SHELLPACK parseargParam --gfp-flags GFPFLAGS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
+###SHELLPACK init_complete
 
 install-depends cpupower
 cpupower frequency-set -g performance

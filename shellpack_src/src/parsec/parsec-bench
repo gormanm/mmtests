@@ -11,6 +11,7 @@
 ###SHELLPACK parseargParam	--threads	PARSEC_THREADS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
+###SHELLPACK init_complete
 
 round_power_2_cpus() {
 	POWER=1

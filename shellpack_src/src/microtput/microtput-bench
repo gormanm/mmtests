@@ -11,6 +11,7 @@ ITERATIONS=1
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required microtput
+###SHELLPACK init_complete
 
 pushd $SHELLPACK_SOURCES/microtput-${VERSION}-installed > /dev/null
 

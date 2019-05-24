@@ -28,6 +28,7 @@ MAX_FILESIZE=$((32*1048576))
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required ffsb-${VERSION}
+###SHELLPACK init_complete
 
 # Write config
 CONFIG=$LOGDIR_RESULTS/ffsb.config

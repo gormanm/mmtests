@@ -18,6 +18,7 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_external_install_required_continue perfbuild perfbuild-${VERSION} ${VERSION}
+###SHELLPACK init_complete
 
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf

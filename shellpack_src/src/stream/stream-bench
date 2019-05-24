@@ -26,6 +26,7 @@ fi
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required stream-0
+###SHELLPACK init_complete
 
 SIZEOF_DOUBLE=`cpp -dD /dev/null | grep SIZEOF_DOUBLE | awk '{print $NF}'`
 if [ "$SIZEOF_DOUBLE" = "" ]; then

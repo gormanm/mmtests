@@ -34,6 +34,7 @@ if [ "$TESTS" != "all" -o "$SPECCPU_ITERATIONS" = "1" -o "$SPECCPU_DATA_SIZE" !=
 fi
 
 ###SHELLPACK check_install_required speccpu-${VERSION}
+###SHELLPACK init_complete
 
 # Prepare system
 cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed > /dev/null || die Failed to cd to speccpu

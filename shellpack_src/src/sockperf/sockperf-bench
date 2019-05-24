@@ -23,6 +23,7 @@ fi
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required sockperf-${VERSION}
+###SHELLPACK init_complete
 
 SOCKPERF_MESSAGE_SIZES=`echo $SOCKPERF_MESSAGE_SIZES | tr ',' ' '`
 SOCKPERF_MESSAGE_RATES=`echo $SOCKPERF_MESSAGE_RATES | tr ',' ' '`

@@ -9,6 +9,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required wptlbflush
+###SHELLPACK init_complete
 
 # Run the benchmark
 ###SHELLPACK threads_large_stride_begin $WPTLBFLUSH_MIN_PROCESSES $WPTLBFLUSH_MAX_PROCESSES

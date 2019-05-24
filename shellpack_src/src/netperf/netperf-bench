@@ -21,6 +21,7 @@ fi
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required netperf-${VERSION}
+###SHELLPACK init_complete
 
 BUFFER_SIZES=`echo $BUFFER_SIZES | sed -e 's/,/ /g'`
 

@@ -21,6 +21,7 @@ PARALLELDD_WRITEFILES=
 ###SHELLPACK parseargYes   --split-input  PARALLELDD_SPLITINPUT
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
+###SHELLPACK init_complete
 
 if [ "$PARALLELDD_SPLITINPUT" != "yes" ]; then
 	create_random_file $PARALLELDD_SOURCESIZE $SHELLPACK_DATA/source_file

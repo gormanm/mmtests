@@ -19,6 +19,7 @@ STRESSNG_TESTNAME=context
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required stressng-${VERSION}
+###SHELLPACK init_complete
 
 TESTSWITCH=
 case $STRESSNG_TESTNAME in

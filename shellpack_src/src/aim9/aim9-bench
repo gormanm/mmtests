@@ -28,6 +28,7 @@ TESTLIST=
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required aim9-${VERSION}
+###SHELLPACK init_complete
 
 # Create expect script
 EXPECT=`which expect`

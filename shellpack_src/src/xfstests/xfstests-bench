@@ -8,6 +8,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required xfstests-${VERSION}
+###SHELLPACK init_complete
 
 # Check configuration
 

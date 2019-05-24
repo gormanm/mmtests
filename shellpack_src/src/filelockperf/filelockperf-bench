@@ -15,6 +15,7 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required filelockperf-${VERSION}
+###SHELLPACK init_complete
 
 echo $FILELOCKPERF_WORKLOADS > $LOGDIR_RESULTS/workloads
 echo $FILELOCKPERF_LOCKTYPES > $LOGDIR_RESULTS/locktypes

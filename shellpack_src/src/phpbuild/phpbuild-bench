@@ -8,6 +8,7 @@ PHP_VERSION=7.3.5
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK check_install_required_continue phpbuild-${VERSION}
+###SHELLPACK init_complete
 
 echo php successfully installed
 exit $SHELLPACK_SUCCESS
