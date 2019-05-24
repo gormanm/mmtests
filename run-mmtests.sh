@@ -632,6 +632,9 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		echo Installing test $TEST
 		export INSTALL_ONLY=yes
 		./bin/run-single-test.sh $TEST
+		if [ $? -ne 0 ]; then
+			die "Installation step failed for $TEST"
+		fi
 		unset INSTALL_ONLY
 
 		# Run the test

@@ -9,5 +9,5 @@ export SHELLPACK_INCLUDE=$SCRIPTDIR/shellpacks
 export SHELLPACK_LOG_BASE_SUBDIR=work/log
 export SHELLPACK_LOG_BASE=$SCRIPTDIR/$SHELLPACK_LOG_BASE_SUBDIR
 export LINUX_GIT=/home/mel/git-public/linux-2.6
-export WEBROOT=http://laplace.suse.de/mmtests-mirror
+export WEBROOT=http://mcp/mmtests-mirror
 export SSHROOT=`echo $WEBROOT | sed -e 's/http:\/\//ssh:\/\/root@/'`/public_html
