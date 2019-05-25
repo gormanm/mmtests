@@ -21,7 +21,7 @@ sub extractReport() {
 	$reportDir =~ s/sysbenchexectime/sysbench/;
 
 	my @clients;
-	my @files = <$reportDir/default/sysbench-raw-*-1>;
+	my @files = <$reportDir/sysbench-raw-*-1>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
@@ -33,7 +33,7 @@ sub extractReport() {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		my @files = <$reportDir/default/time-$client-*>;
+		my @files = <$reportDir/time-$client-*>;
 		foreach my $file (@files) {
 
 

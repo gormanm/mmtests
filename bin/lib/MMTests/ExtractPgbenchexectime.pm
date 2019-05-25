@@ -23,7 +23,7 @@ sub extractReport() {
 	my @clients;
 	$reportDir =~ s/pgbenchexectime/pgbench/;
 
-	my @files = <$reportDir/default/pgbench-raw-*>;
+	my @files = <$reportDir/pgbench-raw-*>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
@@ -35,7 +35,7 @@ sub extractReport() {
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
-		my $file = "$reportDir/default/time-$client";
+		my $file = "$reportDir/time-$client";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			next if $_ !~ /elapsed/;

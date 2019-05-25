@@ -24,7 +24,7 @@ sub extractReport() {
 
 	$reportDir =~ s/pgbenchstalls/pgbench/;
 
-	my @files = <$reportDir/default/pgbench-raw-*>;
+	my @files = <$reportDir/pgbench-raw-*>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
@@ -40,7 +40,7 @@ sub extractReport() {
 		my $stallThreshold = 0;
 		my @values;
 
-		my $file = "$reportDir/default/pgbench-transactions-$client-1";
+		my $file = "$reportDir/pgbench-transactions-$client-1";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my @elements = split(/\s+/, $_);

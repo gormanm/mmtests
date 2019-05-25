@@ -19,7 +19,7 @@ sub extractReport() {
 	my $iteration;
 
 	my @clients;
-	my @files = <$reportDir/default/sysbench-raw-*-1>;
+	my @files = <$reportDir/sysbench-raw-*-1>;
 	foreach my $file (@files) {
 		my @split = split /-/, $file;
 		$split[-2] =~ s/.log//;
@@ -31,7 +31,7 @@ sub extractReport() {
 	foreach my $client (@clients) {
 		$iteration = 0;
 
-		my @files = <$reportDir/default/sysbench-raw-$client-*>;
+		my @files = <$reportDir/sysbench-raw-$client-*>;
 		foreach my $file (@files) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (!eof(INPUT)) {
