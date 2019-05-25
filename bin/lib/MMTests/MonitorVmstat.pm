@@ -79,6 +79,7 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_DataTypes} = typeMap;
+	$self->{_PlotXaxis} = "Time";
 	$self->{_PlotYaxes} = headings;
 	$self->{_PlotType} = "simple";
 	$self->SUPER::initialise($subHeading);
