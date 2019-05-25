@@ -24,13 +24,7 @@ sub extractReport() {
 
 	$reportDir =~ s/pgbenchstalls/pgbench/;
 
-	my @files = <$reportDir/pgbench-raw-*>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-2] =~ s/.log//;
-		push @clients, $split[-1];
-	}
-	@clients = sort { $a <=> $b } @clients;
+	@clients = $self->discover_scaling_parameters($reportDir, "pgbench-", ".log");
 	my $stallStart = 0;
 
 	# Extract per-client transaction information
@@ -40,8 +34,8 @@ sub extractReport() {
 		my $stallThreshold = 0;
 		my @values;
 
-		my $file = "$reportDir/pgbench-transactions-$client-1";
-		open(INPUT, $file) || die("Failed to open $file\n");
+		my $file = "$reportDir/pgbench-transactions-$client.log.gz";
+		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my @elements = split(/\s+/, $_);
 			push @values, $elements[1];

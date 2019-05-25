@@ -23,25 +23,9 @@ sub extractReport() {
 	my @clients;
 	$reportDir =~ s/pgbenchexectime/pgbench/;
 
-	my @files = <$reportDir/pgbench-raw-*>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-2] =~ s/.log//;
-		push @clients, $split[-1];
-	}
-	@clients = sort { $a <=> $b } @clients;
-
-	# Extract per-client timing information
+	@clients = $self->discover_scaling_parameters($reportDir, "pgbench-", ".log");
 	foreach my $client (@clients) {
-		my $iteration = 0;
-
-		my $file = "$reportDir/time-$client";
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
-			next if $_ !~ /elapsed/;
-			$self->addData($client, 0, $self->_time_to_elapsed($_));
-		}
-		close(INPUT);
+		$self->parse_time_elapsed("$reportDir/time-$client", $client, 0);
 	}
 }
 

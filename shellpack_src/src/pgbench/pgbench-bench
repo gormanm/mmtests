@@ -146,7 +146,7 @@ FIRST_TIME=yes
 
 	if [ "$DATABASE_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
 		echo Starting database for initialisation
-		mmtests_activity database-init
+		mmtests_activity init
 		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
 			--effective_cachesize $EFFECTIVE_CACHESIZE \
 			--shared_buffers $SHARED_BUFFERS \
@@ -167,7 +167,7 @@ FIRST_TIME=yes
 	fi
 
 	if [ "$DATABASE_INIT_ONCE" = "yes" -a "$FIRST_TIME" = "yes" ]; then
-		mmtests_activity database-warmup
+		mmtests_activity warmup
 		echo Warming up database for 30 minutes
 		pgbench -v -h $PGHOST -p $PGPORT -r \
 			$VACUUM_ARG $READONLY_ARG -c $MAX_THREADS -j $MAX_THREADS \
@@ -208,7 +208,7 @@ FIRST_TIME=yes
 	fi
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	mmtests_activity pgbench-$NR_THREADS
+	mmtests_activity $NR_THREADS
 	echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions
 	start_deferred_monitors "$NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions"
 	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS} \
@@ -216,17 +216,17 @@ FIRST_TIME=yes
 			-l --aggregate-interval=1 \
 			$VACUUM_ARG $READONLY_ARG -c $NR_THREADS -j $PGBENCH_THREADS \
 			$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
-			pgbench > $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS
+			pgbench > $LOGDIR_RESULTS/pgbench-$NR_THREADS.log
 	SYSRET=$?
 	stop_deferred_monitors
 	if [ $SYSRET -ne 0 ]; then
-		cat $LOGDIR_RESULTS/pgbench-raw-$NR_THREADS
+		cat $LOGDIR_RESULTS/pgbench-$NR_THREADS.log
 		die pgbench failed to execute
 	fi
-	COUNT=1
 	for FILE in `ls pgbench_log.*`; do
-		mv $FILE $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS-$COUNT
-		COUNT=$((COUNT+1))
+		echo Copying transaction $FILE $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS.log
+		mv $FILE $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS.log
+		gzip $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS.log
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
 ###SHELLPACK threads_stride_end

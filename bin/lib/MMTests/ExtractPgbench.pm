@@ -20,13 +20,7 @@ sub extractReport() {
 	my ($tm, $tput, $latency);
 	my @clients;
 
-	my @files = <$reportDir/pgbench-raw-*>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-2] =~ s/.log//;
-		push @clients, $split[-1];
-	}
-	@clients = sort { $a <=> $b } @clients;
+	@clients = $self->discover_scaling_parameters($reportDir, "pgbench-", ".log");
 
 	# Extract per-client transaction information
 	foreach my $client (@clients) {
@@ -35,8 +29,8 @@ sub extractReport() {
 		my $startSamples = 1;
 		my $endSamples = 0;
 
-		my $file = "$reportDir/pgbench-transactions-$client-1";
-		open(INPUT, $file) || die("Failed to open $file\n");
+		my $file = "$reportDir/pgbench-transactions-$client.log.gz";
+		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my @elements = split(/\s+/, $_);
 			push @values, $elements[1];
@@ -54,7 +48,7 @@ sub extractReport() {
 			$batch = 1;
 		}
 		$startSamples += ($batch * 2);
-		open(INPUT, $file) || die("Failed to open $file\n");
+		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
 		while (<INPUT>) {
 			# time num_of_transactions latency_sum latency_2_sum min_latency max_latency
 			my @elements = split(/\s+/, $_);
@@ -80,7 +74,7 @@ sub extractReport() {
 		}
 		close INPUT;
 		if ($nr_readings == 0) {
-			$file = "$reportDir/pgbench-raw-$client";
+			$file = "$reportDir/pgbench-$client.log";
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (!eof(INPUT)) {
 				my $line = <INPUT>;

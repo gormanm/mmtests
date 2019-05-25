@@ -19,7 +19,7 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my @clients;
 
-	@clients = $self->SUPER::discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
+	@clients = $self->discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
 
 	foreach my $client (@clients) {
 		my $file = "$reportDir/dbench-$client.log.gz";

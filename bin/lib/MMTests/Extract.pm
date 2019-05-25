@@ -486,4 +486,13 @@ sub discover_scaling_parameters() {
 	return @scaling;
 }
 
+sub parse_time_elapsed() {
+	my ($self, $log, $scaling, $iteration) = @_;
+
+	open(INPUT, $log) || die("Failed to open $log\n");
+	while (<INPUT>) {
+		next if $_ !~ /elapsed/;
+		$self->addData($scaling, $iteration, $self->_time_to_elapsed($_));
+	}
+}
 1;
