@@ -45,16 +45,19 @@ else
 fi
 
 while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
-	mmtests_activity client $CLIENT/$DBENCH_MAX_CLIENTS
+	mmtests_activity client $CLIENT
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
 	# Make sure test tree is clean before the run - dbench does not clean
 	# up after itself
 	rm -rf $SHELLPACK_DATA/clients &>/dev/null
 	sync
 	# First create directory hierarchy
+	echo dbench setup $CLIENT
 	./bin/dbench --run-once --skip-cleanup -D $SHELLPACK_DATA \
 		--loadfile $LOADDIR/client-warmup.txt $CLIENT &>/dev/null
+
 	# Then run the benchmark
+	echo dbench run $CLIENT
 	./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
 		-D $SHELLPACK_DATA --warmup 0 \
 		-t $((DBENCH_DURATION_BASE + FACTOR*CLIENT/1000)) \

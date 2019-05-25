@@ -464,4 +464,26 @@ sub sortResults() {
 	}
 }
 
+
+sub discover_scaling_parameters() {
+	my ($self, $reportDir, $prefix, $suffix) = @_;
+	my @scaling;
+
+	my @files = <$reportDir/$prefix*$suffix>;
+	foreach my $file (<$reportDir/$prefix*$suffix>) {
+		if ($prefix ne "") {
+			$file =~ s/.*\/$prefix//;
+		}
+
+		if ($suffix ne "") {
+			$file =~ s/$suffix$//;
+		}
+
+		push @scaling, $file;
+	}
+
+	@scaling = sort { $a <=> $b } @scaling;
+	return @scaling;
+}
+
 1;

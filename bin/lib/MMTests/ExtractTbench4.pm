@@ -19,34 +19,20 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my @clients;
 
-	my @files = <$reportDir/dbench-*.log>;
-	if ($files[0] eq "") {
-		@files = <$reportDir/tbench-*.log>;
-	}
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-1] =~ s/.log//;
-		push @clients, $split[-1];
-	}
-	@clients = sort { $a <=> $b } @clients;
+	@clients = $self->SUPER::discover_scaling_parameters($reportDir, "tbench-", ".log.gz");
 
 	foreach my $client (@clients) {
 		my $nr_samples = 0;
-		my $file = "$reportDir/dbench-$client.log";
-		if (! -e $file) {
-			$file = "$reportDir/tbench-$client.log";
-		}
-		open(INPUT, $file) || die("Failed to open $file\n");
+		my $file = "$reportDir/tbench-$client.log.gz";
+
+		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;
-			$line =~ s/^\s+//;
 			if ($line =~ /execute/) {
+				$line =~ s/^\s+//;
 				my @elements = split(/\s+/, $line);
 
-				$nr_samples++;
-				$self->addData("$client", $nr_samples, $elements[2]);
-
-				next;
+				$self->addData("$client", ++$nr_samples, $elements[2]);
 			}
 		}
 		close INPUT;

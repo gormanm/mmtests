@@ -678,6 +678,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		fi
 
 		# Run single test
+		sync
 		start_monitors
 		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
 			./bin/run-single-test.sh $TEST

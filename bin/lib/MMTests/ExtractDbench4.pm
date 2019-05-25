@@ -19,47 +19,22 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my @clients;
 
-	my @files = <$reportDir/dbench-*.log*>;
-	if ($files[0] eq "") {
-		@files = <$reportDir/tbench-*.log*>;
-	}
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-1] =~ s/.log.*//;
-		push @clients, $split[-1];
-	}
-	@clients = sort { $a <=> $b } @clients;
+	@clients = $self->SUPER::discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
 
 	foreach my $client (@clients) {
-		my $nr_samples = 0;
-		my $file = "$reportDir/dbench-$client.log";
-		if (! -e $file) {
-			$file = "$reportDir/dbench-$client.log.gz";
-		}
-		if (! -e $file) {
-			$file = "$reportDir/tbench-$client.log";
-		}
-		if (! -e $file) {
-			$file = "$reportDir/tbench-$client.log.gz";
-		}
-		if ($file =~ /.*\.gz$/) {
-			open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-		} else {
-			open(INPUT, $file) || die("Failed to open $file\n");
-		}
+		my $file = "$reportDir/dbench-$client.log.gz";
+
+		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;
-			$line =~ s/^\s+//;
 			if ($line =~ /completed in/) {
+				$line =~ s/^\s+//;
 				my @elements = split(/\s+/, $line);
 
 				# Look for what is probably a negative wrap
 				next if ($elements[3] > (1<<31));
 
-				$nr_samples++;
 				$self->addData("$client", $elements[7] / 1000, $elements[3] );
-
-				next;
 			}
 		}
 		close INPUT;

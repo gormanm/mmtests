@@ -111,12 +111,12 @@ function shutdown_monitors()
 	local _pidfile _pid
 	_pidfile=$1
 
+	sync
 	sleep 5
 	for _pid in `cat ${_pidfile}`; do
 		if [ "`ps h --pid $_pid`" != "" ]; then
 			echo -n "Shutting down monitor: $_pid"
 			kill $_pid
-			sleep 1
 
 			while [ "`ps h --pid $_pid`" != "" ]; do
 				echo -n .
@@ -190,9 +190,13 @@ function start_gzip_monitor()
 
 	$EXPECT_UNBUFFER $DISCOVERED_SCRIPT | tee | gzip -c > ${MONITOR_LOG}.gz &
 	PID1=$!
-	sleep 5
 	PID2=`$SCRIPTDIR/bin/piping-pid.sh $PID1`
 	PID3=`$SCRIPTDIR/bin/piping-pid.sh $PID2`
+	while [ "$PID3" = "" ]; do
+		sleep 1
+		PID2=`$SCRIPTDIR/bin/piping-pid.sh $PID1`
+		PID3=`$SCRIPTDIR/bin/piping-pid.sh $PID2`
+	done
 	echo $PID3 >> $_pidfile
 	echo $PID1 >> $_pidfile
 	echo "Started monitor ${_monitor} gzip pid $PID3,$PID1"
@@ -208,12 +212,11 @@ function start_with_latency_monitor()
 
 	$EXPECT_UNBUFFER $DISCOVERED_SCRIPT | $SCRIPTDIR/monitors/latency-output > $MONITOR_LOG &
 	PID1=$!
-	sleep 5
-	COUNT=`ps aux | grep watch-${_monitor}.sh | egrep -v -e 'grep|expect' | awk '{print $2}' | wc -l`
-	if [ $COUNT -gt 1 ]; then
-		warn Unexpected number of scripts running
-	fi
 	PID2=`ps aux | grep watch-${_monitor}.sh | egrep -v -e 'grep|expect' | awk '{print $2}'`
+	while [ "$PID2" = "" ]; do
+		sleep 1
+		PID2=`ps aux | grep watch-${_monitor}.sh | egrep -v -e 'grep|expect' | awk '{print $2}'`
+	done
 	echo $PID2 >> $_pidfile
 	echo $PID1 >> $_pidfile
 	echo "Started monitor ${_monitor} latency pid $PID2,$PID1"

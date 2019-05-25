@@ -13,6 +13,7 @@ run_bench() {
 	if [ "$NETPERF_SERVER" != "" ]; then
 		SERVER_ADDRESS="--server-address $NETPERF_SERVER"
 	fi
+	$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh netperf
 	$SCRIPTDIR/shellpacks/shellpack-bench-netperf $BIND_SWITCH \
 		$SERVER_ADDRESS \
 		--iterations $NETPERF_ITERATIONS \

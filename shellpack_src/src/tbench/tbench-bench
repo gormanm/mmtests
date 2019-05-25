@@ -61,12 +61,15 @@ esac
 
 server_stop 0
 ###SHELLPACK threads_powertwo_begin 1 $TBENCH_MAX_CLIENTS
+	mmtests_activity $NR_THREADS
+	echo tbench run $NR_THREADS
 	server_start $NR_THREADS
 	./bin/tbench \
 		-t $TBENCH_DURATION \
-		$NR_THREADS $SERVER_HOST 2>&1 | tee $LOGDIR_RESULTS/tbench-$NR_THREADS.log \
-			|| die Failed to run tbench
+		$NR_THREADS $SERVER_HOST &> $LOGDIR_RESULTS/tbench-$NR_THREADS.log \
+			|| die "Failed to run tbench"
 	server_stop $NR_THREADS
+	gzip $LOGDIR_RESULTS/tbench-$NR_THREADS.log
 	kill -9 $PID_SERVER
 ###SHELLPACK threads_powertwo_end
 
