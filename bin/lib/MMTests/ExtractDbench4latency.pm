@@ -20,35 +20,13 @@ sub extractReport() {
 	my @clients;
 	$reportDir =~ s/4latency/4/;
 
-	my @files = <$reportDir/dbench-*.log*>;
-	if ($files[0] eq "") {
-		@files = <$reportDir/tbench-*.log*>;
-	}
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-1] =~ s/.log.*//;
-		push @clients, $split[-1];
-	}
-	@clients = sort { $a <=> $b } @clients;
+	@clients = $self->discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
 
 	foreach my $client (@clients) {
+		my $file = "$reportDir/dbench-$client.log.gz";
 		my $nr_samples = 0;
 
-		my $file = "$reportDir/dbench-$client.log";
-		if (! -e $file) {
-			$file = "$reportDir/dbench-$client.log.gz";
-		}
-		if (! -e $file) {
-			$file = "$reportDir/tbench-$client.log";
-		}
-		if (! -e $file) {
-			$file = "$reportDir/tbench-$client.log.gz";
-		}
-		if ($file =~ /.*\.gz$/) {
-			open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-		} else {
-			open(INPUT, $file) || die("Failed to open $file\n");
-		}
+		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;
 			if ($line =~ /execute/) {
