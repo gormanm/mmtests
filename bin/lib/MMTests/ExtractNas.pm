@@ -17,24 +17,14 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-
-	my @files = <$reportDir/*.log.1>;
-	my @kernels;
-	my $class;
-	foreach my $file (@files) {
-		my @split = split /\//, $file;
-		$split[-1] =~ s/.log.1//;
-		my $kernel = $split[-1];
-		($kernel, $class) = split /\./, $kernel;
-		push @kernels, $kernel;
-	}
+	my @kernels = $self->discover_scaling_parameters($reportDir, "", ".log.1");
 
 	die("No data") if $kernels[0] eq "";
 
 	foreach my $kernel (@kernels) {
 		my $nr_samples = 0;
 
-		foreach my $file (<$reportDir/$kernel.$class.log.*>) {
+		foreach my $file (<$reportDir/$kernel.log.*>) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				my $line = $_;

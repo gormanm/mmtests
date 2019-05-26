@@ -21,13 +21,7 @@ sub extractReport() {
 	$reportDir =~ s/mpi-([a-z][a-z])time/mpi-\1/;
 	$reportDir =~ s/omp-([a-z][a-z])time/omp-\1/;
 
-	my @files = <$reportDir/*.log.1>;
-	my @kernels;
-	foreach my $file (@files) {
-		my @split = split /\//, $file;
-		$split[-1] =~ s/.log.1//;
-		push @kernels, $split[-1];
-	}
+	my @kernels = $self->discover_scaling_parameters($reportDir, "", ".log.1");
 
 	foreach my $kernel (@kernels) {
 		my $nr_samples = 0;

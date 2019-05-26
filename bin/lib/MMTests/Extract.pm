@@ -471,9 +471,7 @@ sub discover_scaling_parameters() {
 
 	my @files = <$reportDir/$prefix*$suffix>;
 	foreach my $file (<$reportDir/$prefix*$suffix>) {
-		if ($prefix ne "") {
-			$file =~ s/.*\/$prefix//;
-		}
+		$file =~ s/.*\/$prefix//;
 
 		if ($suffix ne "") {
 			$file =~ s/$suffix$//;

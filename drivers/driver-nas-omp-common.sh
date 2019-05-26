@@ -1,4 +1,4 @@
-$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh nas-omp
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh nas
 
 run_bench() {
 	if [ "$NAS_MAX_CPUS" = "" ]; then
