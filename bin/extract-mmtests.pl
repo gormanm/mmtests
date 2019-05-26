@@ -26,7 +26,7 @@ my ($opt_help, $opt_manual);
 my ($opt_reportDirectory, $opt_monitor);
 my ($opt_printHeader, $opt_printPlot, $opt_printType, $opt_printJSON);
 my ($opt_subheading, $opt_format);
-my ($opt_name, $opt_benchmark);
+my ($opt_name, $opt_benchmark, $opt_altreport);
 GetOptions(
 	'verbose|v'		=> \$opt_verbose,
 	'help|h'		=> \$opt_help,
@@ -39,6 +39,7 @@ GetOptions(
 	'--sub-heading=s'	=> \$opt_subheading,
 	'n|name=s'		=> \$opt_name,
 	'b|benchmark=s'		=> \$opt_benchmark,
+	'a|altreport=s'		=> \$opt_altreport,
 	'manual'		=> \$opt_manual,
 	'directory|d=s'		=> \$opt_reportDirectory,
 );
@@ -81,7 +82,7 @@ if (defined $opt_monitor) {
 
 	my @iterdirs = <$reportDir/iter-*>;
 	foreach my $iterdir (@iterdirs) {
-		$monitorModule->extractReport($iterdir, $opt_benchmark,
+		$monitorModule->extractReport($iterdir, "$opt_benchmark",
 					      $opt_subheading);
 		$monitorModule->nextIteration();
 	}
@@ -96,7 +97,7 @@ if (defined $opt_monitor) {
 		$monitorModule->printPlotHeaders() if $opt_printHeader;
 		$monitorModule->printPlot($opt_subheading);
 	} elsif ($opt_printJSON) {
-		exportJSON($monitorModule, $opt_benchmark, $opt_name);
+		exportJSON($monitorModule, "$opt_benchmark", $opt_name);
 	} else {
 		$monitorModule->printReportTop();
 		$monitorModule->printFieldHeaders() if $opt_printHeader;
@@ -110,9 +111,9 @@ if (defined $opt_monitor) {
 my $extractFactory = MMTests::ExtractFactory->new();
 my $extractModule;
 eval {
-	$extractModule = $extractFactory->loadModule("extract", $opt_benchmark, $opt_name, $opt_subheading);
+	$extractModule = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $opt_name, $opt_subheading);
 } or do {
-	printWarning("Failed to load module for benchmark $opt_benchmark\n$@");
+	printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport\n$@");
 	exit(-1);
 };
 

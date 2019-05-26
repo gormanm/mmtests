@@ -18,19 +18,9 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
+	my $iteration = 0;
 
 	foreach my $file (<$reportDir/time.*>) {
-		my $nr_samples = 0;
-
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
-			my $line = $_;
-			if ($line =~ /([0-9]):([0-9.]+)elapsed/) {
-				$self->addData("user", ++$nr_samples, $self->_time_to_user($line));
-				$self->addData("syst", ++$nr_samples, $self->_time_to_sys($line));
-				$self->addData("elsp", ++$nr_samples, $self->_time_to_elapsed($line));
-			}
-		}
-		close INPUT;
+		$self->parse_time_all($file, -1, ++$iteration);
 	}
 }

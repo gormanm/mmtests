@@ -23,7 +23,7 @@ my ($opt_help, $opt_manual);
 my ($opt_reportDirectory);
 my ($opt_printHeader, $opt_printRatio, $opt_printSignificance);
 my ($opt_subheading, $opt_format);
-my ($opt_names, $opt_benchmark);
+my ($opt_names, $opt_benchmark, $opt_altreport);
 my ($opt_monitor, $opt_hideCompare);
 my ($opt_JSONExport);
 GetOptions(
@@ -39,6 +39,7 @@ GetOptions(
 	'--json-export'		=> \$opt_JSONExport,
 	'n|names=s'		=> \$opt_names,
 	'b|benchmark=s'		=> \$opt_benchmark,
+	'a|altreport=s'		=> \$opt_altreport,
 	'manual'		=> \$opt_manual,
 	'directory|d=s'		=> \$opt_reportDirectory,
 );
@@ -58,12 +59,12 @@ my $extractFactory = MMTests::ExtractFactory->new();
 if (!defined($opt_monitor)) {
 	# Instantiate extract handlers for the requested type for the benchmark
 	for my $name (split /,/, $opt_names) {
-		printVerbose("Loading extract $opt_benchmark $name\n");
+		printVerbose("Loading extract $opt_benchmark$opt_altreport $name\n");
 		eval {
 			my $reportDirectory = "$opt_reportDirectory/$name";
 			my @iterdirs = <"$reportDirectory/iter-*">;
 
-			$extractModules[$nrModules] = $extractFactory->loadModule("extract", $opt_benchmark, $name, $opt_subheading);
+			$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $name, $opt_subheading);
 			foreach my $iterdir (@iterdirs) {
 				$iterdir = "$iterdir/$opt_benchmark";
 				$extractModules[$nrModules]->extractReport("$iterdir/logs");
@@ -75,14 +76,14 @@ if (!defined($opt_monitor)) {
 				$extractModules[$nrModules++]->extractSummary($opt_subheading);
 			}
 		} or do {
-			printWarning("Failed to load module for benchmark $opt_benchmark: $name\n$@");
+			printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport: $name\n$@");
 			$#extractModules -= 1;
 		}
 	};
 } else {
 	$opt_hideCompare = 1;
 	for my $name (split /,/, $opt_names) {
-		printVerbose("Loading extract $opt_benchmark $name\n");
+		printVerbose("Loading extract $opt_benchmark$opt_altreport $name\n");
 		eval {
 			my $reportDirectory = "$opt_reportDirectory/$name";
 			my @iterdirs = <$reportDirectory/iter-*>;
@@ -93,7 +94,7 @@ if (!defined($opt_monitor)) {
 			}
 			$extractModules[$nrModules++]->extractSummary($opt_subheading);
 		} or do {
-			printWarning("Failed to load module for benchmark $opt_benchmark, $name\n$@");
+			printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport, $name\n$@");
 			$#extractModules -= 1;
 		}
 	};
@@ -104,11 +105,11 @@ printVerbose("Loaded $nrModules extract modules\n");
 # Instantiate comparison for the requested type for the benchmark
 my $compareFactory = MMTests::CompareFactory->new();
 my $compareModule;
-printVerbose("Loading compare $opt_benchmark\n");
+printVerbose("Loading compare $opt_benchmark$opt_altreport\n");
 eval {
 	$compareModule = $compareFactory->loadModule($opt_format, \@extractModules);
 } or do {
-	printWarning("Failed to compare module for benchmark $opt_benchmark\n$@");
+	printWarning("Failed to compare module for benchmark $opt_benchmark$opt_altreport\n$@");
 	exit(-1);
 };
 printVerbose("Loaded compare module\n");

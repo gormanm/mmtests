@@ -497,12 +497,17 @@ sub parse_time_elapsed() {
 sub parse_time_all() {
 	my ($self, $log, $scaling, $iteration) = @_;
 
+	if ($scaling >= 0) {
+		$scaling = "-$scaling";
+	} else {
+		$scaling = "";
+	}
 	open(INPUT, $log) || die("Failed to open $log\n");
 	while (<INPUT>) {
 		next if $_ !~ /elapsed/;
-		$self->addData("user-$scaling", $iteration, $self->_time_to_user($_));
-		$self->addData("syst-$scaling", $iteration, $self->_time_to_sys($_));
-		$self->addData("elsp-$scaling", $iteration, $self->_time_to_elapsed($_));
+		$self->addData("user$scaling", $iteration, $self->_time_to_user($_));
+		$self->addData("syst$scaling", $iteration, $self->_time_to_sys($_));
+		$self->addData("elsp$scaling", $iteration, $self->_time_to_elapsed($_));
 	}
 }
 
