@@ -645,9 +645,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		cache-mmtests.sh compare-mmtests.pl -d . -b stutterthroughput -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	sysbench)
-		echo $SUBREPORT Initialisation
-		cache-mmtests.sh compare-mmtests.pl -d . -b sysbenchloadtime -n $KERNEL_LIST $FORMAT_CMD
-		echo
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
 		echo
