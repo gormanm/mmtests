@@ -17,10 +17,7 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($tp, $name);
-	my @threads;
-
-	@threads = $self->discover_scaling_parameters($reportDir, "dedup-", "-1.time");
+	my @threads = $self->discover_scaling_parameters($reportDir, "dedup-", "-1.time");
 
 	foreach my $nthr (@threads) {
 		my @files = <$reportDir/dedup-$nthr-*.time>;

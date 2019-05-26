@@ -188,18 +188,13 @@ function start_gzip_monitor()
 	_monitor=$1
 	_pidfile=$MONITOR_DIR/monitor.pids
 
-	$EXPECT_UNBUFFER $DISCOVERED_SCRIPT | tee | gzip -c > ${MONITOR_LOG}.gz &
-	PID1=$!
-	PID2=`$SCRIPTDIR/bin/piping-pid.sh $PID1`
-	PID3=`$SCRIPTDIR/bin/piping-pid.sh $PID2`
-	while [ "$PID3" = "" ]; do
-		sleep 1
-		PID2=`$SCRIPTDIR/bin/piping-pid.sh $PID1`
-		PID3=`$SCRIPTDIR/bin/piping-pid.sh $PID2`
-	done
-	echo $PID3 >> $_pidfile
+	PID1=
+	( $EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo -n $! > /tmp/monitor.$$.pid ) | tee | gzip -c > ${MONITOR_LOG}.gz &
+	PID1=`cat /tmp/monitor.$$.pid`
+	rm -f /tmp/monitor.$$.pid
+
 	echo $PID1 >> $_pidfile
-	echo "Started monitor ${_monitor} gzip pid $PID3,$PID1"
+	echo "Started monitor ${_monitor} gzip pid $PID1"
 }
 
 function start_with_latency_monitor()

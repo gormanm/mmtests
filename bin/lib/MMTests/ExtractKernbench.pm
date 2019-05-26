@@ -17,48 +17,20 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($tp, $name);
-	my @threads;
+	my @jobs = $self->discover_scaling_parameters($reportDir, "kernbench-", "-1.time");
 
-	my @files = <$reportDir/kernbench-*-1.time>;
-	foreach my $file (@files) {
-		my @elements = split (/-/, $file);
-		my $thr = $elements[-2];
-		$thr =~ s/.log//;
-		push @threads, $thr;
-	}
-
-	foreach my $nthr (@threads) {
-		my @files = <$reportDir/kernbench-$nthr-*.time>;
+	foreach my $job (@jobs) {
+		my @files = <$reportDir/kernbench-$job-*.time>;
+		my $iteration = 0;
 
 		foreach my $file (@files) {
-			my @split = split /-/, $file;
-			$split[-1] =~ s/.time//;
-			my $nr_samples = 0;
-
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
-				my $line = $_;
-				if ($line =~ /([0-9]):([0-9.]+)elapsed/) {
-					$self->addData("user-$nthr", ++$nr_samples, $self->_time_to_user($line));
-					$self->addData("syst-$nthr", ++$nr_samples, $self->_time_to_sys($line));
-					$self->addData("elsp-$nthr", ++$nr_samples, $self->_time_to_elapsed($line));
-				}
-			}
-			close INPUT;
-		}
-
-	}
-
-	my (@ops, @ratioops);
-	foreach my $type ("user", "syst", "elsp") {
-		foreach my $thread (sort {$a <=> $b} @threads) {
-			push @ops, "$type-$thread";
+			$self->parse_time_all($file, $job, ++$iteration);
 		}
 	}
-	foreach my $thread (sort {$a <=> $b} @threads) {
-		push @ratioops, "elsp-$thread";
+
+	my @ratioops;
+	foreach my $job (@jobs) {
+		push @ratioops, "elsp-$job";
 	}
-	$self->{_Operations} = \@ops;
 	$self->{_RatioOperations} = \@ratioops;
 }

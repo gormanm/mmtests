@@ -16,14 +16,13 @@ MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS))
 
 ###SHELLPACK init_only_start
-	pushd $SHELLPACK_DATA > /dev/null
+	cd $SHELLPACK_DATA > /dev/null
 	rm -f ./linux-$VERSION.tar.gz
 	sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
-	tar xf linux-$VERSION.tar.gz || die Failed to extract
-	cd linux-$VERSION || die Unexpected layout
+	tar xf linux-$VERSION.tar.gz || die "Failed to extract"
+	cd linux-$VERSION || die "Unexpected layout"
 
 	# Configure
-	cd $SHELLPACK_DATA/linux-$VERSION
 	yes '' | make defconfig > /dev/null 2>&1 || die Failed to make defconfig
 	make -j$THREADS clean > /dev/null
 
@@ -40,6 +39,7 @@ THREADS=$(($NUMCPUS))
 ###SHELLPACK init_only_end
 
 # Build pass
+cd $SHELLPACK_DATA/linux-$VERSION || die "Unexpected layout"
 ###SHELLPACK threads_powertwo_begin $KERNBENCH_MIN_THREADS $KERNBENCH_MAX_THREADS $KERNBENCH_ITERATIONS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $KERNBENCH_ITERATIONS
