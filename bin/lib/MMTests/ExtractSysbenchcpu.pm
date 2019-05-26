@@ -16,29 +16,15 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my $iteration;
+	my @threads = $self->discover_scaling_parameters($reportDir, "sysbench-raw-", "-1");
 
-	my @clients;
-	my @files = <$reportDir/sysbench-raw-*-1>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-2] =~ s/.log//;
-		push @clients, $split[-2];
-	}
-	@clients = sort { $a <=> $b } @clients;
-
-	# Extract per-client timing information
-	foreach my $client (@clients) {
+	# Extract per-thread timing information
+	foreach my $thread (@threads) {
 		my $iteration = 0;
+		my @files = <$reportDir/time-$thread-*>;
 
-		my @files = <$reportDir/time-$client-*>;
 		foreach my $file (@files) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
-				next if $_ !~ /elapsed/;
-				$self->addData($client, ++$iteration, $self->_time_to_elapsed($_));
-			}
-			close(INPUT);
+			$self->parse_time_elapsed($file, $thread, ++$iteration);
 		}
 	}
 }

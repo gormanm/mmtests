@@ -16,23 +16,13 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($tm, $tput, $latency);
-	my $iteration;
-	my @clients;
 	$reportDir =~ s/pgbenchloadtime/pgbench/;
 
-	@clients = $self->discover_scaling_parameters($reportDir, "pgbench-", ".log");
+	my @clients = $self->discover_scaling_parameters($reportDir, "pgbench-", ".log");
 
 	# Extract load times if available
-	$iteration = 0;
 	foreach my $client (@clients) {
-		if (open (INPUT, "$reportDir/load-$client.time")) {
-			while (<INPUT>) {
-				next if $_ !~ /elapsed/;
-				$self->addData("loadtime", ++$iteration, $self->_time_to_elapsed($_));
-			}
-			close INPUT;
-		}
+		$self->parse_time_elapsed("$reportDir/load-$client.time", $client, 0);
 	}
 }
 
