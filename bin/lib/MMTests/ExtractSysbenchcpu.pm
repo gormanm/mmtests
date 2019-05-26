@@ -5,7 +5,6 @@ use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
-
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSysbenchcpu";
@@ -18,12 +17,9 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my @threads = $self->discover_scaling_parameters($reportDir, "sysbench-raw-", "-1");
 
-	# Extract per-thread timing information
 	foreach my $thread (@threads) {
 		my $iteration = 0;
-		my @files = <$reportDir/time-$thread-*>;
-
-		foreach my $file (@files) {
+		foreach my $file (<$reportDir/time-$thread-*>) {
 			$self->parse_time_elapsed($file, $thread, ++$iteration);
 		}
 	}

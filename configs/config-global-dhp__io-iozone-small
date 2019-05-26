@@ -10,7 +10,6 @@ get_numa_details	# Sets MMTESTS_NODE_SIZE MMTESTS_NODE_ID_BY_SIZE
 
 # MM Test Parameters
 export MMTESTS="iozone"
-export RUN_WARMUP=
 
 
 # Machine configuration

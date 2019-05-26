@@ -4,7 +4,6 @@
 
 # MM Test Parameters
 export MMTESTS="fsmark-threaded"
-export RUN_WARMUP=
 
 
 # Machine configuration

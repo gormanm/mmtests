@@ -1,7 +1,6 @@
 
 # MM Test Parameters
 export MMTESTS="adrestia-wakeup-single"
-export RUN_WARMUP=
 
 
 # Machine configuration

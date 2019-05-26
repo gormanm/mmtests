@@ -3,7 +3,6 @@
 
 # MM Test Parameters
 export MMTESTS="specjbb2015"
-export RUN_WARMUP=
 
 export OPROFILE_REPORT_CALLGRAPH=
 

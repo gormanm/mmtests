@@ -6,7 +6,6 @@
 
 # MM Test Parameters
 export MMTESTS="siege"
-export RUN_WARMUP=
 
 
 # Machine configuration

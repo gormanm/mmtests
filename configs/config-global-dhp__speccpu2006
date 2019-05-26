@@ -6,7 +6,6 @@
 
 # MM Test Parameters
 export MMTESTS="speccpu"
-export RUN_WARMUP=
 
 
 # Machine configuration

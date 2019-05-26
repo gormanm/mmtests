@@ -3,7 +3,6 @@ SCRIPTDIR=`cd "$DIRNAME" && pwd`
 
 # MM Test Parameters
 export MMTESTS="pft"
-export RUN_WARMUP=
 
 # Machine configuration
 # Swap configuration can be one of default, partitions, swapfile, NFS

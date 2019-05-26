@@ -7,7 +7,6 @@
 
 # MM Test Parameters (no particular order)
 export MMTESTS="wis-pread wis-pwrite wis-unlink wis-mmap wis-open wis-poll wis-filelock wis-read wis-fallocate"
-export RUN_WARMUP=
 
 #export OPROFILE_REPORT_CALLGRAPH=8
 

@@ -7,7 +7,6 @@
 
 # MM Test Parameters
 export MMTESTS="dedup"
-export RUN_WARMUP=
 
 #export OPROFILE_REPORT_CALLGRAPH=8
 

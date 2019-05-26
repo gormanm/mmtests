@@ -9,7 +9,6 @@
 
 # MM Test Parameters
 export MMTESTS="gitsource"
-export RUN_WARMUP=
 
 
 # Machine configuration

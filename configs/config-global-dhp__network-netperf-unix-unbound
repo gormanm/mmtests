@@ -3,7 +3,6 @@
 
 # MM Test Parameters
 export MMTESTS="netperf-unix"
-export RUN_WARMUP=
 
 
 # Machine configuration

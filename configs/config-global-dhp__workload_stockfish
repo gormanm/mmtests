@@ -1,7 +1,6 @@
 
 # MM Test Parameters
 export MMTESTS="stockfish"
-export RUN_WARMUP=
 
 
 # Machine configuration

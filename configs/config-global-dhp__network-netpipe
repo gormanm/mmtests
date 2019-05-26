@@ -9,7 +9,6 @@
 
 # MM Test Parameters
 export MMTESTS="netpipe"
-export RUN_WARMUP=
 
 
 # Machine configuration

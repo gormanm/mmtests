@@ -8,7 +8,6 @@
 
 # MM Test Parameters
 export MMTESTS="pgbench"
-export RUN_WARMUP=
 
 
 # Machine configuration

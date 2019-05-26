@@ -2,7 +2,6 @@
 
 # MM Test Parameters
 export MMTESTS="ltp"
-export RUN_WARMUP=
 
 
 # Test disk to setup (optional)

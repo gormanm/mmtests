@@ -1,7 +1,6 @@
 
 # MM Test Parameters
 export MMTESTS="bonnie"
-export RUN_WARMUP=
 
 
 # Machine configuration

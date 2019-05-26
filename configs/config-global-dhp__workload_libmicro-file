@@ -3,7 +3,6 @@
 
 # MM Test Parameters
 export MMTESTS="libmicro-file"
-export RUN_WARMUP=
 
 
 # Machine configuration

@@ -16,7 +16,6 @@
 
 # MM Test Parameters
 export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets perfpipe"
-export RUN_WARMUP=
 
 
 # Machine configuration

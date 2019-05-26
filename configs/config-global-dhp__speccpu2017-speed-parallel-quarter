@@ -1,7 +1,6 @@
 
 # MM Test Parameters
 export MMTESTS="speccpu2017-speed-build speccpu2017-speed"
-export RUN_WARMUP=
 
 
 # Machine configuration

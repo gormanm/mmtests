@@ -1,7 +1,6 @@
 
 # MM Test Parameters
 export MMTESTS="S-startup"
-export RUN_WARMUP=
 
 
 # Machine configuration

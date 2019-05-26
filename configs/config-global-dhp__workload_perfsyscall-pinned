@@ -1,6 +1,5 @@
 # MM Test Parameters
 export MMTESTS="perfsyscall"
-export RUN_WARMUP=
 
 #export OPROFILE_REPORT_CALLGRAPH=8
 

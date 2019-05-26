@@ -61,7 +61,6 @@
 
 # MM Test Parameters
 export MMTESTS="lmbench"
-export RUN_WARMUP=
 
 
 # Machine configuration

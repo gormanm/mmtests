@@ -529,16 +529,6 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	# - SHELLPACK_TEST_MOUNTS, TESTDISK_PARTITIONS, SHELLPACK_DATA_DIRS
 	declare -p | grep "\-ax" > $SCRIPTDIR/bash_arrays
 
-	# Warm up. More appropriate warmup depends on the exact test
-	if [ "$RUN_WARMUP" != "" ]; then
-		echo Entering warmup
-		RUNNING_TEST=$RUN_WARMUP
-		./bin/run-single-test.sh $RUN_WARMUP
-		RUNNING_TEST=
-		rm -rf $SHELLPACK_LOG/$RUN_WARMUP
-		echo Warmup complete, beginning tests
-	fi
-		
 	export SHELLPACK_LOGFILE="$SHELLPACK_LOG/tests-timestamp"
 	export SHELLPACK_SYSSTATEFILE="$SHELLPACK_LOG/tests-sysstate"
 	echo `date +%s` "run-mmtests: Iteration $MMTEST_ITERATION start" >> $SHELLPACK_ACTIVITY

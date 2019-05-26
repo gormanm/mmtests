@@ -16,39 +16,15 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($tm, $tput, $latency);
-	my $iteration;
-	my @clients;
 	$reportDir =~ s/johnripperexectime/johnripper/;
 
-	my @files = <$reportDir/load-*-1.time>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		push @clients, $split[-2];
-	}
-	@clients = sort { $a <=> $b } @clients;
-
-	# Extract per-client timing information
+	my @clients = $self->discover_scaling_parameters($reportDir, "johnripper-", "-1.log");
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
 		foreach my $file (<$reportDir/load-$client-*.time>) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
-				next if $_ !~ /elapsed/;
-				$self->addData("User-$client", ++$iteration, $self->_time_to_user($_));
-				$self->addData("System-$client", ++$iteration, $self->_time_to_sys($_));
-				# $self->addData("Elapsd-$client", ++$iteration, $self->_time_to_elapsed($_));
-			}
-			close(INPUT);
+			$self->parse_time_elapsed($file, $client, ++$iteration);
 		}
 	}
-
-	foreach my $heading ("User", "System") {
-		foreach my $client (@clients) {
-			push @{$self->{_Operations}}, "$heading-$client";
-		}
-	}
-}
 
 1;

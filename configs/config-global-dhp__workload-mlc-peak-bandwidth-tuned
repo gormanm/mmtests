@@ -1,7 +1,6 @@
 
 # MM Test Parameters
 export MMTESTS="mlc"
-export RUN_WARMUP=
 
 #export OPROFILE_REPORT_CALLGRAPH=8
 

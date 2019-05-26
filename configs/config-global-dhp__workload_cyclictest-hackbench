@@ -3,7 +3,6 @@
 
 # MM Test Parameters
 export MMTESTS="cyclictest-pinned"
-export RUN_WARMUP=
 
 
 # Machine configuration

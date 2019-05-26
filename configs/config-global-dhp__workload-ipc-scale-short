@@ -3,7 +3,6 @@
 
 # MM Test Parameters
 export MMTESTS="ipcscale-waitforzero ipcscale-posixsempp"
-export RUN_WARMUP=
 
 #export OPROFILE_REPORT_CALLGRAPH=8
 

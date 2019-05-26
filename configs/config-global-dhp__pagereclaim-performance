@@ -22,7 +22,6 @@ if [ "`uname -m`" != "aarch64" ]; then
 else
 	export MMTESTS="lmbench stutter"
 fi
-export RUN_WARMUP=
 
 
 # Machine configuration

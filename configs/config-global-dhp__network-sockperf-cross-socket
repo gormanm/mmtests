@@ -3,7 +3,6 @@
 
 # MM Test Parameters
 export MMTESTS="sockperf-tcp-throughput sockperf-tcp-under-load sockperf-udp-throughput sockperf-udp-under-load"
-export RUN_WARMUP=
 
 
 # Machine configuration

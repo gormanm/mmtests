@@ -13,7 +13,6 @@
 
 # MM Test Parameters
 export MMTESTS="schbench"
-export RUN_WARMUP=
 
 
 # Machine configuration

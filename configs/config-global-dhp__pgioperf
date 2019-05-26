@@ -6,7 +6,6 @@
 
 # MM Test Parameters
 export MMTESTS="pgioperfinit pgioperfbench"
-export RUN_WARMUP=
 
 
 # Machine configuration

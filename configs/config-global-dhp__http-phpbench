@@ -3,7 +3,6 @@
 
 # MM Test Parameters
 export MMTESTS="phpbench"
-export RUN_WARMUP=
 
 
 # Machine configuration

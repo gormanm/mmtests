@@ -9,7 +9,6 @@
 
 # MM Test Parameters
 export MMTESTS="pft ebizzy tlbflush"
-export RUN_WARMUP=
 
 
 # Machine configuration

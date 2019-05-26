@@ -3,7 +3,6 @@
 
 # MM Test Parameters
 export MMTESTS="netperf-udp-rr netperf-tcp-rr"
-export RUN_WARMUP=
 
 
 # Machine configuration

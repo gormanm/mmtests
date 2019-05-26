@@ -5,7 +5,6 @@
 
 # MM Test Parameters
 export MMTESTS="freqmine-small freqmine-medium freqmine-large"
-export RUN_WARMUP=
 
 #export OPROFILE_REPORT_CALLGRAPH=8
 

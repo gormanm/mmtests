@@ -9,7 +9,6 @@
 
 # MM Test Parameters
 export MMTESTS="thpscale"
-export RUN_WARMUP=
 
 #export OPROFILE_REPORT_CALLGRAPH=8
 

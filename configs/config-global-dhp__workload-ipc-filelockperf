@@ -1,7 +1,6 @@
 
 # MM Test Parameters
 export MMTESTS="filelockperf-flock filelockperf-posix filelockperf-lease"
-export RUN_WARMUP=
 
 #export OPROFILE_REPORT_CALLGRAPH=8
 

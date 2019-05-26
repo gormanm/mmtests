@@ -1,7 +1,6 @@
 
 # MM Test Parameters
 export MMTESTS="unixbench-dhry2reg unixbench-syscall unixbench-pipe unixbench-spawn unixbench-execl"
-export RUN_WARMUP=
 
 #export OPROFILE_REPORT_CALLGRAPH=8
 

@@ -8,7 +8,6 @@
 
 # MM Test Parameters (no particular order)
 export MMTESTS="simoop"
-export RUN_WARMUP=
 
 #export OPROFILE_REPORT_CALLGRAPH=8
 

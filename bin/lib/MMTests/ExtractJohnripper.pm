@@ -17,14 +17,7 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @clients;
-
-	my @files = <$reportDir/johnripper-*-1.log>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		push @clients, $split[-2];
-	}
-	@clients = sort { $a <=> $b } @clients;
+	my @clients = $self->discover_scaling_parameters($reportDir, "johnripper-", "-1.log");
 
 	# Extract per-client transaction information
 	foreach my $client (@clients) {

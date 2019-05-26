@@ -1,6 +1,5 @@
 
 # MM Test Parameters
-export RUN_WARMUP=
 export MMTESTS="unixbench-fsdisk unixbench-fsdisk-r unixbench-fsdisk-w"
 
 #export OPROFILE_REPORT_CALLGRAPH=8

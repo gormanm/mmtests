@@ -1,6 +1,5 @@
 # MM Test Parameters
 export MMTESTS="thpfioscale"
-export RUN_WARMUP=
 
 
 echo always > /sys/kernel/mm/transparent_hugepage/defrag

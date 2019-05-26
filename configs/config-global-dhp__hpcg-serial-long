@@ -1,7 +1,6 @@
 
 # MM Test Parameters
 export MMTESTS="hpcg-serial"
-export RUN_WARMUP=
 
 export OPROFILE_REPORT_CALLGRAPH=
 

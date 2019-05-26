@@ -1,7 +1,6 @@
 
 # MM Test Parameters
 export MMTESTS="nas-omp-bt nas-omp-cg nas-omp-ep nas-omp-ft nas-omp-is nas-omp-lu nas-omp-mg nas-omp-sp nas-omp-ua"
-export RUN_WARMUP=
 
 export OPROFILE_REPORT_CALLGRAPH=
 

@@ -3,7 +3,6 @@
 
 # MM Test Parameters
 export MMTESTS="libmicro-regular libmicro-memory libmicro-contextswitch libmicro-socket"
-export RUN_WARMUP=
 
 
 # Machine configuration

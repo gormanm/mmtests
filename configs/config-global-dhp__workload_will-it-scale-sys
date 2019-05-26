@@ -5,7 +5,6 @@
 
 # MM Test Parameters (no particular order)
 export MMTESTS="wis-futex wis-malloc wis-pf wis-getppid wis-sched wis-pthreadmutex wis-signal wis-pipe wis-eventfd wis-posixsems"
-export RUN_WARMUP=
 
 #export OPROFILE_REPORT_CALLGRAPH=8
 

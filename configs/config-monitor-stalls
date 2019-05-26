@@ -3,7 +3,6 @@ NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 
 # MM Test Parameters
 export MMTESTS="monitor"
-export RUN_WARMUP=
 
 export OPROFILE_REPORT_CALLGRAPH=
 

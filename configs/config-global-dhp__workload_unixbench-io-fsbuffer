@@ -1,6 +1,5 @@
 
 # MM Test Parameters
-export RUN_WARMUP=
 export MMTESTS="unixbench-fsbuffer unixbench-fsbuffer-r unixbench-fsbuffer-w"
 
 #export OPROFILE_REPORT_CALLGRAPH=8

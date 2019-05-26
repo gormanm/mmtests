@@ -13,7 +13,6 @@
 
 # MM Test Parameters
 export MMTESTS="aim9 pft"
-export RUN_WARMUP=
 
 
 # Machine configuration

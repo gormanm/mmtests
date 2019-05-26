@@ -12,7 +12,6 @@
 
 # MM Test Parameters
 export MMTESTS="postmark ffsb"
-export RUN_WARMUP=
 
 
 # Machine configuration

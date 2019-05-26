@@ -6,10 +6,6 @@
 
 # MM Test Parameters
 export MMTESTS="johnripper"
-export RUN_WARMUP=
-
-
-# Machine configuration
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
@@ -26,12 +22,12 @@ export RUN_WARMUP=
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_PLAIN=
-export MONITORS_GZIP="proc-vmstat top"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_GZIP="proc-vmstat mpstat"
+export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # john the ripper
 export JOHNRIPPER_ITERATIONS=3
 export JOHNRIPPER_DURATION=20
-export JOHNRIPPER_MIN_THREADS=1
+export JOHNRIPPER_MIN_THREADS=2
 export JOHNRIPPER_MAX_THREADS=$((NUMCPUS*2))

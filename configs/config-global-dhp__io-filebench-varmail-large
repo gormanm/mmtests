@@ -14,7 +14,6 @@
 
 # MM Test Parameters
 export MMTESTS="filebench"
-export RUN_WARMUP=
 
 
 # Machine configuration

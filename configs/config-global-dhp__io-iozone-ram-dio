@@ -12,7 +12,6 @@
 
 # MM Test Parameters
 export MMTESTS="iozone"
-export RUN_WARMUP=
 
 
 # Machine configuration

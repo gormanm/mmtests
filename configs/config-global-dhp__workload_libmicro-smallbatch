@@ -3,7 +3,6 @@
 
 # MM Test Parameters
 export MMTESTS="libmicro-smallbatches"
-export RUN_WARMUP=
 
 
 # Machine configuration
