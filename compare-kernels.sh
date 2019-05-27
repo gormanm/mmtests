@@ -612,7 +612,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		eval $COMPARE_CMD
 		echo
 		echo $SUBREPORT rates
-		cache-mmtests.sh compare-mmtests.pl -d . -b simooprates -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b simoop -a rates -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	specjvm)
@@ -1010,8 +1010,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 
 			echo "<tr>"
 			for HEADING in work stall; do
-				eval $GRAPH_PNG -b simooprates --title \"$SUBREPORT $HEADING rates\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.png
-				eval $GRAPH_PSC -b simooprates --title \"$SUBREPORT $HEADING rates\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.ps
+				eval $GRAPH_PNG -b simoop -a rates --title \"$SUBREPORT $HEADING rates\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.png
+				eval $GRAPH_PSC -b simoop -a rates --title \"$SUBREPORT $HEADING rates\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.ps
 				plain graph-$SUBREPORT-$HEADING
 			done
 			echo "</tr>"

@@ -20,7 +20,6 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	$reportDir =~ s/simooprates/simoop/;
 
 	my $reading = 0;
 	my $timestamp;
