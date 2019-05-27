@@ -15,19 +15,8 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($tm, $tput, $latency);
-	my $iteration;
 
-	my @clients;
-	my @files = <$reportDir/sysbench-raw-*-1>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-2] =~ s/.log//;
-		push @clients, $split[-2];
-	}
-	@clients = sort { $a <=> $b } @clients;
-
-	# Extract per-client transaction information
+	my @clients = $self->discover_scaling_parameters($reportDir, "sysbench-raw-", "-1");;
 	foreach my $client (@clients) {
 		$iteration = 0;
 
