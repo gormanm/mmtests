@@ -23,8 +23,8 @@ config-db-sysbench-postgres-oltp-ro-medium
 config-db-sysbench-postgres-oltp-ro-small
 config-db-sysbench-postgres-oltp-rw-medium
 config-db-sysbench-postgres-oltp-rw-small
-config-pgioperf
-config-workload_usemem
+config-io-pgioperf
+config-workload-usemem
 "
 
 RAMCONFIGS="
