@@ -579,9 +579,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		eval $COMPARE_CMD
 		;;
 	pgbench)
-		echo $SUBREPORT Initialisation
-		cache-mmtests.sh compare-mmtests.pl -d . -b pgbench -a loadtime -n $KERNEL_LIST $FORMAT_CMD
-		echo
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
 		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b pgbench -a stalls -n $KERNEL_LIST $FORMAT_CMD > /tmp/pgbench-$$
