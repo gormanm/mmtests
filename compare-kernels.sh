@@ -668,7 +668,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		cache-mmtests.sh compare-mmtests.pl -d . -b xfsiothroughput -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Ops
-		cache-mmtests.sh compare-mmtests.pl -d . -b xfsioops -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b xfsio -a ops -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	*)
 		echo $SUBREPORT
