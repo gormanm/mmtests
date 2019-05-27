@@ -15,35 +15,14 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($tm, $tput, $latency);
-	my $iteration;
-	my @clients;
-
-	my @files = <$reportDir/usemem-*-1>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		push @clients, $split[-2];
-	}
-	@clients = sort { $a <=> $b } @clients;
+	my @clients = $self->discover_scaling_parameters($reportDir, "usemem-", "-1");;
 
 	# Extract per-client timing information
 	foreach my $client (@clients) {
 		my $iteration = 0;
 
 		foreach my $file (<$reportDir/usemem-$client-*>) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
-				next if $_ !~ /elapsed/;
-				$self->addData("System-$client", ++$iteration, $self->_time_to_sys($_));
-				$self->addData("Elapsd-$client", ++$iteration, $self->_time_to_elapsed($_));
-			}
-			close(INPUT);
-		}
-	}
-
-	foreach my $heading ("System", "Elapsd") {
-		foreach my $client (@clients) {
-			push @{$self->{_Operations}}, "$heading-$client";
+			$self->parse_time_syst_elsp($file, $client, ++$iteration);
 		}
 	}
 }
