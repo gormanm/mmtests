@@ -590,11 +590,11 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		;;
 	pgbench)
 		echo $SUBREPORT Initialisation
-		cache-mmtests.sh compare-mmtests.pl -d . -b pgbenchloadtime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b pgbench -a loadtime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
-		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b pgbenchstalls -n $KERNEL_LIST $FORMAT_CMD > /tmp/pgbench-$$
+		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b pgbench -a stalls -n $KERNEL_LIST $FORMAT_CMD > /tmp/pgbench-$$
 		TEST=`grep MinStall-1 /tmp/pgbench-$$ | grep -v nan`
 		if [ "$TEST" != "" ]; then
 			echo
@@ -604,7 +604,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		rm /tmp/pgbench-$$
 		echo
 		echo $SUBREPORT Time
-		cache-mmtests.sh compare-mmtests.pl -d . -b pgbenchexectime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b pgbench -a exectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	simoop)

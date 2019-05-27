@@ -19,13 +19,8 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($tm, $tput, $latency);
-	my @clients;
-
-	$reportDir =~ s/pgbenchstalls/pgbench/;
-
-	@clients = $self->discover_scaling_parameters($reportDir, "pgbench-", ".log");
 	my $stallStart = 0;
+	my @clients = $self->discover_scaling_parameters($reportDir, "pgbench-", ".log");
 
 	# Extract per-client transaction information
 	foreach my $client (@clients) {

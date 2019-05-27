@@ -16,11 +16,8 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	$reportDir =~ s/pgbenchloadtime/pgbench/;
 
 	my @clients = $self->discover_scaling_parameters($reportDir, "pgbench-", ".log");
-
-	# Extract load times if available
 	foreach my $client (@clients) {
 		$self->parse_time_elapsed("$reportDir/load-$client.time", $client, 0);
 	}

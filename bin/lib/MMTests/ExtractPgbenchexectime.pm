@@ -18,10 +18,7 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($tm, $tput, $latency);
-	my $iteration;
 	my @clients;
-	$reportDir =~ s/pgbenchexectime/pgbench/;
 
 	@clients = $self->discover_scaling_parameters($reportDir, "pgbench-", ".log");
 	foreach my $client (@clients) {
