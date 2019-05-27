@@ -1,0 +1,58 @@
+### DBench 4 (https://dbench.samba.org/) is a workload generator that was
+### originally designed for network filesystems but can run on any filesystem.
+### It is intended as a stress tool to detect where the saturation point is.
+### The results can be tricky to interpret as it cycles through a load file
+### and the results partially depend on where in the loadfile the benchmark
+### was when the time runs out. This configuration uses fsync after the IO
+### completes (-F switch to the benchmark specifically) and varies the number
+### of clients up to NUMCPUS*8.
+###
+### This is a modified version of the benchmark to reduce variation. The
+### filesystem is limited in size to offset variations due to disk
+### placement of inodes. Work files are deleted between runs to further
+### reduce noise from disk placement. A smaller version of the loadfile
+### is used to minimise variances due to loadfiles being partially
+### completed. The metric reported is time to complete execution as
+### throughput is difficult to interpret when different operations take
+### different amounts of time.
+
+# MM Test Parameters
+export MMTESTS="dbench4"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top iotop mpstat"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# DBench
+export DBENCH_DURATION_BASE=180
+export DBENCH_OSYNC=no
+export DBENCH_SYNC_DIRECTORY=no
+export DBENCH_FSYNC=yes
+export DBENCH_MIN_CLIENTS=1
+export DBENCH_MAX_CLIENTS=$((NUMCPUS*8))
+
+# Force small filesystem size to limit variations of the test due to
+# differences in inode placement in the partition. Each client needs ~25 MB
+# of space, give it 30 to avoid close to ENOSPC conditions. Also force at
+# least 1GB size to avoid tiny filesystems.
+SIZE=$((DBENCH_MAX_CLIENTS*30))
+if [ $SIZE -lt 1024 ]; then
+	SIZE=1024
+fi
+export TESTDISK_FS_SIZE=${SIZE}m
+export MMTESTS_THREAD_CUTOFF=

@@ -1,0 +1,71 @@
+### lmbench is running  the lat_mmap tests to track how quickly maps of
+### different sizes can be created. The expectation is that this has
+### little or no impact on page reclaim but it needs to be verified.
+###
+### stutter simulates a simple workload. One part uses a lot of anonymous
+### memory, a second measures mmap latency and a third copies a large file.
+### The primary metric is checking for mmap latency.
+###
+### parallelio measures the impact of IO on the performance of an in-memory
+### workload. The primary worklod in-memory workload. The primary workload
+### is a memcached server with a memcachetest client tuned to use 80% of
+### memory. The test runs multiple times starting with no parallel IO and
+### then doing IO with dd to a file sized to be  10% of physical memory and
+### finishing with a file 80% of physical memory. The metrics of the test are
+### how much performance is lost by running the IO in parallel and checking if
+### it prematurely pushed to swap. A positive swapout figure is not necessarily
+### bad but high swaptotals imply that the in-memory workload is thrashing.
+
+# MM Test Parameters
+if [ "`uname -m`" != "aarch64" ]; then
+	export MMTESTS="lmbench stutter parallelio"
+else
+	export MMTESTS="lmbench stutter"
+fi
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=""
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top iotop"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# LMBench
+export LMBENCH_TESTS=lat_mmap
+export LMBENCH_LATMMAP_ITERATIONS=3
+export LMBENCH_LATMMAP_MIN_FILESIZE=$((MEMTOTAL_BYTES/2))
+export LMBENCH_LATMMAP_MAX_FILESIZE=$((MEMTOTAL_BYTES*3/2))
+
+# Memcache Test
+export MEMCACHETEST_CONCURRENCY=$((NUMCPUS/2))
+export MEMCACHETEST_DURATION=300
+export MEMCACHETEST_VALUE_SIZE=16384
+export MEMCACHED_MEMPOOL=$((MEMTOTAL_BYTES*4/5))
+
+# Parallel IO
+export PARALLELIO_WORKLOAD_DURATION=$MEMCACHETEST_DURATION
+export PARALLELIO_TARGETLOAD_SIZE=$MEMCACHED_MEMPOOL
+export PARALLELIO_WORKLOADS="memcachetest"
+export PARALLELIO_IOLOAD="dd"
+export PARALLELIO_MIN_IOSIZE=$(((MEMTOTAL_BYTES-PARALLELIO_TARGETLOAD_SIZE)/2))
+export PARALLELIO_MAX_IOSIZE=$(((MEMTOTAL_BYTES-PARALLELIO_TARGETLOAD_SIZE)*4))
+export PARALLELIO_INCREMENTS=3
+export PARALLELIO_ITERATIONS=3
+
+# stutter
+export STUTTER_MEMFAULT_SIZE=$((MEMTOTAL_BYTES*3/4))
+export STUTTER_MEMFAULT_TMPFS=no
+export STUTTER_FILESIZE=$(($MEMTOTAL_BYTES*2))
+export STUTTER_BLOCKSIZE=$((2*1048576))

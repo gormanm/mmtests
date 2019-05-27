@@ -1,0 +1,89 @@
+### lmbench is just running the lat_ctx test and is an approximate
+### measure of context switch latency but with significant caveats.
+### switch latency.
+
+### The benchmark passes a token around a ring of pipe-connected processes
+### and on receiving the token, it does a small amount of work on a
+### buffer. It measures the time to do the token receive, token pass and
+### data process but it has a significant number of weaknesses.
+
+### The most basic definition for the cost of a context switch is the
+### overhead of suspending a process, saving the hardware state, select the
+### next process, restore the hardware state and then start executing it.
+### That in itself does not have a fixed cost as it matters a lot which CPU
+### the wakee previously ran on. lmbench also measures more than just the
+### context switch because it includes the time to do some work on a buffer
+### which means it's also counting the cost of populating the cache with the
+### working set of the process which also has variable cost.
+###
+
+### The cost of just the context switch is variable because it depends
+### heavily on where the wakee process previously ran. lmbench initially forks
+### all its helpers so the benchmark can be gamed by initially stacking all
+### the processes on the same CPU which, in general, is a poor decision as any
+### long-lived processes must then be load balanced. There is more variability
+### depending on what CPU the wakee process previously ran, the CPU cache
+### locality and the state of the CPU cache. This cost will be effectively
+### random due to the variable cost of migrating data between caches
+### depending on locality and whether there are any cache conflicts.
+###
+### The cache conflict is interesting. Depending on exactly where the
+### "work buffer" is located, it may or may not force the data from the waking
+### process out of the CPU cache. The "work buffer" is only read so in theory,
+### the data can be shared between multiple CPU caches. However, the cost will
+### depend heavily on whether the waker and wakee use the same cache lines to
+### store the data. In the ideal case, both waker and wakee data can be both
+### in the cache but if they hash to the same lines, the wakee will invalidate
+### the data of the waker which later fetches the same data from memory. This
+### will not be reliably reproducible but may sometimes results in "runs
+### where every iteration is bad" and "runs where every iteration is good"
+### on the exact same kernel simply because of what pages were used.
+### 
+### In theory, the OS can mitigate this class of problem using cache coloring
+### in allocation algorithms but previous research indicated that the cost of
+### a cache coloring algorithm exceeds the benefit and hence Linux doesn't
+### implement one. Consequently, the results from lmbench_ctx will never be
+### reliably reproducible. An interesting side note is that lmbench_ctx also
+### depends on whether THP is used and whether the benchmark is run early in
+### the lifetime of the system or not as these affect the cache color of the
+### pages used for the work buffers.
+### 
+### The cache location and locality are both significant source of randomness
+### that makes results from this benchmark extremely difficult to reliably
+### reproduce and the results can vary depending on exactly when the benchmark
+### was run. It can be stabilised if the fork() does not spread new tasks
+### on available CPUs), rarely load balances and runs on a subset of CPUs
+### (ideally 2 but potentially more if the time to process the work buffer is
+### high). That would maximise cache locality and be closer to measuring the
+### context of the context switch itself.
+###
+### In general, treat results from this benchmark with a large grain of salt.
+
+# MM Test Parameters
+export MMTESTS="lmbench"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=""
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat mpstat perf-time-stat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
+export MONITOR_UPDATE_FREQUENCY=10
+
+# LMBench
+export LMBENCH_TESTS=lat_ctx
+export LMBENCH_LATCTX_ITERATIONS=5
+export LMBENCH_LATCTX_SIZE=0,64,128,1024,131072
+export LMBENCH_LATCTX_MAXCLIENTS=$NUMCPUS

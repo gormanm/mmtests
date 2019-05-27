@@ -1,12 +1,5 @@
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
-NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
-
 # MM Test Parameters
 export MMTESTS="monitor"
-
-export OPROFILE_REPORT_CALLGRAPH=
-
-# Machine configuration
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=

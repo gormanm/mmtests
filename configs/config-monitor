@@ -1,10 +1,5 @@
-
 # MM Test Parameters
 export MMTESTS="monitor"
-
-export OPROFILE_REPORT_CALLGRAPH=
-
-# Machine configuration
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=

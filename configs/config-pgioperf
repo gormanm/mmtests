@@ -1,0 +1,37 @@
+### pgioperf is a workload simulator for postgres running a read/write
+### workload. It simulates the activity of a reporter, the WAL and commit
+### intervals and is vunerable to very large stalls due to sync. It is
+### expected that fixing any problems shown by this benchmark would also
+### be of benefit to postgres.
+
+# MM Test Parameters
+export MMTESTS="pgioperfinit pgioperfbench"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=""
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_TOP_ACTIVEONLY=yes
+
+# Postgres IO Perf microbench
+export PGIOPERF_DATA_SIZE=$((MEMTOTAL_BYTES*2))
+export PGIOPERF_WAL_SIZE=$((PGIOPERF_DATA_SIZE/48))
+export PGIOPERF_NUM_RANDOM_READERS=16
+export PGIOPERF_READ_REPORT_INTERVAL=10000
+export PGIOPERF_WAL_REPORT_INTERVAL=1000
+export PGIOPERF_COMMIT_REPORT_INTERVAL=500
+export PGIOPERF_SAMPLES=3000

@@ -1,0 +1,34 @@
+### NAS Parallel Benchmark (http://www.nas.nasa.gov/publications/npb.html) is a
+### small set of benchmarks that was intended for use when evaluating
+### supercomputers. They are all computational kernels. In this configuration,
+### the workload is parallelised on a single machine using MPI.
+
+# MM Test Parameters
+export MMTESTS="nas-mpi-bt nas-mpi-cg nas-mpi-ep nas-mpi-ft nas-mpi-is nas-mpi-lu nas-mpi-mg nas-mpi-sp"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top mpstat"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# NAS Parallel Benchmark
+export NAS_MPI_PATH=/usr/lib64/mpi/gcc/openmpi/bin
+export NAS_MPI_LIBPATH=/usr/lib64/mpi/gcc/openmpi/lib64
+export NAS_CLASS=C
+export NAS_USE_CMA=no
+export NAS_MAX_CPUS=$((NUMCPUS/2))
+export NAS_ITERATIONS=5

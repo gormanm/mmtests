@@ -1,0 +1,32 @@
+### The bonnie IO benchmark generates a number of basic IO patterns simulating
+### the operations of a busy file server. The dataset size of 2*RAM with 1024
+### files and the IO is asynchronous.
+
+# MM Test Parameters
+export MMTESTS="bonnie"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# bonnie
+export BONNIE_NR_FILES=20480
+export BONNIE_DIRECTORY_SIZE=$((MEMTOTAL_BYTES*2/BONNIE_NR_FILES))
+export BONNIE_NR_DIRECTORIES=20
+export BONNIE_ITERATIONS=5
+export BONNIE_FSYNC=no

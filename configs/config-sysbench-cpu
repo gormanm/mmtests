@@ -1,0 +1,32 @@
+### Sysbench is a suite of microbenchmarks. This runs the CPU microbench which
+### calculates primes up to a certain value using varying numbers of instances.
+### In this configuraiton, it calculates primes up to 25000 using between 1 and
+### 2*NUMCPUS threads.
+
+# MM Test Parameters
+export MMTESTS="sysbenchcpu"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=""
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat mpstat perf-time-stat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
+export MONITOR_UPDATE_FREQUENCY=10
+
+# sysbench cpu
+export SYSBENCHCPU_MAX_PRIME=25000
+export SYSBENCHCPU_MAX_THREADS=$((NUMCPUS*2))
+export SYSBENCHCPU_ITERATIONS=7

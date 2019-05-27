@@ -1,0 +1,47 @@
+### iozone is executed in this configuration with ramdisk as a backing device
+### to make any regression in CPU usage within IO stack visible. In this test
+### we excercise direct IO submission path.
+### We use file size of at most 80% of ramdisk size to avoid cornercases of
+### block allocators. Also this is about the upper bound suggested for fs use
+### if you want to see reasonable performance from it.
+### Test block sizes between 1k and 1m to both excercise code for sub-blocks
+### writes and test workloads where syscall overhead isn't that noticeable.
+### It is executed five times to estimate variance.
+
+. $SHELLPACK_INCLUDE/include-sizes.sh
+
+# MM Test Parameters
+export MMTESTS="iozone"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+# Use 1/3 of memory to leave space for pagecache and other stuff. Ramdisk will
+# be interleaved across all nodes in case of NUMA machine
+export TESTDISK_RD_PREALLOC=yes
+export TESTDISK_RD_SIZE=$((MEMTOTAL_BYTES/3))
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# iozone
+size=$((TESTDISK_RD_SIZE*4/5))
+export IOZONE_MIN_SIZE=$((size/4))
+export IOZONE_MAX_SIZE=$size
+export IOZONE_MIN_BLK_SIZE=1024
+export IOZONE_MAX_BLK_SIZE=1048576
+export IOZONE_ITERATIONS=5
+export IOZONE_DIO=yes
+export IOZONE_FSYNC=yes

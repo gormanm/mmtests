@@ -1,0 +1,33 @@
+### This benchmark simply consumes memory in a loop. In some cases it can be
+### used to highlight reclaim-related problems. In this case, the configuration
+### on NUMA machines may trigger premature swapping and reclaim.
+
+# MM Test Parameters
+export MMTESTS="usemem"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat mpstat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# Memory consumer
+export USEMEM_WORKLOAD_SIZE=$((MEMTOTAL_BYTES/20))
+export USEMEM_PERCENTAGE_ANON=80
+export USEMEM_LOOPS=30
+export USEMEM_ITERATIONS=7
+export USEMEM_MIN_THREADS=1
+export USEMEM_MAX_THREADS=$NUMCPUS

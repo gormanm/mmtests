@@ -1,0 +1,37 @@
+### Mutilate is a load generate for memcached that is meant to generate high
+### request rates that are realistic. It is not an optimal configuration
+### as that would require multiple server instances but it is a reasonable
+### test of a single node. It can also be used to simulate specific loads
+### but this configuration uses the defaults until such time as the basic
+### problems are resolved.
+
+# MM Test Parameters
+export MMTESTS="mutilate"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=""
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_TOP_ACTIVEONLY=yes
+
+# Mutilate memcache Test
+export MUTILATE_MIN_THREADS=1
+export MUTILATE_MAX_THREADS=$((NUMCPUS))
+export MUTILATE_DURATION=180
+export MUTILATE_ITERATIONS=3
+export MUTILATE_VALUE_SIZE=16384
+export MEMCACHED_MEMPOOL=$((MEMTOTAL_BYTES/4))

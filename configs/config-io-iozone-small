@@ -1,0 +1,43 @@
+### iozone is executed in this configuration without fsync included in timings
+### and for small file sizes so that measure overhead of pagecache writes.
+### Test block sizes between 1k and 1m to both excercise code for sub-blocks
+### writes and test workloads where syscall overhead isn't that noticeable.
+### It is executed five times to estimate variance.
+
+. $SHELLPACK_INCLUDE/include-sizes.sh
+
+get_numa_details	# Sets MMTESTS_NODE_SIZE MMTESTS_NODE_ID_BY_SIZE
+
+# MM Test Parameters
+export MMTESTS="iozone"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+export IOZONE_NODE=${MMTESTS_NODE_ID_BY_SIZE[$((NUMNODES-1))]}
+# Assume 10% of node size won't hit any dirty throttling or per-node limits
+iozone_size=$((${MMTESTS_NODE_SIZE[$IOZONE_NODE]}/10))
+iozone_size=$((iozone_size&~(16*1048576-1)))
+
+export IOZONE_MIN_SIZE=$((iozone_size/4))
+export IOZONE_MAX_SIZE=$((iozone_size/2))
+export IOZONE_MIN_BLK_SIZE=1024
+export IOZONE_MAX_BLK_SIZE=1048576
+export IOZONE_ITERATIONS=5
+export IOZONE_FSYNC="no"

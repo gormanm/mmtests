@@ -1,0 +1,29 @@
+### netperf-udp is a UDP_STREAM netperf run on a loopback device.
+###
+### netperf-tcp is a TCP_STREAM netperf run on a loopback device.
+
+# MM Test Parameters
+export MMTESTS="netperf-udp netperf-tcp"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda5
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# NetPerf
+export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
+export NETPERF_ITERATIONS=5

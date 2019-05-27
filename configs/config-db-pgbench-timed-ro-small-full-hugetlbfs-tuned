@@ -1,0 +1,57 @@
+### pgbench is a workload generator that is packaged with postgres. It
+### is relatively basic and modelled on TPC-B. In this configuration,
+### the workload is read-only and scaled so that the approximate size
+### is 80% of of the database shared buffer which itself is 20% of RAM.
+### The page cache is not flushed after the database is populated for the
+### test and starts cache-hot.
+
+# MM Test Parameters
+export MMTESTS="pgbench"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=""
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top iotop"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
+export MONITOR_UPDATE_FREQUENCY=10
+
+# pgbench
+export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES/2))
+export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/5))
+export OLTP_PAGESIZES="default"
+export OLTP_HUGETLBFS=yes
+export PGBENCH_MAX_TIME=300
+export PGBENCH_READONLY=yes
+export PGBENCH_MAX_THREADS=$((NUMCPUS*2))
+export PGBENCH_CACHE_COLD=no
+
+# The baseline database size is approximately 30MB. Each unit of scaling
+# factor adds approximately 15M of data to the table. Tune accordingly.
+export TARGET_WORKLOAD_SIZE=$((OLTP_SHAREDBUFFERS*4/5))
+export PGBENCH_SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)/(15*1048576)))
+export DATABASE_INIT_ONCE=yes
+
+echo Setting cpufreq to performance
+cpupower frequency-set -g performance
+
+echo Disabling THP
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+
+echo Disabling NUMA Balancing
+echo 0 > /proc/sys/kernel/numa_balancing
+
+echo Using interleave policy
+export MMTESTS_NUMA_POLICY=interleave

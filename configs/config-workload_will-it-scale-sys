@@ -1,0 +1,32 @@
+### will-is-scale is a set of microbench that run a test case from 1 to N
+### parallel copies to see if it scales. It uses both processes and threads
+### as each hyas different scaling properties. This configuration runs
+### through the benchmarks that are scheduler, MM or IPC based.
+
+# MM Test Parameters (no particular order)
+export MMTESTS="wis-futex wis-malloc wis-pf wis-getppid wis-sched wis-pthreadmutex wis-signal wis-pipe wis-eventfd wis-posixsems"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# will-it-scale
+export WIS_ITERATIONS=5
+export WIS_MIN_THREADS=2
+export WIS_MAX_THREADS=$((NUMCPUS*4))
+export WIS_MODELS="processes,threads"

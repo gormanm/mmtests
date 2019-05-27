@@ -1,0 +1,17 @@
+### sysjitter measures how much userspace threads are interfered with by
+### kernel activity
+###
+
+# MM Test Parameters
+export MMTESTS="sysjitter"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP=
+export MONITORS_WITH_LATENCY=
+
+# sysjitter
+export SYSJITTER_DURATION=300
+export SYSJITTER_THRESHOLD=300

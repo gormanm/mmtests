@@ -1,0 +1,61 @@
+# MM Test Parameters
+export MMTESTS="fio"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# fio
+JOBFILE="/tmp/fio-jobfile-$$"
+export FIO_CMD_OPTIONS="$JOBFILE"
+
+if [ "$TESTDISK_PARTITION" = "" ]; then
+	die "Must specify test disk partition to size fio job"
+fi
+export TESTDISK_SIZE=`blockdev --getsize64 $TESTDISK_PARTITION`
+if [ "$TESTDISK_SIZE" = "" -o "$TESTDISK_PARTITION_SIZE" = "0" ]; then
+	echo `hostname`: Tried blockdev --getsize64 $TESTDISK_PARTITION
+	die "Unable to detect test partition $TESTDISK_PARTITION size ($TESTDISK_SIZE)"
+fi
+
+export FIO_SIZE=$((TESTDISK_SIZE*8/10))
+if [ $FIO_SIZE -le $((MEMTOTAL_BYTES*2)) ]; then
+	die "Test disk partition is too small"
+fi
+
+NUMJOBS=4
+export FIO_SIZE=$((FIO_SIZE/1048576/1024/NUMJOBS))
+
+cat >$JOBFILE <<END
+[global]
+bs=4k
+ioengine=sync
+iodepth=32
+direct=0
+runtime=900
+invalidate=1
+blocksize=4096
+size=${FIO_SIZE}g
+log_avg_msec=10
+group_reporting=1
+time_based
+
+[writer]
+readwrite=randwrite
+numjobs=4
+END

@@ -1,0 +1,50 @@
+### This is a benchmark that tries to simulate the VM pressure of hadoop but
+### it is not a hadoop simulator. It has a few discrete parts
+### o Fill the drive to a configured percentage
+### o Reruse worksets
+### o Read/write things
+### o Burn CPUs to compete with kswapd for CPU
+### o Allocate things
+
+# MM Test Parameters (no particular order)
+export MMTESTS="simoop"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# simoop
+# PER_THREAD_WORKINGSET is allocated once and reused
+# Total workingset in this configuration is roughly 70% of RAM
+export SIMOOP_WARMTIME_DURATION=180
+export SIMOOP_RUNTIME_DURATION=600
+export SIMOOP_FILE_DIRECTORIES=16
+export SIMOOP_THREADS=$((NUMCPUS/2))
+export SIMOOP_WORKINGSET_MB=$(((MEMTOTAL_BYTES/5)/1048576))
+export SIMOOP_WORKINGSET_THREAD_MB=$((SIMOOP_WORKINGSET_MB/SIMOOP_THREADS))
+export SIMOOP_BURN_THREADS=$((SIMOOP_THREADS/5))
+export SIMOOP_READWRITE_THREADS=$((SIMOOP_FILE_DIRECTORIES/2))
+export SIMOOP_DU_THREADS=2
+export SIMOOP_FILESIZE_MB=80
+export SIMOOP_READSIZE_MB=2
+export SIMOOP_WRITESIZE_MB=1
+export SIMOOP_REPORT_FREQUENCY=10
+
+SIMOOP_ROUNDED=$((SIMOOP_WORKINGSET_MB+$SIMOOP_FILESIZE_MB*2))
+SIMOOP_ROUNDED=$((SIMOOP_ROUNDED-(SIMOOP_ROUNDED%$SIMOOP_FILESIZE_MB)))
+export SIMOOP_NUMFILES=$((SIMOOP_ROUNDED*4/SIMOOP_FILESIZE_MB/$SIMOOP_FILE_DIRECTORIES))

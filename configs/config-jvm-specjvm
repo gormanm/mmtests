@@ -1,0 +1,23 @@
+### This is a standard specjvm run using a single JVM with a maximum heap
+### size of 60% of memory.
+
+# MM Test Parameters
+export MMTESTS="specjvm"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# SPECjvm
+export SPECJVM_JRE=/opt/java/jre/bin
+export SPECJVM_DEFAULT_ITERATION_TIME=300
+export SPECJVM_DEFAULT_WARMUP_TIME=120
+export SPECJVM_DEFAULT_ITERATIONS=3
+export SPECJVM_MAXHEAP=-Xmx$((MEMTOTAL_BYTES*6/10/1048576))m
+export SPECJVM_PAGESIZES="default"
+#export SPECJVM_PAGESIZES="base huge"
+export SPECJVM_HUGESWITCH=-Xlp
