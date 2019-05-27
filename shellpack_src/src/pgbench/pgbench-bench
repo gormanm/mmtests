@@ -224,9 +224,8 @@ FIRST_TIME=yes
 		die pgbench failed to execute
 	fi
 	for FILE in `ls pgbench_log.*`; do
-		echo Copying transaction $FILE $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS.log
 		mv $FILE $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS.log
-		gzip $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS.log
+		gzip -f $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS.log
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
 ###SHELLPACK threads_stride_end
