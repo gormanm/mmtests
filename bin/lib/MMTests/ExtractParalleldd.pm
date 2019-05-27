@@ -15,29 +15,14 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($tm, $tput, $latency);
-	my $iteration;
-	my @clients;
+	my @instances = $self->discover_scaling_parameters($reportDir, "time-", "-1-1");
 
-	my @files = <$reportDir/time-*-1-1>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		push @clients, $split[-3];
-	}
-	@clients = sort { $a <=> $b } @clients;
-
-	# Extract per-client timing information
-	foreach my $client (@clients) {
+	# Extract per-instance timing information
+	foreach my $instance (@instances) {
 		my $iteration = 0;
 
-		foreach my $file (<$reportDir/time-$client-*>) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
-				next if $_ !~ /elapsed/;
-				# $self->addData("System-$client", ++$iteration, $self->_time_to_sys($_));
-				$self->addData("Elapsd-$client", ++$iteration, $self->_time_to_elapsed($_));
-			}
-			close(INPUT);
+		foreach my $file (<$reportDir/time-$instance-*>) {
+			$self->parse_time_elapsed($file, $instance, ++$iteration);
 		}
 	}
 }
