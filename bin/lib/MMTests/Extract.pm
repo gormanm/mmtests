@@ -487,7 +487,11 @@ sub discover_scaling_parameters() {
 sub parse_time_elapsed() {
 	my ($self, $log, $scaling, $iteration) = @_;
 
-	open(INPUT, $log) || die("Failed to open $log\n");
+	if ($log =~ /\.gz$/) {
+		open(INPUT, "gunzip -c $log|") || die("Failed to open gzipped $log\n");
+	} else {
+		open(INPUT, $log) || die("Failed to open $log\n");
+	}
 	while (<INPUT>) {
 		next if $_ !~ /elapsed/;
 		$self->addData($scaling, $iteration, $self->_time_to_elapsed($_));

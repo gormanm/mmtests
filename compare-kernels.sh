@@ -631,7 +631,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		cache-mmtests.sh compare-mmtests.pl -d . -b stockfish -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Execution time
-		cache-mmtests.sh compare-mmtests.pl -d . -b stockfishtime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b stockfish -a time -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	stutter)
@@ -1045,8 +1045,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "<tr>"
 			eval $GRAPH_PNG        -b stockfish     --title \"$SUBREPORT nodes/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
 			eval $GRAPH_PSC        -b stockfish     --title \"$SUBREPORT nodes/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
-			eval $GRAPH_PNG        -b stockfishtime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-time.png
-			eval $GRAPH_PSC        -b stockfishtime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-time.ps
+			eval $GRAPH_PNG        -b stockfish -a time --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-time.png
+			eval $GRAPH_PSC        -b stockfish -a time --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-time.ps
 			plain graph-$SUBREPORT
 			plain graph-$SUBREPORT-time
 			echo "</tr>"

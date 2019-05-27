@@ -83,7 +83,7 @@ if (!defined($opt_monitor)) {
 } else {
 	$opt_hideCompare = 1;
 	for my $name (split /,/, $opt_names) {
-		printVerbose("Loading extract $opt_benchmark$opt_altreport $name\n");
+		printVerbose("Loading extract $opt_benchmark $name\n");
 		eval {
 			my $reportDirectory = "$opt_reportDirectory/$name";
 			my @iterdirs = <$reportDirectory/iter-*>;

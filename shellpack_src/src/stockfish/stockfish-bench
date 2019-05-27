@@ -1,4 +1,5 @@
-#!/bin/bash # Run stockfish benchmark
+#!/bin/bash
+# Run stockfish benchmark
 
 ###SHELLPACK preamble stockfish-bench 0
 
@@ -47,6 +48,7 @@ monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	echo Starting iteration $ITERATION threads $NR_THREADS
 	$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION \
 		$EXPECT -f $EXPECT_SCRIPT > $LOGDIR_RESULTS/stockfish-$NR_THREADS-$ITERATION
+	gzip $LOGDIR_RESULTS/stockfish-$NR_THREADS-$ITERATION
 ###SHELLPACK iteration_end $ITERATIONS
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
