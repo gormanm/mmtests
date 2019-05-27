@@ -20,7 +20,6 @@ sub extractReport() {
 	my @ioSteps;
 	my @ioSizes;
 	my $workload;
-	$reportDir =~ s/parallelioswap/parallelio/;
 
 	# Read the IO steps and workload type
 	my $file = "$reportDir/workload-durations.log";

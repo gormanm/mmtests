@@ -573,17 +573,17 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		eval $COMPARE_CMD
 		echo
 		echo $SUBREPORT Background IO
-		cache-mmtests.sh compare-mmtests.pl -d . -b parallelioio -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b parallelio -a io -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Swap totals
-		cache-mmtests.sh compare-mmtests.pl -d . -b parallelioswap -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b parallelio -a swap -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	parsecbuild)
 		echo $SUBREPORT
 		;;
 	pft)
 		echo $SUBREPORT timings
-		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b pfttime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b pft -a time -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT faults
 		eval $COMPARE_CMD

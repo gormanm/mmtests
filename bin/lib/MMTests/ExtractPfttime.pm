@@ -16,26 +16,16 @@ sub new() {
 	return $self;
 }
 
-my $_pagesize = "base";
-
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my ($user, $system, $wallTime, $faultsCpu, $faultsSec);
 	my $dummy;
-	$reportDir =~ s/pfttime-/pft-/;
 
-	my @clients;
-        my @files = <$reportDir/$_pagesize/pft-*.log>;
-        foreach my $file (@files) {
-                my @split = split /-/, $file;
-                $split[-1] =~ s/.log//;
-                push @clients, $split[-1];
-        }
-        @clients = sort { $a <=> $b } @clients;
+	my @clients = $self->discover_scaling_parameters($reportDir, "pft-", ".log");;
 
 	foreach my $client (@clients) {
 		my $nr_samples = 0;
-		my $file = "$reportDir/$_pagesize/pft-$client.log";
+		my $file = "$reportDir/pft-$client.log";
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;
