@@ -538,7 +538,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		echo
 
 		echo $SUBREPORT User/System CPU time
-		cache-mmtests.sh compare-mmtests.pl -d . -b johnripperexectime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b johnripper -a exectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	loopdd)
@@ -565,7 +565,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		;;
 	netpipe)
 		echo $SUBREPORT Throughput
-		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b netpipe4mb -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b netpipe -a 4mb -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	parallelio)

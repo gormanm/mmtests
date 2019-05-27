@@ -16,7 +16,6 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	$reportDir =~ s/johnripperexectime/johnripper/;
 
 	my @clients = $self->discover_scaling_parameters($reportDir, "johnripper-", "-1.log");
 	foreach my $client (@clients) {
@@ -26,5 +25,6 @@ sub extractReport() {
 			$self->parse_time_elapsed($file, $client, ++$iteration);
 		}
 	}
+}
 
 1;

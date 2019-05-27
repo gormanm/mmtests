@@ -10,7 +10,6 @@
 # MM Test Parameters
 export MMTESTS="netpipe"
 
-
 # Machine configuration
 export REMOTE_SERVER_USER=root
 export REMOTE_SERVER_HOST=unknownhost

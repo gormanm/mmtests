@@ -17,7 +17,6 @@ sub initialise() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $nr_samples = 0;
-	$reportDir =~ s/netpipe4mb/netpipe/;
 
 	my $file = "$reportDir/netpipe.log";
 	open(INPUT, $file) || die("Failed to open $file\n");
