@@ -326,7 +326,7 @@ fi
 
 # Wait for ntp to stabilize system clock so that time skips don't confuse
 # benchmarks (bsc#1066465)
-if [ "`which ntp-wait`" != "" ]; then
+if [ "`which ntp-wait 2>/dev/null`" != "" ]; then
 	echo "Waiting for NTP to stabilize system clock..."
 	ntp-wait -v -s 1 -n 600
 	if [ $? -ne 0 ]; then

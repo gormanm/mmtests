@@ -25,16 +25,13 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my ($tm, $tput, $latency);
 	my $readingOperations = 0;
-	my @clients;
-	$reportDir =~ s/4opslatency/4/;
 	my %dbench_ops = ("NTCreateX"	=> 1, "Close"	=> 1, "Rename"	=> 1,
 			  "Unlink"	=> 1, "Deltree"	=> 1, "Mkdir"	=> 1,
 			  "Qpathinfo"	=> 1, "WriteX"	=> 1, "ReadX"	=> 1,
 			  "Qfileinfo"	=> 1, "Qfsinfo"	=> 1, "Flush"	=> 1,
 			  "Sfileinfo"	=> 1, "LockX"	=> 1, "UnlockX"	=> 1,
 			  "Find"	=> 1);
-
-	@clients = $self->discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
+	my @clients = $self->discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
 
 	my $index = 1;
 	foreach my $header ("count", "avg", "max") {

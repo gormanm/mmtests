@@ -483,21 +483,21 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Latency
-		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4latency -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 -a latency -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo "$SUBREPORT Throughput (misleading but traditional)"
-		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4tput -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 -a tput -n $KERNEL_LIST $FORMAT_CMD
 		echo
 
 		echo $SUBREPORT Per-VFS Operation latency Latency
-		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4opslatency -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 -a opslatency -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	bonnie)
 		echo "$SUBREPORT IO Execution Time"
 		$COMPARE_CMD
 		echo
 		echo "$SUBREPORT Throughput"
-		cache-mmtests.sh compare-mmtests.pl -d . -b bonnietput -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b bonnie -a tput -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	ebizzy)
@@ -505,10 +505,10 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Per-thread
-		cache-mmtests.sh compare-mmtests.pl -d . -b ebizzythread -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b ebizzy -a thread -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Thread spread
-		cache-mmtests.sh compare-mmtests.pl -d . -b ebizzyrange -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b ebizzy -a range -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	fio)
 		echo $SUBREPORT Throughput

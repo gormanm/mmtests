@@ -17,7 +17,6 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my $recent = 0;
 
 	my @files = <$reportDir/bonnie-detail.*>;
 	my $iteration = 1;

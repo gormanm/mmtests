@@ -17,10 +17,7 @@ sub new() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @clients;
-	$reportDir =~ s/4latency/4/;
-
-	@clients = $self->discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
+	my @clients = $self->discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
 
 	foreach my $client (@clients) {
 		my $file = "$reportDir/dbench-$client.log.gz";

@@ -18,20 +18,10 @@ sub new() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 
-	$reportDir =~ s/ebizzyrange/ebizzy/;
-	my @clients;
-	my @files = <$reportDir/ebizzy-*-1.log>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-2] =~ s/.log//;
-		push @clients, $split[-2];
-	}
-	@clients = sort { $a <=> $b } @clients;
-
-	foreach my $client (@clients) {
+	foreach my $instance ($self->discover_scaling_parameters($reportDir, "ebizzy-", "-1.log")) {
 		my $sample = 0;
 
-		my @files = <$reportDir/ebizzy-$client-*>;
+		my @files = <$reportDir/ebizzy-$instance-*>;
 		foreach my $file (@files) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
@@ -40,7 +30,7 @@ sub extractReport() {
 					my @elements = split(/\s+/, $line);
 					shift @elements;
 					shift @elements;
-					$self->addData("spread-$client", $sample, calc_range(\@elements));
+					$self->addData("spread-$instance", $sample, calc_range(\@elements));
 					$sample++;
 				}
 			}

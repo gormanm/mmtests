@@ -17,21 +17,11 @@ sub new() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	$reportDir =~ s/ebizzythread/ebizzy/;
 
-	my @clients;
-	my @files = <$reportDir/ebizzy-*-1.log>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-2] =~ s/.log//;
-		push @clients, $split[-2];
-	}
-	@clients = sort { $a <=> $b } @clients;
-
-	foreach my $client (@clients) {
+	foreach my $instance ($self->discover_scaling_parameters($reportDir, "ebizzy-", "-1.log")) {
 		my $sample = 0;
 
-		my @files = <$reportDir/ebizzy-$client-*>;
+		my @files = <$reportDir/ebizzy-$instance-*>;
 		foreach my $file (@files) {
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
@@ -39,7 +29,7 @@ sub extractReport() {
 				if ($line =~ /([0-9]*) records.*/) {
 					my @elements = split(/\s+/, $line);
 					for (my $i = 2; $i <= $#elements; $i++) {
-						$self->addData("Rsec-$client", $sample, $elements[$i]);
+						$self->addData("Rsec-$instance", $sample, $elements[$i]);
 						$sample++;
 					}
 				}
