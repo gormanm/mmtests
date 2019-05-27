@@ -66,11 +66,10 @@ fi
 		-L $ITERATIONS \
 		-t $NR_THREADS \
 		-S0 \
-		-s $FILESIZE \
-			2>&1 | tee $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log \
-				|| die Failed to run fsmark
+		-s $FILESIZE &> $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	rm -rf $SHELLPACK_DATA/*
+	gzip $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log
 ###SHELLPACK threads_stride_end
 
 rm /tmp/fsmark-$$

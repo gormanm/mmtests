@@ -21,22 +21,12 @@ sub extractReport() {
 	$reportDir =~ s/fsmark-singleoverhead/fsmark-single/;
 	$reportDir =~ s/fsmark-threadedoverhead/fsmark-threaded/;
 
-	my @clients;
-	my @files = <$reportDir/fsmark-*.log>;
-	foreach my $file (@files) {
-		if ($file =~ /-cmd-/) {
-			next;
-		}
-		$file =~ s/.log$//;
-		my @split = split /-/, $file;
-		push @clients, $split[-1];
-	}
-	@clients = sort { $a <=> $b } @clients;
+	my @instances = $self->discover_scaling_parameters($reportDir, "fsmark-", ".log.gz");
 
-	foreach my $client (@clients) {
+	foreach my $instance (@instances) {
 		my $preamble = 1;
-		my $file = "$reportDir/fsmark-$client.log";
-		open(INPUT, $file) || die("Failed to open $file\n");
+		my $file = "$reportDir/fsmark-$instance.log.gz";
+		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;
 			if ($preamble) {
@@ -48,7 +38,7 @@ sub extractReport() {
 			}
 
 			my @elements = split(/\s+/, $_);
-			$self->addData("overhead-$client", ++$iteration, $elements[5]);
+			$self->addData("overhead-$instance", ++$iteration, $elements[5]);
 		}
 		close INPUT;
 	}
