@@ -22,7 +22,6 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $seen_read = 0;
 	my $seen_write = 0;
-	$reportDir =~ s/fiolatency/fio/;
 
 	my @files = <$reportDir/fio_lat.*.log*>;
 	foreach my $file (@files) {
@@ -32,11 +31,7 @@ sub extractReport() {
 		my $dir;
 		my $size;
 
-		if ($file =~ /.*\.gz$/) {
-			open(INPUT, "gunzip -c $file|") || die("Failed to open $file.gz\n");
-		} else {
-			open(INPUT, $file) || die("Failed to open $file\n");
-		}
+		open(INPUT, "gunzip -c $file|") || die("Failed to open $file.gz\n");
 		while (<INPUT>) {
 			($time, $lat, $dir, $size) = split(/, /, $_);
 			if ($dir == 0) {

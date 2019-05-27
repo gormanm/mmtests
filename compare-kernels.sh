@@ -515,15 +515,15 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Latency read
-		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-read $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b fio -a latency -n $KERNEL_LIST --sub-heading latency-read $FORMAT_CMD
 
 		echo
 		echo $SUBREPORT Latency write
-		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b fiolatency -n $KERNEL_LIST --sub-heading latency-write $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b fio -a latency -n $KERNEL_LIST --sub-heading latency-write $FORMAT_CMD
 		echo
 		# all sub-headings (ie. fio-scaling-[rand]{rw,read,write}-{read,write})
 		echo $SUBREPORT scaling
-		cache-mmtests.sh compare-mmtests.pl -d . -b fioscaling -n $KERNEL_LIST 2> /dev/null
+		cache-mmtests.sh compare-mmtests.pl -d . -b fio -a scaling -n $KERNEL_LIST 2> /dev/null
 		;;
 	fsmark-single|fsmark-threaded)
 		echo $SUBREPORT
