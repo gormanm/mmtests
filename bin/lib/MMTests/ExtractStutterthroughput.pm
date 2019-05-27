@@ -15,8 +15,6 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($user, $system, $elapsed, $cpu);
-	$reportDir =~ s/stutterthroughput/stutter/;
 
 	# Extract calibration write test throughput
 	my $file = "$reportDir/calibrate.time";

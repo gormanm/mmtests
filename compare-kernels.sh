@@ -639,10 +639,10 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT estimated write speed
-		cache-mmtests.sh compare-mmtests.pl -d . -b stuttercalibrate -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b stutter -a calibrate -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT parallel write throughput
-		cache-mmtests.sh compare-mmtests.pl -d . -b stutterthroughput -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b stutter -a throughput -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	sysbench)
 		echo $SUBREPORT Transactions
