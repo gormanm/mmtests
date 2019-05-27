@@ -16,11 +16,6 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	$reportDir =~ s/mpitime/mpi/;
-	$reportDir =~ s/omptime/omp/;
-	$reportDir =~ s/mpi-([a-z][a-z])time/mpi-\1/;
-	$reportDir =~ s/omp-([a-z][a-z])time/omp-\1/;
-
 	my @kernels = $self->discover_scaling_parameters($reportDir, "", ".log.1");
 
 	foreach my $kernel (@kernels) {

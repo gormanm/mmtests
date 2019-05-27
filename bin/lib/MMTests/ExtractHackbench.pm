@@ -15,16 +15,8 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($user, $system, $elapsed, $cpu);
 
-	my @files = <$reportDir/hackbench-*-1>;
-	my @groups;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		push @groups, $split[-2];
-	}
-	@groups = sort { $a <=> $b} @groups;
-
+	my @groups = $self->discover_scaling_parameters($reportDir, "hackbench-", "-1");
 	foreach my $group (@groups) {
 		my $nr_samples = 0;
 		foreach my $file (<$reportDir/hackbench-$group-*>) {

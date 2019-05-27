@@ -23,19 +23,7 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my @ratioops;
 
-	my @files = <$reportDir/schbench-*.log>;
-	my @groups;
-
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		my $group = $split[-1];
-
-		$group =~ s/([0-9]+).*/$1/;
-
-		push @groups, $group
-	}
-	@groups = sort { $a <=> $b } @groups;
-
+	my @groups = $self->discover_scaling_parameters($reportDir, "schbench-", ".log");
 	foreach my $group (@groups) {
 		open(INPUT, "$reportDir/schbench-$group.log") || die("Failed to open $group\n");
 		while (<INPUT>) {

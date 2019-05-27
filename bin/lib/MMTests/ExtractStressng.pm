@@ -16,14 +16,7 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-
-	my @files = <$reportDir/stressng-*-1.log>;
-	my @clients;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		push @clients, $split[-2];
-	}
-	@clients = sort { $a <=> $b } @clients;
+	my @clients = $self->discover_scaling_parameters($reportDir, "stressng-", "-1.log");
 
 	foreach my $client (@clients) {
 		foreach my $file (<$reportDir/stressng-$client-*>) {

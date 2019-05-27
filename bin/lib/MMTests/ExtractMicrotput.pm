@@ -16,15 +16,8 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($user, $system, $elapsed, $cpu);
 
-	my @files = <$reportDir/microtput-*-1>;
-	my @threads;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		push @threads, $split[-2];
-	}
-	@threads = sort { $a <=> $b} @threads;
+	my @threads = $self->discover_scaling_parameters($reportDir, "microtput-", "-1");
 
 	foreach my $thread (@threads) {
 		my $nr_samples = 0;

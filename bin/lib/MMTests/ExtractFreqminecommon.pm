@@ -24,17 +24,8 @@ sub uniq {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @threads;
+	my @threads = $self->discover_scaling_parameters($reportDir, "freqmine-", "-1.log");
 
-	my @files = <$reportDir/freqmine-*-1.log>;
-	foreach my $file (@files) {
-		my @elements = split (/-/, $file);
-		my $thr = $elements[-2];
-		$thr =~ s/.log//;
-		push @threads, $thr;
-	}
-
-	@threads = sort {$a <=> $b} @threads;
 	foreach my $nthr (@threads) {
 		my @files = <$reportDir/freqmine-$nthr-*.log>;
 

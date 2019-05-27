@@ -19,14 +19,7 @@ sub new() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 
-	my @files = <$reportDir/mutilate-*-1.log>;
-	my @clients;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-1] =~ s/.log//;
-		push @clients, $split[-2];
-	}
-	@clients = sort { $a <=> $b } @clients;
+	my @clients = $self->discover_scaling_parameters($reportDir, "mutilate-", "-1.log");
 
 	foreach my $client (@clients) {
 		my $iteration = 1;

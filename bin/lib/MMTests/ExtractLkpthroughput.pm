@@ -27,15 +27,7 @@ sub extractReport() {
 	$self->{_Workloads} = \@workloads;
 	close(INPUT);
 
-	my @threads;
-	my @files = <$reportDir/lkp-*-1.log>;
-	foreach my $file (@files) {
-		my @elements = split (/-/, $file);
-		my $thr = $elements[-2];
-		$thr =~ s/.log//;
-		push @threads, $thr;
-	}
-	@threads = sort {$a <=> $b} @threads;
+	my @threads = $self->discover_scaling_parameters($reportDir, "lkp-", "-1.log");
 	@threads = uniq(@threads);
 
 	foreach my $nthr (@threads) {

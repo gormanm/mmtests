@@ -541,16 +541,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		cache-mmtests.sh compare-mmtests.pl -d . -b johnripper -a exectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	loopdd)
-		echo $SUBREPORT Throughput
-		eval $COMPARE_CMD
-		echo
-		echo $SUBREPORT DD-Time
-		eval $COMPARE_CMD --sub-heading ddtime
-		echo
-		echo $SUBREPORT CPU-Time
-		eval $COMPARE_CMD --sub-heading elapsed
-		;;
 	monitor)
 		echo No meaningful extraction script for monitor
 		echo
@@ -560,7 +550,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Wall Time
-		cache-mmtests.sh compare-mmtests.pl -d . -b ${SUBREPORT}time -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b ${SUBREPORT} -a time -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	netpipe)
@@ -665,7 +655,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT Throughput
-		cache-mmtests.sh compare-mmtests.pl -d . -b xfsiothroughput -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b xfsio -a throughput -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Ops
 		cache-mmtests.sh compare-mmtests.pl -d . -b xfsio -a ops -n $KERNEL_LIST $FORMAT_CMD

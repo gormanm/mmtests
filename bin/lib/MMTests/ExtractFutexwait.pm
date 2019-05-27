@@ -17,18 +17,8 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($tp, $name);
-	my @threads;
 
-	my @files = <$reportDir/futexwait-*-1.log>;
-	foreach my $file (@files) {
-		my @elements = split (/-/, $file);
-		my $thr = $elements[-2];
-		$thr =~ s/.log//;
-		push @threads, $thr;
-	}
-
-	@threads = sort {$a <=> $b} @threads;
+	my @threads = $self->discover_scaling_parameters($reportDir, "futexwait-", "-1.log");;
 	foreach my $nthr (@threads) {
 		my @files = <$reportDir/futexwait-$nthr-*.log>;
 
@@ -48,3 +38,5 @@ sub extractReport() {
 		}
 	}
 }
+
+1;

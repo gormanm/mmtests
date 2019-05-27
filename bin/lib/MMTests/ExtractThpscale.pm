@@ -18,17 +18,8 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-
 	my @ops;
-	my @clients;
-	my @files = <$reportDir/threads-*.log>;
-	foreach my $file (@files) {
-		my @split = split /-/, $file;
-		$split[-1] =~ s/.log//;
-		push @clients, $split[-1];
-	}
-	@clients = sort { $a <=> $b } @clients;
-
+	my @clients = $self->discover_scaling_parameters($reportDir, "threads-", ".log");
 
 	foreach my $client (@clients) {
 		my $faults = 0;
