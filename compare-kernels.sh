@@ -649,7 +649,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		eval $COMPARE_CMD
 		echo
 		echo $SUBREPORT Time
-		cache-mmtests.sh compare-mmtests.pl -d . -b sysbenchexectime -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b sysbench -a exectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	thp*scale)
@@ -1055,13 +1055,10 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			;;
 		sysbench)
 			echo "<tr>"
-			eval $GRAPH_PNG        -b sysbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.png
-			eval $GRAPH_PSC        -b sysbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.ps
 			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
 			eval $GRAPH_PSC --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
-			eval $GRAPH_PNG --logX -b sysbenchexectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.png
-			eval $GRAPH_PSC --logX -b sysbenchexectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.ps
-			plain graph-$SUBREPORT-loadtime
+			eval $GRAPH_PNG --logX -b sysbench -a exectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.png
+			eval $GRAPH_PSC --logX -b sysbench -a exectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.ps
 			plain graph-$SUBREPORT
 			plain graph-$SUBREPORT-exectime
 			echo "</tr>"

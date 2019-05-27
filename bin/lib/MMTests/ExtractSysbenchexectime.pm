@@ -16,9 +16,7 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	$reportDir =~ s/sysbenchexectime/sysbench/;
 	my @threads = $self->discover_scaling_parameters($reportDir, "sysbench-raw-", "-1");
-	my $iteration;
 
 	# Extract per-client timing information
 	foreach my $thread (@threads) {
