@@ -66,19 +66,20 @@ while [ "$1" != "" ]; do
 done
 
 if [ "$CACHE_MMTESTS" != "" ]; then
+	mkdir -p $CACHE_MMTESTS
 	if [ -e $CACHE_MMTESTS/current_update ]; then
 		CLEANUP_PID=`cat $CACHE_MMTESTS/current_update 2> /dev/null`
 		if [ "$CLEANUP_PID" != "" ]; then
 			ps -p $CLEANUP_PID > /dev/null
 			if [ $? -ne 0 ]; then
-				rm $CACHE_MMTESTS/current_update
+				rm $CACHE_MMTESTS/current_update 2> /dev/null
 			fi
 		fi
 	else
 		echo $$ > $CACHE_MMTESTS/current_update
 		CURRENT_UPDATE=`date +%s`
 		CURRENT_UPDATE=$((CURRENT_UPDATE/86400))
-		LAST_UPDATE=`cat $CACHE_MMTESTS/last_update`
+		LAST_UPDATE=`cat $CACHE_MMTESTS/last_update 2> /dev/null`
 		if [ "$LAST_UPDATE" != "$CURRENT_UPDATE" ]; then
 			find $CACHE_MMTESTS -maxdepth 3 -type f -atime +14 -exec rm -rf {} \;
 		fi

@@ -1,6 +1,9 @@
 #!/bin/bash
 # Optionally caches results in a directory so multiple invocations run quickly
 # after the first one
+DIRNAME=`dirname $0`
+export SCRIPTDIR=`cd "$DIRNAME" && pwd`
+. $SCRIPTDIR/../shellpacks/common.sh
 
 HASHFILE=/tmp/cache-mmtests.$$
 HASHDIR=
@@ -95,9 +98,8 @@ if [ -d "$CACHE_MMTESTS/$HASHDIR" ]; then
 	# Check results are still valid
 	RESULTS_VALID=yes
 	if [ "$MMTESTS_LOGDIR" != "" ]; then
-
 		cd $MMTESTS_LOGDIR
-		for FILE in `ls */tests-timestamp`; do
+		for FILE in `ls */iter-*/tests-timestamp`; do
 			if [ -e "$CACHE_MMTESTS/$HASHDIR/$FILE" ]; then
 				OLD_HASH=`cat "$CACHE_MMTESTS/$HASHDIR/$FILE"`
 				NEW_HASH=`cat $FILE | md5sum | awk '{print $1}'`
@@ -186,7 +188,7 @@ fi
 # Cache tests-timestamp md5sums
 if [ "$MMTESTS_LOGDIR" != "" ]; then
 	cd $MMTESTS_LOGDIR
-	for FILE in `ls */tests-timestamp`; do
+	for FILE in `ls */iter-*/tests-timestamp`; do
 		mkdir -p $(dirname "$CACHE_MMTESTS/$HASHDIR/$FILE")
 		cat $FILE | md5sum | awk '{print $1}' > "$CACHE_MMTESTS/$HASHDIR/$FILE"
 	done
