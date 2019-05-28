@@ -953,15 +953,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			;;
 		pgbench)
 			echo "<tr>"
-			eval $GRAPH_PNG        -b pgbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.png --x-label \"Test names\"
-			eval $GRAPH_PSC        -b pgbenchloadtime --title \"$SUBREPORT init time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-loadtime.ps --x-label \"Test names\"
 			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
 			eval $GRAPH_PSC --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
-			eval $GRAPH_PNG --logX -b pgbenchexectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.png
-			eval $GRAPH_PSC --logX -b pgbenchexectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.ps
-			plain graph-$SUBREPORT-loadtime
 			plain graph-$SUBREPORT
-			plain graph-$SUBREPORT-exectime
 			echo "</tr>"
 
 			generate_client_trans_graphs

@@ -2,9 +2,10 @@
 
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
-. $SCRIPTDIR/shellpacks/common.sh
-. $SCRIPTDIR/shellpacks/common-config.sh
-. $SCRIPTDIR/config
+export PATH=$SCRIPTDIR:$PATH
+. $SCRIPTDIR/../shellpacks/common.sh
+. $SCRIPTDIR/../shellpacks/common-config.sh
+. $SCRIPTDIR/../config
 
 KERNEL_BASE=
 KERNEL_COMPARE=
