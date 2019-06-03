@@ -1066,9 +1066,13 @@ function have_monitor_results()
 	fi
 }
 
+# Return list of benchmark names in given run. Currently we extract them from
+# the first iteration only as we expect all iterations to run identical set
+# of tests.
 function run_report_name()
 {
-	grep "run-mmtests: begin" $1/tests-activity | awk '{print $4}'
+	awk '/^[0-9]* run-mmtests: begin / { print $4 }
+	     /^[0-9]* run-mmtests: Iteration 0 end/ { exit }' <$1/tests-activity
 }
 
 function run_results()
