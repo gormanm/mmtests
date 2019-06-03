@@ -1,8 +1,8 @@
 # ExtractBonnie.pm
 package MMTests::ExtractBonnie;
-use MMTests::SummariseVariabletime;
+use MMTests::SummariseSubselection;
 use MMTests::Stat;
-our @ISA = qw(MMTests::SummariseVariabletime);
+our @ISA = qw(MMTests::SummariseSubselection);
 use strict;
 
 sub initialise() {
