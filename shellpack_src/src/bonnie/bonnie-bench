@@ -5,7 +5,6 @@
 DATASET_SIZE=0
 NR_FILES=0
 MACHINE=`hostname`
-ITERATIONS=3
 FSYNC=no
 FSYNC_PARAM=
 
@@ -15,7 +14,6 @@ FSYNC_PARAM=
 ###SHELLPACK parseargParam --nr_files		NR_FILES
 ###SHELLPACK parseargParam --dirsize		DIRECTORY_SIZE
 ###SHELLPACK parseargParam --nr_directories	NR_DIRECTORIES
-###SHELLPACK parseargParam --iterations		ITERATIONS
 ###SHELLPACK parseargYes   --sync		FSYNC
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
@@ -57,28 +55,21 @@ echo ./sbin/bonnie++ $FSYNC_PARAM -r 0 \
 	-R 128 | tee $LOGDIR_RESULTS/bonnie-params
 
 monitor_pre_hook $LOGDIR_RESULTS $P
-###SHELLPACK iteration_begin $ITERATIONS
-	echo Starting iteration $ITERATION
-	save_rc ./sbin/bonnie++ $FSYNC_PARAM $USER_PARAM -r 0 \
-		-d $SHELLPACK_DATA \
-		$FILETEST_PARAM \
-		$DIRTEST_PARAM \
-		-m $MACHINE \
-		-R 128 \
-		-l $LOGDIR_RESULTS/bonnie-detail.$ITERATION \
-		2>&1 | tee $LOGDIR_RESULTS/bonnie.$ITERATION
-
-	recover_rc
-	if [ $? -ne 0 ]; then
-		die Failed to run bonnie
-	fi
-
-	gzip $LOGDIR_RESULTS/bonnie-detail.$ITERATION
-	if [ $ITERATION -lt $BONNIE_ITERATIONS ]; then
-		umount_filesystems
-		create_filesystems
-	fi
-###SHELLPACK iteration_end
+save_rc ./sbin/bonnie++ $FSYNC_PARAM $USER_PARAM -r 0 \
+	-d $SHELLPACK_DATA \
+	$FILETEST_PARAM \
+	$DIRTEST_PARAM \
+	-m $MACHINE \
+	-R 128 \
+	-l $LOGDIR_RESULTS/bonnie-detail \
+	2>&1 | tee $LOGDIR_RESULTS/bonnie
 monitor_post_hook $LOGDIR_RESULTS $P
+
+recover_rc
+if [ $? -ne 0 ]; then
+	die Failed to run bonnie
+fi
+
+gzip $LOGDIR_RESULTS/bonnie-detail
 
 exit $SHELLPACK_SUCCESS
