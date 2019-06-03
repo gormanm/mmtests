@@ -19,17 +19,33 @@ gmean <- function(x)
 
 subselection.confidence.interval <- function(x, mean.func="mean", selections=100, fracsize=0.8, alpha=0.05)
 {
-	sublen <- as.integer(fracsize * length(x))
-	submean <- vector(mode = "numeric", length = selections)
-	for (i in 1:selections)
-		submean[i] <- do.call(mean.func, list(sample(x, sublen, replace=TRUE)))
-	med <- median(submean)
-	subvar <- vector(mode = "numeric", length = selections)
-	for (i in 1:selections)
-		subvar[i] <- var(sample(x, sublen, replace=TRUE))
-	v <- median(subvar)
-	halflength <- qnorm(1-alpha/2)*sqrt(v/sublen)
-	return(c(med, halflength))
+	iters <- length(x)
+	med <- vector(mode = "numeric", length = iters)
+	v <- vector(mode = "numeric", length = iters)
+	lens <- vector(mode = "numeric", length = iters)
+	for (j in 1:iters) {
+		xx <- as.numeric(x[[j]])
+		lens[j] <- as.integer(fracsize * length(xx))
+		submean <- vector(mode = "numeric", length = selections)
+		for (i in 1:selections)
+			submean[i] <- do.call(mean.func, list(sample(xx, lens[j], replace=TRUE)))
+		subvar <- vector(mode = "numeric", length = selections)
+		for (i in 1:selections)
+			subvar[i] <- var(sample(xx, lens[j], replace=TRUE))
+		med[j] <- median(submean)
+		v[j] <- median(subvar)
+	}
+	m <- mean(med)
+	svar <- mean(v)
+	smean <- 0
+	if (iters > 1) {
+		for (j in 1:iters) {
+			smean <- smean + (med[j] - m)^2 * lens[j]
+		}
+		smean <- smean / (iters - 1)
+	}
+	halflength <- qnorm(1-alpha/2)*sqrt((smean + svar) / sum(lens))
+	return(c(m, halflength))
 }
 
 mean.name.to.func <- function(name)

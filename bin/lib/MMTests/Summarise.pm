@@ -246,9 +246,12 @@ sub runStatFunc
 	} else {
 		$mean = "amean";
 	}
-	# Subselection means are a bit special...
+	# Subselection means are special. They take mean name as an argument
+	# and they also need 2-dimensional array with data to know which sample
+	# comes from which iteration.
 	if ($func eq "_mean-sub") {
-		return calc_submean_ci($mean, $dataref);
+		my @data = map {$_->{Values}} @{$self->{_ResultData}->{$operation}};
+		return calc_submean_ci($mean, \@data);
 	}
 	# calc_submean_ci returns two element list, thus following 'submeanci'
 	# has nothing to do and must return empty list. This is because
