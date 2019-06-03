@@ -88,14 +88,6 @@ if [ "$CACHE_MMTESTS" != "" ]; then
 	fi
 fi
 
-# Do Not Litter
-cleanup() {
-	if [ "$R_TMPDIR" != "" -a -d $R_TMPDIR ]; then
-		rm -rf $R_TMPDIR
-	fi
-	exit
-}
-
 FORMAT_CMD=
 if [ "$FORMAT" != "" ]; then
 	FORMAT_CMD="--format $FORMAT"
@@ -467,7 +459,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	EXTRACT_CMD="cache-mmtests.sh extract-mmtests.pl -d . -b $SUBREPORT"
 	COMPARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD $AUTO_DETECT_SIGNIFICANCE"
 	COMPARE_BARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
-	COMPARE_R_CMD="compare-mmtests-R.sh -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD"
 	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
 	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
 		GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format \"postscript color solid\""
