@@ -162,7 +162,7 @@ sub printPlot() {
 		my @index;
 		my @units;
 		my @row;
-		my $samples = 0;
+		my $samples;
 		my $niceheading = $heading;
 
 		if ($self->{_PlotStripSubheading}) {
@@ -180,13 +180,11 @@ sub printPlot() {
 			}
 		}
 
+		@units = map { @{$_->{Values}} } @{$data{$heading}};
 		my $iteroff = 0;
 		for (my $iter = 0; $iter < scalar(@{$data{$heading}}); $iter++) {
-			foreach my $row (@{$data{$heading}->[$iter]}) {
-				push @index, $iteroff + @{$row}[0];
-				push @units, @{$row}[1];
-				$samples++;
-			}
+			push @index, map {$iteroff + $_}
+				@{$data{$heading}->[$iter]->{SampleNrs}};
 			$iteroff = $index[$#index] + 1;
 		}
 
@@ -305,12 +303,7 @@ sub extractSummary() {
 	foreach my $operation (@_operations) {
 		my @units;
 
-		for (my $iter = 0; $iter < scalar(@{$data{$operation}}); $iter++) {
-			foreach my $row (@{$data{$operation}->[$iter]}) {
-				push @units, @{$row}[1];
-			}
-		}
-
+		@units = map { @{$_->{Values}} } @{$data{$operation}};
 		if ($self->getPreferredValue($operation) eq "Lower") {
 			@units = sort { $a <=> $b} @units;
 		} else {
@@ -360,12 +353,7 @@ sub extractRatioSummary() {
 		my @units;
 		my @values;
 
-		for (my $iter = 0; $iter < scalar(@{$data{$operation}}); $iter++) {
-			foreach my $row (@{$data{$operation}->[$iter]}) {
-				push @units, @{$row}[1];
-			}
-		}
-
+		@units = map { @{$_->{Values}} } @{$data{$operation}};
 		if ($self->getPreferredValue($operation) eq "Lower") {
 			@units = sort { $a <=> $b} @units;
 		} else {

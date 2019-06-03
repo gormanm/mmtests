@@ -398,11 +398,15 @@ sub printReport() {
 		for (my $iter = 0;
 		     $iter < scalar(@{$self->{_ResultData}->{$op}});
 		     $iter++) {
-			for my $rowref (@{$self->{_ResultData}->{$op}->[$iter]}) {
+			my $iterref = $self->{_ResultData}->{$op}->[$iter];
+			for (my $dataidx = 0;
+			     $dataidx < scalar(@{$iterref->{Values}});
+			     $dataidx++) {
 				my @row = ($op, $iter);
 				my @table = ();
 
-				push @row, @{$rowref};
+				push @row, $iterref->{SampleNrs}->[$dataidx];
+				push @row, $iterref->{Values}->[$dataidx];
 				push @table, \@row;
 				$self->{_PrintHandler}->printRow(\@table, $fieldLength,
 								 \@format);
@@ -439,8 +443,9 @@ sub addData() {
 			$self->{_OperationsSeen}->{$op} = 1;
 		}
 	}
-	push @{$self->{_ResultData}->{$op}->[$self->{_CurrentIteration}]},
-		[$sample, $val];
+
+	push @{$self->{_ResultData}->{$op}->[$self->{_CurrentIteration}]->{SampleNrs}}, $sample;
+	push @{$self->{_ResultData}->{$op}->[$self->{_CurrentIteration}]->{Values}}, $val;
 }
 
 sub sortResults() {
@@ -451,14 +456,16 @@ sub sortResults() {
 			for (my $iter = 0;
 			     $iter < scalar(@{$self->{_ResultData}->{$op}});
 			     $iter++) {
-				my @newdata = sort {
-					if ($a->[0] != $b->[0]) {
-						return $a->[0] <=> $b->[0];
-					}
-					return $a->[1] <=> $b->[1];
-				} @{$self->{_ResultData}->{$op}->[$iter]};
+				my $iterref = $self->{_ResultData}->{$op}->[$iter];
 
-				$self->{_ResultData}->{$op}->[$iter] = \@newdata;
+				my @indices = 0..$#{@{$iterref->{Values}}};
+				@indices = sort {
+					$iterref->{SampleNrs}->[$a] <=>
+					$iterref->{SampleNrs}->[$b];
+				} @indices;
+
+				$iterref->{SampleNrs} = \@{$iterref->{SampleNrs}->[@indices]};
+				$iterref->{Values} = \@{$iterref->{Values}->[@indices]};
 			}
 		}
 	}
