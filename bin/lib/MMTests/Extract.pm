@@ -389,8 +389,14 @@ sub printReport() {
 	my ($self) = @_;
 	my @format = ();
 	my $fieldLength = $self->{_FieldLength};
+	my $oplen = 0;
 
-	push @format, "%-${fieldLength}s";
+	foreach my $op ($self->getOperations("")) {
+		if (length($op) > $oplen) {
+			$oplen = length($op);
+		}
+	}
+	push @format, "%-${oplen}s";
 	push @format, "%-2d";
 	push @format, @{$self->{_FieldFormat}};
 
