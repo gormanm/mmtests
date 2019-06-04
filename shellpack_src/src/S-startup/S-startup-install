@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# shellpack bound to commit b4d0dd3 ("S benchmark suite 2.5")
-###SHELLPACK preamble S-startup-install b4d0dd3
+# shellpack bound to commit 8d22ab8 ("S benchmark suite 3.4")
+###SHELLPACK preamble S-startup-install 8d22ab8
 GIT_LOCATION="https://github.com/Algodev-github/S.git"
 MIRROR_LOCATION="$WEBROOT/S"
 

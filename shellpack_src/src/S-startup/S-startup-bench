@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run S-startup benchmark
 
-###SHELLPACK preamble S-startup-bench b4d0dd3
+###SHELLPACK preamble S-startup-bench 8d22ab8
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --iterations       S_STARTUP_ITERATIONS
@@ -18,7 +18,7 @@ else
 fi
 
 rm $CONF_DEST_DIR/.S-config.sh
-sed -i "s<\$PWD/../workfiles<$SHELLPACK_DATA<g" def_config_params.sh
+sed -i "s<\$PWD/../workfiles<$SHELLPACK_DATA<g" def_config.sh
 
 # set the number of iterations of each benchmark to $S_STARTUP_ITERATIONS
 sed -i "s/NUM_ITER_STARTUP=.*/NUM_ITER_STARTUP=$S_STARTUP_ITERATIONS/g" \
@@ -37,7 +37,7 @@ rm -rf $LOGDIR_RESULTS/results
 cd run_multiple_benchmarks/
 
 monitor_pre_hook $LOGDIR_RESULTS $P
-./run_main_benchmarks.sh replayed-startup cur-sched fs "" 1 \
+./run_main_benchmarks.sh replayed-startup cur-sched fs "" "" "" 1 \
 			 $LOGDIR_RESULTS/results
 monitor_post_hook $LOGDIR_RESULTS $P
 
