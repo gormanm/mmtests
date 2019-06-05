@@ -124,7 +124,7 @@ if ($opt_JSONExport && $opt_benchmark) {
 	# $compareModule might occupy more than 50% of memory. In such case
 	# forking to call gzip will result in ENOMEM from clone(2).
 	# We need to start afresh with a new sheet of memory using exec.
-	exec "gzip -f $fname";
+	exec "xz -f $fname";
 }
 # The branch above terminates the program. Don't put any code below this line.
 exit(0)
@@ -145,7 +145,7 @@ compare-mmtests.pl [options]
  -b, --benchmark	Benchmark to extract data for
  -v, --verbose		Verbose output
  --format		Output format
- --json-export		Saves comparison data in JSON format (gzip'ed)
+ --json-export		Saves comparison data in JSON format (xz'ed)
  --print-header		Print a header
  --print-ratio		Print relative comparison instead of absolute values
  --print-monitor=s	Print comparison based on specified monitor
@@ -180,7 +180,7 @@ the formatting is in plain text.
 =item B<--json-export>
 
 Saves comparison data in a compressed JSON file inside the current
-directory. The exported file is named <benchmark>.json.gz, where <benchmark>
+directory. The exported file is named <benchmark>.json.xz, where <benchmark>
 is the value of the --benchmark option flag.
 
 =item B<--print-header>

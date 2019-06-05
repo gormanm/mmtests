@@ -9,8 +9,8 @@ HASHFILE=/tmp/cache-mmtests.$$
 HASHDIR=
 MMTESTS_LOGDIR=
 rm_hashdir() {
-	if [ "$JSON_EXPORT" = "yes" -a -L "$MMTESTS_LOGDIR/$BENCHMARK.json.gz" ]; then
-		rm -f "$MMTESTS_LOGDIR/$BENCHMARK.json.gz"
+	if [ "$JSON_EXPORT" = "yes" -a -L "$MMTESTS_LOGDIR/$BENCHMARK.json.xz" ]; then
+		rm -f "$MMTESTS_LOGDIR/$BENCHMARK.json.xz"
 	fi
 	rm -rf "$CACHE_MMTESTS/$HASHDIR"
 }
@@ -18,7 +18,7 @@ cleanup() {
 	rm -f $HASHFILE
 	if [ "$HASHDIR" != "" ]; then
 		if [ "$JSON_EXPORT" = "yes" ]; then
-			if ! [ -e "$CACHE_MMTESTS/$HASHDIR/cache.gz" -a -e "$CACHE_MMTESTS/$HASHDIR/cache.json.gz" -a "$CACHEFILES_SOUND" != "no" ]; then
+			if ! [ -e "$CACHE_MMTESTS/$HASHDIR/cache.gz" -a -e "$CACHE_MMTESTS/$HASHDIR/cache.json.xz" -a "$CACHEFILES_SOUND" != "no" ]; then
 				rm_hashdir
 			fi
 		else
@@ -114,7 +114,7 @@ if [ -d "$CACHE_MMTESTS/$HASHDIR" ]; then
 
 		CACHEFILES_EXIST=yes
 		if [ "$JSON_EXPORT" = "yes" ]; then
-			if ! [ -e "$CACHE_MMTESTS/$HASHDIR/cache.gz" -a -e "$CACHE_MMTESTS/$HASHDIR/cache.json.gz" ]; then
+			if ! [ -e "$CACHE_MMTESTS/$HASHDIR/cache.gz" -a -e "$CACHE_MMTESTS/$HASHDIR/cache.json.xz" ]; then
 				CACHEFILES_EXIST=no
 			fi
 		else
@@ -131,7 +131,7 @@ if [ -d "$CACHE_MMTESTS/$HASHDIR" ]; then
 
 		CACHEFILES_SOUND=yes
 		if [ "$JSON_EXPORT" = "yes" ]; then
-			{ zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz" && zcat "$CACHE_MMTESTS/$HASHDIR/cache.json.gz"; } > /dev/null
+			{ zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz" && zcat "$CACHE_MMTESTS/$HASHDIR/cache.json.xz"; } > /dev/null
 			if [ $? -ne 0 ]; then
 				CACHEFILES_SOUND=no
 			fi
@@ -151,7 +151,7 @@ if [ -d "$CACHE_MMTESTS/$HASHDIR" ]; then
 		zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz"
 		RET=$?
 		if [ "$JSON_EXPORT" = "yes" ]; then
-			ln -s -f "$CACHE_MMTESTS/$HASHDIR/cache.json.gz" "$MMTESTS_LOGDIR/$BENCHMARK.json.gz"
+			ln -s -f "$CACHE_MMTESTS/$HASHDIR/cache.json.xz" "$MMTESTS_LOGDIR/$BENCHMARK.json.xz"
 			RET=$((RET || $?))
 		fi
 		unlock_hashdir
@@ -180,9 +180,9 @@ gzip "$CACHE_MMTESTS/$HASHDIR/cache.tmp"
 mv "$CACHE_MMTESTS/$HASHDIR/cache.tmp.gz" "$CACHE_MMTESTS/$HASHDIR/cache.gz"
 zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz"
 
-if [ "$JSON_EXPORT" = "yes" -a -f "$MMTESTS_LOGDIR/$BENCHMARK.json.gz" ]; then
-	mv "$MMTESTS_LOGDIR/$BENCHMARK.json.gz" "$CACHE_MMTESTS/$HASHDIR/cache.json.gz"
-	ln -s "$CACHE_MMTESTS/$HASHDIR/cache.json.gz" "$MMTESTS_LOGDIR/$BENCHMARK.json.gz"
+if [ "$JSON_EXPORT" = "yes" -a -f "$MMTESTS_LOGDIR/$BENCHMARK.json.xz" ]; then
+	mv "$MMTESTS_LOGDIR/$BENCHMARK.json.xz" "$CACHE_MMTESTS/$HASHDIR/cache.json.xz"
+	ln -s "$CACHE_MMTESTS/$HASHDIR/cache.json.xz" "$MMTESTS_LOGDIR/$BENCHMARK.json.xz"
 fi
 
 # Cache tests-timestamp md5sums
