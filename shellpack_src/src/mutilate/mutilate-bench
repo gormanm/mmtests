@@ -24,15 +24,25 @@ fi
 ###SHELLPACK check_install_required mutilate-${VERSION}
 ###SHELLPACK init_only_end
 
+# Restart server
 $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 if [ "$MEMCACHED_MEMPOOL" = "" ]; then
 	die Must specify memcached memory pool size
 fi
 $SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
 
-cd $SHELLPACK_SOURCES/mutilate-${VERSION}-installed || die Failed to cd to mutilate directory
+echo Warming run
 MUTILATE_ITEMS=$(($MEMCACHED_MEMPOOL/$MUTILATE_VALUE_SIZE))
+cd $SHELLPACK_SOURCES/mutilate-${VERSION}-installed || die Failed to cd to mutilate directory
+configs/config-memdb-memcached-mutilate-small
+./bin/mutilate \
+	-s 127.0.0.1 \
+	-T $MUTILATE_MAX_THREADS \
+	-V $MUTILATE_VALUE_SIZE \
+	-r $MUTILATE_ITEMS \
+	-t $((MUTILATE_DURATION*2))
 
+# Start the test
 ###SHELLPACK threads_large_stride_begin $MUTILATE_MIN_THREADS $MUTILATE_MAX_THREADS
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
