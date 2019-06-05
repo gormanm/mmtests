@@ -34,7 +34,6 @@ $SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
 echo Warming run
 MUTILATE_ITEMS=$(($MEMCACHED_MEMPOOL/$MUTILATE_VALUE_SIZE))
 cd $SHELLPACK_SOURCES/mutilate-${VERSION}-installed || die Failed to cd to mutilate directory
-configs/config-memdb-memcached-mutilate-small
 ./bin/mutilate \
 	-s 127.0.0.1 \
 	-T $MUTILATE_MAX_THREADS \
