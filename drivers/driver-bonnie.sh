@@ -16,7 +16,6 @@ run_bench() {
 	$SHELLPACK_INCLUDE/shellpack-bench-bonnie $BONNIE_FSYNC_PARAM \
 		$SIZE_PARAM \
 		$FILES_PARAM \
-		$DIRS_PARAM \
-		--iterations $BONNIE_ITERATIONS
+		$DIRS_PARAM
 	return $?
 }
