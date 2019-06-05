@@ -52,7 +52,6 @@ while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 	rm -rf $SHELLPACK_DATA/clients &>/dev/null
 	sync
 	# First create directory hierarchy
-	echo dbench setup $CLIENT
 	./bin/dbench --run-once --skip-cleanup -D $SHELLPACK_DATA \
 		--loadfile $LOADDIR/client-warmup.txt $CLIENT &>/dev/null
 
