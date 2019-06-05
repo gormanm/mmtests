@@ -18,7 +18,7 @@
 $SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh memcached
 $SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
 if [ $? -ne 0 ]; then
-	die Failed to start memcached server
+	die "Failed to start memcached server"
 fi
 
 ###SHELLPACK check_install_required mutilate-${VERSION}
@@ -27,11 +27,11 @@ fi
 # Restart server
 $SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 if [ "$MEMCACHED_MEMPOOL" = "" ]; then
-	die Must specify memcached memory pool size
+	die "Must specify memcached memory pool size"
 fi
 $SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
 
-echo Warming run
+echo Warming run for $((MUTILATE_DURATION*2)) seconds
 MUTILATE_ITEMS=$(($MEMCACHED_MEMPOOL/$MUTILATE_VALUE_SIZE))
 cd $SHELLPACK_SOURCES/mutilate-${VERSION}-installed || die Failed to cd to mutilate directory
 ./bin/mutilate \
