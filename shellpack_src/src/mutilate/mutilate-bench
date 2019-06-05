@@ -24,9 +24,11 @@ fi
 ###SHELLPACK check_install_required mutilate-${VERSION}
 ###SHELLPACK init_only_end
 
+$SHELLPACK_INCLUDE/shellpack-install-memcached --shutdown
 if [ "$MEMCACHED_MEMPOOL" = "" ]; then
 	die Must specify memcached memory pool size
 fi
+$SHELLPACK_INCLUDE/shellpack-install-memcached --mempool $MEMCACHED_MEMPOOL
 
 cd $SHELLPACK_SOURCES/mutilate-${VERSION}-installed || die Failed to cd to mutilate directory
 MUTILATE_ITEMS=$(($MEMCACHED_MEMPOOL/$MUTILATE_VALUE_SIZE))
