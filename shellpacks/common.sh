@@ -571,21 +571,6 @@ function setup_io_scheduler() {
 		grep -r -H . /sys/block/$DEVICE/queue/* 2> /dev/null >> $SHELLPACK_LOG/storageioqueue.txt
 		grep -r -H . /sys/block/*/queue/* 2> /dev/null >> $SHELLPACK_LOG/storageioqueue-all.txt
 	done
-
-	# For XFS partitions mounted nobarrier on later kernels, the parameter
-	# is ignored but the system can be tuned such that it is faked
-	if [ "$TESTDISK_FILESYSTEM" = "xfs" ]; then
-		MAJOR_KERNEL=`uname -r | awk -F . '{print $1}'`
-		MINOR_KERNEL=`uname -r | awk -F . '{print $2}'`
-		if [ \( "$MAJOR_KERNEL" -gt 4 \) -o \( "$MAJOR_KERNEL" -eq 4 -a "$MINOR_KERNEL" -ge 10 \) ]; then
-			echo Setting temporary write through on all disks for simulated xfs nobarrier
-			for CACHE in `find -L /sys/class/scsi_disk -maxdepth 2 -name "cache_type" 2>/dev/null`; do
-				echo "write back" > $CACHE
-				echo "temporary write through" > $CACHE
-				cat $CACHE
-			done
-		fi
-	fi
 }
 
 function create_testdisk()
