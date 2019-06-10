@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh pgioperf
 
 run_bench() {
 	$SHELLPACK_INCLUDE/shellpack-bench-pgioperf $PGIOPERF_INIT_SWITCH \
