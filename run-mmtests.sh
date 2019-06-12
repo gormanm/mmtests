@@ -607,7 +607,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		set-cstate-latency.pl > $SHELLPACK_LOG/cstate-latencies-${RUNNAME}.txt
 	fi
 	if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
-		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vunerabilities.txt
+		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vulnerabilities.txt
 	fi
 	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
 	gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
