@@ -64,7 +64,7 @@ sub extractReport($$$) {
 					chomp($line);
 					$line =~ s/^\s+//;
 					$nr_samples++;
-					$self->addData("$jobnamePattern", $nr_samples, $line);
+					$self->addData("$jobname-$pattern", $nr_samples, $line);
 				}
 				close INPUT;
 			}
