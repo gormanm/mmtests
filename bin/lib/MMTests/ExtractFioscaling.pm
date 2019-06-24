@@ -23,9 +23,13 @@ sub extractOneFile {
 	my $jobs = 0;
 	my $rw = 0;
 
-	$file = "$reportDir/$worker.gz";
+	$file = "$reportDir/$worker";
 
-	open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
+	if (-e $file) {
+		open(INPUT, $file) || die("Failed to open $file\n");
+	} else {
+		open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz\n");
+	}
 	while (<INPUT>) {
 		if ( /^fio/ ) {
 			# fio command line, parse for number of jobs
@@ -38,7 +42,7 @@ sub extractOneFile {
 				}
 			}
 		} elsif ( /^[5;fio]/ ) {
-			# assume fio terse format version 3
+			# assume fio terse format version 5
 			my @elements;
 
 			@elements = split(/;/, $_);
