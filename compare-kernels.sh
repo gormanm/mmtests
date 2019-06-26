@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
-export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
+export SCRIPT=$(basename $0)
+export SCRIPTDIR=$(dirname $0)
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/config
@@ -58,6 +58,28 @@ while [ "$1" != "" ]; do
 		EXCLUDE_MONITORS=yes
 		shift
 		;;
+	--help) cat <<EOF
+${SCRIPT} [OPTIONS]
+
+Compare mmtests benchmark results for different kernels.
+In principle its a wrapper to invoke compare-mmtests.pl.
+
+Options:
+
+  --auto-detect		add significance in comparison
+  --format	<fmt>	format of comparison (html or text)
+  --output-dir	<dir>	output directory (e.g. for html format and graphs)
+  --baseline	<vers>	specify kernel version as baseline for comparison
+  --compare	<vers>	include kernel version in comparison
+  --exclude	<vers>	exclude kernel version from comparison
+  --result-dir	<dir>	directory with mmtests results
+  --sort-version	sort results by kernel version
+  --plot-details	generate graphs for comparison
+  --exclude-monitors	don't include monitors in comparison
+  --help		print this help text and exit
+
+EOF
+		shift; exit 0;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift
