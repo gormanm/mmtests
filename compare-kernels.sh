@@ -466,9 +466,9 @@ generate_subheading_trans_graphs() {
 
 	for SUBHEADING in $SUBHEADING_LIST; do
 		echo "<tr>"
-		eval $GRAPH_PNG -b $SUBTEST --title \"$SUBTEST $SUBHEADING\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING.png --x-label Time
-		eval $GRAPH_PNG -b $SUBTEST --title \"$SUBTEST $SUBHEADING smooth\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING-smooth.png --smooth --x-label Time
-		eval $GRAPH_PNG -b $SUBTEST --title \"$SUBTEST $SUBHEADING sorted\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING-sorted.png --sort-samples-reverse --x-label \"Sorted samples\"
+		eval $GRAPH_PNG -a $SUBTEST --title \"$SUBTEST $SUBHEADING\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING.png --x-label Time
+		eval $GRAPH_PNG -a $SUBTEST --title \"$SUBTEST $SUBHEADING smooth\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING-smooth.png --smooth --x-label Time
+		eval $GRAPH_PNG -a $SUBTEST --title \"$SUBTEST $SUBHEADING sorted\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING-sorted.png --sort-samples-reverse --x-label \"Sorted samples\"
 		plain graph-$SUBTEST-$SUBHEADING
 		plain graph-$SUBTEST-$SUBHEADING-smooth
 		plain graph-$SUBTEST-$SUBHEADING-sorted
@@ -863,7 +863,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			done
 			;;
 		fio)
-			generate_subheading_trans_graphs "latency-read latency-write" "fiolatency" "--logY"
+			generate_subheading_trans_graphs "latency-read latency-write" "latency" "--logY"
 			;;
 		freqmine-small|freqmine-medium|freqmine-large)
 			generate_basic "$SUBREPORT" "--wide --logX"
