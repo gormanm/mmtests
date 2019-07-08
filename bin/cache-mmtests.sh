@@ -131,7 +131,7 @@ if [ -d "$CACHE_MMTESTS/$HASHDIR" ]; then
 
 		CACHEFILES_SOUND=yes
 		if [ "$JSON_EXPORT" = "yes" ]; then
-			{ zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz" && zcat "$CACHE_MMTESTS/$HASHDIR/cache.json.xz"; } > /dev/null
+			{ zcat "$CACHE_MMTESTS/$HASHDIR/cache.gz" && xzcat "$CACHE_MMTESTS/$HASHDIR/cache.json.xz"; } > /dev/null
 			if [ $? -ne 0 ]; then
 				CACHEFILES_SOUND=no
 			fi
