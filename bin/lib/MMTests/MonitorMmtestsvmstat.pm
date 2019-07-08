@@ -173,7 +173,7 @@ sub extractReport($$$$) {
 	my ($reading_test, $reading_before, $reading_after);
 	my $elapsed_time = 1;
 
-	my $file = "$reportDir/tests-timestamp";
+	my $file = "$reportDir/tests-sysstate.gz";
 
 	foreach my $key (keys %_renamed_fields) {
 		$vmstat_before{$_renamed_fields{$key}} = 0;
@@ -185,7 +185,7 @@ sub extractReport($$$$) {
 		$vmstat_after{$key} = 0;
 	}
 
-	open(INPUT, $file) || die("Failed to open $file\n");
+	open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
 	while (<INPUT>) {
 		if ($_ =~ /^test begin \:\: $testBenchmark/) {
 			$reading_test = 1;
