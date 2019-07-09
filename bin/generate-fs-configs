@@ -112,6 +112,7 @@ config-io-filebench-webserver-small
 config-io-filebench-webproxy-small
 config-io-filebench-webproxy-medium
 config-io-filebench-webproxy-large
+config-workload-pedsort
 config-workload_thpscale
 config-workload_thpscale-madvhugepage
 config-workload_will-it-scale-io
