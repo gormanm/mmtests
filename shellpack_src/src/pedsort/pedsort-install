@@ -4,6 +4,9 @@ GIT_LOCATION=https://pdos.csail.mit.edu/mosbench/mosbench.git
 MIRROR_LOCATION="$WEBROOT/mosbench/"
 
 install-depends libdb-devel
+if [ ! -e /usr/include/db.h ]; then
+	install-depends libdb-4.8-devel
+fi
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
