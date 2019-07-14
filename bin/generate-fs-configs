@@ -251,7 +251,7 @@ for CONFIG in $DEADLINE_FSCONFIGS; do
 	if [ ! -e $CONFIG ]; then
 		continue
 	fi
-	OUT_CONFIG=`echo $CONFIG | sed -e 's/dhp__io/dhp__io-deadline/'`
+	OUT_CONFIG=`echo $CONFIG | sed -e 's/^config-/config-deadline-/'`
 	cat $CONFIG | sed \
 		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext3/' \
