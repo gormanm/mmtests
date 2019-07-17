@@ -18,7 +18,7 @@ sub extractReport() {
 
 	my @clients = $self->discover_scaling_parameters($reportDir, "sysbench-raw-", "-1");;
 	foreach my $client (@clients) {
-		$iteration = 0;
+		my $iteration = 0;
 
 		my @files = <$reportDir/sysbench-raw-$client-*>;
 		foreach my $file (@files) {
