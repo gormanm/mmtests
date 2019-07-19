@@ -201,7 +201,7 @@ fi
 install-depends autoconf automake binutils-devel bzip2 dosfstools expect
 install-depends expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch
 install-depends recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz wget
-install-depends perl-Time-HiRes time tcl
+install-depends perl-Time-HiRes time tcl bc
 install-depends kpartx util-linux
 install-depends hwloc-lstopo numactl
 install-depends cpupower
