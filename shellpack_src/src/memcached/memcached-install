@@ -1,7 +1,8 @@
 #!/bin/bash
 # memcached installer
 ###SHELLPACK preamble memcached-install 1.4.15
-WEB_LOCATION=http://memcached.googlecode.com/files
+WEB_LOCATION=http://www.memcached.org/files
+WEB_ALT_LOCATION=http://memcached.org/files/old
 MIRROR_LOCATION="$WEBROOT/memcached"
 
 ###SHELLPACK parseargBegin
@@ -14,7 +15,7 @@ MIRROR_LOCATION="$WEBROOT/memcached"
 if [ ! -e $SHELLPACK_SOURCES/memcached-${VERSION}-installed ]; then
 	# Unconditionally fetch the tar to find out the real version number
 	TARFILE=memcached-${VERSION}.tar.gz
-	sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE
+	sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/$TARFILE $SHELLPACK_SOURCES/$TARFILE $WEB_ALT_LOCATION/$TARFILE
 
 	# Building from scratch, uncompress the tar
 	cd $SHELLPACK_SOURCES
