@@ -1,9 +1,6 @@
 #!/bin/bash
 # This script installs memcached and leaves it ready for benchmarking
 ###SHELLPACK preamble memcached-bench 1.4.13
-
-install-depends libevent-devel
-
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd

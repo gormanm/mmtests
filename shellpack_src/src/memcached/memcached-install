@@ -1,6 +1,9 @@
 #!/bin/bash
 # memcached installer
 ###SHELLPACK preamble memcached-install 1.4.15
+
+install-depends libevent-devel
+
 WEB_LOCATION=http://www.memcached.org/files
 WEB_ALT_LOCATION=http://memcached.org/files/old
 MIRROR_LOCATION="$WEBROOT/memcached"
