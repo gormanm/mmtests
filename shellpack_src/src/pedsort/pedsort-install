@@ -5,7 +5,7 @@ MIRROR_LOCATION="$WEBROOT/mosbench/"
 
 install-depends libdb-devel
 if [ ! -e /usr/include/db.h ]; then
-	install-depends libdb-4.8-devel
+	install-depends libdb-4_8-devel
 fi
 
 ###SHELLPACK parseargBegin
