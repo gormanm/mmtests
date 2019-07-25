@@ -1047,7 +1047,7 @@ function have_monitor_results()
 	else
 		# Here we grep all runnames to check whether event occured
 		# in any run
-		zgrep -q "$contains" */$monitor-* &>/dev/null
+		zgrep -q "$contains" $runname/iter-*/$monitor-* &>/dev/null
 	fi
 }
 
