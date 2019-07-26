@@ -609,6 +609,7 @@ function create_testdisk()
 		done
 
 		# Record basic device information
+		install-depends hdparm
 		echo -n > $SHELLPACK_LOG/disk-raid-hdparm
 		echo -n > $SHELLPACK_LOG/disk-raid-smartctl
 		for DISK in $TESTDISK_RAID_DEVICES; do
