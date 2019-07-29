@@ -4,7 +4,7 @@
 GIT_LOCATION="https://github.com/cirosantilli/parsec-benchmark"
 MIRROR_LOCATION="$WEBROOT/parsec/"
 
-for PACKAGE in gsl-devel libgsl23 libgslcblas0 libjpeg8-devel libjpeg8 xt cmake libXt-devel libXmu-devel libXi-devel; do
+for PACKAGE in gsl-devel libgsl23 libgslcblas0 libjpeg8-devel libjpeg8 xz cmake libXt-devel libXmu-devel libXi-devel; do
 	install-depends $PACKAGE
 done
 
