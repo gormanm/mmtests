@@ -462,8 +462,9 @@ sub sortResults() {
 			for (my $iter = 0;
 			     $iter < scalar(@{$self->{_ResultData}->{$op}});
 			     $iter++) {
-				my $iterref = $self->{_ResultData}->{$op}->[$iter];
+				no strict "refs"
 
+				my $iterref = $self->{_ResultData}->{$op}->[$iter];
 				my @indices = 0..$#{@{$iterref->{Values}}};
 				@indices = sort {
 					$iterref->{SampleNrs}->[$a] <=>
@@ -476,7 +477,6 @@ sub sortResults() {
 		}
 	}
 }
-
 
 sub discover_scaling_parameters() {
 	my ($self, $reportDir, $prefix, $suffix) = @_;
