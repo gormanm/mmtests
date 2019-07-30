@@ -1,3 +1,4 @@
+install-depends oprofile recode
 if [ "$SAMPLE_CYCLE_FACTOR" = "" ]; then
 	SAMPLE_CYCLE_FACTOR=1
 fi

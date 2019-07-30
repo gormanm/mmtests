@@ -198,14 +198,10 @@ if [ "$MMTESTS_FORCE_DATE" != "" ]; then
 fi
 
 # Install packages that are generally needed by a large number of tests
-install-depends autoconf automake binutils-devel bzip2 dosfstools expect
-install-depends expect-devel gcc gcc-32bit libhugetlbfs libtool make oprofile patch
-install-depends recode systemtap xfsprogs xfsprogs-devel psmisc btrfsprogs xz wget
-install-depends perl-Time-HiRes time tcl bc
-install-depends kpartx util-linux
-install-depends hwloc-lstopo numactl
-install-depends cpupower
-install-depends util-linux
+install-depends autoconf automake bc binutils-devel btrfsprogs bzip2
+	cpupower e2fsprogs expect expect-devel gcc hwloc-lstopo libtool
+	make numactl patch perl-Time-HiRes psmisc tcl time util-linux
+	wget xfsprogs xfsprogs-devel xz
 
 # Check monitoring
 if [ "$FORCE_RUN_MONITOR" != "" ]; then
@@ -252,6 +248,7 @@ for MONITOR in $MONITORS_ALWAYS $MONITORS_PLAIN $MONITORS_GZIP $MONITORS_WITH_LA
 	done
 done
 if [ "$STAP_USED" != "" ]; then
+	install-depends systemtap
 	if [ "`which stap`" = "" ]; then
 		echo ERROR: systemtap required for $STAP_USED but not installed
 		exit -1
