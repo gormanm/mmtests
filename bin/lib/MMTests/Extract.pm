@@ -464,14 +464,14 @@ sub sortResults() {
 			     $iter++) {
 				my $iterref = $self->{_ResultData}->{$op}->[$iter];
 
-				my @indices = 0..$#{@{$iterref->{Values}}};
+				my @indices = 0..$#{\@{$iterref->{Values}}};
 				@indices = sort {
 					$iterref->{SampleNrs}->[$a] <=>
 					$iterref->{SampleNrs}->[$b];
 				} @indices;
 
-				$iterref->{SampleNrs} = \@{$iterref->{SampleNrs}->[@indices]};
-				$iterref->{Values} = \@{$iterref->{Values}->[@indices]};
+				$iterref->{SampleNrs} = [ map {$iterref->{SampleNrs}->[$_]} @indices ];
+				$iterref->{Values} = [ map {$iterref->{Values}->[$_]} @indices ];
 			}
 		}
 	}
