@@ -10,7 +10,6 @@ sub initialise() {
 	my $fieldLength = $self->{_FieldLength} = 25;
 	$self->{_ModuleName} = "ExtractVmscale";
 	$self->{_DataType} = DataTypes::DATA_TIME_SECONDS;
-	$self->{_TestName} = $testName;
 	$self->{_Opname} = "Value";
 
 	$self->SUPER::initialise($subHeading);

@@ -9,7 +9,6 @@ use Data::Dumper qw(Dumper);
 sub initialise() {
 	my ($self, $subHeading) = @_;
 
-	$self->{_TestName} = $testName;
 	$self->{_ModuleName} = "ExtractFilelockperf";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
 	$self->{_PlotType}   = "process-errorlines";
