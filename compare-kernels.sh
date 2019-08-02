@@ -817,7 +817,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			generate_subtest_graphs 2
 			;;
 		bonnie)
-			SUBTEST_LIST=`$EXTRACT_CMD -n $KERNEL | awk '{print $1" "$2}' | sort | uniq | sed -e 's/ /@/g'`
+			SUBTEST_LIST=`$EXTRACT_CMD -n $KERNEL | awk '{print $1" "$2}' | sort | uniq | sed -e 's/ /@/g' -e 's/[0-9]//g'`
 			generate_subtest_graphs_sorted "$SUBTEST_LIST" --logY
 			;;
 		autonumabench)

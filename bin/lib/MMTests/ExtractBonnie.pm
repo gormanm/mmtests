@@ -39,13 +39,16 @@ sub extractReport() {
 	} else {
 		open(INPUT, $file) || die("Failed to open $file\n");
 	}
+	my %nrSamples;
+
 	while (<INPUT>) {
 		chomp;
 		my $line = $_;
 		my @elements = split(/ /, $line);
 
 		if (defined($ops{$elements[0]})) {
-			$self->addData($ops{$elements[0]}, 0, $elements[1]);
+			$nrSamples{$elements[0]}++;
+			$self->addData($ops{$elements[0]}, $nrSamples{$elements[0]}, $elements[1]);
 		}
 	}
 	close INPUT;

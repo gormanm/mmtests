@@ -712,6 +712,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	teststate_log "finish :: `date +%s`"
 	dmesg > $SHELLPACK_LOG/dmesg
 	gzip -f $SHELLPACK_LOG/dmesg
+	gzip -f $SHELLPACK_SYSSTATEFILE
 
 	if [ "$MMTEST_NUMA_POLICY" = "numad" ]; then
 		echo Shutting down numad pid $NUMAD_PID
@@ -775,5 +776,4 @@ fi
 
 echo `date +%s` run-mmtests: End >> $SHELLPACK_ACTIVITY
 teststate_log "status :: $EXIT_CODE"
-gzip $SHELLPACK_SYSSTATEFILE
 exit $EXIT_CODE
