@@ -51,7 +51,7 @@ usage() {
 }
 
 # Parse command-line arguments
-ARGS=`getopt -o kmnc:h --long kvm,help,run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
+ARGS=`getopt -o kmnc:h --long kvm,performance,help,run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
 KVM_ARGS=
 declare -a CONFIGS
 export CONFIGS
@@ -60,6 +60,10 @@ while true; do
 	case "$1" in
 		-k|--kvm)
 			export KVM=yes
+			shift
+			;;
+		-p|--performance)
+			export FORCE_PERFORMANCE_SETUP=yes
 			shift
 			;;
 		-m|--run-monitor)
@@ -202,6 +206,23 @@ install-depends autoconf automake bc binutils-devel btrfsprogs bzip2		\
 	cpupower e2fsprogs expect expect-devel gcc hdparm hwloc-lstopo libtool	\
 	make numactl patch perl-Time-HiRes psmisc tcl time util-linux		\
 	wget xfsprogs xfsprogs-devel xz
+
+# Set some basic performance cpu frequency settings.
+if [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
+	echo Setting performance cpu settings
+
+	# asume all cpus are setup to the same scaling governor...
+	FORCE_PERFORMANCE_SCALINGGOV_BASE=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+	for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+		[ -f $CPUFREQ ] || continue; echo -n performance > $CPUFREQ;
+	done
+
+	NOTURBO="/sys/devices/system/cpu/intel_pstate/no_turbo"
+	if test -f "$NOTURBO"; then
+		FORCE_PERFORMANCE_NOTURBO_BASE=`cat $NOTURBO`
+		echo 1 > $NOTURBO
+	fi
+fi
 
 # Check monitoring
 if [ "$FORCE_RUN_MONITOR" != "" ]; then
@@ -765,6 +786,20 @@ if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 	echo Recompressing vmlinux
 	gzip /boot/vmlinux-`uname -r`
 fi
+
+if [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
+    echo Restoring performance cpu settings
+    for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor;
+    do
+	[ -f $CPUFREQ ] || continue; echo -n $FORCE_PERFORMANCE_SCALINGGOV_BASE > $CPUFREQ;
+    done
+
+	NOTURBO="/sys/devices/system/cpu/intel_pstate/no_turbo"
+	if test -f "$NOTURBO"; then
+		echo $FORCE_PERFORMANCE_NOTURBO_BASE > $NOTURBO
+	fi
+fi
+
 
 if [ "$MMTESTS_FORCE_DATE" != "" ]; then
 	MMTESTS_FORCE_DATE_END=`date +%s`
