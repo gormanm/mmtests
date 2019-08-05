@@ -151,6 +151,7 @@ done
 GENSPECSH="generate-nas.sh --bitness ${RUNBITS} $OPENMP $OPENMPI"
 $GENSPECSH > config/make.def
 cp config/make.def $LOGDIR_RESULTS || die "Failed to generate make.def"
+ulimit -n 4096
 
 make clean || die "Failed to clean"
 make suite || die "Failed to build"
