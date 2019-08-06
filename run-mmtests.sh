@@ -41,17 +41,18 @@ trap begin_shutdown SIGTERM
 trap begin_shutdown SIGINT
 
 usage() {
-	echo "$0 [-mn] [-c path_to_config] runname"
+	echo "$0 [-kmnph] [-c path_to_config] runname"
 	echo
 	echo "-k|--kvm         Run inside KVM instance"
 	echo "-m|--run-monitor Force enable monitor."
 	echo "-n|--no-monitor  Force disable monitor."
+	echo "-p|--performance Force performance CPUFreq governor before starting the tests."
 	echo "-c|--config      Use MMTests config, default is ./config, more than one can be specified"
 	echo "-h|--help        Prints this help."
 }
 
 # Parse command-line arguments
-ARGS=`getopt -o kmnc:h --long kvm,performance,help,run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
+ARGS=`getopt -o kpmnc:h --long kvm,performance,help,run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
 KVM_ARGS=
 declare -a CONFIGS
 export CONFIGS
