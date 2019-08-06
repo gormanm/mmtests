@@ -113,10 +113,7 @@ config-io-iozone-doublemem-async
 config-io-iozone-doublemem-fsync
 config-db-sqlite-insert-small
 config-db-sqlite-insert-medium
-config-io-paralleldd-read-small
-config-io-paralleldd-read-large
-config-io-paralleldd-read-small-multi
-config-io-paralleldd-read-large-multi
+config-io-blogbench
 config-io-fio-randread-async-randwrite
 config-io-fio-randread-async-seqwrite
 config-io-fio-randread-sync-heavywrite
@@ -126,7 +123,11 @@ config-io-fio-seqread-doublemem-32k-4t
 config-io-fio-sync-maxrandwrite
 config-io-fio-sync-maxrandwrite-ftrace
 config-io-fio-sync-maxrandwrite-long-ftrace
-config-io-blogbench
+config-io-paralleldd-read-small
+config-io-paralleldd-read-large
+config-io-paralleldd-read-small-multi
+config-io-paralleldd-read-large-multi
+config-io-S-startup
 config-workload-libmicro-file
 config-io-xfsio
 config-workload-unixbench-io-fsbuffer
@@ -140,7 +141,6 @@ config-speccpu2017-speed-parallel-full
 config-speccpu2017-rate-parallel-quarter
 config-speccpu2017-rate-parallel-half
 config-speccpu2017-rate-parallel-full
-config-S-startup
 config-hpc-parsec-pthreads-half
 config-hpc-parsec-pthreads-full
 config-functional-ltp-cve
