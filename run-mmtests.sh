@@ -4,7 +4,6 @@ DIRNAME=`dirname $0`
 export SCRIPTDIR=`cd "$DIRNAME" && pwd`
 export PATH="$SCRIPTDIR/bin:$PATH"
 RUNNING_TEST=
-KVM=
 export EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer
 
 INTERRUPT_COUNT=0
@@ -43,7 +42,6 @@ trap begin_shutdown SIGINT
 usage() {
 	echo "$0 [-kmnph] [-c path_to_config] runname"
 	echo
-	echo "-k|--kvm         Run inside KVM instance"
 	echo "-m|--run-monitor Force enable monitor."
 	echo "-n|--no-monitor  Force disable monitor."
 	echo "-p|--performance Force performance CPUFreq governor before starting the tests."
@@ -52,40 +50,31 @@ usage() {
 }
 
 # Parse command-line arguments
-ARGS=`getopt -o kpmnc:h --long kvm,performance,help,run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
-KVM_ARGS=
+ARGS=`getopt -o pmnc:h --long performance,help,run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
 declare -a CONFIGS
 export CONFIGS
 eval set -- "$ARGS"
 while true; do
 	case "$1" in
-		-k|--kvm)
-			export KVM=yes
-			shift
-			;;
 		-p|--performance)
 			export FORCE_PERFORMANCE_SETUP=yes
 			shift
 			;;
 		-m|--run-monitor)
 			export FORCE_RUN_MONITOR=yes
-			KVM_ARGS="$KVM_ARGS $1"
 			shift
 			;;
 		-n|--no-monitor)
 			export FORCE_RUN_MONITOR=no
-			KVM_ARGS="$KVM_ARGS $1"
 			shift
 			;;
 		-c|--config)
 			DEFAULT_CONFIG=
 			CONFIGS+=( "$2" )
-			KVM_ARGS="$KVM_ARGS $1 $2"
 			shift 2
 			;;
 		-h|--help)
 			usage
-			KVM_ARGS="$KVM_ARGS $1"
 			exit $SHELLPACK_SUCCESS
 			;;
 		--)
@@ -161,36 +150,6 @@ if [ "$LOGDISK_PARTITION" != "" ]; then
 	else
 		mount -t $LOGDISK_FILESYSTEM $LOGDISK_PARTITION $SHELLPACK_LOG_BASE -o $LOGDISK_MOUNT_ARGS || exit
 	fi
-fi
-
-# Run inside KVM if requested
-if [ "$KVM" = "yes" ]; then
-	echo Launching KVM
-	$SHELLPACK_TOPLEVEL/run-kvm.sh
-	if [ $? -ne 0 ]; then
-		echo KVM failed to start properly
-		exit -1
-	fi
-	reset
-	cd $SHELLPACK_TOPLEVEL
-
-	RCMD="ssh -p 30022 root@localhost"
-
-	echo Executing mmtest inside KVM: run-mmtests.sh $KVM_ARGS $RUNNAME
-	echo MMtests toplevel: $SHELLPACK_TOPLEVEL
-	echo MMTests logs: $SHELLPACK_LOG_BASE
-	$RCMD "cd $SHELLPACK_TOPLEVEL && ./run-mmtests.sh $KVM_ARGS $RUNNAME"
-	RETVAL=$?
-	echo Copying KVM logs
-	scp -r -P 30022 "root@localhost:$SHELLPACK_LOG_BASE/*" "$SHELLPACK_LOG_BASE/"
-	scp -r -P 30022 "root@localhost:$SHELLPACK_TOPLEVEL/kvm-console.log" "$SHELLPACK_LOG/kvm-console.log"
-
-	echo Shutting down KVM
-	$RCMD shutdown -h now
-	sleep 30
-	kill -9 `cat qemu.pid`
-	rm -f qemu.pid
-	exit $RETVAL
 fi
 
 # Force artificial date is requested
