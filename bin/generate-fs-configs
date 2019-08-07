@@ -48,6 +48,7 @@ config-io-metadata
 config-io-dbench4-async
 config-io-dbench4-fsync
 config-io-fio-randread-direct-multi
+config-io-fsmark-small-file-stream
 config-io-fsmark-xfsrepair
 config-pagereclaim-performance
 config-pagereclaim-shrinker
