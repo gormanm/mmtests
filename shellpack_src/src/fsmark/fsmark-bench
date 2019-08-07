@@ -42,6 +42,11 @@ if [ $ITERATIONS -le 0 ]; then
 	die Disk is too small to potentially run benchmark
 fi
 
+PARAM_EXTRA=
+if [ "$FSMARK_KEEP_FILES" = "yes" ]; then
+	PARAM_EXTRA+=" -k"
+fi
+
 ###SHELLPACK threads_large_stride_begin $MIN_THREADS $MAX_THREADS
 	PARAM=
 	for THREAD in `seq 1 $NR_THREADS`; do
