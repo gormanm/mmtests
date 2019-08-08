@@ -956,6 +956,9 @@ function create_filesystems
 			else
 				mount $TESTDISK_PARTITIONS $SHELLPACK_TEST_MOUNT -o $TESTDISK_MOUNT_ARGS || exit
 			fi
+
+			echo Attempting trim of $SHELLPACK_TEST_MOUNT
+			time fstrim $SHELLPACK_TEST_MOUNT
 		fi
 		export TESTDISK_PRIMARY_SIZE_BYTES=`df $SHELLPACK_TEST_MOUNT | tail -1 | awk '{print $4}'`
 		export TESTDISK_PRIMARY_SIZE_BYTES=$((TESTDISK_PRIMARY_SIZE_BYTES*1024))
@@ -980,7 +983,7 @@ function create_filesystems
 			fi
 
 			echo Attempting trim of ${SHELLPACK_TEST_MOUNTS[$i]}
-			fstrim ${SHELLPACK_TEST_MOUNTS[$i]}
+			time fstrim ${SHELLPACK_TEST_MOUNTS[$i]}
 		done
 	fi
 
