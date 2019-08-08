@@ -52,8 +52,6 @@ config-io-fsmark-small-file-stream
 config-io-fsmark-xfsrepair
 config-pagereclaim-performance
 config-pagereclaim-shrinker
-config-io-fsmark-50m-inode
-config-io-fsmark-50m-zerofile-inode
 config-io-xfsrepair
 config-hpc-nas-c-class-mpi-full
 config-hpc-nas-c-class-mpi-half

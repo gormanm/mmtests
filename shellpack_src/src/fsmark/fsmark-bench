@@ -15,6 +15,7 @@ FILESIZE=0
 ###SHELLPACK parseargParam --max-threads            MAX_THREADS
 ###SHELLPACK parseargParam --filesize               FILESIZE
 ###SHELLPACK parseargParam --nr-files-per-iteration NR_FILES_PER_ITERATION
+###SHELLPACK parseargParam --nr-top-directories     NR_TOP_DIRECTORIES
 ###SHELLPACK parseargParam --nr-sub-directories     NR_SUB_DIRECTORIES
 ###SHELLPACK parseargParam --iterations             ITERATIONS
 ###SHELLPACK parseargEnd
@@ -49,19 +50,19 @@ fi
 
 ###SHELLPACK threads_large_stride_begin $MIN_THREADS $MAX_THREADS
 	PARAM=
-	for THREAD in `seq 1 $NR_THREADS`; do
-		mkdir -p /tmp/fsmark-$$/$THREAD
-		PARAM="$PARAM -d /tmp/fsmark-$$/$THREAD"
+	for TOPDIR in `seq 1 $NR_TOP_DIRECTORIES`; do
+		mkdir -p /tmp/fsmark-$$/$TOPDIR
+		PARAM+=" -d /tmp/fsmark-$$/$TOPDIR"
 	done
 
 	echo ./fs_mark \
-		$PARAM \
 		-D $NR_SUB_DIRECTORIES \
-		-n $(($NR_FILES_PER_ITERATION/$NR_THREADS)) \
-		-L $ITERATIONS \
-		-t $NR_THREADS \
 		-S0 \
-		-s $FILESIZE | tee $LOGDIR_RESULTS/fsmark-cmd-${NR_THREADS}.log
+		-n $(($NR_FILES_PER_ITERATION/$NR_TOP_DIRECTORIES)) \
+		-s $FILESIZE	\
+		-L $ITERATIONS	\
+		-t $NR_THREADS	\
+		$PARAM | tee $LOGDIR_RESULTS/fsmark-cmd-${NR_THREADS}.log
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	eval ./fs_mark \

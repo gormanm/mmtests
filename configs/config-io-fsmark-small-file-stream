@@ -1,7 +1,3 @@
-### fsmark-threaded creates a number of zero-length files from varying
-### numbers of threads. This is configured to run the same as the fsmark
-### load used for benchmarking xfsrepair.
-
 # MM Test Parameters
 export MMTESTS="fsmark-single"
 
@@ -26,7 +22,7 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # FS-Mark
 export FSMARK_FILESIZE=4096
-export FSMARK_NR_SUB_DIRECTORIES=1000
-export FSMARK_NR_FILES_PER_ITERATION=$((MEMTOTAL_BYTES/$FSMARK_FILESIZE/20))
+export FSMARK_NR_TOP_DIRECTORIES=16
+export FSMARK_NR_SUB_DIRECTORIES=10000
+export FSMARK_NR_FILES_PER_ITERATION=$((MEMTOTAL_BYTES*2/$FSMARK_FILESIZE))
 export FSMARK_ITERATIONS=60
-export FSMARK_KEEP_FILES=yes
