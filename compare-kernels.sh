@@ -1591,7 +1591,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			eval $GRAPH_PSC --title \"Slab Reclaimable pages\"    --print-monitor proc-vmstat --sub-heading nr_slab_reclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-reclaimable.ps
 			eval $GRAPH_PNG --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab.png
 			eval $GRAPH_PSC --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab.ps
-
 			eval $GRAPH_PNG --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty-smooth.png --smooth 2> /dev/null
 			eval $GRAPH_PSC --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty-smooth.ps --smooth 2> /dev/null
 			eval $GRAPH_PNG --title \"Writeback Pages\"    --print-monitor proc-vmstat --sub-heading nr_writeback --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_writeback-smooth.png --smooth 2> /dev/null
@@ -1610,6 +1609,13 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			eval $GRAPH_PSC --title \"Slab Reclaimable pages\" --print-monitor proc-vmstat --sub-heading nr_slab_reclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-reclaimable-smooth.ps --smooth
 			eval $GRAPH_PNG --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-smooth.png --smooth
 			eval $GRAPH_PSC --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"Ratio Slab/FileCache\" --print-monitor proc-vmstat --sub-heading mmtests_ratio_slab_filecache --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-ratio-slab-filecache.png
+			eval $GRAPH_PSC --title \"Ratio Slab/FileCache\" --print-monitor proc-vmstat --sub-heading mmtests_ratio_slab_filecache --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-ratio-slab-filecache.png
+			eval $GRAPH_PNG --title \"Ratio Slab/PageCache\" --print-monitor proc-vmstat --sub-heading mmtests_ratio_slab_pagecache --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-ratio-slab-pagecache.png
+			eval $GRAPH_PSC --title \"Ratio Slab/PageCache\" --print-monitor proc-vmstat --sub-heading mmtests_ratio_slab_pagecache --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-ratio-slab-pagecache.png
+
+			eval $GRAPH_PNG --title \"PFree Memory\"      --print-monitor vmstat --sub-heading pfree --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-pfree.png
+			eval $GRAPH_PSC --title \"PFree Memory\"      --print-monitor vmstat --sub-heading pfree --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-pfree.ps
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-nr_dirty
@@ -1627,6 +1633,12 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			smoothover graph-$SUBREPORT-proc-vmstat-slab-reclaimable
 			smoothover graph-$SUBREPORT-proc-vmstat-slab
 			echo "</tr>"
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-proc-vmstat-ratio-slab-filecache
+			smoothover graph-$SUBREPORT-proc-vmstat-ratio-slab-pagecache
+			smoothover graph-$SUBREPORT-vmstat-pfree
+			echo "</tr>"
+
 
                         eval $GRAPH_PNG --title \"Total Sector IO\" --print-monitor proc-vmstat --sub-heading pgpgtotal  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgptotal.png
                         eval $GRAPH_PSC --title \"Total Sector IO\" --print-monitor proc-vmstat --sub-heading pgpgtotal  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgptotal.ps

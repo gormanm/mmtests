@@ -34,6 +34,7 @@ my %_colMap = (
 	"st"	=> 16,
 	"ussy"      => 17,
 	"totalcpu"  => 18,
+	"pfree" => 99,
 );
 
 use constant typeMap => {
@@ -96,11 +97,22 @@ sub extractReport($$$$) {
 		$subHeading = "sy";
 	}
 	if (!defined $_colMap{$subHeading}) {
-		die("Unrecognised heading");
+		die("Unrecognised heading $subHeading");
 	}
 	my $headingIndex = $_colMap{$subHeading};
 
-	my $file = "$reportDir/vmstat-$testBenchmark";
+	my $total_memory_kb;
+	my $file = "$reportDir/tests-sysstate.gz";
+	open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
+	while (<INPUT>) {
+		if ($_ =~ /^MemTotal: ([0-9])* kB/) {
+			$total_memory_kb = $1;
+			last;
+		}
+	}
+	close INPUT;
+
+	$file = "$reportDir/vmstat-$testBenchmark";
 	if (-e $file) {
 		open(INPUT, $file) || die("Failed to open $file: $!\n");
 	} else {
@@ -144,6 +156,8 @@ sub extractReport($$$$) {
 			}
 		} elsif ($subHeading eq "totalcpu") {
 			$val = $fields[$_colMap{"us"}] + $fields[$_colMap{"sy"}];
+		} elsif ($subHeading eq "pfree") {
+			$val = $fields[$_colMap{"free"}] * 100 / $total_memory_kb;
 		} else {
 			$val = $fields[$headingIndex];
 			if ($headingIndex == 3) {

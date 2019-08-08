@@ -201,15 +201,18 @@ sub parseVMStat($)
         my @mmtests_kswapd_steal = ("kswapd_steal", "pgsteal_kswapd_dma", "pgsteal_kswapd_dma32",
 			  "pgsteal_kswapd_normal", "pgsteal_kswapd_high",
 			  "pgsteal_kswapd_movable", "pgsteal_kswapd");
-        my @mmtests_slab = ("nr_slab_reclaimable", "nr_slab_unreclaimable");
 
 	my $current_scan = 0;
 	my $current_steal = 0;
 	my $nr_anon = 0;
 	my $nr_thp_anon = 0;
+	my %current_values;
 
 	foreach my $line (split(/\n/, $_[1])) {
 		my ($stat, $value) = split(/\s/, $line);
+
+		$current_values{$stat} = $value;
+
 		if ($subHeading eq "mmtests_direct_scan" ) {
 			foreach my $key (@mmtests_direct_scan) {
 				if ($stat eq $key) {
@@ -220,13 +223,6 @@ sub parseVMStat($)
 				if ($stat eq $key) {
 					$current_value += $value;
 				}
-			}
-		} elsif ($subHeading eq "mmtests_total_anon") {
-			if ($stat eq "nr_anon_pages") {
-				$nr_anon = $value;
-			}
-			if ($stat eq "nr_anon_transparent_hugepages") {
-				$nr_thp_anon = $value;
 			}
 		} elsif ($subHeading eq "mmtests_direct_steal" ) {
 			foreach my $key (@mmtests_direct_steal) {
@@ -266,12 +262,6 @@ sub parseVMStat($)
 			}
 		} elsif ($subHeading eq "mmtests_kswapd_steal") {
         		foreach my $key (@mmtests_kswapd_steal) {
-				if ($stat eq $key) {
-					$current_value += $value;
-				}
-			}
-		} elsif ($subHeading eq "mmtests_total_slab") {
-			foreach my $key (@mmtests_slab) {
 				if ($stat eq $key) {
 					$current_value += $value;
 				}
@@ -333,13 +323,7 @@ sub parseVMStat($)
 	if ($_fieldCounters{$subHeading} || $subHeading eq "mmtests_vmscan_process_pages") {
 		return $current_value;
 	} elsif ($subHeading eq "mmtests_total_anon") {
-		$nr_thp_anon <<= 9;
-		if ($nr_anon > $nr_thp_anon) {
-			return $nr_anon;
-		}
-		return $nr_anon + $nr_thp_anon;
-	} elsif ($subHeading eq "mmtests_total_slab") {
-		return $current_value;
+		return $current_values{"nr_active_anon}"} + $current_values{"nr_inactive_anon"};
 	} elsif ($subHeading eq "mmtests_direct_efficiency" ||
 		 $subHeading eq "mmtests_kswapd_efficiency") {
 		my ($delta_steal, $delta_scan);
@@ -357,6 +341,21 @@ sub parseVMStat($)
 		} else {
 			return 100;
 		}
+	} elsif ($subHeading eq "mmtests_total_slab") {
+		return $current_values{"nr_slab_reclaimable"} + $current_values{"nr_slab_unreclaimable"};
+	} elsif ($subHeading eq "mmtests_ratio_slab_filecache") {
+		my $total_slab = $current_values{"nr_slab_reclaimable"} + $current_values{"nr_slab_unreclaimable"};
+		my $total_filecache = $current_values{"nr_inactive_file"} + $current_values{"nr_active_file"};
+		my $total_pages = $total_slab + $total_filecache;
+
+		return $total_slab / $total_pages;
+	} elsif ($subHeading eq "mmtests_ratio_slab_pagecache") {
+		my $total_slab = $current_values{"nr_slab_reclaimable"} + $current_values{"nr_slab_unreclaimable"};
+		my $total_pagecache = $current_values{"nr_inactive_anon}"} + $current_values{"nr_active_anon"} +
+				$current_values{"nr_inactive_file"} + $current_values{"nr_active_file"};
+		my $total_pages = $total_slab + $total_pagecache;
+
+		return $total_slab / $total_pages;
 	} else {
 		my $delta_value = 0;
 		if ($self->{_LastValue}) {
