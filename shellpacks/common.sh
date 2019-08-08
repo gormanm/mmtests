@@ -978,6 +978,9 @@ function create_filesystems
 			else
 				mount -t $TESTDISK_FILESYSTEM ${TESTDISK_PARTITIONS[$i]} ${SHELLPACK_TEST_MOUNTS[$i]} -o $TESTDISK_MOUNT_ARGS || exit
 			fi
+
+			echo Attempting trim of ${SHELLPACK_TEST_MOUNTS[$i]}
+			fstrim ${SHELLPACK_TEST_MOUNTS[$i]}
 		done
 	fi
 
