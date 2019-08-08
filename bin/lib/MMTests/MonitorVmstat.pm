@@ -105,7 +105,7 @@ sub extractReport($$$$) {
 	my $file = "$reportDir/tests-sysstate.gz";
 	open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
 	while (<INPUT>) {
-		if ($_ =~ /^MemTotal:\s+([0-9])* kB/) {
+		if ($_ =~ /^MemTotal:\s+([0-9]*) kB/) {
 			$total_memory_kb = $1;
 			last;
 		}
