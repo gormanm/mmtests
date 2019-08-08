@@ -50,30 +50,20 @@ if [ "$FSMARK_KEEP_FILES" = "yes" ]; then
 fi
 
 ###SHELLPACK threads_large_stride_begin $MIN_THREADS $MAX_THREADS
-	PARAM=
+	PARAMETERS="-D $NR_SUB_DIRECTORIES"
+	PARAMETERS+=" -S$FSMARK_SYNCMODE"
+	PARAMETERS+=" -n $(($NR_FILES_PER_ITERATION/$NR_TOP_DIRECTORIES))"
+	PARAMETERS+=" -s $FILESIZE"
+	PARAMETERS+=" -L $ITERATIONS"
+	PARAMETERS+=" -t $NR_THREADS"
 	for TOPDIR in `seq 1 $NR_TOP_DIRECTORIES`; do
 		mkdir -p /tmp/fsmark-$$/$TOPDIR
-		PARAM+=" -d /tmp/fsmark-$$/$TOPDIR"
+		PARAMETERS+=" -d /tmp/fsmark-$$/$TOPDIR"
 	done
 
-	echo ./fs_mark \
-		-D $NR_SUB_DIRECTORIES	\
-		-S$FSMARK_SYNCMODE	\
-		-n $(($NR_FILES_PER_ITERATION/$NR_TOP_DIRECTORIES)) \
-		-s $FILESIZE	\
-		-L $ITERATIONS	\
-		-t $NR_THREADS	\
-		$PARAM | tee $LOGDIR_RESULTS/fsmark-cmd-${NR_THREADS}.log
-
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	eval ./fs_mark \
-		$PARAM \
-		-D $NR_SUB_DIRECTORIES \
-		-n $(($NR_FILES_PER_ITERATION/$NR_THREADS)) \
-		-L $ITERATIONS \
-		-t $NR_THREADS \
-		-S0 \
-		-s $FILESIZE &> $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log
+	echo ./fs_mark $PARAMETERS
+	eval ./fs_mark $PARAMETERS &> $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	rm -rf $SHELLPACK_DATA/*
 	gzip $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log
