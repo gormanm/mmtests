@@ -44,14 +44,12 @@ config-io-bonnie-dir-fsync
 "
 
 FSCONFIGS="
-config-io-metadata
 config-io-dbench4-async
 config-io-dbench4-fsync
 config-io-fio-randread-direct-multi
 config-io-fsmark-small-file-stream
 config-io-fsmark-xfsrepair
 config-pagereclaim-performance
-config-pagereclaim-shrinker
 config-io-xfsrepair
 config-hpc-nas-c-class-mpi-full
 config-hpc-nas-c-class-mpi-half

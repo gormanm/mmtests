@@ -1,9 +1,9 @@
-### fsmark-threaded creates a number of zero-length files from varying
-### numbers of threads. This is configured to run the same as the fsmark
-### load used for benchmarking xfsrepair.
+### fsmark creates a number of zero-length files from a fixed number of threads.
+### This is configured to run the same as the fsmark load used for benchmarking
+### xfsrepair.
 
 # MM Test Parameters
-export MMTESTS="fsmark-threaded"
+export MMTESTS="fsmark"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=

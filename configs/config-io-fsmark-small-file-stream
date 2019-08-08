@@ -1,5 +1,5 @@
 # MM Test Parameters
-export MMTESTS="fsmark-single"
+export MMTESTS="fsmark"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
@@ -21,6 +21,8 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # FS-Mark
+export FSMARK_MIN_THREADS=1
+export FSMARK_MAX_THREADS=1
 export FSMARK_FILESIZE=4096
 export FSMARK_NR_TOP_DIRECTORIES=16
 export FSMARK_NR_SUB_DIRECTORIES=10000

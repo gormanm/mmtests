@@ -17,6 +17,7 @@ FILESIZE=0
 ###SHELLPACK parseargParam --nr-files-per-iteration NR_FILES_PER_ITERATION
 ###SHELLPACK parseargParam --nr-top-directories     NR_TOP_DIRECTORIES
 ###SHELLPACK parseargParam --nr-sub-directories     NR_SUB_DIRECTORIES
+###SHELLPACK parseargParam --sync-mode              FSMARK_SYNCMODE
 ###SHELLPACK parseargParam --iterations             ITERATIONS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
@@ -56,8 +57,8 @@ fi
 	done
 
 	echo ./fs_mark \
-		-D $NR_SUB_DIRECTORIES \
-		-S0 \
+		-D $NR_SUB_DIRECTORIES	\
+		-S$FSMARK_SYNCMODE	\
 		-n $(($NR_FILES_PER_ITERATION/$NR_TOP_DIRECTORIES)) \
 		-s $FILESIZE	\
 		-L $ITERATIONS	\
