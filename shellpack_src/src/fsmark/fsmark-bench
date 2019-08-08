@@ -62,6 +62,10 @@ fi
 		PARAMETERS+=" -d /tmp/fsmark-$$/$TOPDIR"
 	done
 
+	# Cleanup previous thread count data
+	echo Cleaning up old fs_mark test files
+	rm -rf $SHELLPACK_DATA/*
+
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	echo ./fs_mark $PARAMETERS
 	eval ./fs_mark $PARAMETERS &> $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log
