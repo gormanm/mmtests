@@ -15,7 +15,7 @@ FILESIZE=0
 ###SHELLPACK parseargParam --max-threads            MAX_THREADS
 ###SHELLPACK parseargParam --filesize               FILESIZE
 ###SHELLPACK parseargParam --nr-files-per-iteration NR_FILES_PER_ITERATION
-###SHELLPACK parseargParam --nr-top-directories     NR_TOP_DIRECTORIES
+###SHELLPACK parseargParam --nr-top-directories     FSMARK_NR_TOP_DIRECTORIES
 ###SHELLPACK parseargParam --nr-sub-directories     NR_SUB_DIRECTORIES
 ###SHELLPACK parseargParam --sync-mode              FSMARK_SYNCMODE
 ###SHELLPACK parseargParam --iterations             ITERATIONS
@@ -50,6 +50,12 @@ if [ "$FSMARK_KEEP_FILES" = "yes" ]; then
 fi
 
 ###SHELLPACK threads_large_stride_begin $MIN_THREADS $MAX_THREADS
+	NR_TOP_DIRECTORIES=0
+	if [ "$FSMARK_NR_TOP_DIRECTORIES" = "nr_threads" ]; then
+		NR_TOP_DIRECTORIES=$NR_THREADS
+	else
+		NR_TOP_DIRECTORIES=$FSMARK_NR_TOP_DIRECTORIES
+	fi
 	PARAMETERS=$PARAM_EXTRA
 	PARAMETERS+=" -D $NR_SUB_DIRECTORIES"
 	PARAMETERS+=" -S$FSMARK_SYNCMODE"
