@@ -15,7 +15,6 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my $section = 0;
 	my $pagesize = "base";
 
 	if (! -e "$reportDir/$pagesize") {
@@ -25,20 +24,23 @@ sub extractReport() {
 		$pagesize = "default";
 	}
 
-	my $file = "$reportDir/$pagesize/SPECjvm2008.001/SPECjvm2008.001.txt";
-	open(INPUT, $file) || die("Failed to open $file\n");
-	while (<INPUT>) {
-		my $line = $_;
+	my @files = <$reportDir/$pagesize/SPECjvm2008.*/SPECjvm2008.*.txt>;
+	foreach my $file (@files) {
+		my $section = 0;
+		open(INPUT, $file) || die("Failed to open $file\n");
+		while (<INPUT>) {
+			my $line = $_;
 
-		if ($line =~ /======================/) {
-			$section++;
-			next;
-		}
+			if ($line =~ /======================/) {
+				$section++;
+				next;
+			}
 
-		if ($section == 4 && $line =~ /iteration [0-9]+/) {
-			my ($bench, $dA, $dB, $dC, $dD, $dE, $ops) = split(/\s+/, $line);
-			if ($bench !~ /startup/) {
-				$self->addData($bench, 0, $ops);
+			if ($section == 4 && $line =~ /iteration [0-9]+/) {
+				my ($bench, $dA, $dB, $dC, $dD, $dE, $ops) = split(/\s+/, $line);
+				if ($bench !~ /startup/) {
+					$self->addData($bench, 0, $ops);
+				}
 			}
 		}
 	}
