@@ -37,7 +37,6 @@ fi
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf
 
-pushd $SHELLPACK_SOURCES/hackbench-${VERSION}-installed > /dev/null
 RESULTSLOG=$LOGDIR_RESULTS/hackbench
 
 # Ensure we don't hit the open file descriptor ulimit when running
