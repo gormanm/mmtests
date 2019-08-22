@@ -13,6 +13,7 @@ install-depends mkisofs
 ###SHELLPACK git_fetch ltp-${VERSION}.tar.gz ltp-$VERSION
 ###SHELLPACK build_start ltp-${VERSION}
 make autotools || die "Failed to make autotools"
+sed -i -e 's/read ans/ans=y/' IDcheck.sh
 ###SHELLPACK build_configure ltp-${VERSION}
 ###SHELLPACK make_make_install
 
