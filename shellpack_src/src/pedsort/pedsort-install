@@ -7,6 +7,7 @@ install-depends libdb-devel
 if [ ! -e /usr/include/db.h ]; then
 	install-depends libdb-4_8-devel
 fi
+install-depends python
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
