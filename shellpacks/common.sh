@@ -1066,8 +1066,13 @@ function have_monitor_results()
 # of tests.
 function run_report_name()
 {
-	awk '/^[0-9]* run-mmtests: begin / { print $4 }
-	     /^[0-9]* run-mmtests: Iteration 0 end/ { exit }' <$1/iter-0/tests-activity
+	if [ -e $1/iter-0/tests-activity ]; then
+		awk '/^[0-9]* run-mmtests: begin / { print $4 }
+		    /^[0-9]* run-mmtests: Iteration 0 end/ { exit }' <$1/iter-0/tests-activity
+	else
+		awk '/^[0-9]* run-mmtests: begin / { print $4 }
+		     /^[0-9]* run-mmtests: Iteration 0 end/ { exit }' <$1/tests-activity
+	fi
 }
 
 function run_results()
@@ -1075,7 +1080,7 @@ function run_results()
 	for FILE in `find -name "tests-activity"`; do
 		grep -H . $FILE | head -1 | \
 			cut -d ' ' -f 1 | sort -n -k 2 -t ':' | \
-			cut -d ':' -f 1 | sed -e 's|/iter-.*/tests-activity||'
+			cut -d ':' -f 1 | sed -e 's|/iter-.*/tests-activity||' -e 's|/tests-activity||' -e 's|^./||'
 	done
 }
 
