@@ -1036,10 +1036,14 @@ function round_down_nearest_square()
 function have_run_results()
 {
 	if [ -n "$1" ]; then
-		[ -e $1/tests-activity ]
+		LIST=`find $1 -maxdepth 3 -type f -name tests-activity 2>/dev/null`
 	else
-		ls */tests-activity &>/dev/null
+		LIST=`find -maxdepth 3 -type f -name tests-activity 2>/dev/null`
 	fi
+	if [ "$LIST" != "" ]; then
+		return 0
+	fi
+	return 1
 }
 
 function have_monitor_results()
@@ -1063,14 +1067,16 @@ function have_monitor_results()
 function run_report_name()
 {
 	awk '/^[0-9]* run-mmtests: begin / { print $4 }
-	     /^[0-9]* run-mmtests: Iteration 0 end/ { exit }' <$1/tests-activity
+	     /^[0-9]* run-mmtests: Iteration 0 end/ { exit }' <$1/iter-0/tests-activity
 }
 
 function run_results()
 {
-	grep -H "run-mmtests: Start$" */tests-activity | \
-		cut -d ' ' -f 1 | sort -n -k 2 -t ':' | \
-		cut -d ':' -f 1 | sed -e 's|/tests-activity||'
+	for FILE in `find -name "tests-activity"`; do
+		grep -H . $FILE | head -1 | \
+			cut -d ' ' -f 1 | sort -n -k 2 -t ':' | \
+			cut -d ':' -f 1 | sed -e 's|/iter-.*/tests-activity||'
+	done
 }
 
 function setup_dirs() {
