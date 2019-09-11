@@ -1077,11 +1077,10 @@ function run_report_name()
 
 function run_results()
 {
-	for FILE in `find -name "tests-activity"`; do
-		grep -H . $FILE | head -1 | \
-			cut -d ' ' -f 1 | sort -n -k 2 -t ':' | \
-			cut -d ':' -f 1 | sed -e 's|/iter-.*/tests-activity||' -e 's|/tests-activity||' -e 's|^./||'
-	done
+	FILES=`find -name "tests-activity"`
+	grep -H . $FILES | \
+		cut -d ' ' -f 1 | sort -n -k 2 -t ':' | \
+		cut -d ':' -f 1 | sed -e 's|/iter-.*/tests-activity||' -e 's|/tests-activity||' -e 's|^./||' | uniq
 }
 
 function setup_dirs() {

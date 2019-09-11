@@ -460,7 +460,7 @@ sub _generateRenderTable() {
 
 	# Build column format table
 	my %resultsTable = %{$self->{_ResultsTable}};
-	for (my $i = 0; $i <= (scalar(@{$resultsTable{$operations[0]}}) + 1) * 2; $i++) {
+	for (my $i = 0; $i <= (scalar(@{$resultsTable{$operations[0]}}) + 2) * 2; $i++) {
 		my $fieldFormat = "%${fieldLength}.${precision}f";
 		if (defined $self->{_CompareTable}) {
 			push @formatTable, ($fieldFormat, " (%${compareLength}.2f%%)");
