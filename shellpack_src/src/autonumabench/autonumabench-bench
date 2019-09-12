@@ -66,11 +66,13 @@
 #  migrate to be close to the CPU
 ###SHELLPACK preamble autonumabench-bench 0
 
-AUTONUMA_TESTS="NUMA01 NUMA02 NUMA01_THEADLOCAL NUMA02_SMT"
+# AUTONUMA_TESTS=${AUTONUMA_TESTS:-NUMA01 NUMA01_THREADLOCAL NUMA02 NUMA02_SMT}
+AUTONUMA_TESTS=${AUTONUMA_TESTS:-NUMA02 NUMA02_SMT}
 install-depends numactl libnuma-devel gnuplot
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--iterations	AUTONUMABENCH_ITERATIONS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -102,8 +104,11 @@ for TESTTYPE in $AUTONUMA_TESTS; do
 	esac
 	
 	monitor_pre_hook $LOGDIR_RESULTS $TESTTYPE
-	$TIME_CMD -o $LOGDIR_RESULTS/time.$TESTTYPE \
-		./start_bench.sh $SWITCH | tee $LOGDIR_RESULTS/autonumabench.$TESTTYPE
+	###SHELLPACK iteration_begin $AUTONUMABENCH_ITERATIONS
+		echo Starting $TESTTYPE iteration $ITERATION/$AUTONUMABENCH_ITERATIONS
+		$TIME_CMD -o $LOGDIR_RESULTS/autonumabench-$TESTTYPE-$ITERATION.time \
+			./start_bench.sh $SWITCH | tee $LOGDIR_RESULTS/autonumabench-$TESTTYPE-$ITERATION.log
+	###SHELLPACK iteration_end $AUTONUMABENCH_ITERATIONS
 	monitor_post_hook $LOGDIR_RESULTS $TESTTYPE
 	mv *.txt *.pdf $LOGDIR_RESULTS
 	grep elapsed $LOGDIR_RESULTS/time.$TESTTYPE

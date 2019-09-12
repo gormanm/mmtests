@@ -541,6 +541,7 @@ sub parse_time_syst_elsp() {
 		$self->addData("syst$scaling", $iteration, $self->_time_to_sys($_));
 		$self->addData("elsp$scaling", $iteration, $self->_time_to_elapsed($_));
 	}
+	close INPUT;
 }
 
 

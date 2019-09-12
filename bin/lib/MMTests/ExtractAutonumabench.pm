@@ -1,7 +1,7 @@
 # ExtractAutonumabench.pm
 package MMTests::ExtractAutonumabench;
-use MMTests::SummariseSingleops;
-our @ISA = qw(MMTests::SummariseSingleops);
+use MMTests::SummariseMultiops;
+our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
 sub initialise() {
@@ -16,45 +16,39 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($user, $system, $elapsed, $cpu);
-	my $bindTypes;
-	my @ratioops;
+	my @jobs = $self->discover_scaling_parameters($reportDir, "autonumabench-", "-1.time");
 
-	my @files = <$reportDir/time.*>;
-	if (!@files) {
-		die("Failed to open any time files\n")
-	}
+	foreach my $job (@jobs) {
+		my @files = <$reportDir/autonumabench-$job-*.time>;
+		my $iteration = 0;
 
-	my %times;
-
-	foreach my $file (@files) {
-		my @split = split /\./, $file;
-		my $bindType = $split[-1];
-
-		open(INPUT, $file) || die("Failed to open $file\n");
-		$_ = <INPUT>;
-		$_ =~ tr/[a-zA-Z]%//d;
-		($user, $system, $elapsed, $cpu) = split(/\s/, $_);
-		my ($minutes, $seconds) = split(/:/, $elapsed);
-		$elapsed = $minutes * 60 + $seconds;
-
-		$times{"User-$bindType"} = $user;
-		$times{"System-$bindType"} = $system;
-		$times{"Elapsed-$bindType"} = $elapsed;
-		$times{"CPU-$bindType"} = $cpu;
-		push @ratioops, "Elapsed-$bindType";
-
-		close INPUT;
-	}
-
-	foreach my $heading ("User", "System", "Elapsed", "CPU") {
-		foreach my $key (sort(keys %times)) {
-			if ($key =~ /$heading-/) {
-				$self->addData($key, 0, $times{$key});
+		foreach my $file (@files) {
+			open(INPUT, $file) || die("Failed to open $file\n");
+			while (<INPUT>) {
+				next if $_ !~ /elapsed/;
+				$self->addData("syst-$job", $iteration, $self->_time_to_sys($_));
 			}
 		}
 	}
 
+	foreach my $job (@jobs) {
+		my @files = <$reportDir/autonumabench-$job-*.time>;
+		my $iteration = 0;
+
+		foreach my $file (@files) {
+			open(INPUT, $file) || die("Failed to open $file\n");
+			while (<INPUT>) {
+				next if $_ !~ /elapsed/;
+				$self->addData("elsp-$job", $iteration, $self->_time_to_elapsed($_));
+			}
+		}
+	}
+
+
+	my @ratioops;
+	foreach my $job (@jobs) {
+		push @ratioops, "elsp-$job";
+	}
 	$self->{_RatioOperations} = \@ratioops;
 }
 
