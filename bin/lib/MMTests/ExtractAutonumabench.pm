@@ -8,7 +8,7 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractAutonumabench";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
-	$self->{_PlotType}   = "histogram";
+	$self->{_PlotType}   = "operation-candlesticks";
 	$self->{_Opname}     = "Time";
 
 	$self->SUPER::initialise($subHeading);

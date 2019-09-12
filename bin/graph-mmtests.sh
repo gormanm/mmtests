@@ -213,6 +213,9 @@ XRANGE=
 if [ $COUNT -gt 0 ]; then
 	MINX=0.2
 	END=`wc -l $PLOTFILE | awk '{print $1}'`
+	if [ $COUNT -eq 1 ]; then
+		COUNT=2
+	fi
 	MAXX=`perl -e "print int ($END+0.5+$COUNT*0.3)"`
 	XRANGE="--xrange $MINX:$MAXX"
 fi

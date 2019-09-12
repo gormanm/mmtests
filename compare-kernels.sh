@@ -821,7 +821,22 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			generate_subtest_graphs_sorted "$SUBTEST_LIST" --logY
 			;;
 		autonumabench)
-			generate_cputime_graphs
+			echo "<tr>"
+			for HEADING in elsp syst; do
+				TITLE_HEADING=
+				case $HEADING in
+				syst)
+					TITLE_HEADING="System"
+					;;
+				elsp)
+					TITLE_HEADING="Elapsed"
+					;;
+				esac
+				eval $GRAPH_PNG --title \"$SUBREPORT $TITLE_HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+				eval $GRAPH_PSC --title \"$SUBREPORT $TITLE_HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				plain graph-$SUBREPORT-$HEADING
+			done
+			echo "</tr>"
 			;;
 		blogbench)
 			generate_subheading_graphs "Read Write"
