@@ -103,6 +103,7 @@ config-io-filebench-webproxy-small
 config-io-filebench-webproxy-medium
 config-io-filebench-webproxy-large
 config-workload-pedsort
+config-workload-pedsort-light
 config-workload-thpscale
 config-workload-thpscale-madvhugepage
 config-workload-will-it-scale-io
