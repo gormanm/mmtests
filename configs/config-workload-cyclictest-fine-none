@@ -1,0 +1,17 @@
+### cyclictest is a latency measurement benchmark.
+###
+
+# MM Test Parameters
+export MMTESTS="cyclictest-fine-pinned cyclictest-fine-unbound"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat mpstat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
+export MONITOR_UPDATE_FREQUENCY=10
+
+# cyclictest
+export CYCLICTEST_DURATION=600

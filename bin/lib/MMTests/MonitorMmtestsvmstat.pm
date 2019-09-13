@@ -414,7 +414,11 @@ sub extractReport($$$$) {
 
 	# Compact scan efficiency
 	if ($vmstat{"compact_migrate_scanned"}) {
-		$vmstat{"mmtests_cscan_efficiency"} = $vmstat{"compact_migrate_scanned"} * 100 / $vmstat{"compact_free_scanned"};
+		if ($vmstat{"compact_free_scanned"} > 0) {
+			$vmstat{"mmtests_cscan_efficiency"} = $vmstat{"compact_migrate_scanned"} * 100 / $vmstat{"compact_free_scanned"};
+		} else {
+			$vmstat{"mmtests_cscan_efficiency"} = 1;
+		}
 	}
 
 key:	foreach my $key (@_fieldOrder) {

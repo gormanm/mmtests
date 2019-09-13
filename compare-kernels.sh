@@ -841,12 +841,16 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		blogbench)
 			generate_subheading_graphs "Read Write"
 			;;
-		cyclictest-*)
+		cyclictest-pinned|cyclictest-unbound)
 			for HEADING in Max Avg; do
 				eval $GRAPH_PNG --title \"$SUBREPORT Latency $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
 				eval $GRAPH_PSC --title \"$SUBREPORT Latency $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
 				plain graph-$SUBREPORT-$HEADING
 			done
+			;;
+		cyclictest-fine-*)
+			eval $GRAPH_PNG --wide --logY --title \"$SUBREPORT Latency\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+			plain graph-$SUBREPORT-$HEADING
 			;;
 		dbench4)
 			echo "<tr>"
