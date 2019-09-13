@@ -342,8 +342,8 @@ teststate_log() {
 for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERATION++ )); do
 	export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-$MMTEST_ITERATION
 	export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity"
-	echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
 	mkdir -p $SHELLPACK_LOG
+	echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
 
 	# Test interrupted? Abort iteration
 	if [ "$INTERRUPT_COUNT" -gt 0 ]; then
