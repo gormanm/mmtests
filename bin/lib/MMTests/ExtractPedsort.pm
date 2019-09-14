@@ -32,7 +32,7 @@ sub extractReport() {
 			while (<INPUT>) {
 				my $line = $_;
 				if ($line =~  /([0-9]+)i ([0-9]+)o throughput: ([0-9]+.[0-9]+) jobs\/hour\/core$/) {
-					$self->addData($nthr, ++$nr_samples, $3*60); # convert to ops/min/core
+					$self->addData($nthr, ++$nr_samples, $3*$nthr*60); # convert to ops/min/total
 				}
 			}
 			close INPUT;
