@@ -74,6 +74,22 @@ while [ "$1" != "" ]; do
 		WIDE=--wide
 		shift
 		;;
+	--very-wide)
+		WIDE=--very-wide
+		shift
+		;;
+	--large)
+		WIDE=--large
+		shift
+		;;
+	--very-large)
+		WIDE=--very-large
+		shift
+		;;
+	--rotate-xaxis)
+		ROTATE_XAXIS=--rotate-xaxis
+		shift
+		;;
 	--x-label)
 		FORCE_X_LABEL="$2"
 		shift 2
@@ -91,10 +107,14 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	--sort-percentages)
-		XRANGE_COMMAND="--xrange 0:102"
+		XRANGE_COMMAND="--xrange 0:100"
 		FORCE_X_LABEL="Max at percentage of samples"
 		XTICS_CMD="--xtics $2"
 		SORT_PERCENTAGES=$2
+		shift 2
+		;;
+	--xtics)
+		XTICS_CMD="--xtics $2"
 		shift 2
 		;;
 	--sort-samples)
@@ -233,8 +253,9 @@ PLOTSCRIPTS="plot"
 [ "$TITLES" == "" ] && exit 0
 
 for PLOTSCRIPT in $PLOTSCRIPTS; do
-	COMMAND="$SCRIPTDIR/$PLOTSCRIPT $TITLE $PLOTTYPE $SMOOTH $FORMAT_CMD $OUTPUT_CMD $OUTPUT \
-		$LOGX $LOGY $WIDE $SUBREPORT_ARGS$ALTREPORT $XRANGE $XRANGE_COMMAND $YRANGE_COMMAND $XTICS_CMD \
+	COMMAND="$SCRIPTDIR/$PLOTSCRIPT $TITLE $PLOTTYPE $SMOOTH $FORMAT_CMD $OUTPUT_CMD $OUTPUT	\
+		$LOGX $LOGY $WIDE $SUBREPORT_ARGS$ALTREPORT $XRANGE $XRANGE_COMMAND $YRANGE_COMMAND	\
+		$ROTATE_XAXIS $XTICS_CMD \
 		--xlabel \"$XLABEL\" \
 		--ylabel \"$YLABEL\" \
 		--titles $TITLES \

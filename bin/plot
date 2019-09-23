@@ -92,8 +92,20 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			echo set term $FORMAT size 1200,1200 >> $TEMP
 			shift
 			;;
+		--very-large)
+			echo set term $FORMAT size 1900,1200 >> $TEMP
+			shift
+			;;
 		--wide)
 			echo set term $FORMAT size 1200,600 >> $TEMP
+			shift
+			;;
+		--very-wide)
+			echo set term $FORMAT size 1900,600 >> $TEMP
+			shift
+			;;
+		--rotate-xaxis)
+			ROTATE_XAXIS=yes
 			shift
 			;;
 		--histogram)
@@ -194,6 +206,9 @@ if [ "$HISTOGRAM" = "yes" ]; then
 	echo set style data histogram       >> $TEMP
 	echo set xtic rotate by -45         >> $TEMP
 	echo set style fill solid border -1 >> $TEMP
+fi
+if [ "$ROTATE_XAXIS" = "yes" ]; then
+	echo set xtic rotate by -45         >> $TEMP
 fi
 if [ "$XTICS" != "" ]; then
 	echo set xtics $XTICS               >> $TEMP

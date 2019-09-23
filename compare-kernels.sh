@@ -851,11 +851,19 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		cyclictest-fine-*)
 			eval $GRAPH_PNG --wide --logY --title \"$SUBREPORT Latency\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
 			eval $GRAPH_PNG --wide --logX --logY --title \"$SUBREPORT Latency sorted\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-sorted.png --sort-samples-reverse
+			eval $GRAPH_PNG --very-large --logY --title \"$SUBREPORT Latency sorted\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-sorted-percentage.png --sort-samples --sort-percentages 1 --rotate-xaxis
+			eval $GRAPH_PNG --very-large --logY --title \"$SUBREPORT Latency sorted\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-sorted-percentage-tail.png --sort-samples --sort-percentages 1 --xrange 99:100 --xtics 0.1 --rotate-xaxis
 			echo "<tr>"
 			plain graph-$SUBREPORT-$HEADING
 			echo "</tr>"
 			echo "<tr>"
 			plain graph-$SUBREPORT-$HEADING-sorted
+			echo "</tr>"
+			echo "<tr>"
+			plain graph-$SUBREPORT-$HEADING-sorted-percentage
+			echo "</tr>"
+			echo "<tr>"
+			plain graph-$SUBREPORT-$HEADING-sorted-percentage-tail
 			echo "</tr>"
 			;;
 		dbench4)
