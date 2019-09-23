@@ -850,7 +850,13 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			;;
 		cyclictest-fine-*)
 			eval $GRAPH_PNG --wide --logY --title \"$SUBREPORT Latency\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
+			eval $GRAPH_PNG --wide --logX --logY --title \"$SUBREPORT Latency sorted\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-sorted.png --sort-samples-reverse
+			echo "<tr>"
 			plain graph-$SUBREPORT-$HEADING
+			echo "</tr>"
+			echo "<tr>"
+			plain graph-$SUBREPORT-$HEADING-sorted
+			echo "</tr>"
 			;;
 		dbench4)
 			echo "<tr>"
