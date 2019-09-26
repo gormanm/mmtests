@@ -1,0 +1,30 @@
+### specjbb is executed with one JVM with a maximum heap size of 60% of
+### memory.
+
+# MM Test Parameters
+export MMTESTS="specjbb"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat top numa-numastat numa-meminfo numa-convergence ftrace mpstat"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_FTRACE_EVENTS="sched/sched_migrate_task"
+
+# SPECjbb - max heap 60% of memory.
+# Total heap is divided between number of instances
+SPECJBB_JRE=
+if [ -e /opt/java/jre/bin ]; then
+	export SPECJBB_JRE=/opt/java/jre/bin
+fi
+export SPECJBB_STARTING_WAREHOUSES=1
+export SPECJBB_INCREMENT_WAREHOUSES=1
+export SPECJBB_ENDING_WAREHOUSES=$NUMCPUS
+export SPECJBB_JVM_INSTANCES=1
+export SPECJBB_MAXHEAP_TOTAL_MB=$((MEMTOTAL_BYTES*6/10/1048576))
+export SPECJBB_MAXHEAP=-Xmx$(($SPECJBB_MAXHEAP_TOTAL_MB/$SPECJBB_JVM_INSTANCES))m
+export SPECJBB_PAGESIZES="default"
+#export SPECJBB_PAGESIZES="base huge"
+export SPECJBB_HUGESWITCH=-Xlp
