@@ -20,7 +20,11 @@ my %cpu_node;
 
 # Parse numactl
 die if !defined $opt_numactl;
-open(INPUT, $opt_numactl) || die("Failed to open numactl output $opt_numactl");
+if ($opt_numactl =~ /\.gz$/) {
+	open(INPUT, "gunzip -c $opt_numactl|") || die("Failed to open numactl output $opt_numactl");
+} else {
+	open(INPUT, $opt_numactl) || die("Failed to open numactl output $opt_numactl");
+}
 while (!eof(INPUT)) {
 	my $line = <INPUT>;
 	next if $line !~ /^node ([0-9]*) cpus: (.*)/;
@@ -39,7 +43,11 @@ if ($opt_printmapping || !defined $opt_trace) {
 	exit 0;
 }
 
-open(INPUT, $opt_trace) || die("Failed to open trace file $opt_trace");
+if ($opt_trace =~ /\.gz$/) {
+	open(INPUT, "gunzip -c $opt_trace|") || die("Failed to open trace file $opt_trace");
+} else {
+	open(INPUT, $opt_trace) || die("Failed to open trace file $opt_trace");
+}
 while (!eof(INPUT)) {
 	my $line = <INPUT>;
 	next if ($line !~ /.*sched_migrate_task: (.*)/);

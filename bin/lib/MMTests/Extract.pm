@@ -393,7 +393,7 @@ sub printReport() {
 
 	foreach my $op ($self->getOperations("")) {
 		if (length($op) > $oplen) {
-			$oplen = length($op);
+			$oplen = length($op) + 2;
 		}
 	}
 	push @format, "%-${oplen}s";
