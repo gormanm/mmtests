@@ -1,0 +1,104 @@
+#!/bin/bash
+# This script installs iperf and runs the regression tests
+###SHELLPACK preamble iperf3-bench 3.1.3
+IPV_SWITCH=-4
+
+TASKSET_SERVER=
+TASKSET_CLIENT=
+SERVER_HOST=127.0.0.1
+if [ "$REMOTE_SERVER_HOST" != "" ]; then
+	SERVER_HOST=$REMOTE_SERVER_HOST
+fi
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargParam    --protocol	IPERF_PROTOCOL
+###SHELLPACK parseargParam    --msg-size	IPERF_MESSAGE_SIZE
+###SHELLPACK parseargParam    --msg-rate	IPERF_MESSAGE_RATE
+###SHELLPACK parseargParam    --min-client	IPERF_MIN_CLIENTS
+###SHELLPACK parseargParam    --max-client	IPERF_MAX_CLIENTS
+###SHELLPACK parseargParam    --duration	IPERF_DURATION
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_install_required iperf3-${VERSION}
+###SHELLPACK init_complete
+
+BUFFER_SIZES=`echo $BUFFER_SIZES | sed -e 's/,/ /g'`
+
+export REMOTE_SERVER_SCRIPT=$SCRIPTDIR/shellpacks/shellpack-bench-iperf3
+case $SERVERSIDE_COMMAND in
+start)
+	if [ -e /tmp/iperf3.pid ]; then
+		IPERF3_PID=`cat /tmp/iperf3.pid`
+		echo Killing server pid $IPERF3_PID
+		kill $IPERF3_PID
+		rm /tmp/iperf3.pid
+	fi
+
+	echo Starting server
+	mmtests_activity iperf3-$SERVERSIDE_NAME
+	monitor_pre_hook $LOGDIR_RESULTS iperf3-$SERVERSIDE_NAME
+	IPERFROOT=$SHELLPACK_SOURCES/iperf3-${VERSION}-installed 
+	$TASKSET_SERVER $IPERFROOT/bin/iperf3 -s $PROTO -D $IPV_SWITCH -I /tmp/iperf3.pid || die "Failed to start iperf3 server"
+	exit $SHELLPACK_SUCCESS
+	;;
+stop)
+	monitor_post_hook $LOGDIR_RESULTS iperf3-$SERVERSIDE_NAME
+	if [ -e /tmp/iperf3.pid ]; then
+		IPERF3_PID=`cat /tmp/iperf3.pid`
+		echo Killing server pid $IPERF3_PID
+		kill $IPERF3_PID
+		rm /tmp/iperf3.pid
+	fi
+	exit $SHELLPACK_SUCCESS
+	;;
+flush)
+	exit $SHELLPACK_SUCCESS
+	;;
+none)
+	if [ -e /tmp/iperf3.pid ]; then
+		IPERF3_PID=`cat /tmp/iperf3.pid`
+		echo Killing server pid $IPERF3_PID
+		kill $IPERF3_PID
+		rm /tmp/iperf3.pid
+	fi
+
+	echo Starting server
+	IPERFROOT=$SHELLPACK_SOURCES/iperf3-${VERSION}-installed 
+	$TASKSET_SERVER $IPERFROOT/bin/iperf3 -s $PROTO -D $IPV_SWITCH || die "Failed to start iperf3 server"
+	sleep 2
+	;;
+*)
+	die "Unrecognised server-side command"
+	;;
+esac
+
+###SHELLPACK threads_powertwo_begin $IPERF_MIN_CLIENTS $IPERF_MAX_CLIENTS
+	mmtests_server_ctl start --serverside-name $IPERF_PROTOCOL-$IPERF_MESSAGE_SIZE-$IPERF_MESSAGE_RATE
+	mmtests_activity msg-$IPERF_MESSAGE_SIZE-$RATE
+	PROTOCOL_OPT=
+	MSGSIZE_OPT="-l $IPERF_MESSAGE_SIZE"
+	MSGRATE_OPT="-b $IPERF_MESSAGE_RATE"
+	DURATION_OPT="-t $IPERF_DURATION"
+	SOCKETSIZE_OPT=
+
+	if [ "$IPERF_PROTOCOL" = "udp" ]; then
+		PROTOCOL_OPT="-u"
+	fi
+		
+	IPERF3_OPTS="-c $SERVER_HOST \
+		$MSGSIZE_OPT $MSGRATE_OPT $SOCKETSIZE_OPT \
+		$PROTOCOL_OPT $DURATION_OPT \
+		-P $NR_THREADS --get-server-output -V"
+	echo $TASKSET_CLIENT "iperf3" $IPERF3_OPTS
+	monitor_pre_hook $LOGDIR_RESULTS $IPERF_PROTOCOL-$IPERF_MESSAGE_SIZE-$IPERF_MESSAGE_RATE-$NR_THREADS
+	eval $TASKSET_CLIENT $IPERFROOT/bin/iperf3 $IPERF3_OPTS \
+			2>&1 > $LOGDIR_RESULTS/$IPERF_PROTOCOL-$IPERF_MESSAGE_SIZE-$IPERF_MESSAGE_RATE-$NR_THREADS \
+			|| die "Failed to run iperf3"
+	monitor_post_hook $LOGDIR_RESULTS $IPERF_PROTOCOL-$IPERF_MESSAGE_SIZE-$IPERF_MESSAGE_RATE-$NR_THREADS
+	mmtests_server_ctl stop --serverside-name $IPERF_PROTOCOL-$IPERF_MESSAGE_SIZE-$IPERF_MESSAGE_RATE
+###SHELLPACK threads_powertwo_end
+
+exit $SHELLPACK_SUCCESS
