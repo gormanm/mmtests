@@ -88,6 +88,7 @@ my %_fieldNameMap = (
 	"numa_hint_faults"		=> "NUMA hint faults",
 	"mmtests_hint_faults_remote"	=> "NUMA hint remote faults",
 	"numa_hint_faults_local"	=> "NUMA hint local faults",
+	"numa_hint_faults_local_pct"	=> "NUMA hint local faults %age",
 	"numa_pages_migrated"		=> "NUMA pages migrated",
 	"mmtests_autonuma_cost"		=> "AutoNUMA cost",
 );
@@ -199,6 +200,7 @@ sub parseVMStat($)
 	my $nr_anon = 0;
 	my $nr_thp_anon = 0;
 	my %current_values;
+	my %last_values;
 
 	foreach my $line (split(/\n/, $_[1])) {
 		my ($stat, $value) = split(/\s/, $line);
@@ -323,6 +325,12 @@ sub parseVMStat($)
 		}
 	}
 
+	# Record previous values
+	if (defined($self->{_LastValues})) {
+		%last_values = %{$self->{_LastValues}};
+	}
+	$self->{_LastValues} = \%current_values;
+
 	if ($_fieldCounters{$subHeading} || $subHeading eq "mmtests_vmscan_process_pages") {
 		return $current_value;
 	} elsif ($subHeading eq "mmtests_total_anon") {
@@ -359,6 +367,14 @@ sub parseVMStat($)
 		my $total_pages = $total_slab + $total_pagecache;
 
 		return $total_slab / $total_pages;
+	} elsif ($subHeading eq "numa_hint_faults_local_pct") {
+		my $hint_faults = $current_values{"numa_hint_faults"} - $last_values{"numa_hint_faults"};
+		my $local_faults = $current_values{"numa_hint_faults_local"} - $last_values{"numa_hint_faults_local"};
+		if ($hint_faults == 0) {
+			return 0;
+		}
+
+		return $local_faults * 100 / $hint_faults;
 	} else {
 		my $delta_value = 0;
 		if ($self->{_LastValue}) {

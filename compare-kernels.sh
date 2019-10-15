@@ -1878,18 +1878,25 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			## smoothover graph-$SUBREPORT-proc-vmstat-numa_pages_migrated
 			echo "</tr>"
 
-			eval $GRAPH_PNG --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.png
-			eval $GRAPH_PSC --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.ps
-			eval $GRAPH_PNG --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.png
-			eval $GRAPH_PSC --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.ps
-			eval $GRAPH_PNG --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Hints Remote\"   --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA Hints Local\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.png
+			eval $GRAPH_PSC --title \"NUMA Hints Local\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.ps
+			eval $GRAPH_PNG --title \"NUMA Hints Local\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Hints Local\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA Hints Remote\"    --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.png
+			eval $GRAPH_PSC --title \"NUMA Hints Remote\"    --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.ps
+			eval $GRAPH_PNG --title \"NUMA Hints Remote\"    --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Hints Remote\"    --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA Hints Local Pct\" --print-monitor proc-vmstat --sub-heading numa_hint_faults_local_pct --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-pct.png
+			eval $GRAPH_PSC --title \"NUMA Hints Local Pct\" --print-monitor proc-vmstat --sub-heading numa_hint_faults_local_pct --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-pct.ps
+			eval $GRAPH_PNG --title \"NUMA Hints Local Pct\" --print-monitor proc-vmstat --sub-heading numa_hint_faults_local_pct --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-pct-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Hints Local Pct\" --print-monitor proc-vmstat --sub-heading numa_hint_faults_local_pct --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-pct-smooth.ps --smooth
+
+
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-local
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-remote
+			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-local-pct
 			echo "</tr>"
 
 			echo "<tr>"
