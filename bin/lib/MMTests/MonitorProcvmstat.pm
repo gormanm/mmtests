@@ -13,9 +13,6 @@ sub new() {
 	return $self;
 }
 
-my $new_compaction_stats = 0;
-my $autonuma_enabled = 0;
-
 my %_fieldCounters = (
 	"nr_active_anon"	=> 1,
 	"nr_active_file"	=> 1,
@@ -85,7 +82,9 @@ my %_fieldNameMap = (
 	"compact_pages_moved"		=> "Compaction pages moved",
 	"compact_pagemigrate_failed"	=> "Compaction move failure",
 	"mmtests_compaction_cost"	=> "Compaction cost",
-	"numa_pte_updates"		=> "NUMA PTE updates",
+	"numa_pte_updates"		=> "NUMA base-page range updates",
+	"mmtests_numa_pte_updates"	=> "NUMA PTE updates",
+	"mmtests_numa_pmd_updates"	=> "NUMA PMD updates",
 	"numa_hint_faults"		=> "NUMA hint faults",
 	"mmtests_hint_faults_remote"	=> "NUMA hint remote faults",
 	"numa_hint_faults_local"	=> "NUMA hint local faults",
@@ -104,15 +103,6 @@ my @_new_migrate_stats = (
 	"compact_isolated",
 	"pgmigrate_success",
 	"pgmigrate_failure",
-);
-
-my @_autonuma_stats = (
-	"numa_pte_updates",
-	"numa_hint_faults",
-	"numa_hint_faults_remote",
-	"numa_hint_faults_local",
-	"numa_pages_migrated",
-	"mmtests_autonuma_cost",
 );
 
 my @_fieldOrder = (
@@ -159,6 +149,8 @@ my @_fieldOrder = (
         "compact_free_scanned",
 	"mmtests_compaction_cost",
 	"numa_pte_updates",
+	"mmtests_numa_pte_updates",
+	"mmtests_numa_pmd_updates",
 	"numa_hint_faults",
 	"mmtests_hint_faults_remote",
 	"numa_hint_faults_local",
@@ -314,6 +306,17 @@ sub parseVMStat($)
 			}
 			if ($stat eq "pgmajfault") {
 				$current_value -= $value;
+			}
+		} elsif ($subHeading eq "mmtests_numa_pmd_updates") {
+			if ($stat eq "numa_huge_pte_updates") {
+				$current_value += $value;
+			}
+		} elsif ($subHeading eq "mmtests_numa_pte_updates") {
+			if ($stat eq "numa_pte_updates") {
+				$current_value += $value;
+			}
+			if ($stat eq "numa_huge_pte_updates") {
+				$current_value -= $value * 512;
 			}
 		} elsif ($stat eq $subHeading) {
 			$current_value = $value;

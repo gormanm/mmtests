@@ -1855,25 +1855,27 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if have_monitor_results proc-vmstat $KERNEL_BASE "^numa_hint_faults [1-9]"; then
-			eval $GRAPH_PNG --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.png
-			eval $GRAPH_PSC --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.ps
-			eval $GRAPH_PNG --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA base-page range updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-size-updates.png
+			eval $GRAPH_PSC --title \"NUMA base-page range updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-size-updates.ps
+			eval $GRAPH_PNG --title \"NUMA base-page range updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-size-updates-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA base-page range updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-size-updates-smooth.ps --smooth
 
-			eval $GRAPH_PNG --title \"NUMA Huge PTE Updates\"  --print-monitor proc-vmstat     --sub-heading numa_huge_pte_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pte-updates.png
-			eval $GRAPH_PSC --title \"NUMA Huge PTE Updates\"  --print-monitor proc-vmstat     --sub-heading numa_huge_pte_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pte-updates.ps
-			eval $GRAPH_PNG --title \"NUMA Huge PTE Updates\"  --print-monitor proc-vmstat     --sub-heading numa_huge_pte_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pte-updates-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Huge PTE Updates\"  --print-monitor proc-vmstat     --sub-heading numa_huge_pte_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pte-updates-smooth.ps --smooth
 
-			eval $GRAPH_PNG --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated.png
-			eval $GRAPH_PSC --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated.ps
-			eval $GRAPH_PNG --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading mmtests_numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.png
+			eval $GRAPH_PSC --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading mmtests_numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.ps
+			eval $GRAPH_PNG --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading mmtests_numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading mmtests_numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.ps --smooth
+
+			eval $GRAPH_PNG --title \"NUMA Huge PMD Updates\"  --print-monitor proc-vmstat     --sub-heading mmtests_numa_pmd_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pmd-updates.png
+			eval $GRAPH_PSC --title \"NUMA Huge PMD Updates\"  --print-monitor proc-vmstat     --sub-heading mmtests_numa_pmd_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pmd-updates.ps
+			eval $GRAPH_PNG --title \"NUMA Huge PMD Updates\"  --print-monitor proc-vmstat     --sub-heading mmtests_numa_pmd_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pmd-updates-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Huge PMD Updates\"  --print-monitor proc-vmstat     --sub-heading mmtests_numa_pmd_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pmd-updates-smooth.ps --smooth
 
 			echo "<tr>"
+			smoothover graph-$SUBREPORT-proc-vmstat-numa-pte-size-updates
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-pte-updates
-			smoothover graph-$SUBREPORT-proc-vmstat-numa-huge-pte-updates
-			smoothover graph-$SUBREPORT-proc-vmstat-numa_pages_migrated
+			smoothover graph-$SUBREPORT-proc-vmstat-numa-huge-pmd-updates
+			## smoothover graph-$SUBREPORT-proc-vmstat-numa_pages_migrated
 			echo "</tr>"
 
 			eval $GRAPH_PNG --title \"NUMA Hints Local\"    --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.png
@@ -1888,10 +1890,17 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-local
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-remote
+			echo "</tr>"
+
+			echo "<tr>"
+			eval $GRAPH_PNG --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated.png
+			eval $GRAPH_PSC --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated.ps
+			eval $GRAPH_PNG --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated-smooth.ps --smooth
+			echo "</tr>"
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults.png ]; then
 				smoothover graph-$SUBREPORT-proc-vmstat-minorfaults
 			fi
-			echo "</tr>"
 		fi
 
 		if have_monitor_results numa-meminfo $KERNEL_BASE; then
