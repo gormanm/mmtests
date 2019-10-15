@@ -87,8 +87,10 @@ my %_fieldNameMap = (
 	"mmtests_numa_pmd_updates"	=> "NUMA PMD updates",
 	"numa_hint_faults"		=> "NUMA hint faults",
 	"mmtests_hint_faults_remote"	=> "NUMA hint remote faults",
+	"mmtests_normal_minor_faults"	=> "Non-NUMA minor faults",
 	"numa_hint_faults_local"	=> "NUMA hint local faults",
 	"numa_hint_faults_local_pct"	=> "NUMA hint local faults %age",
+	"mmtests_faults_pct_numa"	=> "NUMA hint faults %age",
 	"numa_pages_migrated"		=> "NUMA pages migrated",
 	"mmtests_autonuma_cost"		=> "AutoNUMA cost",
 );
@@ -371,10 +373,27 @@ sub parseVMStat($)
 		my $hint_faults = $current_values{"numa_hint_faults"} - $last_values{"numa_hint_faults"};
 		my $local_faults = $current_values{"numa_hint_faults_local"} - $last_values{"numa_hint_faults_local"};
 		if ($hint_faults == 0) {
-			return 0;
+			return -1;
 		}
 
 		return $local_faults * 100 / $hint_faults;
+	} elsif ($subHeading eq "mmtests_normal_minor_faults") {
+		my $page_faults = $current_values{"pgfault"} - $last_values{"pgfault"};
+		my $major_faults = $current_values{"pgmajfault"} - $last_values{"pgmajfault"};
+		my $minor_faults = $page_faults - $major_faults;
+		my $hint_faults = $current_values{"numa_hint_faults"} - $last_values{"numa_hint_faults"};
+
+		return $minor_faults - $hint_faults;
+	} elsif ($subHeading eq "mmtests_faults_pct_numa") {
+		my $page_faults = $current_values{"pgfault"} - $last_values{"pgfault"};
+		my $major_faults = $current_values{"pgmajfault"} - $last_values{"pgmajfault"};
+		my $minor_faults = $page_faults - $major_faults;
+		my $hint_faults = $current_values{"numa_hint_faults"} - $last_values{"numa_hint_faults"};
+
+		if ($minor_faults == 0) {
+			return -1;
+		}
+		return $hint_faults * 100 / $minor_faults;
 	} else {
 		my $delta_value = 0;
 		if ($self->{_LastValue}) {
@@ -420,9 +439,11 @@ sub extractReport($$$$) {
 			if ($start_timestamp == 0) {
 				$start_timestamp = $timestamp;
 			} else {
+				my $val = $self->parseVMStat($vmstat, $subHeading);
+				next if $val == -1;
+
 				$self->addData($subHeading,
-					$timestamp - $start_timestamp,
-					$self->parseVMStat($vmstat, $subHeading));
+					$timestamp - $start_timestamp, $val);
 				$vmstat = "";
 			}
 			next;

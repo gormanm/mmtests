@@ -1905,9 +1905,25 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			eval $GRAPH_PNG --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated-smooth.png --smooth
 			eval $GRAPH_PSC --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated-smooth.ps --smooth
 			echo "</tr>"
-			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults.png ]; then
-				smoothover graph-$SUBREPORT-proc-vmstat-minorfaults
-			fi
+
+			echo "<tr>"
+			eval $GRAPH_PNG --title \"NUMA Hint Faults\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints.png
+			eval $GRAPH_PSC --title \"NUMA Hint Faults\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints.ps
+			eval $GRAPH_PNG --title \"NUMA Hint Faults\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Hint Faults\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-smooth.ps --smooth
+			eval $GRAPH_PNG --logY --title \"Normal Non-NUMA minor faults\"     --print-monitor proc-vmstat --sub-heading mmtests_normal_minor_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nonnuma-minor-faults.png
+			eval $GRAPH_PSC --logY --title \"Normal Non-NUMA minor faults\"     --print-monitor proc-vmstat --sub-heading mmtests_normal_minor_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nonnuma-minor-faults.ps
+			eval $GRAPH_PNG --logY --title \"Normal Non-NUMA minor faults\"     --print-monitor proc-vmstat --sub-heading mmtests_normal_minor_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nonnuma-minor-faults-smooth.png --smooth
+			eval $GRAPH_PSC --logY --title \"Normal Non-NUMA minor faults\"     --print-monitor proc-vmstat --sub-heading mmtests_normal_minor_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nonnuma-minor-faults-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA Hint Percentage\"     --print-monitor proc-vmstat --sub-heading mmtests_faults_pct_numa  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hint-pct.png
+			eval $GRAPH_PSC --title \"NUMA Hint Percentage\"     --print-monitor proc-vmstat --sub-heading mmtests_faults_pct_numa  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hint-pct.ps
+			eval $GRAPH_PNG --title \"NUMA Hint Percentage\"     --print-monitor proc-vmstat --sub-heading mmtests_faults_pct_numa  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hint-pct-smooth.png --smooth
+			eval $GRAPH_PSC --title \"NUMA Hint Percentage\"     --print-monitor proc-vmstat --sub-heading mmtests_faults_pct_numa  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hint-pct-smooth.ps --smooth
+
+			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints
+			smoothover graph-$SUBREPORT-proc-vmstat-nonnuma-minor-faults
+			smoothover graph-$SUBREPORT-proc-vmstat-numa-hint-pct
+			echo "</tr>"
 		fi
 
 		if have_monitor_results numa-meminfo $KERNEL_BASE; then
