@@ -1,0 +1,9 @@
+#!/bin/bash
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
+cd $SCRIPTDIR/../configs || exit
+
+for CONFIG in `ls config-workload-stream-*`; do
+	sed -e 's/STREAM_SIZE=.*/STREAM_SIZE=\$((1048576*3*1024*$NUMNODES))' $CONFIG > $CONFIG-zen2
+	echo 'export MMTESTS_BUILD_CFLAGS="-Ofast -march=znver1 -mcmodel=large"' >> $CONFIG-zen2
+done
