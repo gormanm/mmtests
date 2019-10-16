@@ -11,3 +11,8 @@ export SHELLPACK_LOG_BASE=$SCRIPTDIR/$SHELLPACK_LOG_BASE_SUBDIR
 export LINUX_GIT=/home/mel/git-public/linux-2.6
 export WEBROOT=http://mcp/mmtests-mirror
 export SSHROOT=`echo $WEBROOT | sed -e 's/http:\/\//ssh:\/\/root@/'`/public_html
+
+# Compiler flags
+export MMTESTS_BUILD_CFLAGS="-O2"
+export MMTESTS_BUILD_CPPFLAGS="-O2"
+export MMTESTS_BUILD_LDFLAGS=

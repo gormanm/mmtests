@@ -21,7 +21,7 @@ tail -$(($LINECOUNT-$PATCHSTART)) $0 | grep -v "^###" > $TEMPFILE
 cat $TEMPFILE | patch -p0 || exit $SHELLPACK_FAILURE
 rm $TEMPFILE
 
-gcc -O2 seeker.c -o seeker
+gcc ${MMTESTS_BUILD_CFLAGS:--O2} seeker.c -o seeker
 if [ $? -ne 0 ]; then
 	die "$P: Failed to build seeker"
 fi

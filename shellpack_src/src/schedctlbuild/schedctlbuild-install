@@ -12,7 +12,7 @@ mkdir -p schedctl-${VERSION}-installed
 
 sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/schedctl-${VERSION}-installed/schedctl.c
 cd $SHELLPACK_SOURCES/schedctl-${VERSION}-installed
-gcc -O2 schedctl.c -o schedctl
+gcc ${MMTESTS_BUILD_CFLAGS:--O2} schedctl.c -o schedctl
 if [ $? -ne 0 ]; then
 	die "$P: Failed to build schedctl"
 fi

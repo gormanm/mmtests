@@ -15,7 +15,7 @@ sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/microtput-${VERS
 ###SHELLPACK build_start microtput-${VERSION}-installed
 case $MICROTPUT_BUILD in
 gcc)
-	gcc -O2 -pthread --std=c99 -D_GNU_SOURCE -pthread $MICROTPUT_BASENAME -o microtput
+	gcc ${MMTESTS_BUILD_CFLAGS:--O2} -pthread --std=c99 -D_GNU_SOURCE -pthread $MICROTPUT_BASENAME -o microtput
 	if [ $? -ne 0 ]; then
 		die Failed to build $MICROTPUT_BASENAME
 	fi

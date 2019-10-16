@@ -44,6 +44,6 @@ echo '--- tlbflush.c.orig	2013-12-15 11:05:08.813821030 +0000
  			perror("pthread create");
 ' | patch -p0 || die Failed to patch
 
-gcc -DFILE_SIZE=$((128*1048576)) -g -O2 tlbflush.c -lpthread -o tlbflush || die Failed to build tlbflush binary
+gcc -DFILE_SIZE=$((128*1048576)) -g ${MMTESTS_BUILD_CFLAGS:--O2} tlbflush.c -lpthread -o tlbflush || die Failed to build tlbflush binary
 
 exit $SHELLPACK_SUCCESS

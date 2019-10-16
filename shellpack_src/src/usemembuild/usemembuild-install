@@ -11,5 +11,5 @@ install-depends lsscsi
 ###SHELLPACK build_start usemembuild-${VERSION}-installed
 
 mkdir bin/
-gcc -lpthread -O2 usemem.c -o usemem || die Failed to build usemem
+gcc -lpthread ${MMTESTS_BUILD_CFLAGS:--O2} usemem.c -o usemem || die Failed to build usemem
 exit $SHELLPACK_SUCCESS

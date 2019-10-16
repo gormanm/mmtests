@@ -3,7 +3,7 @@
 # of a read. Users complain that interactive performance can floor
 # in certain circumstances like when writing to USB. In extreme cases,
 # music jitter is reported. This program vagely simulates reading a
-# music file but jitter in it could also imply problems with accessing
+# music file but jitter could also imply problems with accessing
 # config files
 # 
 # (c) Mel Gorman 2012
@@ -39,7 +39,7 @@ if [ "$SHELLPACK_TEMP" != "" ]; then
 	mkdir -p $SHELLPACK_TEMP || exit -1
         cd $SHELLPACK_TEMP || exit -1
 fi
-gcc -Wall $BUILDRAND $READSIZE $READPAUSE -O2 $TEMPFILE.c -o $TEMPFILE || exit -1
+gcc -Wall $BUILDRAND $READSIZE $READPAUSE ${MMTESTS_BUILD_CFLAGS:--O2} $TEMPFILE.c -o $TEMPFILE || exit -1
 
 # Build a file on local storage for the program to access
 dd if=/dev/zero of=monitor_readfile ibs=$IBS count=$COUNT > /dev/null 2> /dev/null

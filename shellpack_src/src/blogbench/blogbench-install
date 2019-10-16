@@ -10,7 +10,7 @@ MIRROR_LOCATION="$WEBROOT/blogbench/"
 
 ###SHELLPACK sources_fetch blogbench-${VERSION}.tar.gz blogbench-${VERSION}
 ###SHELLPACK build_start blogbench-${VERSION}
-###SHELLPACK build_configure blogbench-${VERSION} CFLAGS=-O2
+###SHELLPACK build_configure blogbench-${VERSION}
 ###SHELLPACK make_make_install
 
 echo blogbench installed successfully

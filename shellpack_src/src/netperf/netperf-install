@@ -9,7 +9,7 @@ MIRROR_LOCATION="$WEBROOT/netperf/"
 
 ###SHELLPACK sources_fetch netperf-${VERSION}.tar.gz netperf-${VERSION}
 
-export CFLAGS_MMTESTS_EXTRA="-DWANT_UNIX"
+export MMTESTS_BUILD_CFLAGS_EXTRA="-DWANT_UNIX"
 ###SHELLPACK build_start netperf-${VERSION}
 ###SHELLPACK build_configure netperf-${VERSION}
 ###SHELLPACK make_make_install
