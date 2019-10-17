@@ -4,6 +4,7 @@
 ITERATIONS=5
 KERNBENCH_CONFIG=defconfig
 KERNBENCH_TARGETS=vmlinux
+KERNBENCH_SKIP_WARMUP=no
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -12,6 +13,7 @@ KERNBENCH_TARGETS=vmlinux
 ###SHELLPACK parseargParam	--iterations	KERNBENCH_ITERATIONS
 ###SHELLPACK parseargParam	--kernel-config	KERNBENCH_CONFIG
 ###SHELLPACK parseargParam	--build-targets	KERNBENCH_TARGETS
+###SHELLPACK parseargYes	--skip-warmup	KERNBENCH_SKIP_WARMUP
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -38,8 +40,10 @@ KERNBENCH_TARGETS=`echo $KERNBENCH_TARGETS | sed -e 's/,/ /g'`
 		yes '' | make oldconfig
 	fi
 
-	echo Warming run
-	make -j$THREADS $KERNBENCH_TARGETS > /dev/null 2>&1 || die "Failed to build $KERNBENCH_TARGETS"
+	if [ "$KERNBENCH_SKIP_WARMUP" = "no" ]; then
+		echo Warming run
+		make -j$THREADS $KERNBENCH_TARGETS > /dev/null 2>&1 || die "Failed to build $KERNBENCH_TARGETS"
+	fi
 	make clean >/dev/null
 ###SHELLPACK init_only_end
 
