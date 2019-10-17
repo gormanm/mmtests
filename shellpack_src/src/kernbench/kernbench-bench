@@ -2,18 +2,23 @@
 # Benchmark a number of kernel builds
 ###SHELLPACK preamble kernbench 4.4
 ITERATIONS=5
+KERNBENCH_CONFIG=defconfig
+KERNBENCH_TARGETS=vmlinux
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam	--min-threads	KERNBENCH_MIN_THREADS
 ###SHELLPACK parseargParam	--max-threads	KERNBENCH_MAX_THREADS
 ###SHELLPACK parseargParam	--iterations	KERNBENCH_ITERATIONS
+###SHELLPACK parseargParam	--kernel-config	KERNBENCH_CONFIG
+###SHELLPACK parseargParam	--build-targets	KERNBENCH_TARGETS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
 WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v4.x/linux-${VERSION}.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS))
+KERNBENCH_TARGETS=`echo $KERNBENCH_TARGETS | sed -e 's/,/ /g'`
 
 ###SHELLPACK init_only_start
 	cd $SHELLPACK_DATA > /dev/null
@@ -23,18 +28,18 @@ THREADS=$(($NUMCPUS))
 	cd linux-$VERSION || die "Unexpected layout"
 
 	# Configure
-	yes '' | make defconfig > /dev/null 2>&1 || die Failed to make defconfig
+	yes '' | make $KERNBENCH_CONFIG > /dev/null 2>&1 || die "Failed to make $KERNBENCH_CONFIG"
 	make -j$THREADS clean > /dev/null
 
 	if [ "`uname -m`" = "aarch64" ]; then
-		echo Removing broken entry from aarch64 defconfig
+		echo Removing broken entry from aarch64 $KERNBENCH_CONFIG
 		sed -i -e '/CONFIG_CRYPTO_CRC32_ARM64/d' .config
 		echo "# CONFIG_CRYPTO_CRC32_ARM64 is not set" >> .config
 		yes '' | make oldconfig
 	fi
 
 	echo Warming run
-	make -j$THREADS vmlinux > /dev/null 2>&1 || die Failed to build vmlinux
+	make -j$THREADS $KERNBENCH_TARGETS > /dev/null 2>&1 || die "Failed to build $KERNBENCH_TARGETS"
 	make clean >/dev/null
 ###SHELLPACK init_only_end
 
@@ -46,7 +51,7 @@ cd $SHELLPACK_DATA/linux-$VERSION || die "Unexpected layout"
 		echo Starting threads $NR_THREADS/$KERNBENCH_MAX_THREADS iteration $ITERATION/$KERNBENCH_ITERATIONS
 		sync
 
-		save_rc $TIME_CMD make -j$NR_THREADS vmlinux 2>> $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time > /dev/null
+		save_rc $TIME_CMD make -j$NR_THREADS $KERNBENCH_TARGETS 2>> $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time > /dev/null
 		grep elapsed $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time``
 		recover_rc
 		if [ $? -ne 0 ]; then

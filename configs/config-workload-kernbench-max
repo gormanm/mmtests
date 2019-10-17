@@ -1,0 +1,34 @@
+### kernbench is a simple average of five kernel compiles of the vmlinux binary
+### image. Note that it is sensitive to the kernel version, configuration and
+### compiler used. In this configuraiton, it's allmodconfig build of the full
+### kernel 4.4 with all CPUs in use.
+
+# MM Test Parameters
+export MMTESTS="kernbench"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=""
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_PLAIN=
+export MONITORS_GZIP="proc-vmstat mpstat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# kernbench
+export KERNBENCH_ITERATIONS=5
+export KERNBENCH_MIN_THREADS=$((NUMCPUS))
+export KERNBENCH_MAX_THREADS=$((NUMCPUS))
+export KERNBENCH_CONFIG=allmodconfig
+export KERNBENCH_TARGETS=vmlinux,modules
+export MMTESTS_THREAD_CUTOFF=

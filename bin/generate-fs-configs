@@ -63,6 +63,7 @@ config-hpc-nas-d-class-mpi-half
 config-hpc-nas-d-class-mpi-third
 config-hpc-nas-d-class-mpi-quarter
 config-workload-mailserver
+config-workload-kernbench-max
 config-workload-kerndevel
 config-workload-dedup
 config-workload-shellscripts
