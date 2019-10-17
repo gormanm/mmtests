@@ -17,7 +17,13 @@ KERNBENCH_SKIP_WARMUP=no
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v4.x/linux-${VERSION}.tar.gz
+KERNEL_FAMILY=v4.x
+echo $VERSION | grep -q ^5
+if [ $? -eq 0 ]; then
+	KERNEL_FAMILY=v5.x
+fi
+
+WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v5.x/linux-${VERSION}.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
 THREADS=$(($NUMCPUS))
 KERNBENCH_TARGETS=`echo $KERNBENCH_TARGETS | sed -e 's/,/ /g'`

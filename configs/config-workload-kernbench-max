@@ -33,3 +33,4 @@ export KERNBENCH_CONFIG=allmodconfig
 export KERNBENCH_TARGETS=vmlinux,modules
 export KERNBENCH_SKIP_WARMUP=yes
 export MMTESTS_THREAD_CUTOFF=
+export KERNBENCH_VERSION=5.3

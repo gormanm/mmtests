@@ -3,6 +3,7 @@ run_bench() {
 	CONFIG_SWITCH=
 	TARGET_SWITCH=
 	SKIP_SWITCH=
+	VERSION_SWITCH=
 	if [ "$KERNBENCH_CONFIG" != "" ]; then
 		CONFIG_SWITCH="--kernel-config $KERNBENCH_CONFIG"
 	fi
@@ -12,8 +13,11 @@ run_bench() {
 	if [ "$KERNBENCH_SKIP_WARMUP" = "yes" ]; then
 		SKIP_SWITCH="--skip-warmup"
 	fi
+	if [ "$KERNBENCH_VERSION" != "" ]; then
+		VERSION_SWITCH="--version $KERNBENCH_VERSION"
+	fi
 
-	$SCRIPTDIR/shellpacks/shellpack-bench-kernbench $CONFIG_SWITCH $TARGET_SWITCH $SKIP_SWITCH \
+	$SCRIPTDIR/shellpacks/shellpack-bench-kernbench $CONFIG_SWITCH $TARGET_SWITCH $SKIP_SWITCH $VERSION_SWITCH \
 		--min-threads $KERNBENCH_MIN_THREADS \
 		--max-threads $KERNBENCH_MAX_THREADS \
 		--iterations $KERNBENCH_ITERATIONS
