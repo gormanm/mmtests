@@ -14,7 +14,7 @@ run_bench() {
 		SKIP_SWITCH="--skip-warmup"
 	fi
 	if [ "$KERNBENCH_VERSION" != "" ]; then
-		VERSION_SWITCH="--version $KERNBENCH_VERSION"
+		VERSION_SWITCH="-v $KERNBENCH_VERSION"
 	fi
 
 	$SCRIPTDIR/shellpacks/shellpack-bench-kernbench $CONFIG_SWITCH $TARGET_SWITCH $SKIP_SWITCH $VERSION_SWITCH \
