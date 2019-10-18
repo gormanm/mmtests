@@ -1,6 +1,6 @@
 #!/bin/bash
 # Benchmark a number of kernel builds
-###SHELLPACK preamble kernbench 4.4
+###SHELLPACK preamble kernbench 5.3
 ITERATIONS=5
 KERNBENCH_CONFIG=defconfig
 KERNBENCH_TARGETS=vmlinux
@@ -18,10 +18,12 @@ KERNBENCH_SKIP_WARMUP=no
 ###SHELLPACK monitor_hooks
 
 KERNEL_FAMILY=v4.x
-echo $VERSION | grep -q ^5
-if [ $? -eq 0 ]; then
-	KERNEL_FAMILY=v5.x
-fi
+for V in `seq 2 5`; do
+	echo $VERSION | grep -q ^$V
+	if [ $? -eq 0 ]; then
+		KERNEL_FAMILY=v$V.x
+	fi
+done
 
 WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v5.x/linux-${VERSION}.tar.gz
 MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
