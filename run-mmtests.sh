@@ -614,6 +614,8 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		for PROC_FILE in $PROC_FILES; do
 			sysstate_log "file start :: $PROC_FILE"
 			sysstate_log "`cat $PROC_FILE`"
+			cat $PROC_FILE $SHELLPACK_LOG/`basename $PROCFILE`.before
+			gzip $SHELLPACK_LOG/`basename $PROCFILE`.before
 		done
 		if [ -e /proc/lock_stat ]; then
 			echo 0 > /proc/lock_stat
@@ -666,6 +668,8 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		for PROC_FILE in $PROC_FILES; do
 			sysstate_log "file end :: $PROC_FILE"
 			sysstate_log "`cat $PROC_FILE`"
+			cat $PROC_FILE $SHELLPACK_LOG/`basename $PROCFILE`.after
+			gzip $SHELLPACK_LOG/`basename $PROCFILE`.after
 		done
 		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
 			sysstate_log "file end :: /sys/kernel/debug/tracing/stack_trace"
