@@ -15,6 +15,11 @@ if [ "$PFT_USE_PROCESSES" = "yes" ]; then
 	PFT_CLIENT_SWITCH=-n
 fi
 
+# Adhere to benchmark-enforced limit
+if [ $PFT_MAX_CLIENTS -gt 128 ]; then
+	PFT_MAX_CLIENTS=128
+fi
+
 cd $SHELLPACK_SOURCES/pft-${VERSION}-installed || die Failed to cd to pft directory
 ###SHELLPACK threads_large_stride_begin 1 $PFT_MAX_CLIENTS
 	mmtests_activity client ${NR_THREADS}
