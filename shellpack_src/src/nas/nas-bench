@@ -12,6 +12,7 @@ OPENMP=
 OPENMPI=
 MPICPUS=
 MEMTOTAL_MBYTES=$((MEMTOTAL_BYTES/1048576))
+NAS_BIND_PLACE=${NAS_BIND_PLACE:-socket}
 
 if [ "$NAS_MAX_CPUS" = "" ]; then
 	NAS_MAX_CPUS=$NUMCPUS
@@ -89,7 +90,7 @@ MPI)
 		NAS_MAX_CPUS=$((NAS_MAX_CPUS+1))
 	fi
 	if [ "$NAS_BIND" = "yes" ]; then
-		MPIRUN_EXTRA="--bind-to socket"
+		MPIRUN_EXTRA="--bind-to $NAS_BIND_PLACE"
 	fi
 	;;
 OMP)
