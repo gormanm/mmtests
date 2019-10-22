@@ -16,7 +16,7 @@ done
 
 # NAS
 NAS_BASECONFIG=config-hpc-nas-d-class-mpi-100cpus-xfs-zen2-default
-sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=100' config-hpc-nas-d-class-mpi-full-xfs > $NAS_BASECONFIG
+sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=100/' config-hpc-nas-d-class-mpi-full-xfs > $NAS_BASECONFIG
 echo "echo Setting performance governor"	>> $NAS_BASECONFIG
 echo "cpupower frequency-set -g performance"	>> $NAS_BASECONFIG
 echo "export MMTESTS_BUILD_CFLAGS=-O3"		>> $NAS_BASECONFIG
