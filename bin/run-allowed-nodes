@@ -2,11 +2,10 @@
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 
-CPUS_ALLOWED=$1
-shift
-
+CPUS_ALLOWED=`grep Cpus_allowed_list /proc/self/status | awk '{print $2}'`
 CPUS_ALLOWED=`$SCRIPTDIR/list-cpus-allowed $CPUS_ALLOWED`
 NODES=`(for CPU in $CPUS_ALLOWED; do $SCRIPTDIR/cpu-to-node $CPU; done) | grep -v ^$ | sort -n | uniq`
 
-echo $NODES | sed -e 's/ /,'
-echo numactl --membind $@
+NODES=`echo $NODES | sed -e 's/ /,/g'`
+echo numactl --membind $NODES $@
+numactl --membind $NODES $@
