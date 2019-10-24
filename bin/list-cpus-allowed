@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+
+use strict;
+die if !defined $ARGV[0];
+
+foreach my $range (split /,/, $ARGV[0]) {
+	chomp($range);
+	if ($range =~ /-/) {
+		my ($from, $to) = split(/-/, $range);
+		for (my $i = $from; $i <= $to; $i++) {
+			print "$i ";
+		}
+	} else {
+		print "$range ";
+	}
+}

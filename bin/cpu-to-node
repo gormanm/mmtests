@@ -1,0 +1,7 @@
+#!/bin/bash
+
+NODE=`numactl --hardware | grep cpus: | grep " $1 " | awk '{print $2}'`
+if [ "$NODE" = "" ]; then
+	NODE=`numactl --hardware | grep cpus: | grep " $1$" | awk '{print $2}'`
+fi
+echo $NODE
