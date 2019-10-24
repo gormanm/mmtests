@@ -170,13 +170,13 @@ for JOB in $JOBLIST; do
 		case $NAS_TYPE in
 		SER|OMP)
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
-				./bin/$JOB.$NAS_CLASS.x						\
+				$NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.x				\
 				> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
 		MPI)
 			lookup_mpicpus $JOB
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
-				mpirun --allow-run-as-root $MPIOPT -np $MPICPUS $MPIRUN_EXTRA ./bin/$JOB.$NAS_CLASS.$MPICPUS \
+				mpirun --allow-run-as-root $MPIOPT -np $MPICPUS $MPIRUN_EXTRA $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS \
 				> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
 		esac
