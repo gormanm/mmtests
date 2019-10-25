@@ -3,7 +3,11 @@
 #
 ###SHELLPACK preamble nas-bench 3.3.1
 
-install-depends openmpi openmpi-devel
+if [ "$NAS_OPENMPI_VERSION" = "openmpi2" ]; then
+	install-depends openmpi2 openmpi2-devel
+else
+	install-depends openmpi openmpi-devel
+fi
 install-depends libpsm_infinipath1
 
 NAS_TYPE=SER
