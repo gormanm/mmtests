@@ -17,10 +17,10 @@ done
 # NAS
 for CPUCOUNT in 64 128 256; do
 	NAS_BASECONFIG=config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-default
-	cp config-hpc-nas-d-class-mpi-full-xfs > $NAS_BASECONFIG
+	cp config-hpc-nas-d-class-mpi-full-xfs $NAS_BASECONFIG
 
-	sed -i  -e "s/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=${CPUCOUNT}/"	\
-		-e "s/NAS_OPENMPI_VERSION=.*/NAS_OPENMPI_VERSION=openmpi2/"
+	sed -i  -e "s/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=${CPUCOUNT}/"		\
+		-e "s/NAS_OPENMPI_VERSION=.*/NAS_OPENMPI_VERSION=openmpi2/"	\
 		$NAS_BASECONFIG
 
 	echo "export MMTESTS_BUILD_CFLAGS=-O3"				>> $NAS_BASECONFIG
