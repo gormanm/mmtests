@@ -1,7 +1,4 @@
 #!/bin/bash
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
-
-$SCRIPTDIR/generate-fs-configs
-$SCRIPTDIR/generate-generic-configs
-$SCRIPTDIR/generate-zen2-configs
+cd $SCRIPTDIR/../configs || exit
