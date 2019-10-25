@@ -2,3 +2,21 @@
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 cd $SCRIPTDIR/../configs || exit
+
+# NAS
+sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/2))/' config-hpc-nas-c-class-mpi-full > config-hpc-nas-c-class-mpi-half
+sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/3))/' config-hpc-nas-c-class-mpi-full > config-hpc-nas-c-class-mpi-third
+for CONFIG in `ls config-hpc-nas-c-class-*`; do
+	# D class configurations
+	DCONFIG=`echo $CONFIG | sed -e 's/nas-c-class/nas-d-class/'`
+	sed	-e 's/NAS_CLASS=.*/NAS_CLASS=D/'		\
+		-e 's/NAS_ITERATIONS=.*/NAS_ITERATIONS=3/'	\
+		-e 's/ nas-...-ft//'				\
+		-e 's/ nas-omp-cg/ nas-omp-cg nas-omp-dc/'	\
+		$CONFIG > $DCONFIG
+
+	# D class with binding configurations
+	BDCONFIG=`echo $DCONFIG | sed -e 's/class-mpi/class-mpi-bind/' -e 's/class-omp/class-omp-bind/'`
+	cp $DCONFIG $BDCONFIG
+	echo "export NAS_BIND=yes" >> $BDCONFIG
+done
