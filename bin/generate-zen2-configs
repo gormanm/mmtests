@@ -37,16 +37,22 @@ for CPUCOUNT in 64 128 256; do
 	echo 'echo Disabling NUMA Balancing'				>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-numab-disabled
 	echo 'echo 0 > /proc/sys/kernel/numa_balancing'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-numab-disabled
 
-	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v1
 	echo 'export NAS_BIND=yes'					>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
 	echo 'export NAS_BIND_PLACE=l3cache:overload-allowed'		>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
 	echo 'echo 1 > /proc/sys/kernel/numa_balancing'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
 
-	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' -e '/sysctl/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v2
-	echo "echo Setting sysctl sched parameters"			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v2
-	echo 'sysctl -w kernel.sched_migration_cost_ns=5000000'		>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v2
-	echo 'sysctl -w kernel.sched_min_granularity_ns=10000000'	>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v2
+	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v2
+	echo 'export NAS_BIND=yes'					>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+	echo 'export NAS_BIND_PLACE=socket:overload-allowed'		>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+	echo 'echo 1 > /proc/sys/kernel/numa_balancing'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+
 
 	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' -e '/sysctl/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v3
-	echo 'export NAS_WRAPPER=run-allowed-nodes'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v3
+	echo "echo Setting sysctl sched parameters"			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v3
+	echo 'sysctl -w kernel.sched_migration_cost_ns=5000000'		>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v3
+	echo 'sysctl -w kernel.sched_min_granularity_ns=10000000'	>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v3
+
+	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' -e '/sysctl/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v4
+	echo 'export NAS_WRAPPER=run-allowed-nodes'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v4
 done
