@@ -130,12 +130,24 @@ export PATH=$SHELLPACK_TOPLEVEL/nas/bin:$PATH
 function lookup_mpicpus
 {
 	local NAS_JOB=$1
+
+	JOB_MAX_CPUS=$NAS_MAX_CPUS
+	for SPEC in $NAS_JOB_MAX_CPUS; do
+		SPEC_JOB=`echo $SPEC | awk -F = '{print $1}'`
+		SPEC_CPUS=`echo $SPEC | awk -F = '{print $2}'`
+
+		if [ "$SPEC_JOB" = "$NAS_JOB" ]; then
+			echo OVERRIDE $SPEC_JOB $NAS_JOB $SPEC_CPUS
+			JOB_MAX_CPUS=$SPEC_CPUS
+		fi
+	done
+
 	case $NAS_JOB in
 	cg|ft|is|mg)
-		MPICPUS=$(round_down_power_2 $NAS_MAX_CPUS)
+		MPICPUS=$(round_down_power_2 $JOB_MAX_CPUS)
 		;;
 	*)
-		MPICPUS=$(round_down_nearest_square $NAS_MAX_CPUS)
+		MPICPUS=$(round_down_nearest_square $JOB_MAX_CPUS)
 		;;
 	esac
 }
