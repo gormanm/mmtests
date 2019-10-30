@@ -70,7 +70,7 @@ for CPUCOUNT in 64 128 225 256; do
 
 	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v6
 	sed -i  -e 's/MMTESTS_BUILD_CFLAGS=.*/MMTESTS_BUILD_CFLAGS="-Ofast -march=znver1 -mtune=znver1 -ftree-vectorize -fprefetch-loop-arrays -mprefetchwt1"/' \
-		-e 's/migration_cost_ns=.*/_migration_cost_ns=5000000/'	\
+		-e 's/migration_cost_ns=.*/migration_cost_ns=5000000/'	\
 		-e 's/min_granularity_ns=.*/min_granularity_ns=10000000/'	   config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v6
 	echo 'export NAS_BIND=yes'					>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v6
 	echo 'export NAS_BIND_PLACE=l3cache:overload-allowed'		>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v6
