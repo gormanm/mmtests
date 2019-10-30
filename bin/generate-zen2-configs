@@ -32,47 +32,17 @@ for CPUCOUNT in 64 128 225 256; do
 	echo								>> $NAS_BASECONFIG
 	echo "echo Setting performance governor"			>> $NAS_BASECONFIG
 	echo "cpupower frequency-set -g performance"			>> $NAS_BASECONFIG
-	echo 'echo 1 > /proc/sys/kernel/numa_balancing'			>> $NAS_BASECONFIG
-	echo "echo Setting sysctl scheduler defaults"			>> $NAS_BASECONFIG
-	echo 'sysctl -w kernel.sched_migration_cost_ns=500000'		>> $NAS_BASECONFIG
-	echo 'sysctl -w kernel.sched_min_granularity_ns=8000000'	>> $NAS_BASECONFIG
 	echo								>> $NAS_BASECONFIG
 
 	cat $NAS_BASECONFIG | sed -e '/\/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-numab-disabled
 	echo 'echo Disabling NUMA Balancing'				>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-numab-disabled
 	echo 'echo 0 > /proc/sys/kernel/numa_balancing'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-numab-disabled
 
-	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v1
-	echo 'export NAS_BIND=yes'					>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v1
-	echo 'export NAS_BIND_PLACE=l3cache:overload-allowed'		>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v1
-	echo 'echo 1 > /proc/sys/kernel/numa_balancing'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v1
-
-	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v2
-	echo 'export NAS_BIND=yes'					>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v2
-	echo 'export NAS_BIND_PLACE=socket:overload-allowed'		>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v2
-	echo 'echo 1 > /proc/sys/kernel/numa_balancing'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v2
-
-	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' -e '/sysctl/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v3
-	echo "echo Setting sysctl sched parameters"			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v3
-	echo 'sysctl -w kernel.sched_migration_cost_ns=5000000'		>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v3
-	echo 'sysctl -w kernel.sched_min_granularity_ns=10000000'	>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v3
-
-	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' -e '/sysctl/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v4
-	echo 'export NAS_WRAPPER=run-allowed-nodes'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v4
-
-	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v5
-	echo 'export NAS_BIND=yes'					>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v5
-	echo 'export NAS_BIND_PLACE=l3cache:overload-allowed'		>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v5
-	echo 'echo 1 > /proc/sys/kernel/numa_balancing'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v5
-	echo "echo Setting sysctl sched parameters"			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v5
-	echo 'sysctl -w kernel.sched_migration_cost_ns=5000000'		>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v5
-	echo 'sysctl -w kernel.sched_min_granularity_ns=10000000'	>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v5
-
-	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v6
+	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
 	sed -i  -e 's/MMTESTS_BUILD_CFLAGS=.*/MMTESTS_BUILD_CFLAGS="-Ofast -march=znver1 -mtune=znver1 -ftree-vectorize -fprefetch-loop-arrays -mprefetchwt1"/' \
 		-e 's/migration_cost_ns=.*/migration_cost_ns=5000000/'	\
-		-e 's/min_granularity_ns=.*/min_granularity_ns=10000000/'	   config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v6
-	echo 'export NAS_BIND=yes'					>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v6
-	echo 'export NAS_BIND_PLACE=l3cache:overload-allowed'		>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v6
-	echo 'echo 1 > /proc/sys/kernel/numa_balancing'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned-v6
+		-e 's/min_granularity_ns=.*/min_granularity_ns=10000000/'	   config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+	echo 'export NAS_BIND=yes'						>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+	echo 'export NAS_BIND_PLACE=l3cache:overload-allowed'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+	echo 'echo 1 > /proc/sys/kernel/numa_balancing'				>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
 done
