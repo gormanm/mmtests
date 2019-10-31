@@ -137,7 +137,6 @@ function lookup_mpicpus
 		SPEC_CPUS=`echo $SPEC | awk -F = '{print $2}'`
 
 		if [ "$SPEC_JOB" = "$NAS_JOB" ]; then
-			echo OVERRIDE $SPEC_JOB $NAS_JOB $SPEC_CPUS
 			JOB_MAX_CPUS=$SPEC_CPUS
 		fi
 	done
