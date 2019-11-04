@@ -54,3 +54,4 @@ echo 0 > /proc/sys/kernel/numa_balancing
 
 echo Using interleave policy
 export MMTESTS_NUMA_POLICY=interleave
+export MMTESTS_THREAD_CUTOFF=

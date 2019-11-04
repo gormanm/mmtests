@@ -46,3 +46,4 @@ export DATABASE_INIT_ONCE=yes
 
 echo Setting cpufreq to performance
 cpupower frequency-set -g performance
+export MMTESTS_THREAD_CUTOFF=
