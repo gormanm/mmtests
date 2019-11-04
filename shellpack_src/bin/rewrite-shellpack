@@ -549,10 +549,6 @@ EOC
 		print <<EOC
 THREADS=
 START_THREAD=$min_thread
-if [ "\$MMTESTS_THREAD_CUTOFF" != "" ]; then
-	echo Forcing $max_thread_varname to \$MMTESTS_THREAD_CUTOFF
-	$max_thread_varname=\$MMTESTS_THREAD_CUTOFF
-fi
 END_THREAD=$max_thread
 if [ \$END_THREAD -gt 32 ]; then
 	THREADS=`seq \$START_THREAD 3 8`
@@ -571,6 +567,12 @@ fi
 for NR_THREADS in \$THREADS; do
 	if [ \$NR_THREADS -lt $min_thread ]; then
 		continue
+	fi
+	if [ "\$MMTESTS_THREAD_CUTOFF" != "" ]; then
+		if [ \$NR_THREADS -gt \$MMTESTS_THREAD_CUTOFF ]; then
+			echo Forcing $max_thread_varname to \$MMTESTS_THREAD_CUTOFF
+			continue
+		fi
 	fi
 EOC
 	} elsif ($command eq "threads_huge_stride_begin") {
