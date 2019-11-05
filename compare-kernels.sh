@@ -1719,23 +1719,23 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		DIRECT_INODE_STEAL_ACTIVITY=no
 		if have_monitor_results proc-vmstat $KERNEL_BASE; then
 			for KERNEL in $KERNEL_LIST_ITER; do
-				$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan | grep -q -v " 0"
+				$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan | awk '{print $NF}' | grep -q -v "^0"
 				if [ $? -eq 0 ]; then
 					KSWAPD_ACTIVITY=yes
 				fi
-				$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading mmtests_direct_scan | grep -q -v " 0"
+				$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading mmtests_direct_scan | awk '{print $NF}' | grep -q -v "^0"
 				if [ $? -eq 0 ]; then
 					DIRECT_ACTIVITY=yes
 				fi
-				$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading slabs_scanned | grep -q -v " 0"
+				$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading slabs_scanned | awk '{print $NF}' | grep -q -v "^0"
 				if [ $? -eq 0 ]; then
 					SLAB_ACTIVITY=yes
 
-					$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading kswapd_inodesteal | grep -q -v " 0"
+					$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading kswapd_inodesteal | awk '{print $NF}' | grep -q -v "^0"
 					if [ $? -eq 0 ]; then
 						KSWAPD_INODE_STEAL_ACTIVITY=yes
 					fi
-					$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading pginodesteal | grep -q -v " 0"
+					$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading pginodesteal | awk '{print $NF}' | grep -q -v "^0"
 					if [ $? -eq 0 ]; then
 						DIRECT_INODE_STEAL_ACTIVITY=yes
 					fi
