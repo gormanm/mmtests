@@ -8,10 +8,6 @@ for CONFIG in `ls config-workload-stream-* | grep -v -E ".*-zen2$"`; do
 	sed    -e 's/STREAM_SIZE=.*/STREAM_SIZE=\$((1048576*3*2048))/' $CONFIG > $CONFIG-zen2
 	sed -i -e '/MMTESTS_BUILD_CFLAGS=/d' $CONFIG-zen2
 	echo 'export MMTESTS_BUILD_CFLAGS="-m64 -lm -Ofast -march=znver1 -mcmodel=medium -DOFFSET=512"' >> $CONFIG-zen2
-
-	sed    -e 's/STREAM_SIZE=.*/STREAM_SIZE=\$((1048576*3*2048))/' $CONFIG > $CONFIG-zen2-extra
-	sed -i -e '/MMTESTS_BUILD_CFLAGS=/d' $CONFIG-zen2-extra
-	echo 'export MMTESTS_BUILD_CFLAGS="-m64 -lm -Ofast -march=znver1 -mcmodel=medium -DOFFSET=512 -fprefetch-loop-arrays -mprefetchwt1"' >> $CONFIG-zen2-extra
 done
 
 # NAS
@@ -34,12 +30,8 @@ for CPUCOUNT in 16 32 64 128 225 255 256; do
 	echo "cpupower frequency-set -g performance"			>> $NAS_BASECONFIG
 	echo								>> $NAS_BASECONFIG
 
-	cat $NAS_BASECONFIG | sed -e '/\/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-numab-disabled
-	echo 'echo Disabling NUMA Balancing'				>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-numab-disabled
-	echo 'echo 0 > /proc/sys/kernel/numa_balancing'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-numab-disabled
-
 	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
-	sed -i  -e 's/MMTESTS_BUILD_CFLAGS=.*/MMTESTS_BUILD_CFLAGS="-Ofast -march=znver1 -mtune=znver1 -ftree-vectorize -fprefetch-loop-arrays -mprefetchwt1"/' \
+	sed -i  -e 's/MMTESTS_BUILD_CFLAGS=.*/MMTESTS_BUILD_CFLAGS="-Ofast -march=znver1 -mtune=znver1 -ftree-vectorize"/' \
 		-e 's/migration_cost_ns=.*/migration_cost_ns=5000000/'	\
 		-e 's/min_granularity_ns=.*/min_granularity_ns=10000000/'	   config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
 	echo 'export NAS_BIND=yes'						>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
