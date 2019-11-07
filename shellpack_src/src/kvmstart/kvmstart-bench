@@ -19,36 +19,41 @@ if [ "$KVMSTART_DISTRO" != "" ]; then
 fi
 ###SHELLPACK init_complete
 
-echo $PERFNUMA_WORKLOAD > $LOGDIR_RESULTS/workload
+echo $KVMSTART_WORKLOAD > $LOGDIR_RESULTS/workload
 
 MEMSIZE=$KVMSTART_MIN_MEMORY
 MEMSIZE_STEPPING=$(((KVMSTART_MAX_MEMORY-KVMSTART_MIN_MEMORY)/10))
 while [ $MEMSIZE -le $KVMSTART_MAX_MEMORY ]; do
 	MEMSIZE_KB=$((MEMSIZE/1024))
-	MEMSIZE_GB=$((MEMSIZE/1048576))
-	kvm-stop
-	virsh setmem $KVMSTART_KVM_NAME ${MEMSIZE_GB}G --config || die "Failed to configure memory size"
+	MEMSIZE_GB=$((MEMSIZE_KB/1048576))
+	kvm-stop &> /dev/null
+	virsh setmaxmem $KVMSTART_KVM_NAME ${MEMSIZE_GB}G --config || die "Failed to configure maximum ${MEMSIZE_GB}g memory size"
+	virsh setmem $KVMSTART_KVM_NAME ${MEMSIZE_GB}G --config || die "Failed to configure ${MEMSIZE_GB}g memory size"
 	if [ "$KVMSTART_NR_CPUS" != "" ]; then
 		virsh setvcpus $KVMSTART_KVM_NAME $KVMSTART_NR_CPUS --config || die "Failed to configure virtual CPUs"
 	fi
 
 	###SHELLPACK iteration_begin $KVMSTART_ITERATIONS
+		echo Stopping KVM instance
+		kvm-stop &> /dev/null
 		echo Timing for memory size ${MEMSIZE_GB}g iteration $ITERATION/$KVMSTART_ITERATIONS
 		$TIME_CMD -o $LOGDIR_RESULTS/startup-$MEMSIZE_GB-$ITERATION.time \
 			echo o starting KVM
-			kvm-start 2>&1 | tee $LOGDIR_RESULTS/startup-$MEMSIZE_GB-$ITERATION.log
+			kvm-start &> $LOGDIR_RESULTS/startup-$MEMSIZE_GB-$ITERATION.log
 
 		KVM_IP=`kvm-ip-address`
 		if [ "$KVM_IP" = "" ]; then
 			die "Failed to detect IP address of KVM machine"
 		fi
 
+		ssh root@$KVM_IP free -m > $LOGDIR_RESULTS/freemem-$MEMSIZE_GB.log
 		case $KVMSTART_WORKLOAD in
 		memhog)
+			echo o post-boot workload $KVMSTART_WORKLOAD
 			KVM_MEMSIZE=$((MEMSIZE_KB*KVMSTART_WORKLOAD_PARAM/100))
 			$TIME_CMD -o $LOGDIR_RESULTS/memhog-$MEMSIZE_GB.$ITERATION.time	\
-				ssh root@$KVM_IP memhog -r10 ${KVM_MEMSIZE}k		\
-					2>&1 | tee $LOGDIR_RESULTS/memhog-$MEMSIZE_GB-$ITERATION.log
+				ssh root@$KVM_IP memhog -r3 ${KVM_MEMSIZE}k		\
+					&> tee $LOGDIR_RESULTS/memhog-$MEMSIZE_GB-$ITERATION.log
 			;;
 		esac
 	###SHELLPACK iteration_end $KVMSTART_ITERATIONS
