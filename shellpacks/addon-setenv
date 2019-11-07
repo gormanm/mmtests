@@ -1,0 +1,5 @@
+if [ "$SHELLPACK_DATA" = "" ]; then
+	export SHELLPACK_DATA=$SCRIPTDIR/../../../../work/testdisk
+	mkdir -p $SHELLPACK_DATA
+fi
+
