@@ -115,6 +115,7 @@ rm -f $SCRIPTDIR/bash_arrays # remove stale bash_arrays file
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/shellpacks/deferred-monitors.sh
+export SHELLPACK_ADDON=$SCRIPTDIR/shellpack_src/addon
 
 for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
 	source "${CONFIGS[$i]}"

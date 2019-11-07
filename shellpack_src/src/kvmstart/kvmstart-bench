@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ###SHELLPACK preamble kvmstart-bench 0
+###SHELLPACK addon fragment
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -28,6 +29,11 @@ MEMSIZE_STEPPING=$(((KVMSTART_MAX_MEMORY-KVMSTART_MIN_MEMORY)/NR_STEPS))
 if [ $MEMSIZE_STEPPING -lt $MIN_STEPSIZE ]; then
 	MEMSIZE_STEPPING=$MIN_STEPSIZE
 fi
+
+if [ "$KVMSTART_PRETEST" != "" ]; then
+	eval fragment prepare --method $KVMSTART_METHOD $KVMSTART_PRETEST_ARGS || die "Failed to prepare fragment $KVMSTART_METHOD"
+fi
+
 while [ $MEMSIZE -le $KVMSTART_MAX_MEMORY ]; do
 	MEMSIZE_KB=$((MEMSIZE/1024))
 	MEMSIZE_GB=$((MEMSIZE_KB/1048576))
@@ -41,6 +47,11 @@ while [ $MEMSIZE -le $KVMSTART_MAX_MEMORY ]; do
 	###SHELLPACK iteration_begin $KVMSTART_ITERATIONS
 		echo Stopping KVM instance
 		kvm-stop &> /dev/null
+
+		if [ "$KVMSTART_PRETEST" != "" ]; then
+			eval fragment run --method $KVMSTART_METHOD $KVMSTART_PRETEST_RUN_ARGS || die "Failed to prepare fragment $KVMSTART_METHOD"
+		fi
+
 		echo Timing for memory size ${MEMSIZE_GB}g iteration $ITERATION/$KVMSTART_ITERATIONS
 		$TIME_CMD -o $LOGDIR_RESULTS/startup-$MEMSIZE_GB-$ITERATION.time \
 			echo o starting KVM
@@ -66,4 +77,5 @@ while [ $MEMSIZE -le $KVMSTART_MAX_MEMORY ]; do
 	MEMSIZE=$((MEMSIZE+$MEMSIZE_STEPPING))
 done
 
+fragment cleanup
 exit $SHELLPACK_SUCCESS

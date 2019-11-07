@@ -644,6 +644,15 @@ for NR_THREADS in \$THREADS; do
 EOC
 	} elsif ($command eq "threads_stride_end") {
 		print "done\n";
+	} elsif ($command eq "addon") {
+		my ($addon) = @details;
+
+		print <<EOC
+if [ ! -e \$SHELLPACK_ADDON/bin ]; then
+	die "Shellpack addon $addon does not exist"
+fi
+export PATH=\$PATH:\$SHELLPACK_ADDON/bin
+EOC
 	} else {
 		print "# WARNING: UNRECOGNISED command $command\n";
 		print $_;

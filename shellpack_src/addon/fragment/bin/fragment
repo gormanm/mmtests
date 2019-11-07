@@ -1,0 +1,57 @@
+#!/bin/bash
+# A helper script that will ultimately fragment memory as part of a test
+DIRNAME=`dirname $0`
+export SCRIPTDIR=`cd "$DIRNAME" && pwd`
+export MMTESTS_ROOT=$SCRIPTDIR/../../../../
+. $MMTESTS_ROOT/shellpacks/common.sh
+. $MMTESTS_ROOT/shellpacks/addon-setenv
+SCRATCH=$SHELLPACK_DATA/fragment
+mkdir -p $SCRATCH
+
+COMMAND=$1
+shift
+
+OTHER=
+while [ $# -ge 1 ]; do
+	case $1 in
+	--method)
+		METHOD=$2
+		shift 2
+		;;
+	*)
+		break
+	esac
+done
+
+while [ $# -ge 1 ]; do
+	case $METHOD in
+	single-file)
+		case $1 in
+		--filesize)
+			SINGLEFILE_FILESIZE=$2
+			shift 2
+			;;
+		*)
+			die "Unrecognised $METHOD arg $1"
+		esac
+		;;
+	*)
+		die "Unrecognised method $METHOD"
+		;;
+	esac
+done
+			
+case $COMMAND in
+prepare)
+	if [ "$SINGLEFILE_FILESIZE" = "" ]; then
+		die "single-file method requires --filesize"
+	fi
+	create_random_file $SINGLEFILE_FILESIZE $SCRATCH/single-file
+	;;
+run)
+	cat $SCRATCH/single-file > /dev/null
+	;;
+cleanup)
+	rm -rf $SCRATCH
+	;;
+esac
