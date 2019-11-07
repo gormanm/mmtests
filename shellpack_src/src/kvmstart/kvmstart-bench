@@ -31,7 +31,7 @@ if [ $MEMSIZE_STEPPING -lt $MIN_STEPSIZE ]; then
 fi
 
 if [ "$KVMSTART_PRETEST" != "" ]; then
-	eval fragment prepare --method $KVMSTART_METHOD $KVMSTART_PRETEST_ARGS || die "Failed to prepare fragment $KVMSTART_METHOD"
+	eval $KVMSTART_PRETEST prepare --method $KVMSTART_METHOD $KVMSTART_PRETEST_ARGS || die "Failed to prepare $KVMSTART_PRETEST $KVMSTART_METHOD"
 fi
 
 while [ $MEMSIZE -le $KVMSTART_MAX_MEMORY ]; do
@@ -49,7 +49,8 @@ while [ $MEMSIZE -le $KVMSTART_MAX_MEMORY ]; do
 		kvm-stop &> /dev/null
 
 		if [ "$KVMSTART_PRETEST" != "" ]; then
-			eval fragment run --method $KVMSTART_METHOD $KVMSTART_PRETEST_RUN_ARGS || die "Failed to prepare fragment $KVMSTART_METHOD"
+			echo Pretest $KVMSTART_METHOD $KVMSTART_PRETEST_RUN_ARGS
+			eval $KVMSTART_PRETEST run --method $KVMSTART_METHOD $KVMSTART_PRETEST_RUN_ARGS || die "Failed to prepare $KVMSTART_PRETEST $KVMSTART_METHOD"
 		fi
 
 		echo Timing for memory size ${MEMSIZE_GB}g iteration $ITERATION/$KVMSTART_ITERATIONS
@@ -77,5 +78,7 @@ while [ $MEMSIZE -le $KVMSTART_MAX_MEMORY ]; do
 	MEMSIZE=$((MEMSIZE+$MEMSIZE_STEPPING))
 done
 
-fragment cleanup
+if [ "$KVMSTART_PRETEST" != "" ]; then
+	$KVMSTART_PRETEST cleanup
+fi
 exit $SHELLPACK_SUCCESS
