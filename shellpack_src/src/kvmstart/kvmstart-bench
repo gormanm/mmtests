@@ -1,0 +1,59 @@
+#!/bin/bash
+
+###SHELLPACK preamble kvmstart-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --nr-cpus		KVMSTART_NR_CPUS
+###SHELLPACK parseargParam   --min-memory	KVMSTART_MIN_MEMORY
+###SHELLPACK parseargParam   --max-memory	KVMSTART_MAX_MEMORY
+###SHELLPACK parseargParam   --workload		KVMSTART_WORKLOAD
+###SHELLPACK parseargParam   --workload-param	KVMSTART_WORKLOAD_PARAM
+###SHELLPACK parseargParam   --iterations	KVMSTART_ITERATIONS
+###SHELLPACK parseargParam   --distro		KVMSTART_DISTRO
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+if [ "$KVMSTART_DISTRO" != "" ]; then
+	kvm-deploy --distro $KVMSTART_DISTRO
+fi
+###SHELLPACK init_complete
+
+echo $PERFNUMA_WORKLOAD > $LOGDIR_RESULTS/workload
+
+MEMSIZE=$KVMSTART_MIN_MEMORY
+MEMSIZE_STEPPING=$(((KVMSTART_MAX_MEMORY-KVMSTART_MIN_MEMORY)/10))
+while [ $MEMSIZE -le $KVMSTART_MAX_MEMORY ]; do
+	MEMSIZE_KB=$((MEMSIZE/1024))
+	MEMSIZE_GB=$((MEMSIZE/1048576))
+	kvm-stop
+	virsh setmem $KVMSTART_KVM_NAME ${MEMSIZE_GB}G --config || die "Failed to configure memory size"
+	if [ "$KVMSTART_NR_CPUS" != "" ]; then
+		virsh setvcpus $KVMSTART_KVM_NAME $KVMSTART_NR_CPUS --config || die "Failed to configure virtual CPUs"
+	fi
+
+	###SHELLPACK iteration_begin $KVMSTART_ITERATIONS
+		echo Timing for memory size ${MEMSIZE_GB}g iteration $ITERATION/$KVMSTART_ITERATIONS
+		$TIME_CMD -o $LOGDIR_RESULTS/startup-$MEMSIZE_GB-$ITERATION.time \
+			echo o starting KVM
+			kvm-start 2>&1 | tee $LOGDIR_RESULTS/startup-$MEMSIZE_GB-$ITERATION.log
+
+		KVM_IP=`kvm-ip-address`
+		if [ "$KVM_IP" = "" ]; then
+			die "Failed to detect IP address of KVM machine"
+		fi
+
+		case $KVMSTART_WORKLOAD in
+		memhog)
+			KVM_MEMSIZE=$((MEMSIZE_KB*KVMSTART_WORKLOAD_PARAM/100))
+			$TIME_CMD -o $LOGDIR_RESULTS/memhog-$MEMSIZE_GB.$ITERATION.time	\
+				ssh root@$KVM_IP memhog -r10 ${KVM_MEMSIZE}k		\
+					2>&1 | tee $LOGDIR_RESULTS/memhog-$MEMSIZE_GB-$ITERATION.log
+			;;
+		esac
+	###SHELLPACK iteration_end $KVMSTART_ITERATIONS
+
+	MEMSIZE=$((MEMSIZE+$MEMSIZE_STEPPING))
+done
+
+exit $SHELLPACK_SUCCESS
