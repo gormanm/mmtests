@@ -3,6 +3,15 @@ export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 cd $SCRIPTDIR/../configs || exit
 
+# KVM start
+cp config-workload-kvmstart-memhog config-workload-kvmstart-memhog-frag-singlefile
+cat >> config-workload-kvmstart-memhog-frag-singlefile <<EOF
+export KVMSTART_PRETEST=fragment
+export KVMSTART_PRETEST_PREPARE_ARGS="single-file --filesize $KVMSTART_MAX_MEMORY"
+export KVMSTART_PRETEST_RUN_ARGS=
+export KVMSTART_PRETEST_CLEANUP_ARGS=
+EOF
+
 # NAS
 for TYPE in omp mpi; do
 	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/2))/' config-hpc-nas-c-class-$TYPE-full > config-hpc-nas-c-class-$TYPE-half
