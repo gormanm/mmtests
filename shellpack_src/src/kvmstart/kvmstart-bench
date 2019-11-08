@@ -16,7 +16,7 @@
 ###SHELLPACK monitor_hooks
 
 if [ "$KVMSTART_DISTRO" != "" ]; then
-	kvm-deploy --distro $KVMSTART_DISTRO
+	kvm-deploy --no-tune --distro $KVMSTART_DISTRO
 fi
 ###SHELLPACK init_complete
 
