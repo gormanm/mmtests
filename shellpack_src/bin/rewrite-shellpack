@@ -651,7 +651,7 @@ EOC
 if [ ! -e \$SHELLPACK_ADDON/$addon/bin ]; then
 	die "Shellpack addon $addon does not exist"
 fi
-export PATH=\$PATH:\$SHELLPACK_ADDON/bin
+export PATH=\$PATH:\$SHELLPACK_ADDON/$addon/bin
 EOC
 	} else {
 		print "# WARNING: UNRECOGNISED command $command\n";
