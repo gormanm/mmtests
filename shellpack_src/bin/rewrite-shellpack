@@ -648,7 +648,7 @@ EOC
 		my ($addon) = @details;
 
 		print <<EOC
-if [ ! -e \$SHELLPACK_ADDON/bin ]; then
+if [ ! -e \$SHELLPACK_ADDON/$addon/bin ]; then
 	die "Shellpack addon $addon does not exist"
 fi
 export PATH=\$PATH:\$SHELLPACK_ADDON/bin
