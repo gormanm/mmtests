@@ -1,0 +1,29 @@
+# prepare:	Create a single large file
+# run:		Read the large file into page cache
+# cleanup:	Delete the single large file
+
+while [ $# -ge 1 ]; do
+	case $1 in
+	--filesize)
+		SINGLEFILE_FILESIZE=$2
+		shift 2
+		;;
+	*)
+		die "Unrecognised $METHOD arg $1"
+	esac
+done
+			
+case $COMMAND in
+prepare)
+	if [ "$SINGLEFILE_FILESIZE" = "" ]; then
+		die "single-file method requires --filesize"
+	fi
+	create_random_file $SINGLEFILE_FILESIZE $SCRATCH/single-file
+	;;
+run)
+	cat $SCRATCH/single-file > /dev/null
+	;;
+cleanup)
+	rm -rf $SCRATCH
+	;;
+esac

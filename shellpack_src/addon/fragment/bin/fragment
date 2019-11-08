@@ -11,6 +11,8 @@ mkdir -p $SCRATCH
 COMMAND=$1
 shift
 
+# Global options must be specified first. All others are passed to the
+# submodules
 OTHER=
 while [ $# -ge 1 ]; do
 	case $1 in
@@ -23,35 +25,12 @@ while [ $# -ge 1 ]; do
 	esac
 done
 
-while [ $# -ge 1 ]; do
-	case $METHOD in
-	single-file)
-		case $1 in
-		--filesize)
-			SINGLEFILE_FILESIZE=$2
-			shift 2
-			;;
-		*)
-			die "Unrecognised $METHOD arg $1"
-		esac
-		;;
-	*)
-		die "Unrecognised method $METHOD"
-		;;
-	esac
-done
-			
-case $COMMAND in
-prepare)
-	if [ "$SINGLEFILE_FILESIZE" = "" ]; then
-		die "single-file method requires --filesize"
-	fi
-	create_random_file $SINGLEFILE_FILESIZE $SCRATCH/single-file
-	;;
-run)
-	cat $SCRATCH/single-file > /dev/null
-	;;
-cleanup)
-	rm -rf $SCRATCH
-	;;
-esac
+if [ "$METHOD" = "" ]; then
+	die "Method must be specified with --method"
+fi
+
+if [ ! -e $SCRIPTDIR/../lib/$METHOD ]; then
+	die "Method $METHOD does not exist in lib directory"
+fi
+
+. $SCRIPTDIR/../lib/$METHOD
