@@ -3,3 +3,5 @@ if [ "$SHELLPACK_DATA" = "" ]; then
 	mkdir -p $SHELLPACK_DATA
 fi
 
+export SHELLPACK_TEMP="$SHELLPACK_DATA/tmp/$$"
+mkdir -p $SHELLPACK_TEMP
