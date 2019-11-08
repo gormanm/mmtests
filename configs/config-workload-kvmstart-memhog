@@ -34,9 +34,8 @@ export KVMSTART_MIN_MEMORY=$((KVMSTART_MAX_MEMORY/10))
 export KVMSTART_WORKLOAD=memhog
 export KVMSTART_WORKLOAD_PARAM=80
 export KVMSTART_ITERATIONS=3
-export KVMSTART_DISTRO=SLE-15-SP1
 export KVMSTART_KVM_NAME=marvin-mmtests
 
 # The distribution name is deliberate to give a hint that additional helpers
 # are required to make this work that is non-trivial to setup.
-export KVMSTART_DISTRO=SLE-15-SP1
+export KVMSTART_DISTRO=SLE-12-SP5
