@@ -14,11 +14,9 @@ if [ ! -d $1 ]; then
 	exit -1
 fi
 
-if [ ! -d ../packs ]; then
-	mkdir ../packs
-fi
-
-../bin/build-shellpack -s $1 -b $1-bench -i $1-install -o ../packs/shellpack-$1.tar.gz || exit -1
-../bin/install-shellpack -p ../packs/shellpack-$1.tar.gz -i ../../shellpacks/ || exit -1
+cat $1/$1-bench   | ../bin/rewrite-shellpack > ../../shellpacks/shellpack-bench-$1
+cat $1/$1-install | ../bin/rewrite-shellpack > ../../shellpacks/shellpack-install-$1
+chmod a+x ../../shellpacks/shellpack-bench-$1
+chmod a+x ../../shellpacks/shellpack-install-$1
 
 exit 0
