@@ -8,7 +8,7 @@ cp config-workload-kvmstart-memhog config-workload-kvmstart-memhog-frag-singlefi
 cat >> config-workload-kvmstart-memhog-frag-singlefile <<EOF
 export KVMSTART_PRETEST=fragment
 export KVMSTART_PRETEST_METHOD="single-file"
-export KVMSTART_PRETEST_PREPARE_ARGS="--filesize $KVMSTART_MAX_MEMORY"
+export KVMSTART_PRETEST_PREPARE_ARGS="--filesize \$KVMSTART_MAX_MEMORY"
 export KVMSTART_PRETEST_RUN_ARGS=
 export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
