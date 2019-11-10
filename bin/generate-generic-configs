@@ -12,6 +12,10 @@ export KVMSTART_PRETEST_PREPARE_ARGS="--filesize \$KVMSTART_MAX_MEMORY"
 export KVMSTART_PRETEST_RUN_ARGS=
 export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
+cp config-workload-kvmstart-memhog-frag-singlefile config-workload-kvmstart-memhog-frag-singlefile-nothp
+cat >> config-workload-kvmstart-memhog-frag-singlefile-nothp <<EOF
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+EOF
 
 # NAS
 for TYPE in omp mpi; do
