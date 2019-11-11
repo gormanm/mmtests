@@ -4,6 +4,9 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 cd $SCRIPTDIR/../configs || exit
 
 # KVM start
+cp config-workload-kvmstart-memhog config-workload-kvmstart-deployonly
+sed -i -e 's/KVMSTART_MIN_MEMORY=.*/KVMSTART_MIN_MEMORY=\$((KVMSTART_MAX_MEMORY+1))/' config-workload-kvmstart-deployonly
+
 cp config-workload-kvmstart-memhog config-workload-kvmstart-memhog-frag-singlefile
 cat >> config-workload-kvmstart-memhog-frag-singlefile <<EOF
 export KVMSTART_PRETEST=fragment

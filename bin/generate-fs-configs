@@ -99,6 +99,8 @@ config-io-filebench-webserver-small
 config-io-filebench-webproxy-small
 config-io-filebench-webproxy-medium
 config-io-filebench-webproxy-large
+config-workload-kvmstart-memhog-frag-singlefile
+config-workload-kvmstart-memhog-frag-singlefile-nothp
 config-workload-pedsort
 config-workload-pedsort-light
 config-workload-thpscale

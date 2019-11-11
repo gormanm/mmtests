@@ -19,6 +19,10 @@ if [ "$KVMSTART_DISTRO" != "" ]; then
 	kvm-deploy --no-tune --use-alt-partition --distro $KVMSTART_DISTRO
 fi
 ###SHELLPACK init_complete
+if [ $KVMSTART_MIN_MEMORY -lt $KVMSTART_MAX_MEMORY ]; then
+	echo Deploy-only configuration complete
+	exit 0
+fi
 
 echo $KVMSTART_WORKLOAD > $LOGDIR_RESULTS/workload
 
