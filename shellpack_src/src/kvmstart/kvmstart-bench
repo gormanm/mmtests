@@ -83,6 +83,6 @@ while [ $MEMSIZE -le $KVMSTART_MAX_MEMORY ]; do
 done
 
 if [ "$KVMSTART_PRETEST" != "" ]; then
-	$KVMSTART_PRETEST cleanup
+	$KVMSTART_PRETEST cleanup --method $KVMSTART_PRETEST_METHOD
 fi
 exit $SHELLPACK_SUCCESS
