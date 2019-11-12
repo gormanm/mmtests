@@ -591,7 +591,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
 	gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
 
-	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat /sys/block/*/stat"
+	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat"
 	for TEST in $MMTESTS; do
 		export CURRENT_TEST=$TEST
 		# Configure transparent hugepage support as configured
