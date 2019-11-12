@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh memcachetest
 
 run_bench() {
 	$SHELLPACK_INCLUDE/shellpack-bench-memcachetest \
