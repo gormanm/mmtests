@@ -794,7 +794,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	SWAP_GRAPH=no
 	if have_monitor_results vmstat $KERNEL_BASE; then
 		for EVENT in si so; do
-			eval $EXTRACT_CMD --print-monitor vmstat --sub-heading si | grep -v 0.00 &> /dev/null
+			eval $COMPARE_CMD --print-monitor vmstat --sub-heading $EVENT | grep -v 0.00 &> /dev/null
 			if [ $? -eq 0 ]; then
 				SWAP_GRAPH=yes
 			fi
