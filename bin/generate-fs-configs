@@ -83,6 +83,10 @@ config-io-bonnie-file-async
 config-io-bonnie-dir-async
 config-io-bonnie-file-fsync
 config-io-bonnie-dir-fsync
+config-io-bonnie++-file-async
+config-io-bonnie++-dir-async
+config-io-bonnie++-file-fsync
+config-io-bonnie++-dir-fsync
 config-io-iozone
 config-io-iozone-small
 config-io-iozone-dio
