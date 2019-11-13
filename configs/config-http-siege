@@ -7,12 +7,6 @@
 # MM Test Parameters
 export MMTESTS="siege"
 
-# Log disk to setup (optional)
-#export LOGDISK_PARTITION=/dev/ram0
-#export LOGDISK_FILESYSTEM=ext3
-#export LOGDISK_MKFS_PARAM=""
-#export LOGDISK_MOUNT_ARGS=""
-
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
 #export TESTDISK_RAID_MD_DEVICE=/dev/md0
