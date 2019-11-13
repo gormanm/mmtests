@@ -191,13 +191,12 @@ if [ "$FORCE_RUN_MONITOR" != "" ]; then
 fi
 if [ "$RUN_MONITOR" = "no" ]; then
 	# Disable monitor
-	unset MONITORS_PLAIN
 	unset MONITORS_GZIP
 	unset MONITORS_WITH_LATENCY
 	unset MONITORS_TRACER
 else
 	# Check at least one monitor is enabled
-	if [ "$MONITORS_ALWAYS" = "" -a "$MONITORS_PLAIN" = "" -a "$MONITORS_GZIP" = "" -a "$MONITORS_WITH_LATENCY" = "" -a "$MONITORS_TRACER" = "" ]; then
+	if [ "$MONITORS_ALWAYS" = "" -a "$MONITORS_GZIP" = "" -a "$MONITORS_WITH_LATENCY" = "" -a "$MONITORS_TRACER" = "" ]; then
 		echo WARNING: Monitors enabled but none configured
 	fi
 fi
@@ -221,7 +220,7 @@ for TEST in $MMTESTS; do
 		fi
 	done
 done
-for MONITOR in $MONITORS_ALWAYS $MONITORS_PLAIN $MONITORS_GZIP $MONITORS_WITH_LATENCY $MONITORS_TRACER; do
+for MONITOR in $MONITORS_ALWAYS $MONITORS_GZIP $MONITORS_WITH_LATENCY $MONITORS_TRACER; do
 	for CHECK in $MONITORS_STAP; do
 		if [ "$MONITOR" = "$CHECK" ]; then
 			STAP_USED=monitor-$MONITOR

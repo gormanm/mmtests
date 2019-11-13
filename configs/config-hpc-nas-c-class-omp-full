@@ -15,7 +15,6 @@ export MMTESTS="nas-omp-bt nas-omp-cg nas-omp-ep nas-omp-ft nas-omp-is nas-omp-l
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top mpstat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10

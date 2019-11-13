@@ -167,19 +167,6 @@ function start_always_monitor()
 	echo "Started monitor ${_monitor} always pid `tail -1 $_pidfile`"
 }
 
-function start_plain_monitor()
-{
-	local _monitor
-	local _pidfile
-
-	_monitor=$1
-	_pidfile=$MONITOR_DIR/monitor.pids
-
-	$EXPECT_UNBUFFER $DISCOVERED_SCRIPT > $MONITOR_LOG &
-	echo $! >> $_pidfile
-	echo "Started monitor ${_monitor} plain pid `tail -1 $_pidfile`"
-}
-
 function start_gzip_monitor()
 {
 	local _monitor
@@ -188,7 +175,6 @@ function start_gzip_monitor()
 	_monitor=$1
 	_pidfile=$MONITOR_DIR/monitor.pids
 
-	PID1=
 	( $EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo -n $! > /tmp/monitor.$$.pid ) | tee | gzip -c > ${MONITOR_LOG}.gz &
 	PID1=`cat /tmp/monitor.$$.pid`
 	rm -f /tmp/monitor.$$.pid

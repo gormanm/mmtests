@@ -22,7 +22,6 @@ export REMOTE_SERVER_HOST=unknownhost
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10

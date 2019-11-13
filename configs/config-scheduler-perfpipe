@@ -15,7 +15,6 @@ export MMTESTS="perfpipe"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_PLAIN=
 #export MONITORS_TRACER="perf-event-stat"
 export MONITORS_GZIP="proc-vmstat"
 export MONITORS_WITH_LATENCY="vmstat iostat"

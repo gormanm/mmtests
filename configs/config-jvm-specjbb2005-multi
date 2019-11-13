@@ -7,7 +7,6 @@ export MMTESTS="specjbb"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_PLAIN=
 export MONITORS_GZIP="proc-vmstat top numa-numastat numa-meminfo numa-convergence"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10

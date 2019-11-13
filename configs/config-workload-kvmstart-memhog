@@ -20,7 +20,6 @@ export MMTESTS="kvmstart"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_PLAIN=
 #export MONITORS_TRACER="perf-event-stat"
 export MONITORS_GZIP="proc-vmstat top numa-numastat numa-meminfo numa-convergence numa-scheduling mpstat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
