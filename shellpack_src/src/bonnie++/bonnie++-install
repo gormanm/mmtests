@@ -1,0 +1,832 @@
+#!/bin/bash
+
+###SHELLPACK preamble bonnie++-install 1.98
+WEB_LOCATION="http://www.coker.com.au/bonnie++"
+WEB_LOCATION="https://www.coker.com.au/bonnie++"
+MIRROR_LOCATION="$WEBROOT/bonnie"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+rm -rf $SHELLPACK_SOURCES/bonnie++-${VERSION}
+###SHELLPACK sources_fetch bonnie++-${VERSION}.tgz bonnie++-$VERSION
+
+###SHELLPACK build_start bonnie++-${VERSION}
+
+# Patch bonnie to support printing detailed IO timings
+###SHELLPACK self_extract bonnie-detailed-io-report.patch
+patch -p1 <$SHELLPACK_TEMP/bonnie-detailed-io-report.patch || die "Failed to apply detailed IO patch"
+
+###SHELLPACK build_configure bonnie++-${VERSION}
+###SHELLPACK make_make_install
+
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN bonnie-detailed-io-report.patch ====
+diff --git a/Makefile b/Makefile
+index bea2b73..e4baa08 100644
+--- a/Makefile
++++ b/Makefile
+@@ -9,7 +9,7 @@ prefix=/home/rjc/debian/bonnie++-1.98/debian/bonnie++/usr
+ eprefix=${prefix}
+ #MORE_WARNINGS=-Weffc++
+ WFLAGS=-Wall -W -Wshadow -Wpointer-arith -Wwrite-strings -pedantic -ffor-scope -Wcast-align -Wsign-compare -Wpointer-arith -Wwrite-strings -Wformat-security -Wswitch-enum -Winit-self $(MORE_WARNINGS)
+-CFLAGS=-O2  -DNDEBUG $(WFLAGS) $(MORECFLAGS)
++CFLAGS=-O2 -std=c++11 -DNDEBUG $(WFLAGS) $(MORECFLAGS)
+ CXX=g++ $(CFLAGS)
+ LINK=g++
+ THREAD_LFLAGS=-lpthread
+diff --git a/Makefile.in b/Makefile.in
+index 4f14819..4df8467 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -9,7 +9,7 @@ prefix=@prefix@
+ eprefix=@exec_prefix@
+ #MORE_WARNINGS=-Weffc++
+ WFLAGS=-Wall -W -Wshadow -Wpointer-arith -Wwrite-strings -pedantic -ffor-scope -Wcast-align -Wsign-compare -Wpointer-arith -Wwrite-strings -Wformat-security -Wswitch-enum -Winit-self $(MORE_WARNINGS)
+-CFLAGS=-O2 @debug@ -DNDEBUG $(WFLAGS) $(MORECFLAGS)
++CFLAGS=-O2 @debug@ -DNDEBUG -std=c++11 $(WFLAGS) $(MORECFLAGS)
+ CXX=@CXX@ $(CFLAGS)
+ LINK=@CXX@
+ THREAD_LFLAGS=@thread_ldflags@
+diff --git a/bon_file.cpp b/bon_file.cpp
+index 44f6578..f37d326 100644
+--- a/bon_file.cpp
++++ b/bon_file.cpp
+@@ -4,10 +4,12 @@
+ #include <unistd.h>
+ #include <string.h>
+ #include <stdlib.h>
++//#include <limits.h>
+ 
+ #include "bon_file.h"
+ #include "bon_time.h"
+ #include "duration.h"
++#include "global.h"
+ 
+ CPCCHAR rand_chars = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+ 
+@@ -231,8 +233,11 @@ int COpenTest::create_a_link(const char *original, const char *filename, int dir
+ }
+ 
+ int COpenTest::create(CPCCHAR dirname, BonTimer &timer, int num, int max_size
+-                    , int min_size, int num_directories, bool do_random)
++		     , int min_size, int num_directories, bool do_random
++		     , bool detail)
+ {
++  UsecTimer optimer;
++
+   if(num_directories >= 100000)
+   {
+     fprintf(stderr, "Can't have more than 99,999 directories.\n");
+@@ -299,6 +304,7 @@ int COpenTest::create(CPCCHAR dirname, BonTimer &timer, int num, int max_size
+ 
+   Duration dur;
+   timer.start();
++  optimer.timestamp();
+   for(i = 0; i < m_number; i++)
+   {
+     if(*m_exit)
+@@ -337,6 +343,9 @@ int COpenTest::create(CPCCHAR dirname, BonTimer &timer, int num, int max_size
+         return -1;
+     }
+     dur.stop();
++    /* maybe dur is doing what we want */
++    if (detail)
++      fprintf(globals.report_log, "%s %llu\n", do_random ? "cr" : "cs", optimer.get_usec_delta_stamp());
+   }
+   sync();
+   timer.stop_and_record(do_random ? CreateRand : CreateSeq);
+@@ -344,12 +353,15 @@ int COpenTest::create(CPCCHAR dirname, BonTimer &timer, int num, int max_size
+   return 0;
+ }
+ 
+-int COpenTest::delete_random(BonTimer &timer)
++int COpenTest::delete_random(BonTimer &timer, bool detail)
+ {
+-  random_sort(timer.random_source);
+-  timer.start();
+   int i;
++  UsecTimer optimer;
+   Duration dur;
++
++  random_sort(timer.random_source);
++  timer.start();
++  optimer.timestamp();
+   for(i = 0; i < m_number; i++)
+   {
+     dur.start();
+@@ -367,6 +379,9 @@ int COpenTest::delete_random(BonTimer &timer)
+       }
+     }
+     dur.stop();
++    /* maybe dur is doing what we want */
++    if (detail)
++      fprintf(globals.report_log, "dr %llu\n", optimer.get_usec_delta_stamp());
+   }
+   if(m_number_directories > 1)
+   {
+@@ -405,8 +420,10 @@ int COpenTest::delete_random(BonTimer &timer)
+   return 0;
+ }
+ 
+-int COpenTest::delete_sequential(BonTimer &timer)
++int COpenTest::delete_sequential(BonTimer &timer, bool detail)
+ {
++  UsecTimer optimer;
++
+   timer.start();
+   int count = 0;
+   Duration dur;
+@@ -434,6 +451,7 @@ int COpenTest::delete_sequential(BonTimer &timer)
+       return -1;
+     }
+     dirent *file_ent;
++    optimer.timestamp();
+ 
+     while(1)
+     {
+@@ -461,6 +479,9 @@ int COpenTest::delete_sequential(BonTimer &timer)
+         count++;
+       }
+       dur.stop();
++      /* maybe dur is doing what we want */
++      if (detail)
++	fprintf(globals.report_log, "ds %llu\n", optimer.get_usec_delta_stamp());
+     }
+     closedir(d);
+     if(m_sync)
+@@ -529,30 +550,38 @@ int COpenTest::stat_file(CPCCHAR file)
+   return 0;
+ }
+ 
+-int COpenTest::stat_random(BonTimer &timer)
++int COpenTest::stat_random(BonTimer &timer, bool detail)
+ {
++  UsecTimer optimer;
++  int i;
++  Duration dur;
++
+   random_sort(timer.random_source);
+   timer.start();
++  optimer.timestamp();
+ 
+-  int i;
+-  Duration dur;
+   for(i = 0; i < m_number; i++)
+   {
+     dur.start();
+     if(-1 == stat_file(m_file_names[i]))
+       return -1;
+     dur.stop();
+-  }
++    /* maybe dur is doing what we want */
++    if (detail)
++      fprintf(globals.report_log, "sr %llu\n", optimer.get_usec_delta_stamp());
++}
+   timer.stop_and_record(StatRand);
+   timer.add_latency(StatRand, dur.getMax());
+   return 0;
+ }
+ 
+-int COpenTest::stat_sequential(BonTimer &timer)
++int COpenTest::stat_sequential(BonTimer &timer, bool detail)
+ {
+-  timer.start();
++  UsecTimer optimer;
+   int count = 0;
+   Duration dur;
++
++  timer.start();
+   for(int i = 0; i < m_number_directories; i++)
+   {
+     char buf[6];
+@@ -577,6 +606,8 @@ int COpenTest::stat_sequential(BonTimer &timer)
+       return -1;
+     }
+     dirent *file_ent;
++    optimer.timestamp();
++
+     while(1)
+     {
+       dur.start();
+@@ -605,10 +636,16 @@ int COpenTest::stat_sequential(BonTimer &timer)
+             }
+           }
+           dur.stop();
++	  /* maybe dur is doing what we want */
++	  if (detail)
++	    fprintf(globals.report_log, "ss %llu\n", optimer.get_usec_delta_stamp());
+           return -1;
+         }
+         count++;
+         dur.stop();
++	/* maybe dur is doing what we want */
++	if (detail)
++	  fprintf(globals.report_log, "ss %llu\n", optimer.get_usec_delta_stamp());
+       }
+     }
+     closedir(d);
+diff --git a/bon_file.h b/bon_file.h
+index 45712f4..0578593 100644
+--- a/bon_file.h
++++ b/bon_file.h
+@@ -14,11 +14,12 @@ public:
+   ~COpenTest();
+ 
+   int create(CPCCHAR dirname, BonTimer &timer, int num, int max_size
+-                    , int min_size, int num_directories, bool do_random);
+-  int delete_random(BonTimer &timer);
+-  int delete_sequential(BonTimer &timer);
+-  int stat_random(BonTimer &timer);
+-  int stat_sequential(BonTimer &timer);
++		    , int min_size, int num_directories, bool do_random
++		    , bool detail);
++  int delete_random(BonTimer &timer, bool detail);
++  int delete_sequential(BonTimer &timer, bool detail);
++  int stat_random(BonTimer &timer, bool detail);
++  int stat_sequential(BonTimer &timer, bool detail);
+ 
+ private:
+   void make_names(Rand &r, bool do_random);
+diff --git a/bon_io.cpp b/bon_io.cpp
+index bb482f0..4068266 100644
+--- a/bon_io.cpp
++++ b/bon_io.cpp
+@@ -12,6 +12,7 @@
+ 
+ #include "bon_io.h"
+ #include "bon_time.h"
++#include "global.h"
+ 
+ 
+ #define END_SEEK_PROCESS INT_MIN
+@@ -59,13 +60,21 @@ int CFileOp::action(PVOID)
+   int ticket;
+   int rc;
+   Duration dur, test_time;
++
++  int lseek_count = 0;
++  char report_buf[32];
++  int report_fd = fileno(globals.report_log);
++  UsecTimer optimer;
++
+   rc = Read(&ticket, sizeof(ticket), 0);
+   CPU_Duration test_cpu;
+   test_time.getTime(&seeker_report.StartTime);
+   test_cpu.start();
++  optimer.timestamp();
+   if(rc == sizeof(ticket) && ticket != END_SEEK_PROCESS) do
+   {
+     bool update = false;
++    lseek_count++;
+     if(ticket < 0)
+     {
+       ticket = abs(ticket);
+@@ -75,6 +84,15 @@ int CFileOp::action(PVOID)
+     if(doseek(ticket % m_total_chunks, update) )
+       return 1;
+     dur.stop();
++    /* maybe dur is doing what we want */
++    if (!(lseek_count % globals.report_interval)) {
++      /*
++       * This happens in parallel from different processes. Avoid C buffered
++       * IO to scramble the output.
++       */
++      sprintf(report_buf, "sk %llu\n", optimer.get_usec_delta_stamp());
++      write(report_fd, report_buf, strlen(report_buf));
++    }
+   } while((rc = Read(&ticket, sizeof(ticket), 0)) == sizeof(ticket)
+          && ticket != END_SEEK_PROCESS);
+ 
+@@ -96,8 +114,11 @@ int CFileOp::action(PVOID)
+   return 0;
+ }
+ 
+-int CFileOp::seek_test(Rand &r, bool quiet, int Seeks, int SeekProcCount, Sync &s)
++int CFileOp::seek_test()
+ {
++  Rand &r = globals.timer.random_source;
++  int Seeks = globals.file_seeks;
++  int SeekProcCount = globals.file_seek_procs;
+   int message_count = SeekProcCount + Seeks;
+   int *seek_tickets = (int *)malloc(sizeof(int) * message_count);
+   int next;
+@@ -116,9 +137,9 @@ int CFileOp::seek_test(Rand &r, bool quiet, int Seeks, int SeekProcCount, Sync &
+   go(NULL, SeekProcCount);
+ 
+   sleep(3);
+-  if(s.decrement_and_wait(Lseek))
++  if(globals.syn->decrement_and_wait(Lseek))
+     return 1;
+-  if(!quiet) fprintf(stderr, "start 'em...");
++  if(!globals.quiet) fprintf(stderr, "start 'em...");
+   if(Write(seek_tickets, sizeof(int) * message_count, 0) != (int)sizeof(int) * message_count)
+   {
+     fprintf(stderr, "Can't write tickets.\n");
+@@ -144,9 +165,9 @@ int CFileOp::seek_test(Rand &r, bool quiet, int Seeks, int SeekProcCount, Sync &
+      *  time the last child stopped
+      */
+     m_timer.add_delta_report(seeker_report, Lseek);
+-    if(!quiet) fprintf(stderr, "done...");
++    if(!globals.quiet) fprintf(stderr, "done...");
+   } /* for each child */
+-  if(!quiet) fprintf(stderr, "\n");
++  if(!globals.quiet) fprintf(stderr, "\n");
+   return 0;
+ }
+ 
+diff --git a/bon_io.h b/bon_io.h
+index 2b9b80b..8e0f322 100644
+--- a/bon_io.h
++++ b/bon_io.h
+@@ -1,6 +1,7 @@
+ #ifndef BON_FILE
+ #define BON_FILE
+ 
++#include <limits.h>
+ #include "bonnie.h"
+ #include "thread.h"
+ class Sync;
+@@ -23,7 +24,7 @@ public:
+   int read_block(PVOID buf);
+   int seek(int offset, int whence);
+   int doseek(unsigned int where, bool update);
+-  int seek_test(Rand &r, bool quiet, int Seeks, int SeekProcCount, Sync &s);
++  int seek_test();
+   void Close();
+   // reopen a file, bool for whether the file should be unlink()'d and creat()'d
+   int reopen(bool create);
+diff --git a/bon_time.cpp b/bon_time.cpp
+index 2da4f3d..df986a1 100644
+--- a/bon_time.cpp
++++ b/bon_time.cpp
+@@ -482,3 +482,21 @@ BonTimer::DoReportFile(int directory_size
+   return 0;
+ }
+ 
++void UsecTimer::timestamp(void)
++{
++  if (clock_gettime(CLOCK_MONOTONIC, &ts) < 0)
++    io_error("clock_gettime", true);
++}
++
++unsigned long long UsecTimer::get_usec_delta_stamp(void)
++{
++  struct timespec cur;
++  unsigned long long ret;
++
++  if (clock_gettime(CLOCK_MONOTONIC, &cur) < 0)
++    io_error("clock_gettime", true);
++  ret = ((unsigned long long)(cur.tv_sec - ts.tv_sec))*1000000 +
++	(cur.tv_nsec - ts.tv_nsec) / 1000;
++  ts = cur;
++  return ret;
++}
+diff --git a/bon_time.h b/bon_time.h
+index 5c4e373..dcfca69 100644
+--- a/bon_time.h
++++ b/bon_time.h
+@@ -70,4 +70,12 @@ private:
+   BonTimer &operator=(const BonTimer&);
+ };
+ 
++class UsecTimer {
++public:
++  void timestamp();
++  unsigned long long get_usec_delta_stamp();
++private:
++  struct timespec ts;
++};
++
+ #endif
+diff --git a/bonnie++.cpp b/bonnie++.cpp
+index eba83ef..ba17502 100644
+--- a/bonnie++.cpp
++++ b/bonnie++.cpp
+@@ -48,78 +48,10 @@
+ #include <ctype.h>
+ #include <string.h>
+ #include <signal.h>
++#include "global.h"
+ 
+ void usage();
+ 
+-class CGlobalItems
+-{
+-public:
+-  bool quiet;
+-  int byte_io_size;
+-  bool sync_bonnie;
+-#ifdef O_DIRECT
+-  bool use_direct_io;
+-#endif
+-  BonTimer timer;
+-  int ram;
+-  Sync *syn;
+-  char *name;
+-  bool bufSync;
+-  int  io_chunk_bits;
+-  int  file_chunk_bits;
+-  int  file_seeks;
+-  int  file_seek_procs;
+-  int io_chunk_size() const { return m_io_chunk_size; }
+-  int file_chunk_size() const { return m_file_chunk_size; }
+-  bool *doExit;
+-  void set_io_chunk_size(int size)
+-    { delete m_buf; pa_new(size, m_buf, m_buf_pa); m_io_chunk_size = size; }
+-  void set_file_chunk_size(int size)
+-    { delete m_buf; m_buf = new char[max(size, m_io_chunk_size)]; m_file_chunk_size = size; }
+-
+-  // Return the page-aligned version of the local buffer
+-  char *buf() { return m_buf_pa; }
+-
+-  CGlobalItems(bool *exitFlag);
+-  ~CGlobalItems() { delete name; delete m_buf; delete syn; }
+-
+-  void decrement_and_wait(int nr_sem);
+-
+-  void SetName(CPCCHAR path)
+-  {
+-    delete name;
+-    name = new char[strlen(path) + 15];
+-    pid_t myPid = getpid();
+-    sprintf(name, "%s/Bonnie.%d", path, int(myPid));
+-  }
+-
+-  void setSync(SYNC_TYPE type, int semKey = 0, int num_tests = 0)
+-  {
+-    syn = new Sync(type, semKey, num_tests);
+-  }
+-
+-private:
+-  int m_io_chunk_size;
+-  int m_file_chunk_size;
+-
+-  char *m_buf;     // Pointer to the entire buffer
+-  char *m_buf_pa;  // Pointer to the page-aligned version of the same buffer
+-
+-  // Implement a page-aligned version of new.
+-  // 'p' is the pointer created
+-  // 'page_aligned_p' is the page-aligned pointer created
+-  void pa_new(unsigned int num_bytes, char *&p, char *&page_aligned_p)
+-  {
+-    int page_size = getpagesize();
+-    p = ::new char [num_bytes + page_size];
+-
+-    page_aligned_p = (char *)((((unsigned long)p + page_size - 1) / page_size) * page_size);
+-  }
+-
+-  CGlobalItems(const CGlobalItems &f);
+-  CGlobalItems & operator =(const CGlobalItems &f);
+-};
+-
+ CGlobalItems::CGlobalItems(bool *exitFlag)
+  : quiet(false)
+  , byte_io_size(DefaultByteIO)
+@@ -127,6 +59,8 @@ CGlobalItems::CGlobalItems(bool *exitFlag)
+ #ifdef O_DIRECT
+  , use_direct_io(false)
+ #endif
++ , report_interval(UINT_MAX)
++ , report_log(stdout)
+  , timer()
+  , ram(0)
+  , syn(NULL)
+@@ -153,11 +87,12 @@ void CGlobalItems::decrement_and_wait(int nr_sem)
+ }
+ 
+ int TestDirOps(int directory_size, int max_size, int min_size
+-             , int num_directories, CGlobalItems &globals);
+-int TestFileOps(int file_size, CGlobalItems &globals);
++	      , int num_directories);
++int TestFileOps(int file_size);
+ 
+ static bool exitNow;
+ static bool already_printed_error;
++CGlobalItems globals(&exitNow);
+ 
+ extern "C"
+ {
+@@ -182,7 +117,6 @@ int main(int argc, char *argv[])
+   int    test_count = -1;
+   const char * machine = NULL;
+   char *userName = NULL, *groupName = NULL;
+-  CGlobalItems globals(&exitNow);
+   bool setSize = false;
+ 
+   exitNow = false;
+@@ -220,7 +154,7 @@ int main(int argc, char *argv[])
+   int concurrency = 1;
+ 
+   int int_c;
+-  while(-1 != (int_c = getopt(argc, argv, "bc:d:f::g:l:m:n:p:qr:s:u:x:y:z:Z:"
++  while(-1 != (int_c = getopt(argc, argv, "bc:d:f::g:l:m:n:p:qr:s:u:x:y:z:Z:R:l:"
+ #ifdef O_DIRECT
+                              "D"
+ #endif
+@@ -381,6 +315,16 @@ int main(int argc, char *argv[])
+           return eParam;
+       }
+       break;
++      case 'R':
++	globals.report_interval = strtol(optarg, NULL, 10);
++      break;
++      case 'l':
++	globals.report_log = fopen(optarg, "a");
++	if (!globals.report_log) {
++	  fprintf(stderr, "Cannot open log file\n");
++	  usage();
++	}
++      break;
+     }
+   }
+   if(concurrency < 1 || concurrency > 200)
+@@ -506,10 +450,10 @@ int main(int argc, char *argv[])
+   {
+     globals.timer.Initialize();
+     int rc;
+-    rc = TestFileOps(file_size, globals);
++    rc = TestFileOps(file_size);
+     if(rc) return rc;
+     rc = TestDirOps(directory_size, directory_max_size, directory_min_size
+-                  , num_directories, globals);
++		   , num_directories);
+     if(rc) return rc;
+     // if we are only doing one test run then print a plain-text version of
+     // the results before printing a csv version.
+@@ -536,7 +480,7 @@ int main(int argc, char *argv[])
+ }
+ 
+ int
+-TestFileOps(int file_size, CGlobalItems &globals)
++TestFileOps(int file_size)
+ {
+   if(file_size)
+   {
+@@ -550,6 +494,7 @@ TestFileOps(int file_size, CGlobalItems &globals)
+     char  *buf = globals.buf();
+     int    bufindex;
+     int    i;
++    UsecTimer optimer;
+ 
+     // default is we have 1M / 8K * 300 chunks = 38400
+     num_chunks = Unit / globals.io_chunk_size() * file_size;
+@@ -568,6 +513,7 @@ TestFileOps(int file_size, CGlobalItems &globals)
+     {
+       dur.reset();
+       globals.decrement_and_wait(ByteWrite);
++      optimer.timestamp();
+       // Fill up a file, writing it a char at a time
+       if(!globals.quiet) fprintf(stderr, "Writing a byte at a time...");
+       for(words = 0; words < char_io_chunks; words++)
+@@ -578,6 +524,9 @@ TestFileOps(int file_size, CGlobalItems &globals)
+         dur.stop();
+         if(exitNow)
+           return eCtrl_C;
++	/* maybe dur is doing what we want */
++	if (!((words+1) % globals.report_interval))
++	  fprintf(globals.report_log, "pc %llu\n", optimer.get_usec_delta_stamp());
+       }
+       fflush(NULL);
+       /*
+@@ -597,6 +546,7 @@ TestFileOps(int file_size, CGlobalItems &globals)
+     if(!globals.quiet) fprintf(stderr, "Writing intelligently...");
+     memset(buf, 0, globals.io_chunk_size());
+     globals.timer.start();
++    optimer.timestamp();
+     bufindex = 0;
+     // for the number of chunks of file data
+     for(i = 0; i < num_chunks; i++)
+@@ -613,6 +563,9 @@ TestFileOps(int file_size, CGlobalItems &globals)
+         return 1;
+       }
+       dur.stop();
++      /* maybe dur is doing what we want */
++      if (!((i+1) % globals.report_interval))
++	fprintf(globals.report_log, "wr %llu\n", optimer.get_usec_delta_stamp());
+     }
+     file.Close();
+     globals.timer.stop_and_record(FastWrite);
+@@ -632,6 +585,7 @@ TestFileOps(int file_size, CGlobalItems &globals)
+     globals.decrement_and_wait(ReWrite);
+     if(!globals.quiet) fprintf(stderr, "Rewriting...");
+     globals.timer.start();
++    optimer.timestamp();
+     bufindex = 0;
+     for(words = 0; words < num_chunks; words++)
+     { // for each chunk in the file
+@@ -648,6 +602,9 @@ TestFileOps(int file_size, CGlobalItems &globals)
+       dur.stop();
+       if(exitNow)
+         return eCtrl_C;
++      /* maybe dur is doing what we want */
++      if (!((words+1) % globals.report_interval))
++	fprintf(globals.report_log, "rw %llu\n", optimer.get_usec_delta_stamp());
+     }
+     file.Close();
+     globals.timer.stop_and_record(ReWrite);
+@@ -663,6 +620,7 @@ TestFileOps(int file_size, CGlobalItems &globals)
+       globals.decrement_and_wait(ByteRead);
+       if(!globals.quiet) fprintf(stderr, "Reading a byte at a time...");
+       globals.timer.start();
++      optimer.timestamp();
+ 
+       for(words = 0; words < char_io_chunks; words++)
+       {
+@@ -672,6 +630,9 @@ TestFileOps(int file_size, CGlobalItems &globals)
+         dur.stop();
+         if(exitNow)
+           return eCtrl_C;
++	/* maybe dur is doing what we want */
++	if (!((words+1) % globals.report_interval))
++	  fprintf(globals.report_log, "gc %llu\n", optimer.get_usec_delta_stamp());
+       }
+ 
+       file.Close();
+@@ -689,6 +650,7 @@ TestFileOps(int file_size, CGlobalItems &globals)
+     globals.decrement_and_wait(FastRead);
+     if(!globals.quiet) fprintf(stderr, "Reading intelligently...");
+     globals.timer.start();
++    optimer.timestamp();
+     for(i = 0; i < num_chunks; i++)
+     { /* per block */
+       dur.start();
+@@ -697,14 +659,23 @@ TestFileOps(int file_size, CGlobalItems &globals)
+       dur.stop();
+       if(exitNow)
+         return eCtrl_C;
++      /* maybe dur is doing what we want */
++      if (!((i+1) % globals.report_interval))
++	fprintf(globals.report_log, "rd %llu\n", optimer.get_usec_delta_stamp());
+     } /* per block */
+     file.Close();
+     globals.timer.stop_and_record(FastRead);
+     globals.timer.add_latency(FastRead, dur.getMax());
+     if(!globals.quiet) fprintf(stderr, "done\n");
+ 
++    /*
++     * Flush report_log, seek test is going to append from different
++     * processes.
++     */
++    fflush(globals.report_log);
++
+     globals.timer.start();
+-    if(file.seek_test(globals.timer.random_source, globals.quiet, globals.file_seeks, globals.file_seek_procs, *globals.syn))
++    if(file.seek_test())
+       return 1;
+ 
+     /*
+@@ -730,7 +701,7 @@ TestFileOps(int file_size, CGlobalItems &globals)
+ 
+ int
+ TestDirOps(int directory_size, int max_size, int min_size
+-         , int num_directories, CGlobalItems &globals)
++	  , int num_directories)
+ {
+   COpenTest open_test(globals.file_chunk_size(), globals.bufSync, globals.doExit);
+   if(!directory_size)
+@@ -760,30 +731,32 @@ TestDirOps(int directory_size, int max_size, int min_size
+   globals.decrement_and_wait(CreateSeq);
+   if(!globals.quiet) fprintf(stderr, "Create files in sequential order...");
+   if(open_test.create(globals.name, globals.timer, directory_size
+-                    , max_size, min_size, num_directories, false))
++		     , max_size, min_size, num_directories, false
++		     , globals.report_interval != UINT_MAX))
+     return 1;
+   globals.decrement_and_wait(StatSeq);
+   if(!globals.quiet) fprintf(stderr, "done.\nStat files in sequential order...");
+-  if(open_test.stat_sequential(globals.timer))
++  if(open_test.stat_sequential(globals.timer, globals.report_interval != UINT_MAX))
+     return 1;
+   globals.decrement_and_wait(DelSeq);
+   if(!globals.quiet) fprintf(stderr, "done.\nDelete files in sequential order...");
+-  if(open_test.delete_sequential(globals.timer))
++  if(open_test.delete_sequential(globals.timer, globals.report_interval != UINT_MAX))
+     return 1;
+   if(!globals.quiet) fprintf(stderr, "done.\n");
+ 
+   globals.decrement_and_wait(CreateRand);
+   if(!globals.quiet) fprintf(stderr, "Create files in random order...");
+   if(open_test.create(globals.name, globals.timer, directory_size
+-                    , max_size, min_size, num_directories, true))
++		     , max_size, min_size, num_directories, true
++		     , globals.report_interval != UINT_MAX))
+     return 1;
+   globals.decrement_and_wait(StatRand);
+   if(!globals.quiet) fprintf(stderr, "done.\nStat files in random order...");
+-  if(open_test.stat_random(globals.timer))
++  if(open_test.stat_random(globals.timer, globals.report_interval != UINT_MAX))
+     return 1;
+   globals.decrement_and_wait(DelRand);
+   if(!globals.quiet) fprintf(stderr, "done.\nDelete files in random order...");
+-  if(open_test.delete_random(globals.timer))
++  if(open_test.delete_random(globals.timer, globals.report_interval != UINT_MAX))
+     return 1;
+   if(!globals.quiet) fprintf(stderr, "done.\n");
+   return eNoErr;
+@@ -798,6 +771,7 @@ usage()
+     "      [-m machine-name] [-r ram-size-in-MiB]\n"
+     "      [-x number-of-tests] [-u uid-to-use:gid-to-use] [-g gid-to-use]\n"
+     "      [-q] [-f] [-b] [-p processes | -y] [-z seed | -Z random-file]\n"
++    "      [-R report-interval] [-l log-file]\n"
+ #ifdef O_DIRECT
+     "      [-D]\n"
+ #endif
+diff --git a/global.h b/global.h
+new file mode 100644
+index 0000000..415d675
+--- /dev/null
++++ b/global.h
+@@ -0,0 +1,74 @@
++#include "sync.h"
++
++class CGlobalItems
++{
++public:
++  bool quiet;
++  int byte_io_size;
++  bool sync_bonnie;
++#ifdef O_DIRECT
++  bool use_direct_io;
++#endif
++  unsigned int report_interval;
++  FILE *report_log;
++  BonTimer timer;
++  int ram;
++  Sync *syn;
++  char *name;
++  bool bufSync;
++  int  io_chunk_bits;
++  int  file_chunk_bits;
++  int  file_seeks;
++  int  file_seek_procs;
++  int io_chunk_size() const { return m_io_chunk_size; }
++  int file_chunk_size() const { return m_file_chunk_size; }
++  bool *doExit;
++  void set_io_chunk_size(int size)
++    { delete m_buf; pa_new(size, m_buf, m_buf_pa); m_io_chunk_size = size; }
++  void set_file_chunk_size(int size)
++    { delete m_buf; m_buf = new char[max(size, m_io_chunk_size)]; m_file_chunk_size = size; }
++
++  // Return the page-aligned version of the local buffer
++  char *buf() { return m_buf_pa; }
++
++  CGlobalItems(bool *exitFlag);
++  ~CGlobalItems() { delete name; delete m_buf; delete syn; }
++
++  void decrement_and_wait(int nr_sem);
++
++  void SetName(CPCCHAR path)
++  {
++    delete name;
++    name = new char[strlen(path) + 15];
++    pid_t myPid = getpid();
++    sprintf(name, "%s/Bonnie.%d", path, int(myPid));
++  }
++
++  void setSync(SYNC_TYPE type, int semKey = 0, int num_tests = 0)
++  {
++    syn = new Sync(type, semKey, num_tests);
++  }
++
++private:
++  int m_io_chunk_size;
++  int m_file_chunk_size;
++
++  char *m_buf;     // Pointer to the entire buffer
++  char *m_buf_pa;  // Pointer to the page-aligned version of the same buffer
++
++  // Implement a page-aligned version of new.
++  // 'p' is the pointer created
++  // 'page_aligned_p' is the page-aligned pointer created
++  void pa_new(unsigned int num_bytes, char *&p, char *&page_aligned_p)
++  {
++    int page_size = getpagesize();
++    p = ::new char [num_bytes + page_size];
++
++    page_aligned_p = (char *)((((unsigned long)p + page_size - 1) / page_size) * page_size);
++  }
++
++  CGlobalItems(const CGlobalItems &f);
++  CGlobalItems & operator =(const CGlobalItems &f);
++};
++
++extern CGlobalItems globals;
+diff --git a/sync.h b/sync.h
+index 304fcbc..712e12f 100644
+--- a/sync.h
++++ b/sync.h
+@@ -1,3 +1,6 @@
++#ifndef BON_SYNC
++#define BON_SYNC
++
+ #include "semaphore.h"
+ 
+ typedef enum
+@@ -20,3 +23,4 @@ private:
+ 
+ };
+ 
++#endif
+==== END bonnie-detailed-io-report.patch ====
