@@ -3,6 +3,7 @@
 ###SHELLPACK preamble bonnie++-bench 1.98
 
 DATASET_SIZE=0
+CHAR_IO_SIZE=0
 NR_FILES=0
 MACHINE=`hostname`
 FSYNC=no
@@ -11,6 +12,7 @@ FSYNC_PARAM=
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --dataset		DATASET_SIZE
+###SHELLPACK parseargParam --char_io_size	CHAR_IO_SIZE
 ###SHELLPACK parseargParam --nr_files		NR_FILES
 ###SHELLPACK parseargParam --dirsize		DIRECTORY_SIZE
 ###SHELLPACK parseargParam --nr_directories	NR_DIRECTORIES
@@ -25,6 +27,7 @@ set_mmtests_numactl 0 0
 
 DIRTEST_PARAM="-n 0"
 FILETEST_PARAM="-s 0"
+CHAR_IO_PARAM="-f"
 if [ $NR_FILES -gt 0 ]; then
 	NR_FILES=$((NR_FILES/1024))
 	if [ $NR_FILES -eq 0 ]; then
@@ -36,6 +39,15 @@ fi
 if [ $DATASET_SIZE -gt 0 ]; then
 	DATASET_SIZE=$((DATASET_SIZE/1048576))
 	FILETEST_PARAM="-s $DATASET_SIZE"
+fi
+
+if [ $CHAR_IO_SIZE -gt 0 ]; then
+	CHAR_IO_SIZE=$((CHAR_IO_SIZE/1048576))
+	if [ $DATASET_SIZE -gt 0 ]; then
+		CHAR_IO_PARAM="-f $CHAR_IO_SIZE"
+	else
+		CHAR_IO_PARAM="-F $CHAR_IO_SIZE"
+	fi
 fi
 
 if [ "$FSYNC" = "yes" ]; then
@@ -54,6 +66,7 @@ echo ${MMTESTS_NUMACTL} ./sbin/bonnie++ \
 	-d $SHELLPACK_DATA \
 	$FILETEST_PARAM \
 	$DIRTEST_PARAM \
+	$CHAR_IO_PARAM \
 	-m $MACHINE \
 	-R 128 | tee $LOGDIR_RESULTS/bonnie++-params
 
@@ -62,6 +75,7 @@ save_rc ${MMTESTS_NUMACTL} ./sbin/bonnie++ $FSYNC_PARAM $USER_PARAM -r 0 \
 	-d $SHELLPACK_DATA \
 	$FILETEST_PARAM \
 	$DIRTEST_PARAM \
+	$CHAR_IO_PARAM \
 	-m $MACHINE \
 	-R 128 \
 	-l $LOGDIR_RESULTS/bonnie-detail \

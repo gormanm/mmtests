@@ -15,7 +15,9 @@ rm -rf $SHELLPACK_SOURCES/bonnie++-${VERSION}
 
 # Patch bonnie to support printing detailed IO timings
 ###SHELLPACK self_extract bonnie-detailed-io-report.patch
+###SHELLPACK self_extract bonnie-misc-changes.patch
 patch -p1 <$SHELLPACK_TEMP/bonnie-detailed-io-report.patch || die "Failed to apply detailed IO patch"
+patch -p1 <$SHELLPACK_TEMP/bonnie-misc-changes.patch || die "Failed to apply detailed IO patch"
 
 ###SHELLPACK build_configure bonnie++-${VERSION}
 ###SHELLPACK make_make_install
@@ -830,3 +832,364 @@ index 304fcbc..712e12f 100644
  
 +#endif
 ==== END bonnie-detailed-io-report.patch ====
+==== BEGIN bonnie-misc-changes.patch ====
+bonnie++: Misc changes
+
+Added help option using '-h'.
+Fixed parsing of optional option argument for '-f' option.
+Print size used for char I/O test.
+Added '-F' option which is kind of similar to '-f' but it
+will skip fast I/O tests and only perform char I/O.
+Adapted man.
+
+Thus bonnie tests can be selected using
+ o '-s 0' to skip all file I/O tests
+ o '-n 0' to skip dir tests
+ o '-f'   to skip slow char I/O file tests
+ o '-F <char_io_size>' to skip fast I/O file tests
+
+Examples:
+To do fast file I/O tests use '-n 0 -f'.
+To do slow char I/O tests use '-n 0 -F <char_io_size> '.
+To do dir tests use '-s 0'.
+
+Signed-off-by: Andreas Herrmann <aherrmann@suse.com>
+---
+ bonnie++.8   |  11 ++-
+ bonnie++.cpp | 228 ++++++++++++++++++++++++++++++++---------------------------
+ 2 files changed, 134 insertions(+), 105 deletions(-)
+
+diff --git a/bonnie++.8 b/bonnie++.8
+index bf0885b..6b651b5 100644
+--- a/bonnie++.8
++++ b/bonnie++.8
+@@ -142,7 +142,12 @@ to record your csv data.
+ .TP
+ .B \-f size\-for\-char\-io
+ fast mode control, skips per\-char IO tests if no parameter, otherwise specifies
+-the size of the tests for per\-char IO tests (default 20M).
++the size of the tests for per\-char IO tests (default 3M).
++
++.TP
++.B \-F size\-for\-char\-io
++slow mode control, skips fast IO tests, specifies the size of the
++tests for per\-char IO tests (if no parameter: default 3M).
+ 
+ .TP
+ .B \-b
+@@ -175,6 +180,10 @@ random number seed to repeat the same test.
+ .TP
+ .B \-Z random\-file
+ file containing random data in network byte order.
++
++.TP
++.B \-h
++display help and exit
+ .P
+ 
+ .SH "MULTIPLE PROCESSES"
+diff --git a/bonnie++.cpp b/bonnie++.cpp
+index ba17502..be2faaa 100644
+--- a/bonnie++.cpp
++++ b/bonnie++.cpp
+@@ -34,6 +34,7 @@
+ 
+ #include <sys/wait.h>
+ #include <unistd.h>
++#include <getopt.h>
+ #include <sys/time.h>
+ #include <pwd.h>
+ #include <grp.h>
+@@ -92,6 +93,7 @@ int TestFileOps(int file_size);
+ 
+ static bool exitNow;
+ static bool already_printed_error;
++static bool fast_test=true;
+ CGlobalItems globals(&exitNow);
+ 
+ extern "C"
+@@ -154,7 +156,7 @@ int main(int argc, char *argv[])
+   int concurrency = 1;
+ 
+   int int_c;
+-  while(-1 != (int_c = getopt(argc, argv, "bc:d:f::g:l:m:n:p:qr:s:u:x:y:z:Z:R:l:"
++  while(-1 != (int_c = getopt(argc, argv, "bc:d:F::f::g:hl:m:n:p:qr:s:u:x:y:z:Z:R:l:"
+ #ifdef O_DIRECT
+                              "D"
+ #endif
+@@ -180,11 +182,23 @@ int main(int argc, char *argv[])
+         }
+       break;
+       case 'f':
+-        if(optarg)
+-          globals.byte_io_size = atoi(optarg);
++	if(!optarg
++	   && NULL != argv[optind]
++	   && '-' != argv[optind][0] )
++	  globals.byte_io_size = atoi(argv[optind++]);
+         else
+           globals.byte_io_size = 0;
+       break;
++      case 'F':
++	if(!optarg
++	   && NULL != argv[optind]
++	   && '-' != argv[optind][0] )
++	  globals.byte_io_size = atoi(argv[optind++]);
++	fast_test=false;
++	break;
++      case 'h':
++	  usage();
++	  break;
+       case 'm':
+         machine = optarg;
+       break;
+@@ -515,7 +529,7 @@ TestFileOps(int file_size)
+       globals.decrement_and_wait(ByteWrite);
+       optimer.timestamp();
+       // Fill up a file, writing it a char at a time
+-      if(!globals.quiet) fprintf(stderr, "Writing a byte at a time...");
++      if(!globals.quiet) fprintf(stderr, "Writing a byte at a time (byte_io_size: \"%dM\") ...", globals.byte_io_size);
+       for(words = 0; words < char_io_chunks; words++)
+       {
+         dur.start();
+@@ -538,78 +552,80 @@ TestFileOps(int file_size)
+       globals.timer.add_latency(ByteWrite, dur.getMax());
+       if(!globals.quiet) fprintf(stderr, "done\n");
+     }
+-    /* Write the whole file from scratch, again, with block I/O */
+-    if(file.reopen(true))
+-      return 1;
+-    dur.reset();
+-    globals.decrement_and_wait(FastWrite);
+-    if(!globals.quiet) fprintf(stderr, "Writing intelligently...");
+-    memset(buf, 0, globals.io_chunk_size());
+-    globals.timer.start();
+-    optimer.timestamp();
+-    bufindex = 0;
+-    // for the number of chunks of file data
+-    for(i = 0; i < num_chunks; i++)
+-    {
+-      if(exitNow)
+-        return eCtrl_C;
+-      // for each chunk in the Unit
+-      buf[bufindex]++;
+-      bufindex = (bufindex + 1) % globals.io_chunk_size();
+-      dur.start();
+-      if(file.write_block(PVOID(buf)) == -1)
+-      {
+-        fprintf(stderr, "Can't write block %d.\n", i);
+-        return 1;
+-      }
+-      dur.stop();
+-      /* maybe dur is doing what we want */
+-      if (!((i+1) % globals.report_interval))
+-	fprintf(globals.report_log, "wr %llu\n", optimer.get_usec_delta_stamp());
+-    }
+-    file.Close();
+-    globals.timer.stop_and_record(FastWrite);
+-    globals.timer.add_latency(FastWrite, dur.getMax());
+-    if(!globals.quiet) fprintf(stderr, "done\n");
+ 
++    if (fast_test) {
++      /* Write the whole file from scratch, again, with block I/O */
++      if(file.reopen(true))
++	return 1;
++      dur.reset();
++      globals.decrement_and_wait(FastWrite);
++      if(!globals.quiet) fprintf(stderr, "Writing intelligently...");
++      memset(buf, 0, globals.io_chunk_size());
++      globals.timer.start();
++      optimer.timestamp();
++      bufindex = 0;
++      // for the number of chunks of file data
++      for(i = 0; i < num_chunks; i++)
++	{
++	  if(exitNow)
++	    return eCtrl_C;
++	  // for each chunk in the Unit
++	  buf[bufindex]++;
++	  bufindex = (bufindex + 1) % globals.io_chunk_size();
++	  dur.start();
++	  if(file.write_block(PVOID(buf)) == -1)
++	    {
++	      fprintf(stderr, "Can't write block %d.\n", i);
++	      return 1;
++	    }
++	  dur.stop();
++	  /* maybe dur is doing what we want */
++	  if (!((i+1) % globals.report_interval))
++	    fprintf(globals.report_log, "wr %llu\n", optimer.get_usec_delta_stamp());
++	}
++      file.Close();
++      globals.timer.stop_and_record(FastWrite);
++      globals.timer.add_latency(FastWrite, dur.getMax());
++      if(!globals.quiet) fprintf(stderr, "done\n");
+ 
+-    /* Now read & rewrite it using block I/O.  Dirty one word in each block */
+-    if(file.reopen(false))
+-      return 1;
+-    if (file.seek(0, SEEK_SET) == -1)
+-    {
+-      if(!globals.quiet) fprintf(stderr, "error in lseek(2) before rewrite\n");
+-      return 1;
+-    }
+-    dur.reset();
+-    globals.decrement_and_wait(ReWrite);
+-    if(!globals.quiet) fprintf(stderr, "Rewriting...");
+-    globals.timer.start();
+-    optimer.timestamp();
+-    bufindex = 0;
+-    for(words = 0; words < num_chunks; words++)
+-    { // for each chunk in the file
+-      dur.start();
+-      if (file.read_block(PVOID(buf)) == -1)
+-        return 1;
+-      bufindex = bufindex % globals.io_chunk_size();
+-      buf[bufindex]++;
+-      bufindex++;
+-      if (file.seek(-1, SEEK_CUR) == -1)
+-        return 1;
+-      if (file.write_block(PVOID(buf)) == -1)
+-        return io_error("re write(2)");
+-      dur.stop();
+-      if(exitNow)
+-        return eCtrl_C;
+-      /* maybe dur is doing what we want */
+-      if (!((words+1) % globals.report_interval))
+-	fprintf(globals.report_log, "rw %llu\n", optimer.get_usec_delta_stamp());
++      /* Now read & rewrite it using block I/O.  Dirty one word in each block */
++      if(file.reopen(false))
++	return 1;
++      if (file.seek(0, SEEK_SET) == -1)
++	{
++	  if(!globals.quiet) fprintf(stderr, "error in lseek(2) before rewrite\n");
++	  return 1;
++	}
++      dur.reset();
++      globals.decrement_and_wait(ReWrite);
++      if(!globals.quiet) fprintf(stderr, "Rewriting...");
++      globals.timer.start();
++      optimer.timestamp();
++      bufindex = 0;
++      for(words = 0; words < num_chunks; words++)
++	{ // for each chunk in the file
++	  dur.start();
++	  if (file.read_block(PVOID(buf)) == -1)
++	    return 1;
++	  bufindex = bufindex % globals.io_chunk_size();
++	  buf[bufindex]++;
++	  bufindex++;
++	  if (file.seek(-1, SEEK_CUR) == -1)
++	    return 1;
++	  if (file.write_block(PVOID(buf)) == -1)
++	    return io_error("re write(2)");
++	  dur.stop();
++	  if(exitNow)
++	    return eCtrl_C;
++	  /* maybe dur is doing what we want */
++	  if (!((words+1) % globals.report_interval))
++	    fprintf(globals.report_log, "rw %llu\n", optimer.get_usec_delta_stamp());
++	}
++      file.Close();
++      globals.timer.stop_and_record(ReWrite);
++      globals.timer.add_latency(ReWrite, dur.getMax());
++      if(!globals.quiet) fprintf(stderr, "done\n");
+     }
+-    file.Close();
+-    globals.timer.stop_and_record(ReWrite);
+-    globals.timer.add_latency(ReWrite, dur.getMax());
+-    if(!globals.quiet) fprintf(stderr, "done\n");
+ 
+     if(char_io_chunks)
+     {
+@@ -641,32 +657,34 @@ TestFileOps(int file_size)
+       if(!globals.quiet) fprintf(stderr, "done\n");
+     }
+ 
+-    /* Now suck it in, Chunk at a time, as fast as we can */
+-    if(file.reopen(false))
+-      return 1;
+-    if (file.seek(0, SEEK_SET) == -1)
+-      return io_error("lseek before read");
+-    dur.reset();
+-    globals.decrement_and_wait(FastRead);
+-    if(!globals.quiet) fprintf(stderr, "Reading intelligently...");
+-    globals.timer.start();
+-    optimer.timestamp();
+-    for(i = 0; i < num_chunks; i++)
+-    { /* per block */
+-      dur.start();
+-      if ((words = file.read_block(PVOID(buf))) == -1)
+-        return io_error("read(2)");
+-      dur.stop();
+-      if(exitNow)
+-        return eCtrl_C;
+-      /* maybe dur is doing what we want */
+-      if (!((i+1) % globals.report_interval))
+-	fprintf(globals.report_log, "rd %llu\n", optimer.get_usec_delta_stamp());
+-    } /* per block */
+-    file.Close();
+-    globals.timer.stop_and_record(FastRead);
+-    globals.timer.add_latency(FastRead, dur.getMax());
+-    if(!globals.quiet) fprintf(stderr, "done\n");
++    if (fast_test) {
++      /* Now suck it in, Chunk at a time, as fast as we can */
++      if(file.reopen(false))
++	return 1;
++      if (file.seek(0, SEEK_SET) == -1)
++	return io_error("lseek before read");
++      dur.reset();
++      globals.decrement_and_wait(FastRead);
++      if(!globals.quiet) fprintf(stderr, "Reading intelligently...");
++      globals.timer.start();
++      optimer.timestamp();
++      for(i = 0; i < num_chunks; i++)
++	{ /* per block */
++	  dur.start();
++	  if ((words = file.read_block(PVOID(buf))) == -1)
++	    return io_error("read(2)");
++	  dur.stop();
++	  if(exitNow)
++	    return eCtrl_C;
++	  /* maybe dur is doing what we want */
++	  if (!((i+1) % globals.report_interval))
++	    fprintf(globals.report_log, "rd %llu\n", optimer.get_usec_delta_stamp());
++	} /* per block */
++      file.Close();
++      globals.timer.stop_and_record(FastRead);
++      globals.timer.add_latency(FastRead, dur.getMax());
++      if(!globals.quiet) fprintf(stderr, "done\n");
++    }
+ 
+     /*
+      * Flush report_log, seek test is going to append from different
+@@ -674,9 +692,11 @@ TestFileOps(int file_size)
+      */
+     fflush(globals.report_log);
+ 
+-    globals.timer.start();
+-    if(file.seek_test())
+-      return 1;
++    if (fast_test) {
++      globals.timer.start();
++      if(file.seek_test())
++	return 1;
++    }
+ 
+     /*
+      * Now test random seeks; first, set up for communicating with children.
+@@ -770,8 +790,8 @@ usage()
+     "      [-n number-to-stat[:max-size[:min-size][:num-directories[:chunk-size]]]]\n"
+     "      [-m machine-name] [-r ram-size-in-MiB]\n"
+     "      [-x number-of-tests] [-u uid-to-use:gid-to-use] [-g gid-to-use]\n"
+-    "      [-q] [-f] [-b] [-p processes | -y] [-z seed | -Z random-file]\n"
+-    "      [-R report-interval] [-l log-file]\n"
++    "      [-q] [-f [size]] [-b] [-p processes | -y] [-z seed | -Z random-file]\n"
++    "      [-F [size]] [-R report-interval] [-l log-file]\n"
+ #ifdef O_DIRECT
+     "      [-D]\n"
+ #endif
+-- 
+2.16.4
+==== END bonnie-misc-changes.patch ====
+
