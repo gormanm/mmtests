@@ -3,6 +3,14 @@ export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 cd $SCRIPTDIR/../configs || exit
 
+# bonnie
+for FILE in `ls config-io-bonnie*-async`; do
+	FSYNC_FILE=`echo $FILE | sed -e 's/-async$/-fsync/'`
+	sed -e 's/FSYNC=no/FSYNC=yes/'		\
+	    -e 's/asynchronous/synchronous/'	\
+	    $FILE > $FSYNC_FILE
+done
+
 # KVM start
 cp config-workload-kvmstart-memhog config-workload-kvmstart-deployonly
 sed -i -e 's/KVMSTART_MIN_MEMORY=.*/KVMSTART_MIN_MEMORY=\$((KVMSTART_MAX_MEMORY+1))/' config-workload-kvmstart-deployonly
