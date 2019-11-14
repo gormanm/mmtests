@@ -549,6 +549,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	if [ "$RAID_CREATE_END" != "" ]; then
 		teststate_log "raid-create :: $((RAID_CREATE_END-RAID_CREATE_START))"
 	fi
+	sysstate_log "version :: `mmtests-rev-id`"
 	sysstate_log "arch :: `uname -m`"
 	sysstate_log "`ip addr show`"
 	sysstate_log "mount :: start"

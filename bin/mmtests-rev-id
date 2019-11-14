@@ -1,0 +1,14 @@
+#!/bin/bash
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
+cd $SCRIPTDIR
+
+if [ -e .version ]; then
+	cat .version
+	exit 0
+fi
+if [ -d .git ]; then
+	git rev-parse HEAD
+	exit 0
+fi
+echo unknown:`date +%Y%m%d`
