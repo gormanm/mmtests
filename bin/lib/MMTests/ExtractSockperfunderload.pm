@@ -43,17 +43,12 @@ sub extractReport() {
 
 	foreach my $size (@sizes) {
 		foreach my $rate (@rates) {
-			my $file = "$reportDir/$protocol-$size-$rate-1.log";
-			if (-e $file) {
-				open(INPUT, $file) || die("Failed to open $file\n");
-			} else {
-				open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz\n");
-			}
 			my $start_time = 0;
 
 			my $sample = 0;
-			while (!eof(INPUT)) {
-				my $line = <INPUT>;
+			my $input = $self->SUPER::open_log("$reportDir/$protocol-$size-$rate-1.log");
+			while (!eof($input)) {
+				my $line = <$input>;
 
 				next if $line !~ /^([0-9.]+), ([0-9.]+)/;
 
@@ -70,9 +65,8 @@ sub extractReport() {
 
 				$self->addData("size-$size-rate-$rate", ($time - $start_time), $rtt);
 			}
-			close(INPUT);
+			close($input);
 		}
 	}
-	close INPUT;
 }
 1;

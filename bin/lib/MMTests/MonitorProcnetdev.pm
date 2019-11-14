@@ -89,15 +89,8 @@ sub extractReport($$$$) {
 		die("Unrecognised heading");
 	}
 
-	my $file = "$reportDir/proc-net-dev-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
-
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/proc-net-dev-$testBenchmark");
+	while (<$input>) {
 		if ($_ =~ /^time: ([0-9]+)/) {
 			$timestamp = $1;
 			if ($start_timestamp == 0) {
@@ -124,6 +117,7 @@ sub extractReport($$$$) {
 			}
 		}
 	}
+	close($input);
 }
 
 1;

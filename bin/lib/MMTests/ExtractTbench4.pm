@@ -23,10 +23,9 @@ sub extractReport() {
 
 	foreach my $client (@clients) {
 		my $nr_samples = 0;
-		my $file = "$reportDir/tbench-$client.log.gz";
 
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-		while (<INPUT>) {
+		my $input = $self->SUPER::open_log("$reportDir/tbench-$client.log");
+		while (<$input>) {
 			my $line = $_;
 			if ($line =~ /execute/) {
 				$line =~ s/^\s+//;
@@ -35,7 +34,7 @@ sub extractReport() {
 				$self->addData("$client", ++$nr_samples, $elements[2]);
 			}
 		}
-		close INPUT;
+		close($input);
 	}
 }
 

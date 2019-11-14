@@ -77,18 +77,11 @@ sub extractReport($$$$) {
 	}
 	my $headingIndex = $_colMap{$heading};
 
-	my $file = "$reportDir/top-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
-
 	my $matched;
 	my $reading;
 	my $val = -1;
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/top-$testBenchmark");
+	while (<$input>) {
 		if ($_ =~ /^time: ([0-9]+) ([a-z]+)/) {
 			$timestamp = $1;
 			$format = $2;
@@ -129,6 +122,7 @@ sub extractReport($$$$) {
 			}
 		}
 	}
+	close($input);
 }
 
 1;

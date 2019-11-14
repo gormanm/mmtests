@@ -76,16 +76,8 @@ sub extractReport($$$$) {
 	my $count = 0;
 	my $file;
 
-	$file = "$reportDir/".$self->{_Heading}."-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} elsif (-e "$file.gz") {
-		open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz: $!\n");
-	} else {
-		return;
-	}
-
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/".$self->{_Heading}."-$testBenchmark");
+	while (<$input>) {
 		my ($timestamp, $latency) = split(/\s/, $_);
 		if ($start_timestamp == 0) {
 			$start_timestamp = $timestamp;
@@ -108,6 +100,8 @@ sub extractReport($$$$) {
 			$cumulative_latency += $latency;
 		}
 	}
+
+	close($input);
 }
 
 1;

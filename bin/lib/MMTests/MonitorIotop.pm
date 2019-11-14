@@ -70,17 +70,11 @@ sub extractReport($$$$) {
 	}
 	my $headingIndex = $_colMap{$subOp};
 
-	my $file = "$reportDir/iotop-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
+	my $input = $self->SUPER::open_log("$reportDir/iotop-$testBenchmark");
 
 	my $reading;
 	my @vals;
-	while (<INPUT>) {
+	while (<$input>) {
 		my $line = $_;
 		$line =~ s/^\s+//;
 
@@ -123,6 +117,8 @@ sub extractReport($$$$) {
 			}
 		}
 	}
+
+	close($input);
 }
 
 1;

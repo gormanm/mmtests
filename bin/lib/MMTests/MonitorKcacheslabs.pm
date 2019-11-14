@@ -28,18 +28,11 @@ sub extractReport($$$$) {
 
 	my ($subHeading, $subSummary) = split(/-/, $subHeading);
 
-	my $file = "$reportDir/kcache-slabs-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
-
 	my $allocs = 0;
 	my $frees = 0;
-	while (!eof(INPUT)) {
-		my $line = <INPUT>;
+	my $input = $self->SUPER::open_log("$reportDir/kcache-slabs-$testBenchmark");
+	while (!eof($input)) {
+		my $line = <$input>;
 		$line =~ s/^\s+//;
 
 		if ($line =~ /^time: ([0-9]+)/) {
@@ -67,6 +60,8 @@ sub extractReport($$$$) {
 			$frees += $elements[-1];
 		}
 	}
+
+	close($input);
 }
 
 1;

@@ -424,16 +424,9 @@ sub extractReport($$$$) {
 		$subHeading = "pgpgin";
 	}
 
-	my $file = "$reportDir/proc-vmstat-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
-
 	my $vmstat = "";
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/proc-vmstat-$testBenchmark");
+	while (<$input>) {
 		if ($_ =~ /^time: ([0-9]+)/) {
 			$timestamp = $1;
 			if ($start_timestamp == 0) {
@@ -450,6 +443,7 @@ sub extractReport($$$$) {
 		}
 		$vmstat .= $_;
 	}
+	close($input);
 }
 
 1;

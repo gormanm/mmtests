@@ -25,9 +25,8 @@ sub extractReport() {
 
 	foreach my $instance (@instances) {
 		my $preamble = 1;
-		my $file = "$reportDir/fsmark-$instance.log.gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-		while (<INPUT>) {
+		my $input = $self->SUPER::open_log("$reportDir/fsmark-$instance.log");
+		while (<$input>) {
 			my $line = $_;
 			if ($preamble) {
 				if ($line !~ /^FSUse/) {
@@ -40,7 +39,7 @@ sub extractReport() {
 			my @elements = split(/\s+/, $_);
 			$self->addData("overhead-$instance", ++$iteration, $elements[5]);
 		}
-		close INPUT;
+		close($input);
 	}
 }
 

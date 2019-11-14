@@ -52,17 +52,9 @@ sub extractReport($$$$) {
 	}
 	my $headingindex = $_colmap{$subheading};
 
-	my $file = "$reportDir/syscalls-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
-
 	my %totalEvents;
-
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/syscalls-$testBenchmark");
+	while (<$input>) {
 		my $line = $_;
 		$line =~ s/^\s+//;
 
@@ -93,6 +85,7 @@ sub extractReport($$$$) {
 		}
 		$totalEvents{$thread} += $elements[$headingIndex];
 	}
+	close($input);
 }
 
 1;

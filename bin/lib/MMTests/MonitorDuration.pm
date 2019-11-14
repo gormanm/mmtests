@@ -17,10 +17,9 @@ sub new() {
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $testBenchmark) = @_;
-	my $file = "$reportDir/tests-timestamp";
+	my $input = $self->SUPER::open_log("$reportDir/tests-timestamp");
 
-	open(INPUT, $file) || die("Failed to open $file\n");
-	while (<INPUT>) {
+	while (<$input>) {
 		if ($_ =~ /^time \:\: $testBenchmark (.*)/) {
 			my $dummy;
 			my ($user, $system, $elapsed);
@@ -34,7 +33,7 @@ sub extractReport($$$) {
 			$self->addData("Elapsed", 0, $elapsed );
 		}
 	}
-	close INPUT;
+	close($input);
 }
 
 1;

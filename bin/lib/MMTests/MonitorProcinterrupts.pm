@@ -32,16 +32,9 @@ sub extractReport($$$$) {
 	my %last_sources;
 	my %fired;
 
-	my $file = "$reportDir/proc-interrupts-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
-
-	while (!eof(INPUT)) {
-		my $line = <INPUT>;
+	my $input = $self->SUPER::open_log("$reportDir/proc-interrupts-$testBenchmark");
+	while (!eof($input)) {
+		my $line = <$input>;
 		$line =~ s/^\s+//;
 
 		if ($line =~ /^time: ([0-9]+)/) {
@@ -63,7 +56,7 @@ sub extractReport($$$$) {
 			$timestamp = $1;
 
 			# skip header
-			$line = <INPUT>;
+			$line = <$input>;
 			next;
 		}
 
@@ -91,6 +84,7 @@ sub extractReport($$$$) {
 			$sources{"$source"} += $nr;
 		}
 	}
+	close($input);
 
 	my @operations = ( sort keys %fired );
 	$self->{_Operations} = \@operations;

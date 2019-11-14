@@ -17,8 +17,8 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($tm, $tput, $latency);
 	my @clients;
+	my $input;
 
 	@clients = $self->discover_scaling_parameters($reportDir, "pgbench-", ".log");
 
@@ -29,14 +29,13 @@ sub extractReport() {
 		my $startSamples = 1;
 		my $endSamples = 0;
 
-		my $file = "$reportDir/pgbench-transactions-$client.log.gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-		while (<INPUT>) {
+		$input = $self->SUPER::open_log("$reportDir/pgbench-transactions-$client.log");
+		while (<$input>) {
 			my @elements = split(/\s+/, $_);
 			push @values, $elements[1];
 			$endSamples++;
 		}
-		close(INPUT);
+		close($input);
 
 		my $testStart = 0;
 		my $sumTransactions = 0;
@@ -48,8 +47,8 @@ sub extractReport() {
 			$batch = 1;
 		}
 		$startSamples += ($batch * 2);
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-		while (<INPUT>) {
+		$input = $self->SUPER::open_log("$reportDir/pgbench-transactions-$client.log");
+		while (<$input>) {
 			# time num_of_transactions latency_sum latency_2_sum min_latency max_latency
 			my @elements = split(/\s+/, $_);
 			my $nrTransactions = $elements[1];
@@ -72,17 +71,16 @@ sub extractReport() {
 				}
 			}
 		}
-		close INPUT;
+		close($input);
 		if ($nr_readings == 0) {
-			$file = "$reportDir/pgbench-$client.log";
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (!eof(INPUT)) {
-				my $line = <INPUT>;
+			$input = $self->SUPER::open_log("$reportDir/pgbench-$client.log");
+			while (!eof($input)) {
+				my $line = <$input>;
 				if ($line =~ /^tps = ([0-9.]+) \(including.*/) {
 					$self->addData($client, 0, $1);
 				}
 			}
-			close INPUT;
+			close($input);
 		}
 	}
 }

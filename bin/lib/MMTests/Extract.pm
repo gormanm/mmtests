@@ -496,18 +496,35 @@ sub discover_scaling_parameters() {
 	return @scaling;
 }
 
+sub open_log() {
+	my ($self, $file) = @_;
+	my $fh;
+
+	$file =~ s/\.gz$//;
+	$file =~ s/\.xz$//;
+	if (-e "$file.gz") {
+		open($fh, "gunzip -c $file.gz|") || die("Failed to open $file.gz: $!\n");
+	} elsif (-e "$file.xz") {
+		open($fh, "unxz -c $file.xz|") || die("Failed to open $file.xz: $!\n");
+	} elsif (-e $file) {
+		open($fh, $file) || die("Failed to open $file: $!\n") || die("Failed to open $file");
+	} else {
+		print "WARNING: File $file does not exist";
+		return undef;
+	}
+
+	return $fh;
+}
+
 sub parse_time_elapsed() {
 	my ($self, $log, $scaling, $iteration) = @_;
 
-	if ($log =~ /\.gz$/) {
-		open(INPUT, "gunzip -c $log|") || die("Failed to open gzipped $log\n");
-	} else {
-		open(INPUT, $log) || die("Failed to open $log\n");
-	}
-	while (<INPUT>) {
+	my $input = $self->open_log($log);
+	while (<$input>) {
 		next if $_ !~ /elapsed/;
 		$self->addData($scaling, $iteration, $self->_time_to_elapsed($_));
 	}
+	close($input);
 }
 
 sub parse_time_all() {
@@ -518,13 +535,14 @@ sub parse_time_all() {
 	} else {
 		$scaling = "";
 	}
-	open(INPUT, $log) || die("Failed to open $log\n");
-	while (<INPUT>) {
+	my $input = $self->open_log($log);
+	while (<$input>) {
 		next if $_ !~ /elapsed/;
 		$self->addData("user$scaling", $iteration, $self->_time_to_user($_));
 		$self->addData("syst$scaling", $iteration, $self->_time_to_sys($_));
 		$self->addData("elsp$scaling", $iteration, $self->_time_to_elapsed($_));
 	}
+	close($input);
 }
 
 sub parse_time_syst_elsp() {
@@ -535,13 +553,13 @@ sub parse_time_syst_elsp() {
 	} else {
 		$scaling = "";
 	}
-	open(INPUT, $log) || die("Failed to open $log\n");
-	while (<INPUT>) {
+	my $input = $self->open_log($log);
+	while (<$input>) {
 		next if $_ !~ /elapsed/;
 		$self->addData("syst$scaling", $iteration, $self->_time_to_sys($_));
 		$self->addData("elsp$scaling", $iteration, $self->_time_to_elapsed($_));
 	}
-	close INPUT;
+	close($input);
 }
 
 

@@ -20,11 +20,10 @@ sub extractReport() {
 	my @clients = $self->discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
 
 	foreach my $client (@clients) {
-		my $file = "$reportDir/dbench-$client.log.gz";
 		my $nr_samples = 0;
 
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-		while (<INPUT>) {
+		my $input = $self->SUPER::open_log("$reportDir/dbench-$client.log");
+		while (<$input>) {
 			my $line = $_;
 			if ($line =~ /execute/) {
 				my @elements = split(/\s+/, $_);
@@ -35,7 +34,7 @@ sub extractReport() {
 				next;
 			}
 		}
-		close INPUT;
+		close($input);
 	}
 }
 

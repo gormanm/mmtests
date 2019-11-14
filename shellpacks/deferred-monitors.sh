@@ -175,7 +175,7 @@ function start_gzip_monitor()
 	_monitor=$1
 	_pidfile=$MONITOR_DIR/monitor.pids
 
-	( $EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo -n $! > /tmp/monitor.$$.pid ) | tee | gzip -c > ${MONITOR_LOG}.gz &
+	( $EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo -n $! > /tmp/monitor.$$.pid ) | gzip -c > ${MONITOR_LOG}.gz &
 	PID1=`cat /tmp/monitor.$$.pid`
 	rm -f /tmp/monitor.$$.pid
 
@@ -191,13 +191,13 @@ function start_with_latency_monitor()
 	_monitor=$1
 	_pidfile=$MONITOR_DIR/monitor.pids
 
-	$EXPECT_UNBUFFER $DISCOVERED_SCRIPT | $SCRIPTDIR/monitors/latency-output > $MONITOR_LOG &
-	PID1=$!
-	PID2=`ps aux | grep watch-${_monitor}.sh | egrep -v -e 'grep|expect' | awk '{print $2}'`
-	while [ "$PID2" = "" ]; do
-		sleep 1
-		PID2=`ps aux | grep watch-${_monitor}.sh | egrep -v -e 'grep|expect' | awk '{print $2}'`
-	done
+	( $EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo -n $! > /tmp/monitor-1.$$.pid ) | \
+		( $SCRIPTDIR/monitors/latency-output & echo -n $! > /tmp/monitor-2.$$.pid ) | gzip -c > ${MONITOR_LOG}.gz &
+	PID1=`cat /tmp/monitor-1.$$.pid`
+	rm -f /tmp/monitor-1.$$.pid
+	PID2=`cat /tmp/monitor-2.$$.pid`
+	rm -f /tmp/monitor-2.$$.pid
+
 	echo $PID2 >> $_pidfile
 	echo $PID1 >> $_pidfile
 	echo "Started monitor ${_monitor} latency pid $PID2,$PID1"

@@ -31,8 +31,8 @@ sub extractReport() {
 		my $dir;
 		my $size;
 
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file.gz\n");
-		while (<INPUT>) {
+		my $input = $self->SUPER::open_log($file);
+		while (<$input>) {
 			($time, $lat, $dir, $size) = split(/, /, $_);
 			if ($dir == 0) {
 				$dir = "read";
@@ -47,7 +47,7 @@ sub extractReport() {
 			$time /= 1000;
 			$self->addData("latency-$dir", $time, $lat);
 		}
-		close INPUT;
+		close($input);
 	}
 
 	my @ops;

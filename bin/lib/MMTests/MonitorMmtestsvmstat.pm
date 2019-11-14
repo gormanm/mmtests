@@ -173,8 +173,6 @@ sub extractReport($$$$) {
 	my ($reading_test, $reading_before, $reading_after);
 	my $elapsed_time = 1;
 
-	my $file = "$reportDir/tests-sysstate.gz";
-
 	foreach my $key (keys %_renamed_fields) {
 		$vmstat_before{$_renamed_fields{$key}} = 0;
 		$vmstat_after{$_renamed_fields{$key}} = 0;
@@ -185,8 +183,8 @@ sub extractReport($$$$) {
 		$vmstat_after{$key} = 0;
 	}
 
-	open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/tests-sysstate");
+	while (<$input>) {
 		if ($_ =~ /^test begin \:\: $testBenchmark/) {
 			$reading_test = 1;
 			next;
@@ -234,7 +232,7 @@ sub extractReport($$$$) {
 			}
 		}
 	}
-	close INPUT;
+	close($input);
 
 	# kswapd steal
 	foreach my $key ("kswapd_steal", "pgsteal_kswapd_dma", "pgsteal_kswapd_dma32",

@@ -19,18 +19,11 @@ sub initialise() {
 
 sub extractOneFile {
 	my ($self, $reportDir, $worker) = @_;
-	my $file;
 	my $jobs = 0;
 	my $rw = 0;
 
-	$file = "$reportDir/$worker";
-
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file\n");
-	} else {
-		open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz\n");
-	}
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log($reportDir/$worker);
+	while (<$input>) {
 		if ( /^fio/ ) {
 			# fio command line, parse for number of jobs
 			my @words;
@@ -58,7 +51,7 @@ sub extractOneFile {
 			}
 		}
 	}
-	close INPUT;
+	close($input);
 	return $rw;
 }
 

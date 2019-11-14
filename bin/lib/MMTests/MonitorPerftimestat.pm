@@ -46,22 +46,14 @@ sub extractReport($$$$) {
 		$self->{_PlotYaxes} = $headingnames{$subHeading};
 	}
 
-	# Figure out what file to open
-	my $file = "$reportDir/perf-time-stat-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
-
 	# Read all counters
 	my $timestamp;
 	my $start_timestamp = 0;
 	my $reading = 0;
 
-	while (!eof(INPUT)) {
-		my $line = <INPUT>;
+	my $input = $self->SUPER::open_log("$reportDir/perf-time-stat-$testBenchmark");
+	while (!eof($input)) {
+		my $line = <$input>;
 
 		if ($line =~ /^time: ([0-9]+)/) {
 			$reading = 0;
@@ -86,6 +78,8 @@ sub extractReport($$$$) {
 			$self->addData($heading, $timestamp - $start_timestamp, $counter );
 		}
 	}
+
+	close($input);
 }
 
 1;

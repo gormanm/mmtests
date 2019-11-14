@@ -110,14 +110,8 @@ sub extractReport($$$$$) {
 	my $timestamp = 0;
 	my $start_timestamp = 0;
 
-	my $file = "$reportDir/proc-vmstat-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file = $file . ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/proc-vmstat-$testBenchmark");
+	while (<$input>) {
 		if ($_ =~ /^time: ([0-9]+)/) {
 			if ($start_timestamp == 0) {
 				$start_timestamp = $1;
@@ -134,6 +128,7 @@ sub extractReport($$$$$) {
 		}
 		$vmstat .= $_;
 	}
+	close($input);
 }
 
 1;

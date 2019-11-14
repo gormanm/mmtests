@@ -18,14 +18,9 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my $file = "$reportDir/fio.log";
 
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file\n");
-	} else {
-		open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz\n");
-	}
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/fio.log");
+	while (<$input>) {
 		my @elements;
 		my $worker;
 
@@ -40,7 +35,7 @@ sub extractReport() {
 			$self->addData("kb/sec-$worker-write", 1, $elements[85]);
 		}
 	}
-	close INPUT;
+	close($input);
 }
 
 1;

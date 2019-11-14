@@ -20,6 +20,7 @@ sub initialise() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $stallStart = 0;
+	my $input;
 	my @clients = $self->discover_scaling_parameters($reportDir, "pgbench-", ".log");
 
 	# Extract per-client transaction information
@@ -29,19 +30,18 @@ sub extractReport() {
 		my $stallThreshold = 0;
 		my @values;
 
-		my $file = "$reportDir/pgbench-transactions-$client.log.gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-		while (<INPUT>) {
+		$input = $self->SUPER::open_log("$reportDir/pgbench-transactions-$client.log");
+		while (<$input>) {
 			my @elements = split(/\s+/, $_);
 			push @values, $elements[1];
 			my $nrTransactions = $elements[1];
 		}
-		close(INPUT);
+		close($input);
 		$stallThreshold = int (calc_amean(\@values) / 4);
 		$#values = -1;
 
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
+		$input = $self->SUPER::open_log("$reportDir/pgbench-transactions-$client.log");
+		while (<$input>) {
 			# time num_of_transactions latency_sum latency_2_sum min_latency max_latency
 			my @elements = split(/\s+/, $_);
 			my $nrTransactions = $elements[1];
@@ -58,7 +58,7 @@ sub extractReport() {
 				}
 			}
 		}
-		close INPUT;
+		close($input);
 
 		$self->addData("NrStalls-$client", 0, $#values + 1);
 		if ($#values >= 0) {

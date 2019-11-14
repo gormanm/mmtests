@@ -39,8 +39,8 @@ sub extractReport() {
 		foreach my $client (@clients) {
 			my $file = "$reportDir/dbench-$client.log.gz";
 
-			open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log("$reportDir/dbench-$client.log");
+			while (<$input>) {
 				my $line = $_;
 				if ($line =~ /Operation/) {
 					$readingOperations = 1;
@@ -55,7 +55,7 @@ sub extractReport() {
 					$self->addData("$header-$elements[1]-$client", 0, $elements[$index]);
 				}
 			}
-			close INPUT;
+			close($input);
 		}
 	}
 

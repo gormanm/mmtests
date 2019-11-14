@@ -41,18 +41,13 @@ sub extractReport() {
 	my ($self, $reportDir, $testBenchmark, $subHeading) = @_;
 	my $timestamp;
 	my $start_timestamp = 0;
+	my $input;
 
 	# Discover column header names
-	my $file = "$reportDir/turbostat-$testBenchmark";
 	if (scalar keys %_colMap == 0) {
-		if (-e $file) {
-			open(INPUT, $file) || die("Failed to open $file: $!\n");
-		} else {
-			$file .= ".gz";
-			open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-		}
-		while (!eof(INPUT)) {
-			my $line = <INPUT>;
+		$input = $self->SUPER::open_log("$reportDir/turbostat-$testBenchmark");
+		while (!eof($input)) {
+			my $line = <$input>;
 			next if ($line !~ /\s+Core\s+CPU/ && $line !~ /\s+CPU\s+Avg_MHz/);
 			$line =~ s/^\s+//;
 			my @elements = split(/\s+/, $line);
@@ -72,7 +67,7 @@ sub extractReport() {
 			}
 			last;
 		}
-		close(INPUT);
+		close($input);
 		@fieldHeaders = sort keys %_colMap;
 	}
 
@@ -84,18 +79,12 @@ sub extractReport() {
 	}
 
 	# Read all counters
-	$file = "$reportDir/turbostat-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
 	my $timestamp = 0;
 	my $start_timestamp = 0;
 	my $offset;
-	while (!eof(INPUT)) {
-		my $line = <INPUT>;
+	$input = $self->SUPER::open_log("$reportDir/turbostat-$testBenchmark");
+	while (!eof($input)) {
+		my $line = <$input>;
 
 		$line =~ s/^\s+//;
 		my @elements = split(/\s+/, $line);
@@ -125,7 +114,7 @@ sub extractReport() {
 			}
 		}
 	}
-	close(INPUT);
+	close($input);
 }
 
 1;

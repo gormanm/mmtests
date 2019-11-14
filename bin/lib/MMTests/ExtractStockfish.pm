@@ -22,14 +22,14 @@ sub extractReport() {
 		my $iteration = 0;
 
 		foreach my $file (<$reportDir/stockfish-$thread-*>) {
-			open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				my $line = $_;
 				if ($line =~ /^info nodes ([0-9]+) time ([0-9]+)/) {
 					$self->addData("totalnps-$thread", ++$iteration, $1/$2);
 				}
 			}
-			close(INPUT);
+			close($input);
 		}
 	}
 }

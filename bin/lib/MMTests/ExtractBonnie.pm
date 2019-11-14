@@ -34,14 +34,10 @@ sub extractReport() {
 		"dr" => "RandCreate del"
 	);
 
-	if (-e "$file.gz") {
-		open(INPUT, "gunzip -c $file.gz|") || die("Failed to open $file.gz\n");
-	} else {
-		open(INPUT, $file) || die("Failed to open $file\n");
-	}
 	my %nrSamples;
 
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/bonnie-detail");
+	while (<$input>) {
 		chomp;
 		my $line = $_;
 		my @elements = split(/ /, $line);
@@ -51,7 +47,7 @@ sub extractReport() {
 			$self->addData($ops{$elements[0]}, $nrSamples{$elements[0]}, $elements[1]);
 		}
 	}
-	close INPUT;
+	close($input);
 }
 
 1;

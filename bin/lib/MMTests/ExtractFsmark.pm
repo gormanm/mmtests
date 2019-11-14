@@ -17,16 +17,14 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my ($user, $system, $elapsed, $cpu);
 	my $iteration = 1;
 	my @instances = $self->discover_scaling_parameters($reportDir, "fsmark-", ".log.gz");
 
 	foreach my $instance (@instances) {
-		my $file = "$reportDir/fsmark-$instance.log.gz";
 		my $preamble = 1;
 		my $enospace = 0;
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file\n");
-		while (<INPUT>) {
+		my $input = $self->SUPER::open_log("$reportDir/fsmark-$instance.log");
+		while (<$input>) {
 			my $line = $_;
 			if ($preamble) {
 				if ($line !~ /^FSUse/) {
@@ -42,7 +40,7 @@ sub extractReport() {
 			my @elements = split(/\s+/, $_);
 			$self->addData("$instance-files/sec", ++$iteration, $elements[4]);
 		}
-		close INPUT;
+		close($input);
 	}
 }
 

@@ -92,6 +92,7 @@ sub extractReport($$$$) {
 	my $elapsed_time;
 	my $timestamp;
 	my $start_timestamp = 0;
+	my $input;
 
 	if ($subHeading eq "") {
 		$subHeading = "sy";
@@ -102,29 +103,21 @@ sub extractReport($$$$) {
 	my $headingIndex = $_colMap{$subHeading};
 
 	my $total_memory_kb;
-	my $file = "$reportDir/tests-sysstate.gz";
-	open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	while (<INPUT>) {
+	$input = $self->SUPER::open_log("$reportDir/tests-sysstate.gz");
+	while (<$input>) {
 		if ($_ =~ /^MemTotal:\s+([0-9]*) kB/) {
 			$total_memory_kb = $1;
 			last;
 		}
 	}
-	close INPUT;
-
-	$file = "$reportDir/vmstat-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
+	close($input);
 
 	my $matched;
 	my $reading;
 	my $timestamp = 0;
 	my $val = -1;
-	while (<INPUT>) {
+	$input = $self->SUPER::open_log("$reportDir/vmstat-$testBenchmark");
+	while (<$input>) {
 		my ($timing, $details);
 		if ($_ =~ /--/) {
 			($timing, $details) = split(/--/, $_);
@@ -170,6 +163,7 @@ sub extractReport($$$$) {
 
 		$self->addData($subHeading, $timestamp - $start_timestamp, $val );
 	}
+	close($input);
 }
 
 1;

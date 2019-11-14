@@ -44,21 +44,16 @@ sub extractReport($$$) {
 	my $readingDevices = 0;
 	my $start_timestamp = 0;
 	my $format_type = -1;
+	my $input;
 
-	my $file = "$reportDir/iostat-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	}
+	$input = $input = $self->SUPER::open_log("$reportDir/iostat-$testBenchmark");
 
 	my $fieldLength = 12;
         $self->{_FieldLength} = $fieldLength;
         $self->{_FieldFormat} = [ "%${fieldLength}.4f", "%${fieldLength}.2f" ];
 
 	my %samples;
-	while (<INPUT>) {
+	while (<$input>) {
 		my @elements = split (/\s+/, $_);
 		my $timestamp = $elements[1];
 		if ($start_timestamp == 0) {
@@ -177,7 +172,9 @@ sub extractReport($$$) {
 				$self->addData("$subHeading", $timestamp, $iostat{$elements[1]});
 			}
 		}
-	} close INPUT;
+	}
+
+	close($input);
 }
 
 1;

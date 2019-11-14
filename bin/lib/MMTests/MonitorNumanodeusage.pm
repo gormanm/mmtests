@@ -43,17 +43,10 @@ sub extractReport($$$$$) {
 		$subHeading = "Usage";
 	}
 
-	my $file = "$reportDir/numa-meminfo-$testBenchmark";
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file = $file . ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
-	}
-
 	my @nodeUsage;
 	my @nodeSize;
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/numa-meminfo-$testBenchmark");
+	while (<$input>) {
 		if ($_ =~ /^time: ([0-9]+)/) {
 			if ($start_timestamp == 0) {
 				$start_timestamp = $1;
@@ -86,6 +79,7 @@ sub extractReport($$$$$) {
 			push @nodeSize, $1 * 1024;
 		}
 	}
+	close($input);
 }
 
 1;

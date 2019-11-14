@@ -22,9 +22,8 @@ sub extractReport() {
 	my $workload;
 
 	# Read the IO steps and workload type
-	my $file = "$reportDir/workload-durations.log";
-	open(INPUT, $file) || die("Failed to open $file\n");
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/workload-durations.log");
+	while (<$input>) {
 		my @elements = split(/\s/);
 		$workload = $elements[0];
 		if ($lastIOStep != $elements[1]) {
@@ -32,17 +31,16 @@ sub extractReport() {
 		}
 		$lastIOStep = $elements[1];
 	}
-	close(INPUT);
+	close($input);
 
 	# Read the corresponding IO sizes
 	$ioSizes[0] = "0M";
-	$file = "$reportDir/io-durations.log";
-	open(INPUT, $file) || die("Failed to open $file\n");
-	while (<INPUT>) {
+	$input = $self->SUPER::open_log("$reportDir/io-durations.log");
+	while (<$input>) {
 		my @elements = split(/\s/);
 		$ioSizes[$elements[0]] = (int $elements[1] / 1048576) . "M";
 	}
-	close(INPUT);
+	close($input);
 
 	# Read the workload performance data
 	if ($workload eq "memcachetest") {
@@ -54,20 +52,14 @@ sub extractReport() {
 			foreach my $reportDir (@reportDirs) {
 				my $ops;
 
-				my $file = "$reportDir/mmtests.log";
-				if (-e $file) {
-					open(INPUT, $file) || die("Failed to open $file");
-				} else {
-					$file .= ".gz";
-					open(INPUT, "gunzip -c $file|") || die("Failed to open $file");
-				}
-				while (!eof(INPUT)) {
-					my $line = <INPUT>;
+				$input = $self->SUPER::open_log("$reportDir/mmtests.log");
+				while (!eof($input)) {
+					my $line = <$input>;
 					if ($line =~ /ops\/sec: ([0-9]+)/) {
 						$ops = $1;
 					}
 				}
-				close(INPUT);
+				close($input);
 
 				$iteration++;
 				$self->addData("memcachetest-$ioSizes[$ioStep]", $iteration, $ops);

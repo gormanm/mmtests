@@ -21,10 +21,9 @@ sub extractReport() {
 	my %samples;
 	my %prios;
 
-	my $file = "$reportDir/rtmigration.log.gz";
-	open(INPUT, "gunzip -c $file|") || die("Failed to open $file");
-	while (!eof(INPUT)) {
-		my $line = <INPUT>;
+	my $input = $self->SUPER::open_log("$reportDir/rtmigration.log");
+	while (!eof($input)) {
+		my $line = <$input>;
 
 		# Read number of tasks
 		if ($line =~ /^Iter:/) {
@@ -55,7 +54,7 @@ sub extractReport() {
 			$prios{$1} = $2;
 		}
 	}
-	close INPUT;
+	close($input);
 
 	for (my $i = 0; $i < $nr_threads; $i++) {
 		my $nr_samples = 0;

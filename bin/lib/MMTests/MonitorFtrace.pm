@@ -104,30 +104,26 @@ my %processMap;
 sub extractReport($$$) {
 	my ($self, $reportDir, $testBenchmark, $subHeading, $rowOrientated) = @_;
 	my %last_procmap;
+	my $input;
 
 	$self->{_SubHeading} = $subHeading;
 
 	my $file = "$reportDir/ftrace-$testBenchmark";
 
 	if (-e "$file.start") {
-		if (open(INPUT, $file)) {
-			<INPUT>;
+		if (open($input, $file)) {
+			<$input>;
 			my ($start, $idle) = split(/ /, <INPUT>);
 			$self->{_StartTimestampMs} = $start * 1000;
 		}
-		close INPUT;
-	}
-	if (-e $file) {
-		open(INPUT, $file) || die("Failed to open $file: $!\n");
-	} else {
-		$file .= ".gz";
-		open(INPUT, "gunzip -c $file|") || die("Failed to open $file: $!\n");
+		close $input;
 	}
 
+	$input = $self->SUPER::open_log($file);
 	$self->ftraceInit();
 
-	while (!eof(INPUT)) {
-		my $traceevent = <INPUT>;
+	while (!eof($input)) {
+		my $traceevent = <$input>;
 		if ($traceevent !~ /$regex_traceevent/o) {
 			print("WARNING: $traceevent");
 			next;
@@ -158,7 +154,7 @@ sub extractReport($$$) {
 		$last_procmap{$pid} = $process;
 		$self->ftraceCallback($timestamp, $pid, $process, $tracepoint, $details);
 	}
-	close INPUT;
+	close($input);
 
 	$self->ftraceReport($rowOrientated);
 }
