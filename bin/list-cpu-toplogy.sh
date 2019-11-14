@@ -17,18 +17,19 @@ for NODE in $NODES; do
 	CPUS=`numactl --hardware | grep "node $NODE cpus:" | awk -F : '{print $2}' | sed -e 's/^\s*//'`
 	for CPU in $CPUS; do
 		if [ "${SEEN[$CPU]}" != "yes" ]; then
+			LLC=`cat /sys/devices/system/cpu/cpu$CPU/cache/index*/shared_cpu_list | tail -1`
 			CORE=0
 			for CORE_SIBLING in $CPU `$SCRIPTDIR/list-cpu-siblings.pl $CPU node_cores $NODE | sed -e 's/,/ /g'`; do
 				THREAD=0
 				if [ "${SEEN[$CORE_SIBLING]}" != "yes" ]; then
-					echo node $NODE socket $SOCKET core $CORE thread $THREAD cpu $CORE_SIBLING
+					echo node $NODE socket $SOCKET core $CORE thread $THREAD cpu $CORE_SIBLING llc $LLC
 					SEEN[$CORE_SIBLING]=yes
 				fi
 
 				for THREAD_SIBLING in `$SCRIPTDIR/list-cpu-siblings.pl $CORE_SIBLING threads $NODE | sed -e 's/,/ /g'`; do
 					if [ "${SEEN[$THREAD_SIBLING]}" != "yes" ]; then
 						THREAD=$((THREAD+1))
-						echo node $NODE socket $SOCKET core $CORE thread $THREAD cpu $THREAD_SIBLING
+						echo node $NODE socket $SOCKET core $CORE thread $THREAD cpu $THREAD_SIBLING llc $LLC
 						SEEN[$THREAD_SIBLING]=yes
 					fi
 				done
