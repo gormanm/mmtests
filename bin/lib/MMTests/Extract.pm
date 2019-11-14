@@ -508,9 +508,6 @@ sub open_log() {
 		open($fh, "unxz -c $file.xz|") || die("Failed to open $file.xz: $!\n");
 	} elsif (-e $file) {
 		open($fh, $file) || die("Failed to open $file: $!\n") || die("Failed to open $file");
-	} else {
-		print "WARNING: File $file does not exist";
-		return undef;
 	}
 
 	return $fh;
