@@ -34,8 +34,10 @@ sub setOutput() {
 }
 
 sub loadToColour() {
-	my ($self, $load) = @_;
+	my ($self, $container, $load) = @_;
 
+	# Scale load relative to the topology
+	$load /= $container->{_NrLeafNodes};
 	my $color = sprintf("#%02X%02X%02X", int($gradient[int $load][0]), int($gradient[int $load][1]), int($gradient[int $load][2]));
 	return $color;
 }
@@ -80,7 +82,7 @@ sub renderLevel {
 		my $colour = "#ffffff";
 		my $load = $container->{_HValue};
 		if ($load ne "" && $load != 0) {
-			$colour = $self->loadToColour($load);
+			$colour = $self->loadToColour($container, $load);
 		}
 
 		return "${indent}\"$label\" [ shape=square,style=filled,fillcolor=\"$colour\" ];\n";
