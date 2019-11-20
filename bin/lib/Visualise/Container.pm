@@ -72,21 +72,32 @@ sub setValue {
 # all children
 sub propogateValues {
 	my ($self, $container) = @_;
+	my $isLeaf = 0;
+	my $isActiveLeaf = 0;
 
 	if (!defined($container)) {
 		$container = $all_containers{"root"};
 	}
 
 	$container->{_HValue} = $container->{_Value};
+	$container->{_NrLeafNodes} = 0;
+	$container->{_NrActiveLeafNodes} = 0;
 	if (defined $container->{_SubContainers}) {
 		foreach my $subContainer (@{$container->{_SubContainers}}) {
 			$container->propogateValues($subContainer);
+		}
+	} else {
+		$isLeaf = 1;
+		if ($container->{_Value} > 0) {
+			$isActiveLeaf = 1;
 		}
 	}
 
 	my $parent = $container->{_Parent};
 	if (defined($parent)) {
 		$parent->{_HValue} += $container->{_HValue};
+		$parent->{_NrLeafNodes} += $isLeaf + $container->{_NrLeafNodes};
+		$parent->{_NrActiveLeafNodes} += $isActiveLeaf + $container->{_NrActiveLeafNodes};
 	}
 }
 
