@@ -506,11 +506,11 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		echo $SUBREPORT Per-VFS Operation latency Latency
 		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 -a opslatency -n $KERNEL_LIST $FORMAT_CMD
 		;;
-	bonnie)
-		echo "$SUBREPORT IO Execution Time"
-		$COMPARE_CMD
+	bonnie++|bonnie)
+		echo "bonnie IO Execution Time"
+		cache-mmtests.sh compare-mmtests.pl -d . -b bonnie -n $KERNEL_LIST $FORMAT_CMD $AUTO_DETECT_SIGNIFICANCE
 		echo
-		echo "$SUBREPORT Throughput"
+		echo "bonnie Throughput"
 		cache-mmtests.sh compare-mmtests.pl -d . -b bonnie -a tput -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
