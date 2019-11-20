@@ -46,20 +46,26 @@ sub generateLabel {
 	my ($container, $level) = @_;
 	my $shortkey = $container->{_ShortKey};
 	my $node = "";
+	my $activeCpus = "";
 
 	# Prepend node ID if not the CPU level to generate a unique ID
-	if ($level != 5 && $level != 1) {
-		my $nodeContainer = $container;
-		while ($level != 1) {
-			$nodeContainer = $nodeContainer->{_Parent};
-			$level--;
+	# Append information on the number of active and total cpus
+	if ($level != 5) {
+		if ($level != 1) {
+			my $nodeContainer = $container;
+			while ($level != 1) {
+				$nodeContainer = $nodeContainer->{_Parent};
+				$level--;
+			}
+			my ($dummy, $nodeID) = split(/ /, $nodeContainer->{_ShortKey});
+			$node = "$nodeID-";
 		}
-		my ($dummy, $nodeID) = split(/ /, $nodeContainer->{_ShortKey});
-		$node = "$nodeID-";
+
+		$activeCpus = "\n$container->{_NrActiveLeafNodes}/$container->{_NrLeafNodes} cpus";
 	}
 
 	my @elements = split(/ /, $shortkey);
-	return sprintf("$node$elements[0] %03d\\n%4.2f%%", $elements[1], $container->{_HValue});
+	return sprintf("$node$elements[0] %03d\\n%4.2f%%$activeCpus", $elements[1], $container->{_HValue});
 }
 
 my $clusterID = 0;
