@@ -25,12 +25,14 @@ my ($opt_topology, $opt_type);
 my $opt_render_backend = "dot";
 my $opt_input_format = "mpstat";
 my $opt_format = "png";
+my $opt_cutoff = 9999;
 my $opt_activity;
 GetOptions(
 	'verbose|v'		=> \$opt_verbose,
 	'help|h'		=> \$opt_help,
 	'manual'		=> \$opt_manual,
 	'a|activity=s'		=> \$opt_activity,
+	'c|cutoff=s'		=> \$opt_cutoff,
 	'i|input=s'		=> \$opt_input,
 	'o|output=s'		=> \$opt_output,
 	'f|output-format=s'	=> \$opt_format,
@@ -68,6 +70,7 @@ if (defined $opt_topology) {
 	$renderer = $renderFactory->loadModule("render", "topology$opt_render_backend");
 	$renderer->setOutput($opt_output);
 	$renderer->setFormat($opt_format);
+	$renderer->setCutoff($opt_cutoff);
 }
 
 # Parse logs if specified

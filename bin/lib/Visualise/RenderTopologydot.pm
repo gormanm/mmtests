@@ -10,6 +10,7 @@ my %title_map;
 my $cluster_id = 0;
 my $outputFormat;
 my @gradient;
+my $cutoffLevel = 9999;
 
 sub initialise() {
 	my ($self) = @_;
@@ -18,6 +19,12 @@ sub initialise() {
 
 	my @spots = ([ 255, 255, 255 ], [ 0, 255, 0 ], [ 255, 255, 0 ], [ 255, 165, 0 ], [ 255, 0, 0 ], [100, 50, 50 ] );
 	@gradient = multi_array_gradient(101, @spots);
+}
+
+sub setCutoff() {
+	my ($self, $cutoff) = @_;
+
+	$cutoffLevel = $cutoff;
 }
 
 sub setOutput() {
@@ -33,11 +40,12 @@ sub loadToColour() {
 	return $color;
 }
 
-sub cpuLabel {
-	my ($label, $container) = @_;
+sub generateLabel {
+	my ($container, $level) = @_;
+	my $shortkey = $container->{_ShortKey};
 
-	my @elements = split(/ /, $label);
-	return sprintf("cpu %03d\\n%4.2f%%", $elements[1], $container->{_Value});
+	my @elements = split(/ /, $shortkey);
+	return sprintf("$elements[0] %03d\\n%4.2f%%", $elements[1], $container->{_HValue});
 }
 
 my $clusterID = 0;
@@ -54,12 +62,11 @@ sub renderLevel {
 	my $place;
 
 	# Final level
-	my $label = $container->{_ShortKey};
-	if (ref($container->{_SubContainers}) ne "ARRAY") {
-		$label = cpuLabel($label, $container);
+	if (ref($container->{_SubContainers}) ne "ARRAY" || $level >= $cutoffLevel) {
+		my $label = generateLabel($container, $level);
 
 		my $colour = "#ffffff";
-		my $load = $container->{_Value};
+		my $load = $container->{_HValue};
 		if ($load ne "" && $load != 0) {
 			$colour = $self->loadToColour($load);
 		}
@@ -89,7 +96,7 @@ sub renderLevel {
 	}
 	if ($level == 4) {
 		my $firstContainer = @{$container->{_SubContainers}}[0];
-		my $firstLabel = cpuLabel($firstContainer->{_ShortKey}, $firstContainer);
+		my $firstLabel = generateLabel($firstContainer, $level);
 		push @firstCores, $firstLabel;
 	}
 
