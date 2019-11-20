@@ -27,11 +27,13 @@ sub add {
 
 	die("No parent node $parent\n") if !defined $all_containers{$parent};
 	if (!defined $all_containers{$child}) {
+		my $parentContainer = $all_containers{$parent};
 		my $container = Visualise::Container->new();
 		$container->{_Key} = $child;
 		$container->{_ShortKey} = $title;
+		$container->{_Parent} = $parentContainer;
 		$all_containers{$child} = $container;
-		push @{$all_containers{$parent}->{_SubContainers}}, $container;
+		push @{$parentContainer->{_SubContainers}}, $container;
 	}
 }
 
@@ -76,15 +78,16 @@ sub propogateValues {
 	}
 
 	$container->{_HValue} = $container->{_Value};
-	if (!defined $container->{_SubContainers}) {
-		return $container->{_HValue};
+	if (defined $container->{_SubContainers}) {
+		foreach my $subContainer (@{$container->{_SubContainers}}) {
+			$container->propogateValues($subContainer);
+		}
 	}
 
-	foreach my $subContainer (@{$container->{_SubContainers}}) {
-		$container->{_HValue} += $container->propogateValues($subContainer);
+	my $parent = $container->{_Parent};
+	if (defined($parent)) {
+		$parent->{_HValue} += $container->{_HValue};
 	}
-
-	return $container->{_HValue};
 }
 
 sub clearValues() {
