@@ -23,6 +23,25 @@ sub initialise() {
 	$self->SUPER::initialise();
 }
 
+sub start {
+	my ($self, $file) = @_;
+	my $line;
+
+	$self->SUPER::start($file);
+
+	# Skip the first entry as it's a header
+	my $input = $self->getInputFH();
+	$line = <$input>;
+	$line = <$input>;
+	if ($line !~ /^Linux/) {
+		die("Unexpected file format no header, possibly missed data\n");
+	}
+	$line = <$input>;
+	if ($line !~ /^$/) {
+		die("Unexpected file format extra data, possibly missed data\n");
+	}
+}
+
 sub parseOne() {
 	my ($self, $model) = @_;
 	my $input = $self->getInputFH();
@@ -47,7 +66,8 @@ sub parseOne() {
 		last if $line =~ /^$/;
 
 		my @elements = split(/\s+/, $line);
-		$container->setValue("cpu $elements[1]", 100 - $elements[-1]);
+		my $value = 100 - $elements[-1];
+		$container->setValue("cpu $elements[1]", $value);
 	}
 	return !eof($input);
 }

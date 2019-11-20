@@ -1,7 +1,8 @@
 package Visualise::ModelTopology;
 use Visualise::Visualise;
 use Visualise::Container;
-our @ISA = qw(Visualise::Visualise);
+use Visualise::Model;
+our @ISA = qw(Visualise::Visualise Visualise::Model);
 use strict;
 
 sub initialise() {
@@ -29,6 +30,7 @@ sub parse() {
 
 	$container = Visualise::Container->new();
 	$container->setRoot();
+	$self->setRoot($container);
 
 	while (!eof($input)) {
 		my $line = <$input>;

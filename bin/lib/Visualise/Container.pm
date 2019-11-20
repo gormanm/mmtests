@@ -67,20 +67,21 @@ sub setValue() {
 }
 
 sub dump() {
-	my ($self, $level, $name) = @_;
+	my ($self, $level, $container) = @_;
 
-	my $container = %all_containers{$name};
 	if ($level == 0) {
 		print "$container->{_Title}\n";
 	} else {
-		printf("%${level}s %s\n", " ", $container->{_Title});
+		my $padding = 16 - $level;
+		my $valpadding = 21 - $level;
+		printf("%${level}s %-${padding}s value %${level}s%${valpadding}s\n", " ", $container->{_Title}, " ", $container->{_Value});
 	}
 
 	if (!defined $container->{_SubContainers}) {
 		return;
 	}
 	foreach my $subcontainer (@{$container->{_SubContainers}}) {
-		$self->dump($level + 1, $subcontainer->{_Name});
+		$self->dump($level + 1, $subcontainer);
 	}
 }
 
