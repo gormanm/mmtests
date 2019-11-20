@@ -20,17 +20,15 @@ my %levels = {
 	"cpu"		=> 5,
 };
 
-my $container;
-
 sub parse() {
 	my ($self, $file) = @_;
 
 	my $input = $self->SUPER::open_file($file);
 	die("Unable to open $file") if !defined $input;
 
-	$container = Visualise::Container->new();
+	my $container = Visualise::Container->new();
 	$container->setRoot();
-	$self->setRoot($container);
+	$self->setModel($container);
 
 	while (!eof($input)) {
 		my $line = <$input>;
@@ -52,11 +50,6 @@ sub parse() {
 	}
 	close($input);
 
-	return $container;
-}
-
-sub getModel() {
-	my ($self) = @_;
 	return $container;
 }
 

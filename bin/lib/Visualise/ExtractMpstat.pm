@@ -69,6 +69,7 @@ sub parseOne() {
 		my $value = 100 - $elements[-1];
 		$container->setValue("cpu $elements[1]", $value);
 	}
+	$container->propogateValues();
 	return !eof($input);
 }
 

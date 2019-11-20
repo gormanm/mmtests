@@ -6,7 +6,6 @@ use Math::Gradient qw(multi_array_gradient);
 our @ISA = qw(Visualise::Render Visualise::Visualise);
 use strict;
 
-my %all_containers;
 my %title_map;
 my $cluster_id = 0;
 my $outputFormat;
@@ -152,12 +151,6 @@ sub renderOne() {
 	system("dot -T$self->{_OutputFormat} $self->{_OutputDirectory}/scratch/frame-$frame.dot -o $self->{_OutputDirectory}/frames/frame-$frame.$self->{_OutputFormat}");
 	$frame++;
 	$self->SUPER::renderOne();
-}
-
-sub clearValues() {
-	foreach my $container (%all_containers) {
-		$container->{_Value} = undef;
-	}
 }
 
 1;
