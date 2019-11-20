@@ -43,9 +43,21 @@ sub loadToColour() {
 sub generateLabel {
 	my ($container, $level) = @_;
 	my $shortkey = $container->{_ShortKey};
+	my $node = "";
+
+	# Prepend node ID if not the CPU level to generate a unique ID
+	if ($level != 5 && $level != 1) {
+		my $nodeContainer = $container;
+		while ($level != 1) {
+			$nodeContainer = $nodeContainer->{_Parent};
+			$level--;
+		}
+		my ($dummy, $nodeID) = split(/ /, $nodeContainer->{_ShortKey});
+		$node = "$nodeID-";
+	}
 
 	my @elements = split(/ /, $shortkey);
-	return sprintf("$elements[0] %03d\\n%4.2f%%", $elements[1], $container->{_HValue});
+	return sprintf("$node$elements[0] %03d\\n%4.2f%%", $elements[1], $container->{_HValue});
 }
 
 my $clusterID = 0;
@@ -117,7 +129,7 @@ sub renderLevel {
 	if ($multiLLC) {
 		for (my $i = 0; $i < scalar(@layoutNodes) - 1; $i++) {
 			if ((scalar(@layoutNodes) - $i < $splitLLC) || (($i + 1) % 5 != 0)) {
-				$dot .= "${indent}$layoutNodes[$i] -> $layoutNodes[$i+1]\n";
+				$dot .= "${indent}$layoutNodes[$i] -> $layoutNodes[$i+1] [ style=invis ]\n";
 			}
 		}
 	}
