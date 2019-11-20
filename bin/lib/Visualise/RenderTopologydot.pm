@@ -54,7 +54,7 @@ sub renderLevel {
 	my $place;
 
 	# Final level
-	my $label = $container->{_Title};
+	my $label = $container->{_ShortKey};
 	if (ref($container->{_SubContainers}) ne "ARRAY") {
 		$label = cpuLabel($label, $container);
 
@@ -69,7 +69,7 @@ sub renderLevel {
 
 	if ($renderSubgraph) {
 		$dot .= "${indent}subgraph cluster_$clusterID  {\n";
-		$dot .= "${indent}  label = \"$container->{_Title}$place\"\n";
+		$dot .= "${indent}  label = \"$container->{_ShortKey}$place\"\n";
 		$dot .= "\n";
 	}
 
@@ -89,7 +89,7 @@ sub renderLevel {
 	}
 	if ($level == 4) {
 		my $firstContainer = @{$container->{_SubContainers}}[0];
-		my $firstLabel = cpuLabel($firstContainer->{_Title}, $firstContainer);
+		my $firstLabel = cpuLabel($firstContainer->{_ShortKey}, $firstContainer);
 		push @firstCores, $firstLabel;
 	}
 

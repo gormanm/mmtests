@@ -9,8 +9,8 @@ sub new {
 	my $self = {};
 	$self->{_ModuleName} = "Container";
 	$self->{_SubContainers} = ();
-	$self->{_Name} = "root";
-	$self->{_Title} = "root";
+	$self->{_Key} = "root";
+	$self->{_ShortKey} = "root";
 	$self->{_Level} = 0;
 	bless $self, $class;
 	return $self;
@@ -28,8 +28,8 @@ sub add {
 	die("No parent node $parent\n") if !defined $all_containers{$parent};
 	if (!defined $all_containers{$child}) {
 		my $container = Visualise::Container->new();
-		$container->{_Name} = $child;
-		$container->{_Title} = $title;
+		$container->{_Key} = $child;
+		$container->{_ShortKey} = $title;
 		$all_containers{$child} = $container;
 		push @{$all_containers{$parent}->{_SubContainers}}, $container;
 	}
@@ -108,11 +108,11 @@ sub dump {
 	}
 
 	if ($level == 0) {
-		print "$container->{_Title}\n";
+		print "$container->{_ShortKey}\n";
 	} else {
 		my $padding = 16 - $level;
 		my $valpadding = 21 - $level;
-		printf("%${level}s %-${padding}s $field %${level}s%${valpadding}s\n", " ", $container->{_Title}, " ", $container->{$field});
+		printf("%${level}s %-${padding}s $field %${level}s%${valpadding}s\n", " ", $container->{_ShortKey}, " ", $container->{$field});
 	}
 
 	if (!defined $container->{_SubContainers}) {
@@ -127,7 +127,7 @@ sub dumpLookup {
 	foreach my $title (sort keys %title_map) {
 		my $key = $title_map{$title};
 		my $container = $all_containers{$key};
-		print "$title -> $container->{_Name}\n";
+		print "$title -> $container->{_Key}\n";
 	}
 }
 
