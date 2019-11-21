@@ -1516,6 +1516,15 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			fi
 		fi
 
+		if have_monitor_results mpstat $KERNEL_BASE; then
+			echo "<tr>"
+			for NID in `zgrep cpus: $KERNEL_BASE/iter-0/numactl.txt.gz | awk '{print $2}'`; do
+				eval $GRAPH_PNG --title \"Node $NID Total CPU Usage\" --print-monitor mpstat --sub-heading node-$NID --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-node-$NID-cpuusage.png
+				eval $GRAPH_PSC --title \"Node $NID Total CPU Usage\" --print-monitor mpstat --sub-heading node-$NID --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-node-$NID-cpuusage.png
+				plain graph-$SUBREPORT-node-$NID-cpuusage
+			done
+			echo "</tr>"
+		fi
 		if have_monitor_results vmstat $KERNEL_BASE; then
 			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.png
 			eval $GRAPH_PSC --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.ps

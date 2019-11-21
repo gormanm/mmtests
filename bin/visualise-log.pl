@@ -79,7 +79,7 @@ $logparser = $logparserFactory->loadModule("extract", $opt_type);
 $logparser->addActivity($opt_activity);
 $logparser->start($opt_input);
 while ($logparser->parseOne($model)) {
-	$renderer->renderOne($model);	
+	$renderer->renderOne($model, $logparser->getTimestamp());
 	#$model->dump($model->getModel(), "_Value");
 	#$model->dump($model->getModel(), "_HValue");
 	$model->clearValues();

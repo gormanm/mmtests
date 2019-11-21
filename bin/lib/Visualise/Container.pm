@@ -55,16 +55,37 @@ sub getContainerTitle {
 	return $self->{_ContainerTitle};
 }
 
-sub setValue {
-	my ($self, $key, $value) = @_;
+sub getContainer {
+	my ($self, $key) = @_;
 
 	my $container = $all_containers{$key};
 	if (!defined($container)) {
 		$key = $title_map{$key};
-		die if !defined($key);
+		die("Unable to identify unique key from '$key'") if !defined($key);
 		$container = $all_containers{$key};
 		die if !defined($container);
 	}
+
+	return $container;
+}
+
+sub getField {
+	my ($self, $key, $field) = @_;
+
+	my $container = $self->getContainer($key);
+	return $container->{$field};
+}
+
+sub getValue {
+	my ($self, $key) = @_;
+	my $container = $self->getContainer($key);
+	return $container->{_Value};
+}
+
+sub setValue {
+	my ($self, $key, $value) = @_;
+
+	my $container = $self->getContainer($key);
 	$container->{_Value} = $value;
 }
 

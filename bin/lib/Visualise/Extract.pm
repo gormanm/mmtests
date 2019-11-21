@@ -70,6 +70,16 @@ sub getInputFH() {
 	return $input;
 }
 
+sub getTimestamp() {
+	my ($self) = @_;
+	return $self->{_Timestamp};
+}
+
+sub setTimestamp() {
+	my ($self, $timestamp) = @_;
+	$self->{_Timestamp} = $timestamp;
+}
+
 sub updateFrequency() {
 	my ($self, $new_sample) = @_;
 

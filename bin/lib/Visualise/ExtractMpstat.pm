@@ -56,6 +56,7 @@ sub parseOne() {
 	my $timestamp = $1 - $startTimestamp;
 	my $container = $model->getModel();
 	$container->setContainerTitle("Time: $timestamp " . $self->getActivity($1));
+	$self->setTimestamp($timestamp);
 	$self->updateFrequency($timestamp);
 
 	while (!eof($input)) {
