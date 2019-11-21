@@ -3,6 +3,7 @@ use strict;
 
 my %all_containers;
 my %title_map;
+my @leaf_nodes = undef;
 
 sub new {
 	my $class = shift;
@@ -32,8 +33,10 @@ sub add {
 		$container->{_Key} = $child;
 		$container->{_ShortKey} = $title;
 		$container->{_Parent} = $parentContainer;
+		$container->{_Level} = $parentContainer->{_Level} + 1;
 		$all_containers{$child} = $container;
 		push @{$parentContainer->{_SubContainers}}, $container;
+		@leaf_nodes = ();
 	}
 }
 
@@ -87,6 +90,49 @@ sub setValue {
 
 	my $container = $self->getContainer($key);
 	$container->{_Value} = $value;
+}
+
+sub addLeafNode {
+	my ($container, $maxdepth) = @_;
+
+	if (defined($maxdepth)) {
+		if ($container->{_Level} == $maxdepth) {
+			push @leaf_nodes, $container;
+		}
+		return;
+	}
+
+	if (defined($container->{_SubContainers})) {
+		return;
+	}
+
+	push @leaf_nodes, $container;
+}
+
+sub walkTreeIter {
+	my ($container, $callback, $parameter) = @_;
+
+	&$callback($container, $parameter);
+	foreach my $subContainer (@{$container->{_SubContainers}}) {
+		walkTreeIter($subContainer, $callback, $parameter);
+	}
+}
+
+sub walkTree {
+	my ($self, $callback, $parameter) = @_;
+
+	walkTreeIter($all_containers{"root"}, $callback, $parameter);
+}
+
+sub getLeafNodes {
+	my ($self, $maxdepth) = @_;
+
+	if (scalar(@leaf_nodes) > 0) {
+		return @leaf_nodes;
+	}
+
+	$self->walkTree(\&addLeafNode, $maxdepth);
+	return @leaf_nodes;
 }
 
 # Calculates a hierarchical value for each node as the sum of values from

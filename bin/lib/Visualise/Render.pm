@@ -4,25 +4,31 @@ use Visualise::Container;
 our @ISA = qw(Visualise::Visualise);
 use strict;
 
-sub initialise() {
+sub initialise {
 	my ($self) = @_;
 
 	$self->{_Frames} = 0;
 }
 
-sub renderOne() {
+sub renderOne {
 	my ($self) = @_;
 
 	$self->{_Frames}++;
 }
 
-sub setFormat() {
+sub setFormat {
 	my ($self, $format) = @_;
 
 	$self->{_OutputFormat} = $format;
 }
 
-sub getFramePattern() {
+sub getFormat {
+	my ($self) = @_;
+
+	return $self->{_OutputFormat};
+}
+
+sub getFramePattern {
 	my ($self) = @_;
 
 	if ($self->{_OutputDirectory}) {
@@ -30,19 +36,25 @@ sub getFramePattern() {
 	}
 }
 
-sub getNrFrames() {
+sub getNrFrames {
 	my ($self) = @_;
 
 	return $self->{_Frames};
 }
 
-sub getVideoDirectory() {
+sub getVideoDirectory {
 	my ($self) = @_;
 
 	return "$self->{_OutputDirectory}/video";
 }
 
-sub setOutputDirectory() {
+sub setOutputFile {
+	my ($self, $file) = @_;
+
+	$self->{_OutputFile} = $file;
+}
+
+sub setOutputDirectory {
 	my ($self, $directory) = @_;
 	
 	$self->{_OutputDirectory} = $directory;
@@ -53,6 +65,9 @@ sub setOutputDirectory() {
 }
 
 sub start {
+}
+
+sub end {
 }
 
 1;

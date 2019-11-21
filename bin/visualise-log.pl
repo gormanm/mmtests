@@ -71,7 +71,7 @@ if (defined $opt_topology) {
 	$renderer->setOutput($opt_output);
 	$renderer->setFormat($opt_format);
 	$renderer->setCutoff($opt_cutoff);
-	$renderer->start();
+	$renderer->start($model);
 }
 
 # Parse logs if specified
@@ -86,6 +86,7 @@ while ($logparser->parseOne($model)) {
 	$model->clearValues();
 }
 $logparser->end($opt_input);
+$renderer->end($opt_output);
 
 if (defined $renderer && $renderer->getNrFrames() > 1) {
 	my $framerate = int(10 / $logparser->getFrequency());

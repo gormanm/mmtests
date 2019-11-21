@@ -179,7 +179,6 @@ sub renderOne() {
 	close($output);
 
 	system("dot -T$self->{_OutputFormat} $self->{_OutputDirectory}/scratch/frame-$frame.dot -o $self->{_OutputDirectory}/frames/frame-$frame.$self->{_OutputFormat}");
-	$frame++;
 	$self->SUPER::renderOne();
 }
 
