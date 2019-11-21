@@ -80,19 +80,18 @@ if (defined $opt_monitor) {
 		exit(-1);
 	};
 
-	my @iterdirs = <$reportDir/iter-*>;
-	foreach my $iterdir (@iterdirs) {
-		$monitorModule->extractReport($iterdir, "$opt_benchmark",
-					      $opt_subheading);
-		$monitorModule->nextIteration();
-	}
-
 	# Just print the type if asked
 	if ($opt_printType) {
 		$monitorModule->printDataType($opt_subheading);
 		exit;
 	}
 
+	my @iterdirs = <$reportDir/iter-*>;
+	foreach my $iterdir (@iterdirs) {
+		$monitorModule->extractReport($iterdir, "$opt_benchmark",
+					      $opt_subheading);
+		$monitorModule->nextIteration();
+	}
 	if ($opt_printPlot) {
 		$monitorModule->printPlotHeaders() if $opt_printHeader;
 		$monitorModule->printPlot($opt_subheading);
