@@ -26,6 +26,7 @@ fi
 
 ulimit -s unlimited
 ulimit -n unlimited
+sysctl fs.file-max=26311244
 ATIME=$ADRESTIA_MIN_ATIME
 while [ $ATIME -le $ADRESTIA_MAX_ATIME ]; do
 	###SHELLPACK threads_large_stride_begin 1 $ADRESTIA_THREADS
