@@ -433,11 +433,11 @@ sub extractReport($$$$) {
 				$start_timestamp = $timestamp;
 			} else {
 				my $val = $self->parseVMStat($vmstat, $subHeading);
+				$vmstat = "";
 				next if $val == -1;
 
 				$self->addData($subHeading,
 					$timestamp - $start_timestamp, $val);
-				$vmstat = "";
 			}
 			next;
 		}
