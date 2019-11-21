@@ -32,7 +32,7 @@ sub initialise() {
 	$self->{_ExactSubheading} = 1;
 	$self->{_DataType} = DataTypes::DATA_ACTIONS;
 	$self->{_PlotXaxis} = "Time";
-	$self->{_PlotYaxes} = "cpu-migrations";
+	$self->{_PlotYaxis} = "cpu-migrations";
 	$self->{_PlotType}  = "simple";
 	$self->SUPER::initialise($subHeading);
 }
