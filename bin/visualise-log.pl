@@ -71,6 +71,7 @@ if (defined $opt_topology) {
 	$renderer->setOutput($opt_output);
 	$renderer->setFormat($opt_format);
 	$renderer->setCutoff($opt_cutoff);
+	$renderer->start();
 }
 
 # Parse logs if specified

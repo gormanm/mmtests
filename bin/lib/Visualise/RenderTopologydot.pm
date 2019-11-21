@@ -35,9 +35,12 @@ sub setOutput() {
 
 sub loadToColour() {
 	my ($self, $container, $load) = @_;
+	my $nrLeafNodes = $container->{_NrLeafNodes};
 
 	# Scale load relative to the topology
-	$load /= $container->{_NrLeafNodes};
+	if ($nrLeafNodes) {
+		$load /= $nrLeafNodes;
+	}
 	my $color = sprintf("#%02X%02X%02X", int($gradient[int $load][0]), int($gradient[int $load][1]), int($gradient[int $load][2]));
 	return $color;
 }
@@ -116,7 +119,7 @@ sub renderLevel {
 	}
 	if ($level == 4) {
 		my $firstContainer = @{$container->{_SubContainers}}[0];
-		my $firstLabel = generateLabel($firstContainer, $level);
+		my $firstLabel = generateLabel($firstContainer, $level + 1);
 		push @firstCores, $firstLabel;
 	}
 

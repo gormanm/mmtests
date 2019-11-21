@@ -52,4 +52,7 @@ sub setOutputDirectory() {
 	mkdir("$directory/scratch") || die("Failed to create scratch directory $directory/scratch");
 }
 
+sub start {
+}
+
 1;
