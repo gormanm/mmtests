@@ -23,6 +23,7 @@ my $sampleCWidth = 1;
 my $topologyModel;
 my @leafNodes;
 my @samples;
+my $levelOffset = 0;
 
 sub initialise() {
 	my ($self) = @_;
@@ -131,7 +132,7 @@ sub sampleBY {
 sub levelX {
 	my ($cpu, $level) = @_;
 
-	return $levelCWidth * $level + 1;
+	return $levelCWidth * ($levelOffset + $level) + 1;
 }
 
 sub renderStart {
@@ -184,8 +185,8 @@ sub renderLevels {
 		$top = $top->{_Parent};
 	}
 
-	my $level = $container->{_Level};
 	do {
+		my $level = $container->{_Level};
 		if ($cpu == 0) {
 			renderStart($cpu, $level);
 		} elsif ($cpu == $#leafNodes) {
@@ -206,7 +207,6 @@ sub renderLevels {
 		}
 
 		$container = $container->{_Parent};
-		$level--;
 	} while ($container != $top);
 }
 
@@ -215,6 +215,8 @@ sub end() {
 	my $i;
 
 	# Size width of canvas to fit excessive samples if necessary
+	$topologyModel->getModel()->trimMiddle();
+	$levelOffset = 5 - $leafNodes[0]->{_Level};
 	my $nr_samples = scalar(@{$samples[0]});
 	if ($cWidth < $nr_samples) {
 		$leafCWidth += $nr_samples - $cWidth;
@@ -241,7 +243,7 @@ sub end() {
 	# Render lines and text for each CPU band
 	for ($i = 0; $i < scalar(@leafNodes); $i++) {
 		$canvas->line(cpuLX($i), cpuTY($i), cpuRX($i), cpuTY($i), $black);
-		$canvas->string(GD::gdSmallFont, cpuLX($i) - 45, cpuTY($i) + 10, $leafNodes[$i]->{_ShortKey}, $black);
+		$canvas->string(GD::gdSmallFont, cpuLX($i) - 45, cpuTY($i) + 8, $leafNodes[$i]->{_ShortKey}, $black);
 		renderLevels($i);
 	}
 	$canvas->line(cpuLX(0), 0, cpuLX(0), $cHeight, $black);

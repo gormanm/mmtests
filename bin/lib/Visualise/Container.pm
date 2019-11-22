@@ -183,7 +183,7 @@ sub propogateValues {
 	}
 }
 
-sub clearValues() {
+sub clearValues {
 	my ($self, $container) = @_;
 
 	$container->{_Value} = undef;
@@ -194,6 +194,59 @@ sub clearValues() {
 	foreach my $subContainer (@{$container->{_SubContainers}}) {
 		$container->clearValues($subContainer);
 	}
+}
+
+sub dropLevel {
+	my ($container) = @_;
+
+	$container->{_Level}--;
+}
+
+sub reparent {
+	my ($parent, $child) = @_;
+
+	$parent->{_SubContainers} = ();
+	foreach my $subContainer (@{$child->{_SubContainers}}) {
+		$subContainer->{_Parent} = $parent;
+		push @{$parent->{_SubContainers}}, $subContainer;
+	}
+}
+
+sub trimMiddlePass {
+	my ($container) = @_;
+	my $nrRemoved = 0;
+	if (!defined($container->{_SubContainers})) {
+		return;
+	}
+
+	if (scalar(@{$container->{_SubContainers}}) == 1) {
+		my @containersIter = @{$container->{_SubContainers}};
+		foreach my $subContainer (@containersIter) {
+			reparent($container, $subContainer);
+			$nrRemoved++;
+			walkTreeIter($subContainer, \&dropLevel);
+		}
+	}
+
+	return $nrRemoved;
+}
+
+sub trimMiddle {
+	my ($self) = @_;
+
+	my $container = $all_containers{"root"};
+	if (!defined($container->{_SubContainers})) {
+		return;
+	}
+
+	my @containersIter = @{$container->{_SubContainers}};
+	my $layerRemoved;
+	do {
+		$layerRemoved = 0;
+		foreach my $subContainer (@containersIter) {
+			$layerRemoved += trimMiddlePass($subContainer);
+		}
+	} while ($layerRemoved != 0);
 }
 
 sub dump {
@@ -208,7 +261,7 @@ sub dump {
 	} else {
 		my $padding = 16 - $level;
 		my $valpadding = 21 - $level;
-		printf("%${level}s %-${padding}s $field %${level}s%${valpadding}s\n", " ", $container->{_ShortKey}, " ", $container->{$field});
+		printf("(%d)%${level}s %-${padding}s $field %${level}s%${valpadding}s\n", $container->{_Level}, " ", $container->{_ShortKey}, " ", $container->{$field});
 	}
 
 	if (!defined $container->{_SubContainers}) {
