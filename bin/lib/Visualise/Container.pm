@@ -13,6 +13,7 @@ sub new {
 	$self->{_Key} = "root";
 	$self->{_ShortKey} = "root";
 	$self->{_Level} = 0;
+	$self->{_LevelName} = "machine";
 	bless $self, $class;
 	return $self;
 }
@@ -44,6 +45,17 @@ sub setLookup {
 	my ($self, $name, $key) = @_;
 
 	$title_map{$name} = $key;
+}
+
+sub getLevelName {
+	my ($self, $container) = @_;
+	return $container->{_LevelName};
+}
+
+sub setLevelName {
+	my ($self, $container, $levelName) = @_;
+
+	$container->{_LevelName} = $levelName;
 }
 
 sub setContainerTitle {
@@ -113,6 +125,9 @@ sub walkTreeIter {
 	my ($container, $callback, $parameter) = @_;
 
 	&$callback($container, $parameter);
+	if (!defined $container->{_SubContainers}) {
+		return;
+	}
 	foreach my $subContainer (@{$container->{_SubContainers}}) {
 		walkTreeIter($subContainer, $callback, $parameter);
 	}

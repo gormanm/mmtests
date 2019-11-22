@@ -5,22 +5,29 @@ use Visualise::Model;
 our @ISA = qw(Visualise::Visualise Visualise::Model);
 use strict;
 
-sub initialise() {
+my @levels = ( "machine", "node", "socket", "llc", "core", "cpu" );
+
+sub initialise {
 	my ($self) = @_;
 
 	$self->{_ModuleName} = "ModelTopology";
 	$self->SUPER::initialise();
 }
 
-my %levels = {
-	"node"		=> 1,
-	"socket"	=> 2,
-	"llc"		=> 3,
-	"core"		=> 4,
-	"cpu"		=> 5,
-};
+sub mapLevel {
+	my ($container) = @_;
 
-sub parse() {
+	$container->{_LevelName} = @levels[$container->{_Level}];
+}
+
+sub setLevelNames {
+	my ($self) = @_;
+
+	my $container = $self->getModel();
+	$container->walkTree(\&mapLevel);
+}
+
+sub parse {
 	my ($self, $file) = @_;
 
 	my $input = $self->SUPER::open_file($file);
@@ -49,6 +56,7 @@ sub parse() {
 		$container->setLookup("cpu $cpu", "node-$node-socket-$socket-llc-$llc-core-$core-cpu-$cpu");
 	}
 	close($input);
+	$self->setLevelNames();
 
 	return $container;
 }

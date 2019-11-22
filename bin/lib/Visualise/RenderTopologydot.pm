@@ -83,6 +83,9 @@ sub renderLevel {
 	my $indent = sprintf("%" . ($level * 2) . "s", " ");
 	my $dot;
 	my $place;
+	my $testLevel = $container->{_Level};
+	my $levelName = $container->{_LevelName};
+	die if ($testLevel != $level);
 
 	# Final level
 	if (ref($container->{_SubContainers}) ne "ARRAY" || $level >= $cutoffLevel) {
@@ -107,17 +110,17 @@ sub renderLevel {
 	if (scalar(@{$container->{_SubContainers}}) == 1) {
 		$renderSublevel{$level} = 0;
 	}
-	if ($level == 2 && $renderSublevel{$level}) {
+	if ($levelName eq "socket" && $renderSublevel{$level}) {
 		$multiLLC = 1;
 	}
 	my $containerIndex = 0;
 	my @layoutNodes;
 
 	# Record first CPU of every core within an llc
-	if ($level == 3) {
+	if ($levelName eq "llc") {
 		@firstCores = ();
 	}
-	if ($level == 4) {
+	if ($levelName eq "core") {
 		my $firstContainer = @{$container->{_SubContainers}}[0];
 		my $firstLabel = generateLabel($firstContainer, $level + 1);
 		push @firstCores, $firstLabel;
@@ -129,7 +132,7 @@ sub renderLevel {
 		$dot .= renderLevel($self, $level + 1, $renderSublevel{$level}, $subContainer, \@layoutNodes, "${layoutNodePrefix}_");
 
 		# Special case layout of LLC when there are multiple ones per socket
-		if ($level == 3 && $multiLLC) {
+		if ($levelName eq "llc" && $multiLLC) {
 			if ($containerIndex % $level == 0) {
 				push @{$layoutNodesRef}, "lNode$layoutNodePrefix${containerIndex}_$clusterID";
 				$dot .= "${indent} lNode$layoutNodePrefix${containerIndex}_$clusterID [ label = \"\", style=invis, shape=point]\n";
