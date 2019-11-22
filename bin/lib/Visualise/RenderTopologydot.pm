@@ -6,11 +6,8 @@ use Math::Gradient qw(multi_array_gradient);
 our @ISA = qw(Visualise::Render Visualise::Visualise);
 use strict;
 
-my %title_map;
-my $cluster_id = 0;
 my $outputFormat;
 my @gradient;
-my $cutoffLevel = 9999;
 
 sub initialise() {
 	my ($self) = @_;
@@ -19,12 +16,6 @@ sub initialise() {
 
 	my @spots = ([ 255, 255, 255 ], [ 0, 255, 0 ], [ 255, 255, 0 ], [ 255, 165, 0 ], [ 255, 0, 0 ], [100, 50, 50 ] );
 	@gradient = multi_array_gradient(101, @spots);
-}
-
-sub setCutoff() {
-	my ($self, $cutoff) = @_;
-
-	$cutoffLevel = $cutoff;
 }
 
 sub setOutput() {
@@ -46,15 +37,17 @@ sub loadToColour() {
 }
 
 sub generateLabel {
-	my ($container, $level) = @_;
+	my ($container) = @_;
 	my $shortkey = $container->{_ShortKey};
 	my $node = "";
 	my $activeCpus = "";
+	my $level = $container->{_Level};
+	my $levelName = $container->{_LevelName};
 
 	# Prepend node ID if not the CPU level to generate a unique ID
 	# Append information on the number of active and total cpus
-	if ($level != 5) {
-		if ($level != 1) {
+	if ($levelName ne "cpu") {
+		if ($levelName ne "node") {
 			my $nodeContainer = $container;
 			while ($level != 1) {
 				$nodeContainer = $nodeContainer->{_Parent};
@@ -72,24 +65,29 @@ sub generateLabel {
 }
 
 my $clusterID = 0;
-my %renderSublevel;
 my $multiLLC = 0;
-my @firstCores;
-my $splitLLC = 4;
+my @breakupCores;
+my @breakupLLCs;
+my $splitLLCs = 4;
 my $splitCores = 4;
 
+sub start {
+	my ($self, $model) = @_;
+
+	$multiLLC = $model->getModel()->levelExists("llc");
+}
+
 sub renderLevel {
-	my ($self, $level, $renderSubgraph, $container, $layoutNodesRef, $layoutNodePrefix) = @_;
-	my $indent = sprintf("%" . ($level * 2) . "s", " ");
+	my ($self, $cutoffLevel, $cutoffLevelName, $container, $layoutNodesRef, $layoutNodePrefix) = @_;
 	my $dot;
 	my $place;
-	my $testLevel = $container->{_Level};
+	my $level = $container->{_Level};
 	my $levelName = $container->{_LevelName};
-	die if ($testLevel != $level);
+	my $indent = sprintf("%" . ($level * 2) . "s", " ");
 
 	# Final level
-	if (ref($container->{_SubContainers}) ne "ARRAY" || $level >= $cutoffLevel) {
-		my $label = generateLabel($container, $level);
+	if (!defined($container->{_SubContainers}) || $level >= $cutoffLevel) {
+		my $label = generateLabel($container);
 
 		my $colour = "#ffffff";
 		my $load = $container->{_HValue};
@@ -100,56 +98,52 @@ sub renderLevel {
 		return "${indent}\"$label\" [ shape=square,style=filled,fillcolor=\"$colour\" ];\n";
 	}
 
-	if ($renderSubgraph) {
-		$dot .= "${indent}subgraph cluster_$clusterID  {\n";
-		$dot .= "${indent}  label = \"$container->{_ShortKey}$place\"\n";
-		$dot .= "\n";
-	}
+	$dot .= "${indent}subgraph cluster_$clusterID  {\n";
+	$dot .= "${indent}  label = \"$container->{_ShortKey}$place\"\n";
+	$dot .= "\n";
 
-	$renderSublevel{$level} = 1;
-	if (scalar(@{$container->{_SubContainers}}) == 1) {
-		$renderSublevel{$level} = 0;
-	}
-	if ($levelName eq "socket" && $renderSublevel{$level}) {
-		$multiLLC = 1;
-	}
 	my $containerIndex = 0;
 	my @layoutNodes;
 
 	# Record first CPU of every core within an llc
 	if ($levelName eq "llc") {
-		@firstCores = ();
+		@breakupCores = ();
 	}
 	if ($levelName eq "core") {
 		my $firstContainer = @{$container->{_SubContainers}}[0];
-		my $firstLabel = generateLabel($firstContainer, $level + 1);
-		push @firstCores, $firstLabel;
+		my $firstLabel = generateLabel($firstContainer);
+		push @breakupCores, $firstLabel;
 	}
 
 	foreach my $subContainer (reverse(@{$container->{_SubContainers}})) {
 		$clusterID++;
 		$containerIndex++;
-		$dot .= renderLevel($self, $level + 1, $renderSublevel{$level}, $subContainer, \@layoutNodes, "${layoutNodePrefix}_");
+		$dot .= renderLevel($self, $cutoffLevel, $cutoffLevelName, $subContainer, \@layoutNodes, "${layoutNodePrefix}_");
+
+		# Special case layout when LLC is the last level being graphed
+		if ($cutoffLevelName eq "llc") {
+			push @breakupLLCs, generateLabel($subContainer);
+		}
 
 		# Special case layout of LLC when there are multiple ones per socket
-		if ($levelName eq "llc" && $multiLLC) {
-			if ($containerIndex % $level == 0) {
+		# and levels exist below them.
+		if ($levelName eq "llc") {
+			if ($containerIndex % $splitLLCs == 0) {
 				push @{$layoutNodesRef}, "lNode$layoutNodePrefix${containerIndex}_$clusterID";
 				$dot .= "${indent} lNode$layoutNodePrefix${containerIndex}_$clusterID [ label = \"\", style=invis, shape=point]\n";
+
 			}
 		}
 	}
 
 	if ($multiLLC) {
 		for (my $i = 0; $i < scalar(@layoutNodes) - 1; $i++) {
-			if ((scalar(@layoutNodes) - $i < $splitLLC) || (($i + 1) % 5 != 0)) {
+			if ((scalar(@layoutNodes) - $i < $splitLLCs) || (($i + 1) % 5 != 0)) {
 				$dot .= "${indent}$layoutNodes[$i] -> $layoutNodes[$i+1] [ style=invis ]\n";
 			}
 		}
 	}
-	if ($renderSubgraph) {
-		$dot .= "${indent}}\n";
-	}
+	$dot .= "${indent}}\n";
 
 	return $dot;
 }
@@ -157,6 +151,12 @@ sub renderLevel {
 sub renderOne() {
 	my ($self, $model) = @_;
 	my $container = $model->getModel();
+	my $cutoff = $model->getCutoff();
+	my $cutoffLevelName = $model->getCutoffLevelName();
+
+	if (!defined($cutoff)) {
+		$cutoff = 5;
+	}
 
 	my $dot = "digraph {\n";
 	$dot .= "  graph [ compound=true ]\n";
@@ -164,14 +164,24 @@ sub renderOne() {
 	$dot .= "  label = \"" . $container->getContainerTitle() . "\"\n";
 
 	foreach my $nodeContainer (@{$container->{_SubContainers}}) {
-		$dot .= $self->renderLevel(1, 1, $nodeContainer);
-		if (scalar(@firstCores) > $splitCores * 2) {
-			for (my $i = scalar(@firstCores) - 1; $i > 0; $i--) {
+		$dot .= $self->renderLevel($cutoff, $cutoffLevelName, $nodeContainer);
+		if (scalar(@breakupCores) > $splitCores * 2) {
+			for (my $i = scalar(@breakupCores) - 1; $i > 0; $i--) {
 				if ($i % $splitCores != 0) {
-					$dot .= "  \"@firstCores[$i]\" -> \"@firstCores[$i-1]\" [ style=invis]\n";
+					$dot .= "  \"@breakupCores[$i]\" -> \"@breakupCores[$i-1]\" [ style=invis]\n";
 				}
 			}
 		}
+		if (scalar(@breakupLLCs) >= $splitLLCs * 2) {
+			for (my $i = scalar(@breakupLLCs) - 1; $i > 0; $i--) {
+				if ($i % $splitLLCs != 0) {
+					$dot .= "  \"@breakupLLCs[$i]\" -> \"@breakupLLCs[$i-1]\" [ style=invis]\n";
+				}
+			}
+		}
+
+		@breakupCores = ();
+		@breakupLLCs = ();
 	}
 
 	$dot .= "}\n";

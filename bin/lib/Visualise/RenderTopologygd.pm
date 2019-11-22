@@ -11,7 +11,6 @@ my $outputFormat;
 my @gradient;
 my $black;
 my $font;
-my $cutoffLevel = 9999;
 my $canvas;
 my $cWidth = 1024;
 my $marginCWidth = 100;
@@ -29,20 +28,6 @@ sub initialise() {
 	my ($self) = @_;
 	$self->{_ModuleName} = "RenderTopologydot";
 	$self->SUPER::initialise();
-}
-
-sub setCutoff() {
-	my ($self, $cutoff) = @_;
-
-	if ($cutoff > 5) {
-		$cutoff = 5;
-	}
-
-	if ($cutoff < 1) {
-		$cutoff = 1;
-	}
-
-	$cutoffLevel = $cutoff;
 }
 
 sub setOutput() {
@@ -88,7 +73,7 @@ sub start {
 	my ($self, $model) = @_;
 
 	$topologyModel = $model;
-	@leafNodes = $model->getModel()->getLeafNodes($cutoffLevel);
+	@leafNodes = $model->getLeafNodes();
 }
 
 sub getNrFrames {
@@ -215,7 +200,6 @@ sub end() {
 	my $i;
 
 	# Size width of canvas to fit excessive samples if necessary
-	$topologyModel->getModel()->trimMiddle();
 	$levelOffset = 5 - $leafNodes[0]->{_Level};
 	my $nr_samples = scalar(@{$samples[0]});
 	if ($cWidth < $nr_samples) {

@@ -108,7 +108,7 @@ sub addLeafNode {
 	my ($container, $maxdepth) = @_;
 
 	if (defined($maxdepth)) {
-		if ($container->{_Level} == $maxdepth) {
+		if ($container->{_LevelName} eq $maxdepth) {
 			push @leaf_nodes, $container;
 		}
 		return;
@@ -194,6 +194,35 @@ sub clearValues {
 	foreach my $subContainer (@{$container->{_SubContainers}}) {
 		$container->clearValues($subContainer);
 	}
+}
+
+sub levelExists {
+	my ($self, $level) = @_;
+	my $container = $self;
+
+	do {
+		if ($container->{_LevelName} eq $level) {
+			return 1;
+		}
+		$container = $container->{_SubContainers}[0];
+	} while (defined($container->{_SubContainers}));
+
+	return 0;
+}
+
+sub getLevelIndex {
+	my ($self, $levelName) = @_;
+	my $container = $self;
+	my $level = 0;
+
+	do {
+		if ($container->{_LevelName} eq $levelName) {
+			return $level;
+		}
+		$container = $container->{_SubContainers}[0];
+		$level++;
+	} while (defined($container->{_SubContainers}));
+	return -1;
 }
 
 sub dropLevel {

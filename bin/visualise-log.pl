@@ -25,7 +25,7 @@ my ($opt_topology, $opt_type);
 my $opt_render_backend = "dot";
 my $opt_input_format = "mpstat";
 my $opt_format = "png";
-my $opt_cutoff = 9999;
+my $opt_cutoff;
 my $opt_activity;
 GetOptions(
 	'verbose|v'		=> \$opt_verbose,
@@ -64,14 +64,17 @@ my $logparser;
 if (defined $opt_topology) {
 	my $modelFactory = Visualise::VisualiseFactory->new();
 	$model = $modelFactory->loadModule("model", "topology");
-	$model->parse($opt_topology);
+	if (defined($opt_cutoff)) {
+		$model->setCutoff($opt_cutoff);
+	}
+	$model->parse($opt_topology, $opt_cutoff);
 
 	my $renderFactory = Visualise::VisualiseFactory->new();
 	$renderer = $renderFactory->loadModule("render", "topology$opt_render_backend");
 	$renderer->setOutput($opt_output);
 	$renderer->setFormat($opt_format);
-	$renderer->setCutoff($opt_cutoff);
 	$renderer->start($model);
+
 }
 
 # Parse logs if specified

@@ -6,12 +6,35 @@ our @ISA = qw(Visualise::Visualise Visualise::Model);
 use strict;
 
 my @levels = ( "machine", "node", "socket", "llc", "core", "cpu" );
+my $cutoffLevel;
+my $cutoffLevelName;
 
 sub initialise {
 	my ($self) = @_;
 
 	$self->{_ModuleName} = "ModelTopology";
 	$self->SUPER::initialise();
+}
+
+sub getCutoff {
+	return $cutoffLevel;
+}
+
+sub getCutoffLevelName {
+	return $cutoffLevelName;
+}
+
+sub setCutoff {
+	my ($self, $cutoff) = @_;
+
+	for (my $i = 0; $i <= $#levels; $i++) {
+		if ($levels[$i] eq $cutoff) {
+			$cutoffLevel = $i;
+			$cutoffLevelName = $cutoff;
+			return;
+		}
+	}
+	die("Unrecognised cutoff $cutoff");
 }
 
 sub mapLevel {
@@ -25,6 +48,12 @@ sub setLevelNames {
 
 	my $container = $self->getModel();
 	$container->walkTree(\&mapLevel);
+}
+
+sub getLeafNodes {
+	my ($self) = @_;
+
+	$self->getModel()->getLeafNodes($cutoffLevelName);
 }
 
 sub parse {
@@ -57,6 +86,16 @@ sub parse {
 	}
 	close($input);
 	$self->setLevelNames();
+	$container->trimMiddle();
+
+	# Cutoff might be on non-existent level
+	if (defined($cutoffLevelName)) {
+		while ($cutoffLevel > 1 && !$container->levelExists($cutoffLevelName)) {
+			$cutoffLevelName = $levels[$cutoffLevel];
+		}
+		$cutoffLevel = $container->getLevelIndex($cutoffLevelName);
+		die("Tree became completely inconsistent") if ($cutoffLevel <= 0);
+	}
 
 	return $container;
 }
