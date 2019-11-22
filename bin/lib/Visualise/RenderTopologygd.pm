@@ -176,6 +176,10 @@ sub renderLevels {
 	my $container = $leafNodes[$cpu];
 	my $top = $container;
 
+	if ($top->{_Level} == 1) {
+		return;
+	}
+
 	while ($top->{_Level} != 1) {
 		$top = $top->{_Parent};
 	}
