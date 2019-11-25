@@ -46,7 +46,7 @@ sub extractReport($$$) {
 	my $format_type = -1;
 	my $input;
 
-	$input = $input = $self->SUPER::open_log("$reportDir/iostat-$testBenchmark");
+	$input = $self->SUPER::open_log("$reportDir/iostat-$testBenchmark");
 
 	my $fieldLength = 12;
         $self->{_FieldLength} = $fieldLength;

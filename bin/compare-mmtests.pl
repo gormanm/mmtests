@@ -56,7 +56,6 @@ if (! -d $opt_reportDirectory) {
 my @extractModules;
 my $nrModules = 0;
 my $extractFactory = MMTests::ExtractFactory->new();
-$opt_benchmark =~ s/\+/\\+/g;
 if (!defined($opt_monitor)) {
 	# Instantiate extract handlers for the requested type for the benchmark
 	for my $name (split /,/, $opt_names) {

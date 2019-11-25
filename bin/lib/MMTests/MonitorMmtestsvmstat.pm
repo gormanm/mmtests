@@ -184,13 +184,15 @@ sub extractReport($$$$) {
 	}
 
 	my $input = $self->SUPER::open_log("$reportDir/tests-sysstate");
+
+	(my $testBenchmarkRegex = $testBenchmark) =~ s/\+/\\+/g;
 	while (<$input>) {
-		if ($_ =~ /^test begin \:\: $testBenchmark/) {
+		if ($_ =~ /^test begin \:\: $testBenchmarkRegex/) {
 			$reading_test = 1;
 			next;
 		}
 
-		if ($_ =~ /^time :: $testBenchmark/) {
+		if ($_ =~ /^time :: $testBenchmarkRegex/) {
 			my @elements = split(/\s/, $_);
 			$elapsed_time = $elements[7];
 		}
@@ -216,7 +218,7 @@ sub extractReport($$$$) {
 				next;
 			}
 
-			if ($_ =~ /^test end :: $testBenchmark/) {
+			if ($_ =~ /^test end :: $testBenchmarkRegex/) {
 				$reading_test = 0;
 				next;
 			}

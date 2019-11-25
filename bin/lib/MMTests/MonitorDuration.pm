@@ -19,8 +19,9 @@ sub extractReport($$$) {
 	my ($self, $reportDir, $testBenchmark) = @_;
 	my $input = $self->SUPER::open_log("$reportDir/tests-timestamp");
 
+	(my $testBenchmarkRegex = $testBenchmark) =~ s/\+/\\+/g;
 	while (<$input>) {
-		if ($_ =~ /^time \:\: $testBenchmark (.*)/) {
+		if ($_ =~ /^time \:\: $testBenchmarkRegex (.*)/) {
 			my $dummy;
 			my ($user, $system, $elapsed);
 
