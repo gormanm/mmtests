@@ -55,7 +55,7 @@ none)
 	echo
 	;;
 *)
-	die Unrecognised server-side command
+	die "Unrecognised server-side command"
 	;;
 esac
 
@@ -70,7 +70,6 @@ server_stop 0
 			|| die "Failed to run tbench"
 	server_stop $NR_THREADS
 	gzip $LOGDIR_RESULTS/tbench-$NR_THREADS.log
-	kill -9 $PID_SERVER
 ###SHELLPACK threads_powertwo_end
 
 exit $SHELLPACK_SUCCESS
