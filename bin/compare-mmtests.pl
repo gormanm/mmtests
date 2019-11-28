@@ -56,50 +56,43 @@ if (! -d $opt_reportDirectory) {
 my @extractModules;
 my $nrModules = 0;
 my $extractFactory = MMTests::ExtractFactory->new();
-if (!defined($opt_monitor)) {
-	# Instantiate extract handlers for the requested type for the benchmark
-	for my $name (split /,/, $opt_names) {
-		printVerbose("Loading extract $opt_benchmark$opt_altreport $name\n");
-		eval {
-			my $reportDirectory = "$opt_reportDirectory/$name";
-			my @iterdirs = <"$reportDirectory/iter-*">;
 
+# Instantiate extract handlers for the requested type for the benchmark
+for my $name (split /,/, $opt_names) {
+	printVerbose("Loading extract $opt_benchmark$opt_altreport $name\n");
+	eval {
+		my $reportDirectory = "$opt_reportDirectory/$name";
+		my @iterdirs = <$reportDirectory/iter-*>;
+
+		# Load the appropriate extraction model
+		if (!defined($opt_monitor)) {
 			$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $name, $opt_subheading);
-			foreach my $iterdir (@iterdirs) {
-				$iterdir = "$iterdir/$opt_benchmark";
-				$extractModules[$nrModules]->extractReport("$iterdir/logs");
-				$extractModules[$nrModules]->nextIteration();
-			}
-			if ($opt_printRatio) {
-				$extractModules[$nrModules++]->extractRatioSummary($opt_subheading);
-			} else {
-				$extractModules[$nrModules++]->extractSummary($opt_subheading);
-			}
-		} or do {
-			printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport: $name\n$@");
-			$#extractModules -= 1;
-		}
-	};
-} else {
-	$opt_hideCompare = 1;
-	for my $name (split /,/, $opt_names) {
-		printVerbose("Loading extract $opt_benchmark $name\n");
-		eval {
-			my $reportDirectory = "$opt_reportDirectory/$name";
-			my @iterdirs = <$reportDirectory/iter-*>;
+		} else {
+			$opt_altreport = "";
+			$opt_hideCompare = 1;
 			$extractModules[$nrModules] = $extractFactory->loadModule("monitor", $opt_monitor, $name, $opt_subheading);
-			foreach my $iterdir (@iterdirs) {
-				$extractModules[$nrModules]->extractReport($iterdir, $opt_benchmark, $opt_subheading, 1);
-				$extractModules[$nrModules]->nextIteration();
-			}
-			$extractModules[$nrModules++]->extractSummary($opt_subheading);
-		} or do {
-			printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport, $name\n$@");
-			$#extractModules -= 1;
 		}
-	};
+
+		foreach my $iterdir (@iterdirs) {
+			if (!defined($opt_monitor)) {
+				$extractModules[$nrModules]->extractReport("$iterdir/$opt_benchmark/logs");
+			} else {
+				$extractModules[$nrModules]->extractReport($iterdir, $opt_benchmark, $opt_subheading, 1);
+			}
+			$extractModules[$nrModules]->nextIteration();
+		}
+
+		if (!defined($opt_monitor) && $opt_printRatio) {
+			$extractModules[$nrModules++]->extractRatioSummary($opt_subheading);
+		} else {
+			$extractModules[$nrModules++]->extractSummary($opt_subheading);
+		}
+	} or do {
+		printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport: $name\n$@");
+		$#extractModules -= 1;
+	}
 }
-	
+
 printVerbose("Loaded $nrModules extract modules\n");
 
 # Instantiate comparison for the requested type for the benchmark
