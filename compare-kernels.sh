@@ -9,7 +9,6 @@ export PATH=$SCRIPTDIR/bin:$PATH
 
 KERNEL_BASE=
 KERNEL_COMPARE=
-POSTSCRIPT_OUTPUT=no
 
 while [ "$1" != "" ]; do
 	case $1 in
@@ -175,40 +174,24 @@ KERNEL_LIST_ITER=`echo $KERNEL_LIST | sed -e 's/,/ /g'`
 
 plain() {
 	IMG_SRC=$1
-	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
-		 echo -n "  <td><a href=\"$IMG_SRC.ps.gz\"><img src=\"$IMG_SRC.png\"></a></td>"
-	else
-		 echo -n "  <td><img src=\"$IMG_SRC.png\"></td>"
-	fi
+	echo -n "  <td><img src=\"$IMG_SRC.png\"></td>"
 }
 
 plain_alone() {
 	IMG_SRC=$1
-	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
-		echo -n "  <td colspan=4><a href=\"$IMG_SRC.ps.gz\"><img src=\"$IMG_SRC.png\"></a></td>"
-	else
-		echo -n "  <td colspan=4><img src=\"$IMG_SRC.png\"></td>"
-	fi
+	echo -n "  <td colspan=4><img src=\"$IMG_SRC.png\"></td>"
 }
 
 smoothover() {
 	IMG_SRC=$1
 	IMG_SMOOTH=$1-smooth
-	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
-		echo -n "  <td><a href=\"$IMG_SMOOTH.ps.gz\"><img src=\"$IMG_SRC.png\" onmouseover=\"this.src='$IMG_SMOOTH.png'\" onmouseout=\"this.src='$IMG_SRC.png'\"></a></td>"
-	else
-		echo -n "  <td><img src=\"$IMG_SRC.png\" onmouseover=\"this.src='$IMG_SMOOTH.png'\" onmouseout=\"this.src='$IMG_SRC.png'\"></td>"
-	fi
+	echo -n "  <td><img src=\"$IMG_SRC.png\" onmouseover=\"this.src='$IMG_SMOOTH.png'\" onmouseout=\"this.src='$IMG_SRC.png'\"></td>"
 }
 
 logyover() {
 	IMG_SRC=$1
 	IMG_LOGY=$1-logY
-	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
-		echo -n "  <td><a href=\"$IMG_LOGY.ps.gz\"><img src=\"$IMG_LOGY.png\" onmouseover=\"this.src='$IMG_SRC.png'\" onmouseout=\"this.src='$IMG_LOGY.png'\"></a></td>"
-	else
-		echo -n "  <td><img src=\"$IMG_LOGY.png\" onmouseover=\"this.src='$IMG_SRC.png'\" onmouseout=\"this.src='$IMG_LOGY.png'\"></td>"
-	fi
+	echo -n "  <td><img src=\"$IMG_LOGY.png\" onmouseover=\"this.src='$IMG_SRC.png'\" onmouseout=\"this.src='$IMG_LOGY.png'\"></td>"
 }
 
 generate_latency_table() {
@@ -233,12 +216,7 @@ generate_latency_graph() {
 	LATTYPE="$1"
 	LATSTRING="$2"
 	if [ `ls $LATTYPE-$KERNEL_BASE-* 2> /dev/null | wc -l` -gt 0 ]; then
-		eval $GRAPH_PNG $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE.png
-		eval $GRAPH_PNG $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE-smooth.png --smooth
-		if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
-			eval $GRAPH_PSC $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE.ps
-			eval $GRAPH_PSC $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE-smooth.ps --smooth
-		fi
+		eval $GRAPH_PNG $GRANULARITY --title "$LATSTRING" --print-monitor $LATTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$LATTYPE --with-smooth
 		smoothover graph-$SUBREPORT-$LATTYPE
 	fi
 }
@@ -264,9 +242,8 @@ generate_client_trans_graphs() {
 		else
 			LABEL="$SUBREPORT transactions $CLIENT clients"
 		fi
-		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}.png --x-label \"$XLABEL\"
-		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL smooth\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-smooth.png --smooth --x-label \"$XLABEL\"
-		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL sorted\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-sorted.png --sort-samples-reverse --x-label \"Sorted samples\"
+		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME} --x-label \"$XLABEL\" --with-smooth
+		eval $GRAPH_PNG --sub-heading $CLIENT --plottype lines --title \"$LABEL sorted\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-sorted --sort-samples-reverse --x-label \"Sorted samples\"
 		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}
 		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-smooth
 		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-sorted
@@ -282,8 +259,7 @@ generate_ops_graphs() {
 		if [ $((COUNT%3)) -eq 0 ]; then
 			echo "<tr>"
 		fi
-		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
 		plain graph-$SUBREPORT-$HEADING
 		if [ $((COUNT%3)) -eq 2 ]; then
 			echo "</tr>"
@@ -305,8 +281,7 @@ generate_client_subtest_graphs() {
 		if [ $((COUNT%$WRAP)) -eq 0 ]; then
 			echo "<tr>"
 		fi
-		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
 		plain graph-$SUBREPORT-$HEADING
 		if [ $((COUNT%$WRAP)) -eq $((WRAP-1)) ]; then
 			echo "</tr>"
@@ -347,8 +322,7 @@ generate_subtest_graphs() {
 		if [ $((COUNT%$WRAP)) -eq 0 ]; then
 			echo "<tr>"
 		fi
-		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME.png
-		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME.ps
+		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME
 		plain graph-$SUBREPORT-$HEADING_FILENAME
 		if [ $((COUNT%$WRAP)) -eq $((WRAP-1)) ]; then
 			echo "</tr>"
@@ -370,16 +344,14 @@ generate_subtest_graphs_sorted() {
 		HEADING=`echo $HEADING | sed -e 's/@/ /g'`
 		HEADING_FILENAME=`echo $HEADING | sed -e 's/ //g'`
 		echo "<tr>"
-		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME.png
-		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME.ps
-		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted.png --sort-samples --sort-percentages 5
-		eval $GRAPH_PSC --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted.ps  --sort-samples --sort-percentages 5
+		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME
+		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted --sort-samples --sort-percentages 5
 		if [ "$2" != "--logY" ]; then
 			plain graph-$SUBREPORT-$HEADING_FILENAME
 			plain graph-$SUBREPORT-$HEADING_FILENAME-sorted
 		else
-			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-logY.png --logY
-			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY.png --sort-samples --sort-percentages 5 --logY
+			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-logY --logY
+			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING sorted\" --sub-heading \"$HEADING\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME-sorted-logY --sort-samples --sort-percentages 5 --logY
 
 			logyover graph-$SUBREPORT-$HEADING_FILENAME
 			logyover graph-$SUBREPORT-$HEADING_FILENAME-sorted
@@ -394,8 +366,7 @@ generate_cputime_graphs() {
 	for HEADING in User System Elapsed; do
 		$EXTRACT_CMD --print-plot --sub-heading $HEADING -n $KERNEL_BASE | grep -q NaN
 		if [ $? -ne 0 ]; then
-			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-			eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+			eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
 			plain graph-$SUBREPORT-$HEADING
 		else
 			echo "<td><center>No $HEADING CPU activity</center></td>"
@@ -416,8 +387,7 @@ generate_basic_single() {
 		EXTRA_TITLE=`echo " $EXTRA" | sed -e 's/--wide//' -e 's/--//g'`
 	fi
 
-	eval $GRAPH_PNG $EXTRA --title \"$TITLE$EXTRA_TITLE\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT$EXTRA_FILENAME.png
-	eval $GRAPH_PSC $EXTRA --title \"$TITLE$EXTRA_TITLE\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT$EXTRA_FILENAME.ps
+	eval $GRAPH_PNG $EXTRA --title \"$TITLE$EXTRA_TITLE\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT$EXTRA_FILENAME
 	plain graph-$SUBREPORT$EXTRA_FILENAME
 }
 
@@ -445,7 +415,7 @@ generate_subheading_graphs() {
 		if [ $((COUNT%$WRAP)) -eq 0 ]; then
 			echo "<tr>"
 		fi
-		eval $GRAPH_PNG -b $SUBTEST --title \"$SUBTEST $SUBHEADING\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING.png
+		eval $GRAPH_PNG -b $SUBTEST --title \"$SUBTEST $SUBHEADING\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING
 		plain graph-$SUBTEST-$SUBHEADING
 		if [ $((COUNT%$WRAP)) -eq $((WRAP-1)) ]; then
 			echo "</tr>"
@@ -466,9 +436,8 @@ generate_subheading_trans_graphs() {
 
 	for SUBHEADING in $SUBHEADING_LIST; do
 		echo "<tr>"
-		eval $GRAPH_PNG -a $SUBTEST --title \"$SUBTEST $SUBHEADING\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING.png --x-label Time
-		eval $GRAPH_PNG -a $SUBTEST --title \"$SUBTEST $SUBHEADING smooth\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING-smooth.png --smooth --x-label Time
-		eval $GRAPH_PNG -a $SUBTEST --title \"$SUBTEST $SUBHEADING sorted\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING-sorted.png --sort-samples-reverse --x-label \"Sorted samples\"
+		eval $GRAPH_PNG -a $SUBTEST --title \"$SUBTEST $SUBHEADING\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING --x-label Time --with-smooth
+		eval $GRAPH_PNG -a $SUBTEST --title \"$SUBTEST $SUBHEADING sorted\" $EXTRA --sub-heading $SUBHEADING  --output $OUTPUT_DIRECTORY/graph-$SUBTEST-$SUBHEADING-sorted --sort-samples-reverse --x-label \"Sorted samples\"
 		plain graph-$SUBTEST-$SUBHEADING
 		plain graph-$SUBTEST-$SUBHEADING-smooth
 		plain graph-$SUBTEST-$SUBHEADING-sorted
@@ -482,11 +451,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	COMPARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD $AUTO_DETECT_SIGNIFICANCE"
 	COMPARE_BARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
 	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
-	if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
-		GRAPH_PSC="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format \"postscript color solid\""
-	else
-		GRAPH_PSC="#"
-	fi
 	echo
 	if [ "$FORMAT" = "html" ]; then
 		echo "<a name="$SUBREPORT">"
@@ -794,7 +758,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	SWAP_GRAPH=no
 	if have_monitor_results vmstat $KERNEL_BASE; then
 		for EVENT in si so; do
-			eval $COMPARE_CMD --print-monitor vmstat --sub-heading $EVENT | grep -v 0.00 &> /dev/null
+			eval $COMPARE_CMD --print-monitor vmstat --sub-heading $EVENT | grep Max | grep -v 0.00 &> /dev/null
 			if [ $? -eq 0 ]; then
 				SWAP_GRAPH=yes
 			fi
@@ -832,8 +796,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 					TITLE_HEADING="Elapsed"
 					;;
 				esac
-				eval $GRAPH_PNG --title \"$SUBREPORT $TITLE_HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				eval $GRAPH_PSC --title \"$SUBREPORT $TITLE_HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				eval $GRAPH_PNG --title \"$SUBREPORT $TITLE_HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
 				plain graph-$SUBREPORT-$HEADING
 			done
 			echo "</tr>"
@@ -843,16 +806,15 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			;;
 		cyclictest-pinned|cyclictest-unbound)
 			for HEADING in Max Avg; do
-				eval $GRAPH_PNG --title \"$SUBREPORT Latency $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				eval $GRAPH_PSC --title \"$SUBREPORT Latency $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				eval $GRAPH_PNG --title \"$SUBREPORT Latency $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
 				plain graph-$SUBREPORT-$HEADING
 			done
 			;;
 		cyclictest-fine-*)
-			eval $GRAPH_PNG --wide --logY --title \"$SUBREPORT Latency\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-			eval $GRAPH_PNG --wide --logX --logY --title \"$SUBREPORT Latency sorted\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-sorted.png --sort-samples-reverse
-			eval $GRAPH_PNG --very-large --logY --title \"$SUBREPORT Latency sorted\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-sorted-percentage.png --sort-samples --sort-percentages 1 --rotate-xaxis
-			eval $GRAPH_PNG --very-large --logY --title \"$SUBREPORT Latency sorted\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-sorted-percentage-tail.png --sort-samples --sort-percentages 1 --xrange 99:100 --xtics 0.1 --rotate-xaxis
+			eval $GRAPH_PNG --wide --logY --title \"$SUBREPORT Latency\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
+			eval $GRAPH_PNG --wide --logX --logY --title \"$SUBREPORT Latency sorted\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-sorted --sort-samples-reverse
+			eval $GRAPH_PNG --very-large --logY --title \"$SUBREPORT Latency sorted\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-sorted-percentage --sort-samples --sort-percentages 1 --rotate-xaxis
+			eval $GRAPH_PNG --very-large --logY --title \"$SUBREPORT Latency sorted\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING-sorted-percentage-tail --sort-samples --sort-percentages 1 --xrange 99:100 --xtics 0.1 --rotate-xaxis
 			echo "<tr>"
 			plain graph-$SUBREPORT-$HEADING
 			echo "</tr>"
@@ -888,8 +850,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			for LOCKTYPE in single multi; do
 				echo "<tr>"
 				for SUB_WORKLOAD in $SUB_WORKLOADS; do
-						eval $GRAPH_PNG --title \"$SUBREPORT $SUB_WORKLOAD $LOCKTYPE\" --sub-heading $SUB_WORKLOAD-$LOCKTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUB_WORKLOAD-$LOCKTYPE.png
-						eval $GRAPH_PSC --title \"$SUBREPORT $SUB_WORKLOAD $LOCKTYPE\" --sub-heading $SUB_WORKLOAD-$LOCKTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUB_WORKLOAD-$LOCKTYPE.ps
+						eval $GRAPH_PNG --title \"$SUBREPORT $SUB_WORKLOAD $LOCKTYPE\" --sub-heading $SUB_WORKLOAD-$LOCKTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUB_WORKLOAD-$LOCKTYPE
 						plain graph-$SUBREPORT-$SUB_WORKLOAD-$LOCKTYPE
 				done
 				echo "</tr>"
@@ -939,8 +900,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 					TITLE_HEADING="Elapsed"
 					;;
 				esac
-				eval $GRAPH_PNG --logX --title \"$SUBREPORT $TITLE_HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				eval $GRAPH_PSC --logX --title \"$SUBREPORT $TITLE_HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				eval $GRAPH_PNG --logX --title \"$SUBREPORT $TITLE_HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
 				plain graph-$SUBREPORT-$HEADING
 			done
 			echo "</tr>"
@@ -961,10 +921,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			;;
 		netperf-udp)
 			echo "<tr>"
-			eval $GRAPH_PNG --xrange 16:32768 --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send.png
-			eval $GRAPH_PSC --xrange 16:32768 --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send.ps
-			eval $GRAPH_PNG --xrange 16:32768 --logX --title \"$SUBREPORT Recv Throughput\" --sub-heading recv --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-recv.png
-			eval $GRAPH_PSC --xrange 16:32768 --logX --title \"$SUBREPORT Recv Throughput\" --sub-heading recv --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-recv.ps
+			eval $GRAPH_PNG --xrange 16:32768 --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send
+			eval $GRAPH_PNG --xrange 16:32768 --logX --title \"$SUBREPORT Recv Throughput\" --sub-heading recv --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-recv
 			plain graph-$SUBREPORT-send
 			plain graph-$SUBREPORT-recv
 			echo "</tr>"
@@ -980,10 +938,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			;;
 		pft)
 			echo "<tr>"
-			eval $GRAPH_PNG --title \"$SUBREPORT faults/cpu\" --sub-heading faults/cpu --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultscpu.png
-			eval $GRAPH_PSC --title \"$SUBREPORT faults/cpu\" --sub-heading faults/cpu --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultscpu.ps
-			eval $GRAPH_PNG --title \"$SUBREPORT faults/sec\" --sub-heading faults/sec --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultssec.png
-			eval $GRAPH_PSC --title \"$SUBREPORT faults/sec\" --sub-heading faults/sec --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultssec.ps
+			eval $GRAPH_PNG --title \"$SUBREPORT faults/cpu\" --sub-heading faults/cpu --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultscpu
+			eval $GRAPH_PNG --title \"$SUBREPORT faults/sec\" --sub-heading faults/sec --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultssec
 			plain graph-$SUBREPORT-faultscpu
 			plain graph-$SUBREPORT-faultssec
 			echo "</tr>"
@@ -991,10 +947,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		pgioperfbench)
 			for OPER in commit read wal; do
 				echo "<tr>"
-				eval $GRAPH_PNG --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER.png
-				eval $GRAPH_PSC --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER.ps
-				eval $GRAPH_PNG --logY --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER-logY.png
-				eval $GRAPH_PSC --logY --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER-logY.ps
+				eval $GRAPH_PNG --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER
+				eval $GRAPH_PNG --logY --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER-logY
 				plain graph-$SUBREPORT-$OPER
 				plain graph-$SUBREPORT-$OPER-logY
 				echo "</tr>"
@@ -1002,8 +956,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			;;
 		pgbench)
 			echo "<tr>"
-			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
-			eval $GRAPH_PSC --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}
 			plain graph-$SUBREPORT
 			echo "</tr>"
 
@@ -1032,8 +985,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			for INTERVAL in p50 p95 p99; do
 				echo "<tr>"
 				for HEADING in Read Write Allocation; do
-					eval $GRAPH_PNG --title \"$SUBREPORT $INTERVAL-$HEADING\" --sub-heading $INTERVAL-$HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$INTERVAL-$HEADING.png
-					eval $GRAPH_PSC --title \"$SUBREPORT $INTERVAL-$HEADING\" --sub-heading $INTERVAL-$HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$INTERVAL-$HEADING.ps
+					eval $GRAPH_PNG --title \"$SUBREPORT $INTERVAL-$HEADING\" --sub-heading $INTERVAL-$HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$INTERVAL-$HEADING
 					plain graph-$SUBREPORT-$INTERVAL-$HEADING
 				done
 				echo "</tr>"
@@ -1041,8 +993,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 
 			echo "<tr>"
 			for HEADING in work stall; do
-				eval $GRAPH_PNG -b simoop -a rates --title \"$SUBREPORT $HEADING rates\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.png
-				eval $GRAPH_PSC -b simoop -a rates --title \"$SUBREPORT $HEADING rates\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.ps
+				eval $GRAPH_PNG -b simoop -a rates --title \"$SUBREPORT $HEADING rates\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING
 				plain graph-$SUBREPORT-$HEADING
 			done
 			echo "</tr>"
@@ -1066,18 +1017,15 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		starve)
 			echo "<tr>"
 			for HEADING in User System Elapsed CPU; do
-				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
 				plain graph-$SUBREPORT-$HEADING
 			done
 			echo "</tr>"
 			;;
 		stockfish)
 			echo "<tr>"
-			eval $GRAPH_PNG        -b stockfish     --title \"$SUBREPORT nodes/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
-			eval $GRAPH_PSC        -b stockfish     --title \"$SUBREPORT nodes/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
-			eval $GRAPH_PNG        -b stockfish -a time --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-time.png
-			eval $GRAPH_PSC        -b stockfish -a time --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-time.ps
+			eval $GRAPH_PNG        -b stockfish     --title \"$SUBREPORT nodes/sec\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}
+			eval $GRAPH_PNG        -b stockfish -a time --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-time
 			plain graph-$SUBREPORT
 			plain graph-$SUBREPORT-time
 			echo "</tr>"
@@ -1086,18 +1034,16 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			;;
 		sysbench)
 			echo "<tr>"
-			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
-			eval $GRAPH_PSC --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
-			eval $GRAPH_PNG --logX -b sysbench -a exectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.png
-			eval $GRAPH_PSC --logX -b sysbench -a exectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime.ps
+			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}
+			eval $GRAPH_PNG --logX -b sysbench -a exectime --title \"$SUBREPORT exec time\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-exectime
 			plain graph-$SUBREPORT
 			plain graph-$SUBREPORT-exectime
 			echo "</tr>"
 			;;
 		sysjitter)
 			for HEADING in int_total int_median int_mean; do
-				eval $GRAPH_PNG --wide --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-${HEADING}.png
-				eval $GRAPH_PNG --wide --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-${HEADING}.png
+				eval $GRAPH_PNG --wide --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-${HEADING}
+				eval $GRAPH_PNG --wide --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-${HEADING}
 				echo "<tr>"
 				plain graph-$SUBREPORT-$HEADING
 				echo "</tr>"
@@ -1114,24 +1060,21 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "<tr>"
 
 			for SIZE in fault-base fault-huge; do
-				eval $GRAPH_PNG        -b thpscale --title \"$SUBREPORT $SIZE\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$SIZE.png --sub-heading $SIZE
-				eval $GRAPH_PSC        -b thpscale --title \"$SUBREPORT $SIZE\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$SIZE.ps --sub-heading $SIZE
+				eval $GRAPH_PNG        -b thpscale --title \"$SUBREPORT $SIZE\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$SIZE --sub-heading $SIZE
 				plain graph-$SUBREPORT-$SIZE
 			done
 			echo "</tr>"
 			;;
 		unixbench-dhry2reg|unixbench-syscall|unixbench-pipe|unixbench-spawn|unixbench-execl)
 			echo "<tr>"
-			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.png
-			eval $GRAPH_PSC --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}.ps
+			eval $GRAPH_PNG --wide --logX --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}
 			plain graph-$SUBREPORT
 			echo "</tr>"
 			;;
 		usemem)
 			echo "<tr>"
 			for HEADING in Elapsd System; do
-				eval $GRAPH_PNG -b usemem --title \"$SUBREPORT $HEADING time\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.png
-				eval $GRAPH_PSC -b usemem --title \"$SUBREPORT $HEADING time\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING.ps
+				eval $GRAPH_PNG -b usemem --title \"$SUBREPORT $HEADING time\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$HEADING
 			done
 			plain graph-$SUBREPORT-System
 			plain graph-$SUBREPORT-Elapsd
@@ -1140,15 +1083,13 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		vmr-stream)
 			echo "<tr>"
 			for HEADING in Add Copy; do
-				eval $GRAPH_PNG --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				eval $GRAPH_PSC --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				eval $GRAPH_PNG --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
 				plain graph-$SUBREPORT-$HEADING
 			done
 			echo "</tr>"
 			echo "<tr>"
 			for HEADING in Scale Triad; do
-				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.png
-				eval $GRAPH_PSC --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING.ps
+				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
 				plain graph-$SUBREPORT-$HEADING
 			done
 			echo "</tr>"
@@ -1162,8 +1103,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			for ADDRSPACE in processes threads; do
 				echo "<tr>"
 				for SUB_WORKLOAD in $SUB_WORKLOADS; do
-						eval $GRAPH_PNG --title \"$SUBREPORT $SUB_WORKLOAD $ADDRSPACE\" --sub-heading $SUB_WORKLOAD-$ADDRSPACE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUB_WORKLOAD-$ADDRSPACE.png
-						eval $GRAPH_PSC --title \"$SUBREPORT $SUB_WORKLOAD $ADDRSPACE\" --sub-heading $SUB_WORKLOAD-$ADDRSPACE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUB_WORKLOAD-$ADDRSPACE.ps
+						eval $GRAPH_PNG --title \"$SUBREPORT $SUB_WORKLOAD $ADDRSPACE\" --sub-heading $SUB_WORKLOAD-$ADDRSPACE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUB_WORKLOAD-$ADDRSPACE
 						plain graph-$SUBREPORT-$SUB_WORKLOAD-$ADDRSPACE
 				done
 				echo "</tr>"
@@ -1172,12 +1112,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		wptlbflush)
 			for CLIENT in `$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sed -e 's/.*-//' | sort -n | uniq`; do
 				echo "<tr>"
-				eval $GRAPH_PNG -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT.png
-				eval $GRAPH_PSC -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT.ps
-				eval $GRAPH_PNG -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT-smooth.png --smooth
-				eval $GRAPH_PSC -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT-smooth.ps --smooth
-				eval $GRAPH_PNG -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs sorted\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT-sorted.png --sort-samples-reverse
-				eval $GRAPH_PSC -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs sorted\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT-sorted.ps --sort-samples-reverse
+				eval $GRAPH_PNG -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT --with-smooth
+				eval $GRAPH_PNG -b $SUBREPORT --title \"$SUBREPORT $CLIENT procs sorted\" --sub-heading procs-$CLIENT --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$CLIENT-sorted --sort-samples-reverse
 				smoothover graph-$SUBREPORT-$CLIENT
 				plain graph-$SUBREPORT-$CLIENT-sorted
 				echo "</tr>"
@@ -1186,8 +1122,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		xfsrepair)
 			;;
 		*)
-			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.png
-			eval $GRAPH_PSC --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT.ps
+			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT.png ]; then
 				if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.png ]; then
 					smoothover graph-$SUBREPORT
@@ -1198,11 +1133,10 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 				echo "<tr><td>No graph representation</td></tr>"
 			fi
 			if [ "$PLOT_DETAILS" != "" ]; then
-				eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest --plottype run-sequence --separate-tests
-				eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest --plottype run-sequence --separate-tests --smooth
-				for TEST_PLOT in $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest-*.png; do
-					[[ $TEST_PLOT =~ "-smooth.png" ]] && continue
-					dest=`basename $TEST_PLOT .png`
+				eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest --plottype run-sequence --separate-tests --with-smooth
+				for TEST_PLOT in $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest-*; do
+					[[ $TEST_PLOT =~ "-smooth" ]] && continue
+					dest=`basename $TEST_PLOT `
 					smoothover $dest
 				done
 			fi
@@ -1214,28 +1148,19 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 				echo "<table class=\"resultsGraphs\">"
 				echo "<tr>"
 				for PARAM in avgqusz await r_await w_await; do
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM --with-smooth
 					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
 				done
 				echo "</tr>"
 				echo "<tr>"
 				for PARAM in avgrqsz rrqm wrqm; do
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM --with-smooth
 					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
 				done
 				echo "</tr>"
 				echo "<tr>"
 				for PARAM in rkbs wkbs totalkbs; do
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.png
-					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.png  --smooth
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM.ps
-					eval $GRAPH_PSC --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM-smooth.ps  --smooth
+					eval $GRAPH_PNG --title \"$DEVICE $PARAM\"   --print-monitor iostat --sub-heading $DEVICE-$PARAM --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$DEVICE-$PARAM --with-smooth
 					smoothover graph-$SUBREPORT-$DEVICE-$PARAM
 				done
 				echo "</tr>"
@@ -1246,10 +1171,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		rm -f /tmp/iostat-$$
 
 		if [ "$KCACHE_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.png
-			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.png
-			eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs.ps
-			eval $GRAPH_PSC --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees.ps
+			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs
+			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees
 			echo "<table class=\"resultsGraphs\">"
 			echo "<tr>"
 			plain graph-$SUBREPORT-kcache-allocs
@@ -1259,10 +1182,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		rm -f /tmp/kcache.$$
 
 		if [ "$FTRACE_ALLOCLATENCY_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			eval $GRAPH_PNG --title \"Direct reclaim allocation stalls\"   --print-monitor ftraceallocstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-alloc-stalls.png
-			eval $GRAPH_PSC --title \"Direct reclaim allocation stalls\"   --print-monitor ftraceallocstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-alloc-stalls.ps
-			eval $GRAPH_PNG --title \"Direct reclaim allocation stalls logY\"   --print-monitor ftraceallocstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-alloc-stalls-logY.png --logY
-			eval $GRAPH_PSC --title \"Direct reclaim allocation stalls logY\"   --print-monitor ftraceallocstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-alloc-stalls-logY.ps --logY
+			eval $GRAPH_PNG --title \"Direct reclaim allocation stalls\"   --print-monitor ftraceallocstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-alloc-stalls
+			eval $GRAPH_PNG --title \"Direct reclaim allocation stalls logY\"   --print-monitor ftraceallocstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-alloc-stalls-logY --logY
 			echo "<tr>"
 			plain graph-$SUBREPORT-ftrace-alloc-stalls
 			plain graph-$SUBREPORT-ftrace-alloc-stalls-logY
@@ -1270,15 +1191,11 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if [ "$FTRACE_SHRINKERLATENCY_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			eval $GRAPH_PNG --title \"Slab shrinker stall kswapd\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd.png
-			eval $GRAPH_PSC --title \"Slab shrinker stall kswapd\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd.ps
-			eval $GRAPH_PNG --title \"Slab shrinker stall not kswapd\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd.png
-			eval $GRAPH_PSC --title \"Slab shrinker stall not kswapd\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd.ps
+			eval $GRAPH_PNG --title \"Slab shrinker stall kswapd\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd
+			eval $GRAPH_PNG --title \"Slab shrinker stall not kswapd\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd
 
-			eval $GRAPH_PNG --title \"Slab shrinker stall kswapd logY\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-logY.png --logY
-			eval $GRAPH_PSC --title \"Slab shrinker stall kswapd logY\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-logY.ps --logY
-			eval $GRAPH_PNG --title \"Slab shrinker stall not kswapd logY\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-logY.png --logY
-			eval $GRAPH_PSC --title \"Slab shrinker stall not kswapd logY\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-logY.ps --logY
+			eval $GRAPH_PNG --title \"Slab shrinker stall kswapd logY\"       --print-monitor ftraceshrinkerstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd-logY --logY
+			eval $GRAPH_PNG --title \"Slab shrinker stall not kswapd logY\"   --print-monitor ftraceshrinkerstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-shrinker-stalls-no-kswapd-logY --logY
 
 			echo "<tr>"
 			plain graph-$SUBREPORT-ftrace-shrinker-stalls-kswapd
@@ -1291,19 +1208,12 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if [ "$FTRACE_COMPACTLATENCY_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			eval $GRAPH_PNG --title \"Compaction stalls khugepaged\"                          --print-monitor ftracecompactstall --sub-heading khugepaged                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-khugepaged.png
-			eval $GRAPH_PNG --title \"Compaction stalls kswapd or kcompactd\"                 --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd.png
-			eval $GRAPH_PNG --title \"Compaction stalls not khugepaged, kswapd or kcompactd\" --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged.png
-			eval $GRAPH_PNG --title \"Compaction stalls khugepaged\"                          --print-monitor ftracecompactstall --sub-heading khugepaged                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-khugepaged-logY.png --logY
-			eval $GRAPH_PNG --title \"Compaction stalls kswapd or kcompactd logY\"                 --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd-logY.png --logY
-			eval $GRAPH_PNG --title \"Compaction stalls not khugepaged, kswapd or kcompactd logY\" --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged-logY.png --logY
-
-			eval $GRAPH_PSC --title \"Compaction stalls khugepaged\"                          --print-monitor ftracecompactstall --sub-heading khugepaged                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-khugepaged.ps
-			eval $GRAPH_PSC --title \"Compaction stalls kswapd or kcompactd\"                 --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd.ps
-			eval $GRAPH_PSC --title \"Compaction stalls not khugepaged, kswapd or kcompactd\" --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged.ps
-			eval $GRAPH_PSC --title \"Compaction stalls khugepaged logY\"                          --print-monitor ftracecompactstall --sub-heading khugepaged                      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-khugepaged-logY.ps --logY
-			eval $GRAPH_PSC --title \"Compaction stalls kswapd or kcompactd logY\"                 --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd-logY.ps --logY
-			eval $GRAPH_PSC --title \"Compaction stalls not khugepaged, kswapd or kcompactd logY\" --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged-logY.ps --logY
+			eval $GRAPH_PNG --title \"Compaction stalls khugepaged\"                          --print-monitor ftracecompactstall --sub-heading khugepaged                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-khugepaged
+			eval $GRAPH_PNG --title \"Compaction stalls kswapd or kcompactd\"                 --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd
+			eval $GRAPH_PNG --title \"Compaction stalls not khugepaged, kswapd or kcompactd\" --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged
+			eval $GRAPH_PNG --title \"Compaction stalls khugepaged\"                          --print-monitor ftracecompactstall --sub-heading khugepaged                     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-khugepaged-logY --logY
+			eval $GRAPH_PNG --title \"Compaction stalls kswapd or kcompactd logY\"                 --print-monitor ftracecompactstall --sub-heading kswapd-kcompactd               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-kswapd-kcompactd-logY --logY
+			eval $GRAPH_PNG --title \"Compaction stalls not khugepaged, kswapd or kcompactd logY\" --print-monitor ftracecompactstall --sub-heading no-kswapd-kcompactd-khugepaged --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-compact-stalls-no-kswapd-kcompactd-khugepaged-logY --logY
 
 			echo "<tr>"
 			plain graph-$SUBREPORT-ftrace-compact-stalls-khugepaged
@@ -1320,15 +1230,11 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if [ "$FTRACE_WAITIFFCONGESTED_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			eval $GRAPH_PNG --title \"wait_iff_congested stall kswapd\"       --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd.png
-			eval $GRAPH_PSC --title \"wait_iff_congested stall kswapd\"       --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd.ps
-			eval $GRAPH_PNG --title \"wait_iff_congested stall not kswapd\"   --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd.png
-			eval $GRAPH_PSC --title \"wait_iff_congested stall not kswapd\"   --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd.ps
+			eval $GRAPH_PNG --title \"wait_iff_congested stall kswapd\"       --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd
+			eval $GRAPH_PNG --title \"wait_iff_congested stall not kswapd\"   --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd
 
-			eval $GRAPH_PNG --title \"wait_iff_congested stall kswapd logY\"       --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd-logY.png --logY
-			eval $GRAPH_PSC --title \"wait_iff_congested stall kswapd logY\"       --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd-logY.ps --logY
-			eval $GRAPH_PNG --title \"wait_iff_congested stall not kswapd logY\"   --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd-logY.png --logY
-			eval $GRAPH_PSC --title \"wait_iff_congested stall not kswapd logY\"   --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd-logY.ps --logY
+			eval $GRAPH_PNG --title \"wait_iff_congested stall kswapd logY\"       --print-monitor ftracewaitiffcongestedstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd-logY --logY
+			eval $GRAPH_PNG --title \"wait_iff_congested stall not kswapd logY\"   --print-monitor ftracewaitiffcongestedstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-waitiffcongested-stalls-no-kswapd-logY --logY
 
 			echo "<tr>"
 			plain graph-$SUBREPORT-ftrace-waitiffcongested-stalls-kswapd
@@ -1341,15 +1247,11 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if [ "$FTRACE_CONGESTIONWAIT_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			eval $GRAPH_PNG --title \"congestion_wait stall kswapd\"       --print-monitor ftracecongestionwaitstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd.png
-			eval $GRAPH_PSC --title \"congestion_wait stall kswapd\"       --print-monitor ftracecongestionwaitstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd.ps
-			eval $GRAPH_PNG --title \"congestion_wait stall not kswapd\"   --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd.png
-			eval $GRAPH_PSC --title \"congestion_wait stall not kswapd\"   --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd.ps
+			eval $GRAPH_PNG --title \"congestion_wait stall kswapd\"       --print-monitor ftracecongestionwaitstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd
+			eval $GRAPH_PNG --title \"congestion_wait stall not kswapd\"   --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd
 
-			eval $GRAPH_PNG --title \"congestion_wait stall kswapd logY\"       --print-monitor ftracecongestionwaitstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd-logY.png --logY
-			eval $GRAPH_PSC --title \"congestion_wait stall kswapd logY\"       --print-monitor ftracecongestionwaitstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd-logY.ps --logY
-			eval $GRAPH_PNG --title \"congestion_wait stall not kswapd logY\"   --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd-logY.png --logY
-			eval $GRAPH_PSC --title \"congestion_wait stall not kswapd logY\"   --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd-logY.ps --logY
+			eval $GRAPH_PNG --title \"congestion_wait stall kswapd logY\"       --print-monitor ftracecongestionwaitstall --sub-heading kswapd    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd-logY --logY
+			eval $GRAPH_PNG --title \"congestion_wait stall not kswapd logY\"   --print-monitor ftracecongestionwaitstall --sub-heading no-kswapd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-congestionwait-stalls-no-kswapd-logY --logY
 
 			echo "<tr>"
 			plain graph-$SUBREPORT-ftrace-congestionwait-stalls-kswapd
@@ -1362,10 +1264,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if [ "$FTRACE_BALANCEDIRTYPAGES_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
-			eval $GRAPH_PNG --title \"Balance Dirty Pages stalls : worst-case not actual and assumes HZ=250\"   --print-monitor ftracebalancedirtypagesstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-balancedirtypages-stalls.png
-			eval $GRAPH_PSC --title \"Balance Dirty Pages stalls : worst-case not actual and assumes HZ=250\"   --print-monitor ftracebalancedirtypagesstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-balancedirtypages-stalls.ps
-			eval $GRAPH_PNG --title \"Balance Dirty Pages stalls : worst-case not actual and assumes HZ=250 logY\"   --print-monitor ftracebalancedirtypagesstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-balancedirtypages-stalls-logY.png --logY
-			eval $GRAPH_PSC --title \"Balance Dirty Pages stalls : worst-case not actual and assumes HZ=250 logY\"   --print-monitor ftracebalancedirtypagesstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-balancedirtypages-stalls-logY.ps --logY
+			eval $GRAPH_PNG --title \"Balance Dirty Pages stalls : worst-case not actual and assumes HZ=250\"   --print-monitor ftracebalancedirtypagesstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-balancedirtypages-stalls
+			eval $GRAPH_PNG --title \"Balance Dirty Pages stalls : worst-case not actual and assumes HZ=250 logY\"   --print-monitor ftracebalancedirtypagesstall --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-ftrace-balancedirtypages-stalls-logY --logY
 			echo "<tr>"
 			plain graph-$SUBREPORT-ftrace-balancedirtypages-stalls
 			plain graph-$SUBREPORT-ftrace-balancedirtypages-stalls-logY
@@ -1411,10 +1311,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 						fi
 					done
 					if [ "$PROCESS_LIST" != "" ]; then
-						eval plot --yrange 0:$MAX --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.png $PROCESS_LIST
-						if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
-							eval plot --yrange 0:$MAX --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.ps $PROCESS_LIST
-						fi
+						eval plot --yrange 0:$MAX --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL} $PROCESS_LIST
 						plain graph-$SUBREPORT-iotop-$OP-$KERNEL
 					else
 						echo "<td><center>No IO activity $KERNEL $OP</center></td>"
@@ -1449,12 +1346,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 						IOMAX=0
 					fi
 					if [ $IOMAX -gt 0 ]; then
-						eval plot --logY --title \"$KERNEL thread-$CALC $OP\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC.png $PLOT_LIST
-						eval plot --title \"$KERNEL thread-$CALC $OP\" --plottype lines --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC-smooth.png --smooth bezier $PLOT_LIST 
-						if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
-							eval plot --logY --title \"$KERNEL thread-$CALC $OP\" --plottype points --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC.ps $PLOT_LIST
-							eval plot --title \"$KERNEL thread-$CALC $OP\" --plottype lines --titles \"$TITLE_LIST\" --format postscript  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC-smooth.ps --smooth bezier $PLOT_LIST
-						fi
+						eval plot --logY --title \"$KERNEL thread-$CALC $OP\" --plottype points --titles \"$TITLE_LIST\" --format png  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC $PLOT_LIST
+						eval plot        --title \"$KERNEL thread-$CALC $OP\" --plottype lines  --titles \"$TITLE_LIST\" --format png  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-$CALC-smooth --smooth bezier $PLOT_LIST 
 						smoothover graph-$SUBREPORT-iotop-$OP-$CALC
 					else
 						echo "<td><center>No notable variation $OP-$CALC</center></td>"
@@ -1479,10 +1372,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 				if [ "$EVENT" = "CorrWatt" -o "$EVENT" = "PkgWatt" -o "$EVENT" = "Avg_MHz" ]; then
 					RANGE_CMD=
 				fi
-				eval $GRAPH_PNG --title \"$EVENT\"   $RANGE_CMD --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME.png
-				eval $GRAPH_PSC --title \"$EVENT\"   $RANGE_CMD --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME.ps
-				eval $GRAPH_PNG --title \"$EVENT\"   $RANGE_CMD --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME-smooth.png --smooth
-				eval $GRAPH_PSC --title \"$EVENT\"   $RANGE_CMD --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME-smooth.ps --smooth
+				eval $GRAPH_PNG --title \"$EVENT\"   $RANGE_CMD --print-monitor turbostat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-turbostat-$EVENT_FILENAME --with-smooth
 				smoothover graph-$SUBREPORT-turbostat-$EVENT_FILENAME
 				if [ $((COUNT%3)) -eq 2 ]; then
 					echo "</tr>"
@@ -1502,10 +1392,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 				if [ $((COUNT%3)) -eq 0 ]; then
 					echo "<tr>"
 				fi
-				eval $GRAPH_PNG --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT.png
-				eval $GRAPH_PSC --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT.ps
-				eval $GRAPH_PNG --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT-smooth.png --smooth
-				eval $GRAPH_PSC --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT-smooth.ps --smooth
+				eval $GRAPH_PNG --title \"$EVENT\"   --print-monitor perf-time-stat --sub-heading $EVENT --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-perf-time-stat-$EVENT --with-smooth
 				smoothover graph-$SUBREPORT-perf-time-stat-$EVENT
 				if [ $((COUNT%3)) -eq 2 ]; then
 					echo "</tr>"
@@ -1519,25 +1406,15 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		if have_monitor_results mpstat $KERNEL_BASE; then
 			echo "<tr>"
 			for NID in `zgrep cpus: $KERNEL_BASE/iter-0/numactl.txt.gz | awk '{print $2}'`; do
-				eval $GRAPH_PNG --title \"Node $NID Total CPU Usage\" --print-monitor mpstat --sub-heading node-$NID --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-node-$NID-cpuusage.png
-				eval $GRAPH_PSC --title \"Node $NID Total CPU Usage\" --print-monitor mpstat --sub-heading node-$NID --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-node-$NID-cpuusage.png
+				eval $GRAPH_PNG --title \"Node $NID Total CPU Usage\" --print-monitor mpstat --sub-heading node-$NID --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-node-$NID-cpuusage
 				plain graph-$SUBREPORT-node-$NID-cpuusage
 			done
 			echo "</tr>"
 		fi
 		if have_monitor_results vmstat $KERNEL_BASE; then
-			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.png
-			eval $GRAPH_PSC --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us.ps
-			eval $GRAPH_PNG --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy.png
-			eval $GRAPH_PSC --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy.ps
-			eval $GRAPH_PNG --title \"Wait CPU Usage\"   --print-monitor vmstat --sub-heading wa --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-wa.png 2> /dev/null
-			eval $GRAPH_PSC --title \"Wait CPU Usage\"   --print-monitor vmstat --sub-heading wa --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ay.ps 2> /dev/null
-			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us-smooth.png --smooth
-			eval $GRAPH_PSC --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us-smooth.ps  --smooth
-			eval $GRAPH_PNG --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy-smooth.png --smooth
-			eval $GRAPH_PSC --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy-smooth.ps  --smooth
-			eval $GRAPH_PNG --title \"Wait CPU Usage\"   --print-monitor vmstat --sub-heading wa --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-wa-smooth.png --smooth 2> /dev/null
-			eval $GRAPH_PSC --title \"Wait CPU Usage\"   --print-monitor vmstat --sub-heading wa --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ay-smooth.ps  --smooth 2> /dev/null
+			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us --with-smooth
+			eval $GRAPH_PNG --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy --with-smooth
+			eval $GRAPH_PNG --title \"Wait CPU Usage\"   --print-monitor vmstat --sub-heading wa --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-wa --with-smooth 2> /dev/null
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-vmstat-us
@@ -1545,18 +1422,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			smoothover graph-$SUBREPORT-vmstat-wa
 			echo "</tr>"
 
-			eval $GRAPH_PNG --title \"Runnable Processes\"   --print-monitor vmstat --sub-heading r --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-r.png
-			eval $GRAPH_PSC --title \"Runnable Processes\"   --print-monitor vmstat --sub-heading r --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-r.ps
-			eval $GRAPH_PNG --title \"Blocked Processes\"    --print-monitor vmstat --sub-heading b --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-b.png
-			eval $GRAPH_PSC --title \"Blocked Processes\"    --print-monitor vmstat --sub-heading b --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-b.ps
-			eval $GRAPH_PNG --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu.png
-			eval $GRAPH_PSC --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu.ps
-			eval $GRAPH_PNG --title \"Runnable Processes\"   --print-monitor vmstat --sub-heading r --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-r-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Runnable Processes\"   --print-monitor vmstat --sub-heading r --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-r-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"Blocked Processes\"    --print-monitor vmstat --sub-heading b --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-b-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Blocked Processes\"    --print-monitor vmstat --sub-heading b --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-b-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"Runnable Processes\"   --print-monitor vmstat --sub-heading r --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-r --with-smooth
+			eval $GRAPH_PNG --title \"Blocked Processes\"    --print-monitor vmstat --sub-heading b --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-b --with-smooth
+			eval $GRAPH_PNG --title \"Total CPU Usage\"       --print-monitor vmstat --sub-heading totalcpu --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-totalcpu --with-smooth
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-vmstat-r
@@ -1564,21 +1432,11 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			smoothover graph-$SUBREPORT-vmstat-totalcpu
 			echo "</tr>"
 
-			eval $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.png
-			eval $GRAPH_PSC --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy.ps
-			eval $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy-smooth.png --smooth
-			eval $GRAPH_PSC --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"User/Kernel CPU Ratio\" --print-monitor vmstat --sub-heading ussy     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-ussy --with-smooth
 
 			if have_monitor_results proc-vmstat $KERNEL_BASE; then
-				eval $GRAPH_PNG --title \"Minor Faults\" --logY   --print-monitor proc-vmstat --sub-heading mmtests_minor_faults --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults.png
-				eval $GRAPH_PSC --title \"Minor Faults\" --logY   --print-monitor proc-vmstat --sub-heading mmtests_minor_faults --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults.ps
-				eval $GRAPH_PNG --title \"Major Faults\" --logY   --print-monitor proc-vmstat --sub-heading pgmajfault --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults.png
-				eval $GRAPH_PSC --title \"Major Faults\" --logY   --print-monitor proc-vmstat --sub-heading pgmajfault --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults.ps
-
-				eval $GRAPH_PNG --title \"Minor Faults\"          --print-monitor proc-vmstat --sub-heading mmtests_minor_faults --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults-smooth.png --smooth
-				eval $GRAPH_PSC --title \"Minor Faults\"          --print-monitor proc-vmstat --sub-heading mmtests_minor_faults --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults-smooth.ps  --smooth
-				eval $GRAPH_PNG --title \"Major Faults\"          --print-monitor proc-vmstat --sub-heading pgmajfault --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults-smooth.png
-				eval $GRAPH_PSC --title \"Major Faults\"          --print-monitor proc-vmstat --sub-heading pgmajfault --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults-smooth.ps
+				eval $GRAPH_PNG --title \"Minor Faults\" --logY   --print-monitor proc-vmstat --sub-heading mmtests_minor_faults --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-minorfaults --with-smooth
+				eval $GRAPH_PNG --title \"Major Faults\" --logY   --print-monitor proc-vmstat --sub-heading pgmajfault --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults --with-smooth
 			fi
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-vmstat-ussy
@@ -1597,16 +1455,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if have_monitor_results vmstat $KERNEL_BASE; then
-			eval $GRAPH_PNG --title \"Free Memory\"      --print-monitor vmstat --sub-heading free --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-free.png
-			eval $GRAPH_PSC --title \"Free Memory\"      --print-monitor vmstat --sub-heading free --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-free.ps
-			eval $GRAPH_PNG --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs.png
-			eval $GRAPH_PSC --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs.ps
-			eval $GRAPH_PNG --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in.png
-			eval $GRAPH_PSC --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in.ps
-			eval $GRAPH_PNG --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs-smooth.ps  --smooth
-			eval $GRAPH_PNG --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in-smooth.ps  --smooth
+			eval $GRAPH_PNG --title \"Free Memory\"      --print-monitor vmstat --sub-heading free --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-free
+			eval $GRAPH_PNG --title \"Context Switches\" --print-monitor vmstat --sub-heading cs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-cs --with-smooth
+			eval $GRAPH_PNG --title \"Interrupts\"       --print-monitor vmstat --sub-heading in --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-in --with-smooth
 
 			echo "<tr>"
 			plain graph-$SUBREPORT-vmstat-free
@@ -1615,49 +1466,19 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "</tr>"
 		fi
 		if have_monitor_results proc-vmstat $KERNEL_BASE; then
-			eval $GRAPH_PNG --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty.png 2> /dev/null
-			eval $GRAPH_PSC --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty.ps 2> /dev/null
-			eval $GRAPH_PNG --title \"Writeback Pages\"    --print-monitor proc-vmstat --sub-heading nr_writeback --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_writeback.png 2> /dev/null
-			eval $GRAPH_PSC --title \"Writeback Pages\"    --print-monitor proc-vmstat --sub-heading nr_writeback --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_writeback.ps 2> /dev/null
-			eval $GRAPH_PNG --title \"Dirty Background Threshold\"    --print-monitor proc-vmstat --sub-heading nr_dirty_background_threshold --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty_background_threshold.png 2> /dev/null
-			eval $GRAPH_PSC --title \"Dirty Background Threshold\"    --print-monitor proc-vmstat --sub-heading nr_dirty_background_threshold --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty_background_threshold.ps 2> /dev/null
-			eval $GRAPH_PNG --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp.png 2> /dev/null
-			eval $GRAPH_PSC --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp.ps 2> /dev/null
-			eval $GRAPH_PNG --title \"Anon Pages\" --print-monitor proc-vmstat --sub-heading mmtests_total_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-anon.png
-			eval $GRAPH_PSC --title \"Anon Pages\" --print-monitor proc-vmstat --sub-heading mmtests_total_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-anon.ps
-			eval $GRAPH_PNG --title \"File Pages\" --print-monitor proc-vmstat --sub-heading nr_file_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-file.png
-			eval $GRAPH_PSC --title \"File Pages\" --print-monitor proc-vmstat --sub-heading nr_file_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-file.ps
-			eval $GRAPH_PNG --title \"Slab Unreclaimable pages\"    --print-monitor proc-vmstat --sub-heading nr_slab_unreclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-unreclaimable.png
-			eval $GRAPH_PSC --title \"Slab Unreclaimable pages\"    --print-monitor proc-vmstat --sub-heading nr_slab_unreclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-unreclaimable.ps
-			eval $GRAPH_PNG --title \"Slab Reclaimable pages\"    --print-monitor proc-vmstat --sub-heading nr_slab_reclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-reclaimable.png
-			eval $GRAPH_PSC --title \"Slab Reclaimable pages\"    --print-monitor proc-vmstat --sub-heading nr_slab_reclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-reclaimable.ps
-			eval $GRAPH_PNG --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab.png
-			eval $GRAPH_PSC --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab.ps
-			eval $GRAPH_PNG --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty-smooth.png --smooth 2> /dev/null
-			eval $GRAPH_PSC --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty-smooth.ps --smooth 2> /dev/null
-			eval $GRAPH_PNG --title \"Writeback Pages\"    --print-monitor proc-vmstat --sub-heading nr_writeback --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_writeback-smooth.png --smooth 2> /dev/null
-			eval $GRAPH_PSC --title \"Writeback Pages\"    --print-monitor proc-vmstat --sub-heading nr_writeback --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_writeback-smooth.ps --smooth 2> /dev/null
-			eval $GRAPH_PNG --title \"Dirty Background Threshold\"    --print-monitor proc-vmstat --sub-heading nr_dirty_background_threshold --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty_background_threshold-smooth.png --smooth 2> /dev/null
-			eval $GRAPH_PSC --title \"Dirty Background Threshold\"    --print-monitor proc-vmstat --sub-heading nr_dirty_background_threshold --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty_background_threshold-smooth.ps --smooth 2> /dev/null
-			eval $GRAPH_PNG --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp-smooth.png --smooth 2> /dev/null
-			eval $GRAPH_PSC --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp-smooth.ps  --smooth 2> /dev/null
-			eval $GRAPH_PNG --title \"Anon Pages\" --print-monitor proc-vmstat --sub-heading mmtests_total_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-anon-smooth.png                --smooth
-			eval $GRAPH_PSC --title \"Anon Pages\" --print-monitor proc-vmstat --sub-heading mmtests_total_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-anon-smooth.ps                 --smooth
-			eval $GRAPH_PNG --title \"File Pages\" --print-monitor proc-vmstat --sub-heading nr_file_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-file-smooth.png                --smooth
-			eval $GRAPH_PSC --title \"File Pages\" --print-monitor proc-vmstat --sub-heading nr_file_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-file-smooth.ps                 --smooth
-			eval $GRAPH_PNG --title \"Slab Unreclaimable pages\" --print-monitor proc-vmstat --sub-heading nr_slab_unreclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-unreclaimable-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Slab Unreclaimable pages\" --print-monitor proc-vmstat --sub-heading nr_slab_unreclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-unreclaimable-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"Slab Reclaimable pages\" --print-monitor proc-vmstat --sub-heading nr_slab_reclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-reclaimable-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Slab Reclaimable pages\" --print-monitor proc-vmstat --sub-heading nr_slab_reclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-reclaimable-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"Ratio Slab/FileCache\" --print-monitor proc-vmstat --sub-heading mmtests_ratio_slab_filecache --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-ratio-slab-filecache.png
-			eval $GRAPH_PSC --title \"Ratio Slab/FileCache\" --print-monitor proc-vmstat --sub-heading mmtests_ratio_slab_filecache --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-ratio-slab-filecache.png
-			eval $GRAPH_PNG --title \"Ratio Slab/PageCache\" --print-monitor proc-vmstat --sub-heading mmtests_ratio_slab_pagecache --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-ratio-slab-pagecache.png
-			eval $GRAPH_PSC --title \"Ratio Slab/PageCache\" --print-monitor proc-vmstat --sub-heading mmtests_ratio_slab_pagecache --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-ratio-slab-pagecache.png
+			eval $GRAPH_PNG --title \"Dirty Pages\"    --print-monitor proc-vmstat --sub-heading nr_dirty --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty --with-smooth 2> /dev/null
+			eval $GRAPH_PNG --title \"Writeback Pages\"    --print-monitor proc-vmstat --sub-heading nr_writeback --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_writeback --with-smooth 2> /dev/null
+			eval $GRAPH_PNG --title \"Dirty Background Threshold\"    --print-monitor proc-vmstat --sub-heading nr_dirty_background_threshold --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nr_dirty_background_threshold --with-smooth 2> /dev/null
+			eval $GRAPH_PNG --title \"THPages\"    --print-monitor proc-vmstat --sub-heading nr_anon_transparent_hugepages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-thp --with-smooth 2> /dev/null
+			eval $GRAPH_PNG --title \"Anon Pages\" --print-monitor proc-vmstat --sub-heading mmtests_total_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-anon --with-smooth
+			eval $GRAPH_PNG --title \"File Pages\" --print-monitor proc-vmstat --sub-heading nr_file_pages --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-file --with-smooth
+			eval $GRAPH_PNG --title \"Slab Unreclaimable pages\"    --print-monitor proc-vmstat --sub-heading nr_slab_unreclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-unreclaimable --with-smooth
+			eval $GRAPH_PNG --title \"Slab Reclaimable pages\"    --print-monitor proc-vmstat --sub-heading nr_slab_reclaimable --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab-reclaimable --with-smooth
+			eval $GRAPH_PNG --title \"Total slab pages\"    --print-monitor proc-vmstat --sub-heading mmtests_total_slab --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slab --with-smooth
 
-			eval $GRAPH_PNG --title \"PFree Memory\"      --print-monitor vmstat --sub-heading pfree --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-pfree.png
-			eval $GRAPH_PSC --title \"PFree Memory\"      --print-monitor vmstat --sub-heading pfree --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-pfree.ps
+			eval $GRAPH_PNG --title \"Ratio Slab/FileCache\" --print-monitor proc-vmstat --sub-heading mmtests_ratio_slab_filecache --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-ratio-slab-filecache
+			eval $GRAPH_PNG --title \"Ratio Slab/PageCache\" --print-monitor proc-vmstat --sub-heading mmtests_ratio_slab_pagecache --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-ratio-slab-pagecache
+			eval $GRAPH_PNG --title \"PFree Memory\"      --print-monitor vmstat --sub-heading pfree --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-pfree
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-nr_dirty
@@ -1682,18 +1503,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "</tr>"
 
 
-                        eval $GRAPH_PNG --title \"Total Sector IO\" --print-monitor proc-vmstat --sub-heading pgpgtotal  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgptotal.png
-                        eval $GRAPH_PSC --title \"Total Sector IO\" --print-monitor proc-vmstat --sub-heading pgpgtotal  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgptotal.ps
-			eval $GRAPH_PNG --title \"Sector Reads\"      --print-monitor proc-vmstat --sub-heading pgpgin     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin.png
-			eval $GRAPH_PSC --title \"Sector Reads\"      --print-monitor proc-vmstat --sub-heading pgpgin     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin.ps
-			eval $GRAPH_PNG --title \"Sector Writes\"     --print-monitor proc-vmstat --sub-heading pgpgout    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout.png
-			eval $GRAPH_PSC --title \"Sector Writes\"     --print-monitor proc-vmstat --sub-heading pgpgout    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout.ps
-			eval $GRAPH_PNG --title \"Total Sector IO\" --print-monitor proc-vmstat --sub-heading pgpgtotal  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgptotal-smooth.png  --smooth
-			eval $GRAPH_PSC --title \"Total Sector IO\" --print-monitor proc-vmstat --sub-heading pgpgtotal  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgptotal-smooth.ps   --smooth
-			eval $GRAPH_PNG --title \"Sector Reads\"      --print-monitor proc-vmstat --sub-heading pgpgin     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin-smooth.png  --smooth
-			eval $GRAPH_PSC --title \"Sector Reads\"      --print-monitor proc-vmstat --sub-heading pgpgin     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin-smooth.ps   --smooth
-			eval $GRAPH_PNG --title \"Sector Writes\"     --print-monitor proc-vmstat --sub-heading pgpgout    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Sector Writes\"     --print-monitor proc-vmstat --sub-heading pgpgout    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout-smooth.ps  --smooth
+                        eval $GRAPH_PNG --title \"Total Sector IO\" --print-monitor proc-vmstat --sub-heading pgpgtotal  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgptotal --with-smooth
+			eval $GRAPH_PNG --title \"Sector Reads\"      --print-monitor proc-vmstat --sub-heading pgpgin     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpin --with-smooth
+			eval $GRAPH_PNG --title \"Sector Writes\"     --print-monitor proc-vmstat --sub-heading pgpgout    --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgpout --with-smooth
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-pgptotal
@@ -1702,16 +1514,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "</tr>"
 
 			if [ "$SWAP_GRAPH" = "yes" ]; then
-				eval $GRAPH_PNG --title \"Swap Usage\" --print-monitor vmstat --sub-heading swpd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-swpd.png
-				eval $GRAPH_PSC --title \"Swap Usage\" --print-monitor vmstat --sub-heading swpd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-swpd.ps
-				eval $GRAPH_PNG --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si.png
-				eval $GRAPH_PSC --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si.ps
-				eval $GRAPH_PNG --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si-smooth.png --smooth
-				eval $GRAPH_PSC --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si-smooth.ps --smooth
-				eval $GRAPH_PNG --title \"Swap Outs\"  --print-monitor vmstat --sub-heading so   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so.png
-				eval $GRAPH_PSC --title \"Swap Outs\"  --print-monitor vmstat --sub-heading so   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so.ps
-				eval $GRAPH_PNG --title \"Swap Outs\"  --print-monitor vmstat --sub-heading so   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so-smooth.png --smooth
-				eval $GRAPH_PSC --title \"Swap Outs\"  --print-monitor vmstat --sub-heading so   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so-smooth.ps --smooth
+				eval $GRAPH_PNG --title \"Swap Usage\" --print-monitor vmstat --sub-heading swpd --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-swpd
+				eval $GRAPH_PNG --title \"Swap Ins\"   --print-monitor vmstat --sub-heading si   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-si --with-smooth
+				eval $GRAPH_PNG --title \"Swap Outs\"  --print-monitor vmstat --sub-heading so   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-so --with-smooth
 
 				echo "<tr>"
 				plain graph-$SUBREPORT-vmstat-swpd
@@ -1753,18 +1558,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			done
 		fi
 		if [ "$DIRECT_ACTIVITY" = "yes" ]; then
-			eval $GRAPH_PNG --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.png
-			eval $GRAPH_PSC --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan.ps
-			eval $GRAPH_PNG --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"Direct Reclaim Steal\" --print-monitor proc-vmstat --sub-heading mmtests_direct_steal --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-steal.png
-			eval $GRAPH_PSC --title \"Direct Reclaim Steal\" --print-monitor proc-vmstat --sub-heading mmtests_direct_steal --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-steal.ps
-			eval $GRAPH_PNG --title \"Direct Reclaim Steal\" --print-monitor proc-vmstat --sub-heading mmtests_direct_steal --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-steal-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Direct Reclaim Steal\" --print-monitor proc-vmstat --sub-heading mmtests_direct_steal --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-steal-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"Direct Reclaim Efficiency\" --print-monitor proc-vmstat --sub-heading mmtests_direct_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-efficiency.png 2> /dev/null
-			eval $GRAPH_PSC --title \"Direct Reclaim Efficiency\" --print-monitor proc-vmstat --sub-heading mmtests_direct_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-efficiency.ps 2> /dev/null
-			eval $GRAPH_PNG --title \"Direct Reclaim Efficiency\" --print-monitor proc-vmstat --sub-heading mmtests_direct_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-efficiency-smooth.png --smooth 2> /dev/null
-			eval $GRAPH_PSC --title \"Direct Reclaim Efficiency\" --print-monitor proc-vmstat --sub-heading mmtests_direct_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-efficiency-smooth.ps --smooth 2> /dev/null
+			eval $GRAPH_PNG --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scanA --with-smooth
+			eval $GRAPH_PNG --title \"Direct Reclaim Steal\" --print-monitor proc-vmstat --sub-heading mmtests_direct_steal --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-steal --with-smooth
+			eval $GRAPH_PNG --title \"Direct Reclaim Efficiency\" --print-monitor proc-vmstat --sub-heading mmtests_direct_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-efficiency --with-smooth 2> /dev/null
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-direct-scan
 			smoothover graph-$SUBREPORT-proc-vmstat-direct-steal
@@ -1773,18 +1569,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if [ "$KSWAPD_ACTIVITY" = "yes" ]; then
-			eval $GRAPH_PNG --title \"KSwapd Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan.png
-			eval $GRAPH_PSC --title \"KSwapd Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan.ps
-			eval $GRAPH_PNG --title \"KSwapd Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan-smooth.png --smooth
-			eval $GRAPH_PSC --title \"KSwapd Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"KSwapd Reclaim Steal\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_steal --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-steal.png
-			eval $GRAPH_PSC --title \"KSwapd Reclaim Steal\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_steal --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-steal.ps
-			eval $GRAPH_PNG --title \"KSwapd Reclaim Steal\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_steal --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-steal-smooth.png --smooth
-			eval $GRAPH_PSC --title \"KSwapd Reclaim Steal\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_steal --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-steal-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"KSwapd Reclaim Efficiency\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-efficiency.png
-			eval $GRAPH_PSC --title \"KSwapd Reclaim Efficiency\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-efficiency.ps
-			eval $GRAPH_PNG --title \"KSwapd Reclaim Efficiency\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-efficiency-smooth.png --smooth
-			eval $GRAPH_PSC --title \"KSwapd Reclaim Efficiency\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-efficiency-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"KSwapd Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_kswapd_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-scan  --with-smooth
+			eval $GRAPH_PNG --title \"KSwapd Reclaim Steal\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_steal --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-steal --with-smooth
+			eval $GRAPH_PNG --title \"KSwapd Reclaim Efficiency\" --print-monitor proc-vmstat --sub-heading mmtests_kswapd_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-efficiency --with-smooth
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-kswapd-scan
@@ -1792,18 +1579,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			smoothover graph-$SUBREPORT-proc-vmstat-kswapd-efficiency
 			echo "</tr>"
 
-			eval $GRAPH_PNG --title \"KSwapd CPU Usage\"    --print-monitor top                                                 --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd.png
-			eval $GRAPH_PSC --title \"KSwapd CPU Usage\"    --print-monitor top                                                 --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd.ps
-			eval $GRAPH_PNG --title \"KSwapd CPU Usage\"    --print-monitor top                                                 --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd-smooth.png --smooth
-			eval $GRAPH_PSC --title \"KSwapd CPU Usage\"    --print-monitor top                                                 --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"File Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_file --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-file-writes.png
-			eval $GRAPH_PSC --title \"File Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_file --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-file-writes.ps
-			eval $GRAPH_PNG --title \"File Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_file --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-file-writes-smooth.png --smooth
-			eval $GRAPH_PSC --title \"File Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_file --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-file-writes-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"Anon Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes.png
-			eval $GRAPH_PSC --title \"Anon Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes.ps
-			eval $GRAPH_PNG --title \"Anon Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Anon Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"KSwapd CPU Usage\"    --print-monitor top                                                 --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-top-kswapd --with-smooth
+			eval $GRAPH_PNG --title \"File Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_file --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-file-writes --with-smooth
+			eval $GRAPH_PNG --title \"Anon Reclaim Writes\" --print-monitor proc-vmstat --sub-heading mmtests_vmscan_write_anon --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-reclaim-anon-writes --with-smooth
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-top-kswapd
@@ -1813,15 +1591,12 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if [ "$SLAB_ACTIVITY" = "yes" ]; then
-			eval $GRAPH_PNG --title \"Slabs scanned\"       --print-monitor proc-vmstat --sub-heading slabs_scanned      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slabs-scanned.png
-			eval $GRAPH_PSC --title \"Slabs scanned\"       --print-monitor proc-vmstat --sub-heading slabs_scanned      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slabs-scanned.ps
+			eval $GRAPH_PNG --title \"Slabs scanned\"       --print-monitor proc-vmstat --sub-heading slabs_scanned      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-slabs-scanned
 			if [ "$KSWAPD_INODE_STEAL_ACTIVITY" = "yes" ]; then
-				eval $GRAPH_PNG --title \"Kswapd inode steal\"  --print-monitor proc-vmstat --sub-heading kswapd_inodesteal  --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-inode-steal.png
-				eval $GRAPH_PSC --title \"Kswapd inode steal\"  --print-monitor proc-vmstat --sub-heading kswapd_inodesteal  --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-inode-steal.ps
+				eval $GRAPH_PNG --title \"Kswapd inode steal\"  --print-monitor proc-vmstat --sub-heading kswapd_inodesteal  --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-kswapd-inode-steal
 			fi
 			if [ "$DIRECT_INODE_STEAL_ACTIVITY" = "yes" ]; then
-				eval $GRAPH_PNG --title \"Direct inode steal\"  --print-monitor proc-vmstat --sub-heading pginodesteal       --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-inode-steal.png
-				eval $GRAPH_PSC --title \"Direct inode steal\"  --print-monitor proc-vmstat --sub-heading pginodesteal       --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-inode-steal.ps
+				eval $GRAPH_PNG --title \"Direct inode steal\"  --print-monitor proc-vmstat --sub-heading pginodesteal       --logY --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-inode-steal
 			fi
 
 			echo "<tr>"
@@ -1841,20 +1616,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if have_monitor_results proc-vmstat $KERNEL_BASE "^compact_stall [1-9]"; then
-			eval $GRAPH_PNG --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall.png
-			eval $GRAPH_PSC --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall.ps
-			eval $GRAPH_PNG --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall-smooth.ps  --smooth
-
-			eval $GRAPH_PNG --title \"Pages successful migrate\"  --print-monitor proc-vmstat --sub-heading pgmigrate_success  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success.png
-			eval $GRAPH_PSC --title \"Pages successful migrate\"  --print-monitor proc-vmstat --sub-heading pgmigrate_success  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success.ps
-			eval $GRAPH_PNG --title \"Pages successful migrate\"  --print-monitor proc-vmstat --sub-heading pgmigrate_success  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Pages successful migrate\"  --print-monitor proc-vmstat --sub-heading pgmigrate_success  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success-smooth.ps  --smooth
-
-			eval $GRAPH_PNG --title \"Pages failed migrate\"      --print-monitor proc-vmstat --sub-heading pgmigrate_fail     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_failure.png
-			eval $GRAPH_PSC --title \"Pages failed migrate\"      --print-monitor proc-vmstat --sub-heading pgmigrate_fail     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_failure.ps
-			eval $GRAPH_PNG --title \"Pages failed migrate\"      --print-monitor proc-vmstat --sub-heading pgmigrate_fail     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_failure-smooth.png --smooth
-			eval $GRAPH_PSC --title \"Pages failed migrate\"      --print-monitor proc-vmstat --sub-heading pgmigrate_fail     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_failure-smooth.ps  --smooth
+			eval $GRAPH_PNG --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall --with-smooth
+			eval $GRAPH_PNG --title \"Pages successful migrate\"  --print-monitor proc-vmstat --sub-heading pgmigrate_success  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success --with-smooth
+			eval $GRAPH_PNG --title \"Pages failed migrate\"      --print-monitor proc-vmstat --sub-heading pgmigrate_fail     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_failure --with-smooth
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-compact_stall
@@ -1864,21 +1628,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if have_monitor_results proc-vmstat $KERNEL_BASE "^numa_hint_faults [1-9]"; then
-			eval $GRAPH_PNG --title \"NUMA base-page range updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-size-updates.png
-			eval $GRAPH_PSC --title \"NUMA base-page range updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-size-updates.ps
-			eval $GRAPH_PNG --title \"NUMA base-page range updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-size-updates-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA base-page range updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-size-updates-smooth.ps --smooth
-
-
-			eval $GRAPH_PNG --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading mmtests_numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.png
-			eval $GRAPH_PSC --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading mmtests_numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates.ps
-			eval $GRAPH_PNG --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading mmtests_numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading mmtests_numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates-smooth.ps --smooth
-
-			eval $GRAPH_PNG --title \"NUMA Huge PMD Updates\"  --print-monitor proc-vmstat     --sub-heading mmtests_numa_pmd_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pmd-updates.png
-			eval $GRAPH_PSC --title \"NUMA Huge PMD Updates\"  --print-monitor proc-vmstat     --sub-heading mmtests_numa_pmd_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pmd-updates.ps
-			eval $GRAPH_PNG --title \"NUMA Huge PMD Updates\"  --print-monitor proc-vmstat     --sub-heading mmtests_numa_pmd_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pmd-updates-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Huge PMD Updates\"  --print-monitor proc-vmstat     --sub-heading mmtests_numa_pmd_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pmd-updates-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA base-page range updates\"       --print-monitor proc-vmstat     --sub-heading numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-size-updates --with-smooth
+			eval $GRAPH_PNG --title \"NUMA PTE Updates\"       --print-monitor proc-vmstat     --sub-heading mmtests_numa_pte_updates      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-pte-updates --with-smooth
+			eval $GRAPH_PNG --title \"NUMA Huge PMD Updates\"  --print-monitor proc-vmstat     --sub-heading mmtests_numa_pmd_updates --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-huge-pmd-updates --with-smooth
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-pte-size-updates
@@ -1887,20 +1639,9 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			## smoothover graph-$SUBREPORT-proc-vmstat-numa_pages_migrated
 			echo "</tr>"
 
-			eval $GRAPH_PNG --title \"NUMA Hints Local\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.png
-			eval $GRAPH_PSC --title \"NUMA Hints Local\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local.ps
-			eval $GRAPH_PNG --title \"NUMA Hints Local\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Hints Local\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"NUMA Hints Remote\"    --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.png
-			eval $GRAPH_PSC --title \"NUMA Hints Remote\"    --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote.ps
-			eval $GRAPH_PNG --title \"NUMA Hints Remote\"    --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Hints Remote\"    --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"NUMA Hints Local Pct\" --print-monitor proc-vmstat --sub-heading numa_hint_faults_local_pct --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-pct.png
-			eval $GRAPH_PSC --title \"NUMA Hints Local Pct\" --print-monitor proc-vmstat --sub-heading numa_hint_faults_local_pct --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-pct.ps
-			eval $GRAPH_PNG --title \"NUMA Hints Local Pct\" --print-monitor proc-vmstat --sub-heading numa_hint_faults_local_pct --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-pct-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Hints Local Pct\" --print-monitor proc-vmstat --sub-heading numa_hint_faults_local_pct --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-pct-smooth.ps --smooth
-
-
+			eval $GRAPH_PNG --title \"NUMA Hints Local\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults_local  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local --with-smooth
+			eval $GRAPH_PNG --title \"NUMA Hints Remote\"    --print-monitor proc-vmstat --sub-heading mmtests_hint_faults_remote --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-remote --with-smooth
+			eval $GRAPH_PNG --title \"NUMA Hints Local Pct\" --print-monitor proc-vmstat --sub-heading numa_hint_faults_local_pct --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-local-pct --with-smooth
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints-local
@@ -1909,25 +1650,13 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "</tr>"
 
 			echo "<tr>"
-			eval $GRAPH_PNG --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated.png
-			eval $GRAPH_PSC --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated.ps
-			eval $GRAPH_PNG --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated --with-smooth
 			echo "</tr>"
 
 			echo "<tr>"
-			eval $GRAPH_PNG --title \"NUMA Hint Faults\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints.png
-			eval $GRAPH_PSC --title \"NUMA Hint Faults\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints.ps
-			eval $GRAPH_PNG --title \"NUMA Hint Faults\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Hint Faults\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints-smooth.ps --smooth
-			eval $GRAPH_PNG --logY --title \"Normal Non-NUMA minor faults\"     --print-monitor proc-vmstat --sub-heading mmtests_normal_minor_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nonnuma-minor-faults.png
-			eval $GRAPH_PSC --logY --title \"Normal Non-NUMA minor faults\"     --print-monitor proc-vmstat --sub-heading mmtests_normal_minor_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nonnuma-minor-faults.ps
-			eval $GRAPH_PNG --logY --title \"Normal Non-NUMA minor faults\"     --print-monitor proc-vmstat --sub-heading mmtests_normal_minor_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nonnuma-minor-faults-smooth.png --smooth
-			eval $GRAPH_PSC --logY --title \"Normal Non-NUMA minor faults\"     --print-monitor proc-vmstat --sub-heading mmtests_normal_minor_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nonnuma-minor-faults-smooth.ps --smooth
-			eval $GRAPH_PNG --title \"NUMA Hint Percentage\"     --print-monitor proc-vmstat --sub-heading mmtests_faults_pct_numa  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hint-pct.png
-			eval $GRAPH_PSC --title \"NUMA Hint Percentage\"     --print-monitor proc-vmstat --sub-heading mmtests_faults_pct_numa  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hint-pct.ps
-			eval $GRAPH_PNG --title \"NUMA Hint Percentage\"     --print-monitor proc-vmstat --sub-heading mmtests_faults_pct_numa  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hint-pct-smooth.png --smooth
-			eval $GRAPH_PSC --title \"NUMA Hint Percentage\"     --print-monitor proc-vmstat --sub-heading mmtests_faults_pct_numa  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hint-pct-smooth.ps --smooth
+			eval $GRAPH_PNG --title \"NUMA Hint Faults\"     --print-monitor proc-vmstat --sub-heading numa_hint_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hints --with-smooth
+			eval $GRAPH_PNG --logY --title \"Normal Non-NUMA minor faults\"     --print-monitor proc-vmstat --sub-heading mmtests_normal_minor_faults  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-nonnuma-minor-faults --with-smooth
+			eval $GRAPH_PNG --title \"NUMA Hint Percentage\"     --print-monitor proc-vmstat --sub-heading mmtests_faults_pct_numa  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa-hint-pct --with-smooth
 
 			smoothover graph-$SUBREPORT-proc-vmstat-numa-hints
 			smoothover graph-$SUBREPORT-proc-vmstat-nonnuma-minor-faults
@@ -1937,12 +1666,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 
 		if have_monitor_results numa-meminfo $KERNEL_BASE; then
 			if [ `zgrep ^Node */numa-meminfo-* | awk '{print $2}' | sort | uniq | wc -l` -gt 1 ]; then
-				eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.png
-				eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance.ps
-				eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance-smooth.png --smooth
-				eval $GRAPH_PSC --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance-smooth.ps --smooth
-				eval $GRAPH_PNG --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.png
-				eval $GRAPH_PSC --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence.ps
+				eval $GRAPH_PNG --title \"NUMA Memory Balance\" --print-monitor Numanodeusage   --sub-heading MemoryBalance         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-memory-balance --with-smooth
+				eval $GRAPH_PNG --title \"NUMA Convergence\"    --print-monitor Numaconvergence                                   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numa-convergence
 				echo "<tr>"
 				smoothover graph-$SUBREPORT-numa-memory-balance
 				plain graph-$SUBREPORT-numa-convergence
@@ -1968,7 +1693,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 					echo "<tr>"
 					for NID in `seq 0 $MAX_NID`; do
 						grep "from-$NID " /tmp/mmtests-numatraffic-$$-$NAME | awk '{print $1" "$3}' > /tmp/mmtests-numatraffic-plot-$$-$NAME
-						plot --yrange 0:$MAX_MIGRATION --title "NUMA balance page migrate from node $NID" --titles "$PLOT_TITLES" --plottype $PLOTTYPE --format png                               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numab-migrate-from-$NID-${NAME}.png /tmp/mmtests-numatraffic-plot-$$-$NAME
+						plot --yrange 0:$MAX_MIGRATION --title "NUMA balance page migrate from node $NID" --titles "$PLOT_TITLES" --plottype $PLOTTYPE --format png                               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numab-migrate-from-$NID-${NAME} /tmp/mmtests-numatraffic-plot-$$-$NAME
 						plot --yrange 0:$MAX_MIGRATION --title "NUMA balance page migrate from node $NID" --titles "$PLOT_TITLES" --plottype $PLOTTYPE --format "postscript color solid" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numab-migrate-from-$NID-${NAME}.ps  /tmp/mmtests-numatraffic-plot-$$-$NAME
 						plain graph-$SUBREPORT-numab-migrate-from-$NID-${NAME}
 					done
@@ -1976,7 +1701,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 					echo "<tr>"
 					for NID in `seq 0 $MAX_NID`; do
 						grep "to-$NID " /tmp/mmtests-numatraffic-$$-$NAME | awk '{print $1" "$3}' > /tmp/mmtests-numatraffic-plot-$$-$NAME
-						plot --yrange 0:$MAX_MIGRATION --title "NUMA balance page migrate to node $NID" --titles "$PLOT_TITLES" --plottype $PLOTTYPE --format png                               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numab-migrate-to-$NID-${NAME}.png /tmp/mmtests-numatraffic-plot-$$-$NAME
+						plot --yrange 0:$MAX_MIGRATION --title "NUMA balance page migrate to node $NID" --titles "$PLOT_TITLES" --plottype $PLOTTYPE --format png                               --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numab-migrate-to-$NID-${NAME} /tmp/mmtests-numatraffic-plot-$$-$NAME
 						plot --yrange 0:$MAX_MIGRATION --title "NUMA balance page migrate to node $NID" --titles "$PLOT_TITLES" --plottype $PLOTTYPE --format "postscript color solid" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-numab-migrate-to-$NID-${NAME}.ps  /tmp/mmtests-numatraffic-plot-$$-$NAME
 						plain graph-$SUBREPORT-numab-migrate-to-$NID-${NAME}
 					done
@@ -2003,22 +1728,10 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			fi
 
 			for INTERFACE in $INTERFACE_LIST; do
-				eval $GRAPH_PNG --title \"$INTERFACE Received Bytes\"      --print-monitor proc-net-dev --sub-heading $INTERFACE-rbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes.png
-				eval $GRAPH_PSC --title \"$INTERFACE Received Bytes\"      --print-monitor proc-net-dev --sub-heading $INTERFACE-rbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes.ps
-				eval $GRAPH_PNG --title \"$INTERFACE Received Packets\"    --print-monitor proc-net-dev --sub-heading $INTERFACE-rpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rpackets.png
-				eval $GRAPH_PSC --title \"$INTERFACE Received Packets\"    --print-monitor proc-net-dev --sub-heading $INTERFACE-rpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rpackets.ps
-				eval $GRAPH_PNG --title \"$INTERFACE Transmitted Bytes\"   --print-monitor proc-net-dev --sub-heading $INTERFACE-tbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tbytes.png
-				eval $GRAPH_PSC --title \"$INTERFACE Transmitted Bytes\"   --print-monitor proc-net-dev --sub-heading $INTERFACE-tbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tbytes.ps
-				eval $GRAPH_PNG --title \"$INTERFACE Transmitted Packets\" --print-monitor proc-net-dev --sub-heading $INTERFACE-tpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tpackets.png
-				eval $GRAPH_PSC --title \"$INTERFACE Transmitted Packets\" --print-monitor proc-net-dev --sub-heading $INTERFACE-tpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tpackets.ps
-				eval $GRAPH_PNG --title \"$INTERFACE Received Bytes\"      --print-monitor proc-net-dev --sub-heading $INTERFACE-rbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes-smooth.png     --smooth
-				eval $GRAPH_PSC --title \"$INTERFACE Received Bytes\"      --print-monitor proc-net-dev --sub-heading $INTERFACE-rbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes-smooth.ps      --smooth
-				eval $GRAPH_PNG --title \"$INTERFACE Received Packets\"    --print-monitor proc-net-dev --sub-heading $INTERFACE-rpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rpackets-smooth.png --smooth
-				eval $GRAPH_PSC --title \"$INTERFACE Received Packets\"    --print-monitor proc-net-dev --sub-heading $INTERFACE-rpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rpackets-smooth.ps  --smooth
-				eval $GRAPH_PNG --title \"$INTERFACE Transmitted Bytes\"   --print-monitor proc-net-dev --sub-heading $INTERFACE-tbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tbytes-smooth.png     --smooth
-				eval $GRAPH_PSC --title \"$INTERFACE Transmitted Bytes\"   --print-monitor proc-net-dev --sub-heading $INTERFACE-tbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tbytes-smooth.ps      --smooth
-				eval $GRAPH_PNG --title \"$INTERFACE Transmitted Packets\" --print-monitor proc-net-dev --sub-heading $INTERFACE-tpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tpackets-smooth.png --smooth
-				eval $GRAPH_PSC --title \"$INTERFACE Transmitted Packets\" --print-monitor proc-net-dev --sub-heading $INTERFACE-tpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tpackets-smooth.ps  --smooth
+				eval $GRAPH_PNG --title \"$INTERFACE Received Bytes\"      --print-monitor proc-net-dev --sub-heading $INTERFACE-rbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes --with-smooth
+				eval $GRAPH_PNG --title \"$INTERFACE Received Packets\"    --print-monitor proc-net-dev --sub-heading $INTERFACE-rpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rpackets --with-smooth
+				eval $GRAPH_PNG --title \"$INTERFACE Transmitted Bytes\"   --print-monitor proc-net-dev --sub-heading $INTERFACE-tbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tbytes --with-smooth
+				eval $GRAPH_PNG --title \"$INTERFACE Transmitted Packets\" --print-monitor proc-net-dev --sub-heading $INTERFACE-tpackets --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-tpackets --with-smooth
 
 				echo "<tr>"
 				smoothover graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes
@@ -2030,25 +1743,18 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		echo "</table>"
-		if [ "$POSTSCRIPT_OUTPUT" != "no" ]; then
-			gzip -f $OUTPUT_DIRECTORY/*.ps
-		fi
 
 		if have_monitor_results proc-interrupts $KERNEL_BASE; then
 			echo "<table>"
 			echo "<tr>"
 			for HEADING in TLB-shootdowns Rescheduling-interrupts Function-call-interrupts; do
-				eval $GRAPH_PNG --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING.png
-				eval $GRAPH_PSC --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING.ps
-				eval $GRAPH_PNG --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING-smooth.png --smooth
-				eval $GRAPH_PSC --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING-smooth.ps  --smooth
+				eval $GRAPH_PNG --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING --with-smooth
 				smoothover graph-$SUBREPORT-proc-interrupts-$HEADING
 			done
 			echo "</tr>"
 			echo "<tr>"
 			for HEADING in TLB-shootdowns Rescheduling-interrupts Function-call-interrupts; do
-				eval $GRAPH_PNG --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING-logY.png --logY
-				eval $GRAPH_PSC --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING-logY.ps --logY
+				eval $GRAPH_PNG --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING-logY --logY
 				plain graph-$SUBREPORT-proc-interrupts-$HEADING-logY
 			done
 			echo "</tr>"

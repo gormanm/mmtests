@@ -5,7 +5,7 @@ SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 EXTRACT_ARGS=
 TEST_LIST=
 TMPDIR=
-TITLE="--title \"Default Title\""
+TITLE="Default Title"
 SMOOTH=
 YRANGE_COMMAND=
 XRANGE_COMMAND=
@@ -43,11 +43,11 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	--title)
-		TITLE="--title \"$2\""
+		TITLE="$2"
 		shift 2
 		;;
 	--format)
-		FORMAT_CMD="--format \"$2\""
+		FORMAT="$2"
 		shift 2
 		;;
 	--plottype)
@@ -55,11 +55,15 @@ while [ "$1" != "" ]; do
 		shift 2
 		;;
 	--output)
-		OUTPUT_CMD="--output \"$2\""
+		OUTPUT_TEMPLATE="$2"
 		shift 2
 		;;
 	--smooth)
 		SMOOTH="--smooth bezier"
+		shift
+		;;
+	--with-smooth)
+		WITH_SMOOTH="--smooth bezier"
 		shift
 		;;
 	--logX)
@@ -253,17 +257,27 @@ PLOTSCRIPTS="plot"
 [ "$TITLES" == "" ] && exit 0
 
 for PLOTSCRIPT in $PLOTSCRIPTS; do
-	COMMAND="$SCRIPTDIR/$PLOTSCRIPT $TITLE $PLOTTYPE $SMOOTH $FORMAT_CMD $OUTPUT_CMD $OUTPUT	\
-		$LOGX $LOGY $WIDE $SUBREPORT_ARGS$ALTREPORT $XRANGE $XRANGE_COMMAND $YRANGE_COMMAND	\
+	OUTPUT_TEMPLATE=`echo $OUTPUT_TEMPLATE | sed -e "s/\.$FORMAT$//"`
+	FORMAT_CMD="--format \"$FORMAT\""
+	OUTPUT_CMD="--output \"$OUTPUT_TEMPLATE.$FORMAT\""
+	TITLE_CMD="--title \"$TITLE\""
+	COMMAND="$SCRIPTDIR/$PLOTSCRIPT $TITLE_CMD $PLOTTYPE $SMOOTH $FORMAT_CMD 	\
+		$WIDE $SUBREPORT_ARGS$ALTREPORT $XRANGE $XRANGE_COMMAND $YRANGE_COMMAND	\
 		$ROTATE_XAXIS $XTICS_CMD \
 		--xlabel \"$XLABEL\" \
 		--ylabel \"$YLABEL\" \
-		--titles $TITLES \
-		$PLOTS"
+		--titles $TITLES"
 	if [ "$GRAPH_DEBUG" = "yes" ]; then
-		echo TRACE: $COMMAND
+		echo TRACE: $COMMAND $OUTPUT_CMD $PLOTS
 	fi
-	eval $COMMAND && break
-	echo
-	cat $PLOTSCRIPT
+	eval $COMMAND $OUTPUT_CMD $TITLE_CMD $LOGX $LOGY $PLOTS
+	if [ "$WITH_SMOOTH" != "" ]; then
+		TITLE_CMD="--title \"$TITLE smooth\""
+		OUTPUT_CMD="--output \"$OUTPUT_TEMPLATE-smooth.$FORMAT\""
+		eval $COMMAND $OUTPUT_CMD $TITLE_CMD $WITH_SMOOTH $PLOTS
+	fi
+	if [ "$GRAPH_DEBUG" != "" ]; then
+		cat $PLOTSCRIPT
+		echo
+	fi
 done
