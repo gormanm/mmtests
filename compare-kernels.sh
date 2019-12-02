@@ -1385,7 +1385,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 
 
 		if have_monitor_results perf-time-stat $KERNEL_BASE; then
-			EVENTS=`$EXTRACT_CMD -n $KERNEL_BASE --print-monitor perf-time-stat --print-header | head -1`
+			EVENTS=`$EXTRACT_CMD -n $KERNEL_BASE --print-monitor perf-time-stat | awk '{print $1}' | uniq`
 			COUNT=-1
 			for EVENT in $EVENTS; do
 				COUNT=$((COUNT+1))

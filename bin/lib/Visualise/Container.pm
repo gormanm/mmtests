@@ -75,8 +75,8 @@ sub getContainer {
 
 	my $container = $all_containers{$key};
 	if (!defined($container)) {
+		die("Unable to identify unique key from '$key'") if !defined($title_map{$key});
 		$key = $title_map{$key};
-		die("Unable to identify unique key from '$key'") if !defined($key);
 		$container = $all_containers{$key};
 		die if !defined($container);
 	}

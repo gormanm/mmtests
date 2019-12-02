@@ -46,9 +46,12 @@ sub parseOne() {
 	my ($self, $model) = @_;
 	my $input = $self->getInputFH();
 	my $line = <$input>;
+	my $expected_elements = -1;
+	my $first_cpu = -1;
+	my $expected_cpu = -1;
 
 	if ($line !~ /^time: ([0-9]+)/) {
-		die("Unexpected mpstat input line $line");
+		return;
 	}
 	if (!$startTimestamp) {
 		$startTimestamp = $1;
@@ -68,6 +71,25 @@ sub parseOne() {
 
 		my @elements = split(/\s+/, $line);
 		my $value = 100 - $elements[-1];
+		if ($expected_elements == -1) {
+			$expected_elements = $#elements;
+		}
+		if ($first_cpu == -1) {
+			$first_cpu = $elements[1];
+		}
+		if ($expected_cpu == -1) {
+			$expected_cpu = $first_cpu - 1;
+		}
+		$expected_cpu++;
+		if ($elements[1] != $expected_cpu) {
+			if ($elements[1] == $first_cpu) {
+				$expected_cpu = $first_cpu - 1;
+			}
+		}
+		next if ($expected_elements != $#elements);
+		next if ($elements[0] !~ /^[0-9][0-9]:/);
+		next if ($elements[1] != $expected_cpu);
+		next if ($elements[1] !~ (/^-?\d+$/));
 		$container->setValue("cpu $elements[1]", $value);
 	}
 	$container->propogateValues();

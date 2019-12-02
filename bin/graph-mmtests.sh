@@ -194,10 +194,7 @@ for TEST in $TEST_LIST; do
 		sed -e 's/_/\\\\_/g'	  \
 		> $PLOTFILE || exit
 
-	NR_SAMPLES=`cat $PLOTFILE | wc -l`
-
 	if [ "$SORT_SAMPLES" = "yes" ]; then
-		NR_SAMPLE=0
 		SORT_SWITCH=
 		if [ "$SORT_REVERSE" = "yes" ]; then
 			SORT_SWITCH=-r
@@ -205,6 +202,7 @@ for TEST in $TEST_LIST; do
 		if [ "$SORT_PERCENTAGES" = "" ]; then
 			sort $SORT_SWITCH -k2 -n $PLOTFILE | awk '{print NR" "$2}' > $PLOTFILE.tmp
 		else
+			NR_SAMPLES=`cat $PLOTFILE | wc -l`
 			sort $SORT_SWITCH -k2 -n $PLOTFILE | awk "{print (NR*100/$NR_SAMPLES)\" \"\$2}" > $PLOTFILE.tmp
 		fi
 		mv $PLOTFILE.tmp $PLOTFILE
@@ -222,9 +220,6 @@ for TEST in $TEST_LIST; do
 		COUNT=$((COUNT+1))
 	fi
 
-	if [ `wc -l $PLOTFILE | awk '{print $1}'` -eq 0 ]; then
-		continue
-	fi
 	if [ "$TITLES" = "" ]; then
 		TITLES=$TEST
 		PLOTS="$PLOTFILE"
