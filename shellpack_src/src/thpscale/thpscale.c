@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <numaif.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -16,6 +17,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/syscall.h>
 
 #define PAGESIZE getpagesize()
 #define HPAGESIZE (1048576*2)
@@ -40,10 +42,22 @@ static inline uint64_t timeval_to_us(struct timeval *tv)
 	return ((uint64_t)tv->tv_sec * 1000000) + tv->tv_usec;
 }
 
+static inline int current_nid() {
+#ifdef SYS_getcpu
+	int cpu, nid, ret;
+
+	ret = syscall(SYS_getcpu, &cpu, &nid, NULL);
+	return ret == -1 ? -1 : nid;
+#else
+	return -1;
+#endif
+}
+
 struct fault_timing {
 	bool hugepage;
 	struct timeval tv;
 	uint64_t latency;
+	int locality;
 };
 
 static struct fault_timing **timings;
@@ -57,6 +71,7 @@ static void *worker(void *data)
 	char *aligned, *end_mapping;
 	struct timeval tv_start, tv_end;
 	size_t second_size, file_size;
+	int task_nid, memory_nid;
 
 	second_size = thread_size / 2;
 	file_size = thread_size / 4;
@@ -130,13 +145,33 @@ static void *worker(void *data)
 	for (i = 0; i < nr_hpages; i++) {
 		unsigned char vec;
 		size_t arridx = offset + i * HPAGESIZE;
+		int ret;
 
 		gettimeofday(&tv_start, NULL);
 		second_mapping[arridx] = 1;
+
+		/* Check if the fault is THP or not */
 		mincore(&second_mapping[arridx + PAGESIZE*64], PAGESIZE, &vec);
 		timings[thread_idx][i].hugepage = vec;
+
+		/* Measure time to fill a THPs worth of memory */
 		memset(&second_mapping[arridx], 2, HPAGESIZE);
+
+		/* Total latency is time to fault and write */
 		gettimeofday(&timings[thread_idx][i].tv, NULL);
+
+		/*
+		 * Check locality, this is approximate as task could have
+		 * migrated during the fault.
+		 */
+		task_nid = current_nid();
+		ret = get_mempolicy(&memory_nid, NULL, 0, &second_mapping[arridx], MPOL_F_NODE|MPOL_F_ADDR);
+		if (ret == -1)
+			timings[thread_idx][i].locality = -1;
+		else
+			timings[thread_idx][i].locality = (memory_nid == task_nid) ? 1 : 0;
+
+		/* Record the latency */
 		timings[thread_idx][i].latency = timeval_to_us(&timings[thread_idx][i].tv) - timeval_to_us(&tv_start);
 	}
 
@@ -178,11 +213,11 @@ int main(int argc, char **argv)
 	nr_hpages = total_size / nr_threads / HPAGESIZE / 2;
 	thread_size = (total_size / nr_threads) & ~(HPAGESIZE-1);
 
-        if (thread_size * nr_threads > total_size) {
-                printf("file size %zd is insufficient for thread count; requires %ld bytes.\n",
-                        total_size, thread_size * nr_threads);
-                exit(EXIT_FAILURE);
-        }
+	if (thread_size * nr_threads > total_size) {
+		printf("file size %zd is insufficient for thread count; requires %ld bytes.\n",
+			total_size, thread_size * nr_threads);
+		exit(EXIT_FAILURE);
+	}
 
 	th = malloc(nr_threads * sizeof(pthread_t));
 	if (th == NULL) {
@@ -222,11 +257,12 @@ int main(int argc, char **argv)
 
 	for (i = 0; i < nr_threads; i++)
 		for (j = 0; j < nr_hpages; j++)
-			printf("fault %d %s %12lu %lu.%lu\n", i,
+			printf("fault %d %s %12lu %lu.%lu %d\n", i,
 				timings[i][j].hugepage ? "huge" : "base",
 				timings[i][j].latency,
 				timings[i][j].tv.tv_sec,
-				timings[i][j].tv.tv_usec);
+				timings[i][j].tv.tv_usec,
+				timings[i][j].locality);
 
 	return 0;
 }

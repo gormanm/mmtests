@@ -18,15 +18,14 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @clients = $self->discover_scaling_parameters($reportDir, "threads-", ".log");;
+	my @clients = $self->discover_scaling_parameters($reportDir, "threads-", ".log.gz");;
 
 	foreach my $client (@clients) {
 		my $base = 0;
 		my $huge = 0;
 
-		my $file = "$reportDir/threads-$client.log";
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
+		my $input = $self->SUPER::open_log("$reportDir/threads-$client.log");
+		while (<$input>) {
 			my $line = $_;
 			if ($line =~ /^fault/) {
 				my @elements = split(/\s+/, $line);
@@ -37,7 +36,7 @@ sub extractReport() {
 				}
 			}
 		}
-		close INPUT;
+		close $input;
 
 		if ($huge + $base != 0) {
 			$self->addData("huge-$client", 0, $huge * 100 / ($huge + $base) );

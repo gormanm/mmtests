@@ -5,9 +5,10 @@
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK self_extract thpscale.c 
+install-depends libnuma-devel
 
 mkdir $SHELLPACK_SOURCES/thpscale-${VERSION}-installed
-gcc -Wall -lpthread $SHELLPACK_TEMP/thpscale.c -o $SHELLPACK_SOURCES/thpscale-${VERSION}-installed/thpscale || \
+gcc -Wall -lpthread -lnuma $SHELLPACK_TEMP/thpscale.c -o $SHELLPACK_SOURCES/thpscale-${VERSION}-installed/thpscale || \
 	die Failed to build thpscale
 
 echo thpscale installed successfully

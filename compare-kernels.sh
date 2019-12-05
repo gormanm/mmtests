@@ -627,6 +627,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		echo $SUBREPORT Percentage Faults Huge
 		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -a counts -n $KERNEL_LIST $FORMAT_CMD
 		echo
+		echo $SUBREPORT Percentage Locality
+		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -a locality -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	xfsio)
 		echo $SUBREPORT Time
