@@ -4,8 +4,9 @@
 use strict;
 
 my $shellpack;
+my $packdirectory = $ARGV[0];
 
-while (<>) {
+while (<STDIN>) {
 	my $line = $_;
 	if ($_ !~ /###SHELLPACK/) {
 		print $_;
@@ -653,6 +654,18 @@ if [ ! -e \$SHELLPACK_ADDON/$addon/bin ]; then
 fi
 export PATH=\$PATH:\$SHELLPACK_ADDON/$addon/bin
 EOC
+	} elsif ($command eq "include_file") {
+		my ($file) = @details;
+
+		if (! -e "$packdirectory/$file") {
+			print "# WARNING: File $packdirectory/$file does not exist for inclusion\n";
+		} else {
+			print "==== BEGIN $file ====\n";
+			open(my $input, "$packdirectory/$file");
+			print <$input>;
+			close($input);
+			print "==== END $file ====\n";
+		}
 	} else {
 		print "# WARNING: UNRECOGNISED command $command\n";
 		print $_;
