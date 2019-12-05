@@ -1,0 +1,164 @@
+# prepare:	Create the test files that will be read
+# run:		Run fio reading random files from a configured number of threads
+# cleanup:	Shutdown fio and delete test files
+
+FRAGMENT_FIO_FILESIZE=${FRAGMENT_FIO_FILESIZE:-65536}
+FRAGMENT_FIO_VERSION=2.99
+
+while [ $# -ge 1 ]; do
+	case $1 in
+	--fio-size)
+		FRAGMENT_FIO_WSETSIZE=$2
+		shift 2
+		;;
+	--fio-file-size)
+		FRAGMENT_FIO_FILESIZE=$2
+		shift 2
+		;;
+	--fio-threads)
+		FRAGMENT_FIO_THREADS=$2
+		shift 2
+		;;
+	--fio-version)
+		FRAGMENT_FIO_VERSION=$2
+		shift 2
+		;;
+	*)
+		die "Unrecognised $METHOD arg $1"
+	esac
+done
+
+FIO_JOBFILE="/tmp/fio-jobfile-$$"
+if [ "$COMMAND" != "cleanup" ]; then
+	FIO_NR_FILES=$((FRAGMENT_FIO_WSETSIZE/FRAGMENT_FIO_FILESIZE/FRAGMENT_FIO_THREADS))
+	FIO_NR_BLOCKS=$((FRAGMENT_FIO_WSETSIZE/4096))
+	FIO_ALLOCSIZE=$((FIO_NR_BLOCKS*4/1024))
+fi
+
+case $COMMAND in
+prepare)
+	# Initialise directories
+	for i in `seq 0 $((FRAGMENT_FIO_THREADS-1))`; do
+		mkdir -p $SCRATCH/$i
+	done
+
+	# Initialise files
+	echo Initialising fio files
+	ulimit -n $((FIO_NR_FILES+1024))
+	cat >$FIO_JOBFILE <<END
+[global]
+direct=0
+ioengine=sync
+blocksize=4096
+invalidate=0
+fallocate=none
+create_on_open=1
+
+[writer]
+nrfiles=$FIO_NR_FILES
+filesize=$FRAGMENT_FIO_FILESIZE
+readwrite=write
+numjobs=$FRAGMENT_FIO_THREADS
+filename_format=\$jobnum/workfile.\$filenum
+END
+	echo Fragment via fio-random-reader parameters
+	echo "o Directory   $SCRATCH"
+	echo "o Total sz    $((FRAGMENT_FIO_WSETSIZE/1048576/1024))gb"
+	echo "o Thread sz   $((FRAGMENT_FIO_WSETSIZE/FRAGMENT_FIO_THREADS/1048576/1024))gb"
+	echo "o Alloc size  ${FIO_ALLOCSIZE}kb"
+	echo "o nr blocks   ${FIO_NR_BLOCKS}"
+	echo "o nr files    ${FIO_NR_FILES}"
+	echo "o total files $((FIO_NR_FILES*FRAGMENT_FIO_THREADS))"
+	echo "o nr jobs     ${FRAGMENT_FIO_THREADS}"
+
+	echo Initialising files
+	START=`date +%s`
+	$SHELLPACK_SOURCES/fio-${FRAGMENT_FIO_VERSION}-installed/fio \
+		--directory="$SCRATCH"                  \
+		--alloc-size=$FIO_ALLOCSIZE             \
+		--minimal                               \
+		$FIO_JOBFILE                            \
+		&> $LOGDIR_RESULTS/fio-init.log
+	if [ $? -ne 0 ]; then
+		cat $LOGDIR_RESULTS/fio-init.log
+		die "Failed to initialse files"
+	fi
+	END=`date +%s`
+	echo $((END-START)) > /tmp/mmtests-fragment-fio-random-reader-init-time
+	cp $FIO_JOBFILE $LOGDIR_RESULTS/fio-init.jobfile
+	sync
+	;;
+run)
+	echo Starting random reader
+	cat >$FIO_JOBFILE <<END
+[global]
+direct=0
+ioengine=sync
+blocksize=4096
+invalidate=0
+runtime=36000
+time_based
+
+[reader]
+nrfiles=$FIO_NR_FILES
+filesize=$FRAGMENT_FIO_FILESIZE
+readwrite=randread
+numjobs=$FRAGMENT_FIO_THREADS
+filename_format=\$jobnum/workfile.\$filenum
+file_service_type=random:16
+END
+	nohup $SHELLPACK_SOURCES/fio-${FRAGMENT_FIO_VERSION}-installed/fio \
+		--directory="$SCRATCH"                        \
+		--alloc-size=$FIO_ALLOCSIZE                   \
+		--minimal                                     \
+		$FIO_JOBFILE                                  \
+		&> $LOGDIR_RESULTS/fio-random-reader.log &
+	FIO_PID=$!
+	echo $FIO_PID > /tmp/mmtests-fragment-fio-random-reader-pid
+
+	FRAGMENT_FIO_WARMUP=`cat /tmp/mmtests-fragment-fio-random-reader-init-time`
+	date
+	echo Warming up fio pid $FIO_PID for $FRAGMENT_FIO_WARMUP seconds
+	sleep $FRAGMENT_FIO_WARMUP
+	ps -p $FIO_PID &> /dev/null
+	if [ $? -ne 0 ]; then
+		cat $LOGDIR_RESULTS/fio-random-reader.log
+		die "fio was not still running at end of warmup phase"
+	fi
+	cp $FIO_JOBFILE $LOGDIR_RESULTS/fio-run.jobfile
+	;;
+cleanup)
+	SIGNAL="INT"
+	ATTEMPT=0
+	FIO_PID=`cat /tmp/mmtests-fragment-fio-random-reader-pid`
+	echo -n Shutting down fio pid $FIO_PID
+	kill -$SIGNAL $FIO_PID
+	while [ $? -eq 0 ]; do
+		echo -n .
+		kill -$SIGNAL $FIO_PID
+		ATTEMPT=$((ATTEMPT+1))
+		if [ $ATTEMPT -gt 20 ]; then
+			SIGNAL="KILL"
+		fi
+		sleep 5
+		ps -p $FIO_PID &> /dev/null
+	done
+
+	echo
+	echo Checking remaining fio processes
+	ps auxw | grep "fio " | grep -v grep
+	NR=`ps auxw | grep "fio " | grep -v grep | wc -l`
+	if [ $NR -gt 0 ]; then
+		echo Warning: Killing all fio processes
+		killall -KILL fio
+	fi
+
+	echo Cleaning up fio
+	rm -rf $SCRATCH
+	rm -f /tmp/mmtests-fragment-fio-random-reader-init-time
+	rm -f /tmp/mmtests-fragment-fio-random-reader-pid
+	;;
+esac
+
+rm -f $FIO_JOBFILE
+exit 0

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble kvmstart-bench 0
+###SHELLPACK preamble kvmstart-bench 2.99
 ###SHELLPACK addon fragment
 
 ###SHELLPACK parseargBegin
@@ -14,6 +14,12 @@
 ###SHELLPACK parseargParam   --distro		KVMSTART_DISTRO
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
+
+FIO_VERSION=$VERSION
+echo $KVMSTART_PRETEST_METHOD | grep -q fio
+if [ $? -eq 0 ]; then
+	###SHELLPACK check_external_install_required_continue fio fio-${VERSION} ${VERSION}
+fi
 
 if [ "$KVMSTART_DISTRO" != "" ]; then
 	kvm-deploy --no-tune --use-alt-partition --distro $KVMSTART_DISTRO

@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble thpfioscale-bench 2.99
+###SHELLPACK addon fragment
 
-THPFIOSCALE_FIO_FILESIZE=${THPFIOSCALE_FIO_FILESIZE:-65536}
 MADV_HUGEPAGE=0
 
 ###SHELLPACK parseargBegin
@@ -9,13 +9,13 @@ MADV_HUGEPAGE=0
 ###SHELLPACK parseargParam	--min-threads	THPFIOSCALE_MIN_THREADS
 ###SHELLPACK parseargParam	--max-threads	THPFIOSCALE_MAX_THREADS
 ###SHELLPACK parseargParam	--fio-threads	THPFIOSCALE_FIO_THREADS
-###SHELLPACK parseargParam	--thp-size	THPFIOSCALE_THP_SIZE
-###SHELLPACK parseargParam	--fio-size	THPFIOSCALE_FIO_SIZE
+###SHELLPACK parseargParam	--thp-size	THPFIOSCALE_THP_WSETSIZE
+###SHELLPACK parseargParam	--fio-size	THPFIOSCALE_FIO_WSETSIZE
 ###SHELLPACK parseargParam	--madv-huge	THPFIOSCALE_MADV_HUGEPAGE
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_external_install_required fio fio-${VERSION} ${VERSION}
+###SHELLPACK check_external_install_required_continue fio fio-${VERSION} ${VERSION}
 ###SHELLPACK check_install_required thpfioscale-${VERSION}
 ###SHELLPACK init_complete
 
@@ -23,130 +23,26 @@ if [ "$THPFIOSCALE_MADV_HUGEPAGE" = "yes" ]; then
 	MADV_HUGEPAGE=1
 fi
 
-# Initialise directories
-for i in `seq 0 $((THPFIOSCALE_FIO_THREADS-1))`; do
-	mkdir -p $SHELLPACK_DATA/thpfilescale/$i
-done
-
-# Initialise files
-echo Initialising fio files
-FIO_NR_FILES=$((THPFIOSCALE_FIO_SIZE/THPFIOSCALE_FIO_FILESIZE/THPFIOSCALE_FIO_THREADS))
-FIO_NR_BLOCKS=$((THPFIOSCALE_FIO_SIZE/4096))
-FIO_JOBFILE="/tmp/fio-jobfile-$$"
-FIO_ALLOCSIZE=$((FIO_NR_BLOCKS*4/1024))
-ulimit -n $((FIO_NR_FILES+1024))
-cat >$FIO_JOBFILE <<END
-[global]
-direct=0
-ioengine=sync
-blocksize=4096
-invalidate=0
-fallocate=none
-create_on_open=1
-
-[writer]
-nrfiles=$FIO_NR_FILES
-filesize=$THPFIOSCALE_FIO_FILESIZE
-readwrite=write
-numjobs=$THPFIOSCALE_FIO_THREADS
-filename_format=thpfilescale/\$jobnum/workfile.\$filenum
-END
-echo Parameters
-echo "o Directory   $SHELLPACK_DATA"
-echo "o Total sz    $((THPFIOSCALE_FIO_SIZE/1048576/1024))gb"
-echo "o Thread sz   $((THPFIOSCALE_FIO_SIZE/THPFIOSCALE_FIO_THREADS/1048576/1024))gb"
-echo "o Alloc size  ${FIO_ALLOCSIZE}kb"
-echo "o nr blocks   ${FIO_NR_BLOCKS}"
-echo "o nr files    ${FIO_NR_FILES}"
-echo "o total files $((FIO_NR_FILES*THPFIOSCALE_FIO_THREADS))"
-echo "o nr jobs     ${THPFIOSCALE_FIO_THREADS}"
-echo "o thp min     ${THPFIOSCALE_MIN_THREADS}"
-echo "o thp max     ${THPFIOSCALE_MAX_THREADS}"
-ulimit -a
-START=`date +%s`
-$SHELLPACK_SOURCES/fio-${VERSION}-installed/fio \
-	--directory="$SHELLPACK_DATA" 		\
-	--alloc-size=$FIO_ALLOCSIZE		\
-	--minimal				\
-	$FIO_JOBFILE				\
-	&> $LOGDIR_RESULTS/fio-init.log
+fragment prepare --method fio-random-reader --fio-size $THPFIOSCALE_FIO_WSETSIZE --fio-threads $THPFIOSCALE_FIO_THREADS --fio-version $VERSION
 if [ $? -ne 0 ]; then
-	cat $LOGDIR_RESULTS/fio-init.log
-	die "Failed to initialse files"
+	die "fragment prepare --method fio-random-reader failed"
 fi
-END=`date +%s`
-INIT_TIME=$((END-START))
-sync
+fragment run     --method fio-random-reader --fio-size $THPFIOSCALE_FIO_WSETSIZE --fio-threads $THPFIOSCALE_FIO_THREADS --fio-version $VERSION
+if [ $? -ne 0 ]; then
+	die "fragment run --method fio-random-reader failed"
+fi
 
-# Initialise random reader
-echo Initialising random reader
-cat >$FIO_JOBFILE <<END
-[global]
-direct=0
-runtime=3600
-time_based
-ioengine=sync
-blocksize=4096
-invalidate=0
-
-[reader]
-nrfiles=$FIO_NR_FILES
-filesize=$THPFIOSCALE_FIO_FILESIZE
-file_service_type=random:16
-readwrite=randread
-filename_format=thpfilescale/\$jobnum/workfile.\$filenum
-
-numjobs=$THPFIOSCALE_FIO_THREADS
-END
-$SHELLPACK_SOURCES/fio-${VERSION}-installed/fio \
-	--directory="$SHELLPACK_DATA" 		\
-	--alloc-size=$FIO_ALLOCSIZE		\
-	--minimal				\
-	$FIO_JOBFILE				\
-	&> $LOGDIR_RESULTS/fio-read.log &
-FIO_PID=$!
-
-THPFIOSCALE_FIO_WARMUP=${THPFIOSCALE_FIO_WARMUP:-$INIT_TIME}
-date
-echo Warming up fio pid $FIO_PID for $THPFIOSCALE_FIO_WARMUP seconds
-sleep $THPFIOSCALE_FIO_WARMUP
-
-echo Warmup complete, starting THP
+echo Warmup complete
 ###SHELLPACK threads_large_stride_begin $THPFIOSCALE_MIN_THREADS $THPFIOSCALE_MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	echo Starting $NR_THREADS/$THPFIOSCALE_MAX_THREADS
+	echo Starting thpfioscale $NR_THREADS/$THPFIOSCALE_MAX_THREADS size:$THPFIOSCALE_THP_WSETSIZE madv:$MADV_HUGEPAGE
 	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
-		./thpfioscale $NR_THREADS $THPFIOSCALE_THP_SIZE $MADV_HUGEPAGE \
+		./thpfioscale $NR_THREADS $THPFIOSCALE_THP_WSETSIZE $MADV_HUGEPAGE \
 			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
+echo Finished thpfioscale
 
-SIGNAL="INT"
-ATTEMPT=0
-echo -n Shutting down fio pid $FIO_PID
-kill -$SIGNAL $FIO_PID
-while [ $? -eq 0 ]; do
-	echo -n .
-	kill -$SIGNAL $FIO_PID
-	ATTEMPT=$((ATTEMPT+1))
-	if [ $ATTEMPT -gt 20 ]; then
-		SIGNAL="KILL"
-	fi
-	sleep 5
-	ps -p $FIO_PID &> /dev/null
-done
-
-echo
-echo Checking remaining fio processes
-ps auxw | grep "fio " | grep -v grep
-NR=`ps auxw | grep "fio " | grep -v grep | wc -l`
-if [ $NR -gt 0 ]; then
-	echo Warning: Killing all fio processes
-	killall -KILL fio
-fi
-
-echo Cleaning up fio
-rm $FIO_JOBFILE
-rm -rf $SHELLPACK_DATA/thpfilescale
+fragment cleanup --method fio-random-reader
 
 exit $SHELLPACK_SUCCESS
