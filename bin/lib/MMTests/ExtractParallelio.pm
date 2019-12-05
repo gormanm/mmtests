@@ -52,7 +52,7 @@ sub extractReport() {
 			foreach my $reportDir (@reportDirs) {
 				my $ops;
 
-				$input = $self->SUPER::open_log("$reportDir/mmtests.log");
+				$input = $self->SUPER::open_log("$reportDir/logs/mmtests.log");
 				while (!eof($input)) {
 					my $line = <$input>;
 					if ($line =~ /ops\/sec: ([0-9]+)/) {
