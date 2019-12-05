@@ -21,16 +21,15 @@ sub extractReport() {
 	my @clients = $self->discover_scaling_parameters($reportDir, "threads-", ".log.gz");;
 
 	foreach my $client (@clients) {
-		my @local = 0;
-		my @remote = 0;
-		my $faults = 0;
+		my @local;
+		my @remote;
+		my @faults;
 		my $uncertain = 0;
 
 		my $input = $self->SUPER::open_log("$reportDir/threads-$client.log");
 		while (<$input>) {
 			my $line = $_;
 			if ($line =~ /^fault/) {
-				$faults++;
 				my $size;
 
 				my @elements = split(/\s+/, $line);
@@ -40,6 +39,7 @@ sub extractReport() {
 					$size = 1;
 				}
 				
+				$faults[$size]++;
 				if ($elements[5] == 1) {
 					$local[$size]++;
 				} elsif ($elements[5] == 0) {
@@ -51,16 +51,16 @@ sub extractReport() {
 		}
 		close $input;
 
-		if ($faults != 0) {
-			$self->addData("local-base-$client", 0, $local[0] * 100 / $faults);
-			$self->addData("local-huge-$client", 0, $local[1] * 100 / $faults);
-			$self->addData("remote-base-$client", 0, $remote[0] * 100 / $faults);
-			$self->addData("remote-huge-$client", 0, $remote[1] * 100 / $faults);
+		if ($faults[0] + $faults[1] != 0) {
+			$self->addData("local-base-$client", 0, $local[0] * 100 / $faults[0]);
+			$self->addData("local-huge-$client", 0, $local[1] * 100 / $faults[1]);
+			$self->addData("remote-base-$client", 0, $remote[0] * 100 / $faults[0]);
+			$self->addData("remote-huge-$client", 0, $remote[1] * 100 / $faults[1]);
 			if ($uncertain != 0) {
-				$self->addData("uncertain-$client", 0, $uncertain * 100 / $faults);
+				$self->addData("uncertain-$client", 0, $uncertain * 100 / ($faults[0] + $faults[1]));
 			}
 		} else {
-			$self->addData("local-$client", 0, -1);
+			$self->addData("local-none-$client", 0, -1);
 		}
 	}
 }
