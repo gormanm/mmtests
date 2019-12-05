@@ -18,7 +18,7 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @clients = $self->discover_scaling_parameters($reportDir, "threads-", ".log.gz");;
+	my @clients = $self->discover_scaling_parameters($reportDir, "threads-", ".log.gz");
 
 	foreach my $client (@clients) {
 		my $base = 0;

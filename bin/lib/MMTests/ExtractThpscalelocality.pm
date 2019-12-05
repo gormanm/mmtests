@@ -38,7 +38,7 @@ sub extractReport() {
 				} else {
 					$size = 1;
 				}
-				
+
 				$faults[$size]++;
 				if ($elements[5] == 1) {
 					$local[$size]++;

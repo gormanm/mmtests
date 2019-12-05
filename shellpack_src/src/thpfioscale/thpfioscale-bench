@@ -40,6 +40,7 @@ echo Warmup complete
 		./thpfioscale $NR_THREADS $THPFIOSCALE_THP_WSETSIZE $MADV_HUGEPAGE \
 			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+	gzip $LOGDIR_RESULTS/threads-${NR_THREADS}.log
 ###SHELLPACK threads_stride_end
 echo Finished thpfioscale
 
