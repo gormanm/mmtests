@@ -23,6 +23,7 @@ if [ "$THPFIOSCALE_MADV_HUGEPAGE" = "yes" ]; then
 	MADV_HUGEPAGE=1
 fi
 
+ulimit -n 65536
 fragment prepare --method fio-random-reader --fio-size $THPFIOSCALE_FIO_WSETSIZE --fio-threads $THPFIOSCALE_FIO_THREADS --fio-version $VERSION
 if [ $? -ne 0 ]; then
 	die "fragment prepare --method fio-random-reader failed"
