@@ -88,6 +88,10 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			USING="1:2:3:4:5"
 			shift
 			;;
+		--medium)
+			echo set term $FORMAT size 1000,800 >> $TEMP
+			shift
+			;;
 		--large)
 			echo set term $FORMAT size 1200,1200 >> $TEMP
 			shift

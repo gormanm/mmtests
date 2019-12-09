@@ -1282,6 +1282,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		generate_latency_graph "sync-latency" '"Sync Latency"'
 
 		if have_monitor_results iotop $KERNEL_BASE; then
+			echo "</table>"
+			echo "<table class=\"monitorGraphs\">"
 			mkdir /tmp/iotop-mmtests-$$
 			for OP in Read Write; do
 				echo "<tr>"
@@ -1295,14 +1297,13 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 					fi
 				done
 				for KERNEL in $KERNEL_LIST_ITER; do
-
 					# Per-thread graph
 					PROCESS_LIST=
 					TITLE_LIST=
 					eval $EXTRACT_CMD -n $KERNEL --print-monitor iotop --sub-heading $OP > /tmp/iotop-mmtests-$$/$KERNEL-data
-					for PROCESS in `awk '{print $2}' /tmp/iotop-mmtests-$$/$KERNEL-data | sort | uniq`; do
+					for PROCESS in `awk '{print $1}' /tmp/iotop-mmtests-$$/$KERNEL-data | sort | uniq`; do
 						PRETTY=`echo $PROCESS | sed -e 's/\[//g' -e 's/\]//g' -e 's/\.\///' -e 's/\//__/'`
-						grep -F " $PROCESS " /tmp/iotop-mmtests-$$/$KERNEL-data | awk '{print $1" "$3}' > /tmp/iotop-mmtests-$$/$PRETTY
+						grep -F "$PROCESS " /tmp/iotop-mmtests-$$/$KERNEL-data | awk '{print $3" "$4}' > /tmp/iotop-mmtests-$$/$PRETTY
 						if [ `cat /tmp/iotop-mmtests-$$/$PRETTY | wc -l` -gt 0 ]; then
 							PROCESS_LIST="$PROCESS_LIST /tmp/iotop-mmtests-$$/$PRETTY"
 							if [ "$TITLE_LIST" = "" ]; then
@@ -1313,7 +1314,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 						fi
 					done
 					if [ "$PROCESS_LIST" != "" ]; then
-						eval plot --yrange 0:$MAX --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL} $PROCESS_LIST
+						eval plot --xrange 0: --yrange 0:$MAX --title \"$KERNEL process $OP activity\" --plottype points --titles \"$TITLE_LIST\" --format png         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-iotop-$OP-${KERNEL}.png --medium $PROCESS_LIST
 						plain graph-$SUBREPORT-iotop-$OP-$KERNEL
 					else
 						echo "<td><center>No IO activity $KERNEL $OP</center></td>"
@@ -1322,6 +1323,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 					rm -rf /tmp/iotop-mmtests-$$/*
 				done
 				echo "</tr>"
+				echo "</table>"
+				echo "<table class=\"monitorGraphs\">"
 			done
 
 			# IO threads mean

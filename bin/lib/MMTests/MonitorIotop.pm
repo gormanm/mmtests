@@ -10,6 +10,7 @@ sub new() {
 	my $self = {
 		_ModuleName    => "MonitorIotop",
 		_FieldLength   => 25,
+		_PlotType      => "operation-candlesticks",
 	};
 	bless $self, $class;
 	return $self;

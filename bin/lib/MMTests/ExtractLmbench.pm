@@ -12,6 +12,7 @@ sub new() {
 		_DataType    => DataTypes::DATA_TIME_USECONDS,
 		_FieldLength => 16,
 		_Precision   => 4,
+		_PlotType    => "operation-candlesticks",
 	};
 	bless $self, $class;
 	return $self;
