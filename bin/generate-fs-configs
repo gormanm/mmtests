@@ -49,6 +49,7 @@ config-io-fio-randread-direct-multi
 config-io-fsmark-small-file-stream
 config-io-fsmark-xfsrepair
 config-pagereclaim-performance
+config-pagereclaim-stutter
 config-io-xfsrepair
 config-hpc-nas-c-class-mpi-full
 config-hpc-nas-c-class-mpi-half
