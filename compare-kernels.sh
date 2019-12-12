@@ -174,7 +174,11 @@ KERNEL_LIST_ITER=`echo $KERNEL_LIST | sed -e 's/,/ /g'`
 
 plain() {
 	IMG_SRC=$1
-	echo -n "  <td><img src=\"$IMG_SRC.png\"></td>"
+	WIDTH=$2
+	if [ "$WIDTH" != "" ]; then
+		WIDTH="width=$WIDTH "
+	fi
+	echo -n "  <td><img ${WIDTH}src=\"$IMG_SRC.png\"></td>"
 }
 
 plain_alone() {
@@ -1764,6 +1768,22 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			done
 			echo "</tr>"
 			echo "</table>"
+		fi
+
+		if have_monitor_results mpstat $KERNEL_BASE; then
+			echo "<tr>"
+			for KERNEL in $KERNEL_LIST_ITER; do
+				rm -f $OUTPUT_DIRECTORY/graph-$SUBREPORT-$KERNEL-mpstat.png
+				visualise-log.pl -b gd							\
+					--output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$KERNEL-mpstat.png	\
+					-t $KERNEL/iter-0/cpu-topology-mmtests.txt.gz			\
+					-l mpstat							\
+					-i $KERNEL/iter-0/mpstat-$SUBREPORT.gz				\
+					-a $KERNEL/iter-0/tests-activity
+				montage -title "$KERNEL" $OUTPUT_DIRECTORY/graph-$SUBREPORT-$KERNEL-mpstat.png -geometry +5+5 $OUTPUT_DIRECTORY/graph-$SUBREPORT-$KERNEL-mpstat.png
+				plain graph-$SUBREPORT-$KERNEL-mpstat 400
+			done
+			echo "</tr>"
 		fi
 	fi
 done
