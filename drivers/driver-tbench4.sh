@@ -7,6 +7,7 @@ run_bench() {
 	$SHELLPACK_INCLUDE/shellpack-bench-tbench 	\
 		$SERVER_ADDRESS				\
 		-v 4.0 					\
+		--min-clients $TBENCH_MIN_CLIENTS	\
 		--max-clients $TBENCH_MAX_CLIENTS
 	return $?
 }
