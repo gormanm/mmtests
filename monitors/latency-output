@@ -6,10 +6,6 @@ use IO::Handle;
 my $start=time();
 my $last = $start;
 my $line = "";
-select(STDOUT);
-$|=1;
-select(STDIN);
-$|=1;
 while (!eof STDIN) {
 	sysread(STDIN,$c,1);
 	if ($c eq "") {
