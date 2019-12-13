@@ -120,12 +120,14 @@ sub extractReport($$$) {
 	}
 
 	$input = $self->SUPER::open_log($file);
-	$self->ftraceInit();
+	$self->ftraceInit($reportDir, $testBenchmark, $subHeading);
 
 	while (!eof($input)) {
 		my $traceevent = <$input>;
 		if ($traceevent !~ /$regex_traceevent/o) {
-			print("WARNING: $traceevent");
+			if ($traceevent !~ /^CPU.*LOST.*EVENTS/) {
+				print("WARNING: $traceevent");
+			}
 			next;
 		}
 
