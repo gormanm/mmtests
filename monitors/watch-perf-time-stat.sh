@@ -10,5 +10,5 @@ fi
 # Run perf sched for small durations to build picture up over time
 while [ 1 ]; do
 	echo time: `date +%s`
-	perf stat -a $EVENTS_COMMAND sleep $MONITOR_UPDATE_FREQUENCY
+	perf stat -a $EVENTS_COMMAND sleep $MONITOR_UPDATE_FREQUENCY 2>&1
 done

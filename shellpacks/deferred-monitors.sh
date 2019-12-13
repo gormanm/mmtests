@@ -114,6 +114,8 @@ function shutdown_monitors()
 	sync
 	sleep 5
 	for _pid in `cat ${_pidfile}`; do
+		local _shutdown_signal=INT
+		local _attempt=0
 		if [ "`ps h --pid $_pid`" != "" ]; then
 			echo -n "Shutting down monitor: $_pid"
 			kill $_pid
@@ -121,6 +123,16 @@ function shutdown_monitors()
 			while [ "`ps h --pid $_pid`" != "" ]; do
 				echo -n .
 				sleep 1
+				_attempt=$((_attempt+1))
+				if [ $_attempt -ge 10 ]; then
+					echo -n o
+					kill -$_shutdown_signal $_pid
+				fi
+				if [ $_attempt -ge 20 ]; then
+					_shutdown_signal=KILL
+					echo -n O
+					kill -$_shutdown_signal $_pid
+				fi
 			done
 			echo
 		fi
@@ -175,11 +187,8 @@ function start_gzip_monitor()
 	_monitor=$1
 	_pidfile=$MONITOR_DIR/monitor.pids
 
-	( $EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo -n $! > /tmp/monitor.$$.pid ) | gzip -c > ${MONITOR_LOG}.gz &
-	PID1=`cat /tmp/monitor.$$.pid`
-	rm -f /tmp/monitor.$$.pid
-
-	echo $PID1 >> $_pidfile
+	($EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo $! >> $_pidfile ) | gzip -c > ${MONITOR_LOG}.gz &
+	PID1=`tail -1 $_pidfile`
 	echo "Started monitor ${_monitor} gzip pid $PID1"
 }
 

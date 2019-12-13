@@ -42,13 +42,14 @@ sub start {
 	}
 }
 
+my $expected_elements = -1;
+my $first_cpu = -1;
 sub parseOne() {
 	my ($self, $model) = @_;
 	my $input = $self->getInputFH();
 	my $line = <$input>;
-	my $expected_elements = -1;
-	my $first_cpu = -1;
 	my $expected_cpu = -1;
+	my $start = 1;
 
 	if ($line !~ /^time: ([0-9]+)/) {
 		return;
@@ -77,6 +78,9 @@ sub parseOne() {
 		if ($first_cpu == -1) {
 			$first_cpu = $elements[1];
 		}
+		if ($start) {
+			$start = 0;
+		}
 		if ($expected_cpu == -1) {
 			$expected_cpu = $first_cpu - 1;
 		}
@@ -90,6 +94,7 @@ sub parseOne() {
 		next if ($elements[0] !~ /^[0-9][0-9]:/);
 		next if ($elements[1] != $expected_cpu);
 		next if ($elements[1] !~ (/^-?\d+$/));
+		next if ($elements[1] =~ /^0\d/);
 		$container->setValue("cpu $elements[1]", $value);
 	}
 	$container->propogateValues();
