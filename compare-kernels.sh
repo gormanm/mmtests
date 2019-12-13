@@ -1422,7 +1422,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 		if have_monitor_results vmstat $KERNEL_BASE; then
 			eval $GRAPH_PNG --title \"User CPU Usage\"   --print-monitor vmstat --sub-heading us --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-us --with-smooth
-			exit
 			eval $GRAPH_PNG --title \"System CPU Usage\" --print-monitor vmstat --sub-heading sy --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-sy --with-smooth
 			eval $GRAPH_PNG --title \"Wait CPU Usage\"   --print-monitor vmstat --sub-heading wa --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-vmstat-wa --with-smooth 2> /dev/null
 
