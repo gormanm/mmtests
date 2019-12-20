@@ -321,20 +321,11 @@ export SHELLPACK_LOG_RUNBASE=$SHELLPACK_LOG_BASE/$RUNNAME
 rm -rf $SHELLPACK_LOG_RUNBASE &>/dev/null
 mkdir -p $SHELLPACK_LOG_RUNBASE
 
-sysstate_log() {
-	echo "$@" >> $SHELLPACK_SYSSTATEFILE
-}
-
-teststate_log() {
-	sysstate_log "$@"
-	echo "$@" >> $SHELLPACK_LOGFILE
-}
-
 for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERATION++ )); do
 	export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-$MMTEST_ITERATION
 	export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity"
 	mkdir -p $SHELLPACK_LOG
-	echo `date +%s` run-mmtests: Start > $SHELLPACK_ACTIVITY
+	activity_log "run-mmtests: Start"
 
 	# Test interrupted? Abort iteration
 	if [ "$INTERRUPT_COUNT" -gt 0 ]; then
@@ -500,7 +491,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	export SHELLPACK_LOGFILE="$SHELLPACK_LOG/tests-timestamp"
 	export SHELLPACK_SYSSTATEFILE="$SHELLPACK_LOG/tests-sysstate"
-	echo `date +%s` "run-mmtests: Iteration $MMTEST_ITERATION start" >> $SHELLPACK_ACTIVITY
+	activity_log "run-mmtests: Iteration $MMTEST_ITERATION start"
 
 	if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
 		echo Restart numad and purge log as per MMTESTS_NUMA_POLICY
@@ -600,7 +591,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		# Run the test
 		echo Starting test $TEST
 		teststate_log "test begin :: $TEST `date +%s`"
-		echo `date +%s` "run-mmtests: begin $TEST" >> $SHELLPACK_ACTIVITY
+		activity_log "run-mmtests: begin $TEST"
 
 		# Record some files at start of test
 		for PROC_FILE in $PROC_FILES; do
@@ -703,7 +694,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		mv /var/log/numad.log $SHELLPACK_LOG/numad-log
 	fi
 
-	echo `date +%s` "run-mmtests: Iteration $MMTEST_ITERATION end" >> $SHELLPACK_ACTIVITY
+	activity_log "run-mmtests: Iteration $MMTEST_ITERATION end"
 	echo Cleaning up
 
 	if [ "$MEMCG_SIZE" != "" ]; then
@@ -758,6 +749,6 @@ if [ "$MMTESTS_FORCE_DATE" != "" ]; then
 	killall -CONT ntpd
 fi
 
-echo `date +%s` run-mmtests: End >> $SHELLPACK_ACTIVITY
+activity_log "run-mmtests: End"
 teststate_log "status :: $EXIT_CODE"
 exit $EXIT_CODE

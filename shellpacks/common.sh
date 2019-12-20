@@ -1128,3 +1128,22 @@ function restore_performance_setup()
 		[ -f "$NOTURBO" ] && echo $TB > $NOTURBO
 	fi
 }
+
+function sysstate_log()
+{
+	[ -z $SHELLPACK_LOG ] && return
+	echo "$@" >> $SHELLPACK_SYSSTATEFILE
+}
+
+function teststate_log()
+{
+	[ -z $SHELLPACK_LOG ] && return
+	sysstate_log "$@"
+	echo "$@" >> $SHELLPACK_LOGFILE
+}
+
+function activity_log()
+{
+	[ -z $SHELLPACK_LOG ] && return
+	echo `date +%s` "$@" >> $SHELLPACK_ACTIVITY
+}
