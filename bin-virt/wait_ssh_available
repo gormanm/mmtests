@@ -68,3 +68,4 @@ while [ $RET -ne 1 ]; do
 done
 rm $EXPECT_SCRIPT
 echo
+exit $RET
