@@ -588,6 +588,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
 		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vulnerabilities.txt
 	fi
+	uname -a > $SHELLPACK_LOG/kernel.version
 	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
 	gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
 
@@ -705,9 +706,6 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	echo `date +%s` "run-mmtests: Iteration $MMTEST_ITERATION end" >> $SHELLPACK_ACTIVITY
 	echo Cleaning up
-	for TEST in $MMTESTS; do
-		uname -a > $SHELLPACK_LOG/kernel.version
-	done
 
 	if [ "$MEMCG_SIZE" != "" ]; then
 		echo $$ >/cgroups/tasks
