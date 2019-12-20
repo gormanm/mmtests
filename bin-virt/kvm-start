@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# This script starts an existing instance of marvin-mmtests
+
+if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
+	export MARVIN_KVM_DOMAIN="marvin-mmtests"
+fi
+
+if [ "`virsh list | grep " $MARVIN_KVM_DOMAIN " | awk '{print $3}'`" = "running" ]; then
+	echo Instance already running according to virsh
+	GUEST_IP=`kvm-ip-address 0`
+	if [ $? -eq 0 ]; then
+		wait_ssh_available $GUEST_IP
+		exit 0
+	fi
+fi
+
+echo Starting $MARVIN_KVM_DOMAIN
+virsh start $MARVIN_KVM_DOMAIN
+
+echo Console available via \"virsh console $MARVIN_KVM_DOMAIN\", waiting on IP
+GUEST_IP=`kvm-ip-address 600`
+if [ $? -eq 0 ]; then
+	wait_ssh_available $GUEST_IP
+	exit 0
+fi
+
+echo ERROR: Unable to start KVM instance
+exit -1

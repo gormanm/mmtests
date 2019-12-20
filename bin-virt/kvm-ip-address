@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# This script obtains the IP address of a marvin-based KVM instance. It can
+# optionally timeout
+#
+# Mel Gorman <mgorman@suse.com> 2016
+
+if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
+	export MARVIN_KVM_DOMAIN="marvin-mmtests"
+fi
+
+GUEST_IP=
+TIMEOUT=$1
+STARTTIME=`date +%s`
+
+while [ "$GUEST_IP" = "" ]; do
+	if [ "$TIMEOUT" != "" ]; then
+		CURRENTTIME=`date +%s`
+		RUNNING=$((CURRENTTIME-STARTTIME))
+		if [ $RUNNING -gt $TIMEOUT ]; then
+			echo Timeout exceeded for discovering IP address >&2
+			exit -1
+		fi
+	fi
+
+	MAC_ADDRESS=`virsh dumpxml $MARVIN_KVM_DOMAIN | grep "mac address" | sed "s/.*'\(.*\)'.*/\1/g"`
+	if [ "$MAC_ADDRESS" = "" ]; then
+		sleep 10
+		continue
+	fi
+	if [ "`which arp 2> /dev/null`" != "" ]; then
+		GUEST_IP=`arp -an | grep "$MAC_ADDRESS" | awk '{ gsub(/[\(\)]/,"",$2); print $2 }'`
+	fi
+	GUEST_IP=`ip n show | grep "$MAC_ADDRESS" | awk '{print $1}'`
+	if [ "$GUEST_IP" = "" ]; then
+		sleep 10
+	fi
+done
+
+echo $GUEST_IP
+exit 0

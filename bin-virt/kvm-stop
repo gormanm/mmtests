@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# This script stops an existing instance of marvin-mmtests
+
+# Does virsh think it's running?
+if [ "`virsh list | grep ' marvin-mmtests ' | awk '{print $3}'`" != "running" ]; then
+	exit 0
+fi
+
+virsh shutdown marvin-mmtests
+
+echo -n Waiting on shutdown to complete
+DURATION=0
+TEST_SHUTDOWN=`virsh list | grep " marvin-mmtests " | awk '{print $3}'`
+while [ "$TEST_SHUTDOWN" = "running" ]; do
+	echo -n .
+	sleep 5
+	TEST_SHUTDOWN=`virsh list | grep " marvin-mmtests " | awk '{print $3}'`
+
+	DURATION=$((DURATION+5))
+	if [ $DURATION -gt 30 ]; then
+		echo
+		echo Normal shutdown exceeded, destroying
+		virsh destroy marvin-mmtests
+		DURATION=0
+	fi
+done
+
+echo

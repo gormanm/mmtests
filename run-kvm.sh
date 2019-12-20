@@ -2,6 +2,7 @@
 # This script assumes the existence of a lot of supporting scripts
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
+export PATH="$PATH:$SCRIPTDIR/bin-virt"
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 
