@@ -48,6 +48,19 @@ function warn() {
 	echo "WARNING${TAG}: $@"
 }
 
+function import_configs() {
+	for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
+		if [ ! -e "${CONFIGS[$i]}" ]; then
+			echo "A config must be in the current directory or specified with --config"
+			echo "File ${CONFIGS[$i]} not found"
+			exit -1
+		fi
+	done
+	for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
+		source "${CONFIGS[$i]}"
+	done
+}
+
 function wait_on_pid_start() {
 	WAITPID=$1
 	ABORTTIME=$2

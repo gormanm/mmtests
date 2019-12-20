@@ -121,6 +121,8 @@ for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
 	source "${CONFIGS[$i]}"
 done
 
+import_configs
+
 # Create directories that must exist
 cd $SHELLPACK_TOPLEVEL
 

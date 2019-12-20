@@ -1,5 +1,6 @@
 #!/bin/bash
 # This script assumes the existence of a lot of supporting scripts
+DEFAULT_CONFIG=config
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 export PATH="$PATH:$SCRIPTDIR/bin-virt"
@@ -80,6 +81,26 @@ done
 if [ -z $VMS ]; then
 	VMS=$MARVIN_KVM_DOMAIN
 fi
+
+# We want to read the config(s) and they are in the set of parameters that we
+# have not parsed, because we want to pass them to run-mmtests.sh, inside VMs.
+declare -a MMTESTS_PARAMS
+declare -a CONFIGS
+export CONFIGS
+
+MMTESTS_PARAMS=( "$@" )
+while (( ${#MMTESTS_PARAMS[@]} ))
+do
+	if [ "${MMTESTS_PARAMS[0]}" = "-c" ] || [ "${MMTESTS_PARAMS[0]}" = "--config" ]; then
+		CONFIGS+=( "${MMTESTS_PARAMS[1]}" )
+	fi
+	MMTESTS_PARAMS=( "${MMTESTS_PARAMS[@]:1}" )
+done
+if [[ ${#CONFIGS[@]} -eq 0 ]]; then
+	CONFIGS=( "$DEFAULT_CONFIG" )
+fi
+
+import_configs
 
 # NB: 'runname' is the last of our parameters, as it is the last
 # parameter of run-mmtests.sh.
