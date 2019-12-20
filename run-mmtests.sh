@@ -170,19 +170,10 @@ install-depends autoconf automake bc binutils-devel btrfsprogs bzip2	\
 
 # Set some basic performance cpu frequency settings.
 if [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
-	echo Setting performance cpu settings
-
-	# asume all cpus are setup to the same scaling governor...
 	FORCE_PERFORMANCE_SCALINGGOV_BASE=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
-	for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
-		[ -f $CPUFREQ ] || continue; echo -n performance > $CPUFREQ;
-	done
-
 	NOTURBO="/sys/devices/system/cpu/intel_pstate/no_turbo"
-	if test -f "$NOTURBO"; then
-		FORCE_PERFORMANCE_NOTURBO_BASE=`cat $NOTURBO`
-		echo 1 > $NOTURBO
-	fi
+	[ -f $NOTURBO ] && FORCE_PERFORMANCE_NOTURBO_BASE=`cat $NOTURBO`
+	force_performance_setup
 fi
 
 # Check monitoring
@@ -755,16 +746,7 @@ if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 fi
 
 if [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
-    echo Restoring performance cpu settings
-    for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor;
-    do
-	[ -f $CPUFREQ ] || continue; echo -n $FORCE_PERFORMANCE_SCALINGGOV_BASE > $CPUFREQ;
-    done
-
-	NOTURBO="/sys/devices/system/cpu/intel_pstate/no_turbo"
-	if test -f "$NOTURBO"; then
-		echo $FORCE_PERFORMANCE_NOTURBO_BASE > $NOTURBO
-	fi
+	restore_performance_setup $FORCE_PERFORMANCE_SCALINGGOV_BASE $FORCE_PERFORMANCE_NOTURBO_BASE
 fi
 
 

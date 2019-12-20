@@ -13,9 +13,10 @@ if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
 fi
 
 usage() {
-	echo "$0 [-koh] [--vm VMNAME[,VMNAME][,...]] run-mmtests-options"
+	echo "$0 [-pkoh] [--vm VMNAME[,VMNAME][,...]] run-mmtests-options"
 	echo
 	echo "-h|--help              Prints this help."
+	echo "-p|--performance       Force performance CPUFreq governor on the host before starting the tests"
 	echo "-k|--keep-kernel       Use whatever kernel the VM currently has."
 	echo "-o|--offline-iothreads Take down some VM's CPUs and use for IOthreads."
 	echo "--vm VMNAME[,VMNAME]   Name(s) of existing, and already known to `virsh`, VM(s)."
@@ -27,8 +28,26 @@ usage() {
 # Parameters handling. Note that our own parmeters (i.e., run-kvm.sh
 # parameters) must always come *before* the parameters we want MMTests
 # inside the VM to use.
+#
+# There may be params that are valid arguments for both run-kvm.sh and
+# run-mmtests.sh. We need to make sure that they are parsed only once.
+# In fact, if we any of them is actually present twice, and we parse both
+# the occurrences in here, then run-mmtests.sh, when run inside the VMs(s),
+# will not see them.
+#
+# This is why this code looks different than "traditional" parameter handling,
+# but it is either this, or we mandate that there can't be parameters with the
+# same names in run-kvm.sh and run-mmtests.sh.
 while true; do
 	case "$1" in
+		-p|--performance)
+			if [ -z $FORCE_HOST_PERFORMANCE_SETUP ]; then
+				export FORCE_HOST_PERFORMANCE_SETUP="yes"
+				shift
+			else
+				break
+			fi
+			;;
 		-k|--keep-kernel)
 			KEEP_KERNEL="yes"
 			shift
@@ -114,9 +133,21 @@ if [ "$OFFLINE_IOTHREADS" = "yes" ]; then
 	fi
 fi
 
+# Set performance governor on the host, if wanted
+if [ "$FORCE_HOST_PERFORMANCE_SETUP" = "yes" ]; then
+	FORCE_HOST_PERFORMANCE_SCALINGGOV_BASE=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
+	NOTURBO="/sys/devices/system/cpu/intel_pstate/no_turbo"
+	[ -f $NOTURBO ] && FORCE_HOST_PERFORMANCE_NOTURBO_BASE=`cat $NOTURBO`
+	force_performance_setup
+fi
+
 echo Executing mmtests on the guest
 pssh $PSSH_OPTS "cd git-private/$NAME && ./run-mmtests.sh $@"
 RETVAL=$?
+
+if [ "$FORCE_HOST_PERFORMANCE_SETUP" = "yes" ]; then
+	restore_performance_setup $FORCE_HOST_PERFORMANCE_SCALINGGOV_BASE $FORCE_HOST_PERFORMANCE_NOTURBO_BASE
+fi
 
 echo Syncing $SHELLPACK_LOG_BASE_SUBDIR
 IFS=,

@@ -1090,3 +1090,41 @@ function setup_dirs() {
 		fi
 	done
 }
+
+function force_performance_setup()
+{
+	echo Setting performance cpu settings
+
+	# asume all cpus are setup to the same scaling governor...
+	for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+		[ -f $CPUFREQ ] || continue; echo -n performance > $CPUFREQ
+	done
+	NOTURBO="/sys/devices/system/cpu/intel_pstate/no_turbo"
+	[ -f "$NOTURBO" ] && echo 1 > $NOTURBO
+}
+
+function restore_performance_setup()
+{
+	[ $# -eq 0 ] && return
+	if [ $# -eq 2 ]; then
+		GV=$1
+		TB=$2
+	elif [ "$1" = "1" ] || [ "$1" = "0" ]; then
+		TB=$1
+	else
+		GV=$1
+	fi
+
+	echo Restoring performance cpu settings
+
+	if [ ! -z $GV ]; then
+		for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor;
+		do
+			[ -f $CPUFREQ ] || continue; echo -n $GV > $CPUFREQ
+		done
+	fi
+	if [ ! -z $TB ]; then
+		NOTURBO="/sys/devices/system/cpu/intel_pstate/no_turbo"
+		[ -f "$NOTURBO" ] && echo $TB > $NOTURBO
+	fi
+}
