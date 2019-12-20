@@ -534,13 +534,6 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		echo Memory limit configured: `cat /sys/fs/cgroup/memory/0/memory.limit_in_bytes`
 	fi
 
-	if [ "$CGROUP_CPU_TAG" != "" ]; then
-		mkdir -p /sys/fs/cgroup/cpu/0 || die "Failed to create cpu cgroup"
-		echo $CGROUP_CPU_TAG > /sys/fs/cgroup/cpu/0/cpu.tag || die "Failed to create CPU sched tag"
-		echo $$ > /sys/fs/cgroup/cpu/0/tasks
-		echo CPU Tags set: `cat /sys/fs/cgroup/cpu/0/cpu.tag`
-	fi
-
 	EXIT_CODE=$SHELLPACK_SUCCESS
 
 	# Run tests in single mode
@@ -650,8 +643,17 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		# Run single test
 		sync
 		start_monitors
-		/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
-			./bin/run-single-test.sh $TEST
+
+		if [ "$CGROUP_CPU_TAG" != "" ]; then
+			mkdir -p /sys/fs/cgroup/cpu/0 || die "Failed to create cpu cgroup"
+			echo $CGROUP_CPU_TAG > /sys/fs/cgroup/cpu/0/cpu.tag || die "Failed to create CPU sched tag"
+			echo CPU Tags set: `cat /sys/fs/cgroup/cpu/0/cpu.tag`
+			bash -c "echo \$$ > /sys/fs/cgroup/cpu/0/tasks && /usr/bin/time -f \"time :: $TEST %U user %S system %e elapsed\" \
+				-o $SHELLPACK_LOG/timestamp ./bin/run-single-test.sh $TEST"
+		else
+			/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
+				./bin/run-single-test.sh $TEST
+		fi
 		EXIT_CODE=$?
 		stop_monitors
 
