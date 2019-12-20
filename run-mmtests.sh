@@ -163,9 +163,9 @@ if [ "$MMTESTS_FORCE_DATE" != "" ]; then
 fi
 
 # Install packages that are generally needed by a large number of tests
-install-depends autoconf automake bc binutils-devel btrfsprogs bzip2		\
-	cpupower e2fsprogs expect expect-devel gcc hdparm hwloc-lstopo libtool	\
-	make numactl patch perl-Time-HiRes psmisc tcl time util-linux		\
+install-depends autoconf automake bc binutils-devel btrfsprogs bzip2	\
+	cpupower e2fsprogs expect expect-devel gcc hdparm hwloc libtool	\
+	make numactl patch perl-Time-HiRes psmisc tcl time util-linux	\
 	wget xfsprogs xfsprogs-devel xz
 
 # Set some basic performance cpu frequency settings.
