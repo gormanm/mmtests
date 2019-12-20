@@ -6,17 +6,19 @@ export PATH="$PATH:$SCRIPTDIR/bin-virt"
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 
+MMTEST_PSSH_OPTIONS="$MMTEST_PSSH_OPTIONS -t 0 -O StrictHostKeyChecking=no"
+
 if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
 	export MARVIN_KVM_DOMAIN="marvin-mmtests"
 fi
 
 usage() {
-	echo "$0 [-koh] [--vm VMNAME] run-mmtests-options"
+	echo "$0 [-koh] [--vm VMNAME[,VMNAME][,...]] run-mmtests-options"
 	echo
 	echo "-h|--help              Prints this help."
 	echo "-k|--keep-kernel       Use whatever kernel the VM currently has."
 	echo "-o|--offline-iothreads Take down some VM's CPUs and use for IOthreads."
-	echo "--vm VMNAME            Use an existing VM known to \`virsh\` as VMNAME."
+	echo "--vm VMNAME[,VMNAME]   Name(s) of existing, and already known to `virsh`, VM(s)."
 	echo "                       If not specified, use \$MARVIN_KVM_DOMAIN as VM name."
 	echo "                       If that is not defined, use 'marvin-mmtests'."
 	echo "run-mmtests-options    Parameters for run-mmtests.sh inside the VM."
@@ -37,7 +39,8 @@ while true; do
 			;;
 		--vm)
 			shift
-			VM=$1
+			VMS_LIST="yes"
+			VMS=$1
 			shift
 			;;
 		-h|--help)
@@ -50,24 +53,35 @@ while true; do
 	esac
 done
 
-if [ -z $VM ]; then
-	VM=$MARVIN_KVM_DOMAIN
-else
-	# Adjust the `runname` parameter to run-mmtests.sh to include (as
-	# a suffix) the name of the VM. This way, we don't risk results
-	# being overwritten (e.g., by a run of the same benchmark in a
-	# VM with a different name).
-	#
-	# NB: This works because we know that 'runname' is the last of
-	# our parameters, as it is the last parameter of run-mmtests.sh.
-	RUNNAME=${@:$#}
-	RUNNAME="$RUNNAME-$VM"
-	set -- "${@:1:(($#-1))}" "$RUNNAME"
+if [ -z $VMS ]; then
+	VMS=$MARVIN_KVM_DOMAIN
 fi
 
-echo Booting kvm instance
-kvm-start --vm $VM || die Failed to boot KVM instance
-GUEST_IP=`kvm-ip-address --vm $VM`
+echo "Booting the VM(s)"
+kvm-start --vm $VMS || die "Failed to boot VM(s)"
+
+# Arrays where we store, for each VM, the IP and a VM-specific
+# runname. The latter, in particular, is necessary because otherwise,
+# when running the same benchmark in several VMs with different names,
+# results would overwrite each other.
+#
+# NB: 'runname' is the last of our parameters, as it is the last
+# parameter of run-mmtests.sh.
+declare -a GUEST_IP
+declare -a VM_RUNNAME
+RUNNAME=${@:$#}
+v=1
+PREV_IFS=$IFS
+IFS=,
+for VM in $VMS; do
+	GUEST_IP[$v]=`kvm-ip-address --vm $VM`
+	PSSH_OPTS="$PSSH_OPTS -H root@${GUEST_IP[$v]}"
+	VM_RUNNAME[$v]="$RUNNAME-$VM"
+	v=$(( $v + 1 ))
+done
+IFS=$PREV_IFS
+VMCOUNT=$(( $v - 1 ))
+PSSH_OPTS="$PSSH_OPTS $MMTEST_PSSH_OPTIONS -p $(( $VMCOUNT * 2 ))"
 
 echo Creating archive
 NAME=`basename $SCRIPTDIR`
@@ -77,10 +91,9 @@ mv ${NAME}.tar.gz ${NAME}/
 cd ${NAME}
 
 echo Uploading and extracting new mmtests
-scp ${NAME}.tar.gz root@$GUEST_IP: || die Failed to upload ${NAME}.tar.gz
-ssh root@$GUEST_IP mkdir git-private
-ssh root@$GUEST_IP rm -rf git-private/${NAME}
-ssh root@$GUEST_IP tar -C git-private -xf ${NAME}.tar.gz || die Failed to extract ${NAME}.tar.gz
+pscp $PSSH_OPTS ${NAME}.tar.gz . || die Failed to upload ${NAME}.tar.gz
+
+pssh $PSSH_OPTS "mkdir -p git-private && rm -rf git-private/${NAME} && tar -C git-private -xf ${NAME}.tar.gz" || die Failed to extract ${NAME}.tar.gz
 rm ${NAME}.tar.gz
 
 
@@ -102,15 +115,31 @@ if [ "$OFFLINE_IOTHREADS" = "yes" ]; then
 fi
 
 echo Executing mmtests on the guest
-ssh root@$GUEST_IP "cd git-private/$NAME && ./run-mmtests.sh $@"
+pssh $PSSH_OPTS "cd git-private/$NAME && ./run-mmtests.sh $@"
 RETVAL=$?
 
 echo Syncing $SHELLPACK_LOG_BASE_SUBDIR
-ssh root@$GUEST_IP "cd git-private/$NAME && tar -czf work.tar.gz $SHELLPACK_LOG_BASE_SUBDIR" || die Failed to archive $SHELLPACK_LOG_BASE_SUBDIR
-scp root@$GUEST_IP:git-private/$NAME/work.tar.gz . || die Failed to download work.tar.gz
-tar -xf work.tar.gz || die Failed to extract work.tar.gz
+IFS=,
+v=1
+for VM in $VMS; do
+	# TODO: these two can probably be replaced with `pssh` and `pslurp`...
+	ssh root@${GUEST_IP[$v]} "cd git-private/$NAME && tar -czf work-${VM_RUNNAME[$v]}.tar.gz $SHELLPACK_LOG_BASE_SUBDIR" || die Failed to archive $SHELLPACK_LOG_BASE_SUBDIR
+	scp root@${GUEST_IP[$v]}:git-private/$NAME/work-${VM_RUNNAME[$v]}.tar.gz . || die Failed to download work.tar.gz
+	# Do not change behavior, file names, etc, if no VM list is specified.
+	# That, in fact, is how currently Marvin works, and we don't want to
+	# break it.
+	NEW_RUNNAME=$RUNNAME
+	if [ "$VMS_LIST" = "yes" ]; then
+		NEW_RUNNAME=${VM_RUNNAME[$v]}
+	fi
+	# Store the results of benchmark named `FOO`, done in VM 'bar' in
+	# a directory called 'bar-FOO.
+	tar --transform="s|$RUNNAME|$NEW_RUNNAME|" -xf work-${VM_RUNNAME[$v]}.tar.gz || die Failed to extract work.tar.gz
+	v=$(( $v + 1 ))
+done
+IFS=$PREV_IFS
 
-echo Shutting down kvm instance
-kvm-stop --vm $VM
+echo "Shutting down the VM(s)"
+kvm-stop --vm $VMS
 
 exit $RETVAL
