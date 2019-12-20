@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-# This script stops an existing instance of a VM.
+# This script stops one or more existing VMs.
 #
-# VM name is passed as first (and only) parameter, i.e.,
-# `--vm foo`. If no parameter is passed, the VM name is
-# assumed to be in $MARVIN_KVM_DOMAIN. If such variable
-# is undefined, we fall back to `marvin-mmtests`.
+# The list of the VM names is passed as first (and only)
+# parameter, i.e., `--vm foo,bar`. If no parameter is passed,
+# it it assumed that there will be one VM, whose name is either
+# defined in $MARVIN_KVM_DOMAIN, or it's 'marvin-mmtests'
 
 if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
 	export MARVIN_KVM_DOMAIN="marvin-mmtests"
@@ -13,34 +13,38 @@ fi
 
 if [ "$1" = "--vm" ]; then
 	shift
-	VM="$1"
+	VMS="$1"
 	shift
 else
-	VM=$MARVIN_KVM_DOMAIN
+	VMS=$MARVIN_KVM_DOMAIN
 fi
 
-# Does virsh think it's running?
-if [ "`virsh list | grep " $VM " | awk '{print $3}'`" != "running" ]; then
-	exit 0
-fi
-
-virsh shutdown $VM
-
-echo -n Waiting on $VM shutdown to complete
-DURATION=0
-TEST_SHUTDOWN=`virsh list | grep " $VM " | awk '{print $3}'`
-while [ "$TEST_SHUTDOWN" = "running" ]; do
-	echo -n .
-	sleep 5
-	TEST_SHUTDOWN=`virsh list | grep " $VM " | awk '{print $3}'`
-
-	DURATION=$((DURATION+5))
-	if [ $DURATION -gt 30 ]; then
-		echo
-		echo Normal $VM shutdown exceeded, destroying
-		virsh destroy $VM
-		DURATION=0
+# TODO: VMs can be stopped in parallel
+IFS=,
+for VM in $VMS; do
+	# Does virsh think it's running?
+	if [ "`virsh list | grep " $VM " | awk '{print $3}'`" != "running" ]; then
+		continue
 	fi
+
+	virsh shutdown $VM
+
+	echo -n Waiting on $VM shutdown to complete
+	DURATION=0
+	TEST_SHUTDOWN=`virsh list | grep " $VM " | awk '{print $3}'`
+	while [ "$TEST_SHUTDOWN" = "running" ]; do
+		echo -n .
+		sleep 5
+		TEST_SHUTDOWN=`virsh list | grep " $VM " | awk '{print $3}'`
+
+		DURATION=$((DURATION+5))
+		if [ $DURATION -gt 30 ]; then
+			echo
+			echo Normal $VM shutdown exceeded, destroying
+			virsh destroy $VM
+			DURATION=0
+		fi
+	done
 done
 
 echo
