@@ -170,12 +170,21 @@ if [ "$FORCE_HOST_PERFORMANCE_SETUP" = "yes" ]; then
 	force_performance_setup
 fi
 
+sysstate_log_basic_info
+collect_hardware_info
+collect_kernel_info
+collect_sysconfig_info
+
 echo Executing mmtests on the guest
 activity_log "run-kvm: begin run-mmtests in VMs"
 teststate_log "test begin :: `date +%s`"
 
+sysstate_log_proc_files "start"
+
 pssh $PSSH_OPTS "cd git-private/$NAME && ./run-mmtests.sh $@"
 RETVAL=$?
+
+sysstate_log_proc_files "end"
 
 teststate_log "test end :: `date +%s`"
 activity_log "run-kvm: run-mmtests in VMs end"
@@ -212,4 +221,11 @@ teststate_log "VMs down :: `date +%s`"
 
 teststate_log "finish :: `date +%s`"
 teststate_log "status :: $RETVAL"
+
+if [ "$HOST_LOGS" = "yes" ]; then
+	dmesg > $SHELLPACK_LOG/dmesg
+	gzip -f $SHELLPACK_LOG/dmesg
+	gzip -f $SHELLPACK_SYSSTATEFILE
+fi
+
 exit $RETVAL

@@ -1147,3 +1147,81 @@ function activity_log()
 	[ -z $SHELLPACK_LOG ] && return
 	echo `date +%s` "$@" >> $SHELLPACK_ACTIVITY
 }
+
+function sysstate_log_basic_info()
+{
+	[ -z $SHELLPACK_LOG ] && return
+	sysstate_log "version :: `mmtests-rev-id`"
+	sysstate_log "arch :: `uname -m`"
+	sysstate_log "`ip addr show`"
+	sysstate_log "mount :: start"
+	sysstate_log "`mount`"
+	sysstate_log "/proc/mounts :: start"
+	sysstate_log "`cat /proc/mounts`"
+}
+
+function sysstate_log_proc_files()
+{
+	[ -z $SHELLPACK_LOG ] && return
+	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat /proc/diskstats"
+	for PROC_FILE in $PROC_FILES; do
+		sysstate_log "file $1 :: $PROC_FILE"
+		sysstate_log "`cat $PROC_FILE`"
+	done
+}
+
+function collect_hardware_info()
+{
+	[ -z $SHELLPACK_LOG ] && return
+	if [ "`which numactl 2> /dev/null`" != "" ]; then
+		numactl --hardware > $SHELLPACK_LOG/numactl.txt
+		gzip $SHELLPACK_LOG/numactl.txt
+	fi
+	if [ "`which lscpu 2> /dev/null`" != "" ]; then
+		lscpu > $SHELLPACK_LOG/lscpu.txt
+		gzip $SHELLPACK_LOG/lscpu.txt
+	fi
+	if [ "`which cpupower 2> /dev/null`" != "" ]; then
+		cpupower frequency-info > $SHELLPACK_LOG/cpupower.txt
+		gzip $SHELLPACK_LOG/cpupower.txt
+	fi
+	if [ "`which lstopo 2> /dev/null`" != "" ]; then
+		lstopo $SHELLPACK_LOG/lstopo.pdf 2>/dev/null
+		lstopo --output-format txt > $SHELLPACK_LOG/lstopo.txt
+		gzip $SHELLPACK_LOG/lstopo.pdf
+		gzip $SHELLPACK_LOG/lstopo.txt
+	fi
+	if [ "`which lsscsi 2> /dev/null`" != "" ]; then
+		lsscsi > $SHELLPACK_LOG/lsscsi.txt
+		gzip $SHELLPACK_LOG/lsscsi.txt
+	fi
+	if [ "`which list-cpu-toplogy.sh 2> /dev/null`" != "" ]; then
+		list-cpu-toplogy.sh > $SHELLPACK_LOG/cpu-topology-mmtests.txt
+		gzip $SHELLPACK_LOG/cpu-topology-mmtests.txt
+	fi
+	if [ "`which set-cstate-latency.pl 2> /dev/null`" != "" ]; then
+		set-cstate-latency.pl > $SHELLPACK_LOG/cstate-latencies-${RUNNAME}.txt
+	fi
+	if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
+		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vulnerabilities.txt
+	fi
+}
+
+function collect_kernel_info()
+{
+	[ -z $SHELLPACK_LOG ] && return
+	uname -a > $SHELLPACK_LOG/kernel.version
+	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
+	gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
+}
+
+function collect_sysconfig_info()
+{
+	[ -z $SHELLPACK_LOG ] && return
+	if [ -d /sys/fs/cgroup ]; then
+		if [ "`which tree 2> /dev/null`" != "" ]; then
+			tree -alfDn /sys/fs/cgroup > $SHELLPACK_LOG/cgroup-tree.txt
+			gzip $SHELLPACK_LOG/cgroup-tree.txt
+		fi
+	fi
+}

@@ -166,7 +166,7 @@ fi
 install-depends autoconf automake bc binutils-devel btrfsprogs bzip2	\
 	cpupower e2fsprogs expect expect-devel gcc hdparm hwloc libtool	\
 	make numactl patch perl-Time-HiRes psmisc tcl time util-linux	\
-	wget xfsprogs xfsprogs-devel xz tree
+	wget xfsprogs xfsprogs-devel xz
 
 # Set some basic performance cpu frequency settings.
 if [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
@@ -524,56 +524,11 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	if [ "$RAID_CREATE_END" != "" ]; then
 		teststate_log "raid-create :: $((RAID_CREATE_END-RAID_CREATE_START))"
 	fi
-	sysstate_log "version :: `mmtests-rev-id`"
-	sysstate_log "arch :: `uname -m`"
-	sysstate_log "`ip addr show`"
-	sysstate_log "mount :: start"
-	sysstate_log "`mount`"
-	sysstate_log "/proc/mounts :: start"
-	sysstate_log "`cat /proc/mounts`"
-	if [ "`which numactl 2> /dev/null`" != "" ]; then
-		numactl --hardware > $SHELLPACK_LOG/numactl.txt
-		gzip $SHELLPACK_LOG/numactl.txt
-	fi
-	if [ "`which lscpu 2> /dev/null`" != "" ]; then
-		lscpu > $SHELLPACK_LOG/lscpu.txt
-		gzip $SHELLPACK_LOG/lscpu.txt
-	fi
-	if [ "`which cpupower 2> /dev/null`" != "" ]; then
-		cpupower frequency-info > $SHELLPACK_LOG/cpupower.txt
-		gzip $SHELLPACK_LOG/cpupower.txt
-	fi
-	if [ "`which lstopo 2> /dev/null`" != "" ]; then
-		lstopo $SHELLPACK_LOG/lstopo.pdf 2>/dev/null
-		lstopo --output-format txt > $SHELLPACK_LOG/lstopo.txt
-		gzip $SHELLPACK_LOG/lstopo.pdf
-		gzip $SHELLPACK_LOG/lstopo.txt
-	fi
-	if [ "`which lsscsi 2> /dev/null`" != "" ]; then
-		lsscsi > $SHELLPACK_LOG/lsscsi.txt
-		gzip $SHELLPACK_LOG/lsscsi.txt
-	fi
-	if [ "`which list-cpu-toplogy.sh 2> /dev/null`" != "" ]; then
-		list-cpu-toplogy.sh > $SHELLPACK_LOG/cpu-topology-mmtests.txt
-		gzip $SHELLPACK_LOG/cpu-topology-mmtests.txt
-	fi
-	if [ "`which set-cstate-latency.pl 2> /dev/null`" != "" ]; then
-		set-cstate-latency.pl > $SHELLPACK_LOG/cstate-latencies-${RUNNAME}.txt
-	fi
-	if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
-		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vulnerabilities.txt
-	fi
-	uname -a > $SHELLPACK_LOG/kernel.version
-	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
-	gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
-	if [ -d /sys/fs/cgroup ]; then
-		if [ "`which tree 2> /dev/null`" != "" ]; then
-			tree -alfDn /sys/fs/cgroup > $SHELLPACK_LOG/cgroup-tree.txt
-			gzip $SHELLPACK_LOG/cgroup-tree.txt
-		fi
-	fi
+	sysstate_log_basic_info
+	collect_hardware_info
+	collect_kernel_info
+	collect_sysconfig_info
 
-	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat /proc/diskstats"
 	for TEST in $MMTESTS; do
 		export CURRENT_TEST=$TEST
 		# Configure transparent hugepage support as configured
@@ -593,11 +548,8 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		teststate_log "test begin :: $TEST `date +%s`"
 		activity_log "run-mmtests: begin $TEST"
 
-		# Record some files at start of test
-		for PROC_FILE in $PROC_FILES; do
-			sysstate_log "file start :: $PROC_FILE"
-			sysstate_log "`cat $PROC_FILE`"
-		done
+		# Record some basic information at start of test
+		sysstate_log_proc_files "start"
 		if [ -e /proc/lock_stat ]; then
 			echo 0 > /proc/lock_stat
 		fi
@@ -655,10 +607,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		fi
 
 		# Record some basic information at end of test
-		for PROC_FILE in $PROC_FILES; do
-			sysstate_log "file end :: $PROC_FILE"
-			sysstate_log "`cat $PROC_FILE`"
-		done
+		sysstate_log_proc_files "end"
 		if [ "`cat /proc/sys/kernel/stack_tracer_enabled 2> /dev/null`" = "1" ]; then
 			sysstate_log "file end :: /sys/kernel/debug/tracing/stack_trace"
 			sysstate_log "`cat /sys/kernel/debug/tracing/stack_trace`"
