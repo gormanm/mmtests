@@ -5,6 +5,38 @@ SCRIPTDIR=`cd "$DIRNAME" && pwd`
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 
+usage() {
+	echo "$0 [-koh] run-mmtests-options"
+	echo
+	echo "-h|--help              Prints this help."
+	echo "-k|--keep-kernel       Use whatever kernel the VM currently has."
+	echo "-o|--offline-iothreads Take down some VM's CPUs and use for IOthreads."
+	echo "run-mmtests-options    Parameters for run-mmtests.sh inside the VM."
+}
+
+# Parameters handling. Note that our own parmeters (i.e., run-kvm.sh
+# parameters) must always come *before* the parameters we want MMTests
+# inside the VM to use.
+while true; do
+	case "$1" in
+		-k|--keep-kernel)
+			KEEP_KERNEL="yes"
+			shift
+			;;
+		-o|--offline-iothreads)
+			OFFLINE_IOTHREADS="yes"
+			shift
+			;;
+		-h|--help)
+			usage
+			exit 0
+			;;
+		*)
+			break
+			;;
+	esac
+done
+
 echo Booting kvm instance
 kvm-start || die Failed to boot KVM instance
 GUEST_IP=`kvm-ip-address`
@@ -24,14 +56,12 @@ ssh root@$GUEST_IP tar -C git-private -xf ${NAME}.tar.gz || die Failed to extrac
 rm ${NAME}.tar.gz
 
 
-if [ "$1" != "--keep-kernel" ]; then
+if [ "$KEEP_KERNEL" != "yes" ]; then
 	echo Booting current kernel `uname -r` $MORE_BOOT_ARGS on the guest
 	kvm-boot `uname -r` $MORE_BOOT_ARGS || die Failed to boot `uname -r`
-else
-	shift
 fi
 
-if [ "$1" = "--offline-iothreads" ]; then
+if [ "$OFFLINE_IOTHREADS" = "yes" ]; then
 	offline_cpus=`virsh dumpxml marvin-mmtests | grep -c iothreadpin`
 	if [ "$offline_cpus" != "" ]; then
 		echo Taking $offline_cpus offline for pinned io threads
@@ -41,7 +71,6 @@ if [ "$1" = "--offline-iothreads" ]; then
 			echo o Virt $VIRT_CPU phys $PHYS_CPU
 		done
 	fi
-	shift
 fi
 
 echo Executing mmtests on the guest
