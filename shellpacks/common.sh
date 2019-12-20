@@ -9,6 +9,12 @@ if [ "$SCRIPTDIR" = "" ]; then
 	exit $SHELLPACK_ERROR
 fi
 
+# Default (i.e., in case they are not specified in the config files,
+# or already defined in the environment) host and guest data exchange ports,
+# for the benchmark synch protocol.
+export MMTESTS_HOST_PORT=${MMTESTS_HOST_PORT:-1234}
+export MMTESTS_GUEST_PORT=${MMTESTS_GUEST_PORT:-4321}
+
 if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
 	export PATH=$SCRIPTDIR/stat:$PATH
 fi
@@ -376,6 +382,99 @@ function mmtests_activity() {
 		fi
 		echo `date +%s` $NAME: $@ >> $SHELLPACK_ACTIVITY
 	fi
+}
+
+# Benchmarking synchronization utility functions.
+#
+# Basically, from run-mmtests.sh we send tokens to a certain IP:PORT,
+# to let the "controller" know that a certain state has been reached.
+# Similarly, we may want to wait for a specific token from the controller,
+# before proceeding any further.
+#
+# Communication happens with `nc`, and we try to make sure that the
+# controller is listening, that the connection can be established, etc.,
+# before actually sending (for minimizing the probability of tokens getting
+# lost).
+#
+# TODO: likely, this can be re-implemented using, for instance, something
+# like gRPC (either here, with https://github.com/fullstorydev/grpcurl) or
+# by putting together some service program.
+
+# DEBUG: uncomment to see some more info from `nc`, as it is
+# used in the following fucntions.
+#_NCV="-v"
+
+# Send a token to IP:PORT. Before actually sending, we wait for the
+# destination to be ready and accepting connections.
+#
+# $1: target IP
+# $2: target port
+# $3: token
+function mmtests_send_token() {
+	while :
+	do
+		nc $_NCV -4 -z $1 $2
+		if [ $? -eq 0 ]; then
+			# Connection can be established, let's send!
+			echo "$3" | nc $_NCV -n -4 -q 0 $1 $2
+			if [ $? -eq 0 ]; then
+				break
+			fi
+		else
+			sleep 1
+		fi
+	done
+}
+
+# Wait for a token on a PORT.
+#
+# $1: receiving port
+# $2: if present, the token we will wait for.
+#     If not present, any token received will break the loop.
+function mmtests_recv_token() {
+	PORT=$1
+	local TOK=""
+	local RCVFILE=`mktemp`
+	nc $_NCV -4 -n -l -k $PORT > $RCVFILE &
+	local RCVPID=$!
+	tail -f $RCVFILE | while read TOK
+	do
+		if [ -z $2 ] || [ "$TOK" = "$2" ]; then
+			kill $RCVPID
+			break
+		fi
+		#sleep 1
+	done
+	rm $RCVFILE
+	# If we were not waiting for a specific token,
+	# tell the caller what we actually got.
+	[ -z $2 ] && echo $TOK
+}
+
+# We reached a state. We let the controller know that, by sending the
+# token. Right after that, we wait here until the server norify us
+# (by sending us the same token) that also all the others have reached
+# the same state, and we therefore can proceed all together.
+#
+# $1: the token that we send, and that we also wait the controller
+#     to send us back.
+function mmtests_wait_token() {
+	[ -z $MMTESTS_HOST_IP ] && return
+	mmtests_send_token $MMTESTS_HOST_IP $MMTESTS_HOST_PORT $1
+	mmtests_recv_token $MMTESTS_GUEST_PORT $1
+}
+
+# Send a token to one or more IPs:PORT. Even if there is more than one IP,
+# the same PORT will be used for sending all the tokens.
+#
+# Also, the token are sent in parallel to all the IPs that are specified.
+# The function that we call for sending them, needs to be exported (because
+# so GNU parallel requires).
+export -f mmtests_send_token
+function mmtests_signal_token() {
+	[ -z $MMTESTS_HOST_IP ] && return
+	TOKEN=$1 ; shift
+	parallel -j 4 mmtests_send_token {1} $MMTESTS_GUEST_PORT $TOKEN ::: $@ :::
 }
 
 MMTESTS_NUMACTL=

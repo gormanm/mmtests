@@ -3,7 +3,7 @@
 DEFAULT_CONFIG=config
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
-export PATH="$PATH:$SCRIPTDIR/bin-virt"
+export PATH="$SCRIPTDIR/bin:$PATH:$SCRIPTDIR/bin-virt"
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 
@@ -101,6 +101,14 @@ if [[ ${#CONFIGS[@]} -eq 0 ]]; then
 fi
 
 import_configs
+
+# If MMTESTS_HOST_IP is defined (e.g., in the config files), it means we
+# are running as a "standalone virtualization bench suite". Hence, we will
+# need these packages for coordinating running the benchamrks inside the
+# guests.
+if [ ! -z $MMTESTS_HOST_IP ]; then
+	install-depends pssh gnu_parallel expect
+fi
 
 # NB: 'runname' is the last of our parameters, as it is the last
 # parameter of run-mmtests.sh.
@@ -202,7 +210,199 @@ teststate_log "test begin :: `date +%s`"
 
 sysstate_log_proc_files "start"
 
-pssh $PSSH_OPTS "cd git-private/$NAME && ./run-mmtests.sh $@"
+pssh $PSSH_OPTS "cd git-private/$NAME && ./run-mmtests.sh $@" &
+PSSHPID=$!
+
+# If MMTESTS_HOST_IP is defined, we need to coordinate run-mmtests.sh
+# execution phases inside the various VMs.
+#
+# When each VM reach one of such phases, it will send a message, letting
+# us know what state it has actually reached, and wait for a poke. What we
+# need to do here, is making sure that all VMs have reached one state.
+# As soon as we have collected as many tokens as there are VMs, it means
+# we've reached that point, and we poke every VM so they can proceed.
+#
+# What the states are, and how transitioning between them occurs, is
+# explained in the following diagram:
+#
+#  +-------+        +---------------+
+#  | START +------->| mmtests_start |<-----+
+#  +-------+        +-------+-------+      |
+#                           |test_do/      |NO
+#                           | tokens++     |
+#                           v              |
+#                 +-------------------+    |
+#                 |tokens == VMCOUNT ?+----+
+#                 +---------+---------+
+#                           |YES/
+#                           | tokens=0
+#                           v
+#                      +---------+
+#            +-------->| test_do |<--------+
+#            |         +----+----+         |
+#            |              |test_do/      |
+#            |              | tokens++     |NO
+#            |              v              |
+#   test_do/ |    +-------------------+    |
+#    tokens=1|    |tokens == VMCOUNT ?+----+
+#            |    +---------+---------+
+#            |              |YES/
+#            |              | tokens=0
+#            |              v                mmtests_end/
+#            +--------+-----------+           tokens=1
+#      +------------->| test_do2  +----------------------+
+#      |   +--------->+-----+-----+------------------+   |
+#      |   |                |iteration_begin/        |   |
+#      |   |                | tokens=1               |   |
+#      |   |                v                        |   |
+#      |   |       +-----------------+               |   |
+#      |   |       | iteration_begin |<--------+     |   |
+#      |   |       +--------+--------+         |     |   |
+#      |   |                |iterations_begin/ |NO   |   |
+#      |   |                | tokens++         |     |   |
+#      |   |                v                  |     |   |
+#      |   |      +-------------------+        |     |   |
+#      |   |      |tokens == VMCOUNT ?+--------+     |   |
+#      |   |      +---------+---------+              |   |
+#      |   |                |YES/           test_done|   |
+#      |   |                | tokens=0       tokens=1|   |
+#      |   |                v                        |   |
+#      |   |        +---------------+                |   |
+#      |   |        | iteration_end |<--------+      |   |
+#      |   |        +-------+-------+         |      |   |
+#      |   |YES/            |iterations_end/  |NO    |   |
+#      |   | tokens=0       | tokens++        |      |   |
+#      |   |                v                 |      |   |
+#      |   |      +-------------------+       |      |   |
+#      |   +------+tokens == VMCOUNT ?+-------+      |   |
+#      |          +-------------------+              |   |
+#      |                                             |   |
+#      |              +-----------+                  |   |
+#      |              | test_done |<-----------------+   |
+#      |              +-----+-----+<-------+             |
+#      |YES/                |test_done/    |NO           |
+#      | tokens=0           | tokens++     |             |
+#      |                    v              |             |
+#      |          +-------------------+    |             |
+#      +----------+tokens == VMCOUNT ?+----+             |
+#                 +-------------------+                  |
+#                                                        |
+#                    +-------------+<--------------------+
+#                    | mmtests_end |<------+
+#                    +------+------+       |
+#                           |mmtests_end/  |
+#                           | tokens++     |NO
+#                           v              |
+#  +-------+      +-------------------+    |
+#  | QUIT  |<-----+tokens == VMCOUNT ?+----+
+#  +-------+      +-------------------+
+#
+# For figuring out when VMs send the tokens for any give state,
+# check run-mmtests.sh and the shellpacks rewriting code.
+#
+# Token exchanging happens (currently) over the network, via `nc`.
+#
+# TODO: likely, this can be re-implemented using, for instance, something
+# like gRPC (either here, with https://github.com/fullstorydev/grpcurl) or
+# by putting together some service program.
+#
+if [ ! -z $MMTESTS_HOST_IP ]; then
+	echo $GUEST_IP
+	STATE="mmtests_start"
+	tokens=0
+	NCFILE=`mktemp`
+	nc $_NCV -n -4 -l -k $MMTESTS_HOST_IP $MMTESTS_HOST_PORT > $NCFILE &
+	NCPID=$!
+	tail -f $NCFILE | while [ "$STATE" != "QUIT" ] && read TOKEN
+	do
+		teststate_log "recvd token :: \"$TOKEN\" `date +%s`"
+		# With only 1 VM, there is not much to be synched. We just need
+		# to reply with the very same token we receive, in order to
+		# unblock each phase of run-mmtests.sh, inside the VM itself.
+		if [ $VMCOUNT -eq 1 ]; then
+			case "$TOKEN" in
+				"mmtests_start"|"test_do"|"iteration_begin"|"iteration_end"|"test_done")
+					mmtests_signal_token "$TOKEN" ${GUEST_IP[@]}
+					teststate_log "sent token :: \"$TOKEN\" `date +%s`"
+					;;
+				"mmtests_end")
+					mmtests_signal_token "mmtests_end" ${GUEST_IP[@]}
+					teststate_log "sent token :: \"$TOKEN\" `date +%s`"
+					STATE="QUIT"
+					;;
+				*)
+					echo "ERROR: unknown token (\'$TOKEN\') received!"
+					STATE="QUIT"
+					kill $PSSHPID
+					;;
+			esac
+		else
+			case "$STATE" in
+				"mmtests_start"|"test_do"|"iteration_begin"|"iteration_end"|"test_done"|"mmtests_end")
+					if [ $tokens -eq 0 ]; then
+						# DEBUG: not very useful info to print, unless we're debugging
+						#echo "run-kvm --> run-mmtests: state = $STATE"
+						teststate_log "enter state :: \"$STATE\" `date +%s`"
+						activity_log "run-kvm: state \"$STATE\""
+					fi
+					if [ "$TOKEN" != "$STATE" ]; then
+						echo "ERROR: wrong toke (\'$TOKEN\') received while in state \'$STATE\'!"
+						STATE="QUIT"
+						kill $PSSHPID
+					else
+						tokens=$(( $tokens + 1 ))
+					fi
+					if [ $tokens -eq $VMCOUNT ]; then
+						tokens=0
+						if [ "$STATE" = "mmtests_start" ]; then
+							STATE="test_do"
+						elif [ "$STATE" = "test_do" ] || [ "$STATE" = "iteration_end" ] || [ $"$STATE" = "test_done" ]; then
+							STATE="test_do2"
+						elif [ "$STATE" = "iteration_begin" ]; then
+							STATE="iteration_end"
+						elif [ "$STATE" = "test_done" ]; then
+							STATE="test_do2"
+						elif [ "$STATE" = "mmtests_end" ]; then
+							STATE="QUIT"
+						fi
+						activity_log "run-kvm: sending token \"$TOKEN\""
+						mmtests_signal_token "$TOKEN" ${GUEST_IP[@]}
+						teststate_log "sent token :: \"$TOKEN\" `date +%s`"
+					fi
+					;;
+				"test_do2")
+					tokens=1
+					if [ "$TOKEN" = "test_do" ]; then
+						STATE="test_do"
+					elif [ "$TOKEN" = "test_done" ]; then
+						STATE="test_done"
+					elif [ "$TOKEN" = "iteration_begin" ]; then
+						STATE="iteration_begin"
+					elif [ "$TOKEN" = "mmtests_end" ]; then
+						STATE="mmtests_end"
+					else
+						echo "ERROR: wrong toke (\'$TOKEN\') received while in state \'$STATE\'!"
+						STATE="QUIT"
+						kill $PSSHPID
+					fi
+					# DEBUG: not very useful info to print, unless we're debugging
+					#echo "run-kvm --> run-mmtests: state = $STATE"
+					teststate_log "enter state :: \"$STATE\" `date +%s`"
+					activity_log "run-kvm: state \"$STATE\""
+					;;
+				*)
+					echo "ERROR: unknown token (\'$TOKEN\') received!"
+					STATE="QUIT"
+					kill $PSSHPID
+					;;
+			esac
+		fi
+	done
+fi
+kill $NCPID
+rm -f $NCFILE
+
+wait $PSSHPID
 RETVAL=$?
 
 sysstate_log_proc_files "end"

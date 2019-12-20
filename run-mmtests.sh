@@ -323,6 +323,8 @@ export SHELLPACK_LOG_RUNBASE=$SHELLPACK_LOG_BASE/$RUNNAME
 rm -rf $SHELLPACK_LOG_RUNBASE &>/dev/null
 mkdir -p $SHELLPACK_LOG_RUNBASE
 
+mmtests_wait_token "mmtests_start"
+
 for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERATION++ )); do
 	export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-$MMTEST_ITERATION
 	export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity"
@@ -586,6 +588,8 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		sync
 		start_monitors
 
+		mmtests_wait_token "test_do"
+
 		if [ "$CGROUP_CPU_TAG" != "" ]; then
 			mkdir -p /sys/fs/cgroup/cpu/0 || die "Failed to create cpu cgroup"
 			echo $CGROUP_CPU_TAG > /sys/fs/cgroup/cpu/0/cpu.tag || die "Failed to create CPU sched tag"
@@ -597,6 +601,9 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 				./bin/run-single-test.sh $TEST
 		fi
 		EXIT_CODE=$?
+
+		mmtests_wait_token "test_done"
+
 		stop_monitors
 
 		# Kill CPU idle limited
@@ -634,6 +641,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	done
 	teststate_log "finish :: `date +%s`"
+
 	dmesg > $SHELLPACK_LOG/dmesg
 	gzip -f $SHELLPACK_LOG/dmesg
 	gzip -f $SHELLPACK_SYSSTATEFILE
@@ -676,6 +684,8 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	destroy_testdisk
 done
+
+mmtests_wait_token "mmtests_end"
 
 # Restore system to original state
 if [ "$STAP_USED" != "" ]; then
