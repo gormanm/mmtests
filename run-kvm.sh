@@ -49,7 +49,7 @@ fi
 
 echo Executing mmtests on the guest
 ssh root@$GUEST_IP "cd git-private/$NAME && ./run-mmtests.sh $@"
-RETVAL=$!
+RETVAL=$?
 
 echo Syncing $SHELLPACK_LOG_BASE_SUBDIR
 ssh root@$GUEST_IP "cd git-private/$NAME && tar -czf work.tar.gz $SHELLPACK_LOG_BASE_SUBDIR" || die Failed to archive $SHELLPACK_LOG_BASE_SUBDIR
