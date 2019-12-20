@@ -1,29 +1,43 @@
 #!/bin/bash
 #
-# This script starts an existing instance of marvin-mmtests
+# This script starts an existing instance of a VM.
+#
+# VM name is passed as first (and only) parameter, i.e.,
+# `--vm foo`. If no parameter is passed, the VM name is
+# assumed to be in $MARVIN_KVM_DOMAIN. If such variable
+# is undefined, we fall back to `marvin-mmtests`.
+
 
 if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
 	export MARVIN_KVM_DOMAIN="marvin-mmtests"
 fi
 
-if [ "`virsh list | grep " $MARVIN_KVM_DOMAIN " | awk '{print $3}'`" = "running" ]; then
-	echo Instance already running according to virsh
-	GUEST_IP=`kvm-ip-address 0`
+if [ "$1" = "--vm" ]; then
+	shift
+	VM="$1"
+	shift
+else
+	VM=$MARVIN_KVM_DOMAIN
+fi
+
+if [ "`virsh list | grep " $VM " | awk '{print $3}'`" = "running" ]; then
+	echo $VM already running according to virsh
+	GUEST_IP=`kvm-ip-address --vm $VM 0`
 	if [ $? -eq 0 ]; then
 		wait_ssh_available $GUEST_IP
 		exit 0
 	fi
 fi
 
-echo Starting $MARVIN_KVM_DOMAIN
-virsh start $MARVIN_KVM_DOMAIN
+echo Starting $VM
+virsh start $VM
 
-echo Console available via \"virsh console $MARVIN_KVM_DOMAIN\", waiting on IP
-GUEST_IP=`kvm-ip-address 600`
+echo Console available via \"virsh console $VM\", waiting on IP
+GUEST_IP=`kvm-ip-address --vm $VM 600`
 if [ $? -eq 0 ]; then
 	wait_ssh_available $GUEST_IP
 	exit 0
 fi
 
-echo ERROR: Unable to start KVM instance
+echo ERROR: Unable to start $VM
 exit -1

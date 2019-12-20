@@ -1,27 +1,44 @@
 #!/bin/bash
 #
-# This script stops an existing instance of marvin-mmtests
+# This script stops an existing instance of a VM.
+#
+# VM name is passed as first (and only) parameter, i.e.,
+# `--vm foo`. If no parameter is passed, the VM name is
+# assumed to be in $MARVIN_KVM_DOMAIN. If such variable
+# is undefined, we fall back to `marvin-mmtests`.
+
+if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
+	export MARVIN_KVM_DOMAIN="marvin-mmtests"
+fi
+
+if [ "$1" = "--vm" ]; then
+	shift
+	VM="$1"
+	shift
+else
+	VM=$MARVIN_KVM_DOMAIN
+fi
 
 # Does virsh think it's running?
-if [ "`virsh list | grep ' marvin-mmtests ' | awk '{print $3}'`" != "running" ]; then
+if [ "`virsh list | grep " $VM " | awk '{print $3}'`" != "running" ]; then
 	exit 0
 fi
 
-virsh shutdown marvin-mmtests
+virsh shutdown $VM
 
-echo -n Waiting on shutdown to complete
+echo -n Waiting on $VM shutdown to complete
 DURATION=0
-TEST_SHUTDOWN=`virsh list | grep " marvin-mmtests " | awk '{print $3}'`
+TEST_SHUTDOWN=`virsh list | grep " $VM " | awk '{print $3}'`
 while [ "$TEST_SHUTDOWN" = "running" ]; do
 	echo -n .
 	sleep 5
-	TEST_SHUTDOWN=`virsh list | grep " marvin-mmtests " | awk '{print $3}'`
+	TEST_SHUTDOWN=`virsh list | grep " $VM " | awk '{print $3}'`
 
 	DURATION=$((DURATION+5))
 	if [ $DURATION -gt 30 ]; then
 		echo
-		echo Normal shutdown exceeded, destroying
-		virsh destroy marvin-mmtests
+		echo Normal $VM shutdown exceeded, destroying
+		virsh destroy $VM
 		DURATION=0
 	fi
 done
