@@ -9,9 +9,6 @@ echo Booting kvm instance
 kvm-start || die Failed to boot KVM instance
 GUEST_IP=`kvm-ip-address`
 
-echo Removing old mmtests
-ssh root@$GUEST_IP rm -rf git-private/$NAME
-
 echo Creating archive
 NAME=`basename $SCRIPTDIR`
 cd ..
