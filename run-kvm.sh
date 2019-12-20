@@ -6,12 +6,19 @@ export PATH="$PATH:$SCRIPTDIR/bin-virt"
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 
+if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
+	export MARVIN_KVM_DOMAIN="marvin-mmtests"
+fi
+
 usage() {
-	echo "$0 [-koh] run-mmtests-options"
+	echo "$0 [-koh] [--vm VMNAME] run-mmtests-options"
 	echo
 	echo "-h|--help              Prints this help."
 	echo "-k|--keep-kernel       Use whatever kernel the VM currently has."
 	echo "-o|--offline-iothreads Take down some VM's CPUs and use for IOthreads."
+	echo "--vm VMNAME            Use an existing VM known to \`virsh\` as VMNAME."
+	echo "                       If not specified, use \$MARVIN_KVM_DOMAIN as VM name."
+	echo "                       If that is not defined, use 'marvin-mmtests'."
 	echo "run-mmtests-options    Parameters for run-mmtests.sh inside the VM."
 }
 
@@ -28,6 +35,11 @@ while true; do
 			OFFLINE_IOTHREADS="yes"
 			shift
 			;;
+		--vm)
+			shift
+			VM=$1
+			shift
+			;;
 		-h|--help)
 			usage
 			exit 0
@@ -38,9 +50,24 @@ while true; do
 	esac
 done
 
+if [ -z $VM ]; then
+	VM=$MARVIN_KVM_DOMAIN
+else
+	# Adjust the `runname` parameter to run-mmtests.sh to include (as
+	# a suffix) the name of the VM. This way, we don't risk results
+	# being overwritten (e.g., by a run of the same benchmark in a
+	# VM with a different name).
+	#
+	# NB: This works because we know that 'runname' is the last of
+	# our parameters, as it is the last parameter of run-mmtests.sh.
+	RUNNAME=${@:$#}
+	RUNNAME="$RUNNAME-$VM"
+	set -- "${@:1:(($#-1))}" "$RUNNAME"
+fi
+
 echo Booting kvm instance
-kvm-start || die Failed to boot KVM instance
-GUEST_IP=`kvm-ip-address`
+kvm-start --vm $VM || die Failed to boot KVM instance
+GUEST_IP=`kvm-ip-address --vm $VM`
 
 echo Creating archive
 NAME=`basename $SCRIPTDIR`
@@ -84,6 +111,6 @@ scp root@$GUEST_IP:git-private/$NAME/work.tar.gz . || die Failed to download wor
 tar -xf work.tar.gz || die Failed to extract work.tar.gz
 
 echo Shutting down kvm instance
-kvm-stop
+kvm-stop --vm $VM
 
 exit $RETVAL
