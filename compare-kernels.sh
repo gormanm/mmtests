@@ -761,6 +761,12 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		FTRACE_BALANCEDIRTYPAGES_GRAPH=yes
 	fi
 
+	if have_monitor_results ftrace $KERNEL_BASE sched_migrate_task; then
+		echo Ftrace task CPU migrations
+		eval $COMPARE_CMD --print-monitor ftraceschedmigrate
+		echo
+	fi
+
 	SWAP_GRAPH=no
 	if have_monitor_results vmstat $KERNEL_BASE; then
 		for EVENT in si so; do
@@ -1771,6 +1777,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		fi
 
 		if have_monitor_results mpstat $KERNEL_BASE; then
+			echo "<table>"
 			echo "<tr>"
 			for KERNEL in $KERNEL_LIST_ITER; do
 				rm -f $OUTPUT_DIRECTORY/graph-$SUBREPORT-$KERNEL-mpstat.png
@@ -1784,6 +1791,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 				plain graph-$SUBREPORT-$KERNEL-mpstat 400
 			done
 			echo "</tr>"
+			echo "</table>"
 		fi
 	fi
 done

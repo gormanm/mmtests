@@ -24,7 +24,7 @@ $_fieldIndexMap[EVENT_UNKNOWN]				= "event_unknown";
 
 my %_fieldNameMap = (
 	"sched_migrate_task"			=> "Task cpu migration",
-	"sched_migrate_task_remote"		=> "Task cpu migration local",
+	"sched_migrate_task_local"		=> "Task cpu migration local",
 	"sched_migrate_task_remote"		=> "Task cpu migration remote",
 	"event_unknown"				=> "Unrecognised events",
 );
