@@ -1,26 +1,8 @@
-DIRNAME=`dirname $0`
-SCRIPTDIR=`cd "$DIRNAME" && pwd`
-
 # MM Test Parameters
-export MMTESTS="pft"
+export MMTESTS="stream"
 
-# Machine configuration
-# Swap configuration can be one of default, partitions, swapfile, NFS
-export VM_TRANSPARENT_HUGEPAGES_DEFAULT=default
-export SWAP_CONFIGURATION=default
-export SWAP_PARTITIONS=
-export SWAP_SWAPFILE_SIZEMB=$((MEMTOTAL_BYTES/1048576))
-export SWAP_NFS_MOUNT=192.168.10.7:/exports/`hostname`-swapfile
-export SWAP_NBD_DEVICE=/dev/nbd0
-export SWAP_NBD_HOST=mcp
-export SWAP_NBD_PORT=
-#export MEMCG_SIZE=$((MEMTOTAL_BYTES/2))
-
-# Log disk to setup (optional)
-#export LOGDISK_PARTITION=/dev/ram0
-#export LOGDISK_FILESYSTEM=ext3
-#export LOGDISK_MKFS_PARAM=""
-#export LOGDISK_MOUNT_ARGS=""
+. $SHELLPACK_INCLUDE/include-sizes.sh
+get_numa_details
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
@@ -29,31 +11,20 @@ export SWAP_NBD_PORT=
 #export TESTDISK_RAID_SIZE=250019532
 #export TESTDISK_RAID_TYPE=raid0
 #export TESTDISK_PARTITION=/dev/sda6
-#export TESTDISK_FILESYSTEM=ext3
-#export TESTDISK_MKFS_PARAM=""
-#export TESTDISK_MOUNT_ARGS=""
-#
-# Test NFS disk to setup (optional)
-#export TESTDISK_NFS_MOUNT=192.168.10.7:/exports/`hostname`
-#
-# Test NBD disk to setup (optional)
-#export TESTDISK_NBD_DEVICE=/dev/nbd0
-#export TESTDISK_NBD_HOST=mcp
-#export TESTDISK_NBD_PORT=100`ifconfig eth0 | sed -n 2p | cut -d ":" -f2 | cut -d " " -f1 | cut -d "." -f4`
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
 
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat top slabinfo"
-export MONITORS_WITH_LATENCY="vmstat iostat"
-export DEFERRED_MONITORS=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
-export MONITOR_FTRACE_EVENTS=
-export MONITOR_PERF_EVENTS=
 
-# Page Fault Test (PFT)
-export PFT_ITERATIONS=20
-export PFT_MAPPING_SIZE=$((MEMTOTAL_BYTES/5))
-export PFT_MAX_CLIENTS=$NUMCPUS
-export PFT_USE_PROCESSES=yes
-export PFT_PAGESIZES=base
+# stream
+export STREAM_SIZE=$((1048576*512))
+export STREAM_THREADS=$((NUMNODES*2))
+export STREAM_METHOD=single
+export STREAM_ITERATIONS=5
+export MMTESTS_BUILD_CFLAGS="-m64 -lm -Ofast"
