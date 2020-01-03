@@ -166,7 +166,7 @@ fi
 install-depends autoconf automake bc binutils-devel btrfsprogs bzip2	\
 	cpupower e2fsprogs expect expect-devel gcc hdparm hwloc libtool	\
 	make numactl patch perl-Time-HiRes psmisc tcl time util-linux	\
-	wget xfsprogs xfsprogs-devel xz
+	wget xfsprogs xfsprogs-devel xz tree
 
 # Set some basic performance cpu frequency settings.
 if [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
@@ -585,8 +585,10 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
 	gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
 	if [ -d /sys/fs/cgroup ]; then
-		tree -alfDn /sys/fs/cgroup > $SHELLPACK_LOG/cgroup-tree.txt
-		gzip $SHELLPACK_LOG/cgroup-tree.txt
+		if [ "`which tree 2> /dev/null`" != "" ]; then
+			tree -alfDn /sys/fs/cgroup > $SHELLPACK_LOG/cgroup-tree.txt
+			gzip $SHELLPACK_LOG/cgroup-tree.txt
+		fi
 	fi
 
 	PROC_FILES="/proc/vmstat /proc/zoneinfo /proc/meminfo /proc/schedstat /proc/diskstats"
