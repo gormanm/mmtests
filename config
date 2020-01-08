@@ -1,9 +1,6 @@
 # MM Test Parameters
 export MMTESTS="stream"
 
-. $SHELLPACK_INCLUDE/include-sizes.sh
-get_numa_details
-
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
 #export TESTDISK_RAID_MD_DEVICE=/dev/md0
@@ -24,7 +21,7 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # stream
 export STREAM_SIZE=$((1048576*512))
-export STREAM_THREADS=$((NUMNODES*2))
+export STREAM_THREADS=4
 export STREAM_METHOD=single
 export STREAM_ITERATIONS=5
 export MMTESTS_BUILD_CFLAGS="-m64 -lm -Ofast"
