@@ -1,0 +1,34 @@
+#!/bin/bash
+###SHELLPACK preamble spinplace-bench 0
+
+install-depends coreutils
+
+SPINPLACE_DURATION=10
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--cpus		SPINPLACE_CPUS
+###SHELLPACK parseargParam	--duration	SPINPLACE_DURATION
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_install_required spinplace-${VERSION}
+###SHELLPACK init_complete
+
+if [ "$SPINPLACE_CPUS" = "" ]; then
+	SPINPLACE_CPUS=`numactl --hardware | grep "cpus:" | awk '{print $4}' | tr '\n' ',' | sed -e 's/,$//'`
+fi
+MPSTAT_CPU=`numactl --hardware | grep cpus: | tail -1 | awk '{print $NF}'`
+NR_CPUS=`echo $SPINPLACE_CPUS | sed -e 's/,/ /g' | wc -w`
+
+echo Allowed CPUS: $SPINPLACE_CPUS | tee $LOGDIR_RESULTS/params
+echo Mpstat CPU: $MPSTAT_CPU | tee -a $LOGDIR_RESULTS/params
+echo Nr CPUs: $NR_CPUS | tee -a $LOGDIR_RESULTS/params
+
+taskset -c $MPSTAT_CPU mpstat -P $SPINPLACE_CPUS 1 > $LOGDIR_RESULTS/mpstat.log &
+MPSTAT_PID=$!
+timeout $SPINPLACE_DURATION taskset -c $SPINPLACE_CPUS ./spinplace $NR_CPUS
+kill -s SIGINT $MPSTAT_PID
+sleep 3
+shutdown_pid spinplace $MPSTAT_PID
+
+exit $SHELLPACK_SUCCESS

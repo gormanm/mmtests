@@ -1,0 +1,14 @@
+### This is an extremely basic workload that creates spinning threads
+### on one CPU per NUMA node and records mpstat. The intent is to check
+### if the load balancer spreads the load out correctly.
+export MMTESTS="spinplace"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="mpstat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=1
+
+# spinplace
+export SPINPLACE_DURATION=10
