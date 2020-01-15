@@ -4,10 +4,12 @@
 install-depends coreutils
 
 SPINPLACE_DURATION=10
+SPINPLACE_ITERATIONS=10
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam	--cpus		SPINPLACE_CPUS
 ###SHELLPACK parseargParam	--duration	SPINPLACE_DURATION
+###SHELLPACK parseargParam	--iterations	SPINPLACE_ITERATIONS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -24,11 +26,14 @@ echo Allowed CPUS: $SPINPLACE_CPUS | tee $LOGDIR_RESULTS/params
 echo Mpstat CPU: $MPSTAT_CPU | tee -a $LOGDIR_RESULTS/params
 echo Nr CPUs: $NR_CPUS | tee -a $LOGDIR_RESULTS/params
 
-taskset -c $MPSTAT_CPU mpstat -P $SPINPLACE_CPUS 1 > $LOGDIR_RESULTS/mpstat.log &
-MPSTAT_PID=$!
-timeout $SPINPLACE_DURATION taskset -c $SPINPLACE_CPUS ./spinplace $NR_CPUS
-kill -s SIGINT $MPSTAT_PID
-sleep 3
-shutdown_pid spinplace $MPSTAT_PID
+###SHELLPACK iteration_begin $SPINPLACE_ITERATIONS
+	taskset -c $MPSTAT_CPU mpstat -P $SPINPLACE_CPUS 1 > $LOGDIR_RESULTS/mpstat-$ITERATION.log &
+	MPSTAT_PID=$!
+	timeout $SPINPLACE_DURATION taskset -c $SPINPLACE_CPUS ./spinplace $NR_CPUS
+	kill -s SIGINT $MPSTAT_PID
+	sleep 3
+	shutdown_pid spinplace $MPSTAT_PID
+	gzip $LOGDIR_RESULTS/mpstat-$ITERATION.log
+###SHELLPACK iteration_end $SPINPLACE_ITERATIONS
 
 exit $SHELLPACK_SUCCESS
