@@ -1,7 +1,7 @@
 # ExtractSpinplace.pm
 package MMTests::ExtractSpinplace;
-use MMTests::SummariseSingleops;
-our @ISA = qw(MMTests::SummariseSingleops);
+use MMTests::SummariseMultiops;
+our @ISA = qw(MMTests::SummariseMultiops);
 
 sub initialise() {
 	my ($self, $subHeading) = @_;
