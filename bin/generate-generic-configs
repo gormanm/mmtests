@@ -20,6 +20,7 @@ done
 cp config-workload-kvmstart-memhog config-workload-kvmstart-deployonly
 sed -i -e 's/KVMSTART_MIN_MEMORY=.*/KVMSTART_MIN_MEMORY=\$((KVMSTART_MAX_MEMORY+1))/' config-workload-kvmstart-deployonly
 
+# o fragmenting with single file
 cp config-workload-kvmstart-memhog config-workload-kvmstart-memhog-frag-singlefile
 cat >> config-workload-kvmstart-memhog-frag-singlefile <<EOF
 export KVMSTART_PRETEST=fragment
@@ -28,9 +29,20 @@ export KVMSTART_PRETEST_PREPARE_ARGS="--filesize \$KVMSTART_MAX_MEMORY"
 export KVMSTART_PRETEST_RUN_ARGS=
 export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
+# o fragmenting with single file, THP disabled
 cp config-workload-kvmstart-memhog-frag-singlefile config-workload-kvmstart-memhog-frag-singlefile-nothp
 cat >> config-workload-kvmstart-memhog-frag-singlefile-nothp <<EOF
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
+EOF
+
+# o fragmenting with fio
+cp config-workload-kvmstart-memhog config-workload-kvmstart-memhog-frag-fio-randread
+cat >> config-workload-kvmstart-memhog-frag-fio-randread <<EOF
+export KVMSTART_PRETEST=fragment
+export KVMSTART_PRETEST_METHOD="fio-random-reader"
+export KVMSTART_PRETEST_PREPARE_ARGS="--fio-threads 4 --fio-version 2.99 --fio-size \$((MEMTOTAL_BYTES*4/2))"
+export KVMSTART_PRETEST_RUN_ARGS=
+export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
 
 # NAS
