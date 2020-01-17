@@ -2,7 +2,7 @@
 ### In this configuration it is running executing read-write "complex"
 ### transaction types as defined by the suite itself. The transaction types
 ### are described in the sysbench manual. The underlying database used is
-### mariadb 10.0.12 and is scaled to be 80% of the database shared buffer
+### mariadb 10.4.11 and is scaled to be 80% of the database shared buffer
 ### size which in itself is 25% of memory. The page cache is not flushed
 ### after the database is populated so the test starts cache-hot.
 

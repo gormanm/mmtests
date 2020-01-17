@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs mariadb and leaves it ready for benchmarking
-###SHELLPACK preamble mariadb-install 10.3.15
+###SHELLPACK preamble mariadb-install 10.4.11
 
 MARIADB_USER=nobody
 MARIADB_GROUP=nogroup
@@ -43,6 +43,8 @@ WEB_LOCATION_ALT=http://archive.mariadb.org//mariadb-${VERSION}/source
 MIRROR_LOCATION=$WEBROOT/mariadb/
 ###SHELLPACK sources_fetch mariadb-${VERSION}.tar.gz mariadbbuild-${VERSION}
 ###SHELLPACK build_start mariadbbuild-${VERSION}
+###SHELLPACK self_extract 0001-mariadb-nopamauth.patch
+cat $SHELLPACK_TEMP/0001-mariadb-nopamauth.patch | patch -p1
 ###SHELLPACK build_cmake mariadbbuild-${VERSION}
 ###SHELLPACK make_retry
 ###SHELLPACK make_make_install
@@ -54,7 +56,6 @@ mkdir -p $SHELLPACK_SOURCES/mariadbbuild-${VERSION}-installed/etc
 mkdir -p /etc/mysql/conf.d/
 mkdir -p /var/log/mysql/
 
-# cp $SHELLPACK_SOURCES/mariadbbuild-${VERSION}/debian/additions/my.cnf $MARIADB_CONF || die "Failed to copy debian/additions/my.cnf template"
 scripts/mysql_install_db --user=$MARIADB_USER --basedir=`pwd` --datadir=$MARIADB_DATADIR || die Failed to run mysql_install_db script
 
 # Update the max connection count if necessary
@@ -72,3 +73,5 @@ echo "user = nobody" >> $MARIADB_CONF
 
 echo mariadb successfully installed
 exit $SHELLPACK_SUCCESS
+
+###SHELLPACK include_file 0001-mariadb-nopamauth.patch
