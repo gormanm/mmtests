@@ -24,6 +24,7 @@ template_set_param() {
 	sed -i -e "s/$KEY\s*=.*/$KEY = $VALUE_ESCAPED/" setup/Make.$TEMPLATE
 }
 
+ulimit -n 4096
 round_down_power_2_cpus() {
 	POWER=1
 

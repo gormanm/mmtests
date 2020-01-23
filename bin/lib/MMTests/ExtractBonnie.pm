@@ -19,8 +19,9 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $file = "$reportDir/bonnie-detail";
 	if (! -e "$file" && ! -e "$file.gz") {
-		$file =~ s/bonnie/bonnie++/;
+		$file =~ s/bonnie\/logs/bonnie++\/logs/;
 	}
+
 	my %ops = (
 		"pc" => "SeqOut Char",
 		"wr" => "SeqOut Block",
@@ -38,7 +39,7 @@ sub extractReport() {
 
 	my %nrSamples;
 
-	my $input = $self->SUPER::open_log("$file");
+	my $input = $self->SUPER::open_log("$file") || die("Failed to open $file\n");
 	while (<$input>) {
 		chomp;
 		my $line = $_;
