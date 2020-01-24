@@ -17,6 +17,7 @@ sub loadModule($$$) {
 
 	my $pmName = ucfirst($moduleName);
 	$pmName =~ s/-//g;
+	$pmName =~ s/Bonnie\+\+/Bonniepp/;
 	$type = ucfirst($type);
    	require "MMTests/$type$pmName.pm";
     	$pmName->import();
