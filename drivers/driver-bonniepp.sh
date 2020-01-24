@@ -17,7 +17,7 @@ run_bench() {
 		CHAR_IO_PARAM="--char_io_size $BONNIE_CHAR_IO_SIZE"
 	fi
 
-	$SHELLPACK_INCLUDE/shellpack-bench-bonnie++ $BONNIE_FSYNC_PARAM \
+	$SHELLPACK_INCLUDE/shellpack-bench-bonniepp $BONNIE_FSYNC_PARAM \
 		$SIZE_PARAM \
 		$FILES_PARAM \
 		$DIRS_PARAM \

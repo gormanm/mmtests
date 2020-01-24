@@ -141,7 +141,7 @@ sub extractReport() {
 	my $file = "$reportDir/bonnie";
 
 	if (! -e "$file" && ! -e "$file.gz") {
-		$file =~ s/bonnie\/logs/bonnie++\/logs/;
+		$file =~ s/bonnie\/logs/bonniepp\/logs/;
 	}
 
 	my $input = $self->SUPER::open_log("$file");

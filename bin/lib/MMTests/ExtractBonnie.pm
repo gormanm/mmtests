@@ -19,7 +19,7 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $file = "$reportDir/bonnie-detail";
 	if (! -e "$file" && ! -e "$file.gz") {
-		$file =~ s/bonnie\/logs/bonnie++\/logs/;
+		$file =~ s/bonnie\/logs/bonniepp\/logs/;
 	}
 
 	my %ops = (
