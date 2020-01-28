@@ -6,6 +6,8 @@ KERNBENCH_CONFIG=defconfig
 KERNBENCH_TARGETS=vmlinux
 KERNBENCH_SKIP_WARMUP=no
 
+install-depends flex bison libelf-devel libopenssl-devel
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam	--min-threads	KERNBENCH_MIN_THREADS

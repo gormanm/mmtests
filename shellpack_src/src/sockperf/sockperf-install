@@ -9,6 +9,8 @@ MIRROR_LOCATION="$WEBROOT/sockperf/"
 
 ###SHELLPACK git_fetch sockperf-${VERSION}.tar.gz sockperf-${VERSION}
 
+install-depends gcc-c++
+
 ###SHELLPACK build_start sockperf-${VERSION}
 ###SHELLPACK build_autogen sockperf-${VERSION}
 ###SHELLPACK build_configure sockperf-${VERSION}
