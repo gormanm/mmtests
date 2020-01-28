@@ -112,7 +112,7 @@ import_configs
 # need these packages for coordinating running the benchamrks inside the
 # guests.
 if [ ! -z $MMTESTS_HOST_IP ]; then
-	install-depends pssh gnu_parallel expect
+	install-depends pssh gnu_parallel expect netcat-openbsd
 fi
 
 # NB: 'runname' is the last of our parameters, as it is the last
