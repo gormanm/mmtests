@@ -32,7 +32,7 @@ export MMTESTS="dbench4"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat top iotop mpstat ftrace"
+export MONITORS_GZIP="proc-vmstat top iotop mpstat ftrace perf-time-stat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 export MONITOR_FTRACE_EVENTS="workqueue/workqueue_execute_start workqueue/workqueue_execute_end workqueue/workqueue_queue_work sched/sched_wakeup sched/sched_waking sched/sched_migrate_task"
