@@ -21,10 +21,15 @@ usage() {
 	echo "-L|--host-logs         Collect logs and hardware info about the host"
 	echo "-k|--keep-kernel       Use whatever kernel the VM currently has."
 	echo "-o|--offline-iothreads Take down some VM's CPUs and use for IOthreads."
-	echo "--vm VMNAME[,VMNAME]   Name(s) of existing, and already known to `virsh`, VM(s)."
+	echo "--vm VMNAME[,VMNAME]   Name(s) of existing, and already known to 'virsh', VM(s)."
 	echo "                       If not specified, use \$MARVIN_KVM_DOMAIN as VM name."
 	echo "                       If that is not defined, use 'marvin-mmtests'."
-	echo "run-mmtests-options    Parameters for run-mmtests.sh inside the VM."
+	echo "run-mmtests-options    Parameters for run-mmtests.sh inside the VM (check them"
+	echo "                       with ./run-mmtests.sh -h)."
+	echo ""
+	echo "NOTE that 'run-mmtests-options', i.e., the parameters that will be used to execute"
+	echo "run-mmtests.sh inside the VMs, must always follow all the parameters intended for"
+	echo "run-kvm.sh itself."
 }
 
 # Parameters handling. Note that our own parmeters (i.e., run-kvm.sh
