@@ -173,7 +173,7 @@ mv ${NAME}.tar.gz ${NAME}/
 cd ${NAME}
 
 echo Uploading and extracting new mmtests
-pscp $PSSH_OPTS ${NAME}.tar.gz . || die Failed to upload ${NAME}.tar.gz
+pscp $PSSH_OPTS ${NAME}.tar.gz ~ || die Failed to upload ${NAME}.tar.gz
 
 pssh $PSSH_OPTS "mkdir -p git-private && rm -rf git-private/${NAME} && tar -C git-private -xf ${NAME}.tar.gz" || die Failed to extract ${NAME}.tar.gz
 rm ${NAME}.tar.gz
