@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble bonnie++-install 1.98
+###SHELLPACK preamble bonniepp-install 1.98
 WEB_LOCATION="http://www.coker.com.au/bonnie++"
 WEB_LOCATION="https://www.coker.com.au/bonnie++"
 MIRROR_LOCATION="$WEBROOT/bonnie"
@@ -8,10 +8,10 @@ MIRROR_LOCATION="$WEBROOT/bonnie"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-rm -rf $SHELLPACK_SOURCES/bonnie++-${VERSION}
-###SHELLPACK sources_fetch bonnie++-${VERSION}.tgz bonnie++-$VERSION
+rm -rf $SHELLPACK_SOURCES/bonniepp-${VERSION}
+###SHELLPACK sources_fetch bonnie++-${VERSION}.tgz bonniepp-$VERSION
 
-###SHELLPACK build_start bonnie++-${VERSION}
+###SHELLPACK build_start bonniepp-${VERSION}
 
 # Patch bonnie to support printing detailed IO timings
 ###SHELLPACK self_extract bonnie-detailed-io-report.patch
@@ -19,7 +19,7 @@ rm -rf $SHELLPACK_SOURCES/bonnie++-${VERSION}
 patch -p1 <$SHELLPACK_TEMP/bonnie-detailed-io-report.patch || die "Failed to apply detailed IO patch"
 patch -p1 <$SHELLPACK_TEMP/bonnie-misc-changes.patch || die "Failed to apply detailed IO patch"
 
-###SHELLPACK build_configure bonnie++-${VERSION}
+###SHELLPACK build_configure bonniepp-${VERSION}
 ###SHELLPACK make_make_install
 
 exit $SHELLPACK_SUCCESS

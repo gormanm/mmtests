@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble bonnie++-bench 1.98
+###SHELLPACK preamble bonniepp-bench 1.98
 
 DATASET_SIZE=0
 CHAR_IO_SIZE=0
@@ -20,7 +20,7 @@ FSYNC_PARAM=
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required bonnie++-${VERSION}
+###SHELLPACK check_install_required bonniepp-${VERSION}
 ###SHELLPACK init_complete
 
 set_mmtests_numactl 0 0
@@ -59,7 +59,7 @@ if [ "`whoami`" = "root" ]; then
 	USER_PARAM="-u root"
 fi
 
-cd $SHELLPACK_SOURCES/bonnie++-${VERSION}-installed
+cd $SHELLPACK_SOURCES/bonniepp-${VERSION}-installed
 
 echo ${MMTESTS_NUMACTL} ./sbin/bonnie++ \
 	$FSYNC_PARAM -r 0 \
