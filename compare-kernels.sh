@@ -767,6 +767,12 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		echo
 	fi
 
+	if have_monitor_results ftrace $KERNEL_BASE sched_stick_numa; then
+		echo Ftrace NUMA Balancing migrations
+		eval $COMPARE_CMD --print-monitor ftracenumabalance
+		echo
+	fi
+
 	SWAP_GRAPH=no
 	if have_monitor_results vmstat $KERNEL_BASE; then
 		for EVENT in si so; do
