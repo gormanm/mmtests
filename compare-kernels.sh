@@ -656,6 +656,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		continue
 	fi
 	eval $COMPARE_CMD --print-monitor mmtests-vmstat
+	echo
+	eval $COMPARE_CMD --print-monitor mmtests-schedstat
 
 	if have_monitor_results turbostat $KERNEL_BASE; then
 		eval $COMPARE_CMD --print-monitor turbostat
@@ -1422,6 +1424,25 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			if [ $((COUNT%3)) -ne 2 ]; then
 				echo "</tr>"
 			fi
+		fi
+
+		if have_monitor_results proc-schedstat $KERNEL_BASE; then
+			eval $GRAPH_PNG --yrange -5:105 --title \"SIS Efficiency\" --print-monitor procschedstat --sub-heading mmtests_sis_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-sisefficiency
+			eval $GRAPH_PNG --yrange -5:105 --title \"SIS Domain Efficiency\" --print-monitor procschedstat --sub-heading mmtests_sis_domain_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-sisdomainefficiency
+			eval $GRAPH_PNG --yrange -5:105 --title \"SIS Success Rate\" --print-monitor procschedstat --sub-heading mmtests_sis_success --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-success
+			eval $GRAPH_PNG --yrange -5:105 --title \"SIS Fast Success Rate\" --print-monitor procschedstat --sub-heading mmtests_sis_fast_success --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-fastsuccess
+			eval $GRAPH_PNG --logY --title \"SIS Scanned\" --print-monitor procschedstat --sub-heading sis_scanned --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-scanned
+			eval $GRAPH_PNG --logY --title \"SIS Domain Scanned\" --print-monitor procschedstat --sub-heading mmtests_sis_domain_scanned --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-domainscanned
+			echo "<tr>"
+			plain graph-$SUBREPORT-schedstat-sisefficiency
+			plain graph-$SUBREPORT-schedstat-sisdomainefficiency
+			echo "</tr><tr>"
+			plain graph-$SUBREPORT-schedstat-success
+			plain graph-$SUBREPORT-schedstat-fastsuccess
+			echo "</tr><tr>"
+			plain graph-$SUBREPORT-schedstat-scanned
+			plain graph-$SUBREPORT-schedstat-domainscanned
+			echo "</tr>"
 		fi
 
 		if have_monitor_results mpstat $KERNEL_BASE; then
