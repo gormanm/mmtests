@@ -23,15 +23,20 @@ sub extractReport() {
 
 	foreach my $client (@clients) {
 		my $nr_samples = 0;
+		my $nr_skip = 4;
 
 		my $input = $self->SUPER::open_log("$reportDir/tbench-$client.log");
 		while (<$input>) {
 			my $line = $_;
 			if ($line =~ /execute/) {
-				$line =~ s/^\s+//;
-				my @elements = split(/\s+/, $line);
+				if ($nr_skip == 0) {
+					$line =~ s/^\s+//;
+					my @elements = split(/\s+/, $line);
 
-				$self->addData("$client", ++$nr_samples, $elements[2]);
+					$self->addData("$client", ++$nr_samples, $elements[2]);
+				} else {
+					$nr_skip--;
+				}
 			}
 		}
 		close($input);
