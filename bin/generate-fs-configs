@@ -56,6 +56,7 @@ config-hpc-nas-c-class-mpi-full
 config-hpc-nas-c-class-mpi-half
 config-hpc-nas-c-class-mpi-third
 config-hpc-nas-c-class-mpi-pair
+config-hpc-nas-c-class-mpi-minparallel
 config-hpc-nas-d-class-mpi-bind-full
 config-hpc-nas-d-class-mpi-bind-half
 config-hpc-nas-d-class-mpi-bind-third
@@ -63,6 +64,7 @@ config-hpc-nas-d-class-mpi-full
 config-hpc-nas-d-class-mpi-half
 config-hpc-nas-d-class-mpi-third
 config-hpc-nas-d-class-mpi-pair
+config-hpc-nas-d-class-mpi-minparallel
 config-workload-mailserver
 config-workload-kernbench-max
 config-workload-kerndevel

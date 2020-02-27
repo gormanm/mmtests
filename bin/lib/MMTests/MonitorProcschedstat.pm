@@ -21,10 +21,14 @@ my %_fieldNameMap = (
 	"sis_scanned"			=> "SIS Scanned",
 	"mmtests_sis_domain_scanned"	=> "SIS Domain Scanned",
 	"sis_failed"			=> "SIS Failures",
+	"sis_recent_hit"		=> "SIS Recent Used Hit",
+	"sis_recent_miss"		=> "SIS Recent Used Miss",
 	"mmtests_sis_efficiency"	=> "SIS Search Efficiency",
 	"mmtests_sis_domain_efficiency" => "SIS Domain Search Eff",
 	"mmtests_sis_fast_success"	=> "SIS Fast Success Rate",
 	"mmtests_sis_success"		=> "SIS Success Rate",
+	"mmtests_sis_recent_success"	=> "SIS Recent Success Rate",
+	"mmtests_sis_recent_attempts"	=> "SIS Recent Attempts",
 );
 
 sub initialise()
@@ -59,30 +63,40 @@ sub parseSchedstat($) {
 
 		my ($ttwu_local, $ttwu_count);
 		my ($sis_search, $sis_domain_search, $sis_scanned, $sis_failed);
-		if ($version == 16) {
-			#  0 cpuN
-			#  1 tld_count
-			#  2 dummy, always 0
-			#  3 sched_count
-			#  4 sched_goidle
-			#  5 ttwu_count
-			#  6 ttwu_local
-			#  7 rq_cpu_time
-			#  8 run_delay
-			#  9 pcount
-			# 10 sis_search
-			# 11 sis_domain_search
-			# 12 sis_scanned
-			# 13 sis_failed
+		my ($sis_recent_hit, $sis_recent_miss);
+		#  0 cpuN			version 15
+		#  1 tld_count
+		#  2 dummy, always 0
+		#  3 sched_count
+		#  4 sched_goidle
+		#  5 ttwu_count
+		#  6 ttwu_local
+		#  7 rq_cpu_time
+		#  8 run_delay
+		#  9 pcount
+		# 10 sis_search			version 16
+		# 11 sis_domain_search
+		# 12 sis_scanned
+		# 13 sis_failed
+		# 14 sis_recent_hit		version 17
+		# 15 sis_recent_miss
+		if ($version >= 15) {
+			$current_values{"ttwu_count"}  += $elements[5];
+			$current_values{"ttwu_local"}  += $elements[6];
+		}
+
+		if ($version >= 16) {
 			$current_values{"ttwu_count"}  += $elements[5];
 			$current_values{"ttwu_local"}  += $elements[6];
 			$current_values{"sis_search"}  += $elements[10];
 			$current_values{"sis_domain_search"}  += $elements[11];
 			$current_values{"sis_scanned"} += $elements[12];
 			$current_values{"sis_failed"}  += $elements[13];
-		} elsif ($version == 15) {
-			$current_values{"ttwu_count"}  += $elements[5];
-			$current_values{"ttwu_local"}  += $elements[6];
+		}
+
+		if ($version >= 17) {
+			$current_values{"sis_recent_hit"}  += $elements[14];
+			$current_values{"sis_recent_miss"} += $elements[15];
 		}
 	}
 
@@ -97,6 +111,9 @@ sub parseSchedstat($) {
 	my $sis_scanned = $current_values{"sis_scanned"} - $last_values{"sis_scanned"};
 	my $sis_failed = $current_values{"sis_failed"} - $last_values{"sis_failed"};
 	my $sis_success = $sis_search - $sis_failed;
+	my $sis_recent_hit = $current_values{"sis_recent_hit"} - $last_values{"sis_recent_hit"};
+	my $sis_recent_miss = $current_values{"sis_recent_miss"} - $last_values{"sis_recent_miss"};
+	my $sis_recent_attempts = $sis_recent_hit + $sis_recent_miss;
 
 	my $fast_search = $sis_search - $sis_domain_search;
 	my $domain_scanned = $sis_scanned - $fast_search;
@@ -133,6 +150,20 @@ sub parseSchedstat($) {
 
 	if ($subHeading eq "mmtests_sis_domain_scanned") {
 		return $domain_scanned;
+	}
+
+	if ($subHeading eq "mmtests_sis_recent_success") {
+		my $recent_total = $sis_recent_hit + $sis_recent_miss;
+
+		if ($recent_total == 0) {
+			return -1;
+		} else {
+			return $sis_recent_hit * 100 / $recent_total;
+		}
+	}
+
+	if ($subHeading eq "mmtests_sis_recent_attempts") {
+		return $sis_recent_attempts;
 	}
 
 	return $current_values{$subHeading} - $last_values{$subHeading};

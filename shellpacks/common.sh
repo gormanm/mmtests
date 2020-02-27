@@ -1141,12 +1141,8 @@ function round_down_nearest_square()
 	local input_val=$1
 	local square
 
-	if [ $input_val -eq 2 -o $input_val -eq 3 ]; then
-		echo 2
-	else
-		square=`echo "sqrt($input_val) / 1" | bc`
-		echo $((square*square))
-	fi
+	square=`echo "sqrt($input_val) / 1" | bc`
+	echo $((square*square))
 }
 
 function have_run_results()

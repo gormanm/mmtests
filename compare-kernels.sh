@@ -1436,6 +1436,8 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			eval $GRAPH_PNG --title \"TTWU Count\" --print-monitor procschedstat --sub-heading ttwu_count --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-ttwucount
 			eval $GRAPH_PNG --title \"TTWU Local\" --print-monitor procschedstat --sub-heading ttwu_local --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-ttwulocal
 			eval $GRAPH_PNG --logY --title \"SIS Failure\" --print-monitor procschedstat --sub-heading sis_failed --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-sisfailure
+			eval $GRAPH_PNG --yrange -5:105 --title \"SIS Recent Success Rate\" --print-monitor procschedstat --sub-heading mmtests_sis_recent_success --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-recentsuccess
+			eval $GRAPH_PNG --yrange -5:105 --title \"SIS Recent Success Rate\" --print-monitor procschedstat --sub-heading mmtests_sis_recent_success --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-recentsuccess --with-smooth
 			echo "<tr>"
 			plain graph-$SUBREPORT-schedstat-sisefficiency
 			plain graph-$SUBREPORT-schedstat-sisdomainefficiency
@@ -1450,6 +1452,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			plain graph-$SUBREPORT-schedstat-ttwulocal
 			echo "</tr><tr>"
 			plain graph-$SUBREPORT-schedstat-sisfailure
+			smoothover graph-$SUBREPORT-schedstat-recentsuccess
 			echo "</tr>"
 		fi
 

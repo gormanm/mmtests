@@ -21,12 +21,16 @@ my %_fieldNameMap = (
 	"sis_search"			=> "SIS Search",
 	"sis_domain_search"		=> "SIS Domain Search",
 	"sis_scanned"			=> "SIS Scanned",
+	"sis_recent_hit"		=> "SIS Recent Used Hit",
+	"sis_recent_miss"		=> "SIS Recent Used Miss",
 	"mmtests_sis_domain_scanned"	=> "SIS Domain Scanned",
 	"sis_failed"			=> "SIS Failures",
 	"mmtests_sis_efficiency"	=> "SIS Search Efficiency",
 	"mmtests_sis_domain_efficiency"	=> "SIS Domain Search Eff",
 	"mmtests_sis_fast_success"	=> "SIS Fast Success Rate",
 	"mmtests_sis_success"		=> "SIS Success Rate",
+	"mmtests_sis_recent_success"	=> "SIS Recent Success Rate",
+	"mmtests_sis_recent_attempts"	=> "SIS Recent Attempts",
 );
 
 my @_fieldOrder = (
@@ -37,10 +41,14 @@ my @_fieldOrder = (
 	"sis_scanned",
 	"mmtests_sis_domain_scanned",
 	"sis_failed",
+	"sis_recent_hit",
+	"sis_recent_miss",
+	"mmtests_sis_recent_attempts",
 	"mmtests_sis_efficiency",
 	"mmtests_sis_domain_efficiency",
 	"mmtests_sis_fast_success",
 	"mmtests_sis_success",
+	"mmtests_sis_recent_success",
 );
 
 sub extractReport($$$$) {
@@ -93,33 +101,42 @@ sub extractReport($$$$) {
 
 			my ($ttwu_local, $ttwu_count);
 			my ($sis_search, $sis_domain_search, $sis_scanned, $sis_failed);
-			if ($version == 16) {
-				#  0 cpuN
-				#  1 tld_count
-				#  2 dummy, always 0
-				#  3 sched_count
-				#  4 sched_goidle
-				#  5 ttwu_count
-				#  6 ttwu_local
-				#  7 rq_cpu_time
-				#  8 run_delay
-				#  9 pcount
-				# 10 sis_search
-				# 11 sis_domain_search
-				# 12 sis_scanned
-				# 13 sis_failed
-				$ttwu_count = $elements[5];
-				$ttwu_local = $elements[6];
-				$sis_search  = $elements[10];
-				$sis_domain_search = $elements[11];
-				$sis_scanned = $elements[12];
-				$sis_failed = $elements[13];
-			} elsif ($version == 15) {
+			my ($sis_recent_hit, $sis_recent_miss);
+			#  0 cpuN
+			#  1 tld_count
+			#  2 dummy, always 0
+			#  3 sched_count
+			#  4 sched_goidle
+			#  5 ttwu_count
+			#  6 ttwu_local
+			#  7 rq_cpu_time
+			#  8 run_delay
+			#  9 pcount
+			# 10 sis_search
+			# 11 sis_domain_search
+			# 12 sis_scanned
+			# 13 sis_failed
+			# 14 sis_recent_hit
+			# 15 sis_recent_miss
+			if ($version >= 15) {
 				$ttwu_count = $elements[5];
 				$ttwu_local = $elements[6];
 				$sis_search  = 0;
 				$sis_domain_search = 0;
 				$sis_scanned = 0;
+				$sis_failed = 0;
+				$sis_recent_hit = 0;
+				$sis_recent_miss = 0;
+			}
+			if ($version >= 16) {
+				$sis_search  = $elements[10];
+				$sis_domain_search = $elements[11];
+				$sis_scanned = $elements[12];
+				$sis_failed = $elements[13];
+			}
+			if ($version >= 17) {
+				$sis_recent_hit = $elements[14];
+				$sis_recent_miss = $elements[15];
 			}
 
 			if ($reading_before) {
@@ -129,6 +146,8 @@ sub extractReport($$$$) {
 				$schedstat_before{"sis_domain_search"}  += $sis_domain_search;
 				$schedstat_before{"sis_scanned"} += $sis_scanned;
 				$schedstat_before{"sis_failed"}  += $sis_failed;
+				$schedstat_before{"sis_recent_hit"} += $sis_recent_hit;
+				$schedstat_before{"sis_recent_miss"} += $sis_recent_miss;
 			}
 
 			if ($reading_after) {
@@ -138,17 +157,29 @@ sub extractReport($$$$) {
 				$schedstat_after{"sis_domain_search"}  += $sis_domain_search;
 				$schedstat_after{"sis_scanned"} += $sis_scanned;
 				$schedstat_after{"sis_failed"}  += $sis_failed;
+				$schedstat_after{"sis_recent_hit"} += $sis_recent_hit;
+				$schedstat_after{"sis_recent_miss"} += $sis_recent_miss;
 			}
 		}
 	}
 	close ($input);
 
-	foreach my $key ("sis_search", "sis_domain_search", "sis_scanned", "sis_failed", "ttwu_count", "ttwu_local") {
+	foreach my $key ("sis_search", "sis_domain_search", "sis_scanned", "sis_failed", "ttwu_count", "ttwu_local", "sis_recent_hit", "sis_recent_miss") {
 		$schedstat{$key} = $schedstat_after{$key} - $schedstat_before{$key};
 	}
 
 	my $fast_search = $schedstat{"sis_search"} - $schedstat{"sis_domain_search"};
 	my $domain_scanned = $schedstat{"sis_scanned"} - $fast_search;
+	my $recent_total = $schedstat{"sis_recent_hit"} + $schedstat{"sis_recent_miss"};
+
+	# mmtests_sis_recent_success
+	if (!$recent_total) {
+		$schedstat{"mmtests_sis_recent_success"} = 0;
+		$schedstat{"mmtests_sis_recent_attempts"} = 0;
+	} else {
+		$schedstat{"mmtests_sis_recent_success"} = $schedstat{"sis_recent_hit"} * 100 / $recent_total;
+		$schedstat{"mmtests_sis_recent_attempts"} = $recent_total;
+	}
 
 	# mmtests_sis_efficiency
 	if (!$schedstat{"sis_scanned"}) {
