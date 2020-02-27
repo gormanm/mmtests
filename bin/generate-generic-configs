@@ -50,6 +50,7 @@ for TYPE in omp mpi; do
 	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/2))/' config-hpc-nas-c-class-$TYPE-full > config-hpc-nas-c-class-$TYPE-half
 	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/3))/' config-hpc-nas-c-class-$TYPE-full > config-hpc-nas-c-class-$TYPE-third
 	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=2/' config-hpc-nas-c-class-$TYPE-full > config-hpc-nas-c-class-$TYPE-pair
+	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=4/' config-hpc-nas-c-class-$TYPE-full > config-hpc-nas-c-class-$TYPE-minparallel
 done
 for CONFIG in `ls config-hpc-nas-c-class-*`; do
 	# D class configurations
