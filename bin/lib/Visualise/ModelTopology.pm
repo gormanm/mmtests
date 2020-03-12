@@ -91,6 +91,7 @@ sub parse {
 	# Cutoff might be on non-existent level
 	if (defined($cutoffLevelName)) {
 		while ($cutoffLevel > 1 && !$container->levelExists($cutoffLevelName)) {
+			$cutoffLevel--;
 			$cutoffLevelName = $levels[$cutoffLevel];
 		}
 		$cutoffLevel = $container->getLevelIndex($cutoffLevelName);

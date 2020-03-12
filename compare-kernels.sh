@@ -1704,6 +1704,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 
 			echo "<tr>"
 			eval $GRAPH_PNG --title \"NUMA Migrations\"        --print-monitor proc-vmstat     --sub-heading numa_pages_migrated   --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-numa_pages_migrated --with-smooth
+			smoothover graph-$SUBREPORT-proc-vmstat-numa_pages_migrated
 			echo "</tr>"
 
 			echo "<tr>"
@@ -1829,6 +1830,21 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 				plain graph-$SUBREPORT-$KERNEL-mpstat 400
 			done
 			echo "</tr>"
+			echo "<tr>"
+			for KERNEL in $KERNEL_LIST_ITER; do
+				rm -f $OUTPUT_DIRECTORY/graph-$SUBREPORT-$KERNEL-mpstat-llc.png
+				visualise-log.pl -b gd							\
+					-c llc								\
+					--output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$KERNEL-mpstat-llc.png	\
+					-t $KERNEL/iter-0/cpu-topology-mmtests.txt.gz			\
+					-l mpstat							\
+					-i $KERNEL/iter-0/mpstat-$SUBREPORT.gz				\
+					-a $KERNEL/iter-0/tests-activity
+				montage -title "$KERNEL" $OUTPUT_DIRECTORY/graph-$SUBREPORT-$KERNEL-mpstat-llc.png -geometry +5+5 $OUTPUT_DIRECTORY/graph-$SUBREPORT-$KERNEL-mpstat-llc.png
+				plain graph-$SUBREPORT-$KERNEL-mpstat-llc 400
+			done
+			echo "</tr>"
+
 			echo "</table>"
 		fi
 	fi
