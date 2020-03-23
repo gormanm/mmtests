@@ -188,6 +188,10 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			XTICS=$2
 			shift 2
 			;;
+		--xticlabel)
+			USING="2:3:xticlabel(1)"
+			shift
+			;;
 		--subreport)
 			SUBREPORT=$2
 			shift 2

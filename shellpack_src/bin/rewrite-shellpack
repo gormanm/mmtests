@@ -241,6 +241,17 @@ for FILE in `find -name "*"`; do
 	touch \$FILE
 done
 EOC
+	} elsif ($command eq "build_start_alt") {
+		my ($srcdir) = @details;
+		print <<EOC
+pushd \$SHELLPACK_SOURCES/$srcdir || die Failed to change to source directory
+for FILE in `find -name "*"`; do
+	touch \$FILE
+done
+mkdir \$SHELLPACK_SOURCES/$srcdir-build
+pushd \$SHELLPACK_SOURCES/$srcdir-build || die Failed to change to build directory
+EOC
+
 	} elsif ($command eq "build_autogen") {
 		print <<EOC
 ./autogen.sh || die Failed to run autogen
@@ -285,10 +296,13 @@ echo Extracting \$SHELLPACK_TEMP/$selffile
 sed -n \$((LINESTART+1)),\$((LINEEND-1))p \$0 > \$SHELLPACK_TEMP/$selffile
 EOC
 	} elsif ($command eq "build_cmake") {
-		my $srcdir = @details[0];
+		my $builddir = @details[0];
+		my $srcdir = @details[1];
+		shift @details;
 		shift @details;
 		print <<EOC
-cmake . -DCMAKE_INSTALL_PREFIX=\$SHELLPACK_SOURCES/$srcdir-installed @details
+cd \$SHELLPACK_SOURCES/$builddir || die Failed to change to builddir
+cmake \$SHELLPACK_SOURCES/$srcdir -DCMAKE_INSTALL_PREFIX=\$SHELLPACK_SOURCES/$srcdir-installed @details
 if [ \$? -ne 0 ]; then
 	error "\$P: cmake failed"
 	popd > /dev/null
