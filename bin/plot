@@ -333,7 +333,7 @@ while [ "$1" != "" ]; do
 done
 echo >> $TEMP
 
-cat $TEMP | gnuplot -name gnuplot -persist
+cat $TEMP | gnuplot -persist
 rm $TEMP
 if [ "$CLEANUP_FILES" != "" ]; then
 	rm $CLEANUP_FILES
