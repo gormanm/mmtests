@@ -15,6 +15,6 @@ export MMTESTS="monitor"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat top turbostat"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_GZIP="proc-vmstat top mpstat"
+export MONITORS_WITH_LATENCY="vmstat iostat proc-interrupts"
 export MONITOR_UPDATE_FREQUENCY=2

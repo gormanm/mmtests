@@ -84,14 +84,10 @@ sed -i -e '/reset_transhuge/d' $TREE_MMTESTS/run-mmtests.sh
 sed -i -e '/Using default TESTDISK_DIR/d' $TREE_MMTESTS/run-mmtests.sh
 
 echo Removing some scripts
-rm $TREE_MMTESTS/bin/stap-fix.sh
-rm $TREE_MMTESTS/compare-huge.sh
-rm $TREE_MMTESTS/dashboard-*
 rm $TREE_MMTESTS/generate-monitor-only.sh
-rm $TREE_MMTESTS/kvm.conf
-rm $TREE_MMTESTS/prebuild-*
 rm $TREE_MMTESTS/profile-disabled-hooks*
 rm $TREE_MMTESTS/README
+rm $TREE_MMTESTS/CHANGELOG
 rm $TREE_MMTESTS/run-kvm.sh
 rm -rf $TREE_MMTESTS/configs
 rm -rf $TREE_MMTESTS/micro
@@ -100,21 +96,28 @@ rm -rf $TREE_MMTESTS/stap-patches
 rm -rf $TREE_MMTESTS/stap-scripts
 rm -rf $TREE_MMTESTS/subreport
 rm -rf $TREE_MMTESTS/vmr
-mkdir $TREE_MMTESTS/shellpacks/tmp
-mv $TREE_MMTESTS/shellpacks/shellpack-bench-monitor $TREE_MMTESTS/shellpacks/tmp
-mv $TREE_MMTESTS/shellpacks/shellpack-install-monitor $TREE_MMTESTS/shellpacks/tmp
-rm $TREE_MMTESTS/shellpacks/shellpack-bench-*
-rm $TREE_MMTESTS/shellpacks/shellpack-install-*
-mv $TREE_MMTESTS/shellpacks/tmp/* $TREE_MMTESTS/shellpacks
-rmdir $TREE_MMTESTS/shellpacks/tmp
+rm -rf $TREE_MMTESTS/bin-virt
+rm -rf $TREE_MMTESTS/bin
 mkdir $TREE_MMTESTS/drivers/tmp
 mv $TREE_MMTESTS/drivers/driver-monitor.sh $TREE_MMTESTS/drivers/tmp
 rm $TREE_MMTESTS/drivers/driver-*.sh
 mv $TREE_MMTESTS/drivers/tmp/driver-monitor.sh $TREE_MMTESTS/drivers
 rmdir $TREE_MMTESTS/drivers/tmp
 
+TMP_SCRIPTDIR=$SCRIPTDIR
+. $TREE_MMTESTS/config
+SCRIPTDIR=$TMP_SCRIPTDIR
+mkdir $TREE_MMTESTS/monitors/tmp
+for MONITOR in $MONITORS_GZIP $MONITORS_WITH_LATENCY; do
+	mv $TREE_MMTESTS/monitors/watch-$MONITOR.* $TREE_MMTESTS/monitors/tmp
+done
+rm $TREE_MMTESTS/monitors/watch-*.sh
+rm $TREE_MMTESTS/monitors/watch-*.pl
+mv $TREE_MMTESTS/monitors/tmp/* $TREE_MMTESTS/monitors/
+rmdir $TREE_MMTESTS/monitors/tmp
+
 echo Creating tarball of mmtests in monitor-only mode
-cd $SHELLPACK_TEMP
+pushd $SHELLPACK_TEMP
 tar -czf mmtests-monitor-${RUNNAME}.tar.gz mmtests-monitor-${RUNNAME} || die Failed to create tarball
 
 echo Creating self-executing script
@@ -158,6 +161,8 @@ exit 0
 EOF
 base64 mmtests-monitor-${RUNNAME}.tar.gz >> $SCRIPTDIR/gather-monitor-${RUNNAME}.sh || \
 	die Failed to base64 encode tar file
+cp mmtests-monitor-${RUNNAME}.tar.gz /tmp/
+popd > /dev/null
 rm -rf $SHELLPACK_TEMP
 chmod u+x $SCRIPTDIR/gather-monitor-${RUNNAME}.sh
 
