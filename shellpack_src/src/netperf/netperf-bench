@@ -93,11 +93,11 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 		-H $SERVER_HOST \
 		-- $SOCKETSIZE_OPT $MSGSIZE_OPT $EXTRA"
 	echo $TASKSET_CLIENT "netperf" $NETPERF_OPTS
-	monitor_pre_hook $LOGDIR_RESULTS $SIZE
+	monitor_pre_hook $LOGDIR_RESULTS $SIZE-$ITERATION
 	eval $TASKSET_CLIENT $NETROOT/bin/netperf $NETPERF_OPTS \
 			2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
 			|| die Failed to run netperf
-	monitor_post_hook $LOGDIR_RESULTS $SIZE
+	monitor_post_hook $LOGDIR_RESULTS $SIZE-$ITERATION
 ###SHELLPACK iteration_end
 mmtests_server_ctl stop --serverside-name $PROTOCOL-$SIZE
 done
