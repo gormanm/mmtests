@@ -78,6 +78,9 @@ sed -i -e '/^#/d' $TREE_MMTESTS/config
 echo Altering auto-install commands
 sed -i -e 's/install -y/install/' $TREE_MMTESTS/bin/install-depends
 sed -i -e '/install-depends/d' $TREE_MMTESTS/run-mmtests.sh
+sed -i -e '/cpupower e2fsprogs/d' $TREE_MMTESTS/run-mmtests.sh
+sed -i -e '/make numactl/d' $TREE_MMTESTS/run-mmtests.sh
+sed -i -e '/wget xfsprogs/d' $TREE_MMTESTS/run-mmtests.sh
 
 echo Altering top-level execution script
 sed -i -e '/reset_transhuge/d' $TREE_MMTESTS/run-mmtests.sh
@@ -91,13 +94,24 @@ rm $TREE_MMTESTS/CHANGELOG
 rm $TREE_MMTESTS/run-kvm.sh
 rm -rf $TREE_MMTESTS/configs
 rm -rf $TREE_MMTESTS/micro
-rm -rf $TREE_MMTESTS/shellpack_src
+rm -rf $TREE_MMTESTS/shellpack_src/addon
+rm -rf $TREE_MMTESTS/shellpack_src/packs
+mkdir $TREE_MMTESTS/shellpack_src/src-tmp
+mv $TREE_MMTESTS/shellpack_src/src/monitor $TREE_MMTESTS/shellpack_src/src-tmp
+mv $TREE_MMTESTS/shellpack_src/src/refresh.sh $TREE_MMTESTS/shellpack_src/src-tmp
+rm -rf $TREE_MMTESTS/shellpack_src/src
+mv $TREE_MMTESTS/shellpack_src/src-tmp $TREE_MMTESTS/shellpack_src/src
 rm -rf $TREE_MMTESTS/stap-patches
 rm -rf $TREE_MMTESTS/stap-scripts
 rm -rf $TREE_MMTESTS/subreport
 rm -rf $TREE_MMTESTS/vmr
 rm -rf $TREE_MMTESTS/bin-virt
+mkdir $TREE_MMTESTS/bin-tmp
+for BIN in install-depends unbuffer run-single-test.sh mmtests-rev-id list-cpus-allowed list-cpu-siblings.pl list-cpu-toplogy.sh; do
+	mv $TREE_MMTESTS/bin/$BIN $TREE_MMTESTS/bin-tmp
+done
 rm -rf $TREE_MMTESTS/bin
+mv $TREE_MMTESTS/bin-tmp $TREE_MMTESTS/bin
 mkdir $TREE_MMTESTS/drivers/tmp
 mv $TREE_MMTESTS/drivers/driver-monitor.sh $TREE_MMTESTS/drivers/tmp
 rm $TREE_MMTESTS/drivers/driver-*.sh
