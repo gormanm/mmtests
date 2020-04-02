@@ -35,6 +35,7 @@ sub extractReport($$$$) {
 	my $input = $self->SUPER::open_log("$reportDir/proc-interrupts-$testBenchmark");
 	while (!eof($input)) {
 		my $line = <$input>;
+		$line =~ s/.* -- //;
 		$line =~ s/^\s+//;
 
 		if ($line =~ /^time: ([0-9]+)/) {

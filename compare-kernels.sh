@@ -1799,19 +1799,38 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		echo "</table>"
 
 		if have_monitor_results proc-interrupts $KERNEL_BASE; then
+			SOURCES=`$EXTRACT_CMD -n $KERNEL --print-monitor proc-interrupts | awk '{print $1}' | sort | uniq`
 			echo "<table>"
-			echo "<tr>"
-			for HEADING in TLB-shootdowns Rescheduling-interrupts Function-call-interrupts; do
+			COUNT=-1
+			for HEADING in $SOURCES; do
+				COUNT=$((COUNT+1))
+				if [ $((COUNT%3)) -eq 0 ]; then
+					echo "<tr>"
+				fi
 				eval $GRAPH_PNG --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING --with-smooth
 				smoothover graph-$SUBREPORT-proc-interrupts-$HEADING
+				if [ $((COUNT%3)) -eq 2 ]; then
+					echo "</tr>"
+				fi
 			done
-			echo "</tr>"
-			echo "<tr>"
-			for HEADING in TLB-shootdowns Rescheduling-interrupts Function-call-interrupts; do
+			if [ $((COUNT%3)) -ne 2 ]; then
+				echo "</tr>"
+			fi
+
+			for HEADING in $SOURCES; do
+				COUNT=$((COUNT+1))
+				if [ $((COUNT%3)) -eq 0 ]; then
+					echo "<tr>"
+				fi
 				eval $GRAPH_PNG --title \"$HEADING\" --print-monitor proc-interrupts --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-interrupts-$HEADING-logY --logY
 				plain graph-$SUBREPORT-proc-interrupts-$HEADING-logY
+				if [ $((COUNT%3)) -eq 2 ]; then
+					echo "</tr>"
+				fi
 			done
-			echo "</tr>"
+			if [ $((COUNT%3)) -ne 2 ]; then
+				echo "</tr>"
+			fi
 			echo "</table>"
 		fi
 

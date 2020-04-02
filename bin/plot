@@ -190,6 +190,8 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			;;
 		--xticlabel)
 			USING="2:3:xticlabel(1)"
+			POINTLABEL="2:3:4"
+			ROTATELABEL=90
 			shift
 			;;
 		--subreport)
@@ -321,7 +323,14 @@ while [ "$1" != "" ]; do
 			ESCAPED=`echo "$PLOTFILE" | sed -e 's/\//\\\\\//g'`
 			PLOTSTRING="\"`echo $AWK_FORMAT | sed -e "s/@@PLOT@@/$ESCAPED/"`\""
 		fi
-		echo -n "$PLOTSTRING $USING_COMMAND $SMOOTH_ACTUAL $TITLE with $PLOTTYPE$PLOTEXTRA" >> $TEMP
+		echo -n "$PLOTSTRING $USING_COMMAND $SMOOTH_ACTUAL $TITLE with $PLOTTYPE$PLOTEXTRA " >> $TEMP
+		if [ "$POINTLABEL" != "" ]; then
+			LABELSTRING=`echo $PLOTSTRING | sed -e "s/$PLOTTYPE$PLOTEXTRA/labels/g"`
+			echo -n ", $PLOTSTRING using $POINTLABEL with labels" >> $TEMP
+			if [ "$ROTATELABEL" != "" ]; then
+				echo -n " rotate by $ROTATELABEL" >> $TEMP
+			fi
+		fi
 		;;
 	stacked-histogram)
 		PLOTSTRING="'$PLOTFILE'"
