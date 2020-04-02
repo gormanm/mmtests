@@ -655,6 +655,10 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	activity_log "run-mmtests: Iteration $MMTEST_ITERATION end"
 	echo Cleaning up
+	for STRAY in `ps auxw | grep watch- | grep unbuffer | awk '{print $2}'`; do
+		echo o Killing stray monitor $STRAY
+		kill -9 $STRAY
+	done
 
 	if [ "$MEMCG_SIZE" != "" ]; then
 		echo $$ >/cgroups/tasks
