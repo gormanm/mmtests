@@ -66,3 +66,7 @@ for CONFIG in `ls config-hpc-nas-c-class-*`; do
 	cp $DCONFIG $BDCONFIG
 	echo "export NAS_BIND=yes" >> $BDCONFIG
 done
+
+# Netperf
+sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-cstate-small
+sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-unbound-small
