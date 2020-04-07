@@ -69,6 +69,7 @@ if [ "$PROTOCOL" = "UDP_STREAM" ]; then
 fi
 
 for SIZE in $BUFFER_SIZES; do
+monitor_pre_hook $LOGDIR_RESULTS $SIZE
 mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 ###SHELLPACK iteration_begin $ITERATIONS
 	mmtests_activity size $SIZE
@@ -93,13 +94,12 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 		-H $SERVER_HOST \
 		-- $SOCKETSIZE_OPT $MSGSIZE_OPT $EXTRA"
 	echo $TASKSET_CLIENT "netperf" $NETPERF_OPTS
-	monitor_pre_hook $LOGDIR_RESULTS $SIZE-$ITERATION
 	eval $TASKSET_CLIENT $NETROOT/bin/netperf $NETPERF_OPTS \
 			2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
 			|| die Failed to run netperf
-	monitor_post_hook $LOGDIR_RESULTS $SIZE-$ITERATION
 ###SHELLPACK iteration_end
 mmtests_server_ctl stop --serverside-name $PROTOCOL-$SIZE
+monitor_post_hook $LOGDIR_RESULTS $SIZE
 done
 killall netserver
 
