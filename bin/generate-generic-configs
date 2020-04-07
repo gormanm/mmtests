@@ -68,5 +68,5 @@ for CONFIG in `ls config-hpc-nas-c-class-*`; do
 done
 
 # Netperf
-sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-cstate-small
-sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-unbound-small
+sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-cstate  > config-network-netperf-cstate-small
+sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-unbound > config-network-netperf-unbound-small
