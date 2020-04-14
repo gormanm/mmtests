@@ -33,11 +33,14 @@ int main() {
 PROFILE_TITLE="timer"
 export PROFILE_EVENTS=timer
 
+PERF_RECORD_COMMAND="record -a"
+PERF_REPORT_COMMAND="report"
+
 gcc -Wall /tmp/mmtests-wait.c -o /tmp/mmtests-wait || exit $SHELLPACK_ERROR
 
 echo "#!/bin/bash" > monitor-pre-hook
 echo "
-perf record -o \$1/perf-\$2-report-${PROFILE_TITLE}.data -a /tmp/mmtests-wait &
+perf $PERF_RECORD_COMMAND  -o \$1/perf-\$2-report-${PROFILE_TITLE}.data /tmp/mmtests-wait &
 echo \$! > /tmp/mmtests.perf.pid
 " >> monitor-pre-hook
 
@@ -52,7 +55,7 @@ echo 'sleep 1' >> monitor-post-hook
 echo 'done' >> monitor-post-hook
 echo 'echo Perf exited: `date`' >> monitor-post-hook
 echo "perf archive \$1/perf-\$2-report-${PROFILE_TITLE}.data" >> monitor-post-hook
-echo "perf report -i \$1/perf-\$2-report-${PROFILE_TITLE}.data > \$1/perf-\$2-report-${PROFILE_TITLE}.txt" >> monitor-post-hook
+echo "perf $PERF_REPORT_COMMAND -i \$1/perf-\$2-report-${PROFILE_TITLE}.data > \$1/perf-\$2-report-${PROFILE_TITLE}.txt" >> monitor-post-hook
 echo "gzip \$1/perf-\$2-report-${PROFILE_TITLE}.data" >> monitor-post-hook
 echo "exit 0" >> monitor-post-hook
 
