@@ -70,3 +70,6 @@ done
 # Netperf
 sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-cstate  > config-network-netperf-cstate-small
 sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-unbound > config-network-netperf-unbound-small
+
+# Stressng
+sed -e 's/THREADS=.*/THREADS=1024/' config-workload-stressng-get > config-workload-stressng-get-1k

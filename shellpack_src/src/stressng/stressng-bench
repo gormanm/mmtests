@@ -23,6 +23,9 @@ STRESSNG_TESTNAME=context
 
 TESTSWITCH=
 case $STRESSNG_TESTNAME in
+get)
+	TESTSWITCH="--get"
+	;;
 context)
 	TESTSWITCH="--context"
 	;;
