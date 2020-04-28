@@ -13,6 +13,8 @@ echo Disabling getpriority in stress-get.c. The syscall takes a global
 echo rwlock which ends up dominating the overall test in terms of
 echo throughput
 sed -i -e 's/HAVE_GETPRIORITY/DISABLE_GETPRIORITY/' stress-get.c
+sed -i -e 's/HAVE_PRLIMIT/DISABLE_HAVE_PRLIMIT/' stress-get.c
+sed -i -e 's/__NR_sysfs/__DISABLE_sysfs/' core-shim.c
 ###SHELLPACK make
 
 echo stressng installed successfully
