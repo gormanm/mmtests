@@ -9,6 +9,10 @@ MIRROR_LOCATION="$WEBROOT/stressng/"
 ###SHELLPACK git_fetch stressng-${VERSION}.tar.gz stressng-${VERSION}-installed
 
 ###SHELLPACK build_start stressng-${VERSION}-installed
+echo Disabling getpriority in stress-get.c. The syscall takes a global
+echo rwlock which ends up dominating the overall test in terms of
+echo throughput
+sed -i -e 's/HAVE_GETPRIORITY/DISABLE_GETPRIORITY/' stress-get.c
 ###SHELLPACK make
 
 echo stressng installed successfully
