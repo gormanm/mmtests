@@ -24,7 +24,7 @@ sub extractReport() {
 		my $iteration = 0;
 
 		foreach my $file (@files) {
-			$self->parse_time_all($file, $job, ++$iteration);
+			$self->parse_time_elapsed($file, $job, ++$iteration);
 		}
 	}
 
