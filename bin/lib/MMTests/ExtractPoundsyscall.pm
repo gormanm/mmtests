@@ -20,7 +20,7 @@ sub extractReport() {
 	my @jobs = $self->discover_scaling_parameters($reportDir, "pound_syscall-", "-2.time");
 
 	foreach my $job (@jobs) {
-		my @files = <$reportDir/pound_syscall-*.time>;
+		my @files = <$reportDir/pound_syscall-$job-*.time>;
 		my $iteration = 0;
 
 		foreach my $file (@files) {
