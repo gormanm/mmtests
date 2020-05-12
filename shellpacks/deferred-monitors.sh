@@ -118,7 +118,7 @@ function shutdown_monitors()
 		local _attempt=0
 		if [ "`ps h --pid $_pid`" != "" ]; then
 			echo -n "Shutting down monitor: $_pid"
-			kill $_pid
+			kill -$_shutdown_signal $_pid
 
 			while [ "`ps h --pid $_pid`" != "" ]; do
 				echo -n .
