@@ -16,4 +16,4 @@ for EVENT in $MONITOR_FTRACE_EVENTS; do
 	TRACE_EVENTS="$TRACE_EVENTS -e $EVENT"
 done
 
-exec trace-cmd record $TRACE_PLUGIN $TRACE_EVENTS -o $MONITOR_LOG-trace.dat
+exec trace-cmd record $TRACE_PLUGIN $TRACE_EVENTS -o $MONITOR_LOG-trace-cmd-mmtests.dat

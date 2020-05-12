@@ -139,6 +139,11 @@ function shutdown_monitors()
 	done
 
 	rm $_pidfile
+
+	# Horrific hack
+	for FILE in `find -name *-trace-cmd-mmtests.dat`; do
+		echo Compressing $FILE
+	done
 }
 
 function stop_deferred_monitors()
