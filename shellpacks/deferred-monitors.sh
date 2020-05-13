@@ -118,7 +118,7 @@ function shutdown_monitors()
 		local _attempt=0
 		if [ "`ps h --pid $_pid`" != "" ]; then
 			echo -n "Shutting down monitor: $_pid"
-			kill -$_shutdown_signal $_pid
+			kill $_pid
 
 			while [ "`ps h --pid $_pid`" != "" ]; do
 				echo -n .
@@ -139,11 +139,6 @@ function shutdown_monitors()
 	done
 
 	rm $_pidfile
-
-	# Horrific hack
-	for FILE in `find -name *-trace-cmd-mmtests.dat`; do
-		echo Compressing $FILE
-	done
 }
 
 function stop_deferred_monitors()

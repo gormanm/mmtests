@@ -54,7 +54,7 @@ none)
 
 	echo Starting server
 	NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
-	$TASKSET_SERVER $NETROOT/bin/netserver || die Failed to start netserver
+	$TASKSET_SERVER $NETROOT/bin/netserver || die "Failed to start netserver"
 	sleep 2
 	;;
 *)
