@@ -351,10 +351,12 @@ make -j\$NUMCPUS
 if [ \$? -ne 0 ]; then
 	if [ "\$MAKE_RETRY" = "yes" ]; then
 		make -j\$NUMCPUS $opts
+		if [ \$? -ne 0 ]; then
+			error "\$P: make failed"
+			popd > /dev/null
+			exit \$SHELLPACK_ERROR
+		fi
 	fi
-	error "\$P: make failed"
-	popd > /dev/null
-	exit \$SHELLPACK_ERROR
 fi
 make install
 if [ \$? -ne 0 ]; then

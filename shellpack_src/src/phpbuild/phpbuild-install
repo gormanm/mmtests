@@ -28,12 +28,4 @@ printf '%s\n\t%s\n%s\n' '<FilesMatch "\.phps$">' 'SetHandler application/x-httpd
 echo Generating phpinfo.php file
 echo "<?php phpinfo(); ?>" >> $SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/htdocs/phpinfo.php
 
-WEB_LOCATION=https://xcache.lighttpd.net/pub/Releases/$XCACHE_VERSION
-###SHELLPACK sources_fetch xcache-$XCACHE_VERSION.tar.gz xcache-$XCACHE_VERSION
-$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/bin/phpize
-###SHELLPACK build_configure xcode-${XCACHE_VERSION} --enable-xcache --with-php-config=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/bin/php-config
-###SHELLPACK make_make_install
-
-cat xcache.ini >> $SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/php.ini
-
 echo php installed successfully

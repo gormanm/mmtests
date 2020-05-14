@@ -1,0 +1,35 @@
+#!/bin/bash
+###SHELLPACK preamble apachebench-bench 2.4.39
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --min-clients       MIN_CLIENTS
+###SHELLPACK parseargParam --max-clients       MAX_CLIENTS
+###SHELLPACK parseargParam --iterations        ITERATIONS
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+echo Shutting down apache server...
+$SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die "Failed to shutdown apache http server for restart."
+###SHELLPACK init_complete
+
+echo Starting apache server...
+$SHELLPACK_INCLUDE/shellpack-bench-apachebuild --start || die "Failed to start apache http server."
+sleep 5
+
+###SHELLPACK threads_large_stride_begin $MIN_CLIENTS $MAX_CLIENTS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	###SHELLPACK iteration_begin $ITERATIONS
+		echo Running $ITERATION/$ITERATIONS: ab -n 100000 -c $NR_THREADS http://127.0.0.1/MAINTAINERS.html
+		$TIME_CMD -o $LOGDIR_RESULTS/apachebench-${NR_THREADS}-${ITERATION}.time \
+			$SHELLPACK_SOURCES/apachebuild-$VERSION-installed/bin/ab \
+					-n 100000	\
+					-c $NR_THREADS	\
+					http://localhost/MAINTAINERS.html \
+						&> $LOGDIR_RESULTS/apachebench-${NR_THREADS}-${ITERATION}.log
+	###SHELLPACK iteration_end $ITERATIONS
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+
+echo apachebench completed successfully
+exit $SHELLPACK_SUCCESS
