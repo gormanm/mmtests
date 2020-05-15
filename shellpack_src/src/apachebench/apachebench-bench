@@ -20,7 +20,7 @@ sleep 5
 ###SHELLPACK threads_large_stride_begin $MIN_CLIENTS $MAX_CLIENTS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $ITERATIONS
-		echo Running $ITERATION/$ITERATIONS: ab -n 100000 -c $NR_THREADS http://127.0.0.1/MAINTAINERS.html
+		echo Running $ITERATION/$ITERATIONS: ab -n 250000 -c $NR_THREADS http://127.0.0.1/MAINTAINERS.html
 		$TIME_CMD -o $LOGDIR_RESULTS/apachebench-${NR_THREADS}-${ITERATION}.time \
 			$SHELLPACK_SOURCES/apachebuild-$VERSION-installed/bin/ab \
 					-n 100000	\
