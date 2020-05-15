@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh apachebuild
 
 run_bench() {
 	SIEGE_ITER_COMMAND=

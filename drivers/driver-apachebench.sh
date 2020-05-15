@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh apachebuild
 
 run_bench() {
 	eval $SHELLPACK_INCLUDE/shellpack-bench-apachebench \
