@@ -16,6 +16,9 @@ for SIZE in kinder toy; do
 	sed -e "s/WORKSET=.*/WORKSET=$SIZE/" config-hpc-graph500-omp-infant > config-hpc-graph500-omp-$SIZE
 done
 
+# Hackbench
+sed -e 's/HACKBENCH_MAX_GROUPS=.*/HACKBENCH_MAX_GROUPS=1/' config-scheduler-unbound > config-scheduler-unbound-small
+
 # KVM start
 cp config-workload-kvmstart-memhog config-workload-kvmstart-deployonly
 sed -i -e 's/KVMSTART_MIN_MEMORY=.*/KVMSTART_MIN_MEMORY=\$((KVMSTART_MAX_MEMORY+1))/' config-workload-kvmstart-deployonly
