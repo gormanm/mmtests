@@ -65,6 +65,7 @@ config-hpc-nas-d-class-mpi-half
 config-hpc-nas-d-class-mpi-third
 config-hpc-nas-d-class-mpi-pair
 config-hpc-nas-d-class-mpi-minparallel
+config-http-apachebench
 config-workload-mailserver
 config-workload-kernbench-max
 config-workload-kerndevel
