@@ -79,3 +79,9 @@ sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$((NUMCPUS*4))/' config-workload-stre
 
 # Stressng
 sed -e 's/THREADS=.*/THREADS=1024/' config-workload-stressng-get > config-workload-stressng-get-1k
+
+# Sysbench
+sed -e 's/SYSBENCHCPU_MAX_THREADS=.*/SYSBENCHCPU_MAX_THREADS=2/' config-scheduler-sysbench-cpu > config-scheduler-sysbench-cpu-small
+sed -e 's/SYSBENCHCPU_MAX_THREADS=.*/SYSBENCHCPU_MAX_THREADS=2/' config-scheduler-sysbench-cpu > config-scheduler-sysbench-cpu-small
+sed -e 's/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=.*/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=2/' config-scheduler-sysbench-thread > config-scheduler-sysbench-thread-small
+sed -e 's/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=.*/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=2/' config-scheduler-sysbench-thread > config-scheduler-sysbench-thread-small
