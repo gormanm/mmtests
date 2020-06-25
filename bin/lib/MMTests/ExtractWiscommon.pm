@@ -12,6 +12,7 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractWiscommon";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "thread-errorlines";
+	$self->{_FieldLength} = 16;
 	$self->SUPER::initialise($subHeading);
 }
 
