@@ -17,15 +17,17 @@ echo Starting apache server...
 $SHELLPACK_INCLUDE/shellpack-bench-apachebuild --start || die "Failed to start apache http server."
 sleep 5
 
+APACHEBENCH_LOADS=500000
+
 ###SHELLPACK threads_large_stride_begin $MIN_CLIENTS $MAX_CLIENTS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $ITERATIONS
-		echo Running $ITERATION/$ITERATIONS: ab -n 250000 -c $NR_THREADS http://127.0.0.1/MAINTAINERS.html
+		echo Running $ITERATION/$ITERATIONS: ab -n $APACHEBENCH_LOADS -c $NR_THREADS http://127.0.0.1/MAINTAINERS.html
 		$TIME_CMD -o $LOGDIR_RESULTS/apachebench-${NR_THREADS}-${ITERATION}.time \
-			$SHELLPACK_SOURCES/apachebuild-$VERSION-installed/bin/ab \
-					-n 100000	\
-					-c $NR_THREADS	\
-					http://localhost/MAINTAINERS.html \
+			$SHELLPACK_SOURCES/apachebuild-$VERSION-installed/bin/ab 	\
+					-n $APACHEBENCH_LOADS				\
+					-c $NR_THREADS					\
+					http://localhost/MAINTAINERS.html 		\
 						&> $LOGDIR_RESULTS/apachebench-${NR_THREADS}-${ITERATION}.log
 	###SHELLPACK iteration_end $ITERATIONS
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
