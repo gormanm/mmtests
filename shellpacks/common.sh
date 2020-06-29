@@ -201,7 +201,7 @@ function file_fetch() {
 	MIRROR=$2
 	OUTPUT=$3
 
-	if [ -e $OUTPUT ]; then
+	if [ -s $OUTPUT ]; then
 		echo Downloaded file already available at $OUTPUT
 		return
 	fi
@@ -229,7 +229,7 @@ function sources_fetch() {
 	OUTPUT=$3
 	WEB_ALT=$4
 
-	if [ -e $OUTPUT ]; then
+	if [ -s $OUTPUT ]; then
 		echo Downloaded file already available at $OUTPUT
 		return
 	fi
@@ -270,7 +270,7 @@ function git_fetch() {
 	OUTPUT=$4
 	COMMIT=${5:-master}
 
-	if [ -e $OUTPUT ]; then
+	if [ -s $OUTPUT ]; then
 		echo Downloaded file already available at $OUTPUT
 		return
 	fi
