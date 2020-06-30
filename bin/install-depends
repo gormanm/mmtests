@@ -251,8 +251,10 @@ foreach my $package (@ARGV) {
 		$allow_downgrade{"suse"} = "--allow-downgrade";
 	}
 
-	if (system("$sudo $package_bin{$distro} $allow_downgrade{$distro} $force_install{$distro} $package") != 0) {
-		die("Failed to install package $package for distro $distro");
+	if (system("$sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
+		if (system("$sudo $package_bin{$distro} $allow_downgrade{$distro} $force_install{$distro} $package") != 0) {
+			die("Failed to install package $package for distro $distro");
+		}
 	}
 
 	print "Installed $package\n";
