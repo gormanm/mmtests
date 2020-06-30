@@ -124,6 +124,14 @@ my %force_install = (
 	"gentoo" => "",
 );
 
+my %allow_downgrade = (
+	"suse" => "",
+	"debian" => "",
+	"redhat" => "",
+	"gentoo" => "",
+);
+
+
 my $distro;
 foreach my $release_file ("debian_version", "debian_release",
 			  "redhat-release", "redhat_version",
@@ -239,7 +247,11 @@ foreach my $package (@ARGV) {
 		$force_install{"redhat"} = "-y";
 	}
 
-	if (system("$sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
+	if ($ENV{"AUTO_PACKAGE_DOWNGRADE"} eq "yes" || -e $ENV{"HOME"} . "/.mmtests-auto-package-downgrade") {
+		$allow_downgrade{"suse"} = "--allow-downgrade";
+	}
+
+	if (system("$sudo $package_bin{$distro} $allow_downgrade{$distro} $force_install{$distro} $package") != 0) {
 		die("Failed to install package $package for distro $distro");
 	}
 
