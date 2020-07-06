@@ -253,7 +253,7 @@ foreach my $package (@ARGV) {
 
 	if (system("$sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
 		if (system("$sudo $package_bin{$distro} $allow_downgrade{$distro} $force_install{$distro} $package") != 0) {
-			print("WARNING: Failed to install package $package for distro $distro");
+			print("WARNING: Failed to cleanly install package $package for distro $distro\n");
 		}
 	}
 
