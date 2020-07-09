@@ -27,10 +27,4 @@ sub extractReport() {
 			$self->parse_time_elapsed($file, $job, ++$iteration);
 		}
 	}
-
-	my @ratioops;
-	foreach my $job (@jobs) {
-		push @ratioops, "elsp-$job";
-	}
-	$self->{_RatioOperations} = \@ratioops;
 }
