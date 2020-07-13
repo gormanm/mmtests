@@ -156,7 +156,7 @@ SUBVERSION=$VERSION
 if [ ! -e $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$VERSION-$NAS_TYPE ]; then
 	SUBVERSION=`echo $VERSION | sed -e 's/\.[0-9]*$//'`
 fi
-pushd $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE > /dev/null || die Failed to cd to nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE
+pushd $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE > /dev/null || die "Failed to cd to nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE"
 echo -n > config/suite.def
 for JOB in $JOBLIST; do
 	lookup_mpicpus $JOB

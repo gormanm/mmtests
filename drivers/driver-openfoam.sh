@@ -9,6 +9,9 @@ run_bench() {
 		BIND_SWITCH=--bind-$OPENFOAM_BINDING
 	fi
 
-	$SHELLPACK_INCLUDE/shellpack-bench-openfoam $VERSION_PARAM $BIND_SWITCH
+	$SHELLPACK_INCLUDE/shellpack-bench-openfoam $VERSION_PARAM $BIND_SWITCH \
+		--max-cpus 	$OPENFOAM_MAXCPUS	\
+		--model	   	$OPENFOAM_MODEL		\
+		--iterations	$OPENFOAM_ITERATIONS
 	return $?
 }
