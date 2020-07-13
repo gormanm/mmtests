@@ -1,0 +1,31 @@
+#!/bin/bash
+###SHELLPACK preamble openfoam-bench OpenFOAM-v1812
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+# Install openmpi requirements
+if [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi3" ]; then
+	install-depends openmpi3 openmpi3-devel
+elif [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi2" ]; then
+	install-depends openmpi2 openmpi2-devel
+else
+	install-depends openmpi openmpi-devel
+fi
+
+# Set openmpi environment
+if [ "$OPENFOAM_MPI_PATH" != "" ]; then
+	export PATH=$PATH:$OPENFOAM_MPI_PATH
+fi
+
+if [ "$OPENFOAM_MPI_LIBPATH" != "" ]; then
+	export LD_LIBRARY_PATH=$OPENFOAM_MPI_LIBPATH
+fi
+
+###SHELLPACK check_external_install_required openfoambuild openfoambuild-${VERSION} ${VERSION}
+###SHELLPACK init_complete
+
+exit $SHELLPACK_SUCCESS

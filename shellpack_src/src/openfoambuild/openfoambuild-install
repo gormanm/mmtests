@@ -1,0 +1,33 @@
+#!/bin/bash
+###SHELLPACK preamble openfoambuild OpenFOAM-v1812
+GIT_LOCATION=https://develop.openfoam.com/Development/openfoam.git
+MIRROR_LOCATION="$WEBROOT/openfoambuild/"
+
+install-depends cmake boost-devel gnuplot mpfr-devel openmpi-devel glu-devel
+	libQtWebKit-devel libqt4-devel qt4-assistant-adp-devel qt4-x11-tools
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch openfoambuild-${VERSION}.tar.gz openfoambuild-${VERSION}-installed
+
+###SHELLPACK build_start openfoambuild-${VERSION}-installed
+if [ ! -e ThirdParty ]; then
+	rm -rf ThirdParty*
+	echo Fetching ThirdParty
+	file_fetch https://sourceforge.net/projects/openfoam/files/v2006/ThirdParty-v2006.tgz \
+		$MIRROR_LOCATION/ThirdParty-v2006.tgz \
+		ThirdParty-v2006.tgz
+	echo Expanding ThirdParty
+	tar -xf ThirdParty-v2006.tgz
+	mv ThirdParty-v2006 ThirdParty
+fi
+
+source etc/bashrc || die "Failed to source etc/bashrc"
+cd "$WM_PROJECT_DIR" || die "Failed to change to WM_PROJECT_DIR"
+foamSystemCheck || die "Failed foamSystemCheck"
+./Allwmake -s -l -j || die "Failed to build Allwmake"
+foamInstallationTest || die "Failed installation test"
+chmod a+w .
+
+echo openfoambuild installed successfully
