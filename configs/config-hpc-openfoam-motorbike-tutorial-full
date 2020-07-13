@@ -1,3 +1,16 @@
+### OpenFOAM (https://www.openfoam.com/) is free, open source CFD software.
+###
+### This configuration times the execution of the OpenFOAM Motorbike tutorial
+### based on the OpenFOAM-v1812 branch of the git repository. By default,
+### the tutorial uses 6 processes for the calculations based on a 3x2 xdivision
+### and ydivision (6 subdomains). This configuration scales the X and Y divisions
+### based on the number of CPUs to maximise the number of subdomains while
+### maintaining the ratio between the X and Y divisions.
+###
+### Note that this means that not all CPUs may be used and in some cases, all
+### CPUs will be used which is not necessarily optimal for openMPI. At the
+### time of writing, the openMPI version used is openMPI 1.10.7 if using
+### openSUSE LEAP 15.1
 # MM Test Parameters
 export MMTESTS="openfoam"
 
