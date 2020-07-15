@@ -3,7 +3,7 @@
 GIT_LOCATION=https://develop.openfoam.com/Development/openfoam.git
 MIRROR_LOCATION="$WEBROOT/openfoambuild/"
 
-install-depends cmake boost-devel gnuplot mpfr-devel openmpi-devel glu-devel
+install-depends cmake boost-devel gnuplot mpfr-devel glu-devel
 	libQtWebKit-devel libqt4-devel qt4-assistant-adp-devel qt4-x11-tools
 
 ###SHELLPACK parseargBegin
@@ -24,6 +24,7 @@ if [ ! -e ThirdParty ]; then
 fi
 
 source etc/bashrc || die "Failed to source etc/bashrc"
+module load gnu openmpi || die "Failed to load openmi module"
 cd "$WM_PROJECT_DIR" || die "Failed to change to WM_PROJECT_DIR"
 foamSystemCheck || die "Failed foamSystemCheck"
 ./Allwmake -s -l -j || die "Failed to build Allwmake"
