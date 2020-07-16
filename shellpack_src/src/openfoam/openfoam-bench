@@ -12,21 +12,19 @@
 
 # Install openmpi requirements
 if [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi3" ]; then
-	install-depends openmpi3 openmpi3-devel
+	if [ !- z $OPENFOAM_LOCAL_USER ] ; then
+		install-depends openmpi3-gnu-hpc-devel
+	fi
+	module load gnu openmpi/3 || die "Could not load openmpi/3 module"
 elif [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi2" ]; then
-	install-depends openmpi2 openmpi2-devel
+	if [ !- z $OPENFOAM_LOCAL_USER ] ; then
+		install-depends openmpi2-gnu-hpc-devel
+	fi
+	module load gnu openmpi/2 || die "Could not load openmpi/2 module"
 else
-	install-depends openmpi openmpi-devel
+	die "\$OPENFOAM_OPENMPI_VERSION must be openmpi2 or openmpi3"
 fi
 
-# Set openmpi environment
-if [ "$OPENFOAM_MPI_PATH" != "" ]; then
-	export PATH=$PATH:$OPENFOAM_MPI_PATH
-fi
-
-if [ "$OPENFOAM_MPI_LIBPATH" != "" ]; then
-	export LD_LIBRARY_PATH=$OPENFOAM_MPI_LIBPATH
-fi
 export OMPI_TMPDIR=$SHELLPACK_DATA
 export TMPDIR=$SHELLPACK_DATA
 
@@ -34,7 +32,7 @@ export TMPDIR=$SHELLPACK_DATA
 ###SHELLPACK init_complete
 
 cd $SHELLPACK_SOURCES/openfoambuild-$VERSION-installed/ || die "Failed to cd to openfoam installation directory"
-source etc/bashrc "Failed to source bash environment"
+source etc/bashrc || die "Failed to source bash environment"
 
 # Configure benchmark
 case $OPENFOAM_MODEL in
@@ -99,13 +97,16 @@ motorbike-tutorial)
 esac
 
 # Execute benchmark
-chown -R mpiuser:users $SHELLPACK_DATA
+if [ !- z $OPENFOAM_LOCAL_USER ] ; then
+	chown -R mpiuser:users $SHELLPACK_DATA
+	export SUCMD="su -p mpiuser -c"
+fi
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
 ###SHELLPACK iteration_begin $OPENFOAM_ITERATIONS
 	echo Executing iteration $ITERATION/$OPENFOAM_ITERATIONS
-	su -p mpiuser -c ./Allclean
+	$SUCMD ./Allclean
 	$TIME_CMD -o $LOGDIR_RESULTS/openfoam-time.$ITERATION	\
-		su -p mpiuser -c ./Allrun 2>&1 | tee $LOGDIR_RESULTS/openfoam-log.$ITERATION
+		$SUCMD ./Allrun 2>&1 | tee $LOGDIR_RESULTS/openfoam-log.$ITERATION
 	gzip $LOGDIR_RESULTS/openfoam-log.$ITERATION
 
 	if [ "$OPENFOAM_SAVEDATA" = "yes" ]; then
