@@ -96,6 +96,7 @@ motorbike-tutorial)
 	;;
 esac
 
+export SUCMD=""
 # Execute benchmark
 if [ !- z $OPENFOAM_LOCAL_USER ] ; then
 	chown -R mpiuser:users $SHELLPACK_DATA
@@ -104,6 +105,14 @@ fi
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
 ###SHELLPACK iteration_begin $OPENFOAM_ITERATIONS
 	echo Executing iteration $ITERATION/$OPENFOAM_ITERATIONS
+	if [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi3" ]; then
+		module load gnu openmpi/3 || die "Could not load openmpi/3 module"
+	elif [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi2" ]; then
+		module load gnu openmpi/2 || die "Could not load openmpi/2 module"
+	else
+		die "\$OPENFOAM_OPENMPI_VERSION must be openmpi2 or openmpi3"
+	fi
+	module li
 	$SUCMD ./Allclean
 	$TIME_CMD -o $LOGDIR_RESULTS/openfoam-time.$ITERATION	\
 		$SUCMD ./Allrun 2>&1 | tee $LOGDIR_RESULTS/openfoam-log.$ITERATION
