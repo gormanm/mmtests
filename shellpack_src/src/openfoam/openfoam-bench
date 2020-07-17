@@ -41,7 +41,75 @@ motorbike-tutorial)
 	rm -rf motorBike-mmtests
 	cp -r motorBike motorBike-mmtests
 	cd motorBike-mmtests || die "Failed to cd to motorbike-mmtests tutorial directory"
-	cp -v $SHELLPACK_TEMP/fvSolution motorBike-mmtests/system/fvSolution || die "Could not copy fvSolution"
+cat > system/fvSolution <<EOF 
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1812                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-06;
+        relTol          0.05;
+    }
+
+    pFinal
+    {
+        $p;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-05;
+        relTol          0;
+    }
+}
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    consistent yes;
+}
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors 10;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U               0.9;
+        k               0.7;
+        omega           0.7;
+    }
+}
+
+cache
+{
+    grad(U);
+}
+
+// ************************************************************************* //
+EOF
 
 	SUBDOMAINS=$OPENFOAM_MAXCPUS
 	XDIVISON=0
