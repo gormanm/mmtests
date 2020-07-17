@@ -41,6 +41,7 @@ motorbike-tutorial)
 	rm -rf motorBike-mmtests
 	cp -r motorBike motorBike-mmtests
 	cd motorBike-mmtests || die "Failed to cd to motorbike-mmtests tutorial directory"
+	cp -v $SHELLPACK_TEMP/fvSolution motorBike-mmtests/system/fvSolution || die "Could not copy fvSolution"
 
 	SUBDOMAINS=$OPENFOAM_MAXCPUS
 	XDIVISON=0
@@ -88,7 +89,9 @@ motorbike-tutorial)
 	sed -i -e "s/numberOfSubdomains.*/numberOfSubdomains $SUBDOMAINS;/" 	system/decomposeParDict.$SUBDOMAINS
 	sed -i -e "s/^    n .*;/    n ($XDIVISION $YDIVISION 1);/"		system/decomposeParDict.$SUBDOMAINS
 
-	chown -R mpiuser:$USERS . &>/dev/null
+	if [ !- z $OPENFOAM_LOCAL_USER ] ; then
+		chown -R mpiuser:$USERS . &>/dev/null
+	fi
 
 	;;
 *)
