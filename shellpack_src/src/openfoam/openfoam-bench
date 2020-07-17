@@ -12,12 +12,12 @@
 
 # Install openmpi requirements
 if [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi3" ]; then
-	if [ !- z $OPENFOAM_LOCAL_USER ] ; then
+	if [ ! -z $OPENFOAM_LOCAL_USER ] ; then
 		install-depends openmpi3-gnu-hpc-devel
 	fi
 	module load gnu openmpi/3 || die "Could not load openmpi/3 module"
 elif [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi2" ]; then
-	if [ !- z $OPENFOAM_LOCAL_USER ] ; then
+	if [ ! -z $OPENFOAM_LOCAL_USER ] ; then
 		install-depends openmpi2-gnu-hpc-devel
 	fi
 	module load gnu openmpi/2 || die "Could not load openmpi/2 module"
