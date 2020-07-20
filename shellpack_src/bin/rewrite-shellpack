@@ -194,7 +194,7 @@ EOC
 		print <<EOC
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=$tarfile
-git_fetch \$GIT_LOCATION $srcdir \$MIRROR_LOCATION/\$TARFILE \$SHELLPACK_SOURCES/\$TARFILE \$VERSION
+git_fetch \$GIT_LOCATION \$GIT_CLONE_FLAGS $srcdir \$MIRROR_LOCATION/\$TARFILE \$SHELLPACK_SOURCES/\$TARFILE \$VERSION
 cd \$SHELLPACK_SOURCES
 tar -xf \$TARFILE
 if [ \$? -ne 0 ]; then
@@ -725,7 +725,17 @@ if [ "`whoami`" = "root" ]; then
 	MMTESTS_RUNAS="su -p mpiuser -c"
 fi
 EOC
-
+	} elsif ($command eq "mpi_create_mpiuser") {
+		my ($path) = @details;
+		print <<EOC
+if [ "`whoami`" = "root" ]; then
+	echo Creating mpiuser
+	getent passwd mpiuser &> /dev/null
+	if [ \$? -ne 0 ]; then
+		useradd -g users mpiuser
+	fi
+fi
+EOC
 	} else {
 		print "# WARNING: UNRECOGNISED command $command\n";
 		print $_;

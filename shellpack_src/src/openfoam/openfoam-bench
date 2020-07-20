@@ -16,6 +16,7 @@
 ###SHELLPACK mpi_setup_runas
 
 ###SHELLPACK check_external_install_required openfoambuild openfoambuild-${VERSION} ${VERSION}
+###SHELLPACK mpi_create_mpiuser
 ###SHELLPACK init_complete
 
 cd $SHELLPACK_SOURCES/openfoambuild-$VERSION-installed/ || die "Failed to cd to openfoam installation directory"

@@ -30,11 +30,4 @@ foamSystemCheck || die "Failed foamSystemCheck"
 foamInstallationTest || die "Failed installation test"
 chmod a+w .
 
-echo Setting ownership to mpiuser
-getent passwd mpiuser &> /dev/null
-if [ $? -ne 0 ]; then
-	useradd -g users mpiuser
-fi
-chown -R mpiuser:users $WM_PROJECT_DIR
-
 echo openfoambuild installed successfully
