@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs ltp and runs the regression tests
-###SHELLPACK preamble ltp-bench 20190115
+###SHELLPACK preamble ltp-bench 20200515
 LTP_RUN_TESTS="controllers"
 
 ###SHELLPACK parseargBegin
