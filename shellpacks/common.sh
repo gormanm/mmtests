@@ -293,7 +293,7 @@ function git_fetch() {
 
 		cd $SHELLPACK_SOURCES
 		echo "$P: Cloning from internet $GIT"
-		git clone $GIT $TREE
+		git clone $GIT_CLONE_FLAGS $GIT $TREE
 		if [ $? -ne 0 ]; then
 			die "$P: Could not clone $GIT"
 		fi

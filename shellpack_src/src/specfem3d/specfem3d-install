@@ -1,0 +1,68 @@
+#!/bin/bash
+###SHELLPACK preamble specfem3d v7.0.2
+export GIT_CLONE_FLAGS="--recursive"
+GIT_LOCATION="https://github.com/geodynamics/specfem3d_globe.git"
+MIRROR_LOCATION="$WEBROOT/specfem3d/"
+
+###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH
+install-depends gcc-fortran zlib-devel
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch specfem3d-${VERSION}.tar.gz specfem3d-${VERSION}-installed
+
+###SHELLPACK build_start specfem3d-${VERSION}-installed
+###SHELLPACK self_extract 0001-remove-unused-function.patch
+cat $SHELLPACK_TEMP/0001-remove-unused-function.patch | patch -p1
+###SHELLPACK build_configure specfem3d-${VERSION}
+###SHELLPACK make
+make test || die "Failed make test"
+ROOTDIR=$SHELLPACK_SOURCES/specfem3d-${VERSION}-installed
+ROOTDIR_ESCAPED=`echo "$ROOTDIR" | sed -e 's/\//\\\\\//g'`
+
+# global_s362ani_shakemovie
+echo Building global_s362ani_shakemovie
+cd $SHELLPACK_SOURCES/specfem3d-${VERSION}-installed/EXAMPLES/global_s362ani_shakemovie || die "Failed to access global_s362ani_shakemovie"
+sed -i -e "s/rootdir=.*/rootdir=$ROOTDIR_ESCAPED/" run_this_example.sh
+./run_this_example.sh || die "Failed to execute global_s362ani_shakemovie run_this_example.sh"
+
+echo specfem3d installed successfully
+exit $SHELLPACK_SUCCESS
+==== BEGIN 0001-remove-unused-function.patch ====
+diff --git a/src/specfem3D/compute_arrays_source.f90 b/src/specfem3D/compute_arrays_source.f90
+index 7622b60d0ec0..0ee9c2b8c918 100644
+--- a/src/specfem3D/compute_arrays_source.f90
++++ b/src/specfem3D/compute_arrays_source.f90
+@@ -316,29 +316,4 @@
+ 
+   contains
+ 
+-    subroutine multiply_arrays_adjoint(sourcearrayd,hxir,hetar,hgammar,adj_src_ud)
+-
+-    use constants
+-
+-    implicit none
+-
+-    double precision, dimension(NDIM,NGLLX,NGLLY,NGLLZ) :: sourcearrayd
+-    double precision, dimension(NGLLX) :: hxir
+-    double precision, dimension(NGLLY) :: hetar
+-    double precision, dimension(NGLLZ) :: hgammar
+-    double precision, dimension(NDIM) :: adj_src_ud
+-
+-    integer :: i,j,k
+-
+-    ! adds interpolated source contribution to all GLL points within this element
+-    do k = 1, NGLLZ
+-      do j = 1, NGLLY
+-        do i = 1, NGLLX
+-          sourcearrayd(:,i,j,k) = hxir(i) * hetar(j) * hgammar(k) * adj_src_ud(:)
+-        enddo
+-      enddo
+-    enddo
+-
+-    end subroutine multiply_arrays_adjoint
+-
+   end subroutine compute_arrays_source_adjoint
+==== END 0001-remove-unused-function.patch ====

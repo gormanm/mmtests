@@ -1,0 +1,10 @@
+#!/bin/bash
+###SHELLPACK preamble specfem3d-bench v7.0.2
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_install_required specfem3d-$VERSION
+###SHELLPACK init_complete
+
+exit $SHELLPACK_SUCCESS
