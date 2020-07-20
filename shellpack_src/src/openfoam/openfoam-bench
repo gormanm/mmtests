@@ -10,25 +10,10 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-# Install openmpi requirements
-if [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi3" ]; then
-	install-depends openmpi3 openmpi3-devel
-elif [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi2" ]; then
-	install-depends openmpi2 openmpi2-devel
-else
-	install-depends openmpi openmpi-devel
-fi
-
-# Set openmpi environment
-if [ "$OPENFOAM_MPI_PATH" != "" ]; then
-	export PATH=$PATH:$OPENFOAM_MPI_PATH
-fi
-
-if [ "$OPENFOAM_MPI_LIBPATH" != "" ]; then
-	export LD_LIBRARY_PATH=$OPENFOAM_MPI_LIBPATH
-fi
-export OMPI_TMPDIR=$SHELLPACK_DATA
-export TMPDIR=$SHELLPACK_DATA
+###SHELLPACK mpi_setup_deps OPENFOAM_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env OPENFOAM_MPI_PATH OPENFOAM_MPI_LIBPATH
+###SHELLPACK mpi_setup_shmem
+###SHELLPACK mpi_setup_runas
 
 ###SHELLPACK check_external_install_required openfoambuild openfoambuild-${VERSION} ${VERSION}
 ###SHELLPACK init_complete
@@ -90,7 +75,7 @@ motorbike-tutorial)
 	sed -i -e "s/numberOfSubdomains.*/numberOfSubdomains $SUBDOMAINS;/" 	system/decomposeParDict.$SUBDOMAINS
 	sed -i -e "s/^    n .*;/    n ($XDIVISION $YDIVISION 1);/"		system/decomposeParDict.$SUBDOMAINS
 
-	chown -R mpiuser:$USERS . &>/dev/null
+	$MMTESTS_CHOWN_RUNAS . &>/dev/null
 
 	;;
 *)
@@ -99,13 +84,13 @@ motorbike-tutorial)
 esac
 
 # Execute benchmark
-chown -R mpiuser:users $SHELLPACK_DATA
+$MMTESTS_CHOWN_RUNAS $SHELLPACK_DATA &>/dev/null
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
 ###SHELLPACK iteration_begin $OPENFOAM_ITERATIONS
 	echo Executing iteration $ITERATION/$OPENFOAM_ITERATIONS
-	su -p mpiuser -c ./Allclean
+	$MMTESTS_RUNAS ./Allclean
 	$TIME_CMD -o $LOGDIR_RESULTS/openfoam-time.$ITERATION	\
-		su -p mpiuser -c ./Allrun 2>&1 | tee $LOGDIR_RESULTS/openfoam-log.$ITERATION
+		$MMTESTS_RUNAS ./Allrun 2>&1 | tee $LOGDIR_RESULTS/openfoam-log.$ITERATION
 	gzip $LOGDIR_RESULTS/openfoam-log.$ITERATION
 
 	if [ "$OPENFOAM_SAVEDATA" = "yes" ]; then

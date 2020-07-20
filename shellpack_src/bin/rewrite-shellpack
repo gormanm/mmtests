@@ -684,6 +684,48 @@ EOC
 			close($input);
 			print "==== END $file ====\n";
 		}
+	} elsif ($command eq "mpi_setup_deps") {
+		my ($mpi) = @details;
+		print <<EOC
+# Install mpi requirements
+if [ "\$$mpi" = "openmpi3" ]; then
+	install-depends openmpi3 openmpi3-devel
+elif [ "\$$mpi" = "openmpi2" ]; then
+	install-depends openmpi2 openmpi2-devel
+elif [ "\$$mpi" = "openmpi" ]; then
+	install-depends openmpi openmpi-devel
+else
+	die "Unrecognised MPI $mpi \$$mpi"
+fi
+EOC
+	} elsif ($command eq "mpi_setup_env") {
+		my ($mpipath, $mpilib) = @details;
+		print <<EOC
+
+# Setup mpi environment
+if [ "\$$mpipath" != "" ]; then
+	export PATH=\$PATH:\$$mpipath
+fi
+
+if [ "\$$mpilib" != "" ]; then
+	export LD_LIBRARY_PATH=\$$mpilib
+fi
+EOC
+	} elsif ($command eq "mpi_setup_shmem") {
+	print <<EOC
+export OMPI_TMPDIR=\$SHELLPACK_DATA
+export TMPDIR=\$SHELLPACK_DATA
+EOC
+	} elsif ($command eq "mpi_setup_runas") {
+	print <<EOC
+MMTESTS_CHOWN_RUNAS=echo
+MMTESTS_RUNAS=
+if [ "`whoami`" = "root" ]; then
+	MMTESTS_CHOWN_RUNAS="chown -R mpiuser:users"
+	MMTESTS_RUNAS="su -p mpiuser -c"
+fi
+EOC
+
 	} else {
 		print "# WARNING: UNRECOGNISED command $command\n";
 		print $_;
