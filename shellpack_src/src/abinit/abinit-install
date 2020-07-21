@@ -1,0 +1,24 @@
+#!/bin/bash
+###SHELLPACK preamble abinit 8.10.2
+WEB_LOCATION="https://www.abinit.org/sites/default/files/packages"
+MIRROR_LOCATION="$WEBROOT/abinit"
+
+MPI_SWITCH="--disable-mpi"
+if [ "$ABINIT_OPENMPI_VERSION" != "" ]; then
+	###SHELLPACK mpi_setup_deps ABINIT_OPENMPI_VERSION
+	###SHELLPACK mpi_setup_env ABINIT_MPI_PATH ABINIT_MPI_LIBPATH
+	MPI_SWITCH="--enable-mpi --with-mpi-prefix=$ABINIT_MPI_ROOT"
+fi
+install-depends gcc-fortran gcc
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch abinit-${VERSION}.tar.gz abinit-${VERSION}-installed
+
+pushd $SHELLPACK_SOURCES/abinit-${VERSION}-installed || die "Failed to change to source directory"
+###SHELLPACK build_configure abinit-${VERSION}-installed $MPI_SWITCH
+###SHELLPACK make
+
+echo abinit installed successfully
+exit $SHELLPACK_SUCCESS
