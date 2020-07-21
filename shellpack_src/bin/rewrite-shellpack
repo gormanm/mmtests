@@ -280,6 +280,20 @@ if [ \$? -ne 0 ]; then
 fi
 unset CFLAGS
 EOC
+	} elsif ($command eq "build_configure_py") {
+		my $srcdir = @details[0];
+		shift @details;
+		print <<EOC
+export CFLAGS="\${MMTESTS_BUILD_CFLAGS:--O2} \$MMTESTS_BUILD_CFLAGS_EXTRA"
+eval ./configure.py --prefix=\$SHELLPACK_SOURCES/$srcdir-installed @details
+if [ \$? -ne 0 ]; then
+	error "\$P: configure failed"
+	popd > /dev/null
+	exit \$SHELLPACK_ERROR
+fi
+unset CFLAGS
+EOC
+
 	} elsif ($command eq "self_extract") {
 		my $selffile = @details[0];
 		shift @details;

@@ -1,0 +1,46 @@
+#!/bin/bash
+###SHELLPACK preamble salmon-bench 1.2.1
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --max-cpus   SALMON_MAXCPUS
+###SHELLPACK parseargParam --model      SALMON_MODEL
+###SHELLPACK parseargParam --iterations SALMON_ITERATIONS
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_install_required salmon-$VERSION
+###SHELLPACK init_complete
+
+MPIRUN=
+export OMP_NUM_THREADS=$SALMON_MAXCPUS
+if [ "$SALMON_OPENMPI_VERSION" != "" ]; then
+	###SHELLPACK mpi_setup_deps SALMON_OPENMPI_VERSION
+	###SHELLPACK mpi_setup_env SALMON_MPI_PATH SALMON_MPI_LIBPATH
+	###SHELLPACK mpi_setup_shmem
+	MPIRUN="mpirun --allow-run-as-root -np $SALMON_MAXCPUS"
+	export OMP_NUM_THREADS=1
+fi
+
+case $SALMON_MODEL in
+bulkSi)
+	INPUT_DIR=$SHELLPACK_SOURCES/salmon-$VERSION/examples/exercise_06_bulkSi_ms
+	INPUT=$INPUT_DIR/Si_gs_rt_multiscale.inp
+	;;
+classicem)
+	INPUT_DIR=$SHELLPACK_SOURCES/salmon-$VERSION/examples/exercise_07_classicEM_lr
+	INPUT=$INPUT_DIR/classicEM_rt_response.inp
+	;;
+*)
+	die "Unrecognised model $SALMON_MODEL"
+esac
+
+echo $SALMON_MAXCPUS > $LOGDIR_RESULTS/scaling-parameters
+cd $INPUT_DIR || die "Failed to change to $INPUT_DIR"
+###SHELLPACK iteration_begin $SALMON_ITERATIONS
+	echo Executing iteration $ITERATION/$SALMON_ITERATIONS
+	eval $TIME_CMD -o $LOGDIR_RESULTS/salmon-time.$ITERATION	\
+		$MPIRUN $SHELLPACK_SOURCES/salmon-$VERSION-installed/bin/salmon.cpu \
+			< $INPUT | tee $LOGDIR_RESULTS/salmon-log.$ITERATION
+	gzip $LOGDIR_RESULTS/salmon-log.$ITERATION
+###SHELLPACK iteration_end
+
+exit $SHELLPACK_SUCCESS

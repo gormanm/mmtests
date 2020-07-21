@@ -1,0 +1,24 @@
+#!/bin/bash
+###SHELLPACK preamble salmon 1.2.1
+WEB_LOCATION="http://salmon-tddft.jp/download"
+MIRROR_LOCATION="$WEBROOT/salmon"
+
+MPI_SWITCH="--disable-mpi"
+if [ "$SALMON_OPENMPI_VERSION" != "" ]; then
+	###SHELLPACK mpi_setup_deps SALMON_OPENMPI_VERSION
+	###SHELLPACK mpi_setup_env SALMON_MPI_PATH SALMON_MPI_LIBPATH
+	MPI_SWITCH="--enable-mpi"
+fi
+install-depends gcc-fortran libblas3 blas blas-devel blas-devel-static cmake lapack-devel
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch SALMON-v.${VERSION}.tar.gz salmon-${VERSION}
+
+###SHELLPACK build_start salmon-${VERSION}
+###SHELLPACK build_configure_py salmon-${VERSION} $MPI_SWITCH FFLAG=-O3 CFLAG=-O3
+###SHELLPACK make_make_install
+
+echo salmon installed successfully
+exit $SHELLPACK_SUCCESS
