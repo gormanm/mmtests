@@ -3,7 +3,7 @@
 GIT_LOCATION=https://develop.openfoam.com/Development/openfoam.git
 MIRROR_LOCATION="$WEBROOT/openfoambuild/"
 
-install-depends cmake boost-devel gnuplot mpfr-devel glu-devel
+install-depends cmake boost-devel gnuplot mpfr-devel glu-devel fles
 	libQtWebKit-devel libqt4-devel qt4-assistant-adp-devel qt4-x11-tools
 
 ###SHELLPACK parseargBegin
@@ -33,7 +33,7 @@ else
 fi
 cd "$WM_PROJECT_DIR" || die "Failed to change to WM_PROJECT_DIR"
 foamSystemCheck || die "Failed foamSystemCheck"
-./Allwmake -s -l -j || die "Failed to build Allwmake"
+./Allwmake -s -l -j48 || die "Failed to build Allwmake"
 foamInstallationTest || die "Failed installation test"
 chmod a+w .
 
