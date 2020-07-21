@@ -35,6 +35,7 @@ esac
 
 echo $SALMON_MAXCPUS > $LOGDIR_RESULTS/scaling-parameters
 cd $INPUT_DIR || die "Failed to change to $INPUT_DIR"
+monitor_pre_hook $LOGDIR_RESULTS $SALMON_MODEL
 ###SHELLPACK iteration_begin $SALMON_ITERATIONS
 	echo Executing iteration $ITERATION/$SALMON_ITERATIONS
 	eval $TIME_CMD -o $LOGDIR_RESULTS/salmon-time.$ITERATION	\
@@ -42,5 +43,6 @@ cd $INPUT_DIR || die "Failed to change to $INPUT_DIR"
 			< $INPUT | tee $LOGDIR_RESULTS/salmon-log.$ITERATION
 	gzip $LOGDIR_RESULTS/salmon-log.$ITERATION
 ###SHELLPACK iteration_end
+monitor_post_hook $LOGDIR_RESULTS $SALMON_MODEL
 
 exit $SHELLPACK_SUCCESS
