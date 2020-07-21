@@ -112,36 +112,34 @@ cache
 EOF
 
 	SUBDOMAINS=$OPENFOAM_MAXCPUS
-	XDIVISON=0
-	YDIVISION=0
-
 	# Starting from SUBDOMAINs, calculate the maximum subdomains
 	# allowed while maintaining a 3 to 2 ratio for divisions in
 	# the X and Y directions. For example, the default is (3 2)
 	# for 6 subdomains. 12 domains require (4 3).
-	XDIVISION=3
-	YDIVISION=2
+	XDIVISION=4
+	YDIVISION=3
 	XMAX=$XDIVISION
 	YMAX=$YDIVISION
 
 	SCALE=1
-	while [ $((3*SCALE)) -lt $OPENFOAM_MAXCPUS ]; do
-		XMAX=$((3*SCALE))
-
-		TESTY=`echo "scale=0; $XMAX / 3 * 2" | bc -l`
-		if [ $((TESTY/2*3)) -ne $XMAX ]; then
-			SCALE=$((SCALE+1))
-			continue
-		fi
-		YMAX=$TESTY
-
-		if [ $((XMAX*YMAX)) -le $OPENFOAM_MAXCPUS ]; then
-			XDIVISION=$XMAX
-			YDIVISION=$YMAX
-		fi
-
-		SCALE=$((SCALE+1))
+	while [ $((XMAX*YMAX)) -le $OPENFOAM_MAXCPUS ]; do
+	        XMAX=$((XDIVISION*SCALE))
+	
+	        TESTY=`echo "scale=0; $XMAX / $XDIVISION * $YDIVISION" | bc -l`
+	        if [ $((TESTY/YDIVISION*XDIVISION)) -ne $XMAX ]; then
+	                SCALE=$((SCALE+1))
+	                continue
+                fi
+	        YMAX=$TESTY
+	
+	        if [ $((XMAX*YMAX)) -le $OPENFOAM_MAXCPUS ]; then
+	                XDIVISION=$XMAX
+	                YDIVISION=$YMAX
+                fi
+	
+	        SCALE=$((SCALE+1))
 	done
+
 
 	SUBDOMAINS=$((XDIVISION*YDIVISION))
 	echo Scaling parameters
