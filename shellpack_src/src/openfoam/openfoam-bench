@@ -155,7 +155,7 @@ EOF
 	sed -i -e "s/numberOfSubdomains.*/numberOfSubdomains $SUBDOMAINS;/" 	system/decomposeParDict.$SUBDOMAINS
 	sed -i -e "s/^    n .*;/    n ($XDIVISION $YDIVISION 1);/"		system/decomposeParDict.$SUBDOMAINS
 
-	if [ !- z $OPENFOAM_LOCAL_USER ] ; then
+	if [ ! -z $OPENFOAM_LOCAL_USER ] ; then
 		chown -R mpiuser:$USERS . &>/dev/null
 	fi
 
@@ -167,7 +167,7 @@ esac
 
 export SUCMD=""
 # Execute benchmark
-if [ !- z $OPENFOAM_LOCAL_USER ] ; then
+if [ ! -z $OPENFOAM_LOCAL_USER ] ; then
 	chown -R mpiuser:users $SHELLPACK_DATA
 	export SUCMD="su -p mpiuser -c"
 fi
