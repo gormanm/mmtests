@@ -30,7 +30,84 @@ motorbike-tutorial)
 	rm -rf motorBike-mmtests
 	cp -r motorBike motorBike-mmtests
 	cd motorBike-mmtests || die "Failed to cd to motorbike-mmtests tutorial directory"
-cat > system/fvSolution <<EOF 
+	###SHELLPACK self_extract motorBike-fvSolution
+	###SHELLPACK self_extract motorBike-snappyHexMeshDic
+	mv $SHELLPACK_TEMP/motorBike-fvSolution system/fvSolution
+	mv $SHELLPACK_TEMP/motorBike-snappyHexMeshDic system/snappyHexMeshDict
+
+	SUBDOMAINS=$OPENFOAM_MAXCPUS
+	# Starting from SUBDOMAINs, calculate the maximum subdomains
+	# allowed while maintaining a 3 to 2 ratio for divisions in
+	# the X and Y directions. For example, the default is (3 2)
+	# for 6 subdomains. 12 domains require (4 3).
+	XDIVISION=4
+	YDIVISION=3
+	XMAX=$XDIVISION
+	YMAX=$YDIVISION
+
+	SCALE=1
+	while [ $((XMAX*YMAX)) -le $OPENFOAM_MAXCPUS ]; do
+	        XMAX=$((XDIVISION*SCALE))
+
+	        TESTY=`echo "scale=0; $XMAX / $XDIVISION * $YDIVISION" | bc -l`
+	        if [ $((TESTY/YDIVISION*XDIVISION)) -ne $XMAX ]; then
+	                SCALE=$((SCALE+1))
+	                continue
+                fi
+	        YMAX=$TESTY
+
+	        if [ $((XMAX*YMAX)) -le $OPENFOAM_MAXCPUS ]; then
+	                XDIVISION=$XMAX
+	                YDIVISION=$YMAX
+                fi
+
+	        SCALE=$((SCALE+1))
+	done
+
+
+	SUBDOMAINS=$((XDIVISION*YDIVISION))
+	echo Scaling parameters
+	echo "o Requested subdomains $OPENFOAM_MAXCPUS"
+	echo "o Actual subdomains    $SUBDOMAINS"
+	echo "o X division           $XDIVISION"
+	echo "o Y division           $YDIVISION"
+	echo "$OPENFOAM_MAXCPUS : $SUBDOMAINS : $XDIVISION x $YDIVISION" > $LOGDIR_RESULTS/scaling-parameters
+
+	# Rewrite benchmark parameters
+	sed -i -e "s/decomposeParDict.6/decomposeParDict.$SUBDOMAINS/" Allrun
+  # Rewrite for the right mpi parameters would be
+  # sed -i -e "s@runParallel \$decompDict \$(getApplication)@mpirun -np $0 --mca btl self,vader simpleFoam -parallel -decomposeParDict system/decomposeParDict.$SUBDOMAINS@" Allrun
+	mv system/decomposeParDict.6 system/decomposeParDict.$SUBDOMAINS
+	sed -i -e "s/numberOfSubdomains.*/numberOfSubdomains $SUBDOMAINS;/" 	system/decomposeParDict.$SUBDOMAINS
+	sed -i -e "s/^    n .*;/    n ($XDIVISION $YDIVISION 1);/"		system/decomposeParDict.$SUBDOMAINS
+	cp system/decomposeParDict.$SUBDOMAINS $LOGDIR_RESULTS
+
+	$MMTESTS_CHOWN_RUNAS . &>/dev/null
+
+	;;
+*)
+	die "Unrecognised model $OPENFOAM_MODEL"
+	;;
+esac
+
+$MMTESTS_CHOWN_RUNAS $SHELLPACK_DATA &>/dev/null
+monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
+###SHELLPACK iteration_begin $OPENFOAM_ITERATIONS
+	echo Executing iteration $ITERATION/$OPENFOAM_ITERATIONS
+	$MMTESTS_RUNAS ./Allclean
+	$TIME_CMD -o $LOGDIR_RESULTS/openfoam-time.$ITERATION	\
+		$MMTESTS_RUNAS ./Allrun 2>&1 | tee $LOGDIR_RESULTS/openfoam-log.$ITERATION
+	gzip $LOGDIR_RESULTS/openfoam-log.$ITERATION
+
+	if [ "$OPENFOAM_SAVEDATA" = "yes" ]; then
+		tar -czf $LOGDIR_RESULTS/openfoam-data-$ITERATION.tar.gz .
+	fi
+###SHELLPACK iteration_end
+monitor_post_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
+
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN motorBike-fvSolution ====
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
@@ -59,7 +136,7 @@ solvers
 
     Phi
     {
-        \$p;
+        $p;
     }
 
     U
@@ -117,8 +194,8 @@ cache
 }
 
 // ************************************************************************* //
-EOF
-cat > system/snappyHexMeshDict <<EOF 
+==== END motorBike-fvSolution ====
+==== BEGIN motorBike-snappyHexMeshDic ====
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
@@ -445,76 +522,4 @@ mergeTolerance 1e-6;
 
 
 // ************************************************************************* //
-EOF
-
-	SUBDOMAINS=$OPENFOAM_MAXCPUS
-	# Starting from SUBDOMAINs, calculate the maximum subdomains
-	# allowed while maintaining a 3 to 2 ratio for divisions in
-	# the X and Y directions. For example, the default is (3 2)
-	# for 6 subdomains. 12 domains require (4 3).
-	XDIVISION=4
-	YDIVISION=3
-	XMAX=$XDIVISION
-	YMAX=$YDIVISION
-
-	SCALE=1
-	while [ $((XMAX*YMAX)) -le $OPENFOAM_MAXCPUS ]; do
-	        XMAX=$((XDIVISION*SCALE))
-	
-	        TESTY=`echo "scale=0; $XMAX / $XDIVISION * $YDIVISION" | bc -l`
-	        if [ $((TESTY/YDIVISION*XDIVISION)) -ne $XMAX ]; then
-	                SCALE=$((SCALE+1))
-	                continue
-                fi
-	        YMAX=$TESTY
-	
-	        if [ $((XMAX*YMAX)) -le $OPENFOAM_MAXCPUS ]; then
-	                XDIVISION=$XMAX
-	                YDIVISION=$YMAX
-                fi
-	
-	        SCALE=$((SCALE+1))
-	done
-
-
-	SUBDOMAINS=$((XDIVISION*YDIVISION))
-	echo Scaling parameters
-	echo "o Requested subdomains $OPENFOAM_MAXCPUS"
-	echo "o Actual subdomains    $SUBDOMAINS"
-	echo "o X division           $XDIVISION"
-	echo "o Y division           $YDIVISION"
-	echo "$OPENFOAM_MAXCPUS : $SUBDOMAINS : $XDIVISION x $YDIVISION" > $LOGDIR_RESULTS/scaling-parameters
-
-	# Rewrite benchmark parameters
-	sed -i -e "s/decomposeParDict.6/decomposeParDict.$SUBDOMAINS/" Allrun
-  # Rewrite for the right mpi parameters would be
-  # sed -i -e "s@runParallel \$decompDict \$(getApplication)@mpirun -np $0 --mca btl self,vader simpleFoam -parallel -decomposeParDict system/decomposeParDict.$SUBDOMAINS@" Allrun
-	mv system/decomposeParDict.6 system/decomposeParDict.$SUBDOMAINS
-	sed -i -e "s/numberOfSubdomains.*/numberOfSubdomains $SUBDOMAINS;/" 	system/decomposeParDict.$SUBDOMAINS
-	sed -i -e "s/^    n .*;/    n ($XDIVISION $YDIVISION 1);/"		system/decomposeParDict.$SUBDOMAINS
-	cp system/decomposeParDict.$SUBDOMAINS $LOGDIR_RESULTS
-
-	$MMTESTS_CHOWN_RUNAS . &>/dev/null
-
-	;;
-*)
-	die "Unrecognised model $OPENFOAM_MODEL"
-	;;
-esac
-
-$MMTESTS_CHOWN_RUNAS $SHELLPACK_DATA &>/dev/null
-monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
-###SHELLPACK iteration_begin $OPENFOAM_ITERATIONS
-	echo Executing iteration $ITERATION/$OPENFOAM_ITERATIONS
-	$MMTESTS_RUNAS ./Allclean
-	$TIME_CMD -o $LOGDIR_RESULTS/openfoam-time.$ITERATION	\
-		$MMTESTS_RUNAS ./Allrun 2>&1 | tee $LOGDIR_RESULTS/openfoam-log.$ITERATION
-	gzip $LOGDIR_RESULTS/openfoam-log.$ITERATION
-
-	if [ "$OPENFOAM_SAVEDATA" = "yes" ]; then
-		tar -czf $LOGDIR_RESULTS/openfoam-data-$ITERATION.tar.gz .
-	fi
-###SHELLPACK iteration_end
-monitor_post_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
-
-exit $SHELLPACK_SUCCESS
+==== END motorBike-snappyHexMeshDic ====
