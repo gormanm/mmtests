@@ -25,7 +25,7 @@ fi
 source etc/bashrc || die "Failed to source etc/bashrc"
 cd "$WM_PROJECT_DIR" || die "Failed to change to WM_PROJECT_DIR"
 foamSystemCheck || die "Failed foamSystemCheck"
-./Allwmake -s -l -j48 || die "Failed to build Allwmake"
+./Allwmake -s -l -j || die "Failed to build Allwmake"
 foamInstallationTest || die "Failed installation test"
 chmod a+w .
 
