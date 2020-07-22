@@ -59,7 +59,7 @@ solvers
 
     Phi
     {
-        $p;
+        \$p;
     }
 
     U
