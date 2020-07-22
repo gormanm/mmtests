@@ -5,7 +5,7 @@ GIT_LOCATION="https://github.com/geodynamics/specfem3d_globe.git"
 MIRROR_LOCATION="$WEBROOT/specfem3d/"
 
 ###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
-###SHELLPACK mpi_setup_env SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH
+###SHELLPACK mpi_setup_env SPECFEM3D_OPENMPI_VERSION SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH
 install-depends gcc-fortran zlib-devel
 
 ###SHELLPACK parseargBegin

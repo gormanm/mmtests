@@ -11,20 +11,8 @@
 ###SHELLPACK monitor_hooks
 
 # Install openmpi requirements
-if [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi3" ]; then
-	if [ ! -z $OPENFOAM_LOCAL_USER ] ; then
-		install-depends openmpi3-gnu-hpc-devel
-	fi
-	module load gnu openmpi/3 || die "Could not load openmpi/3 module"
-elif [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi2" ]; then
-	if [ ! -z $OPENFOAM_LOCAL_USER ] ; then
-		install-depends openmpi2-gnu-hpc-devel
-	fi
-	module load gnu openmpi/2 || die "Could not load openmpi/2 module"
-else
-	die "\$OPENFOAM_OPENMPI_VERSION must be openmpi2 or openmpi3"
-fi
-
+###SHELLPACK mpi_setup_deps OPENFOAM_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env OPENFOAM_OPENMPI_VERSION OPENFOAM_MPI_PATH OPENFOAM_MPI_LIBPATH
 ###SHELLPACK mpi_setup_shmem
 ###SHELLPACK mpi_setup_runas
 
@@ -211,17 +199,6 @@ EOF
 	die "Unrecognised model $OPENFOAM_MODEL"
 	;;
 esac
-
-export SUCMD=""
-# Execute benchmark
-if [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi3" ]; then
-	module load gnu openmpi/3 || die "Could not load openmpi/3 module"
-elif [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi2" ]; then
-	module load gnu openmpi/2 || die "Could not load openmpi/2 module"
-else
-	die "\$OPENFOAM_OPENMPI_VERSION must be openmpi2 or openmpi3"
-fi
-module li
 
 $MMTESTS_CHOWN_RUNAS $SHELLPACK_DATA &>/dev/null
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
