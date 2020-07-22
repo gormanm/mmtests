@@ -64,7 +64,6 @@ motorbike-tutorial)
 	        SCALE=$((SCALE+1))
 	done
 
-
 	SUBDOMAINS=$((XDIVISION*YDIVISION))
 	echo Scaling parameters
 	echo "o Requested subdomains $OPENFOAM_MAXCPUS"
@@ -73,17 +72,22 @@ motorbike-tutorial)
 	echo "o Y division           $YDIVISION"
 	echo "$OPENFOAM_MAXCPUS : $SUBDOMAINS : $XDIVISION x $YDIVISION" > $LOGDIR_RESULTS/scaling-parameters
 
+	# Rewrite for the right mpi parameters would be
+	# sed -i -e "s@runParallel \$decompDict \$(getApplication)@mpirun -np $0 --mca btl self,vader simpleFoam -parallel -decomposeParDict system/decomposeParDict.$SUBDOMAINS@" Allrun
+
 	# Rewrite benchmark parameters
 	sed -i -e "s/decomposeParDict.6/decomposeParDict.$SUBDOMAINS/" Allrun
-  # Rewrite for the right mpi parameters would be
-  # sed -i -e "s@runParallel \$decompDict \$(getApplication)@mpirun -np $0 --mca btl self,vader simpleFoam -parallel -decomposeParDict system/decomposeParDict.$SUBDOMAINS@" Allrun
 	mv system/decomposeParDict.6 system/decomposeParDict.$SUBDOMAINS
 	sed -i -e "s/numberOfSubdomains.*/numberOfSubdomains $SUBDOMAINS;/" 	system/decomposeParDict.$SUBDOMAINS
 	sed -i -e "s/^    n .*;/    n ($XDIVISION $YDIVISION 1);/"		system/decomposeParDict.$SUBDOMAINS
 	cp system/decomposeParDict.$SUBDOMAINS $LOGDIR_RESULTS
 
-	$MMTESTS_CHOWN_RUNAS . &>/dev/null
+	# Patch Allrun to record timing of parallel steps
+	###SHELLPACK self_extract Allrun-motorBike.patch
+	cat $SHELLPACK_TEMP/Allrun-motorBike.patch | patch -p1 || \
+		die "Failed to patch Allrun to record timing of parallel steps"
 
+	$MMTESTS_CHOWN_RUNAS . &>/dev/null
 	;;
 *)
 	die "Unrecognised model $OPENFOAM_MODEL"
@@ -95,6 +99,7 @@ monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
 ###SHELLPACK iteration_begin $OPENFOAM_ITERATIONS
 	echo Executing iteration $ITERATION/$OPENFOAM_ITERATIONS
 	$MMTESTS_RUNAS ./Allclean
+	export ITERATION
 	$TIME_CMD -o $LOGDIR_RESULTS/openfoam-time.$ITERATION	\
 		$MMTESTS_RUNAS ./Allrun 2>&1 | tee $LOGDIR_RESULTS/openfoam-log.$ITERATION
 	gzip $LOGDIR_RESULTS/openfoam-log.$ITERATION
@@ -523,3 +528,32 @@ mergeTolerance 1e-6;
 
 // ************************************************************************* //
 ==== END motorBike-snappyHexMeshDic ====
+
+==== BEGIN Allrun-motorBike.patch ====
+--- a/Allrun	2020-07-22 22:48:30.281539436 +0100
++++ b/Allrun	2020-07-22 22:54:01.673272650 +0100
+@@ -30,11 +30,22 @@
+ #- For parallel running: set the initial fields
+ restore0Dir -processor
+ 
++STARTTIME=`date +%s`
+ runParallel $decompDict patchSummary
++ENDTIME=`date +%s`
++echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-patchSummary.$ITERATION
++STARTTIME=$ENDTIME
+ runParallel $decompDict potentialFoam
++ENDTIME=`date +%s`
++echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-potentialFoam.$ITERATION
++STARTTIME=$ENDTIME
+ runParallel $decompDict checkMesh -writeFields '(nonOrthoAngle)' -constant
+-
++ENDTIME=`date +%s`
++echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-checkMesh.$ITERATION
++STARTTIME=$ENDTIME
+ runParallel $decompDict $(getApplication)
++ENDTIME=`date +%s`
++echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-simpleFoam.$ITERATION
+ 
+ runApplication reconstructParMesh -constant
+ runApplication reconstructPar -latestTime
+==== END Allrun-motorBike.patch ====
