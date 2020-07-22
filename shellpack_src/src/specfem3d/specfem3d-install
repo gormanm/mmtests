@@ -18,15 +18,8 @@ install-depends gcc-fortran zlib-devel
 cat $SHELLPACK_TEMP/0001-remove-unused-function.patch | patch -p1
 ###SHELLPACK build_configure specfem3d-${VERSION}
 ###SHELLPACK make
-make test || die "Failed make test"
 ROOTDIR=$SHELLPACK_SOURCES/specfem3d-${VERSION}-installed
 ROOTDIR_ESCAPED=`echo "$ROOTDIR" | sed -e 's/\//\\\\\//g'`
-
-# global_s362ani_shakemovie
-echo Building global_s362ani_shakemovie
-cd $SHELLPACK_SOURCES/specfem3d-${VERSION}-installed/EXAMPLES/global_s362ani_shakemovie || die "Failed to access global_s362ani_shakemovie"
-sed -i -e "s/rootdir=.*/rootdir=$ROOTDIR_ESCAPED/" run_this_example.sh
-./run_this_example.sh || die "Failed to execute global_s362ani_shakemovie run_this_example.sh"
 
 echo specfem3d installed successfully
 exit $SHELLPACK_SUCCESS
