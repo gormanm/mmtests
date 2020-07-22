@@ -3,7 +3,7 @@
 GIT_LOCATION=https://develop.openfoam.com/Development/openfoam.git
 MIRROR_LOCATION="$WEBROOT/openfoambuild/"
 
-install-depends cmake boost-devel gnuplot mpfr-devel openmpi-devel glu-devel
+install-depends cmake boost-devel gnuplot mpfr-devel glu-devel fles
 	libQtWebKit-devel libqt4-devel qt4-assistant-adp-devel qt4-x11-tools
 
 ###SHELLPACK parseargBegin
@@ -24,10 +24,26 @@ if [ ! -e ThirdParty ]; then
 fi
 
 source etc/bashrc || die "Failed to source etc/bashrc"
+if [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi3" ]; then
+	module load gnu openmpi/3 || die "Could not load openmpi/3 module"
+elif [ "$OPENFOAM_OPENMPI_VERSION" = "openmpi2" ]; then
+	module load gnu openmpi/2 || die "Could not load openmpi/2 module"
+else
+	die "\$OPENFOAM_OPENMPI_VERSION must be openmpi2 or openmpi3"
+fi
 cd "$WM_PROJECT_DIR" || die "Failed to change to WM_PROJECT_DIR"
 foamSystemCheck || die "Failed foamSystemCheck"
-./Allwmake -s -l -j || die "Failed to build Allwmake"
+./Allwmake -s -l -j48 || die "Failed to build Allwmake"
 foamInstallationTest || die "Failed installation test"
 chmod a+w .
+
+if [ !- z $OPENFOAM_LOCAL_USER ] ; then
+	echo Setting ownership to mpiuser
+	getent passwd mpiuser &> /dev/null
+	if [ $? -ne 0 ]; then
+		useradd -g users mpiuser
+	fi
+	chown -R mpiuser:users $WM_PROJECT_DIR
+fi
 
 echo openfoambuild installed successfully
