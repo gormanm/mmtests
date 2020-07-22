@@ -9,6 +9,7 @@ run_bench() {
 		BIND_SWITCH=--bind-$SPECFEM3D_BINDING
 	fi
 
-	$SHELLPACK_INCLUDE/shellpack-bench-specfem3d $VERSION_PARAM $BIND_SWITCH
+	$SHELLPACK_INCLUDE/shellpack-bench-specfem3d $VERSION_PARAM $BIND_SWITCH \
+		--model $SPECFEM3D_MODEL
 	return $?
 }

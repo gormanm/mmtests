@@ -1,10 +1,53 @@
 #!/bin/bash
 ###SHELLPACK preamble specfem3d-bench v7.0.2
 ###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --model   SPECFEM3D_MODEL
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required specfem3d-$VERSION
 ###SHELLPACK init_complete
 
-exit $SHELLPACK_SUCCESS
+###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH
+###SHELLPACK mpi_setup_shmem
+
+case $SPECFEM3D_MODEL in
+s362)
+	rm -rf $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
+	cp -r $SHELLPACK_SOURCES/specfem3d-${VERSION}-installed/EXAMPLES/global_s362ani_shakemovie $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ||
+		die "Failed to copy model"
+	cd $SHELLPACK_DATA/model-$SPECFEM3D_MODEL || die "Failed to change to model"
+	sed -i -e /compute_nodes/d go_*_pbs.bash
+	sed -i -e /jobid/d go_*_pbs.bash
+	sed -i -e "s/^NCHUNKS.*/NCHUNKS = $SPECFEM3D_NCHUNKS/" DATA/Par_file
+	sed -i -e "s/^NEX_XI.*/NEX_XI = $SPECFEM3D_NEX_XI/" DATA/Par_file
+	sed -i -e "s/^NEX_ETA.*/NEX_ETA = $SPECFEM3D_NEX_ETA/" DATA/Par_file
+	sed -i -e "s/^NPROC_XI.*/NPROC_XI = $SPECFEM3D_NPROC_XI/" DATA/Par_file
+	sed -i -e "s/^NPROC_ETA.*/NPROC_ETA = $SPECFEM3D_NPROC_ETA/" DATA/Par_file
+	cp DATA/Par_file $LOGDIR_RESULTS/Par_file || die "Failed to copy DATA/Par_file"
+	JOB_LIST="mesher:go_mesher_pbs.bash solver:go_solver_pbs.bash"
+	;;
+*)
+	die "Unrecognised model $SPECFEM3D_MODEL"
+	;;
+esac
+
+cd $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
+export PBS_O_WORKDIR=`pwd`
+
+monitor_pre_hook $LOGDIR_RESULTS $SPECFEM3D_MODEL
+for JOB in $JOB_LIST; do
+	NAME=`echo $JOB | awk -F : '{print $1}'`
+	SCRIPT=`echo $JOB | awk -F : '{print $2}'`
+
+	save_rc $TIME_CMD -o $LOGDIR_RESULTS/specfem3d-time.$NAME   \
+		./$SCRIPT 2>&1 | tee $LOGDIR_RESULTS/specfem3d-log.$NAME
+	recover_rc
+	if [ $? -ne 0 ]; then
+		die "Failed to execute $SCRIPT"
+	fi
+	gzip $LOGDIR_RESULTS/specfem3d-log.$NAME
+	tar -czf $LOGDIR_RESULTS/output-$NAME.tar.gz OUTPUT_FILES
+done
+monitor_post_hook $LOGDIR_RESULTS $SPECFEM3D_MODEL
