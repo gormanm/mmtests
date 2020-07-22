@@ -6,7 +6,7 @@ MIRROR_LOCATION="$WEBROOT/abinit"
 MPI_SWITCH="--disable-mpi"
 if [ "$ABINIT_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps ABINIT_OPENMPI_VERSION
-	###SHELLPACK mpi_setup_env ABINIT_MPI_PATH ABINIT_MPI_LIBPATH
+	###SHELLPACK mpi_setup_env ABINIT_OPENMPI_VERSION ABINIT_MPI_PATH ABINIT_MPI_LIBPATH
 	MPI_SWITCH="--enable-mpi --with-mpi-prefix=$ABINIT_MPI_ROOT"
 fi
 install-depends gcc-fortran gcc

@@ -74,6 +74,11 @@ done
 sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-cstate  > config-network-netperf-cstate-small
 sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-unbound > config-network-netperf-unbound-small
 
+# Openfoam
+sed -e 's/openmpi3/openmpi3-hpc/' config-hpc-openfoam-motorbike-tutorial-full > config-hpc-openfoam-motorbike-tutorial-hpcext-full
+sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-openfoam-motorbike-tutorial-hpcext-full
+sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-openfoam-motorbike-tutorial-hpcext-full
+
 # Stream
 sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$((NUMCPUS*4))/' config-workload-stream-omp-nodes > config-workload-stream-omp-overload
 

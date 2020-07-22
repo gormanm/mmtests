@@ -6,7 +6,7 @@ MIRROR_LOCATION="$WEBROOT/salmon"
 MPI_SWITCH="--disable-mpi"
 if [ "$SALMON_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps SALMON_OPENMPI_VERSION
-	###SHELLPACK mpi_setup_env SALMON_MPI_PATH SALMON_MPI_LIBPATH
+	###SHELLPACK mpi_setup_env SALMON_OPENMPI_VERSION SALMON_MPI_PATH SALMON_MPI_LIBPATH
 	MPI_SWITCH="--enable-mpi"
 fi
 install-depends gcc-fortran libblas3 blas blas-devel blas-devel-static cmake lapack-devel
