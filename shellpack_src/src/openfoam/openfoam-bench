@@ -196,6 +196,8 @@ EOF
 
 	# Rewrite benchmark parameters
 	sed -i -e "s/decomposeParDict.6/decomposeParDict.$SUBDOMAINS/" Allrun
+  # Rewrite for the right mpi parameters would be
+  # sed -i -e "s@runParallel \$decompDict \$(getApplication)@mpirun -np $0 --mca btl self,vader simpleFoam -parallel -decomposeParDict system/decomposeParDict.$SUBDOMAINS@" Allrun
 	mv system/decomposeParDict.6 system/decomposeParDict.$SUBDOMAINS
 	sed -i -e "s/numberOfSubdomains.*/numberOfSubdomains $SUBDOMAINS;/" 	system/decomposeParDict.$SUBDOMAINS
 	sed -i -e "s/^    n .*;/    n ($XDIVISION $YDIVISION 1);/"		system/decomposeParDict.$SUBDOMAINS
