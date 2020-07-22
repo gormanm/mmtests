@@ -16,7 +16,7 @@ if [ "$SALMON_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps SALMON_OPENMPI_VERSION
 	###SHELLPACK mpi_setup_env SALMON_MPI_PATH SALMON_MPI_LIBPATH
 	###SHELLPACK mpi_setup_shmem
-	MPIRUN="mpirun --allow-run-as-root -np $SALMON_MAXCPUS"
+	MPIRUN="mpirun --allow-run-as-root $SALMON_MPI_OPTS -np $SALMON_MAXCPUS"
 	export OMP_NUM_THREADS=1
 fi
 

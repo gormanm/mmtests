@@ -11,7 +11,7 @@
 ###SHELLPACK mpi_setup_env SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH
 ###SHELLPACK mpi_setup_shmem
 
-MPI_OPTS="--allow-run-as-root"
+MPI_OPTS="--allow-run-as-root $SPECFEM3D_MPI_OPTS"
 
 if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 	case $SPECFEM3D_MODEL in
