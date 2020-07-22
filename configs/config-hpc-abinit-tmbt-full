@@ -26,3 +26,4 @@ export ABINIT_MPI_PATH=/usr/lib64/mpi/gcc/$ABINIT_OPENMPI_VERSION/bin
 export ABINIT_MPI_LIBPATH=/usr/lib64/mpi/gcc/$ABINIT_OPENMPI_VERSION/lib64
 export ABINIT_MAXCPUS=$NUMCPUS
 export ABINIT_MODEL=tmbt
+export ABINIT_MPI_OPTS="--use-hwthread-cpus"
