@@ -75,6 +75,7 @@ motorbike-tutorial)
 	mv system/decomposeParDict.6 system/decomposeParDict.$SUBDOMAINS
 	sed -i -e "s/numberOfSubdomains.*/numberOfSubdomains $SUBDOMAINS;/" 	system/decomposeParDict.$SUBDOMAINS
 	sed -i -e "s/^    n .*;/    n ($XDIVISION $YDIVISION 1);/"		system/decomposeParDict.$SUBDOMAINS
+	cp system/decomposeParDict.$SUBDOMAINS $LOGDIR_RESULTS
 
 	$MMTESTS_CHOWN_RUNAS . &>/dev/null
 

@@ -40,7 +40,7 @@ monitor_pre_hook $LOGDIR_RESULTS $SALMON_MODEL
 	echo Executing iteration $ITERATION/$SALMON_ITERATIONS
 	eval $TIME_CMD -o $LOGDIR_RESULTS/salmon-time.$ITERATION	\
 		$MPIRUN $SHELLPACK_SOURCES/salmon-$VERSION-installed/bin/salmon.cpu \
-			< $INPUT | tee $LOGDIR_RESULTS/salmon-log.$ITERATION
+			< $INPUT &> $LOGDIR_RESULTS/salmon-log.$ITERATION
 	gzip $LOGDIR_RESULTS/salmon-log.$ITERATION
 ###SHELLPACK iteration_end
 monitor_post_hook $LOGDIR_RESULTS $SALMON_MODEL
