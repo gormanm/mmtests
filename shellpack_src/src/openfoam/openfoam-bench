@@ -95,6 +95,7 @@ motorbike-tutorial)
 esac
 
 $MMTESTS_CHOWN_RUNAS $SHELLPACK_DATA &>/dev/null
+$MMTESTS_CHOWN_RUNAS $LOGDIR_RESULTS &>/dev/null
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
 ###SHELLPACK iteration_begin $OPENFOAM_ITERATIONS
 	echo Executing iteration $ITERATION/$OPENFOAM_ITERATIONS
