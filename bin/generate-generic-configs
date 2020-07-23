@@ -88,6 +88,11 @@ for CONFIG in config-hpc-openfoam-motorbike-tutorial-large-full config-hpc-openf
 	sed	-e 's/OPENFOAM_LOCAL_CELLS=.*/OPENFOAM_LOCAL_CELLS=200000/' \
 		-e 's/OPENFOAM_GLOBAL_CELLS=.*/OPENFOAM_GLOBAL_CELLS=8000000/' \
 		$CONFIG > $NEWCONFIG
+
+	NEWCONFIG=`echo $CONFIG | sed -e 's/-large-/-default-/'`
+	sed	-e 's/OPENFOAM_LOCAL_CELLS=.*/OPENFOAM_LOCAL_CELLS=100000/' \
+		-e 's/OPENFOAM_GLOBAL_CELLS=.*/OPENFOAM_GLOBAL_CELLS=100000000/' \
+		$CONFIG > $NEWCONFIG
 done
 
 # SPECFEM3D

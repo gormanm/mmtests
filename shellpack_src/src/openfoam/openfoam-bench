@@ -31,6 +31,9 @@ motorbike-tutorial)
 	cp -r motorBike motorBike-mmtests
 	cd motorBike-mmtests || die "Failed to cd to motorbike-mmtests tutorial directory"
 	###SHELLPACK self_extract motorBike-fvSolution
+
+	# motorBike-snappyHexMeshDic is adapted from
+	# tutorials/mesh/snappyHexMesh/motorBike_leakDetection/system/snappyHexMeshDict
 	###SHELLPACK self_extract motorBike-snappyHexMeshDic
 	sed -i -e "s/OPENFOAM_LOCAL_CELLS/$OPENFOAM_LOCAL_CELLS/"   $SHELLPACK_TEMP/motorBike-snappyHexMeshDic
 	sed -i -e "s/OPENFOAM_GLOBAL_CELLS/$OPENFOAM_GLOBAL_CELLS/" $SHELLPACK_TEMP/motorBike-snappyHexMeshDic
@@ -244,10 +247,11 @@ geometry
     refinementBox
     {
         type box;
-        min  (-1.0 -0.7 0.0);
-        max  ( 8.0  0.7 2.5);
+        min (-1.0 -0.7 0.0);
+        max ( 8.0  0.7 2.5);
     }
-}
+};
+
 
 
 // Settings for the castellatedMesh generation.
@@ -273,7 +277,7 @@ castellatedMeshControls
     // few cells. This setting will cause refinement to stop if <= minimumRefine
     // are selected for refinement. Note: it will at least do one iteration
     // (unless the number of cells to refine is 0)
-    minRefinementCells 100;
+    minRefinementCells 10;
 
     // Allow a certain level of imbalance during refining
     // (since balancing is quite expensive)
@@ -285,7 +289,7 @@ castellatedMeshControls
     // Number of buffer layers between different levels.
     // 1 means normal 2:1 refinement restriction, larger means slower
     // refinement.
-    nCellsBetweenLevels 40;
+    nCellsBetweenLevels 3;
 
 
 
@@ -483,7 +487,7 @@ addLayersControls
     // Angle used to pick up medial axis points
     // Note: changed(corrected) w.r.t 1.7.x! 90 degrees corresponds to 130
     // in 1.7.x.
-    minMedialAxisAngle 90;
+    minMedianAxisAngle 90;
 
 
     // Create buffer region for new layer terminations
@@ -515,6 +519,9 @@ meshQualityControls
 
 
 // Advanced
+
+// Format to use for lines (e.g. leak path)
+setFormat ensight;
 
 // Write flags
 writeFlags
