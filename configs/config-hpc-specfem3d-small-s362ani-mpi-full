@@ -1,0 +1,40 @@
+# MM Test Parameters
+export MMTESTS="specfem3d"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat mpstat"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# SPECFEM3D
+export SPECFEM3D_OPENMPI_VERSION=openmpi3
+export SPECFEM3D_MPI_PATH=/usr/lib64/mpi/gcc/$SPECFEM3D_OPENMPI_VERSION/bin
+export SPECFEM3D_MPI_LIBPATH=/usr/lib64/mpi/gcc/$SPECFEM3D_OPENMPI_VERSION/lib64
+export SPECFEM3D_MODEL=small_s362
+export SPECFEM3D_NEX_XI=64
+export SPECFEM3D_NEX_ETA=64
+export SPECFEM3D_NCHUNKS=1
+
+MIN_NPROC=1
+while [ $((MIN_NPROC*MIN_NPROC*SPECFEM3D_NCHUNKS)) -le $NUMCPUS ]; do
+	MIN_NPROC=$((MIN_NPROC+1))
+done
+MIN_NPROC=$((MIN_NPROC-1))
+if [ $MIN_NPROC -le 1 ]; then
+	die "Machine has too few CPUs to execute workload"
+fi
+export SPECFEM3D_NPROC_XI=$((MIN_NPROC))
+export SPECFEM3D_NPROC_ETA=$((MIN_NPROC))
