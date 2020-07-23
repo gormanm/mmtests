@@ -95,6 +95,11 @@ for CONFIG in config-hpc-openfoam-motorbike-tutorial-default-full config-hpc-ope
 		-e 's/OPENFOAM_CELL_LEVELS=.*/OPENFOAM_CELL_LEVELS=40/'			\
 		$CONFIG > $NEWCONFIG
 done
+rm config-hpc-openfoam-motorbike-tutorial-*-meshonly
+for CONFIG in `ls config-hpc-openfoam-motorbike-tutorial-*`; do
+	cp $CONFIG $CONFIG-meshonly
+	echo 'export OPENFOAM_STOPAT_MESH="yes"' >> $CONFIG-meshonly
+done
 
 # SPECFEM3D
 for MODEL in global small; do
