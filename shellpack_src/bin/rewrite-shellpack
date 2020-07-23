@@ -293,7 +293,7 @@ eval ./configure --prefix=\$SHELLPACK_SOURCES/$srcdir-installed @details
 if [ \$? -ne 0 ]; then
 	cp /usr/share/automake*/config.guess .
 	cp /usr/share/automake*/config.sub .
-	eval ./configure --prefix=\$SHELLPACK_SOURCES/$srcdir-installed @details
+	eval ./configure --prefix=\$SHELLPACK_SOURCES/$srcdir-installed \$MMTESTS_BUILD_CONFIGURE @details
 	if [ \$? -ne 0 ]; then
 		error "\$P: configure failed"
 		popd > /dev/null
@@ -306,7 +306,7 @@ EOC
 		my $srcdir = @details[0];
 		shift @details;
 		print <<EOC
-eval ./configure.py --prefix=\$SHELLPACK_SOURCES/$srcdir-installed @details
+eval ./configure.py --prefix=\$SHELLPACK_SOURCES/$srcdir-installed \$MMTESTS_BUILD_CONFIGURE @details
 if [ \$? -ne 0 ]; then
 	error "\$P: configure failed"
 	popd > /dev/null

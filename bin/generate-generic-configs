@@ -48,6 +48,11 @@ export KVMSTART_PRETEST_RUN_ARGS=\$KVMSTART_PRETEST_PREPARE_ARGS
 export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
 
+# ABINIT
+sed -e 's/openmpi3/openmpi3-hpc/' config-hpc-abinit-tmbt-full > config-hpc-abinit-tmbt-hpxect-full
+sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-abinit-tmbt-hpxect-full
+sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpxect-full
+
 # NAS
 for TYPE in omp mpi; do
 	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/2))/' config-hpc-nas-c-class-$TYPE-full > config-hpc-nas-c-class-$TYPE-half
