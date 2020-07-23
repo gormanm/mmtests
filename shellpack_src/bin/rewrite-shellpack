@@ -237,9 +237,30 @@ EOC
 		my ($srcdir) = @details;
 		print <<EOC
 pushd \$SHELLPACK_SOURCES/$srcdir || die Failed to change to source directory
-for FILE in `find -name "*"`; do
-	touch \$FILE
+if [ "\$BUILD_START_NOTOUCH\" != "yes" ]; then
+	for FILE in `find -name "*"`; do
+		touch \$FILE
+	done
+fi
+
+BUILD_FLAGS=
+BUILD_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/\$P"
+for FILE in \$BUILD_FLAGS_ROOT/generic \$BUILD_FLAGS_ROOT/`uname -m`/generic \$BUILD_FLAGS_ROOT/`uname -m`/`hostname`; do
+	if [ -f \$FILE ]; then
+		BUILD_FLAGS=\$FILE
+	fi
 done
+if [ "\$BUILD_FLAGS" != "" ]; then
+	echo ===================
+	echo Loading build flags \$BUILD_FLAGS
+	. \$BUILD_FLAGS
+	cat \$BUILD_FLAGS
+	echo ===================
+else
+	export CFLAGS="\${MMTESTS_BUILD_CFLAGS:--O2} \$MMTESTS_BUILD_CFLAGS_EXTRA"
+	echo No test-specific build flags exist
+	echo export CFLAGS=\"\$CFLAGS\"
+fi
 EOC
 	} elsif ($command eq "build_start_alt") {
 		my ($srcdir) = @details;
@@ -266,7 +287,6 @@ EOC
 		my $srcdir = @details[0];
 		shift @details;
 		print <<EOC
-export CFLAGS="\${MMTESTS_BUILD_CFLAGS:--O2} \$MMTESTS_BUILD_CFLAGS_EXTRA"
 eval ./configure --prefix=\$SHELLPACK_SOURCES/$srcdir-installed @details
 if [ \$? -ne 0 ]; then
 	cp /usr/share/automake*/config.guess .
@@ -284,7 +304,6 @@ EOC
 		my $srcdir = @details[0];
 		shift @details;
 		print <<EOC
-export CFLAGS="\${MMTESTS_BUILD_CFLAGS:--O2} \$MMTESTS_BUILD_CFLAGS_EXTRA"
 eval ./configure.py --prefix=\$SHELLPACK_SOURCES/$srcdir-installed @details
 if [ \$? -ne 0 ]; then
 	error "\$P: configure failed"
@@ -360,7 +379,6 @@ EOC
 	} elsif ($command eq "make_make_install") {
 		my $opts = join(" ", @details);
 		print <<EOC
-export CFLAGS="\${MMTESTS_BUILD_CFLAGS:--O2} \$MMTESTS_BUILD_CFLAGS_EXTRA"
 make -j\$NUMCPUS
 if [ \$? -ne 0 ]; then
 	if [ "\$MAKE_RETRY" = "yes" ]; then

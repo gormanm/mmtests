@@ -16,7 +16,8 @@ install-depends gcc-fortran gcc
 
 ###SHELLPACK sources_fetch abinit-${VERSION}.tar.gz abinit-${VERSION}-installed
 
-pushd $SHELLPACK_SOURCES/abinit-${VERSION}-installed || die "Failed to change to source directory"
+export BUILD_START_NOTOUCH=yes
+###SHELLPACK build_start abinit-${VERSION}-installed
 ###SHELLPACK build_configure abinit-${VERSION}-installed $MPI_SWITCH
 ###SHELLPACK make
 
