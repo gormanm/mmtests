@@ -105,6 +105,7 @@ monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
 		$MMTESTS_RUNAS ./Allrun 2>&1 | tee $LOGDIR_RESULTS/openfoam-log.$ITERATION
 	gzip $LOGDIR_RESULTS/openfoam-log.$ITERATION
 
+	tar -czf $LOGDIR_RESULTS/openfoam-steplogs-$ITERATION.tar.gz log.*
 	if [ "$OPENFOAM_SAVEDATA" = "yes" ]; then
 		tar -czf $LOGDIR_RESULTS/openfoam-data-$ITERATION.tar.gz .
 	fi
