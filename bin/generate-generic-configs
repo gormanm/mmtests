@@ -88,7 +88,7 @@ for CONFIG in config-hpc-openfoam-motorbike-tutorial-default-full config-hpc-ope
 	sed	-e 's/OPENFOAM_CELL_LEVELS=.*/OPENFOAM_CELL_LEVELS=40/'			\
 		$CONFIG > $NEWCONFIG
 
-	NEWCONFIG=`echo $CONFIG | sed -e 's/-default-/-huge-/'`
+	NEWCONFIG=`echo $CONFIG | sed -e 's/-default-/-old-/'`
 	sed	-e 's/OPENFOAM_LOCAL_CELLS=.*/OPENFOAM_LOCAL_CELLS=20000000/'		\
 		-e 's/OPENFOAM_GLOBAL_CELLS=.*/OPENFOAM_GLOBAL_CELLS=800000000/'	\
 		-e 's/OPENFOAM_REFINEMENT_CELLS=.*/OPENFOAM_REFINEMENT_CELLS=100/'	\
