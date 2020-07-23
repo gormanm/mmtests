@@ -4,9 +4,14 @@ export GIT_CLONE_FLAGS="--recursive"
 GIT_LOCATION="https://github.com/geodynamics/specfem3d_globe.git"
 MIRROR_LOCATION="$WEBROOT/specfem3d/"
 
-###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
-###SHELLPACK mpi_setup_env SPECFEM3D_OPENMPI_VERSION SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH
-install-depends gcc-fortran zlib-devel
+if [ "$SPECFEM3D_OPENMPI_VERSION" != "" ]; then
+	###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
+	###SHELLPACK mpi_setup_env SPECFEM3D_OPENMPI_VERSION SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH
+	install-depends gcc-fortran zlib-devel
+	OMP_SWITCH=
+else
+	OMP_SWITCH="--enable-openmp"
+fi
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
@@ -15,8 +20,12 @@ install-depends gcc-fortran zlib-devel
 
 ###SHELLPACK build_start specfem3d-${VERSION}-installed
 ###SHELLPACK self_extract 0001-remove-unused-function.patch
+###SHELLPACK self_extract 0002-split-global-small.patch
+###SHELLPACK self_extract 0003-fix-paths-global-small.patch
 cat $SHELLPACK_TEMP/0001-remove-unused-function.patch | patch -p1
-###SHELLPACK build_configure specfem3d-${VERSION}
+cat $SHELLPACK_TEMP/0002-split-global-small.patch     | patch -p1
+cat $SHELLPACK_TEMP/0003-fix-paths-global-small.patch | patch -p1
+###SHELLPACK build_configure specfem3d-${VERSION} $OMP_SWITCH
 ###SHELLPACK make
 ROOTDIR=$SHELLPACK_SOURCES/specfem3d-${VERSION}-installed
 ROOTDIR_ESCAPED=`echo "$ROOTDIR" | sed -e 's/\//\\\\\//g'`
@@ -59,3 +68,156 @@ index 7622b60d0ec0..0ee9c2b8c918 100644
 -
    end subroutine compute_arrays_source_adjoint
 ==== END 0001-remove-unused-function.patch ====
+==== BEGIN 0002-split-global-small.patch ====
+diff --git a/EXAMPLES/global_small/go_mesher_pbs.bash b/EXAMPLES/global_small/go_mesher_pbs.bash
+new file mode 100755
+index 000000000000..05785cfb0a27
+--- /dev/null
++++ b/EXAMPLES/global_small/go_mesher_pbs.bash
+@@ -0,0 +1,43 @@
++#!/bin/bash
++
++# DATABASES directory
++BASEMPIDIR=`grep ^LOCAL_PATH DATA/Par_file | cut -d = -f 2 `
++
++# script to run the mesher and the solver
++# read DATA/Par_file to get information about the run
++# compute total number of nodes needed
++NPROC_XI=`grep ^NPROC_XI DATA/Par_file | cut -d = -f 2 `
++NPROC_ETA=`grep ^NPROC_ETA DATA/Par_file | cut -d = -f 2`
++NCHUNKS=`grep ^NCHUNKS DATA/Par_file | cut -d = -f 2 `
++
++# total number of nodes is the product of the values read
++numnodes=$(( $NCHUNKS * $NPROC_XI * $NPROC_ETA ))
++
++mkdir -p OUTPUT_FILES
++mkdir -p $BASEMPIDIR
++
++# backup files used for this simulation
++cp DATA/Par_file OUTPUT_FILES/
++cp DATA/STATIONS OUTPUT_FILES/
++cp DATA/CMTSOLUTION OUTPUT_FILES/
++
++##
++## mesh generation
++##
++sleep 2
++
++echo
++echo `date`
++echo "starting MPI mesher on $numnodes processors"
++echo
++
++mpirun -np $numnodes $PWD/bin/xmeshfem3D
++
++# checks exit code
++if [[ $? -ne 0 ]]; then exit 1; fi
++
++echo "  mesher done: `date`"
++echo
++
++# backup important files addressing.txt and list*.txt
++cp OUTPUT_FILES/*.txt $BASEMPIDIR/
+diff --git a/EXAMPLES/global_small/go_solver_pbs.bash b/EXAMPLES/global_small/go_solver_pbs.bash
+new file mode 100755
+index 000000000000..8ccf12c9e263
+--- /dev/null
++++ b/EXAMPLES/global_small/go_solver_pbs.bash
+@@ -0,0 +1,41 @@
++#!/bin/bash
++
++# DATABASES directory
++BASEMPIDIR=`grep ^LOCAL_PATH DATA/Par_file | cut -d = -f 2 `
++
++# script to run the mesher and the solver
++# read DATA/Par_file to get information about the run
++# compute total number of nodes needed
++NPROC_XI=`grep ^NPROC_XI DATA/Par_file | cut -d = -f 2 `
++NPROC_ETA=`grep ^NPROC_ETA DATA/Par_file | cut -d = -f 2`
++NCHUNKS=`grep ^NCHUNKS DATA/Par_file | cut -d = -f 2 `
++
++# total number of nodes is the product of the values read
++numnodes=$(( $NCHUNKS * $NPROC_XI * $NPROC_ETA ))
++
++mkdir -p OUTPUT_FILES
++mkdir -p $BASEMPIDIR
++
++##
++## forward simulation
++##
++
++# set up addressing
++#cp $BASEMPIDIR/addr*.txt OUTPUT_FILES/
++#cp $BASEMPIDIR/list*.txt OUTPUT_FILES/
++
++sleep 2
++
++echo
++echo `date`
++echo starting run in current directory $PWD
++echo
++
++mpirun -np $numnodes $PWD/bin/xspecfem3D
++
++# checks exit code
++if [[ $? -ne 0 ]]; then exit 1; fi
++
++echo "finished successfully"
++echo `date`
++
+==== END 0002-split-global-small.patch ====
+==== BEGIN 0003-fix-paths-global-small.patch ====
+diff --git a/EXAMPLES/global_small/run_this_example.sh b/EXAMPLES/global_small/run_this_example.sh
+index 7084a865f7a6..9e68560e0095 100755
+--- a/EXAMPLES/global_small/run_this_example.sh
++++ b/EXAMPLES/global_small/run_this_example.sh
+@@ -6,6 +6,12 @@
+ # on 6 CPU-cores
+ #
+ # modify accordingly for your own system specifics
++##################################################
++##################################################
++# USER PARAMETER
++# source directory
++rootdir=~/SPECFEM3D_GLOBE
++
+ ##################################################
+ 
+ echo "running example: `date`"
+@@ -48,27 +54,17 @@ cd $currentdir
+ # copy executables
+ mkdir -p bin
+ rm -rf bin/*
+-cp ../../bin/xmeshfem3D ./bin/
+-cp ../../bin/xspecfem3D ./bin/
+-cp ../../bin/xcombine_vol_data ./bin/
+-cp ../../bin/xcombine_vol_data_vtk ./bin/
++cp $rootdir/bin/xmeshfem3D ./bin/
++cp $rootdir/bin/xspecfem3D ./bin/
++cp $rootdir/bin/xcombine_vol_data ./bin/
++cp $rootdir/bin/xcombine_vol_data_vtk ./bin/
+ 
+ # links data directories needed to run example in this current directory with s362ani
+ cd DATA/
+-ln -s ../../../DATA/crust2.0
+-ln -s ../../../DATA/s362ani
+-ln -s ../../../DATA/QRFSI12
+-ln -s ../../../DATA/topo_bathy
++ln -s $rootdir/DATA/crust2.0
++ln -s $rootdir/DATA/s362ani
++ln -s $rootdir/DATA/QRFSI12
++ln -s $rootdir/DATA/topo_bathy
+ cd ../
+ 
+-# run mesher & solver
+-echo
+-echo "  running script..."
+-echo
+-./run_mesher_solver.bash
+-
+-# checks exit code
+-if [[ $? -ne 0 ]]; then exit 1; fi
+-
+ echo `date`
+-
+==== END 0003-fix-paths-global-small.patch ====

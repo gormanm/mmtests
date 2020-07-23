@@ -49,9 +49,9 @@ export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
 
 # ABINIT
-sed -e 's/openmpi3/openmpi3-hpc/' config-hpc-abinit-tmbt-full > config-hpc-abinit-tmbt-hpxect-full
-sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-abinit-tmbt-hpxect-full
-sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpxect-full
+sed -e 's/openmpi3/openmpi3-hpc/' config-hpc-abinit-tmbt-full > config-hpc-abinit-tmbt-hpcext-full
+sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-full
+sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-full
 
 # NAS
 for TYPE in omp mpi; do
@@ -83,6 +83,13 @@ sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netpe
 sed -e 's/openmpi3/openmpi3-hpc/' config-hpc-openfoam-motorbike-tutorial-full > config-hpc-openfoam-motorbike-tutorial-hpcext-full
 sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-openfoam-motorbike-tutorial-hpcext-full
 sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-openfoam-motorbike-tutorial-hpcext-full
+
+# SPECFEM3D
+for MODEL in global small; do
+	sed -e 's/openmpi3/openmpi3-hpc/' configs/config-hpc-specfem3d-$MODEL-s362ani-mpi-full > configs/config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
+	sed -i -e '/OPENFOAM_MPI_PATH/d'    configs/config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
+	sed -i -e '/OPENFOAM_MPI_LIBPATH/d' configs/config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
+done
 
 # Stream
 sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$((NUMCPUS*4))/' config-workload-stream-omp-nodes > config-workload-stream-omp-overload

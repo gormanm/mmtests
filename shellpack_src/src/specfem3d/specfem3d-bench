@@ -7,18 +7,48 @@
 
 ###SHELLPACK check_install_required specfem3d-$VERSION
 
-###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
-###SHELLPACK mpi_setup_env SPECFEM3D_OPENMPI_VERSION SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH
-###SHELLPACK mpi_setup_shmem
+if [ "$SPECFEM3D_OPENMPI_VERSION" != "" ]; then
+	###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
+	###SHELLPACK mpi_setup_env SPECFEM3D_OPENMPI_VERSION SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH
+	###SHELLPACK mpi_setup_shmem
+	export OMP_NUM_THREADS=1
+else
+	export OMP_NUM_THREADS=$((SPECFEM3D_NEX_XI*SPECFEM3D_NEX_ETA*SPECFEM3D_NCHUNKS))
+fi
 
 MPI_OPTS="--allow-run-as-root $SPECFEM3D_MPI_OPTS"
 
 if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 	case $SPECFEM3D_MODEL in
-	s362)
+	small_s362)
 		# Copy model
 		cd $SHELLPACK_SOURCES/specfem3d-${VERSION}-installed/EXAMPLES || die "Failed to change to EXAMPLES directory"
-		rm -rf model-$SPECFEM3D_MODEL
+		cp -r global_small model-$SPECFEM3D_MODEL || die "Failed to copy model"
+		cd model-$SPECFEM3D_MODEL || die "Failed to change to model"
+
+		# Configure model
+		sed -i -e "s/mpirun/mpirun $MPI_OPTS/" go_*_pbs.bash
+		sed -i -e "s/^NCHUNKS.*/NCHUNKS = $SPECFEM3D_NCHUNKS/" DATA/Par_file
+		sed -i -e "s/^NEX_XI.*/NEX_XI = $SPECFEM3D_NEX_XI/" DATA/Par_file
+		sed -i -e "s/^NEX_ETA.*/NEX_ETA = $SPECFEM3D_NEX_ETA/" DATA/Par_file
+		sed -i -e "s/^NPROC_XI.*/NPROC_XI = $SPECFEM3D_NPROC_XI/" DATA/Par_file
+		sed -i -e "s/^NPROC_ETA.*/NPROC_ETA = $SPECFEM3D_NPROC_ETA/" DATA/Par_file
+		cp DATA/Par_file $LOGDIR_RESULTS/Par_file || die "Failed to copy DATA/Par_file"
+
+		# Build
+		echo Building global_small
+		ROOTDIR=$SHELLPACK_SOURCES/specfem3d-${VERSION}-installed
+		ROOTDIR_ESCAPED=`echo "$ROOTDIR" | sed -e 's/\//\\\\\//g'`
+		sed -i -e "s/rootdir=.*/rootdir=$ROOTDIR_ESCAPED/" run_this_example.sh
+		./run_this_example.sh || die "Failed to execute global_small run_this_example.sh"
+
+		# Make a copy
+		cd $SHELLPACK_SOURCES/specfem3d-${VERSION}-installed/EXAMPLES || die "Failed to change to EXAMPLES directory"
+		cp -r model-$SPECFEM3D_MODEL $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
+		;;
+	global_s362)
+		# Copy model
+		cd $SHELLPACK_SOURCES/specfem3d-${VERSION}-installed/EXAMPLES || die "Failed to change to EXAMPLES directory"
 		cp -r global_s362ani_shakemovie model-$SPECFEM3D_MODEL || die "Failed to copy model"
 		cd model-$SPECFEM3D_MODEL || die "Failed to change to model"
 
@@ -52,7 +82,10 @@ fi
 ###SHELLPACK init_complete
 
 case $SPECFEM3D_MODEL in
-s362)
+small_s362)
+	JOB_LIST="mesher:go_mesher_pbs.bash solver:go_solver_pbs.bash"
+	;;
+global_s362)
 	JOB_LIST="mesher:go_mesher_pbs.bash solver:go_solver_pbs.bash"
 	;;
 *)
