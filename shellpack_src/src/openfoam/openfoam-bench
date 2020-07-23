@@ -487,7 +487,7 @@ addLayersControls
     // Angle used to pick up medial axis points
     // Note: changed(corrected) w.r.t 1.7.x! 90 degrees corresponds to 130
     // in 1.7.x.
-    minMedianAxisAngle 90;
+    minMedialAxisAngle 90;
 
 
     // Create buffer region for new layer terminations
@@ -541,9 +541,43 @@ mergeTolerance 1e-6;
 ==== END motorBike-snappyHexMeshDic ====
 
 ==== BEGIN Allrun-motorBike.patch ====
---- a/Allrun	2020-07-22 22:48:30.281539436 +0100
-+++ b/Allrun	2020-07-22 22:54:01.673272650 +0100
-@@ -30,11 +30,22 @@
+diff --git a/Allrun b/Allrun
+index e0e6038798e6..03a680680fc7 100755
+--- a/Allrun
++++ b/Allrun
+@@ -9,11 +9,20 @@ decompDict="-decomposeParDict system/decomposeParDict.6"
+ 
+ # copy motorbike surface from resources directory
+ \cp $FOAM_TUTORIALS/resources/geometry/motorBike.obj.gz constant/triSurface/
++STARTTIME=`date +%s`
+ runApplication surfaceFeatureExtract
++ENDTIME=`date +%s`
++echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-surfaceFeatureExtract.$ITERATION
+ 
++STARTTIME=`date +%s`
+ runApplication blockMesh
++ENDTIME=`date +%s`
++echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-blockMesh.$ITERATION
+ 
++STARTTIME=`date +%s`
+ runApplication $decompDict decomposePar
++ENDTIME=`date +%s`
++echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-decompsePar.$ITERATION
+ 
+ # Using distributedTriSurfaceMesh?
+ if foamDictionary -entry geometry -value system/snappyHexMeshDict | \
+@@ -22,7 +31,10 @@ then
+     runParallel $decompDict surfaceRedistributePar motorBike.obj independent
+ fi
+ 
++STARTTIME=`date +%s`
+ runParallel $decompDict snappyHexMesh -overwrite
++ENDTIME=`date +%s`
++echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-snappyHexMesh.$ITERATION
+ 
+ #- For non-parallel running: - set the initial fields
+ # restore0Dir
+@@ -30,11 +42,23 @@ runParallel $decompDict snappyHexMesh -overwrite
  #- For parallel running: set the initial fields
  restore0Dir -processor
  
@@ -551,16 +585,17 @@ mergeTolerance 1e-6;
  runParallel $decompDict patchSummary
 +ENDTIME=`date +%s`
 +echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-patchSummary.$ITERATION
-+STARTTIME=$ENDTIME
++
++STARTTIME=`date +%s`
  runParallel $decompDict potentialFoam
 +ENDTIME=`date +%s`
 +echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-potentialFoam.$ITERATION
-+STARTTIME=$ENDTIME
++STARTTIME=`date +%s`
  runParallel $decompDict checkMesh -writeFields '(nonOrthoAngle)' -constant
 -
 +ENDTIME=`date +%s`
 +echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-checkMesh.$ITERATION
-+STARTTIME=$ENDTIME
++STARTTIME=`date +%s`
  runParallel $decompDict $(getApplication)
 +ENDTIME=`date +%s`
 +echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-simpleFoam.$ITERATION
