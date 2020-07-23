@@ -86,6 +86,7 @@ sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-openfoam-motorbike-tutorial-defau
 for CONFIG in config-hpc-openfoam-motorbike-tutorial-default-full config-hpc-openfoam-motorbike-tutorial-default-hpcext-full; do
 	NEWCONFIG=`echo $CONFIG | sed -e 's/-default-/-large-/'`
 	sed	-e 's/OPENFOAM_CELL_LEVELS=.*/OPENFOAM_CELL_LEVELS=40/'			\
+		-e 's/OPENFOAM_ITERATIONS=.*/OPENFOAM_ITERATIONS=1/'			\
 		$CONFIG > $NEWCONFIG
 
 	NEWCONFIG=`echo $CONFIG | sed -e 's/-default-/-old-/'`
@@ -93,6 +94,7 @@ for CONFIG in config-hpc-openfoam-motorbike-tutorial-default-full config-hpc-ope
 		-e 's/OPENFOAM_GLOBAL_CELLS=.*/OPENFOAM_GLOBAL_CELLS=800000000/'	\
 		-e 's/OPENFOAM_REFINEMENT_CELLS=.*/OPENFOAM_REFINEMENT_CELLS=100/'	\
 		-e 's/OPENFOAM_CELL_LEVELS=.*/OPENFOAM_CELL_LEVELS=40/'			\
+		-e 's/OPENFOAM_ITERATIONS=.*/OPENFOAM_ITERATIONS=1/'			\
 		$CONFIG > $NEWCONFIG
 done
 rm config-hpc-openfoam-motorbike-tutorial-*-meshonly
