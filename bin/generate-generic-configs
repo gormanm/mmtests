@@ -97,7 +97,7 @@ for CONFIG in config-hpc-openfoam-motorbike-tutorial-default-full config-hpc-ope
 		-e 's/OPENFOAM_ITERATIONS=.*/OPENFOAM_ITERATIONS=1/'			\
 		$CONFIG > $NEWCONFIG
 done
-rm config-hpc-openfoam-motorbike-tutorial-*-meshonly
+rm -f config-hpc-openfoam-motorbike-tutorial-*-meshonly
 for CONFIG in `ls config-hpc-openfoam-motorbike-tutorial-*`; do
 	cp $CONFIG $CONFIG-meshonly
 	echo 'export OPENFOAM_STOPAT_MESH="yes"' >> $CONFIG-meshonly
