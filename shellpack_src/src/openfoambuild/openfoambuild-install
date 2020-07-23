@@ -27,6 +27,7 @@ cd "$WM_PROJECT_DIR" || die "Failed to change to WM_PROJECT_DIR"
 foamSystemCheck || die "Failed foamSystemCheck"
 ./Allwmake -s -l -j || die "Failed to build Allwmake"
 foamInstallationTest || die "Failed installation test"
+sed -i -e 's/mpirun -np/mpirun $OPENFOAM_MPI_OPTS -np/' bin/tools/RunFunctions
 chmod a+w .
 
 if [ !- z $OPENFOAM_LOCAL_USER ] ; then
