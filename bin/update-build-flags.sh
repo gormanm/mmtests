@@ -20,7 +20,7 @@ if [ $? -ne 0 ]; then
 	die "Failed to download $MMTESTS_BUILD_COLLECTION"
 fi
 BACKUP=
-if [ -e configs/build-flags ]; 
+if [ -e configs/build-flags ]; then
 	DATESTAMP=`date -u +"%Y%m%d-%H:%M"`
 	BACKUP="configs/build-flags-$DATESTAMP"
 	mv configs/build-flags $BACKUP

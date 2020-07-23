@@ -243,13 +243,15 @@ if [ "\$BUILD_START_NOTOUCH\" != "yes" ]; then
 	done
 fi
 
-BUILD_FLAGS=
-BUILD_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/\$P"
-for FILE in \$BUILD_FLAGS_ROOT/generic \$BUILD_FLAGS_ROOT/`uname -m`/generic \$BUILD_FLAGS_ROOT/`uname -m`/`hostname`; do
-	if [ -f \$FILE ]; then
-		BUILD_FLAGS=\$FILE
-	fi
-done
+if [ "\$MMTESTS_NO_BUILDFLAGS" != "yes" ]; then
+	BUILD_FLAGS=
+	BUILD_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/\$P"
+	for FILE in \$BUILD_FLAGS_ROOT/generic \$BUILD_FLAGS_ROOT/`uname -m`/generic \$BUILD_FLAGS_ROOT/`uname -m`/`hostname`; do
+		if [ -f \$FILE ]; then
+			BUILD_FLAGS=\$FILE
+		fi
+	done
+fi
 if [ "\$BUILD_FLAGS" != "" ]; then
 	echo ===================
 	echo Loading build flags \$BUILD_FLAGS
