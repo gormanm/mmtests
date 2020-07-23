@@ -50,8 +50,8 @@ EOF
 
 # ABINIT
 sed -e 's/openmpi3/openmpi3-hpc/' config-hpc-abinit-tmbt-full > config-hpc-abinit-tmbt-hpcext-full
-sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-full
-sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-full
+sed -i -e '/ABINIT_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-full
+sed -i -e '/ABINIT_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-full
 
 # NAS
 for TYPE in omp mpi; do
@@ -80,9 +80,15 @@ sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netpe
 sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-unbound > config-network-netperf-unbound-small
 
 # Openfoam
-sed -e 's/openmpi3/openmpi3-hpc/' config-hpc-openfoam-motorbike-tutorial-full > config-hpc-openfoam-motorbike-tutorial-hpcext-full
-sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-openfoam-motorbike-tutorial-hpcext-full
-sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-openfoam-motorbike-tutorial-hpcext-full
+sed -e 's/openmpi3/openmpi3-hpc/' config-hpc-openfoam-motorbike-tutorial-large-full > config-hpc-openfoam-motorbike-tutorial-large-hpcext-full
+sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-openfoam-motorbike-tutorial-large-hpcext-full
+sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-openfoam-motorbike-tutorial-large-hpcext-full
+for CONFIG in config-hpc-openfoam-motorbike-tutorial-large-full config-hpc-openfoam-motorbike-tutorial-large-hpcext-full; do
+	NEWCONFIG=`echo $CONFIG | sed -e 's/-large-/-small-/'`
+	sed	-e 's/OPENFOAM_LOCAL_CELLS=.*/OPENFOAM_LOCAL_CELLS=200000/' \
+		-e 's/OPENFOAM_GLOBAL_CELLS=.*/OPENFOAM_GLOBAL_CELLS=8000000/' \
+		$CONFIG > $NEWCONFIG
+done
 
 # SPECFEM3D
 for MODEL in global small; do
