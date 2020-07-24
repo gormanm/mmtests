@@ -1,0 +1,19 @@
+#!/bin/bash
+###SHELLPACK preamble revocapbuild 1.1.04
+WEB_LOCATION="https://www.frontistr.com/files"
+MIRROR_LOCATION="$WEBROOT/revocapbuild/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch REVOCAP_Refiner-${VERSION}.tar.gz revocapbuild-${VERSION}
+###SHELLPACK build_start revocapbuild-${VERSION}
+###SHELLPACK make
+
+mkdir $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed
+mkdir $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed/include
+mkdir $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed/lib
+cp Refiner/rcapRefiner.h $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed/include || die "Failed rcapRefiner.h"
+cp `find lib/ -name "*.a"` $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed/lib || die "Failed to install libraries"
+
+echo revocap installed successfully

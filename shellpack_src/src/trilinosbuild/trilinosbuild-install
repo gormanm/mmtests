@@ -1,0 +1,46 @@
+#!/bin/bash
+###SHELLPACK preamble trilinosbuild 12-14.1
+WEB_LOCATION="https://github.com/trilinos/Trilinos/archive"
+MIRROR_LOCATION="$WEBROOT/trilinosbuild/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+# Install openmpi requirements
+###SHELLPACK mpi_setup_deps TRILINOS_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env TRILINOS_OPENMPI_VERSION TRILINOS_MPI_PATH TRILINOS_MPI_LIBPATH
+###SHELLPACK mpi_setup_shmem
+###SHELLPACK mpi_setup_runas
+
+CMAKE_FLAGS="-DCMAKE_C_COMPILER=mpicc \
+	-DCMAKE_CXX_COMPILER=mpic++ \
+	-DCMAKE_Fortran_COMPILER=mpifort \
+	-DTPL_ENABLE_MPI=ON \
+	-DTPL_ENABLE_LAPACK=ON \
+	-DTPL_ENABLE_SCALAPACK=ON \
+	-DTPL_ENABLE_METIS=ON \
+	-DTPL_ENABLE_MUMPS=ON \
+	-DTPL_MUMPS_INCLUDE_DIRS=$SHELLPACK_SOURCES/mumpsbuild-$MUMPS_VERSION-installed/include \
+	-DTrilinos_ENABLE_ML=ON \
+	-DTrilinos_ENABLE_Zoltan=ON \
+	-DTrilinos_ENABLE_OpenMP=ON \
+	-DTrilinos_ENABLE_Amesos=ON \
+	-DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF \
+	-DBLAS_LIBRARY_DIRS=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib \
+	-DLAPACK_LIBRARY_DIRS=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib \
+	-DMETIS_INCLUDE_DIRS=$SHELLPACK_SOURCES/metisbuild-$METIS_VERSION-installed/include \
+	-DMETIS_LIBRARY_DIRS=$SHELLPACK_SOURCES/metisbuild-$METIS_VERSION-installed/lib \
+	-DSCALAPACK_LIBRARY_DIRS=$SHELLPACK_SOURCES/scalapackbuild-$SCALAPACK_VERSION-installed/lib \
+	-DBLAS_LIBRARY_NAMES=openblas \
+	-DLAPACK_LIBRARY_NAMES=openblas \
+	-DSCALAPACK_LIBRARY_NAMES=scalapack"
+
+export BUILD_START_NOTOUCH=yes
+###SHELLPACK sources_fetch trilinos-release-${VERSION}.tar.gz trilinosbuild-${VERSION}
+###SHELLPACK build_start trilinosbuild-${VERSION}
+mkdir build
+###SHELLPACK build_cmake trilinosbuild-${VERSION}/build trilinosbuild-${VERSION} $CMAKE_FLAGS
+# -DMPI_BASE_DIR=$MPI_BASE_DIR
+###SHELLPACK make_make_install
+
+echo slalapack installed successfully

@@ -49,9 +49,14 @@ export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
 
 # ABINIT
-sed -e 's/openmpi3/openmpi3-hpc/' config-hpc-abinit-tmbt-full > config-hpc-abinit-tmbt-hpcext-full
+sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-abinit-tmbt-full > config-hpc-abinit-tmbt-hpcext-full
 sed -i -e '/ABINIT_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-full
 sed -i -e '/ABINIT_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-full
+
+# FRONTISTR
+sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-frontistr-hinge-full > config-hpc-frontistr-hinge-hpcext-full
+sed -i -e '/_MPI_PATH/d'    config-hpc-frontistr-hinge-hpcext-full
+sed -i -e '/_MPI_LIBPATH/d' config-hpc-frontistr-hinge-hpcext-full
 
 # NAS
 for TYPE in omp mpi; do
@@ -80,7 +85,7 @@ sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netpe
 sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-unbound > config-network-netperf-unbound-small
 
 # Openfoam
-sed -e 's/openmpi3/openmpi3-hpc/' config-hpc-openfoam-motorbike-tutorial-default-full > config-hpc-openfoam-motorbike-tutorial-default-hpcext-full
+sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-openfoam-motorbike-tutorial-default-full > config-hpc-openfoam-motorbike-tutorial-default-hpcext-full
 sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-openfoam-motorbike-tutorial-default-hpcext-full
 sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-openfoam-motorbike-tutorial-default-hpcext-full
 for CONFIG in config-hpc-openfoam-motorbike-tutorial-default-full config-hpc-openfoam-motorbike-tutorial-default-hpcext-full; do
@@ -105,7 +110,7 @@ done
 
 # SPECFEM3D
 for MODEL in global small; do
-	sed -e 's/openmpi3/openmpi3-hpc/' config-hpc-specfem3d-$MODEL-s362ani-mpi-full > config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
+	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-specfem3d-$MODEL-s362ani-mpi-full > config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
 	sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
 	sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
 done

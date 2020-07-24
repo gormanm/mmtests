@@ -14,9 +14,13 @@ if [ ! -d $1 ]; then
 	exit -1
 fi
 
-cat $1/$1-bench   | ../bin/rewrite-shellpack $1 > ../../shellpacks/shellpack-bench-$1
+if [ -e $1/$1-bench ]; then
+	cat $1/$1-bench   | ../bin/rewrite-shellpack $1 > ../../shellpacks/shellpack-bench-$1
+fi
 cat $1/$1-install | ../bin/rewrite-shellpack $1 > ../../shellpacks/shellpack-install-$1
-chmod a+x ../../shellpacks/shellpack-bench-$1
+if [ -e $1/$1-bench ]; then
+	chmod a+x ../../shellpacks/shellpack-bench-$1
+fi
 chmod a+x ../../shellpacks/shellpack-install-$1
 
 exit 0

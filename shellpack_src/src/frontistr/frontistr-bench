@@ -1,0 +1,76 @@
+#!/bin/bash
+###SHELLPACK preamble frontistr-bench v5.0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--mpi-processes   FRONTISTR_MPI_PROCESSES
+###SHELLPACK parseargParam	--omp-threads     FRONTISTR_OMP_THREADS
+###SHELLPACK parseargParam	--model           FRONTISTR_MODEL
+###SHELLPACK parseargParam	--iterations      FRONTISTR_ITERATIONS
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+install-depends gcc gcc-c++ gcc-fortran cmake
+
+###SHELLPACK mpi_setup_deps FRONTISTR_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env FRONTISTR_OPENMPI_VERSION FRONTISTR_MPI_PATH FRONTISTR_MPI_LIBPATH
+###SHELLPACK mpi_setup_shmem
+
+export REVOCAP_VERSION="1.1.04"
+export BLAS_VERSION="v0.3.10"
+export METIS_VERSION="5.1.0"
+export SCALAPACK_VERSION="2.1.0"
+export MUMPS_VERSION="5.3.3"
+export TRILINOS_VERSION="12-14-1"
+
+###SHELLPACK check_external_install_required revocapbuild   revocapbuild-${REVOCAP_VERSION} ${REVOCAP_VERSION}
+###SHELLPACK check_external_install_required blasbuild      blasbuild-${BLAS_VERSION} ${BLAS_VERSION}
+###SHELLPACK check_external_install_required metisbuild     metisbuild-${METIS_VERSION} ${METIS_VERSION}
+###SHELLPACK check_external_install_required scalapackbuild scalapackbuild-${SCALAPACK_VERSION} ${SCALAPACK_VERSION}
+###SHELLPACK check_external_install_required mumpsbuild     mumpsbuild-${MUMPS_VERSION} ${MUMPS_VERSION}
+###SHELLPACK check_external_install_required trilinosbuild  trilinosbuild-${TRILINOS_VERSION} ${TRILINOS_VERSION}
+###SHELLPACK check_install_required_continue frontistr-$VERSION
+
+echo Preparing
+case $FRONTISTR_MODEL in
+hinge)
+	cd $SHELLPACK_SOURCES/frontistr-$VERSION/tutorial/02_elastic_hinge_parallel || \
+		die "Failed to open 02_elastic_hinge_parallel"
+	$SHELLPACK_SOURCES/frontistr-$VERSION-installed/bin/hecmw_part1 || \
+		die "Failed to prepare hecmw_part1"
+	;;
+*)
+	die "Unrecognised model $MODEL"
+	;;
+esac
+
+###SHELLPACK init_complete
+
+case $FRONTISTR_MODEL in
+hinge)
+	cd $SHELLPACK_SOURCES/frontistr-${VERSION}/tutorial/02_elastic_hinge_parallel || \
+		die "Failed to change to example directory"
+	FRONTISTR_BIN=$SHELLPACK_SOURCES/frontistr-${VERSION}-installed/bin/fistr1
+	;;
+*)
+	die "Unrecognised model $MODEL"
+esac
+
+export OMP_NUM_THREADS=$FRONTISTR_OMP_THREADS
+
+echo $FRONTISTR_MODEL : $FRONTISTR_MPI_PROCESSES : $FRONTISTR_OMP_THREADS > $LOGDIR_RESULTS/scaling-parameters
+
+monitor_pre_hook $LOGDIR_RESULTS $P
+###SHELLPACK iteration_begin $FRONTISTR_ITERATIONS
+	echo "Executing $FRONTISTR_MODEL (m:$FRONTISTR_MPI_PROCESSES o:$FRONTISTR_OMP_THREADS) iteration $ITERATION/$FRONTISTR_ITERATIONS"
+	save_rc $TIME_CMD -o $LOGDIR_RESULTS/frontistr-time.$ITERATION		\
+		mpirun $FRONTISTR_MPI_OPTS -np $FRONTISTR_MPI_PROCESSES $FRONTISTR_BIN	\
+			2>&1 | tee $LOGDIR_RESULTS/frontistr-log.$ITERATION
+	recover_rc
+	if [ $? -ne 0 ]; then
+		die "Failed to execute $FRONTISTR_MODEL"
+	fi
+	gzip $LOGDIR_RESULTS/frontistr-log.$ITERATION
+###SHELLPACK iteration_end $FRONTISTR_ITERATIONS
+monitor_post_hook $LOGDIR_RESULTS $P
+exit $SHELLPACK_SUCCESS

@@ -1,0 +1,48 @@
+# MM Test Parameters
+export MMTESTS="frontistr"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat mpstat"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# MUMPS dependency
+export MUMPS_OPENMPI_VERSION=openmpi3
+export MUMPS_MPI_PATH=/usr/lib64/mpi/gcc/$MUMPS_OPENMPI_VERSION/bin
+export MUMPS_MPI_LIBPATH=/usr/lib64/mpi/gcc/$MUMPS_OPENMPI_VERSION/lib64
+
+# SCALAPACK dependency
+export SCALAPACK_OPENMPI_VERSION=openmpi3
+export SCALAPACK_MPI_PATH=/usr/lib64/mpi/gcc/$SCALAPACK_OPENMPI_VERSION/bin
+export SCALAPACK_MPI_LIBPATH=/usr/lib64/mpi/gcc/$SCALAPACK_OPENMPI_VERSION/lib64
+
+# Trilinos dependency
+export TRILINOS_OPENMPI_VERSION=openmpi3
+export TRILINOS_MPI_PATH=/usr/lib64/mpi/gcc/$TRILINOS_OPENMPI_VERSION/bin
+export TRILINOS_MPI_LIBPATH=/usr/lib64/mpi/gcc/$TRILINOS_OPENMPI_VERSION/lib64
+
+# FRONTISTR
+export FRONTISTR_OPENMPI_VERSION=openmpi3
+export FRONTISTR_MPI_PATH=/usr/lib64/mpi/gcc/$FRONTISTR_OPENMPI_VERSION/bin
+export FRONTISTR_MPI_LIBPATH=/usr/lib64/mpi/gcc/$FRONTISTR_OPENMPI_VERSION/lib64
+export FRONTISTR_MPI_PROCESSES=4
+export FRONTISTR_OMP_THREADS=$(((NUMCPUS/FRONTISTR_MPI_PROCESSES)/4*4))
+export FRONTISTR_MODEL=hinge
+export FRONTISTR_ITERATIONS=3
+
+if [ $NUMCPUS -lt 8 ]; then
+	die "Machine has too few CPUs to execute load"
+fi

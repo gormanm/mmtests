@@ -1,0 +1,17 @@
+#!/bin/bash
+###SHELLPACK preamble metisbuild 5.1.0
+WEB_LOCATION="http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis"
+MIRROR_LOCATION="$WEBROOT/metisbuild/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch metis-${VERSION}.tar.gz metisbuild-${VERSION}
+###SHELLPACK build_start metisbuild-${VERSION}
+make config prefix=$SHELLPACK_SOURCES/metisbuild-${VERSION}-installed cc=$MMTESTS_C_COMPILER openmp=1
+if [ $? -ne 0 ]; then
+	die "Failed make config"
+fi
+###SHELLPACK make_make_install
+
+echo metis installed successfully

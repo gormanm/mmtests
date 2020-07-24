@@ -1,0 +1,22 @@
+#!/bin/bash
+###SHELLPACK preamble scalapackbuild 5.1.0
+WEB_LOCATION="http://www.netlib.org/scalapack"
+MIRROR_LOCATION="$WEBROOT/scalapackbuild/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+# Install openmpi requirements
+###SHELLPACK mpi_setup_deps SCALAPACK_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env SCALAPACK_OPENMPI_VERSION SCALAPACK_MPI_PATH SCALAPACK_MPI_LIBPATH
+###SHELLPACK mpi_setup_shmem
+###SHELLPACK mpi_setup_runas
+
+###SHELLPACK sources_fetch scalapack-${VERSION}.tgz scalapackbuild-${VERSION}
+###SHELLPACK build_start scalapackbuild-${VERSION}
+mkdir build
+###SHELLPACK build_cmake scalapackbuild-${VERSION}/build scalapackbuild-${VERSION} -DCMAKE_EXE_LINKER_FLAGS="-fopenmp" -DBLAS_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib/libopenblas.a -DLAPACK_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib/libopenblas.a -DMPI_BASE_DIR=$MPI_BASE_DIR
+make config prefix=$SHELLPACK_SOURCES/scalapackbuild-${VERSION}-installed cc=$MMTESTS_C_COMPILER openmp=1
+###SHELLPACK make_make_install
+
+echo scalapack installed successfully

@@ -1,0 +1,16 @@
+#!/bin/bash
+###SHELLPACK preamble blasbuild v0.3.10
+GIT_LOCATION=https://github.com/xianyi/OpenBLAS
+MIRROR_LOCATION="$WEBROOT/blasbuild/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+export MMTESTS_NO_BUILDFLAGS=yes
+###SHELLPACK git_fetch blasbuild-${VERSION}.tar.gz blasbuild-${VERSION}
+###SHELLPACK build_start blasbuild-${VERSION}
+export MAKE_FLAGS="BINARY=64 NO_SHARED=1 USE_OPENMP=1"
+export MAKE_INSTALL_FLAGS="PREFIX=$SHELLPACK_SOURCES/blasbuild-${VERSION}-installed $MAKE_FLAGS"
+###SHELLPACK make_make_install BINARY=64 NO_SHARED=1 USE_OPENMP=1
+
+echo blasbuild installed successfully
