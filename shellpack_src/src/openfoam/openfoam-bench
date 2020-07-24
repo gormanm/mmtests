@@ -79,9 +79,6 @@ motorbike-tutorial)
 	echo "o Y division           $YDIVISION"
 	echo "$OPENFOAM_MAXCPUS : $SUBDOMAINS : $XDIVISION x $YDIVISION" > $LOGDIR_RESULTS/scaling-parameters
 
-	# Rewrite for the right mpi parameters would be
-	# sed -i -e "s@runParallel \$decompDict \$(getApplication)@mpirun -np $0 --mca btl self,vader simpleFoam -parallel -decomposeParDict system/decomposeParDict.$SUBDOMAINS@" Allrun
-
 	# Rewrite benchmark parameters
 	sed -i -e "s/decomposeParDict.6/decomposeParDict.$SUBDOMAINS/" Allrun
 	mv system/decomposeParDict.6 system/decomposeParDict.$SUBDOMAINS
@@ -551,20 +548,20 @@ index e0e6038798e6..86305c9b7957 100755
  
  # copy motorbike surface from resources directory
  \cp $FOAM_TUTORIALS/resources/geometry/motorBike.obj.gz constant/triSurface/
-+STARTTIME=`date +%s`
++echo surfaceFeature:start:`date +%s` > $LOGDIR_RESULTS/step-times.$ITERATION
  runApplication surfaceFeatureExtract
-+ENDTIME=`date +%s`
-+echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-surfaceFeatureExtract.$ITERATION
++echo surfaceFeatureExtract:end:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
++
  
-+STARTTIME=`date +%s`
++echo blockMesh:start:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
  runApplication blockMesh
-+ENDTIME=`date +%s`
-+echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-blockMesh.$ITERATION
++echo blockMesh:end:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
++
  
-+STARTTIME=`date +%s`
++echo decomposePar:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
  runApplication $decompDict decomposePar
-+ENDTIME=`date +%s`
-+echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-decompsePar.$ITERATION
++echo decomposePar:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
++
  
  # Using distributedTriSurfaceMesh?
  if foamDictionary -entry geometry -value system/snappyHexMeshDict | \
@@ -572,10 +569,10 @@ index e0e6038798e6..86305c9b7957 100755
      runParallel $decompDict surfaceRedistributePar motorBike.obj independent
  fi
  
-+STARTTIME=`date +%s`
++echo snappyHexMesh:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
  runParallel $decompDict snappyHexMesh -overwrite
-+ENDTIME=`date +%s`
-+echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-snappyHexMesh.$ITERATION
++echo snappyHexMesh:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
++
 +
 +if [ "$OPENFOAM_STOPAT_MESH" = "yes" ]; then
 +	exit 0
@@ -587,24 +584,24 @@ index e0e6038798e6..86305c9b7957 100755
  #- For parallel running: set the initial fields
  restore0Dir -processor
  
-+STARTTIME=`date +%s`
++echo patchSummary:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
  runParallel $decompDict patchSummary
-+ENDTIME=`date +%s`
-+echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-patchSummary.$ITERATION
++echo patchSummary:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
 +
-+STARTTIME=`date +%s`
++
++echo potentialFoam:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
  runParallel $decompDict potentialFoam
-+ENDTIME=`date +%s`
++echo potentialFoam:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
 +echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-potentialFoam.$ITERATION
-+STARTTIME=`date +%s`
++echo checkMesh:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
  runParallel $decompDict checkMesh -writeFields '(nonOrthoAngle)' -constant
 -
-+ENDTIME=`date +%s`
-+echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-checkMesh.$ITERATION
-+STARTTIME=`date +%s`
++echo checkMesh:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
++
++echo getApplication:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
  runParallel $decompDict $(getApplication)
-+ENDTIME=`date +%s`
-+echo $((ENDTIME-STARTTIME)) > $LOGDIR_RESULTS/step-simpleFoam.$ITERATION
++echo getApplication:`date +%s` >> $LOGDIR_RESULTS/step-times.$ITERATION
++
  
  runApplication reconstructParMesh -constant
  runApplication reconstructPar -latestTime

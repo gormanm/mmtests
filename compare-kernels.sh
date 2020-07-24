@@ -543,6 +543,13 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		cache-mmtests.sh compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b netpipe -a 4mb -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
+	openfoam)
+		echo $SUBREPORT Wall Time
+		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD
+		echo $SUBREPORT Step Times
+		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -a steps -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		;;
 	parallelio)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
