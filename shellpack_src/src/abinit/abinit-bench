@@ -6,8 +6,7 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required abinit-$VERSION
-###SHELLPACK init_complete
+###SHELLPACK check_install_required_continue abinit-$VERSION
 
 ABINIT_MAXCPUS=$((ABINIT_MAXCPUS/9*9))
 if [ $ABINIT_MAXCPUS -eq 0 ]; then
@@ -21,32 +20,26 @@ if [ "$ABINIT_OPENMPI_VERSION" != "" ]; then
 	MPIRUN="mpirun --allow-run-as-root $ABINIT_MPI_OPTS -np $ABINIT_MAXCPUS"
 fi
 
-case $ABINIT_MODEL in
-tmbt)
-	STAGE_MAP="
-1:tmbt_1.files::
-2:tmbt_2.files:tmbt_1o_DS2_WFK:tmbt_2i_WFK
-3:tmbt_3.files:tmbt_1o_DS2_WFK:tmbt_3i_WFK"
-	;;
-*)
-	die "Unrecognised model $ABINIT_MODEL"
-esac
-
-
-echo $ABINIT_MAXCPUS > $LOGDIR_RESULTS/scaling-parameters
-cd $INPUT_DIR || die "Failed to change to $INPUT_DIR"
-
 export ABI_HOME=$SHELLPACK_SOURCES/abinit-${VERSION}-installed
 export PATH=$ABI_HOME/src/98_main/:$PATH
 export ABI_TESTS=$ABI_HOME/tests/
 export ABI_PSPDIR=$ABI_TESTS/Psps_for_tests/
 
-cd $ABI_TESTS/tutoparal/Input/ || die "Failed to cd to $ABI_TESTS/tutoparal/Input/"
-rm -rf Work
-mkdir Work || die "Failed to create work directory"
-cd Work
+case $ABINIT_MODEL in
+tmbt)
+	PREPARE_STAGE_MAP="1:tmbt_1.files::
+2:tmbt_2.files:tmbt_1o_DS2_WFK:tmbt_2i_WFK"
+	RUN_STAGE_MAP="3:tmbt_3.files:tmbt_1o_DS2_WFK:tmbt_3i_WFK"
+	;;
+*)
+	die "Unrecognised model $ABINIT_MODEL"
+esac
 
-for STAGE in `echo $STAGE_MAP`; do
+STEP=
+FILES=
+SOURCE_DATA=
+STAGE_DATA=
+prepare_stage() {
 	STEP=`echo $STAGE | awk -F : '{print $1}'`
 	FILES=`echo $STAGE | awk -F : '{print $2}'`
 	SOURCE_DATA=`echo $STAGE | awk -F : '{print $3}'`
@@ -57,11 +50,40 @@ for STAGE in `echo $STAGE_MAP`; do
 	fi
 	cp ../$FILES . || die "Failed to copy $FILES"
 	echo $FILES | sed -e 's/.files//' > $LOGDIR_RESULTS/stage-$STEP.name
+}
+
+cd $ABI_TESTS/tutoparal/Input/ || die "Failed to cd to $ABI_TESTS/tutoparal/Input/"
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	rm -rf Work
+	mkdir Work || die "Failed to create work directory"
+	cd Work
+
+	if [ "$ABINIT_PREPARE" = "yes" ]; then
+		for STAGE in `echo $PREPARE_STAGE_MAP`; do
+			prepare_stage
+			echo Preparing $STAGE
+			$MPIRUN abinit < ../$FILES > $LOGDIR_RESULTS/$ABINIT_MODEL-prepare.log
+		done
+	fi
+fi
+###SHELLPACK init_complete
+cd Work || die "Failed to change to work directory"
+if [ "$ABINIT_PREPARE" = "yes" ]; then
+	STAGE_MAP=$RUN_STAGE_MAP
+else
+	STAGE_MAP="$PREPARE_STAGE_MAP
+$RUN_STAGE_MAP"
+fi
+
+echo $ABINIT_MAXCPUS > $LOGDIR_RESULTS/scaling-parameters
+for STAGE in `echo $STAGE_MAP`; do
+	prepare_stage
 	
+	echo Executing $STAGE
 	monitor_pre_hook $LOGDIR_RESULTS $ABINIT_MODEL-stage-$STEP
 	eval $TIME_CMD -o $LOGDIR_RESULTS/abinit-time.$STEP	\
 		$MPIRUN abinit \
-			< ../$FILES | tee $LOGDIR_RESULTS/$ABINIT_MODEL-log.$STEP
+			< ../$FILES > $LOGDIR_RESULTS/$ABINIT_MODEL-log.$STEP
 	monitor_post_hook $LOGDIR_RESULTS $ABINIT_MODEL-stage-$STEP
 
 	if [ $? -ne 0 ]; then
