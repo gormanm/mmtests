@@ -104,7 +104,7 @@ for JOB in $JOB_LIST; do
 	SCRIPT=`echo $JOB | awk -F : '{print $2}'`
 
 	save_rc $TIME_CMD -o $LOGDIR_RESULTS/specfem3d-time.$NAME   \
-		./$SCRIPT 2>&1 | tee $LOGDIR_RESULTS/specfem3d-log.$NAME
+		./$SCRIPT > $LOGDIR_RESULTS/specfem3d-log.$NAME
 	recover_rc
 	if [ $? -ne 0 ]; then
 		die "Failed to execute $SCRIPT"
