@@ -546,6 +546,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	openfoam)
 		echo $SUBREPORT Wall Time
 		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD
+		echo
 		echo $SUBREPORT Step Times
 		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -a steps -n $KERNEL_LIST $FORMAT_CMD
 		echo
