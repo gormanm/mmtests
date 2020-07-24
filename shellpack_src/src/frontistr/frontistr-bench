@@ -65,7 +65,7 @@ monitor_pre_hook $LOGDIR_RESULTS $P
 	echo "Executing $FRONTISTR_MODEL (m:$FRONTISTR_MPI_PROCESSES o:$FRONTISTR_OMP_THREADS) iteration $ITERATION/$FRONTISTR_ITERATIONS"
 	save_rc $TIME_CMD -o $LOGDIR_RESULTS/frontistr-time.$ITERATION		\
 		mpirun $FRONTISTR_MPI_OPTS -np $FRONTISTR_MPI_PROCESSES $FRONTISTR_BIN	\
-			2>&1 | tee $LOGDIR_RESULTS/frontistr-log.$ITERATION
+			> $LOGDIR_RESULTS/frontistr-log.$ITERATION
 	recover_rc
 	if [ $? -ne 0 ]; then
 		die "Failed to execute $FRONTISTR_MODEL"
