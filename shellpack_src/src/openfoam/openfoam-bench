@@ -608,17 +608,4 @@ index e0e6038798e6..86305c9b7957 100755
  
  runApplication reconstructParMesh -constant
  runApplication reconstructPar -latestTime
-diff --git a/tutorials/mesh/snappyHexMesh/motorBike_leakDetection/system/snappyHexMeshDict b/tutorials/mesh/snappyHexMesh/motorBike_leakDetection/system/snappyHexMeshDict
-index 1280ae832192..0a228e88134d 100644
---- a/tutorials/mesh/snappyHexMesh/motorBike_leakDetection/system/snappyHexMeshDict
-+++ b/tutorials/mesh/snappyHexMesh/motorBike_leakDetection/system/snappyHexMeshDict
-@@ -286,7 +286,7 @@ addLayersControls
-     // Angle used to pick up medial axis points
-     // Note: changed(corrected) w.r.t 1.7.x! 90 degrees corresponds to 130
-     // in 1.7.x.
--    minMedianAxisAngle 90;
-+    minMedialAxisAngle 90;
- 
- 
-     // Create buffer region for new layer terminations
 ==== END Allrun-motorBike.patch ====
