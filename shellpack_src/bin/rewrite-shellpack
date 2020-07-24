@@ -251,6 +251,9 @@ if [ "\$MMTESTS_NO_BUILDFLAGS" != "yes" ]; then
 			BUILD_FLAGS=\$FILE
 		fi
 	done
+	if [ -e \$SHELLPACK_TOPLEVEL/configs/build-flags/common ]; then
+		. \$SHELLPACK_TOPLEVEL/configs/build-flags/common
+	fi
 fi
 if [ "\$BUILD_FLAGS" != "" ]; then
 	echo ===================
@@ -260,18 +263,8 @@ if [ "\$BUILD_FLAGS" != "" ]; then
 	echo ===================
 else
 	export CFLAGS="\${MMTESTS_BUILD_CFLAGS:--O2} \$MMTESTS_BUILD_CFLAGS_EXTRA"
-	echo No test-specific build flags exist
-	echo export CFLAGS=\"\$CFLAGS\"
 fi
 
-MMTESTS_C_COMPILER=\${MMTESTS_C_COMPILER:-gcc}
-MMTESTS_CPP_COMPILER=\${MMTESTS_C_COMPILER:-g++}
-MMTESTS_FORTRAN_COMPILER=\${MMTESTS_C_COMPILER:-gfortran}
-echo ===================
-echo "C compiler:       \$MMTESTS_C_COMPILER"
-echo "C++ compiler:     \$MMTESTS_CPP_COMPILER"
-echo "Fortran compiler: \$MMTESTS_FORTRAN_COMPILER"
-echo ===================
 EOC
 	} elsif ($command eq "build_start_alt") {
 		my ($srcdir) = @details;
