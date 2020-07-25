@@ -39,10 +39,10 @@ export FRONTISTR_OPENMPI_VERSION=openmpi3
 export FRONTISTR_MPI_PATH=/usr/lib64/mpi/gcc/$FRONTISTR_OPENMPI_VERSION/bin
 export FRONTISTR_MPI_LIBPATH=/usr/lib64/mpi/gcc/$FRONTISTR_OPENMPI_VERSION/lib64
 export FRONTISTR_MPI_PROCESSES=4
-export FRONTISTR_OMP_THREADS=$(((NUMCPUS/FRONTISTR_MPI_PROCESSES)/4*4))
+export FRONTISTR_OMP_THREADS=$(((NUMCPUS/FRONTISTR_MPI_PROCESSES)/2*2))
 export FRONTISTR_MODEL=hinge
 export FRONTISTR_ITERATIONS=3
 
 if [ $NUMCPUS -lt 8 ]; then
-	die "Machine has too few CPUs to execute load"
+	die "Machine has too few CPUs (< 8) to execute load"
 fi
