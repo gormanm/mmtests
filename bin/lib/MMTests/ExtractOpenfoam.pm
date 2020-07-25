@@ -11,7 +11,7 @@ sub initialise() {
 
 	$self->{_ModuleName} = "ExtractOpenfoam";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
-	$self->{_PlotType}   = "process-errorlines";
+	$self->{_PlotType}   = "single-candlesticks";
 	$self->SUPER::initialise($subHeading);
 }
 

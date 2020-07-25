@@ -288,14 +288,17 @@ touch AUTHORS
 autoreconf -f -i || die Failed to run autoreconf
 EOC
 	} elsif ($command eq "build_configure") {
-		my $srcdir = @details[0];
+		my ($srcdir, $dstdir) = @details[0];
+		if ($dstdir eq "") {
+			$dstdir="$srcdir-installed"
+		}
 		shift @details;
 		print <<EOC
-eval ./configure --prefix=\$SHELLPACK_SOURCES/$srcdir-installed \$MMTESTS_BUILD_CONFIGURE @details
+eval ./configure --prefix=\$SHELLPACK_SOURCES/$dstdir \$MMTESTS_BUILD_CONFIGURE @details
 if [ \$? -ne 0 ]; then
 	cp /usr/share/automake*/config.guess .
 	cp /usr/share/automake*/config.sub .
-	eval ./configure --prefix=\$SHELLPACK_SOURCES/$srcdir-installed \$MMTESTS_BUILD_CONFIGURE @details
+	eval ./configure --prefix=\$SHELLPACK_SOURCES/$dstdir \$MMTESTS_BUILD_CONFIGURE @details
 	if [ \$? -ne 0 ]; then
 		error "\$P: configure failed"
 		popd > /dev/null

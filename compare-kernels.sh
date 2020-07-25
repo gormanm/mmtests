@@ -913,6 +913,26 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		johnripper)
 			generate_ops_graphs
 			;;
+		abinit|frontistr|openfoam|specfem3d)
+			echo "<tr>"
+			for HEADING in elsp syst user; do
+				TITLE_HEADING=
+				case $HEADING in
+				user)
+					TITLE_HEADING="User"
+					;;
+				syst)
+					TITLE_HEADING="System"
+					;;
+				elsp)
+					TITLE_HEADING="Elapsed"
+					;;
+				esac
+				eval $GRAPH_PNG --title \"$SUBREPORT $TITLE_HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
+				plain graph-$SUBREPORT-$HEADING
+			done
+			echo "</tr>"
+			;;
 		kernbench)
 			echo "<tr>"
 			for HEADING in elsp syst user; do

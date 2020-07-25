@@ -11,7 +11,7 @@ sub initialise() {
 
 	$self->{_ModuleName} = "ExtractFrontistr";
 	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
-	$self->{_PlotType}   = "process-errorlines";
+	$self->{_PlotType}   = "histogram";
 	$self->SUPER::initialise($subHeading);
 }
 sub extractReport() {
