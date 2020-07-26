@@ -12,9 +12,8 @@
 
 MPIRUN=
 ###SHELLPACK mpi_setup_deps SALMON_OPENMPI_VERSION
-###SHELLPACK mpi_setup_env SALMON_OPENMPI_VERSION SALMON_MPI_PATH SALMON_MPI_LIBPATH
+###SHELLPACK mpi_setup_env SALMON_OPENMPI_VERSION SALMON_MPI_PATH SALMON_MPI_LIBPATH SALMON_MPI_OPTS
 ###SHELLPACK mpi_setup_shmem
-MPIRUN="mpirun --allow-run-as-root $SALMON_MPI_OPTS -np $SALMON_MAXCPUS"
 
 case $SALMON_MODEL in
 bulkSi)
@@ -35,7 +34,7 @@ monitor_pre_hook $LOGDIR_RESULTS $SALMON_MODEL
 ###SHELLPACK iteration_begin $SALMON_ITERATIONS
 	echo Executing iteration $ITERATION/$SALMON_ITERATIONS
 	eval $TIME_CMD -o $LOGDIR_RESULTS/salmon-time.$ITERATION	\
-		$MPIRUN $SHELLPACK_SOURCES/salmon-$VERSION-installed/bin/salmon.cpu \
+		mpirun $SALMON_MPI_OPTS -np $SALMON_MAXCPUS $SHELLPACK_SOURCES/salmon-$VERSION-installed/bin/salmon.cpu \
 			< $INPUT > $LOGDIR_RESULTS/salmon-log.$ITERATION
 	gzip $LOGDIR_RESULTS/salmon-log.$ITERATION
 ###SHELLPACK iteration_end

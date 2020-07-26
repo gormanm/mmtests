@@ -255,6 +255,7 @@ if [ "\$MMTESTS_NO_BUILDFLAGS" != "yes" ]; then
 		. \$SHELLPACK_TOPLEVEL/configs/build-flags/common
 	fi
 fi
+export MMTESTS_C_COMPILER=\${MMTESTS_C_COMPILER:-gcc}
 if [ "\$BUILD_FLAGS" != "" ]; then
 	echo ===================
 	echo Loading build flags \$BUILD_FLAGS
@@ -746,9 +747,13 @@ else
 fi
 EOC
 	} elsif ($command eq "mpi_setup_env") {
-		my ($mpi, $mpipath, $mpilib) = @details;
+		my ($mpi, $mpipath, $mpilib, $opts) = @details;
 		print <<EOC
-
+if [ "$opts" != "" ]; then
+	if [ "`whoami`" = "root" ]; then
+		$opts+=" --allow-run-as-root"
+	fi
+fi
 if [ "\$$mpi" = "openmpi3-hpc" ]; then
 	module load gnu openmpi/3 || die "Could not load openmpi/3 module"
 	module li

@@ -9,14 +9,12 @@
 
 if [ "$SPECFEM3D_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
-	###SHELLPACK mpi_setup_env SPECFEM3D_OPENMPI_VERSION SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH
+	###SHELLPACK mpi_setup_env SPECFEM3D_OPENMPI_VERSION SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH SPECFEM3D_MPI_OPTS
 	###SHELLPACK mpi_setup_shmem
 	export OMP_NUM_THREADS=1
 else
 	export OMP_NUM_THREADS=$((SPECFEM3D_NEX_XI*SPECFEM3D_NEX_ETA*SPECFEM3D_NCHUNKS))
 fi
-
-MPI_OPTS="--allow-run-as-root $SPECFEM3D_MPI_OPTS"
 
 if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 	case $SPECFEM3D_MODEL in
@@ -27,7 +25,7 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 		cd model-$SPECFEM3D_MODEL || die "Failed to change to model"
 
 		# Configure model
-		sed -i -e "s/mpirun/mpirun $MPI_OPTS/" go_*_pbs.bash
+		sed -i -e "s/mpirun/mpirun $SPECFEM3D_MPI_OPTS/" go_*_pbs.bash
 		sed -i -e "s/^NCHUNKS.*/NCHUNKS = $SPECFEM3D_NCHUNKS/" DATA/Par_file
 		sed -i -e "s/^NEX_XI.*/NEX_XI = $SPECFEM3D_NEX_XI/" DATA/Par_file
 		sed -i -e "s/^NEX_ETA.*/NEX_ETA = $SPECFEM3D_NEX_ETA/" DATA/Par_file
@@ -55,7 +53,7 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 		# Configure model
 		sed -i -e /compute_nodes/d go_*_pbs.bash
 		sed -i -e /jobid/d go_*_pbs.bash
-		sed -i -e "s/mpiexec/mpiexec $MPI_OPTS/" go_*_pbs.bash
+		sed -i -e "s/mpiexec/mpiexec $SPECFEM3D_MPI_OPTS/" go_*_pbs.bash
 		sed -i -e "s/^NCHUNKS.*/NCHUNKS = $SPECFEM3D_NCHUNKS/" DATA/Par_file
 		sed -i -e "s/^NEX_XI.*/NEX_XI = $SPECFEM3D_NEX_XI/" DATA/Par_file
 		sed -i -e "s/^NEX_ETA.*/NEX_ETA = $SPECFEM3D_NEX_ETA/" DATA/Par_file

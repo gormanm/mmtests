@@ -1,0 +1,73 @@
+#!/bin/bash
+###SHELLPACK preamble wrf 3.8.1
+WEB_LOCATION="https://www2.mmm.ucar.edu/wrf/src"
+MIRROR_LOCATION="$WEBROOT/wrf"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+MPI_SWITCH="--disable-mpi"
+if [ "$WRF_OPENMPI_VERSION" != "" ]; then
+	###SHELLPACK mpi_setup_deps WRF_OPENMPI_VERSION
+	###SHELLPACK mpi_setup_env WRF_MPI_PATH WRF_MPI_LIBPATH
+	MPI_SWITCH="--enable-mpi"
+fi
+install-depends gcc-fortran
+install-depends libnetcdf-gnu-openmpi3-hpc
+install-depends expect
+# netcdf-$WRF_OPENMPI_VERSION-devel parallel-netcdf-$WRF_OPENMPI_VERSION parallel-netcdf-$WRF_OPENMPI_VERSION-devel
+# install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc
+# install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc-devel
+
+###SHELLPACK sources_fetch WRFV${VERSION}.TAR.gz wrf-${VERSION}-installed
+###SHELLPACK build_start wrf-${VERSION}-installed
+
+# Fix known build issue
+file_fetch https://www2.mmm.ucar.edu/wrf/src/fix/module_cu_g3_random_seed_fix.F.gz	\
+	$MIRROR_LOCATION/module_cu_g3_random_seed_fix.F.gz				\
+	module_cu_g3_random_seed_fix.F.gz
+tar -xf module_cu_g3_random_seed_fix.F.gz || die "Failed to unpack module_cu_g3_random_seed_fix.F.gz"
+mv module_cu_g3.F phys/
+
+# Environment setup
+if [ "$WRF_NETCDF_ROOT" != "" ]; then
+	NETCDF_VERSION=`ls $WRF_NETCDF_ROOT/ | sort -n | tail -1`
+	export NETCDF=$WRF_NETCDF_ROOT/$NETCDF_VERSION
+	HDF_VERSION=`ls $WRF_HDF_ROOT/ | sort -n | tail -1`
+	export HDF5=$WRF_HDF_ROOT/$HDF_VERSION
+else
+	export NETCDF="$SHELLPACK_SOURCES/netcdf-installed"
+	export HDF5="$SHELLPACK_SOURCES/netcdf-installed"
+fi
+
+LDFLAGS_EXTRA="-L${WRF_MPI_LIBPATH} -L${NETCDF}/lib64 -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/lib64 -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
+# export CPPFLAGS="-I${HDF}/include -I${NET}/include"
+# export CFLAGS="-I${HDF}/include -I${NET}/include"
+# export FCFLAGS="-I${HDF}/include -I${NET}/include"
+export LD_LIBRARY_PATH=${NETCDF}/lib64:${HDF}/lib64:$LD_LIBRARY_PATH
+
+# An interactive configure script
+EXPECT_SCRIPT=`mktemp`
+cat > $EXPECT_SCRIPT << EOC
+spawn ./configure
+expect "Enter selection" { exp_send "33\\r" }
+expect "Compile for nesting" { exp_send "0\\r" }
+expect {
+	eof			{ exit 0 }
+}
+EOC
+expect -f $EXPECT_SCRIPT
+rm $EXPECT_SCRIPT
+if [ ! -e configure.wrf ]; then
+	die "configure.wrf does not exist after configure step"
+fi
+cp configure.wrf configure.wrf.orig
+
+LDFLAGS_EXTRA_ESCAPED=`echo "$LDFLAGS_EXTRA" | sed -e 's/\//\\\\\//g'`
+sed -i -e "s/^LDFLAGS_LOCAL.*/LDFLAGS_LOCAL   =       $LDFLAGS_EXTRA_ESCAPED/" configure.wrf
+
+./compile wrf || die "Failed to build wrf"
+./compile em_real || die "Failed to build em_real"
+
+echo wrf installed successfully
+exit $SHELLPACK_SUCCESS
