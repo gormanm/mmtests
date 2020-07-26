@@ -92,6 +92,8 @@ for CONFIG in config-hpc-openfoam-motorbike-tutorial-default-full config-hpc-ope
 	NEWCONFIG=`echo $CONFIG | sed -e 's/-default-/-large-/'`
 	sed	-e 's/OPENFOAM_CELL_LEVELS=.*/OPENFOAM_CELL_LEVELS=40/'			\
 		-e 's/OPENFOAM_ITERATIONS=.*/OPENFOAM_ITERATIONS=1/'			\
+		-e 's/Solver:.*/Solver:  PCG/'						\
+		-e 's/Faces:.*/Faces:   14.6 million/'					\
 		$CONFIG > $NEWCONFIG
 
 	NEWCONFIG=`echo $CONFIG | sed -e 's/-default-/-old-/'`
