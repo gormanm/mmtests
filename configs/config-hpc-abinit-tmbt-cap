@@ -29,9 +29,9 @@ export ABINIT_MODEL=tmbt
 # ABINIT is somewhat memory intensive. Assume each process needs at
 # least 1.2GB of memory.
 MEMTOTAL_MB=$((MEMTOTAL_BYTES/1048576))
-CEILING=(((MEMTOTAL_MB/1200+3)/4*4))
+CEILING=$(((MEMTOTAL_MB/1200+3)/4*4))
 if [ $ABINIT_MAXCPUS -gt $CEILING ]; then
-	ABINIT_MAXCPUS=CEILING
+	ABINIT_MAXCPUS=$CEILING
 	echo WARNING: Maximum CPUs limited to $ABAINIT_MAXCPUS due to memory constraints
 fi
 
