@@ -50,9 +50,9 @@ EOF
 
 # ABINIT
 for TYPE in full cap; do
-	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-abinit-tmbt-$MODEL > config-hpc-abinit-tmbt-hpcext-$MODEL
-	sed -i -e '/ABINIT_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-$MODEL
-	sed -i -e '/ABINIT_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-$MODEL
+	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-abinit-tmbt-$TYPE > config-hpc-abinit-tmbt-hpcext-$TYPE
+	sed -i -e '/ABINIT_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-$TYPE
+	sed -i -e '/ABINIT_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-$TYPE
 done
 
 # FRONTISTR
