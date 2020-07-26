@@ -8,6 +8,7 @@
 ### Scaling: Scale X and Y to maximise CPU usage while maintaining ratio
 ### Solver:  Default
 ### Faces:   Default
+### Steps:   All
 ###
 ### Note that this means that not all CPUs may be used and in some cases, all
 ### CPUs will be used which is not necessarily optimal for openMPI. At the

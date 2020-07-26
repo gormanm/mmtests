@@ -106,7 +106,8 @@ for CONFIG in config-hpc-openfoam-motorbike-tutorial-default-full config-hpc-ope
 done
 rm -f config-hpc-openfoam-motorbike-tutorial-*-meshonly
 for CONFIG in `ls config-hpc-openfoam-motorbike-tutorial-*`; do
-	cp $CONFIG $CONFIG-meshonly
+	sed -e 's/Steps:.*/Steps:   Stops after the mesh is integrated/'		\
+		$CONFIG > $CONFIG-meshonly
 	echo 'export OPENFOAM_STOPAT_MESH="yes"' >> $CONFIG-meshonly
 done
 
