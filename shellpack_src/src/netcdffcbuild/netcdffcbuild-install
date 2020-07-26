@@ -1,0 +1,24 @@
+#!/bin/bash
+###SHELLPACK preamble netcdffcbuild v4.7.3
+GIT_LOCATION=https://github.com/Unidata/netcdf-fortran
+MIRROR_LOCATION="$WEBROOT/netcdf/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+export MMTESTS_NO_BUILDFLAGS=yes
+###SHELLPACK git_fetch netcdffcbuild-${VERSION}.tar.gz netcdffcbuild-${VERSION}
+###SHELLPACK build_start netcdffcbuild-${VERSION}
+
+ARCHSTRING="optflags: `uname -m`"
+OPTFLAGS=`grep "^$ARCHSTRING" /usr/lib/rpm/rpmrc | sed -e "s/^$ARCHSTRING//"`
+if [ "$OPTFLAGS" != "" ]; then
+	export CFLAGS=$OPTFLAGS
+	export CXXFLAGS=$OPTFLAGS
+	export FCFLAGS=$OPTFLAGS
+fi
+
+###SHELLPACK build_configure netcdffcbuild-${VERSION}
+###SHELLPACK make_make_install
+
+echo netcdf-fortran installed successfully
