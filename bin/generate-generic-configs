@@ -49,9 +49,11 @@ export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
 
 # ABINIT
-sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-abinit-tmbt-full > config-hpc-abinit-tmbt-hpcext-full
-sed -i -e '/ABINIT_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-full
-sed -i -e '/ABINIT_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-full
+for TYPE in full cap; do
+	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-abinit-tmbt-$MODEL > config-hpc-abinit-tmbt-hpcext-$MODEL
+	sed -i -e '/ABINIT_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-$MODEL
+	sed -i -e '/ABINIT_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-$MODEL
+done
 
 # FRONTISTR
 sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-frontistr-hinge-full > config-hpc-frontistr-hinge-hpcext-full
