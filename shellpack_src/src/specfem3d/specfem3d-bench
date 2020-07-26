@@ -5,7 +5,7 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required specfem3d-$VERSION
+###SHELLPACK check_install_required_continue specfem3d-$VERSION
 
 if [ "$SPECFEM3D_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
@@ -91,7 +91,6 @@ global_s362)
 	;;
 esac
 
-
 cd $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
 export PBS_O_WORKDIR=`pwd`
 
@@ -102,7 +101,7 @@ for JOB in $JOB_LIST; do
 	SCRIPT=`echo $JOB | awk -F : '{print $2}'`
 
 	save_rc $TIME_CMD -o $LOGDIR_RESULTS/specfem3d-time.$NAME   \
-		./$SCRIPT > $LOGDIR_RESULTS/specfem3d-log.$NAME
+		./$SCRIPT &> $LOGDIR_RESULTS/specfem3d-log.$NAME
 	recover_rc
 	if [ $? -ne 0 ]; then
 		die "Failed to execute $SCRIPT"

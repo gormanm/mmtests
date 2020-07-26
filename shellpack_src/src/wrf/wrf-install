@@ -11,13 +11,12 @@ if [ "$WRF_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps WRF_OPENMPI_VERSION
 	###SHELLPACK mpi_setup_env WRF_MPI_PATH WRF_MPI_LIBPATH
 	MPI_SWITCH="--enable-mpi"
+
+	install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc
+	install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc-devel
 fi
-install-depends gcc-fortran
-install-depends libnetcdf-gnu-openmpi3-hpc
-install-depends expect
-# netcdf-$WRF_OPENMPI_VERSION-devel parallel-netcdf-$WRF_OPENMPI_VERSION parallel-netcdf-$WRF_OPENMPI_VERSION-devel
-# install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc
-# install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc-devel
+install-depends gcc gcc-fortran
+install-depends netcdf-devel netcdf-fortran-devel
 
 ###SHELLPACK sources_fetch WRFV${VERSION}.TAR.gz wrf-${VERSION}-installed
 ###SHELLPACK build_start wrf-${VERSION}-installed
@@ -40,12 +39,6 @@ else
 	export HDF5="$SHELLPACK_SOURCES/netcdf-installed"
 fi
 
-LDFLAGS_EXTRA="-L${WRF_MPI_LIBPATH} -L${NETCDF}/lib64 -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/lib64 -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
-# export CPPFLAGS="-I${HDF}/include -I${NET}/include"
-# export CFLAGS="-I${HDF}/include -I${NET}/include"
-# export FCFLAGS="-I${HDF}/include -I${NET}/include"
-export LD_LIBRARY_PATH=${NETCDF}/lib64:${HDF}/lib64:$LD_LIBRARY_PATH
-
 # An interactive configure script
 EXPECT_SCRIPT=`mktemp`
 cat > $EXPECT_SCRIPT << EOC
@@ -63,9 +56,13 @@ if [ ! -e configure.wrf ]; then
 fi
 cp configure.wrf configure.wrf.orig
 
+# Additional configuration
+LDFLAGS_EXTRA="-L${WRF_MPI_LIBPATH} -L${NETCDF}/lib64 -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/lib64 -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
+export LD_LIBRARY_PATH=${NETCDF}/lib64:${HDF}/lib64:$LD_LIBRARY_PATH
 LDFLAGS_EXTRA_ESCAPED=`echo "$LDFLAGS_EXTRA" | sed -e 's/\//\\\\\//g'`
 sed -i -e "s/^LDFLAGS_LOCAL.*/LDFLAGS_LOCAL   =       $LDFLAGS_EXTRA_ESCAPED/" configure.wrf
 
+# Build
 ./compile wrf || die "Failed to build wrf"
 ./compile em_real || die "Failed to build em_real"
 

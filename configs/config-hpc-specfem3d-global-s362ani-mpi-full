@@ -38,3 +38,14 @@ if [ $MIN_NPROC -le 1 ]; then
 fi
 export SPECFEM3D_NPROC_XI=$((MIN_NPROC))
 export SPECFEM3D_NPROC_ETA=$((MIN_NPROC))
+
+# Set additional mpi options if required
+grep -q " ht " /proc/cpuinfo
+if [ $SPECFEM3D_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+	echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+	SPECFEM3D_MPI_OPTS+=" --use-hwthread-cpus"
+fi
+if [ "`whoami`" = "root" ]; then
+	SPECFEM3D_MPI_OPTS+=" --allow-run-as-root"
+fi
+export SPECFEM3D_MPI_OPTS

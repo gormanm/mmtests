@@ -26,3 +26,14 @@ export SALMON_MPI_LIBPATH=/usr/lib64/mpi/gcc/$SALMON_OPENMPI_VERSION/lib64
 export SALMON_MAXCPUS=$NUMCPUS
 export SALMON_MODEL=bulkSi
 export SALMON_ITERATIONS=3
+
+# Set additional mpi options if required
+grep -q " ht " /proc/cpuinfo
+if [ $SALMON_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+	echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+	SALMON_MPI_OPTS+=" --use-hwthread-cpus"
+fi
+if [ "`whoami`" = "root" ]; then
+	SALMON_MPI_OPTS+=" --allow-run-as-root"
+fi
+export SALMON_MPI_OPTS

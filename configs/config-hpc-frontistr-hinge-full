@@ -46,3 +46,14 @@ export FRONTISTR_ITERATIONS=3
 if [ $NUMCPUS -lt 8 ]; then
 	die "Machine has too few CPUs (< 8) to execute load"
 fi
+
+# Set additional mpi options if required
+grep -q " ht " /proc/cpuinfo
+if [ $FRONTISTR_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+	echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+	FRONTISTR_MPI_OPTS+=" --use-hwthread-cpus"
+fi
+if [ "`whoami`" = "root" ]; then
+	FRONTISTR_MPI_OPTS+=" --allow-run-as-root"
+fi
+export FRONTISTR_MPI_OPTS

@@ -26,3 +26,10 @@ export SALMON_MPI_LIBPATH=/usr/lib64/mpi/gcc/$SALMON_OPENMPI_VERSION/lib64
 export SALMON_MAXCPUS=$NUMCPUS
 export SALMON_MODEL=classicem
 export SALMON_ITERATIONS=3
+
+grep -q " ht " /proc/cpuinfo
+if [ $SALMON_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+	echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+	SALMON_MPI_OPTS+=" --use-hwthread-cpus"
+	export SALMON_MPI_OPTS
+fi

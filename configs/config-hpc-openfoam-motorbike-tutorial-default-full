@@ -43,3 +43,14 @@ export OPENFOAM_GLOBAL_CELLS=100000000
 export OPENFOAM_REFINEMENT_CELLS=10
 export OPENFOAM_CELL_LEVELS=3
 export OPENFOAM_ITERATIONS=3
+
+# Set additional mpi options if required
+grep -q " ht " /proc/cpuinfo
+if [ $OPENFOAM_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+	echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+	OPENFOAM_MPI_OPTS+=" --use-hwthread-cpus"
+fi
+if [ "`whoami`" = "root" ]; then
+	OPENFOAM_MPI_OPTS+=" --allow-run-as-root"
+fi
+export OPENFOAM_MPI_OPTS

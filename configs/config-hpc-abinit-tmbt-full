@@ -25,4 +25,14 @@ export ABINIT_MPI_PATH=/usr/lib64/mpi/gcc/$ABINIT_OPENMPI_VERSION/bin
 export ABINIT_MPI_LIBPATH=/usr/lib64/mpi/gcc/$ABINIT_OPENMPI_VERSION/lib64
 export ABINIT_MAXCPUS=$NUMCPUS
 export ABINIT_MODEL=tmbt
-export ABINIT_MPI_OPTS="--use-hwthread-cpus"
+
+# Set additional mpi options if required
+grep -q " ht " /proc/cpuinfo
+if [ $ABINIT_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+	echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+	ABINIT_MPI_OPTS+=" --use-hwthread-cpus"
+fi
+if [ "`whoami`" = "root" ]; then
+	ABINIT_MPI_OPTS+=" --allow-run-as-root"
+fi
+export ABINIT_MPI_OPTS
