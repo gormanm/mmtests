@@ -19,6 +19,7 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $iteration = 0;
 
+	my @models;
 	my @files = <$reportDir/wrf-time.*>;
 	foreach my $file (@files) {
 		my $model = $file;
