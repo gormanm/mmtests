@@ -15,8 +15,6 @@ if [ "$WRF_OPENMPI_VERSION" != "" ]; then
 	install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc
 	install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc-devel
 fi
-install-depends gcc gcc-fortran
-install-depends netcdf-devel netcdf-fortran-devel
 
 ###SHELLPACK sources_fetch WRFV${VERSION}.TAR.gz wrf-${VERSION}-installed
 ###SHELLPACK build_start wrf-${VERSION}-installed

@@ -6,6 +6,10 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
+install-depends gcc gcc-fortran
+install-depends netcdf-devel netcdf-fortran-devel hdf5-devel
+install-depends curl libcurl-devel
+
 MIRROR_LOCATION="$WEBROOT/wrf"
 NETCDFC_VERSION=v4.7.3
 NETCDFFC_VERSION=v4.5.2
