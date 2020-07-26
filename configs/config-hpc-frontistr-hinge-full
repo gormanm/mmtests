@@ -49,7 +49,7 @@ fi
 
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
-if [ $FRONTISTR_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+if [ $FRONTISTR_MPI_PROCESSES -ge $((NUMCPUS/2)) ]; then
 	echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
 	FRONTISTR_MPI_OPTS+=" --use-hwthread-cpus"
 fi

@@ -14,10 +14,8 @@
 ###SHELLPACK mpi_setup_deps OPENFOAM_OPENMPI_VERSION
 ###SHELLPACK mpi_setup_env OPENFOAM_OPENMPI_VERSION OPENFOAM_MPI_PATH OPENFOAM_MPI_LIBPATH OPENFOAM_MPI_OPTS
 ###SHELLPACK mpi_setup_shmem
-###SHELLPACK mpi_setup_runas
 
 ###SHELLPACK check_external_install_required openfoambuild openfoambuild-${VERSION} ${VERSION}
-###SHELLPACK mpi_create_mpiuser
 ###SHELLPACK init_complete
 
 cd $SHELLPACK_SOURCES/openfoambuild-$VERSION-installed/ || die "Failed to cd to openfoam installation directory"
@@ -90,23 +88,19 @@ motorbike-tutorial)
 	###SHELLPACK self_extract Allrun-motorBike.patch
 	cat $SHELLPACK_TEMP/Allrun-motorBike.patch | patch -p1 || \
 		die "Failed to patch Allrun to record timing of parallel steps"
-
-	$MMTESTS_CHOWN_RUNAS . &>/dev/null
 	;;
 *)
 	die "Unrecognised model $OPENFOAM_MODEL"
 	;;
 esac
 
-$MMTESTS_CHOWN_RUNAS $SHELLPACK_DATA &>/dev/null
-$MMTESTS_CHOWN_RUNAS $LOGDIR_RESULTS &>/dev/null
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
 ###SHELLPACK iteration_begin $OPENFOAM_ITERATIONS
 	echo Executing iteration $ITERATION/$OPENFOAM_ITERATIONS
-	$MMTESTS_RUNAS ./Allclean
+	./Allclean
 	export ITERATION
 	$TIME_CMD -o $LOGDIR_RESULTS/openfoam-time.$ITERATION	\
-		$MMTESTS_RUNAS ./Allrun 2>&1 | tee $LOGDIR_RESULTS/openfoam-log.$ITERATION
+		./Allrun 2>&1 | tee $LOGDIR_RESULTS/openfoam-log.$ITERATION
 	gzip $LOGDIR_RESULTS/openfoam-log.$ITERATION
 
 	tar -czf $LOGDIR_RESULTS/openfoam-steplogs-$ITERATION.tar.gz log.*

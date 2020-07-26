@@ -24,3 +24,14 @@ export WRF_MPI_PATH=/usr/lib64/mpi/gcc/$WRF_OPENMPI_VERSION/bin
 export WRF_MPI_LIBPATH=/usr/lib64/mpi/gcc/$WRF_OPENMPI_VERSION/lib64
 export WRF_MODEL=conus12km
 export WRF_MAXCPUS=$NUMCPUS
+
+# Set additional mpi options if required
+grep -q " ht " /proc/cpuinfo
+if [ $WRF_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+	echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+	WRF_MPI_OPTS+=" --use-hwthread-cpus"
+fi
+if [ "`whoami`" = "root" ]; then
+	WRF_MPI_OPTS+=" --allow-run-as-root"
+fi
+export WRF_MPI_OPTS

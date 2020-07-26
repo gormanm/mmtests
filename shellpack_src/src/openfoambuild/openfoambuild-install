@@ -30,13 +30,4 @@ foamInstallationTest || die "Failed installation test"
 sed -i -e 's/mpirun -np/mpirun $OPENFOAM_MPI_OPTS -np/' bin/tools/RunFunctions
 chmod a+w .
 
-if [ !- z $OPENFOAM_LOCAL_USER ] ; then
-	echo Setting ownership to mpiuser
-	getent passwd mpiuser &> /dev/null
-	if [ $? -ne 0 ]; then
-		useradd -g users mpiuser
-	fi
-	chown -R mpiuser:users $WM_PROJECT_DIR
-fi
-
 echo openfoambuild installed successfully
