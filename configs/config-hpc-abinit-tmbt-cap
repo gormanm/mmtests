@@ -32,7 +32,7 @@ MEMTOTAL_MB=$((MEMTOTAL_BYTES/1048576))
 CEILING=$(((MEMTOTAL_MB/1200+3)/4*4))
 if [ $ABINIT_MAXCPUS -gt $CEILING ]; then
 	ABINIT_MAXCPUS=$CEILING
-	echo WARNING: Maximum CPUs limited to $ABAINIT_MAXCPUS due to memory constraints
+	echo WARNING: Maximum CPUs limited to $ABINIT_MAXCPUS due to memory constraints
 fi
 
 # Set additional mpi options if required

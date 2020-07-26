@@ -25,6 +25,10 @@ fi
 cat $SHELLPACK_TEMP/0001-remove-unused-function.patch | patch -p1
 cat $SHELLPACK_TEMP/0002-split-global-small.patch     | patch -p1
 cat $SHELLPACK_TEMP/0003-fix-paths-global-small.patch | patch -p1
+
+if [ "$SPECFEM3D_IGNORE_WARNINGS" = "yes" ]; then
+	sed -i -e 's/-Werror//' flags.guess
+fi
 ###SHELLPACK build_configure specfem3d-${VERSION} $OMP_SWITCH
 ###SHELLPACK make
 ROOTDIR=$SHELLPACK_SOURCES/specfem3d-${VERSION}-installed
