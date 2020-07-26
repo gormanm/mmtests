@@ -28,7 +28,7 @@ export WRF_MAXCPUS=$NUMCPUS
 # WRF is memory intensive, assume each process needs at
 # least 4 GB
 MEMTOTAL_GB=$((MEMTOTAL_BYTES/1048576/1024))
-CEILING=$((MEMTOTAL_GB/4))
+CEILING=$(((MEMTOTAL_GB/4+3)/4*4))
 if [ $WRF_MAXCPUS -gt $CEILING ]; then
 	WRF_MAXCPUS=$CEILING
 	echo WARNING: Maximum CPUs limited to $WRF_MAXCPUS due to memory constraints
