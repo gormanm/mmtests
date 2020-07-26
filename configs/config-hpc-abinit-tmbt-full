@@ -28,9 +28,11 @@ export ABINIT_MODEL=tmbt
 
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
-if [ $ABINIT_MAXCPUS -ge $((NUMCPUS/2)) ]; then
-	echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
-	ABINIT_MPI_OPTS+=" --use-hwthread-cpus"
+if [ $? -eq 0 ]; then
+	if [ $ABINIT_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+		ABINIT_MPI_OPTS+=" --use-hwthread-cpus"
+	fi
 fi
 if [ "`whoami`" = "root" ]; then
 	ABINIT_MPI_OPTS+=" --allow-run-as-root"

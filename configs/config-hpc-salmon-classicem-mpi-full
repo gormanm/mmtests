@@ -27,9 +27,15 @@ export SALMON_MAXCPUS=$NUMCPUS
 export SALMON_MODEL=classicem
 export SALMON_ITERATIONS=3
 
+# Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
-if [ $SALMON_MAXCPUS -ge $((NUMCPUS/2)) ]; then
-	echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
-	SALMON_MPI_OPTS+=" --use-hwthread-cpus"
-	export SALMON_MPI_OPTS
+if [ $? -eq 0 ]; then
+	if [ $SALMON_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+		SALMON_MPI_OPTS+=" --use-hwthread-cpus"
+	fi
 fi
+if [ "`whoami`" = "root" ]; then
+	SALMON_MPI_OPTS+=" --allow-run-as-root"
+fi
+export SALMON_MPI_OPTS

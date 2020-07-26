@@ -49,9 +49,11 @@ export OPENFOAM_ITERATIONS=3
 
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
-if [ $OPENFOAM_MAXCPUS -ge $((NUMCPUS/2)) ]; then
-	echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
-	OPENFOAM_MPI_OPTS+=" --use-hwthread-cpus"
+if [ $? -eq 0 ]; then
+	if [ $OPENFOAM_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+		OPENFOAM_MPI_OPTS+=" --use-hwthread-cpus"
+	fi
 fi
 if [ "`whoami`" = "root" ]; then
 	OPENFOAM_MPI_OPTS+=" --allow-run-as-root"
