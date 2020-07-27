@@ -113,11 +113,16 @@ for CONFIG in `ls config-hpc-openfoam-motorbike-tutorial-*`; do
 	echo 'export OPENFOAM_STOPAT_MESH="yes"' >> $CONFIG-meshonly
 done
 
+# SALMON
+sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-salmon-classicem-mpi-full > config-hpc-salmon-classicem-mpi-hpcext-full
+sed -i -e '/SALMON_MPI_PATH/d'    config-hpc-salmon-classicem-mpi-hpcext-full
+sed -i -e '/SALMON_MPI_LIBPATH/d' config-hpc-salmon-classicem-mpi-hpcext-full
+
 # SPECFEM3D
 for MODEL in global small; do
 	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-specfem3d-$MODEL-s362ani-mpi-full > config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
-	sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
-	sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
+	sed -i -e '/SPECFEM3D_MPI_PATH/d'    config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
+	sed -i -e '/SPECFEM3D_MPI_LIBPATH/d' config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
 done
 
 # Stream

@@ -262,6 +262,9 @@ if [ "\$BUILD_FLAGS" != "" ]; then
 	. \$BUILD_FLAGS
 	cat \$BUILD_FLAGS
 	echo ===================
+	if [ -e \$SHELLPACK_TOPLEVEL/configs/build-flags/common-finalise ]; then
+		. \$SHELLPACK_TOPLEVEL/configs/build-flags/common-finalise
+	fi
 else
 	export CFLAGS="\${MMTESTS_BUILD_CFLAGS:--O2} \$MMTESTS_BUILD_CFLAGS_EXTRA"
 fi
