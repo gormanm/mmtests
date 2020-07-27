@@ -48,4 +48,4 @@ mkdir build
 # -DMPI_BASE_DIR=$MPI_BASE_DIR
 ###SHELLPACK make_make_install
 
-echo slalapack installed successfully
+echo trilinos installed successfully
