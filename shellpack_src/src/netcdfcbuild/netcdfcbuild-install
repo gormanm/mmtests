@@ -20,5 +20,6 @@ fi
 
 ###SHELLPACK build_configure netcdfcbuild-${VERSION}
 ###SHELLPACK make_make_install
+###SHELLPACK install_merge netcdfcbuild-${VERSION} netcdf-installed
 
 echo netcdf-c installed successfully

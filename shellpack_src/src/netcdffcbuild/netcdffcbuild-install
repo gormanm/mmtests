@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble netcdffcbuild v4.7.3
+###SHELLPACK preamble netcdffcbuild v4.5.2
 GIT_LOCATION=https://github.com/Unidata/netcdf-fortran
 MIRROR_LOCATION="$WEBROOT/netcdf/"
 
@@ -17,6 +17,10 @@ if [ "$OPTFLAGS" != "" ]; then
 	export CXXFLAGS=$OPTFLAGS
 	export FCFLAGS=$OPTFLAGS
 fi
+
+export CPPFLAGS="-I$SHELLPACK_SOURCES/netcdf-installed/include"
+export LDFLAGS="-L$SHELLPACK_SOURCES/netcdf-installed/lib64"
+export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/netcdf-installed/lib64:$LD_LIBRARY_PATH"
 
 ###SHELLPACK build_configure netcdffcbuild-${VERSION}
 ###SHELLPACK make_make_install

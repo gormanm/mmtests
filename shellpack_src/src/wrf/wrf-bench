@@ -18,15 +18,11 @@ NETCDFFC_VERSION=v4.5.2
 ###SHELLPACK mpi_setup_env WRF_OPENMPI_VERSION WRF_MPI_PATH WRF_MPI_LIBPATH WRF_MPI_OPTS
 ###SHELLPACK mpi_setup_shmem
 
+###SHELLPACK install_clear netcdf-installed
 ###SHELLPACK check_external_install_required_continue netcdfcbuild netcdfcbuild-$NETCDFC_VERSION $NETCDFC_VERSION
+###SHELLPACK install_merge netcdfcbuild-$NETCDFC_VERSION netcdf-installed
 ###SHELLPACK check_external_install_required_continue netcdffcbuild netcdffcbuild-$NETCDFFC_VERSION $NETCDFFC_VERSION
-
-rm -rf $SHELLPACK_SOURCES/netcdf-installed
-mkdir -p $SHELLPACK_SOURCES/netcdf-installed
-cp -r $SHELLPACK_SOURCES/netcdfcbuild-$NETCDFC_VERSION-installed/* $SHELLPACK_SOURCES/netcdf-installed ||
-	die "Failed netcdf-c"
-cp -r $SHELLPACK_SOURCES/netcdffcbuild-$NETCDFFC_VERSION-installed/* $SHELLPACK_SOURCES/netcdf-installed ||
-	die "Failed netcdf-fortran"
+###SHELLPACK install_merge netcdffcbuild-$NETCDFFC_VERSION netcdf-installed
 ###SHELLPACK check_install_required wrf-$VERSION
 
 case $WRF_MODEL in

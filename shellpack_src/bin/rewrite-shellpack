@@ -798,6 +798,20 @@ if [ "`whoami`" = "root" ]; then
 	fi
 fi
 EOC
+	} elsif ($command eq "install_clear") {
+		my ($path) = @details;
+		print <<EOC
+rm -rf \$SHELLPACK_SOURCES/$path
+EOC
+	} elsif ($command eq "install_merge") {
+		my ($src, $dst) = @details;
+		print <<EOC
+cd \$SHELLPACK_SOURCES/$src-installed || die "Failed to access source $src"
+if [ ! -e \$SHELLPACK_SOURCES/$dst ]; then
+	mkdir \$SHELLPACK_SOURCES/$dst || die "Failed to create dst $dst"
+fi
+tar -c * | tar -C \$SHELLPACK_SOURCES/$dst -x || die "Failed to merge $src to $dst"
+EOC
 	} else {
 		print "# WARNING: UNRECOGNISED command $command\n";
 		print $_;
