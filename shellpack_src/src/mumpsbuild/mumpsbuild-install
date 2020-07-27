@@ -17,6 +17,7 @@ MIRROR_LOCATION="$WEBROOT/mumpsbuild/"
 cp Make.inc/Makefile.inc.generic Makefile.inc
 ###SHELLPACK self_extract MUMPS_5.3.3-Makefile.inc.generic.diff
 cat $SHELLPACK_TEMP/MUMPS_5.3.3-Makefile.inc.generic.diff | patch -p1 || die "Failed to patch Makefile.inc"
+build_callback
 ###SHELLPACK make
 
 mkdir $SHELLPACK_SOURCES/mumpsbuild-${VERSION}-installed

@@ -236,7 +236,12 @@ EOC
 	} elsif ($command eq "build_start") {
 		my ($srcdir) = @details;
 		print <<EOC
-pushd \$SHELLPACK_SOURCES/$srcdir || die Failed to change to source directory
+
+build_callback() {
+	echo -n
+}
+
+pushd \$SHELLPACK_SOURCES/$srcdir > /dev/null || die Failed to change to source directory
 if [ "\$BUILD_START_NOTOUCH\" != "yes" ]; then
 	for FILE in `find -name "*"`; do
 		touch \$FILE
