@@ -20,7 +20,92 @@ install-depends gcc-fortran gcc
 export BUILD_START_NOTOUCH=yes
 ###SHELLPACK build_start abinit-${VERSION}-installed
 ###SHELLPACK build_configure abinit-${VERSION}-installed $MPI_SWITCH
+
+###SHELLPACK self_extract commit-055f279d.patch
+###SHELLPACK self_extract partial-commit-40d49a0c.patch
+cat $SHELLPACK_TEMP/commit-055f279d.patch | patch -p1 || die "Failed to patch git commit 055f279d"
+cat $SHELLPACK_TEMP/partial-commit-40d49a0c.patch | patch -p1 || die "Failed to patch git commit 40d49a0c"
 ###SHELLPACK make
 
 echo abinit installed successfully
 exit $SHELLPACK_SUCCESS
+
+==== BEGIN commit-055f279d.patch ====
+From 055f279dc06eb9cbd6cb3cfd3a7dd299c34b755e Mon Sep 17 00:00:00 2001
+From: Xu He <mailhexu@gmail.com>
+Date: Mon, 2 Dec 2019 10:17:55 +0100
+Subject: [PATCH] more fix: issue #56
+
+---
+ src/78_effpot/m_polynomial_coeff.F90 | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/src/78_effpot/m_polynomial_coeff.F90 b/src/78_effpot/m_polynomial_coeff.F90
+index 7df7a6ce628a..6c2cf0c74fe6 100644
+--- a/src/78_effpot/m_polynomial_coeff.F90
++++ b/src/78_effpot/m_polynomial_coeff.F90
+@@ -2688,8 +2688,8 @@ recursive subroutine computeCombinationFromList(cell,compatibleCoeffs,list_coeff
+ !Arguments ---------------------------------------------
+ !scalar
+  integer,intent(in) :: natom,ncoeff,power_disp,power_disp_min,power_disp_max
+- integer,intent(in) :: max_power_strain,nmodel,nsym,nrpt,nstr
+- integer,intent(inout) :: icoeff,nmodel_tot
++ integer,intent(in) :: max_power_strain,nmodel,nsym,nrpt,nstr,icoeff
++ integer,intent(inout) :: nmodel_tot
+  logical,optional,intent(in) :: compute,anharmstr,spcoupling
+  integer,optional,intent(in) :: nbody
+  logical,optional,intent(in) :: only_odd_power,only_even_power
+@@ -2737,8 +2737,7 @@ recursive subroutine computeCombinationFromList(cell,compatibleCoeffs,list_coeff
+ 
+ !    If the power_disp is one, we need to set icoeff to icoeff1
+      if(power_disp==1) then
+-       icoeff = icoeff1
+-       if(compatibleCoeffs(icoeff,icoeff1)==0)then
++       if(icoeff1<=ncoeff .and. compatibleCoeffs(icoeff,icoeff1)==0)then
+          compatible = .FALSE.
+        end if
+      end if
+==== END commit-055f279d.patch ====
+
+==== BEGIN partial-commit-40d49a0c.patch ====
+From 40d49a0c3b1f3b72fdb7b2317c77c60b6b717c74 Mon Sep 17 00:00:00 2001
+From: mschmitt <mrcsschmitt@googlemail.com>
+Date: Tue, 19 Nov 2019 15:18:02 +0100
+Subject: [PATCH] Took care of icoeff1 bug.
+
+---
+ src/78_effpot/m_polynomial_coeff.F90 | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/src/78_effpot/m_polynomial_coeff.F90 b/src/78_effpot/m_polynomial_coeff.F90
+index 0d866665c160..e1d8b3ea4173 100644
+--- a/src/78_effpot/m_polynomial_coeff.F90
++++ b/src/78_effpot/m_polynomial_coeff.F90
+@@ -2871,8 +2871,8 @@ recursive subroutine computeNorder(cell,coeffs_out,compatibleCoeffs,list_coeff,l
+ 
+ !Arguments ---------------------------------------------
+ !scalar
+- integer,intent(in) :: natom,ncoeff,power_disp,power_disp_min,power_disp_max,ncoeff_out,nsym,nrpt,nstr
+- integer,intent(inout) :: icoeff,icoeff_tot
++ integer,intent(in) :: natom,ncoeff,power_disp,power_disp_min,power_disp_max,ncoeff_out,nsym,nrpt,nstr,icoeff
++ integer,intent(inout) :: icoeff_tot
+  logical,optional,intent(in) :: compute,anharmstr,spcoupling,distributed
+  integer,optional,intent(in) :: nbody
+ !arrays
+@@ -2922,9 +2922,12 @@ recursive subroutine computeNorder(cell,coeffs_out,compatibleCoeffs,list_coeff,l
+    do icoeff1=icoeff,ncoeff+nstr
+ !    If the distance between the 2 coefficients is superior than the cut-off,
+ !    we cycle
+-!    If the power_disp is one, we need to set icoeff to icoeff1
+-     if(power_disp==1) icoeff = icoeff1
+-
++!    If the power_disp is one check if icoeff1 is compatible with itself
++     if(power_disp==1) then
++       if(icoeff1 <= ncoeff .and. compatibleCoeffs(icoeff1,icoeff1)==0)then
++         cycle
++       end if
++     end if
+      if(compatibleCoeffs(icoeff,icoeff1)==0) cycle
+ 
+ !    Reset the flag compatible and possible
+==== END partial-commit-40d49a0c.patch ====
