@@ -3,7 +3,7 @@
 GIT_LOCATION=https://develop.openfoam.com/Development/openfoam.git
 MIRROR_LOCATION="$WEBROOT/openfoambuild/"
 
-install-depends cmake boost-devel gnuplot mpfr-devel glu-devel fles \
+install-depends cmake boost-devel gnuplot mpfr-devel glu-devel flex \
 	libqt4-devel qt4-assistant-adp-devel qt4-x11-tools
 
 ###SHELLPACK parseargBegin
@@ -16,9 +16,9 @@ if [ ! -e ThirdParty ]; then
 	echo Fetching ThirdParty
 	file_fetch https://sourceforge.net/projects/openfoam/files/v2006/ThirdParty-v2006.tgz \
 		$MIRROR_LOCATION/ThirdParty-v2006.tgz \
-		ThirdParty-v2006.tgz
+		../ThirdParty-v2006.tgz
 	echo Expanding ThirdParty
-	tar -xf ThirdParty-v2006.tgz
+	tar -xf ../ThirdParty-v2006.tgz
 	mv ThirdParty-v2006 ThirdParty
 fi
 
