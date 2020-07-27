@@ -136,3 +136,8 @@ sed -e 's/SYSBENCHCPU_MAX_THREADS=.*/SYSBENCHCPU_MAX_THREADS=2/' config-schedule
 sed -e 's/SYSBENCHCPU_MAX_THREADS=.*/SYSBENCHCPU_MAX_THREADS=2/' config-scheduler-sysbench-cpu > config-scheduler-sysbench-cpu-small
 sed -e 's/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=.*/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=2/' config-scheduler-sysbench-thread > config-scheduler-sysbench-thread-small
 sed -e 's/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=.*/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=2/' config-scheduler-sysbench-thread > config-scheduler-sysbench-thread-small
+
+# WRF
+sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-wrf-conus12km-full > config-hpc-wrf-conus12km-hpcext-full
+sed -i -e '/WRF_MPI_PATH/d'    config-hpc-wrf-conus12km-hpcext-full
+sed -i -e '/WRF_MPI_LIBPATH/d' config-hpc-wrf-conus12km-hpcext-full
