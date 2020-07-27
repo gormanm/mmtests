@@ -71,13 +71,15 @@ if [ ! -e configure.wrf ]; then
 fi
 cp configure.wrf configure.wrf.orig
 
+build_callback
+
 # Additional configuration
-LDFLAGS_EXTRA="-L${WRF_MPI_LIBPATH} -L${NETCDF}/lib64 -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/lib64 -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
+LDFLAGS_EXTRA+="-L${WRF_MPI_LIBPATH} -L${NETCDF}/lib64 -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/lib64 -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
 export LD_LIBRARY_PATH=${NETCDF}/lib64:${HDF}/lib64:$LD_LIBRARY_PATH
 LDFLAGS_EXTRA_ESCAPED=`echo "$LDFLAGS_EXTRA" | sed -e 's/\//\\\\\//g'`
 sed -i -e "s/^LDFLAGS_LOCAL.*/LDFLAGS_LOCAL   =       $LDFLAGS_EXTRA_ESCAPED/" configure.wrf
+sed -i -e "s/\/lib\/cpp/cpp/" configure.wrf
 
-# Build
 ./compile wrf || die "Failed to build wrf"
 ./compile em_real || die "Failed to build em_real"
 

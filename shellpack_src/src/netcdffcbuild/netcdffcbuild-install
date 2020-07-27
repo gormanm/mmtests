@@ -12,9 +12,9 @@ MIRROR_LOCATION="$WEBROOT/netcdf/"
 ARCHSTRING="optflags: `uname -m`"
 OPTFLAGS=`grep "^$ARCHSTRING" /usr/lib/rpm/rpmrc | sed -e "s/^$ARCHSTRING//"`
 if [ "$OPTFLAGS" != "" ]; then
-	export CFLAGS_EXTRA=" $OPTFLAGS"
-	export CXXFLAGS_EXTRA=" $OPTFLAGS"
-	export FCFLAGS_EXTRA=" $OPTFLAGS"
+	export CFLAGS+=" $OPTFLAGS"
+	export CXXFLAGS+=" $OPTFLAGS"
+	export FCFLAGS+=" $OPTFLAGS"
 fi
 
 export CPPFLAGS="-I$SHELLPACK_SOURCES/netcdf-installed/include"
