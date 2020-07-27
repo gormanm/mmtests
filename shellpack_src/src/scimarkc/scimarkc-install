@@ -14,7 +14,6 @@ rm -rf scimarkc-${VERSION}-installed
 mkdir scimarkc-${VERSION}-installed
 cd scimarkc-${VERSION}-installed || die "Failed to create directory"
 unzip $SHELLPACK_SOURCES/$ZIPFILE || die "Failed to extract archive"
-export CFLAGS=${MMTESTS_BUILD_CFLAGS:--O2}
 make || die "Failed to build scimark ${VERSION}"
 
 exit $SHELLPACK_SUCCESS

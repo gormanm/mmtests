@@ -6,16 +6,15 @@ MIRROR_LOCATION="$WEBROOT/netcdf/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-export MMTESTS_NO_BUILDFLAGS=yes
 ###SHELLPACK git_fetch netcdfcbuild-${VERSION}.tar.gz netcdfcbuild-${VERSION}
 ###SHELLPACK build_start netcdfcbuild-${VERSION}
 
 ARCHSTRING="optflags: `uname -m`"
 OPTFLAGS=`grep "^$ARCHSTRING" /usr/lib/rpm/rpmrc | sed -e "s/^$ARCHSTRING//"`
 if [ "$OPTFLAGS" != "" ]; then
-	export CFLAGS=$OPTFLAGS
-	export CXXFLAGS=$OPTFLAGS
-	export FCFLAGS=$OPTFLAGS
+	export CFLAGS_EXTRA=" $OPTFLAGS"
+	export CXXFLAGS_EXTRA=" $OPTFLAGS"
+	export FCFLAGS_EXTRA=" $OPTFLAGS"
 fi
 
 ###SHELLPACK build_configure netcdfcbuild-${VERSION}
