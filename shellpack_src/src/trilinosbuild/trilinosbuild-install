@@ -26,6 +26,7 @@ CMAKE_FLAGS="-DCMAKE_C_COMPILER=mpicc \
 	-DTrilinos_ENABLE_OpenMP=ON \
 	-DTrilinos_ENABLE_Amesos=ON \
 	-DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF \
+	-DEpetra_ENABLE_OpenMP=FALSE \
 	-DBLAS_LIBRARY_DIRS=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib \
 	-DLAPACK_LIBRARY_DIRS=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib \
 	-DMETIS_INCLUDE_DIRS=$SHELLPACK_SOURCES/metisbuild-$METIS_VERSION-installed/include \
@@ -38,6 +39,10 @@ CMAKE_FLAGS="-DCMAKE_C_COMPILER=mpicc \
 export BUILD_START_NOTOUCH=yes
 ###SHELLPACK sources_fetch trilinos-release-${VERSION}.tar.gz trilinosbuild-${VERSION}
 ###SHELLPACK build_start trilinosbuild-${VERSION}
+# Gcc-9 limitation
+sed -i -e '/Epetra_HAVE_OMP/d' packages/epetra/src/CMakeLists.txt
+sed -i -e '/EPETRA_HAVE_OMP/d' packages/epetra/src/CMakeLists.txt
+
 mkdir build
 ###SHELLPACK build_cmake trilinosbuild-${VERSION}/build trilinosbuild-${VERSION} $CMAKE_FLAGS
 # -DMPI_BASE_DIR=$MPI_BASE_DIR

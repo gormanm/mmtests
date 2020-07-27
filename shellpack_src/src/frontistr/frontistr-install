@@ -28,7 +28,7 @@ sed -i -e "s/MUMPS_VERSION/$MUMPS_VERSION/g" Makefile.conf
 sed -i -e "s/SCALAPACK_VERSION/$SCALAPACK_VERSION/g" Makefile.conf
 sed -i -e "s/TRILINOS_VERSION/$TRILINOS_VERSION/g" Makefile.conf
 sed -i -e "s/BLAS_VERSION/$BLAS_VERSION/g" Makefile.conf
-
+build_callback
 ./setup.sh -p -p --with-tools --with-refiner \
 	--with-metis --with-mumps --with-lapack --with-ml
 
