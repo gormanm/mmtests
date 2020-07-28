@@ -6,6 +6,7 @@ $SCRIPTDIR/generate-generic-configs
 $SCRIPTDIR/generate-fs-configs
 $SCRIPTDIR/generate-zen2-configs
 
-if [ -e ../configs/build-flags/generate-mmtests-configs.sh ]; then
-	../configs/build-flags/generate-mmtests-configs.sh
+if [ -e $SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh ]; then
+	chmod a+x $SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh
+	$SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh
 fi
