@@ -459,10 +459,15 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	if [ "$FORMAT" = "html" ]; then
 		echo "<a name="$SUBREPORT">"
 	fi
-	OPTS=`find -maxdepth 4 -name "compiler.opts" | head -1`
-	if [ "$OPTS" != "" ]; then
-		cat $OPTS
-	fi
+
+	for OPTFILE in compiler.opts runtime.opts sysctl.opts; do
+		OPTS=`find -maxdepth 4 -name "$OPTFILE" | head -1`
+		if [ "$OPTS" != "" ]; then
+			cat $OPTS
+			echo
+		fi
+	done
+
 	case $SUBREPORT in
 	dbench4)
 		echo $SUBREPORT Loadfile Execution Time

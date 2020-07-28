@@ -76,6 +76,8 @@ $RUN_STAGE_MAP"
 fi
 
 echo $ABINIT_MAXCPUS > $LOGDIR_RESULTS/scaling-parameters
+BENCH_CMD="$MPIRUN abinit"
+log_runtime "Run: $BENCH_CMD"
 for STAGE in `echo $STAGE_MAP`; do
 	prepare_stage
 	

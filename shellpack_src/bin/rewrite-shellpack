@@ -31,6 +31,20 @@ if [ "\$TIME_CMD" = "" ]; then
         TIMEFORMAT="%2Uuser %2Ssystem %Relapsed %P%%CPU"
         TIME_CMD="time"
 fi
+
+log_sysctl() {
+	if [ ! -e \$SHELLPACK_LOG/sysctl.opts ]; then
+		echo "Sysctl options" >> \$SHELLPACK_LOG/sysctl.opts
+	fi
+	echo "\$@" >> \$SHELLPACK_LOG/sysctl.opts
+}
+
+log_runtime() {
+	if [ ! -e \$SHELLPACK_LOG/runtime.opts ]; then
+		echo "Runtime options" >> \$SHELLPACK_LOG/runtime.opts
+	fi
+	echo "\$@" >> \$SHELLPACK_LOG/runtime.opts
+}
 EOC
 	} elsif ($command eq "parseargBegin") {
 		print <<EOC
@@ -790,6 +804,18 @@ else
 	if [ "\$MPIRUN_FLAGS\" != "" ]; then
 		. \$MPIRUN_FLAGS
 	fi
+
+	SYSCTL_FLAGS=
+	SYSCTL_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/\$P"
+	for FILE in \$SYSCTL_FLAGS_ROOT/sysctl \$SYSCTL_FLAGS_ROOT/`uname -m`/sysctl \$SYSCTL_FLAGS_ROOT/`uname -m`/sysctl-`hostname`; do
+		if [ -f \$FILE ]; then
+			SYSCTL_FLAGS=\$FILE
+		fi
+	done
+	if [ "\$SYSCTL_FLAGS\" != "" ]; then
+		. \$SYSCTL_FLAGS
+	fi
+
 fi
 EOC
 	} elsif ($command eq "mpi_setup_shmem") {
