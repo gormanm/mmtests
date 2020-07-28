@@ -6,6 +6,22 @@ use strict;
 my $shellpack;
 my $packdirectory = $ARGV[0];
 
+my $script_sysctl="
+if [ \"\$INSTALL_ONLY\" != \"yes\" ]; then
+	SYSCTL_FLAGS=
+	SYSCTL_BENCH=`echo \$P | sed -e 's/-bench//'`
+	SYSCTL_FLAGS_ROOT=\"\$SHELLPACK_TOPLEVEL/configs/build-flags/\$SYSCTL_BENCH\"
+	for FILE in \$SYSCTL_FLAGS_ROOT/sysctl \$SYSCTL_FLAGS_ROOT/`uname -m`/sysctl \$SYSCTL_FLAGS_ROOT/`uname -m`/sysctl-`hostname`; do
+		if [ -f \$FILE ]; then
+			SYSCTL_FLAGS=\$FILE
+		fi
+	done
+	if [ \"\$SYSCTL_FLAGS\" != \"\" ]; then
+		. \$SYSCTL_FLAGS
+	fi
+fi
+";
+
 while (<STDIN>) {
 	my $line = $_;
 	if ($_ !~ /###SHELLPACK/) {
@@ -41,7 +57,7 @@ log_sysctl() {
 
 log_runtime() {
 	if [ ! -e \$SHELLPACK_LOG/runtime.opts ]; then
-		echo "Runtime options" >> \$SHELLPACK_LOG/runtime.opts
+		echo "Runtime options" > \$SHELLPACK_LOG/runtime.opts
 	fi
 	echo "\$@" >> \$SHELLPACK_LOG/runtime.opts
 }
@@ -449,6 +465,7 @@ if [ "\$INSTALL_ONLY" = "yes" ]; then
 	echo $shellpack installed only as requested.
 	exit \$SHELLPACK_SUCCESS
 fi
+$script_sysctl
 EOC
 	} elsif ($command eq "check_install_required_continue") {
 		my ($srcdir, @other) = @details;
@@ -464,6 +481,7 @@ if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
 	mmtests_activity source-installed
 fi
 cd \$SHELLPACK_SOURCES/$shellpack-\${VERSION}-installed || die Failed to cd to $shellpack install directory
+$script_sysctl
 EOC
 	} elsif ($command eq "check_external_install_required") {
 		my ($externalpack, $srcdir, $version, @other) = @details;
@@ -794,28 +812,21 @@ else
 
 	export MPI_BASE_DIR=`dirname \$$mpipath`
 
+fi
+
+if [ "\$INSTALL_ONLY" != "yes" ]; then
 	MPIRUN_FLAGS=
-	MPIRUN_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/\$P"
+	MPIRUN_BENCH=`echo \$P | sed -e 's/-bench//'`
+	MPIRUN_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/\$MPIRUN_BENCH"
 	for FILE in \$MPIRUN_FLAGS_ROOT/mpiflags \$MPIRUN_FLAGS_ROOT/`uname -m`/mpiflags \$MPIRUN_FLAGS_ROOT/`uname -m`/mpiflags-`hostname`; do
 		if [ -f \$FILE ]; then
 			MPIRUN_FLAGS=\$FILE
 		fi
 	done
 	if [ "\$MPIRUN_FLAGS\" != "" ]; then
+		echo Reading \$MPIRUN_FLAGS
 		. \$MPIRUN_FLAGS
 	fi
-
-	SYSCTL_FLAGS=
-	SYSCTL_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/\$P"
-	for FILE in \$SYSCTL_FLAGS_ROOT/sysctl \$SYSCTL_FLAGS_ROOT/`uname -m`/sysctl \$SYSCTL_FLAGS_ROOT/`uname -m`/sysctl-`hostname`; do
-		if [ -f \$FILE ]; then
-			SYSCTL_FLAGS=\$FILE
-		fi
-	done
-	if [ "\$SYSCTL_FLAGS\" != "" ]; then
-		. \$SYSCTL_FLAGS
-	fi
-
 fi
 EOC
 	} elsif ($command eq "mpi_setup_shmem") {
