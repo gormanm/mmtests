@@ -913,7 +913,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		johnripper)
 			generate_ops_graphs
 			;;
-		abinit|frontistr|openfoam|specfem3d)
+		abinit|frontistr|openfoam|specfem3d|wrf)
 			echo "<tr>"
 			for HEADING in elsp syst user; do
 				TITLE_HEADING=
