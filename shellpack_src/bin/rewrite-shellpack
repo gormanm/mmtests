@@ -779,6 +779,17 @@ else
 	fi
 
 	export MPI_BASE_DIR=`dirname \$$mpipath`
+
+	MPIRUN_FLAGS=
+	MPIRUN_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/\$P"
+	for FILE in \$MPIRUN_FLAGS_ROOT/mpiflags \$MPIRUN_FLAGS_ROOT/`uname -m`/mpiflags \$MPIRUN_FLAGS_ROOT/`uname -m`/mpiflags-`hostname`; do
+		if [ -f \$FILE ]; then
+			MPIRUN_FLAGS=\$FILE
+		fi
+	done
+	if [ "\$MPIRUN_FLAGS\" != "" ]; then
+		. \$MPIRUN_FLAGS
+	fi
 fi
 EOC
 	} elsif ($command eq "mpi_setup_shmem") {
