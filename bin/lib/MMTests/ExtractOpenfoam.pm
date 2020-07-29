@@ -24,6 +24,7 @@ sub extractReport() {
 	my $line = <INPUT>;
 	my @elements = split(/\s+/, $line);
 	my $subdomains = $elements[2];
+	$subdomains = "n";
 
 	my @files = <$reportDir/openfoam-time.*>;
 	foreach my $file (@files) {
