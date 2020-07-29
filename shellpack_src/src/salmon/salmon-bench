@@ -28,14 +28,15 @@ classicem)
 	die "Unrecognised model $SALMON_MODEL"
 esac
 
+BENCH_CMD="mpirun $SALMON_MPI_OPTS $MMTESTS_MPI_OPTS -np $SALMON_MAXCPUS $SHELLPACK_SOURCES/salmon-$VERSION-installed/bin/salmon.cpu"
+log_runtime "Run: $BENCH_CMD"
 echo $SALMON_MAXCPUS > $LOGDIR_RESULTS/scaling-parameters
 cd $INPUT_DIR || die "Failed to change to $INPUT_DIR"
 monitor_pre_hook $LOGDIR_RESULTS $SALMON_MODEL
 ###SHELLPACK iteration_begin $SALMON_ITERATIONS
 	echo Executing iteration $ITERATION/$SALMON_ITERATIONS
 	eval $TIME_CMD -o $LOGDIR_RESULTS/salmon-time.$ITERATION	\
-		mpirun $SALMON_MPI_OPTS -np $SALMON_MAXCPUS $SHELLPACK_SOURCES/salmon-$VERSION-installed/bin/salmon.cpu \
-			< $INPUT > $LOGDIR_RESULTS/salmon-log.$ITERATION
+		$BENCH_CMD < $INPUT > $LOGDIR_RESULTS/salmon-log.$ITERATION
 	gzip $LOGDIR_RESULTS/salmon-log.$ITERATION
 ###SHELLPACK iteration_end
 monitor_post_hook $LOGDIR_RESULTS $SALMON_MODEL
