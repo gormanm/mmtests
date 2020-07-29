@@ -774,6 +774,7 @@ EOC
 # Install mpi requirements
 if [ "\$$mpi" = "openmpi3" ]; then
 	install-depends openmpi3 openmpi3-devel
+	export SELFBUILD_OPENMPI_VERSION=v3.1.6
 elif [ "\$$mpi" = "openmpi2" ]; then
 	install-depends openmpi2 openmpi2-devel
 elif [ "\$$mpi" = "openmpi" ]; then
@@ -789,6 +790,12 @@ EOC
 	} elsif ($command eq "mpi_setup_env") {
 		my ($mpi, $mpipath, $mpilib, $opts) = @details;
 		print <<EOC
+if [ "\$MMTESTS_MPI_SELFBUILD" = "yes" ]; then
+	###SHELLPACK check_external_install_required_continue openmpibuild openmpibuild-\${SELFBUILD_OPENMPI_VERSION} \${SELFBUILD_OPENMPI_VERSION}
+	export $mpipath="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/bin"
+	export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib64"
+fi
+
 if [ "$opts" != "" ]; then
 	if [ "`whoami`" = "root" ]; then
 		$opts+=" --allow-run-as-root"

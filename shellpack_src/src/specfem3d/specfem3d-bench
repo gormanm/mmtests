@@ -5,8 +5,6 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required_continue specfem3d-$VERSION
-
 if [ "$SPECFEM3D_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
 	###SHELLPACK mpi_setup_env SPECFEM3D_OPENMPI_VERSION SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH SPECFEM3D_MPI_OPTS
@@ -16,11 +14,18 @@ else
 	export OMP_NUM_THREADS=$((SPECFEM3D_NEX_XI*SPECFEM3D_NEX_ETA*SPECFEM3D_NCHUNKS))
 fi
 
+###SHELLPACK check_install_required_continue specfem3d-$VERSION
+
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	rm -rf $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
+fi
+
 if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 	case $SPECFEM3D_MODEL in
 	small_s362)
 		# Copy model
 		cd $SHELLPACK_SOURCES/specfem3d-${VERSION}-installed/EXAMPLES || die "Failed to change to EXAMPLES directory"
+		rm -rf model-$SPECFEM3D_MODEL
 		cp -r global_small model-$SPECFEM3D_MODEL || die "Failed to copy model"
 		cd model-$SPECFEM3D_MODEL || die "Failed to change to model"
 
@@ -47,6 +52,7 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 	global_s362)
 		# Copy model
 		cd $SHELLPACK_SOURCES/specfem3d-${VERSION}-installed/EXAMPLES || die "Failed to change to EXAMPLES directory"
+		rm -rf model-$SPECFEM3D_MODEL
 		cp -r global_s362ani_shakemovie model-$SPECFEM3D_MODEL || die "Failed to copy model"
 		cd model-$SPECFEM3D_MODEL || die "Failed to change to model"
 
