@@ -803,10 +803,10 @@ if [ "$opts" != "" ]; then
 	fi
 fi
 if [ "\$$mpi" = "openmpi3-hpc" ]; then
-	module load gnu openmpi/3 || die "Could not load openmpi/3 module"
+	module load gnu/7 openmpi/3 || die "Could not load openmpi/3 module"
 	module li
 elif [ "\$$mpi" = "openmpi2-hpc" ]; then
-	module load gnu openmpi/2 || die "Could not load openmpi/2 module"
+	module load gnu/7 openmpi/2 || die "Could not load openmpi/2 module"
 	module li
 else
 	# Setup mpi environment
