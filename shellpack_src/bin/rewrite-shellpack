@@ -781,6 +781,7 @@ elif [ "\$$mpi" = "openmpi" ]; then
 	install-depends openmpi openmpi-devel
 elif [ "\$$mpi" = "openmpi3-hpc" ]; then
 	install-depends openmpi3-gnu-hpc-devel
+	export SELFBUILD_OPENMPI_VERSION=v3.1.6
 elif [ "\$$mpi" = "openmpi2-hpc" ]; then
 	install-depends openmpi2-gnu-hpc-devel
 else
