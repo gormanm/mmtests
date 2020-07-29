@@ -458,6 +458,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	echo
 	if [ "$FORMAT" = "html" ]; then
 		echo "<a name="$SUBREPORT">"
+		echo "<pre>"
 	fi
 
 	for OPTFILE in compiler.opts runtime.opts sysctl.opts; do
@@ -467,6 +468,10 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo
 		fi
 	done
+
+	if [ "$FORMAT" = "html" ]; then
+		echo "</pre>"
+	fi
 
 	case $SUBREPORT in
 	dbench4)
