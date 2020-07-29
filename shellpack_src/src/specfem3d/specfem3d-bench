@@ -30,7 +30,8 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 		cd model-$SPECFEM3D_MODEL || die "Failed to change to model"
 
 		# Configure model
-		sed -i -e "s/mpirun/mpirun $SPECFEM3D_MPI_OPTS/" go_*_pbs.bash
+		log_runtime "Add MPI flags to example script: $SPECFEM3D_MPI_OPTS $MMTESTS_MPI_OPTS"
+		sed -i -e "s/mpirun/mpirun $SPECFEM3D_MPI_OPTS $MMTESTS_MPI_OPTS/" go_*_pbs.bash
 		sed -i -e "s/^NCHUNKS.*/NCHUNKS = $SPECFEM3D_NCHUNKS/" DATA/Par_file
 		sed -i -e "s/^NEX_XI.*/NEX_XI = $SPECFEM3D_NEX_XI/" DATA/Par_file
 		sed -i -e "s/^NEX_ETA.*/NEX_ETA = $SPECFEM3D_NEX_ETA/" DATA/Par_file
@@ -62,9 +63,10 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 		cd model-$SPECFEM3D_MODEL || die "Failed to change to model"
 
 		# Configure model
+		log_runtime "Add MPI flags to example script: $SPECFEM3D_MPI_OPTS $MMTESTS_MPI_OPTS"
 		sed -i -e /compute_nodes/d go_*_pbs.bash
 		sed -i -e /jobid/d go_*_pbs.bash
-		sed -i -e "s/mpiexec/mpiexec $SPECFEM3D_MPI_OPTS/" go_*_pbs.bash
+		sed -i -e "s/mpiexec/mpiexec $SPECFEM3D_MPI_OPTS $MMTESTS_MPI_OPTS/" go_*_pbs.bash
 		sed -i -e "s/^NCHUNKS.*/NCHUNKS = $SPECFEM3D_NCHUNKS/" DATA/Par_file
 		sed -i -e "s/^NEX_XI.*/NEX_XI = $SPECFEM3D_NEX_XI/" DATA/Par_file
 		sed -i -e "s/^NEX_ETA.*/NEX_ETA = $SPECFEM3D_NEX_ETA/" DATA/Par_file
