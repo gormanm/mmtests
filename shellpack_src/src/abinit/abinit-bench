@@ -84,8 +84,7 @@ for STAGE in `echo $STAGE_MAP`; do
 	echo Executing $STAGE
 	monitor_pre_hook $LOGDIR_RESULTS $ABINIT_MODEL-stage-$STEP
 	eval $TIME_CMD -o $LOGDIR_RESULTS/abinit-time.$STEP	\
-		$MPIRUN abinit \
-			< ../$FILES > $LOGDIR_RESULTS/$ABINIT_MODEL-log.$STEP
+		$BENCH_CMD < ../$FILES > $LOGDIR_RESULTS/$ABINIT_MODEL-log.$STEP
 	monitor_post_hook $LOGDIR_RESULTS $ABINIT_MODEL-stage-$STEP
 
 	if [ $? -ne 0 ]; then

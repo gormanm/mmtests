@@ -40,12 +40,13 @@ conus12km)
 esac
 ###SHELLPACK init_complete
 
+BENCH_CMD="mpirun $WRF_MPI_OPTS $MMTESTS_MPI_OPTS -np $WRF_MAXCPUS ./wrf.exe"
 monitor_pre_hook $LOGDIR_RESULTS $SPECFEM3D_MODEL
 case $WRF_MODEL in
 conus12km)
 	cd $SHELLPACK_SOURCES/wrf-$VERSION-installed/test/em_real_bench
 	save_rc $TIME_CMD -o $LOGDIR_RESULTS/wrf-time.$WRF_MODEL   \
-		mpirun $WRF_MPI_OPTS -np $WRF_MAXCPUS ./wrf.exe 2>&1 | tee $LOGDIR_RESULTS/wrf-log.$WRF_MODEL
+		$BENCH_CMD 2>&1 | tee $LOGDIR_RESULTS/wrf-log.$WRF_MODEL
 	recover_rc
 	if [ $? -ne 0 ]; then
 		die "Failed to execute $WRF_MODEL"

@@ -464,7 +464,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	for OPTFILE in compiler.opts runtime.opts sysctl.opts; do
 		OPTS=`find -maxdepth 4 -name "$OPTFILE" | head -1`
 		if [ "$OPTS" != "" ]; then
-			cat $OPTS
+			cat $OPTS | uniq
 			echo
 		fi
 	done
