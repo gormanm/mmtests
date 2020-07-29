@@ -35,7 +35,4 @@ if [ $? -eq 0 ]; then
 		SALMON_MPI_OPTS+=" --use-hwthread-cpus"
 	fi
 fi
-if [ "`whoami`" = "root" ]; then
-	SALMON_MPI_OPTS+=" --allow-run-as-root"
-fi
 export SALMON_MPI_OPTS

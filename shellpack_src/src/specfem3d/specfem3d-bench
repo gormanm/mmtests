@@ -48,6 +48,11 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 		# Make a copy
 		cd $SHELLPACK_SOURCES/specfem3d-${VERSION}-installed/EXAMPLES || die "Failed to change to EXAMPLES directory"
 		cp -r model-$SPECFEM3D_MODEL $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
+		cd $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
+
+		echo Preparing mesh
+		$TIME_CMD -o $LOGDIR_RESULTS/prepare-time.mesher go_mesher_pbs.bash \
+			2> $LOGDIR_RESULTS/prepare-log.mesher
 		;;
 	global_s362)
 		# Copy model
@@ -77,6 +82,11 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 		# Make a copy
 		cd $SHELLPACK_SOURCES/specfem3d-${VERSION}-installed/EXAMPLES || die "Failed to change to EXAMPLES directory"
 		cp -r model-$SPECFEM3D_MODEL $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
+		cd $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
+
+		echo Preparing mesh
+		$TIME_CMD -o $LOGDIR_RESULTS/prepare-time.mesher go_mesher_pbs.bash \
+			2> $LOGDIR_RESULTS/prepare-log.mesher
 		;;
 	*)
 		die "Unrecognised model $SPECFEM3D_MODEL"
@@ -87,10 +97,10 @@ fi
 
 case $SPECFEM3D_MODEL in
 small_s362)
-	JOB_LIST="mesher:go_mesher_pbs.bash solver:go_solver_pbs.bash"
+	JOB_LIST="solver:go_solver_pbs.bash"
 	;;
 global_s362)
-	JOB_LIST="mesher:go_mesher_pbs.bash solver:go_solver_pbs.bash"
+	JOB_LIST="solver:go_solver_pbs.bash"
 	;;
 *)
 	die "Unrecognised model $SPECFEM3D_MODEL"
