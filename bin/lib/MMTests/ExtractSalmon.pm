@@ -24,6 +24,7 @@ sub extractReport() {
 	my $line = <INPUT>;
 	my @elements = split(/\s+/, $line);
 	my $subdomains = $elements[0];
+	my $subdomains = "n";
 
 	my @files = <$reportDir/salmon-time.*>;
 	foreach my $file (@files) {
