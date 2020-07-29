@@ -52,7 +52,7 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 		cd $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
 
 		echo Preparing mesh
-		$TIME_CMD -o $LOGDIR_RESULTS/prepare-time.mesher go_mesher_pbs.bash \
+		$TIME_CMD -o $LOGDIR_RESULTS/prepare-time.mesher ./go_mesher_pbs.bash \
 			2> $LOGDIR_RESULTS/prepare-log.mesher
 		;;
 	global_s362)
@@ -87,7 +87,7 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 		cd $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
 
 		echo Preparing mesh
-		$TIME_CMD -o $LOGDIR_RESULTS/prepare-time.mesher go_mesher_pbs.bash \
+		$TIME_CMD -o $LOGDIR_RESULTS/prepare-time.mesher ./go_mesher_pbs.bash \
 			2> $LOGDIR_RESULTS/prepare-log.mesher
 		;;
 	*)
