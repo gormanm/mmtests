@@ -8,10 +8,6 @@
 
 ###SHELLPACK check_install_required_continue abinit-$VERSION
 
-ABINIT_MAXCPUS=$((ABINIT_MAXCPUS/9*9))
-if [ $ABINIT_MAXCPUS -eq 0 ]; then
-	ABINIT_MAXCPUS=1
-fi
 MPIRUN=
 if [ "$ABINIT_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps ABINIT_OPENMPI_VERSION
