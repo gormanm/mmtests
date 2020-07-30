@@ -777,15 +777,21 @@ if [ "\$$mpi" = "openmpi3" ]; then
 	export SELFBUILD_OPENMPI_VERSION=v3.1.6
 elif [ "\$$mpi" = "openmpi2" ]; then
 	install-depends openmpi2 openmpi2-devel
+	export SELFBUILD_OPENMPI_VERSION=v2.1.6
 elif [ "\$$mpi" = "openmpi" ]; then
 	install-depends openmpi openmpi-devel
+	export SELFBUILD_OPENMPI_VERSION=v1.10.7
 elif [ "\$$mpi" = "openmpi3-hpc" ]; then
 	install-depends openmpi3-gnu-hpc-devel
 	export SELFBUILD_OPENMPI_VERSION=v3.1.6
 elif [ "\$$mpi" = "openmpi2-hpc" ]; then
 	install-depends openmpi2-gnu-hpc-devel
 else
-	die "Unrecognised MPI $mpi \$$mpi"
+	if [ "\$MMTESTS_MPI_SELFBUILD" = "yes" ]; then
+		export SELFBUILD_OPENMPI_VERSION="\$mpi"
+	else
+		die "Unrecognised MPI $mpi \$$mpi"
+	fi
 fi
 EOC
 	} elsif ($command eq "mpi_setup_env") {
