@@ -46,3 +46,6 @@ if [ "`whoami`" = "root" ]; then
 	WRF_MPI_OPTS+=" --allow-run-as-root"
 fi
 export WRF_MPI_OPTS
+if [ ! -e /etc/SUSE-brand ]; then
+	export MMTESTS_MPI_SELFBUILD=yes
+fi
