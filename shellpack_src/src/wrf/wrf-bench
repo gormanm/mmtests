@@ -8,6 +8,7 @@
 
 install-depends gcc gcc-fortran
 install-depends curl libcurl-devel
+install-depends csh
 
 MIRROR_LOCATION="$WEBROOT/wrf"
 NETCDFC_VERSION=v4.7.3

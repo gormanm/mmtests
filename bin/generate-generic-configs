@@ -56,9 +56,15 @@ for TYPE in full; do
 done
 
 # FRONTISTR
+sed 	-e 's/FRONTISTR_MPI_PROCESSES=.*/FRONTISTR_MPI_PROCESSES=$NUMCPUS/'	\
+	-e 's/FRONTISTR_OMP_THREADS=.*/FRONTISTR_OMP_THREADS=1/'			\
+	config-hpc-frontistr-hinge-full > config-hpc-frontistr-hinge-allproc-full
 sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-frontistr-hinge-full > config-hpc-frontistr-hinge-hpcext-full
 sed -i -e '/_MPI_PATH/d'    config-hpc-frontistr-hinge-hpcext-full
 sed -i -e '/_MPI_LIBPATH/d' config-hpc-frontistr-hinge-hpcext-full
+sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-frontistr-hinge-allproc-full > config-hpc-frontistr-hinge-allproc-hpcext-full
+sed -i -e '/_MPI_PATH/d'    config-hpc-frontistr-hinge-allproc-hpcext-full
+sed -i -e '/_MPI_LIBPATH/d' config-hpc-frontistr-hinge-allproc-hpcext-full
 
 # NAS
 for TYPE in omp mpi; do
