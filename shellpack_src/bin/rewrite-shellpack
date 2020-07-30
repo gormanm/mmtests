@@ -788,7 +788,7 @@ elif [ "\$$mpi" = "openmpi2-hpc" ]; then
 	install-depends openmpi2-gnu-hpc-devel
 else
 	if [ "\$MMTESTS_MPI_SELFBUILD" = "yes" ]; then
-		export SELFBUILD_OPENMPI_VERSION="\$mpi"
+		export SELFBUILD_OPENMPI_VERSION="\$$mpi"
 	else
 		die "Unrecognised MPI $mpi \$$mpi"
 	fi
