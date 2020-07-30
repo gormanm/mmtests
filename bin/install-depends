@@ -56,6 +56,11 @@ my %package_map = (
 	"debian::zeromq-devel"	=> "libzmq3-dev",
 	"debian::zlib-devel"	=> "zlib1g-dev",
 
+	"redhat::libblas3"       => "openblas",
+	"redhat::blas-devel-static" => "openblas-static",
+	"redhat::blas-devel"     => "openblas-devel",
+	"redhat::cpupower"	 => "kernel-tools",
+	"redhat::expect-devel"   => "expect",
 	"redhat::libnurses5"	 => "ncurses",
 	"redhat::gcc-fortran"    => "gcc-gfortran",
 	"redhat::libnuma-devel"  => "numactl-devel",
