@@ -49,7 +49,7 @@ export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
 
 # ABINIT
-for TYPE in full; do
+for TYPE in full limit; do
 	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-abinit-tmbt-$TYPE > config-hpc-abinit-tmbt-hpcext-$TYPE
 	sed -i -e '/ABINIT_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-$TYPE
 	sed -i -e '/ABINIT_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-$TYPE
