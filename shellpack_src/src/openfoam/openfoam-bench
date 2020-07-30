@@ -94,9 +94,10 @@ motorbike-tutorial)
 	;;
 esac
 
+export FOAM_SIGFPE="false"
+
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
 ###SHELLPACK iteration_begin $OPENFOAM_ITERATIONS
-  export FOAM_SIGFPE="false"
 	echo Executing iteration $ITERATION/$OPENFOAM_ITERATIONS
 	./Allclean
 	export ITERATION
