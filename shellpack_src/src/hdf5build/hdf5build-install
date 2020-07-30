@@ -1,13 +1,13 @@
 #!/bin/bash
-###SHELLPACK preamble netcdfcbuild v4.7.3
-GIT_LOCATION=https://github.com/Unidata/netcdf-c
+###SHELLPACK preamble hdf5build hdf5-1_10_5
+GIT_LOCATION=https://github.com/HDFGroup/hdf5
 MIRROR_LOCATION="$WEBROOT/netcdf/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK git_fetch netcdfcbuild-${VERSION}.tar.gz netcdfcbuild-${VERSION}
-###SHELLPACK build_start netcdfcbuild-${VERSION}
+###SHELLPACK git_fetch hdf5build-${VERSION}.tar.gz hdf5build-${VERSION}
+###SHELLPACK build_start hdf5build-${VERSION}
 
 ARCHSTRING="optflags: `uname -m`"
 OPTFLAGS=`grep "^$ARCHSTRING" /usr/lib/rpm/rpmrc | sed -e "s/^$ARCHSTRING//"`
@@ -17,12 +17,11 @@ if [ "$OPTFLAGS" != "" ]; then
 	export FCFLAGS+=" $OPTFLAGS"
 fi
 
-export CFLAGS+=" -I$SHELLPACK_SOURCES/netcdf-installed/include"
-export CPPFLAGS+=" -I$SHELLPACK_SOURCES/netcdf-installed/include"
-export LDFLAGS+=" -L$SHELLPACK_SOURCES/netcdf-installed/lib64"
+export CPPFLAGS="-I$SHELLPACK_SOURCES/netcdf-installed/include"
+export LDFLAGS="-L$SHELLPACK_SOURCES/netcdf-installed/lib64"
 export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/netcdf-installed/lib64:$LD_LIBRARY_PATH"
 
-###SHELLPACK build_configure netcdfcbuild-${VERSION}
+###SHELLPACK build_configure hdf5build-${VERSION} --enable-fortran --enable-cxx
 ###SHELLPACK make_make_install
 
 echo netcdf-c installed successfully

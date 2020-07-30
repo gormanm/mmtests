@@ -7,22 +7,24 @@
 ###SHELLPACK monitor_hooks
 
 install-depends gcc gcc-fortran
-install-depends netcdf-devel netcdf-fortran-devel hdf5-devel
 install-depends curl libcurl-devel
 
 MIRROR_LOCATION="$WEBROOT/wrf"
 NETCDFC_VERSION=v4.7.3
 NETCDFFC_VERSION=v4.5.2
+HDF5_VERSION=hdf5-1_10_5
 
 ###SHELLPACK mpi_setup_deps WRF_OPENMPI_VERSION
 ###SHELLPACK mpi_setup_env WRF_OPENMPI_VERSION WRF_MPI_PATH WRF_MPI_LIBPATH WRF_MPI_OPTS
 ###SHELLPACK mpi_setup_shmem
 
 ###SHELLPACK install_clear netcdf-installed
+###SHELLPACK check_external_install_required_continue hdf5build hdf5build-$HDF5_VERSION $HDF5_VERSION
+###SHELLPACK install_merge hdf5build-${HDF5_VERSION} netcdf-installed
 ###SHELLPACK check_external_install_required_continue netcdfcbuild netcdfcbuild-$NETCDFC_VERSION $NETCDFC_VERSION
-###SHELLPACK install_merge netcdfcbuild-$NETCDFC_VERSION netcdf-installed
+###SHELLPACK install_merge netcdfcbuild-${NETCDFC_VERSION} netcdf-installed
 ###SHELLPACK check_external_install_required_continue netcdffcbuild netcdffcbuild-$NETCDFFC_VERSION $NETCDFFC_VERSION
-###SHELLPACK install_merge netcdffcbuild-$NETCDFFC_VERSION netcdf-installed
+###SHELLPACK install_merge netcdffcbuild-${NETCDFFC_VERSION} netcdf-installed
 ###SHELLPACK check_install_required wrf-$VERSION
 export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/netcdf-installed/lib:$LD_LIBRARY_PATH
 

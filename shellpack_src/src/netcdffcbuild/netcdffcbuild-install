@@ -17,8 +17,9 @@ if [ "$OPTFLAGS" != "" ]; then
 	export FCFLAGS+=" $OPTFLAGS"
 fi
 
-export CPPFLAGS="-I$SHELLPACK_SOURCES/netcdf-installed/include"
-export LDFLAGS="-L$SHELLPACK_SOURCES/netcdf-installed/lib64"
+export CFLAGS+=" -I$SHELLPACK_SOURCES/netcdf-installed/include"
+export CPPFLAGS+=" -I$SHELLPACK_SOURCES/netcdf-installed/include"
+export LDFLAGS+=" -L$SHELLPACK_SOURCES/netcdf-installed/lib64"
 export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/netcdf-installed/lib64:$LD_LIBRARY_PATH"
 
 ###SHELLPACK build_configure netcdffcbuild-${VERSION}
