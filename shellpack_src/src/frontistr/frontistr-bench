@@ -36,6 +36,7 @@ case $FRONTISTR_MODEL in
 hinge)
 	cd $SHELLPACK_SOURCES/frontistr-$VERSION/tutorial/02_elastic_hinge_parallel || \
 		die "Failed to open 02_elastic_hinge_parallel"
+	sed -i -e "s/DOMAIN=[0-9]*,/DOMAIN=$FRONTISTR_DOMAINS,/" hecmw_part_ctrl.dat
 	$SHELLPACK_SOURCES/frontistr-$VERSION-installed/bin/hecmw_part1 || \
 		die "Failed to prepare hecmw_part1"
 	;;
