@@ -1,3 +1,4 @@
+. $SHELLPACK_INCLUDE/include-sizes.sh
 get_numa_details
 
 export MMTESTS="wrf"
