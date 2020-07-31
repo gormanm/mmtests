@@ -27,7 +27,7 @@ export ABINIT_OPENMPI_VERSION=openmpi3
 export ABINIT_MPI_PATH=/usr/lib64/mpi/gcc/$ABINIT_OPENMPI_VERSION/bin
 export ABINIT_MPI_LIBPATH=/usr/lib64/mpi/gcc/$ABINIT_OPENMPI_VERSION/lib64
 export ABINIT_PROCESSES=$NUMNODES
-export ABINIT_THREADS=$((ABINIT_PROCESSES/NUMCPUS))
+export ABINIT_THREADS=$((NUMCPUS/ABINIT_PROCESSES))
 export ABINIT_MODEL=tmbt
 
 # Set additional mpi options if required
