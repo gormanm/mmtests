@@ -1,6 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble abinit-bench 8.10.2
 ###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --model      ABINIT_MODEL
 ###SHELLPACK parseargParam --processes  ABINIT_PROCESSES
 ###SHELLPACK parseargParam --threads    ABINIT_THREADS
 ###SHELLPACK parseargEnd
