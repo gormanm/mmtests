@@ -1,7 +1,8 @@
 #!/bin/bash
 # Runs an arbitrary script
-
 ###SHELLPACK preamble script-bench 1
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
