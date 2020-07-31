@@ -74,8 +74,8 @@ cp configure.wrf configure.wrf.orig
 build_callback
 
 # Additional configuration
-LDFLAGS_EXTRA+="-L${WRF_MPI_LIBPATH} -L${NETCDF}/lib64 -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/lib64 -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
-export LD_LIBRARY_PATH=${NETCDF}/lib64:${HDF}/lib64:$LD_LIBRARY_PATH
+LDFLAGS_EXTRA+="-L${WRF_MPI_LIBPATH} -L${NETCDF}/lib64 -L${NETCDF}/lib -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/lib64 -Wl,-rpath=${NETCDF}/lib -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
+export LD_LIBRARY_PATH=${NETCDF}/lib64:${NETCDF}/lib:${HDF}/lib64:${HDF}/lib:$LD_LIBRARY_PATH
 LDFLAGS_EXTRA_ESCAPED=`echo "$LDFLAGS_EXTRA" | sed -e 's/\//\\\\\//g'`
 sed -i -e "s/^LDFLAGS_LOCAL.*/LDFLAGS_LOCAL   =       $LDFLAGS_EXTRA_ESCAPED/" configure.wrf
 sed -i -e "s/\/lib\/cpp/cpp/" configure.wrf

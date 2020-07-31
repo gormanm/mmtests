@@ -26,8 +26,8 @@ HDF5_VERSION=hdf5-1_10_5
 ###SHELLPACK install_merge netcdfcbuild-${NETCDFC_VERSION} netcdf-installed
 ###SHELLPACK check_external_install_required_continue netcdffcbuild netcdffcbuild-$NETCDFFC_VERSION $NETCDFFC_VERSION
 ###SHELLPACK install_merge netcdffcbuild-${NETCDFFC_VERSION} netcdf-installed
+export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/netcdf-installed/lib:$SHELLPACK_SOURCES/netcdf-installed/lib64:$LD_LIBRARY_PATH
 ###SHELLPACK check_install_required wrf-$VERSION
-export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/netcdf-installed/lib:$LD_LIBRARY_PATH
 
 case $WRF_MODEL in
 conus12km)
