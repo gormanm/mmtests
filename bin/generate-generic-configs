@@ -115,9 +115,11 @@ for CONFIG in `ls config-hpc-openfoam-*`; do
 done
 
 # SALMON
-sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-salmon-classicem-mpi-full > config-hpc-salmon-classicem-mpi-hpcext-full
-sed -i -e '/SALMON_MPI_PATH/d'    config-hpc-salmon-classicem-mpi-hpcext-full
-sed -i -e '/SALMON_MPI_LIBPATH/d' config-hpc-salmon-classicem-mpi-hpcext-full
+for MODEL in mpi omp; do
+	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-salmon-classicem-$MODEL-full > config-hpc-salmon-classicem-$MODEL-hpcext-full
+	sed -i -e '/SALMON_MPI_PATH/d'    config-hpc-salmon-classicem-$MODEL-hpcext-full
+	sed -i -e '/SALMON_MPI_LIBPATH/d' config-hpc-salmon-classicem-$MODEL-hpcext-full
+done
 
 # SPECFEM3D
 for MODEL in global small; do
