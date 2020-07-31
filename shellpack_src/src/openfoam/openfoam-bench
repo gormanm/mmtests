@@ -23,7 +23,33 @@ source etc/bashrc || die "Failed to source bash environment"
 
 # Configure benchmark
 case $OPENFOAM_MODEL in
-motorbike-tutorial)
+motorbike-default)
+	cd tutorials/incompressible/simpleFoam/ || die "Failed to cd to simpleFoam tutorial directory"
+	rm -rf motorBike-mmtests
+	cp -r motorBike motorBike-mmtests
+	cd motorBike-mmtests || die "Failed to cd to motorbike-mmtests tutorial directory"
+	###SHELLPACK self_extract motorBike-fvSolution
+
+	# motorBike-snappyHexMeshDic is adapted from
+	# tutorials/mesh/snappyHexMesh/motorBike_leakDetection/system/snappyHexMeshDict
+	###SHELLPACK self_extract motorBike-snappyHexMeshDic
+	sed -i -e "s/OPENFOAM_LOCAL_CELLS/$OPENFOAM_LOCAL_CELLS/"		$SHELLPACK_TEMP/motorBike-snappyHexMeshDic
+	sed -i -e "s/OPENFOAM_GLOBAL_CELLS/$OPENFOAM_GLOBAL_CELLS/"		$SHELLPACK_TEMP/motorBike-snappyHexMeshDic
+	sed -i -e "s/OPENFOAM_REFINEMENT_CELLS/$OPENFOAM_REFINEMENT_CELLS/"	$SHELLPACK_TEMP/motorBike-snappyHexMeshDic
+	sed -i -e "s/OPENFOAM_CELL_LEVELS/$OPENFOAM_CELL_LEVELS/"		$SHELLPACK_TEMP/motorBike-snappyHexMeshDic
+	mv $SHELLPACK_TEMP/motorBike-fvSolution system/fvSolution
+	mv $SHELLPACK_TEMP/motorBike-snappyHexMeshDic system/snappyHexMeshDict
+
+	# Leave domains
+	SUBDOMAINS=6
+	export OMP_NUM_THREADS=$((OPENFOAM_MAXCPUS/$SUBDOMAINS))
+
+	# Patch Allrun to record timing of parallel steps
+	###SHELLPACK self_extract Allrun-motorBike.patch
+	cat $SHELLPACK_TEMP/Allrun-motorBike.patch | patch -p1 || \
+		die "Failed to patch Allrun to record timing of parallel steps"
+	;;
+motorbike-subdomains)
 	cd tutorials/incompressible/simpleFoam/ || die "Failed to cd to simpleFoam tutorial directory"
 	rm -rf motorBike-mmtests
 	cp -r motorBike motorBike-mmtests
@@ -95,6 +121,9 @@ motorbike-tutorial)
 esac
 
 export FOAM_SIGFPE="false"
+
+log_runtime "OMP_NUM_THREADS=$OMP_NUM_THREADS"
+log_runtime "Run: ./Allrun"
 
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
 ###SHELLPACK iteration_begin $OPENFOAM_ITERATIONS

@@ -93,27 +93,22 @@ sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netpe
 sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-unbound > config-network-netperf-unbound-small
 
 # Openfoam
-sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-openfoam-motorbike-tutorial-default-full > config-hpc-openfoam-motorbike-tutorial-default-hpcext-full
-sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-openfoam-motorbike-tutorial-default-hpcext-full
-sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-openfoam-motorbike-tutorial-default-hpcext-full
-for CONFIG in config-hpc-openfoam-motorbike-tutorial-default-full config-hpc-openfoam-motorbike-tutorial-default-hpcext-full; do
-	NEWCONFIG=`echo $CONFIG | sed -e 's/-default-/-large-/'`
-	sed	-e 's/OPENFOAM_CELL_LEVELS=.*/OPENFOAM_CELL_LEVELS=40/'			\
-		-e 's/OPENFOAM_ITERATIONS=.*/OPENFOAM_ITERATIONS=1/'			\
-		-e 's/Solver:.*/Solver:  PCG/'						\
-		-e 's/Faces:.*/Faces:   14.6 million/'					\
-		$CONFIG > $NEWCONFIG
+for MODEL in motorbike-default motorbike-subdomains; do
+	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-openfoam-$MODEL-full > config-hpc-openfoam-$MODEL-hpcext-full
+	sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-openfoam-$MODEL-hpcext-full
+	sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-openfoam-$MODEL-hpcext-full
 
-	NEWCONFIG=`echo $CONFIG | sed -e 's/-default-/-old-/'`
-	sed	-e 's/OPENFOAM_LOCAL_CELLS=.*/OPENFOAM_LOCAL_CELLS=20000000/'		\
-		-e 's/OPENFOAM_GLOBAL_CELLS=.*/OPENFOAM_GLOBAL_CELLS=800000000/'	\
-		-e 's/OPENFOAM_REFINEMENT_CELLS=.*/OPENFOAM_REFINEMENT_CELLS=100/'	\
-		-e 's/OPENFOAM_CELL_LEVELS=.*/OPENFOAM_CELL_LEVELS=40/'			\
-		-e 's/OPENFOAM_ITERATIONS=.*/OPENFOAM_ITERATIONS=1/'			\
-		$CONFIG > $NEWCONFIG
+	for CONFIG in config-hpc-openfoam-$MODEL-full config-hpc-openfoam-$MODEL-hpcext-full; do
+		NEWCONFIG=`echo $CONFIG | sed -e "s/-$MODEL-/-$MODEL-large-/"`
+		sed	-e 's/OPENFOAM_CELL_LEVELS=.*/OPENFOAM_CELL_LEVELS=40/'			\
+			-e 's/OPENFOAM_ITERATIONS=.*/OPENFOAM_ITERATIONS=1/'			\
+			-e 's/Solver:.*/Solver:  PCG/'						\
+			-e 's/Faces:.*/Faces:   14.6 million/'					\
+			$CONFIG > $NEWCONFIG
+	done
 done
-rm -f config-hpc-openfoam-motorbike-tutorial-*-meshonly
-for CONFIG in `ls config-hpc-openfoam-motorbike-tutorial-*`; do
+rm -f config-hpc-openfoam-*-meshonly
+for CONFIG in `ls config-hpc-openfoam-*`; do
 	sed -e 's/Steps:.*/Steps:   Stops after the mesh is integrated/'		\
 		$CONFIG > $CONFIG-meshonly
 	echo 'export OPENFOAM_STOPAT_MESH="yes"' >> $CONFIG-meshonly
