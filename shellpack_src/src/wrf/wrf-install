@@ -9,7 +9,7 @@ MIRROR_LOCATION="$WEBROOT/wrf"
 MPI_SWITCH="--disable-mpi"
 if [ "$WRF_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps WRF_OPENMPI_VERSION
-	###SHELLPACK mpi_setup_env WRF_MPI_PATH WRF_MPI_LIBPATH
+	###SHELLPACK mpi_setup_env WRF_OPENMPI_VERSION WRF_MPI_PATH WRF_MPI_LIBPATH
 	MPI_SWITCH="--enable-mpi"
 
 	install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc
@@ -87,7 +87,7 @@ sed -i -e "s/^LDFLAGS_LOCAL.*/LDFLAGS_LOCAL   =       $LDFLAGS_EXTRA_ESCAPED/" c
 sed -i -e "s/\/lib\/cpp/cpp/" configure.wrf
 
 if [ "$USE_TIRPC" = "yes" ]; then
-	sed -i -e "s/^CFLAGS_LOCAL.*/& -I/usr/include/tirpc/" configure.wrf
+	sed -i -e "s/^CFLAGS_LOCAL.*/& -I\/usr\/include\/tirpc/" configure.wrf
 	sed -i -e "s/^LDFLAGS_LOCAL.*/& -ltirpc/" configure.wrf
 fi
 
