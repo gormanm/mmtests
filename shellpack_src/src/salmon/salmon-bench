@@ -1,6 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble salmon-bench 1.2.1
 ###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --model      SALMON_MODEL
 ###SHELLPACK parseargParam --processes  SALMON_PROCESSES
 ###SHELLPACK parseargParam --threads    SALMON_THREADS
 ###SHELLPACK parseargParam --iterations SALMON_ITERATIONS
