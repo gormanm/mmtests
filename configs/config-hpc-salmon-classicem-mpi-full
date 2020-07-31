@@ -1,3 +1,5 @@
+get_numa_details
+
 # MM Test Parameters
 export MMTESTS="salmon"
 
@@ -23,7 +25,8 @@ export MONITOR_UPDATE_FREQUENCY=10
 export SALMON_OPENMPI_VERSION=openmpi3
 export SALMON_MPI_PATH=/usr/lib64/mpi/gcc/$SALMON_OPENMPI_VERSION/bin
 export SALMON_MPI_LIBPATH=/usr/lib64/mpi/gcc/$SALMON_OPENMPI_VERSION/lib64
-export SALMON_MAXCPUS=$NUMCPUS
+export SALMON_PROCESSES=$NUMNODES
+export SALMON_THREADS=$((NUMCPUS/SALMON_PROCESSES))
 export SALMON_MODEL=classicem
 export SALMON_ITERATIONS=3
 

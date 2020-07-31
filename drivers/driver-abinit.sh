@@ -10,7 +10,8 @@ run_bench() {
 	fi
 
 	$SHELLPACK_INCLUDE/shellpack-bench-abinit $VERSION_PARAM $BIND_SWITCH \
-		--max-cpus $ABINIT_MAXCPUS	\
+		--processes $ABINIT_PROCESSES	\
+		--threads   $ABINIT_THREADS	\
 		--model $ABINIT_MODEL
 	return $?
 }

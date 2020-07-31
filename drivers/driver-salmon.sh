@@ -10,7 +10,8 @@ run_bench() {
 	fi
 
 	$SHELLPACK_INCLUDE/shellpack-bench-salmon $VERSION_PARAM $BIND_SWITCH \
-		--max-cpus $SALMON_MAXCPUS	\
+		--processes $SALMON_PROCESSES	\
+		--threads $SALMON_THREADS	\
 		--model $SALMON_MODEL		\
 		--iterations $SALMON_ITERATIONS
 	return $?

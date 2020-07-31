@@ -2,7 +2,8 @@
 ###SHELLPACK preamble wrf-bench 3.8.1
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --model	WRF_MODEL
-###SHELLPACK parseargParam --max-cpus   WRF_MAXCPUS
+###SHELLPACK parseargParam --processes  WRF_PROCESSES
+###SHELLPACK parseargParam --threads    WRF_THREADS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -43,7 +44,10 @@ conus12km)
 esac
 ###SHELLPACK init_complete
 
-BENCH_CMD="mpirun $WRF_MPI_OPTS $MMTESTS_MPI_OPTS -np $WRF_MAXCPUS ./wrf.exe"
+export OMP_NUM_THREADS=$WRF_THREADS
+BENCH_CMD="mpirun $WRF_MPI_OPTS $MMTESTS_MPI_OPTS -np $WRF_PROCESSES ./wrf.exe"
+log_runtime "OMP_NUM_THREADS=$WRF_THREADS"
+log_runtime "Run: $BENCH_CMD"
 monitor_pre_hook $LOGDIR_RESULTS $SPECFEM3D_MODEL
 case $WRF_MODEL in
 conus12km)

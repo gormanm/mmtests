@@ -1,8 +1,8 @@
 #!/bin/bash
 ###SHELLPACK preamble abinit-bench 8.10.2
 ###SHELLPACK parseargBegin
-###SHELLPACK parseargParam --max-cpus   ABINIT_MAXCPUS
-###SHELLPACK parseargParam --model      ABINIT_MODEL
+###SHELLPACK parseargParam --processes  ABINIT_PROCESSES
+###SHELLPACK parseargParam --threads    ABINIT_THREADS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -13,7 +13,8 @@ if [ "$ABINIT_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps ABINIT_OPENMPI_VERSION
 	###SHELLPACK mpi_setup_env ABINIT_OPENMPI_VERSION ABINIT_MPI_PATH ABINIT_MPI_LIBPATH
 	###SHELLPACK mpi_setup_shmem
-	MPIRUN="mpirun $ABINIT_MPI_OPTS $MMTESTS_MPI_OPTS -np $ABINIT_MAXCPUS"
+	MPIRUN="mpirun $ABINIT_MPI_OPTS $MMTESTS_MPI_OPTS -np $ABINIT_PROCESSES"
+	export OMP_NUM_THREADS=$ABINIT_THREADS
 fi
 
 export ABI_HOME=$SHELLPACK_SOURCES/abinit-${VERSION}-installed
@@ -73,6 +74,7 @@ fi
 
 echo $ABINIT_MAXCPUS > $LOGDIR_RESULTS/scaling-parameters
 BENCH_CMD="$MPIRUN abinit"
+log_runtime "OMP_NUM_THREADS=$ABINIT_THREADS"
 log_runtime "Run: $BENCH_CMD"
 for STAGE in `echo $STAGE_MAP`; do
 	prepare_stage

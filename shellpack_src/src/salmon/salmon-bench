@@ -1,8 +1,8 @@
 #!/bin/bash
 ###SHELLPACK preamble salmon-bench 1.2.1
 ###SHELLPACK parseargBegin
-###SHELLPACK parseargParam --max-cpus   SALMON_MAXCPUS
-###SHELLPACK parseargParam --model      SALMON_MODEL
+###SHELLPACK parseargParam --processes  SALMON_PROCESSES
+###SHELLPACK parseargParam --threads    SALMON_THREADS
 ###SHELLPACK parseargParam --iterations SALMON_ITERATIONS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
@@ -28,7 +28,9 @@ classicem)
 	die "Unrecognised model $SALMON_MODEL"
 esac
 
-BENCH_CMD="mpirun $SALMON_MPI_OPTS $MMTESTS_MPI_OPTS -np $SALMON_MAXCPUS $SHELLPACK_SOURCES/salmon-$VERSION-installed/bin/salmon.cpu"
+export OMP_NUM_THREADS=$SALMON_THREADS
+BENCH_CMD="mpirun $SALMON_MPI_OPTS $MMTESTS_MPI_OPTS -np $SALMON_PROCESSES $SHELLPACK_SOURCES/salmon-$VERSION-installed/bin/salmon.cpu"
+log_runtime "OMP_NUM_THREADS=$SALMON_THREADS"
 log_runtime "Run: $BENCH_CMD"
 echo $SALMON_MAXCPUS > $LOGDIR_RESULTS/scaling-parameters
 cd $INPUT_DIR || die "Failed to change to $INPUT_DIR"

@@ -1,3 +1,5 @@
+get_numa_details
+
 export MMTESTS="wrf"
 
 # Test disk to setup (optional)
@@ -23,21 +25,13 @@ export WRF_OPENMPI_VERSION=openmpi3
 export WRF_MPI_PATH=/usr/lib64/mpi/gcc/$WRF_OPENMPI_VERSION/bin
 export WRF_MPI_LIBPATH=/usr/lib64/mpi/gcc/$WRF_OPENMPI_VERSION/lib64
 export WRF_MODEL=conus12km
-export WRF_MAXCPUS=$NUMCPUS
-
-# WRF is memory intensive, assume each process needs at
-# least 4 GB
-MEMTOTAL_GB=$((MEMTOTAL_BYTES/1048576/1024))
-CEILING=$((MEMTOTAL_GB/4))
-if [ $WRF_MAXCPUS -gt $CEILING ]; then
-	WRF_MAXCPUS=$CEILING
-	echo WARNING: Maximum CPUs limited to $WRF_MAXCPUS due to memory constraints
-fi
+export WRF_PROCESSES=$NUMNODES
+export WRF_THREADS=$((NUMCPUS/WRF_PROCESSES))
 
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
 if [ $? -eq 0 ]; then
-	if [ $WRF_MAXCPUS -ge $((NUMCPUS/2)) ]; then
+	if [ $((WRF_THREADS*WRF_PROCESSES)) -ge $((NUMCPUS/2)) ]; then
 		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
 		WRF_MPI_OPTS+=" --use-hwthread-cpus"
 	fi

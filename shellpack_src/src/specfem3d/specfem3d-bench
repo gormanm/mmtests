@@ -9,7 +9,7 @@ if [ "$SPECFEM3D_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
 	###SHELLPACK mpi_setup_env SPECFEM3D_OPENMPI_VERSION SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH SPECFEM3D_MPI_OPTS
 	###SHELLPACK mpi_setup_shmem
-	export OMP_NUM_THREADS=1
+	export OMP_NUM_THREADS=$SPECFEM3D_NUM_THREADS
 else
 	export OMP_NUM_THREADS=$((SPECFEM3D_NEX_XI*SPECFEM3D_NEX_ETA*SPECFEM3D_NCHUNKS))
 fi
@@ -112,6 +112,10 @@ esac
 cd $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
 export PBS_O_WORKDIR=`pwd`
 
+BENCH_CMD="./$SCRIPT"
+log_runtime "OMP_NUM_THREADS=$OMP_NUM_THREADS"
+log_runtime "Run: $BENCH_CMD"
+
 monitor_pre_hook $LOGDIR_RESULTS $SPECFEM3D_MODEL
 for JOB in $JOB_LIST; do
 	echo Executing $JOB
@@ -119,7 +123,7 @@ for JOB in $JOB_LIST; do
 	SCRIPT=`echo $JOB | awk -F : '{print $2}'`
 
 	save_rc $TIME_CMD -o $LOGDIR_RESULTS/specfem3d-time.$NAME   \
-		./$SCRIPT &> $LOGDIR_RESULTS/specfem3d-log.$NAME
+		$BENCH_CMD &> $LOGDIR_RESULTS/specfem3d-log.$NAME
 	recover_rc
 	if [ $? -ne 0 ]; then
 		die "Failed to execute $SCRIPT"

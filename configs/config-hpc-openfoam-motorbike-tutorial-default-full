@@ -14,6 +14,8 @@
 ### CPUs will be used which is not necessarily optimal for openMPI. At the
 ### time of writing, the openMPI version used is openMPI 3.1.6-1.19 if using
 ### SLE 15 SP2 and openMPI 3.1.4-lp151.7.3.1 if using openSUSE Leap 15.1.
+get_numa_details
+
 # MM Test Parameters
 export MMTESTS="openfoam"
 

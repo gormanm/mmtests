@@ -12,7 +12,8 @@ run_bench() {
 	fi
 
 	$SHELLPACK_INCLUDE/shellpack-bench-wrf $VERSION_PARAM $BIND_SWITCH	\
-		--max-cpus $WRF_MAXCPUS						\
+		--processes $WRF_PROCESSES					\
+		--threads   $WRF_THREADS					\
 		--model $WRF_MODEL
 	return $?
 }

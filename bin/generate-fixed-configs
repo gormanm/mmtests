@@ -1,0 +1,10 @@
+#!/bin/bash
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
+cd $SCRIPTDIR/../configs || exit
+
+rm *-fixed
+for CONFIG in `ls config-*`; do
+	echo NUMCPUS= > $CONFIG-fixed
+	cat $CONFIG >> $CONFIG-fixed
+done

@@ -10,3 +10,4 @@ if [ -e $SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh ]; then
 	chmod a+x $SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh
 	$SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh
 fi
+$SCRIPTDIR/generate-fixed-configs
