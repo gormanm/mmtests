@@ -16,6 +16,12 @@ if [ "$WRF_OPENMPI_VERSION" != "" ]; then
 	install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc-devel
 fi
 
+install-depends glibc-devel
+if [ ! -e /usr/include/rpc/types.h ]; then
+	install-depends libtirpc-devel
+	USE_TIRPC=yes
+fi
+
 ###SHELLPACK sources_fetch WRFV${VERSION}.TAR.gz wrf-${VERSION}-installed
 ###SHELLPACK build_start wrf-${VERSION}-installed
 
@@ -79,6 +85,11 @@ export LD_LIBRARY_PATH=${NETCDF}/lib64:${NETCDF}/lib:${HDF}/lib64:${HDF}/lib:$LD
 LDFLAGS_EXTRA_ESCAPED=`echo "$LDFLAGS_EXTRA" | sed -e 's/\//\\\\\//g'`
 sed -i -e "s/^LDFLAGS_LOCAL.*/LDFLAGS_LOCAL   =       $LDFLAGS_EXTRA_ESCAPED/" configure.wrf
 sed -i -e "s/\/lib\/cpp/cpp/" configure.wrf
+
+if [ "$USE_TIRPC" = "yes" ]; then
+	sed -i -e "s/^CFLAGS_LOCAL.*/& -I/usr/include/tirpc/" configure.wrf
+	sed -i -e "s/^LDFLAGS_LOCAL.*/& -ltirpc/" configure.wrf
+fi
 
 ./compile wrf || die "Failed to build wrf"
 ./compile em_real || die "Failed to build em_real"
