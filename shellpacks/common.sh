@@ -663,7 +663,7 @@ function create_random_file() {
 
 function setup_io_scheduler() {
 	for i in ${!TESTDISK_PARTITIONS[*]}; do
-		DEVICE=`basename ${TESTDISK_PARTITIONS[$i]}`
+		DEVICE=$(basename $(realpath ${TESTDISK_PARTITIONS[$i]}))
 		while [ ! -e /sys/block/$DEVICE/queue/scheduler ]; do
 			DEVICE=`echo $DEVICE | sed -e 's/.$//'`
 			if [ "$DEVICE" = "" ]; then
