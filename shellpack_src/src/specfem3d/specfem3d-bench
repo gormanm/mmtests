@@ -112,15 +112,16 @@ esac
 cd $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
 export PBS_O_WORKDIR=`pwd`
 
-BENCH_CMD="./$SCRIPT"
 log_runtime "OMP_NUM_THREADS=$OMP_NUM_THREADS"
-log_runtime "Run: $BENCH_CMD"
 
 monitor_pre_hook $LOGDIR_RESULTS $SPECFEM3D_MODEL
 for JOB in $JOB_LIST; do
 	echo Executing $JOB
 	NAME=`echo $JOB | awk -F : '{print $1}'`
 	SCRIPT=`echo $JOB | awk -F : '{print $2}'`
+
+	BENCH_CMD="./$SCRIPT"
+	log_runtime "Run: $BENCH_CMD"
 
 	save_rc $TIME_CMD -o $LOGDIR_RESULTS/specfem3d-time.$NAME   \
 		$BENCH_CMD &> $LOGDIR_RESULTS/specfem3d-log.$NAME
