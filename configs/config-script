@@ -19,5 +19,5 @@ export MONITORS_GZIP="proc-vmstat mpstat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-SCRIPT_LOCATION="$WEBROOT/script/run-all.sh"
-SCRIPT_KEEP="hpc-logs*"
+export SCRIPT_LOCATION="$WEBROOT/script/run-all.sh"
+export SCRIPT_KEEP="hpc-logs*"
