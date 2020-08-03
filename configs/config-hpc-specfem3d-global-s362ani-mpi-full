@@ -1,3 +1,6 @@
+. $SHELLPACK_INCLUDE/include-sizes.sh
+get_numa_details
+
 # MM Test Parameters
 export MMTESTS="specfem3d"
 
@@ -39,13 +42,21 @@ MIN_NPROC=$((MIN_NPROC-1))
 if [ $MIN_NPROC -le 1 ]; then
 	die "Machine has too few CPUs to execute workload"
 fi
-export SPECFEM3D_NPROC_XI=$((MIN_NPROC))
-export SPECFEM3D_NPROC_ETA=$((MIN_NPROC))
+
+export SPECFEM3D_NUM_THREADS=$((MIN_NPROC/$NUMNODES))
+export SPECFEM3D_NPROC_XI=$((NUMNODES/2))
+export SPECFEM3D_NPROC_ETA=$((NUMNODES/2))
+if [ $SPECFEM3D_NPROC_XI -eq 0 ]; then
+	SPECFEM3D_NPROC_XI=1
+fi
+if [ $SPECFEM3D_NPROC_ETA -eq 0 ]; then
+	SPECFEM3D_NPROC_ETA=1
+fi
 
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
 if [ $? -eq 0 ]; then
-	if [ $MIN_NPROC -ge $((NUMCPUS/2)) ]; then
+	if [ $((SPECFEM3D_NUM_THREADS*SPECFEM3D_NPROC_XI*SPECFEM3D_NPROC_ETA)) -ge $((NUMCPUS/2)) ]; then
 		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
 		SPECFEM3D_MPI_OPTS+=" --use-hwthread-cpus"
 	fi

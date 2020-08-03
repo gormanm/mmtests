@@ -40,10 +40,20 @@ echo $SALMON_MAXCPUS > $LOGDIR_RESULTS/scaling-parameters
 cd $INPUT_DIR || die "Failed to change to $INPUT_DIR"
 monitor_pre_hook $LOGDIR_RESULTS $SALMON_MODEL
 ###SHELLPACK iteration_begin $SALMON_ITERATIONS
-	echo Executing iteration $ITERATION/$SALMON_ITERATIONS
-	eval $TIME_CMD -o $LOGDIR_RESULTS/salmon-time.$ITERATION	\
-		$BENCH_CMD < $INPUT > $LOGDIR_RESULTS/salmon-log.$ITERATION
+	RET=-1
+	ATTEMPT=0
+	while [ $RET -ne 0 -a $ATTEMPT -lt 10 ]; do
+		ATTEMPT=$((ATTEMPT+1))
+		echo Executing iteration $ITERATION/$SALMON_ITERATIONS attempt $ATTEMPT
+		eval $TIME_CMD -o $LOGDIR_RESULTS/salmon-time.$ITERATION	\
+			$BENCH_CMD < $INPUT > $LOGDIR_RESULTS/salmon-log.$ITERATION
+		RET=$?
+		echo $ATTEMPT > $LOGDIR_RESULTS/salmon-attempts.$ITERATION
+	done
 	gzip $LOGDIR_RESULTS/salmon-log.$ITERATION
+	if [ $ATTEMPT -eq 10 ]; then
+		die "Failed to run salmon after 10 attempts"
+	fi
 ###SHELLPACK iteration_end
 monitor_post_hook $LOGDIR_RESULTS $SALMON_MODEL
 

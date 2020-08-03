@@ -96,6 +96,7 @@ motorbike-subdomains)
 	done
 
 	SUBDOMAINS=$((XDIVISION*YDIVISION))
+	export OMP_NUM_THREADS=1
 	echo Scaling parameters
 	echo "o Requested subdomains $OPENFOAM_MAXCPUS"
 	echo "o Actual subdomains    $SUBDOMAINS"
