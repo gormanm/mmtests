@@ -9,7 +9,7 @@
 cd $SHELLPACK_TOP
 wget -O script.sh $SCRIPT_LOCATION || die "Failed to download $SCRIPT_LOCATION"
 chmod a+x script.sh
-./scripts.sh 2>&1 | tee $LOGDIR_RESULTS/script.log
+./script.sh 2>&1 | tee $LOGDIR_RESULTS/script.log
 gzip $LOGDIR_RESULTS/script.log
 
 if [ "$SCRIPT_KEEP" != "" ]; then
