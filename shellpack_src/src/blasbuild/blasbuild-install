@@ -8,8 +8,8 @@ MIRROR_LOCATION="$WEBROOT/blasbuild/"
 
 ###SHELLPACK git_fetch blasbuild-${VERSION}.tar.gz blasbuild-${VERSION}
 ###SHELLPACK build_start blasbuild-${VERSION}
-export MAKE_FLAGS="BINARY=64 NO_SHARED=1 USE_OPENMP=1"
+export MAKE_FLAGS="BINARY=64 USE_OPENMP=1 $BLAS_EXTRA_MAKE_FLAGS"
 export MAKE_INSTALL_FLAGS="PREFIX=$SHELLPACK_SOURCES/blasbuild-${VERSION}-installed $MAKE_FLAGS"
-###SHELLPACK make_make_install BINARY=64 NO_SHARED=1 USE_OPENMP=1
+###SHELLPACK make_make_install BINARY=64 USE_OPENMP=1 $BLAS_EXTRA_MAKE_FLAGS
 
 echo blasbuild installed successfully

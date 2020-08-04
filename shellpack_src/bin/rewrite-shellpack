@@ -821,7 +821,7 @@ else
 	fi
 
 	if [ "\$$mpilib" != "" ]; then
-		export LD_LIBRARY_PATH=\$$mpilib
+		export LD_LIBRARY_PATH="\$$mpilib:\$LD_LIBRARY_PATH"
 	fi
 
 	export MPI_BASE_DIR=`dirname \$$mpipath`

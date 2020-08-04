@@ -7,15 +7,24 @@ if [ "$SALMON_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps SALMON_OPENMPI_VERSION
 	###SHELLPACK mpi_setup_env SALMON_OPENMPI_VERSION SALMON_MPI_PATH SALMON_MPI_LIBPATH
 fi
-install-depends gcc-fortran libblas3 blas blas-devel blas-devel-static cmake lapack-devel
+install-depends gcc-fortran cmake
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK sources_fetch SALMON-v.${VERSION}.tar.gz salmon-${VERSION}
-
 ###SHELLPACK build_start salmon-${VERSION}
-###SHELLPACK build_configure_py salmon-${VERSION}
+
+INCLUDES="-I$SHELLPACK_SOURCES/salmondeps-installed/include"
+LIBS=" -L$SHELLPACK_SOURCES/salmondeps-installed/lib"
+LD_LIBS="$SHELLPACK_SOURCES/salmondeps-installed/lib"
+
+export CFLAGS+=" $INCLUDES $LIBS"
+export CXXFLAGS+=" $INCLUDES $LIBS"
+export FFLAGS+=" $INCLUDES $LIBS"
+export LD_LIBRARY_PATH="$LD_LIBS:$LD_LIBRARY_PATH"
+
+###SHELLPACK build_configure_py salmon-${VERSION} --enable-scalapack
 ###SHELLPACK make_make_install
 
 echo salmon installed successfully

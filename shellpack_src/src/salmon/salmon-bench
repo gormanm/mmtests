@@ -8,8 +8,8 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required salmon-$VERSION
-###SHELLPACK init_complete
+export BLAS_VERSION="v0.3.10"
+export SCALAPACK_VERSION="2.1.0"
 
 MPIRUN=
 if [ "$SALMON_OPENMPI_VERSION" != "" ]; then
@@ -18,6 +18,16 @@ if [ "$SALMON_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_shmem
 	MPIRUN="mpirun $SALMON_MPI_OPTS $MMTESTS_MPI_OPTS -np $SALMON_PROCESSES"
 fi
+
+rm -rf $SHELLPACK_SOURCES/salmondeps-installed
+###SHELLPACK check_external_install_required blasbuild      blasbuild-${BLAS_VERSION} ${BLAS_VERSION}
+###SHELLPACK install_merge blasbuild-${BLAS_VERSION} salmondeps-installed
+###SHELLPACK check_external_install_required scalapackbuild scalapackbuild-${SCALAPACK_VERSION} ${SCALAPACK_VERSION}
+###SHELLPACK install_merge scalapackbuild-${SCALAPACK_VERSION}  salmondeps-installed
+###SHELLPACK check_install_required salmon-$VERSION
+###SHELLPACK init_complete
+
+export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/salmondeps-installed/lib:$LD_LIBRARY_PATH"
 
 case $SALMON_MODEL in
 bulkSi)
