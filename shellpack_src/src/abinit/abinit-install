@@ -19,7 +19,7 @@ install-depends gcc-fortran gcc
 
 export BUILD_START_NOTOUCH=yes
 ###SHELLPACK build_start abinit-${VERSION}-installed
-###SHELLPACK build_configure abinit-${VERSION}-installed $MPI_SWITCH
+###SHELLPACK build_configure abinit-${VERSION}-installed $MPI_SWITCH --enable-openmp
 
 ###SHELLPACK self_extract commit-055f279d.patch
 ###SHELLPACK self_extract partial-commit-40d49a0c.patch
