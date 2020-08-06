@@ -31,7 +31,9 @@ RUN_CACHE_COLD=no
 ###SHELLPACK monitor_hooks
 
 MARIADB_TABLE_DRIVER=innodb
-MARIADB_START_OPTIONS="--innodb_buffer_pool_size=${SHARED_BUFFERS},--innodb_log_file_size=512M"
+# We have to "double" quote, so we can differentiate arguments *for MariaDB*
+# vs. arguments *to our scripts* when parsing arguments.
+MARIADB_START_OPTIONS="\"--innodb_buffer_pool_size=${SHARED_BUFFERS},--innodb_log_file_size=512M\""
 OLTP_TESTTYPE=complex
 
 # Always scrub sources as the benchmark in question does not properly

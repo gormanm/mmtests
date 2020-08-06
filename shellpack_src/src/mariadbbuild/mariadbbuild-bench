@@ -84,6 +84,10 @@ if [ "$SERVER_START" = "yes" ]; then
 	echo $(($SHARED_BUFFERS*2/$PAGESIZE)) > /proc/sys/kernel/shmall
 	ulimit -l $SHARED_BUFFERS
 
+	# MARIADB_START_OPTS has literal quotes, so it its *value* isn't parsed
+	# as an argument *to this script*. Remove them.
+	MARIADB_START_OPTS="${MARIADB_START_OPTS%\"}"
+	MARIADB_START_OPTS="${MARIADB_START_OPTS#\"}"
 	IFS=',' read -a INITARR <<< "$MARIADB_START_OPTS"
 	for OP in ${INITARR[@]}
 	do
