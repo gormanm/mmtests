@@ -1,0 +1,7 @@
+# Transient outputs produced by generating shellpacks.
+/bash_arrays
+/shellpacks/shellpack-bench-*
+/shellpacks/shellpack-install-*
+
+# Logs etc. from running tests in-tree.
+/work
