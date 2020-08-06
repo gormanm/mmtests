@@ -22,6 +22,30 @@ if [ \"\$INSTALL_ONLY\" != \"yes\" ]; then
 fi
 ";
 
+sub print_flag_case {
+	my ($switch, $param) = @_;
+	print <<EOC;
+	$switch)
+		$param=yes
+		shift
+		;;
+EOC
+}
+
+sub print_arg_case {
+	my ($switch, $param) = @_;
+	print <<EOC;
+	$switch)
+		if [[ \$# -lt 2 ]] || [[ \$2 == -* ]]; then
+			echo "Flag '$switch' specified without an associated value."
+			exit 1
+		fi
+		$param=\$2
+		shift 2
+		;;
+EOC
+}
+
 while (<STDIN>) {
 	my $line = $_;
 	if ($_ !~ /###SHELLPACK/) {
@@ -63,7 +87,7 @@ log_runtime() {
 }
 EOC
 	} elsif ($command eq "parseargBegin") {
-		print <<EOC
+		print <<EOC;
 # Basic argument parser
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -73,46 +97,20 @@ SERVERSIDE_NAME=`date +%Y%m%d-%H%M-%S`
 
 while [ "\$1" != "" ]; do
 	case "\$1" in
-	-v)
-		VERSION=\$2
-		shift 2
-		;;
-	--serverside-command)
-		SERVERSIDE_COMMAND=\$2
-		shift 2
-		;;
-	--serverside-name)
-		SERVERSIDE_NAME=\$2
-		shift 2
-		;;
 EOC
+
+		print_arg_case("-v", "VERSION");
+		print_arg_case("--serverside-command", "SERVERSIDE_COMMAND");
+		print_arg_case("--serverside_name", "SERVERSIDE_NAME");
 	} elsif ($command eq "parseargInstall") {
-		print <<EOC
-	--install-only)
-		INSTALL_ONLY=yes
-		shift
-		;;
-	--install-force)
-		INSTALL_FORCE=yes
-		shift
-		;;
-EOC
+		print_flag_case("--install-only", "INSTALL_ONLY");
+		print_flag_case("--install-force", "INSTALL_FORCE");
 	} elsif ($command eq "parseargParam") {
 		my ($switch, $param) = @details;
-		print <<EOC
-	$switch)
-		$param=\$2
-		shift 2
-		;;
-EOC
+		print_arg_case($switch, $param);
 	} elsif ($command eq "parseargYes") {
 		my ($switch, $param) = @details;
-		print <<EOC
-	$switch)
-		$param=yes
-		shift
-		;;
-EOC
+		print_flag_case($switch, $param);
 	} elsif ($command eq "parseargBindings") {
 		print <<EOC
 	--bind-pinned)
@@ -151,7 +149,6 @@ EOC
 		shift
 		;;
 EOC
-
 	} elsif ($command eq "parseargEnd") {
 		print <<EOC
 	*)
@@ -174,7 +171,7 @@ EOC
 			($versionDir,$tarfile) = split(/\//, $tarfile);
 			$versionDir="$versionDir/";
 		}
-		
+
 		print <<EOC
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=$tarfile
@@ -220,7 +217,7 @@ EOC
 			($versionDir,$tarfile) = split(/\//, $tarfile);
 			$versionDir="$versionDir/";
 		}
-		
+
 		print <<EOC
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=$tarfile
