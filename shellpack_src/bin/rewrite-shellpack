@@ -808,16 +808,16 @@ if [ "$opts" != "" ]; then
 		$opts+=" --allow-run-as-root"
 	fi
 fi
-if [ "\$$mpi" = "openmpi3-hpc" ]; then
+if [ "\$$mpi" = "openmpi3-hpc" -a "\$MMTESTS_MPI_SELFBUILD" != "yes" ]; then
 	module load gnu/7 openmpi/3 || die "Could not load openmpi/3 module"
 	module li
-elif [ "\$$mpi" = "openmpi2-hpc" ]; then
+elif [ "\$$mpi" = "openmpi2-hpc" -a "\$MMTESTS_MPI_SELFBUILD" != "yes" ]; then
 	module load gnu/7 openmpi/2 || die "Could not load openmpi/2 module"
 	module li
 else
 	# Setup mpi environment
 	if [ "\$$mpipath" != "" ]; then
-		export PATH=\$PATH:\$$mpipath
+		export PATH=\$$mpipath:\$PATH
 	fi
 
 	if [ "\$$mpilib" != "" ]; then
@@ -825,7 +825,6 @@ else
 	fi
 
 	export MPI_BASE_DIR=`dirname \$$mpipath`
-
 fi
 
 if [ "\$INSTALL_ONLY" != "yes" ]; then

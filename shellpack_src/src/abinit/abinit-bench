@@ -90,6 +90,10 @@ for STAGE in `echo $STAGE_MAP`; do
 		die "Failed to execute stage $STEP of $ABINIT_MODEL"
 	fi
 	gzip $LOGDIR_RESULTS/$ABINIT_MODEL-log.$STEP
+	for FILE in `ls *.out`; do
+		cp $FILE $LOGDIR_RESULTS/$FILE
+		gzip $LOGDIR_RESULTS/FILE
+	done
 done
 
 exit $SHELLPACK_SUCCESS
