@@ -76,8 +76,8 @@ monitor_pre_hook $LOGDIR_RESULTS $P
 		die "Failed to execute $FRONTISTR_MODEL"
 	fi
 	gzip $LOGDIR_RESULTS/frontistr-log.$ITERATION
-	cp FSTR.msg $LOGDIR_RESULTS/
-	gzip $LOGDIR_RESULTS/FSTR.msg
+	cp FSTR.msg $LOGDIR_RESULTS/FSTR.msg.$ITERATION
+	gzip $LOGDIR_RESULTS/FSTR.msg.$ITERATION
 ###SHELLPACK iteration_end $FRONTISTR_ITERATIONS
 monitor_post_hook $LOGDIR_RESULTS $P
 exit $SHELLPACK_SUCCESS
