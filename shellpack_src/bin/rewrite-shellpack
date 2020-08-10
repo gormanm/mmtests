@@ -352,7 +352,7 @@ EOC
 		print <<EOC
 mkdir build
 cd build
-eval ./configure.py --prefix=\$SHELLPACK_SOURCES/$srcdir-installed \$MMTESTS_BUILD_CONFIGURE @details
+eval ../configure.py --prefix=\$SHELLPACK_SOURCES/$srcdir-installed \$MMTESTS_BUILD_CONFIGURE @details
 if [ \$? -ne 0 ]; then
 	error "\$P: configure failed"
 	popd > /dev/null
