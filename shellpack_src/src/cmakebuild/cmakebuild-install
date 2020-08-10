@@ -1,0 +1,16 @@
+#!/bin/bash
+###SHELLPACK preamble cmakebuild v3.8.2
+GIT_LOCATION="https://gitlab.kitware.com/cmake/cmake"
+MIRROR_LOCATION="$WEBROOT/cmake/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch cmakebuild-${VERSION}.tar.gz cmakebuild-${VERSION}
+
+###SHELLPACK build_start cmakebuild-${VERSION}
+###SHELLPACK build_configure cmakebuild-${VERSION}
+###SHELLPACK make_make_install
+
+echo cmakebuild installed successfully
+exit $SHELLPACK_SUCCESS
