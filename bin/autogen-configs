@@ -2,7 +2,7 @@
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 
-rm $SCRIPTDIR/../configs/*-fixed
+rm -f $SCRIPTDIR/../configs/*-fixed
 $SCRIPTDIR/generate-generic-configs
 $SCRIPTDIR/generate-fs-configs
 $SCRIPTDIR/generate-zen2-configs
