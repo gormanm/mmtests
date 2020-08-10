@@ -350,6 +350,8 @@ EOC
 		my $srcdir = @details[0];
 		shift @details;
 		print <<EOC
+mkdir build
+cd build
 eval ./configure.py --prefix=\$SHELLPACK_SOURCES/$srcdir-installed \$MMTESTS_BUILD_CONFIGURE @details
 if [ \$? -ne 0 ]; then
 	error "\$P: configure failed"
@@ -800,7 +802,11 @@ EOC
 if [ "\$MMTESTS_MPI_SELFBUILD" = "yes" ]; then
 	###SHELLPACK check_external_install_required_continue openmpibuild openmpibuild-\${SELFBUILD_OPENMPI_VERSION} \${SELFBUILD_OPENMPI_VERSION}
 	export $mpipath="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/bin"
-	export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib64"
+	if [ -e \$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib64 ]; then
+		export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib64"
+	else
+		export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib"
+	fi
 fi
 
 if [ "$opts" != "" ]; then

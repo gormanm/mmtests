@@ -2,6 +2,13 @@
 ### signal_test is removed. signal_test generates a lot of noise and
 ### interference while there is no real workload that generates that
 ### many signals.
+###
+### Note that two parts of the workfile, disk_dio_rd and sync_disk_cp, mix
+### buffered and direct IO reads on the same file. Mixing buffered and
+### direct IO is dubious at the best of times but the consequences are that
+### the load is sensitive to whether the kernel invalidates page cache
+### before direct IO which would force a re-read of the buffered IO from
+### disk.
 
 # MM Test Parameters
 export MMTESTS="reaim"

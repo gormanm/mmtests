@@ -24,12 +24,12 @@ export SCALAPACK_VERSION="2.1.0"
 export MUMPS_VERSION="5.3.3"
 export TRILINOS_VERSION="12-14-1"
 
-###SHELLPACK check_external_install_required revocapbuild   revocapbuild-${REVOCAP_VERSION} ${REVOCAP_VERSION}
-###SHELLPACK check_external_install_required blasbuild      blasbuild-${BLAS_VERSION} ${BLAS_VERSION}
-###SHELLPACK check_external_install_required metisbuild     metisbuild-${METIS_VERSION} ${METIS_VERSION}
-###SHELLPACK check_external_install_required scalapackbuild scalapackbuild-${SCALAPACK_VERSION} ${SCALAPACK_VERSION}
-###SHELLPACK check_external_install_required mumpsbuild     mumpsbuild-${MUMPS_VERSION} ${MUMPS_VERSION}
-###SHELLPACK check_external_install_required trilinosbuild  trilinosbuild-${TRILINOS_VERSION} ${TRILINOS_VERSION}
+###SHELLPACK check_external_install_required_continue revocapbuild   revocapbuild-${REVOCAP_VERSION} ${REVOCAP_VERSION}
+###SHELLPACK check_external_install_required_continue blasbuild      blasbuild-${BLAS_VERSION} ${BLAS_VERSION}
+###SHELLPACK check_external_install_required_continue metisbuild     metisbuild-${METIS_VERSION} ${METIS_VERSION}
+###SHELLPACK check_external_install_required_continue scalapackbuild scalapackbuild-${SCALAPACK_VERSION} ${SCALAPACK_VERSION}
+###SHELLPACK check_external_install_required_continue mumpsbuild     mumpsbuild-${MUMPS_VERSION} ${MUMPS_VERSION}
+###SHELLPACK check_external_install_required_continue trilinosbuild  trilinosbuild-${TRILINOS_VERSION} ${TRILINOS_VERSION}
 ###SHELLPACK check_install_required_continue frontistr-$VERSION
 
 echo Preparing

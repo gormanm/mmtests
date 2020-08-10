@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble scalapackbuild 5.1.0
+###SHELLPACK preamble scalapackbuild 2.1.0
 WEB_LOCATION="http://www.netlib.org/scalapack"
 MIRROR_LOCATION="$WEBROOT/scalapackbuild/"
 
