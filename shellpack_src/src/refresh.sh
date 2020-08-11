@@ -17,7 +17,9 @@ fi
 if [ -e $1/$1-bench ]; then
 	cp $1/$1-bench ../../shellpacks/shellpack-bench-$1
 fi
-cp $1/$1-install ../../shellpacks/shellpack-install-$1
+if [ -e $1/$1-install ]; then
+    cp $1/$1-install ../../shellpacks/shellpack-install-$1
+fi
 
 for STAGES in 1 2; do
 	if [ -e ../../shellpacks/shellpack-bench-$1 ]; then
