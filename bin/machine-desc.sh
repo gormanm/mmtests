@@ -1,5 +1,6 @@
 #!/bin/bash
 # machine-desc.sh - Describe the machine in some sort of fashion
+set ${MMTESTS_SH_DEBUG:-+x}
 
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..

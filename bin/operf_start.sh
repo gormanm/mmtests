@@ -1,5 +1,6 @@
 #!/bin/bash
 # Script to start operf
+set ${MMTESTS_SH_DEBUG:-+x}
 
 usage() {
 	echo "operf_start.sh by Vlastimil Babka"

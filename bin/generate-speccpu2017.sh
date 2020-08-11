@@ -1,5 +1,6 @@
 #!/bin/bash
 # generate-speccpu2017.sh - Generate SPECcpu 2017 configuration file
+set ${MMTESTS_SH_DEBUG:-+x}
 
 # Exit codes
 EXIT_SUCCESS=0

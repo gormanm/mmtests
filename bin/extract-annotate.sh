@@ -1,4 +1,5 @@
 #!/bin/bash
+set ${MMTESTS_SH_DEBUG:-+x}
 
 if [ "$1" = "" ]; then
 	echo Specify an oprofile report from mmtests

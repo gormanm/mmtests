@@ -1,4 +1,6 @@
 #!/bin/bash
+set ${MMTESTS_SH_DEBUG:-+x}
+
 SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 export PATH=$PATH:$SCRIPTDIR

@@ -1,4 +1,5 @@
 #!/bin/bash
+set ${MMTESTS_SH_DEBUG:-+x}
 DEFAULT_CONFIG=config
 DIRNAME=`dirname $0`
 export SCRIPTDIR=`cd "$DIRNAME" && pwd`

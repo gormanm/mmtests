@@ -1,4 +1,5 @@
 #!/bin/sh
+set ${MMTESTS_SH_DEBUG:-+x}
 
 # based on unbuffer from expect package,  however SIGTERM is propagated to
 # child side of pty allowing it to perform any cleanup ahead of SIGHUP

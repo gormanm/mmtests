@@ -2,6 +2,7 @@
 
 # Author: Andreas Herrmann <aherrmann@suse.com>
 # script to handle dmcache setup/removal/status
+set ${MMTESTS_SH_DEBUG:-+x}
 
 function err() {
     if [ $# -gt 1 ]; then

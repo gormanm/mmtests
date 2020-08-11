@@ -63,6 +63,7 @@ while (<STDIN>) {
 		($shellpack, $dummy) = split(/-/, $name);
 		$shellpack = substr($name, 0, rindex($name, "-"));
 		print <<EOC
+set \${MMTESTS_SH_DEBUG:-+x}
 P=$name
 DEFAULT_VERSION=$version
 . \$SHELLPACK_INCLUDE/common.sh
