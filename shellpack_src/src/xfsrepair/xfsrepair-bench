@@ -17,7 +17,7 @@ NR_THREADS=4
 ###SHELLPACK monitor_hooks
 
 install-depends xfsprogs
-###SHELLPACK check_external_install_required_continue fsmark fsmark-$FSMARK_VERSION $FSMARK_VERSION
+###SHELLPACK check_external_install_required fsmark fsmark-$FSMARK_VERSION $FSMARK_VERSION
 ###SHELLPACK init_complete
 
 export PATH=$SHELLPACK_SOURCES/fsmark-${FSMARK_VERSION}-installed:$PATH

@@ -15,7 +15,7 @@ MADV_HUGEPAGE=0
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_external_install_required_continue fio fio-${VERSION} ${VERSION}
+###SHELLPACK check_external_install_required fio fio-${VERSION} ${VERSION}
 ###SHELLPACK check_install_required thpfioscale-${VERSION}
 ###SHELLPACK init_complete
 

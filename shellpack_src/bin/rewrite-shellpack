@@ -482,7 +482,7 @@ fi
 cd \$SHELLPACK_SOURCES/$shellpack-\${VERSION}-installed || die Failed to cd to $shellpack install directory
 $script_sysctl
 EOC
-	} elsif ($command eq "check_external_install_required_continue") {
+	} elsif ($command eq "check_external_install_required") {
 		my ($externalpack, $srcdir, $version, @other) = @details;
 		my $dstdir = "$srcdir-installed";
 
@@ -775,7 +775,7 @@ EOC
 		my ($mpi, $mpipath, $mpilib, $opts) = @details;
 		print <<EOC
 if [ "\$MMTESTS_MPI_SELFBUILD" = "yes" ]; then
-	###SHELLPACK check_external_install_required_continue openmpibuild openmpibuild-\${SELFBUILD_OPENMPI_VERSION} \${SELFBUILD_OPENMPI_VERSION}
+	###SHELLPACK check_external_install_required openmpibuild openmpibuild-\${SELFBUILD_OPENMPI_VERSION} \${SELFBUILD_OPENMPI_VERSION}
 	export $mpipath="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/bin"
 	if [ -e \$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib64 ]; then
 		export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib64"

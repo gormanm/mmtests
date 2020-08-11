@@ -21,11 +21,11 @@ if [ "$SALMON_OPENMPI_VERSION" != "" ]; then
 fi
 
 rm -rf $SHELLPACK_SOURCES/salmondeps-installed
-###SHELLPACK check_external_install_required_continue cmakebuild      cmakebuild-${CMAKE_VERSION} ${CMAKE_VERSION}
+###SHELLPACK check_external_install_required cmakebuild      cmakebuild-${CMAKE_VERSION} ${CMAKE_VERSION}
 ###SHELLPACK install_merge cmakebuild-${CMAKE_VERSION} salmondeps-installed
-###SHELLPACK check_external_install_required_continue blasbuild      blasbuild-${BLAS_VERSION} ${BLAS_VERSION}
+###SHELLPACK check_external_install_required blasbuild      blasbuild-${BLAS_VERSION} ${BLAS_VERSION}
 ###SHELLPACK install_merge blasbuild-${BLAS_VERSION} salmondeps-installed
-###SHELLPACK check_external_install_required_continue scalapackbuild scalapackbuild-${SCALAPACK_VERSION} ${SCALAPACK_VERSION}
+###SHELLPACK check_external_install_required scalapackbuild scalapackbuild-${SCALAPACK_VERSION} ${SCALAPACK_VERSION}
 ###SHELLPACK install_merge scalapackbuild-${SCALAPACK_VERSION}  salmondeps-installed
 
 export PATH=$SHELLPACK_SOURCES/salmondeps-installed/bin:$PATH

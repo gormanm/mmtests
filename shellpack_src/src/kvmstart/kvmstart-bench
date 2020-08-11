@@ -18,7 +18,7 @@
 FIO_VERSION=$VERSION
 echo $KVMSTART_PRETEST_METHOD | grep -q fio
 if [ $? -eq 0 ]; then
-	###SHELLPACK check_external_install_required_continue fio fio-${VERSION} ${VERSION}
+	###SHELLPACK check_external_install_required fio fio-${VERSION} ${VERSION}
 fi
 
 if [ "$KVMSTART_DISTRO" != "" ]; then
