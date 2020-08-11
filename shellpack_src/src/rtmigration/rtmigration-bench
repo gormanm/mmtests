@@ -11,7 +11,7 @@ CYCLICTEST_BACKGROUND=none
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_external_install_required rttestbuild rttestbuild-${VERSION} ${VERSION}
+###SHELLPACK check_external_install_required_continue rttestbuild rttestbuild-${VERSION} ${VERSION}
 ###SHELLPACK init_complete
 
 RTMIGRATION_CHECK_SWITCH=
