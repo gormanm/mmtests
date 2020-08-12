@@ -15,7 +15,7 @@ MIRROR_LOCATION="$WEBROOT/scalapackbuild/"
 ###SHELLPACK sources_fetch scalapack-${VERSION}.tgz scalapackbuild-${VERSION}
 ###SHELLPACK build_start scalapackbuild-${VERSION}
 mkdir build
-###SHELLPACK build_cmake scalapackbuild-${VERSION}/build scalapackbuild-${VERSION} -DCMAKE_EXE_LINKER_FLAGS="-fopenmp" -DBLAS_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib/libopenblas.a -DLAPACK_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib/libopenblas.a -DMPI_BASE_DIR=$MPI_BASE_DIR
+###SHELLPACK build_cmake scalapackbuild-${VERSION}/build scalapackbuild-${VERSION} -DCMAKE_EXE_LINKER_FLAGS="-fopenmp" -DBLAS_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib/libopenblas.a -DLAPACK_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib/libopenblas.a -DMPI_BASE_DIR=$MPI_BASE_DIR $SCALAPACK_MAKE_FLAGS
 make config prefix=$SHELLPACK_SOURCES/scalapackbuild-${VERSION}-installed cc=$MMTESTS_C_COMPILER openmp=1
 ###SHELLPACK make_make_install
 

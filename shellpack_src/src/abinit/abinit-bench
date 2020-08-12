@@ -7,6 +7,20 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
+export BLAS_VERSION="v0.3.10"
+export SCALAPACK_MAKE_FLAGS="-DBUILD_SHARED_LIBS=on"
+export SCALAPACK_VERSION="2.1.0"
+export XC_VERSION="2.2.2"
+export ATOMPAW_VERSION="4.0.0.13"
+export FFTW_VERSION="3.3.7"
+
+###SHELLPACK check_external_install_required blasbuild      blasbuild-${BLAS_VERSION}           ${BLAS_VERSION}
+###SHELLPACK check_external_install_required scalapackbuild scalapackbuild-${SCALAPACK_VERSION} ${SCALAPACK_VERSION}
+###SHELLPACK check_external_install_required xcbuild        xcbuild-${XC_VERSION}               ${XC_VERSION}
+###SHELLPACK check_external_install_required atompawbuild   atompawbuild-${ATOMPAW_VERSION}     ${ATOMPAW_VERSION}
+###SHELLPACK check_external_install_required fftwbuild      fftwbuild-${FFTW_VERSION}           ${FFTW_VERSION}
+export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/abinitdeps-installed/lib:$SHELLPACK_SOURCES/abinitdeps-installed/lib64:$LD_LIBRARY_PATH"
+export PATH=$SHELLPACK_SOURCES/abinitdeps-installed/bin:$PATH
 ###SHELLPACK check_install_required_continue abinit-$VERSION
 
 MPIRUN=
@@ -91,8 +105,8 @@ for STAGE in `echo $STAGE_MAP`; do
 	fi
 	gzip $LOGDIR_RESULTS/$ABINIT_MODEL-log.$STEP
 	for FILE in `ls *.out`; do
-		cp $FILE $LOGDIR_RESULTS/$FILE
-		gzip $LOGDIR_RESULTS/FILE
+		mv $FILE $LOGDIR_RESULTS/$FILE
+		gzip $LOGDIR_RESULTS/$FILE
 	done
 done
 

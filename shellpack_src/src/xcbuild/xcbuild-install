@@ -1,0 +1,17 @@
+#!/bin/bash
+###SHELLPACK preamble xcbuild 2.2.2
+GIT_LOCATION=https://gitlab.com/libxc/libxc
+MIRROR_LOCATION="$WEBROOT/xc/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+install-depends autoconf
+
+###SHELLPACK git_fetch xc-${VERSION}.tar.gz xcbuild-${VERSION}
+###SHELLPACK build_start xcbuild-${VERSION}
+autoreconf -i || die "Failed to autoreconf"
+###SHELLPACK build_configure xcbuild-${VERSION} --enable-shared
+###SHELLPACK make_make_install
+
+echo libxc installed successfully

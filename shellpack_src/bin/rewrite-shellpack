@@ -277,7 +277,7 @@ fi
 
 if [ "\$MMTESTS_NO_BUILDFLAGS" != "yes" ]; then
 	BUILD_FLAGS=
-	BUILD_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/\$P"
+	BUILD_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/`echo \$P | awk -F - '{print \$1}'`"
 	for FILE in \$BUILD_FLAGS_ROOT/generic \$BUILD_FLAGS_ROOT/`uname -m`/generic \$BUILD_FLAGS_ROOT/`uname -m`/`hostname`; do
 		if [ -f \$FILE ]; then
 			BUILD_FLAGS=\$FILE
@@ -411,7 +411,6 @@ if [ \$? -ne 0 ]; then
 	fi
 fi
 EOC
-
 	} elsif ($command eq "make_clean") {
 		print <<EOC
 make clean
@@ -425,13 +424,13 @@ EOC
 		my $opts = join(" ", @details);
 		print <<EOC
 if [ "\$MMTESTS_BUILD_SERIAL" = "yes" ]; then
-	make
+	make \$MAKE_FLAGS
 else
-	make -j\$NUMCPUS
+	make -j\$NUMCPUS \$MAKE_FLAGS
 fi
 if [ \$? -ne 0 ]; then
 	if [ "\$MAKE_RETRY" = "yes" ]; then
-		make -j\$NUMCPUS $opts
+		make -j\$NUMCPUS \$MAKE_FLAGS
 		if [ \$? -ne 0 ]; then
 			error "\$P: make failed"
 			popd > /dev/null
@@ -498,6 +497,8 @@ if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
 	\$SHELLPACK_INCLUDE/shellpack-install-$externalpack -v $version @other || die $externalpack install script returned error
 	mmtests_activity source-installed
 fi
+INSTALL_BASENAME=`echo \$P | awk -F - '{print \$1}'`
+###SHELLPACK install_merge $srcdir \${INSTALL_BASENAME}deps-installed
 cd \$SHELLPACK_SOURCES/$externalpack-$version-installed || die Failed to cd to $externalpack install directory
 EOC
 	} elsif ($command eq "init_only_start") {

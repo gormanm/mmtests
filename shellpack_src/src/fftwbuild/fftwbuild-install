@@ -1,0 +1,14 @@
+#!/bin/bash
+###SHELLPACK preamble fftwbuild-install 3.3.7
+WEB_LOCATION="http://fftw.org/"
+MIRROR_LOCATION="$WEBROOT/fftw/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch fftw-${VERSION}.tar.gz fftwbuild-${VERSION}
+###SHELLPACK build_start fftwbuild-${VERSION}
+###SHELLPACK build_configure fftwbuild-${VERSION} --enable-shared --enable-openmp
+###SHELLPACK make_make_install
+
+echo fftw installed successfully

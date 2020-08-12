@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble abinit 8.10.2
+###SHELLPACK preamble abinit-install 8.10.2
 WEB_LOCATION="https://www.abinit.org/sites/default/files/packages"
 MIRROR_LOCATION="$WEBROOT/abinit"
 
@@ -19,7 +19,9 @@ install-depends gcc-fortran gcc
 
 export BUILD_START_NOTOUCH=yes
 ###SHELLPACK build_start abinit-${VERSION}-installed
-###SHELLPACK build_configure abinit-${VERSION}-installed $MPI_SWITCH --enable-openmp
+
+DEPSROOT="$SHELLPACK_SOURCES/abinitdeps-installed"
+###SHELLPACK build_configure abinit-${VERSION}-installed $MPI_SWITCH --enable-openmp --with-linalg-libs=\"-L$DEPSROOT/lib -lopenblas -lscalapack\" --with-linalg-incs=\"-I$DEPSROOT/include\" --with-dft-flavor="atompaw+libxc" --with-libxc-libs=\"-L$DEPSROOT/lib64 -lxcf90 -lxc -lm -latompaw\" --with-libxc-incs=\"-I$DEPSROOT/include\" --with-fft-flavor=fftw3 --with-fft-incs=\"-I$DEPSROOT/include\" --with-fft-libs=\"-L$DEPSROOT/lib64 -lfftw3_omp -lfftw3\"
 
 ###SHELLPACK self_extract commit-055f279d.patch
 ###SHELLPACK self_extract partial-commit-40d49a0c.patch
