@@ -85,6 +85,10 @@ log_runtime() {
 	fi
 	echo "\$@" >> \$SHELLPACK_LOG/runtime.opts
 }
+if [ "\$MMTESTS_TOOLCHAIN\" != "" ]; then
+	export MMTESTS_MPI_SELFBUILD=yes
+fi
+
 EOC
 	} elsif ($command eq "parseargBegin") {
 		print <<EOC;
@@ -283,6 +287,7 @@ if [ "\$MMTESTS_NO_BUILDFLAGS" != "yes" ]; then
 			BUILD_FLAGS=\$FILE
 		fi
 	done
+
 	if [ -e \$SHELLPACK_TOPLEVEL/configs/build-flags/common ]; then
 		. \$SHELLPACK_TOPLEVEL/configs/build-flags/common
 	fi
@@ -735,21 +740,23 @@ EOC
 	} elsif ($command eq "mpi_setup_deps") {
 		my ($mpi) = @details;
 		print <<EOC
+
+MPI_INSTALL_DEPENDS=
 # Install mpi requirements
 if [ "\$$mpi" = "openmpi3" ]; then
-	install-depends openmpi3 openmpi3-devel
+	MPI_INSTALL_DEPENDS="openmpi3 openmpi3-devel"
 	export SELFBUILD_OPENMPI_VERSION=v3.1.6
 elif [ "\$$mpi" = "openmpi2" ]; then
-	install-depends openmpi2 openmpi2-devel
+	MPI_INSTALL_DEPENDS="openmpi2 openmpi2-devel"
 	export SELFBUILD_OPENMPI_VERSION=v2.1.6
 elif [ "\$$mpi" = "openmpi" ]; then
-	install-depends openmpi openmpi-devel
+	MPI_INSTALL_DEPENDS="openmpi openmpi-devel"
 	export SELFBUILD_OPENMPI_VERSION=v1.10.7
 elif [ "\$$mpi" = "openmpi3-hpc" ]; then
-	install-depends openmpi3-gnu-hpc-devel
+	MPI_INSTALL_DEPENDS="openmpi3-gnu-hpc-devel"
 	export SELFBUILD_OPENMPI_VERSION=v3.1.6
 elif [ "\$$mpi" = "openmpi2-hpc" ]; then
-	install-depends openmpi2-gnu-hpc-devel
+	MPI_INSTALL_DEPENDS="openmpi2-gnu-hpc-devel"
 else
 	if [ "\$MMTESTS_MPI_SELFBUILD" = "yes" ]; then
 		export SELFBUILD_OPENMPI_VERSION="\$$mpi"
@@ -757,6 +764,10 @@ else
 		die "Unrecognised MPI $mpi \$$mpi"
 	fi
 fi
+if [ "\$MPI_INSTALL_DEPENDS" != "" -a "\$MMTESTS_MPI_SELFBUILD" != "yes" ]; then
+	install-depends \$MPI_INSTALL_DEPENDS
+fi
+
 EOC
 	} elsif ($command eq "mpi_setup_env") {
 		my ($mpi, $mpipath, $mpilib, $opts) = @details;

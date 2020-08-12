@@ -14,15 +14,6 @@ export XC_VERSION="2.2.2"
 export ATOMPAW_VERSION="4.0.0.13"
 export FFTW_VERSION="3.3.7"
 
-###SHELLPACK check_external_install_required blasbuild      blasbuild-${BLAS_VERSION}           ${BLAS_VERSION}
-###SHELLPACK check_external_install_required scalapackbuild scalapackbuild-${SCALAPACK_VERSION} ${SCALAPACK_VERSION}
-###SHELLPACK check_external_install_required xcbuild        xcbuild-${XC_VERSION}               ${XC_VERSION}
-###SHELLPACK check_external_install_required atompawbuild   atompawbuild-${ATOMPAW_VERSION}     ${ATOMPAW_VERSION}
-###SHELLPACK check_external_install_required fftwbuild      fftwbuild-${FFTW_VERSION}           ${FFTW_VERSION}
-export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/abinitdeps-installed/$MMTESTS_LIBDIR:$SHELLPACK_SOURCES/abinitdeps-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
-export PATH=$SHELLPACK_SOURCES/abinitdeps-installed/bin:$PATH
-###SHELLPACK check_install_required_continue abinit-$VERSION
-
 MPIRUN=
 if [ "$ABINIT_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps ABINIT_OPENMPI_VERSION
@@ -31,6 +22,15 @@ if [ "$ABINIT_OPENMPI_VERSION" != "" ]; then
 	MPIRUN="mpirun $ABINIT_MPI_OPTS $MMTESTS_MPI_OPTS -np $ABINIT_PROCESSES"
 	export OMP_NUM_THREADS=$ABINIT_THREADS
 fi
+
+###SHELLPACK check_external_install_required blasbuild      blasbuild-${BLAS_VERSION}           ${BLAS_VERSION}
+###SHELLPACK check_external_install_required scalapackbuild scalapackbuild-${SCALAPACK_VERSION} ${SCALAPACK_VERSION}
+###SHELLPACK check_external_install_required xcbuild        xcbuild-${XC_VERSION}               ${XC_VERSION}
+###SHELLPACK check_external_install_required atompawbuild   atompawbuild-${ATOMPAW_VERSION}     ${ATOMPAW_VERSION}
+###SHELLPACK check_external_install_required fftwbuild      fftwbuild-${FFTW_VERSION}           ${FFTW_VERSION}
+export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/abinitdeps-installed/$MMTESTS_LIBDIR:$SHELLPACK_SOURCES/abinitdeps-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
+export PATH=$SHELLPACK_SOURCES/abinitdeps-installed/bin:$PATH
+###SHELLPACK check_install_required_continue abinit-$VERSION
 
 export ABI_HOME=$SHELLPACK_SOURCES/abinit-${VERSION}-installed
 export PATH=$ABI_HOME/src/98_main/:$PATH
