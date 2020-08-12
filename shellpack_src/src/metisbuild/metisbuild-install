@@ -8,6 +8,9 @@ MIRROR_LOCATION="$WEBROOT/metisbuild/"
 
 ###SHELLPACK sources_fetch metis-${VERSION}.tar.gz metisbuild-${VERSION}
 ###SHELLPACK build_start metisbuild-${VERSION}
+sed -i -e "s/LIBRARY DESTINATION lib/LIBRARY DESTINATION $MMTESTS_LIBDIR/" libmetis/CMakeLists.txt
+sed -i -e "s/RUNTIME DESTINATION lib/RUNTIME DESTINATION $MMTESTS_LIBDIR/" libmetis/CMakeLists.txt
+sed -i -e "s/ARCHIVE DESTINATION lib/ARCHIVE DESTINATION $MMTESTS_LIBDIR/" libmetis/CMakeLists.txt
 make config prefix=$SHELLPACK_SOURCES/metisbuild-${VERSION}-installed cc=$MMTESTS_C_COMPILER openmp=1
 if [ $? -ne 0 ]; then
 	die "Failed make config"

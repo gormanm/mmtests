@@ -330,7 +330,7 @@ EOC
 		}
 		shift @details;
 		print <<EOC
-eval ./configure --prefix=\$SHELLPACK_SOURCES/$dstdir \$MMTESTS_BUILD_CONFIGURE @details
+eval ./configure --prefix=\$SHELLPACK_SOURCES/$dstdir --libdir=\$MMTESTS_LIBDIR \$MMTESTS_BUILD_CONFIGURE @details
 if [ \$? -ne 0 ]; then
 	cp /usr/share/automake*/config.guess .
 	cp /usr/share/automake*/config.sub .
@@ -349,7 +349,7 @@ EOC
 		print <<EOC
 mkdir build
 cd build
-eval ../configure.py --prefix=\$SHELLPACK_SOURCES/$srcdir-installed \$MMTESTS_BUILD_CONFIGURE @details
+eval ../configure.py --prefix=\$SHELLPACK_SOURCES/$srcdir-installed --libdir=\$MMTESTS_LIBDIR \$MMTESTS_BUILD_CONFIGURE @details
 if [ \$? -ne 0 ]; then
 	error "\$P: configure failed"
 	popd > /dev/null
@@ -380,7 +380,7 @@ EOC
 		shift @details;
 		print <<EOC
 cd \$SHELLPACK_SOURCES/$builddir || die Failed to change to builddir
-cmake \$SHELLPACK_SOURCES/$srcdir -DCMAKE_INSTALL_PREFIX=\$SHELLPACK_SOURCES/$srcdir-installed @details
+cmake \$SHELLPACK_SOURCES/$srcdir -DCMAKE_INSTALL_PREFIX=\$SHELLPACK_SOURCES/$srcdir-installed -DCMAKE_VERBOSE_MAKEFILE=true @details
 if [ \$? -ne 0 ]; then
 	error "\$P: cmake failed"
 	popd > /dev/null
@@ -391,19 +391,14 @@ EOC
 	} elsif ($command eq "make") {
 		my $opts = join(" ", @details);
 		print <<EOC
-make -j\$NUMCPUS $opts
-if [ \$? -ne 0 ]; then
-	error "\$P: make failed"
-	popd > /dev/null
-	exit \$SHELLPACK_ERROR
+MAKE_JOBS="-j\$NUMCPUS"
+if [ "\$MMTESTS_BUILD_SERIAL" = "yes" ]; then
+	MAKE_JOBS=
 fi
-EOC
-	} elsif ($command eq "make_retry") {
-		my $opts = join(" ", @details);
-		print <<EOC
-make -j\$NUMCPUS $opts
+make \$MAKE_JOBS \$MAKE_FLAGS
 if [ \$? -ne 0 ]; then
-	make -j\$NUMCPUS $opts
+	echo WARNING: make failed, retrying once
+	make \$MAKE_JOBS \$MAKE_FLAGS
 	if [ \$? -ne 0 ]; then
 		error "\$P: make failed"
 		popd > /dev/null
@@ -420,30 +415,21 @@ if [ \$? -ne 0 ]; then
 	exit \$SHELLPACK_ERROR
 fi
 EOC
-	} elsif ($command eq "make_make_install") {
+	} elsif ($command eq "make_install") {
 		my $opts = join(" ", @details);
 		print <<EOC
-if [ "\$MMTESTS_BUILD_SERIAL" = "yes" ]; then
-	make \$MAKE_FLAGS
-else
-	make -j\$NUMCPUS \$MAKE_FLAGS
-fi
-if [ \$? -ne 0 ]; then
-	if [ "\$MAKE_RETRY" = "yes" ]; then
-		make -j\$NUMCPUS \$MAKE_FLAGS
-		if [ \$? -ne 0 ]; then
-			error "\$P: make failed"
-			popd > /dev/null
-			exit \$SHELLPACK_ERROR
-		fi
-	fi
-fi
 make install \$MAKE_INSTALL_FLAGS
 if [ \$? -ne 0 ]; then
 	error "\$P: make install failed"
 	popd > /dev/null
 	exit \$SHELLPACK_ERROR
 fi
+EOC
+	} elsif ($command eq "make_make_install") {
+		my $opts = join(" ", @details);
+		print <<EOC
+###SHELLPACK make $opts
+###SHELLPACK make_install $opts
 EOC
 	} elsif ($command eq "check_install_required") {
 		my ($srcdir, @other) = @details;
@@ -863,6 +849,9 @@ if [ ! -e \$SHELLPACK_SOURCES/$dst ]; then
 	mkdir \$SHELLPACK_SOURCES/$dst || die "Failed to create dst $dst"
 fi
 tar -c * | tar -C \$SHELLPACK_SOURCES/$dst -x || die "Failed to merge $src to $dst"
+if [ "\$MMTESTS_LIBDIR" = "lib64" -a -e \$SHELLPACK_SOURCES/$dst/lib ]; then
+	die "Only lib64 expected but lib dir exists after merge to \$SHELLPACK_SOURCES/$dst"
+fi
 EOC
 	} else {
 		print "# WARNING: UNRECOGNISED command $command\n";

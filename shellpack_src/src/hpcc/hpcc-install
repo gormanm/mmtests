@@ -24,7 +24,7 @@ cd hpl || die Package is not laid out as expected
 cp setup/Make.$TEMPLATE . || die Failed to copy $TEMPLATE template
 template_set_param MPdir  $HPCC_MPI_PATH
 template_set_param MPlib  ""
-template_set_param LAdir  /usr/lib64
+template_set_param LAdir  /usr/$MMTESTS_LIBDIR
 template_set_param LAinc  -I/usr/include
 template_set_param LAlib  -lblas
 template_set_param CC     $HPCC_MPI_PATH/mpicc

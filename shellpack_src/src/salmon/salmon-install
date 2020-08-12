@@ -16,8 +16,8 @@ install-depends gcc-fortran cmake
 ###SHELLPACK build_start salmon-${VERSION}
 
 INCLUDES="-I$SHELLPACK_SOURCES/salmondeps-installed/include"
-LIBS=" -L$SHELLPACK_SOURCES/salmondeps-installed/lib"
-LD_LIBS="$SHELLPACK_SOURCES/salmondeps-installed/lib"
+LIBS=" -L$SHELLPACK_SOURCES/salmondeps-installed/$MMTESTS_LIBDIR"
+LD_LIBS="$SHELLPACK_SOURCES/salmondeps-installed/$MMTESTS_LIBDIR"
 
 export CFLAGS+=" $INCLUDES $LIBS"
 export CXXFLAGS+=" $INCLUDES $LIBS"

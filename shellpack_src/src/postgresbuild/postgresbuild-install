@@ -37,9 +37,6 @@ update_entry_cnf() {
 MMTESTS_BUILD_CFLAGS_EXTRA="-pipe"
 WEB_LOCATION=http://ftp.postgresql.org/pub/source/v${VERSION}/
 MIRROR_LOCATION=$WEBROOT/postgres/
-if [ ! -e /usr/lib/libncurses.so ]; then
-	ln -s /usr/lib/libncurses.so.5 /usr/lib/libncurses.so
-fi
 ###SHELLPACK sources_fetch postgresql-${VERSION}.tar.bz2 postgresbuild-${VERSION}
 ###SHELLPACK build_start postgresbuild-${VERSION}
 ###SHELLPACK build_configure postgresbuild-${VERSION} --enable-thread-safety --without-krb5 --without-readline --enable-assembler

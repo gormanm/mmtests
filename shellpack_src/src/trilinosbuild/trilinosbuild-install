@@ -26,12 +26,13 @@ CMAKE_FLAGS="-DCMAKE_C_COMPILER=mpicc \
 	-DTrilinos_ENABLE_OpenMP=ON \
 	-DTrilinos_ENABLE_Amesos=ON \
 	-DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF \
+	-DTrilinos_INSTALL_LIB_DIR=$SHELLPACK_SOURCES/trilinosbuild-${VERSION}-installed/$MMTESTS_LIBDIR \
 	-DEpetra_ENABLE_OpenMP=FALSE \
-	-DBLAS_LIBRARY_DIRS=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib \
-	-DLAPACK_LIBRARY_DIRS=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib \
+	-DBLAS_LIBRARY_DIRS=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/$MMTESTS_LIBDIR \
+	-DLAPACK_LIBRARY_DIRS=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/$MMTESTS_LIBDIR \
 	-DMETIS_INCLUDE_DIRS=$SHELLPACK_SOURCES/metisbuild-$METIS_VERSION-installed/include \
-	-DMETIS_LIBRARY_DIRS=$SHELLPACK_SOURCES/metisbuild-$METIS_VERSION-installed/lib \
-	-DSCALAPACK_LIBRARY_DIRS=$SHELLPACK_SOURCES/scalapackbuild-$SCALAPACK_VERSION-installed/lib \
+	-DMETIS_LIBRARY_DIRS=$SHELLPACK_SOURCES/metisbuild-$METIS_VERSION-installed/$MMTESTS_LIBDIR \
+	-DSCALAPACK_LIBRARY_DIRS=$SHELLPACK_SOURCES/scalapackbuild-$SCALAPACK_VERSION-installed/$MMTESTS_LIBDIR \
 	-DBLAS_LIBRARY_NAMES=openblas \
 	-DLAPACK_LIBRARY_NAMES=openblas \
 	-DSCALAPACK_LIBRARY_NAMES=scalapack"
@@ -46,6 +47,6 @@ sed -i -e '/EPETRA_HAVE_OMP/d' packages/epetra/src/CMakeLists.txt
 mkdir build
 ###SHELLPACK build_cmake trilinosbuild-${VERSION}/build trilinosbuild-${VERSION} $CMAKE_FLAGS
 # -DMPI_BASE_DIR=$MPI_BASE_DIR
-###SHELLPACK make_make_install
+###SHELLPACK make_install
 
 echo trilinos installed successfully

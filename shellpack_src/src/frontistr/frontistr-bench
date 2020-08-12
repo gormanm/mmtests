@@ -31,6 +31,7 @@ export TRILINOS_VERSION="12-14-1"
 ###SHELLPACK check_external_install_required mumpsbuild     mumpsbuild-${MUMPS_VERSION} ${MUMPS_VERSION}
 ###SHELLPACK check_external_install_required trilinosbuild  trilinosbuild-${TRILINOS_VERSION} ${TRILINOS_VERSION}
 ###SHELLPACK check_install_required_continue frontistr-$VERSION
+export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/frontistrdeps-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH
 
 echo Preparing
 case $FRONTISTR_MODEL in

@@ -26,6 +26,6 @@ echo '--- Makefile.com.orig	2014-03-31 12:09:53.689008589 +0100
  	$(CC) -o $(@) ../elided.c' | patch -p0
 
 ###SHELLPACK make_clean
-###SHELLPACK make_retry
+###SHELLPACK make
 
 echo libmicro installed successfully

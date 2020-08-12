@@ -21,10 +21,10 @@ build_callback
 ###SHELLPACK make
 
 mkdir $SHELLPACK_SOURCES/mumpsbuild-${VERSION}-installed
-mkdir $SHELLPACK_SOURCES/mumpsbuild-${VERSION}-installed/lib
+mkdir $SHELLPACK_SOURCES/mumpsbuild-${VERSION}-installed/$MMTESTS_LIBDIR/
 mkdir $SHELLPACK_SOURCES/mumpsbuild-${VERSION}-installed/include
 
-cp lib/*.a $SHELLPACK_SOURCES/mumpsbuild-${VERSION}-installed/lib/
+cp lib/*.a $SHELLPACK_SOURCES/mumpsbuild-${VERSION}-installed/$MMTESTS_LIBDIR/
 cp include/*.h $SHELLPACK_SOURCES/mumpsbuild-${VERSION}-installed/include
 
 echo mumps installed successfully
@@ -49,7 +49,7 @@ exit $SHELLPACK_SUCCESS
  # line (remember to add -Dparmetis in the ORDERINGSF variable below)
  
 -#LMETIS    = -L$(LMETISDIR) -lmetis
-+LMETIS    = -L$(LMETISDIR)/lib -lmetis
++LMETIS    = -L$(LMETISDIR)/$(MMTESTS_LIBDIR) -lmetis
  #LMETIS    = -L$(LMETISDIR) -lparmetis -lmetis
  
  # The following variables will be used in the compilation process.
@@ -82,11 +82,11 @@ exit $SHELLPACK_SUCCESS
  # DEFINE HERE YOUR LAPACK LIBRARY
  
 -LAPACK = -llapack
-+LAPACK = -L$(SHELLPACK_SOURCES)/blasbuild-$(BLAS_VERSION)-installed/lib -lopenblas
++LAPACK = -L$(SHELLPACK_SOURCES)/blasbuild-$(BLAS_VERSION)-installed/$(MMTESTS_LIBDIR) -lopenblas
  
  # SCALAP should define the SCALAPACK and  BLACS libraries.
 -SCALAP  = -lscalapack -lblacs
-+SCALAP  = -L$(SHELLPACK_SOURCES)/scalapackbuild-$(SCALAPACK_VERSION)-installed/lib -lscalapack
++SCALAP  = -L$(SHELLPACK_SOURCES)/scalapackbuild-$(SCALAPACK_VERSION)-installed/$(MMTESTS_LIBDIR) -lscalapack
  
  # INCLUDE DIRECTORY FOR MPI
  INCPAR  = -I/usr/include
@@ -95,7 +95,7 @@ exit $SHELLPACK_SUCCESS
  # DEFINE HERE YOUR BLAS LIBRARY
  
 -LIBBLAS = -lblas
-+LIBBLAS = -L$(SHELLPACK_SOURCES)/blasbuild-$(BLAS_VERSION)-installed/lib -lopenblas
++LIBBLAS = -L$(SHELLPACK_SOURCES)/blasbuild-$(BLAS_VERSION)-installed/$(MMTESTS_LIBDIR) -lopenblas
  
  # DEFINE HERE YOUR PTHREAD LIBRARY
  LIBOTHERS = -lpthread

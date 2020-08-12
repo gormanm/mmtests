@@ -10,5 +10,7 @@ MIRROR_LOCATION="$WEBROOT/fftw/"
 ###SHELLPACK build_start fftwbuild-${VERSION}
 ###SHELLPACK build_configure fftwbuild-${VERSION} --enable-shared --enable-openmp
 ###SHELLPACK make_make_install
+###SHELLPACK build_configure fftwbuild-${VERSION} --enable-shared --enable-openmp --enable-float
+###SHELLPACK make_make_install
 
 echo fftw installed successfully

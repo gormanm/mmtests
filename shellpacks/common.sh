@@ -15,10 +15,6 @@ fi
 export MMTESTS_HOST_PORT=${MMTESTS_HOST_PORT:-1234}
 export MMTESTS_GUEST_PORT=${MMTESTS_GUEST_PORT:-4321}
 
-if [ "`which check-confidence.pl 2> /dev/null`" = "" ]; then
-	export PATH=$SCRIPTDIR/stat:$PATH
-fi
-
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
@@ -29,6 +25,12 @@ grep -q nosmt /proc/cmdline
 if [ $? -eq 0 ]; then
 	echo WARNING: Artifically boosting NUMCPUS to account for nosmt comparison
 	NUMCPUS=$((NUMCPUS*2))
+fi
+
+export MMTESTS_LIBDIR="lib"
+LONG_BIT=`getconf LONG_BIT`
+if [ "$LONG_BIT" = "64" ]; then
+	export MMTESTS_LIBDIR="lib64"
 fi
 
 function die() {

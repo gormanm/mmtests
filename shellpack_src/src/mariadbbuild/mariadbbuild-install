@@ -46,7 +46,7 @@ MIRROR_LOCATION=$WEBROOT/mariadb/
 ###SHELLPACK self_extract 0001-mariadb-nopamauth.patch
 cat $SHELLPACK_TEMP/0001-mariadb-nopamauth.patch | patch -p1
 ###SHELLPACK build_cmake mariadbbuild-${VERSION} mariadbbuild-${VERSION}
-###SHELLPACK make_retry
+###SHELLPACK make
 ###SHELLPACK make_make_install
 
 echo Initialising database for user $MARIADB_USER

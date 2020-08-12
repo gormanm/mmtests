@@ -19,7 +19,7 @@ export FFTW_VERSION="3.3.7"
 ###SHELLPACK check_external_install_required xcbuild        xcbuild-${XC_VERSION}               ${XC_VERSION}
 ###SHELLPACK check_external_install_required atompawbuild   atompawbuild-${ATOMPAW_VERSION}     ${ATOMPAW_VERSION}
 ###SHELLPACK check_external_install_required fftwbuild      fftwbuild-${FFTW_VERSION}           ${FFTW_VERSION}
-export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/abinitdeps-installed/lib:$SHELLPACK_SOURCES/abinitdeps-installed/lib64:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/abinitdeps-installed/$MMTESTS_LIBDIR:$SHELLPACK_SOURCES/abinitdeps-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
 export PATH=$SHELLPACK_SOURCES/abinitdeps-installed/bin:$PATH
 ###SHELLPACK check_install_required_continue abinit-$VERSION
 

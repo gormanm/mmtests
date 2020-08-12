@@ -12,8 +12,8 @@ MIRROR_LOCATION="$WEBROOT/revocapbuild/"
 
 mkdir $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed
 mkdir $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed/include
-mkdir $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed/lib
+mkdir $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed/$MMTESTS_LIBDIR
 cp Refiner/rcapRefiner.h $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed/include || die "Failed rcapRefiner.h"
-cp `find lib/ -name "*.a"` $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed/lib || die "Failed to install libraries"
+cp `find lib/ -name "*.a"` $SHELLPACK_SOURCES/revocapbuild-${VERSION}-installed/$MMTESTS_LIBDIR || die "Failed to install libraries"
 
 echo revocap installed successfully

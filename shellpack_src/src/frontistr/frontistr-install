@@ -39,8 +39,8 @@ echo frontistr installed successfully
 exit $SHELLPACK_SUCCESS
 
 ==== BEGIN FrontISTR-v5.0-Makefile.conf.org.diff ====
---- FrontISTR-v5.0/Makefile.conf.org	2019-10-18 06:11:00.000000000 +0200
-+++ FrontISTR-v5.0/Makefile.conf	2020-07-22 16:12:09.444152000 +0200
+--- a/Makefile.conf	2020-08-12 16:20:44.823660158 +0100
++++ b/Makefile.conf	2020-08-12 16:21:12.827635765 +0100
 @@ -18,30 +18,31 @@
  INCLUDEDIR     = $(PREFIX)/include
  
@@ -49,7 +49,7 @@ exit $SHELLPACK_SUCCESS
 -METISLIBDIR    = $(METISDIR)
 -METISINCDIR    = $(METISDIR)/Lib
 +METISDIR       = SHELLPACK_SOURCES/metisbuild-METIS_VERSION-installed
-+METISLIBDIR    = $(METISDIR)/lib
++METISLIBDIR    = $(METISDIR)/$(MMTESTS_LIBDIR)
 +METISINCDIR    = $(METISDIR)/include
  HECMW_METIS_VER= 4
  
@@ -58,15 +58,16 @@ exit $SHELLPACK_SUCCESS
 -PARMETISLIBDIR = $(PARMETISDIR)
 -PARMETISINCDIR = $(PARMETISDIR)/ParMETISLib
 +PARMETISDIR    = SHELLPACK_SOURCES/trilinosbuild-TRILINOS_VERSION-installed
-+PARMETISLIBDIR = $(PARMETISDIR)/lib
++PARMETISLIBDIR = $(PARMETISDIR)/$(MMTESTS_LIBDIR)
 +PARMETISINCDIR = $(PARMETISDIR)/include
  
  # Refiner
 -REFINERDIR     = $(HOME)/REVOCAP_Refiner
 -REFINERINCDIR  = $(REFINERDIR)/Refiner
+-REFINERLIBDIR  = $(REFINERDIR)/lib
 +REFINERDIR     = SHELLPACK_SOURCES/revocapbuild-REVOCAP_VERSION-installed
 +REFINERINCDIR  = $(REFINERDIR)/include
- REFINERLIBDIR  = $(REFINERDIR)/lib
++REFINERLIBDIR  = $(REFINERDIR)/$(MMTESTS_LIBDIR)
  
  # Coupler
 -REVOCAPDIR     = $(HOME)/REVOCAP_Coupler
@@ -74,14 +75,14 @@ exit $SHELLPACK_SUCCESS
 -REVOCAPLIBDIR  = $(REVOCAPDIR)/librcap
 +REVOCAPDIR     = SHELLPACK_SOURCES/revocapbuild-REVOCAP_VERSION-installed
 +REVOCAPINCDIR  = $(REVOCAPDIR)/include
-+REVOCAPLIBDIR  = $(REVOCAPDIR)/lib
++REVOCAPLIBDIR  = $(REVOCAPDIR)/$(MMTESTS_LIBDIR)
  
  # MUMPS
 -MUMPSDIR       = $(HOME)/MUMPS_4.10.0
 +MUMPSDIR       = SHELLPACK_SOURCES/mumpsbuild-MUMPS_VERSION-installed
  MUMPSINCDIR    = $(MUMPSDIR)/include
  MUMPSLIBDIR    = $(MUMPSDIR)/lib
-+MUMPSLIBS      = -ldmumps -lmumps_common -lpord -LSHELLPACK_SOURCES/mumpsbuild-MUMPS_VERSION-installed/lib -LSHELLPACK_SOURCES/scalapackbuild-SCALAPACK_VERSION-installed/lib -lscalapack
++MUMPSLIBS      = -ldmumps -lmumps_common -lpord -LSHELLPACK_SOURCES/mumpsbuild-MUMPS_VERSION-installed/$(MMTESTS_LIBDIR) -LSHELLPACK_SOURCES/scalapackbuild-SCALAPACK_VERSION-installed/$(MMTESTS_LIBDIR) -lscalapack
  
  # MKL PARDISO
  MKLDIR     = $(HOME)/
@@ -92,7 +93,8 @@ exit $SHELLPACK_SUCCESS
 -MLDIR          = $(HOME)/trilinos/11.8.1/ml
 +MLDIR          = SHELLPACK_SOURCES/trilinosbuild-TRILINOS_VERSION-installed
  MLINCDIR       = $(MLDIR)/include
- MLLIBDIR       = $(MLDIR)/lib
+-MLLIBDIR       = $(MLDIR)/lib
++MLLIBDIR       = $(MLDIR)/$(MMTESTS_LIBDIR)
 +MLLIBS         = -lml -lamesos -ltrilinosss -lzoltan -lepetra -lteuchosremainder -lteuchosnumerics -lteuchoscomm -lteuchosparameterlist -lteuchoscore -ldmumps -lmumps_common -lpord -lmetis
  
  # C compiler settings
@@ -115,7 +117,7 @@ exit $SHELLPACK_SUCCESS
 +F90            = mpif90 -fopenmp
  F90FLAGS       =
 -F90LDFLAGS     =
-+F90LDFLAGS     = -lstdc++ -LSHELLPACK_SOURCES/blasbuild-BLAS_VERSION-installed/lib -lopenblas
++F90LDFLAGS     = -lstdc++ -LSHELLPACK_SOURCES/blasbuild-BLAS_VERSION-installed/$(MMTESTS_LIBDIR) -lopenblas
  F90OPTFLAGS    = -O2
  F90FPP         = -cpp
 -F90LINKER      = mpif90

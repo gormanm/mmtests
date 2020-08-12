@@ -12,11 +12,17 @@ MIRROR_LOCATION="$WEBROOT/scalapackbuild/"
 ###SHELLPACK mpi_setup_shmem
 ###SHELLPACK mpi_setup_runas
 
+export LIB_SUFFIX=`echo $MMTESTS_LIBDIR | sed -e 's/^lib//'`
 ###SHELLPACK sources_fetch scalapack-${VERSION}.tgz scalapackbuild-${VERSION}
 ###SHELLPACK build_start scalapackbuild-${VERSION}
 mkdir build
-###SHELLPACK build_cmake scalapackbuild-${VERSION}/build scalapackbuild-${VERSION} -DCMAKE_EXE_LINKER_FLAGS="-fopenmp" -DBLAS_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib/libopenblas.a -DLAPACK_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib/libopenblas.a -DMPI_BASE_DIR=$MPI_BASE_DIR $SCALAPACK_MAKE_FLAGS
-make config prefix=$SHELLPACK_SOURCES/scalapackbuild-${VERSION}-installed cc=$MMTESTS_C_COMPILER openmp=1
+###SHELLPACK build_cmake scalapackbuild-${VERSION}/build scalapackbuild-${VERSION} -DCMAKE_EXE_LINKER_FLAGS="-fopenmp" -DBLAS_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/$MMTESTS_LIBDIR/libopenblas.a -DLAPACK_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/$MMTESTS_LIBDIR/libopenblas.a -DMPI_BASE_DIR=$MPI_BASE_DIR -DBUILD_SHARED_LIBS:BOOL=ON -DBUILD_STATIC_LIBS:BOOL=ON -DLIB_SUFFIX=$LIB_SUFFIX $SCALAPACK_MAKE_FLAGS
 ###SHELLPACK make_make_install
+
+# Scalapack hard-codes lib/ for cmake files
+if [ "$MMTESTS_LIBDIR" = "lib64" ]; then
+	mv $SHELLPACK_SOURCES/scalapackbuild-${VERSION}-installed/lib/cmake $SHELLPACK_SOURCES/scalapackbuild-${VERSION}-installed/$MMTESTS_LIBDIR/
+	rmdir $SHELLPACK_SOURCES/scalapackbuild-${VERSION}-installed/lib || die "Failed to remove lib as expected"
+fi
 
 echo scalapack installed successfully

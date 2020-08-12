@@ -18,8 +18,8 @@ if [ "$OPTFLAGS" != "" ]; then
 fi
 
 export CPPFLAGS="-I$SHELLPACK_SOURCES/netcdf-installed/include"
-export LDFLAGS="-L$SHELLPACK_SOURCES/netcdf-installed/lib64"
-export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/netcdf-installed/lib64:$LD_LIBRARY_PATH"
+export LDFLAGS="-L$SHELLPACK_SOURCES/netcdf-installed/$MMTESTS_LIBDIR"
+export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/netcdf-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
 
 ###SHELLPACK build_configure hdf5build-${VERSION} --enable-fortran --enable-cxx
 ###SHELLPACK make_make_install

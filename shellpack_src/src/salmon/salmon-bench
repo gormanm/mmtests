@@ -32,7 +32,7 @@ export PATH=$SHELLPACK_SOURCES/salmondeps-installed/bin:$PATH
 ###SHELLPACK check_install_required_continue salmon-$VERSION
 ###SHELLPACK init_complete
 
-export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/salmondeps-installed/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/salmondeps-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
 
 case $SALMON_MODEL in
 bulkSi)
