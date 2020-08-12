@@ -807,6 +807,7 @@ else
 	fi
 
 	export MPI_BASE_DIR=`dirname \$$mpipath`
+	export MPI_DIR=`dirname \$$mpipath`
 fi
 
 if [ "\$INSTALL_ONLY" != "yes" ]; then

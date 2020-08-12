@@ -1,16 +1,20 @@
 #!/bin/bash
-###SHELLPACK preamble atompawbuild 4.0.0.13
+###SHELLPACK preamble atompawbuild-install 4.0.0.13
 WEB_LOCATION="http://users.wfu.edu/natalie/papers/pwpaw"
 MIRROR_LOCATION="$WEBROOT/atompaw/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-install-depends autoconf
+# Install openmpi requirements
+###SHELLPACK mpi_setup_deps SCALAPACK_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env SCALAPACK_OPENMPI_VERSION SCALAPACK_MPI_PATH SCALAPACK_MPI_LIBPATH
+###SHELLPACK mpi_setup_shmem
+###SHELLPACK mpi_setup_runas
 
 ###SHELLPACK sources_fetch atompaw-${VERSION}.tar.gz atompawbuild-${VERSION}
 ###SHELLPACK build_start atompawbuild-${VERSION}
-###SHELLPACK build_configure atompawbuild-${VERSION} --enable-shared --with-linalg-libs=\"-L$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib -L$SHELLPACK_SOURCES/scalapackbuild-$SCALAPACK_VERSION-installed/lib -lopenblas -lscalapack\" --with-libxc-libs=\"-L$SHELLPACK_SOURCES/xcbuild-$XC_VERSION-installed/lib64 -lxcf90 -lxc -lm\" --with-libxc-incs=\"-I$SHELLPACK_SOURCES/xcbuild-$XC_VERSION-installed/include\"
+###SHELLPACK build_configure atompawbuild-${VERSION} --enable-shared --with-linalg-libs=\"-L$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/lib -L$SHELLPACK_SOURCES/scalapackbuild-$SCALAPACK_VERSION-installed/lib -L$MPI_DIR/lib64 -lopenblas -lscalapack -lmpi\" --with-libxc-libs=\"-L$SHELLPACK_SOURCES/xcbuild-$XC_VERSION-installed/lib64 -lxcf90 -lxc -lm\" --with-libxc-incs=\"-I$SHELLPACK_SOURCES/xcbuild-$XC_VERSION-installed/include\"
 export MMTESTS_BUILD_SERIAL=yes
 ###SHELLPACK make_make_install
 
