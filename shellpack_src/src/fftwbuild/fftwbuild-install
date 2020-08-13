@@ -6,6 +6,8 @@ MIRROR_LOCATION="$WEBROOT/fftw/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
+install-depends makeinfo
+
 ###SHELLPACK sources_fetch fftw-${VERSION}.tar.gz fftwbuild-${VERSION}
 ###SHELLPACK build_start fftwbuild-${VERSION}
 ###SHELLPACK build_configure fftwbuild-${VERSION} --enable-shared --enable-openmp
