@@ -115,7 +115,7 @@ for CONFIG in `ls config-hpc-openfoam-*`; do
 done
 
 # SALMON
-for MODEL in mpi omp hybrid; do
+for MODEL in mpi omp omp-bind hybrid; do
 	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-salmon-classicem-$MODEL-full > config-hpc-salmon-classicem-$MODEL-hpcext-full
 	sed -i -e '/SALMON_MPI_PATH/d'    config-hpc-salmon-classicem-$MODEL-hpcext-full
 	sed -i -e '/SALMON_MPI_LIBPATH/d' config-hpc-salmon-classicem-$MODEL-hpcext-full
