@@ -1,0 +1,8 @@
+#!/bin/bash
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
+
+cd $SCRIPTDIR/..
+for DIRNAME in `find work/sources/ -maxdepth 1 -type d 2>/dev/null | grep -v work/sources/$`; do
+	rm -rf $DIRNAME
+done

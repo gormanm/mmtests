@@ -214,7 +214,7 @@ function file_fetch() {
 	fi
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$WEB" = "NOT_AVAILABLE" ]; then
-			die Benchmark is not publicly available. You must make it available from a local mirror
+			die "Benchmark is not publicly available. You must make it available from a local mirror"
 		fi
 
 		echo "$P: Fetching from internet $WEB"

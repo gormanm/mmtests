@@ -6,6 +6,9 @@ MIRROR_LOCATION="$WEBROOT/salmon"
 if [ "$SALMON_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps SALMON_OPENMPI_VERSION
 	###SHELLPACK mpi_setup_env SALMON_OPENMPI_VERSION SALMON_MPI_PATH SALMON_MPI_LIBPATH
+	MPI_SWITCH="--enable-mpi"
+else
+	MPI_SWITCH="--disable-mpi"
 fi
 install-depends gcc-fortran cmake
 
@@ -15,16 +18,17 @@ install-depends gcc-fortran cmake
 ###SHELLPACK sources_fetch SALMON-v.${VERSION}.tar.gz salmon-${VERSION}
 ###SHELLPACK build_start salmon-${VERSION}
 
-INCLUDES="-I$SHELLPACK_SOURCES/salmondeps-installed/include"
-LIBS=" -L$SHELLPACK_SOURCES/salmondeps-installed/$MMTESTS_LIBDIR"
-LD_LIBS="$SHELLPACK_SOURCES/salmondeps-installed/$MMTESTS_LIBDIR"
+SALMONDEPS_ROOT="$SHELLPACK_SOURCES/salmondeps-installed"
+INCLUDES="-I$SALMONDEPS_ROOT/include"
+LIBS=" -L$SALMONDEPS_ROOT/$MMTESTS_LIBDIR"
+LD_LIBS="$SALMONDEPS_ROOT/$MMTESTS_LIBDIR"
 
 export CFLAGS+=" $INCLUDES $LIBS"
 export CXXFLAGS+=" $INCLUDES $LIBS"
 export FFLAGS+=" $INCLUDES $LIBS"
 export LD_LIBRARY_PATH="$LD_LIBS:$LD_LIBRARY_PATH"
 
-###SHELLPACK build_configure_py salmon-${VERSION} --enable-scalapack
+###SHELLPACK build_configure_py salmon-${VERSION} $MPI_SWITCH --compiler-vec --enable-scalapack --enable-libxc --verbose
 ###SHELLPACK make_make_install
 
 echo salmon installed successfully

@@ -43,7 +43,7 @@ if [ $MIN_NPROC -le 1 ]; then
 	die "Machine has too few CPUs to execute workload"
 fi
 
-export SPECFEM3D_NUM_THREADS=$((MIN_NPROC/$NUMNODES))
+export SPECFEM3D_NUM_THREADS=$((MIN_NPROC*MIN_NPROC*SPECFEM3D_NCHUNKS/$NUMNODES))
 export SPECFEM3D_NPROC_XI=$((NUMNODES/2))
 export SPECFEM3D_NPROC_ETA=$((NUMNODES/2))
 if [ $SPECFEM3D_NPROC_XI -eq 0 ]; then

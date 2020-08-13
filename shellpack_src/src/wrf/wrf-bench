@@ -34,9 +34,21 @@ case $WRF_MODEL in
 conus12km)
 	if [ ! -e $SHELLPACK_SOURCES/wrf-$VERSION-installed/test/em_real_bench ]; then
 		cd $SHELLPACK_SOURCES/wrf-$VERSION-installed/test || die "Failed to change to test directory"
-		file_fetch UNAVAILABLE/conus12km_data_v3.tar.xz $MIRROR_LOCATION/conus12km_data_v3.tar.xz conus12km_data_v3.tar.xz
 		cp -r em_real em_real_bench
-		tar -xf conus12km_data_v3.tar.xz || die "Failed to extract conus12km"
+		wget -q -O $SHELLPACK_SOURCES/conus12km_data_v3.tar.xz $MIRROR_LOCATION/conus12km_data_v3.tar.xz
+		if [ $? -ne 0 ]; then
+			BENCH_ROOT="https://www2.mmm.ucar.edu/WG2bench/conus12km_data_v3/"
+			FILELIST="em_real_bench/namelist.input em_real_bench/sample_diffwrf_output.txt em_real_bench/wrfbdy_d01 em_real_bench/wrf_reference em_real_bench/wrfrst_d01_2001-10-25_00_00_00"
+			for FILE in $FILELIST; do
+				wget -O $FILE $BENCH_ROOT/`basename $FILE`
+				if [ $? -ne 0 ]; then
+					die "Failed to download $BENCH_ROOT/$FILE"
+				fi
+			done
+			echo Creating $SHELLPACK_SOURCES/conus12km_data_v3.tar.xz, suggest uploading to a local mirror
+			tar -Jcf $SHELLPACK_SOURCES/conus12km_data_v3.tar.xz $FILELIST
+		fi
+		tar -xf $SHELLPACK_SOURCES/conus12km_data_v3.tar.xz || die "Failed to extract conus12km_data_v3"
 	fi
 	;;
 *)

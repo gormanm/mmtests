@@ -122,6 +122,7 @@ for MODEL in mpi omp hybrid; do
 done
 
 # SPECFEM3D
+sed -e 's/SPECFEM3D_MODEL=.*/SPECFEM3D_MODEL=global_s362/' config-hpc-specfem3d-small-s362ani-mpi-full > config-hpc-specfem3d-global-s362ani-mpi-full
 for MODEL in global small; do
 	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-specfem3d-$MODEL-s362ani-mpi-full > config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
 	sed -i -e '/SPECFEM3D_MPI_PATH/d'    config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
