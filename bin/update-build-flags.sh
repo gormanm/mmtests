@@ -14,24 +14,15 @@ if [ "$MMTESTS_BUILD_COLLECTION" = "" ]; then
 fi
 
 cd $SCRIPTDIR
-wget -O build-flags.tar.gz $MMTESTS_BUILD_COLLECTION
-if [ $? -ne 0 ]; then
-	rm -f build-flags.tar.gz
-	die "Failed to download $MMTESTS_BUILD_COLLECTION"
+if [ ! -e configs/build-flags ]; then
+	git clone $MMTESTS_BUILD_COLLECTION configs/build-flags || \
+		die "Failed to clone build-flags repository"
 fi
-BACKUP=
-if [ -e configs/build-flags ]; then
-	DATESTAMP=`date -u +"%Y%m%d-%H:%M"`
-	BACKUP="configs/build-flags-$DATESTAMP"
-	mv configs/build-flags $BACKUP
-	echo Backup old flags: $BACKUP
-fi
-tar -xf build-flags.tar.gz 
-if [ $? -ne 0 ]; then
-	if [ "$BACKUP" != "" ]; then
-		echo Restoring $BACKUP
-		mv $BACKUP configs/build-flags
-	fi
-	die "Failed to extract build-flags.sh"
-fi
+
+git -C configs/build-flags remote update ||
+	die "Failed to remote update build-flags repository"
+
+git -C configs/build-flags checkout origin/master ||
+	die "Failed to checkout origin/master"
+
 echo build-flags updated
