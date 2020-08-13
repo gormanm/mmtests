@@ -767,7 +767,6 @@ fi
 if [ "\$MPI_INSTALL_DEPENDS" != "" -a "\$MMTESTS_MPI_SELFBUILD" != "yes" ]; then
 	install-depends \$MPI_INSTALL_DEPENDS
 fi
-
 EOC
 	} elsif ($command eq "mpi_setup_env") {
 		my ($mpi, $mpipath, $mpilib, $opts) = @details;
