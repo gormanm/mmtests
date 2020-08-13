@@ -827,26 +827,6 @@ EOC
 export OMPI_TMPDIR=\$SHELLPACK_DATA
 export TMPDIR=\$SHELLPACK_DATA
 EOC
-	} elsif ($command eq "mpi_setup_runas") {
-	print <<EOC
-MMTESTS_CHOWN_RUNAS=echo
-MMTESTS_RUNAS=
-if [ "`whoami`" = "root" ]; then
-	MMTESTS_CHOWN_RUNAS="chown -R mpiuser:users"
-	MMTESTS_RUNAS="su -p mpiuser -c"
-fi
-EOC
-	} elsif ($command eq "mpi_create_mpiuser") {
-		my ($path) = @details;
-		print <<EOC
-if [ "`whoami`" = "root" ]; then
-	echo Creating mpiuser
-	getent passwd mpiuser &> /dev/null
-	if [ \$? -ne 0 ]; then
-		useradd -g users mpiuser
-	fi
-fi
-EOC
 	} elsif ($command eq "install_clear") {
 		my ($path) = @details;
 		print <<EOC

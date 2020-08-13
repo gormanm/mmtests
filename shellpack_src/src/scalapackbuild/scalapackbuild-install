@@ -10,7 +10,6 @@ MIRROR_LOCATION="$WEBROOT/scalapackbuild/"
 ###SHELLPACK mpi_setup_deps SCALAPACK_OPENMPI_VERSION
 ###SHELLPACK mpi_setup_env SCALAPACK_OPENMPI_VERSION SCALAPACK_MPI_PATH SCALAPACK_MPI_LIBPATH
 ###SHELLPACK mpi_setup_shmem
-###SHELLPACK mpi_setup_runas
 
 export LIB_SUFFIX=`echo $MMTESTS_LIBDIR | sed -e 's/^lib//'`
 ###SHELLPACK sources_fetch scalapack-${VERSION}.tgz scalapackbuild-${VERSION}

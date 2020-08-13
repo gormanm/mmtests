@@ -10,7 +10,6 @@ MIRROR_LOCATION="$WEBROOT/mumpsbuild/"
 ###SHELLPACK mpi_setup_deps MUMPS_OPENMPI_VERSION
 ###SHELLPACK mpi_setup_env MUMPS_OPENMPI_VERSION MUMPS_MPI_PATH MUMPS_MPI_LIBPATH
 ###SHELLPACK mpi_setup_shmem
-###SHELLPACK mpi_setup_runas
 
 ###SHELLPACK sources_fetch MUMPS_${VERSION}.tar.gz mumpsbuild-${VERSION}
 ###SHELLPACK build_start mumpsbuild-${VERSION}
