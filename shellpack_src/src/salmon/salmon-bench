@@ -18,7 +18,9 @@ if [ "$SALMON_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps SALMON_OPENMPI_VERSION
 	###SHELLPACK mpi_setup_env SALMON_OPENMPI_VERSION SALMON_MPI_PATH SALMON_MPI_LIBPATH SALMON_MPI_OPTS
 	###SHELLPACK mpi_setup_shmem
-	MPIRUN="mpirun $SALMON_MPI_OPTS $MMTESTS_MPI_OPTS -np $SALMON_PROCESSES"
+	if [ "$SALMON_PROCESSES" -gt 1 ]; then
+		MPIRUN="mpirun $SALMON_MPI_OPTS $MMTESTS_MPI_OPTS -np $SALMON_PROCESSES"
+	fi
 fi
 
 rm -rf $SHELLPACK_SOURCES/salmondeps-installed
@@ -51,7 +53,7 @@ export OMP_NUM_THREADS=$SALMON_THREADS
 BENCH_CMD="$MPIRUN $SHELLPACK_SOURCES/salmon-$VERSION-installed/bin/salmon.cpu"
 log_runtime "OMP_NUM_THREADS=$SALMON_THREADS"
 log_runtime "Run: $BENCH_CMD"
-echo $SALMON_MAXCPUS > $LOGDIR_RESULTS/scaling-parameters
+echo $SALMON_PROCESSES : $SALMON_THREADS > $LOGDIR_RESULTS/scaling-parameters
 cd $INPUT_DIR || die "Failed to change to $INPUT_DIR"
 monitor_pre_hook $LOGDIR_RESULTS $SALMON_MODEL
 ###SHELLPACK iteration_begin $SALMON_ITERATIONS
