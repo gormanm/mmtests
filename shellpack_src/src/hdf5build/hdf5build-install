@@ -9,13 +9,13 @@ MIRROR_LOCATION="$WEBROOT/netcdf/"
 ###SHELLPACK git_fetch hdf5build-${VERSION}.tar.gz hdf5build-${VERSION}
 ###SHELLPACK build_start hdf5build-${VERSION}
 
-ARCHSTRING="optflags: `uname -m`"
-OPTFLAGS=`grep "^$ARCHSTRING" /usr/lib/rpm/rpmrc | sed -e "s/^$ARCHSTRING//"`
-if [ "$OPTFLAGS" != "" ]; then
-	export CFLAGS+=" $OPTFLAGS"
-	export CXXFLAGS+=" $OPTFLAGS"
-	export FCFLAGS+=" $OPTFLAGS"
-fi
+#ARCHSTRING="optflags: `uname -m`"
+#OPTFLAGS=`grep "^$ARCHSTRING" /usr/lib/rpm/rpmrc | sed -e "s/^$ARCHSTRING//"`
+#if [ "$OPTFLAGS" != "" ]; then
+#	export CFLAGS+=" $OPTFLAGS"
+#	export CXXFLAGS+=" $OPTFLAGS"
+#	export FCFLAGS+=" $OPTFLAGS"
+#fi
 
 export CPPFLAGS="-I$SHELLPACK_SOURCES/netcdf-installed/include"
 export LDFLAGS="-L$SHELLPACK_SOURCES/netcdf-installed/$MMTESTS_LIBDIR"
