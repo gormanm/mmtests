@@ -401,6 +401,9 @@ MAKE_JOBS="-j\$NUMCPUS"
 if [ "\$MMTESTS_BUILD_SERIAL" = "yes" ]; then
 	MAKE_JOBS=
 fi
+if [ "\$MMTESTS_BUILD_VERBOSE" = "yes" ]; then
+	MAKE_FLAGS+=" V=1"
+fi
 make \$MAKE_JOBS \$MAKE_FLAGS
 if [ \$? -ne 0 ]; then
 	echo WARNING: make failed, retrying once
