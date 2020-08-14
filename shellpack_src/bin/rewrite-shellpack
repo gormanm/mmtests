@@ -85,6 +85,14 @@ log_runtime() {
 	fi
 	echo "\$@" >> \$SHELLPACK_LOG/runtime.opts
 }
+
+log_linkages() {
+	if [ "\$MMTESTS_TOOLCHAIN\" != "" -a "\$1" != "" ]; then
+		log_runtime "Linkages: \$1"
+		ldd \$1 >> \$SHELLPACK_LOG/runtime.opts
+		echo >> \$SHELLPACK_LOG/runtime.opts
+	fi
+}
 if [ "\$MMTESTS_TOOLCHAIN\" != "" ]; then
 	export MMTESTS_MPI_SELFBUILD=yes
 fi
@@ -190,7 +198,7 @@ fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf \$TARFILE | head -n 1 | awk -F / '{print \$1}'`
-mv \$DST_DIR $srcdir
+mv \$DST_DIR $srcdir 2>/dev/null
 pushd $srcdir > /dev/null || die Failed to rename tar
 EOC
 	} elsif ($command eq "sources_fetch_p0") {
@@ -236,7 +244,7 @@ fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf \$TARFILE | head -n 1 | awk -F / '{print \$1}'`
-mv \$DST_DIR $srcdir
+mv \$DST_DIR $srcdir 2>/dev/null
 pushd $srcdir > /dev/null || die Failed to rename tar
 EOC
 	} elsif ($command eq "hg_fetch") {
@@ -261,7 +269,7 @@ fi
 
 # Rename directory to something we expect.
 DST_DIR=`tar tf \$TARFILE | head -n 1 | awk -F / '{print \$1}'`
-mv \$DST_DIR $srcdir
+mv \$DST_DIR $srcdir 2>/dev/null
 pushd $srcdir > /dev/null || die Failed to rename tar
 EOC
 	} elsif ($command eq "build_start") {

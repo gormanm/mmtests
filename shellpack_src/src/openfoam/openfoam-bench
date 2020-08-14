@@ -15,7 +15,7 @@
 ###SHELLPACK mpi_setup_env OPENFOAM_OPENMPI_VERSION OPENFOAM_MPI_PATH OPENFOAM_MPI_LIBPATH OPENFOAM_MPI_OPTS
 ###SHELLPACK mpi_setup_shmem
 
-###SHELLPACK check_external_install_required openfoambuild openfoambuild-${VERSION} ${VERSION}
+###SHELLPACK check_external_install_required openfoambuild openfoambuild-${VERSION}	${VERSION}
 ###SHELLPACK init_complete
 
 cd $SHELLPACK_SOURCES/openfoambuild-$VERSION-installed/ || die "Failed to cd to openfoam installation directory"
@@ -127,6 +127,9 @@ log_runtime "OMP_NUM_THREADS=$OMP_NUM_THREADS"
 log_runtime "OMP_PLACES=$OMP_PLACES"
 log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
 log_runtime "Run: ./Allrun"
+for BIN in snappyHexMesh simpleFoam; do
+	log_linkages `find platforms -name $BIN`
+done
 
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
 ###SHELLPACK iteration_begin $OPENFOAM_ITERATIONS
