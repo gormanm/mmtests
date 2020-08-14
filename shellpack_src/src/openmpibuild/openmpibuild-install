@@ -11,14 +11,6 @@ install-depends libpsm2-devel
 ###SHELLPACK git_fetch openmpibuild-${VERSION}.tar.gz openmpibuild-${VERSION}
 ###SHELLPACK build_start openmpibuild-${VERSION}
 
-ARCHSTRING="optflags: `uname -m`"
-OPTFLAGS=`grep "^$ARCHSTRING" /usr/lib/rpm/rpmrc | sed -e "s/^$ARCHSTRING//"`
-if [ "$OPTFLAGS" != "" ]; then
-	export CFLAGS+=" $OPTFLAGS"
-	export CXXFLAGS+=" $OPTFLAGS"
-	export FCFLAGS+=" $OPTFLAGS"
-fi
-
 CONFIGURE_FLAGS="--enable-builtin-atomics --enable-mpi-thread-multiple --disable-silent-rules --enable-mpirun-prefix-by-default --with-package-string=\"MMTests Self Build OpenMPI\""
 
 case `uname -m` in

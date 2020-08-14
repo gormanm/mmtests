@@ -9,18 +9,13 @@ MIRROR_LOCATION="$WEBROOT/netcdf/"
 ###SHELLPACK git_fetch netcdfcbuild-${VERSION}.tar.gz netcdfcbuild-${VERSION}
 ###SHELLPACK build_start netcdfcbuild-${VERSION}
 
-ARCHSTRING="optflags: `uname -m`"
-OPTFLAGS=`grep "^$ARCHSTRING" /usr/lib/rpm/rpmrc | sed -e "s/^$ARCHSTRING//"`
-if [ "$OPTFLAGS" != "" ]; then
-	export CFLAGS+=" $OPTFLAGS"
-	export CXXFLAGS+=" $OPTFLAGS"
-	export FCFLAGS+=" $OPTFLAGS"
-fi
+export CFLAGS+=" -I$SHELLPACK_SOURCES/hdf5build-$HDF5_VERSION-installed/include"
+export LDFLAGS+=" -L$SHELLPACK_SOURCES/hdf5build-$HDF5_VERSION-installed/$MMTESTS_LIBDIR"
+export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/hdf5build-$HDF5_VERSION-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
 
-export CFLAGS+=" -I$SHELLPACK_SOURCES/netcdf-installed/include"
-export CPPFLAGS+=" -I$SHELLPACK_SOURCES/netcdf-installed/include"
-export LDFLAGS+=" -L$SHELLPACK_SOURCES/netcdf-installed/$MMTESTS_LIBDIR"
-export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/netcdf-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
+echo DEBUG: $CFLAGS
+echo DEBUG: $LDFLAGS
+echo DEBUG: $LD_LIBRARY_PATH
 
 ###SHELLPACK build_configure netcdfcbuild-${VERSION}
 ###SHELLPACK make_make_install

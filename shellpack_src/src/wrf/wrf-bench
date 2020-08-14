@@ -1,4 +1,5 @@
 #!/bin/bash
+MIRROR_LOCATION="$WEBROOT/wrf"
 ###SHELLPACK preamble wrf-bench 3.8.1
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --model	WRF_MODEL
@@ -9,18 +10,16 @@
 
 install-depends gcc gcc-fortran
 install-depends curl libcurl-devel
-install-depends csh
+install-depends tcsh
 
-MIRROR_LOCATION="$WEBROOT/wrf"
-NETCDFC_VERSION=v4.7.3
-NETCDFFC_VERSION=v4.5.2
-HDF5_VERSION=hdf5-1_10_5
+export NETCDFC_VERSION=v4.7.3
+export NETCDFFC_VERSION=v4.5.2
+export HDF5_VERSION=hdf5-1_10_5
 
 ###SHELLPACK mpi_setup_deps WRF_OPENMPI_VERSION
 ###SHELLPACK mpi_setup_env WRF_OPENMPI_VERSION WRF_MPI_PATH WRF_MPI_LIBPATH WRF_MPI_OPTS
 ###SHELLPACK mpi_setup_shmem
 
-###SHELLPACK install_clear netcdf-installed
 ###SHELLPACK check_external_install_required hdf5build hdf5build-$HDF5_VERSION $HDF5_VERSION
 ###SHELLPACK check_external_install_required netcdfcbuild netcdfcbuild-$NETCDFC_VERSION $NETCDFC_VERSION
 ###SHELLPACK check_external_install_required netcdffcbuild netcdffcbuild-$NETCDFFC_VERSION $NETCDFFC_VERSION

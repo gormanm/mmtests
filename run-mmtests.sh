@@ -111,7 +111,15 @@ for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
 	fi
 done
 
-rm -f $SCRIPTDIR/bash_arrays # remove stale bash_arrays file
+# Remove stale bash_arrays file
+rm -f $SCRIPTDIR/bash_arrays
+
+# Remove stale shallpacks
+rm -f $SCRIPTDIR/shellpacks/shellpack-*
+
+# Remove stale merged install directories
+find $SCRIPTDIR/work/sources/ -maxdepth 1 -type d -name "*deps-installed" -exec rm -rf {} \;
+
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/shellpacks/deferred-monitors.sh
