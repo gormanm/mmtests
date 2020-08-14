@@ -7,8 +7,17 @@ export PATH="$SCRIPTDIR/bin:$PATH"
 RUNNING_TEST=
 export EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer
 export BUILDONLY=false
+export DELETE_ON_EXIT_FILE=$(mktemp /tmp/mmtest-cleanup-XXXXXXXXX)
 
 INTERRUPT_COUNT=0
+clean_exit()
+{
+    while read file; do
+	[ -n "$file" ] && rm -rf $file
+    done < $DELETE_ON_EXIT_FILE
+    rm -f $DELETE_ON_EXIT_FILE
+}
+
 begin_shutdown() {
 	INTERRUPT_COUNT=$((INTERRUPT_COUNT+1))
 	TEST_PID=
@@ -36,10 +45,12 @@ begin_shutdown() {
 		echo OK, bailing without any attempt at cleanup
 		exit -1
 	fi
-
+	clean_exit
 }
+
 trap begin_shutdown SIGTERM
 trap begin_shutdown SIGINT
+trap clean_exit EXIT
 
 usage() {
 	echo "$0 [-kmnph] [-c path_to_config] runname"
