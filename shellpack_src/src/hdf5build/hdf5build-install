@@ -22,6 +22,7 @@ export LDFLAGS="-L$SHELLPACK_SOURCES/netcdf-installed/$MMTESTS_LIBDIR"
 export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/netcdf-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
 
 ###SHELLPACK build_configure hdf5build-${VERSION} --enable-fortran --enable-cxx
+${CC:-cc} -c src/H5detect.c -o src/H5detect.o
 ###SHELLPACK make_make_install
 
 echo netcdf-c installed successfully
