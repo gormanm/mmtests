@@ -11,9 +11,6 @@ if [ "$WRF_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps WRF_OPENMPI_VERSION
 	###SHELLPACK mpi_setup_env WRF_OPENMPI_VERSION WRF_MPI_PATH WRF_MPI_LIBPATH
 	MPI_SWITCH="--enable-mpi"
-
-	install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc
-	install-depends netcdf-fortran-gnu-${WRF_OPENMPI_VERSION}-hpc-devel
 fi
 
 install-depends glibc-devel
@@ -33,15 +30,8 @@ tar -xf module_cu_g3_random_seed_fix.F.gz || die "Failed to unpack module_cu_g3_
 mv module_cu_g3.F phys/
 
 # Environment setup
-if [ "$WRF_NETCDF_ROOT" != "" ]; then
-	NETCDF_VERSION=`ls $WRF_NETCDF_ROOT/ | sort -n | tail -1`
-	export NETCDF=$WRF_NETCDF_ROOT/$NETCDF_VERSION
-	HDF_VERSION=`ls $WRF_HDF_ROOT/ | sort -n | tail -1`
-	export HDF5=$WRF_HDF_ROOT/$HDF_VERSION
-else
-	export NETCDF="$SHELLPACK_SOURCES/netcdf-installed"
-	export HDF5="$SHELLPACK_SOURCES/netcdf-installed"
-fi
+export NETCDF="$SHELLPACK_SOURCES/wrfdeps-installed"
+export HDF5="$SHELLPACK_SOURCES/wrfdeps-installed"
 
 CHOICE=99
 case `uname -m` in
@@ -80,7 +70,7 @@ cp configure.wrf configure.wrf.orig
 build_callback
 
 # Additional configuration
-LDFLAGS_EXTRA+="-L${WRF_MPI_LIBPATH} -L${NETCDF}/$MMTESTS_LIBDIR -L${NETCDF}/lib -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/$MMTESTS_LIBDIR -Wl,-rpath=${NETCDF}/lib -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
+LDFLAGS_EXTRA+="-L${WRF_MPI_LIBPATH} -L${NETCDF}/$MMTESTS_LIBDIR -L${NETCDF}/$MMTESTS_LIBDIR -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/$MMTESTS_LIBDIR -Wl,-rpath=${NETCDF}/$MMTESTS_LIBDIR -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
 export LD_LIBRARY_PATH=${NETCDF}/$MMTESTS_LIBDIR:${HDF}/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH
 LDFLAGS_EXTRA_ESCAPED=`echo "$LDFLAGS_EXTRA" | sed -e 's/\//\\\\\//g'`
 sed -i -e "s/^LDFLAGS_LOCAL.*/LDFLAGS_LOCAL   =       $LDFLAGS_EXTRA_ESCAPED/" configure.wrf

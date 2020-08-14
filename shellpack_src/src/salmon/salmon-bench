@@ -28,7 +28,6 @@ rm -rf $SHELLPACK_SOURCES/salmondeps-installed
 ###SHELLPACK check_external_install_required blasbuild      blasbuild-${BLAS_VERSION}           ${BLAS_VERSION}
 ###SHELLPACK check_external_install_required scalapackbuild scalapackbuild-${SCALAPACK_VERSION} ${SCALAPACK_VERSION}
 ###SHELLPACK check_external_install_required xcbuild        xcbuild-${XC_VERSION}               ${XC_VERSION}
-###SHELLPACK install_merge scalapackbuild-${SCALAPACK_VERSION}  salmondeps-installed
 
 export PATH=$SHELLPACK_SOURCES/salmondeps-installed/bin:$PATH
 ###SHELLPACK check_install_required_continue salmon-$VERSION
