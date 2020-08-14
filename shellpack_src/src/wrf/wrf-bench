@@ -46,6 +46,14 @@ conus12km)
 		fi
 		tar -xf $SHELLPACK_SOURCES/conus12km_data_v3.tar.xz || die "Failed to extract conus12km_data_v3"
 	fi
+
+	# Add base state parameters if necessary
+	cd $SHELLPACK_SOURCES/wrf-$VERSION-installed/test/em_real_bench
+	grep -q use_baseparam_fr_nml namelist.input
+	if [ $? -ne 0 ]; then
+		echo Adding base state parameters to namelist.input
+		sed -i -e '/^ non_hydrostatic.*/a \ use_baseparam_fr_nml                = .t.,' namelist.input
+	fi
 	;;
 *)
 	die "Unrecognised model $WRF_MODEL"
