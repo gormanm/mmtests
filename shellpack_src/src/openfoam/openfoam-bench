@@ -124,6 +124,8 @@ esac
 export FOAM_SIGFPE="false"
 
 log_runtime "OMP_NUM_THREADS=$OMP_NUM_THREADS"
+log_runtime "OMP_PLACES=$OMP_PLACES"
+log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
 log_runtime "Run: ./Allrun"
 
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL

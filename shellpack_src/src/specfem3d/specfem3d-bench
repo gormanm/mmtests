@@ -113,6 +113,8 @@ cd $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
 export PBS_O_WORKDIR=`pwd`
 
 log_runtime "OMP_NUM_THREADS=$OMP_NUM_THREADS"
+log_runtime "OMP_PLACES=$OMP_PLACES"
+log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
 
 monitor_pre_hook $LOGDIR_RESULTS $SPECFEM3D_MODEL
 for JOB in $JOB_LIST; do

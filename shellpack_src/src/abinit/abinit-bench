@@ -90,6 +90,8 @@ fi
 echo $ABINIT_MAXCPUS > $LOGDIR_RESULTS/scaling-parameters
 BENCH_CMD="$MPIRUN abinit"
 log_runtime "OMP_NUM_THREADS=$ABINIT_THREADS"
+log_runtime "OMP_PLACES=$OMP_PLACES"
+log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
 log_runtime "Run: $BENCH_CMD"
 for STAGE in `echo $STAGE_MAP`; do
 	prepare_stage
