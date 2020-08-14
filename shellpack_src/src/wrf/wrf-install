@@ -70,7 +70,7 @@ cp configure.wrf configure.wrf.orig
 build_callback
 
 # Additional configuration
-LDFLAGS_EXTRA+="-L${WRF_MPI_LIBPATH} -L${NETCDF}/$MMTESTS_LIBDIR -L${NETCDF}/$MMTESTS_LIBDIR -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/$MMTESTS_LIBDIR -Wl,-rpath=${NETCDF}/$MMTESTS_LIBDIR -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
+LDFLAGS_EXTRA+=" -L${WRF_MPI_LIBPATH} -L${NETCDF}/$MMTESTS_LIBDIR -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/$MMTESTS_LIBDIR -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
 export LD_LIBRARY_PATH=${NETCDF}/$MMTESTS_LIBDIR:${HDF}/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH
 LDFLAGS_EXTRA_ESCAPED=`echo "$LDFLAGS_EXTRA" | sed -e 's/\//\\\\\//g'`
 sed -i -e "s/^LDFLAGS_LOCAL.*/LDFLAGS_LOCAL   =       $LDFLAGS_EXTRA_ESCAPED/" configure.wrf
