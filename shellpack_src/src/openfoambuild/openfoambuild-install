@@ -40,13 +40,6 @@ sed -i -e "s/^cgal_version=.*/cgal_version=CGAL-$THIRDPARTY_CGAL_VERSION/"		etc/
 sed -i -e "s/^SCOTCH_VERSION=.*/SCOTCH_VERSION=scotch_$THIRDPARTY_SCOTCH_VERSION/"	etc/config.sh/scotch || die "Failed configure SCOTCH version"
 sed -i -e "s/\.\/b2/\.\/b2 cxxflags=\"$CXXFLAGS\"/" ThirdParty/makeCGAL	|| die "Failed to modify makeCGAL"
 
-#if [ "$CXXFLAGS" != "" ]; then
-#	pushd ThirdParty/boost_$BOOST_VERSION/libs/config > /dev/null || die "Failed to cd to boost configure directory"
-#	sh ./configure || die "Failed to run boost configure"
-#	popd > /dev/null
-#	mv ThirdParty/boost_$BOOST_VERSION/libs/config/user.hpp ThirdParty/boost_$BOOST_VERSION/boost/config/user.hpp || die "Failed to install new user.hpp"
-#fi
-
 for BUILD in CGAL SCOTCH; do
 	./ThirdParty/make$BUILD || die "Failed to build make$BUILD"
 done

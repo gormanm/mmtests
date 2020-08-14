@@ -128,7 +128,7 @@ log_runtime "OMP_PLACES=$OMP_PLACES"
 log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
 log_runtime "Run: ./Allrun"
 for BIN in snappyHexMesh simpleFoam; do
-	log_linkages `find platforms -name $BIN`
+	log_linkages `find $SHELLPACK_SOURCES/openfoambuild-$VERSION-installed/platforms -name $BIN`
 done
 
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL
