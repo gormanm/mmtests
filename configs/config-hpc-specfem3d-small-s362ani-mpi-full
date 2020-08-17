@@ -32,20 +32,16 @@ export SPECFEM3D_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$SPECFEM3D_OPENMPI_VER
 export SPECFEM3D_MODEL=small_s362
 export SPECFEM3D_NEX_XI=64
 export SPECFEM3D_NEX_ETA=64
-export SPECFEM3D_NCHUNKS=6
+export SPECFEM3D_NCHUNKS=3
 
 MIN_NPROC=1
 while [ $((MIN_NPROC*MIN_NPROC*SPECFEM3D_NCHUNKS)) -le $NUMCPUS ]; do
 	MIN_NPROC=$((MIN_NPROC+1))
 done
 MIN_NPROC=$((MIN_NPROC-1))
-if [ $MIN_NPROC -le 1 ]; then
-	die "Machine has too few CPUs to execute workload"
-fi
+export SPECFEM3D_NPROC_ETA=$((MIN_NPROC))
+export SPECFEM3D_NPROC_XI=$((MIN_NPROC))
 
-export SPECFEM3D_NUM_THREADS=$((MIN_NPROC*MIN_NPROC*SPECFEM3D_NCHUNKS/$NUMNODES))
-export SPECFEM3D_NPROC_XI=$((NUMNODES/2))
-export SPECFEM3D_NPROC_ETA=$((NUMNODES/2))
 if [ $SPECFEM3D_NPROC_XI -eq 0 ]; then
 	SPECFEM3D_NPROC_XI=1
 fi
@@ -56,7 +52,7 @@ fi
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
 if [ $? -eq 0 ]; then
-	if [ $((SPECFEM3D_NUM_THREADS*SPECFEM3D_NPROC_XI*SPECFEM3D_NPROC_ETA)) -ge $((NUMCPUS/2)) ]; then
+	if [ $((SPECFEM3D_NPROC_XI*SPECFEM3D_NPROC_ETA*SPECFEM3D_NCHUNKS)) -ge $((NUMCPUS/2)) ]; then
 		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
 		SPECFEM3D_MPI_OPTS+=" --use-hwthread-cpus"
 	fi

@@ -17,6 +17,7 @@ if [ \"\$INSTALL_ONLY\" != \"yes\" ]; then
 		fi
 	done
 	if [ \"\$SYSCTL_FLAGS\" != \"\" ]; then
+		echo Reading \$SYSCTL_FLAGS
 		. \$SYSCTL_FLAGS
 	fi
 fi

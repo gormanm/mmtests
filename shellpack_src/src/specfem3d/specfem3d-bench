@@ -9,9 +9,6 @@ if [ "$SPECFEM3D_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION
 	###SHELLPACK mpi_setup_env SPECFEM3D_OPENMPI_VERSION SPECFEM3D_MPI_PATH SPECFEM3D_MPI_LIBPATH SPECFEM3D_MPI_OPTS
 	###SHELLPACK mpi_setup_shmem
-	export OMP_NUM_THREADS=$SPECFEM3D_NUM_THREADS
-else
-	export OMP_NUM_THREADS=$((SPECFEM3D_NEX_XI*SPECFEM3D_NEX_ETA*SPECFEM3D_NCHUNKS))
 fi
 
 ###SHELLPACK check_install_required_continue specfem3d-$VERSION
@@ -28,6 +25,7 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 		rm -rf model-$SPECFEM3D_MODEL
 		cp -r global_small model-$SPECFEM3D_MODEL || die "Failed to copy model"
 		cd model-$SPECFEM3D_MODEL || die "Failed to change to model"
+		export PBS_O_WORKDIR=`pwd`
 
 		# Configure model
 		log_runtime "Add MPI flags to example script: $SPECFEM3D_MPI_OPTS $MMTESTS_MPI_OPTS"
@@ -53,7 +51,7 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 
 		echo Preparing mesh
 		$TIME_CMD -o $LOGDIR_RESULTS/prepare-time.mesher ./go_mesher_pbs.bash \
-			2> $LOGDIR_RESULTS/prepare-log.mesher
+			&> $LOGDIR_RESULTS/prepare-log.mesher
 		;;
 	global_s362)
 		# Copy model
@@ -61,6 +59,7 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 		rm -rf model-$SPECFEM3D_MODEL
 		cp -r global_s362ani_shakemovie model-$SPECFEM3D_MODEL || die "Failed to copy model"
 		cd model-$SPECFEM3D_MODEL || die "Failed to change to model"
+		export PBS_O_WORKDIR=`pwd`
 
 		# Configure model
 		log_runtime "Add MPI flags to example script: $SPECFEM3D_MPI_OPTS $MMTESTS_MPI_OPTS"
@@ -88,7 +87,7 @@ if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 
 		echo Preparing mesh
 		$TIME_CMD -o $LOGDIR_RESULTS/prepare-time.mesher ./go_mesher_pbs.bash \
-			2> $LOGDIR_RESULTS/prepare-log.mesher
+			&> $LOGDIR_RESULTS/prepare-log.mesher
 		;;
 	*)
 		die "Unrecognised model $SPECFEM3D_MODEL"
@@ -111,10 +110,6 @@ esac
 
 cd $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
 export PBS_O_WORKDIR=`pwd`
-
-log_runtime "OMP_NUM_THREADS=$OMP_NUM_THREADS"
-log_runtime "OMP_PLACES=$OMP_PLACES"
-log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
 
 monitor_pre_hook $LOGDIR_RESULTS $SPECFEM3D_MODEL
 for JOB in $JOB_LIST; do
