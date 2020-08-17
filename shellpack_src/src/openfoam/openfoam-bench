@@ -67,7 +67,6 @@ motorbike-default)
 
 	# Leave domains
 	SUBDOMAINS=6
-	export OMP_NUM_THREADS=$((OPENFOAM_MAXCPUS/$SUBDOMAINS))
 
 	# Patch Allrun to record timing of parallel steps
 	###SHELLPACK self_extract Allrun-motorBike.patch
@@ -121,7 +120,6 @@ motorbike-subdomains)
 	done
 
 	SUBDOMAINS=$((XDIVISION*YDIVISION))
-	export OMP_NUM_THREADS=1
 	echo Scaling parameters
 	echo "o Requested subdomains $OPENFOAM_MAXCPUS"
 	echo "o Actual subdomains    $SUBDOMAINS"
@@ -148,9 +146,6 @@ esac
 
 export FOAM_SIGFPE="false"
 
-log_runtime "OMP_NUM_THREADS=$OMP_NUM_THREADS"
-log_runtime "OMP_PLACES=$OMP_PLACES"
-log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
 log_runtime "Run: ./Allrun"
 for BIN in snappyHexMesh simpleFoam; do
 	log_linkages `find $SHELLPACK_SOURCES/openfoam-$VERSION-installed/platforms -name $BIN`
