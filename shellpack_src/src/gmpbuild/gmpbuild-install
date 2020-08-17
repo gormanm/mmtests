@@ -1,0 +1,13 @@
+#!/bin/bash
+###SHELLPACK preamble gmpbuild-install 6.1.2
+WEB_LOCATION="https://gmplib.org/download/gmp"
+MIRROR_LOCATION="$WEBROOT/boost/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch gmp-${VERSION}.tar.xz gmpbuild-${VERSION}
+###SHELLPACK build_start gmpbuild-${VERSION}
+###SHELLPACK build_configure gmpbuild-${VERSION}
+###SHELLPACK make_make_install
+echo gmp installed successfully

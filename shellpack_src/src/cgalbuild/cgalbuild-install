@@ -1,0 +1,24 @@
+#!/bin/bash
+###SHELLPACK preamble cgalbuild 4.12.2
+GIT_LOCATION=https://github.com/CGAL/cgal
+MIRROR_LOCATION="$WEBROOT/cgal/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+GIT_FETCH_BRANCH=releases/CGAL-$VERSION
+###SHELLPACK git_fetch cgalbuild-${VERSION}.tar.gz cgalbuild-${VERSION}
+###SHELLPACK build_start cgalbuild-${VERSION}
+mkdir build
+export BOOST_ROOT=$SHELLPACK_SOURCES/boostbuild-$BOOST_VERSION-installed
+
+export GMP_INC_DIR="$SHELLPACK_SOURCES/gmpbuild-$GMP_VERSION-installed/include"
+export GMP_LIB_DIR="$SHELLPACK_SOURCES/gmpbuild-$GMP_VERSION-installed/$MMTESTS_LIBDIR"
+
+export MPFR_INC_DIR="$SHELLPACK_SOURCES/mpfrbuild-$MPFR_VERSION-installed/include"
+export MPFR_LIB_DIR="$SHELLPACK_SOURCES/mpfrbuild-$MPFR_VERSION-installed/$MMTESTS_LIBDIR"
+
+###SHELLPACK build_cmake cgalbuild-${VERSION}/build cgalbuild-${VERSION} -DCGAL_DIR=$SHELLPACK_SOURCES/cgalbuild-${VERSION} -DCMAKE_BUILD_TYPE=Release
+###SHELLPACK make_make_install
+
+echo CGAL installed successfully

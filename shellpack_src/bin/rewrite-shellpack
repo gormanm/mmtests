@@ -233,7 +233,10 @@ EOC
 		print <<EOC
 # Unconditionally fetch the tar to find out the real version number
 TARFILE=$tarfile
-git_fetch \$GIT_LOCATION $srcdir \$MIRROR_LOCATION/\$TARFILE \$SHELLPACK_SOURCES/\$TARFILE \$VERSION
+if [ "\$GIT_FETCH_BRANCH" = "" ]; then
+	GIT_FETCH_BRANCH=\$VERSION
+fi
+git_fetch \$GIT_LOCATION $srcdir \$MIRROR_LOCATION/\$TARFILE \$SHELLPACK_SOURCES/\$TARFILE \$GIT_FETCH_BRANCH
 cd \$SHELLPACK_SOURCES
 tar -xf \$TARFILE
 if [ \$? -ne 0 ]; then
@@ -281,11 +284,11 @@ build_callback() {
 }
 
 pushd \$SHELLPACK_SOURCES/$srcdir > /dev/null || die Failed to change to source directory
-if [ "\$BUILD_START_NOTOUCH\" != "yes" ]; then
-	for FILE in `find -name "*"`; do
-		touch \$FILE
-	done
-fi
+# if [ "\$BUILD_START_NOTOUCH\" != "yes" ]; then
+#	for FILE in `find -name "*"`; do
+#		touch \$FILE
+#	done
+#fi
 
 if [ "\$MMTESTS_NO_BUILDFLAGS" != "yes" ]; then
 	BUILD_FLAGS=
@@ -520,6 +523,14 @@ EOC
 if [ "\$INSTALL_ONLY" = "yes" ]; then
 	echo $shellpack installed only as requested.
 	exit \$SHELLPACK_SUCCESS
+fi
+
+INSTALL_BASENAME=`echo \$P | awk -F - '{print \$1}'`
+if [ -e \$SHELLPACK_SOURCES/\${INSTALL_BASENAME}deps-installed/bin ]; then
+	export PATH=\$SHELLPACK_SOURCES/\${INSTALL_BASENAME}deps-installed/bin:\$PATH
+fi
+if [ -e \$SHELLPACK_SOURCES/\${INSTALL_BASENAME}deps-installed/\$MMTESTS_LIBDIR ]; then
+	export LD_LIBRARY_PATH=\$SHELLPACK_SOURCES/\${INSTALL_BASENAME}deps-installed/\$MMTESTS_LIBDIR:\$LD_LIBRARY_PATH
 fi
 EOC
 	} elsif ($command eq "monitor_hooks") {

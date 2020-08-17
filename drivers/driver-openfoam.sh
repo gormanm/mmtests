@@ -1,5 +1,3 @@
-$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh openfoambuild
-
 run_bench() {
 	VERSION_PARAM=
 	if [ "$OPENFOAM_VERSION" != "" ]; then

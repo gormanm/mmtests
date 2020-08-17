@@ -15,10 +15,35 @@
 ###SHELLPACK mpi_setup_env OPENFOAM_OPENMPI_VERSION OPENFOAM_MPI_PATH OPENFOAM_MPI_LIBPATH OPENFOAM_MPI_OPTS
 ###SHELLPACK mpi_setup_shmem
 
-###SHELLPACK check_external_install_required openfoambuild openfoambuild-${VERSION}	${VERSION}
+# Versions set in ThirdParty repository, not built through mmtests.
+# If this was to be built through mmtests then modify the etc/config.sh/FOO
+# files (e.g. etc/config.sh/CGAL) to set version (e.g. fftw-system) and paths
+export THIRDPARTY_KAHIP_VERSION="2.12"
+export THIRDPARTY_SCOTCH_VERSION="6.0.9"
+
+export BOOST_VERSION="1_66_0"
+export CGAL_VERSION="4.12.2"
+export FFTW_VERSION="3.3.7"
+export GMP_VERSION="6.1.2"
+export METIS_VERSION="5.1.0"
+export MPFR_VERSION="4.0.1"
+
+export FOAM_VERBOSE="yes"
+
+# CGAL dependencies
+###SHELLPACK check_external_install_required boostbuild     boostbuild-${BOOST_VERSION}         ${BOOST_VERSION}
+###SHELLPACK check_external_install_required gmpbuild       gmpbuild-${GMP_VERSION}             ${GMP_VERSION}
+###SHELLPACK check_external_install_required mpfrbuild      mpfrbuild-${MPFR_VERSION}           ${MPFR_VERSION}
+###SHELLPACK check_external_install_required cgalbuild      cgalbuild-${CGAL_VERSION}           ${CGAL_VERSION}
+
+# openfoam dependencies
+###SHELLPACK check_external_install_required fftwbuild      fftwbuild-${FFTW_VERSION}           ${FFTW_VERSION}
+###SHELLPACK check_external_install_required metisbuild     metisbuild-${METIS_VERSION}         ${METIS_VERSION}
+
+###SHELLPACK check_install_required openfoam openfoam-${VERSION}
 ###SHELLPACK init_complete
 
-cd $SHELLPACK_SOURCES/openfoambuild-$VERSION-installed/ || die "Failed to cd to openfoam installation directory"
+cd $SHELLPACK_SOURCES/openfoam-$VERSION-installed/ || die "Failed to cd to openfoam installation directory"
 source etc/bashrc || die "Failed to source bash environment"
 
 # Configure benchmark
@@ -128,7 +153,7 @@ log_runtime "OMP_PLACES=$OMP_PLACES"
 log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
 log_runtime "Run: ./Allrun"
 for BIN in snappyHexMesh simpleFoam; do
-	log_linkages `find $SHELLPACK_SOURCES/openfoambuild-$VERSION-installed/platforms -name $BIN`
+	log_linkages `find $SHELLPACK_SOURCES/openfoam-$VERSION-installed/platforms -name $BIN`
 done
 
 monitor_pre_hook $LOGDIR_RESULTS $OPENFOAM_MODEL

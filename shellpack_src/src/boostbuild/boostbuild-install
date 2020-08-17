@@ -1,0 +1,47 @@
+#!/bin/bash
+###SHELLPACK preamble boostbuild-install 1_66_0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+install-depends python2-devel fdupes libbz2-devel libexpat-devel libicu-devel zlib-devel libzstd-devel
+
+# Set location after version is parsed
+WEB_LOCATION="https://dl.bintray.com/boostorg/release/`echo $VERSION | sed -e 's/_/./g'`/source"
+MIRROR_LOCATION="$WEBROOT/boost/"
+
+###SHELLPACK sources_fetch boost_${VERSION}.tar.gz boostbuild-${VERSION}
+###SHELLPACK build_start boostbuild-${VERSION}
+
+BOOST_COMPILER_VERSION=
+BOOST_TOOLCHAIN=gcc
+if [ "$MMTESTS_TOOLCHAIN" != "" ]; then
+	BOOST_TOOLCHAIN=$MMTESTS_TOOLCHAIN
+	BOOST_COMPILER_VERSION=`echo $BOOST_TOOLCHAIN | awk -F - '{print $2}'`
+fi
+
+cat << EOF > user-config.jam
+import os ;
+using gcc : $BOOST_COMPILER_VERSION : $MMTESTS_CXX_COMPILER : ;
+using mpi ;
+project user-config ;
+EOF
+
+BOOST_LIBS="math,iostreams,program_options,test,chrono,serialization,system,exception,atomic,date_time,filesystem,log,graph,regex,wave,random,thread,timer,locale,mpi"
+
+./bootstrap.sh \
+	--prefix=$SHELLPACK_SOURCES/boostbuild-${VERSION}-installed			\
+	--libdir=$SHELLPACK_SOURCES/boostbuild-${VERSION}-installed/$MMTESTS_LIBDIR	\
+	--with-libraries=$BOOST_LIBS							\
+	|| die "Failed to bootstrap"
+./b2 install										\
+	--user-config=./user-config.jam							\
+	--prefix=$SHELLPACK_SOURCES/boostbuild-${VERSION}-installed			\
+	--libdir=$SHELLPACK_SOURCES/boostbuild-${VERSION}-installed/$MMTESTS_LIBDIR	\
+	cxxflags="$CXXFLAGS"								\
+	threading=multi									\
+	toolset=$BOOST_TOOLCHAIN							\
+	link=static,shared								\
+	|| die "Failed to b2 install"
+
+echo boost installed successfully
