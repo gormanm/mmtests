@@ -40,7 +40,7 @@ export FOAM_VERBOSE="yes"
 ###SHELLPACK check_external_install_required fftwbuild      fftwbuild-${FFTW_VERSION}           ${FFTW_VERSION}
 ###SHELLPACK check_external_install_required metisbuild     metisbuild-${METIS_VERSION}         ${METIS_VERSION}
 
-###SHELLPACK check_install_required openfoam openfoam-${VERSION}
+###SHELLPACK check_install_required openfoam-${VERSION}
 ###SHELLPACK init_complete
 
 cd $SHELLPACK_SOURCES/openfoam-$VERSION-installed/ || die "Failed to cd to openfoam installation directory"
