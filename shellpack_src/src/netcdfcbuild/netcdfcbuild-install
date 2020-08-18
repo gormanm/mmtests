@@ -9,11 +9,16 @@ MIRROR_LOCATION="$WEBROOT/netcdf/"
 ###SHELLPACK git_fetch netcdfcbuild-${VERSION}.tar.gz netcdfcbuild-${VERSION}
 ###SHELLPACK build_start netcdfcbuild-${VERSION}
 
-export CFLAGS+=" -I$SHELLPACK_SOURCES/hdf5build-$HDF5_VERSION-installed/include"
-export LDFLAGS+=" -L$SHELLPACK_SOURCES/hdf5build-$HDF5_VERSION-installed/$MMTESTS_LIBDIR"
-export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/hdf5build-$HDF5_VERSION-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
+HDF5="$SHELLPACK_SOURCES/hdf5build-$HDF5_VERSION-installed"
+PNETCDF="$SHELLPACK_SOURCES/pnetcdfbuild-$PNETCDF_VERSION-installed"
 
-###SHELLPACK build_configure netcdfcbuild-${VERSION}
+export  CFLAGS+=" -I$MPI_BASE_DIR/include -I$HDF5/include -I$PNETCDF/include"
+export LDFLAGS+=" -L$MPI_BASE_DIR/$MMTESTS_LIBDIR -L$HDF5/$MMTESTS_LIBDIR -L$PNETCDF/$MMTESTS_LIBDIR"
+export LD_LIBRARY_PATH="$MPI_BASE_DIR/$MMTESTS_LIBDIR:$HDF5/$MMTESTS_LIBDIR:$PNETCDF/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
+
+export WRFIO_NCD_LARGE_FILE_SUPPORT=1
+
+###SHELLPACK build_configure netcdfcbuild-${VERSION} --disable-static --enable-shared --enable-parallel-tests --enable-pnetcdf --enable-large-file-tests --enable-largefile
 ###SHELLPACK make_make_install
 
 echo netcdf-c installed successfully

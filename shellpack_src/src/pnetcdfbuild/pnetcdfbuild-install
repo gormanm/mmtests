@@ -1,0 +1,24 @@
+#!/bin/bash
+###SHELLPACK preamble pnetcdfbuild 1.12.1
+WEB_LOCATION="https://parallel-netcdf.github.io/Release"/
+MIRROR_LOCATION="$WEBROOT/netcdf/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+export MPICC=mpicc
+export MPICXX=mpic++
+export MPIF77=mpif77
+export MPIF90=mpif90
+
+###SHELLPACK sources_fetch pnetcdf-${VERSION}.tar.gz pnetcdfbuild-${VERSION}
+###SHELLPACK build_start pnetcdfbuild-${VERSION}
+###SHELLPACK build_configure pnetcdfbuild-${VERSION} --enable-fortran --enable-shared --enable-large-file-test
+###SHELLPACK make_make_install
+
+cd $SHELLPACK_SOURCES/pnetcdfbuild-${VERSION}-installed || die "Failed to change to installed directory"
+if [ "$MMTESTS_LIBDIR" = "lib64" -a -e lib ]; then
+	mv lib $MMTESTS_LIBDIR
+fi
+
+echo pnetcdf installed successfully

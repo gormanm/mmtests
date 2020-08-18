@@ -9,11 +9,17 @@ MIRROR_LOCATION="$WEBROOT/netcdf/"
 ###SHELLPACK git_fetch hdf5build-${VERSION}.tar.gz hdf5build-${VERSION}
 ###SHELLPACK build_start hdf5build-${VERSION}
 
-export CPPFLAGS="-I$SHELLPACK_SOURCES/netcdf-installed/include"
-export LDFLAGS="-L$SHELLPACK_SOURCES/netcdf-installed/$MMTESTS_LIBDIR"
-export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/netcdf-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
+export CC=mpicc
+export FC=mpif90
+export CXX=mpic++
 
-###SHELLPACK build_configure hdf5build-${VERSION} --enable-fortran --enable-cxx
+export   CFLAGS+=" -I$MPI_BASE_DIR/include"
+export CXXFLAGS+=" -I$MPI_BASE_DIR/include"
+export  FCFLAGS+=" -I$MPI_BASE_DIR/include"
+export  LDFLAGS+=" -L$MPI_BASE_DIR/$MMTESTS_LIBDIR"
+export LD_LIBRARY_PATH="$MPI_BASE_DIR/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
+
+###SHELLPACK build_configure hdf5build-${VERSION} --enable-fortran --enable-parallel --enable-shared
 ###SHELLPACK make_make_install
 
-echo netcdf-c installed successfully
+echo hdf5 installed successfully
