@@ -1,4 +1,6 @@
 #!/bin/bash
+set ${MMTESTS_SH_DEBUG:-+x}
+
 DIRNAME=`dirname $0`
 export SCRIPTDIR=`cd "$DIRNAME/.." && pwd`
 FAILED=no

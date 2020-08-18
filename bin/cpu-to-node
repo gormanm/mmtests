@@ -1,4 +1,5 @@
 #!/bin/bash
+set ${MMTESTS_SH_DEBUG:-+x}
 
 NODE=`numactl --hardware | grep ^node | sed -e 's/^node //' | grep cpus: | grep " $1 " | awk '{print $1}'`
 if [ "$NODE" = "" ]; then

@@ -1,4 +1,5 @@
 #!/bin/bash
+set ${MMTESTS_SH_DEBUG:-+x}
 
 PIPEE=$1
 if [ "$PIPEE" = "" ]; then

@@ -15,6 +15,8 @@
 #   perf record -e sched:sched_stat_sleep -e sched:sched_switch -e sched:sched_process_exit -a -g -- sleep 30
 #   flamegraph-perf-sched -i perf.data --sleep
 #   echo 0 > /proc/sys/kernel/sched_schedstats
+set ${MMTESTS_SH_DEBUG:-+x}
+
 export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
 export FLAMEGRAPH=$SCRIPTDIR/FlameGraph

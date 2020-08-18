@@ -1,12 +1,23 @@
 #!/bin/bash
+set ${MMTESTS_SH_DEBUG:-+x}
 DEFAULT_CONFIG=config
 DIRNAME=`dirname $0`
 export SCRIPTDIR=`cd "$DIRNAME" && pwd`
 export PATH="$SCRIPTDIR/bin:$PATH"
 RUNNING_TEST=
 export EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer
+export BUILDONLY=false
+export DELETE_ON_EXIT_FILE=$(mktemp /tmp/mmtest-cleanup-XXXXXXXXX)
 
 INTERRUPT_COUNT=0
+clean_exit()
+{
+    while read file; do
+	[ -n "$file" ] && rm -rf $file
+    done < $DELETE_ON_EXIT_FILE
+    rm -f $DELETE_ON_EXIT_FILE
+}
+
 begin_shutdown() {
 	INTERRUPT_COUNT=$((INTERRUPT_COUNT+1))
 	TEST_PID=
@@ -34,10 +45,12 @@ begin_shutdown() {
 		echo OK, bailing without any attempt at cleanup
 		exit -1
 	fi
-
+	clean_exit
 }
+
 trap begin_shutdown SIGTERM
 trap begin_shutdown SIGINT
+trap clean_exit EXIT
 
 usage() {
 	echo "$0 [-kmnph] [-c path_to_config] runname"
@@ -46,11 +59,12 @@ usage() {
 	echo "-n|--no-monitor  Force disable monitor."
 	echo "-p|--performance Force performance CPUFreq governor before starting the tests."
 	echo "-c|--config      Use MMTests config, default is ./config, more than one can be specified"
+	echo "-b|--build-only  Only build the software to test, don't run"
 	echo "-h|--help        Prints this help."
 }
 
 # Parse command-line arguments
-ARGS=`getopt -o pmnc:h --long performance,help,run-monitor,no-monitor,config: -n run-mmtests -- "$@"`
+ARGS=`getopt -o pmnc:bh --long performance,help,run-monitor,no-monitor,config:,build-only -n run-mmtests -- "$@"`
 declare -a CONFIGS
 export CONFIGS
 eval set -- "$ARGS"
@@ -72,6 +86,10 @@ while true; do
 			DEFAULT_CONFIG=
 			CONFIGS+=( "$2" )
 			shift 2
+			;;
+		-b|--build-only)
+		        BUILDONLY=true
+		        shift
 			;;
 		-h|--help)
 			usage
@@ -160,7 +178,7 @@ if [ "$LOGDISK_PARTITION" != "" ]; then
 fi
 
 # Force artificial date is requested
-if [ "$MMTESTS_FORCE_DATE" != "" ]; then
+if ! $BUILDONLY && [ "$MMTESTS_FORCE_DATE" != "" ]; then
 	killall -STOP ntpd
 	MMTESTS_FORCE_DATE_BASE=`date +%s`
 	date -s "$MMTESTS_FORCE_DATE"
@@ -175,7 +193,7 @@ install-depends autoconf automake bc binutils-devel btrfsprogs bzip2	\
 	wget xfsprogs xfsprogs-devel xz
 
 # Set some basic performance cpu frequency settings.
-if [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
+if ! $BUILDONLY && [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
 	FORCE_PERFORMANCE_SCALINGGOV_BASE=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`
 	NOTURBO="/sys/devices/system/cpu/intel_pstate/no_turbo"
 	[ -f $NOTURBO ] && FORCE_PERFORMANCE_NOTURBO_BASE=`cat $NOTURBO`
@@ -183,7 +201,7 @@ if [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
 fi
 
 # Check monitoring
-if [ "$FORCE_RUN_MONITOR" != "" ]; then
+if ! $BUILDONLY && [ "$FORCE_RUN_MONITOR" != "" ]; then
 	RUN_MONITOR=$FORCE_RUN_MONITOR
 fi
 if [ "$RUN_MONITOR" = "no" ]; then
@@ -199,11 +217,15 @@ else
 fi
 
 # Generate shellpack from template
-echo Building shellpacks
-for TEST in $MMTESTS; do
-	$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh $TEST
-done
-echo
+if $BUILDONLY; then
+  export SHELLPACK_LOG_RUNBASE=$SHELLPACK_LOG_BASE/$RUNNAME
+  export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-1
+  echo Building shellpacks
+   for TEST in $MMTESTS; do
+       $SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh $TEST
+   done
+   echo
+fi
 
 # Validate systemtap installation if it exists
 TESTS_STAP="highalloc pagealloc highalloc"
@@ -240,6 +262,17 @@ if [ "$STAP_USED" != "" ]; then
 			exit $SHELLPACK_ERROR
 		fi
 	fi
+fi
+
+if $BUILDONLY; then
+    export INSTALL_ONLY=yes
+    for TEST in $MMTESTS; do
+	./bin/run-single-test.sh $TEST
+	if [ $? -ne 0 ]; then
+            die "Installation step failed for $TEST"
+        fi
+    done
+    exit 0
 fi
 
 function start_monitors() {

@@ -8,6 +8,7 @@
 #   size for use with small backing store)
 # - support multiple backing devices
 # - support make-bcache option "-b bucket-size", e.g. 256k (defaults to 128k)
+set ${MMTESTS_SH_DEBUG:-+x}
 
 function err() {
     if [ $# -gt 1 ]; then

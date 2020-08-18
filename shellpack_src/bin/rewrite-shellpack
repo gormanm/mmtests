@@ -64,6 +64,7 @@ while (<STDIN>) {
 		($shellpack, $dummy) = split(/-/, $name);
 		$shellpack = substr($name, 0, rindex($name, "-"));
 		print <<EOC
+set \${MMTESTS_SH_DEBUG:-+x}
 P=$name
 DEFAULT_VERSION=$version
 . \$SHELLPACK_INCLUDE/common.sh
@@ -411,6 +412,9 @@ EOC
 MAKE_JOBS="-j\$NUMCPUS"
 if [ "\$MMTESTS_BUILD_SERIAL" = "yes" ]; then
 	MAKE_JOBS=
+fi
+if [ "\$MMTESTS_BUILD_VERBOSE" = "yes" ]; then
+	MAKE_FLAGS+=" V=1"
 fi
 make \$MAKE_JOBS \$MAKE_FLAGS
 if [ \$? -ne 0 ]; then

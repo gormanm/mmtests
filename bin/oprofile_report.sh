@@ -1,4 +1,5 @@
 #!/bin/bash
+set ${MMTESTS_SH_DEBUG:-+x}
 
 bash opcontrol --dump
 

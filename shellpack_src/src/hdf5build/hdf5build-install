@@ -8,6 +8,11 @@ MIRROR_LOCATION="$WEBROOT/netcdf/"
 
 ###SHELLPACK git_fetch hdf5build-${VERSION}.tar.gz hdf5build-${VERSION}
 ###SHELLPACK build_start hdf5build-${VERSION}
+
+export CPPFLAGS="-I$SHELLPACK_SOURCES/netcdf-installed/include"
+export LDFLAGS="-L$SHELLPACK_SOURCES/netcdf-installed/$MMTESTS_LIBDIR"
+export LD_LIBRARY_PATH="$SHELLPACK_SOURCES/netcdf-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
+
 ###SHELLPACK build_configure hdf5build-${VERSION} --enable-fortran --enable-cxx
 ###SHELLPACK make_make_install
 

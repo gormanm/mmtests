@@ -4,6 +4,7 @@
 # Does what it says on the tin, generates a SPEC configuration file using
 # gcc as a compiler. It can also be used to auto-generate some informationo
 # about the machine itself
+set ${MMTESTS_SH_DEBUG:-+x}
 
 # Exit codes
 EXIT_SUCCESS=0
