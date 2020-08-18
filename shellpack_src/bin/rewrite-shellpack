@@ -57,6 +57,7 @@ while (<STDIN>) {
 	$line =~ s/.*###SHELLPACK //;
 
 	my ($command, @details) = split(/\s+/, $line);
+	print "# command: $command\n";
 
 	if ($command eq "preamble") {
 		my ($name, $version) = @details;
@@ -867,4 +868,5 @@ EOC
 		print "# WARNING: UNRECOGNISED command $command\n";
 		print $_;
 	}
+	print "# command end: $command\n";
 }
