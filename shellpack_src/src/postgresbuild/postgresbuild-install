@@ -85,8 +85,15 @@ if [ $? -ne 0 ]; then
 fi
 
 # Update the max connection count if necessary
-echo o Setting max_connections: $(($NUMCPUS*6))
-update_entry_cnf max_connections $(($NUMCPUS*6))
+# By default, max_wal_senders = 10, and superuser_reserved_connections = 3.
+# max_connections must be strictly greater than the sum of these, or our
+# configuration is invalid.
+MAX_CONNECTIONS=$(($NUMCPUS*6))
+if [[ "$MAX_CONNECTIONS" -le 13 ]]; then
+	MAX_CONNECTIONS=14
+fi
+echo "o Setting max_connections: $MAX_CONNECTIONS"
+update_entry_cnf max_connections "$MAX_CONNECTIONS"
 
 # This option just wastes time
 update_entry_cnf update_process_title off
