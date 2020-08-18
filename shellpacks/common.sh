@@ -210,7 +210,7 @@ function file_fetch() {
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q -O $OUTPUT $MIRROR
+		wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $MIRROR
 	fi
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$WEB" = "NOT_AVAILABLE" ]; then
@@ -218,7 +218,7 @@ function file_fetch() {
 		fi
 
 		echo "$P: Fetching from internet $WEB"
-		wget -q -O $OUTPUT $WEB
+		wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $WEB
 		if [ $? -ne 0 ]; then
 			die "$P: Could not download $WEB"
 		fi
@@ -238,21 +238,21 @@ function sources_fetch() {
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q -O $OUTPUT $MIRROR
+		wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $MIRROR
 	fi
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$WEB" = "NOT_AVAILABLE" ]; then
 			die "Benchmark is not publicly available. You must make it available from a local mirror"
 		fi
-			
+
 		echo "$P: Fetching from internet $WEB"
-		wget -q -O $OUTPUT $WEB
+		wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $WEB
 		if [ $? -ne 0 ]; then
 			if [ "$WEB_ALT" = "" ]; then
 				die "$P: Could not download $WEB"
 			fi
 			echo "$P: Fetching from alt internet $WEB_ALT"
-			wget -q -O $OUTPUT $WEB_ALT
+			wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $WEB_ALT
 			if [ $? -ne 0 ]; then
 				die "$P: Could not download $WEB_ALT"
 			fi
@@ -285,7 +285,7 @@ function git_fetch() {
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q -O $OUTPUT $MIRROR
+		wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $MIRROR
 	fi
 
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
@@ -320,7 +320,7 @@ function hg_fetch() {
 	install-depends mercurial
 
 	echo "$P: Fetching from mirror $MIRROR"
-	wget -q -O $OUTPUT $MIRROR
+	wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $MIRROR
 	if [ $? -ne 0 ]; then
 		if [ "$HG" = "NOT_AVAILABLE" ]; then
 			die Benchmark is not publicly available. You must make it available from a local mirror
