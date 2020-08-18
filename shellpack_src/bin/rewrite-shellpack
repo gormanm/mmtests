@@ -798,11 +798,7 @@ EOC
 if [ "\$MMTESTS_MPI_SELFBUILD" = "yes" ]; then
 	###SHELLPACK check_external_install_required openmpibuild openmpibuild-\${SELFBUILD_OPENMPI_VERSION} \${SELFBUILD_OPENMPI_VERSION}
 	export $mpipath="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/bin"
-	if [ -e \$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib64 ]; then
-		export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib64"
-	else
-		export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib"
-	fi
+        export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/\$MMTESTS_LIBDIR"
 fi
 
 if [ "$opts" != "" ]; then
