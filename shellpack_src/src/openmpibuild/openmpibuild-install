@@ -6,7 +6,7 @@ MIRROR_LOCATION="$WEBROOT/openmpi/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-install-depends libpsm2-devel
+[ $(uname -m) = x86_64 ] && install-depends libpsm2-devel
 
 ###SHELLPACK git_fetch openmpibuild-${VERSION}.tar.gz openmpibuild-${VERSION}
 ###SHELLPACK build_start openmpibuild-${VERSION}
