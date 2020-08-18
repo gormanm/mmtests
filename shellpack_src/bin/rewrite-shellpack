@@ -5,6 +5,7 @@ use strict;
 
 my $shellpack;
 my $packdirectory = $ARGV[0];
+my $ret=1;
 
 my $script_sysctl="
 if [ \"\$INSTALL_ONLY\" != \"yes\" ]; then
@@ -54,6 +55,7 @@ while (<STDIN>) {
 		next;
 	}
 
+	$ret=0;
 	$line =~ s/.*###SHELLPACK //;
 
 	my ($command, @details) = split(/\s+/, $line);
@@ -870,3 +872,5 @@ EOC
 	}
 	print "# command end: $command\n";
 }
+
+exit $ret;
