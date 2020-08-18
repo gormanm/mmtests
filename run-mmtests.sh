@@ -217,15 +217,13 @@ else
 fi
 
 # Generate shellpack from template
-if $BUILDONLY; then
-  export SHELLPACK_LOG_RUNBASE=$SHELLPACK_LOG_BASE/$RUNNAME
-  export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-1
-  echo Building shellpacks
-   for TEST in $MMTESTS; do
-       $SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh $TEST
-   done
-   echo
-fi
+export SHELLPACK_LOG_RUNBASE=$SHELLPACK_LOG_BASE/$RUNNAME
+export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-1
+echo Building shellpacks
+for TEST in $MMTESTS; do
+	$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh $TEST
+done
+echo
 
 # Validate systemtap installation if it exists
 TESTS_STAP="highalloc pagealloc highalloc"
