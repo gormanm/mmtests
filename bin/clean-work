@@ -1,0 +1,10 @@
+#!/bin/bash
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
+
+grep -qs work/testdisk /proc/mounts
+if [ $? -eq 0 ]; then
+	umount work/testdiek
+fi
+rm -rf work/log work/testdisk work/tmp
+./bin/clean-sources
