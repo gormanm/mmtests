@@ -1132,26 +1132,6 @@ function umount_filesystems
 	done
 }
 
-function round_down_power_2()
-{
-	local input_val=$1
-	local power=1
-
-	while [ $((1<<$power)) -le $input_val ]; do
-		power=$((power+1))
-	done
-	echo $((1<<(power-1)))
-}
-
-function round_down_nearest_square()
-{
-	local input_val=$1
-	local square
-
-	square=`echo "sqrt($input_val) / 1" | bc`
-	echo $((square*square))
-}
-
 function have_run_results()
 {
 	if [ -n "$1" ]; then
@@ -1343,4 +1323,42 @@ function collect_sysconfig_info()
 			gzip $SHELLPACK_LOG/cgroup-tree.txt
 		fi
 	fi
+
+	for FILE in `find /sys/fs/cgroup -name tasks 2> /dev/null | grep user-0.slice`; do
+		grep -H "^$$\$" $FILE >> $SHELLPACK_LOG/cgroup-tasks-v1.txt
+	done
+
+	for FILE in `find /sys/fs/cgroup/user.slice/user-0.slice -name cgroup.procs 2> /dev/null`; do
+		NR=`wc -l $FILE | awk '{print $1}'`
+		if [ $NR -eq 0 ]; then
+			continue
+		fi
+		WITHIN="inactive"
+		grep -q "^$$\$" $FILE
+		if [ $? -eq 0 ]; then
+			WITHIN=" ACTIVE "
+		fi
+
+		echo "o $WITHIN nr:`wc -l $FILE` : $FILE" >> $SHELLPACK_LOG/cgroup-tasks-v2.txt
+	done
+}
+
+function round_down_power_2()
+{
+	local input_val=$1
+	local power=1
+
+	while [ $((1<<$power)) -le $input_val ]; do
+		power=$((power+1))
+	done
+	echo $((1<<(power-1)))
+}
+
+function round_down_nearest_square()
+{
+	local input_val=$1
+	local square
+
+	square=`echo "sqrt($input_val) / 1" | bc`
+	echo $((square*square))
 }
