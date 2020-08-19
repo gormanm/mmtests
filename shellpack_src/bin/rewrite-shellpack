@@ -419,10 +419,10 @@ fi
 if [ "\$MMTESTS_BUILD_VERBOSE" = "yes" ]; then
 	MAKE_FLAGS+=" V=1"
 fi
-make \$MAKE_JOBS \$MAKE_FLAGS
+make \$MAKE_JOBS \$MAKE_FLAGS $opts
 if [ \$? -ne 0 ]; then
 	echo WARNING: make failed, retrying once
-	make \$MAKE_JOBS \$MAKE_FLAGS
+	make \$MAKE_JOBS \$MAKE_FLAGS $opts
 	if [ \$? -ne 0 ]; then
 		error "\$P: make failed"
 		popd > /dev/null
