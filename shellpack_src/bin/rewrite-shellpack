@@ -862,8 +862,10 @@ if [ ! -e \$SHELLPACK_SOURCES/$dst ]; then
 	mkdir \$SHELLPACK_SOURCES/$dst || die "Failed to create dst $dst"
 fi
 tar -c * | tar -C \$SHELLPACK_SOURCES/$dst -x || die "Failed to merge $src to $dst"
-if [ "\$MMTESTS_LIBDIR" = "lib64" -a -e \$SHELLPACK_SOURCES/$dst/lib ]; then
-	die "Only lib64 expected but lib dir exists after merge to \$SHELLPACK_SOURCES/$dst"
+if [ "\$MMTESTS_CHECK_LIBDIR" = "yes" ]; then
+	if [ "\$MMTESTS_LIBDIR" = "lib64" -a -e \$SHELLPACK_SOURCES/$dst/lib ]; then
+		die "Only lib64 expected but lib dir exists after merge to \$SHELLPACK_SOURCES/$dst"
+	fi
 fi
 EOC
 	} else {
