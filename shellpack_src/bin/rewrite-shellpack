@@ -5,6 +5,7 @@ use strict;
 
 my $shellpack;
 my $packdirectory = $ARGV[0];
+my $ret=1;
 
 my $script_sysctl="
 if [ \"\$INSTALL_ONLY\" != \"yes\" ]; then
@@ -54,9 +55,11 @@ while (<STDIN>) {
 		next;
 	}
 
+	$ret=0;
 	$line =~ s/.*###SHELLPACK //;
 
 	my ($command, @details) = split(/\s+/, $line);
+	print "# command: $command\n";
 
 	if ($command eq "preamble") {
 		my ($name, $version) = @details;
@@ -798,11 +801,7 @@ EOC
 if [ "\$MMTESTS_MPI_SELFBUILD" = "yes" ]; then
 	###SHELLPACK check_external_install_required openmpibuild openmpibuild-\${SELFBUILD_OPENMPI_VERSION} \${SELFBUILD_OPENMPI_VERSION}
 	export $mpipath="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/bin"
-	if [ -e \$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib64 ]; then
-		export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib64"
-	else
-		export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/lib"
-	fi
+        export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/\$MMTESTS_LIBDIR"
 fi
 
 if [ "$opts" != "" ]; then
@@ -871,4 +870,7 @@ EOC
 		print "# WARNING: UNRECOGNISED command $command\n";
 		print $_;
 	}
+	print "# command end: $command\n";
 }
+
+exit $ret;

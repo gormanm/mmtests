@@ -20,18 +20,15 @@ fi
 if [ -e $1/$1-install ]; then
 	cp $1/$1-install ../../shellpacks/shellpack-install-$1
 fi
-
-for STAGES in 1 2; do
-	if [ -e ../../shellpacks/shellpack-bench-$1 ]; then
-		cat ../../shellpacks/shellpack-bench-$1 | ../bin/rewrite-shellpack $1 > ../../shellpacks/shellpack-bench-$1.stage
-		mv ../../shellpacks/shellpack-bench-$1.stage ../../shellpacks/shellpack-bench-$1
-		chmod a+x ../../shellpacks/shellpack-bench-$1
-	fi
-	if [ -e ../../shellpacks/shellpack-install-$1 ]; then
-		cat ../../shellpacks/shellpack-install-$1 | ../bin/rewrite-shellpack $1 > ../../shellpacks/shellpack-install-$1.stage
-		mv ../../shellpacks/shellpack-install-$1.stage ../../shellpacks/shellpack-install-$1
-		chmod a+x ../../shellpacks/shellpack-install-$1
-	fi
+for kind in bench install; do
+    if [ -e ../../shellpacks/shellpack-$kind-$1 ]; then
+	while cat ../../shellpacks/shellpack-$kind-$1 | ../bin/rewrite-shellpack $1 > ../../shellpacks/shellpack-$kind-$1.stage
+	do
+	    mv ../../shellpacks/shellpack-$kind-$1.stage ../../shellpacks/shellpack-$kind-$1
+	done
+	rm -f ../../shellpacks/shellpack-$kind-$1.stage
+	chmod a+x ../../shellpacks/shellpack-$kind-$1
+    fi
 done
 
 exit 0

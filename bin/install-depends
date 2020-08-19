@@ -137,6 +137,13 @@ my %allow_downgrade = (
 	"gentoo" => "",
 );
 
+my %check_package = (
+	"suse" => "rpm -q",
+	"debian" => "dpgk-query -s",
+	"redhat" => "rpm -q",
+	"gentoo" => "false",
+);
+
 my $distro;
 foreach my $release_file ("debian_version", "debian_release",
 			  "redhat-release", "redhat_version",
@@ -256,10 +263,12 @@ foreach my $package (@ARGV) {
 		$allow_downgrade{"suse"} = "--allow-downgrade";
 	}
 
-	if (system("$sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
+	if (system("$check_package{distro} $package &>/dev/null") != 0) {
+	    if (system("$sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
 		if (system("$sudo $package_bin{$distro} $allow_downgrade{$distro} $force_install{$distro} $package") != 0) {
 			print("WARNING: Failed to cleanly install package $package for distro $distro\n");
 		}
+	    }
 	}
 
 	print "Installed $package\n";
