@@ -1324,11 +1324,11 @@ function collect_sysconfig_info()
 		fi
 	fi
 
-	for FILE in `find /sys/fs/cgroup -name tasks 2> /dev/null | grep user-0.slice`; do
+	for FILE in `find /sys/fs/cgroup -name tasks 2> /dev/null | grep user-$UID.slice`; do
 		grep -H "^$$\$" $FILE >> $SHELLPACK_LOG/cgroup-tasks-v1.txt
 	done
 
-	for FILE in `find /sys/fs/cgroup/user.slice/user-0.slice -name cgroup.procs 2> /dev/null`; do
+	for FILE in `find /sys/fs/cgroup/user.slice/user-$UID.slice -name cgroup.procs 2> /dev/null`; do
 		NR=`wc -l $FILE | awk '{print $1}'`
 		if [ $NR -eq 0 ]; then
 			continue
