@@ -9,6 +9,7 @@ else
 	install-depends openmpi openmpi-devel
 fi
 install-depends libpsm_infinipath1
+install-depends gfortran gcc
 
 NAS_TYPE=SER
 RUNBITS=
