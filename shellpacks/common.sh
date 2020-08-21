@@ -1339,7 +1339,8 @@ function collect_sysconfig_info()
 			WITHIN=" ACTIVE "
 		fi
 
-		echo "o $WITHIN nr:`wc -l $FILE` : $FILE" >> $SHELLPACK_LOG/cgroup-tasks-v2.txt
+		CONTROLLERS=`echo $FILE | sed -e 's/cgroup.process/cgroup.controllers/'`
+		echo "o $WITHIN nr:`wc -l $FILE` `cat $CONTROLLERS`: $FILE" >> $SHELLPACK_LOG/cgroup-tasks-v2.txt
 	done
 }
 
