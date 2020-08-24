@@ -99,13 +99,13 @@ my %package_map = (
 	"gentoo::zeromq-devel"			=> "net-libs/zeromq",
 	"gentoo::zlib-devel"			=> "sys-libs/zlib",
 
-	"redhat::blas-devel"    		=> "openblas-devel",
+	"redhat::blas-devel"			=> "openblas-devel",
 	"redhat::blas-devel-static"		=> "openblas-static",
-	"redhat::btrfsprogs"    		=> "btrfs-progs",
+	"redhat::btrfsprogs"			=> "btrfs-progs",
 	"redhat::cpupower"			=> "kernel-tools",
-	"redhat::expect-devel"  		=> "expect",
-	"redhat::gcc-32bit"     		=> "libgcc.i686",
-	"redhat::gcc-fortran"   		=> "gcc-gfortran",
+	"redhat::expect-devel"			=> "expect",
+	"redhat::gcc-32bit"	 		=> "libgcc.i686",
+	"redhat::gcc-fortran"			=> "gcc-gfortran",
 	"redhat::glibc-devel-static-32bit"	=> "glibc-static.i686",
 	"redhat::libblas3"			=> "openblas",
 	"redhat::libnuma-devel"			=> "numactl-devel",
@@ -263,12 +263,12 @@ foreach my $package (@ARGV) {
 		$allow_downgrade{"suse"} = "--allow-downgrade";
 	}
 
-	if (system("$check_package{distro} $package &>/dev/null") != 0) {
-	    if (system("$sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
-		if (system("$sudo $package_bin{$distro} $allow_downgrade{$distro} $force_install{$distro} $package") != 0) {
-			print("WARNING: Failed to cleanly install package $package for distro $distro\n");
+	if (system("$check_package{$distro} $package &>/dev/null") != 0) {
+		if (system("$sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
+			if (system("$sudo $package_bin{$distro} $allow_downgrade{$distro} $force_install{$distro} $package") != 0) {
+				print("WARNING: Failed to cleanly install package $package for distro $distro\n");
+			}
 		}
-	    }
 	}
 
 	print "Installed $package\n";
