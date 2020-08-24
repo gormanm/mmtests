@@ -21,6 +21,12 @@ NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
 LLC_INDEX=`find /sys/devices/system/cpu/ -type d -name "index*" | sed -e 's/.*index//' | sort -n | tail -1`
 NUMLLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort | uniq | wc -l`
 
+WGET_SHOW_PROGRESS="--show-progress"
+wget --help | grep -q show-progress
+if [ $? -ne 0 ]; then
+	WGET_SHOW_PROGRESS=
+fi
+
 grep -q nosmt /proc/cmdline
 if [ $? -eq 0 ]; then
 	echo WARNING: Artifically boosting NUMCPUS to account for nosmt comparison
@@ -210,7 +216,7 @@ function file_fetch() {
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $MIRROR
+		wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $MIRROR
 	fi
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$WEB" = "NOT_AVAILABLE" ]; then
@@ -218,7 +224,7 @@ function file_fetch() {
 		fi
 
 		echo "$P: Fetching from internet $WEB"
-		wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $WEB
+		wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $WEB
 		if [ $? -ne 0 ]; then
 			die "$P: Could not download $WEB"
 		fi
@@ -238,7 +244,7 @@ function sources_fetch() {
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $MIRROR
+		wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $MIRROR
 	fi
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$WEB" = "NOT_AVAILABLE" ]; then
@@ -246,13 +252,13 @@ function sources_fetch() {
 		fi
 
 		echo "$P: Fetching from internet $WEB"
-		wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $WEB
+		wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $WEB
 		if [ $? -ne 0 ]; then
 			if [ "$WEB_ALT" = "" ]; then
 				die "$P: Could not download $WEB"
 			fi
 			echo "$P: Fetching from alt internet $WEB_ALT"
-			wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $WEB_ALT
+			wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $WEB_ALT
 			if [ $? -ne 0 ]; then
 				die "$P: Could not download $WEB_ALT"
 			fi
@@ -285,7 +291,7 @@ function git_fetch() {
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $MIRROR
+		wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $MIRROR
 	fi
 
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
@@ -320,7 +326,7 @@ function hg_fetch() {
 	install-depends mercurial
 
 	echo "$P: Fetching from mirror $MIRROR"
-	wget -q --show-progress --progress=bar:force:noscroll -O $OUTPUT $MIRROR
+	wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $MIRROR
 	if [ $? -ne 0 ]; then
 		if [ "$HG" = "NOT_AVAILABLE" ]; then
 			die Benchmark is not publicly available. You must make it available from a local mirror
