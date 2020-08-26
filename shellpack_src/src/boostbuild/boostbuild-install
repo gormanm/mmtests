@@ -29,6 +29,10 @@ EOF
 
 BOOST_LIBS="math,iostreams,program_options,test,chrono,serialization,system,exception,atomic,date_time,filesystem,log,graph,regex,wave,random,thread,timer,locale,mpi"
 
+if [ "$CXXFLAGS" = "" ]; then
+	CXXFLAGS="-O3"
+fi
+
 ./bootstrap.sh \
 	--prefix=$SHELLPACK_SOURCES/boostbuild-${VERSION}-installed			\
 	--libdir=$SHELLPACK_SOURCES/boostbuild-${VERSION}-installed/$MMTESTS_LIBDIR	\
