@@ -4,7 +4,7 @@
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-install-depends python2-devel fdupes libbz2-devel libexpat-devel libicu-devel zlib-devel libzstd-devel
+install-depends fdupes libbz2-devel libexpat-devel libicu-devel zlib-devel libzstd-devel
 
 # Set location after version is parsed
 WEB_LOCATION="https://dl.bintray.com/boostorg/release/`echo $VERSION | sed -e 's/_/./g'`/source"
