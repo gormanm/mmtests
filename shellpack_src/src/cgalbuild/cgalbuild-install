@@ -3,6 +3,8 @@
 GIT_LOCATION=https://github.com/CGAL/cgal
 MIRROR_LOCATION="$WEBROOT/cgal/"
 
+install-depends cmake
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 

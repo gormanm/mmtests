@@ -9,6 +9,6 @@ MIRROR_LOCATION="$WEBROOT/mpfr/"
 
 ###SHELLPACK sources_fetch mpfr-${VERSION}.tar.xz mpfrbuild-${VERSION}
 ###SHELLPACK build_start mpfrbuild-${VERSION}
-###SHELLPACK build_configure mpfrbuild-${VERSION} --with-gmp=$SHELLPACK_SOURCES/gmpbuild-$GMP_VERSION-installed
+###SHELLPACK build_configure mpfrbuild-${VERSION} --with-gmp-include=$SHELLPACK_SOURCES/gmpbuild-$GMP_VERSION-installed/include --with-gmp-lib=$SHELLPACK_SOURCES/gmpbuild-$GMP_VERSION-installed/$MMTESTS_LIBDIR
 ###SHELLPACK make_make_install
 echo mpfr installed successfully

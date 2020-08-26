@@ -3,9 +3,8 @@
 GIT_LOCATION=https://develop.openfoam.com/Development/openfoam.git
 MIRROR_LOCATION="$WEBROOT/openfoam/"
 
-install-depends cmake gnuplot mpfr-devel glu-devel flex		\
-	libqt4-devel qt4-assistant-adp-devel qt4-x11-tools	\
-	gmp-devel libgmp10
+install-depends cmake gnuplot glu-devel flex		\
+	libqt4-devel qt4-assistant-adp-devel qt4-x11-tools
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
