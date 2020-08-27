@@ -11,11 +11,13 @@ cd $SHELLPACK_SOURCES || die Sources directory does not exist
 rm -rf microtput-${VERSION}-installed
 mkdir -p microtput-${VERSION}-installed
 
+export CFLAGS=$DEFAULT_OPTIMISATION_LEVEL
+
 sources_fetch $WEB_LOCATION $MIRROR_LOCATION $SHELLPACK_SOURCES/microtput-${VERSION}-installed/$MICROTPUT_BASENAME
 ###SHELLPACK build_start microtput-${VERSION}-installed
 case $MICROTPUT_BUILD in
 gcc)
-	gcc ${MMTESTS_BUILD_CFLAGS:--O2} -pthread --std=c99 -D_GNU_SOURCE -pthread $MICROTPUT_BASENAME -o microtput
+	gcc $CFLAGS -pthread --std=c99 -D_GNU_SOURCE -pthread $MICROTPUT_BASENAME -o microtput
 	if [ $? -ne 0 ]; then
 		die Failed to build $MICROTPUT_BASENAME
 	fi

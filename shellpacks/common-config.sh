@@ -13,5 +13,4 @@ export WEBROOT=http://mcp/mmtests-mirror
 export SSHROOT=`echo $WEBROOT | sed -e 's/http:\/\//ssh:\/\/root@/'`/public_html
 
 # Compiler flags
-export MMTESTS_BUILD_CFLAGS=${MMTESTS_BUILD_CFLAGS:--O2}
 export MMTESTS_BUILD_COLLECTION="https://github.com/gormanm/mmtests-build-flags"

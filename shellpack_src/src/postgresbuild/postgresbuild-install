@@ -34,7 +34,6 @@ update_entry_cnf() {
 	mv ${CONF}.tmp $CONF
 }
 
-MMTESTS_BUILD_CFLAGS_EXTRA="-pipe"
 WEB_LOCATION=http://ftp.postgresql.org/pub/source/v${VERSION}/
 MIRROR_LOCATION=$WEBROOT/postgres/
 ###SHELLPACK sources_fetch postgresql-${VERSION}.tar.bz2 postgresbuild-${VERSION}

@@ -42,6 +42,11 @@ cd $SHELLPACK_SOURCES/speccpu-${VERSION}-installed > /dev/null || die Failed to 
 rm -f /tmp/OPiter.*
 [ -e result ] && rm -rf result
 export MALLOC_CHECK_=0
+export GCC_OPTIMISE=$SPECCPU_OPTIMISE_FLAGS
+if [ "$GCC_OPTIMISE" = "" ]; then
+	export GCC_OPTIMISE=$DEFAULT_OPTIMISATION_LEVEL
+fi
+
 GENSPECSH="generate-speccpu.sh --bitness ${RUNBITS}"
 
 # Generate SPEC configurations

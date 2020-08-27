@@ -12,7 +12,6 @@ EXIT_FAILURE=-1
 
 # Default
 GCC_VERSION=
-GCC_OPTIMIZE=${MMTESTS_BUILD_CFLAGS:--O2}
 BITNESS=32
 ARCH=`uname -m`
 HUGEPAGES="no"
@@ -136,16 +135,16 @@ emit_optimization() {
 	echo "FLINK              = $COMPILE_FORTRAN"
 	echo "F_LIB              = \$(LHRELINK) \$(LHLIB)"
 	echo "F_INC              ="
-	echo "FFLAGS             = $GCC_OPTIMIZE $OPENMP $EFLAGS -m$BITNESS"
-	echo "FLINKFLAGS         = $GCC_OPTIMIZE $OPENMP $EFLAGS -m$BITNESS \$(LHRELINK) \$(LHLIB)"
+	echo "FFLAGS             = $GCC_OPTIMISE $OPENMP $EFLAGS -m$BITNESS"
+	echo "FLINKFLAGS         = $GCC_OPTIMISE $OPENMP $EFLAGS -m$BITNESS \$(LHRELINK) \$(LHLIB)"
 
 	echo
 	echo "# C Optimisation"
 	echo "CLINK              = $COMPILE_C"
 	echo "C_LIB              = \$(LHRELINK) \$(LHLIB)"
 	echo "C_INC              ="
-	echo "CFLAGS             = $GCC_OPTIMIZE $OPENMP $EFLAGS -m$BITNESS"
-	echo "CLINKFLAGS         = $GCC_OPTIMIZE $OPENMP $OPENMPI $EFLAGS -m$BITNESS \$(LHRELINK) \$(LHLIB)"
+	echo "CFLAGS             = $GCC_OPTIMISE $OPENMP $EFLAGS -m$BITNESS"
+	echo "CLINKFLAGS         = $GCC_OPTIMISE $OPENMP $OPENMPI $EFLAGS -m$BITNESS \$(LHRELINK) \$(LHLIB)"
 
 	echo
 	echo "# Other"

@@ -165,6 +165,10 @@ for JOB in $JOBLIST; do
 done
 
 # Run the benchmark ##########################################################
+export GCC_OPTIMISE=$NAS_OPTIMISE_FLAGS
+if [ "$GCC_OPTIMISE" = "" ]; then
+	export GCC_OPTIMISE=$DEFAULT_OPTIMISATION_LEVEL
+fi
 GENSPECSH="generate-nas.sh --bitness ${RUNBITS} $OPENMP $OPENMPI"
 $GENSPECSH > config/make.def
 cp config/make.def $LOGDIR_RESULTS || die "Failed to generate make.def"

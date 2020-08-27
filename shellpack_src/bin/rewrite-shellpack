@@ -307,6 +307,7 @@ if [ "\$BUILDFLAGS_ENABLE_COMPILEFLAGS" = "yes" ]; then
 	fi
 fi
 export MMTESTS_C_COMPILER=\${MMTESTS_C_COMPILER:-gcc}
+export DEFAULT_OPTIMISATION_LEVEL="-O2"
 if [ "\$BUILD_FLAGS" != "" ]; then
 	echo ===================
 	echo Loading build flags \$BUILD_FLAGS
@@ -316,8 +317,6 @@ if [ "\$BUILD_FLAGS" != "" ]; then
 	if [ -e \$SHELLPACK_TOPLEVEL/configs/build-flags/common-finalise ]; then
 		. \$SHELLPACK_TOPLEVEL/configs/build-flags/common-finalise
 	fi
-else
-	export CFLAGS="\${MMTESTS_BUILD_CFLAGS:--O2} \$MMTESTS_BUILD_CFLAGS_EXTRA"
 fi
 
 EOC

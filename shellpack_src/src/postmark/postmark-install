@@ -162,7 +162,7 @@ mv $DST_DIR postmark-${VERSION}-installed
 pushd postmark-${VERSION}-installed > /dev/null || die Failed to rename tar
 
 # Build
-gcc ${MMTESTS_BUILD_CFLAGS:--O2} -Wall postmark-1.51.c -o postmark
+gcc $DEFAULT_OPTIMISATION_LEVEL -Wall postmark-1.51.c -o postmark
 if [ $? -ne 0 ]; then
 	error "$P: build failed"
 	popd > /dev/null

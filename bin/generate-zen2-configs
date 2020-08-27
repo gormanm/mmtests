@@ -26,14 +26,15 @@ for CPUCOUNT in 16 32 64 128 225 255 256; do
 	# Default baseline configuration
 	cp $NAS_NOTUNECONFIG $NAS_BASECONFIG
 
-	echo "export MMTESTS_BUILD_CFLAGS=-O3"				>> $NAS_BASECONFIG
+	sed -i -e '/NAS_OPTIMISE_FLAGS/d' $NAS_BASECONFIG
+	echo "export NAS_OPTIMISE_FLAGS=-O3"				>> $NAS_BASECONFIG
 	echo								>> $NAS_BASECONFIG
 	echo "echo Setting performance governor"			>> $NAS_BASECONFIG
 	echo "cpupower frequency-set -g performance"			>> $NAS_BASECONFIG
 	echo								>> $NAS_BASECONFIG
 
 	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
-	sed -i  -e 's/MMTESTS_BUILD_CFLAGS=.*/MMTESTS_BUILD_CFLAGS="-Ofast -march=znver1 -mtune=znver1 -ftree-vectorize"/' \
+	sed -i  -e 's/NAS_OPTIMISE_FLAGS=.*/NAS_OPTIMISE_FLAGS="-Ofast -march=znver1 -mtune=znver1 -ftree-vectorize"/' \
 		-e 's/migration_cost_ns=.*/migration_cost_ns=5000000/'	\
 		-e 's/min_granularity_ns=.*/min_granularity_ns=10000000/'	   config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
 	echo 'export NAS_BIND=yes'						>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned

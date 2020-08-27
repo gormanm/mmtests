@@ -38,10 +38,10 @@ fi
 CSTART=`grep -n "BEGIN LATENCY FILE" $0 | tail -1 | awk -F : '{print $1}'`
 CEND=`grep -n "END LATENCY FILE" $0 | tail -1 | awk -F : '{print $1}'`
 sed -n $((CSTART+1)),$((CEND-1))p $0 > ${LATENCY_FILE}.c
-gcc ${MMTESTS_BUILD_CFLAGS:--O2} -lm ${LATENCY_FILE}.c -o ${LATENCY_FILE}
+gcc $DEFAULT_OPTIMISATION_LEVEL -lm ${LATENCY_FILE}.c -o ${LATENCY_FILE}
 if [ $? -ne 0 ]; then
 	echo Rebuilding latency program with lrt
-	gcc ${MMTESTS_BUILD_CFLAGS:--O2} -lm -lrt ${LATENCY_FILE}.c -o ${LATENCY_FILE} || exit $SHELLPACK_ERROR
+	gcc $DEFAULT_OPTIMISATION_LEVEL -lm -lrt ${LATENCY_FILE}.c -o ${LATENCY_FILE} || exit $SHELLPACK_ERROR
 fi
 
 # Build the memhog program
@@ -53,7 +53,7 @@ fi
 CSTART=`grep -n "BEGIN MEMHOG FILE" $0 | tail -1 | awk -F : '{print $1}'`
 CEND=`grep -n "END MEMHOG FILE" $0 | tail -1 | awk -F : '{print $1}'`
 sed -n $((CSTART+1)),$((CEND-1))p $0 > ${MEMHOG_FILE}.c
-gcc -DMEMFAULT_SIZE=$MEMFAULT_SIZE ${MMTESTS_BUILD_CFLAGS:--O2} ${MEMHOG_FILE}.c -o ${MEMHOG_FILE} || exit $SHELLPACK_ERROR
+gcc -DMEMFAULT_SIZE=$MEMFAULT_SIZE $DEFAULT_OPTIMISATION_LEVEL ${MEMHOG_FILE}.c -o ${MEMHOG_FILE} || exit $SHELLPACK_ERROR
 
 # Prepare the tmpfs mount if requested
 MEMFAULT_FILE=
