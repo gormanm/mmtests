@@ -51,7 +51,7 @@ else
 	MULTIFILE="-DMULTIFILESLOTS=$COUNT"
 fi
 
-gcc -Wall $BUILDRAND $WRITESIZE $WRITEPAUSE $MULTIFILE ${MMTESTS_BUILD_CFLAGS:--O2} $TEMPFILE.c -o $TEMPFILE || exit -1
+gcc -Wall $BUILDRAND $WRITESIZE $WRITEPAUSE $MULTIFILE -O2 $TEMPFILE.c -o $TEMPFILE || exit -1
 
 # Start the writer
 $TEMPFILE monitor_writefile &
@@ -89,7 +89,6 @@ while [ 1 ]; do
 		exit -1
 	fi
 done
-
 
 ==== BEGIN C FILE ====
 #define _GNU_SOURCE
