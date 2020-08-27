@@ -17,7 +17,6 @@ install-depends gcc-fortran gcc
 
 ###SHELLPACK sources_fetch abinit-${VERSION}.tar.gz abinit-${VERSION}-installed
 
-export BUILD_START_NOTOUCH=yes
 ###SHELLPACK build_start abinit-${VERSION}-installed
 
 DEPSROOT="$SHELLPACK_SOURCES/abinitdeps-installed"

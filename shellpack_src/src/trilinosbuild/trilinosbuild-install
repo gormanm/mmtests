@@ -36,7 +36,6 @@ CMAKE_FLAGS="-DCMAKE_C_COMPILER=mpicc \
 	-DLAPACK_LIBRARY_NAMES=openblas \
 	-DSCALAPACK_LIBRARY_NAMES=scalapack"
 
-export BUILD_START_NOTOUCH=yes
 ###SHELLPACK sources_fetch trilinos-release-${VERSION}.tar.gz trilinosbuild-${VERSION}
 ###SHELLPACK build_start trilinosbuild-${VERSION}
 # Gcc-9 limitation

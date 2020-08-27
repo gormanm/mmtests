@@ -289,11 +289,6 @@ build_callback() {
 }
 
 pushd \$SHELLPACK_SOURCES/$srcdir > /dev/null || die Failed to change to source directory
-# if [ "\$BUILD_START_NOTOUCH\" != "yes" ]; then
-#	for FILE in `find -name "*"`; do
-#		touch \$FILE
-#	done
-#fi
 
 if [ "\$MMTESTS_NO_BUILDFLAGS" != "yes" ]; then
 	BUILD_FLAGS=
