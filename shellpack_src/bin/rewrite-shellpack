@@ -463,10 +463,10 @@ if [ "\$INSTALL_FORCE" = "yes" ]; then
 fi
 if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
 	mmtests_activity source-install
-	\$SHELLPACK_INCLUDE/shellpack-install-$shellpack -v \${VERSION} @other || die $shellpack install script returned error
+	\$SHELLPACK_INCLUDE/shellpack-install-$shellpack -v \${VERSION} @other || die "$shellpack install script returned error"
 	mmtests_activity source-installed
 fi
-cd \$SHELLPACK_SOURCES/$shellpack-\${VERSION}-installed || die Failed to cd to $shellpack install directory
+cd \$SHELLPACK_SOURCES/$shellpack-\${VERSION}-installed || die "Failed to cd to $shellpack install directory"
 if [ "\$INSTALL_ONLY" = "yes" ]; then
 	echo $shellpack installed only as requested.
 	exit \$SHELLPACK_SUCCESS

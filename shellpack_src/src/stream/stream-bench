@@ -34,8 +34,6 @@ if [ "$SIZEOF_DOUBLE" = "" ]; then
 fi
 STREAM_ARRAY_ELEMENTS=$((STREAM_SIZE/3/SIZEOF_DOUBLE))
 
-cd $SHELLPACK_SOURCES/stream-${VERSION}-installed || die Failed to change to install directory
-
 STREAM_BUILD_FLAGS="${MMTESTS_BUILD_CFLAGS}"
 echo STREAM build flags: $STREAM_BUILD_FLAGS
 
