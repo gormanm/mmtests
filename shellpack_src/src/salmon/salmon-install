@@ -26,7 +26,7 @@ LD_LIBS="$SALMONDEPS_ROOT/$MMTESTS_LIBDIR"
 
 export CFLAGS+=" $INCLUDES $LIBS"
 export CXXFLAGS+=" $INCLUDES $LIBS"
-export FFLAGS+=" $INCLUDES $LIBS"
+export FFLAGS+=" $INCLUDES $LIBS -lgomp"
 export LD_LIBRARY_PATH="$LD_LIBS:$LD_LIBRARY_PATH"
 
 ###SHELLPACK build_configure_py salmon-${VERSION} $MPI_SWITCH --compiler-vec --enable-scalapack --enable-libxc --verbose
