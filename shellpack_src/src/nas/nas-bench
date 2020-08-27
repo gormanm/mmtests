@@ -165,7 +165,7 @@ for JOB in $JOBLIST; do
 done
 
 # Run the benchmark ##########################################################
-export GCC_OPTIMISE=$NAS_OPTIMISE_FLAGS
+export GCC_OPTIMISE="-O2"
 if [ "$GCC_OPTIMISE" = "" ]; then
 	export GCC_OPTIMISE=$DEFAULT_OPTIMISATION_LEVEL
 fi
