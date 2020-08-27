@@ -8,18 +8,20 @@ my $packdirectory = $ARGV[0];
 my $ret=1;
 
 my $script_sysctl="
-if [ \"\$INSTALL_ONLY\" != \"yes\" ]; then
-	SYSCTL_FLAGS=
-	SYSCTL_BENCH=`echo \$P | sed -e 's/-bench//'`
-	SYSCTL_FLAGS_ROOT=\"\$SHELLPACK_TOPLEVEL/configs/build-flags/\$SYSCTL_BENCH\"
-	for FILE in \$SYSCTL_FLAGS_ROOT/sysctl \$SYSCTL_FLAGS_ROOT/`uname -m`/sysctl \$SYSCTL_FLAGS_ROOT/`uname -m`/sysctl-`hostname`; do
-		if [ -f \$FILE ]; then
-			SYSCTL_FLAGS=\$FILE
+if [ \"\$BUILDFLAGS_ENABLE_SYSCTL\" = \"yes\" ]; then
+	if [ \"\$INSTALL_ONLY\" != \"yes\" ]; then
+		SYSCTL_FLAGS=
+		SYSCTL_BENCH=`echo \$P | sed -e 's/-bench//'`
+		SYSCTL_FLAGS_ROOT=\"\$SHELLPACK_TOPLEVEL/configs/build-flags/\$SYSCTL_BENCH\"
+		for FILE in \$SYSCTL_FLAGS_ROOT/sysctl \$SYSCTL_FLAGS_ROOT/`uname -m`/sysctl \$SYSCTL_FLAGS_ROOT/`uname -m`/sysctl-`hostname`; do
+			if [ -f \$FILE ]; then
+				SYSCTL_FLAGS=\$FILE
+			fi
+		done
+		if [ \"\$SYSCTL_FLAGS\" != \"\" ]; then
+			echo Reading \$SYSCTL_FLAGS
+			. \$SYSCTL_FLAGS
 		fi
-	done
-	if [ \"\$SYSCTL_FLAGS\" != \"\" ]; then
-		echo Reading \$SYSCTL_FLAGS
-		. \$SYSCTL_FLAGS
 	fi
 fi
 ";
@@ -290,7 +292,8 @@ build_callback() {
 
 pushd \$SHELLPACK_SOURCES/$srcdir > /dev/null || die Failed to change to source directory
 
-if [ "\$MMTESTS_NO_BUILDFLAGS" != "yes" ]; then
+# Compiler optimisations from build-flags
+if [ "\$BUILDFLAGS_ENABLE_COMPILEFLAGS" = "yes" ]; then
 	BUILD_FLAGS=
 	BUILD_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/`echo \$P | awk -F - '{print \$1}'`"
 	for FILE in \$BUILD_FLAGS_ROOT/generic \$BUILD_FLAGS_ROOT/`uname -m`/generic \$BUILD_FLAGS_ROOT/`uname -m`/`hostname`; do
@@ -824,18 +827,20 @@ else
 	export MPI_DIR=`dirname \$$mpipath`
 fi
 
-if [ "\$INSTALL_ONLY" != "yes" ]; then
-	MPIRUN_FLAGS=
-	MPIRUN_BENCH=`echo \$P | sed -e 's/-bench//'`
-	MPIRUN_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/\$MPIRUN_BENCH"
-	for FILE in \$MPIRUN_FLAGS_ROOT/mpiflags \$MPIRUN_FLAGS_ROOT/`uname -m`/mpiflags \$MPIRUN_FLAGS_ROOT/`uname -m`/mpiflags-`hostname`; do
-		if [ -f \$FILE ]; then
-			MPIRUN_FLAGS=\$FILE
+if [ "\$BUILDFLAGS_ENABLE_MPIFLAGS" = "yes" ]; then
+	if [ "\$INSTALL_ONLY" != "yes" ]; then
+		MPIRUN_FLAGS=
+		MPIRUN_BENCH=`echo \$P | sed -e 's/-bench//'`
+		MPIRUN_FLAGS_ROOT="\$SHELLPACK_TOPLEVEL/configs/build-flags/\$MPIRUN_BENCH"
+		for FILE in \$MPIRUN_FLAGS_ROOT/mpiflags \$MPIRUN_FLAGS_ROOT/`uname -m`/mpiflags \$MPIRUN_FLAGS_ROOT/`uname -m`/mpiflags-`hostname`; do
+			if [ -f \$FILE ]; then
+				MPIRUN_FLAGS=\$FILE
+			fi
+		done
+		if [ "\$MPIRUN_FLAGS\" != "" ]; then
+			echo Reading \$MPIRUN_FLAGS
+			. \$MPIRUN_FLAGS
 		fi
-	done
-	if [ "\$MPIRUN_FLAGS\" != "" ]; then
-		echo Reading \$MPIRUN_FLAGS
-		. \$MPIRUN_FLAGS
 	fi
 fi
 EOC

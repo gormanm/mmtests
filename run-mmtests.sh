@@ -9,6 +9,14 @@ export EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer
 export BUILDONLY=false
 export DELETE_ON_EXIT_FILE=$(mktemp /tmp/mmtest-cleanup-XXXXXXXXX)
 
+# External optimisations and tuning can be specified via the build-flags
+# repository. Set the defaults to use compiler optimisations if available
+# but not mpiflags or sysctls. Generally mpiflags and sysctls are used
+# for peak configurations on specific platforms
+BUILDFLAGS_ENABLE_COMPILEFLAGS=${BUILDFLAGS_ENABLE_COMPILEFLAGS:-yes}
+BUILDFLAGS_ENABLE_MPIFLAGS=${BUILDFLAGS_ENABLE_MPIFLAGS:-no}
+BUILDFLAGS_ENABLE_SYSCTL=${BUILDFLAGS_ENABLE_MPIFLAGS:-no}
+
 INTERRUPT_COUNT=0
 clean_exit()
 {
