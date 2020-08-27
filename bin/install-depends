@@ -103,6 +103,7 @@ my %package_map = (
 	"redhat::blas-devel-static"		=> "openblas-static",
 	"redhat::btrfsprogs"			=> "btrfs-progs",
 	"redhat::libbz2-devel"			=> "bzip2-devel",
+	"redhat::libexpat-devel"		=> "expat-devel",
 	"redhat::cpupower"			=> "kernel-tools",
 	"redhat::expect-devel"			=> "expect",
 	"redhat::gcc-32bit"	 		=> "libgcc.i686",
