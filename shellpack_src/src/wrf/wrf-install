@@ -36,14 +36,14 @@ export HDF5="$SHELLPACK_SOURCES/wrfdeps-installed"
 CHOICE=99
 case `uname -m` in
 x86_64)
-	CHOICE=33
+	CHOICE=35
 	;;
 aarch64)
 	grep -q "Linux x86_64 aarch64" arch/configure_new.defaults
 	if [ $? -ne 0 ]; then
 		sed -i -e 's/Linux x86_64/Linux x86_64 aarch64/' arch/configure_new.defaults
 	fi
-	CHOICE=31
+	CHOICE=33
 	;;
 *)
 	die "Unrecognised arch"
