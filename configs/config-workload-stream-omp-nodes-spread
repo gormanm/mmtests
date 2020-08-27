@@ -28,4 +28,4 @@ export STREAM_THREADS=$((NUMNODES*2))
 export STREAM_METHOD=omp
 export STREAM_ITERATIONS=5
 export OMP_PROC_BIND=SPREAD
-export MMTESTS_BUILD_CFLAGS="-m64 -lm -Ofast"
+export STREAM_BUILD_FLAGS="-m64 -lm -Ofast"

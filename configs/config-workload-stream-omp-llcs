@@ -27,4 +27,4 @@ export STREAM_SIZE=$((1048576*512))
 export STREAM_THREADS=$NUMLLCS
 export STREAM_METHOD=omp
 export STREAM_ITERATIONS=5
-export MMTESTS_BUILD_CFLAGS="-m64 -lm -Ofast"
+export STREAM_BUILD_FLAGS="-m64 -lm -Ofast"
