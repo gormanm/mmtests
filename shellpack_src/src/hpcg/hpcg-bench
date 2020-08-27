@@ -25,16 +25,7 @@ template_set_param() {
 }
 
 ulimit -n 4096
-round_down_power_2_cpus() {
-	POWER=1
-
-	while [ $((1<<$POWER)) -le $NUMCPUS ]; do
-		POWER=$((POWER+1))
-	done
-
-	MPICPUS=$((1<<(POWER-1)))
-}
-round_down_power_2_cpus
+MPICPUS=$(round_down_power_2 $NUMCPUS)
 
 # Configure build template
 case $HPCG_PARALLELISE in

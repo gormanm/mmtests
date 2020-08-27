@@ -86,16 +86,7 @@ mpi-custom)
 	;;
 esac
 
-round_down_power_2_cpus() {
-	POWER=1
-
-	while [ $((1<<$POWER)) -le $NUMCPUS ]; do
-		POWER=$((POWER+1))
-	done
-
-	MPICPUS=$((1<<(POWER-1)))
-}
-round_down_power_2_cpus
+MPICPUS=$(round_down_power_2 $NUMCPUS)
 
 # Generate make.inc
 echo "CFLAGS = -g -std=c99 -O3 -march=native -fgcse-sm -fgcse-las -fgcse-after-reload -floop-strip-mine -ftree-loop-im -fivopts -funswitch-loops" > make.inc
