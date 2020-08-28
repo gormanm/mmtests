@@ -33,17 +33,37 @@ mv module_cu_g3.F phys/
 export NETCDF="$SHELLPACK_SOURCES/wrfdeps-installed"
 export HDF5="$SHELLPACK_SOURCES/wrfdeps-installed"
 
+# Configure parameters
+# aarch64: 30. (serial)  31. (smpar)  32. (dmpar)  33. (dm+sm)   GNU (gfortran/gcc)
+# x86_64:  32. (serial)  33. (smpar)  34. (dmpar)  35. (dm+sm)   GNU (gfortran/gcc)
+
+MPISUPPORT=no
+OFFSET=0
+case $WRF_PAR in
+smpar)
+	OFFSET=1
+	;;
+dmpar)
+	MPISUPPORT=yes
+	OFFSET=2
+	;;
+dm+sm)
+	MPISUPPORT=yes
+	OFFSET=3
+	;;
+esac
+
 CHOICE=99
 case `uname -m` in
 x86_64)
-	CHOICE=35
+	CHOICE=$((32+$OFFSET))
 	;;
 aarch64)
 	grep -q "Linux x86_64 aarch64" arch/configure_new.defaults
 	if [ $? -ne 0 ]; then
 		sed -i -e 's/Linux x86_64/Linux x86_64 aarch64/' arch/configure_new.defaults
 	fi
-	CHOICE=33
+	CHOICE=$((30+$OFFSET))
 	;;
 *)
 	die "Unrecognised arch"
@@ -51,6 +71,7 @@ aarch64)
 esac
 
 # An interactive configure script
+echo WRF configure choice: $CHOICE
 EXPECT_SCRIPT=`mktemp`
 cat > $EXPECT_SCRIPT << EOC
 spawn ./configure
@@ -69,9 +90,11 @@ cp configure.wrf configure.wrf.orig
 
 build_callback
 
-# Configure for openmpi2 and later
-sed -i -e "s/^DM_FC .*/& -DMPI2_SUPPORT/" configure.wrf
-sed -i -e "s/^DM_CC .*/& -DMPI2_SUPPORT/" configure.wrf
+if [ "$MPISUPPORT" = "yes" ]; then
+	# Configure for openmpi2 and later
+	sed -i -e "s/^DM_FC .*/& -DMPI2_SUPPORT/" configure.wrf
+	sed -i -e "s/^DM_CC .*/& -DMPI2_SUPPORT/" configure.wrf
+fi
 
 # Additional configuration
 LDFLAGS_EXTRA+=" -L${WRF_MPI_LIBPATH} -L${NETCDF}/$MMTESTS_LIBDIR -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/$MMTESTS_LIBDIR -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"

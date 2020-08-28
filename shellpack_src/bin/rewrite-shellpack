@@ -457,8 +457,9 @@ EOC
 		my $dstdir = "$srcdir-installed";
 
 		print <<EOC
-if [ "\$INSTALL_FORCE" = "yes" ]; then
-	rm -rf \$SHELLPACK_SOURCES/$srcdir
+if [ "\$INSTALL_FORCE" = "yes" -a "\$INSTALL_ONLY" = "yes" ]; then
+	echo Forcing installation $srcdir from scratch
+	rm -rf \$SHELLPACK_SOURCES/$srcdir \$SHELLPACK_SOURCES/$srcdir-installed
 fi
 if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
 	mmtests_activity source-install

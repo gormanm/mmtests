@@ -26,6 +26,9 @@ export PNETCDF_VERSION="1.12.1"
 ###SHELLPACK check_external_install_required netcdfcbuild netcdfcbuild-$NETCDFC_VERSION $NETCDFC_VERSION
 ###SHELLPACK check_external_install_required netcdffcbuild netcdffcbuild-$NETCDFFC_VERSION $NETCDFFC_VERSION
 export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/wrfdeps-installed/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH
+
+# Force installation as parallelisation model may have changed
+export INSTALL_FORCE=yes
 ###SHELLPACK check_install_required wrf-$VERSION
 
 case $WRF_MODEL in

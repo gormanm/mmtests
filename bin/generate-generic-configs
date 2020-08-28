@@ -144,6 +144,20 @@ sed -e 's/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=.*/SYSBENCHTHREAD_MAX_THREADS_M
 sed -e 's/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=.*/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=2/' config-scheduler-sysbench-thread > config-scheduler-sysbench-thread-small
 
 # WRF
-sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-wrf-conus12km-full > config-hpc-wrf-conus12km-hpcext-full
-sed -i -e '/WRF_MPI_PATH/d'    config-hpc-wrf-conus12km-hpcext-full
-sed -i -e '/WRF_MPI_LIBPATH/d' config-hpc-wrf-conus12km-hpcext-full
+cp config-hpc-wrf-conus12km-hybrid-full config-hpc-wrf-conus12km-mpi-full
+sed -i	\
+	-e 's/WRF_PAR=.*/WRF_PAR="dmpar"/'		\
+	-e 's/WRF_PROCESSES=.*/WRF_PROCESSES=$NUMCPUS/'	\
+	-e 's/WRF_THREADS=.*/WRF_THREADS=1/'		config-hpc-wrf-conus12km-mpi-full
+cp config-hpc-wrf-conus12km-hybrid-full config-hpc-wrf-conus12km-omp-full
+sed -i	\
+	-e 's/WRF_PAR=.*/WRF_PAR="smpar"/'		\
+	-e 's/WRF_PROCESSES=.*/WRF_PROCESSES=1/'	\
+	-e 's/WRF_THREADS=.*/WRF_THREADS=$NUMCPUS/'	config-hpc-wrf-conus12km-omp-full
+
+PARMODEL=hybrid
+for PARMODEL in hybrid mpi omp; do
+	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-wrf-conus12km-$PARMODEL-full > config-hpc-wrf-conus12km-hpcext-$PARMODEL-full
+	sed -i -e '/WRF_MPI_PATH/d'    config-hpc-wrf-conus12km-hpcext-$PARMODEL-full
+	sed -i -e '/WRF_MPI_LIBPATH/d' config-hpc-wrf-conus12km-hpcext-$PARMODEL-full
+done
