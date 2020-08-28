@@ -80,6 +80,7 @@ conus12km)
 	if [ $? -ne 0 ]; then
 		die "Failed to execute $WRF_MODEL"
 	fi
+	tar -czf $LOGDIR_RESULTS/rsl-log.tar.gz rsl* sample_diffwrf_output.txt
 	;;
 *)
 	die "Unrecognised model $WRF_MODEL"
