@@ -1,7 +1,8 @@
 #!/bin/bash
 
-export SCRIPT=$(basename $0)
-export SCRIPTDIR=$(dirname $0)
+export SCRIPTPATH=$(readlink -f "$0")
+export SCRIPT=$(basename "$SCRIPTPATH")
+export SCRIPTDIR=$(dirname "$SCRIPTPATH")
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/config
