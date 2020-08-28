@@ -31,7 +31,13 @@ sub start {
 
 	# Skip the first entry as it's a header
 	my $input = $self->getInputFH();
-	$line = <$input>;
+	while (!eof($input)) {
+		$line = <$input>;
+		if ($line =~ /^time:/) {
+			last;
+		}
+	}
+
 	$line = <$input>;
 	if ($line !~ /^Linux/) {
 		die("Unexpected file format no header, possibly missed data\n");

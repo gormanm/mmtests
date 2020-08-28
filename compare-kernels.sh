@@ -1539,7 +1539,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 				smoothover graph-$SUBREPORT-proc-vmstat-minorfaults
 			fi
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults.png ]; then
-				MAJFAULTS=`$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading pgmajfault | awk '{print $2}' | max`
+				MAJFAULTS=`$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading pgmajfault | awk '{print $2}' | grep -v Nan | max`
 				if [ $MAJFAULTS -gt 0 ]; then
 					smoothover graph-$SUBREPORT-proc-vmstat-majorfaults
 				else
