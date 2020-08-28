@@ -99,8 +99,6 @@ config-io-bonniepp-dir-fsync
 config-io-iozone
 config-io-iozone-small
 config-io-iozone-dio
-config-io-seeker-file-read
-config-io-seeker-file-write
 config-io-filebench-varmail-small
 config-io-filebench-varmail-medium
 config-io-filebench-varmail-large
