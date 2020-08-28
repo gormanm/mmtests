@@ -34,11 +34,7 @@ export ABINIT_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$ABINIT_OPENMPI_VERSION/$
 # Parallelisation for tmbt is recommended to be a multiple of 9
 # to avoid having idle MPI processes. Use spares for openmp
 # threads
-export SCALE_FACTOR=$(((NUMCPUS/2)/9))
-if [ $SCALE_FACTOR -eq 0 ]; then
-	SCALE_FACTOR=1
-fi
-export ABINIT_PROCESSES=$((9*SCALE_FACTOR))
+export ABINIT_PROCESSES=9
 export ABINIT_THREADS=$((NUMCPUS/ABINIT_PROCESSES))
 export ABINIT_MODEL=tmbt
 
