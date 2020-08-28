@@ -197,7 +197,7 @@ sub extractReport($$$$) {
 
 	# mmtests_sis_fast_success
 	if (!$schedstat{"sis_search"}) {
-		return 100;
+		$schedstat{"mmtests_sis_fast_success"} = 100;
 	} else {
 		my $fast_search = $schedstat{"sis_search"} - $schedstat{"sis_domain_search"};
 
