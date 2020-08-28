@@ -72,9 +72,10 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 
 	if [ "$ABINIT_PREPARE" = "yes" ]; then
 		for STAGE in `echo $PREPARE_STAGE_MAP`; do
+			STEP=`echo $STAGE | awk -F : '{print $1}'`
 			prepare_stage
 			echo Preparing $STAGE
-			$MPIRUN abinit < ../$FILES > $LOGDIR_RESULTS/$ABINIT_MODEL-prepare.log
+			$MPIRUN abinit < ../$FILES > $ABINIT_MODEL-prepare.log.$STEP
 		done
 	fi
 fi
@@ -100,13 +101,16 @@ for STAGE in `echo $STAGE_MAP`; do
 	echo Executing $STAGE
 	monitor_pre_hook $LOGDIR_RESULTS $ABINIT_MODEL-stage-$STEP
 	eval $TIME_CMD -o $LOGDIR_RESULTS/abinit-time.$STEP	\
-		$BENCH_CMD < ../$FILES > $LOGDIR_RESULTS/$ABINIT_MODEL-log.$STEP
+		$BENCH_CMD < ../$FILES > $ABINIT_MODEL-log.$STEP
 	monitor_post_hook $LOGDIR_RESULTS $ABINIT_MODEL-stage-$STEP
 
 	if [ $? -ne 0 ]; then
 		die "Failed to execute stage $STEP of $ABINIT_MODEL"
 	fi
-	gzip $LOGDIR_RESULTS/$ABINIT_MODEL-log.$STEP
+	mv $ABINIT_MODEL-prepare.log.* $LOGDIR_RESULTS/
+	mv $ABINIT_MODEL-log.* $LOGDIR_RESULTS
+	gzip $LOGDIR_RESULTS/$ABINIT_MODEL-prepare.log.*
+	gzip $LOGDIR_RESULTS/$ABINIT_MODEL-log.*
 	for FILE in `ls *.out`; do
 		mv $FILE $LOGDIR_RESULTS/$FILE
 		gzip $LOGDIR_RESULTS/$FILE

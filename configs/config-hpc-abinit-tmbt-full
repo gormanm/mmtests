@@ -30,7 +30,11 @@ export SCALAPACK_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$SCALAPACK_OPENMPI_VER
 export ABINIT_OPENMPI_VERSION=openmpi3
 export ABINIT_MPI_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$ABINIT_OPENMPI_VERSION/bin
 export ABINIT_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$ABINIT_OPENMPI_VERSION/$MMTESTS_LIBDIR
-export ABINIT_PROCESSES=$NUMNODES
+
+# Parallelisation for tmbt is recommended to be a multiple of 9
+# to avoid having idle MPI processes. Use spares for openmp
+# threads
+export ABINIT_PROCESSES=9
 export ABINIT_THREADS=$((NUMCPUS/ABINIT_PROCESSES))
 export ABINIT_MODEL=tmbt
 
