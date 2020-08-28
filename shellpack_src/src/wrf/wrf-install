@@ -69,6 +69,10 @@ cp configure.wrf configure.wrf.orig
 
 build_callback
 
+# Configure for openmpi2 and later
+sed -i -e "s/^DM_FC .*/& -DMPI2_SUPPORT/" configure.wrf
+sed -i -e "s/^DM_CC .*/& -DMPI2_SUPPORT/" configure.wrf
+
 # Additional configuration
 LDFLAGS_EXTRA+=" -L${WRF_MPI_LIBPATH} -L${NETCDF}/$MMTESTS_LIBDIR -Wl,-rpath=${WRF_MPI_LIBPATH} -Wl,-rpath=${NETCDF}/$MMTESTS_LIBDIR -lnetcdf -lnetcdff -lhdf5_hl -lhdf5 -lz"
 export LD_LIBRARY_PATH=${NETCDF}/$MMTESTS_LIBDIR:${HDF}/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH
