@@ -110,6 +110,7 @@ my %package_map = (
 	"redhat::gcc-fortran"			=> "gcc-gfortran",
 	"redhat::glibc-devel-static-32bit"	=> "glibc-static.i686",
 	"redhat::libblas3"			=> "openblas",
+	"redhat::libelf-devel"			=> "elfutils-libelf-devel",
 	"redhat::libnuma-devel"			=> "numactl-devel",
 	"redhat::libnurses5"			=> "ncurses",
 	"redhat::libopenssl-devel"		=> "openssl-devel",
