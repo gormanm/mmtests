@@ -6,14 +6,6 @@ MIRROR_LOCATION="$WEBROOT/parallelio/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-# Patches from upstream's git to build with GCC-10
-###SHELLPACK self_extract fix-multiple-definition-errors-with-GCC-10.patch
-###SHELLPACK self_extract missing_headers.patch
-
-export CC=mpicc
-export FC=mpif90
-export CXX=mpic++
-
 HDF5="$SHELLPACK_SOURCES/hdf5build-$HDF5_VERSION-installed"
 NETCDFC="$SHELLPACK_SOURCES/netcdfcbuild-$NETCDFC_VERSION-installed"
 NETCDFFC="$SHELLPACK_SOURCES/netcdffcbuild-$NETCDFFC_VERSION-installed"
@@ -21,6 +13,14 @@ PNETCDF="$SHELLPACK_SOURCES/pnetcdfbuild-$PNETCDF_VERSION-installed"
 
 ###SHELLPACK git_fetch piobuild-${VERSION}.tar.gz piobuild-${VERSION}
 ###SHELLPACK build_start piobuild-${VERSION}
+
+export CC=mpicc
+export FC=mpif90
+export CXX=mpic++
+
+# Patches from upstream's git to build with GCC-10
+###SHELLPACK self_extract fix-multiple-definition-errors-with-GCC-10.patch
+###SHELLPACK self_extract missing_headers.patch
 cat $SHELLPACK_TEMP/fix-multiple-definition-errors-with-GCC-10.patch | patch -p1
 cat $SHELLPACK_TEMP/missing_headers.patch | patch -p1
 
@@ -37,7 +37,6 @@ fi
 
 echo piobuild installed successfully
 exit $SHELLPACK_SUCCESS
-
 
 ==== BEGIN fix-multiple-definition-errors-with-GCC-10.patch ====
 From 893b2de6f83c42230850e51ac5989bcc4e4bbaff Mon Sep 17 00:00:00 2001
