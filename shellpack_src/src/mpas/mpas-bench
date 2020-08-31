@@ -1,5 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble mpas-bench v6.2
+MIRROR_LOCATION="$WEBROOT/mpas"
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --model	MPAS_MODEL
 ###SHELLPACK parseargParam --processes  MPAS_PROCESSES
@@ -30,8 +32,6 @@ export PATH=$SHELLPACK_SOURCES/mpasdeps-installed/bin:$PATH
 
 ###SHELLPACK check_install_required mpas-$VERSION
 ###SHELLPACK init_complete
-
-cd $SHELLPACK_SOURCES/mpas-$VERSION-installed/ || die "Failed to cd to mpas installation directory"
 
 case $MPAS_MODEL in
 atmosphere)
@@ -83,11 +83,10 @@ atmosphere)
     log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
     log_runtime "Run: $BENCH_CMD2"
     log_linkages $BENCH_CMD2
-	;;
+;;
 *)
 	die "Unrecognised model $MPAS_MODEL"
 esac
-
 
 monitor_pre_hook $LOGDIR_RESULTS $MPAS_MODEL
 case $MPAS_MODEL in
