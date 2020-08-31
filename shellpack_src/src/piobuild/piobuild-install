@@ -1,0 +1,152 @@
+#!/bin/bash
+###SHELLPACK preamble piobuild pio_2_5_1
+GIT_LOCATION=https://github.com/NCAR/ParallelIO.git
+MIRROR_LOCATION="$WEBROOT/parallelio/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+# Patches from upstream's git to build with GCC-10
+###SHELLPACK self_extract fix-multiple-definition-errors-with-GCC-10.patch
+###SHELLPACK self_extract missing_headers.patch
+
+export CC=mpicc
+export FC=mpif90
+export CXX=mpic++
+
+HDF5="$SHELLPACK_SOURCES/hdf5build-$HDF5_VERSION-installed"
+NETCDFC="$SHELLPACK_SOURCES/netcdfcbuild-$NETCDFC_VERSION-installed"
+NETCDFFC="$SHELLPACK_SOURCES/netcdffcbuild-$NETCDFFC_VERSION-installed"
+PNETCDF="$SHELLPACK_SOURCES/pnetcdfbuild-$PNETCDF_VERSION-installed"
+
+###SHELLPACK git_fetch piobuild-${VERSION}.tar.gz piobuild-${VERSION}
+###SHELLPACK build_start piobuild-${VERSION}
+cat $SHELLPACK_TEMP/fix-multiple-definition-errors-with-GCC-10.patch | patch -p1
+cat $SHELLPACK_TEMP/missing_headers.patch | patch -p1
+
+mkdir build
+
+###SHELLPACK build_cmake piobuild-${VERSION}/build piobuild-${VERSION} -DPIO_ENABLE_TIMING=OFF -DNetCDF_C_PATH=$NETCDFC -DNetCDF_Fortran_PATH=$NETCDFFC -DPnetCDF_PATH=$PNETCDF -DPIO_ENABLE_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$SHELLPACK_SOURCES/piobuild-${VERSION}-installed
+
+###SHELLPACK make_make_install
+
+cd $SHELLPACK_SOURCES/piobuild-${VERSION}-installed || die "Failed to change to installed directory"
+if [ "$MMTESTS_LIBDIR" = "lib64" -a -e lib ]; then
+        mv lib $MMTESTS_LIBDIR
+fi
+
+echo piobuild installed successfully
+exit $SHELLPACK_SUCCESS
+
+
+==== BEGIN fix-multiple-definition-errors-with-GCC-10.patch ====
+From 893b2de6f83c42230850e51ac5989bcc4e4bbaff Mon Sep 17 00:00:00 2001
+From: "Mark J. Olah" <markjolah@users.noreply.github.com>
+Date: Thu, 16 Jul 2020 10:45:44 -0600
+Subject: [PATCH 001/242] Fix multiple definition errors with GCC>=10.1.0 by
+ seperating definitions from declarations
+
+---
+ src/clib/CMakeLists.txt |  2 +-
+ src/clib/pio_error.c    | 21 +++++++++++++++++++++
+ src/clib/pio_error.h    |  4 ++--
+ 3 files changed, 24 insertions(+), 3 deletions(-)
+ create mode 100644 src/clib/pio_error.c
+
+diff --git a/src/clib/CMakeLists.txt b/src/clib/CMakeLists.txt
+index 7c5f26ca..9e3d932d 100644
+--- a/src/clib/CMakeLists.txt
++++ b/src/clib/CMakeLists.txt
+@@ -9,7 +9,7 @@ project (PIOC C)
+ add_library (pioc topology.c pio_file.c pioc_support.c pio_lists.c
+   pioc.c pioc_sc.c pio_spmd.c pio_rearrange.c pio_nc4.c bget.c
+   pio_nc.c pio_put_nc.c pio_get_nc.c pio_getput_int.c pio_msg.c
+-  pio_darray.c pio_darray_int.c pio_get_vard.c pio_put_vard.c)
++  pio_darray.c pio_darray_int.c pio_get_vard.c pio_put_vard.c pio_error.c)
+ 
+ # set up include-directories
+ include_directories(
+diff --git a/src/clib/pio_error.c b/src/clib/pio_error.c
+new file mode 100644
+index 00000000..8c4c2f8b
+--- /dev/null
++++ b/src/clib/pio_error.c
+@@ -0,0 +1,21 @@
++/**
++ * @file
++ * Definition for Macros to handle errors in tests or libray code.
++ * @author Ed Hartnett
++ * @date 2020
++ *
++ * @see https://github.com/NCAR/ParallelIO
++ */
++
++/**
++ * Global err buffer for MPI. When there is an MPI error, this buffer
++ * is used to store the error message that is associated with the MPI
++ * error.
++ */
++char err_buffer[MPI_MAX_ERROR_STRING];
++
++/**
++ * This is the length of the most recent MPI error message, stored
++ * int the global error string.
++ */
++int resultlen;
+diff --git a/src/clib/pio_error.h b/src/clib/pio_error.h
+index dbf71aba..78e9c26f 100644
+--- a/src/clib/pio_error.h
++++ b/src/clib/pio_error.h
+@@ -74,12 +74,12 @@
+  * is used to store the error message that is associated with the MPI
+  * error.
+  */
+-char err_buffer[MPI_MAX_ERROR_STRING];
++extern char err_buffer[MPI_MAX_ERROR_STRING];
+ 
+ /**
+  * This is the length of the most recent MPI error message, stored
+  * int the global error string.
+  */
+-int resultlen;
++extern int resultlen;
+ 
+ #endif /* __PIO_ERROR__ */
+-- 
+2.28.0
+
+==== END fix-multiple-definition-errors-with-GCC-10.patch ====
+
+==== BEGIN missing_headers.patch ====
+commit 1533e32fec0af01244498f1fc546a9b27380f3cc
+Author: Mark J. Olah <markjolah@users.noreply.github.com>
+Date:   Thu Jul 16 11:06:47 2020 -0600
+
+    Add missing headers
+
+diff --git a/src/clib/pio_error.c b/src/clib/pio_error.c
+index 8c4c2f8b..e18a2f95 100644
+--- a/src/clib/pio_error.c
++++ b/src/clib/pio_error.c
+@@ -7,6 +7,8 @@
+  * @see https://github.com/NCAR/ParallelIO
+  */
+ 
++#include <pio_error.h>
++
+ /**
+  * Global err buffer for MPI. When there is an MPI error, this buffer
+  * is used to store the error message that is associated with the MPI
+diff --git a/tests/cunit/test_common.c b/tests/cunit/test_common.c
+index 26d05f75..df5d5997 100644
+--- a/tests/cunit/test_common.c
++++ b/tests/cunit/test_common.c
+@@ -5,6 +5,7 @@
+  */
+ #include <config.h>
+ #include <pio.h>
++#include <pio_error.h>
+ #include <pio_internal.h>
+ #include <pio_tests.h>
+ 
+==== END missing_headers.patch ====
