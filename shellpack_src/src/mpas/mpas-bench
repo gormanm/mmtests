@@ -1,0 +1,115 @@
+#!/bin/bash
+###SHELLPACK preamble mpas-bench v6.2
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --model	MPAS_MODEL
+###SHELLPACK parseargParam --processes  MPAS_PROCESSES
+###SHELLPACK parseargParam --threads    MPAS_THREADS
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+install-depends curl libcurl-devel
+
+export HDF5_VERSION="hdf5-1_10_5"
+export NETCDFC_VERSION="v4.7.3"
+export NETCDFFC_VERSION="v4.5.2"
+export PNETCDF_VERSION="1.12.1"
+export PIO_VERSION="pio_2_5_1"
+
+###SHELLPACK mpi_setup_deps MPAS_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env MPAS_OPENMPI_VERSION MPAS_MPI_PATH MPAS_MPI_LIBPATH MPAS_MPI_OPTS
+###SHELLPACK mpi_setup_shmem
+
+###SHELLPACK check_external_install_required pnetcdfbuild   pnetcdfbuild-$PNETCDF_VERSION   $PNETCDF_VERSION
+###SHELLPACK check_external_install_required hdf5build      hdf5build-$HDF5_VERSION         $HDF5_VERSION
+###SHELLPACK check_external_install_required netcdfcbuild   netcdfcbuild-$NETCDFC_VERSION   $NETCDFC_VERSION
+###SHELLPACK check_external_install_required netcdffcbuild  netcdffcbuild-$NETCDFFC_VERSION $NETCDFFC_VERSION
+###SHELLPACK check_external_install_required piobuild       piobuild-$PIO_VERSION           $PIO_VERSION
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SHELLPACK_SOURCES/mpasdeps-installed/$MMTESTS_LIBDIR
+export PATH=$SHELLPACK_SOURCES/mpasdeps-installed/bin:$PATH
+
+###SHELLPACK check_install_required mpas-$VERSION
+###SHELLPACK init_complete
+
+cd $SHELLPACK_SOURCES/mpas-$VERSION-installed/ || die "Failed to cd to mpas installation directory"
+
+case $MPAS_MODEL in
+atmosphere)
+    if [ ! -f "x1.40962.static.nc" ]; then
+        file_fetch http://www2.mmm.ucar.edu/projects/mpas/real/v7.0/x1.40962.static.nc \
+            $MIRROR_LOCATION/x1.40962.static.nc \
+            x1.40962.static.nc
+    fi
+
+    if [ ! -f "cfsr.2010102300.tar.gz" ]; then
+        file_fetch http://www2.mmm.ucar.edu/projects/mpas/real/cfsr.2010102300.tar.gz \
+            $MIRROR_LOCATION/cfsr.2010102300.tar.gz \
+            cfsr.2010102300.tar.gz
+    fi
+
+    if [ ! -f "namelist_files.tar.gz" ]; then
+        file_fetch http://www2.mmm.ucar.edu/projects/mpas/real/v7.0/namelist_files.tar.gz \
+            $MIRROR_LOCATION/namelist_files.tar.gz \
+            namelist_files.tar.gz
+    fi
+
+    if [ ! -f "jw_baroclinic_wave.tar.gz" ]; then
+        file_fetch http://www2.mmm.ucar.edu/projects/mpas/test_cases/v7.0/jw_baroclinic_wave.tar.gz \
+            $MIRROR_LOCATION/jw_baroclinic_wave.tar.gz \
+            jw_baroclinic_wave.tar.gz
+    fi
+
+    tar xzf cfsr.2010102300.tar.gz
+    tar xzf namelist_files.tar.gz
+    tar xzvf jw_baroclinic_wave.tar.gz
+    mv jw_baroclinic_wave/* .
+
+    log_runtime "Run binaries"
+    for BIN in atmosphere_model init_atmosphere_model build_tables; do
+            log_linkages `find $SHELLPACK_SOURCES/mpas-$VERSION-installed/ -name $BIN`
+    done
+
+    export OMP_NUM_THREADS=$MPAS_THREADS
+    BENCH_CMD="$SHELLPACK_SOURCES/mpasdeps-installed/bin/mpirun $MPAS_MPI_OPTS $MMTESTS_MPI_OPTS -np $MPAS_PROCESSES init_atmosphere_model"
+    log_runtime "OMP_NUM_THREADS=$MPAS_THREADS"
+    log_runtime "OMP_PLACES=$OMP_PLACES"
+    log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
+    log_runtime "Run: $BENCH_CMD"
+    log_linkages $BENCH_CMD
+
+    BENCH_CMD2="$SHELLPACK_SOURCES/mpasdeps-installed/bin/mpirun $MPAS_MPI_OPTS $MMTESTS_MPI_OPTS -np $MPAS_PROCESSES atmosphere_model"
+    log_runtime "OMP_NUM_THREADS=$MPAS_THREADS"
+    log_runtime "OMP_PLACES=$OMP_PLACES"
+    log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
+    log_runtime "Run: $BENCH_CMD2"
+    log_linkages $BENCH_CMD2
+	;;
+*)
+	die "Unrecognised model $MPAS_MODEL"
+esac
+
+
+monitor_pre_hook $LOGDIR_RESULTS $MPAS_MODEL
+case $MPAS_MODEL in
+atmosphere)
+    eval $TIME_CMD -o $LOGDIR_RESULTS/init_atmosphere_model-time.$MPAS_MODEL \
+            $BENCH_CMD 2>&1 | tee $LOGDIR_RESULTS/init_atmosphere_model-log.$MPAS_MODEL
+    RET=$?
+    gzip $LOGDIR_RESULTS/init_atmosphere_model-log.$MPAS_MODEL
+    if [ $RET -ne 0 ]; then
+            die "Failed to execute $BENCH_CMD"
+    fi
+
+    eval $TIME_CMD -o $LOGDIR_RESULTS/atmosphere_model-time.$MPAS_MODEL \
+                $BENCH_CMD2 2>&1 | tee $LOGDIR_RESULTS/atmosphere_model-log.$MPAS_MODEL
+    RET=$?
+    gzip $LOGDIR_RESULTS/atmosphere_model-log.$MPAS_MODEL
+    if [ $RET -ne 0 ]; then
+            die "Failed to execute $BENCH_CMD2"
+    fi
+    ;;
+*)
+        die "Unrecognised model $MPAS_MODEL"
+esac
+
+monitor_post_hook $LOGDIR_RESULTS $MPAS_MODEL
