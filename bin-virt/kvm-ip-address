@@ -45,8 +45,9 @@ while [ "$GUEST_IP" = "" ]; do
 	fi
 	if [ "`which arp 2> /dev/null`" != "" ]; then
 		GUEST_IP=`arp -an | grep "$MAC_ADDRESS" | awk '{ gsub(/[\(\)]/,"",$2); print $2 }'`
+	else
+		GUEST_IP=`ip n show | grep "$MAC_ADDRESS" | awk '{print $1}'`
 	fi
-	GUEST_IP=`ip n show | grep "$MAC_ADDRESS" | awk '{print $1}'`
 	if [ "$GUEST_IP" = "" ]; then
 		sleep 10
 	fi
