@@ -15,14 +15,13 @@ MIRROR_LOCATION="$WEBROOT/mpas/"
 # Additional configuration to build MPAS in both x86_64 and aaarch64:
 #- removes -m64
 #- use $(MMTESTS_LIBDIR) instead of "lib"
-sed -i -e "s/\-m64 //" Makefile
-sed -i -e "s/FFLAGS_PROMOTION = .*/FFLAGS_PROMOTION = -fdefault-real-8 -fdefault-double-8\" \\/" Makefile
+sed -i -e "s/\-m64//" Makefile
 sed -i -e "s/-L\$(PNETCDF)\/lib/-L\$(PNETCDF)\/$MMTESTS_LIBDIR/" Makefile
 
 # gcc-10 requirements
 # - adds -fallow-invalid-boz
 if [ "$MMTESTS_TOOLCHAIN" = "gcc-10" ]; then
-	sed -i -e 's/^FFLAGS_PROMOTION =/&  -fallow-invalid-boz//' Makefile
+	sed -i -e 's/FFLAGS_PROMOTION = /& -fallow-invalid-boz /' Makefile
 fi
 
 export PIO="$SHELLPACK_SOURCES/mpasdeps-installed"
