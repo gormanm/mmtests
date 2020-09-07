@@ -3,11 +3,13 @@
 GIT_LOCATION=https://github.com/MPAS-Dev/MPAS-Model
 MIRROR_LOCATION="$WEBROOT/mpas/"
 
+if [ "$MPAS_OPENMPI_VERSION" != "" ]; then
+    ###SHELLPACK mpi_setup_deps MPAS_OPENMPI_VERSION
+    ###SHELLPACK mpi_setup_env MPAS_OPENMPI_VERSION MPAS_MPI_PATH MPAS_MPI_LIBPATH
+fi
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
-
-###SHELLPACK mpi_setup_deps MPAS_OPENMPI_VERSION
-###SHELLPACK mpi_setup_env MPAS_OPENMPI_VERSION MPAS_MPI_PATH MPAS_MPI_LIBPATH
 
 ###SHELLPACK git_fetch mpas-${VERSION}.tar.gz mpas-${VERSION}-installed
 ###SHELLPACK build_start mpas-${VERSION}-installed
@@ -27,15 +29,8 @@ fi
 export PIO="$SHELLPACK_SOURCES/mpasdeps-installed"
 export PNETCDF="$SHELLPACK_SOURCES/mpasdeps-installed"
 
-
-case $MPAS_MODEL in
-atmosphere)
-    ###SHELLPACK make gfortran CORE=init_atmosphere USE_PIO2=true
-    ###SHELLPACK make gfortran CORE=atmosphere USE_PIO2=true AUTOCLEAN=true
-    ;;
-*)
-	die "Unrecognised model $MPAS_MODEL, failed to build"
-esac
+###SHELLPACK make gfortran CORE=init_atmosphere USE_PIO2=true
+###SHELLPACK make gfortran CORE=atmosphere USE_PIO2=true AUTOCLEAN=true
 
 echo mpas installed successfully
 exit $SHELLPACK_SUCCESS
