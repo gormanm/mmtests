@@ -20,9 +20,9 @@ sub extractReport() {
 
 	my @files = <$reportDir/*model-time.*>;
 	my @stages;
-	foreach my $file (@files) {
+	foreach my $file (reverse @files) {
 		my $stage;
-		if ($file =~ /\/init_atomosphere_model-time/) {
+		if ($file =~ /\/init_atmosphere_model-time/) {
 			$stage = "init";
 		}
 		if ($file =~ /\/atmosphere_model-time/) {
@@ -34,7 +34,7 @@ sub extractReport() {
 	}
 
 	my @ratioops;
-	foreach my $stage (@stages) {
+	foreach my $stage (sort @stages) {
 		push @ratioops, "elsp-$stage";
 	}
 }
