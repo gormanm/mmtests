@@ -64,13 +64,9 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	sed -i '/immutable_stream name="lbc_in"/,/input_interval="none"/d'  streams.atmosphere
 fi
 
-###SHELLPACK init_complete
-
 PREPARE_CMD="$MPIRUN init_atmosphere_model"
-log_runtime "OMP_NUM_THREADS=$MPAS_THREADS"
-log_runtime "OMP_PLACES=$OMP_PLACES"
-log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
-log_runtime "Run: $PREPARE_CMD"
+
+###SHELLPACK init_complete
 
 BENCH_CMD="$MPIRUN -np $MPAS_PROCESSES atmosphere_model"
 log_runtime "OMP_NUM_THREADS=$MPAS_THREADS"
@@ -83,23 +79,25 @@ for BIN in atmosphere_model init_atmosphere_model build_tables; do
 	log_linkages `find $SHELLPACK_SOURCES/mpas-$VERSION-installed/ -name $BIN`
 done
 
-monitor_pre_hook $LOGDIR_RESULTS $MPAS_MODEL
-
+# Prepare
+monitor_pre_hook $LOGDIR_RESULTS $MPAS_MODEL-prepare
 eval $TIME_CMD -o $LOGDIR_RESULTS/init_atmosphere_model-time.$MPAS_MODEL \
 	$PREPARE_CMD 2>&1 | tee $LOGDIR_RESULTS/init_atmosphere_model-log.$MPAS_MODEL
 RET=$?
 if [ $RET -ne 0 ]; then
 	die "Failed to execute $PREPARE_CMD"
 fi
+monitor_post_hook $LOGDIR_RESULTS $MPAS_MODEL-prepare
 
+# Benchmark
+monitor_pre_hook $LOGDIR_RESULTS $MPAS_MODEL-bench
 eval $TIME_CMD -o $LOGDIR_RESULTS/atmosphere_model-time.$MPAS_MODEL \
 	$BENCH_CMD 2>&1 | tee $LOGDIR_RESULTS/atmosphere_model-log.$MPAS_MODEL
 RET=$?
 if [ $RET -ne 0 ]; then
 	die "Failed to execute $BENCH_CMD"
 fi
-
-monitor_post_hook $LOGDIR_RESULTS $MPAS_MODEL
+monitor_post_hook $LOGDIR_RESULTS $MPAS_MODEL-bench
 
 gzip $LOGDIR_RESULTS/init_atmosphere_model-log.$MPAS_MODEL
 gzip $LOGDIR_RESULTS/atmosphere_model-log.$MPAS_MODEL
