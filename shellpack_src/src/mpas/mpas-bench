@@ -74,14 +74,14 @@ mpas_prepare() {
 	fi
 }
 
-PREPARE_CMD="$MPIRUN init_atmosphere_model"
+PREPARE_CMD="$MPIRUN ./init_atmosphere_model"
 if [ "$MPAS_PREPARE" = "yes" ]; then
 	mpas_prepare
 fi
 
 ###SHELLPACK init_complete
 
-BENCH_CMD="$MPIRUN -np $MPAS_PROCESSES atmosphere_model"
+BENCH_CMD="$MPIRUN -np $MPAS_PROCESSES ./atmosphere_model"
 log_runtime "OMP_NUM_THREADS=$MPAS_THREADS"
 log_runtime "OMP_PLACES=$OMP_PLACES"
 log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
