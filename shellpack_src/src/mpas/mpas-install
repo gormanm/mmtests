@@ -29,8 +29,8 @@ fi
 export PIO="$SHELLPACK_SOURCES/mpasdeps-installed"
 export PNETCDF="$SHELLPACK_SOURCES/mpasdeps-installed"
 
-###SHELLPACK make gfortran CORE=init_atmosphere USE_PIO2=true
-###SHELLPACK make gfortran CORE=atmosphere USE_PIO2=true AUTOCLEAN=true
+###SHELLPACK make gfortran CORE=init_atmosphere USE_PIO2=true OPENMP=true
+###SHELLPACK make gfortran CORE=atmosphere USE_PIO2=true AUTOCLEAN=true OPENMP=true
 
 echo mpas installed successfully
 exit $SHELLPACK_SUCCESS
