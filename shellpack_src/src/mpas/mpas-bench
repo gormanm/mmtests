@@ -37,33 +37,34 @@ export PATH=$SHELLPACK_SOURCES/mpasdeps-installed/bin:$PATH
 
 ###SHELLPACK check_install_required_continue mpas-$VERSION
 
-if [ "$INSTALL_ONLY" = "yes" ]; then
+if [ "$INSTALL_ONLY" = "yes" -o ! -d model-$MPAS_MODEL ]; then
 	case $MPAS_MODEL in
 	jwbaroclinic)
 		file_fetch http://www2.mmm.ucar.edu/projects/mpas/test_cases/v7.0/jw_baroclinic_wave.tar.gz \
 			$MIRROR_LOCATION/jw_baroclinic_wave.tar.gz \
-			jw_baroclinic_wave.tar.gz
+			$SHELLPACK_SOURCES/jw_baroclinic_wave.tar.gz
 
-		tar xzvf jw_baroclinic_wave.tar.gz
-		mv jw_baroclinic_wave/* .
+		tar xf $SHELLPACK_SOURCES/jw_baroclinic_wave.tar.gz
+		mv jw_baroclinic_wave model-$MPAS_MODEL
 		;;
 	supercell)
 		file_fetch http://www2.mmm.ucar.edu/projects/mpas/test_cases/v7.0/supercell.tar.gz \
 			$MIRROR_LOCATION/supercell.tar.gz \
-			supercell.tar.gz
+			$SHELLPACK_SOURCES/supercell.tar.gz
 
-		tar xzvf supercell.tar.gz
-		mv supercell/* .
+		tar xf $SHELLPACK_SOURCES/supercell.tar.gz
+		mv supercell model-$MPAS_MODEL
 		;;
 	*)
 		die "Unrecognised model $MPAS_MODEL"
 	esac
 
 	# Remove lbc lines in all input files
-	sed -i '/immutable_stream name="lbc"/,/output_interval="none"/d'  streams.init_atmosphere
-	sed -i '/immutable_stream name="lbc_in"/,/input_interval="none"/d'  streams.atmosphere
+	sed -i '/immutable_stream name="lbc"/,/output_interval="none"/d'   model-$MPAS_MODEL/streams.init_atmosphere
+	sed -i '/immutable_stream name="lbc_in"/,/input_interval="none"/d' model-$MPAS_MODEL/streams.atmosphere
 fi
 
+PREPARE_CMD="$MPIRUN ./init_atmosphere_model"
 mpas_prepare() {
 	echo Preparation: $PREPARE_CMD
 	save_rc $TIME_CMD -o init_atmosphere_model-time.$MPAS_MODEL \
@@ -74,14 +75,22 @@ mpas_prepare() {
 	fi
 }
 
-PREPARE_CMD="$MPIRUN ./init_atmosphere_model"
+# Prepare model directory for execution
+cd $SHELLPACK_SOURCES/mpas-$VERSION-installed/model-$MPAS_MODEL ||
+	die "Failed to cd to model-$MPAS_MODEL"
+for BIN in init_atmosphere_model atmosphere_model; do
+	if [ ! -e $BIN ]; then
+		ln -s ../$BIN $BIN || die "Failed to symbolic link $BIN"
+	fi
+done
+
 if [ "$MPAS_PREPARE" = "yes" ]; then
 	mpas_prepare
 fi
 
 ###SHELLPACK init_complete
 
-BENCH_CMD="$MPIRUN -np $MPAS_PROCESSES ./atmosphere_model"
+BENCH_CMD="$MPIRUN ./atmosphere_model"
 log_runtime "OMP_NUM_THREADS=$MPAS_THREADS"
 log_runtime "OMP_PLACES=$OMP_PLACES"
 log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
@@ -105,6 +114,9 @@ else
 	monitor_post_hook $LOGDIR_RESULTS $MPAS_MODEL-prepare
 fi
 
+# Preserve prepare stdout and stderr
+tar -czf $LOGDIR_RESULTS/logs-prepare.tar.gz log.init_atmosphere.0*
+
 # Benchmark
 monitor_pre_hook $LOGDIR_RESULTS $MPAS_MODEL-bench
 echo Benchmark: $BENCH_CMD
@@ -118,5 +130,6 @@ monitor_post_hook $LOGDIR_RESULTS $MPAS_MODEL-bench
 
 gzip $LOGDIR_RESULTS/init_atmosphere_model-log.$MPAS_MODEL 2> /dev/null
 gzip $LOGDIR_RESULTS/atmosphere_model-log.$MPAS_MODEL
+tar -czf $LOGDIR_RESULTS/logs-bench.tar.gz log.atmosphere.0*
 
 exit $SHELLPACK_SUCCESS
