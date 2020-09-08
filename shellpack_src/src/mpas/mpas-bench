@@ -35,38 +35,34 @@ fi
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SHELLPACK_SOURCES/mpasdeps-installed/$MMTESTS_LIBDIR
 export PATH=$SHELLPACK_SOURCES/mpasdeps-installed/bin:$PATH
 
-###SHELLPACK check_install_required mpas-$VERSION
+###SHELLPACK check_install_required_continue mpas-$VERSION
 
-case $MPAS_MODEL in
-jwbaroclinic)
-
-	if [ ! -f "jw_baroclinic_wave.tar.gz" ]; then
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	case $MPAS_MODEL in
+	jwbaroclinic)
 		file_fetch http://www2.mmm.ucar.edu/projects/mpas/test_cases/v7.0/jw_baroclinic_wave.tar.gz \
 			$MIRROR_LOCATION/jw_baroclinic_wave.tar.gz \
 			jw_baroclinic_wave.tar.gz
-	fi
 
-	tar xzvf jw_baroclinic_wave.tar.gz
-	mv jw_baroclinic_wave/* .
-;;
-supercell)
-
-	if [ ! -f "supercell.tar.gz" ]; then
+		tar xzvf jw_baroclinic_wave.tar.gz
+		mv jw_baroclinic_wave/* .
+		;;
+	supercell)
 		file_fetch http://www2.mmm.ucar.edu/projects/mpas/test_cases/v7.0/supercell.tar.gz \
 			$MIRROR_LOCATION/supercell.tar.gz \
 			supercell.tar.gz
-	fi
 
-	tar xzvf supercell.tar.gz
-	mv supercell/* .
-;;
-*)
-	die "Unrecognised model $MPAS_MODEL"
-esac
+		tar xzvf supercell.tar.gz
+		mv supercell/* .
+		;;
+	*)
+		die "Unrecognised model $MPAS_MODEL"
+	esac
 
-# Remove lbc lines in all input files
-sed -i '/immutable_stream name="lbc"/,/output_interval="none"/d'  streams.init_atmosphere
-sed -i '/immutable_stream name="lbc_in"/,/input_interval="none"/d'  streams.atmosphere
+	# Remove lbc lines in all input files
+	sed -i '/immutable_stream name="lbc"/,/output_interval="none"/d'  streams.init_atmosphere
+	sed -i '/immutable_stream name="lbc_in"/,/input_interval="none"/d'  streams.atmosphere
+fi
 
 ###SHELLPACK init_complete
 
