@@ -64,7 +64,20 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	sed -i '/immutable_stream name="lbc_in"/,/input_interval="none"/d'  streams.atmosphere
 fi
 
+mpas_prepare() {
+	echo Preparation: $PREPARE_CMD
+	save_rc $TIME_CMD -o init_atmosphere_model-time.$MPAS_MODEL \
+		$PREPARE_CMD 2>&1 | tee init_atmosphere_model-log.$MPAS_MODEL
+	recover_rc
+	if [ $? -ne 0 ]; then
+		die "Failed to execute $PREPARE_CMD"
+	fi
+}
+
 PREPARE_CMD="$MPIRUN init_atmosphere_model"
+if [ "$MPAS_PREPARE" = "yes" ]; then
+	mpas_prepare
+fi
 
 ###SHELLPACK init_complete
 
@@ -79,27 +92,31 @@ for BIN in atmosphere_model init_atmosphere_model build_tables; do
 	log_linkages `find $SHELLPACK_SOURCES/mpas-$VERSION-installed/ -name $BIN`
 done
 
-# Prepare
-monitor_pre_hook $LOGDIR_RESULTS $MPAS_MODEL-prepare
-eval $TIME_CMD -o $LOGDIR_RESULTS/init_atmosphere_model-time.$MPAS_MODEL \
-	$PREPARE_CMD 2>&1 | tee $LOGDIR_RESULTS/init_atmosphere_model-log.$MPAS_MODEL
-RET=$?
-if [ $RET -ne 0 ]; then
-	die "Failed to execute $PREPARE_CMD"
+# Finalise preparation
+if [ "$MPAS_PREPARE" = "yes" ]; then
+	# Move log if preparation took place at installation time. Note
+	# that time is not moved. If it was prepared in advance then the
+	# time to prepare is not interesting for benchmarking purposes.
+	mv init_atmosphere_model-log.$MPAS_MODEL $LOGDIR_RESULTS/ 2> /dev/null
+else
+	# Prepare now
+	monitor_pre_hook $LOGDIR_RESULTS $MPAS_MODEL-prepare
+	mpas_prepare
+	monitor_post_hook $LOGDIR_RESULTS $MPAS_MODEL-prepare
 fi
-monitor_post_hook $LOGDIR_RESULTS $MPAS_MODEL-prepare
 
 # Benchmark
 monitor_pre_hook $LOGDIR_RESULTS $MPAS_MODEL-bench
-eval $TIME_CMD -o $LOGDIR_RESULTS/atmosphere_model-time.$MPAS_MODEL \
+echo Benchmark: $BENCH_CMD
+save_rc $TIME_CMD -o $LOGDIR_RESULTS/atmosphere_model-time.$MPAS_MODEL \
 	$BENCH_CMD 2>&1 | tee $LOGDIR_RESULTS/atmosphere_model-log.$MPAS_MODEL
-RET=$?
-if [ $RET -ne 0 ]; then
+recover_rc
+if [ $? -ne 0 ]; then
 	die "Failed to execute $BENCH_CMD"
 fi
 monitor_post_hook $LOGDIR_RESULTS $MPAS_MODEL-bench
 
-gzip $LOGDIR_RESULTS/init_atmosphere_model-log.$MPAS_MODEL
+gzip $LOGDIR_RESULTS/init_atmosphere_model-log.$MPAS_MODEL 2> /dev/null
 gzip $LOGDIR_RESULTS/atmosphere_model-log.$MPAS_MODEL
 
 exit $SHELLPACK_SUCCESS
