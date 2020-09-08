@@ -19,11 +19,11 @@ export PIO_VERSION="pio_2_5_1"
 
 MPIRUN=
 if [ "$MPAS_OPENMPI_VERSION" != "" ]; then
-    ###SHELLPACK mpi_setup_deps MPAS_OPENMPI_VERSION
-    ###SHELLPACK mpi_setup_env MPAS_OPENMPI_VERSION MPAS_MPI_PATH MPAS_MPI_LIBPATH MPAS_MPI_OPTS
-    ###SHELLPACK mpi_setup_shmem
-    MPIRUN="mpirun $MPAS_MPI_OPTS $MMTESTS_MPI_OPTS -np $MPAS_PROCESSES"
-    export OMP_NUM_THREADS=$MPAS_THREADS
+	###SHELLPACK mpi_setup_deps MPAS_OPENMPI_VERSION
+	###SHELLPACK mpi_setup_env MPAS_OPENMPI_VERSION MPAS_MPI_PATH MPAS_MPI_LIBPATH MPAS_MPI_OPTS
+	###SHELLPACK mpi_setup_shmem
+	MPIRUN="mpirun $MPAS_MPI_OPTS $MMTESTS_MPI_OPTS -np $MPAS_PROCESSES"
+	export OMP_NUM_THREADS=$MPAS_THREADS
 fi
 
 ###SHELLPACK check_external_install_required pnetcdfbuild   pnetcdfbuild-$PNETCDF_VERSION   $PNETCDF_VERSION
@@ -40,25 +40,25 @@ export PATH=$SHELLPACK_SOURCES/mpasdeps-installed/bin:$PATH
 case $MPAS_MODEL in
 jwbaroclinic)
 
-    if [ ! -f "jw_baroclinic_wave.tar.gz" ]; then
-        file_fetch http://www2.mmm.ucar.edu/projects/mpas/test_cases/v7.0/jw_baroclinic_wave.tar.gz \
-            $MIRROR_LOCATION/jw_baroclinic_wave.tar.gz \
-            jw_baroclinic_wave.tar.gz
-    fi
+	if [ ! -f "jw_baroclinic_wave.tar.gz" ]; then
+		file_fetch http://www2.mmm.ucar.edu/projects/mpas/test_cases/v7.0/jw_baroclinic_wave.tar.gz \
+			$MIRROR_LOCATION/jw_baroclinic_wave.tar.gz \
+			jw_baroclinic_wave.tar.gz
+	fi
 
-    tar xzvf jw_baroclinic_wave.tar.gz
-    mv jw_baroclinic_wave/* .
+	tar xzvf jw_baroclinic_wave.tar.gz
+	mv jw_baroclinic_wave/* .
 ;;
 supercell)
 
-    if [ ! -f "supercell.tar.gz" ]; then
-        file_fetch http://www2.mmm.ucar.edu/projects/mpas/test_cases/v7.0/supercell.tar.gz \
-            $MIRROR_LOCATION/supercell.tar.gz \
-            supercell.tar.gz
-    fi
+	if [ ! -f "supercell.tar.gz" ]; then
+		file_fetch http://www2.mmm.ucar.edu/projects/mpas/test_cases/v7.0/supercell.tar.gz \
+			$MIRROR_LOCATION/supercell.tar.gz \
+			supercell.tar.gz
+	fi
 
-    tar xzvf supercell.tar.gz
-    mv supercell/* .
+	tar xzvf supercell.tar.gz
+	mv supercell/* .
 ;;
 *)
 	die "Unrecognised model $MPAS_MODEL"
@@ -84,23 +84,23 @@ log_runtime "Run: $BENCH_CMD2"
 
 log_runtime "Run binaries"
 for BIN in atmosphere_model init_atmosphere_model build_tables; do
-    log_linkages `find $SHELLPACK_SOURCES/mpas-$VERSION-installed/ -name $BIN`
+	log_linkages `find $SHELLPACK_SOURCES/mpas-$VERSION-installed/ -name $BIN`
 done
 
 monitor_pre_hook $LOGDIR_RESULTS $MPAS_MODEL
 
 eval $TIME_CMD -o $LOGDIR_RESULTS/init_atmosphere_model-time.$MPAS_MODEL \
-    $BENCH_CMD 2>&1 | tee $LOGDIR_RESULTS/init_atmosphere_model-log.$MPAS_MODEL
+	$BENCH_CMD 2>&1 | tee $LOGDIR_RESULTS/init_atmosphere_model-log.$MPAS_MODEL
 RET=$?
 if [ $RET -ne 0 ]; then
-    die "Failed to execute $BENCH_CMD"
+	die "Failed to execute $BENCH_CMD"
 fi
 
 eval $TIME_CMD -o $LOGDIR_RESULTS/atmosphere_model-time.$MPAS_MODEL \
-    $BENCH_CMD2 2>&1 | tee $LOGDIR_RESULTS/atmosphere_model-log.$MPAS_MODEL
+	$BENCH_CMD2 2>&1 | tee $LOGDIR_RESULTS/atmosphere_model-log.$MPAS_MODEL
 RET=$?
 if [ $RET -ne 0 ]; then
-    die "Failed to execute $BENCH_CMD2"
+	die "Failed to execute $BENCH_CMD2"
 fi
 
 monitor_post_hook $LOGDIR_RESULTS $MPAS_MODEL
