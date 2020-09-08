@@ -101,18 +101,14 @@ for BIN in atmosphere_model init_atmosphere_model build_tables; do
 	log_linkages `find $SHELLPACK_SOURCES/mpas-$VERSION-installed/ -name $BIN`
 done
 
-# Finalise preparation
-if [ "$MPAS_PREPARE" = "yes" ]; then
-	# Move log if preparation took place at installation time. Note
-	# that time is not moved. If it was prepared in advance then the
-	# time to prepare is not interesting for benchmarking purposes.
-	mv init_atmosphere_model-log.$MPAS_MODEL $LOGDIR_RESULTS/ 2> /dev/null
-else
-	# Prepare now
+# Prepare if it was not done at installation time
+if [ "$MPAS_PREPARE" != "yes" ]; then
 	monitor_pre_hook $LOGDIR_RESULTS $MPAS_MODEL-prepare
 	mpas_prepare
 	monitor_post_hook $LOGDIR_RESULTS $MPAS_MODEL-prepare
+	mv init_atmosphere_model-time.$MPAS_MODEL $LOGDIR_RESULTS/
 fi
+mv init_atmosphere_model-log.$MPAS_MODEL $LOGDIR_RESULTS/ 2> /dev/null
 
 # Preserve prepare stdout and stderr
 tar -czf $LOGDIR_RESULTS/logs-prepare.tar.gz log.init_atmosphere.0*
