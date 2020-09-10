@@ -84,7 +84,7 @@ for BIN in init_atmosphere_model atmosphere_model; do
 	fi
 done
 
-if [ "$MPAS_PREPARE" = "yes" ]; then
+if [ "$INSTALL_ONLY" = "yes" -a "$MPAS_PREPARE" = "yes" ]; then
 	mpas_prepare
 fi
 

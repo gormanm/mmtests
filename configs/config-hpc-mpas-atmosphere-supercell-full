@@ -44,3 +44,5 @@ export MPAS_MPI_OPTS
 if [ ! -e /etc/SUSE-brand ]; then
 	export MMTESTS_MPI_SELFBUILD=yes
 fi
+
+export MPAS_PREPARE=yes
