@@ -1,7 +1,7 @@
 #!/bin/bash
 # reaim installer
 ###SHELLPACK preamble reaim-install 7.0.1.13
-WEB_LOCATION=https://10gbps-io.dl.sourceforge.net/project/re-aim-7/re-aim
+WEB_LOCATION=https://downloads.sourceforge.net/project/re-aim-7/re-aim
 MIRROR_LOCATION="$WEBROOT/reaim/"
 
 install-depends libaio-devel
