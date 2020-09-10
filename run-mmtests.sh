@@ -625,19 +625,26 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 		mmtests_wait_token "test_do"
 
-		# Create memory control group if requested
+		declare -ax CGROUP_TASKS
 		if [ "$CGROUP_MEMORY_SIZE" != "" ]; then
 			mkdir -p /sys/fs/cgroup/memory/0 || die "Failed to create memory cgroup"
 			echo $CGROUP_MEMORY_SIZE > /sys/fs/cgroup/memory/0/memory.limit_in_bytes || die "Failed to set memory limit"
-			echo $$ > /sys/fs/cgroup/memory/0/tasks
 			echo Memory limit configured: `cat /sys/fs/cgroup/memory/0/memory.limit_in_bytes`
+			CGROUP_TASKS[0]=/sys/fs/cgroup/memory/0/tasks
 		fi
 
 		if [ "$CGROUP_CPU_TAG" != "" ]; then
 			mkdir -p /sys/fs/cgroup/cpu/0 || die "Failed to create cpu cgroup"
 			echo $CGROUP_CPU_TAG > /sys/fs/cgroup/cpu/0/cpu.tag || die "Failed to create CPU sched tag"
 			echo CPU Tags set: `cat /sys/fs/cgroup/cpu/0/cpu.tag`
-			bash -c "echo \$$ > /sys/fs/cgroup/cpu/0/tasks && /usr/bin/time -f \"time :: $TEST %U user %S system %e elapsed\" \
+			CGROUP_TASKS[1]=/sys/fs/cgroup/cpu/0/tasks
+		fi
+		declare -p | grep "\-ax" > $SCRIPTDIR/bash_arrays
+
+		if [ ${#CGROUP_TASKS[@]} -gt 0 ]; then
+			bash -c "source $SCRIPTDIR/bash_arrays;
+				for i in \${!CGROUP_TASKS[@]}; do echo \$$ > \${CGROUP_TASKS[\$i]}; done &&
+				/usr/bin/time -f \"time :: $TEST %U user %S system %e elapsed\" \
 				-o $SHELLPACK_LOG/timestamp ./bin/run-single-test.sh $TEST"
 		else
 			/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
