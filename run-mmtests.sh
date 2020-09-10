@@ -555,14 +555,6 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		echo Numad started: pid $NUMAD_PID
 	fi
 
-	# Create memory control group if requested
-	if [ "$CGROUP_MEMORY_SIZE" != "" ]; then
-		mkdir -p /sys/fs/cgroup/memory/0 || die "Failed to create memory cgroup"
-		echo $CGROUP_MEMORY_SIZE > /sys/fs/cgroup/memory/0/memory.limit_in_bytes || die "Failed to set memory limit"
-		echo $$ > /sys/fs/cgroup/memory/0/tasks
-		echo Memory limit configured: `cat /sys/fs/cgroup/memory/0/memory.limit_in_bytes`
-	fi
-
 	EXIT_CODE=$SHELLPACK_SUCCESS
 
 	# Run tests in single mode
@@ -632,6 +624,14 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		start_monitors
 
 		mmtests_wait_token "test_do"
+
+		# Create memory control group if requested
+		if [ "$CGROUP_MEMORY_SIZE" != "" ]; then
+			mkdir -p /sys/fs/cgroup/memory/0 || die "Failed to create memory cgroup"
+			echo $CGROUP_MEMORY_SIZE > /sys/fs/cgroup/memory/0/memory.limit_in_bytes || die "Failed to set memory limit"
+			echo $$ > /sys/fs/cgroup/memory/0/tasks
+			echo Memory limit configured: `cat /sys/fs/cgroup/memory/0/memory.limit_in_bytes`
+		fi
 
 		if [ "$CGROUP_CPU_TAG" != "" ]; then
 			mkdir -p /sys/fs/cgroup/cpu/0 || die "Failed to create cpu cgroup"
