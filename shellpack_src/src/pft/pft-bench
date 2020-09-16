@@ -21,7 +21,7 @@ if [ $PFT_MAX_CLIENTS -gt 128 ]; then
 fi
 
 cd $SHELLPACK_SOURCES/pft-${VERSION}-installed || die Failed to cd to pft directory
-###SHELLPACK threads_large_stride_begin 1 $PFT_MAX_CLIENTS
+###SHELLPACK threads_large_stride_begin $PFT_MIN_CLIENTS $PFT_MAX_CLIENTS
 	mmtests_activity client ${NR_THREADS}
 	monitor_pre_hook $LOGDIR_RESULTS ${NR_THREADS}
 	echo -n > $LOGDIR_RESULTS/pft-${NR_THREADS}.log
