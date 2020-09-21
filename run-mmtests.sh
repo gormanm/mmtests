@@ -140,7 +140,7 @@ done
 # Remove stale bash_arrays file
 rm -f $SCRIPTDIR/bash_arrays
 
-# Remove stale shallpacks
+# Remove stale shellpacks
 rm -f $SCRIPTDIR/shellpacks/shellpack-*
 
 # Remove stale merged install directories
@@ -625,11 +625,10 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 		mmtests_wait_token "test_do"
 
-		cgroups-setup.sh
-		source $SCRIPTDIR/bash_arrays
+		setup_cgroups
+		export cg_tasks=${CGROUP_TASKS[@]}
 		if [ ${#CGROUP_TASKS[@]} -gt 0 ]; then
-			bash -c "source $SCRIPTDIR/bash_arrays;
-				for i in \${!CGROUP_TASKS[@]}; do echo \$$ > \${CGROUP_TASKS[\$i]}; done &&
+			bash -c "for i in $cg_tasks; do echo \$$ > \${i}; done &&
 				/usr/bin/time -f \"time :: $TEST %U user %S system %e elapsed\" \
 				-o $SHELLPACK_LOG/timestamp ./bin/run-single-test.sh $TEST"
 		else
