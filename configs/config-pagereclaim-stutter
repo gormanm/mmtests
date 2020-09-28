@@ -3,11 +3,7 @@
 ### The primary metric is checking for mmap latency.
 
 # MM Test Parameters
-if [ "`uname -m`" != "aarch64" ]; then
-	export MMTESTS="lmbench stutter parallelio"
-else
-	export MMTESTS="lmbench stutter"
-fi
+export MMTESTS="stutter"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
