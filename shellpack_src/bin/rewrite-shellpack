@@ -505,8 +505,10 @@ if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
 	\$SHELLPACK_INCLUDE/shellpack-install-$externalpack -v $version @other || die $externalpack install script returned error
 	mmtests_activity source-installed
 fi
-INSTALL_BASENAME=`echo \$P | awk -F - '{print \$1}'`
-###SHELLPACK install_merge $srcdir \${INSTALL_BASENAME}deps-installed
+if [ "\$INSTALL_DEPS_NOMERGE" != "yes" ]; then
+	INSTALL_BASENAME=`echo \$P | awk -F - '{print \$1}'`
+	###SHELLPACK install_merge $srcdir \${INSTALL_BASENAME}deps-installed
+fi
 cd \$SHELLPACK_SOURCES/$externalpack-$version-installed || die Failed to cd to $externalpack install directory
 EOC
 	} elsif ($command eq "init_only_start") {
