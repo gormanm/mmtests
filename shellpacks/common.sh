@@ -21,7 +21,7 @@ NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
 LLC_INDEX=`find /sys/devices/system/cpu/ -type d -name "index*" | sed -e 's/.*index//' | sort -n | tail -1`
 NUMLLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort | uniq | wc -l`
 
-WGET_SHOW_PROGRESS="--show-progress"
+WGET_SHOW_PROGRESS="--show-progress --progress=bar:force:noscroll"
 wget --help | grep -q show-progress
 if [ $? -ne 0 ]; then
 	WGET_SHOW_PROGRESS=
@@ -204,6 +204,44 @@ function recover_rc() {
 	( exit $EXIT_CODE )
 }
 
+# Optionally create a mirror on the testdisk. This is necessary when
+# the tarballs are too large to fit on the test partition after expansion.
+# It assumes that a mirror is no more than one directory deep
+function update_local_mirror() {
+	MIRROR=$1
+
+	if [ "$MIRROR_LOCATION" = "" ]; then
+		return
+	fi
+	if [ "$MMTESTS_CREATE_MIRROR" != "yes" ]; then
+		return
+	fi
+
+	WEBROOT_ESCAPED=`echo "$WEBROOT" | sed -e 's/\//\\\\\//g'`
+	MIRROR=`echo $MIRROR | sed -e "s/$WEBROOT_ESCAPED//" -e 's/^\/*//' -e 's/\/\//\//g'`
+	MIRROR_FILE=`basename $MIRROR`
+	MIRROR_DIR=`echo $MIRROR | sed -e "s/\/$MIRROR_FILE$//"`
+
+	if [ ! -e $SHELLPACK_SOURCES/$MIRROR_FILE ]; then
+		return
+	fi
+
+	if [ "$MIRROR_ON_TESTDISK" = "yes" ]; then
+		mkdir -p $SHELLPACK_TEST_MOUNT/mirror
+		rm -f $SHELLPACK_LOCAL_MIRROR
+		if [ -e $SHELLPACK_LOCAL_MIRROR ]; then
+			die "Unexpected trailing mirror"
+		fi
+		ln -s $SHELLPACK_TEST_MOUNT/mirror $SHELLPACK_LOCAL_MIRROR
+	else
+		mkdir -p $SHELLPACK_LOCAL_MIRROR
+	fi
+
+	mkdir -p $SHELLPACK_LOCAL_MIRROR/$MIRROR_DIR
+	mv $SHELLPACK_SOURCES/$MIRROR_FILE $SHELLPACK_LOCAL_MIRROR/$MIRROR_DIR || die "Failed to move $MIRROR_FILE to mirror"
+	ln -s $SHELLPACK_LOCAL_MIRROR/$MIRROR $SHELLPACK_SOURCES/$MIRROR_FILE || die "Failed to symbolic link to sources"
+}
+
 function file_fetch() {
 	WEB=$1
 	MIRROR=$2
@@ -213,10 +251,11 @@ function file_fetch() {
 		echo Downloaded file already available at $OUTPUT
 		return
 	fi
+	rm -f $OUTPUT
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $MIRROR
+		wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $MIRROR
 	fi
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$WEB" = "NOT_AVAILABLE" ]; then
@@ -224,11 +263,12 @@ function file_fetch() {
 		fi
 
 		echo "$P: Fetching from internet $WEB"
-		wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $WEB
+		wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $WEB
 		if [ $? -ne 0 ]; then
 			die "$P: Could not download $WEB"
 		fi
 	fi
+	update_local_mirror $MIRROR
 }
 
 function sources_fetch() {
@@ -241,10 +281,11 @@ function sources_fetch() {
 		echo Downloaded file already available at $OUTPUT
 		return
 	fi
+	rm -f $OUTPUT
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $MIRROR
+		wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $MIRROR
 	fi
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$WEB" = "NOT_AVAILABLE" ]; then
@@ -252,18 +293,19 @@ function sources_fetch() {
 		fi
 
 		echo "$P: Fetching from internet $WEB"
-		wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $WEB
+		wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $WEB
 		if [ $? -ne 0 ]; then
 			if [ "$WEB_ALT" = "" ]; then
 				die "$P: Could not download $WEB"
 			fi
 			echo "$P: Fetching from alt internet $WEB_ALT"
-			wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $WEB_ALT
+			wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $WEB_ALT
 			if [ $? -ne 0 ]; then
 				die "$P: Could not download $WEB_ALT"
 			fi
 		fi
 	fi
+	update_local_mirror $MIRROR
 }
 
 function git_commit_exists() {
@@ -291,7 +333,7 @@ function git_fetch() {
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $MIRROR
+		wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $MIRROR
 	fi
 
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
@@ -315,6 +357,8 @@ function git_fetch() {
 		git archive --format=tar --prefix=$TREE/ $COMMIT | gzip -c > $OUTPUT
 		cd -
 	fi
+
+	update_local_mirror $MIRROR
 }
 
 function hg_fetch() {
@@ -326,7 +370,7 @@ function hg_fetch() {
 	install-depends mercurial
 
 	echo "$P: Fetching from mirror $MIRROR"
-	wget -q $WGET_SHOW_PROGRESS --progress=bar:force:noscroll -O $OUTPUT $MIRROR
+	wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $MIRROR
 	if [ $? -ne 0 ]; then
 		if [ "$HG" = "NOT_AVAILABLE" ]; then
 			die Benchmark is not publicly available. You must make it available from a local mirror
