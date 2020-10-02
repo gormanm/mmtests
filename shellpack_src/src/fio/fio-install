@@ -12,12 +12,12 @@ install-depends glibc-devel
 ###SHELLPACK sources_fetch fio-${VERSION}.tar.bz2 fio-${VERSION}-installed
 
 ###SHELLPACK build_start fio-${VERSION}-installed
-###SHELLPACK self_extract mutex-fix-double-unlock.patch
-cat $SHELLPACK_TEMP/mutex-fix-double-unlock.patch | patch -p0
+###SHELLPACK self_extract glibc.patch
+cat $SHELLPACK_TEMP/glibc.patch | patch -p1
 make -j$NUMCPUS
 if [ $? -ne 0 ]; then
 	###SHELLPACK self_extract fio-types.patch
-	cat $SHELLPACK_TEMP/fio-types.patch | patch -p0 || die Failed to apply fio types fix
+	cat $SHELLPACK_TEMP/fio-types.patch | patch -p1 || die Failed to apply fio types fix
 	make -j$NUMCPUS
 	if [ $? -ne 0 ]; then
 		error "$P: make failed"
@@ -30,8 +30,8 @@ echo fio installed successfully
 exit $SHELLPACK_SUCCESS
 
 ==== BEGIN fio-types.patch ====
---- oslib/libmtd_legacy.c.orig	2016-05-20 15:46:59.248153123 +0200
-+++ oslib/libmtd_legacy.c	2016-05-20 15:47:03.404249326 +0200
+--- a/oslib/libmtd_legacy.c	2016-05-20 15:46:59.248153123 +0200
++++ b/oslib/libmtd_legacy.c	2016-05-20 15:47:03.404249326 +0200
 @@ -29,6 +29,7 @@
  #include <fcntl.h>
  #include <unistd.h>
@@ -41,3 +41,36 @@ exit $SHELLPACK_SUCCESS
  #include <sys/types.h>
  #include <sys/stat.h>
 ==== END fio-types.patch ====
+==== BEGIN glibc.patch ====
+--- a/os/os.h	2020-10-02 14:55:04.202737568 +0200
++++ b/os/os.h	2020-10-02 14:56:07.062735382 +0200
+@@ -348,11 +348,13 @@
+ #endif
+ 
+ #ifndef FIO_HAVE_GETTID
++#if __GLIBC__ == 2 && __GLIBC_MINOR__ < 30
+ static inline int gettid(void)
+ {
+ 	return getpid();
+ }
+ #endif
++#endif
+ 
+ #ifndef FIO_HAVE_SHM_ATTACH_REMOVED
+ static inline int shm_attach_to_open_removed(void)
+--- a/os/os-linux.h	2020-10-02 14:56:45.134734058 +0200
++++ b/os/os-linux.h	2020-10-02 14:56:46.650734005 +0200
+@@ -121,10 +121,12 @@
+ 	return syscall(__NR_ioprio_set, which, who, ioprio);
+ }
+ 
++#if __GLIBC__ == 2 && __GLIBC_MINOR__ < 30
+ static inline int gettid(void)
+ {
+ 	return syscall(__NR_gettid);
+ }
++#endif
+ 
+ #define SPLICE_DEF_SIZE	(64*1024)
+ 
+==== END glibc.patch ====
