@@ -12,7 +12,7 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_external_install_required usemembuild usemembuild-${VERSION}-installed ${VERSION}
+###SHELLPACK check_external_install_required usemembuild usemembuild-${VERSION} ${VERSION}
 ###SHELLPACK init_complete
 
 if [ "$USEMEM_FAKE_SWAP_MB" != "" ]; then
