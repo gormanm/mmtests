@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run perf-bench futex benchmark
 
-###SHELLPACK preamble futexbench-bench 5.1
+###SHELLPACK preamble futexbench-bench 5.8.13
 TESTTIME=15
 ITERATIONS=12
 TESTLIST=

@@ -1,10 +1,16 @@
 #!/bin/bash
 
-###SHELLPACK preamble perfbuild-install 5.1
+###SHELLPACK preamble perfbuild-install 5.8.13
 WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/v5.x"
 MIRROR_LOCATION="$WEBROOT/linux/"
 
 install-depends python3-devel bison flex
+install-depends libdw-devel
+install-depends libfdata-devel
+install-depends libnuma-devel
+install-depends python-devel
+install-depends libzstd-devel
+install-depends libunwind-devel
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -52,7 +58,7 @@ new file mode 100644
 index 000000000000..149129cca639
 --- /dev/null
 +++ b/tools/perf/bench/syscall.c
-@@ -0,0 +1,80 @@
+@@ -0,0 +1,82 @@
 +/*
 + *
 + * syscall.c
@@ -69,6 +75,8 @@ index 000000000000..149129cca639
 +#include <locale.h>
 +#include <sys/time.h>
 +#include <sys/syscall.h>
++#include <stdlib.h>
++#include <unistd.h>
 +
 +#define LOOPS_DEFAULT 10000000
 +static	int loops = LOOPS_DEFAULT;

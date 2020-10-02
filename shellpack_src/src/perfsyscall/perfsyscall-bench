@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run perf-bench syscall benchmark
 
-###SHELLPACK preamble perfsyscall-bench 5.1
+###SHELLPACK preamble perfsyscall-bench 5.8.13
 PERFSYSCALL_LOOPS=500000
 PERFSYSCALL_ITERATIONS=30
 
