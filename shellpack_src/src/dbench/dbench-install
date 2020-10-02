@@ -6,6 +6,8 @@ WEB_LOCATION=http://samba.org/ftp/tridge/dbench/
 MIRROR_LOCATION="$WEBROOT/dbench/"
 
 install-depends popt-devel zlib-devel
+install-depends rpcgen
+install-depends libtirpc-devel
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
@@ -36,6 +38,12 @@ fi
 ###SHELLPACK build_start dbench-${VERSION}
 ###SHELLPACK build_autogen dbench-${VERSION}
 ###SHELLPACK build_configure dbench-${VERSION}
+
+# Adapt for libtirpc
+if [ -e /usr/lib64/libtirpc.so -o -e /usr/lib/libtirpc.so ]; then
+	sed -i -e 's/^LIBS=.*/& -ltirpc/' Makefile
+fi
+
 ###SHELLPACK make_make_install
 
 # Fixups
