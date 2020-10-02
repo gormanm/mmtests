@@ -18,21 +18,21 @@
 
 ###SHELLPACK check_install_required pedsort-${VERSION}
 
+WORDS_CMD=$PEDSORT_DIR/generate-words.pl
+
 PEDSORT_DIR=$SHELLPACK_SOURCES/pedsort-${VERSION}-installed/psearchy/mkdb
 PEDSORT_CMD=${PEDSORT_DIR}/pedsort
 
 PEDSORT_WORDS_DIR=$PEDSORT_DIR/words # where all the files go
+mkdir -p $PEDSORT_WORDS_DIR
 
-LINECOUNT=`wc -l $0 | awk '{print $1}'`
-PSTART=`grep -n "BEGIN PERL FILE" $0 | tail -1 | awk -F : '{print $1}'`
-WORDS_CMD=$PEDSORT_DIR/generate-words.pl
-tail -$(($LINECOUNT-$PSTART)) $0 | grep -v "^###" > $WORDS_CMD
+###SHELLPACK self_extract generate-words.pl
+mv $SHELLPACK_TEMP/generate-words.pl $WORDS_CMD
 chmod a+x $WORDS_CMD
-mkdir -p  $PEDSORT_WORDS_DIR
 
 $WORDS_CMD -t $(( $NUMCPUS * 2 )) -w $PEDSORT_NFILES_WORDS -m bruit \
 	   -f $PEDSORT_NFILES -p $PEDSORT_WORDS_DIR/text-file-%d.txt ||
-    die Failed to generate words for benchmark input.
+    die "Failed to generate words for benchmark input."
 
 ls --format single-column $PEDSORT_WORDS_DIR/text-file-*.txt > $PEDSORT_WORDS_DIR/pedsort-input.txt
 
@@ -98,7 +98,7 @@ fi
 
 exit $SHELLPACK_SUCCESS
 
-==== BEGIN PERL FILE ====
+==== BEGIN generate-words.pl ====
 #!/usr/bin/perl -l
 # Generate one or more files with random words inside.
 
@@ -392,3 +392,4 @@ sub main
 
 
 exit (main(@ARGV));
+==== END generate-words.pl ====

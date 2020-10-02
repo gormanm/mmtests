@@ -15,6 +15,27 @@ install-depends python
 ###SHELLPACK git_fetch pedsort-${VERSION}.tar.gz pedsort-${VERSION}-installed
 
 ###SHELLPACK build_start pedsort-${VERSION}-installed
+###SHELLPACK self_extract glibc.patch
+cat $SHELLPACK_TEMP/glibc.patch | patch -p1 || die "Failed to patch psearchy/mkdb"
 ###SHELLPACK make -C psearchy/mkdb/
 
 echo pedsort installed successfully
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN glibc.patch ====
+--- a/psearchy/mkdb/pedsort.C	2020-10-02 14:20:13.602810259 +0200
++++ b/psearchy/mkdb/pedsort.C	2020-10-02 14:20:34.106809546 +0200
+@@ -165,10 +165,12 @@
+   return i + __i;
+ }
+ 
++#if __GLIBC__ == 2 && __GLIBC_MINOR__ < 30
+ static pid_t gettid(void)
+ {
+   return syscall(__NR_gettid);
+ }
++#endif
+ 
+ void
+ set_affinity(int cpu_id)
+==== END glibc.patch ====
