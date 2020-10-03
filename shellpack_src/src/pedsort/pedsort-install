@@ -8,6 +8,7 @@ if [ ! -e /usr/include/db.h ]; then
 	install-depends libdb-4_8-devel
 fi
 install-depends python
+install-depends gcc-c++
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
