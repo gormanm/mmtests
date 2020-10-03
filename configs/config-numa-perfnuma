@@ -29,7 +29,7 @@ export MONITOR_PERF_EVENTS=node-load-misses,node-store-misses
 # PerfNUMA
 export PERFNUMA_NR_PROCESSES=$NUMNODES
 export PERFNUMA_NR_THREADS=$((NUMCPUS/NUMNODES))
-export PERFNUMA_PROCESS_WSS=${MMTESTS_NODE_SIZE[0]*4/5}
+export PERFNUMA_PROCESS_WSS=$((${MMTESTS_NODE_SIZE[0]}*4/5))
 export PERFNUMA_WORKLOADS="light_converge standard_converge oversubscribe_converge"
 export PERFNUMA_ITERATIONS=10
 
