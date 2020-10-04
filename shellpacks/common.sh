@@ -1377,6 +1377,9 @@ function collect_hardware_info()
 	if [ -e /sys/devices/system/cpu/vulnerabilities ]; then
 		grep . /sys/devices/system/cpu/vulnerabilities/* > $SHELLPACK_LOG/cpu-vulnerabilities.txt
 	fi
+	if [ -e /sys/devices/system/cpu/cpu0/cpuidle ]; then
+		grep . /sys/devices/system/cpu/cpu0/cpuidle/state*/latency > $SHELLPACK_LOG/cpuidle-latencies.txt
+	fi
 }
 
 function collect_kernel_info()
