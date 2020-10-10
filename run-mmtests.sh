@@ -401,6 +401,12 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	create_filesystems
 
+	if [ "$PIVOT_SOURCES" = "yes" ]; then
+		rm -rf $SHELLPACK_SOURCES
+		mkdir $SHELLPACK_DATA/sources
+		ln -s $SHELLPACK_DATA/sources $SHELLPACK_SOURCES
+	fi
+
 	# Prepared environment in a directory, does not work together with
 	# TESTDISK_PARTITION and co.
 	if [ "$TESTDISK_DIR" != "" ]; then
