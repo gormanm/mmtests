@@ -10,6 +10,8 @@ if ($ENV{"ASSUME_PACKAGE_INSTALLED"} eq "yes") {
 	exit 0;
 }
 
+$ENV{"ZYPP_LOCK_TIMEOUT"}=300;
+
 # File::Which is not always available. Bodge it
 sub which {
 	my $binary = $_[0];
