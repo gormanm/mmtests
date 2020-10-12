@@ -207,12 +207,13 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 done
 
 FIRST=yes
-#XRANGE=1
 if [ "$CLIENT_CANDLESTICKS" = "yes" -o "$CLIENT_ERRORBARS" = "yes" ]; then
 	echo set boxwidth 0.2 >> $TEMP
 fi
 if [ "$SINGLE_CANDLESTICKS" = "yes" ]; then
 	echo set boxwidth 0.2 >> $TEMP
+	echo set xtics format \" \" >> $TEMP
+	XRANGE="-1:$#"
 fi
 if [ "$HISTOGRAM" = "yes" ]; then
 	echo set style data histogram       >> $TEMP
