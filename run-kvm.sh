@@ -163,6 +163,12 @@ IFS=$PREV_IFS
 VMCOUNT=$(( $v - 1 ))
 PSSH_OPTS="$PSSH_OPTS $MMTEST_PSSH_OPTIONS -p $(( $VMCOUNT * 2 ))"
 
+# If $MMTESTS_PSSH_OUT_DIR contains a valid path, ask `pssh` to create there
+# one file for each VM (name will be like root@<VM_IP>), were we can watch,
+# live, the output of run-mmtests.sh, from inside each VM. This can be quite
+# handy, especialy for debugging.
+[ ! -z $MMTESTS_PSSH_OUTDIR ] && [ -d $MMTESTS_PSSH_OUTDIR ] && PSSH_OPTS="$PSSH_OPTS -o $MMTESTS_PSSH_OUTDIR"
+
 teststate_log "vms ready :: `date +%s`"
 
 echo Creating archive
@@ -217,6 +223,11 @@ sysstate_log_proc_files "start"
 
 pssh $PSSH_OPTS "cd git-private/$NAME && ./run-mmtests.sh $@" &
 PSSHPID=$!
+
+# This variable can be used to provide additional options to `nc`, as it is
+# used both here and within the shellpacks. This is mostly intended for
+# debugging, e.g., adding "-v" to have more output.
+#export _NCV="-v"
 
 # If MMTESTS_HOST_IP is defined, we need to coordinate run-mmtests.sh
 # execution phases inside the various VMs.
@@ -403,10 +414,9 @@ if [ ! -z $MMTESTS_HOST_IP ]; then
 			esac
 		fi
 	done
+	kill $NCPID
+	rm -f $NCFILE
 fi
-kill $NCPID
-rm -f $NCFILE
-
 wait $PSSHPID
 RETVAL=$?
 

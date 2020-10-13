@@ -457,10 +457,6 @@ function mmtests_activity() {
 # like gRPC (either here, with https://github.com/fullstorydev/grpcurl) or
 # by putting together some service program.
 
-# DEBUG: uncomment to see some more info from `nc`, as it is
-# used in the following fucntions.
-#_NCV="-v"
-
 # Send a token to IP:PORT. Before actually sending, we wait for the
 # destination to be ready and accepting connections.
 #
