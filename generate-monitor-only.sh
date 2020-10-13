@@ -47,7 +47,7 @@ fi
 
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
-. $SCRIPTDIR/shellpacks/deferred-monitors.sh
+. $SCRIPTDIR/shellpacks/monitors.sh
 
 # Generate reference tree
 echo Creating reference tree

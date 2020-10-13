@@ -238,3 +238,49 @@ function start_tracer_monitor()
 	echo $PID1 >> $_pidfile
 	echo "Started monitor ${_monitor} tracer pid $PID1"
 }
+
+function start_monitors() {
+	local _start _type _monitors _monitor
+
+	create_monitor_dir
+	export GLOBAL_MONITOR_DIR=$MONITOR_DIR
+
+	for _type in always plain gzip with_latency tracer
+	do
+		_monitors=$(eval echo \$MONITORS_$(echo $_type | tr '[:lower:]' '[:upper:]'))
+		for _monitor in $_monitors; do
+			if is_deferred_monitor $_monitor
+			then
+				add_deferred_monitor $_type $_monitor
+			else
+				start_monitor $_type $_monitor
+			fi
+		done
+	done
+
+	if [ "$MONITOR_STAP" != "" ]; then
+		echo Sleeping 30 seconds to give stap monitors change to load
+		sleep 30
+	fi
+}
+
+function stop_monitors() {
+	# If all monitors are deferred, there will be no global monitor.pids
+
+	[ -f ${GLOBAL_MONITOR_DIR}/monitor.pids ] && \
+		shutdown_monitors ${GLOBAL_MONITOR_DIR}/monitor.pids
+}
+
+function check_monitor_stap() {
+	local mon
+	local chk
+
+	for mon in $MONITORS_ALWAYS $MONITORS_GZIP $MONITORS_WITH_LATENCY $MONITORS_TRACER; do
+		for chk in $MONITORS_STAP; do
+			if [ "$mon" = "$chk" ]; then
+				STAP_USED=monitor-$MONITOR
+				MONITOR_STAP=monitor-$MONITOR
+			fi
+		done
+	done
+}

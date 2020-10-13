@@ -4,8 +4,11 @@ DEFAULT_CONFIG=config
 DIRNAME=`dirname $0`
 SCRIPTDIR=`cd "$DIRNAME" && pwd`
 export PATH="$SCRIPTDIR/bin:$PATH:$SCRIPTDIR/bin-virt"
+export EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer
+
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
+. $SCRIPTDIR/shellpacks/monitors.sh
 
 MMTEST_PSSH_OPTIONS="$MMTEST_PSSH_OPTIONS -t 0 -O StrictHostKeyChecking=no"
 
@@ -14,13 +17,15 @@ if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
 fi
 
 usage() {
-	echo "$0 [-pkoh] [-C CONFIG_HOST] [--vm VMNAME[,VMNAME][,...]] run-mmtests-options"
+	echo "$0 [-pkonmh] [-C CONFIG_HOST] [--vm VMNAME[,VMNAME][,...]]  run-mmtests-options"
 	echo
 	echo "-h|--help              Prints this help."
 	echo "-p|--performance       Force performance CPUFreq governor on the host before starting the tests"
 	echo "-L|--host-logs         Collect logs and hardware info about the host"
 	echo "-k|--keep-kernel       Use whatever kernel the VM currently has."
 	echo "-o|--offline-iothreads Take down some VM's CPUs and use for IOthreads."
+	echo "-m|--run-monitor       Force enable monitoring on the host."
+	echo "-n|--no-monitor        Force disable monitoring on the host."
 	echo "-C|--config-host CFG   Use CFG as config file for the host."
 	echo "--vm VMNAME[,VMNAME]   Name(s) of existing, and already known to 'virsh', VM(s)."
 	echo "                       If not specified, use \$MARVIN_KVM_DOMAIN as VM name."
@@ -60,6 +65,10 @@ while true; do
 			;;
 		-L|--host-logs)
 			HOST_LOGS="yes"
+			# CURRENT_TEST is used only by monitors. Just define
+			# it to 'host' for now. We will change this, when we
+			# will do per-test monitoring.
+			export CURRENT_TEST="host"
 			shift
 			;;
 		-k|--keep-kernel)
@@ -68,6 +77,14 @@ while true; do
 			;;
 		-o|--offline-iothreads)
 			OFFLINE_IOTHREADS="yes"
+			shift
+			;;
+		-m|--run-monitor)
+			FORCE_RUN_MONITOR=yes
+			shift
+			;;
+		-n|--no-monitor)
+			FORCE_RUN_MONITOR=no
 			shift
 			;;
 		-C|--config-host)
@@ -150,6 +167,33 @@ if [ ! -z $MMTESTS_HOST_IP ]; then
 			echo "export AUTO_PACKAGE_INSTALL=\"yes\"" >> ${c}
 		fi
 	done
+fi
+
+# Check host monitors
+if [ "$FORCE_RUN_MONITOR" != "" ]; then
+	RUN_MONITOR=$FORCE_RUN_MONITOR
+fi
+if [ "$RUN_MONITOR" = "no" ] || [ "$HOST_LOGS" != "yes" ]; then
+	# Disable monitor
+	unset MONITORS_GZIP
+	unset MONITORS_WITH_LATENCY
+	unset MONITORS_TRACER
+	# If we don't collect host logs, we don't want to monitor it either,
+	# not even with 'always on' monitors. In fact, we don't have a place
+	# where we could store the data!
+	[ "$HOST_LOGS" != "yes" ] && unset MONITORS_ALWAYS
+else
+	# Check at least one monitor is enabled
+	if [ "$MONITORS_ALWAYS" = "" -a "$MONITORS_GZIP" = "" -a "$MONITORS_WITH_LATENCY" = "" -a "$MONITORS_TRACER" = "" ]; then
+		echo WARNING: Monitors enabled but none configured
+	fi
+fi
+
+export STAP_USED=
+export MONITOR_STAP=
+check_monitor_stap
+if [ "$STAP_USED" != "" ]; then
+	fixup_stap
 fi
 
 install_numad
@@ -257,6 +301,9 @@ sysstate_log_basic_info
 collect_hardware_info
 collect_kernel_info
 collect_sysconfig_info
+
+sync
+start_monitors
 
 echo Executing mmtests on the guest
 activity_log "run-kvm: begin run-mmtests in VMs"
@@ -462,6 +509,8 @@ if [ ! -z $MMTESTS_HOST_IP ]; then
 fi
 wait $PSSHPID
 RETVAL=$?
+
+stop_monitors
 
 sysstate_log_proc_files "end"
 

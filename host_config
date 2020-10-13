@@ -14,3 +14,12 @@ export AUTO_PACKAGE_INSTALL="yes"
 
 # The `tuned` that will be used on the host
 export MMTESTS_TUNED_PROFILE="latency-performance"
+
+# List of monitors for the host
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS="top"
+export MONITORS_GZIP="proc-vmstat mpstat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITORS_TRACER="perf-event-stat"
+export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
+export MONITOR_UPDATE_FREQUENCY=10

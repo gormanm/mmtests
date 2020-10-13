@@ -15,7 +15,7 @@ VACUUM_ARG=-n
 RUN_CACHE_COLD=no
 MIN_THREADS=1
 
-. $SHELLPACK_INCLUDE/deferred-monitors.sh
+. $SHELLPACK_INCLUDE/monitors.sh
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall

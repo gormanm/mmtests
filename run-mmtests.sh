@@ -148,7 +148,7 @@ find $SCRIPTDIR/work/sources/ -maxdepth 1 -type d -name "*deps-installed" -exec 
 
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
-. $SCRIPTDIR/shellpacks/deferred-monitors.sh
+. $SCRIPTDIR/shellpacks/monitors.sh
 export SHELLPACK_ADDON=$SCRIPTDIR/shellpack_src/addon
 
 import_configs
@@ -236,8 +236,8 @@ echo
 # Validate systemtap installation if it exists
 TESTS_STAP="highalloc pagealloc highalloc"
 MONITORS_STAP="dstate stap-highorder-atomic function-frequency syscalls"
-STAP_USED=
-MONITOR_STAP=
+export STAP_USED=
+export MONITOR_STAP=
 for TEST in $MMTESTS; do
 	for CHECK in $TESTS_STAP; do
 		if [ "$TEST" = "$CHECK" ]; then
@@ -245,29 +245,9 @@ for TEST in $MMTESTS; do
 		fi
 	done
 done
-for MONITOR in $MONITORS_ALWAYS $MONITORS_GZIP $MONITORS_WITH_LATENCY $MONITORS_TRACER; do
-	for CHECK in $MONITORS_STAP; do
-		if [ "$MONITOR" = "$CHECK" ]; then
-			STAP_USED=monitor-$MONITOR
-			MONITOR_STAP=monitor-$MONITOR
-		fi
-	done
-done
+check_monitor_stap
 if [ "$STAP_USED" != "" ]; then
-	install-depends systemtap
-	if [ "`which stap`" = "" ]; then
-		echo ERROR: systemtap required for $STAP_USED but not installed
-		exit -1
-	fi
-
-	stap-fix.sh
-	if [ $? != 0 ]; then
-		echo "ERROR: systemtap required for $STAP_USED but systemtap is broken and unable"
-		echo "       to workaround with stap-fix.sh"
-		if [ "`uname -m`" != "aarch64" ]; then
-			exit $SHELLPACK_ERROR
-		fi
-	fi
+	fixup_stap
 fi
 
 if $BUILDONLY; then
@@ -280,38 +260,6 @@ if $BUILDONLY; then
     done
     exit 0
 fi
-
-function start_monitors() {
-	local _start _type _monitors _monitor
-
-	create_monitor_dir
-	GLOBAL_MONITOR_DIR=$MONITOR_DIR
-
-	for _type in always plain gzip with_latency tracer
-	do
-		_monitors=$(eval echo \$MONITORS_$(echo $_type | tr '[:lower:]' '[:upper:]'))
-		for _monitor in $_monitors; do
-			if is_deferred_monitor $_monitor
-			then
-				add_deferred_monitor $_type $_monitor
-			else
-				start_monitor $_type $_monitor
-			fi
-		done
-	done
-
-	if [ "$MONITOR_STAP" != "" ]; then
-		echo Sleeping 30 seconds to give stap monitors change to load
-		sleep 30
-	fi
-}
-
-function stop_monitors() {
-	# If all monitors are deferred, there will be no global monitor.pids
-
-	[ -f ${GLOBAL_MONITOR_DIR}/monitor.pids ] && \
-		shutdown_monitors ${GLOBAL_MONITOR_DIR}/monitor.pids
-}
 
 # If profiling is enabled, make sure the necessary oprofile helpers are
 # available and that there is a unable vmlinux file in the expected

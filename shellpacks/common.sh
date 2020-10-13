@@ -281,6 +281,23 @@ function shutdown_numad() {
 	fi
 }
 
+function fixup_stap() {
+	install-depends systemtap
+	if [ "`which stap`" = "" ]; then
+		echo ERROR: systemtap required for $STAP_USED but not installed
+		exit -1
+	fi
+
+	stap-fix.sh
+	if [ $? != 0 ]; then
+		echo "ERROR: systemtap required for $STAP_USED but systemtap is broken and unable"
+		echo "       to workaround with stap-fix.sh"
+		if [ "`uname -m`" != "aarch64" ]; then
+			exit $SHELLPACK_ERROR
+		fi
+	fi
+}
+
 function check_status() {
 	EXITCODE=$?
 
