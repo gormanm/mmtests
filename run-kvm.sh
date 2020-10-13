@@ -152,6 +152,8 @@ if [ ! -z $MMTESTS_HOST_IP ]; then
 	done
 fi
 
+install_numad
+
 # NB: 'runname' is the last of our parameters, as it is the last
 # parameter of run-mmtests.sh.
 declare -a GUEST_IP
@@ -169,6 +171,8 @@ if [ "$HOST_LOGS" = "yes" ]; then
 	export SHELLPACK_SYSSTATEFILE="$SHELLPACK_LOG/tests-sysstate"
 	rm -f $SHELLPACK_ACTIVITY $SHELLPACK_LOGFILE $SHELLPACK_SYSSTATEFILE
 fi
+
+start_numad
 
 teststate_log "start :: `date +%s`"
 
@@ -500,5 +504,7 @@ if [ "$HOST_LOGS" = "yes" ]; then
 	gzip -f $SHELLPACK_LOG/dmesg
 	gzip -f $SHELLPACK_SYSSTATEFILE
 fi
+
+shutdown_numad
 
 exit $RETVAL

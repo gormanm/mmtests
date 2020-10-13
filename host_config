@@ -8,3 +8,6 @@ export AUTO_PACKAGE_INSTALL="yes"
 # List of VMs inside which to run the tests
 # (if not specified via command line)
 #export MMTESTS_VMS="vm1 vm2"
+
+# If `numad` should be used on the host
+#export MMTESTS_NUMA_POLICY="numad"

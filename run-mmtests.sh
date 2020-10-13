@@ -352,13 +352,7 @@ if [ "`which ntp-wait 2>/dev/null`" != "" ]; then
 	systemctl stop time-sync.target
 fi
 
-if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
-	install-depends numad
-
-	if [ `which numad 2>/dev/null` = "" ]; then
-		die numad requested but unavailable
-	fi
-fi
+install_numad
 
 MMTEST_ITERATIONS=${MMTEST_ITERATIONS:-1}
 export SHELLPACK_LOG_RUNBASE=$SHELLPACK_LOG_BASE/$RUNNAME
@@ -546,20 +540,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	export SHELLPACK_SYSSTATEFILE="$SHELLPACK_LOG/tests-sysstate"
 	activity_log "run-mmtests: Iteration $MMTEST_ITERATION start"
 
-	if [ "$MMTESTS_NUMA_POLICY" = "numad" ]; then
-		echo Restart numad and purge log as per MMTESTS_NUMA_POLICY
-		killall -KILL numad
-		rm -f /var/log/numad.log
-		numad -F -d &> $SHELLPACK_LOG/numad-stdout &
-		export NUMAD_PID=$!
-		echo -n Waiting on numad.log
-		while [ ! -e /var/log/numad.log ]; do
-			echo .
-			sleep 1
-		done
-		echo
-		echo Numad started: pid $NUMAD_PID
-	fi
+	start_numad
 
 	EXIT_CODE=$SHELLPACK_SUCCESS
 
@@ -687,12 +668,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	gzip -f $SHELLPACK_LOG/dmesg
 	gzip -f $SHELLPACK_SYSSTATEFILE
 
-	if [ "$MMTEST_NUMA_POLICY" = "numad" ]; then
-		echo Shutting down numad pid $NUMAD_PID
-		kill $NUMAD_PID
-		sleep 10
-		mv /var/log/numad.log $SHELLPACK_LOG/numad-log
-	fi
+	shutdown_numad
 
 	activity_log "run-mmtests: Iteration $MMTEST_ITERATION end"
 	echo Cleaning up

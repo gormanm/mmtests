@@ -181,6 +181,50 @@ function shutdown_pid() {
 	echo
 }
 
+function install_numad() {
+	if [ "$MMTESTS_NUMA_POLICY" != "numad" ]; then
+		return
+	fi
+	install-depends numad
+	if [ `which numad 2>/dev/null` = "" ]; then
+		die numad requested but unavailable
+	fi
+}
+
+function start_numad() {
+	if [ "$MMTESTS_NUMA_POLICY" != "numad" ]; then
+		return
+	fi
+	echo Restart numad and purge log as per MMTESTS_NUMA_POLICY
+	killall -KILL numad
+	rm -f /var/log/numad.log
+	NUMADOUT_TEMP=`mktemp`
+	numad -F -d &> $NUMADOUT_TEMP &
+	export NUMAD_PID=$!
+	echo -n Waiting on numad.log
+	while [ ! -e /var/log/numad.log ]; do
+		echo .
+		sleep 1
+	done
+	echo
+	if [ ! -z $SHELLPACK_LOG ]; then
+		cp $NUMADOUT_TEMP $SHELLPACK_LOG/numad-stdout
+	fi
+	echo Numad started: pid $NUMAD_PID
+}
+
+function shutdown_numad() {
+	if [ -z $NUMAD_PID ]; then
+		return;
+	fi
+	echo Shutting down numad pid $NUMAD_PID
+	kill $NUMAD_PID
+	sleep 10
+	if [ ! -z $SHELLPACK_LOG ]; then
+		mv /var/log/numad.log $SHELLPACK_LOG/numad-log
+	fi
+}
+
 function check_status() {
 	EXITCODE=$?
 
