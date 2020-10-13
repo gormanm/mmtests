@@ -14,13 +14,14 @@ if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
 fi
 
 usage() {
-	echo "$0 [-pkoh] [--vm VMNAME[,VMNAME][,...]] run-mmtests-options"
+	echo "$0 [-pkoh] [-C CONFIG_HOST] [--vm VMNAME[,VMNAME][,...]] run-mmtests-options"
 	echo
 	echo "-h|--help              Prints this help."
 	echo "-p|--performance       Force performance CPUFreq governor on the host before starting the tests"
 	echo "-L|--host-logs         Collect logs and hardware info about the host"
 	echo "-k|--keep-kernel       Use whatever kernel the VM currently has."
 	echo "-o|--offline-iothreads Take down some VM's CPUs and use for IOthreads."
+	echo "-C|--config-host CFG   Use CFG as config file for the host."
 	echo "--vm VMNAME[,VMNAME]   Name(s) of existing, and already known to 'virsh', VM(s)."
 	echo "                       If not specified, use \$MARVIN_KVM_DOMAIN as VM name."
 	echo "                       If that is not defined, use 'marvin-mmtests'."
@@ -45,6 +46,8 @@ usage() {
 # This is why this code looks different than "traditional" parameter handling,
 # but it is either this, or we mandate that there can't be parameters with the
 # same names in run-kvm.sh and run-mmtests.sh.
+declare -a CONFIGS
+export CONFIGS
 while true; do
 	case "$1" in
 		-p|--performance)
@@ -67,6 +70,11 @@ while true; do
 			OFFLINE_IOTHREADS="yes"
 			shift
 			;;
+		-C|--config-host)
+			shift
+			CONFIGS+=( "$1" )
+			shift
+			;;
 		--vm)
 			shift
 			VMS_LIST="yes"
@@ -87,32 +95,53 @@ if [ -z $VMS ]; then
 	VMS=$MARVIN_KVM_DOMAIN
 fi
 
-# We want to read the config(s) and they are in the set of parameters that we
-# have not parsed, because we want to pass them to run-mmtests.sh, inside VMs.
-declare -a MMTESTS_PARAMS
-declare -a CONFIGS
-export CONFIGS
+# We want to read the config(s) that run-mmtests.sh will use inside the guests.
+# They are in the set of parameters that we have not parsed above, so retrieve
+# them here, without "consuming" them.
+declare -a MMTESTS_CONFIGS
 
-MMTESTS_PARAMS=( "$@" )
-while (( ${#MMTESTS_PARAMS[@]} ))
+for (( i=0; i < $#; i++ ))
 do
-	if [ "${MMTESTS_PARAMS[0]}" = "-c" ] || [ "${MMTESTS_PARAMS[0]}" = "--config" ]; then
-		CONFIGS+=( "${MMTESTS_PARAMS[1]}" )
+	if [ "${!i}" = "-c" ] || [ "${!i}" = "--config" ]; then
+		i=$((i+1))
+		MMTESTS_CONFIGS+=( "${!i}" )
 	fi
-	MMTESTS_PARAMS=( "${MMTESTS_PARAMS[@]:1}" )
 done
-if [[ ${#CONFIGS[@]} -eq 0 ]]; then
-	CONFIGS=( "$DEFAULT_CONFIG" )
-fi
+
+# No config file specified for guests, so they'll use the default.
+[ ! -z $MMTESTS_CONFIGS ] || MMTESTS_CONFIGS=( "$DEFAULT_CONFIG" )
+
+# If we have an host config, we use that one here. That's rather handy if,
+# for instance, we want different monitors or topology related tuning
+# on the host and in the guests.
+#
+# If, OTOH, we don't have an host config file, let's import the config
+# file(s) of the guests and use them for the host as well.
+[ ! -z $CONFIGS ] || CONFIGS=( "$DEFAULT_CONFIG" )
 
 import_configs
 
-# If MMTESTS_HOST_IP is defined (e.g., in the config files), it means we
-# are running as a "standalone virtualization bench suite". Hence, we will
-# need these packages for coordinating running the benchamrks inside the
-# guests.
+# If MMTESTS_HOST_IP is defined (e.g., in the configs we've imported), it
+# means we are running as a "standalone virtualization bench suite". And we
+# need to install some packages to be able to do so.
+#
+# We also need to check if, for instance, MMTESTS_HOST_IP is defined in
+# whatever we are using as host config file. If it is, it must be there in
+# the guests' configs as well, or we'll get stuck (because it's the fact
+# that this var exists that tells guests that they need to contact the host
+# for coordination of the test runs). So, we add it (and while there, add
+# AUTO_PACKAGE_INSTALL too).
 if [ ! -z $MMTESTS_HOST_IP ]; then
 	install-depends pssh gnu_parallel expect netcat-openbsd
+
+	for c in ${MMTESTS_CONFIGS[@]}; do
+		if [ "`grep MMTESTS_HOST_IP ${c}`" = "" ] ; then
+			echo "export MMTESTS_HOST_IP=${MMTESTS_HOST_IP}" >> ${c}
+		fi
+		if [ "`grep AUTO_PACKAGE_INSTALL ${c}`" = "" ] ; then
+			echo "export AUTO_PACKAGE_INSTALL=\"yes\"" >> ${c}
+		fi
+	done
 fi
 
 # NB: 'runname' is the last of our parameters, as it is the last
