@@ -19,7 +19,7 @@ else
 	VMS=$MARVIN_KVM_DOMAIN
 fi
 
-# TODO: VMs can be started in parallel
+TIMEOUT=600
 IFS=,
 for VM in $VMS; do
 	if [ "`virsh list | grep " $VM " | awk '{print $3}'`" = "running" ]; then
@@ -33,8 +33,22 @@ for VM in $VMS; do
 
 	echo Starting $VM
 	virsh start $VM
+	STARTTIME=`date +%s`
+	while [ "`virsh list | grep " $VM " | awk '{print $3}'`" != "running" ]; do
+		CURRENTTIME=`date +%s`
+		RUNNING=$((CURRENTTIME-STARTTIME))
+		if [ $RUNNING -gt $TIMEOUT ]; then
+			echo Timeout exceeded for $VM to become \'running\'
+			exit -1
+		else
+			sleep 1
+		fi
+	done
+	echo Console available via \"virsh console $VM\"
+done
 
-	echo Console available via \"virsh console $VM\", waiting on IP
+for VM in $VMS; do
+	echo Waiting on $VM IP
 	GUEST_IP=`kvm-ip-address --vm $VM 600`
 	if [ $? -eq 0 ]; then
 		wait_ssh_available $GUEST_IP
