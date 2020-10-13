@@ -75,7 +75,7 @@ while true; do
 			CONFIGS+=( "$1" )
 			shift
 			;;
-		--vm)
+		--vm|--vms)
 			shift
 			VMS_LIST="yes"
 			VMS=$1
@@ -90,10 +90,6 @@ while true; do
 			;;
 	esac
 done
-
-if [ -z $VMS ]; then
-	VMS=$MARVIN_KVM_DOMAIN
-fi
 
 # We want to read the config(s) that run-mmtests.sh will use inside the guests.
 # They are in the set of parameters that we have not parsed above, so retrieve
@@ -120,6 +116,18 @@ done
 [ ! -z $CONFIGS ] || CONFIGS=( "$DEFAULT_CONFIG" )
 
 import_configs
+
+# Command line has priority. However, if there wasn't any `--vm` param, check
+# if we have a list of VMs to use in the config files. If there's nothing
+# there either, default to $MARVIN_KVM_DOMAIN
+if [ -z $VMS ] && [ "$MMTESTS_VMS" != "" ]; then
+	VMS_LIST=yes
+	# MMTESTS_VMS is space separated, we want VMS to be comma separated
+	VMS=$(echo ${MMTESTS_VMS// /,})
+fi
+if [ -z $VMS ]; then
+	VMS=$MARVIN_KVM_DOMAIN
+fi
 
 # If MMTESTS_HOST_IP is defined (e.g., in the configs we've imported), it
 # means we are running as a "standalone virtualization bench suite". And we

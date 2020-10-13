@@ -4,3 +4,7 @@ export AUTO_PACKAGE_INSTALL="yes"
 
 # Let's have run-mmtests.sh output from the VMs in /tmp
 #export MMTESTS_PSSH_OUTDIR=/tmp
+#
+# List of VMs inside which to run the tests
+# (if not specified via command line)
+#export MMTESTS_VMS="vm1 vm2"
