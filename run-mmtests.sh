@@ -353,6 +353,7 @@ if [ "`which ntp-wait 2>/dev/null`" != "" ]; then
 fi
 
 install_numad
+install_tuned
 
 MMTEST_ITERATIONS=${MMTEST_ITERATIONS:-1}
 export SHELLPACK_LOG_RUNBASE=$SHELLPACK_LOG_BASE/$RUNNAME
@@ -541,6 +542,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	activity_log "run-mmtests: Iteration $MMTEST_ITERATION start"
 
 	start_numad
+	start_tuned
 
 	EXIT_CODE=$SHELLPACK_SUCCESS
 
@@ -669,6 +671,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	gzip -f $SHELLPACK_SYSSTATEFILE
 
 	shutdown_numad
+	shutdown_tuned
 
 	activity_log "run-mmtests: Iteration $MMTEST_ITERATION end"
 	echo Cleaning up

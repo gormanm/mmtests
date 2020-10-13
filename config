@@ -12,6 +12,8 @@ export MMTESTS="stream"
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
 #export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
 
+export MMTESTS_TUNED_PROFILE=balanced
+
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

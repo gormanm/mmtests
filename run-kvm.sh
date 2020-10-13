@@ -153,6 +153,7 @@ if [ ! -z $MMTESTS_HOST_IP ]; then
 fi
 
 install_numad
+install_tuned
 
 # NB: 'runname' is the last of our parameters, as it is the last
 # parameter of run-mmtests.sh.
@@ -173,6 +174,7 @@ if [ "$HOST_LOGS" = "yes" ]; then
 fi
 
 start_numad
+start_tuned
 
 teststate_log "start :: `date +%s`"
 
@@ -506,5 +508,6 @@ if [ "$HOST_LOGS" = "yes" ]; then
 fi
 
 shutdown_numad
+shutdown_tuned
 
 exit $RETVAL

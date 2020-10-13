@@ -181,6 +181,62 @@ function shutdown_pid() {
 	echo
 }
 
+function install_tuned() {
+	install-depends tuned
+
+	if [ `which tuned 2>/dev/null` = "" ]; then
+		die tuned requested but unavailable
+	fi
+	mkdir -p /var/log/tuned
+}
+
+function start_tuned() {
+	local answ=""
+
+	if [ "$MMTESTS_TUNED_PROFILE" = "" ]; then
+		return
+	fi
+	echo Restarting tuned and purge log. Will use $MMTESTS_TUNED_PROFILE as profile
+	killall -KILL tuned
+	rm -f /var/log/tuned/tuned.log
+	local TUNEDOUT_TEMP=`mktemp`
+	tuned --profile $MMTESTS_TUNED_PROFILE -l /var/log/tuned/tuned.log &> $TUNEDOUT_TEMP &
+	export TUNED_PID=$!
+	echo -n Waiting on tuned.log
+	while [ ! -e /var/log/tuned/tuned.log ]; do
+		echo .
+		sleep 1
+	done
+	echo
+	echo tuned started: pid $TUNED_PID
+	tuned-adm profile &>> $TUNEDOUT_TEMP
+
+	# Since some profile require reboot, let's double check. And let's
+	# also give the user a chance to bail, if it failed.
+	tuned-adm verify &>> $TUNEDOUT_TEMP
+	if [ $? -ne 0 ]; then
+		echo "WARNING: Errors applying profile: $MMTESTS_TUNED_PROFILE"
+		echo "Do you wish to continue anyway (y/n, default y, timeout 10 sec)?"
+		read -t 10 -n 1 answ
+		[ $? -eq 0 ] && [ "$answ" = "n" ] && exit 1
+	fi
+	if [ ! -z $SHELLPACK_LOG ]; then
+		cat $TUNEDOUT_TEMP >> $SHELLPACK_LOG/tuned-stdout
+	fi
+}
+
+function shutdown_tuned() {
+	if [ -z $TUNED_PID ]; then
+		return
+	fi
+	echo Shutting down tuned pid $TUNED_PID
+	kill $TUNED_PID
+	sleep 10
+	if [ ! -z $SHELLPACK_LOG ]; then
+		mv /var/log/tuned/tuned.log $SHELLPACK_LOG/tuned-log
+	fi
+}
+
 function install_numad() {
 	if [ "$MMTESTS_NUMA_POLICY" != "numad" ]; then
 		return

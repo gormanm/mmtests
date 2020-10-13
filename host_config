@@ -11,3 +11,6 @@ export AUTO_PACKAGE_INSTALL="yes"
 
 # If `numad` should be used on the host
 #export MMTESTS_NUMA_POLICY="numad"
+
+# The `tuned` that will be used on the host
+export MMTESTS_TUNED_PROFILE="latency-performance"
