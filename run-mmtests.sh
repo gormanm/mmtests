@@ -643,9 +643,9 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		fi
 		EXIT_CODE=$?
 
-		mmtests_wait_token "test_done"
-
 		stop_monitors
+
+		mmtests_wait_token "test_done"
 
 		# Kill CPU idle limited
 		if [ -e /tmp/mmtests-cstate.pid ]; then
