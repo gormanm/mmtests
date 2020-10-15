@@ -22,7 +22,7 @@ mariadb)
 	;;
 postgres)
 	echo Checking postgres installation
-	DBDRIVER_VERSION=11.3
+	DBDRIVER_VERSION=13.0
 	CONFIGURE_ARGS="--without-mysql --with-pgsql"
 	;;
 *)
