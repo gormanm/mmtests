@@ -1,6 +1,6 @@
 #!/bin/bash
 # dbench installer
-###SHELLPACK preamble dbench-install 0
+###SHELLPACK preamble dbench-install 65b19870
 GIT_LOCATION=git://git.samba.org/sahlberg/dbench.git
 WEB_LOCATION=http://samba.org/ftp/tridge/dbench/
 MIRROR_LOCATION="$WEBROOT/dbench/"
@@ -16,24 +16,17 @@ install-depends libtirpc-devel
 ###SHELLPACK git_fetch dbench-${VERSION}.tar.gz dbench-${VERSION}
 
 # Build
-if [ "$VERSION" = "4.1alpha" ]; then
-	###SHELLPACK self_extract 0001-Allow-reporting-of-workload-execution-times.patch
-	patch -p1 <$SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
+###SHELLPACK self_extract 0001-Allow-reporting-of-workload-execution-times.patch
+patch -p1 <$SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
 
-	###SHELLPACK self_extract 0002-Defer-reporting-of-execution-times.patch
-	patch -p1 <$SHELLPACK_TEMP/0002-Defer-reporting-of-execution-times.patch
+###SHELLPACK self_extract 0002-Defer-reporting-of-execution-times.patch
+patch -p1 <$SHELLPACK_TEMP/0002-Defer-reporting-of-execution-times.patch
 
-	###SHELLPACK self_extract 0003-Include-stdint_h.patch
-	patch -p1 <$SHELLPACK_TEMP/0003-Include-stdint_h.patch
+###SHELLPACK self_extract 0003-Include-stdint_h.patch
+patch -p1 <$SHELLPACK_TEMP/0003-Include-stdint_h.patch
 
-	###SHELLPACK self_extract 0004-Check-if-parent-is-alive-once-per-loadfile.patch
-	patch -p1 <$SHELLPACK_TEMP/0004-Check-if-parent-is-alive-once-per-loadfile.patch
-else
-	###SHELLPACK self_extract 0005-Check-if-parent-is-alive-once-per-loadfile.patch
-	patch -p1 <$SHELLPACK_TEMP/0005-Check-if-parent-is-alive-once-per-loadfile.patch
-fi
-
-# Versions 4.0 and 4.1alpha both need to stop being kill-happy
+###SHELLPACK self_extract 0004-Check-if-parent-is-alive-once-per-loadfile.patch
+patch -p1 <$SHELLPACK_TEMP/0004-Check-if-parent-is-alive-once-per-loadfile.patch
 
 ###SHELLPACK build_start dbench-${VERSION}
 ###SHELLPACK build_autogen dbench-${VERSION}
@@ -45,6 +38,9 @@ if [ -e /usr/lib64/libtirpc.so -o -e /usr/lib/libtirpc.so ]; then
 fi
 
 ###SHELLPACK make_make_install
+make tbench_srv
+cp tbench_srv $SHELLPACK_SOURCES/dbench-${VERSION}-installed/bin
+ln -s $SHELLPACK_SOURCES/dbench-${VERSION}-installed/bin/dbench $SHELLPACK_SOURCES/dbench-${VERSION}-installed/bin/tbench
 
 # Fixups
 if [ ! -e $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/client.txt ]; then

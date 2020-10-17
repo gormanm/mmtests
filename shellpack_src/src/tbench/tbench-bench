@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script runs tbench for varying numbers of clients
-###SHELLPACK preamble dbench-bench 4.0
+###SHELLPACK preamble dbench-bench 65b19870
 
 SERVER_HOST=127.0.0.1
 if [ "$REMOTE_SERVER_HOST" != "" ]; then
