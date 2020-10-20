@@ -13,7 +13,38 @@ cd $SCRIPTDIR/..
 MMTESTS_ROOT=`pwd`
 SOURCEDIR=$MMTESTS_ROOT/build
 
-for PACKAGE in cmake lua51-luajit lua51-luajit-devel bison flex gcc gcc-c++ git libelf-devel libstdc++-devel llvm-devel pkg-config python-devel python-setuptools python3-devel python3-setuptools libLLVM4 clang clang-devel gcc7-c++ libfl-devel glibc glibc-devel; do
+PACKAGE_LIST="
+bison
+clang
+clang-devel
+cmake
+flex
+gcc
+gcc-c++
+git
+glibc
+glibc-devel
+libelf-devel
+libfl-devel
+libLLVM4
+libLLVM7
+libLLVM9
+libluajit-5_1-2
+libstdc++-devel
+llvm-clang-devel
+llvm-devel
+llvm-gold
+lua51-luajit
+lua51-luajit-devel
+luajit-devel
+pkg-config
+python3-devel
+python3-setuptools
+python-devel
+python-setuptools
+"
+
+for PACKAGE in $PACKAGE_LIST; do
 	install-depends $PACKAGE
 done
 
@@ -24,9 +55,10 @@ mkdir $SOURCEDIR/bcc/build || exit -1
 cd $SOURCEDIR/bcc/build
 echo Building bcc
 cmake .. \
-	-DCMAKE_INSTALL_PREFIX=/usr					\
+	-DCMAKE_INSTALL_PREFIX=/usr/local				\
 	-DCMAKE_CXX_FLAGS=-std=c++11 -DCMAKE_EXE_LINKER_FLAGS=-lstdc++ 	\
 	-DLUAJIT_INCLUDE_DIR=`pkg-config --variable=includedir luajit`	\
+	-DENABLE_LLVM_SHARED=1						\
 	|| exit -1
 
 make -j8
