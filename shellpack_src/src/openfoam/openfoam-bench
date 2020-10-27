@@ -7,6 +7,9 @@
 ###SHELLPACK parseargParam --max-cpus	OPENFOAM_MAXCPUS
 ###SHELLPACK parseargParam --model	OPENFOAM_MODEL
 ###SHELLPACK parseargParam --iterations	OPENFOAM_ITERATIONS
+###SHELLPACK parseargParam --xdiv	OPENFOAM_XDIVISION
+###SHELLPACK parseargParam --ydiv	OPENFOAM_YDIVISION
+###SHELLPACK parseargParam --zdiv	OPENFOAM_ZDIVISION
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -132,6 +135,46 @@ motorbike-subdomains)
 	mv system/decomposeParDict.6 system/decomposeParDict.$SUBDOMAINS
 	sed -i -e "s/numberOfSubdomains.*/numberOfSubdomains $SUBDOMAINS;/" 	system/decomposeParDict.$SUBDOMAINS
 	sed -i -e "s/^    n .*;/    n ($XDIVISION $YDIVISION 1);/"		system/decomposeParDict.$SUBDOMAINS
+	cp system/decomposeParDict.$SUBDOMAINS $LOGDIR_RESULTS
+
+	# Patch Allrun to record timing of parallel steps
+	###SHELLPACK self_extract Allrun-motorBike.patch
+	cat $SHELLPACK_TEMP/Allrun-motorBike.patch | patch -p1 || \
+		die "Failed to patch Allrun to record timing of parallel steps"
+	;;
+motorbike-custom)
+	cd tutorials/incompressible/simpleFoam/ || die "Failed to cd to simpleFoam tutorial directory"
+	rm -rf motorBike-mmtests
+	cp -r motorBike motorBike-mmtests
+	cd motorBike-mmtests || die "Failed to cd to motorbike-mmtests tutorial directory"
+	###SHELLPACK self_extract motorBike-fvSolution
+
+	# motorBike-snappyHexMeshDic is adapted from
+	# tutorials/mesh/snappyHexMesh/motorBike_leakDetection/system/snappyHexMeshDict
+	###SHELLPACK self_extract motorBike-snappyHexMeshDic
+	sed -i -e "s/OPENFOAM_LOCAL_CELLS/$OPENFOAM_LOCAL_CELLS/"		$SHELLPACK_TEMP/motorBike-snappyHexMeshDic
+	sed -i -e "s/OPENFOAM_GLOBAL_CELLS/$OPENFOAM_GLOBAL_CELLS/"		$SHELLPACK_TEMP/motorBike-snappyHexMeshDic
+	sed -i -e "s/OPENFOAM_REFINEMENT_CELLS/$OPENFOAM_REFINEMENT_CELLS/"	$SHELLPACK_TEMP/motorBike-snappyHexMeshDic
+	sed -i -e "s/OPENFOAM_CELL_LEVELS/$OPENFOAM_CELL_LEVELS/"		$SHELLPACK_TEMP/motorBike-snappyHexMeshDic
+	mv $SHELLPACK_TEMP/motorBike-fvSolution system/fvSolution
+	mv $SHELLPACK_TEMP/motorBike-snappyHexMeshDic system/snappyHexMeshDict
+
+	XDIVISION=$OPENFOAM_XDIVISION
+	YDIVISION=$OPENFOAM_YDIVISION
+	ZDIVISION=$OPENFOAM_ZDIVISION
+	SUBDOMAINS=$((XDIVISION*YDIVISION*ZDIVISION))
+	echo Scaling parameters
+	echo "o Actual subdomains    $SUBDOMAINS"
+	echo "o X division           $XDIVISION"
+	echo "o Y division           $YDIVISION"
+	echo "o Z division           $ZDIVISION"
+	echo "$OPENFOAM_MAXCPUS : $SUBDOMAINS : $XDIVISION x $YDIVISION" > $LOGDIR_RESULTS/scaling-parameters
+
+	# Rewrite benchmark parameters
+	sed -i -e "s/decomposeParDict.6/decomposeParDict.$SUBDOMAINS/" Allrun
+	mv system/decomposeParDict.6 system/decomposeParDict.$SUBDOMAINS
+	sed -i -e "s/numberOfSubdomains.*/numberOfSubdomains $SUBDOMAINS;/" 	system/decomposeParDict.$SUBDOMAINS
+	sed -i -e "s/^    n .*;/    n ($XDIVISION $YDIVISION $ZDIVISION);/"	system/decomposeParDict.$SUBDOMAINS
 	cp system/decomposeParDict.$SUBDOMAINS $LOGDIR_RESULTS
 
 	# Patch Allrun to record timing of parallel steps
