@@ -1,0 +1,19 @@
+#!/bin/bash
+###SHELLPACK preamble vdsotest-install 0
+GIT_LOCATION=https://github.com/mpe/vdsotest.git
+#MIRROR_LOCATION="$WEBROOT/vdsotest/"
+
+install-depends automake autoconf
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch vdsotest-${VERSION}.tar.gz vdsotest-${VERSION}-installed
+
+###SHELLPACK build_start vdsotest-${VERSION}-installed
+
+./autogen.sh && sed -i -e 's/LT_INIT\(disable-static\)//' configure && ./configure
+
+###SHELLPACK make
+
+echo vdsotest installed successfully

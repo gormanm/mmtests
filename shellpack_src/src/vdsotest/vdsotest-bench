@@ -1,0 +1,28 @@
+#!/bin/bash
+# Run vdsotest benchmark
+
+###SHELLPACK preamble vdsotest-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --iterations	VDSOTEST_ITERATIONS
+###SHELLPACK parseargParam   --duration		VDSOTEST_DURATION
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_install_required vdsotest-${VERSION}
+###SHELLPACK init_complete
+
+VDSOTEST_CLOCKS="clock-gettime-monotonic clock-getres-monotonic clock-gettime-monotonic-coarse clock-getres-monotonic-coarse clock-gettime-realtime clock-getres-realtime clock-gettime-realtime-coarse clock-getres-realtime-coarse clock-getres-realtime-coarse getcpu gettimeofday "
+
+echo $VDSOTEST_CLOCKS > $LOGDIR_RESULTS/workloads
+
+###SHELLPACK iteration_begin $VDSOTEST_ITERATIONS
+	echo Iteration $ITERATION/$VDSOTEST_ITERATIONS for $VDSOTEST_DURATION seconds
+	for WORKLOAD in $VDSOTEST_CLOCKS; do
+	    save_rc ./vdsotest -d $VDSOTEST_DURATION $WORKLOAD bench 2>&1 | \
+		tee $LOGDIR_RESULTS/vdsotest-${WORKLOAD}-${ITERATION}.log
+	done
+###SHELLPACK iteration_end $ITERATIONS
+
+exit $SHELLPACK_SUCCESS

@@ -1,0 +1,32 @@
+### vdsotest is a utility for testing and benchmarking a Linux VDSO.
+### The vdsotest suite contains tests for functional, abi and
+### performance tests, supporting the following clocks:
+###
+###   clock-gettime-monotonic
+###   clock-getres-monotonic
+###   clock-gettime-monotonic-coarse
+###   clock-getres-monotonic-coarse
+###   clock-gettime-realtime
+###   clock-getres-realtime
+###   clock-gettime-realtime-coarse
+###   clock-getres-realtime-coarse
+###   getcpu
+###   gettimeofday
+###
+### The mmtests extention only deals with the benchmarking aspect,
+### and covers all the above clock swhere the VDSO is benchmarked
+### against the system call over a period of time.
+
+# MM Test Parameters
+export MMTESTS="vdsotest"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# vdsotest
+export VDSOTEST_ITERATIONS=4
+export VDSOTEST_DURATION=10
