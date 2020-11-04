@@ -2,16 +2,20 @@
 DIRNAME=`dirname $0`
 export SCRIPTDIR=`cd "$DIRNAME" && pwd`
 CONFIG=$SCRIPTDIR/config
+INCLUDE_PERF=
+INCLUDE_FTRACE=
 
 usage() {
 	echo "$0 [-mn] [-c path_to_config] runname"
 	echo
-	echo "-c|--config      Use MMTests config, default is top-level config"
-	echo "-h|--help        Prints this help."
+	echo "-c|--config             Use MMTests config, suggest configs/config-monitor"
+	echo "-p|--enable-perf-hook   Enable perf profiling"
+	echo "-t|--enable-ftrace-hook Enable perf profiling"
+	echo "-h|--help               Prints this help."
 }
 
 # Parse command-line arguments
-ARGS=`getopt -o kmnc:h --long help,config: -n generate-monitor-only.sh -- "$@"`
+ARGS=`getopt -o hpc:t --long help,enable-perf-hook,config:,enable-ftrace-hook -n generate-monitor-only.sh -- "$@"`
 eval set -- "$ARGS"
 while true; do
 	case "$1" in
@@ -24,6 +28,14 @@ while true; do
 			KVM_ARGS="$KVM_ARGS $1"
 			exit $SHELLPACK_SUCCESS
 			;;
+		-p|--enable-perf-hook)
+			INCLUDE_PERF=yes
+			shift
+			;;
+		-t|--enable-ftrace-hook)
+			INCLUDE_FTRACE=yes
+			shift
+			;;
 		--)
 			break
 			;;
@@ -34,6 +46,12 @@ while true; do
 			;;
 	esac
 done
+
+git diff --quiet
+if [ $? -ne 0 ]; then
+	echo ERROR: Tree is dirty, changes will not be included in self-extracting script
+	exit -1
+fi
 
 # Take the unparsed option as the parameter
 shift
@@ -85,6 +103,16 @@ sed -i -e '/wget xfsprogs/d' $TREE_MMTESTS/run-mmtests.sh
 echo Altering top-level execution script
 sed -i -e '/reset_transhuge/d' $TREE_MMTESTS/run-mmtests.sh
 sed -i -e '/Using default TESTDISK_DIR/d' $TREE_MMTESTS/run-mmtests.sh
+
+if [ "$INCLUDE_PERF" = "yes" ]; then
+	echo Adding perf hook
+	mv $TREE_MMTESTS/profile-disabled-hooks-perf.sh $TREE_MMTESTS/profile-hooks-perf.sh
+fi
+if [ "$INCLUDE_FTRACE" = "yes" ]; then
+	echo Adding ftrace hook
+	mv $TREE_MMTESTS/profile-disabled-hooks-perf.sh $TREE_MMTESTS/profile-hooks-perf.sh
+fi
+
 
 echo Removing some scripts
 rm $TREE_MMTESTS/generate-monitor-only.sh

@@ -3,25 +3,28 @@
 ###SHELLPACK init_complete
 ###SHELLPACK monitor_hooks
 
+EXITING=
 cleanup()
 {
-	monitor_post_hook $LOGDIR_RESULTS monitor
 	rm /tmp/mmtests-monitor.pid
-	exit
+	EXITING=yes
 }
 trap cleanup SIGTERM
 trap cleanup SIGINT
+trap cleanup EXIT
 
 monitor_pre_hook $LOGDIR_RESULTS monitor
 echo $$ > /tmp/mmtests-monitor.pid
 if [ "$MONITOR_FOREVER" = "yes" ]; then
 	echo Run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
-	while [ 1 ]; do
+	while [ "$EXITING" != "yes" ]; do
 		sleep 60
 	done
 else
 	echo Hit enter, run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
 	read INPUT
 fi
+echo Exiting, may take time to compress logs
+monitor_post_hook $LOGDIR_RESULTS monitor
 
 exit $SHELLPACK_SUCCESS

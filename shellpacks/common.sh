@@ -1492,7 +1492,7 @@ function collect_hardware_info()
 	fi
 	if [ -e /sys/devices/system/cpu/cpu0/cpuidle ]; then
 		grep . /sys/devices/system/cpu/cpu0/cpuidle/state*/latency > $SHELLPACK_LOG/cpuidle-latencies.txt
-		tar -czf $SHELLPACK_LOG/cpuidle.tar.gz /sys/devices/system/cpu/cpu0/cpuidle
+		tar -czf $SHELLPACK_LOG/cpuidle.tar.gz /sys/devices/system/cpu/cpu0/cpuidle &> /dev/null
 	fi
 }
 
