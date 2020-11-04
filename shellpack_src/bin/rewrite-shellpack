@@ -66,8 +66,14 @@ while (<STDIN>) {
 	if ($command eq "preamble") {
 		my ($name, $version) = @details;
 		my $dummy;
+		my $index;
 		($shellpack, $dummy) = split(/-/, $name);
-		$shellpack = substr($name, 0, rindex($name, "-"));
+		$index = rindex($name, "-");
+		if ( $index == -1 ) {
+			$shellpack = $name
+		} else {
+			$shellpack = substr($name, 0, $index);
+		}
 		print <<EOC
 set \${MMTESTS_SH_DEBUG:-+x}
 P=$name
