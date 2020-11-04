@@ -215,7 +215,7 @@ Be verbose in the output.
 
 No detailed description available.
 
-=head1 AUTHOD
+=head1 AUTHOR
 
 Written by Mel Gorman <mgorman@suse.de>
 

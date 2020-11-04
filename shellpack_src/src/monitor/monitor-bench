@@ -1,15 +1,18 @@
 #!/bin/bash
 ###SHELLPACK preamble monitor 0
 ###SHELLPACK init_complete
+###SHELLPACK monitor_hooks
 
 cleanup()
 {
+	monitor_post_hook $LOGDIR_RESULTS monitor
 	rm /tmp/mmtests-monitor.pid
 	exit
 }
 trap cleanup SIGTERM
 trap cleanup SIGINT
 
+monitor_pre_hook $LOGDIR_RESULTS monitor
 echo $$ > /tmp/mmtests-monitor.pid
 if [ "$MONITOR_FOREVER" = "yes" ]; then
 	echo Run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
