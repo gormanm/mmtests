@@ -240,10 +240,16 @@ function start_tracer_monitor()
 }
 
 function start_monitors() {
-	local _start _type _monitors _monitor
+	local _start _type _monitors _monitor _wait_time
 
 	create_monitor_dir
 	export GLOBAL_MONITOR_DIR=$MONITOR_DIR
+
+	_wait_time=${MONITOR_WAIT_TIME:-0}
+	if [ $_wait_time -gt 0 ]; then
+		echo Sleeping $_wait_time seconds before starting monitors
+		sleep $_wait_time
+	fi
 
 	for _type in always plain gzip with_latency tracer
 	do
