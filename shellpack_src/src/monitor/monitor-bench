@@ -15,7 +15,10 @@ trap cleanup EXIT
 
 monitor_pre_hook $LOGDIR_RESULTS monitor
 echo $$ > /tmp/mmtests-monitor.pid
-if [ "$MONITOR_FOREVER" = "yes" ]; then
+if [ "$MONITOR_CMD" != "" ]; then
+	echo Monitoring while running \"$MONITOR_CMD\"
+	$MONITOR_CMD
+elif [ "$MONITOR_FOREVER" = "yes" ]; then
 	echo Run kill $$ or kill \`cat /tmp/mmtests-monitor.pid\` to finish monitoring.
 	while [ "$EXITING" != "yes" ]; do
 		sleep 60
