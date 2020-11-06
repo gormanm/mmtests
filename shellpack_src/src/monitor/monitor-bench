@@ -13,6 +13,11 @@ trap cleanup SIGTERM
 trap cleanup SIGINT
 trap cleanup EXIT
 
+wait_time=${MONITOR_PROFILE_WAIT_TIME:-0}
+if [ $wait_time -gt 0 ]; then
+	echo Sleeping $wait_time seconds before start of profiling
+	sleep $wait_time
+fi
 monitor_pre_hook $LOGDIR_RESULTS monitor
 echo $$ > /tmp/mmtests-monitor.pid
 if [ "$MONITOR_CMD" != "" ]; then
