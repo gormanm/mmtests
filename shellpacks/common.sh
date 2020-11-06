@@ -182,12 +182,14 @@ function shutdown_pid() {
 }
 
 function install_tuned() {
-	install-depends tuned
+	if [ "$MMTESTS_TUNED_PROFILE" != "" ]; then
+		install-depends tuned
 
-	if [ `which tuned 2>/dev/null` = "" ]; then
-		die tuned requested but unavailable
+		if [ "`which tuned 2>/dev/null`" = "" ]; then
+			die "tuned requested but unavailable"
+		fi
+		mkdir -p /var/log/tuned
 	fi
-	mkdir -p /var/log/tuned
 }
 
 function start_tuned() {
