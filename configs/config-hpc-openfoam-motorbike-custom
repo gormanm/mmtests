@@ -5,15 +5,42 @@
 ### the tutorial uses 6 processes for the calculations based on a 3x2 xdivision
 ### and ydivision (6 subdomains) which is modified depending on the machine.
 ###
-### Scaling: Scale X and Y to maximise CPU usage while maintaining ratio
 ### Solver:  Default
 ### Faces:   Default
 ### Steps:   All
 ###
-### Note that this means that not all CPUs may be used and in some cases, all
-### CPUs will be used which is not necessarily optimal for openMPI. At the
-### time of writing, the openMPI version used is openMPI 3.1.6-1.19 if using
-### SLE 15 SP2 and openMPI 3.1.4-lp151.7.3.1 if using openSUSE Leap 15.1.
+### At time of writing, the openMPI version used is openMPI 3.1.6-1.19
+### if using SLE 15 SP2 and openMPI 3.1.4-lp151.7.3.1 if using
+### openSUSE Leap 15.1.
+###
+### For a given number of subdomains many decompositions (ie. division
+### in X-, and/or Y-, and/or Z-dimension) exist.  Runtime for each of
+### those decompositions might differ significantly from each
+### other. For a two NUMA node system (marvin4, 2x24 CPUs) optimal
+### decompositions (those with shortest runtime; probably they are
+### specific for this system only) for different numbers of subdomains
+### were determined:
+###
+###               divison   runtime
+### subdomains    X  Y  Z  (min:sec)
+###     3         3  1  1   ~ 5:58
+###     4         1  2  2   ~ 4:38
+###     6         3  2  1   ~ 3:35
+###     8         4  2  1   ~ 3:03
+###    12         3  2  2   ~ 2:26
+###    16         4  2  2   ~ 2:07
+###    18         3  2  3   ~ 2:00
+###    20        10  2  1   ~ 1:53
+###    24         6  2  2   ~ 1:46
+###    32        16  1  2   ~ 2:19
+###    48         8  2  3   ~ 2:10
+###
+### Shortest overall runtime was seen with 24 subdomains (6, 2, 2).
+### Outliers with excessive runtime were decomposition (1, 4, 2) for 8
+### subdomains with more than 50 minutes (and then test was aborted)
+### and decomposition (8, 4, 1) for 32 subdomains with runtime of
+### about 27 minutes.
+
 . $SHELLPACK_INCLUDE/include-sizes.sh
 get_numa_details
 
@@ -49,9 +76,9 @@ export OPENFOAM_GLOBAL_CELLS=100000000
 export OPENFOAM_REFINEMENT_CELLS=10
 export OPENFOAM_CELL_LEVELS=3
 export OPENFOAM_ITERATIONS=3
-export OPENFOAM_XDIVISION=10
+export OPENFOAM_XDIVISION=6
 export OPENFOAM_YDIVISION=2
-export OPENFOAM_ZDIVISION=1
+export OPENFOAM_ZDIVISION=2
 
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
