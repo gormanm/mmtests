@@ -3,16 +3,10 @@
 ### of threads or processes (depending on configuration) that communicate
 ### via pipes or sockets (depending on configuration).
 ###
-### Note that while hackbench is often considered to be a scheduler benchmark,
-### it is particularly weak when used with pipes. Given multiple senders and
-### receivers sharing pipes that are unsynchronised, it is dominated heavily
-### by a mutex protecting the pipe structures and a spinlock protecting the
-### queue for wakeups. A significant percentage of time is spend acquiring
-### and releasing those locks as well as the inevitable bounces of cache
-### line data as waker/wakee processes do not run on the same CPUs but
-### instead select CPUs that are nearby during wakeups.
-###
-### pipetest is a scheduler ping-pong test that measures context switch latency.
+### This configuration uses just processes and pipes and only stresses the
+### benchmark a large number of times. The intent is to stress load avg
+### accounting which can drift if appropriate barriers are not placed within
+### the scheduler.
 
 # MM Test Parameters
 export MMTESTS="hackbench-process-pipes"
@@ -37,9 +31,9 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # HackBench
-export HACKBENCH_ITERATIONS=3
-export HACKBENCH_MIN_GROUPS=1
-export HACKBENCH_MAX_GROUPS=$((NUMCPUS*4))
+export HACKBENCH_ITERATIONS=100
+export HACKBENCH_MIN_GROUPS=$((NUMCPUS*2))
+export HACKBENCH_MAX_GROUPS=$((NUMCPUS*2))
 if [[ `uname -m` =~ i.86 ]]; then
 	export HACKBENCH_MAX_GROUPS=128
 fi
