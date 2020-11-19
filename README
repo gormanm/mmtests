@@ -1,65 +1,61 @@
 Overview
 ========
 
-MMTests is a configurable test suite that runs a number of common
-workloads of interest to MM developers. Ideally this would have been
-to integrated with LTP, xfstests or Phoronix Test or implemented
-with autotest.  Unfortunately, large portions of these tests are
-cobbled together over a number of years with varying degrees of
-quality before decent test frameworks were common.  The refactoring
-effort to integrate with another framework is significant.
+MMTests is a configurable test suite that runs performance tests
+against arbitrary workloads. This is not the only test framework
+but care is taken to make sure the test configurations are accurate,
+representative and reproducible. Reporting and analysis is common across
+all benchmarks. Support exists for gathering additional telemetry while
+tests are running and hooks exist for more detailed tracing using ftrace
+or perf.
 
 Organisation
 ============
 
-The top-level directory has a single driver script called
-run-mmtests.sh which reads a config file that describes how the
-benchmarks should be run, configures the system and runs the requested
-tests. config also has some per-test configuration items that can be
-set depending on the test. The driver script takes the name of the
-test as a parameter. Generally, this would be a symbolic name naming
-the kernel being tested.
+The top-level directory has a single driver script called run-mmtests.sh
+which reads a config file that describes how the benchmarks should be
+configured and executed. In some cases, the same benchmarking tool may
+be used with different configurations that stresses the scenario.
 
-Each test is driven by a run-single-test.sh script which reads the relevant
-driver-TESTNAME.sh script. It should not be used directly. High level
-items such as profiling are configured from the top-level script while the
-driver scripts typically convert the config parameters into switches for a
-"shellpack". A shellpack is a pair of benchmark and install scripts that
-are all stored in shellpacks/ .
+A test name can have any same. A common use case is simply to compare
+kernel versions but it can be anything -- different compiler, different
+userspace package, different benchmark configuration etc.
 
 Monitors can be optionally configured. A full list is in monitors/
-. Care should be taken with monitors as there is a possibility that
-they introduce overhead of their own.  Hence, for some performance
-sensitive tests it is preferable to have no monitoring.
+. Care should be taken with monitors as there is a possibility that they
+introduce overhead of their own.  Hence, for some performance sensitive
+tests it is preferable to have no monitoring.
 
-Many of the tests download external benchmarks. An attempt will be
-made to download from a mirror . To get an idea where the mirror
+Many of the tests download external benchmarks. An attempt will be made
+to download from a mirror if it exists. To get an idea where the mirror
 should be located, grep for MIRROR_LOCATION= in shellpacks/.
 
 A basic invocation of the suite is
 
 <pre>
-$ cp configs/config-pagealloc-performance config
-$ ./run-mmtests.sh --no-monitor 3.0-nomonitor
-$ ./run-mmtests.sh --run-monitor 3.0-runmonitor
+$ ./bin/autogen-configs
+$ ./run-mmtests.sh --no-monitor --config configs/config-pagealloc-performance 5.8-vanilla
+$ ./run-mmtests.sh --no-monitor --config configs/config-pagealloc-performance 5.9-vanilla
+$ cd work/log
+$ ../../compare-kernels.sh
+$ mkdir /tmp/html/
+$ ../../compare-kernels.sh --format html --output-dir /tmp/html > /tmp/html/index.html
 </pre>
+
+The first step is optional. Some configurations are auto-generated from
+a template, particularly the filesystem-specific ones.
+
+Note that List::BinarySearch may need to be installed from cpan for the
+reporting to work. Similarly, R should be installed if attempting to
+highlight whether performance differences are statistically relevant.
 
 Configuration
 =============
 
-The config file used is always called "config". A number of other
-sample configuration files are provided that have a given theme. Some
-important points of variability are;
+The config file can take many options. Some are universal, others are
+specific to the test.
 
 MMTESTS is a list of what tests will be run
-
-LINUX_GIT is the location of a git repo of the kernel. At the moment it's only
-	used during report generation
-
-SKIP_*PROFILE
-	These parameters determine what profiling runs are done. Even with
-	profiling enabled, a non-profile run can be used to ensure that
-	the profile and non-profile runs are comparable.
 
 SWAP_CONFIGURATION
 SWAP_PARTITIONS
@@ -107,200 +103,27 @@ $WEBROOT/kernbench/linux-3.0.tar.gz . If this is not available, it is
 downloaded from the internet. This can add delays in testing and consumes
 bandwidth so is worth configuring.
 
-Available tests
-===============
+Organisation
+------------
 
-Note the ones that are marked untested. These have been ported from other
-test suites but no guarantee they actually work correctly here. If you want
-to run these tests and run into a problem, report a bug.
+All available configurations are stored in configs/.
 
-kernbench
-	Builds a kernel 5 times recording the time taken to completion.
-	An average time is stored. This is sensitive to the overall
-	performance of the system as it hits a number of subsystems.
-
-aim9
-	Runs a short version of aim9 by default. Each test runs for 60
-	seconds. This is a micro-benchmark of a number of VM operations. It's
-	sensitive to changes in the allocator paths for example.
-
-dbench3
-	Runs the dbench3 benchmark. This is an old benchmark but it is also
-	a poor benchmark. The average results are sensitive to how long it
-	was running as different portions of the command file have different
-	throughput. This means that the exact time the benchmark stops makes
-	a difference to average throughput.
-
-	dbench3 when run asynchronously is sensitive to when background
-	writeback or journalling takes place. High throughput figures may
-	depend on the operations completing in memory before processes
-	like kjournald (where applicable) or flushers kick in. If dbench
-	does most of its work in memory then the throughput is artificially
-	high. Running the benchmark in synchronous mode can offset this.
-
-	Alterations to hold times of i_mutex can adversely affect dbench
-	figures because in some cases long hold times can give an artificial
-	boost to metadata modifications in memory without the results ever
-	hitting the disk.
-
-	Interpreting dbench3 figures can be a pain due to these limitations.
-	However, it can still be useful as an early warning system. If
-	dbench3 throws up something anomalous it is worth finding out the
-	root cause and correlating it with other results.
-
-dbench4
-	Runs the dbench4 benchmark. This is in better shape than dbench3
-	in that it is more of an IO benchmark. It also reports on latencies
-	of various different operations which is useful.
-
-ffsb
-	The ffsb benchmark takes a workfile to simulate various different
-	workloads. Support is there to generate profiles similar to what
-	is used for evaluating btrfs.
-
-vmr-stream
-	Runs the STREAM benchmark a number of times for varying sizes. An
-	average is recorded. This can be used to measure approximate memory
-	throughput or the average cost of a number of basic operations. It is
-	sensitive to cache layout used for page faults.
-
-vmr-cacheeffects (untested)
-	Performs linear and random walks on nodes of different sizes stored in
-	a large amount of memory. Sensitive to cache footprint and layout.
-
-vmr-createdelete (untested)
-	A micro-benchmark that measures the time taken to create and delete
-	file or anonymous mappings of increasing sizes. Sensitive to changes
-	in the page fault path performance.
-
-iozone
-	A basic filesystem benchmark.
-
-fsmark
-	This tests write workloads varying the number of files and directory
-	depth.
-
-hackbench-*
-	Hackbench is generally a scheduler benchmark but is also sensitive to
-	overhead in the allocators and to a lesser extent the fault paths.
-	Can be run for either sockets or pipes.
-
-largecopy
-	This is a simple single-threaded benchmark that downloads a large
-	tar file, expands it a number of times, creates a new tar and
-	expands it again. Each operation is timed and is aimed at shaking
-	out stall-related bugs when copying large amounts of data
-
-largedd
-	Similar to largecopy except it uses dd instead of cp.
-
-libreofficebuild
-	This downloads and builds libreoffice. It is a more aggressive
-	compile-orientated test. This is a very download-intensive
-	benchmark and was only created as a reproduction case for
-	a bug.
-
-nas-*
-	The NAS Parallel Benchmarks for the serial and openmp versions of
-	the test.
-
-netperf-*
-	Runs the netperf benchmark for *_STREAM on the local machine.
-	Sensitive to cache usage and allocator costs. To test for cache line
-	bouncing, the test can be configured to bind to certain processors.
-
-pipetest
-	This is a scheduler ping-pong test where two processes send a byte
-	to each other over a pipe to measure context switch latency. More
-	details on the motivation behind the benchmark are available at
-	http://thread.gmane.org/gmane.linux.kernel/1129232/focus=1129389
-
-postmark
-
-	This workload is a single-threaded benchmark intended to measure
-	filesystem performance for many short-lived and small files. It
-	is meant to simulate workloads like mail servers or web servers
-	serving static files using a mix of data and metadata intensive
-	operations. The main weakness is that it does not application
-	processing and all the transactions are filesystem-based. The
-	ratio of each operation type is not necessarily representative
-	of anything.
-
-	Optionally a program can be run in the background that consumes
-	anonymous memory. The background program is vary rarely needed
-	except when trying to identify desktop stalls during heavy IO.
-
-simple-writeback
-	This is a simple writeback test based on dd. It's meant to be
-	easy to understand and quick to run. Useful for measuring page
-	writeback changes.
-
-speccpu (untested)
-	SPECcpu, what else can be said. A restriction is that you must have
-	a mirrored copy of the tarball as it is not publicly available.
-
-specjvm (untested)
-	SPECjvm. Same story as speccpu
-
-specomp (untested)
-	SPEComp. Same story as speccpu
-
-starve
-	This is an old scheduler benchmark that was used to illustrate
-	a particular bug in the O(1) scheduler. It's no longer really
-	relevant but as it is a bug that occurred before, it may be
-	worth monitoring. More details at
-	http://www.hpl.hp.com/research/linux/kernel/o1-starve.php
-
-sysbench
-	Runs the complex workload for sysbench backed by postgres. Running
-	this test requires a significant build environment on the test
-	machine. It can run either read-only or read/write tests.
-
-tiobench
-	Threaded IO benchmark.
-
-ltp (untested)
-	The LTP benchmark. What it is testing depends on exactly which of the
-	suite is configured to run.
-
-ltp-pounder (untested)
-	ltp pounder is a non-default test that exists in LTP. It's used by
-	IBM for hardware certification to hammer a machine for a configured
-	number of hours. Typically, they expect it to run for 72 hours
-	without major errors.  Useful for testing general VM stability in
-	high-pressure low-memory situations.
-
-xfstests (untested)
-	This is still at prototype level and aimed at running testcase 180
-	initially to reproduce some figures provided by the filesystems people.
-
-futexbench-*
-	Collection of programs to measure a number of core futex operations
-	related to the overall architecture. Specifically: (i) hash, (ii) wake,
-	and (iii) requeue operations.  Built on-top of the perf-bench
-	infrastructure.
+The install and test scripts are automatically generated from template
+files stored in shellpack_src/src/. Some have a build suffix indicating
+that it is only building a supporting tool like a library a benchmark
+requires. Do not modify the generated test-scripts in shellpacks/ directory
+as they will simply be overwritten.
 
 Reporting
 =========
 
-For reporting, there is a basic compare-kernels.sh script. It must be updated
-with a list of kernels you want to compare and in what order. It generates a
-table for each test, operation and kernel showing the relative performance
-of each. The test reporting scripts are in subreports/. compare-kernels.sh
-should be run from the path storing the test logs. By default this is
-work/log. If you are automating tests from an external source, work/log is
-what you should be capturing after a set of tests complete.
+For reporting, there is a basic compare-kernels.sh script. It can
+optionally specify a different baseline and comparison point. By default,
+table is organised by the time the test was executed.
 
-If monitors are configured such as ftrace, there are additional
-processing scripts. They can be activated by setting FTRACE_ANALYSERS in
-compare-kernels.sh. A basic post-process script is mmtests-duration which
-simply reports how long an individual test took and what its CPU usage was.
+Development
+===========
 
-There are a limited number of graphing scripts included in report/
-
-TODO
-====
-
-o Add option to test on filesystem loopback device stored on tmpfs
-o Add volanomark
+Patches should be sent to Mel Gorman <mgorman@techsingularity.net>. While
+the project is hosted on github, notifications get lost so pull requests
+there may be missed for quite a long time.

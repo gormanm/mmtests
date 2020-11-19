@@ -78,6 +78,10 @@ export CONFIGS
 eval set -- "$ARGS"
 while true; do
 	case "$1" in
+		-h|--help)
+			perldoc ${BASH_SOURCE[0]}
+			exit 0
+			;;
 		-p|--performance)
 			export FORCE_PERFORMANCE_SETUP=yes
 			shift
@@ -685,3 +689,53 @@ fi
 activity_log "run-mmtests: End"
 teststate_log "status :: $EXIT_CODE"
 exit $EXIT_CODE
+
+: <<=cut
+=pod
+
+=head1 NAME
+
+run-mmtests.sh - Install and execute a set of tests as specified by a configuration file
+
+=head1 SYNOPSIS
+
+run-mmtests B[options] test-name
+
+ Options:
+ --run-monitors		Run with monitors enabled as specified by the configuration
+ --no-monitor		Only execute the benchmark, do not execute it
+ --performance		Set the performance cpufreq governor before starting
+ --config		Configuration file to read (default: config)
+ --build-only		Only build the benchmark, do not execute it
+
+=head1 DESCRIPTION
+
+B<run-mmtests.sh> is for test installation and execution. If monitors
+are enabled, they start monitoring after the benchmark has been installed
+and configured.
+
+The B<test-name> can be anything and only specifies the name of the
+directory under B<work/log> so uniquely identify the test. An obvious
+example is using the kernel name or the name of a patch. It could also
+be based on changing userspace packages, the benchmark configuration,
+system tuning or different machine names.
+
+The work/log/test-name directory will have all the raw logs of the
+benchmark itself, any monitoring and some basic information about the
+machine configuration for offline analysis.
+
+=head1 EXAMPLE
+
+$ ./bin/autogen-configs
+
+$ ./run-mmtests.sh --no-monitor --config configs/config-pagealloc-performance 5.8-vanilla
+
+$ ./run-mmtests.sh --no-monitor --config configs/config-pagealloc-performance 5.9-vanilla
+
+=head1 AUTHOR
+
+B<Mel Gorman <mgorman@techsingularity.net>>
+
+=head1 REPORTING BUGS
+
+Report bugs to the author.

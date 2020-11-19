@@ -13,6 +13,10 @@ KERNEL_COMPARE=
 
 while [ "$1" != "" ]; do
 	case $1 in
+	-h|--help)
+		perldoc ${BASH_SOURCE[0]}
+		exit 0
+		;;
 	--auto-detect)
 		AUTO_DETECT_SIGNIFICANCE="--print-significance"
 		shift
@@ -24,6 +28,7 @@ while [ "$1" != "" ]; do
 		;;
 	--output-dir)
 		OUTPUT_DIRECTORY=$2
+		mkdir -p $OUTPUT_DIRECTORY
 		shift 2
 		;;
 	--baseline)
@@ -42,20 +47,8 @@ while [ "$1" != "" ]; do
 		KERNEL_EXCLUDE=$2
 		shift 2
 		;;
-	--result-dir)
-		cd "$2" || die Result directory does not exist or is not directory
-		shift 2
-		;;
 	--sort-version)
 		SORT_VERSION=yes
-		shift
-		;;
-	--plot-details)
-		PLOT_DETAILS="yes"
-		shift
-		;;
-	--exclude-monitors)
-		EXCLUDE_MONITORS=yes
 		shift
 		;;
 	--help) cat <<EOF
@@ -675,9 +668,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	eval $COMPARE_CMD --print-monitor duration
 	echo
 
-	if [ "$EXCLUDE_MONITORS" = "yes" ]; then
-		continue
-	fi
 	eval $COMPARE_CMD --print-monitor mmtests-vmstat
 	echo
 	eval $COMPARE_CMD --print-monitor mmtests-schedstat
@@ -1202,14 +1192,6 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 				fi
 			else
 				echo "<tr><td>No graph representation</td></tr>"
-			fi
-			if [ "$PLOT_DETAILS" != "" ]; then
-				eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest --plottype run-sequence --separate-tests --with-smooth
-				for TEST_PLOT in $OUTPUT_DIRECTORY/graph-$SUBREPORT-singletest-*; do
-					[[ $TEST_PLOT =~ "-smooth" ]] && continue
-					dest=`basename $TEST_PLOT `
-					smoothover $dest
-				done
 			fi
 		esac
 		echo "</table>"
@@ -1920,3 +1902,60 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	fi
 done
 cat $SCRIPTDIR/shellpacks/common-footer-$FORMAT 2> /dev/null
+
+exit 0
+
+: <<=cut
+=pod
+
+=head1 NAME
+
+compare-kernels.sh - Compare results between benchmarking runs
+
+=head1 SYNOPSIS
+
+compare-kernels.sh B[options]
+
+ Options:
+  --baseline <testname>		Baseline test name, default is time ordered
+  --compare  "<test> <test>"	Comparison test names, space separated
+  --exclude  "<test> <test>"	Exclude test names
+  --auto-detect			Attempt to automatically highlight significant differences
+  --sort-version		Assume kernel versions for test names and attempt to sort
+  --format html			Generate a HTML format of the report
+  --output-dir			Output directory for HTML report
+
+=head1 DESCRIPTION
+
+B<compare-kernels.sh> despite its name compares an arbitrary number of
+benchmarking runs. Historically, the only use case was kernel versions
+hence the name but in practice, anything can be compared -- machines,
+userspace packages, benchmark versions, tuning parameters etc.
+
+The default output mode is text in which case only basic reports will
+be generated. If HTML reports are generated then graphs of both the
+benchmark itself and enabled monitors will also be created.
+
+Significance testing is optional and may report false positives or
+false negatives so treat it as a guideline only.
+
+Note that it is assumed that the log directory consists of results from
+the same configuration file. If there is a mix of configurations and
+benchmarks used then the comparison script will get confused and the
+output will be unusable.
+
+=head1 EXAMPLE
+
+$ cd work/log
+$ ../../compare-kernels.sh
+
+$ mkdir /tmp/report/
+$ ../../compare-kernels.sh --format html --output-dir /tmp/report > /tmp/report/index.html
+
+=head1 AUTHOR
+
+B<Mel Gorman <mgorman@techsingularity.net>>
+
+=head1 REPORTING BUGS
+
+Report bugs to the author.
