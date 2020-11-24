@@ -1,4 +1,4 @@
-# ExtractFioscaling
+# ExtractFiossd
 package MMTests::ExtractFiossd;
 use MMTests::SummariseMultiops;
 use MMTests::Stat;
@@ -8,7 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	my $class = shift;
-	$self->{_ModuleName} = "ExtractFio";
+	$self->{_ModuleName} = "ExtractFiossd";
 	$self->{_DataType}   = DataTypes::DATA_KBYTES_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
@@ -22,7 +22,7 @@ sub extractOneFile {
 	my $size = 0;
 	my $rw = 0;
 
-	my $input = $self->SUPER::open_log($file);
+	my $input = $self->SUPER::open_log("$reportDir/$worker");
 	while (<$input>) {
 		if ( /^fio/ ) {
 			# fio command line, parse for size, e.g. --size=1G

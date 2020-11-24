@@ -8,7 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	my $class = shift;
-	$self->{_ModuleName} = "ExtractFio";
+	$self->{_ModuleName} = "ExtractFioscaling";
 	$self->{_DataType}   = DataTypes::DATA_KBYTES_PER_SECOND;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
@@ -22,7 +22,7 @@ sub extractOneFile {
 	my $jobs = 0;
 	my $rw = 0;
 
-	my $input = $self->SUPER::open_log($reportDir/$worker);
+	my $input = $self->SUPER::open_log("$reportDir/$worker");
 	while (<$input>) {
 		if ( /^fio/ ) {
 			# fio command line, parse for number of jobs
