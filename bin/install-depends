@@ -144,7 +144,7 @@ my %allow_downgrade = (
 
 my %check_package = (
 	"suse" => "rpm -q",
-	"debian" => "dpgk-query -s",
+	"debian" => "dpkg-query -s",
 	"redhat" => "rpm -q",
 	"gentoo" => "false",
 );
