@@ -148,7 +148,9 @@ rm -f $SCRIPTDIR/bash_arrays
 rm -f $SCRIPTDIR/shellpacks/shellpack-*
 
 # Remove stale merged install directories
-find $SCRIPTDIR/work/sources/ -maxdepth 1 -type d -name "*deps-installed" -exec rm -rf {} \;
+if [ -d $SCRIPTDIR/work/sources/ ]; then
+	find $SCRIPTDIR/work/sources/ -maxdepth 1 -type d -name "*deps-installed" -exec rm -rf {} \;
+fi
 
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
