@@ -10,7 +10,7 @@ usage() {
 	echo
 	echo "-c|--config             Use MMTests config, suggest configs/config-monitor"
 	echo "-p|--enable-perf-hook   Enable perf profiling"
-	echo "-t|--enable-ftrace-hook Enable perf profiling"
+	echo "-t|--enable-ftrace-hook Enable Ftrace tracing"
 	echo "-h|--help               Prints this help."
 }
 
@@ -110,7 +110,7 @@ if [ "$INCLUDE_PERF" = "yes" ]; then
 fi
 if [ "$INCLUDE_FTRACE" = "yes" ]; then
 	echo Adding ftrace hook
-	mv $TREE_MMTESTS/profile-disabled-hooks-perf.sh $TREE_MMTESTS/profile-hooks-perf.sh
+	mv $TREE_MMTESTS/profile-disabled-hooks-trace-cmd.sh $TREE_MMTESTS/profile-hooks-trace-cmd.sh
 fi
 
 
