@@ -49,9 +49,9 @@ gcc -Wall /tmp/mmtests-wait.c -o /tmp/mmtests-wait || exit $SHELLPACK_ERROR
 
 echo "#!/bin/bash" > monitor-pre-hook
 echo "
-trace-cmd $TRACE_RECORD_COMMAND -o \$1/trace-cmd-\$2-report-${PROFILE_TITLE}.data /tmp/mmtests-wait &
+trace-cmd $TRACE_RECORD_COMMAND -o \$1/trace-cmd-\$2-report-${PROFILE_TITLE}.data &
 echo -n Waiting on ftrace to start
-while [ ! -e /tmp/mmtests.wait.pid ]; do
+while [ ! -e \$1/trace-cmd-\$2-report-${PROFILE_TITLE}.data.cpu0 ]; do
 	echo -n .
 	sleep 1
 done
@@ -62,7 +62,8 @@ echo \$! > /tmp/mmtests.trace-cmd.pid
 
 echo "#!/bin/bash" > monitor-post-hook
 echo 'WAITPID=`cat /tmp/mmtests.trace-cmd.pid`' >> monitor-post-hook
-echo 'kill `cat /tmp/mmtests.wait.pid`' >> monitor-post-hook
+# use SIGINT to stop trace-cmd record
+echo 'kill -s 2 $WAITPID' >> monitor-post-hook
 echo 'sleep 1' >> monitor-post-hook
 echo 'echo Waiting on trace-cmd pid $WAITPID to exit: `date`' >> monitor-post-hook
 echo 'while [ "`ps h --pid $WAITPID`" != "" ]; do' >> monitor-post-hook
