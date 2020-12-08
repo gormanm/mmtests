@@ -1,34 +1,3 @@
-echo '#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-
-int main() {
-	int fd;
-	char buf[64];
-	int bytes_write, bytes_written;
-
-	fd = open("/tmp/mmtests.wait.pid", O_CREAT|O_TRUNC|O_WRONLY);
-	if (fd == -1) {
-		perror("open");
-		exit(-1);
-	}
-
-	snprintf(buf, sizeof(buf), "%d", getpid());
-	bytes_written = 0;
-	bytes_write = strlen(buf);
-	while (bytes_written != bytes_write) {
-		bytes_written += write(fd, buf + bytes_written, bytes_write - bytes_written);
-	}
-	close(fd);
-	pause();
-	return 0;
-}' > /tmp/mmtests-wait.c
-
 # Create profiling hooks
 TRACE_EVENTS=
 for EVENT in $MONITOR_FTRACE_EVENTS; do
@@ -44,8 +13,6 @@ fi
 
 TRACE_RECORD_COMMAND="record -a $TRACE_EVENTS $TRACE_PLUGIN"
 TRACE_REPORT_COMMAND=
-
-gcc -Wall /tmp/mmtests-wait.c -o /tmp/mmtests-wait || exit $SHELLPACK_ERROR
 
 echo "#!/bin/bash" > monitor-pre-hook
 echo "
@@ -79,9 +46,5 @@ echo "gzip \$1/trace-cmd-\$2-report-${PROFILE_TITLE}.data" >> monitor-post-hook
 echo "exit 0" >> monitor-post-hook
 
 echo "#!/bin/bash" > monitor-cleanup-hook
-
-echo "#!/bin/bash" > monitor-reset
-echo 'kill `cat /tmp/mmtests.wait.pid`' >> monitor-reset
-echo "sleep 5" >> monitor-reset
 
 chmod u+x monitor-*
