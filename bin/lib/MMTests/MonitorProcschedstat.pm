@@ -21,10 +21,14 @@ my %_fieldNameMap = (
 	"sis_scanned"			=> "SIS Scanned",
 	"mmtests_sis_domain_scanned"	=> "SIS Domain Scanned",
 	"sis_failed"			=> "SIS Failures",
+	"sis_core_search"		=> "SIS Core Search",
+	"mmtests_sis_core_hit"		=> "SIS Core Hit"
+	"sis_core_failed"		=> "SIS Core Miss",
 	"sis_recent_hit"		=> "SIS Recent Used Hit",
 	"sis_recent_miss"		=> "SIS Recent Used Miss",
 	"mmtests_sis_efficiency"	=> "SIS Search Efficiency",
 	"mmtests_sis_domain_efficiency" => "SIS Domain Search Eff",
+	"mmtests_sis_core_efficiency"	=> "SIS Core Search Eff",
 	"mmtests_sis_fast_success"	=> "SIS Fast Success Rate",
 	"mmtests_sis_success"		=> "SIS Success Rate",
 	"mmtests_sis_recent_success"	=> "SIS Recent Success Rate",
@@ -80,6 +84,8 @@ sub parseSchedstat($) {
 		# 13 sis_failed
 		# 14 sis_recent_hit		version 17
 		# 15 sis_recent_miss
+		# 16 sis_core_search
+		# 17 sis_core_miss
 		if ($version >= 15) {
 			$current_values{"ttwu_count"}  += $elements[5];
 			$current_values{"ttwu_local"}  += $elements[6];
@@ -98,6 +104,11 @@ sub parseSchedstat($) {
 			$current_values{"sis_recent_hit"}  += $elements[14];
 			$current_values{"sis_recent_miss"} += $elements[15];
 		}
+
+		if ($version >= 18) {
+			$current_values{"sis_core_search"}  += $elements[16];
+			$current_values{"sis_core_miss"} += $elements[17];
+		}
 	}
 
 	# Record previous values
@@ -114,6 +125,7 @@ sub parseSchedstat($) {
 	my $sis_recent_hit = $current_values{"sis_recent_hit"} - $last_values{"sis_recent_hit"};
 	my $sis_recent_miss = $current_values{"sis_recent_miss"} - $last_values{"sis_recent_miss"};
 	my $sis_recent_attempts = $sis_recent_hit + $sis_recent_miss;
+	my $sis_core_hit = $current_values{"sis_core_search"} - $current_values{"sis_core_miss"};
 
 	my $fast_search = $sis_search - $sis_domain_search;
 	my $domain_scanned = $sis_scanned - $fast_search;
@@ -131,6 +143,12 @@ sub parseSchedstat($) {
 			return 100;
 		}
 		return $sis_domain_search * 100 / $domain_scanned;
+	}
+	if ($subHeading eq "mmtests_sis_core_efficiency") {
+		if (!$sis_core_search) {
+			return 100;
+		}
+		return $sis_core_hit * 100 / $sis_core_search;
 	}
 
 	if ($subHeading eq "mmtests_sis_fast_success") {

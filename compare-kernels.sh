@@ -1453,6 +1453,11 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			eval $GRAPH_PNG --logY --title \"SIS Failure\" --print-monitor procschedstat --sub-heading sis_failed --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-sisfailure
 			eval $GRAPH_PNG --yrange -5:105 --title \"SIS Recent Success Rate\" --print-monitor procschedstat --sub-heading mmtests_sis_recent_success --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-recentsuccess
 			eval $GRAPH_PNG --yrange -5:105 --title \"SIS Recent Success Rate\" --print-monitor procschedstat --sub-heading mmtests_sis_recent_success --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-recentsuccess --with-smooth
+
+			eval $GRAPH_PNG --yrange -5:105 --title \"SIS Core Efficiency\" --print-monitor procschedstat --sub-heading mmtests_sis_core_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-siscoreefficiency
+			eval $GRAPH_PNG --logY --title \"SIS Core Search\" --print-monitor procschedstat --sub-heading sis_core_search --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-siscoresearch
+			eval $GRAPH_PNG --logY --title \"SIS Core Hit\" --print-monitor procschedstat --sub-heading sis_core_hit --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-siscorehit
+			eval $GRAPH_PNG --logY --title \"SIS Core Miss\" --print-monitor procschedstat --sub-heading sis_core_miss --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-siscoremiss
 			echo "<tr>"
 			plain graph-$SUBREPORT-schedstat-sisefficiency
 			plain graph-$SUBREPORT-schedstat-sisdomainefficiency
@@ -1462,6 +1467,12 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 			echo "</tr><tr>"
 			plain graph-$SUBREPORT-schedstat-scanned
 			plain graph-$SUBREPORT-schedstat-domainscanned
+			echo "</tr><tr>"
+			plain graph-$SUBREPORT-schedstat-siscorehit
+			plain graph-$SUBREPORT-schedstat-siscoremiss
+			echo "</tr><tr>"
+			plain graph-$SUBREPORT-schedstat-siscoresearch
+			plain graph-$SUBREPORT-schedstat-siscoreefficiency
 			echo "</tr><tr>"
 			plain graph-$SUBREPORT-schedstat-ttwucount
 			plain graph-$SUBREPORT-schedstat-ttwulocal
