@@ -1456,7 +1456,7 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 
 			eval $GRAPH_PNG --yrange -5:105 --title \"SIS Core Efficiency\" --print-monitor procschedstat --sub-heading mmtests_sis_core_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-siscoreefficiency
 			eval $GRAPH_PNG --logY --title \"SIS Core Search\" --print-monitor procschedstat --sub-heading sis_core_search --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-siscoresearch
-			eval $GRAPH_PNG --logY --title \"SIS Core Hit\" --print-monitor procschedstat --sub-heading sis_core_hit --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-siscorehit
+			eval $GRAPH_PNG --logY --title \"SIS Core Hit\" --print-monitor procschedstat --sub-heading mmtests_sis_core_hit --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-siscorehit
 			eval $GRAPH_PNG --logY --title \"SIS Core Miss\" --print-monitor procschedstat --sub-heading sis_core_miss --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-schedstat-siscoremiss
 			echo "<tr>"
 			plain graph-$SUBREPORT-schedstat-sisefficiency

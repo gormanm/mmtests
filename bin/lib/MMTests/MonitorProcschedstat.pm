@@ -22,7 +22,7 @@ my %_fieldNameMap = (
 	"mmtests_sis_domain_scanned"	=> "SIS Domain Scanned",
 	"sis_failed"			=> "SIS Failures",
 	"sis_core_search"		=> "SIS Core Search",
-	"mmtests_sis_core_hit"		=> "SIS Core Hit"
+	"mmtests_sis_core_hit"		=> "SIS Core Hit",
 	"sis_core_failed"		=> "SIS Core Miss",
 	"sis_recent_hit"		=> "SIS Recent Used Hit",
 	"sis_recent_miss"		=> "SIS Recent Used Miss",
@@ -130,6 +130,9 @@ sub parseSchedstat($) {
 	my $fast_search = $sis_search - $sis_domain_search;
 	my $domain_scanned = $sis_scanned - $fast_search;
 
+	# mmtests_sis_core_hit
+	$current_values{"mmtests_sis_core_hit"} = $sis_core_hit;
+
 	# mmtests_sis_efficiency
 	if ($subHeading eq "mmtests_sis_efficiency") {
 		if ($sis_scanned == 0) {
@@ -145,10 +148,10 @@ sub parseSchedstat($) {
 		return $sis_domain_search * 100 / $domain_scanned;
 	}
 	if ($subHeading eq "mmtests_sis_core_efficiency") {
-		if (!$sis_core_search) {
+		if (!$current_values{"sis_core_search"}) {
 			return 100;
 		}
-		return $sis_core_hit * 100 / $sis_core_search;
+		return $sis_core_hit * 100 / $current_values{"sis_core_search"};
 	}
 
 	if ($subHeading eq "mmtests_sis_fast_success") {
