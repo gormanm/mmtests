@@ -1,7 +1,7 @@
 #!/bin/bash
 # sqlite installer
-###SHELLPACK preamble sqlite-install 3090200
-WEB_LOCATION=https://www.sqlite.org/2015/sqlite-autoconf-3090200.tar.gz
+###SHELLPACK preamble sqlite-install 3340000
+WEB_LOCATION=https://www.sqlite.org/2020
 MIRROR_LOCATION="$WEBROOT/sqlite/"
 
 ###SHELLPACK parseargBegin

@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble sqlite-bench 3090200
+###SHELLPACK preamble sqlite-bench 3340000
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
