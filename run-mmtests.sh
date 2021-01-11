@@ -296,10 +296,9 @@ fi
 # benchmarks (bsc#1066465)
 if [ "`which ntp-wait 2>/dev/null`" != "" ]; then
 	echo "Waiting for NTP to stabilize system clock..."
-	ntp-wait -v -s 1 -n 600
+	ntp-wait -v -s 1 -n 30
 	if [ $? -ne 0 ]; then
 		echo "Failed to stabilize system clock!";
-		systemctl stop ntpd.service
 	fi
 	systemctl stop ntpd.service
 	systemctl stop chronyd.service
