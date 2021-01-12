@@ -1496,6 +1496,11 @@ function collect_hardware_info()
 		grep . /sys/devices/system/cpu/cpu0/cpuidle/state*/latency > $SHELLPACK_LOG/cpuidle-latencies.txt
 		tar -czf $SHELLPACK_LOG/cpuidle.tar.gz /sys/devices/system/cpu/cpu0/cpuidle &> /dev/null
 	fi
+	if [ "`which tuned-adm 2>/dev/null`" != "" ]; then
+		tuned-adm active > $SHELLPACK_LOG/tuned-active-profile.txt
+		tuned-adm list   > $SHELLPACK_LOG/tuned-available-profile.txt
+	fi
+	grep -r . /proc/sys/net/* > $SHELLPACK_LOG/network-tuning.txt
 }
 
 function collect_kernel_info()
