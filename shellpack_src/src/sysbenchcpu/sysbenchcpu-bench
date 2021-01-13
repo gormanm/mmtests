@@ -4,6 +4,7 @@
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --max-prime   MAX_PRIME
+###SHELLPACK parseargParam --min-threads MIN_THREADS
 ###SHELLPACK parseargParam --max-threads MAX_THREADS
 ###SHELLPACK parseargParam --iterations  ITERATIONS
 ###SHELLPACK parseargEnd
@@ -14,7 +15,7 @@
 
 export PATH=$SHELLPACK_SOURCES/sysbenchcpu-${VERSION}-installed/bin:$PATH
 
-###SHELLPACK threads_large_stride_begin 1 $MAX_THREADS
+###SHELLPACK threads_large_stride_begin $MIN_THREADS $MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $ITERATIONS
 		echo Running $NR_THREADS threads Iteration $ITERATION/$ITERATIONS
