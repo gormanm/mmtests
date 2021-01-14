@@ -165,6 +165,8 @@ tar -czf mmtests-monitor-${RUNNAME}.tar.gz mmtests-monitor-${RUNNAME} || die Fai
 echo Creating self-executing script
 cat > $SCRIPTDIR/gather-monitor-${RUNNAME}.sh << EOF
 #!/bin/bash
+# Head git-commit `git rev-parse HEAD`
+
 echo Extracting
 HEADER=\`awk '/^=== BEGIN MONITOR SCRIPTS ===/ { print NR + 1; exit 0; }' \$0\`
 tail -n +\$HEADER \$0 | base64 -d > mmtests-monitor-${RUNNAME}.tar.gz
