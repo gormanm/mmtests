@@ -76,6 +76,9 @@ sub parseOne() {
 		next if $line =~ /^Linux/;
 		last if $line =~ /^$/;
 
+		$line =~ s/ AM//;
+		$line =~ s/ PM//;
+
 		my @elements = split(/\s+/, $line);
 		my $value = 100 - $elements[-1];
 		if ($expected_elements == -1) {
