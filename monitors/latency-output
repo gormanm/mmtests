@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+use strict;
 
 use Time::HiRes qw( time );
 use IO::Handle;
@@ -6,11 +7,8 @@ use IO::Handle;
 my $start=time();
 my $last = $start;
 my $line = "";
-while (!eof STDIN) {
-	sysread(STDIN,$c,1);
-	if ($c eq "") {
-		exit;
-	}
+my $c;
+while (sysread(STDIN, $c, 1)) {
 	if ($c eq "\r") {
 		$c = "\n";
 	}
@@ -26,5 +24,4 @@ while (!eof STDIN) {
 		flush STDIN;
 		flush STDOUT;
 	}
-
 }

@@ -200,8 +200,8 @@ function start_with_latency_monitor()
 	_monitor=$1
 	_pidfile=$MONITOR_DIR/monitor.pids
 
-	( $EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo -n $! > /tmp/monitor-1.$$.pid ) | \
-		( $SCRIPTDIR/monitors/latency-output & echo -n $! > /tmp/monitor-2.$$.pid ) | gzip -c > ${MONITOR_LOG}.gz &
+	( $EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo $! > /tmp/monitor-1.$$.pid ) | \
+		( $SCRIPTDIR/monitors/latency-output & echo $! > /tmp/monitor-2.$$.pid ) | gzip -c > ${MONITOR_LOG}.gz &
 	PID1=`cat /tmp/monitor-1.$$.pid`
 	rm -f /tmp/monitor-1.$$.pid
 	PID2=`cat /tmp/monitor-2.$$.pid`

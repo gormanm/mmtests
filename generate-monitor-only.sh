@@ -167,7 +167,6 @@ cat > $SCRIPTDIR/gather-monitor-${RUNNAME}.sh << EOF
 #!/bin/bash
 # Head git-commit `git rev-parse HEAD`
 
-echo Extracting
 HEADER=\`awk '/^=== BEGIN MONITOR SCRIPTS ===/ { print NR + 1; exit 0; }' \$0\`
 tail -n +\$HEADER \$0 | base64 -d > mmtests-monitor-${RUNNAME}.tar.gz
 if [ \$? -ne 0 ]; then
@@ -181,26 +180,69 @@ if [ \$? -ne 0 ]; then
 fi
 rm mmtests-monitor-${RUNNAME}.tar.gz
 
-echo Executing monitor script, follow instructions on screen
+if [ "\$1" = "--extract" ]; then
+	echo Extracted to \`pwd\`/mmtests-monitor-$RUNNAME
+	exit 0
+fi
+
 cd mmtests-monitor-$RUNNAME
 if [ \$? -ne 0 ]; then
 	echo ERROR: Failed to access monitor scripts
 	exit -1
 fi
-./run-mmtests.sh $RUNNAME
-PACKAGENAME="logs-$RUNNAME-\`date +%Y%m%d-%H%M-%S\`.tar.gz"
-tar -czf ../\$PACKAGENAME $SHELLPACK_LOG_BASE_SUBDIR
-if [ \$? -ne 0 ]; then
-	cd ..
-	rm -rf mmtests-monitor-$RUNNAME
-	echo ERROR: Failed to archive logs gathered
-	exit -1
+
+RET=0
+if [ "\$1" = "--verify" ]; then
+	MONITORS=\`grep "export MONITORS_" config | awk -F = '{print \$2}' | sed -e 's/"//g'\`
+	echo Checking monitor binary dependencies
+	for BINDEP_SPEC in perl:perl-base expect:expect tclsh:tcl gzip:gzip; do
+		BINDEP=\`echo \$BINDEP_SPEC | awk -F : '{print \$1}'\`
+		PACKAGE=\`echo \$BINDEP_SPEC | awk -F : '{print \$2}'\`
+		if [ "\`which \$BINDEP 2>/dev/null\`" = "" ]; then
+			echo Basic binary depencency \$BINDEP not in path, install \$PACKAGE
+			RET=-1
+		else
+			echo Baseline \$BINDEP OK
+		fi
+	done
+
+	for MONITOR in \$MONITORS; do
+		BINDEPS=\`grep BinDepend: monitors/watch-\$MONITOR.* | awk -F Depend: '{print \$2}'\`
+		for BINDEP_SPEC in \$BINDEPS; do
+			BINDEP=\`echo \$BINDEP_SPEC | awk -F : '{print \$1}'\`
+			PACKAGE=\`echo \$BINDEP_SPEC | awk -F : '{print \$2}'\`
+			if [ "\`which \$BINDEP 2>/dev/null\`" = "" ]; then
+				echo Monitor \$MONITOR binary depencency \$BINDEP not in path, install \$PACKAGE
+				RET=-1
+			else
+				echo Monitor \$MONITOR OK
+			fi
+		done
+	done
+
+	if [ \$RET -ne 0 ]; then
+		echo WARNING: Monitors missing binary dependencies, some logs will not be captured
+	fi
+else
+	echo Executing monitor script, follow instructions on screen
+	./run-mmtests.sh $RUNNAME
+	PACKAGENAME="logs-$RUNNAME-\`date +%Y%m%d-%H%M-%S\`.tar.gz"
+	tar -czf ../\$PACKAGENAME $SHELLPACK_LOG_BASE_SUBDIR
+	RET=\$?
+
+	if [ \$RET -ne 0 ]; then
+		cd ..
+		rm -rf mmtests-monitor-$RUNNAME
+		echo ERROR: Failed to archive logs gathered
+	else
+		echo Logs successfully packed in \$PACKAGENAME
+	fi
 fi
+
 cd ..
 rm -rf mmtests-monitor-$RUNNAME
 
-echo Logs successfully packed in \$PACKAGENAME
-exit 0
+exit \$RET
 === BEGIN MONITOR SCRIPTS ===
 EOF
 base64 mmtests-monitor-${RUNNAME}.tar.gz >> $SCRIPTDIR/gather-monitor-${RUNNAME}.sh || \

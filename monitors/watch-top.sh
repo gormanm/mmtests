@@ -1,4 +1,5 @@
 #!/bin/bash
+# BinDepend: top:procps
 if [ "$MONITOR_TOP_ACTIVEONLY" = "" ]; then
 	MONITOR_TOP_ACTIVEONLY=yes
 fi

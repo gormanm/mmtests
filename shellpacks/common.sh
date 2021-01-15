@@ -1500,7 +1500,7 @@ function collect_hardware_info()
 		tuned-adm active > $SHELLPACK_LOG/tuned-active-profile.txt
 		tuned-adm list   > $SHELLPACK_LOG/tuned-available-profile.txt
 	fi
-	grep -r . /proc/sys/net/* > $SHELLPACK_LOG/network-tuning.txt
+	grep -r . /proc/sys/net/* 2>/dev/null > $SHELLPACK_LOG/network-tuning.txt
 	systemctl list-units &> $SHELLPACK_LOG/systemctl-units.txt
 }
 
