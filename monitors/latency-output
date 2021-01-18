@@ -4,6 +4,12 @@ use strict;
 use Time::HiRes qw( time );
 use IO::Handle;
 
+if ($ARGV[0] ne "") {
+	open(OUTPUT, ">$ARGV[0]");
+	print OUTPUT $$;
+	close(OUTPUT);
+}
+
 my $start=time();
 my $last = $start;
 my $line = "";

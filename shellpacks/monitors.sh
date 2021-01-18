@@ -201,10 +201,21 @@ function start_with_latency_monitor()
 	_pidfile=$MONITOR_DIR/monitor.pids
 
 	( $EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo $! > /tmp/monitor-1.$$.pid ) | \
-		( $SCRIPTDIR/monitors/latency-output & echo $! > /tmp/monitor-2.$$.pid ) | gzip -c > ${MONITOR_LOG}.gz &
+		$SCRIPTDIR/monitors/latency-output /tmp/monitor-2.$$.pid | gzip -c > ${MONITOR_LOG}.gz &
 	PID1=`cat /tmp/monitor-1.$$.pid`
 	rm -f /tmp/monitor-1.$$.pid
-	PID2=`cat /tmp/monitor-2.$$.pid`
+
+	# Wait for pid2 to appear. The same trick is not done for pid1 due
+	# to a bug in older versions of bash that "lose" the subshells
+	# pid. latency-output is not then properly killed and stdin may
+	# not be flushed to gzip
+	PID2=`cat /tmp/monitor-2.$$.pid 2> /dev/null`
+	ps -p $PID2 &> /dev/null
+	while [ $? -ne 0 ]; do
+		sleep 0.1
+		PID2=`cat /tmp/monitor-2.$$.pid 2> /dev/null`
+		ps -p $PID2 &> /dev/null
+	done
 	rm -f /tmp/monitor-2.$$.pid
 
 	echo $PID2 >> $_pidfile
