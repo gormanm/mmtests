@@ -621,6 +621,8 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	dmesg > $SHELLPACK_LOG/dmesg
 	gzip -f $SHELLPACK_LOG/dmesg
+	journalctl -k 2>/dev/null > $SHELLPACK_LOG/journalctl-kernel
+	gzip -f $SHELLPACK_LOG/journalctl-kernel
 	gzip -f $SHELLPACK_SYSSTATEFILE
 
 	shutdown_numad
