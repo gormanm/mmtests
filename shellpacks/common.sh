@@ -1503,6 +1503,7 @@ function collect_hardware_info()
 	grep -r . /proc/sys/net/* 2>/dev/null | gzip -c - > $SHELLPACK_LOG/network-tuning.txt.gz
 	grep -r . /proc/sys/vm/* 2>/dev/null | gzip -c - > $SHELLPACK_LOG/vm-tuning.txt.gz
 	grep -r . /proc/sys/kernel/* 2> /dev/null | gzip -c - > $SHELLPACK_LOG/kernel-tuning.txt.gz
+	sysctl -a 2>/dev/null | gzip -c - > $SHELLPACK_LOG/sysctl-tuning.gz
 
 	systemctl list-units &> $SHELLPACK_LOG/systemctl-units.txt
 }
