@@ -22,6 +22,7 @@ my $sampleCWidth = 1;
 my $topologyModel;
 my @leafNodes;
 my @samples;
+my @nr_cpus;
 my $levelOffset = 0;
 
 sub initialise() {
@@ -202,6 +203,13 @@ sub end() {
 	# Size width of canvas to fit excessive samples if necessary
 	$levelOffset = 5 - $leafNodes[0]->{_Level};
 	my $nr_samples = scalar(@{$samples[0]});
+	# We need to know how many CPUs there are in each "group", so we can
+	# scale the load accordingly. The number of LeafNodes corresponds to
+	# that at all level, except at the 'cpu' level, where there are 0
+	# leaves but, clearly, 1 CPU.
+	for (my $i = 0; $i < scalar(@leafNodes); $i++) {
+		push @nr_cpus, ($leafNodes[$i]->{_NrLeafNodes} or 1);
+	}
 	if ($cWidth < $nr_samples) {
 		$leafCWidth += $nr_samples - $cWidth;
 		$cWidth = $nr_samples;
@@ -234,16 +242,17 @@ sub end() {
 
 	# Render CPU samples
 	for ($i = 0; $i < scalar(@leafNodes); $i++) {
+
 		my @cpuUtil = @{$samples[$i]};
 		for (my $sample = 0; $sample < scalar(@cpuUtil); $sample++) {
 			if ($sampleCWidth > 1) {
 				$canvas->filledRectangle(sampleLX($i, $sample), sampleTY($i, $sample),
 					        sampleRX($i, $sample), sampleBY($i, $sample),
-						$gradient[int($cpuUtil[$sample])]);
+						$gradient[int($cpuUtil[$sample]/$nr_cpus[$i])]);
 			} else {
 				$canvas->line(sampleLX($i, $sample), sampleTY($i, $sample),
 					        sampleRX($i, $sample), sampleBY($i, $sample),
-						$gradient[int($cpuUtil[$sample])]);
+						$gradient[int($cpuUtil[$sample]/$nr_cpus[$i])]);
 			}
 		}
 	}
