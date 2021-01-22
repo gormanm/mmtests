@@ -204,7 +204,7 @@ fi
 install-depends autoconf automake bc binutils-devel btrfsprogs bzip2	\
 	cpupower e2fsprogs expect expect-devel gcc hdparm hwloc libtool	\
 	make numactl patch perl-Time-HiRes psmisc tcl time util-linux	\
-	wget xfsprogs xfsprogs-devel xz
+	wget xfsprogs xfsprogs-devel xz which
 
 # Set some basic performance cpu frequency settings.
 if ! $BUILDONLY && [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then

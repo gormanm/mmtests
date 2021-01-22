@@ -16,7 +16,7 @@ $ENV{"ZYPP_LOCK_TIMEOUT"}=300;
 sub which {
 	my $binary = $_[0];
 
-	open(BODGE, "which $binary 2>/dev/null |") || die("Failed to open pipe to which");
+	open(BODGE, "command -v $binary 2>/dev/null |") || die("Failed to open pipe to which");
 	chomp(my $line = <BODGE>);
 	close(BODGE);
 	return $line;
