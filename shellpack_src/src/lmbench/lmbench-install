@@ -5,6 +5,7 @@ MIRROR_LOCATION="$WEBROOT/lmbench"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
+install-depends libtirpc-devel
 
 ###SHELLPACK sources_fetch lmbench${VERSION}.tar.gz lmbench-${VERSION}-installed
 
@@ -12,6 +13,7 @@ MIRROR_LOCATION="$WEBROOT/lmbench"
 # Workaround build problem
 mkdir SCCS
 touch SCCS/s.ChangeSet
+sed -i -e 's/__linux__/__noneed__/' src/disk.c
 cd src
 ###SHELLPACK make
 
