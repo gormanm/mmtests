@@ -27,6 +27,7 @@ fi
 
 ###SHELLPACK check_install_required stream-0
 ###SHELLPACK init_complete
+###SHELLPACK build_start stream-${VERSION}-installed
 
 SIZEOF_DOUBLE=`cpp -dD /dev/null | grep SIZEOF_DOUBLE | awk '{print $NF}'`
 if [ "$SIZEOF_DOUBLE" = "" ]; then
