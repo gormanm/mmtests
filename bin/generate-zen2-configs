@@ -6,7 +6,7 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 cd $SCRIPTDIR/../configs || exit
 
 # STREAM
-for CONFIG in `ls config-workload-stream-* | grep -v -E ".*-zen2$"`; do
+for CONFIG in `ls config-workload-stream-* | grep -v -E ".*-zen[0-9]$"`; do
 	sed    -e 's/STREAM_SIZE=.*/STREAM_SIZE=\$((1048576*3*2048))/' $CONFIG > $CONFIG-zen2
 	sed -i -e '/STREAM_BUILD_CFLAGS=/d' $CONFIG-zen2
 	echo 'export STREAM_BUILD_CFLAGS="-m64 -lm -Ofast -march=znver2 -mcmodel=medium -DOFFSET=512"' >> $CONFIG-zen2

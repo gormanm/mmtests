@@ -8,6 +8,7 @@ rm -f $SCRIPTDIR/../configs/*-fixed
 $SCRIPTDIR/generate-generic-configs
 $SCRIPTDIR/generate-fs-configs
 $SCRIPTDIR/generate-zen2-configs
+$SCRIPTDIR/generate-zen3-configs
 
 if [ -e $SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh ]; then
 	chmod a+x $SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh
