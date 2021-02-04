@@ -226,7 +226,7 @@ if [ "\$1" = "--verify" ]; then
 else
 	echo Executing monitor script, follow instructions on screen
 	./run-mmtests.sh $RUNNAME
-	PACKAGENAME="logs-$RUNNAME-\`date +%Y%m%d-%H%M-%S\`.tar.gz"
+	PACKAGENAME="logs-$RUNNAME-\`hostname\`-\`date +%Y%m%d-%H%M-%S\`.tar.gz"
 	tar -czf ../\$PACKAGENAME $SHELLPACK_LOG_BASE_SUBDIR
 	RET=\$?
 
@@ -236,6 +236,9 @@ else
 		echo ERROR: Failed to archive logs gathered
 	else
 		echo Logs successfully packed in \$PACKAGENAME
+		LATESTNAME="logs-$RUNNAME-\`hostname\`-LATEST.tar.gz"
+		rm -f \$LATESTNAME
+		ln -s \$PACKAGENAME \$LATESTNAME
 	fi
 fi
 

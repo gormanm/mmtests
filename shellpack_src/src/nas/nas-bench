@@ -91,12 +91,10 @@ MPI)
 	for REMOVE in $REMOVE_LIST; do
 		JOBLIST=`echo $JOBLIST | sed -e "s/$REMOVE//"`
 	done
-	if [ "$NAS_ALLOW_CPU_SATURATE" = "yes" ]; then
-		NAS_MAX_CPUS=$((NAS_MAX_CPUS+1))
-	fi
 	if [ "$NAS_BIND" = "yes" ]; then
-		MPIRUN_EXTRA="--bind-to $NAS_BIND_PLACE"
+		MMTESTS_MPI_OPTS+=" --bind-to $NAS_BIND_PLACE"
 	fi
+	MPIRUN="mpirun $NAS_MPI_OPTS $MMTESTS_MPI_OPTS -np $MPICPUS"
 	;;
 OMP)
 	REMOVE_LIST="xx"
@@ -196,7 +194,7 @@ for JOB in $JOBLIST; do
 		MPI)
 			lookup_mpicpus $JOB
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
-				mpirun --allow-run-as-root $MPIOPT -np $MPICPUS $MPIRUN_EXTRA $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS \
+				mpirun --allow-run-as-root $MPIOPT -np $MPICPUS $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS \
 				> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
 		esac
