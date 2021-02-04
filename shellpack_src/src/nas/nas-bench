@@ -94,7 +94,7 @@ MPI)
 	if [ "$NAS_BIND" = "yes" ]; then
 		MMTESTS_MPI_OPTS+=" --bind-to $NAS_BIND_PLACE"
 	fi
-	MPIRUN="mpirun $NAS_MPI_OPTS $MMTESTS_MPI_OPTS -np $MPICPUS"
+	MPIRUN="mpirun $NAS_MPI_OPTS $MMTESTS_MPI_OPTS"
 	;;
 OMP)
 	REMOVE_LIST="xx"
@@ -194,7 +194,7 @@ for JOB in $JOBLIST; do
 		MPI)
 			lookup_mpicpus $JOB
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
-				$MPIRUN $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS \
+				$MPIRUN -np $MPICPUS $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS \
 				> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
 		esac
