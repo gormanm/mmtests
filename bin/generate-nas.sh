@@ -130,13 +130,18 @@ emit_optimization() {
 		esac
 	fi
 
+	FFLAGS=
+	if [ `gcc -dumpversion` -ge 10 ]; then
+		FFLAGS=-fallow-argument-mismatch
+	fi
+
 	echo
 	echo "# Fortran Optimisation"
 	echo "FLINK              = $COMPILE_FORTRAN"
 	echo "F_LIB              = \$(LHRELINK) \$(LHLIB)"
 	echo "F_INC              ="
-	echo "FFLAGS             = $GCC_OPTIMISE $OPENMP $EFLAGS -m$BITNESS"
-	echo "FLINKFLAGS         = $GCC_OPTIMISE $OPENMP $EFLAGS -m$BITNESS \$(LHRELINK) \$(LHLIB)"
+	echo "FFLAGS             = $GCC_OPTIMISE $OPENMP $EFLAGS  $FFLAGS -m$BITNESS"
+	echo "FLINKFLAGS         = $GCC_OPTIMISE $OPENMP $OPENMPI $FFLAGS $EFLAGS -m$BITNESS \$(LHRELINK) \$(LHLIB)"
 
 	echo
 	echo "# C Optimisation"
