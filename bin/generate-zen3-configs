@@ -45,4 +45,4 @@ for CPUCOUNT in 16 32 64 128 225 255 256; do
 done
 
 cp config-hpc-nas-d-class-mpi-256cpus-xfs-zen3-tuned config-hpc-nas-d-class-mpi-Ncpus-xfs-zen3-selective
-echo 'export NAS_JOB_MAX_CPUS="bt=128 cg=32 ep=256 is=128 lu=128 mg=32 sp=256"' >> config-hpc-nas-d-class-mpi-Ncpus-xfs-zen3-selective
+echo 'export NAS_JOB_MAX_CPUS="bt=256 cg=32 ep=256 is=256 lu=128 mg=32 sp=256"' >> config-hpc-nas-d-class-mpi-Ncpus-xfs-zen3-selective
