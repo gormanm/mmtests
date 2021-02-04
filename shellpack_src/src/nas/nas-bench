@@ -72,6 +72,7 @@ fi
 
 ###SHELLPACK check_install_required nas-$VERSION
 ###SHELLPACK init_complete
+###SHELLPACK build_start nas-${VERSION}
 
 JOBLIST="bt cg dc ep ft is lu mg sp ua"
 if [ "$NAS_JOBLIST" != "" ]; then
