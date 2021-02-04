@@ -194,7 +194,7 @@ for JOB in $JOBLIST; do
 		MPI)
 			lookup_mpicpus $JOB
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
-				mpirun --allow-run-as-root $MPIOPT -np $MPICPUS $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS \
+				$MPIRUN $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS \
 				> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
 		esac
