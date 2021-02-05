@@ -132,7 +132,7 @@ emit_optimization() {
 
 	FFLAGS=
 	if [ `gcc -dumpversion` -ge 10 ]; then
-		FFLAGS=-fallow-argument-mismatch
+		FFLAGS="-fallow-argument-mismatch -fallow-invalid-boz"
 	fi
 
 	echo
