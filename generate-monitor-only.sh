@@ -223,6 +223,7 @@ if [ "\$1" = "--verify" ]; then
 	if [ \$RET -ne 0 ]; then
 		echo WARNING: Monitors missing binary dependencies, some logs will not be captured
 	fi
+	cd ..
 else
 	echo Executing monitor script, follow instructions on screen
 	./run-mmtests.sh $RUNNAME
@@ -235,14 +236,15 @@ else
 		rm -rf mmtests-monitor-$RUNNAME
 		echo ERROR: Failed to archive logs gathered
 	else
+		cd ..
 		echo Logs successfully packed in \$PACKAGENAME
 		LATESTNAME="logs-$RUNNAME-\`hostname\`-LATEST.tar.gz"
 		rm -f \$LATESTNAME
 		ln -s \$PACKAGENAME \$LATESTNAME
+		echo Created soft link \$LATESTNAME
 	fi
 fi
 
-cd ..
 rm -rf mmtests-monitor-$RUNNAME
 
 exit \$RET
