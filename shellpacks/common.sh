@@ -126,6 +126,21 @@ function wait_on_pid_exit() {
 	return 0
 }
 
+function wait_on_pid_file_create()
+{
+	local PIDFILE=$1
+	local TIMEOUT=$2
+	local ATTEMPT=0
+
+	[ -e $PIDFILE ] && return 0
+
+	echo Waiting on pidfile $PIDFILE to be created
+	while [ ! -e $PIDFILE ]; do
+		sleep 1
+		[ $(($ATTEMPT)) -gt $TIMEOUT ] || break
+	done
+}
+
 function wait_on_pid_file() {
 	PIDFILE=$1
 	TIMEOUT=$2
