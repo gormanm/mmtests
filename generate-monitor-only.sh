@@ -75,6 +75,7 @@ if [ ! -e run-mmtests.sh -a ! -e .git ]; then
 	die Failed to identify top-level mmtests git tree
 	exit -1
 fi
+gitref=$(git log --pretty=reference -1)
 git archive --format=tar --prefix=mmtests-monitor-$RUNNAME/ `git rev-parse HEAD` | gzip -c - > $SHELLPACK_TEMP/mmtests-monitor-${RUNNAME}.tar.gz || die Failed to create $SHELLPACK_TEMP/mmtests-monitor-${RUNNAME}.tar.gz
 cd $SHELLPACK_TEMP || die Failed to switch to temporary directory
 tar -xf mmtests-monitor-${RUNNAME}.tar.gz || die Failed to expand reference tree
@@ -227,6 +228,8 @@ if [ "\$1" = "--verify" ]; then
 else
 	echo Executing monitor script, follow instructions on screen
 	./run-mmtests.sh $RUNNAME
+	cp config $SHELLPACK_LOG_BASE_SUBDIR/
+	echo "${gitref}" > $SHELLPACK_LOG_BASE_SUBDIR/gitref
 	PACKAGENAME="logs-$RUNNAME-\`hostname\`-\`date +%Y%m%d-%H%M-%S\`.tar.gz"
 	tar -czf ../\$PACKAGENAME $SHELLPACK_LOG_BASE_SUBDIR
 	RET=\$?
