@@ -292,19 +292,6 @@ if [ "`lsmod | grep oprofile`" != "" ]; then
 	opcontrol --deinit > /dev/null 2> /dev/null
 fi
 
-# Wait for ntp to stabilize system clock so that time skips don't confuse
-# benchmarks (bsc#1066465)
-if [ "`which ntp-wait 2>/dev/null`" != "" ]; then
-	echo "Waiting for NTP to stabilize system clock..."
-	ntp-wait -v -s 1 -n 30
-	if [ $? -ne 0 ]; then
-		echo "Failed to stabilize system clock!";
-	fi
-	systemctl stop ntpd.service
-	systemctl stop chronyd.service
-	systemctl stop time-sync.target
-fi
-
 install_numad
 install_tuned
 
