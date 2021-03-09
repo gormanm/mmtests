@@ -1,0 +1,12 @@
+#!/bin/bash
+###SHELLPACK preamble metisbuild metis-5.1.0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+export METIS_VERSION="5.1.0"
+# dependencies
+###SHELLPACK check_external_install_required metisbuild     metisbuild-${METIS_VERSION} ${METIS_VERSION}
