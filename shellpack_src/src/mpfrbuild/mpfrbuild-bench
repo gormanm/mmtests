@@ -1,0 +1,14 @@
+#!/bin/bash
+###SHELLPACK preamble mpfrbuild mpfr-4.0.1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+export GMP_VERSION="6.1.2"
+export MPFR_VERSION="4.0.1"
+# dependencies
+###SHELLPACK check_external_install_required gmpbuild       gmpbuild-${GMP_VERSION}             ${GMP_VERSION}
+###SHELLPACK check_external_install_required mpfrbuild      mpfrbuild-${MPFR_VERSION}           ${MPFR_VERSION}
