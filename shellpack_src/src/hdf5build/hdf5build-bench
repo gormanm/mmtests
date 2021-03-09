@@ -1,0 +1,14 @@
+#!/bin/bash
+###SHELLPACK preamble hdf5build hdf5-1_10_5
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+export PNETCDF_VERSION="1.12.1"
+export HDF5_VERSION="hdf5-1_10_5"
+# dependencies
+###SHELLPACK check_external_install_required pnetcdfbuild pnetcdfbuild-$PNETCDF_VERSION $PNETCDF_VERSION
+###SHELLPACK check_external_install_required hdf5build hdf5build-$HDF5_VERSION $HDF5_VERSION
