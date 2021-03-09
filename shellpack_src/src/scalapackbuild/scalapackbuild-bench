@@ -1,0 +1,15 @@
+#!/bin/bash
+###SHELLPACK preamble scalapackbuild-bench scalapack-2.1.0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+export BLAS_VERSION="v0.3.10"
+export SCALAPACK_MAKE_FLAGS="-DBUILD_SHARED_LIBS=on"
+export SCALAPACK_VERSION="2.1.0"
+# dependencies
+###SHELLPACK check_external_install_required blasbuild		blasbuild-${BLAS_VERSION}		${BLAS_VERSION}
+###SHELLPACK check_external_install_required scalapackbuild	scalapackbuild-${SCALAPACK_VERSION}	${SCALAPACK_VERSION}

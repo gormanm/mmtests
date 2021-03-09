@@ -1,0 +1,17 @@
+. $SHELLPACK_INCLUDE/include-sizes.sh
+get_numa_details
+
+# MM Test Parameters
+export MMTESTS="scalapackbuild"
+
+# List of monitors
+export RUN_MONITOR=no
+export MONITORS_ALWAYS=
+export MONITORS_GZIP=
+export MONITORS_WITH_LATENCY=
+export MONITOR_UPDATE_FREQUENCY=10
+
+# SCALAPACK dependency
+export SCALAPACK_OPENMPI_VERSION=openmpi3
+export SCALAPACK_MPI_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$SCALAPACK_OPENMPI_VERSION/bin
+export SCALAPACK_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$SCALAPACK_OPENMPI_VERSION/$MMTESTS_LIBDIR
