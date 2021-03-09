@@ -11,6 +11,11 @@ export MPICXX=mpic++
 export MPIF77=mpif77
 export MPIF90=mpif90
 
+# Install openmpi requirements
+###SHELLPACK mpi_setup_deps PNETCDF_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env PNETCDF_OPENMPI_VERSION PNETCDF_MPI_PATH PNETCDF_MPI_LIBPATH
+###SHELLPACK mpi_setup_shmem
+
 ###SHELLPACK sources_fetch pnetcdf-${VERSION}.tar.gz pnetcdfbuild-${VERSION}
 ###SHELLPACK build_start pnetcdfbuild-${VERSION}
 ###SHELLPACK build_configure pnetcdfbuild-${VERSION} --enable-fortran --enable-shared --enable-large-file-test
