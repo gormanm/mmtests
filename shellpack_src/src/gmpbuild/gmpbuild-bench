@@ -1,0 +1,12 @@
+#!/bin/bash
+###SHELLPACK preamble gmpbuild gmp-6.1.2
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+export GMP_VERSION="6.1.2"
+# dependencies
+###SHELLPACK check_external_install_required gmpbuild       gmpbuild-${GMP_VERSION}             ${GMP_VERSION}
