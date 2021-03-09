@@ -1,0 +1,19 @@
+#!/bin/bash
+###SHELLPACK preamble mumpsbuild mumps-5.3.3
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+export BLAS_VERSION="v0.3.10"
+#export BLAS_EXTRA_MAKE_FLAGS="NO_SHARED=1"
+export SCALAPACK_VERSION="2.1.0"
+export METIS_VERSION="5.1.0"
+export MUMPS_VERSION="5.3.3"
+# dependencies
+###SHELLPACK check_external_install_required blasbuild      blasbuild-${BLAS_VERSION} ${BLAS_VERSION}
+###SHELLPACK check_external_install_required scalapackbuild scalapackbuild-${SCALAPACK_VERSION} ${SCALAPACK_VERSION}
+###SHELLPACK check_external_install_required metisbuild     metisbuild-${METIS_VERSION} ${METIS_VERSION}
+###SHELLPACK check_external_install_required mumpsbuild     mumpsbuild-${MUMPS_VERSION} ${MUMPS_VERSION}
