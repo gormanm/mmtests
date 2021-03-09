@@ -1,0 +1,12 @@
+#!/bin/bash
+###SHELLPACK preamble cmakebuild cmake-v3.8.2
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+export CMAKE_VERSION="v3.8.2"
+# dependencies
+###SHELLPACK check_external_install_required cmakebuild     cmakebuild-${CMAKE_VERSION}         ${CMAKE_VERSION}
