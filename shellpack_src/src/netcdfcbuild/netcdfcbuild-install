@@ -9,6 +9,11 @@ MIRROR_LOCATION="$WEBROOT/netcdf/"
 ###SHELLPACK git_fetch netcdfcbuild-${VERSION}.tar.gz netcdfcbuild-${VERSION}
 ###SHELLPACK build_start netcdfcbuild-${VERSION}
 
+# Install openmpi requirements
+###SHELLPACK mpi_setup_deps NETCDFC_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env NETCDFC_OPENMPI_VERSION NETCDFC_MPI_PATH NETCDFC_MPI_LIBPATH
+###SHELLPACK mpi_setup_shmem
+
 HDF5="$SHELLPACK_SOURCES/hdf5build-$HDF5_VERSION-installed"
 PNETCDF="$SHELLPACK_SOURCES/pnetcdfbuild-$PNETCDF_VERSION-installed"
 
