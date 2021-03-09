@@ -1,0 +1,18 @@
+#!/bin/bash
+###SHELLPACK preamble cgalbuild cgal-4.12.2
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+export BOOST_VERSION="1_66_0"
+export GMP_VERSION="6.1.2"
+export MPFR_VERSION="4.0.1"
+export CGAL_VERSION="4.12.2"
+# dependencies
+###SHELLPACK check_external_install_required boostbuild     boostbuild-${BOOST_VERSION}         ${BOOST_VERSION}
+###SHELLPACK check_external_install_required gmpbuild       gmpbuild-${GMP_VERSION}             ${GMP_VERSION}
+###SHELLPACK check_external_install_required mpfrbuild      mpfrbuild-${MPFR_VERSION}           ${MPFR_VERSION}
+###SHELLPACK check_external_install_required cgalbuild      cgalbuild-${CGAL_VERSION}           ${CGAL_VERSION}
