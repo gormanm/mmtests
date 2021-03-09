@@ -14,6 +14,11 @@ PNETCDF="$SHELLPACK_SOURCES/pnetcdfbuild-$PNETCDF_VERSION-installed"
 ###SHELLPACK git_fetch piobuild-${VERSION}.tar.gz piobuild-${VERSION}
 ###SHELLPACK build_start piobuild-${VERSION}
 
+# Install openmpi requirements
+###SHELLPACK mpi_setup_deps PIO_OPENMPI_VERSION
+###SHELLPACK mpi_setup_env PIO_OPENMPI_VERSION PIO_MPI_PATH PIO_MPI_LIBPATH
+###SHELLPACK mpi_setup_shmem
+
 export CC=mpicc
 export FC=mpif90
 export CXX=mpic++
