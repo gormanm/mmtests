@@ -1,0 +1,20 @@
+#!/bin/bash
+###SHELLPACK preamble netcdffcbuild netcdffc-v4.5.2
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+install-depends curl libcurl-devel
+
+export PNETCDF_VERSION="1.12.1"
+export HDF5_VERSION="hdf5-1_10_5"
+export NETCDFC_VERSION="v4.7.3"
+export NETCDFFC_VERSION="v4.5.2"
+# dependencies
+###SHELLPACK check_external_install_required pnetcdfbuild pnetcdfbuild-$PNETCDF_VERSION $PNETCDF_VERSION
+###SHELLPACK check_external_install_required hdf5build hdf5build-$HDF5_VERSION $HDF5_VERSION
+###SHELLPACK check_external_install_required netcdfcbuild netcdfcbuild-$NETCDFC_VERSION $NETCDFC_VERSION
+###SHELLPACK check_external_install_required netcdffcbuild netcdffcbuild-$NETCDFFC_VERSION $NETCDFFC_VERSION
