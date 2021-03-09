@@ -1,0 +1,12 @@
+#!/bin/bash
+###SHELLPACK preamble boost-bench boost-1_66_0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+export BOOST_VERSION="1_66_0"
+# dependencies
+###SHELLPACK check_external_install_required boostbuild     boostbuild-${BOOST_VERSION}         ${BOOST_VERSION}
