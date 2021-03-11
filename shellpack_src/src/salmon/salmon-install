@@ -11,7 +11,7 @@ if [ "$SALMON_PROCESSES" != "1" ]; then
 else
 	MPI_SWITCH="--disable-mpi"
 fi
-install-depends gcc-fortran cmake
+install-depends gcc-fortran cmake python
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
