@@ -1311,8 +1311,6 @@ function create_filesystems
 
 	# Create NFS mount
 	if [ "$TESTDISK_NFS_MOUNT" != "" ]; then
-		/etc/init.d/nfs-common start
-		/etc/init.d/rpcbind start
 		mount -t nfs $TESTDISK_NFS_MOUNT $SHELLPACK_TEST_MOUNT || exit
 	fi
 
