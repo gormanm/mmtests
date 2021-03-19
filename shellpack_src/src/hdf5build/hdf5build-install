@@ -7,7 +7,6 @@ MIRROR_LOCATION="$WEBROOT/netcdf/"
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK git_fetch hdf5build-${VERSION}.tar.gz hdf5build-${VERSION}
-###SHELLPACK build_start hdf5build-${VERSION}
 
 export CC=mpicc
 export FC=mpif90
@@ -18,12 +17,13 @@ export CXX=mpic++
 ###SHELLPACK mpi_setup_env HDF5_OPENMPI_VERSION HDF5_MPI_PATH HDF5_MPI_LIBPATH
 ###SHELLPACK mpi_setup_shmem
 
+###SHELLPACK build_start hdf5build-${VERSION}
 export   CFLAGS+=" -I$MPI_BASE_DIR/include"
 export CXXFLAGS+=" -I$MPI_BASE_DIR/include"
 export  FCFLAGS+=" -I$MPI_BASE_DIR/include"
 export  LDFLAGS+=" -L$MPI_BASE_DIR/$MMTESTS_LIBDIR"
 export LD_LIBRARY_PATH="$MPI_BASE_DIR/$MMTESTS_LIBDIR:$LD_LIBRARY_PATH"
-
+export    LIBS+="-lmpi -lmpi_mpifh"
 ###SHELLPACK build_configure hdf5build-${VERSION} --enable-fortran --enable-parallel --enable-shared
 ###SHELLPACK make_make_install
 
