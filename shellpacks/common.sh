@@ -1525,8 +1525,11 @@ function collect_kernel_info()
 {
 	[ -z $SHELLPACK_LOG ] && return
 	uname -a > $SHELLPACK_LOG/kernel.version
-	cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
-	gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
+	# If running inside a container, we may have no kernel config in /boot
+	if [ -e /boot/config-`uname -r` ]; then
+		cp /boot/config-`uname -r` $SHELLPACK_LOG/kconfig-`uname -r`.txt
+		gzip -f $SHELLPACK_LOG/kconfig-`uname -r`.txt
+	fi
 }
 
 function collect_sysconfig_info()
