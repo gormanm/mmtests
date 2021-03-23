@@ -27,6 +27,7 @@ install-depends git-core
 		echo Using $GITCHECKOUT_SOURCETAR
 		wget -q -O gitcheckout.tar.gz $GITCHECKOUT_SOURCETAR
 		if [ $? -ne 0 ]; then
+			echo "Can't retrieve $GITCHECKOUT_SOURCETAR, falling back to $GITCHECKOUT_SOURCE"
 			rm -f gitcheckout.tar.gz
 		fi
 	fi
@@ -39,7 +40,12 @@ install-depends git-core
 		mv $DST_DIR gitcheckout
 	else
 		echo Cloning $GITCHECKOUT_SOURCE
-		git clone $GITCHECKOUT_SOURCE gitcheckout || exit $SHELLPACK_ERROR
+		git clone $GITCHECKOUT_SOURCE gitcheckout
+		if [ $? -ne 0 ]; then
+			GITCHECKOUT_SOURCE=git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6
+			echo "Clone failed! Falling back to $GITCHECKOUT_SOURCE"
+			git clone $GITCHECKOUT_SOURCE gitcheckout || exit $SHELLPACK_ERROR
+		fi
 	fi
 ###SHELLPACK init_only_end
 
