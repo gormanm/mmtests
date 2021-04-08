@@ -1,5 +1,5 @@
 # MM Test Parameters
-export MMTESTS="parsecbuild parsec-blackscholes parsec-bodytrack parsec-canneal parsec-facesim parsec-fluidanimate parsec-netstreamcluster parsec-streamcluster parsec-x264"
+export MMTESTS="parsec-blackscholes parsec-bodytrack parsec-canneal parsec-facesim parsec-fluidanimate parsec-netstreamcluster parsec-streamcluster parsec-x264"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=

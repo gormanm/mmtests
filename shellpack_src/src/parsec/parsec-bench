@@ -11,27 +11,42 @@
 ###SHELLPACK parseargParam	--threads	PARSEC_THREADS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
+
+###SHELLPACK check_install_required_continue parsec-${VERSION}
+
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	source env.sh
+	case $PARSEC_PARALLEL in
+	any)
+		PACKAGES="blackscholes bodytrack canneal dedup facesim ferret fluidanimate freqmine netdedup netferret netstreamcluster raytrace streamcluster swaptions vips x264 splash2.barnes splash2.cholesky splash2.fft splash2.fmm splash2.lu_cb splash2.lu_ncb splash2.ocean_cp splash2.ocean_ncp splash2.radiosity splash2.radix splash2.raytrace splash2.volrend splash2.water_nsquared splash2.water_spatial splash2x.barnes splash2x.cholesky splash2x.fft splash2x.fmm splash2x.lu_cb splash2x.lu_ncb splash2x.ocean_cp splash2x.ocean_ncp splash2x.radiosity splash2x.radix splash2x.raytrace splash2x.volrend splash2x.water_nsquared splash2x.water_spatial"
+		;;
+	gcc-pthreads)
+		PACKAGES="$PARSEC_WORKLOAD"
+		;;
+	*)
+		die Unrecognised parallelisation method $PARSEC_PARALLEL
+		;;
+	esac
+
+	for PACKAGE in $PACKAGES; do
+		unset CXXFLAGS
+		if [ "$PACKAGE" = "bodytrack" ]; then
+			export CXXFLAGS="-std=c++11"
+		fi
+		echo Building $PACKAGE
+		parsecmgmt -a build -p $PACKAGE -c $PARSEC_PARALLEL || die "Failed to build package $PACKAGE"
+	done
+fi
+
 ###SHELLPACK init_complete
 
-install-depends glib2-devel
-install-depends libxml2-devel
-
-round_power_2_cpus() {
-	POWER=1
-	while [ $((1<<$POWER)) -lt $((PARSEC_THREADS+1)) ]; do
-		POWER=$((POWER+1))
-	done
-	PARSEC_THREADS=$((1<<(POWER-1)))
-}
-round_power_2_cpus
-echo $PARSEC_THREADS > $LOGDIR_RESULTS/nr-threads
-
-cd $SHELLPACK_SOURCES/parsecbuild-$VERSION-installed || die "Parsec build directory does not exist"
 source env.sh || die "Failed to source env.sh"
+PARSEC_THREADS=$(round_down_power_2 $PARSEC_THREADS)
 monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $PARSEC_ITERATIONS
+	echo Executing $PARSEC_WORKLOAD $ITERATION/$PARSEC_ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION \
-		parsecmgmt -a run -c $PARSEC_PARALLEL -i $PARSEC_SIZE -p $PARSEC_WORKLOAD -n $PARSEC_THREADS 2>&1 | tee $LOGDIR_RESULTS/parsec.log.$ITERATION
+		parsecmgmt -a run -c $PARSEC_PARALLEL -i $PARSEC_SIZE -p $PARSEC_WORKLOAD -n $PARSEC_THREADS &> $LOGDIR_RESULTS/parsec.log.$ITERATION
 ###SHELLPACK iteration_end $PARSEC_ITERATIONS
 monitor_post_hook $LOGDIR_RESULTS $P
 
