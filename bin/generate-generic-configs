@@ -150,6 +150,11 @@ sed -e 's/SYSBENCHCPU_MAX_THREADS=.*/SYSBENCHCPU_MAX_THREADS=2/' config-schedule
 sed -e 's/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=.*/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=2/' config-scheduler-sysbench-thread > config-scheduler-sysbench-thread-small
 sed -e 's/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=.*/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=2/' config-scheduler-sysbench-thread > config-scheduler-sysbench-thread-small
 
+# Trinity
+for GROUP in vfs vm; do
+	sed -e "s/TRINITY_GROUP=.*/TRINITY_GROUP=$GROUP/" config-functional-trinity > config-functional-trinity-$GROUP
+done
+
 # WRF
 cp config-hpc-wrf-conus12km-hybrid-full config-hpc-wrf-conus12km-mpi-full
 sed -i	\
