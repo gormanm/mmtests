@@ -27,7 +27,7 @@ my %package_map = (
 	"debian::attr-devel"			=> "libattr1-dev",
 	"debian::binutils-devel"		=> "binutils-dev",
 	"debian::blas-devel"			=> "libblas-dev",
-	"debian::btrfsprogs"			=> "btrfs-tools",
+	"debian::btrfsprogs"			=> "btrfs-progs",
 	"debian::cpupower"			=> "linux-cpupower",
 	"debian::diffutils"			=> "diff",
 	"debian::expect-devel"			=> "expect-dev",
@@ -52,6 +52,7 @@ my %package_map = (
 	"debian::perl-Time-HiRes"		=> "perl",
 	"debian::popt-devel"			=> "libpopt-dev",
 	"debian::python3-devel"			=> "python3-dev",
+	"debian::which"				=> "debianutils",
 	"debian::xfsprogs-devel"		=> "xfslibs-dev",
 	"debian::xorg-x11-server"		=> "xserver-xorg",
 	"debian::xz"				=> "xz-utils",
@@ -260,7 +261,7 @@ foreach my $package (@ARGV) {
 
 	if ($ENV{"AUTO_PACKAGE_INSTALL"} eq "yes" || -e $ENV{"HOME"} . "/.mmtests-auto-package-install") {
 		$force_install{"suse"} = "-y";
-		$force_install{"debian"} = "-y --force-yes";
+		$force_install{"debian"} = "-y";
 		$force_install{"redhat"} = "-y";
 	}
 
@@ -268,7 +269,7 @@ foreach my $package (@ARGV) {
 		$allow_downgrade{"suse"} = "--allow-downgrade";
 	}
 
-	if (system("$check_package{$distro} $package &>/dev/null") != 0) {
+	if (system("$check_package{$distro} $package >/dev/null 2>&1") != 0) {
 		if (system("$sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
 			if (system("$sudo $package_bin{$distro} $allow_downgrade{$distro} $force_install{$distro} $package") != 0) {
 				print("WARNING: Failed to cleanly install package $package for distro $distro\n");
