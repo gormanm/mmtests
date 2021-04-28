@@ -68,6 +68,14 @@ sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-frontistr-hinge-allproc-full > co
 sed -i -e '/_MPI_PATH/d'    config-hpc-frontistr-hinge-allproc-hpcext-full
 sed -i -e '/_MPI_LIBPATH/d' config-hpc-frontistr-hinge-allproc-hpcext-full
 
+# John the Ripper
+sed 	-e 's/JOHNRIPPER_MIN_THREADS=.*/JOHNRIPPER_MIN_THREADS=$((NUMCPUS\/2))/'	\
+	-e 's/JOHNRIPPER_MAX_THREADS=.*/JOHNRIPPER_MAX_THREADS=$((NUMCPUS\/2))/'	\
+	config-workload-johnripper > config-workload-johnripper-half
+sed 	-e 's/JOHNRIPPER_MIN_THREADS=.*/JOHNRIPPER_MIN_THREADS=$NUMCPUS/'	\
+	-e 's/JOHNRIPPER_MAX_THREADS=.*/JOHNRIPPER_MAX_THREADS=$NUMCPUS/'	\
+	config-workload-johnripper > config-workload-johnripper-full
+
 # MPAS
 for MODEL in jwbaroclinic supercell; do
 	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-mpas-atmosphere-$MODEL-full > config-hpc-mpas-atmosphere-$MODEL-hpcext-full
