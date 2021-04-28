@@ -7,6 +7,7 @@
 ###SHELLPACK parseargParam    --duration     JOHNRIPPER_DURATION
 ###SHELLPACK parseargParam    --min-threads  JOHNRIPPER_MIN_THREADS
 ###SHELLPACK parseargParam    --max-threads  JOHNRIPPER_MAX_THREADS
+###SHELLPACK parseargParam    --hash         JOHNRIPPER_HASH
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -22,7 +23,8 @@ cd $SHELLPACK_SOURCES/johnripper-${VERSION}-installed/run || die Failed to cd to
 		echo Starting iteration $ITERATION/$JOHNRIPPER_ITERATIONS threads $NR_THREADS/$JOHNRIPPER_MAX_THREADS
 		export OMP_NUM_THREADS=$NR_THREADS
 		$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}-$ITERATION.time	\
-			./john --test=$JOHNRIPPER_DURATION			\
+			./john	--test=$JOHNRIPPER_DURATION			\
+				--format=$JOHNRIPPER_HASH			\
 			2>&1 | tee -a $LOGDIR_RESULTS/johnripper-$NR_THREADS-$ITERATION.log
 	###SHELLPACK iteration_end
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS

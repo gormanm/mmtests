@@ -5,7 +5,7 @@
 ### frequencies to be used unnecessarily and detect some scheduler anomalies.
 
 # MM Test Parameters
-export MMTESTS="johnripper"
+export MMTESTS="johnripper-AFS johnripper-bcrypt johnripper-bsdicrypt johnripper-crypt johnripper-descrypt johnripper-dummy johnripper-LM johnripper-md5crypt johnripper-tripcode"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
@@ -23,10 +23,10 @@ export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat mpstat"
 export MONITORS_WITH_LATENCY="vmstat"
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_UPDATE_FREQUENCY=1
 
 # john the ripper
 export JOHNRIPPER_ITERATIONS=3
-export JOHNRIPPER_DURATION=20
+export JOHNRIPPER_DURATION=30
 export JOHNRIPPER_MIN_THREADS=2
 export JOHNRIPPER_MAX_THREADS=$((NUMCPUS*2))
