@@ -15,6 +15,7 @@ use MMTests::Compare;
 use MMTests::CompareFactory;
 use MMTests::Extract;
 use MMTests::ExtractFactory;
+use JSON;
 use strict;
 
 # Option variable
@@ -26,6 +27,7 @@ my ($opt_subheading, $opt_format);
 my ($opt_names, $opt_benchmark, $opt_altreport);
 my ($opt_monitor, $opt_hideCompare);
 my ($opt_JSONExport);
+my ($opt_from_json);
 GetOptions(
 	'verbose|v'		=> \$opt_verbose,
 	'help|h'		=> \$opt_help,
@@ -37,6 +39,7 @@ GetOptions(
 	'--sub-heading=s'	=> \$opt_subheading,
 	'--format=s'		=> \$opt_format,
 	'--json-export'		=> \$opt_JSONExport,
+	'--from-json=s'		=> \$opt_from_json,
 	'n|names=s'		=> \$opt_names,
 	'b|benchmark=s'		=> \$opt_benchmark,
 	'a|altreport=s'		=> \$opt_altreport,
@@ -48,7 +51,7 @@ pod2usage(-exitstatus => 0, -verbose => 0) if $opt_help;
 pod2usage(-exitstatus => 0, -verbose => 2) if $opt_manual;
 
 # Sanity check directory
-if (! -d $opt_reportDirectory) {
+if (! -d $opt_reportDirectory && ! $opt_from_json) {
 	printWarning("Report directory $opt_reportDirectory does not exist or was not specified.");
 	pod2usage(-exitstatus => -1, -verbose => 0);
 }
@@ -57,27 +60,33 @@ my @extractModules;
 my $nrModules = 0;
 my $extractFactory = MMTests::ExtractFactory->new();
 
-# Instantiate extract handlers for the requested type for the benchmark
-for my $name (split /,/, $opt_names) {
-	printVerbose("Loading extract $opt_benchmark$opt_altreport $name\n");
-	eval {
-		my $reportDirectory = "$opt_reportDirectory/$name";
-		my @iterdirs = <$reportDirectory/iter-*>;
-
-		# Load the appropriate extraction model
-		if (!defined($opt_monitor)) {
-			$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $name, $opt_subheading);
-		} else {
-			$opt_altreport = "";
-			$opt_hideCompare = 1;
-			$extractModules[$nrModules] = $extractFactory->loadModule("monitor", $opt_monitor, $name, $opt_subheading);
-		}
-
-		foreach my $iterdir (@iterdirs) {
-			if (!defined($opt_monitor)) {
-				$extractModules[$nrModules]->extractReport("$iterdir/$opt_benchmark/logs");
-			} else {
-				$extractModules[$nrModules]->extractReport($iterdir, $opt_benchmark, $opt_subheading, 1);
+if ($opt_from_json) {
+	# Load modules from benchmark data read from a JSON file
+	my $json_src = "";
+	my $filename = $opt_from_json;
+	open(FH, '<', $filename) or die $!;
+	foreach my $line (<FH>) {
+		chomp($line);
+		$json_src = $json_src . $line;
+	}
+	my @modules = @{from_json($json_src)};
+	foreach my $module_ref (@modules) {
+		my $module_name = $module_ref->{"_ModuleName"};
+		$module_name =~ s/Extract//;
+		$module_name = lc($module_name);
+		my $test_name = $module_ref->{"_TestName"};
+		$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$module_name", $test_name, $opt_subheading);
+		my $data = $module_ref->{"_ResultData"};
+		my $iterations = scalar(@{$data->{(keys %$data)[0]}});
+		foreach my $i (0..$iterations - 1) {
+			foreach my $op (sort(keys %{$data})) {
+				my $op_data = $data->{$op}[$i];
+				my @values = @{$op_data->{"Values"}};
+				my @samples = @{$op_data->{"SampleNrs"}};
+				my @range = (0..(scalar(@values) - 1));
+				for my $i (@range) {
+					$extractModules[$nrModules]->addData($op, @samples[$i], @values[$i]);
+				}
 			}
 			$extractModules[$nrModules]->nextIteration();
 		}
@@ -87,9 +96,43 @@ for my $name (split /,/, $opt_names) {
 		} else {
 			$extractModules[$nrModules++]->extractSummary($opt_subheading);
 		}
-	} or do {
-		printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport: $name\n$@");
-		$#extractModules -= 1;
+	}
+} else {
+	# Read extractions in the classic way
+	# Instantiate extract handlers for the requested type for the benchmark
+	for my $name (split /,/, $opt_names) {
+		printVerbose("Loading extract $opt_benchmark$opt_altreport $name\n");
+		eval {
+			my $reportDirectory = "$opt_reportDirectory/$name";
+			my @iterdirs = <$reportDirectory/iter-*>;
+
+			# Load the appropriate extraction model
+			if (!defined($opt_monitor)) {
+				$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $name, $opt_subheading);
+			} else {
+				$opt_altreport = "";
+				$opt_hideCompare = 1;
+				$extractModules[$nrModules] = $extractFactory->loadModule("monitor", $opt_monitor, $name, $opt_subheading);
+			}
+
+			foreach my $iterdir (@iterdirs) {
+				if (!defined($opt_monitor)) {
+					$extractModules[$nrModules]->extractReport("$iterdir/$opt_benchmark/logs");
+				} else {
+					$extractModules[$nrModules]->extractReport($iterdir, $opt_benchmark, $opt_subheading, 1);
+				}
+				$extractModules[$nrModules]->nextIteration();
+			}
+
+			if (!defined($opt_monitor) && $opt_printRatio) {
+				$extractModules[$nrModules++]->extractRatioSummary($opt_subheading);
+			} else {
+				$extractModules[$nrModules++]->extractSummary($opt_subheading);
+			}
+		} or do {
+			printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport: $name\n$@");
+			$#extractModules -= 1;
+		}
 	}
 }
 
@@ -139,6 +182,7 @@ compare-mmtests.pl [options]
  -v, --verbose		Verbose output
  --format		Output format
  --json-export		Saves comparison data in JSON format (xz'ed)
+ --from-json		Gets the comparison data from a JSON file
  --print-header		Print a header
  --print-ratio		Print relative comparison instead of absolute values
  --print-monitor=s	Print comparison based on specified monitor
@@ -175,6 +219,10 @@ the formatting is in plain text.
 Saves comparison data in a compressed JSON file inside the current
 directory. The exported file is named <benchmark>.json.xz, where <benchmark>
 is the value of the --benchmark option flag.
+
+=item B<--from-json>
+
+Gets the comparison data from a JSON file
 
 =item B<--print-header>
 
