@@ -26,7 +26,7 @@ my ($opt_help, $opt_manual);
 my ($opt_reportDirectory, $opt_monitor);
 my ($opt_printHeader, $opt_printPlot, $opt_printType, $opt_printJSON);
 my ($opt_subheading, $opt_format);
-my ($opt_name, $opt_benchmark, $opt_altreport);
+my ($opt_names, $opt_benchmark, $opt_altreport);
 GetOptions(
 	'verbose|v'		=> \$opt_verbose,
 	'help|h'		=> \$opt_help,
@@ -37,7 +37,7 @@ GetOptions(
 	'--print-json'		=> \$opt_printJSON,
 	'--print-monitor=s'	=> \$opt_monitor,
 	'--sub-heading=s'	=> \$opt_subheading,
-	'n|name=s'		=> \$opt_name,
+	'n|names=s'		=> \$opt_names,
 	'b|benchmark=s'		=> \$opt_benchmark,
 	'a|altreport=s'		=> \$opt_altreport,
 	'manual'		=> \$opt_manual,
@@ -48,7 +48,7 @@ pod2usage(-exitstatus => 0, -verbose => 0) if $opt_help;
 pod2usage(-exitstatus => 0, -verbose => 2) if $opt_manual;
 
 my ($reportDir);
-$reportDir = "$opt_reportDirectory/$opt_name";
+$reportDir = "$opt_reportDirectory";
 
 # Sanity check directory
 if (! -d $reportDir) {
@@ -57,7 +57,7 @@ if (! -d $reportDir) {
 }
 
 sub exportJSON {
-	my ($module, $benchmark, $name) = @_;
+	my (@modules) = @_;
 	require Cpanel::JSON::XS;
 	my $json = Cpanel::JSON::XS->new();
 
@@ -66,38 +66,57 @@ sub exportJSON {
 	$json->allow_blessed();
 	$json->convert_blessed();
 
-	print $json->encode($module);
+	if (scalar(@modules) == 1) {
+		print $json->encode($modules[0]);
+	} else {
+		print $json->encode(\@modules);
+	}
 }
 
-# If monitors are requested, extract that and exit
+# If monitors are requested, extract those and exit
 if (defined $opt_monitor) {
+	my @monitorModules;
+	my $nrModules = 0;
 	my $monitorFactory = MMTests::ExtractFactory->new();
 	my $monitorModule;
-	eval {
-		$monitorModule = $monitorFactory->loadModule("monitor", $opt_monitor, $opt_name, $opt_subheading);
-	} or do {
-		printWarning("Failed to load module for monitor $opt_monitor\n$@");
-		exit(-1);
-	};
+	for my $name (split /,/, $opt_names) {
+		eval {
+			$monitorModules[$nrModules] = $monitorFactory->loadModule("monitor", $opt_monitor, $name, $opt_subheading);
+		} or do {
+			printWarning("Failed to load module for monitor $opt_monitor\n$@");
+			exit(-1);
+		};
 
-	# Just print the type if asked
+		if ($opt_printType) {
+			# Just print the type if asked
+			$monitorModules[$nrModules]->printDataType($opt_subheading);
+		} else {
+			my @iterdirs = <$reportDir/$name/iter-*>;
+			foreach my $iterdir (@iterdirs) {
+				$monitorModules[$nrModules]->extractReport($iterdir, "$opt_benchmark",
+							      $opt_subheading);
+				$monitorModules[$nrModules]->nextIteration();
+			}
+			$nrModules++;
+		}
+	}
+
 	if ($opt_printType) {
-		$monitorModule->printDataType($opt_subheading);
 		exit;
 	}
-
-	my @iterdirs = <$reportDir/iter-*>;
-	foreach my $iterdir (@iterdirs) {
-		$monitorModule->extractReport($iterdir, "$opt_benchmark",
-					      $opt_subheading);
-		$monitorModule->nextIteration();
-	}
 	if ($opt_printPlot) {
-		$monitorModule->printPlotHeaders() if $opt_printHeader;
-		$monitorModule->printPlot($opt_subheading);
-	} elsif ($opt_printJSON) {
-		exportJSON($monitorModule, "$opt_benchmark", $opt_name);
-	} else {
+		foreach my $monitorModule (@monitorModules) {
+			$monitorModule->printPlotHeaders() if $opt_printHeader;
+			$monitorModule->printPlot($opt_subheading);
+			print "\n";
+		}
+		exit;
+	}
+	if ($opt_printJSON) {
+		exportJSON(@monitorModules);
+		exit;
+	}
+	foreach my $monitorModule (@monitorModules) {
 		$monitorModule->printReportTop();
 		$monitorModule->printFieldHeaders() if $opt_printHeader;
 		$monitorModule->printReport();
@@ -106,43 +125,54 @@ if (defined $opt_monitor) {
 	exit(0);
 }
 
-# Instantiate a handler of the requested type for the benchmark
+# Instantiate a handler of the requested type for the benchmarks
+my @extractModules;
+my $nrModules = 0;
 my $extractFactory = MMTests::ExtractFactory->new();
 my $extractModule;
-eval {
-	$extractModule = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $opt_name, $opt_subheading);
-} or do {
-	printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport\n$@");
-	exit(-1);
-};
+for my $name (split /,/, $opt_names) {
+	eval {
+		$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $name, $opt_subheading);
+	} or do {
+		printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport\n$@");
+		exit(-1);
+	};
 
-# Just print the type if asked
-if ($opt_printType) {
-	$extractModule->printDataType($opt_subheading);
-	exit;
+	if ($opt_printType) {
+		# Just print the type if asked
+		$extractModules[$nrModules]->printDataType($opt_subheading);
+		print "\n";
+	} else {
+		# Extract data from the benchmark itself and print whatever was requested
+		my @iterdirs = <$reportDir/$name/iter-*>;
+		foreach my $iterdir (@iterdirs) {
+			# Make a guess at the sub-directory name if one is not specified
+			$iterdir = "$iterdir/$opt_benchmark";
+			$extractModules[$nrModules]->extractReport("$iterdir/logs");
+			$extractModules[$nrModules]->nextIteration();
+		}
+		$nrModules ++;
+	}
 }
 
-# Extract data from the benchmark itself and print whatever was requested
-my @iterdirs = <$reportDir/iter-*>;
-foreach my $iterdir (@iterdirs) {
-	# Make a guess at the sub-directory name if one is not specified
-	$iterdir = "$iterdir/$opt_benchmark";
-	$extractModule->extractReport("$iterdir/logs");
-	$extractModule->nextIteration();
+if ($opt_printType) {
+	exit;
 }
 if ($opt_printJSON) {
-	exportJSON($extractModule, $opt_benchmark, $opt_name);
+	exportJSON(@extractModules);
 	exit;
 }
-$extractModule->printReportTop();
-if ($opt_printPlot) {
-	$extractModule->printPlotHeaders() if $opt_printHeader;
-	$extractModule->printPlot($opt_subheading);
-} else {
-	$extractModule->printFieldHeaders() if $opt_printHeader;
-	$extractModule->printReport();
+foreach my $extractModule (@extractModules) {
+	$extractModule->printReportTop();
+	if ($opt_printPlot) {
+		$extractModule->printPlotHeaders() if $opt_printHeader;
+		$extractModule->printPlot($opt_subheading);
+	} else {
+		$extractModule->printFieldHeaders() if $opt_printHeader;
+		$extractModule->printReport();
+	}
+	$extractModule->printReportBottom();
 }
-$extractModule->printReportBottom();
 
 # Below this line is help and manual page information
 __END__
@@ -156,7 +186,7 @@ extract-mmtest [options]
 
  Options:
  -d, --directory	Work log directory to extract data from
- -n, --name		Title for the series if tests given to run-mmtests.sh
+ -n, --names		Title for the series if tests given to run-mmtests.sh
  -b, --benchmark	Benchmark to extract data for
  -v, --verbose		Verbose output
  --format=text		Output format, valid are html or text (default)
@@ -179,8 +209,8 @@ Specifies the directory containing results generated by MM Tests.
 
 =item B<n, --name>
 
-The name of the test series as supplied to run-mmtests.sh. This might have
-been a kernel version for example.
+The name of the test series as supplied to run-mmtests.sh. These might have
+been kernel versions for example.
 
 =item B<b, --benchmark>
 
