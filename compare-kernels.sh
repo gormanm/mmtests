@@ -47,6 +47,11 @@ while [ "$1" != "" ]; do
 		KERNEL_EXCLUDE=$2
 		shift 2
 		;;
+	--from-json)
+		FROM_JSON=yes
+		JSON_FILE=$2
+		shift 2
+		;;
 	--sort-version)
 		SORT_VERSION=yes
 		shift
@@ -97,37 +102,39 @@ if [ "$OUTPUT_DIRECTORY" != "" -a ! -d "$OUTPUT_DIRECTORY" ]; then
 	exit -1
 fi
 
-if ! have_run_results; then
-	die This does not look like a mmtests results directory
-fi
-
-if [ -n "$KERNEL_BASE" ]; then
-	for KERNEL in $KERNEL_COMPARE $KERNEL_BASE; do
-		if ! have_run_results $KERNEL; then
-			die "Cannot find results for kernel '$KERNEL'."
-		fi
-	done
-else
-	if [ -n "$KERNEL_COMPARE" ]; then
-		die "Specifying --compare without --baseline is invalid!"
+if [ "$FROM_JSON" != "yes" ]; then
+	if ! have_run_results; then
+		die This does not look like a mmtests results directory
 	fi
-fi
 
-# Build a list of kernels
-if [ "$KERNEL_BASE" != "" ]; then
-	KERNEL_LIST=$KERNEL_BASE
-	for KERNEL in $KERNEL_COMPARE; do
-		KERNEL_LIST=$KERNEL_LIST,$KERNEL
-	done
-else
-	for KERNEL in $(run_results); do
-		if [ "$KERNEL_BASE" = "" ]; then
-			KERNEL_BASE=$KERNEL
-			KERNEL_LIST=$KERNEL
-		else
-			KERNEL_LIST="$KERNEL_LIST,$KERNEL"
+	if [ -n "$KERNEL_BASE" ]; then
+		for KERNEL in $KERNEL_COMPARE $KERNEL_BASE; do
+			if ! have_run_results $KERNEL; then
+				die "Cannot find results for kernel '$KERNEL'."
+			fi
+		done
+	else
+		if [ -n "$KERNEL_COMPARE" ]; then
+			die "Specifying --compare without --baseline is invalid!"
 		fi
-	done
+	fi
+
+	# Build a list of kernels
+	if [ "$KERNEL_BASE" != "" ]; then
+		KERNEL_LIST=$KERNEL_BASE
+		for KERNEL in $KERNEL_COMPARE; do
+			KERNEL_LIST=$KERNEL_LIST,$KERNEL
+		done
+	else
+		for KERNEL in $(run_results); do
+			if [ "$KERNEL_BASE" = "" ]; then
+				KERNEL_BASE=$KERNEL
+				KERNEL_LIST=$KERNEL
+			else
+				KERNEL_LIST="$KERNEL_LIST,$KERNEL"
+			fi
+		done
+	fi
 fi
 
 if [ "$SORT_VERSION" = "yes" ]; then
@@ -426,11 +433,26 @@ generate_subheading_trans_graphs() {
 }
 
 cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
-for SUBREPORT in $(run_report_name $KERNEL_BASE); do
+
+if [ "$FROM_JSON" = "yes" ]; then
+	REPORTS=$(bin/reports-from-json.pl $JSON_FILE)
+else
+	REPORTS=$(run_report_name $KERNEL_BASE)
+fi
+
+for SUBREPORT in $REPORTS; do
+	if [ "$FROM_JSON" = "yes" ]; then
+		OLD_KERNEL_LIST=$KERNEL_LIST
+		KERNEL_LIST="NONE"
+	fi
 	EXTRACT_CMD="cache-mmtests.sh extract-mmtests.pl -d . -b $SUBREPORT"
 	COMPARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD $AUTO_DETECT_SIGNIFICANCE"
 	COMPARE_BARE_CMD="cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
 	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
+	if [ "$FROM_JSON" = "yes" ]; then
+		OLD_COMPARE_CMD=$COMPARE_CMD
+		COMPARE_CMD+=" --from-json $JSON_FILE"
+	fi
 	echo
 	if [ "$FORMAT" = "html" ]; then
 		echo "<a name="$SUBREPORT">"
@@ -647,6 +669,10 @@ for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 		eval $COMPARE_CMD
 	esac
 	echo
+	if [ "$FROM_JSON" = "yes" ]; then
+		COMPARE_CMD=$OLD_COMPARE_CMD
+		continue
+	fi
 	eval $COMPARE_CMD --print-monitor duration
 	echo
 
