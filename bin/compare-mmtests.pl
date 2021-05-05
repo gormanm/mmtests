@@ -15,7 +15,6 @@ use MMTests::Compare;
 use MMTests::CompareFactory;
 use MMTests::Extract;
 use MMTests::ExtractFactory;
-use JSON;
 use strict;
 
 # Option variable
@@ -61,6 +60,9 @@ my $nrModules = 0;
 my $extractFactory = MMTests::ExtractFactory->new();
 
 if ($opt_from_json) {
+	require Cpanel::JSON::XS;
+	require JSON;
+
 	# Load modules from benchmark data read from a JSON file
 	my $json_src = "";
 	my $filename = $opt_from_json;
