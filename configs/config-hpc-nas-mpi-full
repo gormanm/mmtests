@@ -3,9 +3,6 @@
 ### supercomputers. They are all computational kernels. In this configuration,
 ### the workload is parallelised on a single machine using MPI.
 
-# MM Test Parameters
-export MMTESTS="nas-mpi-bt nas-mpi-cg nas-mpi-ep nas-mpi-ft nas-mpi-is nas-mpi-lu nas-mpi-mg nas-mpi-sp"
-
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
 #export TESTDISK_RAID_MD_DEVICE=/dev/md0
@@ -28,10 +25,10 @@ export MONITOR_UPDATE_FREQUENCY=10
 export NAS_OPENMPI_VERSION=openmpi
 export NAS_MPI_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_OPENMPI_VERSION/bin
 export NAS_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_OPENMPI_VERSION/$MMTESTS_LIBDIR
-export NAS_CLASS=C
+export NAS_CLASS=`nas-class.sh`
 export NAS_USE_CMA=no
 export NAS_MAX_CPUS=$NUMCPUS
-export NAS_ITERATIONS=5
+export NAS_ITERATIONS=3
 
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
@@ -45,3 +42,15 @@ if [ "`whoami`" = "root" ]; then
 	NAS_MPI_OPTS+=" --allow-run-as-root"
 fi
 export NAS_MPI_OPTS
+
+# Select tests based on class
+case $NAS_CLASS in
+C)
+	export MMTESTS="nas-mpi-bt nas-mpi-cg nas-mpi-ep nas-mpi-ft nas-mpi-is nas-mpi-lu nas-mpi-mg nas-mpi-sp"
+	;;
+D)
+	export MMTESTS="nas-mpi-bt nas-mpi-cg nas-mpi-ep            nas-mpi-is nas-mpi-lu nas-mpi-mg nas-mpi-sp"
+	;;
+*)
+	die "Unrecognised class $NAS_CLASS"
+esac

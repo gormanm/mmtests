@@ -1,5 +1,4 @@
 # MM Test Parameters
-export MMTESTS="nas-omp-bt nas-omp-cg nas-omp-ep nas-omp-ft nas-omp-is nas-omp-lu nas-omp-mg nas-omp-sp nas-omp-ua"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
@@ -22,7 +21,19 @@ export MONITOR_UPDATE_FREQUENCY=10
 # NAS Parallel Benchmark
 export NAS_MPI_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/openmpi/bin
 export NAS_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/openmpi/$MMTESTS_LIBDIR
-export NAS_CLASS=C
+export NAS_CLASS=`nas-class.sh`
 export NAS_USE_CMA=no
 export NAS_MAX_CPUS=$NUMCPUS
-export NAS_ITERATIONS=5
+export NAS_ITERATIONS=3
+
+# Select tests based on class
+case $NAS_CLASS in
+C)
+	export MMTESTS="nas-omp-bt nas-omp-cg            nas-omp-ep nas-omp-ft nas-omp-is nas-omp-lu nas-omp-mg nas-omp-sp nas-omp-ua"
+	;;
+D)
+	export MMTESTS="nas-omp-bt nas-omp-cg nas-omp-dc nas-omp-ep            nas-omp-is nas-omp-lu nas-omp-mg nas-omp-sp nas-omp-ua"
+	;;
+*)
+	die "Unrecognised class $NAS_CLASS"
+esac

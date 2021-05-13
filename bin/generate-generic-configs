@@ -85,24 +85,28 @@ done
 
 # NAS
 for TYPE in omp mpi; do
-	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/2))/' config-hpc-nas-c-class-$TYPE-full > config-hpc-nas-c-class-$TYPE-half
-	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/3))/' config-hpc-nas-c-class-$TYPE-full > config-hpc-nas-c-class-$TYPE-third
-	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=2/' config-hpc-nas-c-class-$TYPE-full > config-hpc-nas-c-class-$TYPE-pair
-	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=4/' config-hpc-nas-c-class-$TYPE-full > config-hpc-nas-c-class-$TYPE-minparallel
+	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/2))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-half
+	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/3))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-third
+	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=2/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-pair
+	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=4/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-minparallel
 done
-for CONFIG in `ls config-hpc-nas-c-class-*`; do
-	# D class configurations
-	DCONFIG=`echo $CONFIG | sed -e 's/nas-c-class/nas-d-class/'`
-	sed	-e 's/NAS_CLASS=.*/NAS_CLASS=D/'		\
-		-e 's/NAS_ITERATIONS=.*/NAS_ITERATIONS=3/'	\
-		-e 's/ nas-...-ft//'				\
-		-e 's/ nas-omp-cg/ nas-omp-cg nas-omp-dc/'	\
-		$CONFIG > $DCONFIG
 
-	# D class with binding configurations
-	BDCONFIG=`echo $DCONFIG | sed -e 's/class-mpi/class-mpi-bind/' -e 's/class-omp/class-omp-bind/'`
-	cp $DCONFIG $BDCONFIG
-	echo "export NAS_BIND=yes" >> $BDCONFIG
+# NAS Bind configs
+for CONFIG in `ls config-hpc-nas-omp-* config-hpc-nas-mpi-*`; do
+	BCONFIG=`echo $CONFIG | sed -e 's/-mpi/-mpi-bind/' -e 's/-omp/-omp-bind/'`
+	cp $CONFIG $BCONFIG
+	echo "export NAS_BIND=yes" >> $BCONFIG
+done
+
+# Class configs
+for CONFIG in `ls config-hpc-nas-omp-* config-hpc-nas-mpi-*`; do
+	for CLASS in c d; do
+		CLASS_CONFIG=`echo $CONFIG | sed -e "s/hpc-nas/hpc-nas-$CLASS-class/"`
+		CLASS=`echo $CLASS | tr [a-z] [A-Z]`
+		sed	-e "s/NAS_CLASS=.*/NAS_CLASS=$CLASS/"		\
+			-e 's/ nas-omp-cg/ nas-omp-cg nas-omp-dc/'	\
+			$CONFIG > $CLASS_CONFIG
+	done
 done
 
 # Netperf
