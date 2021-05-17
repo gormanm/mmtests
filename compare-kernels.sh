@@ -435,7 +435,7 @@ generate_subheading_trans_graphs() {
 cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
 
 if [ "$FROM_JSON" = "yes" ]; then
-	REPORTS=$(bin/reports-from-json.pl $JSON_FILE)
+	REPORTS=$(reports-from-json.pl $JSON_FILE)
 else
 	REPORTS=$(run_report_name $KERNEL_BASE)
 fi
