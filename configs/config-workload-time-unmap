@@ -1,0 +1,27 @@
+### Measures how long it takes to unmap mappings populated by threads
+
+# MM Test Parameters
+export MMTESTS="time_unmap"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=""
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# time_unmap
+export TIME_UNMAP_THREADS=$NUMCPUS
+export TIME_UNMAP_SIZE=$((MEMTOTAL_BYTES*80/100))
+export TIME_UNMAP_ITERATIONS=60

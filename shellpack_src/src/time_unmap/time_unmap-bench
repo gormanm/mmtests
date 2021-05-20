@@ -1,0 +1,29 @@
+#!/bin/bash
+###SHELLPACK preamble time_unmap-bench 0
+
+MADV_HUGEPAGE=0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--threads	TIME_UNMAP_THREADS
+###SHELLPACK parseargParam	--size		TIME_UNMAP_SIZE
+###SHELLPACK parseargParam	--iterations	TIME_UNMAP_ITERATIONS
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_install_required time_unmap-${VERSION}
+###SHELLPACK init_complete
+
+if [ "$THPFIOSCALE_MADV_HUGEPAGE" = "yes" ]; then
+	MADV_HUGEPAGE=1
+fi
+
+###SHELLPACK iteration_begin $TIME_UNMAP_ITERATIONS
+	echo Iteration $ITERATION/$TIME_UNMAP_ITERATIONS
+	$TIME_CMD -o $LOGDIR_RESULTS/unmap-$ITERATION.time \
+		./time-unmap -n $TIME_UNMAP_THREADS -s $TIME_UNMAP_SIZE >> $LOGDIR_RESULTS/unmap-$ITERATION.log
+###SHELLPACK iteration_end $TIME_UNMAP_ITERATIONS
+
+echo Finished time_unmap
+
+exit $SHELLPACK_SUCCESS

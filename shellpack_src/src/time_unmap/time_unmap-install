@@ -1,0 +1,16 @@
+#!/bin/bash
+###SHELLPACK preamble time_unmap 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK self_extract time-unmap.c
+
+mkdir $SHELLPACK_SOURCES/time_unmap-${VERSION}-installed
+gcc -Wall -lpthread $SHELLPACK_TEMP/time-unmap.c -o $SHELLPACK_SOURCES/time_unmap-${VERSION}-installed/time-unmap || \
+	die "Failed to build time_unmap"
+
+echo time_unmap installed successfully
+exit $SHELLPACK_SUCCESS
+
+###SHELLPACK include_file time-unmap.c
