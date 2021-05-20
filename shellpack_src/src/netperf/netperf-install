@@ -1,15 +1,19 @@
 #!/bin/bash
 # Netperf installer
 ###SHELLPACK preamble netperf-install 2.4.5
-WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/netperf
+GIT_LOCATION=https://github.com/HewlettPackard/netperf
 MIRROR_LOCATION="$WEBROOT/netperf/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK sources_fetch netperf-${VERSION}.tar.gz netperf-${VERSION}
+###SHELLPACK git_fetch ${VERSION}.tar.gz netperf-${VERSION}
 
 ###SHELLPACK build_start netperf-${VERSION}
+
+if [ ! -e ./configure ]; then
+	./autogen.sh || die "Failed to run autogen"
+fi
 
 export CFLAGS+=" -DWANT_UNIX"
 
