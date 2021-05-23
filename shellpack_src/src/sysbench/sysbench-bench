@@ -48,6 +48,8 @@ $SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh ${DBDRIVER}build
 $SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --stop
 ###SHELLPACK init_complete
 
+ulimit -n 1048576
+
 # Calculate OLTP tablesize. 1 megabyte is around 4500 rows
 OLTP_TABLESIZE=$((WORKLOAD_SIZE/1048576*4500))
 
