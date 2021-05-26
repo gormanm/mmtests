@@ -168,10 +168,23 @@ FIRST_TIME=yes
 
 	if [ "$DATABASE_INIT_ONCE" = "yes" -a "$FIRST_TIME" = "yes" ]; then
 		mmtests_activity warmup
-		echo Warming up database for 30 minutes
+
+		# Pick a warm-up time based on the database size.
+		# Every scale factor is roughly 30M so warm for
+		# 1 minute per 100M of database size up to a
+		# maximum of 30 minutes
+		WARM_TIME=$((SCALE_FACTOR/100))
+		if [ $WARM_TIME -eq 0 ]; then
+			WARM_TIME=1
+		fi
+		if [ $WARM_TIME -gt 30 ]; then
+			WARM_FACTOR=30
+		fi
+
+		echo Warming up database for $WARM_TIME minutes
 		pgbench -v -h $PGHOST -p $PGPORT -r \
 			$VACUUM_ARG $READONLY_ARG -c $MAX_THREADS -j $MAX_THREADS \
-			-T $((60*30)) pgbench
+			-T $((60*WARM_TIME)) pgbench
 	fi
 
 	FIRST_TIME=no

@@ -74,5 +74,3 @@ server_stop 0
 ###SHELLPACK threads_powertwo_end
 
 exit $SHELLPACK_SUCCESS
-#### Description tbench
-#### Details tbench-bench 4

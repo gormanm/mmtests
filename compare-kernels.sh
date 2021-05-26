@@ -1361,7 +1361,7 @@ for SUBREPORT in $REPORTS; do
 					TITLE_LIST=
 					eval $EXTRACT_CMD -n $KERNEL --print-monitor iotop --sub-heading $OP > /tmp/iotop-mmtests-$$/$KERNEL-data
 					for PROCESS in `awk '{print $1}' /tmp/iotop-mmtests-$$/$KERNEL-data | sort | uniq`; do
-						PRETTY=`echo $PROCESS | sed -e 's/\[//g' -e 's/\]//g' -e 's/\.\///' -e 's/\//__/'`
+						PRETTY=`echo $PROCESS | sed -e 's/\[//g' -e 's/\]//g' -e 's/\.\///' -e 's/\//__/' -e 's/(.*)//'`
 						grep -F "$PROCESS " /tmp/iotop-mmtests-$$/$KERNEL-data | awk '{print $3" "$4}' > /tmp/iotop-mmtests-$$/$PRETTY
 						if [ `cat /tmp/iotop-mmtests-$$/$PRETTY | wc -l` -gt 0 ]; then
 							PROCESS_LIST="$PROCESS_LIST /tmp/iotop-mmtests-$$/$PRETTY"
