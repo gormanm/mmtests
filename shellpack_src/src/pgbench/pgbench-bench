@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble pgbench-bench 13.0
+###SHELLPACK preamble pgbench-bench 13.3
 install-depends gnuplot
 
 ROLE=`whoami`
@@ -171,11 +171,17 @@ FIRST_TIME=yes
 
 		# Pick a warm-up time based on the database size.
 		# Every scale factor is roughly 30M so warm for
-		# 1 minute per 100M of database size up to a
-		# maximum of 30 minutes
+		# 1 minute per 100M of database size. The minimum
+		# time is MAX_TIME if configured up to a maximum
+		# of 30 minutes.
 		WARM_TIME=$((SCALE_FACTOR/100))
 		if [ $WARM_TIME -eq 0 ]; then
 			WARM_TIME=1
+		fi
+		if [ "$MAX_TIME" != "" ]; then
+			if [ $WARM_TIME -lt $((MAX_TIME/60)) ]; then
+				WARM_TIME=$((MAX_TIME/60))
+			fi
 		fi
 		if [ $WARM_TIME -gt 30 ]; then
 			WARM_FACTOR=30
