@@ -51,6 +51,10 @@ work. Similarly, [`R`](https://www.r-project.org/) should be installed if
 attempting to highlight whether performance differences are statistically
 relevant.
 
+A "tutorial" with some more details and the full output of each step is
+available here:
+* [MMTests Tutorial](docs/Tutorial.md)
+
 # Running Benchmarks with MMTests
 
 ## Configuration
