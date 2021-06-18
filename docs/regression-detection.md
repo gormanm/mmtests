@@ -1,5 +1,4 @@
-PERFORMANCE ANALYSIS AND REGRESSION DETECTION IN MMTESTS
-========================================================
+# Performance Analysis and Regression Detection in MMTests
 
 In mmtests, the performance of a system is analyzed through a set of
 benchmarks.  In particular, for a given benchmark, regressions are
@@ -10,15 +9,15 @@ but they differ in software configuration.  For example, the system
 under test may run a different kernel version than the reference
 systems.
 
-ITERATIONS AND STATISTICS
+## Iterations and Statistics
 
 Each benchmark measures a set of quantities of interest (times, rates,
 ...).  The benchmark is usually executed multiple times.  Each
 execution is referred to as an iteration. On each iteration, the
 benchmark usually outputs a sample (measurement) for each quantity of
 interest.  In more complex scenarios, a benchmark may produce multiple
-samples for each iteration.  This case is described in Section
-ADVANCED VERSION OF AUTOMATIC REGRESSION DETECTION below.
+samples for each iteration.  This case is described in
+[the below Section](#advanced-version-of-automatic-regression-detection).
 
 Regardless of how many samples a benchmark produces for each
 iteration, data is then comprised of multiple samples.  Samples are
@@ -29,10 +28,11 @@ samples: min, max, average, standard deviation,
 depending on the type of quantities.  If quantities are not rates
 (e.g, they are time) then averages are computed as arithmetic means
 (Amean).  If quantities are rates, then averages are computed as
-Harmonic means (Hmean).  See the example on average speed in [1] for
+Harmonic means (Hmean).  See the example on average speed in
+["Harmonic_mean"](https://en.wikipedia.org/wiki/Harmonic_mean) for
 an explanation for why using Hmean for rates.
 
-BASE VERSION OF AUTOMATIC REGRESSION DETECTION
+## Base Version of Automatic Regression Detection
 
 For each quantity of interest, the benchmark produces one sample for
 each iteration.  Both sets of samples (the ones for the system under
@@ -48,16 +48,16 @@ mmtests distinguishes between cases (1) and (2) by executing a Welch's
 t-test.  In simple terms, case (2) holds if the difference between the
 averages is too high, given the values of the standard deviations for
 the two sets of samples.  In such a case, the difference in averages
-is highlighted, typographically, with a pair of stars (*).  Recall
+is highlighted, typographically, with a pair of stars (\*).  Recall
 that averages may be either Ameans or Hmeans, depending on the nature
 of the quantities.
 
-ADVANCED VERSION OF AUTOMATIC REGRESSION DETECTION
+## Advanced Version of Automatic Regression Detection
 
 Results may be influenced by the initial conditions of the system, and
 may suffer from outliers.  mmtests addresses these two issues by
 modifying the above base mechanism as follows (the underlying theory can
-be found in [2, 3, 4]).
+be found in [[1](#ref1), [2](#ref2), [3](#ref3)]).
 
 Because of the first issue, if iterations are repeated at different
 times, results may differ.  To offset these biases, mmtests executes
@@ -83,11 +83,12 @@ samples chosen at random.  Each subselection contains 80% of the total
 samples.  For each such subselection, mmtests computes the average
 over the selected samples.  Then, for each iteration, mmtests computes
 the median over these per-subselection averages.  Such a median
-is provably more robust against outliers [3].  Finally, the average of
-these medians is reported as a measure of the performance of the
-system.
+is provably more robust against outliers [[2]](#ref2).  Finally, the
+average of these medians is reported as a measure of the performance of
+the system.
 
-[1] https://en.wikipedia.org/wiki/Harmonic_mean
-[2] https://link.springer.com/chapter/10.1007/11558569_20
-[3] https://ieeexplore.ieee.org/document/1521132
-[4] https://link.springer.com/chapter/10.1007/11777830_5
+# References
+
+* <a name="ref1">[1]</a> [Quality Assurance in Performance: Evaluating Mono Benchmark Results](https://link.springer.com/chapter/10.1007/11558569_20)
+* <a name="ref2">[2]</a> [Automated detection of performance regressions: the mono experience](https://ieeexplore.ieee.org/document/1521132)
+* <a name="ref3">[3]</a> [Precise Regression Benchmarking with Random Effects: Improving Mono Benchmark Results](https://link.springer.com/chapter/10.1007/11777830_5)

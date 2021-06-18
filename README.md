@@ -365,6 +365,10 @@ it is the higher or lower values that represent better performance.
 In the example above, `TEST_RUN_BUSY` reaches only the 79% of `TEST_RUN`
 performance, which means that it is 21% slower.
 
+Further info about reporting:
+
+* [Performance Analysis and Regression Detection in MMTests](docs/regression-detection.md)
+
 # MMTests Internal Structure & Development
 
 ## Benchmarks & Shellpacks
