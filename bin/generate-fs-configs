@@ -6,9 +6,11 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
 cd $SCRIPTDIR/configs || exit
 
 NOATIME_FSCONFIGS="
+config-db-pgbench-timed-ro-large
 config-db-pgbench-timed-ro-medium
 config-db-pgbench-timed-ro-scale1
 config-db-pgbench-timed-ro-small
+config-db-pgbench-timed-rw-large
 config-db-pgbench-timed-rw-medium
 config-db-pgbench-timed-rw-scale1
 config-db-pgbench-timed-rw-small
@@ -397,7 +399,6 @@ done
 
 TMPFS_CONFIGS="
 config-io-paralleldd-read-small
-config-pagereclaim-performance
 "
 
 for CONFIG in $TMPFS_CONFIGS; do
