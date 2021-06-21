@@ -319,6 +319,12 @@ $ mkdir /tmp/report
 $ ../../compare-kernels.sh --format html --output-dir /tmp/report > /tmp/report/index.html
 ```
 
+An example of the HTML reporting is available
+[here](https://htmlpreview.github.io/?https://github.com/gormanm/mmtests/blob/docs/docs/example_html_report/index.html).
+This comes from two simple run of the default `config` (i.e., of the
+[STREAM](https://www.cs.virginia.edu/stream/) benchmark) when the system was idle (`TEST_RUN`) and busy with
+something else (`TEST_RUN_BUSY`).
+
 ### Reporting with `compare-mmtestsl.pl`
 
 It is possible to obtain a report using a different tool. It is the script
