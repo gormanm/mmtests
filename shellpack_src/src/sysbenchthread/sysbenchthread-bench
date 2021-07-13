@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble sysbenchthread-bench 0.4.12
+###SHELLPACK preamble sysbenchthread-bench 0.4.12.16
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall

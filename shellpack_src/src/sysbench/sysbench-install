@@ -1,7 +1,6 @@
 #!/bin/bash
-###SHELLPACK preamble sysbench-install 0.4.12
+###SHELLPACK preamble sysbench-install 0.4.12.16
 
-VERSION=0.4.12
 DBUSER=root
 DBPASSWORD=shellpack-mysqlbench
 DBDRIVER=postgres
@@ -10,7 +9,7 @@ DBDRIVER=postgres
 ###SHELLPACK parseargParam	--dbdriver	DBDRIVER
 ###SHELLPACK parseargEnd
 
-WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/sysbench
+WEB_LOCATION=https://downloads.mysql.com/source
 MIRROR_LOCATION=$WEBROOT/sysbench
 
 # Select database driver

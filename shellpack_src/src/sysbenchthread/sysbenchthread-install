@@ -1,12 +1,12 @@
 #!/bin/bash
-###SHELLPACK preamble sysbenchthread-install 0.4.12
+###SHELLPACK preamble sysbenchthread-install 0.4.12.16
 
-VERSION=0.4.12
+VERSION=0.4.12.16
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/sysbench
+WEB_LOCATION=https://downloads.mysql.com/source
 MIRROR_LOCATION=$WEBROOT/sysbench
 
 echo Building sysbench cpu

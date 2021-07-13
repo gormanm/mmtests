@@ -1,6 +1,6 @@
 #!/bin/bash
 #!/bin/bash
-###SHELLPACK preamble sysbench-bench 0.4.12
+###SHELLPACK preamble sysbench-bench 0.4.12.16
 install-depends gnuplot
 
 DBDRIVER=postgres
