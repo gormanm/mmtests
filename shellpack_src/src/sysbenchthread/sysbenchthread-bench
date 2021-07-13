@@ -20,7 +20,7 @@ export PATH=$SHELLPACK_SOURCES/sysbenchthread-${VERSION}-installed/bin:$PATH
 		eval $TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITERATION} \
 			sysbench --test=threads				\
 				--thread-locks=$NR_THREADS		\
-				--max-time=20s				\
+				--max-time=20				\
 				run >> $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITERATION
 		SYSRET=$?
 		if [ $SYSRET -ne 0 ]; then
