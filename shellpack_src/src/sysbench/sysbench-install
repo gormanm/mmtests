@@ -40,7 +40,6 @@ echo Building sysbench for $DBDRIVER
 export PATH=$SHELLPACK_SOURCES/${DBDRIVER}build-${DBDRIVER_VERSION}-installed/bin:$PATH
 ###SHELLPACK sources_fetch sysbench-${VERSION}.tar.gz sysbench-${VERSION}
 ###SHELLPACK build_start sysbench-${VERSION}
-###SHELLPACK build_autoreconf
 # Patch sysbench to properly insert tables
 echo "--- sysbench/drivers/pgsql/drv_pgsql.c.orig	2010-12-03 14:14:59.000000000 +0000
 +++ sysbench/drivers/pgsql/drv_pgsql.c	2010-12-03 14:15:23.000000000 +0000
