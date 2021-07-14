@@ -62,6 +62,7 @@ my $extractFactory = MMTests::ExtractFactory->new();
 if ($opt_from_json) {
 	require Cpanel::JSON::XS;
 	require JSON;
+	JSON->import;
 
 	# Load modules from benchmark data read from a JSON file
 	my $json_src = "";
