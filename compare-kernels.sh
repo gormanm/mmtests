@@ -1231,6 +1231,23 @@ for SUBREPORT in $REPORTS; do
 		fi
 		rm -f /tmp/iostat-$$
 
+		if have_monitor_results bdi $KERNEL_BASE; then
+			echo "<table class=\"resultsGraphs\">"
+			eval $GRAPH_PNG --title \"BdiWriteback\"      --print-monitor bdi --sub-heading BdiWriteback      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-bdiwriteback
+			eval $GRAPH_PNG --title \"BdiWriteBandwidth\" --print-monitor bdi --sub-heading BdiWriteBandwidth --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-bdiwritebandwidth
+			eval $GRAPH_PNG --title \"BdiDirtied\"        --print-monitor bdi --sub-heading BdiDirtied        --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-bdidirtied
+			eval $GRAPH_PNG --title \"BdiWritten\"        --print-monitor bdi --sub-heading BdiWritten        --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-bdiwritten
+
+			echo "<tr>"
+			plain graph-$SUBREPORT-bdiwriteback
+			plain graph-$SUBREPORT-bdiwritebandwidth
+			echo "</tr><tr>"
+			plain graph-$SUBREPORT-bdidirtied
+			plain graph-$SUBREPORT-bdiwritten
+			echo "</tr>"
+			echo "</table>"
+		fi
+
 		if [ "$KCACHE_GRAPH" = "yes" -a "$FORMAT" = "html" -a -d "$OUTPUT_DIRECTORY" ]; then
 			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache allocations\"   --print-monitor kcacheslabs --sub-heading allocs --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-allocs
 			eval $GRAPH_PNG --yrange 0:$((ALLOCS+FREES)) --title \"Kcache frees\"         --print-monitor kcacheslabs --sub-heading frees  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-kcache-frees
@@ -1239,6 +1256,7 @@ for SUBREPORT in $REPORTS; do
 			plain graph-$SUBREPORT-kcache-allocs
 			plain graph-$SUBREPORT-kcache-frees
 			echo "</tr>"
+			echo "</table>"
 		fi
 		rm -f /tmp/kcache.$$
 
