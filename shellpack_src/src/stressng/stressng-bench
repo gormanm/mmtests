@@ -29,6 +29,12 @@ get)
 context)
 	TESTSWITCH="--context"
 	;;
+io-class)
+	TESTSWITCH="--class io"
+	;;
+io-class-parallel)
+	TESTSWITCH="--class io --all 1"
+	;;
 *)
 	die "Unrecognised test $STRESSNG_TESTNAME"
 	;;

@@ -155,6 +155,7 @@ config-workload-unixbench-io-fsbuffer
 config-workload-unixbench-io-fsdisk
 config-workload-unixbench-io-fstime
 config-workload-simoop-short
+config-workload-stressng-class-io-parallel
 config-speccpu2017-speed
 config-speccpu2017-speed-parallel-quarter
 config-speccpu2017-speed-parallel-half
