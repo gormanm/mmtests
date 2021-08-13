@@ -1,0 +1,23 @@
+#!/bin/bash
+set ${MMTESTS_SH_DEBUG:-+x}
+
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
+cd $SCRIPTDIR/configs || exit
+
+MEMCG_CONFIGS="
+db-pgbench-timed-ro-scale1-xfs
+db-pgbench-timed-ro-medium
+io-dbench4-async-xfs
+pagereclaim-lmbench
+pagereclaim-stutter
+reaim-io-disk-large-xfs
+reaim-io-new_fserver-large-xfs
+workload-kerndevel-xfs
+"
+
+rm -f config-memcg-*
+for CONFIG in $MEMCG_CONFIGS; do
+	cp config-$CONFIG config-memcg-1-90-$CONFIG
+	echo "export CGROUP_MEMORY_SIZE=\$((MEMTOTAL_BYTES*90/100))" >> config-memcg-1-90-$CONFIG
+done

@@ -7,6 +7,7 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 rm -f $SCRIPTDIR/../configs/*-fixed
 $SCRIPTDIR/generate-generic-configs
 $SCRIPTDIR/generate-fs-configs
+$SCRIPTDIR/generate-memcg-configs
 $SCRIPTDIR/generate-zen2-configs
 $SCRIPTDIR/generate-zen3-configs
 
