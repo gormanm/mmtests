@@ -1307,6 +1307,18 @@ function create_filesystems
 			echo Attempting trim of ${SHELLPACK_TEST_MOUNTS[$i]}
 			time fstrim -v ${SHELLPACK_TEST_MOUNTS[$i]}
 		done
+
+		# Wait for background fs init to be done
+		case "$TESTDISK_FILESYSTEM" in
+		ext?)
+			echo -n "Waiting for ext4 init..."
+			while ps -eo comm | grep "ext4lazyinit" &>/dev/null; do
+				sleep 1
+				echo -n "."
+			done
+			echo
+			;;
+		esac
 	fi
 
 	# Create NFS mount
