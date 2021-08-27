@@ -20,10 +20,11 @@ export PATH=$SHELLPACK_SOURCES/sysbenchcpu-${VERSION}-installed/bin:$PATH
 	###SHELLPACK iteration_begin $ITERATIONS
 		echo Running $NR_THREADS threads Iteration $ITERATION/$ITERATIONS
 		eval $TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITERATION} \
-			sysbench --test=cpu				\
+			$(echo sysbench --test=cpu				\
 				--num-threads=$NR_THREADS		\
 				--test=cpu --cpu-max-prime=$MAX_PRIME	\
-				run >> $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITERATION
+				run | tee -a $LOGDIR_RESULTS/commands.log) \
+				>> $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITERATION
 		SYSRET=$?
 		if [ $SYSRET -ne 0 ]; then
 			cat $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITERATION
