@@ -400,6 +400,9 @@ done
 
 TMPFS_CONFIGS="
 config-io-paralleldd-read-small
+config-io-dbench4-async
+config-pagereclaim-stutter
+config-reaim-io-disk
 "
 
 for CONFIG in $TMPFS_CONFIGS; do
