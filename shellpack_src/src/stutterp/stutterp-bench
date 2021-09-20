@@ -206,6 +206,10 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 ###SHELLPACK threads_stride_end
 
 # Cleanup
+echo Cleanup
+sleep 30
+sync
+
 cd /
 rm -rf "$SHELLPACK_DATA/stutterp-data"
 if [ "$MEMFAULT_TMPFS" = "yes" ]; then
