@@ -1,0 +1,30 @@
+#!/bin/bash
+###SHELLPACK preamble stutterp-install 2
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK self_extract memory-hog.c
+###SHELLPACK self_extract mmap-latency.c
+
+install-depends gcc fio
+
+mkdir $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
+cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
+
+# Building mmap-latency
+gcc -O2 -lm $SHELLPACK_TEMP/mmap-latency.c -o mmap-latency
+if [ $? -ne 0 ]; then
+        echo Rebuilding latency program with lrt
+        gcc -O2 -lm -lrt $SHELLPACK_TEMP/mmap-latency.c -o mmap-latency || exit $SHELLPACK_ERROR
+fi
+
+# Build the memhog program
+echo Building memory-hog
+gcc -O2 $SHELLPACK_TEMP/memory-hog.c -o memory-hog || exit $SHELLPACK_ERROR
+
+echo stutterp installed successfully
+exit $SHELLPACK_SUCCESS
+
+###SHELLPACK include_file memory-hog.c
+###SHELLPACK include_file mmap-latency.c

@@ -1,7 +1,7 @@
 #!/bin/bash
 # sysjitter installer
 ###SHELLPACK preamble sysjitter-install 1.3
-WEB_LOCATION=http://www.openonload.org/download/sysjitter
+WEB_LOCATION=https://github.com/alexeiz/sysjitter
 MIRROR_LOCATION="$WEBROOT/sysjitter/"
 
 install-depends popt-devel

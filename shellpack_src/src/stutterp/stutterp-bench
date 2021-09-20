@@ -1,0 +1,215 @@
+#!/bin/bash
+# This benchmark simualtes a simple workload. One part uses a lot of anonymous
+# memory, a second measures mmap latency and a third runs fio. In an ideal world
+# the latency application would never notice but there are times when this
+# regresses and the benchmark catches that
+
+###SHELLPACK preamble stutterp-bench 2
+
+MEMFAULT_SIZE=${STUTTER_MEMFAULT_SIZE:=$MEMTOTAL_BYTES}
+MEMFAULT_TMPFS=no
+DD_FILESIZE=${STUTTER_FILESIZE:=$MEMTOTAL_BYTES}
+DD_BLOCKSIZE=${STUTTER_BLOCKSIZE:=4096}
+ITERATIONS=5
+USE_DD_ZERO=no
+USE_LOCAL=no
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargParam --size		STUTTER_SIZE
+###SHELLPACK parseargParam --file-percentage	STUTTER_FILE_PERCENTAGE
+###SHELLPACK parseargParam --memfault-tmpfs	STUTTER_MEMFAULT_TMPFS
+###SHELLPACK parseargParam --duration		STUTTER_DURATION
+###SHELLPACK parseargParam --min-threads	STUTTER_MIN_THREADS
+###SHELLPACK parseargParam --max-threads	STUTTER_MAX_THREADS
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+###SHELLPACK init_complete
+
+###SHELLPACK check_install_required stutterp-${VERSION}
+###SHELLPACK init_complete
+
+# Prepare the tmpfs mount if requested
+MEMFAULT_FILE=
+if [ "$MEMFAULT_TMPFS" = "yes" ]; then
+	mkdir $SHELLPACK_DATA/mnt
+	mount -t tmpfs none $SHELLPACK_DATA/mnt -o size=$((MEMFAULT_SIZE+(2*1048576)))
+	MEMFAULT_FILE="$SHELLPACK_DATA/mnt/tmpfs_file"
+fi
+
+# Estimate writeback speed
+echo Running calibration
+DDFILE_SIZE_MB=$((1024*5))
+$TIME_CMD -f "%e" -o $LOGDIR_RESULTS/calibrate.time \
+	dd if=/dev/zero of=$SHELLPACK_DATA/ddfile ibs=1048576 count=$DDFILE_SIZE_MB conv=fdatasync
+rm $SHELLPACK_DATA/ddfile
+ELASPED=`cat $LOGDIR_RESULTS/calibrate.time | awk -F . '{print $1}'`
+ELASPED=$((ELASPED+1))
+WRITEBACK_SPEED_MB=$((DDFILE_SIZE_MB/ELASPED))
+echo Estimated writeback speed: $WRITEBACK_SPEED_MB MB/sec
+
+# Calculate file and anon WSS
+WSS_FILE=$((STUTTER_SIZE*STUTTER_FILE_PERCENTAGE/100))
+WSS_ANON=$((STUTTER_SIZE-WSS_FILE))
+WSS_FILE=$((WSS_FILE/1048576))
+WSS_ANON=$((WSS_ANON/1048576))
+echo Total file wss $WSS_FILE MB
+echo Total anon wss $WSS_ANON MB
+
+# Estimate time to run each iteration
+WARMUP=$((WSS_FILE/1048576/$WRITEBACK_SPEED_MB+5))
+RUNTIME=$((WARMUP+STUTTER_DURATION))
+echo "Iteration warmup time:   $WARMUP"
+echo "Iteration total runtime: $RUNTIME"
+
+FIO_JOBFILE_TEMPLATE="$SHELLPACK_TEMP/fio-jobfile-template"
+cat >$FIO_JOBFILE_TEMPLATE <<EOF
+[global]
+direct=0
+ioengine=libaio
+runtime=$RUNTIME
+blocksize=1048576
+invalidate=1
+time_based
+ramp_time=5     # Let the flusher thread start before taking measurements
+log_avg_msec=10
+group_reporting=1
+
+[writer]
+nrfiles=NR_WRITERS
+numjobs=NR_WRITERS
+filesize=FIO_FILESIZEm
+readwrite=randwrite
+
+[reader]
+# Simulate random reading from different files, switching to different file
+# after 16 ios. This somewhat simulates application startup.
+new_group
+
+filesize=100m
+nrfiles=32
+numjobs=1
+file_service_type=random:16
+readwrite=randread
+EOF
+
+cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
+###SHELLPACK threads_large_stride_begin $STUTTER_MIN_THREADS $STUTTER_MAX_THREADS
+	# Calculate number of workers
+	NR_FILE_READERS=1
+	NR_ANON_LATENCY=1
+	NR_FILE_WRITERS=$(((NR_THREADS-NR_FILE_READERS-NR_ANON_LATENCY)/2))
+	NR_ANON_HOGS=$((NR_THREADS-NR_FILE_WRITERS-NR_FILE_READERS-NR_ANON_LATENCY))
+	if [ $NR_FILE_WRITERS -eq 0 ]; then
+		NR_FILE_WRITERS=1
+	fi
+	if [ $NR_ANON_HOGS -eq 0 ]; then
+		NR_ANON_HOGS=1
+	fi
+	NR_WORKERS=$((NR_FILE_READERS+NR_FILE_WRITERS+NR_ANON_HOGS+NR_ANON_LATENCY))
+
+	# Calculate footprints
+	WSS_PER_WRITER=$((WSS_FILE/NR_FILE_WRITERS))
+	WSS_PER_MEMHOG=$((WSS_ANON/NR_ANON_HOGS))
+	if [ $WSS_PER_WRITER -eq 0 ]; then
+		WSS_PER_WRITER=1048576
+	fi
+	if [ $WSS_PER_MEMHOG -eq 0 ]; then
+		WSS_PER_MEMHOG=1040586
+	fi
+
+	echo Begin $NR_WORKERS workers
+	echo "o File readers $NR_FILE_READERS"
+	echo "o File writers $NR_FILE_WRITERS"
+	echo "o Anon memhogs $NR_ANON_HOGS"
+	echo "o Anon latency $NR_ANON_LATENCY"
+	echo "o Total WSS    $((STUTTER_SIZE/1048576)) MB"
+	echo "o Writer WSS   $WSS_PER_WRITER MB"
+	echo "o Memhog WSS   $WSS_PER_MEMHOG MB"
+
+	FIO_JOBFILE="$LOGDIR_RESULTS/fio-config.$NR_WORKERS"
+	sed -e "s/NR_WRITERS/$NR_FILE_WRITERS/" -e "s/FIO_FILESIZE/$WSS_PER_WRITER/" $FIO_JOBFILE_TEMPLATE > $FIO_JOBFILE
+
+	# Dump all existing cache for full IO effect
+	echo Dropping page cache, inodes and dentries
+	sync
+	echo 3 > /proc/sys/vm/drop_caches
+
+	# Start fio running in the background
+	monitor_pre_hook $LOGDIR_RESULTS $NR_WORKERS
+	echo Running fio pid $FIO_PID for $WARMUP seconds
+	mkdir -p "$SHELLPACK_DATA/stutterp-data"
+	fio --directory="$SHELLPACK_DATA/stutterp-data"			\
+	    --minimal							\
+	    --write_lat_log $LOGDIR_RESULTS/fio-$NR_WORKERS.latlog	\
+	    $FIO_JOBFILE &> $LOGDIR_RESULTS/fio-$NR_WORKERS.log &
+	FIO_PID=$!
+	sleep $WARMUP
+	ps -p $FIO_PID &> /dev/null
+	if [ $? -ne 0 ]; then
+		cat $LOGDIR_RESULTS/fio-$NR_WORKERS.log
+		die "fio died during warmup"
+	fi
+
+	# Start memory hogs
+	ANON_PIDS=
+	echo Starting $NR_ANON_HOGS memory hogs
+	for INSTANCE in `seq 1 $NR_ANON_HOGS`; do
+		./memory-hog $WSS_PER_MEMHOG $MEMFAULT_FILE &
+		ANON_PIDS+=" $!"
+	done
+	for ANON_PID in $ANON_PIDS; do
+		ps -p $ANON_PID &> /dev/null
+		if [ $? -ne 0 ]; then
+			killall -KILL memory-hog
+			killall -KILL fio
+			die "Memory hog pid $ANON_PID exited abnormally"
+		fi
+	done
+
+	# Start mmap latency
+	echo Starting $NR_ANON_LATENCY mmap-latency
+	LATENCY_PIDS=
+	for INSTANCE in `seq 1 $NR_ANON_LATENCY`; do
+		./mmap-latency $LATENCY_FILE > $LOGDIR_RESULTS/mmap-latency-$NR_WORKERS.log &
+		LATENCY_PIDS+=" $!"
+	done
+	for LATENCY_PID in $LATENCY_PIDS; do
+		ps -p $LATENCY_PID &> /dev/null
+		if [ $? -ne 0 ]; then
+			killall -KILL mmap-latency
+			killall -KILL memory-hog
+			killall -KILL fio
+			die "Memory hog pid $ANON_PID exited abnormally"
+		fi
+	done
+
+	echo Sleeping $STUTTER_DURATION seconds
+	sleep $STUTTER_DURATION
+	monitor_post_hook $LOGDIR_RESULTS $NR_WORKERS
+
+	echo Shutting down fio
+	kill $FIO_PID
+	wait_on_pid_exit $FIO_PID
+
+	echo Shuttdown down memory hogs
+	for PID in $ANON_PIDS; do
+		kill $PID
+		wait_on_pid_exit $ANON_PIDS
+	done
+	echo Shutting down mmap latency
+	for PID in $LATENCY_PIDS; do
+		kill $PID
+		wait_on_pid_exit $PID
+	done
+
+###SHELLPACK threads_stride_end
+
+# Cleanup
+cd /
+rm -rf "$SHELLPACK_DATA/stutterp-data"
+if [ "$MEMFAULT_TMPFS" = "yes" ]; then
+	umount $SHELLPACK_DATA/mnt
+fi
+rm -rf $SHELLPACK_TEMP
+
+exit $SHELLPACK_SUCCESS

@@ -1,0 +1,36 @@
+### stutter simulates a simple workload. One part uses a lot of anonymous
+### memory, a second measures mmap latency and a third copies a large file.
+### The primary metric is checking for mmap latency.
+###
+### This is a variation of stutter that uses multiple threads and fio as
+### the io generator
+
+# MM Test Parameters
+export MMTESTS="stutterp"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=ext3
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=""
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat top iotop"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# stutter
+export DIRTY_RATIO=`cat /proc/sys/vm/dirty_ratio`
+export STUTTER_SIZE=$((MEMTOTAL_BYTES*(100+DIRTY_RATIO)/100))
+export STUTTER_FILE_PERCENTAGE=$((DIRTY_RATIO*2))
+export STUTTER_MIN_THREADS=4
+export STUTTER_MAX_THREADS=16
+export STUTTER_MEMFAULT_TMPFS=no
+export STUTTER_DURATION=300
