@@ -73,7 +73,6 @@ nrfiles=NR_WRITERS
 numjobs=NR_WRITERS
 filesize=FIO_FILESIZEm
 readwrite=randwrite
-
 EOF
 
 if [ "$STUTTER_NO_READERS" != "no" ]; then
@@ -89,6 +88,7 @@ numjobs=1
 file_service_type=random:16
 readwrite=randread
 EOF
+fi
 
 cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 ###SHELLPACK threads_large_stride_begin $STUTTER_MIN_THREADS $STUTTER_MAX_THREADS
