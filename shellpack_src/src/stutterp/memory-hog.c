@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 		gettimeofday(&tv_end, NULL);
 
 		printf("%d\n", timeval_to_ms(&tv_end) - timeval_to_ms(&tv_start));
-		sleep(5);
+		/* sleep(5); */
 	}
 
 	pause();
