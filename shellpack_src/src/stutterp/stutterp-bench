@@ -56,7 +56,7 @@ echo Total file wss $WSS_FILE MB
 echo Total anon wss $WSS_ANON MB
 
 # Estimate time to run each iteration
-WARMUP=$((WSS_FILE/1048576/$WRITEBACK_SPEED_MB+5))
+WARMUP=$((ELASPED+5))
 RUNTIME=$((WARMUP+STUTTER_DURATION))
 echo "Iteration warmup time:   $WARMUP"
 echo "Iteration total runtime: $RUNTIME"
