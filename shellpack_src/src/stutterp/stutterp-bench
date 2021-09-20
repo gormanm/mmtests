@@ -6,13 +6,7 @@
 
 ###SHELLPACK preamble stutterp-bench 2
 
-MEMFAULT_SIZE=${STUTTER_MEMFAULT_SIZE:=$MEMTOTAL_BYTES}
 MEMFAULT_TMPFS=no
-DD_FILESIZE=${STUTTER_FILESIZE:=$MEMTOTAL_BYTES}
-DD_BLOCKSIZE=${STUTTER_BLOCKSIZE:=4096}
-ITERATIONS=5
-USE_DD_ZERO=no
-USE_LOCAL=no
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --size		STUTTER_SIZE
@@ -80,6 +74,10 @@ numjobs=NR_WRITERS
 filesize=FIO_FILESIZEm
 readwrite=randwrite
 
+EOF
+
+if [ "$STUTTER_NO_READERS" != "no" ]; then
+	cat >> $FIO_JOBFILE_TEMPLATE << EOF
 [reader]
 # Simulate random reading from different files, switching to different file
 # after 16 ios. This somewhat simulates application startup.
@@ -95,7 +93,10 @@ EOF
 cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 ###SHELLPACK threads_large_stride_begin $STUTTER_MIN_THREADS $STUTTER_MAX_THREADS
 	# Calculate number of workers
-	NR_FILE_READERS=1
+	NR_FILE_READERS=0
+	if [ "$STUTTER_NO_READERS" != "no" ]; then
+		NR_FILE_READERS=1
+	fi
 	NR_ANON_LATENCY=1
 	NR_FILE_WRITERS=$(((NR_THREADS-NR_FILE_READERS-NR_ANON_LATENCY)/2))
 	NR_ANON_HOGS=$((NR_THREADS-NR_FILE_WRITERS-NR_FILE_READERS-NR_ANON_LATENCY))
