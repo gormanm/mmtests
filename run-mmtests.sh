@@ -566,6 +566,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		fi
 		EXIT_CODE=$?
 
+		sync
 		stop_monitors
 
 		mmtests_wait_token "test_done"
