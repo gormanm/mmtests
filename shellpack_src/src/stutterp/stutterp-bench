@@ -155,7 +155,7 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 	ANON_PIDS=
 	echo Starting $NR_ANON_HOGS memory hogs
 	for INSTANCE in `seq 1 $NR_ANON_HOGS`; do
-		./memory-hog $((WSS_PER_MEMHOG*1048576)) $MEMFAULT_FILE &
+		./memory-hog $((WSS_PER_MEMHOG*1048576)) $MEMFAULT_FILE > $LOGDIR_RESULTS/memory-hog-$NR_WORKERS.log &
 		ANON_PIDS+=" $!"
 	done
 	for ANON_PID in $ANON_PIDS; do
