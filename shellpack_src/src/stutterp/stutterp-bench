@@ -203,6 +203,10 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 		wait_on_pid_exit $PID
 	done
 
+	echo Compressing logs
+	gzip $LOGDIR_RESULTS/memory-hog-$NR_WORKERS.log
+	gzip $LOGDIR_RESULTS/mmap-latency-$NR_WORKERS.log
+
 ###SHELLPACK threads_stride_end
 
 # Cleanup

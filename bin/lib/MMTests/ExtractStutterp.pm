@@ -19,7 +19,7 @@ sub initialise() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 
-	my @workers = $self->discover_scaling_parameters($reportDir, "mmap-latency-", ".log");
+	my @workers = $self->discover_scaling_parameters($reportDir, "mmap-latency-", ".log.gz");
 
 	foreach my $worker (@workers) {
 		my $nr_samples = 0;
