@@ -187,7 +187,7 @@ function start_gzip_monitor()
 	_monitor=$1
 	_pidfile=$MONITOR_DIR/monitor.pids
 
-	($EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo $! >> $_pidfile ) | $EXPECT_UNBUFFER gzip -c > ${MONITOR_LOG}.gz &
+	($EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo $! >> $_pidfile ) | stdbuf -i0 gzip -c > ${MONITOR_LOG}.gz &
 	PID1=`tail -1 $_pidfile`
 	echo "Started monitor ${_monitor} gzip pid $PID1"
 }
@@ -201,8 +201,8 @@ function start_with_latency_monitor()
 	_pidfile=$MONITOR_DIR/monitor.pids
 
 	rm -f /tmp/monitor-{1,2}.$$.pid
-	( $EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo $! > /tmp/monitor-1.$$.pid ) | \
-		$SCRIPTDIR/monitors/latency-output /tmp/monitor-2.$$.pid | $EXPECT_UNBUFFER gzip -c > ${MONITOR_LOG}.gz &
+	($EXPECT_UNBUFFER $DISCOVERED_SCRIPT & echo $! > /tmp/monitor-1.$$.pid ) | \
+		$SCRIPTDIR/monitors/latency-output /tmp/monitor-2.$$.pid | stdbuf -i0 gzip -c > ${MONITOR_LOG}.gz &
 	wait_on_pid_file_create /tmp/monitor-1.$$.pid 10
 	PID1=`cat /tmp/monitor-1.$$.pid`
 	rm -f /tmp/monitor-1.$$.pid

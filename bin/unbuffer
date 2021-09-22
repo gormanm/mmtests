@@ -13,10 +13,12 @@ set child 0
 
 proc trap_handler {} {
 	global child
+	flush stdout
 	exec kill $child
 }
 
 trap trap_handler SIGTERM
+trap trap_handler SIGINT
 
 # -*- tcl -*-
 # Description: unbuffer stdout of a program
