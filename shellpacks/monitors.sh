@@ -136,6 +136,11 @@ function shutdown_monitors()
 			done
 			echo
 		fi
+		if [ -e $MONITOR_DIR/monitor.$_pid.compress ]; then
+			LOG_COMPRESS=`cat $MONITOR_DIR/monitor.$_pid.compress`
+			rm -f $MONITOR_DIR/monitor.$_pid.compress
+			gzip -f $LOG_COMPRESS
+		fi
 	done
 
 	rm $_pidfile
@@ -187,7 +192,11 @@ function start_gzip_monitor()
 	_monitor=$1
 	_pidfile=$MONITOR_DIR/monitor.pids
 
-	(script -q -f -c $DISCOVERED_SCRIPT 2>/dev/null & echo $! >> $_pidfile ) | stdbuf -i0 gzip -c > ${MONITOR_LOG}.gz &
+	$EXPECT_UNBUFFER $DISCOVERED_SCRIPT 2>/dev/null > ${MONITOR_LOG} &
+	PID1=$!
+	echo $PID1 >> $_pidfile
+	echo ${MONITOR_LOG} > $MONITOR_DIR/monitor.$PID1.compress
+
 	PID1=`tail -1 $_pidfile`
 	echo "Started monitor ${_monitor} gzip pid $PID1"
 }
@@ -201,16 +210,14 @@ function start_with_latency_monitor()
 	_pidfile=$MONITOR_DIR/monitor.pids
 
 	rm -f /tmp/monitor-{1,2}.$$.pid
-	(script -q -f -c $DISCOVERED_SCRIPT 2>/dev/null & echo $! > /tmp/monitor-1.$$.pid ) | \
-		$SCRIPTDIR/monitors/latency-output /tmp/monitor-2.$$.pid | stdbuf -i0 gzip -c > ${MONITOR_LOG}.gz &
+	($EXPECT_UNBUFFER $DISCOVERED_SCRIPT 2>/dev/null & echo $! > /tmp/monitor-1.$$.pid ) | \
+		$SCRIPTDIR/monitors/latency-output /tmp/monitor-2.$$.pid > ${MONITOR_LOG} &
+
 	wait_on_pid_file_create /tmp/monitor-1.$$.pid 10
 	PID1=`cat /tmp/monitor-1.$$.pid`
 	rm -f /tmp/monitor-1.$$.pid
+	echo ${MONITOR_LOG} > $MONITOR_DIR/monitor.$PID1.compress
 
-	# Wait for pid2 to appear. The same trick is not done for pid1 due
-	# to a bug in older versions of bash that "lose" the subshells
-	# pid. latency-output is not then properly killed and stdin may
-	# not be flushed to gzip
 	wait_on_pid_file_create /tmp/monitor-2.$$.pid 10
 	PID2=`cat /tmp/monitor-2.$$.pid 2> /dev/null`
 	rm -f /tmp/monitor-2.$$.pid
