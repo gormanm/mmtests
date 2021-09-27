@@ -180,7 +180,7 @@ compare-mmtests.pl [options]
 
  Options:
  -d, --directory	Work log directory to extract data from
- -n, --names		Titles for the series if tests given to run-mmtests.sh
+ -n, --names		Titles for the series of tests given to run-mmtests.sh
  -b, --benchmark	Benchmark to extract data for
  -v, --verbose		Verbose output
  --format		Output format

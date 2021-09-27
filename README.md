@@ -100,7 +100,7 @@ Some of the universal ones are:
 	Whether or not the [tuned](https://tuned-project.org/) tool should
 	be used and, if yes, with which profile. In fact, the option takes
 	the name of the desired profile (which should be present in the
-	system. If this is defined `tuned` is started and stopped around
+	system). If this is defined `tuned` is started and stopped around
 	the execution of the benchmarks.
 * `SWAP_CONFIGURATION`, `SWAP_PARTITIONS`, `SWAP_SWAPFILE_SIZEMB`:
 	It's possible to use a different swap configuration than what is
@@ -169,7 +169,7 @@ or `--help` the available options are shown:
 
   Options:
   -m|--run-monitors         Run with monitors enabled as specified by the configuration
-  -n|--no-monitor           Only execute the benchmark, do not execute it
+  -n|--no-monitor           Only execute the benchmark, do not monitor it
   -p|--performance          Set the performance cpufreq governor before starting
   -c|--config               Configuration file to read (default: config)
   -b|--build-only           Only build the benchmark, do not execute it
@@ -219,12 +219,12 @@ control monitoring:
 	not, during the execution of the benchmarks. If set to `no`, even if
 	monitors are defined, they will be ignored (but see `MONITOR_ALWAYS`
 	below). It can be overridden by the `--run-monitors` and `--no-monitor`
-	command like parameters. I.e., `--run-monitors` means we will always
+	command line parameters. I.e., `--run-monitors` means we will always
 	run monitors, even if we have `RUN_MONITOR=no` in the config file
 	(and vice versa, for `--no-monitor` and `RUN_MONITOR=yes`).
 * `MONITORS_ALWAYS`:
 	Basically, another override. In fact, monitors defined here will be
-	started even if we and `RUN_MONITOR=no` and/or `--no-monitor`.
+	started even if we have `RUN_MONITOR=no` and/or `--no-monitor`.
 * `MONITORS_GZIP`:
 	A list of monitors to be used during the benchmarks. Their output
 	will be saved in compressed (with gzip) log files.
@@ -321,14 +321,14 @@ $ ../../compare-kernels.sh --format html --output-dir /tmp/report > /tmp/report/
 
 An example of the HTML reporting is available
 [here](https://htmlpreview.github.io/?https://github.com/gormanm/mmtests/blob/docs/docs/example_html_report/index.html).
-This comes from two simple run of the default `config` (i.e., of the
+This comes from two simple runs of the default `config` (i.e., of the
 [STREAM](https://www.cs.virginia.edu/stream/) benchmark) when the system was idle (`TEST_RUN`) and busy with
 something else (`TEST_RUN_BUSY`).
 
 ### Reporting with `compare-mmtestsl.pl`
 
 It is possible to obtain a report using a different tool. It is the script
-that `compare-kernels.sh` calls internally and it located at
+that `compare-kernels.sh` calls internally and it is located at
 `bin/compare-mmtests.pl`.
 
 The output is the same table(s) produced by `compare-kernels.sh`.
@@ -351,7 +351,7 @@ comparison between the benchmarks.
 
 This is done by taking the geometric mean ([Gmean](https://www.cs.virginia.edu/stream/)
 of the results. The geometric mean is chosen because it has the nice property
-that the  mean of ratios is equal to the ratios of the means, so we do not get
+that the mean of ratios is equal to the ratios of the means, so we do not get
 different results depending on the order of the operations.
 
 Looking at the Gmean offers a concise and hence rather useful overview

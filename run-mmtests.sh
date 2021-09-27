@@ -694,7 +694,7 @@ run-mmtests B[options] test-name
 
  Options:
  --run-monitors		Run with monitors enabled as specified by the configuration
- --no-monitor		Only execute the benchmark, do not execute it
+ --no-monitor		Only execute the benchmark, do not monitor it
  --performance		Set the performance cpufreq governor before starting
  --config		Configuration file to read (default: config)
  --build-only		Only build the benchmark, do not execute it

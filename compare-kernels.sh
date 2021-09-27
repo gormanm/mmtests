@@ -1984,9 +1984,11 @@ output will be unusable.
 =head1 EXAMPLE
 
 $ cd work/log
+
 $ ../../compare-kernels.sh
 
 $ mkdir /tmp/report/
+
 $ ../../compare-kernels.sh --format html --output-dir /tmp/report > /tmp/report/index.html
 
 =head1 AUTHOR
