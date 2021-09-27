@@ -56,10 +56,6 @@ while [ "$1" != "" ]; do
 		SORT_VERSION=yes
 		shift
 		;;
-	--help)
-		perldoc ${BASH_SOURCE[0]}
-		exit 0;
-		;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift
@@ -1961,6 +1957,7 @@ compare-kernels.sh B[options]
   --sort-version		Assume kernel versions for test names and attempt to sort
   --format html			Generate a HTML format of the report
   --output-dir			Output directory for HTML report
+  -h, --help			Print this help
 
 =head1 DESCRIPTION
 

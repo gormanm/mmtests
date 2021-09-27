@@ -80,7 +80,7 @@ while true; do
 	case "$1" in
 		-h|--help)
 			perldoc ${BASH_SOURCE[0]}
-			exit 0
+			exit $SHELLPACK_SUCCESS
 			;;
 		-p|--performance)
 			export FORCE_PERFORMANCE_SETUP=yes
@@ -102,10 +102,6 @@ while true; do
 		-b|--build-only)
 		        BUILDONLY=true
 		        shift
-			;;
-		-h|--help)
-			usage
-			exit $SHELLPACK_SUCCESS
 			;;
 		--)
 			break
@@ -693,11 +689,12 @@ run-mmtests.sh - Install and execute a set of tests as specified by a configurat
 run-mmtests B[options] test-name
 
  Options:
- --run-monitors		Run with monitors enabled as specified by the configuration
- --no-monitor		Only execute the benchmark, do not monitor it
- --performance		Set the performance cpufreq governor before starting
- --config		Configuration file to read (default: config)
- --build-only		Only build the benchmark, do not execute it
+ -m, --run-monitors	Run with monitors enabled as specified by the configuration
+ -n, --no-monitor	Only execute the benchmark, do not monitor it
+ -p, --performance	Set the performance cpufreq governor before starting
+ -c, --config		Configuration file to read (default: config)
+ -b, --build-only	Only build the benchmark, do not execute it
+ -h, --help		Print this help
 
 =head1 DESCRIPTION
 
