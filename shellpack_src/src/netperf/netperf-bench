@@ -97,6 +97,10 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 	eval $TASKSET_CLIENT $NETROOT/bin/netperf $NETPERF_OPTS \
 			2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
 			|| die Failed to run netperf
+	if [ -e /tmp/mmtests-shutdown-netperf ]; then
+		rm /tmp/mmtests-shutdown-netperf
+		break
+	fi
 ###SHELLPACK iteration_end
 mmtests_server_ctl stop --serverside-name $PROTOCOL-$SIZE
 monitor_post_hook $LOGDIR_RESULTS $SIZE
