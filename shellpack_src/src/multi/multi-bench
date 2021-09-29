@@ -10,16 +10,27 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	rm $SHELLPACK_LOG/multi.list
 	for MULTI_TEST in $MULTI_TESTS; do
 		case $MULTI_TEST in
+		kernbench)
+			echo -n "Supported: kernbench"
+			MULTI_SHUTDOWN=$MULTI_SHUTDOWN_KERNBENCH
+			;;
 		netperf-*)
-			echo "Supported: netperf (run until end)"
+			echo -n "Supported: netperf"
+			MULTI_SHUTDOWN="$MULTI_SHUTDOWN_NETPERF"
 			;;
 		tbench4)
-			echo "Supported: tbench4 (run forver)"
+			echo -n "Supported: tbench4"
+			MULTI_SHUTDOWN="$MULTI_SHUTDOWN_TBENCH"
 			;;
 		*)
 			die "Unknown benchmark $MULTI_TEST for running under multi"
 			;;
 		esac
+		if [ "$MULTI_SHUTDOWN" = "yes" ]; then
+			echo " (run until shutdown)"
+		else
+			echo " (run until end)"
+		fi
 		echo $MULTI_TEST >> $SHELLPACK_LOG/multi.list
 	done
 
@@ -49,14 +60,23 @@ echo
 PIDINDEX=0
 for MULTI_TEST in $MULTI_TESTS; do
 	case $MULTI_TEST in
+	kernbench)
+		echo Waiting on $MULTI_TEST to complete
+		wait_on_pid_exit ${PIDS[$PIDINDEX]}
+		;;
 	netperf-*)
+		if [ "$MULTI_SHUTDOWN_NETPERF" = "yes" ]; then
+			touch /tmp/mmtests-shutdown-netperf
+		fi
 		echo Waiting on $MULTI_TEST to complete
 		wait_on_pid_exit ${PIDS[$PIDINDEX]}
 		;;
 	tbench4)
-		TBENCH_PID=`cat /tmp/mmtests-tbench.pid`
-		echo Sending SIGINT to tbench pid $TBENCH_PID
-		kill -HUP $TBENCH_PID
+		if [ "$MULTI_SHUTDOWN_TBENCH" = "yes" ]; then
+			TBENCH_PID=`cat /tmp/mmtests-tbench.pid`
+			echo Sending SIGINT to tbench pid $TBENCH_PID
+			kill -HUP $TBENCH_PID
+		fi
 		echo Waiting on controller to exit
 		wait_on_pid_exit ${PIDS[$PIDINDEX]}
 		;;
