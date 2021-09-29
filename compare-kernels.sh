@@ -538,6 +538,13 @@ for SUBREPORT in $REPORTS; do
 		echo No meaningful extraction script for monitor
 		echo
 		;;
+	multi)
+		for MULTI_TEST in `cat $KERNEL_BASE/iter-0/multi.list`; do
+			echo $SUBREPORT subtest $MULTI_TEST
+			cache-mmtests.sh compare-mmtests.pl -d . -b $MULTI_TEST -n $KERNEL_LIST $FORMAT_CMD
+			echo
+		done
+		;;
 	nas*)
 		echo $SUBREPORT NAS Time
 		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD
@@ -1677,7 +1684,7 @@ for SUBREPORT in $REPORTS; do
 			done
 		fi
 		if [ "$DIRECT_ACTIVITY" = "yes" ]; then
-			eval $GRAPH_PNG --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scanA --with-smooth
+			eval $GRAPH_PNG --title \"Direct Reclaim Scan\"  --print-monitor proc-vmstat --sub-heading mmtests_direct_scan  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-scan --with-smooth
 			eval $GRAPH_PNG --title \"Direct Reclaim Steal\" --print-monitor proc-vmstat --sub-heading mmtests_direct_steal --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-steal --with-smooth
 			eval $GRAPH_PNG --title \"Direct Reclaim Efficiency\" --print-monitor proc-vmstat --sub-heading mmtests_direct_efficiency --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-direct-efficiency --with-smooth 2> /dev/null
 			echo "<tr>"

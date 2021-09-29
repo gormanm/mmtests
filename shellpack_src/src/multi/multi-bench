@@ -1,0 +1,70 @@
+#!/bin/bash
+# This is not a benchmark, instead it is responsible for running
+# multiple benchmarks simultaneously to measure potential
+# interference
+###SHELLPACK preamble multi-bench 0
+
+cd $SHELLPACK_TOPLEVEL
+if [ "$INSTALL_ONLY" = "yes" ]; then
+	# Check benchmark is supported for parallel use
+	rm $SHELLPACK_LOG/multi.list
+	for MULTI_TEST in $MULTI_TESTS; do
+		case $MULTI_TEST in
+		netperf-*)
+			echo "Supported: netperf (run until end)"
+			;;
+		tbench4)
+			echo "Supported: tbench4 (run forver)"
+			;;
+		*)
+			die "Unknown benchmark $MULTI_TEST for running under multi"
+			;;
+		esac
+		echo $MULTI_TEST >> $SHELLPACK_LOG/multi.list
+	done
+
+	# Run installations
+	for MULTI_TEST in $MULTI_TESTS; do
+		echo Installing test $MULTI_TEST
+		export INSTALL_ONLY=yes
+		./bin/run-single-test.sh $MULTI_TEST
+		if [ $? -ne 0 ]; then
+			die "Installation step failed for $MULTI_TEST"
+		fi
+	done
+fi
+###SHELLPACK init_complete
+
+declare -a PIDS
+PIDINDEX=0
+for MULTI_TEST in $MULTI_TESTS; do
+	echo Starting $MULTI_TEST
+	./bin/run-single-test.sh $MULTI_TEST &> $LOGDIR_RESULTS/output-$MULTI_TEST.log &
+	PIDS[$PIDINDEX]=$!
+	PIDINDEX=$((PIDINDEX+1))
+done
+
+echo
+
+PIDINDEX=0
+for MULTI_TEST in $MULTI_TESTS; do
+	case $MULTI_TEST in
+	netperf-*)
+		echo Waiting on $MULTI_TEST to complete
+		wait_on_pid_exit ${PIDS[$PIDINDEX]}
+		;;
+	tbench4)
+		TBENCH_PID=`cat /tmp/mmtests-tbench.pid`
+		echo Sending SIGINT to tbench pid $TBENCH_PID
+		kill -HUP $TBENCH_PID
+		echo Waiting on controller to exit
+		wait_on_pid_exit ${PIDS[$PIDINDEX]}
+		;;
+	*)
+		die "Unknown benchmark $MULTI_TEST for running under multi"
+		;;
+	esac
+	PIDINDEX=$((PIDINDEX+1))
+done
+
+exit $RETVAL

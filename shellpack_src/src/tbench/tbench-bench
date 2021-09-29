@@ -67,10 +67,18 @@ server_stop 0
 	server_start $NR_THREADS
 	./bin/tbench \
 		-t $TBENCH_DURATION \
-		$NR_THREADS $SERVER_HOST &> $LOGDIR_RESULTS/tbench-$NR_THREADS.log \
-			|| die "Failed to run tbench"
+		$NR_THREADS $SERVER_HOST &> $LOGDIR_RESULTS/tbench-$NR_THREADS.log &
+	TBENCH_PID=$!
+	echo $TBENCH_PID > /tmp/mmtests-tbench.pid
+	wait $TBENCH_PID
+	RET=$?
 	server_stop $NR_THREADS
 	gzip $LOGDIR_RESULTS/tbench-$NR_THREADS.log
+
+	rm /tmp/mmtests-tbench.pid
+	if [ $RET -ne 0 ]; then
+		die "Failed to run tbench"
+	fi
 ###SHELLPACK threads_powertwo_end
 
 exit $SHELLPACK_SUCCESS
