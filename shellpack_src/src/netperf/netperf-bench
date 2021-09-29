@@ -17,6 +17,7 @@ fi
 ###SHELLPACK parseargParam    --iterations   ITERATIONS
 ###SHELLPACK parseargParam    --protocol     PROTOCOL
 ###SHELLPACK parseargParam    --buffer-sizes BUFFER_SIZES
+###SHELLPACK parseargParam    --nr-pairs     NR_PAIRS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -87,16 +88,29 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 		fi
 	fi
 	
-	echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE
+	echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE nr_pairs $NR_PAIRS
 	NETPERF_OPTS="\
 		-t $PROTOCOL \
 		-i 3,3 -I 95,5 \
 		-H $SERVER_HOST \
 		-- $SOCKETSIZE_OPT $MSGSIZE_OPT $EXTRA"
 	echo $TASKSET_CLIENT "netperf" $NETPERF_OPTS
-	eval $TASKSET_CLIENT $NETROOT/bin/netperf $NETPERF_OPTS \
-			2>&1 | tee $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$ITERATION \
-			|| die Failed to run netperf
+
+	PIDS=
+	SAMPLES=
+	for PAIR in `seq 0 $((NR_PAIRS-1))`; do
+		NR_SAMPLE=$(((ITERATION-1)*NR_PAIRS+PAIR+1))
+		eval $TASKSET_CLIENT $NETROOT/bin/netperf $NETPERF_OPTS \
+			&> $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$NR_SAMPLE &
+		PIDS+=" $!"
+		SAMPLES+=" $NR_SAMPLE"
+	done
+	for PID in $PIDS; do
+		wait_on_pid_exit $PID
+	done
+	for SAMPLE in $SAMPLES; do
+		cat $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$SAMPLE
+	done
 	if [ -e /tmp/mmtests-shutdown-netperf ]; then
 		rm /tmp/mmtests-shutdown-netperf
 		break

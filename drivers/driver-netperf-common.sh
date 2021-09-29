@@ -3,6 +3,9 @@ SERVER_SIDE_SUPPORT=yes
 SERVER_SIDE_BENCH_SCRIPT=shellpacks/shellpack-bench-netperf
 
 run_bench() {
+	if [ "$NETPERF_NR_PAIRS" = "" ]; then
+		NETPERF_NR_PAIRS=1
+	fi
 	BIND_SWITCH=
 	if [ "$NETPERF_BINDING" != "" ]; then
 		BIND_SWITCH=--bind-$NETPERF_BINDING
@@ -16,8 +19,9 @@ run_bench() {
 	$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh netperf
 	$SCRIPTDIR/shellpacks/shellpack-bench-netperf $BIND_SWITCH \
 		$SERVER_ADDRESS \
-		--iterations $NETPERF_ITERATIONS \
-		--protocol $NETPERF_PROTOCOL \
-		--buffer-sizes $NETPERF_BUFFER_SIZES
+		--iterations $NETPERF_ITERATIONS	\
+		--protocol $NETPERF_PROTOCOL		\
+		--buffer-sizes $NETPERF_BUFFER_SIZES	\
+		--nr-pairs $NETPERF_NR_PAIRS
 	return $?
 }
