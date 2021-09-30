@@ -65,10 +65,6 @@ while true; do
 			;;
 		-L|--host-logs)
 			HOST_LOGS="yes"
-			# CURRENT_TEST is used only by monitors. Just define
-			# it to 'host' for now. We will change this, when we
-			# will do per-test monitoring.
-			export CURRENT_TEST="host"
 			shift
 			;;
 		-k|--keep-kernel)
@@ -107,6 +103,10 @@ while true; do
 			;;
 	esac
 done
+
+# CURRENT_TEST is used only by monitors. Just define it to 'monitor' for now.
+# We will change this, if/when we will do per-test monitoring.
+export CURRENT_TEST="monitor"
 
 # We want to read the config(s) that run-mmtests.sh will use inside the guests.
 # They are in the set of parameters that we have not parsed above, so retrieve
@@ -203,9 +203,17 @@ install_tuned
 # parameter of run-mmtests.sh.
 RUNNAME=${@:$#}
 
+# For now, we do not support multiple iterations on the host-side. It is,
+# however, convenient to have a common structure of the activity log between
+# run-kvm and run-mmtests (that supports iterations), so we at least define
+# the counter and add log its value, so comparing the output of the monitors
+# on the host, between different runs, will work.
+MMTEST_HOST_ITERATION=0
+activity_log "run-kvm: Iteration $MMTEST_HOST_ITERATION start"
+
 # We only collect logs if the '-L' parameter was present.
 if [ "$HOST_LOGS" = "yes" ]; then
-	export SHELLPACK_LOG=$SHELLPACK_LOG_BASE/$RUNNAME-host
+	export SHELLPACK_LOG=$SHELLPACK_LOG_BASE/$RUNNAME-host/iter-$MMTEST_HOST_ITERATION
 	# Delete old runs
 	rm -rf $SHELLPACK_LOG &>/dev/null
 	mkdir -p $SHELLPACK_LOG
@@ -214,6 +222,8 @@ if [ "$HOST_LOGS" = "yes" ]; then
 	export SHELLPACK_SYSSTATEFILE="$SHELLPACK_LOG/tests-sysstate"
 	rm -f $SHELLPACK_ACTIVITY $SHELLPACK_LOGFILE $SHELLPACK_SYSSTATEFILE
 fi
+
+activity_log "run-kvm: Start"
 
 start_numad
 start_tuned
@@ -339,12 +349,14 @@ sync
 start_monitors
 
 echo Executing mmtests on the guest
-activity_log "run-kvm: begin run-mmtests in VMs"
+activity_log "run-kvm: run-mmtests in VMs start"
 teststate_log "test begin :: `date +%s`"
+activity_log "run-kvm: begin $CURRENT_TEST"
 
 sysstate_log_proc_files "start"
 
-pssh $PSSH_OPTS "cd git-private/$NAME && ./run-mmtests.sh $@" &
+/usr/bin/time -f "time :: $CURRENT_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
+	pssh $PSSH_OPTS "cd git-private/$NAME && ./run-mmtests.sh $@" &
 PSSHPID=$!
 
 # This variable can be used to provide additional options to `nc`, as it is
@@ -584,8 +596,8 @@ else
 	teststate_log "VMs down :: `date +%s`"
 fi
 
+teststate_log "`cat $SHELLPACK_LOG/timestamp`"
 teststate_log "finish :: `date +%s`"
-teststate_log "status :: $RETVAL"
 
 if [ "$HOST_LOGS" = "yes" ]; then
 	dmesg > $SHELLPACK_LOG/dmesg
@@ -595,5 +607,10 @@ fi
 
 shutdown_numad
 shutdown_tuned
+
+activity_log "run-kvm: Iteration $MMTEST_HOST_ITERATION end"
+
+activity_log "run-kvm: End"
+teststate_log "status :: $RETVAL"
 
 exit $RETVAL

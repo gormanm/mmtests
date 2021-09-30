@@ -1379,11 +1379,11 @@ function have_monitor_results()
 function run_report_name()
 {
 	if [ -e $1/iter-0/tests-activity ]; then
-		awk '/^[0-9]* run-mmtests: begin / { print $4 }
-		    /^[0-9]* run-mmtests: Iteration 0 end/ { exit }' <$1/iter-0/tests-activity
+		awk '/^[0-9]* run-(mmtests|kvm): begin / { print $4 }
+		/^[0-9]* run-(mmtests|kvm): Iteration 0 end/ { exit }' <$1/iter-0/tests-activity
 	else
-		awk '/^[0-9]* run-mmtests: begin / { print $4 }
-		     /^[0-9]* run-mmtests: Iteration 0 end/ { exit }' <$1/tests-activity
+		awk '/^[0-9]* run-(mmtests|kvm): begin / { print $4 }
+		    /^[0-9]* run-(mmtests|kvm): Iteration 0 end/ { exit }' <$1/tests-activity
 	fi
 }
 
