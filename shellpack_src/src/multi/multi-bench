@@ -5,7 +5,7 @@
 ###SHELLPACK preamble multi-bench 0
 
 cd $SHELLPACK_TOPLEVEL
-if [ "$INSTALL_ONLY" = "yes" ]; then
+###SHELLPACK init_only_start
 	# Check benchmark is supported for parallel use
 	rm $SHELLPACK_LOG/multi.list
 	for MULTI_TEST in $MULTI_TESTS; do
@@ -43,8 +43,7 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 			die "Installation step failed for $MULTI_TEST"
 		fi
 	done
-fi
-###SHELLPACK init_complete
+###SHELLPACK init_only_end
 
 declare -a PIDS
 PIDINDEX=0

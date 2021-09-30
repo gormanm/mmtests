@@ -51,7 +51,7 @@ KERNBENCH_TARGETS=`echo $KERNBENCH_TARGETS | sed -e 's/,/ /g'`
 	fi
 
 	if [ "$KERNBENCH_SKIP_WARMUP" = "no" ]; then
-		echo Warming run
+		echo Install-only warming run
 		make -j$THREADS $KERNBENCH_TARGETS > /dev/null 2>&1 || die "Failed to build $KERNBENCH_TARGETS"
 	fi
 	make clean >/dev/null
