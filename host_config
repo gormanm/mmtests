@@ -9,6 +9,21 @@ export AUTO_PACKAGE_INSTALL="yes"
 # (if not specified via command line)
 #export MMTESTS_VMS="vm1 vm2"
 
+# If the VMs are up already, and we know their IPs, we can
+# use them directly. Note that this means:
+# - run-kmv.sh will not (try to) power on the VMs, it will
+#   assume that they're up already and go straight to try
+#   to connect to them
+# - run-kvm.sh will not (try to) shutdonw the VMs at the
+#   end of the benchmark, it will just leave them as they
+#   are
+# - the MMTESTS_VMS array must be provided as well, and it
+#   must have the same number of entries than MMTESTS_VMS_IP
+#   (and names will be associated with IPs in the order they
+#   are found in the two arrays)
+#export MMTESTS_VMS_IP="192.168.122.24 192.168.122.38"
+#export MMTESTS_VMS="vm_a vm_b"
+
 # If `numad` should be used on the host
 #export MMTESTS_NUMA_POLICY="numad"
 

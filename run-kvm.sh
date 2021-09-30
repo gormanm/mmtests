@@ -201,8 +201,6 @@ install_tuned
 
 # NB: 'runname' is the last of our parameters, as it is the last
 # parameter of run-mmtests.sh.
-declare -a GUEST_IP
-declare -a VM_RUNNAME
 RUNNAME=${@:$#}
 
 # We only collect logs if the '-L' parameter was present.
@@ -222,31 +220,66 @@ start_tuned
 
 teststate_log "start :: `date +%s`"
 
-echo "Booting the VM(s)"
-activity_log "run-kvm: Booting VMs"
-kvm-start --vm $VMS || die "Failed to boot VM(s)"
-
-teststate_log "VMs up :: `date +%s`"
-
 # Arrays where we store, for each VM, the IP and a VM-specific
 # runname. The latter, in particular, is necessary because otherwise,
 # when running the same benchmark in several VMs with different names,
 # results would overwrite each other.
-v=1
-PREV_IFS=$IFS
-IFS=,
-for VM in $VMS; do
-	GUEST_IP[$v]=`kvm-ip-address --vm $VM`
-	echo "VM ready: $VM IP: ${GUEST_IP[$v]}"
-	activity_log "run-kvm: VM $VM IP ${GUEST_IP[$v]}"
-	PSSH_OPTS="$PSSH_OPTS -H root@${GUEST_IP[$v]}"
-	if [ "$HOST_LOGS" = "yes" ]; then
-		virsh dumpxml $VM > $SHELLPACK_LOG/$VM.xml
-	fi
-	VM_RUNNAME[$v]="$RUNNAME-$VM"
-	v=$(( $v + 1 ))
-done
-IFS=$PREV_IFS
+declare -a GUEST_IP
+declare -a VM_RUNNAME
+
+if [ "$MMTESTS_VMS_IP" != "" ]; then
+	# MMTESTS_VMS_IP is space separated, we want it to be comma separated
+	IPS=$(echo ${MMTESTS_VMS_IP// /,})
+
+	i=1
+	PREV_IFS=$IFS
+	IFS=,
+	for IP in $IPS; do
+		GUEST_IP[$i]=$IP
+		i=$(( $i + 1 ))
+	done
+	IFS=$PREV_IFS
+
+	v=1
+	PREV_IFS=$IFS
+	IFS=,
+	for VM in $VMS; do
+		echo "checking VM: $VM at IP: ${GUEST_IP[$v]}"
+		wait_ssh_available ${GUEST_IP[$v]}
+		PSSH_OPTS="$PSSH_OPTS -H root@${GUEST_IP[$v]}"
+
+		echo "VM ready: $VM IP: ${GUEST_IP[$v]}"
+		activity_log "run-kvm: VM $VM IP ${GUEST_IP[$v]}"
+
+		VM_RUNNAME[$v]="$RUNNAME-$VM"
+		v=$(( $v + 1 ))
+	done
+	IFS=$PREV_IFS
+
+	[ $v -eq $i ] || die "MMTESTS_VMS and MMTESTS_VMS_IP mismatch"
+else
+	echo "Booting the VM(s)"
+	activity_log "run-kvm: Booting VMs"
+	kvm-start --vm $VMS || die "Failed to boot VM(s)"
+
+	teststate_log "VMs up :: `date +%s`"
+
+	v=1
+	PREV_IFS=$IFS
+	IFS=,
+	for VM in $VMS; do
+		GUEST_IP[$v]=`kvm-ip-address --vm $VM`
+		echo "VM ready: $VM IP: ${GUEST_IP[$v]}"
+		activity_log "run-kvm: VM $VM IP ${GUEST_IP[$v]}"
+		PSSH_OPTS="$PSSH_OPTS -H root@${GUEST_IP[$v]}"
+		if [ "$HOST_LOGS" = "yes" ]; then
+			virsh dumpxml $VM > $SHELLPACK_LOG/$VM.xml
+		fi
+		VM_RUNNAME[$v]="$RUNNAME-$VM"
+		v=$(( $v + 1 ))
+	done
+	IFS=$PREV_IFS
+fi
 VMCOUNT=$(( $v - 1 ))
 PSSH_OPTS="$PSSH_OPTS $MMTEST_PSSH_OPTIONS -p $(( $VMCOUNT * 2 ))"
 
@@ -542,10 +575,14 @@ for VM in $VMS; do
 done
 IFS=$PREV_IFS
 
-echo "Shutting down the VM(s)"
-activity_log "run-kvm: Shutoff VMs"
-kvm-stop --vm $VMS
-teststate_log "VMs down :: `date +%s`"
+if [ "$MMTESTS_VMS_IP" != "" ]; then
+	echo "Leaving the VM(s) up"
+else
+	echo "Shutting down the VM(s)"
+	activity_log "run-kvm: Shutoff VMs"
+	kvm-stop --vm $VMS
+	teststate_log "VMs down :: `date +%s`"
+fi
 
 teststate_log "finish :: `date +%s`"
 teststate_log "status :: $RETVAL"
