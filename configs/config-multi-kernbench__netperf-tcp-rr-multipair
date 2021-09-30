@@ -2,7 +2,7 @@
 
 # MM Test Parameters
 export MMTESTS="multi"
-export MULTI_TESTS="netperf-tcp-rr kernbench"
+export MULTI_TESTS="kernbench netperf-tcp-rr"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
