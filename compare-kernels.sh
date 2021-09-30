@@ -539,7 +539,7 @@ for SUBREPORT in $REPORTS; do
 		echo
 		;;
 	multi)
-		for MULTI_TEST in `cat $KERNEL_BASE/iter-0/multi.list`; do
+		for MULTI_TEST in `cat $KERNEL_BASE/iter-0/multi/logs/multi.list`; do
 			echo $SUBREPORT subtest $MULTI_TEST
 			cache-mmtests.sh compare-mmtests.pl -d . -b $MULTI_TEST -n $KERNEL_LIST $FORMAT_CMD
 			echo

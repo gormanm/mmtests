@@ -7,7 +7,7 @@
 cd $SHELLPACK_TOPLEVEL
 ###SHELLPACK init_only_start
 	# Check benchmark is supported for parallel use
-	rm $SHELLPACK_LOG/multi.list
+	rm -f $SHELLPACK_LOG/multi/logs/multi.list
 	for MULTI_TEST in $MULTI_TESTS; do
 		case $MULTI_TEST in
 		kernbench)
@@ -31,7 +31,7 @@ cd $SHELLPACK_TOPLEVEL
 		else
 			echo " (run until end)"
 		fi
-		echo $MULTI_TEST >> $SHELLPACK_LOG/multi.list
+		echo $MULTI_TEST >> $SHELLPACK_LOG/multi/logs/multi.list
 	done
 
 	# Run installations
