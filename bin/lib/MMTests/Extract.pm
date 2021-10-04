@@ -18,6 +18,7 @@ sub new() {
 		_ModuleName 	=> "Extract",
 		_FieldHeaders	=> [],
 		_FieldLength	=> 0,
+		_Cmd			=> "",
 	};
 	bless $self, $class;
 	return $self;
@@ -430,6 +431,11 @@ sub nextIteration() {
 			undef $self->{_LastSample}->{$op};
 		}
 	}
+}
+
+sub addCmd() {
+	my ($self, $cmd) = @_;
+	push @{$self->{_Cmd}}, $cmd;
 }
 
 sub addData() {

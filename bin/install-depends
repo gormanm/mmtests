@@ -49,6 +49,7 @@ my %package_map = (
 	"debian::mono"				=> "mono-complete",
 	"debian::MPlayer"			=> "mplayer",
 	"debian::perl-Math-Round"		=> "libmath-round-perl",
+	"debian::perl-File-Slurp"		=> "libfile-slurp-perl",
 	"debian::perl-Time-HiRes"		=> "perl",
 	"debian::popt-devel"			=> "libpopt-dev",
 	"debian::python3-devel"			=> "python3-dev",
@@ -121,7 +122,7 @@ my %package_map = (
 	"redhat::openmpi-32bit"			=> "openmpi.i686",
 	"redhat::tcsh"				=> "csh",
 );
-	
+
 my %package_bin = (
 	"suse"		=> "zypper install",
 	"debian"	=> "apt-get install",
