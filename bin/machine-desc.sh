@@ -24,11 +24,13 @@ detect_dmidecode() {
 	cache=/sys/devices/system/cpu/cpu0/cache
 	pcache=
 	for index in `ls /sys/devices/system/cpu/cpu0/cache`; do
-		if [ "$pcache" != "" ]; then
-			pcache="$pcache + "
+		if [ -d $cache/$index ]; then
+			if [ "$pcache" != "" ]; then
+				pcache="$pcache + "
+			fi
+			pcache="$pcache`cat $cache/$index/size`"
+			pcache="$pcache `cat $cache/$index/type | head -c1`"
 		fi
-		pcache="$pcache`cat $cache/$index/size`"
-		pcache="$pcache `cat $cache/$index/type | head -c1`"
 	done
 	hw_memory=`free -m | grep ^Mem: | awk '{print $2}'`MB
 	hw_cpus=`grep processor /proc/cpuinfo | wc -l`
@@ -50,9 +52,8 @@ detect_dmidecode() {
 
 			hw_cpu_name=`cpuinfo_val "model name"`
 			hw_cpu_mhz=`cpuinfo_val "cpu MHz"`
-			hw_ncoresperchip=`cpuinfo_val "cpu cores"`
-			hw_nchips=$(($hw_cpus/$hw_ncoresperchip))
-			hw_ncores=$(($hw_cpus/$hw_nchips))
+			hw_ncores=`cpuinfo_val "cpu cores"`
+			hw_nthreads=$(($hw_cpus/$hw_sockets/$hw_ncores))
 			hw_pcache=$pcache
 
 			;;
@@ -78,9 +79,9 @@ hw_cpu_name      : $hw_cpu_name
 hw_cpu_mhz       : $hw_cpu_mhz
 hw_nr_cpus:      : $hw_cpus
 hw_cpu_sockets   : $hw_sockets
-hw_cpu_cores     : $hw_nchips
-hw_core_threads  : $hw_ncores
-hw_pcache        : $hw_pcache
+hw_cpu_cores     : $hw_ncores
+hw_smt_threads   : $hw_nthreads
+hw_l1_cache      : $hw_pcache
 hw_memory        : $hw_memory
 hw_memory_nodes  : $NUMNODES
 
