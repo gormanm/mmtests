@@ -16,8 +16,8 @@ which reads a config file that describes how the benchmarks should be
 configured and executed. In some cases, the same benchmarking tool may
 be used with different configurations that stresses the scenario.
 
-A test name can have any name. A common use case is simply to compare
-kernel versions but it can be anything --different compiler, different
+A test run can have any name. A common use case is simply to compare
+kernel versions but it can be anything —different compiler, different
 userspace package, different benchmark configuration etc.
 
 Monitors can be optionally configured, but care should be taken as there
@@ -51,7 +51,7 @@ work. Similarly, [`R`](https://www.r-project.org/) should be installed if
 attempting to highlight whether performance differences are statistically
 relevant.
 
-A "tutorial" with some more details and the full output of each step is
+A tutorial with some more details and the full output of each step is
 available here:
 * [MMTests Tutorial](docs/Tutorial.md)
 
@@ -66,7 +66,7 @@ may be able to identify performance regressions or gains in the page allocator.
 Similarly there are network, disk and scheduler configs.
 
 The config file can take many options, in the form of `export`-ed
-variables. There is an example (functional) config file available in
+variables. there is a functional sample config file available in
 [`config`](https://github.com/gormanm/mmtests/blob/master/config).
 
 Some options are universal, others are specific to the test.
@@ -77,8 +77,8 @@ Some of the universal ones are:
 * `AUTO_PACKAGE_INSTALL`:
 	Whether packages necessary for building or running benchmarks
 	should be automatically installed, without asking any confirmation
-	(takes a `yes` or `no` and creating a `/.mmtests-auto-package-install`
-	would be equivalent of setting this to `yes`).
+	(takes a `yes` or a `no`). Creating a file called `.mmtests-auto-package-install`
+	and putting it in `/` would be equivalent of having this set to `yes`.
 * `MMTESTS_NUMA_POLICY`:
 	Whether `numad` or `numactl` should be used for deciding (typically,
 	for restricting) on what CPUs and/or NUMA nodes the benchmark will run.
@@ -151,8 +151,8 @@ This will give access to more information about the system topology, such as:
 * `NUMNODES`:
 	Number of NUMA nodes.
 
-Taking advantage of this knowledge about the characteristics of the platform
-the configuration of the benchmarks can be refined.
+Benchmark configurations can then be refined, by taking advantage of the
+knowledge of the platform characteristics.
 
 For an example check
 [config-workload-stream-omp-llcs](https://github.com/gormanm/mmtests/blob/master/configs/config-workload-stream-omp-llcs), where this is done: `STREAM_THREADS=$NUMLLCS`. Or
@@ -171,7 +171,7 @@ or `--help` the available options are shown:
   -m|--run-monitors         Run with monitors enabled as specified by the configuration
   -n|--no-monitor           Only execute the benchmark, do not monitor it
   -p|--performance          Set the performance cpufreq governor before starting
-  -c|--config               Configuration file to read (default: config)
+  -c|--config               Configuration file to read (default: ./config)
   -b|--build-only           Only build the benchmark, do not execute it
 ```
 
@@ -270,7 +270,7 @@ should be defined either adding `perf-time-stat` to the list of
 
 ### Reporting with `compare-kernel.sh`
 
-For reporting, there is a basic `compare-kernels.sh script`.
+For reporting, there is a basic `compare-kernels.sh` script.
 
 Despite the name, it can compare an arbitrary number of benchmarking runs.
 The name has historical reasons, from the time when the only use case was
@@ -310,7 +310,7 @@ depending of the nature of the results.
 
 `compare-kernel.sh` can generate an HTML report, with both tables and graphs.
 For doing that, both the format and the output directory needs to be
-specified. The HTML page will them come directly out of the standard output
+specified. The HTML page will then come directly out of the standard output
 of the tool. Therefore, invoking it like this is recommended:
 
 ```
@@ -320,7 +320,7 @@ $ ../../compare-kernels.sh --format html --output-dir /tmp/report > /tmp/report/
 ```
 
 An example of the HTML reporting is available
-[here](https://htmlpreview.github.io/?https://github.com/gormanm/mmtests/blob/docs/docs/example_html_report/index.html).
+[here](https://htmlpreview.github.io/?https://github.com/gormanm/mmtests/blob/master/docs/example_html_report/index.html).
 This comes from two simple runs of the default `config` (i.e., of the
 [STREAM](https://www.cs.virginia.edu/stream/) benchmark) when the system was idle (`TEST_RUN`) and busy with
 something else (`TEST_RUN_BUSY`).
@@ -344,12 +344,12 @@ MB/sec add      14740.32 (   0.00%)    11749.84 ( -20.29%)
 MB/sec triad    14504.22 (   0.00%)    11317.26 ( -21.97%)
 ```
 
-If the benchmark does multiple operations --like STREAM above that checks the
-memory throughput of four different operations-- there will be one result for
+If the benchmark does multiple operations —like STREAM above that checks the
+memory throughput of four different operations— there will be one result for
 each. In these cases, `compare-mmtests.pl` can be used to produce an *overall*
 comparison between the benchmarks.
 
-This is done by taking the geometric mean ([Gmean](https://www.cs.virginia.edu/stream/)
+This is done by taking the geometric mean ([Gmean](https://www.cs.virginia.edu/stream/))
 of the results. The geometric mean is chosen because it has the nice property
 that the mean of ratios is equal to the ratios of the means, so we do not get
 different results depending on the order of the operations.
@@ -369,7 +369,7 @@ Gmean Higher        1.00                         0.79
 ```
 
 Of course, the Gmean for the benchmark chosen as the baseline will always
-be `1.00`. Additionally, the `Higher` or `Lower` "tag" tells us whether
+be `1.00`. Additionally, the `Higher` or `Lower` label tells us whether
 it is the higher or lower values that represent better performance.
 
 In the example above, `TEST_RUN_BUSY` reaches only the 79% of `TEST_RUN`
@@ -393,8 +393,8 @@ building a supporting tool like a library a benchmark requires. *Do not
 modify* the generated test-scripts in `shellpacks/` directory as they will
 simply be overwritten.
 
-For instance, `/shellpacks/shellpack-bench-pgbench` --which will be
-automatically generated from `shellpack_src/src/pgbench/pgbench-bench`--
+For instance, `/shellpacks/shellpack-bench-pgbench` —which will be
+automatically generated from `shellpack_src/src/pgbench/pgbench-bench`—
 contains all the individual test steps.
 
 Each test is driven by `bin/run-single-test.sh` script which reads
@@ -405,10 +405,9 @@ the relevant `drivers/driver-<testname>.sh` script (e.g.,
 
 MMTests needs to download the various benchmarks from their official location,
 i.e., from the Internet. That might be problematic because it can (should!) be
-considered not trusted, or even just because the official version may have been
-updated to a newer version which maybe is not yet compatible with the current
-version of MMTests' shellpacks for that particular benchmark. And if this
-happens, the run will likely fail.
+considered not trusted, or even just because the official repository may have
+been updated to a newer version which maybe is not yet compatible with the
+current release of MMTests. And if this happens, the run will likely fail.
 
 Other potential problems are that the download may fail due to temporary
 networking issues, that it consumes bandwidth and that it adds delays and
@@ -456,13 +455,17 @@ Talks and presentation about or related to MMTests:
   ([slides](https://static.lwn.net/images/conf/2020/ospm/faggioli-mmtests.pdf)).
 * FOSDEM 2020 talk about MMTests, focusing on using it for running
   benchmarks inside virtual machines
-  [Automated Performance Testing for Virtualization with MMTests](https://archive.fosdem.org/2020/schedule/event/testing_automated_performance_testing_virtualization/)
+  [Automated Performance Testing for Virtualization with MMTests](https://archive.fosdem.org/2020/schedule/event/testing_automated_performance_testing_virtualization/).
 * Mel Gorman's talk at SUSE Labs Conference 2018,
   [Marvin: Automated assistant for development and CI](https://www.youtube.com/watch?v=jOnIQJQzW3s).
   It's about [Marvin](http://techsingularity.net/blog/?p=5),
   but mentions MMTests as well.
+* Jan Kara's talk at Open Source Summit 2017,
+  [Detecting Performance Regressions in the Linux Kernel](https://osseu17.sched.com/event/BxIY).
+* Jan Kara's talk at SUSE Labs Conference 2017,
+  [Performance Team's Grid](https://www.youtube.com/watch?v=-3cpQjLU-5w).
 * Davidlohr's talk at LinuxCon NA 2015
-  [Performance Monitoring in the Linux Kernel](https://lccocc2015.sched.com/event/3XhH/performance-monitoring-in-the-linux-kernel-davidlohr-bueso-suse)
+  [Performance Monitoring in the Linux Kernel](https://lccocc2015.sched.com/event/3XhH/performance-monitoring-in-the-linux-kernel-davidlohr-bueso-suse).
 
 Some historic references:
 * [MMTests 0.05](https://marc.info/?l=linux-mm&m=134702176004919&w=2)
