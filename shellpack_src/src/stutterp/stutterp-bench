@@ -75,7 +75,7 @@ filesize=FIO_FILESIZEm
 readwrite=randwrite
 EOF
 
-if [ "$STUTTER_NO_READERS" != "no" ]; then
+if [ "$STUTTER_NO_READERS" != "yes" ]; then
 	cat >> $FIO_JOBFILE_TEMPLATE << EOF
 [reader]
 # Simulate random reading from different files, switching to different file
@@ -94,7 +94,7 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 ###SHELLPACK threads_large_stride_begin $STUTTER_MIN_THREADS $STUTTER_MAX_THREADS
 	# Calculate number of workers
 	NR_FILE_READERS=0
-	if [ "$STUTTER_NO_READERS" != "no" ]; then
+	if [ "$STUTTER_NO_READERS" != "yes" ]; then
 		NR_FILE_READERS=1
 	fi
 	NR_ANON_LATENCY=1

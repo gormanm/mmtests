@@ -129,7 +129,7 @@ sub parseVMStat($)
 
 	my @mmtests_direct_scan = ("pgscan_direct_dma", "pgscan_direct_dma32",
                           "pgscan_direct_normal", "pgscan_direct_movable",
-                          "pgscan_direct_high");
+                          "pgscan_direct_high", "pgscan_direct");
 	my @mmtests_direct_nodelru_scan = ("pgscan_direct");
 	my @mmtests_direct_steal = ("pgsteal_dma", "pgsteal_dma32",
 			  "pgsteal_normal", "pgsteal_movable", "pgsteal_high",
@@ -138,7 +138,7 @@ sub parseVMStat($)
 			  "pgsteal_direct_high", "pgsteal_direct");
 	my @mmtests_kswapd_scan = ("pgscan_kswapd_dma", "pgscan_kswapd_dma32",
 			 "pgscan_kswapd_normal", "pgscan_kswapd_movable",
-			 "pgscan_kswapd_high") ;
+			 "pgscan_kswapd_high", "pgscan_kswapd");
 	my @mmtests_kswapd_nodelru_scan = ("pgscan_kswapd");
         my @mmtests_kswapd_steal = ("kswapd_steal", "pgsteal_kswapd_dma", "pgsteal_kswapd_dma32",
 			  "pgsteal_kswapd_normal", "pgsteal_kswapd_high",
