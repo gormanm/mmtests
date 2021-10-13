@@ -19,6 +19,7 @@ use MMTests::Report;
 use MMTests::Extract;
 use MMTests::ExtractFactory;
 use strict;
+use File::Slurp;
 
 # Option variable
 my ($opt_verbose);
@@ -97,7 +98,6 @@ if (defined $opt_monitor) {
 							      $opt_subheading);
 				$monitorModules[$nrModules]->nextIteration();
 			}
-			$nrModules++;
 		}
 	}
 
@@ -129,7 +129,6 @@ if (defined $opt_monitor) {
 my @extractModules;
 my $nrModules = 0;
 my $extractFactory = MMTests::ExtractFactory->new();
-my $extractModule;
 for my $name (split /,/, $opt_names) {
 	eval {
 		$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $name, $opt_subheading);
@@ -152,6 +151,11 @@ for my $name (split /,/, $opt_names) {
 			$extractModules[$nrModules]->nextIteration();
 		}
 		$nrModules ++;
+	}
+	my $path = "$reportDir/$name/iter-0/$opt_benchmark/logs/commands.log";
+	if (-e $path){
+		my $file = read_file($path);
+		$extractModules[0]->addCmd($file);
 	}
 }
 
