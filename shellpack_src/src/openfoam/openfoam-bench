@@ -189,7 +189,7 @@ esac
 
 export FOAM_SIGFPE="false"
 
-log_runtime "Run: ./Allrun"
+log_cmd "./Allrun"
 for BIN in snappyHexMesh simpleFoam; do
 	log_linkages `find $SHELLPACK_SOURCES/openfoam-$VERSION-installed/platforms -name $BIN`
 done

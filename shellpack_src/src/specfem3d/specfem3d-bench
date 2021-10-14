@@ -118,7 +118,7 @@ for JOB in $JOB_LIST; do
 	SCRIPT=`echo $JOB | awk -F : '{print $2}'`
 
 	BENCH_CMD="./$SCRIPT"
-	log_runtime "Run: $BENCH_CMD"
+	log_cmd "$BENCH_CMD"
 	log_linkages $SHELLPACK_SOURCES/specfem3d-${VERSION}-installed/bin/xmeshfem3D
 
 	save_rc $TIME_CMD -o $LOGDIR_RESULTS/specfem3d-time.$NAME   \

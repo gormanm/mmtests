@@ -99,6 +99,11 @@ log_runtime() {
 	echo "\$@" >> \$SHELLPACK_LOG/runtime.opts
 }
 
+log_cmd() {
+	log_runtime "Run: \$@"
+	echo "\$@" >> \$LOGDIR_RESULTS/commands.log
+}
+
 log_linkages() {
 	if [ "\$MMTESTS_TOOLCHAIN\" != "" -a "\$1" != "" ]; then
 		log_runtime "Linkages: \$1"

@@ -70,7 +70,7 @@ BENCH_CMD="mpirun $WRF_MPI_OPTS $MMTESTS_MPI_OPTS -np $WRF_PROCESSES ./wrf.exe"
 log_runtime "OMP_NUM_THREADS=$WRF_THREADS"
 log_runtime "OMP_PLACES=$OMP_PLACES"
 log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
-log_runtime "Run: $BENCH_CMD"
+log_cmd "$BENCH_CMD"
 log_linkages ./wrf.exe
 
 monitor_pre_hook $LOGDIR_RESULTS $SPECFEM3D_MODEL

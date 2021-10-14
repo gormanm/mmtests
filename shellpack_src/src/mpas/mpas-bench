@@ -94,7 +94,7 @@ BENCH_CMD="$MPIRUN ./atmosphere_model"
 log_runtime "OMP_NUM_THREADS=$MPAS_THREADS"
 log_runtime "OMP_PLACES=$OMP_PLACES"
 log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
-log_runtime "Run: $BENCH_CMD"
+log_cmd "$BENCH_CMD"
 
 log_runtime "Run binaries"
 for BIN in atmosphere_model init_atmosphere_model build_tables; do

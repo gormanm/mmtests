@@ -53,7 +53,7 @@ BENCH_CMD="$MPIRUN $SHELLPACK_SOURCES/salmon-$VERSION-installed/bin/salmon.cpu"
 log_runtime "OMP_NUM_THREADS=$SALMON_THREADS"
 log_runtime "OMP_PLACES=$OMP_PLACES"
 log_runtime "OMP_PROC_BIND=$OMP_PROC_BIND"
-log_runtime "Run: $BENCH_CMD"
+log_cmd "$BENCH_CMD"
 log_linkages $SHELLPACK_SOURCES/salmon-$VERSION-installed/bin/salmon.cpu
 echo $SALMON_PROCESSES : $SALMON_THREADS > $LOGDIR_RESULTS/scaling-parameters
 cd $INPUT_DIR || die "Failed to change to $INPUT_DIR"
