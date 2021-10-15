@@ -25,7 +25,6 @@ sub extractReport() {
 
 			my @elements = split(/\s/, $line);
 			$self->addData("Score", ++$iteration, $elements[3]);
-			print "DEBUG: $elements[3]\n";
 		}
 		close($input);
 	}
