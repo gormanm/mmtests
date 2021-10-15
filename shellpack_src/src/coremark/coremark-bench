@@ -1,0 +1,29 @@
+#!/bin/bash
+# This script runs the coremark benchmark
+
+###SHELLPACK preamble coremark-bench v1.01
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--threads    COREMARK_THREADS
+###SHELLPACK parseargParam	--iterations COREMARK_ITERATIONS
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK init_only_start
+###SHELLPACK check_install_required_continue coremark-${VERSION}
+###SHELLPACK init_only_end
+
+cd $SHELLPACK_SOURCES/coremark-${VERSION}-installed || die "Failed to cd to coremark-$VERSION-installed"
+
+monitor_pre_hook $LOGDIR_RESULTS $P
+###SHELLPACK iteration_begin $COREMARK_ITERATIONS
+	echo Starting iteration $ITERATION/$COREMARK_ITERATIONS
+	$TIME_CMD -o $LOGDIR_RESULTS/coremark-${ITERATION}.time ./coremark.exe \
+		> $LOGDIR_RESULTS/coremark-${ITERATION}.log 2>&1
+	grep ^CoreMark $LOGDIR_RESULTS/coremark-${ITERATION}.log
+	gzip $LOGDIR_RESULTS/coremark-${ITERATION}.log
+###SHELLPACK iteration_end
+monitor_post_hook $LOGDIR_RESULTS $P
+
+exit $SHELLPACK_SUCCESS

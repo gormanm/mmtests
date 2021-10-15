@@ -1,0 +1,21 @@
+#!/bin/bash
+###SHELLPACK preamble coremark-install v1.01
+GIT_LOCATION=https://github.com/eembc/coremark
+MIRROR_LOCATION="$WEBROOT/coremark/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch coremark-${VERSION}.tar.gz coremark-${VERSION}-installed
+
+###SHELLPACK build_start coremark-${VERSION}-installed
+if [ -e .git ]; then
+	git checkout $VERSION || die "Failed to checkout version $VERSION"
+fi
+
+make XCFLAGS="-DMULTITHREAD=$COREMARK_THREADS -DUSE_PTHREAD -pthread -DPERFORMANCE_RUN=1"
+if [ $? -ne 0 ]; then
+	die "Failed to build coremark"
+fi
+
+echo coremark installed successfully
