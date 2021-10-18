@@ -24,12 +24,16 @@ sub extractReport() {
 	my $add = 0;
 	my $triad = 0;
 	my $iterations = 0;
+	my $nr_threads = "";
 
 	foreach my $file (<$reportDir/stream-*.log>) {
 		$iterations++;
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			my $line = $_;
+			if ($line =~ /Threads counted = ([0-9]+)/) {
+				$nr_threads = $1;
+			}
 			if ($line =~ /^Copy:\s+([0-9.]*)\s.*/) {
 				$copy += $1;
 			}
@@ -47,10 +51,10 @@ sub extractReport() {
 		close INPUT;
 	}
 
-	$self->addData("copy", 0, $copy  / $iterations );
-	$self->addData("scale", 0, $scale / $iterations );
-	$self->addData("add", 0, $add   / $iterations );
-	$self->addData("triad", 0, $triad / $iterations );
+	$self->addData("copy-$nr_threads", 0, $copy  / $iterations );
+	$self->addData("scale-$nr_threads", 0, $scale / $iterations );
+	$self->addData("add-$nr_threads", 0, $add   / $iterations );
+	$self->addData("triad-$nr_threads", 0, $triad / $iterations );
 }
 
 1;

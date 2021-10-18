@@ -21,6 +21,12 @@ NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
 LLC_INDEX=`find /sys/devices/system/cpu/ -type d -name "index*" | sed -e 's/.*index//' | sort -n | tail -1`
 NUMLLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort | uniq | wc -l`
 
+SMT_LEVEL=`lscpu | grep Thread | awk '{print $NF}'`
+if [ "$SMT_LEVEL" = "" ]; then
+        SMT_LEVEL=1
+fi
+NUMCORES=$((NUMCPUS/SMT_LEVEL))
+
 WGET_SHOW_PROGRESS="--show-progress --progress=bar:force:noscroll"
 wget --help | grep -q show-progress
 if [ $? -ne 0 ]; then

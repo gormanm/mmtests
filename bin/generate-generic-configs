@@ -155,6 +155,7 @@ done
 
 # Stream
 sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$((NUMCPUS*4))/' config-workload-stream-omp-nodes > config-workload-stream-omp-overload
+sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$NUMCORES/'	    config-workload-stream-omp-nodes > config-workload-stream-omp-cores
 
 # Stressng
 sed -e 's/THREADS=.*/THREADS=1024/' config-workload-stressng-get > config-workload-stressng-get-1k

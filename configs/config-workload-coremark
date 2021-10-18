@@ -19,11 +19,6 @@ export MONITORS_GZIP="proc-vmstat mpstat"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-SMT_LEVEL=`lscpu | grep Thread | awk '{print $NF}'`
-if [ "$SMT_LEVEL" = "" ]; then
-	SMT_LEVEL=1
-fi
-
 # coremark
 export COREMARK_ITERATIONS=30
-export COREMARK_THREADS=$((NUMCPUS/SMT_LEVEL))
+export COREMARK_THREADS=$NUMCORES

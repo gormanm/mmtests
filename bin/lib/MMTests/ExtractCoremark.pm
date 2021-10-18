@@ -15,6 +15,7 @@ sub initialise() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $iteration = 0;
+	my $nr_pthreads = -1;
 
 	foreach my $file (<$reportDir/coremark-*.log*>) {
 
@@ -23,8 +24,12 @@ sub extractReport() {
 			my $line = <$input>;
 			next if $line !~ /^CoreMark 1/;
 
+			if ($nr_pthreads == -1 && $line =~ /([0-9]+):PThreads/) {
+				$nr_pthreads = $1;
+			}
+
 			my @elements = split(/\s/, $line);
-			$self->addData("Score", ++$iteration, $elements[3]);
+			$self->addData("Score-$nr_pthreads", ++$iteration, $elements[3]);
 		}
 		close($input);
 	}
