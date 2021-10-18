@@ -13,6 +13,9 @@ for FILE in `ls config-io-bonnie*-async`; do
 	    $FILE > $FSYNC_FILE
 done
 
+# coremark
+cat config-workload-coremark | sed -e 's/COREMARK_THREADS=.*/COREMARK_THREADS=$NUMLLCS/' > config-workload-coremark-llcs
+
 # Graph 500
 for SIZE in kinder toy; do
 	sed -e "s/WORKSET=.*/WORKSET=$SIZE/" config-hpc-graph500-omp-infant > config-hpc-graph500-omp-$SIZE
