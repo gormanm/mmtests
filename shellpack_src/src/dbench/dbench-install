@@ -35,6 +35,10 @@ patch -p1 <$SHELLPACK_TEMP/0004-Check-if-parent-is-alive-once-per-loadfile.patch
 # Adapt for libtirpc
 if [ -e /usr/lib64/libtirpc.so -o -e /usr/lib/libtirpc.so -o -e /usr/lib/x86_64-linux-gnu/libtirpc.so ]; then
 	sed -i -e 's/^LIBS=.*/& -ltirpc/' Makefile
+
+	if [ -d /usr/include/tirpc ]; then
+		sed -i -e 's@gcc -g@gcc -g -I/usr/include/tirpc@' Makefile
+	fi
 fi
 
 ###SHELLPACK make_make_install
