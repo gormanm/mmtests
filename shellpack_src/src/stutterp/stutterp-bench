@@ -135,10 +135,14 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 	sync
 	echo 3 > /proc/sys/vm/drop_caches
 
+	# Purge the data directory
+	echo Recreating data directory
+	rm -rf "$SHELLPACK_DATA/stutterp-data"
+	mkdir -p "$SHELLPACK_DATA/stutterp-data"
+
 	# Start fio running in the background
 	monitor_pre_hook $LOGDIR_RESULTS $NR_WORKERS
 	echo Running fio pid $FIO_PID for $WARMUP seconds
-	mkdir -p "$SHELLPACK_DATA/stutterp-data"
 	fio --directory="$SHELLPACK_DATA/stutterp-data"			\
 	    --minimal							\
 	    --write_lat_log $LOGDIR_RESULTS/fio-$NR_WORKERS.latlog	\
