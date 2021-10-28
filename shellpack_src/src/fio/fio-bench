@@ -18,6 +18,17 @@ FIO_CMD_OPTIONS=
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
+# Check gcc version
+GCC_VERSION=`gcc --version | head -1 | awk '{print $NF}'`
+GCC_MAJOR=`echo $GCC_VERSION | awk -F . '{print $1}'`
+GCC_MINOR=`echo $GCC_VERSION | awk -F . '{print $2}'`
+FIO_MAJOR=`echo $VERSION | awk -F . '{print $1}'`
+
+if [ $FIO_MAJOR -gt 2 -a $GCC_MAJOR -eq 4 -a $GCC_MINOR -lt 9 ]; then
+	VERSION=2.99
+	echo Forcing fio 2.99 due to old compiler
+fi
+
 ###SHELLPACK check_install_required fio-${VERSION}
 ###SHELLPACK init_complete
 

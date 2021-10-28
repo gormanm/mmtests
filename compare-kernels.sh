@@ -151,6 +151,24 @@ fi
 
 KERNEL_LIST_ITER=`echo $KERNEL_LIST | sed -e 's/,/ /g'`
 
+FIRST=yes
+for KERNEL in $KERNEL_LIST_ITER; do
+	IODETAILS=`find $KERNEL -name "storageioqueue.txt"`
+	if [ "$IODETAILS" != "" ]; then
+		if [ "$FIRST" = "yes" ]; then
+			echo Storage scheduler
+			FIRST=
+		fi
+		for FILE in $IODETAILS; do
+			DETAILS=`grep -H scheduler: $FILE`
+			KERNEL=`echo $DETAILS | awk -F / '{print $1}'`
+			IOSCHED=`echo $DETAILS | awk -F : '{print $NF}'`
+			printf "%-40s %s\n" "$KERNEL" "$IOSCHED"
+		done
+
+	fi
+done
+
 plain() {
 	IMG_SRC=$1
 	WIDTH=$2
