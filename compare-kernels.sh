@@ -457,7 +457,10 @@ generate_subheading_trans_graphs() {
 cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
 
 if [ "$FROM_JSON" = "yes" ]; then
+	JSON_FILES=(${JSON_FILE//,/ })
+	JSON_FILE=${JSON_FILES[0]}
 	REPORTS=$(reports-from-json.pl $JSON_FILE)
+	SUBREPORTS_JSON=("${JSON_FILES[@]:1}")
 else
 	REPORTS=$(run_report_name $KERNEL_BASE)
 fi
@@ -496,17 +499,27 @@ for SUBREPORT in $REPORTS; do
 	case $SUBREPORT in
 	dbench4)
 		echo $SUBREPORT Loadfile Execution Time
-		$COMPARE_CMD
+		eval $COMPARE_CMD
 		echo
-		echo $SUBREPORT Latency
-		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 -a latency -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		echo "$SUBREPORT Throughput (misleading but traditional)"
-		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 -a tput -n $KERNEL_LIST $FORMAT_CMD
-		echo
+		if [ "$FROM_JSON" = "yes" ]; then
+			SUBREPORT_NAMES=('Latency' 'Throughput (misleading but traditional)' 'Per-VFS Operation latency Latency')
 
-		echo $SUBREPORT Per-VFS Operation latency Latency
-		cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 -a opslatency -n $KERNEL_LIST $FORMAT_CMD
+			min=$(( ${#SUBREPORTS_JSON[@]} < ${#SUBREPORT_NAMES[@]} ?	${#SUBREPORTS_JSON[@]} : ${#SUBREPORT_NAMES[@]} ))
+			for ((i=start; i<min; i++)) do
+				echo "$SUBREPORT ${SUBREPORT_NAMES[$i]}"
+				cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 --from-json ${SUBREPORTS_JSON[$i]}
+				echo
+			done
+		else
+			echo $SUBREPORT Latency
+			cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 -a latency -n $KERNEL_LIST $FORMAT_CMD
+			echo
+			echo "$SUBREPORT Throughput (misleading but traditional)"
+			cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 -a tput -n $KERNEL_LIST $FORMAT_CMD
+			echo
+			echo $SUBREPORT Per-VFS Operation latency Latency
+			cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 -a opslatency -n $KERNEL_LIST $FORMAT_CMD
+		fi
 		;;
 	bonniepp|bonnie)
 		echo "bonnie IO Execution Time"
