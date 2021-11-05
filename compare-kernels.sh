@@ -155,6 +155,11 @@ FIRST=yes
 for KERNEL in $KERNEL_LIST_ITER; do
 	IODETAILS=`find $KERNEL -name "storageioqueue.txt"`
 	if [ "$IODETAILS" != "" ]; then
+		if [ "$FORMAT" = "html" ]; then
+			echo "<a name="storageconfig">"
+			echo "<pre>"
+		fi
+
 		if [ "$FIRST" = "yes" ]; then
 			echo Storage scheduler
 			FIRST=
@@ -166,6 +171,9 @@ for KERNEL in $KERNEL_LIST_ITER; do
 			printf "%-40s %s\n" "$KERNEL" "$IOSCHED"
 		done
 
+		if [ "$FORMAT" = "html" ]; then
+			echo "</pre>"
+		fi
 	fi
 done
 
