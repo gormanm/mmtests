@@ -27,7 +27,7 @@ sub initialise() {
 		"percentile-10", "percentile-90",  "percentile-95",
 		"percentile-99", "max", "_mean", "samples", "samples-0,5",
 		"samples-5,10", "samples-10,100", "samples-100,500",
-		"samples-500,1000", "samples-1000,5000", "samples-5000,max" ]
+		"samples-500,1000", "samples-1000,5000", "samples-5000,max" ];
 	$self->{_RatioSummaryStat} = [ "percentile-95" ];
 	$self->SUPER::initialise($subHeading);
 }
