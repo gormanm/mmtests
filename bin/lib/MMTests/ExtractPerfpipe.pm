@@ -1,7 +1,6 @@
 # ExtractPerfpipe.pm
 package MMTests::ExtractPerfpipe;
 use MMTests::SummariseVariabletime;
-use Math::Round;
 our @ISA = qw(MMTests::SummariseVariabletime);
 
 sub new() {
