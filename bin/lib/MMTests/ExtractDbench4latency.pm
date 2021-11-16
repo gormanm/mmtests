@@ -8,7 +8,7 @@ use strict;
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "Dbench4latency.pm",
+		_ModuleName  => "ExtractDbench4latency",
 		_DataType    => DataTypes::DATA_TIME_MSECONDS,
 	};
 	bless $self, $class;
