@@ -1,7 +1,6 @@
 # ExtractTime_unmap.pm
 package MMTests::ExtractTime_unmap;
 use MMTests::SummariseVariabletime;
-use Math::Round;
 our @ISA = qw(MMTests::SummariseVariabletime);
 
 sub new() {
