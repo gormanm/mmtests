@@ -58,11 +58,11 @@ sub initialise() {
 		}
 		$self->{_SummaryStats} = [ "samplespct-min,".$binSizes[0] ];
 		for (my $i = 1; $i < $nr_binsizes; $i++) {
-			push $self->{_SummaryStats}, "samplespct-".$binSizes[$i-1].",".$binSizes[$i];
+			push @{$self->{_SummaryStats}}, "samplespct-".$binSizes[$i-1].",".$binSizes[$i];
 		}
 	}
 	$self->{_RatioSummaryStat} = [ "percentile-95" ];
-	$self->SUPER::initialise($subheading);
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport($$$$) {
