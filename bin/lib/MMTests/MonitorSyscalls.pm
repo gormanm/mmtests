@@ -50,7 +50,7 @@ sub extractReport($$$$) {
 	if (!defined $_colMap{$subHeading}) {
 		die("Unrecognised heading $subHeading");
 	}
-	my $headingindex = $_colmap{$subheading};
+	my $headingIndex = $_colMap{$subHeading};
 
 	my %totalEvents;
 	my $input = $self->SUPER::open_log("$reportDir/syscalls-$testBenchmark");
