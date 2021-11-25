@@ -17,5 +17,6 @@ make XCFLAGS="-DMULTITHREAD=$COREMARK_THREADS -DUSE_PTHREAD -pthread -DPERFORMAN
 if [ $? -ne 0 ]; then
 	die "Failed to build coremark"
 fi
+echo $COREMARK_THREADS > build.threads
 
 echo coremark installed successfully

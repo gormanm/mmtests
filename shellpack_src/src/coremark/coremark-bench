@@ -11,6 +11,11 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK init_only_start
+BUILD_THREADS=`cat $SHELLPACK_SOURCES/coremark-${VERSION}-installed/build.threads 2>/dev/null`
+if [ "$BUILD_THREADS" != "$COREMARK_THREADS" ]; then
+	rm -rf $SHELLPACK_SOURCES/coremark-${VERSION} $SHELLPACK_SOURCES/coremark-${VERSION}-installed
+fi
+
 ###SHELLPACK check_install_required_continue coremark-${VERSION}
 ###SHELLPACK init_only_end
 
