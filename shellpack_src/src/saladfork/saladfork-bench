@@ -1,0 +1,19 @@
+#!/bin/bash
+###SHELLPACK preamble saladfork-bench 0
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--iterations	SALADFORK_ITERATIONS
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_install_required saladfork-${VERSION}
+###SHELLPACK init_complete
+
+echo Running $SALADFORK_ITERATIONS iterations
+$TIME_CMD -o $LOGDIR_RESULTS/saladfork-0.time \
+	./saladfork $SALADFORK_ITERATIONS >> $LOGDIR_RESULTS/saladfork-0.log
+gzip $LOGDIR_RESULTS/saladfork-0.log
+
+echo Finished saladfork
+
+exit $SHELLPACK_SUCCESS

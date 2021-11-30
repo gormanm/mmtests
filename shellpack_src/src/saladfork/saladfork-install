@@ -1,0 +1,16 @@
+#!/bin/bash
+###SHELLPACK preamble time_unmap 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK self_extract saladfork.c
+
+mkdir $SHELLPACK_SOURCES/saladfork-${VERSION}-installed
+gcc -Wall $SHELLPACK_TEMP/saladfork.c -o $SHELLPACK_SOURCES/saladfork-${VERSION}-installed/saladfork || \
+	die "Failed to build saladfork"
+
+echo saladfork installed successfully
+exit $SHELLPACK_SUCCESS
+
+###SHELLPACK include_file saladfork.c
