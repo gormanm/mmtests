@@ -25,16 +25,9 @@ sub extractReport() {
 	while (<INPUT>) {
 		next if ($_ !~ /^T: ([0-9+]) .*Avg:\s+([0-9]+).*Max:\s+([0-9]+)/);
 		$self->addData("Avg-$1", 0, $2);
-	}
-	close INPUT;
-
-	open(INPUT, "$reportDir/cyclictest.log") || die("Failed to open data file\n");
-	while (<INPUT>) {
-		next if ($_ !~ /^T: ([0-9+]) .*Avg:\s+([0-9]+).*Max:\s+([0-9]+)/);
 		$self->addData("Max-$1", 0, $3);
 	}
 	close INPUT;
-
 }
 
 1;
