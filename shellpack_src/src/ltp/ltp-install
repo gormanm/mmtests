@@ -3,6 +3,7 @@
 ###SHELLPACK preamble ltp-install 20200930
 GIT_LOCATION=https://github.com/linux-test-project/ltp
 MIRROR_LOCATION="$WEBROOT/ltp"
+REALTIME_TESTCASES=testcases/realtime/
 
 install-depends mkisofs libnuma-devel
 
@@ -16,5 +17,8 @@ make autotools || die "Failed to make autotools"
 sed -i -e 's/read ans/ans=y/' IDcheck.sh
 ###SHELLPACK build_configure ltp-${VERSION}
 ###SHELLPACK make_make_install
+$REALTIME_TESTCASES/configure
+make -C $REALTIME_TESTCASES
+make install -C $REALTIME_TESTCASES
 
 echo LTP installed successfully

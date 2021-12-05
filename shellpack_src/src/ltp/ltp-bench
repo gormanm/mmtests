@@ -26,9 +26,13 @@ for TESTNAME in $LTP_RUN_TESTS; do
 		# This is part of a CPU hotplug reproduction case. It hammers
 		# process creation and is intended as a scheduler stress test
 		save_rc ./testcases/bin/process -b 10 -d 5 | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
+	elif [ "$TESTNAME" = "realtime" ]; then
+		# This is part of a realtime testing suite. It contains some
+		# functional tests and a few performance ones.
+		save_rc ./testscripts/test_realtime.sh -t all | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
 	elif [ -e runtest/$TESTNAME ]; then
 		save_rc ./runltp -f $TESTNAME $LTP_RUN_ARGS		\
-			-l $LOGDIR_RESULTS/ltp-${TESTNAME}.log 		\
+			-l $LOGDIR_RESULTS/ltp-${TESTNAME}.log		\
 			-C $LOGDIR_RESULTS/ltp-${TESTNAME}.failed	\
 			-d $SHELLPACK_DATA				\
 				| tee $LOGDIR_RESULTS/log-${TESTNAME}
