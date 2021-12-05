@@ -4,7 +4,7 @@
 GIT_LOCATION=https://github.com/linux-test-project/ltp
 MIRROR_LOCATION="$WEBROOT/ltp"
 
-install-depends mkisofs
+install-depends mkisofs libnuma-devel
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
