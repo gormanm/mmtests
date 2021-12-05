@@ -911,6 +911,12 @@ for SUBREPORT in $REPORTS; do
 			plain graph-$SUBREPORT-$HEADING-sorted-percentage-tail
 			echo "</tr>"
 			;;
+		pmqtest-pinned|pmqtest-unbound)
+			for HEADING in Min Max Avg; do
+				eval $GRAPH_PNG --title \"$SUBREPORT Latency $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
+				plain graph-$SUBREPORT-$HEADING
+			done
+			;;
 		dbench4)
 			echo "<tr>"
 			generate_basic_single "$SUBREPORT Completion times" "--logX"

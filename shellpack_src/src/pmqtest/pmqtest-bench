@@ -1,0 +1,85 @@
+#!/bin/bash
+# pmqtest
+###SHELLPACK preamble pmqtest-bench v2.0
+MIRROR_LOCATION="$WEBROOT/kernbench"
+KERNEL_VERSION=5.2.14
+WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v5.x
+
+PMQTEST_BACKGROUND=none
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --duration		PMQTEST_DURATION
+###SHELLPACK parseargParam   --pairs		PMQTEST_PAIRS
+###SHELLPACK parseargParam   --background	PMQTEST_BACKGROUND
+###SHELLPACK parseargYes     --affinity		PMQTEST_AFFINITY
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK init_only_start
+###SHELLPACK check_external_install_required rttestbuild rttestbuild-${VERSION} ${VERSION}
+
+case $PMQTEST_BACKGROUND in
+kernbench)
+	echo Preparing kernel tree for background job
+	cd $SHELLPACK_DATA
+	rm -f ./linux-$KERNEL_VERSION.tar.gz
+	sources_fetch $WEB_LOCATION/linux-$KERNEL_VERSION.tar.gz $MIRROR_LOCATION/linux-$KERNEL_VERSION.tar.gz ./linux-$KERNEL_VERSION.tar.gz
+	tar xf linux-$KERNEL_VERSION.tar.gz || die "Failed to extract"
+	cd linux-$KERNEL_VERSION || die "Unexpected layout"
+	yes '' | make defconfig &>/dev/null || die "Failed to make defconfig"
+	make -j$NUMCPUS clean &> /dev/null
+
+	cat << EOF > build-loop.sh
+	cleanup() {
+		killall -KILL make
+	}
+	trap cleanup EXIT
+	cd $SHELLPACK_DATA/linux-$KERNEL_VERSION
+	while [ 1 ]; do
+		make -j$NUMCPUS vmlinux &> /dev/null
+		make clean &> /dev/null
+	done
+EOF
+	chmod a+x build-loop.sh
+	;;
+esac
+###SHELLPACK init_only_end
+
+cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change to rttest directory"
+if [ "$PMQTEST_AFFINITY" = "yes" ]; then
+	PMQTEST_AFFINITY_PARAM=-a
+fi
+
+BACKGROUND_PID=
+case $PMQTEST_BACKGROUND in
+hackbench)
+	./hackbench -P -g $NUMCPUS -l 200000000 &
+	BACKGROUND_PID=$!
+	echo "Background hackbench $PID"
+	;;
+kernbench)
+	$SHELLPACK_DATA/linux-$KERNEL_VERSION/build-loop.sh &
+	BACKGROUND_PID=$!
+	echo "Background kernbench $PID"
+	;;
+none)
+	echo "No background task specified"
+	;;
+*)
+	die "Unrecognised background task $PMQTEST_BACKGROUND"
+	;;
+esac
+monitor_pre_hook $LOGDIR_RESULTS $P
+echo Starting pmqtest with $PMQTEST_PAIRS pair\(s\) of sender/receiver threads
+./pmqtest -p99 --threads=$PMQTEST_PAIRS $PMQTEST_AFFINITY_PARAM \
+	--distance=0 --duration=$PMQTEST_DURATION --quiet 2>&1 | \
+	tee $LOGDIR_RESULTS/pmqtest.log
+
+echo Shutdown background $PMQTEST_BACKGROUND: $BACKGROUND_PID
+if [ "$BACKGROUND_PID" != "" ]; then
+	shutdown_pid $PMQTEST_BACKGROUND $BACKGROUND_PID
+fi
+
+monitor_post_hook $LOGDIR_RESULTS $P
+exit $SHELLPACK_SUCCESS

@@ -1,0 +1,19 @@
+### pmqtest is a POSIX message queue latency measurement benchmark.
+### The program starts one or more pairs of threads and measures the
+### latency of the interprocess communication with the queues
+### during a specific amount of time.
+
+# MM Test Parameters
+export MMTESTS="pmqtest-pinned pmqtest-unbound"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat mpstat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
+export MONITOR_UPDATE_FREQUENCY=10
+
+# pmqtest
+export PMQTEST_DURATION=600 # seconds
+export PMQTEST_PAIRS=$((NUMCPUS)) # amount of sender/receiver pairs
