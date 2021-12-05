@@ -954,7 +954,7 @@ for SUBREPORT in $REPORTS; do
 		fsmark-threaded|fsmark-single)
 			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`"
 			;;
-		futexbench-hash|futexbench-requeue|futexbench-requeue-pi|futexbench-wake|futexbench-wake-parallel)
+		futexbench-hash|futexbench-requeue|futexbench-requeue-pi|futexbench-wake|futexbench-wake-parallel|futexbench-lock-pi)
 			generate_basic "$SUBREPORT" "--wide --logX"
 			;;
 		futexwait)

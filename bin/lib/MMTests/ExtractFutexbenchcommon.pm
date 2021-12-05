@@ -57,6 +57,8 @@ sub extractReport() {
 
 				if ($line =~ /.*futexes:.* \[ ([0-9]+) ops\/sec.*/) {
 					$tp = $1;
+				} elsif ($line =~ /.*futex:.* \[ ([0-9]+) ops\/sec.*/) {
+					$tp = $1;
 				} elsif ($line =~ /.*: Requeued.* in ([0-9.]+) ms/) {
 					$tp = $1;
 				} elsif ($line =~ /.*: Awoke and Requeued.* in ([0-9.]+) ms/) {
