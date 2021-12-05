@@ -1,5 +1,5 @@
 # MM Test Parameters
-export MMTESTS="futexbench-hash futexbench-requeue futexbench-wake"
+export MMTESTS="futexbench-hash futexbench-requeue futexbench-requeue-pi futexbench-wake"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run perf-bench futex benchmark
 
-###SHELLPACK preamble futexbench-bench 5.9
+###SHELLPACK preamble futexbench-bench 5.15
 TESTTIME=15
 ITERATIONS=12
 TESTLIST=
@@ -34,7 +34,13 @@ echo $FUTEXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 		mmtests_activity $WORKLOAD-$NR_THREADS
 		echo "Running test $WORKLOAD (shared=$FUTEXBENCH_SHARED)"
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-		$PERF_CMD bench futex $WORKLOAD -t $NR_THREADS $SHARED_OPT > $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log 2>&1 &
+
+		if [ "$WORKLOAD" = "requeue-pi" ]; then
+			$PERF_CMD bench futex requeue --pi -t $NR_THREADS $SHARED_OPT > $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log 2>&1 &
+		else
+			$PERF_CMD bench futex $WORKLOAD -t $NR_THREADS $SHARED_OPT > $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log 2>&1 &
+		fi
+
 		PERF_PID=$!
 		echo -n Waiting on perf to exit..
 		TEST_EXIT=`ps h --pid $PERF_PID`

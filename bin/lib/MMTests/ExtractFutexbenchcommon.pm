@@ -59,6 +59,8 @@ sub extractReport() {
 					$tp = $1;
 				} elsif ($line =~ /.*: Requeued.* in ([0-9.]+) ms/) {
 					$tp = $1;
+				} elsif ($line =~ /.*: Awoke and Requeued.* in ([0-9.]+) ms/) {
+					$tp = $1;
 				} elsif ($line =~ /.*: Wokeup.* in ([0-9.]+) ms/) {
 					$tp = $1;
 				} else {

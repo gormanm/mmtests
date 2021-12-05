@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble perfbuild-install 5.9
+###SHELLPACK preamble perfbuild-install 5.15
 WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/v5.x"
 MIRROR_LOCATION="$WEBROOT/linux/"
 
