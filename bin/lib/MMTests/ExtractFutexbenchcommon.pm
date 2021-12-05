@@ -63,6 +63,8 @@ sub extractReport() {
 					$tp = $1;
 				} elsif ($line =~ /.*: Wokeup.* in ([0-9.]+) ms/) {
 					$tp = $1;
+				} elsif ($line =~ /.*: Avg per-thread latency.* in ([0-9.]+) ms/) {
+					$tp = $1 * 1000; # better suits mmtests as usec.
 				} else {
 					next;
 				}
