@@ -1,0 +1,19 @@
+#!/bin/bash
+###SHELLPACK preamble sysbenchmutex-install 0.4.12.16
+
+VERSION=0.4.12.16
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+WEB_LOCATION=https://downloads.mysql.com/source
+MIRROR_LOCATION=$WEBROOT/sysbench
+
+echo Building sysbench cpu
+###SHELLPACK sources_fetch sysbench-${VERSION}.tar.gz sysbenchmutex-${VERSION}
+###SHELLPACK build_start sysbenchmutex-${VERSION}
+###SHELLPACK build_configure sysbenchmutex-${VERSION} --without-mysql
+###SHELLPACK make_make_install
+
+echo sysbenchmutex successfully installed
+exit $SHELLPACK_SUCCESS
