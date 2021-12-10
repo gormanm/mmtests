@@ -15,7 +15,12 @@ mkdir SCCS
 touch SCCS/s.ChangeSet
 sed -i -e 's/__linux__/__noneed__/' src/disk.c
 cd src
+
+if [ -e /usr/lib64/libtirpc.so -o -e /usr/lib/libtirpc.so -o -e /usr/lib/x86_64-linux-gnu/libtirpc.so ]; then
+###SHELLPACK make LDFLAGS=-ltirpc
+else
 ###SHELLPACK make
+fi
 
 # Simplify path finding
 cp ../bin/*/* ../bin/
