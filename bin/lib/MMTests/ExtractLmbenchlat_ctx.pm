@@ -23,8 +23,6 @@ sub extractReport() {
 
 	@clients = $self->discover_scaling_parameters($reportDir, "lmbench-lat_ctx-", "-1.log");
 	
-	print "CLIENTS: @clients\n";
-
 	foreach my $client (@clients) {
 		my @files = <$reportDir/lmbench-lat_ctx-$client-*.log>;
 		my $iteration = 0;
