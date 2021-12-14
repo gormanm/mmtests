@@ -1,0 +1,41 @@
+#!/bin/bash
+# This script installs and runs lmbench lat_ctx
+# All parameters are passed by environment variables
+###SHELLPACK preamble lmbench-lat_ctx-bench 3
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_external_install_required lmbenchbuild lmbenchbuild-${VERSION} ${VERSION}
+###SHELLPACK init_complete
+
+cd $SHELLPACK_SOURCES/lmbenchbuild-${VERSION}-installed || die "Failed to cd to lmbench directory"
+LMBENCH_TEST=lat_ctx
+LMBENCH_LATCTX_SIZE=`echo $LMBENCH_LATCTX_SIZE | tr ',' ' '`
+LMBENCH_LATCTX_THREADS=`echo $LMBENCH_LATCTX_THREADS | tr ',' ' '`
+
+# Disable calibrations
+export TIMING_O=0
+export LOOP_O=0
+export ENOUGH=250000
+
+# Run test
+for NR_THREADS in $LMBENCH_LATCTX_THREADS; do
+	for SIZE in $LMBENCH_LATCTX_SIZE; do
+		monitor_pre_hook $LOGDIR_RESULTS $SIZE-$NR_THREADS
+		mmtests_activity lat_ctx-$SIZE-$NR_THREADS
+
+		BENCH_CMD="$LMBENCH_TEST -s $SIZE $NR_THREADS"
+		log_cmd $BENCH_CMD
+		for ITERATION in `seq 1 $LMBENCH_LATCTX_ITERATIONS`; do
+			echo Running with $NR_THREADS threads size $SIZE iter $ITERATION/$LMBENCH_LATCTX_ITERATIONS
+			echo mmtests_size: $SIZE >> $LOGDIR_RESULTS/lmbench-lat_ctx-${NR_THREADS}-$ITERATION.log
+			./bin/$BENCH_CMD &>> $LOGDIR_RESULTS/lmbench-lat_ctx-${NR_THREADS}-${ITERATION}.log
+		done
+		monitor_post_hook $LOGDIR_RESULTS $SIZE-$NR_THREADS
+	done
+done
+
+exit $SHELLPACK_SUCCESS

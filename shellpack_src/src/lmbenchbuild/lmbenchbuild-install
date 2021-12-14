@@ -1,0 +1,28 @@
+#!/bin/bash
+###SHELLPACK preamble lmbenchbuild-install 3
+WEB_LOCATION=http://www.bitmover.com/lmbench
+MIRROR_LOCATION="$WEBROOT/lmbench"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+install-depends libtirpc-devel
+
+###SHELLPACK sources_fetch lmbench${VERSION}.tar.gz lmbenchbuild-${VERSION}-installed
+
+###SHELLPACK build_start lmbenchbuild-${VERSION}-installed
+# Workaround build problem
+mkdir SCCS
+touch SCCS/s.ChangeSet
+sed -i -e 's/__linux__/__noneed__/' src/disk.c
+cd src
+
+if [ -e /usr/lib64/libtirpc.so -o -e /usr/lib/libtirpc.so -o -e /usr/lib/x86_64-linux-gnu/libtirpc.so ]; then
+###SHELLPACK make LDFLAGS=-ltirpc
+else
+###SHELLPACK make
+fi
+
+# Simplify path finding
+cp ../bin/*/* ../bin/
+
+echo lmbenchbuild installed successfully

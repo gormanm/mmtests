@@ -60,7 +60,7 @@
 ### In general, treat results from this benchmark with a large grain of salt.
 
 # MM Test Parameters
-export MMTESTS="lmbench"
+export MMTESTS="lmbench-lat_ctx"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
@@ -82,7 +82,6 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # LMBench
-export LMBENCH_TESTS=lat_ctx
-export LMBENCH_LATCTX_ITERATIONS=5
-export LMBENCH_LATCTX_SIZE=0,64,128,1024,131072
-export LMBENCH_LATCTX_MAXCLIENTS=$NUMCPUS
+export LMBENCH_LATCTX_ITERATIONS=10
+export LMBENCH_LATCTX_SIZE=0,16,64,16384,65536
+export LMBENCH_LATCTX_THREADS=2,4,8,16
