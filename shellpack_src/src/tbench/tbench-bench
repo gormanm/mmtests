@@ -21,22 +21,22 @@ install-depends popt-devel
 server_start() {
 	echo Starting tbench_srv
 	mmtests_activity tserver-$SERVERSIDE_NAME
-	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	if [ "$REMOTE_SERVER_HOST" = "" ]; then
 		nohup ./bin/tbench_srv 0<&- &>/dev/null &
 		sleep 5
 	else
+		monitor_pre_hook $LOGDIR_RESULTS
 		mmtests_server_ctl start --serverside-name $1
 	fi
 }
 
 server_stop() {
 	echo Stopping tbench_srv
-	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	if [ "$REMOTE_SERVER_HOST" = "" ]; then
 		killall -KILL tbench_srv
 	else
 		mmtests_server_ctl stop --serverside-name $1
+		monitor_post_hook $LOGDIR_RESULTS server
 	fi
 }
 
@@ -65,6 +65,7 @@ server_stop 0
 	mmtests_activity $NR_THREADS
 	echo tbench run $NR_THREADS
 	server_start $NR_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	./bin/tbench \
 		-t $TBENCH_DURATION \
 		$NR_THREADS $SERVER_HOST &> $LOGDIR_RESULTS/tbench-$NR_THREADS.log &
@@ -72,6 +73,7 @@ server_stop 0
 	echo $TBENCH_PID > /tmp/mmtests-tbench.pid
 	wait $TBENCH_PID
 	RET=$?
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	server_stop $NR_THREADS
 	gzip $LOGDIR_RESULTS/tbench-$NR_THREADS.log
 
