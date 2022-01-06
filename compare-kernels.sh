@@ -1490,7 +1490,7 @@ for SUBREPORT in $REPORTS; do
 		fi
 
 		if have_monitor_results turbostat $KERNEL_BASE; then
-			EVENTS=`$EXTRACT_CMD -n $KERNEL_BASE --print-monitor turbostat --print-header | head -1 | sed -e 's/Time //'`
+			EVENTS=`$EXTRACT_CMD -n $KERNEL_BASE --print-monitor turbostat | awk '{print $1}' | uniq`
 			COUNT=-1
 			for EVENT in $EVENTS; do
 				EVENT_FILENAME=`echo $EVENT | sed -e 's/%/Pct/g'`
