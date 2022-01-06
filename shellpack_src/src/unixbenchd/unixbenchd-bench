@@ -1,0 +1,36 @@
+#!/bin/bash
+# Run unixbench sub-command directly benchmark
+
+###SHELLPACK preamble unixbenchd-bench 5.1.3
+TESTTIME=15
+ITERATIONS=12
+TESTLIST=
+MAX_THREADS=$NUMCPUS
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam   --iterations	UNIXBENCHD_ITERATIONS
+###SHELLPACK parseargParam   --duration		UNIXBENCHD_DURATION
+###SHELLPACK parseargParam   --subcommand	UNIXBENCHD_SUBCOMMAND
+###SHELLPACK parseargParam   --subparam		UNIXBENCHD_SUBPARAM
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_external_install_required unixbench     unixbench-${VERSION}         ${VERSION}
+###SHELLPACK init_complete
+
+cd $SHELLPACK_SOURCES/unixbench-$VERSION-installed || die "Failed to cd to installation directory"
+
+export UB_TESTDIR=$SHELLPACK_DATA
+
+BENCH_CMD="./pgms/$UNIXBENCHD_SUBCOMMAND $UNIXBENCHD_DURATION $UNIXBENCHD_SUBPARAM"
+log_cmd $BENCH_CMD
+mmtests_activity $UNIXBENCHD_SUBCOMMAND-$UNIXBENCHD_SUBPARAM
+
+monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK iteration_begin $UNIXBENCHD_ITERATIONS
+	echo Running test $UNIXBENCHD_SUBCOMMAND-$UNIXBENCHD_SUBPARAM iteration $ITERATION/$UNIXBENCHD_ITERATIONS
+	eval $BENCH_CMD &>> $LOGDIR_RESULTS/unixbenchd.log || die "Failed to run unixbench"
+###SHELLPACK iteration_end $UNIXBENCHD_ITERATIONS
+monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+exit $SHELLPACK_SUCCESS
