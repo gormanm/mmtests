@@ -1,0 +1,27 @@
+#!/bin/bash
+###SHELLPACK preamble libmicro-execsystem-bench 1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_install_required libmicro-execsystem-${VERSION}
+###SHELLPACK init_complete
+
+cd $SHELLPACK_SOURCES/libmicro-execsystem-${VERSION}-installed || die "Failed to cd to libmicro directory"
+
+COMMON="-E -C 0 -D 30000 -B 10000 -L -S -W"
+
+while read A B C; do
+	monitor_pre_hook $LOGDIR_RESULTS $A-$B
+	if [ -f bin/$A ]; then
+		eval bin/$A $COMMON -N "$B" $C 2>&1 > $LOGDIR_RESULTS/$B.log
+	fi
+	monitor_post_hook $LOGDIR_RESULTS $A-$B
+done <<EOT
+exec	exec	-B 10
+system	system	-D 300000 -I 1000000
+EOT
+
+exit $SHELLPACK_SUCCESS
