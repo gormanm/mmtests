@@ -1,0 +1,44 @@
+# MM Test Parameters
+export MMTESTS="fio"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat top"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+FIO_NR_JOBS=4
+
+# fio
+JOBFILE="/tmp/fio-jobfile-$$"
+export FIO_CMD_OPTIONS="$JOBFILE"
+
+cat >$JOBFILE <<END
+[global]
+direct=0
+ioengine=sync
+blocksize=32768
+invalidate=1
+ramp_time=5	# Let the flusher thread start before taking measurements
+log_avg_msec=10
+group_reporting=1
+
+[reader]
+new_group
+filesize=$((MEMTOTAL_BYTES*2/1048576/$FIO_NR_JOBS))m
+nrfiles=1
+numjobs=$FIO_NR_JOBS
+readwrite=randread
+END

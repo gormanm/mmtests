@@ -140,6 +140,8 @@ config-db-sqlite-insert-medium
 config-io-blogbench
 config-io-fio-randread-async-randwrite
 config-io-fio-randread-async-seqwrite
+config-io-fio-randread-doublemem-32k-4t
+config-io-fio-randread-doublemem-4k-4t
 config-io-fio-randread-sync-heavywrite
 config-io-fio-randread-sync-randwrite
 config-io-fio-seqread-doublemem-4k-4t
