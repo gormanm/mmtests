@@ -1,0 +1,35 @@
+#!/bin/bash
+# Run perf-bench pipe benchmark
+
+###SHELLPACK preamble perffutexwake-bench 5.9
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargBindings
+###SHELLPACK parseargParam   --iterations  PERFFUTEXWAKE_ITERATIONS
+###SHELLPACK parseargParam   --nr-wake     PERFFUTEXWAKE_NR_WAKE
+###SHELLPACK parseargParam   --min-threads PERFFUTEXWAKE_MIN_THREADS
+###SHELLPACK parseargParam   --max-threads PERFFUTEXWAKE_MAX_THREADS
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_external_install_required perfbuild perfbuild-${VERSION} ${VERSION}
+###SHELLPACK init_complete
+
+PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
+PERF_CMD=${PERF_DIR}/perf
+
+###SHELLPACK threads_large_stride_begin $PERFFUTEXWAKE_MIN_THREADS $PERFFUTEXWAKE_MAX_THREADS
+	echo Running $NR_THREADS threads
+	BENCH_CMD="perf bench -r $PERFFUTEXWAKE_ITERATIONS futex wake -t $NR_THREADS -w $PERFFUTEXWAKE_NR_WAKE"
+	log_cmd $BENCH_CMD
+	
+	mmtests_activity bench
+	
+	monitor_pre_hook $LOGDIR_RESULTS $P
+	$BENCH_CMD &> $LOGDIR_RESULTS/perffutexwake-$NR_THREADS.log || die "Failed to run perf futex wake"
+	gzip $LOGDIR_RESULTS/perffutexwake-$NR_THREADS.log
+	monitor_post_hook $LOGDIR_RESULTS $P
+###SHELLPACK threads_stride_end
+
+exit $SHELLPACK_SUCCESS
