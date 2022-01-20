@@ -1,0 +1,18 @@
+#!/bin/bash
+###SHELLPACK preamble sysbenchbuild-install 1.0.20
+
+GIT_LOCATION="https://github.com/akopytov/sysbench"
+MIRROR_LOCATION=$WEBROOT/sysbench
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+echo Building sysbench
+###SHELLPACK git_fetch sysbenchbuild-${VERSION}.tar.gz sysbenchbuild-${VERSION}
+###SHELLPACK build_start sysbenchbuild-${VERSION}
+###SHELLPACK build_autogen sysbenchbuild-${VERSION}
+###SHELLPACK build_configure sysbenchbuild-${VERSION} --without-mysql
+###SHELLPACK make_make_install
+
+echo sysbenchbuild successfully installed
+exit $SHELLPACK_SUCCESS

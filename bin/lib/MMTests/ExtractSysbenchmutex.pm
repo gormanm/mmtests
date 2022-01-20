@@ -9,7 +9,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSysbenchmutex";
-	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
+	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->SUPER::initialise($subHeading);
 }
@@ -23,8 +23,16 @@ sub extractReport() {
 	foreach my $thread (@threads) {
 		my $iteration = 0;
 
-		foreach my $file (<$reportDir/time-$thread-*>) {
-			$self->parse_time_elapsed($file, $thread, ++$iteration);
+		foreach my $file (<$reportDir/sysbench-raw-$thread-*>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
+				my $line = $_;
+
+				if ($line =~ /avg:\s*(.*)/) {
+					$self->addData($thread, ++$iteration, $1);
+				}
+			}
+			close($input);
 		}
 	}
 }

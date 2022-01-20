@@ -344,7 +344,7 @@ EOC
 
 	} elsif ($command eq "build_autogen") {
 		print <<EOC
-./autogen.sh || die Failed to run autogen
+./autogen.sh || die "Failed to run autogen"
 EOC
 	} elsif ($command eq "build_autoreconf") {
 		print <<EOC

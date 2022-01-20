@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble sysbenchcpu-bench 0.4.12.16
+###SHELLPACK preamble sysbenchcpu-bench 1.0.20
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -10,19 +10,20 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required sysbenchcpu-${VERSION}
+###SHELLPACK check_external_install_required sysbenchbuild sysbenchbuild-${VERSION} ${VERSION}
+
 ###SHELLPACK init_complete
 
-export PATH=$SHELLPACK_SOURCES/sysbenchcpu-${VERSION}-installed/bin:$PATH
-
+export PATH=$SHELLPACK_SOURCES/sysbenchbuild-${VERSION}-installed/bin:$PATH
 
 ###SHELLPACK threads_large_stride_begin $MIN_THREADS $MAX_THREADS
-	BENCH_CMD="sysbench --test=cpu --num-threads=$NR_THREADS --test=cpu --cpu-max-prime=$MAX_PRIME run"
+	BENCH_CMD="sysbench cpu --num-threads=$NR_THREADS --cpu-max-prime=$MAX_PRIME run"
 	log_cmd $BENCH_CMD
+
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $ITERATIONS
 		echo Running $NR_THREADS threads Iteration $ITERATION/$ITERATIONS
-		eval $TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITERATION} \
+		eval $TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITERATION}	\
 			$BENCH_CMD >> $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITERATION
 		SYSRET=$?
 		if [ $SYSRET -ne 0 ]; then
