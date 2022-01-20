@@ -160,7 +160,7 @@ EOC
 		;;
 	--bind-cross-socket)
 		CPUA=`numactl --hardware | grep ^node | grep cpus: | head -1 | awk '{print \$4}'`
-		CPUB=`list-cpu-siblings.pl \$CPUA cores 0 | awk -F , '{print \$1}'`
+		CPUB=`list-cpu-siblings.pl \$CPUA llc_cores 0 | awk -F , '{print \$1}'`
 		TASKSET_SERVER="taskset -c \$CPUA"
 		TASKSET_CLIENT="taskset -c \$CPUB"
 		TASKSET_ALL="taskset -c \$CPUA,\$CPUB"
