@@ -479,6 +479,8 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	start_numad
 	start_tuned
+	MAX_NODE=`numactl --hardware | grep cpus: | wc -l`
+	set_mmtests_numactl 0 $MAX_NODE 
 
 	EXIT_CODE=$SHELLPACK_SUCCESS
 
@@ -558,7 +560,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 				-o $SHELLPACK_LOG/timestamp ./bin/run-single-test.sh $TEST"
 		else
 			/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
-				./bin/run-single-test.sh $TEST
+				$MMTESTS_NUMACTL ./bin/run-single-test.sh $TEST
 		fi
 		EXIT_CODE=$?
 
