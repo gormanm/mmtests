@@ -7,6 +7,11 @@ run_bench() {
 		NETPERF_NR_PAIRS=1
 	fi
 	BIND_SWITCH=
+	VERSION_SWITCH=
+	if [ "$NETPERF_VERSION" != "" ]; then
+		VERSION_SWITCH="-v $NETPERF_VERSION"
+	fi
+
 	if [ "$NETPERF_BINDING" != "" ]; then
 		BIND_SWITCH=--bind-$NETPERF_BINDING
 	fi
@@ -17,7 +22,7 @@ run_bench() {
 		SERVER_ADDRESS="--server-address $NETPERF_SERVER"
 	fi
 	$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh netperf
-	$SCRIPTDIR/shellpacks/shellpack-bench-netperf $BIND_SWITCH \
+	$SCRIPTDIR/shellpacks/shellpack-bench-netperf $BIND_SWITCH $VERSION_SWITCH \
 		$SERVER_ADDRESS \
 		--iterations $NETPERF_ITERATIONS	\
 		--protocol $NETPERF_PROTOCOL		\
