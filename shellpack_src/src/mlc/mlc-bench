@@ -29,10 +29,12 @@ fi
 
 mmtests_activity $MLC_TYPE
 monitor_pre_hook $LOGDIR_RESULTS $MLC_TYPE
+BENCH_CMD="./Linux/mlc_avx512 --$MLC_TYPE $ONE_HT_SWITCH"
+log_cmd $BENCH_CMD
 ###SHELLPACK iteration_begin $MLC_ITERATIONS
 	echo Running iteration $ITERATION/$MLC_ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/$MLC_TYPE-$ITERATION.time \
-		./Linux/mlc_avx512 --$MLC_TYPE $ONE_HT_SWITCH | tee $LOGDIR_RESULTS/$MLC_TYPE-$ITERATION.log
+		$BENCH_CMD | tee $LOGDIR_RESULTS/$MLC_TYPE-$ITERATION.log
 ###SHELLPACK iteration_end
 monitor_post_hook $LOGDIR_RESULTS $MLC_TYPE
 
