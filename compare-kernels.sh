@@ -485,7 +485,7 @@ for SUBREPORT in $REPORTS; do
 	fi
 
 	for OPTFILE in compiler.opts runtime.opts sysctl.opts; do
-		OPTS=`find -maxdepth 4 -name "$OPTFILE" | head -1`
+		OPTS=`find $KERNEL_BASE -maxdepth 4 -name "$OPTFILE" | head -1`
 		if [ "$OPTS" != "" ]; then
 			cat $OPTS | uniq
 			echo
