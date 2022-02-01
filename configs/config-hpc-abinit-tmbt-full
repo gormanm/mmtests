@@ -42,7 +42,7 @@ export ABINIT_MODEL=tmbt
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
 if [ $? -eq 0 ]; then
-	if [ $ABINIT_PROCESSES -ge $((NUMCPUS/2)) ]; then
+	if [ $ABINIT_PROCESSES -gt $((NUMCPUS/2)) ]; then
 		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
 		ABINIT_MPI_OPTS+=" --use-hwthread-cpus"
 	fi

@@ -33,7 +33,7 @@ export WRF_THREADS=$((NUMCPUS/WRF_PROCESSES))
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
 if [ $? -eq 0 ]; then
-	if [ $WRF_PROCESSES -ge $((NUMCPUS/2)) ]; then
+	if [ $WRF_PROCESSES -gt $((NUMCPUS/2)) ]; then
 		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
 		WRF_MPI_OPTS+=" --use-hwthread-cpus"
 	fi

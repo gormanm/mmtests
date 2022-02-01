@@ -32,7 +32,7 @@ export MPAS_THREADS=$((NUMCPUS/MPAS_PROCESSES))
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
 if [ $? -eq 0 ]; then
-	if [ $MPAS_PROCESSES -ge $((NUMCPUS/2)) ]; then
+	if [ $MPAS_PROCESSES -gt $((NUMCPUS/2)) ]; then
 		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
 		MPAS_MPI_OPTS+=" --use-hwthread-cpus"
 	fi

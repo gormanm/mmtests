@@ -67,7 +67,7 @@ fi
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
 if [ $? -eq 0 ]; then
-	if [ $((SPECFEM3D_NPROC_XI*SPECFEM3D_NPROC_ETA*SPECFEM3D_NCHUNKS)) -ge $((NUMCPUS/2)) ]; then
+	if [ $((SPECFEM3D_NPROC_XI*SPECFEM3D_NPROC_ETA*SPECFEM3D_NCHUNKS)) -gt $((NUMCPUS/2)) ]; then
 		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
 		SPECFEM3D_MPI_OPTS+=" --use-hwthread-cpus"
 	fi

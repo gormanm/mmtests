@@ -33,7 +33,7 @@ export NAS_ITERATIONS=3
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
 if [ $? -eq 0 ]; then
-	if [ $NAS_MAX_CPUS -ge $((NUMCPUS/2)) ]; then
+	if [ $NAS_MAX_CPUS -gt $((NUMCPUS/2)) ]; then
 		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
 		NAS_MPI_OPTS+=" --use-hwthread-cpus"
 	fi
