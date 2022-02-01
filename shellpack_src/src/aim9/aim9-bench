@@ -64,7 +64,9 @@ fi
 monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $ITERATIONS
 	echo Starting iteration $ITERATION
-	$EXPECT -f $EXPECT_SCRIPT | tee $LOGDIR_RESULTS/aim9-$ITERATION
+	BENCH_CMD="$EXPECT -f $EXPECT_SCRIPT"
+	log_cmd $BENCH_CMD
+	$BENCH_CMD | tee $LOGDIR_RESULTS/aim9-$ITERATION
 ###SHELLPACK iteration_end $ITERATIONS
 monitor_post_hook $LOGDIR_RESULTS $P
 
