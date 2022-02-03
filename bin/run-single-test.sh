@@ -70,6 +70,13 @@ fi
 export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/logs
 mkdir logs
 setup_dirs
+
+# Always start from first available node
+if [ "`which taskset`" != "" -a "`which numactl`" != "" ]; then
+	taskset -pc `numactl --hardware | grep cpus: | awk -F : '{print $2}' | head -1 | sed -e 's/^\s*//' -e 's/ /,/g'` $$
+	taskset -pc 0-4096 $$
+fi
+
 save_rc run_bench 2>&1 | tee /tmp/mmtests-$$.log
 mv /tmp/mmtests-$$.log $LOGDIR_RESULTS/mmtests.log
 recover_rc
