@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs redis and runs the benchmark suite tests
-###SHELLPACK preamble redis-bench 3.0.5
+###SHELLPACK preamble redis-bench 6.2.6
 
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -100,6 +100,7 @@ esac
 		echo Running test $NR_THREADS threads iteration $ITERATION/$REDIS_ITERATIONS
 		redis-benchmark --csv \
 			-c $NR_THREADS		\
+			--threads $NR_THREADS	\
 			-r $REDIS_KEYSPACE	\
 			-n $REDIS_REQUESTS 2>&1 | tee $LOGDIR_RESULTS/redis-${NR_THREADS}-${ITERATION}.log
 		server_stop
