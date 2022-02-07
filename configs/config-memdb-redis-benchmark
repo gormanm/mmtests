@@ -1,7 +1,7 @@
 ### redis is a single-threaded server in-memory data store. This is a basic
 ### configuration that uses one server even if running on a NUMA machine
-### with clients unbound. The number of requests is medium (1,000,000) with
-### a keyspace of 500,000 keys. The data is not persisted as the test is
+### with clients unbound. The number of requests is small (100,000) with
+### a keyspace of 50,000 keys. The data is not persisted as the test is
 ### too short-lived to detect whether the timing of disk IO is a major
 ### factor. Contrary to recommendations, THP is left as its default
 ### setting which in most cases will be enabled.
@@ -29,8 +29,9 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # Redis
 export REDIS_ITERATIONS=5
-export REDIS_PERSISTENCE=memonly
-export REDIS_REQUESTS=1000000
+export REDIS_PERSISTENCE="default-persist"
+export REDIS_REQUESTS=300000
 export REDIS_KEYSPACE=$((REDIS_REQUESTS/2))
+export REDIS_MEMTIER_SERVER_THREADS=4
 export REDIS_MIN_THREADS=1
-export REDIS_MAX_THREADS=$NUMCPUS
+export REDIS_MAX_THREADS=$((NUMCPUS-REDIS_MEMTIER_SERVER_THREADS))

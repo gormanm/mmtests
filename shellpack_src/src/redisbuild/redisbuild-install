@@ -15,6 +15,7 @@ make PREFIX=$SHELLPACK_SOURCES/redisbuild-${VERSION}-installed install || die "F
 
 mkdir $SHELLPACK_SOURCES/redisbuild-${VERSION}-installed/etc || die "Failed to create configuration directory"
 cat redis.conf | sed -e 's/^save.*//' > $SHELLPACK_SOURCES/redisbuild-${VERSION}-installed/etc/redis-memonly.conf
+echo 'save ""' >> $SHELLPACK_SOURCES/redisbuild-${VERSION}-installed/etc/redis-memonly.conf
 cp redis.conf $SHELLPACK_SOURCES/redisbuild-${VERSION}-installed/etc/redis-default-persist.conf
 
 echo redisbuild installed successfully

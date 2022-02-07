@@ -82,6 +82,8 @@ config-hpc-nas-d-class-mpi-third
 config-hpc-nas-d-class-mpi-pair
 config-hpc-nas-d-class-mpi-minparallel
 config-http-apachebench
+config-memdb-redis-benchmark
+config-memdb-redis-memtier
 config-multi-kernbench__netperf-tcp-rr-multipair
 config-workload-mailserver
 config-workload-kernbench-max

@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs redis and runs the benchmark suite tests
-###SHELLPACK preamble redis-bench 6.2.6
+###SHELLPACK preamble redis-memtier-bench 1.2.7
 
 TASKSET_SERVER=
 TASKSET_CLIENT=
@@ -9,23 +9,31 @@ if [ "$REMOTE_SERVER_HOST" != "" ]; then
 	SERVER_HOST=$REMOTE_SERVER_HOST
 fi
 
+REDIS_VERSION=6.2.6
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargBindings
-###SHELLPACK parseargParam    --iterations   REDIS_ITERATIONS
-###SHELLPACK parseargParam    --persistence  REDIS_PERSISTENCE
-###SHELLPACK parseargParam    --requests     REDIS_REQUESTS
-###SHELLPACK parseargParam    --keyspace     REDIS_KEYSPACE
-###SHELLPACK parseargParam    --min-clients  REDIS_MIN_CLIENTS
-###SHELLPACK parseargParam    --max-clients  REDIS_MAX_CLIENTS
+###SHELLPACK parseargParam    --iterations	REDIS_MEMTIER_ITERATIONS
+###SHELLPACK parseargParam    --persistence	REDIS_MEMTIER_PERSISTENCE
+###SHELLPACK parseargParam    --requests	REDIS_MEMTIER_REQUESTS
+###SHELLPACK parseargParam    --keyspace-min	REDIS_MEMTIER_KEYSPACE_MIN
+###SHELLPACK parseargParam    --keyspace-max	REDIS_MEMTIER_KEYSPACE_MAX
+###SHELLPACK parseargParam    --keyspace-prefix	REDIS_MEMTIER_KEYSPACE_PREFIX
+###SHELLPACK parseargParam    --pipeline	REDIS_MEMTIER_PIPELINE
+###SHELLPACK parseargParam    --datasize	REDIS_MEMTIER_DATASIZE
+###SHELLPACK parseargParam    --min-clients	REDIS_MEMTIER_MIN_CLIENTS
+###SHELLPACK parseargParam    --max-clients	REDIS_MEMTIER_MAX_CLIENTS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_external_install_required redisbuild redisbuild-${VERSION} ${VERSION}
+###SHELLPACK check_external_install_required redisbuild redisbuild-${REDIS_VERSION} ${REDIS_VERSION}
+###SHELLPACK check_install_required redis-memtier-${VERSION}
 ###SHELLPACK init_complete
 
-export PATH=$SHELLPACK_SOURCES/redisbuild-${VERSION}-installed/bin:$PATH
-REDIS_CONF=$SHELLPACK_SOURCES/redisbuild-${VERSION}-installed/etc/redis-${REDIS_PERSISTENCE}.conf
+export PATH=$SHELLPACK_SOURCES/redisbuild-${REDIS_VERSION}-installed/bin:$PATH
+export PATH=$SHELLPACK_SOURCES/redis-memtier-${VERSION}-installed/bin:$PATH
+REDIS_CONF=$SHELLPACK_SOURCES/redisbuild-${REDIS_VERSION}-installed/etc/redis-${REDIS_MEMTIER_PERSISTENCE}.conf
 REDIS_PIDFILE=/tmp/redis-mmtests.pid
 
 server_start() {
@@ -92,14 +100,16 @@ none)
 	;;
 esac
 
-###SHELLPACK threads_large_stride_begin $REDIS_MIN_CLIENTS $REDIS_MAX_CLIENTS
-	BENCH_CMD="redis-benchmark --csv -c $NR_THREADS --threads $REDIS_MEMTIER_THREADS -r $REDIS_KEYSPACE -n $REDIS_REQUESTS"
+###SHELLPACK threads_large_stride_begin $REDIS_MEMTIER_MIN_CLIENTS $REDIS_MEMTIER_MAX_CLIENTS
+	BENCH_CMD="memtier_benchmark --threads=$REDIS_MEMTIER_THREADS --clients=$NR_THREADS --pipeline=$REDIS_MEMTIER_PIPELINE --data-size=$REDIS_MEMTIER_DATASIZE --requests=$REDIS_MEMTIER_REQUESTS --key-minimum=$REDIS_MEMTIER_KEYSPACE_MIN --key-maximum=$REDIS_MEMTIER_KEYSPACE_MAX -n $((REDIS_MEMTIER_KEYSPACE_MAX*2)) --key-prefix=$REDIS_MEMTIER_KEYSPACE_PREFIX"
+	log_cmd $BENCH_CMD
+
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	###SHELLPACK iteration_begin $REDIS_ITERATIONS
+	###SHELLPACK iteration_begin $REDIS_MEMTIER_ITERATIONS
 		server_start
 		mmtests_activity $NR_THREADS-$ITERATION
-		echo Running test $NR_THREADS threads iteration $ITERATION/$REDIS_ITERATIONS
-		eval $BENCH_CMD 2>&1 | tee $LOGDIR_RESULTS/redis-${NR_THREADS}-${ITERATION}.log
+		echo Running test $NR_THREADS threads iteration $ITERATION/$REDIS_MEMTIER_ITERATIONS
+		eval $BENCH_CMD &> $LOGDIR_RESULTS/redis-memtier-${NR_THREADS}-${ITERATION}.log
 		server_stop
 	###SHELLPACK iteration_end
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS

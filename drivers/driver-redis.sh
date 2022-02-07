@@ -13,8 +13,8 @@ run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-redis $BIND_SWITCH \
 		$SERVER_ADDRESS \
 		--iterations  $REDIS_ITERATIONS \
-		--min-threads $REDIS_MIN_THREADS \
-		--max-threads $REDIS_MAX_THREADS \
+		--min-clients $REDIS_MIN_CLIENTS \
+		--max-clients $REDIS_MAX_CLIENTS \
 		--requests    $REDIS_REQUESTS \
 		--keyspace    $REDIS_KEYSPACE
 	return $?

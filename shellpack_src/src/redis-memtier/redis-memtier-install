@@ -1,0 +1,20 @@
+#!/bin/bash
+
+###SHELLPACK preamble redis-memtier 1.2.7
+GIT_LOCATION="https://github.com/RedisLabs/memtier_benchmark"
+MIRROR_LOCATION="$WEBROOT/redis-memtier"
+
+install-depends libopenssl-devel libevent-devel pcre2-devel autogen
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch redis-memtier-${VERSION}.tar.gz redis-memtier-${VERSION}
+
+###SHELLPACK build_start redis-memtier-${VERSION}
+autoreconf -ivf || die "Failed to run autoreconf"
+###SHELLPACK build_configure redis-memtier-${VERSION}
+###SHELLPACK make_make_install
+
+echo redis-memtier installed successfully
+exit $SHELLPACK_SUCCESS
