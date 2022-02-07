@@ -21,11 +21,11 @@ fi
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required redis-${VERSION}
+###SHELLPACK check_external_install_required redisbuild redisbuild-${VERSION} ${VERSION}
 ###SHELLPACK init_complete
 
-export PATH=$SHELLPACK_SOURCES/redis-${VERSION}-installed/bin:$PATH
-REDIS_CONF=$SHELLPACK_SOURCES/redis-${VERSION}-installed/etc/redis-${REDIS_PERSISTENCE}.conf
+export PATH=$SHELLPACK_SOURCES/redisbuild-${VERSION}-installed/bin:$PATH
+REDIS_CONF=$SHELLPACK_SOURCES/redisbuild-${VERSION}-installed/etc/redis-${REDIS_PERSISTENCE}.conf
 REDIS_PIDFILE=/tmp/redis-mmtests.pid
 
 server_start() {

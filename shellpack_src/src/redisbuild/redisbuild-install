@@ -1,0 +1,20 @@
+#!/bin/bash
+# Redis installer
+###SHELLPACK preamble redisbuild-install 6.2.6
+WEB_LOCATION=http://download.redis.io/releases
+MIRROR_LOCATION="$WEBROOT/redis/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK sources_fetch redis-${VERSION}.tar.gz redisbuild-${VERSION}
+
+###SHELLPACK build_start redisbuild-${VERSION}
+###SHELLPACK make
+make PREFIX=$SHELLPACK_SOURCES/redisbuild-${VERSION}-installed install || die "Failed to install redis"
+
+mkdir $SHELLPACK_SOURCES/redisbuild-${VERSION}-installed/etc || die "Failed to create configuration directory"
+cat redis.conf | sed -e 's/^save.*//' > $SHELLPACK_SOURCES/redisbuild-${VERSION}-installed/etc/redis-memonly.conf
+cp redis.conf $SHELLPACK_SOURCES/redisbuild-${VERSION}-installed/etc/redis-default-persist.conf
+
+echo redisbuild installed successfully
