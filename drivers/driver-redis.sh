@@ -16,6 +16,7 @@ run_bench() {
 		--min-clients $REDIS_MIN_CLIENTS \
 		--max-clients $REDIS_MAX_CLIENTS \
 		--requests    $REDIS_REQUESTS \
-		--keyspace    $REDIS_KEYSPACE
+		--keyspace    $REDIS_KEYSPACE \
+		--pipeline    $REDIS_PIPELINE
 	return $?
 }

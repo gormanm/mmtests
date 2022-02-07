@@ -59,6 +59,7 @@ server_start() {
 	REDIS_PID=$!
 	echo $REDIS_PID > $REDIS_PIDFILE
 	wait_on_pid_start $REDIS_PID
+	redis-cli flushall 2>&1 > /dev/null
 }
 
 server_stop() {

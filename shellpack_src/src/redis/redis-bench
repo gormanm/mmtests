@@ -16,6 +16,7 @@ fi
 ###SHELLPACK parseargParam    --persistence  REDIS_PERSISTENCE
 ###SHELLPACK parseargParam    --requests     REDIS_REQUESTS
 ###SHELLPACK parseargParam    --keyspace     REDIS_KEYSPACE
+###SHELLPACK parseargParam    --pipeline     REDIS_PIPELINE
 ###SHELLPACK parseargParam    --min-clients  REDIS_MIN_CLIENTS
 ###SHELLPACK parseargParam    --max-clients  REDIS_MAX_CLIENTS
 ###SHELLPACK parseargEnd
@@ -51,6 +52,8 @@ server_start() {
 	REDIS_PID=$!
 	echo $REDIS_PID > $REDIS_PIDFILE
 	wait_on_pid_start $REDIS_PID
+	sleep 5
+	redis-cli flushall
 }
 
 server_stop() {
@@ -65,7 +68,7 @@ server_stop() {
 	fi
 	echo Killing old servers
 	redis-cli flushall 2> /dev/null
-	kill `cat $REDIS_PIDFILE` > /dev/null
+	redis-cli shutdown
 	wait_on_pid_exit `cat $REDIS_PIDFILE`
 	rm $REDIS_PIDFILE
 }
@@ -94,12 +97,17 @@ esac
 
 server_start
 ###SHELLPACK threads_large_stride_begin $REDIS_MIN_CLIENTS $REDIS_MAX_CLIENTS
-	BENCH_CMD="redis-benchmark --csv -c $NR_THREADS --threads $REDIS_MEMTIER_THREADS -r $REDIS_KEYSPACE -n $REDIS_REQUESTS"
+	CLIENT_THREADS=$REDIS_MEMTIER_THREADS
+	if [ $NR_THREADS -eq 1 ]; then
+		CLIENT_THREADS=1
+	fi
+	BENCH_CMD="redis-benchmark --csv -c $NR_THREADS --threads $CLIENT_THREADS -r $REDIS_KEYSPACE -n $REDIS_REQUESTS -P $REDIS_PIPELINE"
+	log_cmd $BENCH_CMD
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $REDIS_ITERATIONS
 		mmtests_activity $NR_THREADS-$ITERATION
 		echo Running test $NR_THREADS threads iteration $ITERATION/$REDIS_ITERATIONS
-		eval $BENCH_CMD 2>&1 | tee $LOGDIR_RESULTS/redis-${NR_THREADS}-${ITERATION}.log
+		eval $BENCH_CMD &> $LOGDIR_RESULTS/redis-${NR_THREADS}-${ITERATION}.log
 	###SHELLPACK iteration_end
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
