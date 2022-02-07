@@ -100,19 +100,19 @@ none)
 	;;
 esac
 
+server_start
 ###SHELLPACK threads_large_stride_begin $REDIS_MEMTIER_MIN_CLIENTS $REDIS_MEMTIER_MAX_CLIENTS
 	BENCH_CMD="memtier_benchmark --threads=$REDIS_MEMTIER_THREADS --clients=$NR_THREADS --pipeline=$REDIS_MEMTIER_PIPELINE --data-size=$REDIS_MEMTIER_DATASIZE --requests=$REDIS_MEMTIER_REQUESTS --key-minimum=$REDIS_MEMTIER_KEYSPACE_MIN --key-maximum=$REDIS_MEMTIER_KEYSPACE_MAX -n $((REDIS_MEMTIER_KEYSPACE_MAX*2)) --key-prefix=$REDIS_MEMTIER_KEYSPACE_PREFIX"
 	log_cmd $BENCH_CMD
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $REDIS_MEMTIER_ITERATIONS
-		server_start
 		mmtests_activity $NR_THREADS-$ITERATION
 		echo Running test $NR_THREADS threads iteration $ITERATION/$REDIS_MEMTIER_ITERATIONS
 		eval $BENCH_CMD &> $LOGDIR_RESULTS/redis-memtier-${NR_THREADS}-${ITERATION}.log
-		server_stop
 	###SHELLPACK iteration_end
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
+server_stop
 
 exit $SHELLPACK_SUCCESS
