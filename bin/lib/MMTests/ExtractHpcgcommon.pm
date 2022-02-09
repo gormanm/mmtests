@@ -17,7 +17,6 @@ sub new() {
 }
 
 my %metric_map = (
-	"No unique"     => "hpcg-gflops",
 	"Raw DDOT"	=> "gflops-ddot",
 	"Raw WAXPBY"	=> "gflops-waxpby",
 	"Raw SpMV"	=> "gflops-spmv",
@@ -31,7 +30,7 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $iteration = 0;
 
-	foreach my $file (<$reportDir/hpcg-*.yaml>) {
+	foreach my $file (<$reportDir/hpcg-*.txt>) {
 		$iteration++;
 
 		my $reading;
@@ -41,36 +40,19 @@ sub extractReport() {
 
 			if ($line =~ /^GB\/s Summary/) {
 				$reading = "mem-bwidth-metric";
-				next;
 			}
 
 			if ($line =~ /^GFLOP\/s Summary/) {
 				$reading = "hpcg-gflops";
-				next;
-			}
-
-			if ($line =~ /^User Optimization Overheads/) {
-				$reading = "";
-				next;
 			}
 
 			next if $reading eq "";
 
-			if ($line =~ /Total with convergence overhead: ([0-9.]*)/ && $reading eq "hpcg-gflops") {
-				$self->addData("hpcg-gflops", $iteration, $1);
-			}
-
 			foreach my $pattern (keys %metric_map) {
 				my $metric = $metric_map{$pattern};
 
-				if ($line =~ /^  $pattern: ([0-9.]*)/) {
+				if ($line =~ /::$pattern=([0-9.]*)/) {
 					$self->addData($metric, $iteration, $1);
-				}
-			}
-
-			foreach my $metric (keys %metric_map) {
-				if ($line =~ /^$metric=(.*)/) {
-					$self->addData("$metric", $iteration, $1);
 				}
 			}
 		}

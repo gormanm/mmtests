@@ -3,11 +3,18 @@
 #
 ###SHELLPACK preamble nas-bench 3.3.1
 
-if [ "$NAS_OPENMPI_VERSION" = "openmpi2" ]; then
-	install-depends openmpi2 openmpi2-devel
-else
-	install-depends openmpi openmpi-devel
+if [ "$NAS_OPENMPI_VERSION" != "" ]; then
+	install-depends $NAS_OPENMPI_VERSION $NAS_OPENMPI_VERSION-devel
+	if [ $? -ne 0 ]; then
+		echo WARNING: Falling back to openmpi1
+		export NAS_OPENMPI_VERSION_NEW=openmpi
+		export NAS_MPI_PATH=`echo $NAS_MPI_PATH | sed -e "s@/$NAS_OPENMPI_VERSION/$NAS_OPENMPI_VERSION_NEW/g"`
+		export NAS_MPI_LIBPATH=`echo $NAS_MPI_LIBPATH | sed -e "s@/$NAS_OPENMPI_VERSION/$NAS_OPENMPI_VERSION_NEW/g"`
+		export NAS_OPENMPI_VERSION=$NAS_OPENMPI_VERSION_NEW
+		install-depends $NAS_OPENMPI_VERSION $NAS_OPENMPI_VERSION-devel
+	fi
 fi
+
 install-depends libpsm_infinipath1
 install-depends gfortran gcc
 
@@ -98,7 +105,7 @@ MPI)
 	MPIRUN="mpirun $NAS_MPI_OPTS $MMTESTS_MPI_OPTS"
 	;;
 OMP)
-	REMOVE_LIST="xx"
+	REMOVE_LIST="dc"
 	if [ "$NAS_CLASS" = "D" ]; then
 		REMOVE_LIST="ft dc"
 	fi
@@ -112,6 +119,25 @@ OMP)
 	;;
 *)
 	die "Unrecognised NAS type $NAS_TYPE"
+	;;
+esac
+
+case $NAS_TYPE in
+MPI)
+	log_cmd "OpenMPI Environment"
+	log_cmd " NAS_OPENMPI_VERSION=$NAS_OPENMPI_VERSION"
+	log_cmd " NAS_MPI_PATH=$NAS_MPI_PATH"
+	log_cmd " NAS_MPI_LIBPATH=$NAS_MPI_LIBPATH"
+	log_cmd " OMPI_TMPDIR=$OMPI_TMPDIR"
+	log_cmd " TMPDIR=$TMPDIR"
+	log_cmd " OPENMPI=$OPENMPI"
+	log_cmd ""
+	;;
+OMP)
+	log_cmd "OpenMP Environment"
+	log_cmd " OMP_NUM_THREADS=$OMP_NUM_THREADS"
+	log_cmd " OMP_PROC_BIND=$OMP_PROC_BIND"
+	log_cmd ""
 	;;
 esac
 
@@ -180,6 +206,17 @@ make suite || die "Failed to build"
 
 for JOB in $JOBLIST; do
 	mmtests_activity $JOB.$NAS_CLASS
+	case $NAS_TYPE in
+	SER|OMP)
+		BENCH_CMD="$NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.x"
+		log_cmd $BENCH_CMD
+		;;
+	MPI)
+		lookup_mpicpus $JOB
+		BENCH_CMD="$MPIRUN -np $MPICPUS $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS"
+		log_cmd $BENCH_CMD
+	esac
+
 	###SHELLPACK iteration_begin $NAS_ITERATIONS
 		if [ "$RUNBITS" = "32" -a ! -x ./bin/$JOB.$NAS_CLASS ]; then
 			echo "Skipping $JOB.$NAS_CLASS"
@@ -191,14 +228,11 @@ for JOB in $JOBLIST; do
 		case $NAS_TYPE in
 		SER|OMP)
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
-				$NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.x				\
-				> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
+				$BENCH_CMD > $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
 		MPI)
-			lookup_mpicpus $JOB
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
-				$MPIRUN -np $MPICPUS $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS \
-				> $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
+				$BENCH_CMD > $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
 		esac
 

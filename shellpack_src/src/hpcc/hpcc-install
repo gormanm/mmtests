@@ -1,9 +1,18 @@
 #!/bin/bash
-###SHELLPACK preamble hpcc-install 1.5.0
+###SHELLPACK preamble hpcc-install 1.5.0b
 WEB_LOCATION="http://icl.cs.utk.edu/projectsfiles/hpcc/download"
 MIRROR_LOCATION="$WEBROOT/hpcc/"
 
-install-depends openmpi openmpi-devel openmpi-libs libblas3 blas blas-devel blas-devel-static
+install-depends $HPCC_OPENMPI_VERSION $HPCC_OPENMPI_VERSION-devel $HPCC_OPENMPI_VERSION-libs
+if [ $? -ne 0 ]; then
+	echo WARNING: Falling back to openmpi1
+	export HPCC_OPENMPI_VERSION_NEW=openmpi
+	export HPCC_MPI_PATH=`echo $HPCC_MPI_PATH | sed -e "s@/$HPCC_OPENMPI_VERSION/$HPCC_OPENMPI_VERSION_NEW/g"`
+	export HPCC_OPENMPI_VERSION=$HPCC_OPENMPI_VERSION_NEW
+	install-depends $HPCC_OPENMPI_VERSION $HPCC_OPENMPI_VERSION-devel $HPCC_OPENMPI_VERSION-libs
+fi
+
+install-depends libblas3 blas blas-devel blas-devel-static
 install-depends libpsm_infinipath1
 
 ###SHELLPACK parseargBegin

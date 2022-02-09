@@ -22,7 +22,7 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # NAS Parallel Benchmark
-export NAS_OPENMPI_VERSION=openmpi
+export NAS_OPENMPI_VERSION=openmpi4
 export NAS_MPI_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_OPENMPI_VERSION/bin
 export NAS_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_OPENMPI_VERSION/$MMTESTS_LIBDIR
 export NAS_CLASS=`nas-class.sh`

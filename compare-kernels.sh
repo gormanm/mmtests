@@ -484,13 +484,16 @@ for SUBREPORT in $REPORTS; do
 		echo "<pre>"
 	fi
 
-	for OPTFILE in compiler.opts runtime.opts sysctl.opts; do
-		OPTS=`find $KERNEL_BASE -maxdepth 4 -name "$OPTFILE" | head -1`
-		if [ "$OPTS" != "" ]; then
-			cat $OPTS | uniq
-			echo
-		fi
-	done
+	if [ "$OPTFILE_DISPLAYED" != "yes" ]; then
+		OPTFILE_DISPLAYED=yes
+		for OPTFILE in compiler.opts runtime.opts sysctl.opts; do
+			OPTS=`find $KERNEL_BASE -maxdepth 4 -name "$OPTFILE" | head -1`
+			if [ "$OPTS" != "" ]; then
+				cat $OPTS | uniq
+				echo
+			fi
+		done
+	fi
 
 	if [ "$FORMAT" = "html" ]; then
 		echo "</pre>"

@@ -20,6 +20,21 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # HPC Challenge
-export HPCC_MPI_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/openmpi/bin
+export HPCC_OPENMPI_VERSION=openmpi3
+export HPCC_MPI_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$HPCC_OPENMPI_VERSION/bin
 export HPCC_WORKLOAD_SIZE=$((MEMTOTAL_BYTES*7/10))
 export HPCC_ITERATIONS=3
+export HPCC_MAX_CPUS=$((NUMCPUS/2))
+
+# Set additional mpi options if required
+grep -q " ht " /proc/cpuinfo
+if [ $? -eq 0 ]; then
+	if [ $HPCC_MAX_CPUS -ge $((NUMCPUS/2)) ]; then
+		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+		HPCC_MPI_OPTS+=" --use-hwthread-cpus"
+	fi
+fi
+if [ "`whoami`" = "root" ]; then
+	HPCC_MPI_OPTS+=" --allow-run-as-root"
+fi
+export HPCC_MPI_OPTS

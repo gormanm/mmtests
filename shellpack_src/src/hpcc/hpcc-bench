@@ -1,9 +1,9 @@
 #!/bin/bash
 # This is the script for running the HPC Challenge
 #
-###SHELLPACK preamble hpcc-bench 1.5.0
+###SHELLPACK preamble hpcc-bench 1.5.0b
 
-MPIOPT="--allow-run-as-root -mca btl ^openib,udapl"
+MPIOPT="$HPCC_MPI_OPTS -mca btl ^openib,udapl"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam	--workload-size		HPCC_WORKLOAD_SIZE
@@ -15,7 +15,7 @@ MPIOPT="--allow-run-as-root -mca btl ^openib,udapl"
 ###SHELLPACK init_complete
 
 ulimit -n 4096
-MPICPUS=$(round_down_power_2 $NUMCPUS)
+MPICPUS=$(round_down_power_2 $HPCC_MAX_CPUS)
 
 # Calculate basic parameters
 N=`echo "scale=0; sqrt ($HPCC_WORKLOAD_SIZE/8)" | bc -l`
@@ -75,7 +75,6 @@ monitor_pre_hook $LOGDIR_RESULTS $P
 	mmtests_activity hpcc-$ITERATION
 	echo Running hpcc iteration $ITERATION/$HPCC_ITERATIONS
 	$HPCC_MPI_PATH/mpirun $MPIOPT -np $MPICPUS ./hpcc 2>&1 | tee $LOGDIR_RESULTS/hpcc-${ITERATION}.log
-	mv hpccoutf.txt $LOGDIR_RESULTS/hpccoutf-${ITERATION}.txt
 ###SHELLPACK iteration_end
 monitor_post_hook $LOGDIR_RESULTS $P
 

@@ -218,6 +218,7 @@ if (getuid() != 0) {
 	}
 }
 
+my $exit_code = 0;
 foreach my $package (@ARGV) {
 
 	# Map the package onto the distro-equivalent name
@@ -276,6 +277,7 @@ foreach my $package (@ARGV) {
 		if (system("$sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
 			if (system("$sudo $package_bin{$distro} $allow_downgrade{$distro} $force_install{$distro} $package") != 0) {
 				print("WARNING: Failed to cleanly install package $package for distro $distro\n");
+				$exit_code = -1;
 			}
 		}
 	}
@@ -283,4 +285,4 @@ foreach my $package (@ARGV) {
 	print "Installed $package\n";
 }
 
-exit(0);
+exit($exit_code);
