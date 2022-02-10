@@ -689,6 +689,14 @@ for SUBREPORT in $REPORTS; do
 		cache-mmtests.sh compare-mmtests.pl -d . -b sysbench -a exectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
+	trunc)
+		echo $SUBREPORT Truncate all files
+		eval $COMPARE_CMD
+		echo
+		echo $SUBREPORT Fault each file
+		cache-mmtests.sh compare-mmtests.pl -d . -b trunc -a fault -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		;;
 	thp*scale)
 		echo $SUBREPORT Fault Latencies
 		eval $COMPARE_CMD

@@ -1,0 +1,44 @@
+#!/bin/bash
+###SHELLPACK preamble trunc-bench 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--iterations	TRUNC_ITERATIONS
+###SHELLPACK parseargParam	--nr-files	TRUNC_NR_FILES
+###SHELLPACK parseargParam	--filesize	TRUNC_FILESIZE
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK init_complete
+
+WARN_ONCE=
+while [ $((TRUNC_NR_FILES*TRUNC_FILESIZE)) -gt $((MEMTOTAL_BYTES/$NUMNODES/2)) ]; do
+	if [ "$WARN_ONCE" = "" ]; then
+		WARN_ONCE=yes
+		echo WARNING: Reducing TRUNC_FILESIZE due to memory limitations
+	fi
+	TRUNC_FILESIZE=$((TRUNC_FILESIZE*9/10))
+done
+echo Truncate nr_files: $TRUNC_NR_FILES
+echo Truncate filesize: $((TRUNC_FILESIZE/1048576))MB
+
+###SHELLPACK iteration_begin $TRUNC_ITERATIONS
+	echo Iteration $ITERATION/$TRUNC_ITERATIONS
+	monitor_pre_hook $LOGDIR_RESULTS trunc-fault-$ITERATION
+	for i in `seq 1 $TRUNC_NR_FILES`; do
+		dd if=/dev/zero of=$SHELLPACK_DATA/sparse_file-$i bs=1 count=0 seek=$TRUNC_FILESIZE &>/dev/null || \
+			die "Failed to create sparse file $i"
+		$TIME_CMD -o $LOGDIR_RESULTS/fault-$i.time \
+			cat $SHELLPACK_DATA/sparse_file-$i > /dev/null
+	done
+	monitor_post_hook $LOGDIR_RESULTS trunc-fault-$ITERATION
+	sync
+
+	# Monitoring done per iteration as 
+	monitor_pre_hook $LOGDIR_RESULTS trunc-iter-$ITERATION
+	$TIME_CMD -o $LOGDIR_RESULTS/trunc-${ITERATION}.time \
+		rm $SHELLPACK_DATA/sparse_file-*
+	monitor_post_hook $LOGDIR_RESULTS trunc-iter-$ITERATION
+###SHELLPACK iteration_end $TRUNC_ITERATIONS
+
+exit $SHELLPACK_SUCCESS

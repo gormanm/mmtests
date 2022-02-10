@@ -53,6 +53,7 @@ config-io-dbench4-fsync
 config-io-fio-randread-direct-multi
 config-io-fsmark-small-file-stream
 config-io-fsmark-xfsrepair
+config-io-trunc
 config-pagereclaim-stutter
 config-pagereclaim-stutterp
 config-pagereclaim-stutterp-noreaders
