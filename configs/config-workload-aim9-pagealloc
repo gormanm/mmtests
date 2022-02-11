@@ -1,11 +1,10 @@
-### ebizzy is intended to simulate the backend of a database backend but it
-### is not IO intensive. Instead it is both scheduler and allocator intensive.
-### Regressions here can indicate a regression in either area. Note that the
-### allocation pattern means that it may be a microbenchmark of mmap/munmap
-### depending on the version of glibc used.
+### aim9 is a number of micro-benchmarks. The results of this are very sensitive
+### to a number of factors but it can be useful early warning system. Results
+### tend to be difficult if not impossible to bisect but can sometimes be
+### correlated with degradations in other benchmarks.
 
 # MM Test Parameters
-export MMTESTS="ebizzy"
+export MMTESTS="aim9 pft"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
@@ -25,7 +24,6 @@ export MONITORS_GZIP="proc-vmstat"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# EBizzy
-export EBIZZY_MAX_THREADS=$((NUMCPUS*4))
-export EBIZZY_DURATION=30
-export EBIZZY_ITERATIONS=5
+# AIM9
+export AIM9_TESTTIME=15
+export AIM9_TESTLIST=page_test,brk_test,exec_test,fork_test
