@@ -4,7 +4,7 @@
 ### correlated with degradations in other benchmarks.
 
 # MM Test Parameters
-export MMTESTS="aim9 pft"
+export MMTESTS="aim9"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
