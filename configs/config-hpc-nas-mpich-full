@@ -22,9 +22,9 @@ export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # NAS Parallel Benchmark
-export NAS_OPENMPI_VERSION=openmpi4
-export NAS_MPI_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_OPENMPI_VERSION/bin
-export NAS_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_OPENMPI_VERSION/$MMTESTS_LIBDIR
+export NAS_MPICH_VERSION=mpich
+export NAS_MPICH_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_MPICH_VERSION/bin
+export NAS_MPICH_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_MPICH_VERSION/$MMTESTS_LIBDIR
 export NAS_CLASS=`nas-class.sh`
 export NAS_USE_CMA=no
 export NAS_MAX_CPUS=$NUMCPUS
@@ -36,25 +36,25 @@ if [ "$NAS_MAX_CPUS" -lt 4 ]; then
 fi
 
 # Set additional mpi options if required
-grep -q " ht " /proc/cpuinfo
-if [ $? -eq 0 ]; then
-	if [ $NAS_MAX_CPUS -gt $((NUMCPUS/2)) ]; then
-		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
-		NAS_MPI_OPTS+=" --use-hwthread-cpus"
-	fi
-fi
-if [ "`whoami`" = "root" ]; then
-	NAS_MPI_OPTS+=" --allow-run-as-root"
-fi
-export NAS_MPI_OPTS
+#grep -q " ht " /proc/cpuinfo
+#if [ $? -eq 0 ]; then
+#	if [ $NAS_MAX_CPUS -gt $((NUMCPUS/2)) ]; then
+#		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
+#		NAS_MPICH_OPTS+=" --use-hwthread-cpus"
+#	fi
+#fi
+#if [ "`whoami`" = "root" ]; then
+#	NAS_MPICH_OPTS+=" --allow-run-as-root"
+#fi
+#export NAS_MPICH_OPTS
 
 # Select tests based on class
 case $NAS_CLASS in
 C)
-	export MMTESTS="nas-mpi-bt nas-mpi-cg nas-mpi-ep nas-mpi-ft nas-mpi-is nas-mpi-lu nas-mpi-mg nas-mpi-sp"
+	export MMTESTS="nas-mpich-bt nas-mpich-cg nas-mpich-ep nas-mpich-ft nas-mpich-is nas-mpich-lu nas-mpich-mg nas-mpich-sp"
 	;;
 D)
-	export MMTESTS="nas-mpi-bt nas-mpi-cg nas-mpi-ep            nas-mpi-is nas-mpi-lu nas-mpi-mg nas-mpi-sp"
+	export MMTESTS="nas-mpich-bt nas-mpich-cg nas-mpich-ep              nas-mpich-is nas-mpich-lu nas-mpich-mg nas-mpich-sp"
 	;;
 *)
 	die "Unrecognised class $NAS_CLASS"

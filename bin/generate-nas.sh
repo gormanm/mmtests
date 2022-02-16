@@ -1,8 +1,8 @@
 #!/bin/bash
-# generate-speccpu.sh - Generate SPECcpu configuration file
+# generate-nas.sh - Generate NPB configuration file
 #
-# Does what it says on the tin, generates a SPEC configuration file using
-# gcc as a compiler. It can also be used to auto-generate some informationo
+# Does what it says on the tin, generates a NPB configuration file using
+# gcc as a compiler. It can also be used to auto-generate some information
 # about the machine itself
 set ${MMTESTS_SH_DEBUG:-+x}
 
@@ -30,6 +30,7 @@ Usage: generate-nas.sh [options]
   --bitness    32/64 bitness (Default: $BITNESS)
   --openmp     Enable use of OpenMP
   --openmpi    Enable use of OpenMPI
+  --mpich      Enable use of MPICH
   --hugepages-heaponly   Use hugepages in the configuration
   --hugepages-oldrelink  Use hugepages in the configuration
   --hugepages-newrelink  Use hugepages in the configuration
@@ -166,7 +167,7 @@ emit_footer() {
 }
 
 # Parse the arguments
-OPTARGS=`getopt -o h --long help,gcc,emit-conf,bitness:,conf:,monitor:,hugepages-heaponly,hugepages-oldrelink,hugepages-newrelink,openmp,openmpi -n generate-speccpu.sh -- "$@"`
+OPTARGS=`getopt -o h --long help,gcc,emit-conf,bitness:,conf:,monitor:,hugepages-heaponly,hugepages-oldrelink,hugepages-newrelink,openmp,openmpi,mpich -n generate-nas.sh -- "$@"`
 eval set -- "$OPTARGS"
 while [ "$1" != "" ] && [ "$1" != "--" ]; do
 	case "$1" in
@@ -198,7 +199,7 @@ while [ "$1" != "" ] && [ "$1" != "--" ]; do
 			OPENMPI=
 			shift
 			;;
-		--openmpi)
+		--openmpi|--mpich)
 			OPENMPI=-lmpi
 			OPENMP=
 			shift

@@ -87,11 +87,12 @@ for MODEL in jwbaroclinic supercell; do
 done
 
 # NAS
-for TYPE in omp mpi; do
+for TYPE in omp mpi mpich; do
 	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/2))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-half
 	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/3))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-third
+	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/4))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-quarter
 	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=2/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-pair
-	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=4/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-minparallel
+	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=4/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-quartet
 done
 
 # NAS Bind configs

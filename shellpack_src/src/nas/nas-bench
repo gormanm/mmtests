@@ -15,6 +15,10 @@ if [ "$NAS_OPENMPI_VERSION" != "" ]; then
 	fi
 fi
 
+if [ "$NAS_MPICH_VERSION" != "" ]; then
+	install-depends $NAS_MPICH_VERSION $NAS_MPICH_VERSION-devel
+fi
+
 install-depends libpsm_infinipath1
 install-depends gfortran gcc
 
@@ -31,24 +35,29 @@ if [ "$NAS_MAX_CPUS" = "" ]; then
 fi
 
 if [ "$NAS_MPI_PATH" != "" ]; then
-	export PATH=$PATH:$NAS_MPI_PATH
+	export PATH=$NAS_MPI_PATH:$PATH
 fi
 
 if [ "$NAS_MPI_LIBPATH" != "" ]; then
 	export LD_LIBRARY_PATH=$NAS_MPI_LIBPATH
 fi
 
+if [ "$NAS_MPICH_PATH" != "" ]; then
+	export PATH=$NAS_MPICH_PATH:$PATH
+fi
+if [ "$NAS_MPICH_LIBPATH" != "" ]; then
+	export LD_LIBRARY_PATH=$NAS_MPICH_LIBPATH
+fi
+
 ###SHELLPACK parseargBegin
 	--type)
 		NAS_TYPE=$2
-		MPIOPT="-mca btl ^openib,udapl"
 		if [ "$NAS_TYPE" = "OMP" ]; then
 			OPENMP=--openmp
 		fi
-		if [ "$NAS_TYPE" = "MPI" ]; then
+		if [ "$NAS_TYPE" = "MPI" -o "$NAS_TYPE" = "MPICH" ]; then
 			export OMPI_TMPDIR=$SHELLPACK_DATA
 			export TMPDIR=$SHELLPACK_DATA
-			OPENMPI=--openmpi
 			case $NAS_CLASS in
 			C)
 				if [ $MEMTOTAL_MBYTES -lt 6144 ]; then
@@ -60,6 +69,16 @@ fi
 				echo Machine has sufficient memory for testing.
 				;;
 			esac
+			if [ "$NAS_TYPE" = "MPI" ]; then
+				MPIOPT="-mca btl ^openib,udapl"
+				OPENMPI="--openmpi"
+			fi
+
+			if [ "$NAS_TYPE" = "MPI" ]; then
+				OPENMPI="--openmpi"
+			else
+				MPICH="--mpich"
+			fi
 		fi
 		shift 2
 		;;
@@ -91,7 +110,7 @@ case $NAS_TYPE in
 SER)
 	echo
 	;;
-MPI)
+MPI|MPICH)
 	REMOVE_LIST="dc ua"
 	if [ "$NAS_CLASS" = "D" ]; then
 		REMOVE_LIST="$REMOVE_LIST ft"
@@ -133,6 +152,17 @@ MPI)
 	log_cmd " OPENMPI=$OPENMPI"
 	log_cmd ""
 	;;
+MPICH)
+	log_cmd "MPICH Environment"
+	log_cmd " NAS_MPICH_VERSION=$NAS_MPICH_VERSION"
+	log_cmd " NAS_MPICH_PATH=$NAS_MPICH_PATH"
+	log_cmd " NAS_MPICH_LIBPATH=$NAS_MPICH_LIBPATH"
+	log_cmd " OMPI_TMPDIR=$OMPI_TMPDIR"
+	log_cmd " TMPDIR=$TMPDIR"
+	log_cmd " OPENMPI=$OPENMPI"
+	log_cmd ""
+	;;
+
 OMP)
 	log_cmd "OpenMP Environment"
 	log_cmd " OMP_NUM_THREADS=$OMP_NUM_THREADS"
@@ -167,22 +197,37 @@ function lookup_mpicpus
 		fi
 	done
 
+	# OLD POWER 2: cg ft is mg
+	# OLD SQUARE:  bt ep lu sp
+	# No limit:    none
+	#
+	# NEW POWER 2: cg ft is mg
+	# NEW SQUARE:  bt sp
+	# No limit:    ep lu
+
 	case $NAS_JOB in
 	cg|ft|is|mg)
+		# MPI requires a power of two e.g. 2, 4, 8, 16 etc
 		MPICPUS=$(round_down_power_2 $JOB_MAX_CPUS)
 		;;
-	*)
+	bt|sp)
+		# MPI requires a square e.g. 4, 9, 16, 25 etc
 		MPICPUS=$(round_down_nearest_square $JOB_MAX_CPUS)
+		;;
+	*)
+		# No restrictions on parallelisation
+		MPICPUS=$JOB_MAX_CPUS
 		;;
 	esac
 }
 
 # Generate suite.def
 SUBVERSION=$VERSION
-if [ ! -e $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$VERSION-$NAS_TYPE ]; then
+NPB_TYPE=`echo $NAS_TYPE | sed -e 's/MPICH/MPI/'`
+if [ ! -e $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$VERSION-$NPB_TYPE ]; then
 	SUBVERSION=`echo $VERSION | sed -e 's/\.[0-9]*$//'`
 fi
-pushd $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE > /dev/null || die "Failed to cd to nas-$VERSION-installed/NPB$SUBVERSION-$NAS_TYPE"
+pushd $SHELLPACK_SOURCES/nas-$VERSION-installed/NPB$SUBVERSION-$NPB_TYPE > /dev/null || die "Failed to cd to nas-$VERSION-installed/NPB$SUBVERSION-$NPB_TYPE"
 rm -rf bin
 mkdir -p bin
 echo -n > config/suite.def
@@ -196,7 +241,7 @@ export GCC_OPTIMISE=$NAS_OPTIMISE_FLAGS
 if [ "$GCC_OPTIMISE" = "" ]; then
 	export GCC_OPTIMISE=$DEFAULT_OPTIMISATION_LEVEL
 fi
-GENSPECSH="generate-nas.sh --bitness ${RUNBITS} $OPENMP $OPENMPI"
+GENSPECSH="generate-nas.sh --bitness ${RUNBITS} $OPENMP $OPENMPI $MPICH"
 $GENSPECSH > config/make.def
 cp config/make.def $LOGDIR_RESULTS || die "Failed to generate make.def"
 ulimit -n 4096
@@ -209,13 +254,12 @@ for JOB in $JOBLIST; do
 	case $NAS_TYPE in
 	SER|OMP)
 		BENCH_CMD="$NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.x"
-		log_cmd $BENCH_CMD
 		;;
-	MPI)
+	MPI|MPICH)
 		lookup_mpicpus $JOB
 		BENCH_CMD="$MPIRUN -np $MPICPUS $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS"
-		log_cmd $BENCH_CMD
 	esac
+	log_cmd $BENCH_CMD
 
 	###SHELLPACK iteration_begin $NAS_ITERATIONS
 		if [ "$RUNBITS" = "32" -a ! -x ./bin/$JOB.$NAS_CLASS ]; then
@@ -230,7 +274,7 @@ for JOB in $JOBLIST; do
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
 				$BENCH_CMD > $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
-		MPI)
+		MPI|MPICH)
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
 				$BENCH_CMD > $LOGDIR_RESULTS/$JOB.$NAS_CLASS.log.$ITERATION 2>&1
 			;;
