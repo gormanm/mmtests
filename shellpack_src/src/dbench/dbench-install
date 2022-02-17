@@ -1,8 +1,7 @@
 #!/bin/bash
 # dbench installer
-###SHELLPACK preamble dbench-install 65b19870
-GIT_LOCATION=git://git.samba.org/sahlberg/dbench.git
-WEB_LOCATION=http://samba.org/ftp/tridge/dbench/
+###SHELLPACK preamble dbench-install 781852c2b38a
+GIT_LOCATION=https://github.com/mcgrof/dbench.git
 MIRROR_LOCATION="$WEBROOT/dbench/"
 
 install-depends popt-devel zlib-devel
@@ -16,17 +15,8 @@ install-depends libtirpc-devel
 ###SHELLPACK git_fetch dbench-${VERSION}.tar.gz dbench-${VERSION}
 
 # Build
-###SHELLPACK self_extract 0001-Allow-reporting-of-workload-execution-times.patch
-patch -p1 <$SHELLPACK_TEMP/0001-Allow-reporting-of-workload-execution-times.patch
-
-###SHELLPACK self_extract 0002-Defer-reporting-of-execution-times.patch
-patch -p1 <$SHELLPACK_TEMP/0002-Defer-reporting-of-execution-times.patch
-
-###SHELLPACK self_extract 0003-Include-stdint_h.patch
-patch -p1 <$SHELLPACK_TEMP/0003-Include-stdint_h.patch
-
-###SHELLPACK self_extract 0004-Check-if-parent-is-alive-once-per-loadfile.patch
-patch -p1 <$SHELLPACK_TEMP/0004-Check-if-parent-is-alive-once-per-loadfile.patch
+###SHELLPACK self_extract 0001-autogen-prerequisite.patch
+patch -p1 <$SHELLPACK_TEMP/0001-autogen-prerequisite.patch
 
 ###SHELLPACK build_start dbench-${VERSION}
 ###SHELLPACK build_autogen dbench-${VERSION}
@@ -58,8 +48,4 @@ head -n 4173 $SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/client.txt | t
 echo dbench installed successfully
 exit $SHELLPACK_SUCCESS
 
-###SHELLPACK include_file 0001-Allow-reporting-of-workload-execution-times.patch
-###SHELLPACK include_file 0002-Defer-reporting-of-execution-times.patch
-###SHELLPACK include_file 0003-Include-stdint_h.patch
-###SHELLPACK include_file 0004-Check-if-parent-is-alive-once-per-loadfile.patch
-###SHELLPACK include_file 0005-Check-if-parent-is-alive-once-per-loadfile.patch
+###SHELLPACK include_file 0001-autogen-prerequisite.patch
