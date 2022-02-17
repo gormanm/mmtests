@@ -689,6 +689,31 @@ for SUBREPORT in $REPORTS; do
 		cache-mmtests.sh compare-mmtests.pl -d . -b sysbench -a exectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
+	tbench4)
+		echo $SUBREPORT Loadfile Execution Time
+		eval $COMPARE_CMD
+		echo
+		if [ "$FROM_JSON" = "yes" ]; then
+			SUBREPORT_NAMES=('Latency' 'Throughput (misleading but traditional)' 'Per-VFS Operation latency Latency')
+
+			min=$(( ${#SUBREPORTS_JSON[@]} < ${#SUBREPORT_NAMES[@]} ?	${#SUBREPORTS_JSON[@]} : ${#SUBREPORT_NAMES[@]} ))
+			for ((i=start; i<min; i++)) do
+				echo "$SUBREPORT ${SUBREPORT_NAMES[$i]}"
+				cache-mmtests.sh compare-mmtests.pl -d . -b tbench4 --from-json ${SUBREPORTS_JSON[$i]}
+				echo
+			done
+		else
+			echo $SUBREPORT Latency
+			cache-mmtests.sh compare-mmtests.pl -d . -b tbench4 -a latency -n $KERNEL_LIST $FORMAT_CMD
+			echo
+			echo "$SUBREPORT Throughput (misleading but traditional)"
+			cache-mmtests.sh compare-mmtests.pl -d . -b tbench4 -a tput -n $KERNEL_LIST $FORMAT_CMD
+			echo
+			echo $SUBREPORT Per-VFS Operation latency Latency
+			cache-mmtests.sh compare-mmtests.pl -d . -b tbench4 -a opslatency -n $KERNEL_LIST $FORMAT_CMD
+		fi
+		;;
+
 	trunc)
 		echo $SUBREPORT Truncate all files
 		eval $COMPARE_CMD

@@ -1,6 +1,6 @@
-package MMTests::ExtractTbench4;
-use MMTests::ExtractDbench4;
-our @ISA = qw(MMTests::ExtractDbench4);
+package MMTests::ExtractTbench4tput;
+use MMTests::ExtractDbench4tput;
+our @ISA = qw(MMTests::ExtractDbench4tput);
 
 sub initialise() {
 	my ($self, $subHeading) = @_;

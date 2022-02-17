@@ -60,6 +60,8 @@ none)
 	;;
 esac
 
+LOADDIR=$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share
+
 server_stop 0
 ###SHELLPACK threads_powertwo_begin $TBENCH_MIN_CLIENTS $TBENCH_MAX_CLIENTS
 	mmtests_activity $NR_THREADS
@@ -67,7 +69,9 @@ server_stop 0
 	server_start $NR_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	./bin/tbench \
-		-t $TBENCH_DURATION \
+		-t $TBENCH_DURATION			\
+		--loadfile $LOADDIR/client-tiny.txt	\
+		--show-execute-time			\
 		$NR_THREADS $SERVER_HOST &> $LOGDIR_RESULTS/tbench-$NR_THREADS.log &
 	TBENCH_PID=$!
 	echo $TBENCH_PID > /tmp/mmtests-tbench.pid

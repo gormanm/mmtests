@@ -5,24 +5,23 @@ use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
 use strict;
 
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractDbench4latency",
-		_DataType    => DataTypes::DATA_TIME_MSECONDS,
-	};
-	bless $self, $class;
-	return $self;
+sub initialise() {
+	my ($self, $subHeading) = @_;
+
+	$self->{_ModuleName}	= "ExtractDbench4latency";
+	$self->{_DataType}	= DataTypes::DATA_TIME_MSECONDS,
+	$self->{_LogPrefix}	= "dbench";
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @clients = $self->discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
+	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.gz");
 
 	foreach my $client (@clients) {
 		my $nr_samples = 0;
 
-		my $input = $self->SUPER::open_log("$reportDir/dbench-$client.log");
+		my $input = $self->SUPER::open_log("$reportDir/$self->{_LogPrefix}-$client.log");
 		while (<$input>) {
 			my $line = $_;
 			if ($line =~ /execute/) {

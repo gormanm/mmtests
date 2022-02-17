@@ -10,16 +10,17 @@ sub initialise() {
 	$self->{_DataType}   		= DataTypes::DATA_MBYTES_PER_SECOND;
 	$self->{_PlotType}   		= "client-errorlines";
 	$self->{_SubheadingPlotType}	= "simple-clients";
-        $self->SUPER::initialise($subHeading);
+	$self->{_LogPrefix}		= "dbench";
+	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @clients = $self->discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
+	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.gz");
 
 	foreach my $client (@clients) {
 
-		my $input = $self->SUPER::open_log("$reportDir/dbench-$client.log");
+		my $input = $self->SUPER::open_log("$reportDir/$self->{_LogPrefix}-$client.log");
 		while (<$input>) {
 			my $line = $_;
 			$line =~ s/^\s+//;
@@ -27,8 +28,6 @@ sub extractReport() {
 				my @elements = split(/\s+/, $line);
 
 				$self->addData("$client", $elements[5], $elements[2]);
-
-				next;
 			}
 		}
 		close($input);

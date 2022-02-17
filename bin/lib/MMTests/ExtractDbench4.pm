@@ -11,18 +11,20 @@ sub initialise() {
 	$self->{_DataType}   		= DataTypes::DATA_TIME_MSECONDS;
 	$self->{_PlotType}   		= "client-errorlines";
 	$self->{_SubheadingPlotType}	= "simple-clients";
-        $self->SUPER::initialise($subHeading);
+	$self->{_LogPrefix}		= "dbench";
+	$self->SUPER::initialise($subHeading);
 	$self->{_FieldFormat} = [ "%-${fieldLength}.3f", "%${fieldLength}d" ];
 }
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @clients;
 
-	@clients = $self->discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
+	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.gz");
 
 	foreach my $client (@clients) {
-		my $input = $self->SUPER::open_log("$reportDir/dbench-$client.log");
+		my $nr_samples = 0;
+
+		my $input = $self->SUPER::open_log("$reportDir/$self->{_LogPrefix}-$client.log");
 		while (<$input>) {
 			my $line = $_;
 			if ($line =~ /completed in/) {

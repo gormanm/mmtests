@@ -5,14 +5,13 @@ use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
 use strict;
 
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractDbench4opslatency",
-		_DataType    => DataTypes::DATA_TIME_MSECONDS,
-	};
-	bless $self, $class;
-	return $self;
+sub initialise() {
+	my ($self, $subHeading) = @_;
+
+	$self->{_ModuleName}	= "ExtractDbench4opslatency";
+	$self->{_DataType}	= DataTypes::DATA_TIME_MSECONDS;
+	$self->{_LogPrefix}	= "dbench";
+	$self->SUPER::initialise($subHeading);
 }
 
 sub initialise() {
@@ -31,15 +30,14 @@ sub extractReport() {
 			  "Qfileinfo"	=> 1, "Qfsinfo"	=> 1, "Flush"	=> 1,
 			  "Sfileinfo"	=> 1, "LockX"	=> 1, "UnlockX"	=> 1,
 			  "Find"	=> 1);
-	my @clients = $self->discover_scaling_parameters($reportDir, "dbench-", ".log.gz");
+	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.gz");
 
 	my $index = 1;
 	foreach my $header ("count", "avg", "max") {
 		$index++;
 		foreach my $client (@clients) {
-			my $file = "$reportDir/dbench-$client.log.gz";
 
-			my $input = $self->SUPER::open_log("$reportDir/dbench-$client.log");
+			my $input = $self->SUPER::open_log("$reportDir/$self->{_LogPrefix}-$client.log");
 			while (<$input>) {
 				my $line = $_;
 				if ($line =~ /Operation/) {
@@ -58,7 +56,6 @@ sub extractReport() {
 			close($input);
 		}
 	}
-
 }
 
 1;
