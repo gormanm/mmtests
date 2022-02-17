@@ -29,5 +29,5 @@ export MONITOR_UPDATE_FREQUENCY=10
 # will-it-scale
 export WIS_ITERATIONS=5
 export WIS_MIN_THREADS=2
-export WIS_MAX_THREADS=$((NUMCPUS*4))
+export WIS_MAX_THREADS=$((NUMCPUS*2))
 export WIS_MODELS="processes,threads"
