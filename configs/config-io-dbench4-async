@@ -42,7 +42,7 @@ export DBENCH_OSYNC=no
 export DBENCH_SYNC_DIRECTORY=no
 export DBENCH_FSYNC=no
 export DBENCH_MIN_CLIENTS=1
-export DBENCH_MAX_CLIENTS=$((NUMCPUS*8))
+export DBENCH_MAX_CLIENTS=$((NUMCPUS*4))
 
 # Force small filesystem size to limit variations of the test due to
 # differences in inode placement in the partition. Each client needs ~25 MB
