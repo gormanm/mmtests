@@ -6,7 +6,6 @@ SERVER_SIDE_SUPPORT=yes
 run_bench() {
 	$SHELLPACK_INCLUDE/shellpack-bench-tbench 	\
 		$SERVER_ADDRESS				\
-		-v 65b19870 				\
 		--min-clients $TBENCH_MIN_CLIENTS	\
 		--max-clients $TBENCH_MAX_CLIENTS
 	return $?
