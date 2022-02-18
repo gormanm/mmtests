@@ -1,0 +1,45 @@
+#!/bin/bash
+# This script installs and runs lmbench lat_proc
+# All parameters are passed by environment variables
+###SHELLPACK preamble lmbench-lat_proc-bench 3
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --min-procs		LMBENCH_LATPROC_MIN_THREADS
+###SHELLPACK parseargParam --max-procs		LMBENCH_LATPROC_MAX_THREADS
+###SHELLPACK parseargParam --iterations		LMBENCH_LATPROC_ITERATIONS
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_external_install_required lmbenchbuild lmbenchbuild-${VERSION} ${VERSION}
+###SHELLPACK init_complete
+
+cd $SHELLPACK_SOURCES/lmbenchbuild-${VERSION}-installed || die "Failed to cd to lmbench directory"
+LMBENCH_TEST=lat_proc
+
+# Disable calibrations
+export TIMING_O=0
+export LOOP_O=0
+export ENOUGH=250000
+
+# Required for lat_proc-shell
+rm -f /tmp/hello
+ln -s $PWD/bin/hello /tmp/hello
+
+# Run test
+###SHELLPACK threads_large_stride_begin $LMBENCH_LATPROC_MIN_THREADS $LMBENCH_LATPROC_MAX_THREADS
+	for PROC in fork exec shell; do
+		BENCH_CMD="$LMBENCH_TEST -W 5 -N 5 -P $NR_THREADS $PROC"
+		log_cmd $BENCH_CMD
+
+		monitor_pre_hook $LOGDIR_RESULTS $PROC-$NR_THREADS
+		mmtests_activity lat_proc-$PROC-$NR_THREADS
+		for ITERATION in `seq 1 $LMBENCH_LATPROC_ITERATIONS`; do
+			echo Running $PROC with $NR_THREADS threads iter $ITERATION/$LMBENCH_LATPROC_ITERATIONS
+			./bin/$BENCH_CMD &>> $LOGDIR_RESULTS/lmbench-lat_proc-${NR_THREADS}.log
+		done
+		monitor_post_hook $LOGDIR_RESULTS $PROC-$NR_THREADS
+	done
+###SHELLPACK threads_stride_end
+
+exit $SHELLPACK_SUCCESS
