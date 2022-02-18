@@ -33,7 +33,7 @@ export MMTESTS="dbench4"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat iotop turbostat mpstat"
+export MONITORS_GZIP="proc-vmstat turbostat mpstat iotop"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 

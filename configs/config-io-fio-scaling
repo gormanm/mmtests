@@ -21,7 +21,7 @@ export MMTESTS="fio"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat top iotop"
+export MONITORS_GZIP="proc-vmstat top"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10

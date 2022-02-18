@@ -16,7 +16,7 @@ export MMTESTS="thpfioscale"
 export MONITOR_FTRACE_EVENTS="kmem/mm_page_alloc_extfrag kmem/mm_fragmentation_stall compaction/mm_compaction_kcompactd_migrated compaction/mm_compaction_wakeup_kcompactd_queue compaction/mm_compaction_kcompactd_wake"
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat proc-buddyinfo proc-pagetypeinfo ftrace top"
+export MONITORS_GZIP="proc-vmstat proc-buddyinfo proc-pagetypeinfo ftrace top iotop"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
