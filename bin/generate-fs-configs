@@ -114,6 +114,8 @@ config-io-bonniepp-file-async
 config-io-bonniepp-dir-async
 config-io-bonniepp-file-fsync
 config-io-bonniepp-dir-fsync
+config-io-fio-scaling
+config-io-fio-ssd
 config-io-iozone
 config-io-iozone-small
 config-io-iozone-dio
