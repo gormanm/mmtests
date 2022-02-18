@@ -20,9 +20,9 @@ export MMTESTS="aim9"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat"
+export MONITORS_GZIP="proc-vmstat turbostat mpstat"
 export MONITORS_WITH_LATENCY="vmstat"
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_UPDATE_FREQUENCY=1
 
 # AIM9
 export AIM9_TESTTIME=15
