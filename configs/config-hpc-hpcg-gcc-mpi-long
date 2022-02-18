@@ -38,4 +38,3 @@ if [ "`whoami`" = "root" ]; then
 	HPCG_MPI_OPTS+=" --allow-run-as-root"
 fi
 export HPCG_MPI_OPTS
-

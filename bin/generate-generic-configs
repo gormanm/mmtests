@@ -24,6 +24,10 @@ done
 # Hackbench
 sed -e 's/HACKBENCH_MAX_GROUPS=.*/HACKBENCH_MAX_GROUPS=1/' config-scheduler-unbound > config-scheduler-unbound-small
 
+# hpcg
+sed -e 's/HPCG_DURATION=.*/' config-hpc-hpcg-gcc-mpi-long > config-hpc-hpcg-gcc-mpi-short
+sed -e 's/HPCG_DURATION=.*/' config-hpc-hpcg-gcc-omp-long > config-hpc-hpcg-gcc-omp-short
+
 # KVM start
 cp config-workload-kvmstart-memhog config-workload-kvmstart-deployonly
 sed -i -e 's/KVMSTART_MIN_MEMORY=.*/KVMSTART_MIN_MEMORY=\$((KVMSTART_MAX_MEMORY+1))/' config-workload-kvmstart-deployonly
