@@ -19,7 +19,7 @@ export MMTESTS="netperf-udp netperf-tcp"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat mpstat ftrace"
+export MONITORS_GZIP="proc-vmstat ftrace mpstat turbostat"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 export MONITOR_FTRACE_EVENTS="sched/sched_migrate_task"

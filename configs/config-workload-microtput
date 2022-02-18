@@ -16,7 +16,7 @@ export MMTESTS="microtput"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat mpstat proc-interrupts"
+export MONITORS_GZIP="proc-vmstat proc-interrupts mpstat turbostat"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=1
 
@@ -25,5 +25,5 @@ export MICROTPUT_MIN_THREADS=1
 export MICROTPUT_MAX_THREADS=$((NUMCPUS/2))
 export MICROTPUT_ITERATIONS=3
 export MICROTPUT_ARGS="NR_THREADS 15"
-export MICROTPUT_LOCATION="http://laplace.suse.de/mmtests-mirror/microtput/repro.c"
+export MICROTPUT_LOCATION=
 export MICROTPUT_BUILD=gcc

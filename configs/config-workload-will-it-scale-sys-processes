@@ -19,7 +19,7 @@ export MMTESTS="wis-futex wis-malloc wis-pf wis-getppid wis-sched wis-pthreadmut
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat mpstat"
+export MONITORS_GZIP="proc-vmstat mpstat turbostat"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
