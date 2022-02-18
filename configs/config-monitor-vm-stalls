@@ -16,7 +16,7 @@ export MMTESTS="monitor"
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat ftrace"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=2
 export MONITOR_FTRACE_EVENTS="
 	vmscan/mm_vmscan_direct_reclaim_begin

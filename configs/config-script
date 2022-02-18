@@ -16,7 +16,7 @@ export MMTESTS="script"
 export RUN_MONITOR=no
 export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat mpstat"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 export SCRIPT_LOCATION="$WEBROOT/script/run-all.sh"

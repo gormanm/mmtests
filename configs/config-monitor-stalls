@@ -16,6 +16,6 @@ export MMTESTS="monitor"
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat top proc-latency_stats ftrace"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=2
 export MONITOR_FTRACE_EVENTS="jbd2/jbd2_run_stats"

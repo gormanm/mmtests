@@ -23,7 +23,7 @@ export MONITOR_FTRACE_EVENTS="kmem/mm_page_alloc_extfrag kmem/mm_fragmentation_s
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat proc-buddyinfo proc-pagetypeinfo ftrace top"
-export MONITORS_WITH_LATENCY="vmstat"
+export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # thpfioscale

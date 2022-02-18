@@ -16,7 +16,7 @@ export MMTESTS="unixbenchd"
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat top"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # unixbenchd

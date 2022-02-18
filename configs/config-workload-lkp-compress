@@ -20,7 +20,7 @@ export MMTESTS="lkp-pigz lkp-pbzip2 lkp-pixz lkp-plzip"
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat top"
-export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # LKP compression tests
