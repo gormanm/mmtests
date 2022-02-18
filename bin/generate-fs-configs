@@ -135,7 +135,8 @@ config-workload-pedsort
 config-workload-pedsort-light
 config-workload-thpscale
 config-workload-thpscale-madvhugepage
-config-workload-will-it-scale-io
+config-workload-will-it-scale-io-threads
+config-workload-will-it-scale-io-processes
 config-io-iozone-doublemem-async
 config-io-iozone-doublemem-fsync
 config-db-sqlite-insert-small
