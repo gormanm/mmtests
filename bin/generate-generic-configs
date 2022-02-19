@@ -146,6 +146,11 @@ for CONFIG in `ls config-hpc-openfoam-*`; do
 	echo 'export OPENFOAM_STOPAT_MESH="yes"' >> $CONFIG-meshonly
 done
 
+# Parsec
+sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUMCPUS\/2))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-half
+sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUMCPUS\/3))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-third
+sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUMCPUS\/4))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-quarter
+
 # PGBench
 # o Generate size configs
 for SIZE in small medium large; do
