@@ -161,6 +161,9 @@ for MODEL in global small; do
 	sed -i -e '/SPECFEM3D_MPI_LIBPATH/d' config-hpc-specfem3d-$MODEL-s362ani-mpi-hpcext-full
 done
 
+# sqlite
+sed -e 's/SQLITE_TOTALSIZE=/SQLITE_TOTALSIZE=$((1048576*2))'/ config-db-sqlite-insert-small > config-db-sqlite-insert-medium
+
 # Stream
 sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$((NUMCPUS*4))/' config-workload-stream-omp-nodes > config-workload-stream-omp-overload
 sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$NUMCORES/'	    config-workload-stream-omp-nodes > config-workload-stream-omp-cores
