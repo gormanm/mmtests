@@ -26,4 +26,5 @@ export MONITOR_UPDATE_FREQUENCY=10
 # NetPerf
 export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
 export NETPERF_ITERATIONS=5
-export NETPERF_NR_PAIRS=4
+export CPUIDLE_CSTATE=C1
+echo WARNING: This netperf config is now an obsolete symbolic link. Check for equivalent config after running bin/autogen-configs

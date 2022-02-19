@@ -6,6 +6,8 @@
 ### netperf-tcp is a TCP_STREAM netperf run on a loopback device. The
 ### client and server are bound to CPUs similar to the netperf-udp
 ### benchmark.
+. $SHELLPACK_INCLUDE/include-sizes.sh
+get_numa_details
 
 # MM Test Parameters
 export MMTESTS="netperf-udp netperf-tcp"
@@ -30,6 +32,12 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # NetPerf
 export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
-export NETPERF_BINDING=cross-ht
+export NETPERF_BINDING=cross-node
 export NETPERF_ITERATIONS=5
+
+if [ $NUMNODES -eq 1 ]; then
+	echo Skipping NUMA test configuration on single node machine
+	exit $SHELLPACK_SUCCESS
+fi
 export CPUIDLE_CSTATE=C1
+echo WARNING: This netperf config is now an obsolete symbolic link. Check for equivalent config after running bin/autogen-configs

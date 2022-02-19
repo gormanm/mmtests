@@ -144,9 +144,27 @@ for CONFIG in `ls config-hpc-nas-omp-* config-hpc-nas-mpi-*`; do
 	done
 done
 
-# Netperf
-sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-cstate  > config-network-netperf-cstate-small
-sed -e 's/NETPERF_BUFFER_SIZES=.*/NETPERF_BUFFER_SIZES=64/' config-network-netperf-unbound > config-network-netperf-unbound-small
+# Netperf binding configs
+for TYPE in rr stream unix; do
+	for BINDING in cross-ht cross-node cross-socket; do
+		cp config-network-netperf-$TYPE-unbound config-network-netperf-$TYPE-$BINDING
+		echo "export NETPERF_BINDING=$BINDING" >> config-network-netperf-$TYPE-$BINDING
+	done
+done
+
+# Netperf c-state limiting
+for TYPE in rr stream unix; do
+	for BINDING in unbound cross-ht cross-node cross-socket; do
+		cp config-network-netperf-$TYPE-$BINDING config-network-netperf-$TYPE-$BINDING-cstate
+		echo "export CPUIDLE_CSTATE=C1" >> config-network-netperf-$TYPE-$BINDING-cstate
+	done
+done
+
+# Netperf 4 clients
+for CONFIG in `find -type f -name "config-network-netperf-*" | sort | grep -v 4clients`; do
+	cp $CONFIG $CONFIG-4clients
+	echo "export NETPERF_NR_PAIRS=4" >> $CONFIG-4clients
+done
 
 # Openfoam
 for MODEL in motorbike-default motorbike-subdomains; do
