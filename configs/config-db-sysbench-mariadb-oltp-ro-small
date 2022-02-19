@@ -1,11 +1,13 @@
 ### SysBench is a suite of benchmarks that includes a simple OLTP benchmark.
 ### In this configuration it is running executing read-only "complex"
 ### transaction types as defined by the suite itself. The transaction types
-### are described in the sysbench manual. The underlying database used is
-### mariadb 10.4.11 and is scaled to be 80% of the database shared buffer
-### size which in itself is 25% of memory. The page cache is not flushed
-### after the database is populated so the test starts cache-hot.
-
+### are described in the sysbench manual. The underlying database has an
+### effective cache size of how much memory is available for disk caching
+### is 75% with a shared buffer cache of 20%.
+###
+### The target workload is read-only and 60% of the shared buffer size so it
+### should fit completely in memory. The page cache is not flushed after the
+### database is populated for the test and starts cache-hot.
 # MM Test Parameters
 export MMTESTS="sysbench"
 
@@ -29,17 +31,17 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # sysbench
-export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES/2))
-export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/4))
+export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*3/4))
+export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/5))
 export OLTP_PAGESIZES="default"
 export SYSBENCH_DRIVER=mariadb
 export SYSBENCH_MAX_TRANSACTIONS=auto
 export SYSBENCH_READONLY=yes
-export SYSBENCH_MAX_THREADS=$((NUMCPUS*2))
+export SYSBENCH_MAX_THREADS=$((NUMCPUS))
 export SYSBENCH_ITERATIONS=3
 export SYSBENCH_WORKLOAD_SIZE=$((OLTP_SHAREDBUFFERS*4/5))
 export SYSBENCH_CACHE_COLD=no
 export DATABASE_INIT_ONCE=yes
-if [ $SYSBENCH_MAX_THREADS -gt 128 ]; then
-	SYSBENCH_MAX_THREADS=128
+if [ $SYSBENCH_MAX_THREADS -gt 64 ]; then
+	SYSBENCH_MAX_THREADS=64
 fi

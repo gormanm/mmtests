@@ -154,19 +154,19 @@ for SIZE in small medium large; do
 	grep -v "###" config-db-pgbench-timed-ro-scale1  >> config-db-pgbench-timed-ro-$SIZE
 	case $SIZE in
 	small)
-			sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((OLTP_SHAREDBUFFERS*3\/5))/' \
-			       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
-				config-db-pgbench-timed-ro-$SIZE
+		sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((OLTP_SHAREDBUFFERS*3\/5))/' \
+		       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
+			config-db-pgbench-timed-ro-$SIZE
 		;;
 	medium)
-			sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((MEMTOTAL_BYTES*3\/5))/' \
-			       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
-				config-db-pgbench-timed-ro-$SIZE
+		sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((MEMTOTAL_BYTES*3\/5))/' \
+		       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
+			config-db-pgbench-timed-ro-$SIZE
 		;;
 	large)
-			sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((MEMTOTAL_BYTES*6\/5))/' \
-			       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
-				config-db-pgbench-timed-ro-$SIZE
+		sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((MEMTOTAL_BYTES*6\/5))/' \
+		       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
+			config-db-pgbench-timed-ro-$SIZE
 		;;
 	*)
 		echo Unknown size $SIZE for pgbench
@@ -225,6 +225,40 @@ sed -e 's/SYSBENCHCPU_MAX_THREADS=.*/SYSBENCHCPU_MAX_THREADS=2/' config-schedule
 sed -e 's/SYSBENCHCPU_MAX_THREADS=.*/SYSBENCHCPU_MAX_THREADS=2/' config-scheduler-sysbench-cpu > config-scheduler-sysbench-cpu-small
 sed -e 's/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=.*/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=2/' config-scheduler-sysbench-thread > config-scheduler-sysbench-thread-small
 sed -e 's/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=.*/SYSBENCHTHREAD_MAX_THREADS_MAX_THREADS=2/' config-scheduler-sysbench-thread > config-scheduler-sysbench-thread-small
+
+# Sysbench database
+# o Generate size configs
+for SIZE in medium; do
+	head -7 config-db-sysbench-mariadb-oltp-ro-small > config-db-sysbench-mariadb-oltp-ro-medium
+	cat config-docs/config-db-sysbench-mariadb-oltp-ro-medium >> config-db-sysbench-mariadb-oltp-ro-medium
+	case $SIZE in
+	medium)
+		grep -v "###" config-db-sysbench-mariadb-oltp-ro-small    >> config-db-sysbench-mariadb-oltp-ro-medium
+		sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((MEMTOTAL_BYTES*3\/5))/' \
+			config-db-sysbench-mariadb-oltp-ro-medium
+		;;
+	*)
+		echo Unknown size $SIZE for sysbench
+		;;
+	esac
+done
+
+# o Generate rw configurations
+for SIZE in small medium; do
+	sed -e 's/SYSBENCH_READONLY=.*/SYSBENCH_READONLY=no/' \
+	    -e 's/read-only/read-write/' \
+		config-db-sysbench-mariadb-oltp-ro-$SIZE > config-db-sysbench-mariadb-oltp-rw-$SIZE
+done
+
+# o Generate postgres configs
+for TYPE in ro rw; do
+	for SIZE in small medium; do
+		sed -e 's/SYSBENCH_DRIVER=.*/SYSBENCH_DRIVER=postgres/' config-db-sysbench-mariadb-oltp-$TYPE-$SIZE \
+			> config-db-sysbench-postgres-oltp-$TYPE-$SIZE
+	done
+done
+
+
 
 # Trinity
 for GROUP in vfs vm; do
