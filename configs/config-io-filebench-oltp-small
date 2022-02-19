@@ -5,8 +5,8 @@
 ### personalities.
 ###
 ### This configuration uses the filebench OLTP personality for a working
-### set that is 2*RAM and uses buffered IO. The IO model should be similar to
-### the Oracle 9i IO model and launches multiple reader, writer and logging
+### set that is 20% memory and uses buffered IO. The IO model should be similar
+### to the Oracle 9i IO model and launches multiple reader, writer and logging
 ### processes. More can be read about the stock personalities at
 ### http://filebench.sourceforge.net/wiki/index.php/Pre-defined_personalities.
 
@@ -36,4 +36,5 @@ export FILEBENCH_PERSONALITY=oltp
 export FILEBENCH_ITERATIONS=3
 export FILEBENCH_WORKING_SET=$((MEMTOTAL_BYTES/5))
 export FILEBENCH_MIN_THREADS=1
-export FILEBENCH_MAX_THREADS=1
+export FILEBENCH_MAX_THREADS=4
+export FILEBENCH_DIRECT_IO=no

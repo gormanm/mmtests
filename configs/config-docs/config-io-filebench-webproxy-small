@@ -1,0 +1,5 @@
+### This configuration uses the webproxy personality for a working set that
+### is 20% of RAM. This workload should be similar to a web proxy with lots of
+### create-write-close, open-read-close and delete operations. It runs for a
+### range of clients. More can be read about the stock personalities at
+### http://filebench.sourceforge.net/wiki/index.php/Pre-defined_personalities.

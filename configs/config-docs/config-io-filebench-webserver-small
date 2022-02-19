@@ -1,0 +1,5 @@
+### This configuration uses the webserver personality for a working set that
+### is 20% of RAM. This workload is based on sequences of open-read-close in
+### combination with some log writes. It runs for a range of clients.
+### More can be read about the stock personalities at
+### http://filebench.sourceforge.net/wiki/index.php/Pre-defined_personalities.

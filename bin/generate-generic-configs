@@ -26,6 +26,38 @@ cat config-workload-coremark | sed -e 's/COREMARK_THREADS=.*/COREMARK_THREADS=$N
 # dbench
 cat config-io-dbench4-async | sed -e 's/async/fsync/' -e 's/DBENCH_FSYNC=.*/DBENCH_FSYNC=yes/' > config-io-dbench4-fsync
 
+# FRONTISTR
+sed 	-e 's/FRONTISTR_DOMAINS=.*/FRONTISTR_DOMAINS=$NUMCPUS/'		\
+	-e 's/FRONTISTR_OMP_THREADS=.*/FRONTISTR_OMP_THREADS=1/'	\
+	config-hpc-frontistr-hinge-full > config-hpc-frontistr-hinge-allproc-full
+sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-frontistr-hinge-full > config-hpc-frontistr-hinge-hpcext-full
+sed -i -e '/_MPI_PATH/d'    config-hpc-frontistr-hinge-hpcext-full
+sed -i -e '/_MPI_LIBPATH/d' config-hpc-frontistr-hinge-hpcext-full
+sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-frontistr-hinge-allproc-full > config-hpc-frontistr-hinge-allproc-hpcext-full
+sed -i -e '/_MPI_PATH/d'    config-hpc-frontistr-hinge-allproc-hpcext-full
+sed -i -e '/_MPI_LIBPATH/d' config-hpc-frontistr-hinge-allproc-hpcext-full
+
+# filebench
+for TYPE in varmail webproxy webserver; do
+	head -6 config-io-filebench-oltp-small > config-io-filebench-$TYPE-small
+	cat config-docs/config-io-filebench-$TYPE-small >> config-io-filebench-$TYPE-small
+	grep -v "###" config-io-filebench-oltp-small  >> config-io-filebench-$TYPE-small
+	sed -i -e "s/FILEBENCH_PERSONALITY=.*/FILEBENCH_PERSONALITY=$TYPE/" config-io-filebench-$TYPE-small
+done
+
+# o Sizes
+for TYPE in oltp varmail webproxy webserver; do
+	sed -e 's/20%/75%/' \
+	    -e 's/FILEBENCH_WORKING_SET=.*/FILEBENCH_WORKING_SET=$((MEMTOTAL_BYTES*3\/4))/' \
+		config-io-filebench-$TYPE-small > config-io-filebench-$TYPE-medium
+done
+# o OLTP directio
+for SIZE in small medium; do
+	sed -e 's/buffered/direct/' \
+	    -e 's/FILEBENCH_DIRECT_IO=.*/FILEBENCH_DIRECT_IO=yes/' \
+		config-io-filebench-oltp-$SIZE > config-io-filebench-oltp-directio-$SIZE
+done
+
 # Graph 500
 for SIZE in kinder toy; do
 	sed -e "s/WORKSET=.*/WORKSET=$SIZE/" config-hpc-graph500-omp-infant > config-hpc-graph500-omp-$SIZE
@@ -69,17 +101,6 @@ export KVMSTART_PRETEST_PREPARE_ARGS="--fio-threads 4 --fio-version 2.99 --fio-s
 export KVMSTART_PRETEST_RUN_ARGS=\$KVMSTART_PRETEST_PREPARE_ARGS
 export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
-
-# FRONTISTR
-sed 	-e 's/FRONTISTR_DOMAINS=.*/FRONTISTR_DOMAINS=$NUMCPUS/'		\
-	-e 's/FRONTISTR_OMP_THREADS=.*/FRONTISTR_OMP_THREADS=1/'	\
-	config-hpc-frontistr-hinge-full > config-hpc-frontistr-hinge-allproc-full
-sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-frontistr-hinge-full > config-hpc-frontistr-hinge-hpcext-full
-sed -i -e '/_MPI_PATH/d'    config-hpc-frontistr-hinge-hpcext-full
-sed -i -e '/_MPI_LIBPATH/d' config-hpc-frontistr-hinge-hpcext-full
-sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-frontistr-hinge-allproc-full > config-hpc-frontistr-hinge-allproc-hpcext-full
-sed -i -e '/_MPI_PATH/d'    config-hpc-frontistr-hinge-allproc-hpcext-full
-sed -i -e '/_MPI_LIBPATH/d' config-hpc-frontistr-hinge-allproc-hpcext-full
 
 # John the Ripper
 sed 	-e 's/JOHNRIPPER_MIN_THREADS=.*/JOHNRIPPER_MIN_THREADS=$((NUMCPUS\/2))/'	\

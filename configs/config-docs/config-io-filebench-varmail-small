@@ -1,0 +1,6 @@
+### This configuration uses the varmail personality for a working set that
+### is 20% of RAM. This workload should be similar to a simple mail server
+### that stores one mail in one file. The IO pattern is small create-append-sync,
+### read-append-sync and read/delete operations in a single directory. It runs
+### for a range of clients. More can be read about the stock personalities at
+### http://filebench.sourceforge.net/wiki/index.php/Pre-defined_personalities.
