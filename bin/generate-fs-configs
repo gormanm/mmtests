@@ -40,10 +40,6 @@ config-io-fio-randread-async-randwrite
 config-io-fio-randread-async-seqwrite
 config-io-fio-randread-sync-heavywrite
 config-io-fio-randread-sync-randwrite
-config-io-bonnie-file-async
-config-io-bonnie-dir-async
-config-io-bonnie-file-fsync
-config-io-bonnie-dir-fsync
 "
 
 FSCONFIGS="
@@ -106,10 +102,6 @@ config-reaim-io-new_fserver-large
 config-reaim-io-shared
 config-reaim-highsys
 config-reaim-stress
-config-io-bonnie-file-async
-config-io-bonnie-dir-async
-config-io-bonnie-file-fsync
-config-io-bonnie-dir-fsync
 config-io-bonniepp-file-async
 config-io-bonniepp-dir-async
 config-io-bonniepp-file-fsync
