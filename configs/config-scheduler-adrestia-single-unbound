@@ -1,6 +1,5 @@
 export MMTESTS="adrestia-wakeup-single"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

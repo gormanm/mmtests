@@ -1,6 +1,5 @@
 export MMTESTS="thpfioscale"
 
-
 echo always > /sys/kernel/mm/transparent_hugepage/defrag
 if [ $? -ne 0 ]; then
 	die "Failed to set defrag option for THP to always"

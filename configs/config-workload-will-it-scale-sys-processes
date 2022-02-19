@@ -4,7 +4,6 @@
 
 export MMTESTS="wis-futex wis-malloc wis-pf wis-getppid wis-sched wis-pthreadmutex wis-signal wis-pipe wis-eventfd wis-posixsems"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

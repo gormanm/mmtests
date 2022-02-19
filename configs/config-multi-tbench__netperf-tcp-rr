@@ -3,7 +3,6 @@
 export MMTESTS="multi"
 export MULTI_TESTS="netperf-tcp-rr tbench4"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

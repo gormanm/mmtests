@@ -3,7 +3,6 @@ export MMTESTS="stream"
 . $SHELLPACK_INCLUDE/include-sizes.sh
 get_numa_details
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

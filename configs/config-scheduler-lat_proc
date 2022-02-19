@@ -1,6 +1,5 @@
 export MMTESTS="lmbench-lat_proc"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

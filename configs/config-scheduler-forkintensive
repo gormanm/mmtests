@@ -5,7 +5,6 @@
 
 export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

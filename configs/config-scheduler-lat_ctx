@@ -61,7 +61,6 @@
 
 export MMTESTS="lmbench-lat_ctx"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

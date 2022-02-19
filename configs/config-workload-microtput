@@ -1,6 +1,4 @@
-
 export MMTESTS="microtput"
-
 
 # List of monitors
 export RUN_MONITOR=yes

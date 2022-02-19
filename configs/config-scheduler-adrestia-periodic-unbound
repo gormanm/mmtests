@@ -14,7 +14,6 @@
 
 export MMTESTS="adrestia-wakeup-periodic"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

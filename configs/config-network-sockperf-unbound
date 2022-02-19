@@ -3,7 +3,6 @@
 
 export MMTESTS="sockperf-tcp-throughput sockperf-tcp-under-load sockperf-udp-throughput sockperf-udp-under-load"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

@@ -5,7 +5,6 @@
 
 export MMTESTS="sysbenchthread"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

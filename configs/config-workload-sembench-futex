@@ -1,6 +1,5 @@
 export MMTESTS="sembench-futex"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

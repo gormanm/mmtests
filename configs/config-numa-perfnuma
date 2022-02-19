@@ -5,7 +5,6 @@ get_numa_details
 
 export MMTESTS="perfnuma"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

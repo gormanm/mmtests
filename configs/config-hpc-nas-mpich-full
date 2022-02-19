@@ -3,7 +3,6 @@
 ### supercomputers. They are all computational kernels. In this configuration,
 ### the workload is parallelised on a single machine using MPI.
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

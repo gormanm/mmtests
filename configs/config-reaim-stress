@@ -15,7 +15,6 @@ export MMTESTS="reaim"
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
 #export TESTDISK_MOUNT_ARGS=""
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

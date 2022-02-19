@@ -11,7 +11,6 @@ get_numa_details
 
 export MMTESTS="netperf-udp netperf-tcp"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

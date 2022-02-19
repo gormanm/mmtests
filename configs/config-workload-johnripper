@@ -6,7 +6,6 @@
 
 export MMTESTS="johnripper-AFS johnripper-bcrypt johnripper-bfegg johnripper-bsdicrypt johnripper-crypt johnripper-descrypt johnripper-dummy johnripper-LM johnripper-md5crypt johnripper-tripcode"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

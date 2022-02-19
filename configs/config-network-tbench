@@ -2,7 +2,6 @@
 
 export MMTESTS="tbench4"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

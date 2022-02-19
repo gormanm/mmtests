@@ -1,6 +1,5 @@
 export MMTESTS="thpfioscale"
 
-
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
 #export TESTDISK_RAID_MD_DEVICE=/dev/md0

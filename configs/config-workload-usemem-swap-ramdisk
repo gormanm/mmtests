@@ -2,7 +2,6 @@ export MMTESTS="usemem"
 
 # Machine configuration
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

@@ -3,7 +3,6 @@
 
 export MMTESTS="ipcscale-sysvsempp"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

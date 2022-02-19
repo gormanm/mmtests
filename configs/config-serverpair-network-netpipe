@@ -13,7 +13,6 @@ export MMTESTS="netpipe"
 export REMOTE_SERVER_USER=root
 export REMOTE_SERVER_HOST=unknownhost
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

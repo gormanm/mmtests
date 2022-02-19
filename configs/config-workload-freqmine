@@ -5,7 +5,6 @@
 
 export MMTESTS="freqmine-small freqmine-medium freqmine-large"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

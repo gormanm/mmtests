@@ -1,6 +1,5 @@
 export MMTESTS="netperf-udp-rr netperf-tcp-rr"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=

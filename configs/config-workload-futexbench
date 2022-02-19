@@ -1,6 +1,5 @@
 export MMTESTS="futexbench-hash futexbench-requeue futexbench-requeue-pi futexbench-wake futexbench-wake-parallel futexbench-lock-pi"
 
-
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
