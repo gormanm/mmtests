@@ -28,8 +28,8 @@ sed -e 's/HACKBENCH_MAX_GROUPS=.*/HACKBENCH_MAX_GROUPS=1/' config-scheduler-unbo
 sed -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((512*1048576))'/ config-hpc-hpcc-large > config-hpc-hpcc-small
 
 # hpcg
-sed -e 's/HPCG_DURATION=.*/' config-hpc-hpcg-gcc-mpi-long > config-hpc-hpcg-gcc-mpi-short
-sed -e 's/HPCG_DURATION=.*/' config-hpc-hpcg-gcc-omp-long > config-hpc-hpcg-gcc-omp-short
+sed -e 's/HPCG_DURATION=.*/HPCG_DURATION=60/' config-hpc-hpcg-gcc-mpi-long > config-hpc-hpcg-gcc-mpi-short
+sed -e 's/HPCG_DURATION=.*/HPCG_DURATION=60/' config-hpc-hpcg-gcc-omp-long > config-hpc-hpcg-gcc-omp-short
 
 # KVM start
 cp config-workload-kvmstart-memhog config-workload-kvmstart-deployonly
@@ -146,8 +146,53 @@ for CONFIG in `ls config-hpc-openfoam-*`; do
 	echo 'export OPENFOAM_STOPAT_MESH="yes"' >> $CONFIG-meshonly
 done
 
+# PGBench
+# o Generate size configs
+for SIZE in small medium large; do
+	head -3 config-db-pgbench-timed-ro-scale1 > config-db-pgbench-timed-ro-$SIZE
+	cat config-docs/config-db-pgbench-timed-ro-$SIZE >> config-db-pgbench-timed-ro-$SIZE
+	grep -v "###" config-db-pgbench-timed-ro-scale1  >> config-db-pgbench-timed-ro-$SIZE
+	case $SIZE in
+	small)
+			sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((OLTP_SHAREDBUFFERS*3\/5))/' \
+			       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
+				config-db-pgbench-timed-ro-$SIZE
+		;;
+	medium)
+			sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((MEMTOTAL_BYTES*3\/5))/' \
+			       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
+				config-db-pgbench-timed-ro-$SIZE
+		;;
+	large)
+			sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((MEMTOTAL_BYTES*6\/5))/' \
+			       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
+				config-db-pgbench-timed-ro-$SIZE
+		;;
+	*)
+		echo Unknown size $SIZE for pgbench
+		;;
+	esac
+done
+
+# o Generate rw configurations
+for SIZE in scale1 small medium large; do
+	sed -e 's/PGBENCH_READONLY=.*/PGBENCH_READONLY=no/' \
+	    -e 's/read-only/read-write/' \
+	    config-db-pgbench-timed-ro-$SIZE > config-db-pgbench-timed-rw-$SIZE
+done
+
+# o Generate tuned configurations
+for TYPE in ro rw; do
+	for SIZE in scale1 small medium large; do
+		cp config-db-pgbench-timed-$TYPE-$SIZE config-db-pgbench-timed-$TYPE-$SIZE-tuned
+		echo >> config-db-pgbench-timed-$TYPE-$SIZE-tuned
+		echo "echo Setting cpufreq to performance"        >> config-db-pgbench-timed-$TYPE-$SIZE-tuned
+		echo "cpupower frequency-set -g performance" >> config-db-pgbench-timed-$TYPE-$SIZE-tuned
+	done
+done
+
 # SALMON
-for MODEL in mpi omp omp-bind hybrid; do
+for MODEL in omp; do
 	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-salmon-classicem-$MODEL-full > config-hpc-salmon-classicem-$MODEL-hpcext-full
 	sed -i -e '/SALMON_MPI_PATH/d'    config-hpc-salmon-classicem-$MODEL-hpcext-full
 	sed -i -e '/SALMON_MPI_LIBPATH/d' config-hpc-salmon-classicem-$MODEL-hpcext-full

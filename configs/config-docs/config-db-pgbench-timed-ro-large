@@ -1,0 +1,6 @@
+### In this configuration, the effective cache size of how much memory is
+### available for disk caching is 75% with a shared buffer cache of 20%.
+### The target workload is read-only and 120% of total memory so page
+### reclaim activity may occur depending on the randomness of the benchmark.
+### The page cache is not flushed after the database is populated for the
+### test and starts cache-hot.

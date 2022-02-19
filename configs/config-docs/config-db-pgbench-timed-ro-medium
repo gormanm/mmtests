@@ -1,0 +1,8 @@
+### In this configuration, the effective cache size of how much memory is
+### available for disk caching is 75% with a shared buffer cache of 20%.
+### The target workload is read-only and 60% of total memory so it should
+### still fit completely within memory but there will be some shuffling
+### between the shared buffer cache and the OS cache. There may be some
+### reclaim due to NUMA artifactors or other factors related to problems
+### with the sizing. The page cache is not flushed after the database
+### is populated for the test and starts cache-hot.

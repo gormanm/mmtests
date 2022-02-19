@@ -1,9 +1,11 @@
 ### pgbench is a workload generator that is packaged with postgres. It
-### is relatively basic and modelled on TPC-B. In this configuration,
-### the workload is read-only with the pgbench default scale factor of
-### 1. This will result in a small database suitable for evaluating
-### scheduler decisions. The page cache is not flushed after the database
-### is populated for the test and starts cache-hot.
+### is relatively basic and modelled on TPC-B.
+###
+### In this configuration, the workload is read-only with the pgbench
+### default scale factor of 1. This will result in a small database
+### suitable for evaluating scheduler decisions. The page cache is not
+### flushed after the database is populated for the test and starts
+### cache-hot.
 
 # MM Test Parameters
 export MMTESTS="pgbench"
@@ -28,7 +30,7 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # pgbench
-export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES/2))
+export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*3/4))
 export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/5))
 export OLTP_PAGESIZES="default"
 export PGBENCH_MAX_TIME=300
@@ -36,8 +38,10 @@ export PGBENCH_READONLY=yes
 export PGBENCH_MAX_THREADS=$((NUMCPUS*2))
 export PGBENCH_CACHE_COLD=no
 
-# The baseline database size is approximately 30MB.
-export TARGET_WORKLOAD_SIZE=$((OLTP_SHAREDBUFFERS*4/5))
+# The baseline database size is based on the scale factor.
+# Each unit of scaling factor adds approximately 15M of
+# data to the table. Tune accordingly.
+export TARGET_WORKLOAD_SIZE=
 export PGBENCH_SCALE_FACTOR=1
 export DATABASE_INIT_ONCE=yes
 export MMTESTS_THREAD_CUTOFF=
