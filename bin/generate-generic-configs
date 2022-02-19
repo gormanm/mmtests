@@ -5,6 +5,13 @@ export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 cd $SCRIPTDIR/../configs || exit
 
+# ABINIT
+for TYPE in full; do
+	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-abinit-tmbt-$TYPE > config-hpc-abinit-tmbt-hpcext-$TYPE
+	sed -i -e '/ABINIT_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-$TYPE
+	sed -i -e '/ABINIT_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-$TYPE
+done
+
 # bonnie
 for FILE in `ls config-io-bonnie*-async`; do
 	FSYNC_FILE=`echo $FILE | sed -e 's/-async$/-fsync/'`
@@ -15,6 +22,9 @@ done
 
 # coremark
 cat config-workload-coremark | sed -e 's/COREMARK_THREADS=.*/COREMARK_THREADS=$NUMLLCS/' > config-workload-coremark-llcs
+
+# dbench
+cat config-io-dbench4-async | sed -e 's/async/fsync/' -e 's/DBENCH_FSYNC=.*/DBENCH_FSYNC=yes/' > config-io-dbench4-fsync
 
 # Graph 500
 for SIZE in kinder toy; do
@@ -59,13 +69,6 @@ export KVMSTART_PRETEST_PREPARE_ARGS="--fio-threads 4 --fio-version 2.99 --fio-s
 export KVMSTART_PRETEST_RUN_ARGS=\$KVMSTART_PRETEST_PREPARE_ARGS
 export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
-
-# ABINIT
-for TYPE in full; do
-	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-abinit-tmbt-$TYPE > config-hpc-abinit-tmbt-hpcext-$TYPE
-	sed -i -e '/ABINIT_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-$TYPE
-	sed -i -e '/ABINIT_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-$TYPE
-done
 
 # FRONTISTR
 sed 	-e 's/FRONTISTR_DOMAINS=.*/FRONTISTR_DOMAINS=$NUMCPUS/'		\
