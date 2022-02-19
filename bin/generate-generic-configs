@@ -133,7 +133,7 @@ for CONFIG in `ls config-hpc-nas-omp-* config-hpc-nas-mpi-*`; do
 	echo "export NAS_BIND=yes" >> $BCONFIG
 done
 
-# Class configs
+# NAS Class configs
 for CONFIG in `ls config-hpc-nas-omp-* config-hpc-nas-mpi-*`; do
 	for CLASS in c d; do
 		CLASS_CONFIG=`echo $CONFIG | sed -e "s/hpc-nas/hpc-nas-$CLASS-class/"`
@@ -225,6 +225,17 @@ for MODEL in omp; do
 	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-salmon-classicem-$MODEL-full > config-hpc-salmon-classicem-$MODEL-hpcext-full
 	sed -i -e '/SALMON_MPI_PATH/d'    config-hpc-salmon-classicem-$MODEL-hpcext-full
 	sed -i -e '/SALMON_MPI_LIBPATH/d' config-hpc-salmon-classicem-$MODEL-hpcext-full
+done
+
+# Sockperf
+for BINDING in cross-ht cross-socket; do
+	cp config-network-sockperf-unbound config-network-sockperf-$BINDING
+	echo "export SOCKPERF_BINDING=$BINDING" >> config-network-sockperf-$BINDING
+done
+
+for BINDING in unbound cross-ht cross-socket; do
+	cp config-network-sockperf-$BINDING config-network-sockperf-$BINDING-cstate
+	echo "export CPUIDLE_CSTATE=C1" >> config-network-sockperf-$BINDING-cstate
 done
 
 # SPECFEM3D
