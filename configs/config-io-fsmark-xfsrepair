@@ -2,7 +2,6 @@
 ### This is configured to run the same as the fsmark load used for benchmarking
 ### xfsrepair.
 
-# MM Test Parameters
 export MMTESTS="fsmark"
 
 # Test disk to setup (optional)

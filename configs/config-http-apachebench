@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="apachebench"
 
 # Test disk to setup (optional)

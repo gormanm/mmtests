@@ -3,7 +3,6 @@
 ### compiler used. In this configuraiton, it's allmodconfig build of the full
 ### kernel 4.4 with all CPUs in use.
 
-# MM Test Parameters
 export MMTESTS="kernbench"
 
 # Test disk to setup (optional)

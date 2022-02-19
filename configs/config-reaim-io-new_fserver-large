@@ -3,7 +3,6 @@
 ### interference while there is no real workload that generates that
 ### many signals.
 
-# MM Test Parameters
 export MMTESTS="reaim"
 
 # Test disk to setup (optional)

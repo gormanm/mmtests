@@ -1,7 +1,6 @@
 ### libmicro runs a few basic microbenchmarks that were used when isolating
 ### regressions from other benchmarks.
 
-# MM Test Parameters
 export MMTESTS="libmicro-file"
 
 # Test disk to setup (optional)

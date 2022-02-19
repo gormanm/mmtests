@@ -5,7 +5,6 @@
 ### This is a variation of stutter that uses multiple threads and fio as
 ### the io generator
 
-# MM Test Parameters
 export MMTESTS="stutterp"
 
 # Test disk to setup (optional)

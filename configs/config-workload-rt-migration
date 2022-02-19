@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="rtmigration"
 
 # List of monitors

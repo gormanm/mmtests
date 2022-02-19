@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="unixbench-fsbuffer unixbench-fsbuffer-r unixbench-fsbuffer-w"
 
 # Test disk to setup (optional)

@@ -2,7 +2,6 @@
 ### the operations of a busy file server. The dataset size of 2*RAM with 1024
 ### files and the IO is asynchronous.
 
-# MM Test Parameters
 export MMTESTS="bonniepp"
 
 # Test disk to setup (optional)

@@ -7,7 +7,6 @@
 ### on good memory locality but it can suffer badly if automatic NUMA
 ### balancing gets in the way.
 
-# MM Test Parameters
 export MMTESTS="xfsrepair"
 
 # Test disk to setup (optional)

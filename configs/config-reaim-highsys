@@ -4,7 +4,6 @@
 ### no reasonable problem is storming the system with signals.
 ###
 
-# MM Test Parameters
 export MMTESTS="reaim"
 
 # Test disk to setup (optional)

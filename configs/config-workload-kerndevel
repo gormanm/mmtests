@@ -10,7 +10,6 @@
 ### gitcheckout checks out two kernel version from a git tree in rapid succession
 ### and measures how long it takes
 
-# MM Test Parameters
 export MMTESTS="kernbench gitcheckout"
 
 # Test disk to setup (optional)

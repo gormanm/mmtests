@@ -2,7 +2,6 @@
 ### numbers of theads that simulate writing new blog entries, rewriting exiting
 ### entries, adding comments and reading entries.
 
-# MM Test Parameters
 export MMTESTS="blogbench"
 
 # Test disk to setup (optional)

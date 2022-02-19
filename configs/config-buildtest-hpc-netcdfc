@@ -1,7 +1,6 @@
 . $SHELLPACK_INCLUDE/include-sizes.sh
 get_numa_details
 
-# MM Test Parameters
 export MMTESTS="netcdfcbuild"
 
 # List of monitors

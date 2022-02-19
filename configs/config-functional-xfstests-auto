@@ -1,6 +1,5 @@
 ### xfstests are a filesystem regression testsuite
 
-# MM Test Parameters
 export MMTESTS="xfstests"
 
 

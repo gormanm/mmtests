@@ -8,7 +8,6 @@
 ### The target workload is read-only and 60% of the shared buffer size so it
 ### should fit completely in memory. The page cache is not flushed after the
 ### database is populated for the test and starts cache-hot.
-# MM Test Parameters
 export MMTESTS="sysbench"
 
 # Test disk to setup (optional)

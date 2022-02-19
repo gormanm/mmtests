@@ -8,7 +8,6 @@
 ### When all files have been pulled and the workqueue is empty, each
 ### core will merge the intermediate index files it produced.
 
-# MM Test Parameters
 export MMTESTS="pedsort"
 
 # Test disk to setup (optional)

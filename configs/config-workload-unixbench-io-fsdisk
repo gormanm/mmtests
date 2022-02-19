@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="unixbench-fsdisk unixbench-fsdisk-r unixbench-fsdisk-w"
 
 # Test disk to setup (optional)

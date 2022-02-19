@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="unixbench-fstime unixbench-fstime-r unixbench-fstime-w"
 
 # Test disk to setup (optional)

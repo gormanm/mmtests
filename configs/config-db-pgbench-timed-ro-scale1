@@ -7,7 +7,6 @@
 ### flushed after the database is populated for the test and starts
 ### cache-hot.
 
-# MM Test Parameters
 export MMTESTS="pgbench"
 
 # Test disk to setup (optional)

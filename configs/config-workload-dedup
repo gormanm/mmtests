@@ -5,7 +5,6 @@
 ### configuration uses a virtual machine disk as input but uses between
 ### 2 and 4*NUMCPUS to deduplicate and compress the file.
 
-# MM Test Parameters
 export MMTESTS="dedup"
 
 # Test disk to setup (optional)

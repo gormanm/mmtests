@@ -1,7 +1,6 @@
 ### specjbb is executed with one JVM running per-NUMA node in the system
 ### and a total heap size configured to be 60% of memory.
 
-# MM Test Parameters
 export MMTESTS="specjbb"
 
 # List of monitors

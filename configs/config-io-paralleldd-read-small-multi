@@ -3,7 +3,6 @@
 ### if multiple processes can read data quickly or if there are multiple
 ### stalls due to internal serialisation within the kernel.
 
-# MM Test Parameters
 export MMTESTS="paralleldd"
 
 # Test disk to setup (optional)

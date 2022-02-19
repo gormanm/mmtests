@@ -1,6 +1,5 @@
 ### Runs similar tests to the obsolete runltplite.sh LTP helper
 
-# MM Test Parameters
 export MMTESTS="ltp"
 
 

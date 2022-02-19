@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="unixbench-dhry2reg unixbench-syscall unixbench-pipe unixbench-spawn unixbench-execl"
 
 # Test disk to setup (optional)

@@ -2,7 +2,6 @@
 ### used to highlight reclaim-related problems. In this case, the configuration
 ### on NUMA machines may trigger premature swapping and reclaim.
 
-# MM Test Parameters
 export MMTESTS="usemem"
 
 # Test disk to setup (optional)

@@ -2,19 +2,8 @@
 ### allocator is rarely a major component of a workloads time but it can
 ### be a source of slow degrataion of overall performance.
 
-# MM Test Parameters
 export MMTESTS="pagealloc"
 
-# Test disk to setup (optional)
-#export TESTDISK_RAID_DEVICES=
-#export TESTDISK_RAID_MD_DEVICE=/dev/md0
-#export TESTDISK_RAID_OFFSET=63
-#export TESTDISK_RAID_SIZE=250019532
-#export TESTDISK_RAID_TYPE=raid0
-#export TESTDISK_PARTITION=/dev/sda6
-#export TESTDISK_FILESYSTEM=ext3
-#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
-#export TESTDISK_MOUNT_ARGS=""
 
 # List of monitors
 export RUN_MONITOR=yes

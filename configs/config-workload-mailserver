@@ -10,7 +10,6 @@
 ### behaviour of a mail server and provides a point of comparison with
 ### postmark.
 
-# MM Test Parameters
 export MMTESTS="postmark ffsb"
 
 # Test disk to setup (optional)

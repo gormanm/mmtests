@@ -6,7 +6,6 @@
 ### factor. Contrary to recommendations, THP is left as its default
 ### setting which in most cases will be enabled.
 
-# MM Test Parameters
 export MMTESTS="redis"
 
 # Test disk to setup (optional)

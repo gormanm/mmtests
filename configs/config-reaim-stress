@@ -2,7 +2,6 @@
 ### numbers of instances. signal_test is removed as it generates a lot of
 ### noise without being useful.
 
-# MM Test Parameters
 export MMTESTS="reaim"
 
 # Test disk to setup (optional)

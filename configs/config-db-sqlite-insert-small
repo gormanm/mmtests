@@ -6,7 +6,6 @@
 ###   ShortString val: Random
 ###   LongString  val: Random
 
-# MM Test Parameters
 export MMTESTS="sqlite"
 
 # Test disk to setup (optional)

@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="redis-memtier"
 
 # Test disk to setup (optional)

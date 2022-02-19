@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="fsmark"
 
 # Test disk to setup (optional)

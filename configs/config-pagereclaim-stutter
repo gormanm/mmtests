@@ -2,7 +2,6 @@
 ### memory, a second measures mmap latency and a third copies a large file.
 ### The primary metric is checking for mmap latency.
 
-# MM Test Parameters
 export MMTESTS="stutter"
 
 # Test disk to setup (optional)

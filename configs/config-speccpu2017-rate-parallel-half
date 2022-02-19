@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="speccpu2017-rate-build speccpu2017-rate"
 
 # Test disk to setup (optional)

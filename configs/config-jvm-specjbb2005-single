@@ -1,7 +1,6 @@
 ### specjbb is executed with one JVM with a maximum heap size of 60% of
 ### memory.
 
-# MM Test Parameters
 export MMTESTS="specjbb"
 
 # List of monitors

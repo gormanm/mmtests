@@ -15,7 +15,6 @@
 ### completed. The metric reported is time to complete execution as
 ### throughput is difficult to interpret when different operations take
 ### different amounts of time.
-# MM Test Parameters
 export MMTESTS="dbench4"
 
 # Test disk to setup (optional)

@@ -2,7 +2,6 @@
 ### kernel activity
 ###
 
-# MM Test Parameters
 export MMTESTS="sysjitter"
 
 # List of monitors

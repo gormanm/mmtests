@@ -2,7 +2,6 @@
 ### latency of each individual fork() call. Report the share of forks within
 ### the same NUMA node of the parent v. the total, and their average latency.
 
-# MM Test Parameters
 export MMTESTS="saladfork"
 
 # List of monitors

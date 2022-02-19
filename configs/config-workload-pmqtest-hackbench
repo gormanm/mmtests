@@ -3,7 +3,6 @@
 ### latency of the interprocess communication with the queues
 ### during a specific amount of time.
 
-# MM Test Parameters
 export MMTESTS="pmqtest-pinned"
 
 # List of monitors

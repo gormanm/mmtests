@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="xfsio"
 export SKIP_WARMUP=yes
 

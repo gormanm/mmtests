@@ -1,6 +1,5 @@
 ### tbench4 is the network portion of the dbench4 benchmark.
 
-# MM Test Parameters
 export MMTESTS="multi"
 export MULTI_TESTS="kernbench netperf-tcp-rr"
 

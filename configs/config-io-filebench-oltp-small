@@ -10,7 +10,6 @@
 ### processes. More can be read about the stock personalities at
 ### http://filebench.sourceforge.net/wiki/index.php/Pre-defined_personalities.
 
-# MM Test Parameters
 export MMTESTS="filebench"
 
 # Test disk to setup (optional)

@@ -4,7 +4,6 @@
 ### This fio configuration is for a fio scaling test. It runs several
 ### jobs doing similar I/O with one or several I/O files.
 
-# MM Test Parameters
 export MMTESTS="fio"
 
 # Test disk to setup (optional)

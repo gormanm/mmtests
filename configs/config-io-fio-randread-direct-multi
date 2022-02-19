@@ -1,7 +1,6 @@
 ###
 ### Measure latency of random direct IO writes using all CPUs on the system
 ###
-# MM Test Parameters
 export MMTESTS="fio"
 
 # Test disk to setup (optional)

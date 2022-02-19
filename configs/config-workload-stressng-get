@@ -1,7 +1,6 @@
 ### stressng context switching stress test
 ###
 
-# MM Test Parameters
 export MMTESTS="stressng"
 
 # List of monitors

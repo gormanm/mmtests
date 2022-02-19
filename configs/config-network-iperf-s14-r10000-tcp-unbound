@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="iperf3"
 
 export RUN_MONITOR=yes

@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="fio"
 
 # Test disk to setup (optional)

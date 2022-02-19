@@ -6,7 +6,6 @@
 ### o Burn CPUs to compete with kswapd for CPU
 ### o Allocate things
 
-# MM Test Parameters (no particular order)
 export MMTESTS="simoop"
 
 # Test disk to setup (optional)

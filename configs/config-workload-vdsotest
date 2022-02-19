@@ -17,7 +17,6 @@
 ### and covers all the above clock swhere the VDSO is benchmarked
 ### against the system call over a period of time.
 
-# MM Test Parameters
 export MMTESTS="vdsotest"
 
 # List of monitors

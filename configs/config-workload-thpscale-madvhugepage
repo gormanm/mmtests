@@ -7,7 +7,6 @@
 ### 2 and 32 threads to allocate the final region and measures fault latency
 ### and whether base pages or THPs were used.
 
-# MM Test Parameters
 export MMTESTS="thpscale"
 
 # Test disk to setup (optional)

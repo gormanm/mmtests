@@ -4,7 +4,6 @@
 ### expected that fixing any problems shown by this benchmark would also
 ### be of benefit to postgres.
 
-# MM Test Parameters
 export MMTESTS="pgioperfinit pgioperfbench"
 
 # Test disk to setup (optional)

@@ -1,7 +1,6 @@
 ### cyclictest is a latency measurement benchmark.
 ###
 
-# MM Test Parameters
 export MMTESTS="cyclictest-pinned"
 
 # List of monitors

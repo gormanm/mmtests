@@ -7,7 +7,6 @@
 ### gitsource runs the git unit tests which consist of a very large number of
 ### short-lived shell scripts.
 
-# MM Test Parameters
 export MMTESTS="gitsource"
 
 # Test disk to setup (optional)

@@ -1,7 +1,6 @@
 ### This is a standard specjvm run using a single JVM with a maximum heap
 ### size of 60% of memory.
 
-# MM Test Parameters
 export MMTESTS="specjvm"
 
 # List of monitors

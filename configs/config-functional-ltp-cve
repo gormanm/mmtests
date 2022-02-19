@@ -1,6 +1,5 @@
 ### Runs tests specific to CVEs
 
-# MM Test Parameters
 export MMTESTS="ltp"
 
 

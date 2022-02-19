@@ -1,4 +1,3 @@
-# MM Test Parameters
 export MMTESTS="script"
 
 # Test disk to setup (optional)

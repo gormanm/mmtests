@@ -1,7 +1,6 @@
 ### stressng IO class using all CPUs
 ###
 
-# MM Test Parameters
 export MMTESTS="stressng"
 
 # List of monitors

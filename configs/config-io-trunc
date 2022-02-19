@@ -1,7 +1,6 @@
 ### trunc is a microbenchmark that times how long it takes to fault
 ### a number of sparse files and then truncate them. Truncation
 ### time is the primary metric.
-# MM Test Parameters
 export MMTESTS="trunc"
 
 # Test disk to setup (optional)
