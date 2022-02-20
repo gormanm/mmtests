@@ -31,8 +31,6 @@ config-workload-usemem
 "
 
 RAMCONFIGS="
-config-io-iozone-ram
-config-io-iozone-ram-dio
 "
 
 DEADLINE_FSCONFIGS="
@@ -44,7 +42,6 @@ config-io-fio-randread-sync-randwrite
 
 FSCONFIGS="
 config-io-dbench4-async
-config-io-dbench4-async-traceschedwq
 config-io-dbench4-fsync
 config-io-fio-randread-direct-multi
 config-io-fsmark-small-file-stream
@@ -57,27 +54,15 @@ config-io-xfsrepair
 config-hpc-nas-mpi-bind-full
 config-hpc-nas-mpi-bind-half
 config-hpc-nas-mpi-bind-third
+config-hpc-nas-mpi-bind-quarter
+config-hpc-nas-mpi-bind-pair
+config-hpc-nas-mpi-bind-quartet
 config-hpc-nas-mpi-full
 config-hpc-nas-mpi-half
 config-hpc-nas-mpi-third
+config-hpc-nas-mpi-quarter
 config-hpc-nas-mpi-pair
-config-hpc-nas-mpi-minparallel
-config-hpc-nas-c-class-mpi-full
-config-hpc-nas-c-class-mpi-half
-config-hpc-nas-c-class-mpi-third
-config-hpc-nas-c-class-mpi-bind-full
-config-hpc-nas-c-class-mpi-bind-half
-config-hpc-nas-c-class-mpi-bind-third
-config-hpc-nas-c-class-mpi-pair
-config-hpc-nas-c-class-mpi-minparallel
-config-hpc-nas-d-class-mpi-bind-full
-config-hpc-nas-d-class-mpi-bind-half
-config-hpc-nas-d-class-mpi-bind-third
-config-hpc-nas-d-class-mpi-full
-config-hpc-nas-d-class-mpi-half
-config-hpc-nas-d-class-mpi-third
-config-hpc-nas-d-class-mpi-pair
-config-hpc-nas-d-class-mpi-minparallel
+config-hpc-nas-mpi-quartet
 config-http-apachebench
 config-memdb-redis-benchmark
 config-memdb-redis-memtier
@@ -87,9 +72,7 @@ config-workload-kernbench-max
 config-workload-kerndevel
 config-workload-dedup
 config-workload-shellscripts
-config-io-sparsetruncate-tiny
 config-io-sparsetruncate-small
-config-io-sparsetruncate-large
 config-workload-thpfioscale
 config-workload-thpfioscale-defrag
 config-workload-thpfioscale-madvhugepage
@@ -108,20 +91,16 @@ config-io-bonniepp-file-fsync
 config-io-bonniepp-dir-fsync
 config-io-fio-scaling
 config-io-fio-ssd
-config-io-iozone
-config-io-iozone-small
-config-io-iozone-dio
 config-io-filebench-varmail-small
 config-io-filebench-varmail-medium
-config-io-filebench-varmail-large
 config-io-filebench-oltp-small
-config-io-filebench-oltp-large
+config-io-filebench-oltp-medium
 config-io-filebench-oltp-directio-small
-config-io-filebench-oltp-directio-large
+config-io-filebench-oltp-directio-medium
 config-io-filebench-webserver-small
+config-io-filebench-webserver-medium
 config-io-filebench-webproxy-small
 config-io-filebench-webproxy-medium
-config-io-filebench-webproxy-large
 config-workload-kvmstart-memhog-frag-fio-randread
 config-workload-kvmstart-memhog-frag-singlefile
 config-workload-kvmstart-memhog-frag-singlefile-nothp
@@ -131,8 +110,6 @@ config-workload-thpscale
 config-workload-thpscale-madvhugepage
 config-workload-will-it-scale-io-threads
 config-workload-will-it-scale-io-processes
-config-io-iozone-doublemem-async
-config-io-iozone-doublemem-fsync
 config-db-sqlite-insert-small
 config-db-sqlite-insert-medium
 config-io-blogbench
@@ -145,8 +122,6 @@ config-io-fio-randread-sync-randwrite
 config-io-fio-seqread-doublemem-4k-4t
 config-io-fio-seqread-doublemem-32k-4t
 config-io-fio-sync-maxrandwrite
-config-io-fio-sync-maxrandwrite-ftrace
-config-io-fio-sync-maxrandwrite-long-ftrace
 config-io-paralleldd-read-small
 config-io-paralleldd-read-large
 config-io-paralleldd-read-small-multi
@@ -175,7 +150,15 @@ config-functional-xfstests-auto
 
 rm -f *-ext3 *-ext4 *-btrfs *-btrfs-nocow *-xfs *-raid0 *-raid1 *-raid5
 
+check_io_config() {
+	grep -q TESTDISK_ $CONFIG
+	if [ $? -ne 0 ]; then
+		echo WARNING: $CONFIG does not have TESTDISK_ templates
+	fi
+}
+
 for CONFIG in $RAMCONFIGS; do
+	check_io_config
 	if [ ! -e $CONFIG ]; then
 		echo Missing: $CONFIG
 		continue
@@ -230,6 +213,7 @@ for CONFIG in $RAMCONFIGS; do
 #	done
 done
 for CONFIG in $FSCONFIGS; do
+	check_io_config
 	if [ ! -e $CONFIG ]; then
 		echo Missing: $CONFIG
 		continue
@@ -271,11 +255,12 @@ for CONFIG in $FSCONFIGS; do
 
 done
 for CONFIG in $DEADLINE_FSCONFIGS; do
+	check_io_config
 	if [ ! -e $CONFIG ]; then
 		echo Missing: $CONFIG
 		continue
 	fi
-	OUT_CONFIG=`echo $CONFIG | sed -e 's/^config-/config-deadline-/'`
+	OUT_CONFIG=`echo $CONFIG | sed -e 's/^config-io-/config-io-deadline-/'`
 	cat $CONFIG | sed \
 		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext3/' \
@@ -318,6 +303,7 @@ for CONFIG in $DEADLINE_FSCONFIGS; do
 done
 
 for CONFIG in $NOATIME_FSCONFIGS; do
+	check_io_config
 	if [ ! -e $CONFIG ]; then
 		echo Missing: $CONFIG
 		continue
@@ -365,6 +351,7 @@ done
 LIMITMEM_CONFIGS="
 "
 for CONFIG in $LIMITMEM_CONFIGS; do
+	check_io_config
 	DESTCONFIG=`echo $CONFIG | sed -e 's/dhp__/dhp-2048M__/'`
 
 	if [ ! -e $CONFIG ]; then
@@ -409,6 +396,7 @@ config-reaim-io-disk
 "
 
 for CONFIG in $TMPFS_CONFIGS; do
+	check_io_config
 	if [ ! -e $CONFIG ]; then
 		echo Missing: $CONFIG
 		continue
@@ -422,6 +410,7 @@ for CONFIG in $TMPFS_CONFIGS; do
 done
 
 for FS in xfs ext3 ext4 btrfs btrfs-nocow; do
+	check_io_config
 	for TYPE in rotary ssd; do
 		for CONFIG in `ls config-*-$FS`; do
 			cp $CONFIG $CONFIG-$TYPE-raid0

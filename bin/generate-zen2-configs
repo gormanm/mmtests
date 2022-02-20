@@ -15,13 +15,13 @@ done
 
 # NAS
 for CPUCOUNT in 16 32 64 128 225 255 256; do
-	NAS_NOTUNECONFIG=config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-notuning
-	NAS_BASECONFIG=config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-default
+	NAS_NOTUNECONFIG=config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen2-notuning
+	NAS_BASECONFIG=config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen2-default
 
 	# No special tuning
-	cp config-hpc-nas-d-class-mpi-full-xfs $NAS_NOTUNECONFIG
+	cp config-hpc-nas-mpi-full-xfs $NAS_NOTUNECONFIG
 	sed -i  -e "s/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=${CPUCOUNT}/"		\
-		-e "s/NAS_OPENMPI_VERSION=.*/NAS_OPENMPI_VERSION=openmpi2/"	\
+		-e "s/NAS_CLASS=.*/NAS_CLASS=D/"	\
 		$NAS_NOTUNECONFIG
 
 	# Default baseline configuration
@@ -35,14 +35,14 @@ for CPUCOUNT in 16 32 64 128 225 255 256; do
 	echo								>> $NAS_BASECONFIG
 	echo 'export MMTESTS_TOOLCHAIN="gcc-10"' >> $NAS_BASECONFIG
 
-	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
 	sed -i  -e 's/NAS_OPTIMISE_FLAGS=.*/NAS_OPTIMISE_FLAGS="-Ofast -march=znver2 -mtune=znver2 -ftree-vectorize"/' \
 		-e 's/migration_cost_ns=.*/migration_cost_ns=5000000/'	\
-		-e 's/min_granularity_ns=.*/min_granularity_ns=10000000/'	   config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
-	echo 'export NAS_BIND=yes'						>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
-	echo 'export NAS_BIND_PLACE=l3cache:overload-allowed'			>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
-	echo 'echo 1 > /proc/sys/kernel/numa_balancing'				>> config-hpc-nas-d-class-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+		-e 's/min_granularity_ns=.*/min_granularity_ns=10000000/'	   config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+	echo 'export NAS_BIND=yes'						>> config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+	echo 'export NAS_BIND_PLACE=l3cache:overload-allowed'			>> config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
+	echo 'echo 1 > /proc/sys/kernel/numa_balancing'				>> config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen2-tuned
 done
 
-cp config-hpc-nas-d-class-mpi-256cpus-xfs-zen2-tuned config-hpc-nas-d-class-mpi-Ncpus-xfs-zen2-selective
-echo 'export NAS_JOB_MAX_CPUS="bt=256 cg=32 ep=256 is=256 lu=128 mg=32 sp=256"' >> config-hpc-nas-d-class-mpi-Ncpus-xfs-zen2-selective
+cp config-hpc-nas-mpi-256cpus-xfs-zen2-tuned config-hpc-nas-mpi-Ncpus-xfs-zen2-selective
+echo 'export NAS_JOB_MAX_CPUS="bt=256 cg=32 ep=256 is=256 lu=128 mg=32 sp=256"' >> config-hpc-nas-mpi-Ncpus-xfs-zen2-selective

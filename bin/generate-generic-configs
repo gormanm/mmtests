@@ -127,21 +127,10 @@ for TYPE in omp mpi mpich; do
 done
 
 # NAS Bind configs
-for CONFIG in `ls config-hpc-nas-omp-* config-hpc-nas-mpi-*`; do
+for CONFIG in `ls config-hpc-nas-omp-* config-hpc-nas-mpi-* | grep -v -- -bind`; do
 	BCONFIG=`echo $CONFIG | sed -e 's/-mpi/-mpi-bind/' -e 's/-omp/-omp-bind/'`
 	cp $CONFIG $BCONFIG
 	echo "export NAS_BIND=yes" >> $BCONFIG
-done
-
-# NAS Class configs
-for CONFIG in `ls config-hpc-nas-omp-* config-hpc-nas-mpi-*`; do
-	for CLASS in c d; do
-		CLASS_CONFIG=`echo $CONFIG | sed -e "s/hpc-nas/hpc-nas-$CLASS-class/"`
-		CLASS=`echo $CLASS | tr [a-z] [A-Z]`
-		sed	-e "s/NAS_CLASS=.*/NAS_CLASS=$CLASS/"		\
-			-e 's/ nas-omp-cg/ nas-omp-cg nas-omp-dc/'	\
-			$CONFIG > $CLASS_CONFIG
-	done
 done
 
 # Netperf binding configs
