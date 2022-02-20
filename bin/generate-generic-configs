@@ -193,6 +193,18 @@ sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUMCPUS\/2))/' config-hpc-parsec-p
 sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUMCPUS\/3))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-third
 sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUMCPUS\/4))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-quarter
 
+# Paralleldd
+cat config-io-paralleldd-read-small | \
+	sed -e 's/small/large/' \
+	    -e 's/PARALLELDD_SOURCESIZE=.*/PARALLELDD_SOURCESIZE=$MEMTOTAL_BYTES/' \
+	    -e 's/PARALLELDD_ITERATIONS=.*/PARALLELDD_ITERATIONS=3/' \
+		> config-io-paralleldd-read-large
+for SIZE in small large; do
+	cat config-docs/config-io-paralleldd-read-$SIZE-multi > config-io-paralleldd-read-$SIZE-multi
+	grep -v "###" config-io-paralleldd-read-$SIZE >> config-io-paralleldd-read-$SIZE-multi
+	echo "export PARALLELDD_SPLITINPUT=yes" >> config-io-paralleldd-read-$SIZE-multi
+done
+
 # PGBench
 # o Generate size configs
 for SIZE in small medium large; do

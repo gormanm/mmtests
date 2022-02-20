@@ -1,0 +1,4 @@
+### This configuration uses a varying number of dd instances to read a
+### large input files and write a file. The intent is to check if multiple
+### processes can read data quickly or if there are multiple stalls due to
+### internal serialisation within the kernel.
