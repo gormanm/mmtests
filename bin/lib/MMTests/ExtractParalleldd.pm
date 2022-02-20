@@ -15,15 +15,21 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @instances = $self->discover_scaling_parameters($reportDir, "time-", "-1-1");
+	my @instances = $self->discover_scaling_parameters($reportDir, "time-", ".log.gz");
 
 	# Extract per-instance timing information
 	foreach my $instance (@instances) {
+		# Note that there are separate instances and we do not report
+		# differences in throughput between parallel instances
 		my $iteration = 0;
 
-		foreach my $file (<$reportDir/time-$instance-*>) {
-			$self->parse_time_elapsed($file, $instance, ++$iteration);
+		my @files = <$reportDir/time-$instance-*.*>;
+		my $input = $self->SUPER::open_log("$reportDir/time-$instance.log");
+		while (<$input>) {
+			next if $_ !~ /elapsed/;
+			$self->addData($instance, ++$iteration, $self->_time_to_elapsed($_));
 		}
+		close($input);
 	}
 }
 

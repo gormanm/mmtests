@@ -54,13 +54,27 @@ fi
 				INPUT_FILE=${INPUT_FILE}.$INSTANCE
 			fi
 			$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$INSTANCE-$ITERATION \
-				dd if=$INPUT_FILE of=$OUTPUT_FILE 2> $LOGDIR_RESULTS/log-$NR_THREADS-$INSTANCE-$ITERATION &
+				dd conv=fsync if=$INPUT_FILE of=$OUTPUT_FILE 2> $LOGDIR_RESULTS/log-$NR_THREADS-$INSTANCE-$ITERATION &
 		done
 
 		echo Waiting on dd instances to complete
 		wait
 		rm -f $SHELLPACK_DATA/output.*
 	###SHELLPACK iteration_end $PARALLELDD_ITERATIONS
+
+	echo Compressing logs $NR_THREADS
+	###SHELLPACK iteration_begin $PARALLELDD_ITERATIONS
+		for INSTANCE in `seq 1 $NR_THREADS`; do
+			for TYPE in "time" "log"; do
+				echo iteration: $ITERATION instance: $INSTANCE >> $LOGDIR_RESULTS/$TYPE-$NR_THREADS.log
+				cat $LOGDIR_RESULTS/$TYPE-$NR_THREADS-$INSTANCE-$ITERATION >> $LOGDIR_RESULTS/$TYPE-$NR_THREADS.log
+				rm $LOGDIR_RESULTS/$TYPE-$NR_THREADS-$INSTANCE-$ITERATION
+			done
+		done
+	###SHELLPACK iteration_end $PARALLELDD_ITERATIONS
+	gzip $LOGDIR_RESULTS/time-$NR_THREADS.log
+	gzip $LOGDIR_RESULTS/log-$NR_THREADS.log
+
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
 
