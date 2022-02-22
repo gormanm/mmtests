@@ -524,12 +524,12 @@ for SUBREPORT in $REPORTS; do
 			cache-mmtests.sh compare-mmtests.pl -d . -b dbench4 -a opslatency -n $KERNEL_LIST $FORMAT_CMD
 		fi
 		;;
-	bonniepp|bonnie)
+	bonniepp)
 		echo "bonnie IO Execution Time"
-		cache-mmtests.sh compare-mmtests.pl -d . -b bonnie -n $KERNEL_LIST $FORMAT_CMD $AUTO_DETECT_SIGNIFICANCE
+		cache-mmtests.sh compare-mmtests.pl -d . -b bonniepp -n $KERNEL_LIST $FORMAT_CMD $AUTO_DETECT_SIGNIFICANCE
 		echo
 		echo "bonnie Throughput"
-		cache-mmtests.sh compare-mmtests.pl -d . -b bonnie -a tput -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b bonniepp -a tput -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
 	ebizzy)
