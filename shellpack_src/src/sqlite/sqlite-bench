@@ -17,8 +17,7 @@ chmod a+x $SHELLPACK_TEMP/perl-trans.pl
 cd $SHELLPACK_SOURCES/sqlite-${VERSION}-installed || die Failed to cd to sqlite install directory
 
 echo Creating insert script for $SQLITE_SIZE entries
-cat /dev/urandom | base64 -w 20 | head -$SQLITE_SIZE | sed "s/\(.\{4\}\)\(.\{16\}\)/INSERT INTO 'mmtests' ('SmallInt', 'DateTime', 'ShortString', 'LongString') VALUES ('10', CURRENT_TIMESTAMP, '\1', '\2');/" > basic-insert.script
-cp basic-insert.script $LOGDIR_RESULTS/
+cat /dev/urandom | base64 -w 20 | head -$SQLITE_SIZE | sed "s/\(.\{4\}\)\(.\{16\}\)/INSERT INTO 'mmtests' ('SmallInt', 'DateTime', 'ShortString', 'LongString') VALUES ('10', CURRENT_TIMESTAMP, '\1', '\2');/" > $SHELLPACK_DATA/basic-insert.script
 
 mmtests_activity sqlite-insert
 monitor_pre_hook $LOGDIR_RESULTS $P
@@ -32,12 +31,12 @@ rm -f $SHELLPACK_DATA/benchmark.db
 	 'LongString'  VARCHAR(16) NOT NULL
 	);" || die Failed to create table
 
-echo Inserting rows
-cat basic-insert.script |							\
-	$TIME_CMD -o $LOGDIR_RESULTS/sqlite.time				\
-		$SHELLPACK_TEMP/perl-trans.pl $SHELLPACK_DATA/benchmark.db	\
-		| tee -a $LOGDIR_RESULTS/sqlite.log
-	ls -lh $SHELLPACK_DATA/benchmark.db
+echo Inserting $SQLITE_SIZE rows
+$TIME_CMD -o $LOGDIR_RESULTS/sqlite.time		\
+	$SHELLPACK_TEMP/perl-trans.pl $SHELLPACK_DATA/benchmark.db $SHELLPACK_DATA/basic-insert.script \
+		&> $LOGDIR_RESULTS/sqlite.log
+gzip -f $LOGDIR_RESULTS/sqlite.log
+gzip -f $SHELLPACK_DATA/basic-insert.script
 monitor_post_hook $LOGDIR_RESULTS $P
 
 exit $SHELLPACK_SUCCESS
@@ -49,36 +48,36 @@ use strict;
 use Time::HiRes qw/ time sleep /;
 
 open(SQLITE, "|./bin/sqlite3 $ARGV[0]") || die("Failed to exec sqlite3");
+open(INPUT, "$ARGV[1]") || die("Failed to open script $ARGV[1]");
 
-my $threshold = 10;
+my $threshold = 2;
 my $nr_trans = 0;
 my $last_trans = 0;
-my $last_time;
-my $current_time = $last_time = time;
+my $start_time = time;
+my $last_time = $start_time;
 
-$SIG{ALRM} = sub {
-	alarm 1;
-
-	my $type = "execute";
-	if ($threshold > 0) {
-		$threshold--;
-		$type = "warmup ";
-	}
-	my $current_time = time;
-	my $time_diff = $current_time - $last_time;
-	my $seconds_trans = ($nr_trans - $last_trans) / $time_diff;
-	print "$type $seconds_trans\n";
-	$last_time = $current_time;
-	$last_trans = $nr_trans;
-};
-
-alarm 1;
-while (!eof(STDIN)) {
-	my $line = <STDIN>;
+while (!eof(INPUT)) {
+	my $line = <INPUT>;
 	print SQLITE $line;
 	$nr_trans++;
+
+	my $current_time = time;
+	my $time_diff = $current_time - $last_time;
+	my $total_time = $current_time - $start_time;
+	if ($time_diff > 0.1) {
+		my $seconds_trans = ($nr_trans - $last_trans) / $time_diff;
+
+		my $type = "execute";
+		if ($total_time < $threshold) {
+			$type = "warmup ";
+		}
+
+		printf "$type %12.2f %12.2f %12.3f\n", $total_time, $time_diff, $seconds_trans;
+		$last_time = $current_time;
+		$last_trans = $nr_trans;
+	}
 }
 
-alarm 0;
-close(PIPE);
+close(INPUT);
+close(SQLITE);
 ==== END perl-trans.pl ====
