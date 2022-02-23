@@ -84,6 +84,9 @@ my %_fieldNameMap = (
 	"compact_daemon_wake",		=> "Kcompactd wake",
 	"compact_daemon_migrate_scanned"=> "Kcompactd migrate scanned",
 	"compact_daemon_free_scanned"	=> "Kcompactd free scanned",
+	"spf_attempt"			=> "SPFault Attempt",
+	"spf_abort"			=> "SPFault Abort",
+	"mmtests_spf_success"		=> "SPFault Success"
 );
 
 my %_renamed_fields = (
@@ -165,6 +168,9 @@ my @_fieldOrder = (
 	"mmtests_hint_local",
 	"numa_pages_migrated",
 	"mmtests_autonuma_cost",
+        "spf_attempt",
+        "spf_abort",
+        "mmtests_spf_success",
 );
 
 sub extractReport($$$$) {
@@ -348,13 +354,20 @@ sub extractReport($$$$) {
 			 "thp_fault_alloc", "thp_collapse_alloc",
 			 "thp_split_page", "thp_split_page_failed",
 			 "thp_fault_fallback",
-			 "thp_collapse_alloc_failed") {
+			 "thp_collapse_alloc_failed",
+			 "spf_attempt", "spf_abort") {
+
 		if (!defined($vmstat_after{$key})) {
 			$vmstat{$key} = 0;
 		} else {
 			my $value = $vmstat_after{$key} - $vmstat_before{$key};
 			$vmstat{$key} = $value;
 		}
+	}
+	if ($vmstat{"spf_attempt"} == 0) {
+		$vmstat{"mmtests_spf_success"} = 0;
+	} else {
+		$vmstat{"mmtests_spf_success"} = 100 - ($vmstat{"spf_abort"} * 100 / $vmstat{"spf_attempt"});
 	}
 	$vmstat{"mmtests_vmscan_write_file"} = $vmstat{"nr_vmscan_write"} - $vmstat{"pswpout"};
 	$vmstat{"mmtests_vmscan_write_anon"} = $vmstat{"pswpout"};
