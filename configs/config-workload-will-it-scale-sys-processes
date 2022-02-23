@@ -1,8 +1,8 @@
 ### will-is-scale is a set of microbench that run a test case from 1 to N
 ### parallel processes to see if it scales. This configuration runs
-### through the benchmarks that are scheduler, MM or IPC based.
+### through the benchmarks that are common system calls.
 
-export MMTESTS="wis-futex wis-malloc wis-pf wis-getppid wis-sched wis-pthreadmutex wis-signal wis-pipe wis-eventfd wis-posixsems"
+export MMTESTS="wis-futex wis-getppid wis-sched wis-pthreadmutex wis-signal wis-pipe wis-eventfd wis-posixsems"
 
 # List of monitors
 export RUN_MONITOR=yes
