@@ -1,0 +1,42 @@
+From 16c668491bc414cb14c66f48462a7a6580ad8812 Mon Sep 17 00:00:00 2001
+From: Mel Gorman <mgorman@techsingularity.net>
+Date: Thu, 17 Feb 2022 14:40:29 +0000
+Subject: [PATCH] configure.ac: Require an older version of autogen
+
+autogen 2.71 is required but it does not appear that any 2.71-specific
+features are required. Downgrade the required version to 2.69. There
+is nothing special about this other than it's the oldest version
+commonly used for building dbench with MMTests.
+
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+---
+ Makefile.in  | 2 +-
+ configure.ac | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index a1b6645d3396..eb9ea546168a 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -129,7 +129,7 @@ install: all
+ 	$(NQ) ' INSTALL ' $@
+ 	$(Q)mkdir -p $(DESTDIR)$(bindir)
+ 	$(Q)mkdir -p $(DESTDIR)$(docdir)/loadfiles
+-	$(Q)(mkdir -p $(DESTDIR)$(mandir)/man1
++	$(Q)mkdir -p $(DESTDIR)$(mandir)/man1
+ 	$(Q)${INSTALLCMD} dbench $(DESTDIR)$(bindir)
+ 	$(Q)${INSTALLCMD} loadfiles/client.txt $(DESTDIR)$(docdir)/loadfiles
+ 	$(Q)${INSTALLCMD} loadfiles/nfs.txt $(DESTDIR)$(docdir)/loadfiles
+diff --git a/configure.ac b/configure.ac
+index 93763d4a3b77..ca705e3fd859 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1,7 +1,7 @@
+ dnl Process this file with autoconf to produce a configure script.
+ 
+ AC_INIT
+-AC_PREREQ([2.71])
++AC_PREREQ([2.69])
+ 
+ AC_MSG_NOTICE([Configuring dbench])
+ 
