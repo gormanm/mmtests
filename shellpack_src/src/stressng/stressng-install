@@ -1,6 +1,6 @@
 #!/bin/bash
-###SHELLPACK preamble stressng-install V0.13.02
-GIT_LOCATION=git://kernel.ubuntu.com/cking/stress-ng.git
+###SHELLPACK preamble stressng-install V0.13.03
+GIT_LOCATION=https://github.com/ColinIanKing/stress-ng
 MIRROR_LOCATION="$WEBROOT/stressng/"
 
 ###SHELLPACK parseargBegin

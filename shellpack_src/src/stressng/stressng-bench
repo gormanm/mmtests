@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble stressng-bench V0.13.02
+###SHELLPACK preamble stressng-bench V0.13.03
 
 STRESSNG_MIN_THREADS=1
 STRESSNG_MAX_THREADS=1
