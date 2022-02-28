@@ -49,8 +49,12 @@ esac
 	BENCH_CMD=" ./stress-ng $TESTSWITCH $NR_THREADS --timeout ${STRESSNG_RUNTIME}s --metrics-brief"
 	log_cmd $BENCH_CMD
 
+	PRINT_NR_THREADS=$NR_THREADS
+	if [ $NR_THREADS -eq 0 ]; then
+		PRINT_NR_THREADS=$NUMCPUS
+	fi
 	###SHELLPACK iteration_begin $STRESSNG_ITERATIONS
-		echo Running $NR_THREADS stressng $STRESSNG_TESTNAME iteration $ITERATION
+		echo Running $PRINT_NR_THREADS stressng $STRESSNG_TESTNAME iteration $ITERATION
 		eval $TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION \
 			$BENCH_CMD &> $LOGDIR_RESULTS/stressng-$NR_THREADS-$ITERATION.log
 	###SHELLPACK iteration_end $STRESSNG_ITERATIONS

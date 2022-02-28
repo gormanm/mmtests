@@ -277,7 +277,13 @@ echo export OMP_PROC_BIND=SPREAD >> config-workload-stream-omp-llcs-spread
 echo export OMP_PROC_BIND=SPREAD >> config-workload-stream-omp-nodes-spread
 
 # Stressng
+rm -f *stressng-*-1k
+rm -f *stressng-max
+
 sed -e 's/THREADS=.*/THREADS=1024/' config-workload-stressng-get > config-workload-stressng-get-1k
+for CONFIG in `ls config-workload-stressng-*`; do
+	cat $CONFIG | sed -e 's/_THREADS=.*/_THREADS=0/' > $CONFIG-maxcpus
+done
 
 # Sysbench
 sed -e 's/SYSBENCHCPU_MAX_THREADS=.*/SYSBENCHCPU_MAX_THREADS=2/' config-scheduler-sysbench-cpu > config-scheduler-sysbench-cpu-small
