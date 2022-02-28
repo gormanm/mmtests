@@ -29,6 +29,9 @@ get)
 context)
 	TESTSWITCH="--context"
 	;;
+mmap)
+	TESTSWITCH="--mmap"
+	;;
 io-class)
 	TESTSWITCH="--class io"
 	;;
