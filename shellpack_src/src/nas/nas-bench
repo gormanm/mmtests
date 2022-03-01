@@ -261,6 +261,7 @@ for JOB in $JOBLIST; do
 	esac
 	log_cmd $BENCH_CMD
 
+	monitor_pre_hook $LOGDIR_RESULTS $JOB.$NAS_CLASS
 	###SHELLPACK iteration_begin $NAS_ITERATIONS
 		if [ "$RUNBITS" = "32" -a ! -x ./bin/$JOB.$NAS_CLASS ]; then
 			echo "Skipping $JOB.$NAS_CLASS"
@@ -268,7 +269,6 @@ for JOB in $JOBLIST; do
 		fi
 
 		echo Executing $JOB.$NAS_CLASS iteration $ITERATION/$NAS_ITERATIONS
-		monitor_pre_hook $LOGDIR_RESULTS $JOB.$NAS_CLASS
 		case $NAS_TYPE in
 		SER|OMP)
 			eval $TIME_CMD -o $LOGDIR_RESULTS/time-$JOB.$NAS_CLASS.$ITERATION	\
@@ -283,10 +283,10 @@ for JOB in $JOBLIST; do
 		if [ $? -ne 0 ]; then
 			die "Failed to execute $JOB.$NAS_CLASS"
 		fi
-		monitor_post_hook $LOGDIR_RESULTS $JOB.$NAS_CLASS
 
 		rm `find -name "ADC.view.dat*"` 2> /dev/null
 	###SHELLPACK iteration_end $NAS_ITERATIONS
+	monitor_post_hook $LOGDIR_RESULTS $JOB.$NAS_CLASS
 done
 
 exit $SHELLPACK_SUCCESS

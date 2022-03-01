@@ -278,7 +278,7 @@ echo export OMP_PROC_BIND=SPREAD >> config-workload-stream-omp-nodes-spread
 
 # Stressng
 rm -f *stressng-*-1k
-rm -f *stressng-max
+rm -f *stressng-*-maxcpus*
 
 sed -e 's/THREADS=.*/THREADS=1024/' config-workload-stressng-get > config-workload-stressng-get-1k
 for CONFIG in `ls config-workload-stressng-*`; do
