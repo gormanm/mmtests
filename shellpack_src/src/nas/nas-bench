@@ -72,10 +72,6 @@ fi
 			if [ "$NAS_TYPE" = "MPI" ]; then
 				MPIOPT="-mca btl ^openib,udapl"
 				OPENMPI="--openmpi"
-			fi
-
-			if [ "$NAS_TYPE" = "MPI" ]; then
-				OPENMPI="--openmpi"
 			else
 				MPICH="--mpich"
 			fi
@@ -145,8 +141,8 @@ case $NAS_TYPE in
 MPI)
 	log_cmd "OpenMPI Environment"
 	log_cmd " NAS_OPENMPI_VERSION=$NAS_OPENMPI_VERSION"
-	log_cmd " NAS_MPI_PATH=$NAS_MPI_PATH"
-	log_cmd " NAS_MPI_LIBPATH=$NAS_MPI_LIBPATH"
+	log_cmd " PATH=$NAS_MPI_PATH:\$PATH"
+	log_cmd " LD_LIBRARY_PATH=$NAS_MPI_LIBPATH"
 	log_cmd " OMPI_TMPDIR=$OMPI_TMPDIR"
 	log_cmd " TMPDIR=$TMPDIR"
 	log_cmd " OPENMPI=$OPENMPI"
@@ -155,8 +151,8 @@ MPI)
 MPICH)
 	log_cmd "MPICH Environment"
 	log_cmd " NAS_MPICH_VERSION=$NAS_MPICH_VERSION"
-	log_cmd " NAS_MPICH_PATH=$NAS_MPICH_PATH"
-	log_cmd " NAS_MPICH_LIBPATH=$NAS_MPICH_LIBPATH"
+	log_cmd " PATH=$NAS_MPICH_PATH:\$PATH"
+	log_cmd " LD_LIBRARY_PATH=$NAS_MPICH_LIBPATH"
 	log_cmd " OMPI_TMPDIR=$OMPI_TMPDIR"
 	log_cmd " TMPDIR=$TMPDIR"
 	log_cmd " OPENMPI=$OPENMPI"
