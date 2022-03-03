@@ -19,6 +19,10 @@ install-depends libtirpc-devel
 patch -p1 <$SHELLPACK_TEMP/0001-autogen-prerequisite.patch
 
 ###SHELLPACK build_start dbench-${VERSION}
+
+# Older compilers do not understand the switch
+sed -i -e /implicit-fallthrough=2/d Makefile.in
+
 ###SHELLPACK build_autogen dbench-${VERSION}
 ###SHELLPACK build_configure dbench-${VERSION}
 
