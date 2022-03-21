@@ -781,6 +781,26 @@ EOC
 			close($input);
 			print "==== END $file ====\n";
 		}
+	} elsif ($command eq "mpich_setup_deps") {
+		my ($mpi) = @details;
+		print <<EOC
+MPICH_INSTALL_DEPENDS=
+# Install mpich requirements
+if [ "\$$mpi" = "mpich" ]; then
+	MPI_INSTALL_DEPENDS="mpich mpich-devel"
+	export SELFBUILD_MPICH_VERSION=v3.3.2
+else
+	if [ "\$MMTESTS_MPICH_SELFBUILD" = "yes" ]; then
+		export SELFBUILD_MPICH_VERSION="\$$mpi"
+	else
+		die "Unrecognised mpich $mpi \$$mpi"
+	fi
+fi
+if [ "\$MPICH_INSTALL_DEPENDS" != "" -a "\$MMTESTS_MPICH_SELFBUILD" != "yes" ]; then
+	install-depends \$MPICH_INSTALL_DEPENDS
+fi
+
+EOC
 	} elsif ($command eq "mpi_setup_deps") {
 		my ($mpi) = @details;
 		print <<EOC
@@ -825,6 +845,11 @@ if [ "\$MMTESTS_MPI_SELFBUILD" = "yes" ]; then
 	###SHELLPACK check_external_install_required openmpibuild openmpibuild-\${SELFBUILD_OPENMPI_VERSION} \${SELFBUILD_OPENMPI_VERSION}
 	export $mpipath="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/bin"
 	export $mpilib="\$SHELLPACK_SOURCES/openmpibuild-\${SELFBUILD_OPENMPI_VERSION}-installed/\$MMTESTS_LIBDIR"
+fi
+if [ "\$MMTESTS_MPICH_SELFBUILD" = "yes" ]; then
+	###SHELLPACK check_external_install_required mpichbuild mpichbuild-\${SELFBUILD_MPICH_VERSION} \${SELFBUILD_MPICH_VERSION}
+	export $mpipath="\$SHELLPACK_SOURCES/mpichbuild-\${SELFBUILD_MPICH_VERSION}-installed/bin"
+	export $mpilib="\$SHELLPACK_SOURCES/mpichbuild-\${SELFBUILD_MPICH_VERSION}-installed/\$MMTESTS_LIBDIR"
 fi
 
 if [ "$opts" != "" ]; then

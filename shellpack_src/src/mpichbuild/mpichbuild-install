@@ -1,0 +1,20 @@
+#!/bin/bash
+###SHELLPACK preamble mpichbuild v3.3.2
+GIT_LOCATION=https://github.com/pmodels/mpich
+MIRROR_LOCATION="$WEBROOT/mpich/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+export GIT_CLONE_FLAGS="--recursive -b $VERSION"
+
+###SHELLPACK git_fetch mpich-${VERSION}.tar.gz mpich-${VERSION}
+###SHELLPACK build_start mpich-${VERSION}
+
+CONFIGURE_FLAGS='CFLAGS="-O2 -g -fPIC" CXXLAGS="-O2 -g -fPIC" MPICHLIB_CFLAGS="-O2" MPICHLIB_CXXFLAGS="-O2"'
+
+./autogen.sh || die "Failed autogen.sh"
+###SHELLPACK build_configure mpich-${VERSION} $CONFIGURE_FLAGS
+###SHELLPACK make_make_install
+
+echo mpich installed successfully

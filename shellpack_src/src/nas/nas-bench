@@ -13,10 +13,12 @@ if [ "$NAS_OPENMPI_VERSION" != "" ]; then
 		export NAS_OPENMPI_VERSION=$NAS_OPENMPI_VERSION_NEW
 		install-depends $NAS_OPENMPI_VERSION $NAS_OPENMPI_VERSION-devel
 	fi
+	###SHELLPACK mpi_setup_env $NAS_OPENMPI_VERSION NAS_MPI_PATH NAS_MPI_LIBPATH NAS_MPI_OPTS
 fi
 
 if [ "$NAS_MPICH_VERSION" != "" ]; then
-	install-depends $NAS_MPICH_VERSION $NAS_MPICH_VERSION-devel
+	###SHELLPACK mpich_setup_deps NAS_MPICH_VERSION
+	###SHELLPACK mpi_setup_env NAS_MPICH_VERSION NAS_MPICH_PATH NAS_MPICH_LIBPATH
 fi
 
 install-depends libpsm_infinipath1
@@ -32,14 +34,6 @@ NAS_BIND_PLACE=${NAS_BIND_PLACE:-socket}
 
 if [ "$NAS_MAX_CPUS" = "" ]; then
 	NAS_MAX_CPUS=$NUMCPUS
-fi
-
-if [ "$NAS_MPI_PATH" != "" ]; then
-	export PATH=$NAS_MPI_PATH:$PATH
-fi
-
-if [ "$NAS_MPI_LIBPATH" != "" ]; then
-	export LD_LIBRARY_PATH=$NAS_MPI_LIBPATH
 fi
 
 if [ "$NAS_MPICH_PATH" != "" ]; then

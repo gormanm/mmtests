@@ -1502,6 +1502,8 @@ function collect_hardware_info()
 	if [ "`which cpupower 2> /dev/null`" != "" ]; then
 		cpupower frequency-info > $SHELLPACK_LOG/cpupower.txt
 		gzip $SHELLPACK_LOG/cpupower.txt
+		cpupower idle-info > $SHELLPACK_LOG/cpuidle.txt
+		gzip $SHELLPACK_LOG/cpuidle.txt
 	fi
 	if [ "`which lstopo 2> /dev/null`" != "" ]; then
 		lstopo $SHELLPACK_LOG/lstopo.pdf 2>/dev/null
@@ -1525,7 +1527,7 @@ function collect_hardware_info()
 	fi
 	if [ -e /sys/devices/system/cpu/cpu0/cpuidle ]; then
 		grep . /sys/devices/system/cpu/cpu0/cpuidle/state*/latency > $SHELLPACK_LOG/cpuidle-latencies.txt
-		tar -czf $SHELLPACK_LOG/cpuidle.tar.gz /sys/devices/system/cpu/cpu0/cpuidle &> /dev/null
+		tar -czf $SHELLPACK_LOG/cpuidle.tar.gz /sys/devices/system/cpu/cpu0/cpuidle /sys/devices/system/cpu/cpuidle/ &> /dev/null
 	fi
 	if [ "`which tuned-adm 2>/dev/null`" != "" ]; then
 		tuned-adm active > $SHELLPACK_LOG/tuned-active-profile.txt
