@@ -228,7 +228,7 @@ foreach my $package (@ARGV) {
 
 	# Check if the package is already installed
 	if ($distro eq "debian") {
-		if (system("dpkg --list $package > /dev/null 2>&1") == 0) {
+		if (system("dpkg-query -W --showformat='\${Status}\n' $package | grep 'install ok installed' >/dev/null 2>&1") == 0) {
 			next;
 		}
 	} elsif ($distro eq "gentoo") {

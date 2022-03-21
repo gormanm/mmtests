@@ -4,6 +4,8 @@
 GIT_LOCATION="https://github.com/akopytov/sysbench"
 MIRROR_LOCATION=$WEBROOT/sysbench
 
+install-depends pkg-config
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
