@@ -33,6 +33,7 @@ invalidate=1
 ramp_time=5	# Let the flusher thread start before taking measurements
 log_avg_msec=10
 group_reporting=1
+runtime=300
 
 [reader]
 new_group
