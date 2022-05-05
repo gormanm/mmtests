@@ -128,15 +128,6 @@ if [ -z "$RUNNAME" ]; then
 	exit -1
 fi
 
-# Import configs
-for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
-	if [ ! -e "${CONFIGS[$i]}" ]; then
-		echo "A config must be in the current directory or specified with --config"
-		echo "File ${CONFIGS[$i]} not found"
-		exit -1
-	fi
-done
-
 # Remove stale bash_arrays file
 rm -f $SCRIPTDIR/bash_arrays
 
@@ -153,6 +144,7 @@ fi
 . $SCRIPTDIR/shellpacks/monitors.sh
 export SHELLPACK_ADDON=$SCRIPTDIR/shellpack_src/addon
 
+# Import MMTests configuration files
 import_configs
 
 # Create directories that must exist
