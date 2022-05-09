@@ -184,7 +184,7 @@ FIRST_TIME=yes
 			fi
 		fi
 		if [ $WARM_TIME -gt 30 ]; then
-			WARM_FACTOR=30
+			WARM_TIME=30
 		fi
 
 		echo Warming up database for $WARM_TIME minutes
