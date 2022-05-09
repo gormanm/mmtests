@@ -127,6 +127,7 @@ echo o maximum $MAX_THREADS threads
 echo o scale factor: $SCALE_FACTOR 
 echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
 LAST_THREAD=0
+RET=$SHELLPACK_SUCCESS
 
 FIRST_TIME=yes
 
@@ -164,6 +165,12 @@ FIRST_TIME=yes
 			pgbench -h $PGHOST -p $PGPORT \
 				-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
 				> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
+		# Abort if DB init failed
+		if [ $? != 0 ]; then
+			echo Database init failed. Exiting.
+			RET=$SHELLPACK_ERROR
+			break
+		fi
 	fi
 
 	if [ "$DATABASE_INIT_ONCE" = "yes" -a "$FIRST_TIME" = "yes" ]; then
@@ -256,4 +263,4 @@ $SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
 cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
 
 echo pgbench successfully completed
-exit $SHELLPACK_SUCCESS
+exit $RET
