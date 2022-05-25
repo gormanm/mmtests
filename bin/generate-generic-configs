@@ -133,6 +133,12 @@ for CONFIG in `ls config-hpc-nas-omp-* config-hpc-nas-mpi-* | grep -v -- -bind`;
 	echo "export NAS_BIND=yes" >> $BCONFIG
 done
 
+# NAS mg.D only, many iterations
+sed -e 's/NAS_ITERATIONS=.*/NAS_ITERATIONS=30/' \
+    -e 's/NAS_CLASS=.*/NAS_CLASS=D/'		\
+    -e 's/MMTESTS=.*/MMTESTS=nas-mpich-mg/'	\
+    config-hpc-nas-mpich-quarter > config-hpc-nas-mpich-quarter-mgD-many
+
 # Netperf binding configs
 for TYPE in rr stream unix; do
 	for BINDING in cross-ht cross-node cross-socket; do
