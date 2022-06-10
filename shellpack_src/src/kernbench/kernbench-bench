@@ -1,6 +1,6 @@
 #!/bin/bash
 # Benchmark a number of kernel builds
-###SHELLPACK preamble kernbench 5.3
+###SHELLPACK preamble kernbench 5.14
 ITERATIONS=5
 KERNBENCH_CONFIG=defconfig
 KERNBENCH_TARGETS=vmlinux
@@ -18,6 +18,16 @@ install-depends flex bison libelf-devel libopenssl-devel
 ###SHELLPACK parseargYes	--skip-warmup	KERNBENCH_SKIP_WARMUP
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
+
+GCC_VERSION=`gcc --version | head -1 | awk '{print $NF}'`
+GCC_MAJOR=`echo $GCC_VERSION | awk -F . '{print $1}'`
+
+# May not work with older !SUSE distributions
+COMPILER_FLAGS=
+if [ $GCC_MAJOR -lt 5 ]; then
+	install-depends gcc-9
+	COMPILER_FLAGS="CC=gcc-9"
+fi
 
 KERNEL_FAMILY=v4.x
 for V in `seq 2 5`; do
@@ -41,7 +51,7 @@ KERNBENCH_TARGETS=`echo $KERNBENCH_TARGETS | sed -e 's/,/ /g'`
 
 	# Configure
 	yes '' | make $KERNBENCH_CONFIG > /dev/null 2>&1 || die "Failed to make $KERNBENCH_CONFIG"
-	make -j$THREADS clean > /dev/null
+	make $COMPILER_FLAGS -j$THREADS clean > /dev/null
 
 	if [ "`uname -m`" = "aarch64" ]; then
 		echo Removing broken entry from aarch64 $KERNBENCH_CONFIG
@@ -52,9 +62,9 @@ KERNBENCH_TARGETS=`echo $KERNBENCH_TARGETS | sed -e 's/,/ /g'`
 
 	if [ "$KERNBENCH_SKIP_WARMUP" = "no" ]; then
 		echo Install-only warming run
-		make -j$THREADS $KERNBENCH_TARGETS > /dev/null 2>&1 || die "Failed to build $KERNBENCH_TARGETS"
+		make $COMPILER_FLAGS -j$THREADS $KERNBENCH_TARGETS > /dev/null 2>&1 || die "Failed to build $KERNBENCH_TARGETS"
 	fi
-	make clean >/dev/null
+	make $COMPILER_FLAGS clean >/dev/null
 ###SHELLPACK init_only_end
 
 # Build pass
@@ -65,7 +75,7 @@ cd $SHELLPACK_DATA/linux-$VERSION || die "Unexpected layout"
 		echo Starting threads $NR_THREADS/$KERNBENCH_MAX_THREADS iteration $ITERATION/$KERNBENCH_ITERATIONS
 		sync
 
-		save_rc $TIME_CMD make -j$NR_THREADS $KERNBENCH_TARGETS 2>> $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time > /dev/null
+		save_rc $TIME_CMD make $COMPILER_FLAGS -j$NR_THREADS $KERNBENCH_TARGETS 2>> $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time > /dev/null
 		grep elapsed $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time``
 		recover_rc
 		if [ $? -ne 0 ]; then
@@ -73,7 +83,7 @@ cd $SHELLPACK_DATA/linux-$VERSION || die "Unexpected layout"
 		fi
 
 		# cleanup
-		make clean >/dev/null
+		make $COMPILER_FLAGS clean >/dev/null
 	###SHELLPACK iteration_end $ITERATIONS
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_powertwo_end
