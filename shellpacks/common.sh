@@ -1530,8 +1530,8 @@ function collect_hardware_info()
 		tar -czf $SHELLPACK_LOG/cpuidle.tar.gz /sys/devices/system/cpu/cpu0/cpuidle /sys/devices/system/cpu/cpuidle/ &> /dev/null
 	fi
 	if [ "`which tuned-adm 2>/dev/null`" != "" ]; then
-		tuned-adm active > $SHELLPACK_LOG/tuned-active-profile.txt
-		tuned-adm list   > $SHELLPACK_LOG/tuned-available-profile.txt
+		tuned-adm active 2> /dev/null > $SHELLPACK_LOG/tuned-active-profile.txt
+		tuned-adm list   2> /dev/null > $SHELLPACK_LOG/tuned-available-profile.txt
 	fi
 	grep -r . /proc/sys/net/* 2>/dev/null | gzip -c - > $SHELLPACK_LOG/network-tuning.txt.gz
 	grep -r . /proc/sys/vm/* 2>/dev/null | gzip -c - > $SHELLPACK_LOG/vm-tuning.txt.gz
