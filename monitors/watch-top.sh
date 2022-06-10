@@ -1,17 +1,34 @@
 #!/bin/bash
 # BinDepend: top:procps
+
+# By default, this monitor will _only_ track kswapd tasks. This is because
+# the comparison scripts are able to deal only with that (for now).
+#
+# If wanting to see all the tasks in the monitor logs, add this in
+# your config file:
+#  export MONITOR_TOP_KSWAPDONLY="no"
+
+FILTERPIDS=
+TOPOPTIONS="-b"
+
 if [ "$MONITOR_TOP_ACTIVEONLY" = "" ]; then
 	MONITOR_TOP_ACTIVEONLY=yes
 fi
-FILTERPIDS=
-if [ "$MONITOR_TOP_KSWAPDONLY" = "" -o "$MONITOR_TOP_KSWAPD_ONLY" = "yes" ]; then
+
+if [ "$MONITOR_TOP_SHOWTHREADS" = "yes" ]; then
+	TOPOPTIONS="$TOPOPTIONS -H "
+fi
+
+if [ "$MONITOR_TOP_KSWAPDONLY" = "" -o "$MONITOR_TOP_KSWAPDONLY" = "yes" ]; then
 	for KSWAPD_PID in `ps auxw | grep -E '\[kswapd[0-9]*\]' | awk '{print $2}'`; do
 		FILTERPIDS="$FILTERPIDS -p $KSWAPD_PID"
 	done
 fi
 
+TOPOPTIONS="$TOPOPTIONS $FILTERPIDS"
+
 if [ "$MONITOR_TOP_ACTIVEONLY" != "yes" ]; then
-	exec top $FILTERPIDS -b -d $MONITOR_UPDATE_FREQUENCY | perl -e 'select(STDOUT);
+	exec top $TOPOPTIONS -d $MONITOR_UPDATE_FREQUENCY | perl -e 'select(STDOUT);
 		$|=1;
 		while (<>) {
 			if ($_ =~ /^top -.*/) {
@@ -20,7 +37,7 @@ if [ "$MONITOR_TOP_ACTIVEONLY" != "yes" ]; then
 			print $_;
 		}'
 else
-	exec top $FILTERPIDS -b -d $MONITOR_UPDATE_FREQUENCY | perl -e 'select(STDOUT);
+	exec top $TOPOPTIONS -d $MONITOR_UPDATE_FREQUENCY | perl -e 'select(STDOUT);
 		$|=1;
 		while (<>) {
 			if ($_ =~ /^top -.*/) {
