@@ -130,7 +130,7 @@ done
 #
 # If, OTOH, we don't have an host config file, let's import the config
 # file(s) of the guests and use them for the host as well.
-[ ! -z $CONFIGS ] || CONFIGS=( "$DEFAULT_CONFIG" )
+[ ! -z $CONFIGS ] || CONFIGS=( "$MMTESTS_CONFIGS" )
 
 import_configs
 
@@ -317,7 +317,10 @@ pssh $PSSH_OPTS "mkdir -p git-private && rm -rf git-private/${NAME} && tar -C gi
 rm ${NAME}.tar.gz
 
 
-if [ "$KEEP_KERNEL" != "yes" ]; then
+# Booting the current host kernel in VMs is, currently, not supported in
+# "standaolne MMTests" (i.e., when ./bin-virt/kvm-boot` does not exist) or
+# if we're using more than one VM.
+if [ "$KEEP_KERNEL" != "yes" ] && [ $VMCOUNT -lt 2 ] && [ -e $SCRIPTDIR/bin-virt/kvm-boot ]; then
 	echo Booting current kernel `uname -r` $MORE_BOOT_ARGS on the guest
 	kvm-boot `uname -r` $MORE_BOOT_ARGS || die Failed to boot `uname -r`
 fi
