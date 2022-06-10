@@ -2,9 +2,24 @@
 export MMTESTS_HOST_IP="192.168.122.1"
 export AUTO_PACKAGE_INSTALL="yes"
 
+# SSH options, in the sshd_config(5) format (see `-o` in `man ssh`). MMTests
+# already uses `-o StrictHostKeyChecking=no` (and a few others, e.g., for
+# passwordless login).
+#
+# Note that all the options specified here, will be used for `pssh` too (via
+# `-O`, see `man pssh`).
+#export MMTESTS_SSH_CONFIG_OPTIONS="-o LogLevel=INFO"
+
+# Options to be passed to `pssh` (see `man pssh`). MMTests deal by itself with
+# all the options related to the various "hosts" to which we will connect during
+# the test (namely, `-H`). And where the output is saved (if desired) can be
+# controlled with MMTESTS_PSSH_OUTDIR (see below). This should contain other
+# options, if they are desired, such as, for instance, `-v`).
+#export MMTESTS_PSSH_OPTIONS="-v"
+
 # Let's have run-mmtests.sh output from the VMs in /tmp
 #export MMTESTS_PSSH_OUTDIR=/tmp
-#
+
 # List of VMs inside which to run the tests
 # (if not specified via command line)
 #export MMTESTS_VMS="vm1 vm2"

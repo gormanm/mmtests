@@ -10,7 +10,12 @@ export EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/shellpacks/monitors.sh
 
-MMTEST_PSSH_OPTIONS="$MMTEST_PSSH_OPTIONS -t 0 -O StrictHostKeyChecking=no"
+MMTESTS_SSH_CONFIG_OPTIONS+="-o StrictHostKeyChecking=no -o ForwardAgent=no -o ForwardX11=no"
+MMTESTS_SSH_OPTIONS+=" $SSH_CONFIG_OPTIONS"
+MMTESTS_PSSH_OPTIONS+=" -t 0 $(echo $MMTESTS_SSH_CONFIG_OPTIONS|sed s/-o/-O/g)"
+#for i in $MMTESTS_SSH_OPTIONS ; do
+#	MMTESTS_PSSH_OPTIONS+=" -x $i"
+#done
 
 if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
 	export MARVIN_KVM_DOMAIN="marvin-mmtests"
@@ -157,7 +162,7 @@ fi
 # for coordination of the test runs). So, we add it (and while there, add
 # AUTO_PACKAGE_INSTALL too).
 if [ ! -z $MMTESTS_HOST_IP ]; then
-	install-depends pssh gnu_parallel expect netcat-openbsd
+	install-depends gnu_parallel expect netcat-openbsd iputils
 
 	for c in ${MMTESTS_CONFIGS[@]}; do
 		if [ "`grep MMTESTS_HOST_IP ${c}`" = "" ] ; then
@@ -197,6 +202,8 @@ check_monitor_stap
 if [ "$STAP_USED" != "" ]; then
 	fixup_stap
 fi
+
+install-depends openssh-clients
 
 install_numad
 install_tuned
@@ -258,8 +265,8 @@ if [ "$MMTESTS_VMS_IP" != "" ]; then
 	for VM in $VMS; do
 		echo "checking VM: $VM at IP: ${GUEST_IP[$v]}"
 		wait_ssh_available ${GUEST_IP[$v]}
-		PSSH_OPTS="$PSSH_OPTS -H root@${GUEST_IP[$v]}"
-
+		SSH_HOST="root@${GUEST_IP[$v]}"
+		PSSH_HOSTS+=" -H $SSH_HOST"
 		echo "VM ready: $VM IP: ${GUEST_IP[$v]}"
 		activity_log "run-kvm: VM $VM IP ${GUEST_IP[$v]}"
 
@@ -283,7 +290,8 @@ else
 		GUEST_IP[$v]=`kvm-ip-address --vm $VM`
 		echo "VM ready: $VM IP: ${GUEST_IP[$v]}"
 		activity_log "run-kvm: VM $VM IP ${GUEST_IP[$v]}"
-		PSSH_OPTS="$PSSH_OPTS -H root@${GUEST_IP[$v]}"
+		SSH_HOST="root@${GUEST_IP[$v]}"
+		PSSH_HOSTS+=" -H $SSH_HOST"
 		if [ "$HOST_LOGS" = "yes" ]; then
 			virsh dumpxml $VM > $SHELLPACK_LOG/$VM.xml
 		fi
@@ -293,13 +301,73 @@ else
 	IFS=$PREV_IFS
 fi
 VMCOUNT=$(( $v - 1 ))
-PSSH_OPTS="$PSSH_OPTS $MMTEST_PSSH_OPTIONS -p $(( $VMCOUNT * 2 ))"
+
+[ $VMCOUNT -lt 1 ] && die "ERROR: No VM specified?"
+if [ $VMCOUNT -eq 1 ]; then
+	PSCP=scp
+	PSSH=ssh
+	# Of course, using $SSH_HOST like this makes sense only because we know
+	# that there is only 1 VM.
+	SSH_TARGET="$SSH_HOST"
+	SCP_TARGET="$SSH_TARGET:~"
+	PSSH_OPTS="$MMTESTS_SSH_OPTIONS"
+elif [ -z $MMTESTS_HOST_IP ]; then
+	# When using more than 1 VMs, we need MMTESTS_HOST_IP to be explicitly
+	# defined, so that we know that we should follow the lockstep protocol,
+	# and not just let it/them run.
+	#
+	# TODO: If more than 1 VM is used, and MMTESTS_HOST_IP is not defined, we
+	# can try to automatically figure it out, and let things proceed...
+	die "ERROR: When using more than 1 VM, define MMTESTS_HOST_IP!"
+else
+	# With more than 2 VMs, we need parallel SSH/SCP. However, the package
+	# may not be available in all distros. Or maybe it is, but the programs
+	# have different names, like it is, e.g., in openSUSE and in Debian. So,
+	# let's handle things in a bit of a special way...
+	install-depends pssh
+	PSCP=pscp ; PSSH=pssh
+	# If install-depends worked, either pscp or parallel-scp should be available now
+	if command -v parallel-scp &> /dev/null; then
+		PSCP=parallel-scp
+		PSSH=parallel-ssh
+	elif ! command -v pscp &> /dev/null; then
+		# Ok, this means it's not available in packages!
+		# But we *need* it, so let's try some extreme measures...
+		if [ "$AUTO_PACKAGE_INSTALL" != "yes" ] && [ ! -e "${HOME}/.mmtests-auto-package-install" ]; then
+			echo -n "MMTests would like to try to install PSSH from pip (https://pypi.org/project/pssh/). Can we proceed (YES/no/)? "
+			read -r answer
+		else
+			answer="yes"
+		fi
+		case "${answer}" in
+			y | Y | Yes | yes | YES)
+				install-depends python3-pip
+				pip install git+https://github.com/lilydjwg/pssh
+				PIP_UNINSTALL_PSSH="yes"
+				;;
+			*)
+				die "ERROR: We cannot continue without pssh/pscp!"
+				;;
+		esac
+	fi
+	command -v $PSCP &> /dev/null || \
+		die "ERROR: pscp not available. Cannot continue!"
+	command -v $PSSH &> /dev/null || \
+		die "pscp is there, but not pssh? Too weird to continue!"
+
+	PSSH_OPTS="$PSSH_OPTS $PSSH_HOSTS $MMTESTS_PSSH_OPTIONS -p $(( $VMCOUNT * 2 ))"
+	SSH_TARGET=""   # All we need is already in PSSH_OPTS!
+	SCP_TARGET="~"  # We need just the path(s)"
+fi
 
 # If $MMTESTS_PSSH_OUT_DIR contains a valid path, ask `pssh` to create there
 # one file for each VM (name will be like root@<VM_IP>), were we can watch,
 # live, the output of run-mmtests.sh, from inside each VM. This can be quite
 # handy, especialy for debugging.
-[ ! -z $MMTESTS_PSSH_OUTDIR ] && [ -d $MMTESTS_PSSH_OUTDIR ] && PSSH_OPTS="$PSSH_OPTS -o $MMTESTS_PSSH_OUTDIR"
+if [ ! -z $MMTESTS_PSSH_OUTDIR ]; then
+       mkdir -p $MMTESTS_PSSH_OUTDIR
+       PSSH_OPTS+=" -o $MMTESTS_PSSH_OUTDIR"
+fi
 
 teststate_log "vms ready :: `date +%s`"
 
@@ -310,12 +378,20 @@ tar -czf ${NAME}.tar.gz --exclude=${NAME}/work --exclude=${NAME}/.git ${NAME} ||
 mv ${NAME}.tar.gz ${NAME}/
 cd ${NAME}
 
+# SCP_TARGET is just the path (i.e., '~') where to copy the archive on within
+# the various VMs, if we have more than 1, or just "root@GUEST_IP:~"
 echo Uploading and extracting new mmtests
-pscp $PSSH_OPTS ${NAME}.tar.gz ~ || die Failed to upload ${NAME}.tar.gz
+$PSCP $PSSH_OPTS ${NAME}.tar.gz $SCP_TARGET || die Failed to upload ${NAME}.tar.gz
 
-pssh $PSSH_OPTS "mkdir -p git-private && rm -rf git-private/${NAME} && tar -C git-private -xf ${NAME}.tar.gz" || die Failed to extract ${NAME}.tar.gz
+# SSH_TARGET is "", if we have more than 2 VMs and are using `pssh`(and
+# all the targets are in PSSH_OPTS already) or "root@GUEST_IP", if we have
+# only one VM.
+$PSSH $PSSH_OPTS $SSH_TARGET "mkdir -p git-private && rm -rf git-private/${NAME} && tar -C git-private -xf ${NAME}.tar.gz" || die Failed to extract ${NAME}.tar.gz
 rm ${NAME}.tar.gz
 
+# We'll be running benchmarks with [P]SSH, without a terminal, etc. We *must*
+# be absolutely sure that packages are automatically installed.
+$PSSH $PSSH_OPTS $SSH_TARGET "touch ~/.mmtests-auto-package-install"
 
 # Booting the current host kernel in VMs is, currently, not supported in
 # "standaolne MMTests" (i.e., when ./bin-virt/kvm-boot` does not exist) or
@@ -361,7 +437,7 @@ activity_log "run-kvm: begin $CURRENT_TEST"
 sysstate_log_proc_files "start"
 
 /usr/bin/time -f "time :: $CURRENT_TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
-	pssh $PSSH_OPTS "cd git-private/$NAME && ./run-mmtests.sh $@" &
+	$PSSH $PSSH_OPTS $SSH_TARGET "cd git-private/$NAME && ./run-mmtests.sh $@" &
 PSSHPID=$!
 
 # This variable can be used to provide additional options to `nc`, as it is
@@ -614,6 +690,10 @@ shutdown_numad
 shutdown_tuned
 
 activity_log "run-kvm: Iteration $MMTEST_HOST_ITERATION end"
+
+if [ "$PIP_UNINSTALL_PSSH" = "yes" ]; then
+	pip uninstall -y pssh
+fi
 
 activity_log "run-kvm: End"
 teststate_log "status :: $RETVAL"
