@@ -24,6 +24,12 @@ export AUTO_PACKAGE_INSTALL="yes"
 # (if not specified via command line)
 #export MMTESTS_VMS="vm1 vm2"
 
+# When running benchmarks in multiple VMs, coordination between the host and
+# the VMs happens over network. VMs will contact the host at MMTESTS_HOST_PORT
+# (TCP) port, while host will contact guests at MMTESTS_GUEST_PORT (TCP) port.
+#export MMTESTS_HOST_PORT=1234
+#export MMTESTS_GUEST_PORT=4321
+
 # If the VMs are up already, and we know their IPs, we can
 # use them directly. Note that this means:
 # - run-kmv.sh will not (try to) power on the VMs, it will

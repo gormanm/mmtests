@@ -197,6 +197,19 @@ install-depends autoconf automake bc binutils-devel btrfsprogs bzip2	\
 	hwloc libtool make numactl patch perl-Time-HiRes psmisc tcl	\
 	time wget xfsprogs xfsprogs-devel xz which perl-File-Slurp netcat-openbsd \
 
+# if we're running in a vm, and the firewall seems on, let's (try to) whitelist
+# the host, so we can communicate with it. this should work fine if we're using
+# firewalld/firewall-cmd. if not, for now, we just (desperately) try something
+# with iptables, but I can't be sure it'll work equally well.
+if [ ! -z "$MMTESTS_HOST_IP" ]; then
+	if command -v firewall-cmd &> /dev/null && [ "$(firewall-cmd --state)" = "running" ]; then
+		#firewall-cmd  --add-rich-rule='rule family="ipv4" source address="${MMTESTS_HOST_IP}" port protocol="tcp" port="4321" accept'
+		firewall-cmd --zone=trusted --add-source=${MMTESTS_HOST_IP}
+	elif command -v iptables &> /dev/null; then
+		iptables -A INPUT -p tcp --dport ${MMTESTS_GUEST_PORT:-4321} -j ACCEPT
+	fi
+fi
+
 # Set some basic performance cpu frequency settings.
 if ! $BUILDONLY && [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
 	FORCE_PERFORMANCE_SCALINGGOV_BASE=`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`

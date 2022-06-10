@@ -239,6 +239,16 @@ start_tuned
 
 teststate_log "start :: `date +%s`"
 
+# We need to be able to reach the guest at the port we use for guest-host
+# communication, even if a firewall is up. This should work fine if with
+# firewalld/firewall-cmd.
+firewall_whitelist_ip() {
+	local IP=$1
+	if command -v firewall-cmd &> /dev/null && [ "$(firewall-cmd --state)" = "running" ]; then
+		firewall-cmd --zone=trusted --add-source=${IP}
+	fi
+}
+
 # Arrays where we store, for each VM, the IP and a VM-specific
 # runname. The latter, in particular, is necessary because otherwise,
 # when running the same benchmark in several VMs with different names,
@@ -268,6 +278,7 @@ if [ "$MMTESTS_VMS_IP" != "" ]; then
 		SSH_HOST="root@${GUEST_IP[$v]}"
 		PSSH_HOSTS+=" -H $SSH_HOST"
 		echo "VM ready: $VM IP: ${GUEST_IP[$v]}"
+		firewall_whitelist_ip ${GUEST_IP[$v]}
 		activity_log "run-kvm: VM $VM IP ${GUEST_IP[$v]}"
 
 		VM_RUNNAME[$v]="$RUNNAME-$VM"
@@ -289,18 +300,26 @@ else
 	for VM in $VMS; do
 		GUEST_IP[$v]=`kvm-ip-address --vm $VM`
 		echo "VM ready: $VM IP: ${GUEST_IP[$v]}"
-		activity_log "run-kvm: VM $VM IP ${GUEST_IP[$v]}"
 		SSH_HOST="root@${GUEST_IP[$v]}"
 		PSSH_HOSTS+=" -H $SSH_HOST"
 		if [ "$HOST_LOGS" = "yes" ]; then
 			virsh dumpxml $VM > $SHELLPACK_LOG/$VM.xml
 		fi
+		firewall_whitelist_ip ${GUEST_IP[$v]}
+		activity_log "run-kvm: VM $VM IP ${GUEST_IP[$v]}"
+
 		VM_RUNNAME[$v]="$RUNNAME-$VM"
 		v=$(( $v + 1 ))
 	done
 	IFS=$PREV_IFS
 fi
 VMCOUNT=$(( $v - 1 ))
+
+# if we're not using firewall-cmd, let's just (desperately) try something with
+# iptables, but I can't be sure it'll work equally well.
+if [ ! -z $MMTESTS_HOST_IP ] && ! command -v firewall-cmd &> /dev/null; then
+	iptables -A INPUT -p tcp --dport ${MMTESTS_HOST_PORT:-1234} -j ACCEPT
+fi
 
 [ $VMCOUNT -lt 1 ] && die "ERROR: No VM specified?"
 if [ $VMCOUNT -eq 1 ]; then
