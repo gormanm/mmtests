@@ -63,6 +63,22 @@ while [ "$1" != "" ]; do
 	esac
 done
 
+OUT=/dev/stdout
+if [ ! -t 1 ]; then
+	OUT=$(mktemp ~/.compare-kernel-XXXX.out)
+fi
+
+install-depends perl-List-BinarySearch &> $OUT
+
+if [ "$FORMAT" = "html" ]; then
+	install-depends gnuplot &>> $OUT
+	install-depends perl-GD &>> $OUT
+fi
+
+# Comment the following line if debugging and/or thinking that installing
+# the packages above is having or causing issues and you want to see the output
+[ "$OUT" != "/dev/stdout" ] && rm -f $OUT
+
 if [ "$CACHE_MMTESTS" != "" ]; then
 	mkdir -p $CACHE_MMTESTS
 	if [ -e $CACHE_MMTESTS/current_update ]; then
