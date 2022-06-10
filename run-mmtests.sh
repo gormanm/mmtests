@@ -61,7 +61,7 @@ trap begin_shutdown SIGINT
 trap clean_exit EXIT
 
 usage() {
-	echo "$0 [-kmnph] [-c path_to_config] runname"
+	echo "$0 [-mnpbh] [-c path_to_config] runname"
 	echo
 	echo "-m|--run-monitor Force enable monitor."
 	echo "-n|--no-monitor  Force disable monitor."
@@ -70,6 +70,9 @@ usage() {
 	echo "-b|--build-only  Only build the software to test, don't run"
 	echo "-h|--help        Prints this help."
 }
+
+# For `getopt`, which is needed *now*!
+install-depends util-linux
 
 # Parse command-line arguments
 ARGS=`getopt -o pmnc:bh --long performance,help,run-monitor,no-monitor,config:,build-only -n run-mmtests -- "$@"`
@@ -192,7 +195,7 @@ fi
 install-depends autoconf automake bc binutils-devel btrfsprogs bzip2	\
 	coreutils cpupower e2fsprogs expect expect-devel gcc hdparm	\
 	hwloc libtool make numactl patch perl-Time-HiRes psmisc tcl	\
-	time util-linux	wget xfsprogs xfsprogs-devel xz which perl-File-Slurp
+	time wget xfsprogs xfsprogs-devel xz which perl-File-Slurp netcat-openbsd \
 
 # Set some basic performance cpu frequency settings.
 if ! $BUILDONLY && [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then

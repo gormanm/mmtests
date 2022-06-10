@@ -169,6 +169,8 @@ if [ ! -z $MMTESTS_HOST_IP ]; then
 	done
 fi
 
+install-depends time
+
 # Check host monitors
 if [ "$FORCE_RUN_MONITOR" != "" ]; then
 	RUN_MONITOR=$FORCE_RUN_MONITOR
