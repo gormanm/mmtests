@@ -89,9 +89,21 @@ Memory Topology
 ---------------
 `numactl --hardware`
 
+SCSI Storage
+------------
+`lsscsi`
+
+NVME Storage
+------------
+`nvme list`
+
 CPU Topology
 ------------
 `list-cpu-toplogy.sh`
+
+CPUFreq
+-------
+`cpupower frequency-info`
 
 Hwloc Topology
 -------------
