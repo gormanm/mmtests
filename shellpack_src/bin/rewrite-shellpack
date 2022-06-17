@@ -787,7 +787,7 @@ EOC
 MPICH_INSTALL_DEPENDS=
 # Install mpich requirements
 if [ "\$$mpi" = "mpich" ]; then
-	MPI_INSTALL_DEPENDS="mpich mpich-devel"
+	MPICH_INSTALL_DEPENDS="mpich mpich-devel"
 	export SELFBUILD_MPICH_VERSION=v3.3.2
 else
 	if [ "\$MMTESTS_MPICH_SELFBUILD" = "yes" ]; then
