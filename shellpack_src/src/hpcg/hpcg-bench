@@ -8,7 +8,7 @@ if [ "$HPCG_OPENMPI_VERSION" != "" ]; then
 	if [ $? -ne 0 ]; then
 		echo WARNING: Falling back to openmpi1
 		export HPCG_OPENMPI_VERSION_NEW=openmpi
-		export HPCG_MPI_PATH=`echo $HPCG_MPI_PATH | sed -e "s@/$HPCG_OPENMPI_VERSION/$HPCG_OPENMPI_VERSION_NEW/g"`
+		export HPCG_MPI_PATH=`echo $HPCG_MPI_PATH | sed -e "s@$HPCG_OPENMPI_VERSION@$HPCG_OPENMPI_VERSION_NEW@g"`
 		export HPCG_OPENMPI_VERSION=$HPCG_OPENMPI_VERSION_NEW
 		install-depends $HPCG_OPENMPI_VERSION $HPCG_OPENMPI_VERSION-devel
 	fi

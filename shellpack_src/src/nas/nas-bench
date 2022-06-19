@@ -8,8 +8,8 @@ if [ "$NAS_OPENMPI_VERSION" != "" ]; then
 	if [ $? -ne 0 ]; then
 		echo WARNING: Falling back to openmpi1
 		export NAS_OPENMPI_VERSION_NEW=openmpi
-		export NAS_MPI_PATH=`echo $NAS_MPI_PATH | sed -e "s@/$NAS_OPENMPI_VERSION/$NAS_OPENMPI_VERSION_NEW/g"`
-		export NAS_MPI_LIBPATH=`echo $NAS_MPI_LIBPATH | sed -e "s@/$NAS_OPENMPI_VERSION/$NAS_OPENMPI_VERSION_NEW/g"`
+		export NAS_MPI_PATH=`echo $NAS_MPI_PATH | sed -e "s@$NAS_OPENMPI_VERSION@$NAS_OPENMPI_VERSION_NEW@g"`
+		export NAS_MPI_LIBPATH=`echo $NAS_MPI_LIBPATH | sed -e "s@$NAS_OPENMPI_VERSION@$NAS_OPENMPI_VERSION_NEW@g"`
 		export NAS_OPENMPI_VERSION=$NAS_OPENMPI_VERSION_NEW
 		install-depends $NAS_OPENMPI_VERSION $NAS_OPENMPI_VERSION-devel
 	fi
