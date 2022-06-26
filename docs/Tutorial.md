@@ -1343,7 +1343,6 @@ Duration User         632.09      934.45
 Duration System       762.86     1019.59
 Duration Elapsed      975.82     1353.28
 
-                                        BASELIN            BUS
                                        BASELINE           BUSY
 Ops Minor Faults                     5884093.00     2325847.00
 Ops Major Faults                         419.00         118.00
