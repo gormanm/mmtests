@@ -247,7 +247,8 @@ for JOB in $JOBLIST; do
 		;;
 	MPI|MPICH)
 		lookup_mpicpus $JOB
-		BENCH_CMD="$MPIRUN -np $MPICPUS $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS"
+		BENCH_CMD="$SLURM_CMD $MPIRUN -np $MPICPUS $MMTESTS_MPI_OPTS $NAS_WRAPPER ./bin/$JOB.$NAS_CLASS.$MPICPUS"
+		cluster_replicate_file ./bin/$JOB.$NAS_CLASS.$MPICPUS
 	esac
 	log_cmd $BENCH_CMD
 

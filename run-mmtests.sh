@@ -153,6 +153,7 @@ import_configs
 # Create directories that must exist
 cd $SHELLPACK_TOPLEVEL
 
+setup_slurm_env
 setup_dirs
 
 # Mount the log directory on the requested partition if requested

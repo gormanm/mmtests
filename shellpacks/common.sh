@@ -20,6 +20,10 @@ NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
 NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
 LLC_INDEX=`find /sys/devices/system/cpu/ -type d -name "index*" | sed -e 's/.*index//' | sort -n | tail -1`
 NUMLLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort | uniq | wc -l`
+MMT_SLURM_NODES=`scontrol show node 2>&1 | grep ^NodeName | wc -l`
+if [ "$MMT_SLURM_NODES" = "" ]; then
+	MMT_SLURM_NODES=0
+fi
 
 SMT_LEVEL=`lscpu | grep Thread | awk '{print $NF}'`
 if [ "$SMT_LEVEL" = "" ]; then
@@ -1600,4 +1604,30 @@ function round_down_nearest_square()
 
 	square=`echo "sqrt($input_val) / 1" | bc`
 	echo $((square*square))
+}
+
+function setup_slurm_env() {
+	if [ "$SLURM_ENV_SETUP" = "yes" ]; then
+		if [ $MMT_SLURM_NODES -eq 0 ]; then
+			die "SUT is not a SLURM controller or SLURM is not configured properly"
+		fi
+
+		MMTESTS_MPI_OPTS+=" --oversubscribe"
+		export MMTESTS_MPI_OPTS
+		export SLURM_CMD="salloc -N $MMT_SLURM_NODES"
+		export SLURM_RUN_NODES="srun -N $MMT_SLURM_NODES"
+	fi
+}
+
+function cluster_replicate_file() {
+	if [ "$SLURM_ENV_SETUP" = "yes" ]; then
+		if [ ! -f $1 ]; then
+			die "Only able to replicate a file or file does not exist"
+		fi
+		FILE=`readlink -f $1`
+		pushd /tmp &>/dev/null
+		$SLURM_RUN_NODES mkdir -p `dirname $FILE`
+		$SLURM_CMD sbcast -f $FILE $FILE || die "Failed to replicate $FILE"
+		popd &> /dev/null
+	fi
 }

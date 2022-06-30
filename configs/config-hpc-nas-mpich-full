@@ -48,3 +48,5 @@ D)
 *)
 	die "Unrecognised class $NAS_CLASS"
 esac
+
+export SLURM_ENV_SETUP=no
