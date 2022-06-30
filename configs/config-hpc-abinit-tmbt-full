@@ -39,3 +39,5 @@ if [ "`whoami`" = "root" ]; then
 	ABINIT_MPI_OPTS+=" --allow-run-as-root"
 fi
 export ABINIT_MPI_OPTS
+
+export SLURM_ENV_SETUP=no

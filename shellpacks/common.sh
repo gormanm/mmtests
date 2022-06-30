@@ -1631,3 +1631,21 @@ function cluster_replicate_file() {
 		popd &> /dev/null
 	fi
 }
+
+function cluster_replicate_dir() {
+	if [ "$SLURM_ENV_SETUP" = "yes" ]; then
+		if [ ! -d $1 ]; then
+			die "Only able to replicate a directory or directory does not exist"
+		fi
+
+		DIR=`readlink -f $1`
+		PARENT=`dirname $DIR`
+		pushd /tmp &>/dev/null
+		$SLURM_RUN_NODES mkdir -p $DIR
+		$SLURM_RUN_NODES rm -rf $DIR
+		tar -C $PARENT -czf /tmp/cluster-replicate.tar.gz `basename $DIR`
+		$SLURM_CMD sbcast -f /tmp/cluster-replicate.tar.gz /tmp/cluster-replicate.tar.gz || die "Failed to replicate $FILE"
+		$SLURM_RUN_NODES tar -C $PARENT -xf /tmp/cluster-replicate.tar.gz
+		popd &> /dev/null
+	fi
+}
