@@ -1621,7 +1621,6 @@ function setup_slurm_env() {
 }
 
 function cluster_replicate_packages() {
-	echo DEBUG: ENTER $SLURM_ENV_SETUP $MMTESTS_SESSION_ID
 	if [ "$SLURM_ENV_SETUP" = "yes" -a "$MMTESTS_SESSION_ID" != "" ]; then
 		for PACKAGE in `cat /tmp/packages.$MMTESTS_SESSION_ID`; do
 			echo Installing $PACKAGE on cluster
