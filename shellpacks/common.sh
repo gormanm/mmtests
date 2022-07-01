@@ -1621,12 +1621,14 @@ function setup_slurm_env() {
 }
 
 function cluster_replicate_packages() {
+	pushd /tmp &>/dev/null
 	if [ "$SLURM_ENV_SETUP" = "yes" -a "$MMTESTS_SESSION_ID" != "" ]; then
 		for PACKAGE in `cat /tmp/packages.$MMTESTS_SESSION_ID`; do
 			echo Installing $PACKAGE on cluster
 			$SLURM_RUN_NODES install-depends $PACKAGE
 		done
 	fi
+	popd /tmp &>/dev/null
 }
 
 function cluster_replicate_file() {
