@@ -1623,6 +1623,12 @@ function setup_slurm_env() {
 function cluster_replicate_packages() {
 	pushd /tmp &>/dev/null
 	if [ "$SLURM_ENV_SETUP" = "yes" -a "$MMTESTS_SESSION_ID" != "" ]; then
+		if [ "$OMPI_TMPDIR" != "" ]; then
+			$SLURM_RUN_NODES mkdir -p $OMPI_TMPDIR &>/dev/null
+		fi
+		if [ "$TMPDIR" != "" ]; then
+			$SLURM_RUN_NODES mkdir -p $TMPDIR &>/dev/nuull
+		fi
 		for PACKAGE in `cat /tmp/packages.$MMTESTS_SESSION_ID`; do
 			echo Installing $PACKAGE on cluster
 			$SLURM_RUN_NODES install-depends $PACKAGE

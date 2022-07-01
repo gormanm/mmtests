@@ -67,7 +67,7 @@ done
 sed -e 's/HACKBENCH_MAX_GROUPS=.*/HACKBENCH_MAX_GROUPS=1/' config-scheduler-unbound > config-scheduler-unbound-small
 
 # hpcc
-sed -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((512*1048576))'/ config-hpc-hpcc-large > config-hpc-hpcc-small
+sed -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((512*1048576))'/ config-hpc-hpcc-large-full > config-hpc-hpcc-small-full
 
 # hpcg
 sed -e 's/HPCG_DURATION=.*/HPCG_DURATION=60/' config-hpc-hpcg-gcc-mpi-long > config-hpc-hpcg-gcc-mpi-short
