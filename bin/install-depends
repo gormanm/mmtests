@@ -218,8 +218,16 @@ if (getuid() != 0) {
 	}
 }
 
+if ($ENV{"MMTESTS_SESSION_ID"} ne "") {
+	my $file = "/tmp/packages." . $ENV{"MMTESTS_SESSION_ID"};
+	open(SESSION, ">>$file") || die("Failed to open $file");
+}
+
 my $exit_code = 0;
 foreach my $package (@ARGV) {
+	if ($ENV{"MMTESTS_SESSION_ID"} ne "") {
+		print SESSION "$package\n";
+	}
 
 	# Map the package onto the distro-equivalent name
 	if (defined($package_map{"$distro\::$package"})) {
@@ -283,6 +291,10 @@ foreach my $package (@ARGV) {
 	}
 
 	print "Installed $package\n";
+}
+
+if ($ENV{"MMTESTS_SESSION_ID"} ne "") {
+	close(SESSION);
 }
 
 exit($exit_code);

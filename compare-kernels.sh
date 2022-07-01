@@ -583,6 +583,14 @@ for SUBREPORT in $REPORTS; do
 		echo $SUBREPORT App Overhead
 		cache-mmtests.sh compare-mmtests.pl -d . -b ${SUBREPORT}overhead -n $KERNEL_LIST $FORMAT_CMD
 		;;
+	hpcc)
+		echo $SUBREPORT HPCC Time
+		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		echo $SUBREPORT HPCC Load Scores
+		cache-mmtests.sh compare-mmtests.pl -d . -b ${SUBREPORT} -a score -n $KERNEL_LIST $FORMAT_CMD
+		echo
+		;;
 	johnripper)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD

@@ -1616,6 +1616,17 @@ function setup_slurm_env() {
 		export MMTESTS_MPI_OPTS
 		export SLURM_CMD="salloc -N $MMT_SLURM_NODES"
 		export SLURM_RUN_NODES="srun -N $MMT_SLURM_NODES"
+		export MMTESTS_SESSION_ID=`date +%s`
+	fi
+}
+
+function cluster_replicate_packages() {
+	echo DEBUG: ENTER $SLURM_ENV_SETUP $MMTESTS_SESSION_ID
+	if [ "$SLURM_ENV_SETUP" = "yes" -a "$MMTESTS_SESSION_ID" != "" ]; then
+		for PACKAGE in `cat /tmp/packages.$MMTESTS_SESSION_ID`; do
+			echo Installing $PACKAGE on cluster
+			$SLURM_RUN_NODES install-depends $PACKAGE
+		done
 	fi
 }
 
@@ -1641,11 +1652,13 @@ function cluster_replicate_dir() {
 		DIR=`readlink -f $1`
 		PARENT=`dirname $DIR`
 		pushd /tmp &>/dev/null
+		tar -C $PARENT -czf /tmp/cluster-replicate-master.tar.gz `basename $DIR`
 		$SLURM_RUN_NODES mkdir -p $DIR
 		$SLURM_RUN_NODES rm -rf $DIR
-		tar -C $PARENT -czf /tmp/cluster-replicate.tar.gz `basename $DIR`
-		$SLURM_CMD sbcast -f /tmp/cluster-replicate.tar.gz /tmp/cluster-replicate.tar.gz || die "Failed to replicate $FILE"
+		$SLURM_CMD sbcast -f /tmp/cluster-replicate-master.tar.gz /tmp/cluster-replicate.tar.gz || die "Failed to replicate $FILE"
 		$SLURM_RUN_NODES tar -C $PARENT -xf /tmp/cluster-replicate.tar.gz
+		$SLURM_RUN_NODES rm /tmp/cluster-replicate.tar.gz
+		rm /tmp/cluster-replicate-master.tar.gz
 		popd &> /dev/null
 	fi
 }

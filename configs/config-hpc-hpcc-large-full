@@ -10,9 +10,15 @@ export MONITOR_UPDATE_FREQUENCY=10
 # HPC Challenge
 export HPCC_OPENMPI_VERSION=openmpi3
 export HPCC_MPI_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$HPCC_OPENMPI_VERSION/bin
-export HPCC_WORKLOAD_SIZE=$((MEMTOTAL_BYTES*7/10))
+export HPCC_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_OPENMPI_VERSION/$MMTESTS_LIBDIR
+export HPCC_WORKLOAD_SIZE=$((16*1048576*1024))
 export HPCC_ITERATIONS=3
-export HPCC_MAX_CPUS=$((NUMCPUS/2))
+export HPCC_MAX_CPUS=$((NUMCPUS))
+
+if [ $HPCC_WORKLOAD_SIZE -gt $((MEMTOTAL_BYTES/2)) ]; then
+	echo Insufficient memory for benchmark
+	exit -1
+fi
 
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
@@ -26,3 +32,5 @@ if [ "`whoami`" = "root" ]; then
 	HPCC_MPI_OPTS+=" --allow-run-as-root"
 fi
 export HPCC_MPI_OPTS
+
+export SLURM_ENV_SETUP=no

@@ -478,10 +478,7 @@ if [ ! -d \$SHELLPACK_SOURCES/$dstdir ]; then
 	mmtests_activity source-installed
 fi
 cd \$SHELLPACK_SOURCES/$shellpack-\${VERSION}-installed || die "Failed to cd to $shellpack install directory"
-if [ "\$INSTALL_ONLY" = "yes" ]; then
-	echo $shellpack installed only as requested.
-	exit \$SHELLPACK_SUCCESS
-fi
+###SHELLPACK init_complete
 $script_sysctl
 EOC
 	} elsif ($command eq "check_install_required_continue") {
@@ -527,19 +524,17 @@ EOC
 if [ "\$INSTALL_ONLY" = "yes" ]; then
 EOC
 	} elsif ($command eq "init_only_end") {
-		print <<EOC
-	echo $shellpack installed only as requested.
-	exit \$SHELLPACK_SUCCESS
-fi
-EOC
+		print "###SHELLPACK init_complete\n";
 	} elsif ($command eq "init_only_continue") {
 		print <<EOC
+	cluster_replicate_packages
 	echo Initialisation step complete, continuing
 fi
 EOC
 	} elsif ($command eq "init_complete") {
 		print <<EOC
 if [ "\$INSTALL_ONLY" = "yes" ]; then
+	cluster_replicate_packages
 	echo $shellpack installed only as requested.
 	exit \$SHELLPACK_SUCCESS
 fi

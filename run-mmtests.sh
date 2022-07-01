@@ -24,6 +24,9 @@ clean_exit()
 	[ -n "$file" ] && rm -rf $file
     done < $DELETE_ON_EXIT_FILE
     rm -f $DELETE_ON_EXIT_FILE
+    if [ "$MMTESTS_SESSION_ID" != "" ]; then
+    	rm -f /tmp/packages.$MMTESTS_SESSION_ID
+    fi
 }
 
 begin_shutdown() {
