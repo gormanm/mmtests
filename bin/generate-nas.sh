@@ -136,21 +136,30 @@ emit_optimization() {
 		FFLAGS="-fallow-argument-mismatch -fallow-invalid-boz"
 	fi
 
+	BFLAGS=
+	case $ARCH in
+	aarch64)
+		BFLAGS=
+		;;
+	*)
+		BFLAGS=-m$BITNESS
+	esac
+
 	echo
 	echo "# Fortran Optimisation"
 	echo "FLINK              = $COMPILE_FORTRAN"
 	echo "F_LIB              = \$(LHRELINK) \$(LHLIB)"
 	echo "F_INC              ="
-	echo "FFLAGS             = $GCC_OPTIMISE $OPENMP $EFLAGS  $FFLAGS -m$BITNESS"
-	echo "FLINKFLAGS         = $GCC_OPTIMISE $OPENMP $OPENMPI $FFLAGS $EFLAGS -m$BITNESS \$(LHRELINK) \$(LHLIB)"
+	echo "FFLAGS             = $GCC_OPTIMISE $OPENMP $EFLAGS  $FFLAGS $BFLAGS"
+	echo "FLINKFLAGS         = $GCC_OPTIMISE $OPENMP $OPENMPI $FFLAGS $EFLAGS $BFLAGS \$(LHRELINK) \$(LHLIB)"
 
 	echo
 	echo "# C Optimisation"
 	echo "CLINK              = $COMPILE_C"
 	echo "C_LIB              = \$(LHRELINK) \$(LHLIB)"
 	echo "C_INC              ="
-	echo "CFLAGS             = $GCC_OPTIMISE $OPENMP $EFLAGS -m$BITNESS"
-	echo "CLINKFLAGS         = $GCC_OPTIMISE $OPENMP $OPENMPI $EFLAGS -m$BITNESS \$(LHRELINK) \$(LHLIB)"
+	echo "CFLAGS             = $GCC_OPTIMISE $OPENMP $EFLAGS $BFLAGS"
+	echo "CLINKFLAGS         = $GCC_OPTIMISE $OPENMP $OPENMPI $EFLAGS $BFLAGS \$(LHRELINK) \$(LHLIB)"
 
 	echo
 	echo "# Other"
