@@ -26,4 +26,4 @@ export STREAM_SIZE=$((1048576*512))
 export STREAM_THREADS=4
 export STREAM_METHOD=single
 export STREAM_ITERATIONS=5
-export STREAM_BUILD_CFLAGS="-m64 -lm -Ofast"
+export STREAM_BUILD_CFLAGS="-lm -Ofast"
