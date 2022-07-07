@@ -20,8 +20,8 @@ else
 fi
 
 # TODO: VMs can be stopped in parallel
-IFS=,
-for VM in $VMS; do
+for VM in $(tr ',' '\n' <<< "$VMS")
+do
 	# Does virsh think it's running?
 	if [ "`virsh list | grep " $VM " | awk '{print $3}'`" != "running" ]; then
 		continue

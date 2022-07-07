@@ -20,8 +20,8 @@ else
 fi
 
 TIMEOUT=600
-IFS=,
-for VM in $VMS; do
+for VM in $(tr ',' '\n' <<< "$VMS")
+do
 	if [ "`virsh list | grep " $VM " | awk '{print $3}'`" = "running" ]; then
 		echo $VM already running according to virsh
 		GUEST_IP=`kvm-ip-address --vm $VM 0`
@@ -47,7 +47,8 @@ for VM in $VMS; do
 	echo Console available via \"virsh console $VM\"
 done
 
-for VM in $VMS; do
+for VM in $(tr ',' '\n' <<< "$VMS")
+do
 	echo Waiting on $VM IP
 	GUEST_IP=`kvm-ip-address --vm $VM 600`
 	if [ $? -eq 0 ]; then

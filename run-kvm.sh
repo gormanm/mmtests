@@ -269,18 +269,15 @@ if [ "$MMTESTS_VMS_IP" != "" ]; then
 	IPS=$(echo ${MMTESTS_VMS_IP// /,})
 
 	i=1
-	PREV_IFS=$IFS
-	IFS=,
-	for IP in $IPS; do
+	for IP in $(tr ',' '\n' <<< "$IPS")
+	do
 		GUEST_IP[$i]=$IP
 		i=$(( $i + 1 ))
 	done
-	IFS=$PREV_IFS
 
 	v=1
-	PREV_IFS=$IFS
-	IFS=,
-	for VM in $VMS; do
+	for VM in $(tr ',' '\n' <<< "$VMS")
+	do
 		echo "checking VM: $VM at IP: ${GUEST_IP[$v]}"
 		wait_ssh_available ${GUEST_IP[$v]}
 		SSH_HOST="root@${GUEST_IP[$v]}"
@@ -292,7 +289,6 @@ if [ "$MMTESTS_VMS_IP" != "" ]; then
 		VM_RUNNAME[$v]="$RUNNAME-$VM"
 		v=$(( $v + 1 ))
 	done
-	IFS=$PREV_IFS
 
 	[ $v -eq $i ] || die "MMTESTS_VMS and MMTESTS_VMS_IP mismatch"
 else
@@ -303,9 +299,8 @@ else
 	teststate_log "VMs up :: `date +%s`"
 
 	v=1
-	PREV_IFS=$IFS
-	IFS=,
-	for VM in $VMS; do
+	for VM in $(tr ',' '\n' <<< "$VMS")
+	do
 		GUEST_IP[$v]=`kvm-ip-address --vm $VM`
 		echo "VM ready: $VM IP: ${GUEST_IP[$v]}"
 		SSH_HOST="root@${GUEST_IP[$v]}"
@@ -319,7 +314,6 @@ else
 		VM_RUNNAME[$v]="$RUNNAME-$VM"
 		v=$(( $v + 1 ))
 	done
-	IFS=$PREV_IFS
 fi
 VMCOUNT=$(( $v - 1 ))
 
@@ -675,9 +669,9 @@ if [ "$FORCE_HOST_PERFORMANCE_SETUP" = "yes" ]; then
 fi
 
 echo Syncing $SHELLPACK_LOG_BASE_SUBDIR
-IFS=,
 v=1
-for VM in $VMS; do
+for VM in $(tr ',' '\n' <<< "$VMS")
+do
 	# TODO: these two can probably be replaced with `pssh` and `pslurp`...
 	ssh root@${GUEST_IP[$v]} "cd git-private/$NAME && tar -czf work-${VM_RUNNAME[$v]}.tar.gz $SHELLPACK_LOG_BASE_SUBDIR" || die Failed to archive $SHELLPACK_LOG_BASE_SUBDIR
 	scp root@${GUEST_IP[$v]}:git-private/$NAME/work-${VM_RUNNAME[$v]}.tar.gz . || die Failed to download work.tar.gz
@@ -693,7 +687,6 @@ for VM in $VMS; do
 	tar --transform="s|$RUNNAME|$NEW_RUNNAME|" -xf work-${VM_RUNNAME[$v]}.tar.gz || die Failed to extract work.tar.gz
 	v=$(( $v + 1 ))
 done
-IFS=$PREV_IFS
 
 if [ "$MMTESTS_VMS_IP" != "" ]; then
 	echo "Leaving the VM(s) up"
