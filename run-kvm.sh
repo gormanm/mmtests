@@ -81,12 +81,20 @@ while true; do
 			shift
 			;;
 		-m|--run-monitor)
-			FORCE_RUN_MONITOR=yes
-			shift
+			if [ -z $FORCE_RUN_MONITOR ]; then
+				export FORCE_RUN_MONITOR="yes"
+				shift
+			else
+				break
+			fi
 			;;
 		-n|--no-monitor)
-			FORCE_RUN_MONITOR=no
-			shift
+			if [ -z $FORCE_RUN_MONITOR ]; then
+				export FORCE_RUN_MONITOR="no"
+				shift
+			else
+				break
+			fi
 			;;
 		-C|--config-host)
 			shift
@@ -395,7 +403,7 @@ teststate_log "vms ready :: `date +%s`"
 echo Creating archive
 NAME=`basename $SCRIPTDIR`
 cd ..
-tar -czf ${NAME}.tar.gz --exclude=${NAME}/work --exclude=${NAME}/.git ${NAME} || die Failed to create mmtests archive
+tar -czf ${NAME}.tar.gz --exclude=${NAME}/work* --exclude=${NAME}/.git ${NAME} || die Failed to create mmtests archive
 mv ${NAME}.tar.gz ${NAME}/
 cd ${NAME}
 
