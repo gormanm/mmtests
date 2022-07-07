@@ -38,7 +38,7 @@ fi
 COUNT=0
 
 if [ "$RESET" != "quiet" ]; then
-	echo -n Waiting for ssh to be available
+	echo -n "Waiting for ssh to be available at $MACHINE:22"
 	if [ "$RESET" = "reset" ]; then
 		echo -n " with reset"
 	fi

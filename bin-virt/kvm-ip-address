@@ -33,7 +33,7 @@ while [ "$GUEST_IP" = "" ]; do
 		CURRENTTIME=`date +%s`
 		RUNNING=$((CURRENTTIME-STARTTIME))
 		if [ $RUNNING -gt $TIMEOUT ]; then
-			echo Timeout exceeded for discovering IP address >&2
+			echo "ERROR: Timeout exceeded for discovering $VM IP address" >&2
 			exit -1
 		fi
 	fi

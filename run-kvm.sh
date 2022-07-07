@@ -450,8 +450,8 @@ collect_sysconfig_info
 sync
 start_monitors
 
-echo Executing mmtests on the guest
-activity_log "run-kvm: run-mmtests in VMs start"
+echo "Executing mmtests in $VMCOUNT guest(s)"
+activity_log "run-kvm: begin run-mmtests in VMs"
 teststate_log "test begin :: `date +%s`"
 activity_log "run-kvm: begin $CURRENT_TEST"
 
@@ -559,8 +559,14 @@ PSSHPID=$!
 # like gRPC (either here, with https://github.com/fullstorydev/grpcurl) or
 # by putting together some service program.
 #
+log_state() {
+	echo -ne "`date +%H:%M:%S` $1"
+	[ "$1" == "test_do" ] && echo -ne "\t"
+	echo -ne " "
+}
+
 if [ ! -z $MMTESTS_HOST_IP ]; then
-	echo $GUEST_IP
+	[ $VMCOUNT -ne 1 ] && echo "TIME     STATE           VMs"
 	STATE="mmtests_start"
 	tokens=0
 	NCFILE=`mktemp`
@@ -595,14 +601,16 @@ if [ ! -z $MMTESTS_HOST_IP ]; then
 					if [ $tokens -eq 0 ]; then
 						# DEBUG: not very useful info to print, unless we're debugging
 						#echo "run-kvm --> run-mmtests: state = $STATE"
+						log_state $STATE
 						teststate_log "enter state :: \"$STATE\" `date +%s`"
 						activity_log "run-kvm: state \"$STATE\""
 					fi
 					if [ "$TOKEN" != "$STATE" ]; then
-						echo "ERROR: wrong toke (\'$TOKEN\') received while in state \'$STATE\'!"
+						echo "ERROR: wrong token (\'$TOKEN\') received while in state \'$STATE\'!"
 						STATE="QUIT"
 						kill $PSSHPID
 					else
+						echo -n 'X'
 						tokens=$(( $tokens + 1 ))
 					fi
 					if [ $tokens -eq $VMCOUNT ]; then
@@ -618,6 +626,7 @@ if [ ! -z $MMTESTS_HOST_IP ]; then
 						elif [ "$STATE" = "mmtests_end" ]; then
 							STATE="QUIT"
 						fi
+						echo " Done!"
 						activity_log "run-kvm: sending token \"$TOKEN\""
 						mmtests_signal_token "$TOKEN" ${GUEST_IP[@]}
 						teststate_log "sent token :: \"$TOKEN\" `date +%s`"
@@ -634,12 +643,13 @@ if [ ! -z $MMTESTS_HOST_IP ]; then
 					elif [ "$TOKEN" = "mmtests_end" ]; then
 						STATE="mmtests_end"
 					else
-						echo "ERROR: wrong toke (\'$TOKEN\') received while in state \'$STATE\'!"
+						echo "ERROR: wrong token (\'$TOKEN\') received while in state \'$STATE\'!"
 						STATE="QUIT"
 						kill $PSSHPID
 					fi
 					# DEBUG: not very useful info to print, unless we're debugging
 					#echo "run-kvm --> run-mmtests: state = $STATE"
+					log_state $STATE ; echo -ne 'X'
 					teststate_log "enter state :: \"$STATE\" `date +%s`"
 					activity_log "run-kvm: state \"$STATE\""
 					;;

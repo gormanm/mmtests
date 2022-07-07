@@ -38,7 +38,7 @@ do
 		CURRENTTIME=`date +%s`
 		RUNNING=$((CURRENTTIME-STARTTIME))
 		if [ $RUNNING -gt $TIMEOUT ]; then
-			echo Timeout exceeded for $VM to become \'running\'
+			echo "ERROR: Timeout exceeded for $VM to become \'running\'"
 			exit -1
 		else
 			sleep 1
@@ -54,7 +54,7 @@ do
 	if [ $? -eq 0 ]; then
 		wait_ssh_available $GUEST_IP
 		if [ $? -ne 1 ]; then
-			echo ERROR: Unable to start $VM
+			echo "ERROR: Unable to start $VM"
 			exit -1
 		fi
 	fi

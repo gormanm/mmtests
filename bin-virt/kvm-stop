@@ -29,7 +29,7 @@ do
 
 	virsh shutdown $VM
 
-	echo -n Waiting on $VM shutdown to complete
+	echo -n "Waiting on $VM shutdown to complete"
 	DURATION=0
 	TEST_SHUTDOWN=`virsh list | grep " $VM " | awk '{print $3}'`
 	while [ "$TEST_SHUTDOWN" = "running" ]; do
@@ -40,7 +40,7 @@ do
 		DURATION=$((DURATION+5))
 		if [ $DURATION -gt 30 ]; then
 			echo
-			echo Normal $VM shutdown exceeded, destroying
+			echo "WARNING: Normal $VM shutdown exceeded, destroying"
 			virsh destroy $VM
 			DURATION=0
 		fi
