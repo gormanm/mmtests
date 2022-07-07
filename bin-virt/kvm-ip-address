@@ -38,20 +38,32 @@ while [ "$GUEST_IP" = "" ]; do
 		fi
 	fi
 
-	MAC_ADDRESS=`virsh dumpxml $VM | grep "mac address" | sed "s/.*'\(.*\)'.*/\1/g"`
-	if [ "$MAC_ADDRESS" = "" ]; then
+	if [ "`virsh dumpxml $VM | grep "mac addres"`" = "" ]; then
 		sleep 10
 		continue
 	fi
-	if [ "`which arp 2> /dev/null`" != "" ]; then
-		GUEST_IP=`arp -an | grep "$MAC_ADDRESS" | awk '{ gsub(/[\(\)]/,"",$2); print $2 }'`
-	else
-		GUEST_IP=`ip n show | grep "$MAC_ADDRESS" | awk '{print $1}'`
-	fi
+
+	# There could be more than one NIC in the VM
+	for MAC_ADDRESS in `virsh dumpxml $VM | grep "mac address" | sed "s/.*'\(.*\)'.*/\1/g"`; do
+		if [ "`which arp 2> /dev/null`" != "" ]; then
+			GUEST_IP=`arp -an | grep "$MAC_ADDRESS" | awk '{ gsub(/[\(\)]/,"",$2); print $2 }'`
+		else
+			GUEST_IP=`ip n show | grep REACHABLE | grep "$MAC_ADDRESS" | awk '{print $1}'`
+		fi
+
+		# We may have got more than one address. Go over the list and
+		# pick the first that answers to a ping.
+		for IP in $GUEST_IP ; do
+			if ping -c 1 -q $IP &> /dev/null ; then
+				echo $IP
+				exit 0
+			fi
+		done
+	done
+
 	if [ "$GUEST_IP" = "" ]; then
 		sleep 10
 	fi
 done
 
-echo $GUEST_IP
-exit 0
+exit -1
