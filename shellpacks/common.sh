@@ -669,9 +669,16 @@ function mmtests_wait_token() {
 # so GNU parallel requires).
 export -f mmtests_send_token
 function mmtests_signal_token() {
+	local IP
 	[ -z $MMTESTS_HOST_IP ] && return
 	TOKEN=$1 ; shift
-	parallel -j 4 mmtests_send_token {1} $MMTESTS_GUEST_PORT $TOKEN ::: $@ :::
+	if command -v parallel &> /dev/null ; then
+		parallel -j 4 mmtests_send_token {1} $MMTESTS_GUEST_PORT $TOKEN ::: $@ :::
+	else
+		for IP in $@ ; do
+			mmtests_send_token $IP $MMTESTS_GUEST_PORT $TOKEN &
+		done
+	fi
 }
 
 MMTESTS_NUMACTL=
