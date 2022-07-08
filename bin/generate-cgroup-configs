@@ -1,0 +1,53 @@
+#!/bin/bash
+set ${MMTESTS_SH_DEBUG:-+x}
+
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
+cd $SCRIPTDIR/configs || exit
+
+CPUACC_CONFIGS="
+workload-kernbench-max
+"
+
+IOACC_CONFIGS="
+io-fio-randread-async-randwrite
+io-fio-randread-async-seqwrite
+"
+
+rm -f config-cgroup-*
+
+for CONFIG in ${CPUACC_CONFIGS}; do
+	grep -i "test.*disk" config-${CONFIG} > config-cgroup-${CONFIG}
+	echo >> config-cgroup-$CONFIG
+	grep -i "monitor" config-${CONFIG} >> config-cgroup-${CONFIG}
+	echo >> config-cgroup-${CONFIG}
+	cat >>config-cgroup-${CONFIG} <<EOF
+# cgroup
+CGROUP_1_CONFIG=configs/config-${CONFIG}
+CGROUP_1_TYPE=CPUAccounting
+CGROUP_1_ATTRIB=CPUWeight
+CGROUP_1_VALUE=200
+CGROUP_2_CONFIG=configs/config-${CONFIG}
+CGROUP_2_TYPE=CPUAccounting
+CGROUP_2_ATTRIB=CPUWeight
+CGROUP_2_VALUE=400
+EOF
+done
+
+for CONFIG in ${IOACC_CONFIGS}; do
+	grep -i "test.*disk" config-${CONFIG} > config-cgroup-${CONFIG}
+	echo >> config-cgroup-$CONFIG
+	grep -i "monitor" config-${CONFIG} >> config-cgroup-${CONFIG}
+	echo >> config-cgroup-${CONFIG}
+	cat >>config-cgroup-${CONFIG} <<EOF
+# cgroup
+CGROUP_1_CONFIG=configs/config-${CONFIG}
+CGROUP_1_TYPE=IOAccounting
+CGROUP_1_ATTRIB=IOWeight
+CGROUP_1_VALUE=200
+CGROUP_2_CONFIG=configs/config-${CONFIG}
+CGROUP_2_TYPE=IOAccounting
+CGROUP_2_ATTRIB=IOWeight
+CGROUP_2_VALUE=400
+EOF
+done

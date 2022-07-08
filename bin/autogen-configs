@@ -16,3 +16,4 @@ if [ -e $SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh ]; then
 	$SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh
 fi
 $SCRIPTDIR/generate-fixed-configs
+$SCRIPTDIR/generate-cgroup-configs
