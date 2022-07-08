@@ -71,6 +71,8 @@ usage() {
 	echo "-p|--performance Force performance CPUFreq governor before starting the tests."
 	echo "-c|--config      Use MMTests config, default is ./config, more than one can be specified"
 	echo "-b|--build-only  Only build the software to test, don't run"
+	echo "   --mount-only  Only mount test disk."
+	echo "   --no-mount    Don't mount test disk."
 	echo "-h|--help        Prints this help."
 }
 
@@ -78,7 +80,9 @@ usage() {
 install-depends util-linux
 
 # Parse command-line arguments
-ARGS=`getopt -o pmnc:bh --long performance,help,run-monitor,no-monitor,config:,build-only -n run-mmtests -- "$@"`
+ARGS=`getopt -o pmnc:bh --long performance,help,run-monitor,no-monitor,config: \
+			--long build-only,mount-only,no-mount \
+			-n run-mmtests -- "$@"`
 declare -a CONFIGS
 export CONFIGS
 eval set -- "$ARGS"
@@ -108,6 +112,14 @@ while true; do
 		-b|--build-only)
 		        BUILDONLY=true
 		        shift
+			;;
+		--no-mount)
+			NOMOUNT=true
+			shift
+			;;
+		--mount-only)
+			MOUNTONLY=true
+			shift
 			;;
 		--)
 			break
@@ -342,7 +354,13 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	setup_io_scheduler
 
-	create_filesystems
+	# format disk, mount testdisk
+	if [ "$NOMOUNT" != "true" ]; then
+		create_filesystems
+		if [ "$MOUNTONLY" = "true" ]; then
+			exit 0;
+		fi
+	fi
 
 	if [ "$PIVOT_SOURCES" = "yes" ]; then
 		rm -rf $SHELLPACK_SOURCES
@@ -626,10 +644,13 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	activity_log "run-mmtests: Iteration $MMTEST_ITERATION end"
 	echo Cleaning up
-	for STRAY in `ps auxw | grep watch- | grep unbuffer | awk '{print $2}'`; do
-		echo o Killing stray monitor $STRAY
-		kill -9 $STRAY
-	done
+
+	if [ "$RUN_MONITOR" = "yes" ]; then
+		for STRAY in `ps auxw | grep watch- | grep unbuffer | awk '{print $2}'`; do
+			echo o Killing stray monitor $STRAY
+			kill -9 $STRAY
+		done
+	fi
 
 	if [ "$MEMCG_SIZE" != "" ]; then
 		echo $$ >/cgroups/tasks
@@ -655,7 +676,9 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	esac
 
 	# Unmount test disks
-	umount_filesystems
+	if [ "$NOMOUNT" != "true" ]; then
+		umount_filesystems
+	fi
 
 	destroy_testdisk
 done
@@ -706,6 +729,8 @@ run-mmtests B[options] test-name
  -p, --performance	Set the performance cpufreq governor before starting
  -c, --config		Configuration file to read (default: config)
  -b, --build-only	Only build the benchmark, do not execute it
+     --mount-only	Only mount test disk
+     --no-mount		Don't mount test disk
  -h, --help		Print this help
 
 =head1 DESCRIPTION
