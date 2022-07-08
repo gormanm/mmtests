@@ -279,7 +279,7 @@ fi
 if $BUILDONLY; then
     export INSTALL_ONLY=yes
     for TEST in $MMTESTS; do
-	./bin/run-single-test.sh $TEST
+	./bin/run-single-test.sh $TEST ${RUNNAME}
 	if [ $? -ne 0 ]; then
             die "Installation step failed for $TEST"
         fi
@@ -360,12 +360,6 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		if [ "$MOUNTONLY" = "true" ]; then
 			exit 0;
 		fi
-	fi
-
-	if [ "$PIVOT_SOURCES" = "yes" ]; then
-		rm -rf $SHELLPACK_SOURCES
-		mkdir $SHELLPACK_DATA/sources
-		ln -s $SHELLPACK_DATA/sources $SHELLPACK_SOURCES
 	fi
 
 	# Prepared environment in a directory, does not work together with
@@ -531,7 +525,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		# Run installation-only steps
 		echo Installing test $TEST
 		export INSTALL_ONLY=yes
-		./bin/run-single-test.sh $TEST
+		./bin/run-single-test.sh $TEST ${RUNNAME}
 		if [ $? -ne 0 ]; then
 			die "Installation step failed for $TEST"
 		fi
@@ -585,10 +579,10 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		if [ ${#CGROUP_TASKS[@]} -gt 0 ]; then
 			bash -c "for i in $cg_tasks; do echo \$$ > \${i}; done &&
 				/usr/bin/time -f \"time :: $TEST %U user %S system %e elapsed\" \
-				-o $SHELLPACK_LOG/timestamp ./bin/run-single-test.sh $TEST"
+				-o $SHELLPACK_LOG/timestamp ./bin/run-single-test.sh $TEST ${RUNNAME}"
 		else
 			/usr/bin/time -f "time :: $TEST %U user %S system %e elapsed" -o $SHELLPACK_LOG/timestamp \
-				./bin/run-single-test.sh $TEST
+				./bin/run-single-test.sh $TEST ${RUNNAME}
 		fi
 		EXIT_CODE=$?
 

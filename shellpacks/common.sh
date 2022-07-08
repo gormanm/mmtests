@@ -1305,10 +1305,7 @@ function create_filesystems
 		for i in ${!TESTDISK_PARTITIONS[*]}; do
 			if [ $i -eq 0 ]; then
 				SHELLPACK_TEST_MOUNTS[$i]=$SHELLPACK_TEST_MOUNT
-				echo Creating tmp, sources, and data
-				mkdir -p $SHELLPACK_SOURCES
-				mkdir -p $SHELLPACK_TEMP
-				mkdir -p $SHELLPACK_DATA
+				# tmp, sources, and data will be created in setup_dirs
 				continue
 			fi
 			SHELLPACK_TEST_MOUNTS[$i]=${SHELLPACK_TEST_MOUNT}_$i

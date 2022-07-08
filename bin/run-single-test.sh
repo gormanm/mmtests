@@ -8,6 +8,10 @@ P="run-single-test"
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 
+if [ "$2" != "" ]; then
+	SHELLPACK_DATA=${SHELLPACK_DATA}/$2
+fi
+
 if [ "$MMTESTS" = "" ]; then
 	. $SCRIPTDIR/config
 fi
@@ -84,4 +88,7 @@ check_status $NAME "returned failure, unable to continue"
 gzip $LOGDIR_RESULTS/mmtests.log
 
 rm -rf $SHELLPACK_TEMP
+if [ "$2" != "" ]; then
+	rmdir ${SHELLPACK_DATA}
+fi
 exit $EXIT_CODE
