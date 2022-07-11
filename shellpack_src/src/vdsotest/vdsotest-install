@@ -9,10 +9,8 @@ install-depends automake autoconf
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK git_fetch vdsotest-${VERSION}.tar.gz vdsotest-${VERSION}-installed
-###SHELLPACK self_extract namecollision.patch
 
 ###SHELLPACK build_start vdsotest-${VERSION}-installed
-cat $SHELLPACK_TEMP/namecollision.patch | patch -p1 || die "Failed to patch vdsotest for getcpu"
 
 ./autogen.sh && sed -i -e 's/LT_INIT\(disable-static\)//' configure && ./configure
 
@@ -20,90 +18,3 @@ cat $SHELLPACK_TEMP/namecollision.patch | patch -p1 || die "Failed to patch vdso
 
 echo vdsotest installed successfully
 exit $SHELLPACK_SUCCESS
-
-==== BEGIN namecollision.patch ====
---- a/src/getcpu.c	2021-01-26 15:14:59.838896936 +0100
-+++ b/src/getcpu.c	2021-01-26 15:18:53.581543039 +0100
-@@ -32,19 +32,19 @@
- #include "compiler.h"
- #include "vdsotest.h"
- 
--static int getcpu_syscall_wrapper(unsigned *cpu, unsigned *node, void *tcache)
-+static int vdsotest_getcpu_syscall_wrapper(unsigned *cpu, unsigned *node, void *tcache)
- {
- 	return syscall(SYS_getcpu, cpu, node, tcache);
- }
- 
--static int (*getcpu)(unsigned *cpu, unsigned *node, void *tcache) =
--	getcpu_syscall_wrapper;
-+static int (*vdsotest_getcpu)(unsigned *cpu, unsigned *node, void *tcache) =
-+	vdsotest_getcpu_syscall_wrapper;
- 
- static void getcpu_syscall_nofail(unsigned *cpu, unsigned *node, void *tcache)
- {
- 	int err;
- 
--	err = getcpu_syscall_wrapper(cpu, node, tcache);
-+	err = vdsotest_getcpu_syscall_wrapper(cpu, node, tcache);
- 	if (err)
- 		error(EXIT_FAILURE, errno, "SYS_getcpu");
- }
-@@ -53,7 +53,7 @@
- {
- 	int err;
- 
--	err = getcpu(cpu, node, tcache);
-+	err = vdsotest_getcpu(cpu, node, tcache);
- 	if (err)
- 		error(EXIT_FAILURE, errno, "getcpu");
- }
-@@ -95,7 +95,7 @@
- 	bench_interval_begin(&res->vdso_interval, calls);
- 
- 	while (!test_should_stop(ctx)) {
--		getcpu(&cpu, NULL, NULL);
-+		vdsotest_getcpu(&cpu, NULL, NULL);
- 		calls++;
- 	}
- 
-@@ -108,7 +108,7 @@
- 	bench_interval_begin(&res->sys_interval, calls);
- 
- 	while (!test_should_stop(ctx)) {
--		getcpu_syscall_wrapper(&cpu, NULL, NULL);
-+		vdsotest_getcpu_syscall_wrapper(&cpu, NULL, NULL);
- 		calls++;
- 	}
- 
-@@ -258,10 +258,10 @@
- 
- 	syscall_prepare();
- 	if (args->force_syscall) {
--		err = getcpu_syscall_wrapper(args->cpu, args->node,
-+		err = vdsotest_getcpu_syscall_wrapper(args->cpu, args->node,
- 					     args->tcache);
- 	} else {
--		err = getcpu(args->cpu, args->node, args->tcache);
-+		err = vdsotest_getcpu(args->cpu, args->node, args->tcache);
- 	}
- 
- 	record_syscall_result(res, err, errno);
-@@ -477,7 +477,7 @@
- 
- static void getcpu_notes(struct ctx *ctx)
- {
--	if (getcpu == getcpu_syscall_wrapper)
-+	if (vdsotest_getcpu == vdsotest_getcpu_syscall_wrapper)
- 		printf("Note: vDSO version of getcpu not found\n");
- }
- 
-@@ -489,7 +489,7 @@
- 
- static void getcpu_bind(void *sym)
- {
--	getcpu = sym;
-+	vdsotest_getcpu = sym;
- }
- 
- static const struct test_suite getcpu_ts = {
-==== END namecollision.patch ====
