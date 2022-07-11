@@ -14,9 +14,11 @@ export FC=mpif90
 export F77=mpif77
 
 # Install openmpi requirements
-###SHELLPACK mpi_setup_deps NETCDFFC_OPENMPI_VERSION
-###SHELLPACK mpi_setup_env NETCDFFC_OPENMPI_VERSION NETCDFFC_MPI_PATH NETCDFFC_MPI_LIBPATH
-###SHELLPACK mpi_setup_shmem
+if [ "`which mpirun`" = "" ]; then
+	###SHELLPACK mpi_setup_deps NETCDFFC_OPENMPI_VERSION
+	###SHELLPACK mpi_setup_env NETCDFFC_OPENMPI_VERSION NETCDFFC_MPI_PATH NETCDFFC_MPI_LIBPATH
+	###SHELLPACK mpi_setup_shmem
+fi
 
 HDF5="$SHELLPACK_SOURCES/hdf5build-$HDF5_VERSION-installed"
 NETCDFC="$SHELLPACK_SOURCES/netcdfcbuild-$NETCDFC_VERSION-installed"
