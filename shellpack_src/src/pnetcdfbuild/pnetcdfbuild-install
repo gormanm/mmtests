@@ -12,9 +12,11 @@ export MPIF77=mpif77
 export MPIF90=mpif90
 
 # Install openmpi requirements
-###SHELLPACK mpi_setup_deps PNETCDF_OPENMPI_VERSION
-###SHELLPACK mpi_setup_env PNETCDF_OPENMPI_VERSION PNETCDF_MPI_PATH PNETCDF_MPI_LIBPATH
-###SHELLPACK mpi_setup_shmem
+if [ "`which mpirun`" = "" ]; then
+	###SHELLPACK mpi_setup_deps PNETCDF_OPENMPI_VERSION
+	###SHELLPACK mpi_setup_env PNETCDF_OPENMPI_VERSION PNETCDF_MPI_PATH PNETCDF_MPI_LIBPATH
+	###SHELLPACK mpi_setup_shmem
+fi
 
 ###SHELLPACK sources_fetch pnetcdf-${VERSION}.tar.gz pnetcdfbuild-${VERSION}
 ###SHELLPACK build_start pnetcdfbuild-${VERSION}
