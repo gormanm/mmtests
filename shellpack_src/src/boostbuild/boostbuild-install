@@ -7,7 +7,7 @@
 install-depends fdupes libbz2-devel libexpat-devel libicu-devel zlib-devel libzstd-devel
 
 # Set location after version is parsed
-WEB_LOCATION="https://dl.bintray.com/boostorg/release/`echo $VERSION | sed -e 's/_/./g'`/source"
+WEB_LOCATION="https://boostorg.jfrog.io/artifactory/main/release/`echo $VERSION | sed -e 's/_/./g'`/source"
 MIRROR_LOCATION="$WEBROOT/boost/"
 
 ###SHELLPACK sources_fetch boost_${VERSION}.tar.gz boostbuild-${VERSION}
