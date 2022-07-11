@@ -524,7 +524,7 @@ EOC
 if [ "\$INSTALL_ONLY" = "yes" ]; then
 EOC
 	} elsif ($command eq "init_only_end") {
-		print "###SHELLPACK init_complete\n";
+		print "###SHELLPACK init_complete\nfi\n";
 	} elsif ($command eq "init_only_continue") {
 		print <<EOC
 	cluster_replicate_packages
