@@ -13,9 +13,11 @@ export FC=mpif90
 export CXX=mpic++
 
 # Install openmpi requirements
-###SHELLPACK mpi_setup_deps HDF5_OPENMPI_VERSION
-###SHELLPACK mpi_setup_env HDF5_OPENMPI_VERSION HDF5_MPI_PATH HDF5_MPI_LIBPATH
-###SHELLPACK mpi_setup_shmem
+if [ "`which mpirun`" = "" ]; then
+	###SHELLPACK mpi_setup_deps HDF5_OPENMPI_VERSION
+	###SHELLPACK mpi_setup_env HDF5_OPENMPI_VERSION HDF5_MPI_PATH HDF5_MPI_LIBPATH
+	###SHELLPACK mpi_setup_shmem
+fi
 
 ###SHELLPACK build_start hdf5build-${VERSION}
 export   CFLAGS+=" -I$MPI_BASE_DIR/include"
