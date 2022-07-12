@@ -37,16 +37,16 @@ for V in `seq 2 5`; do
 	fi
 done
 
-WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v5.x/linux-${VERSION}.tar.gz
-MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.gz
+WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v5.x/linux-${VERSION}.tar.xz
+MIRROR_LOCATION=$WEBROOT/kernbench/linux-$VERSION.tar.xz
 THREADS=$(($NUMCPUS))
 KERNBENCH_TARGETS=`echo $KERNBENCH_TARGETS | sed -e 's/,/ /g'`
 
 ###SHELLPACK init_only_start
 	cd $SHELLPACK_DATA > /dev/null
-	rm -f ./linux-$VERSION.tar.gz
-	sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.gz
-	tar xf linux-$VERSION.tar.gz || die "Failed to extract"
+	rm -f ./linux-$VERSION.tar.xz
+	sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.xz
+	tar xf linux-$VERSION.tar.xz || die "Failed to extract"
 	cd linux-$VERSION || die "Unexpected layout"
 
 	# Configure
