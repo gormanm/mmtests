@@ -16,7 +16,7 @@ MIRROR_LOCATION=$WEBROOT/sysbench
 case $DBDRIVER in
 mariadb)
 	echo Checking mariadb installation
-	DBDRIVER_VERSION=10.4.11
+	DBDRIVER_VERSION=10.4.25
 	CONFIGURE_ARGS=
 	;;
 postgres)
@@ -40,21 +40,24 @@ echo Building sysbench for $DBDRIVER
 export PATH=$SHELLPACK_SOURCES/${DBDRIVER}build-${DBDRIVER_VERSION}-installed/bin:$PATH
 ###SHELLPACK sources_fetch sysbench-${VERSION}.tar.gz sysbench-${VERSION}
 ###SHELLPACK build_start sysbench-${VERSION}
-# Patch sysbench to properly insert tables
-echo "--- sysbench/drivers/pgsql/drv_pgsql.c.orig	2010-12-03 14:14:59.000000000 +0000
-+++ sysbench/drivers/pgsql/drv_pgsql.c	2010-12-03 14:15:23.000000000 +0000
-@@ -84,7 +84,7 @@
- 
- static drv_caps_t pgsql_drv_caps =
- {
--  0,
-+  1,
-   1,
-   1,
-   0,
-" | patch -p0
+
+# Update configure files for aarch64 detection
+if [ "`uname -m`" = "aarch64" ]; then
+	for FILE in config.guess config.sub; do
+		wget -O config/$FILE http://savannah.gnu.org/cgi-bin/viewcvs/*checkout*/config/config/$FILE
+	done
+fi
+
+# Avoid -m64 on gcc-aarch64
+###SHELLPACK self_extract bitness-detect.patch
+cat $SHELLPACK_TEMP/bitness-detect.patch | patch -p1
+autoreconf -if
+automake --add-missing
+
 ###SHELLPACK build_configure sysbench-${VERSION} $CONFIGURE_ARGS
 ###SHELLPACK make_make_install
 
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
+
+###SHELLPACK include_file bitness-detect.patch

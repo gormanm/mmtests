@@ -1,0 +1,19 @@
+diff --git a/configure.ac b/configure.ac
+index 61a0113..69a299c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -65,7 +65,13 @@ esac
+ # First check for gcc and g++
+ if test "$GCC" = "yes"
+ then
+-  CFLAGS="-ggdb3 ${CFLAGS} -m64"
++  # aarch64 does not recognise -m64 on gcc
++  BIT=-m64
++  case "${host_cpu}" in
++	  *aarch64*) BIT="";;
++  esac
++
++  CFLAGS="-ggdb3 ${CFLAGS} $BIT"
+   DEBUG_CFLAGS="-O0"
+   OPTIMIZE_CFLAGS="-O2"
+ fi
