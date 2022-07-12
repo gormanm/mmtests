@@ -4,6 +4,7 @@
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
+install-depends libnuma-devel libnuma
 ###SHELLPACK self_extract thpfioscale.c 
 
 mkdir $SHELLPACK_SOURCES/thpfioscale-${VERSION}-installed
