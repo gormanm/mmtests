@@ -11,6 +11,16 @@ MIRROR_LOCATION="$WEBROOT/blasbuild/"
 PREFIX="$SHELLPACK_SOURCES/blasbuild-${VERSION}-installed"
 export MAKE_FLAGS="BINARY=64 USE_OPENMP=1 $BLAS_EXTRA_MAKE_FLAGS"
 export MAKE_INSTALL_FLAGS="PREFIX=$PREFIX OPENBLAS_LIBRARY_DIR=$PREFIX/$MMTESTS_LIBDIR $MAKE_FLAGS"
-###SHELLPACK make_make_install
+
+# Try workaround potential for IceLake not being detected
+# This is not reliable as the target CPU may also not be
+# skylake
+make -j$NUMCPUS
+if [ $? -ne 0 -a "`uname -m`" = "x86_64" ]; then
+	export MAKE_FLAGS="$MAKE_FLAGS TARGET=SKYLAKEX"
+fi
+
+###SHELLPACK make
+###SHELLPACK make_install
 
 echo blasbuild installed successfully
