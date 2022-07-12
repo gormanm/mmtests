@@ -16,7 +16,7 @@ MIRROR_LOCATION=$WEBROOT/sysbench
 case $DBDRIVER in
 mariadb)
 	echo Checking mariadb installation
-	DBDRIVER_VERSION=10.4.25
+	DBDRIVER_VERSION=10.6.8
 	CONFIGURE_ARGS=
 	;;
 postgres)
@@ -49,8 +49,8 @@ if [ "`uname -m`" = "aarch64" ]; then
 fi
 
 # Avoid -m64 on gcc-aarch64
-###SHELLPACK self_extract bitness-detect.patch
-cat $SHELLPACK_TEMP/bitness-detect.patch | patch -p1
+###SHELLPACK self_extract 0001-bitness-detect.patch
+cat $SHELLPACK_TEMP/0001-bitness-detect.patch | patch -p1
 autoreconf -if
 automake --add-missing
 
@@ -60,4 +60,4 @@ automake --add-missing
 echo sysbench for $DBDRIVER successfully installed
 exit $SHELLPACK_SUCCESS
 
-###SHELLPACK include_file bitness-detect.patch
+###SHELLPACK include_file 0001-bitness-detect.patch
