@@ -8,6 +8,7 @@ if [ ! -e /usr/include/db.h ]; then
 	install-depends libdb-4_8-devel
 fi
 install-depends python
+install-depends python3
 install-depends gcc-c++
 
 ###SHELLPACK parseargBegin
@@ -16,27 +17,18 @@ install-depends gcc-c++
 ###SHELLPACK git_fetch pedsort-${VERSION}.tar.gz pedsort-${VERSION}-installed
 
 ###SHELLPACK build_start pedsort-${VERSION}-installed
-###SHELLPACK self_extract glibc.patch
-cat $SHELLPACK_TEMP/glibc.patch | patch -p1 || die "Failed to patch psearchy/mkdb"
+###SHELLPACK self_extract 0001-glibc.patch
+###SHELLPACK self_extract 0002-python3.patch
+cat $SHELLPACK_TEMP/0001-glibc.patch | patch -p1 || die "Failed to patch psearchy/mkdb"
+
+if [ ! -e /usr/bin/python -a -e /usr/bin/python3 ]; then
+	cat $SHELLPACK_TEMP/0002-python3.patch | patch -p1 || "Failed to patch mkprimes"
+fi
+
 ###SHELLPACK make -C psearchy/mkdb/
 
 echo pedsort installed successfully
 exit $SHELLPACK_SUCCESS
 
-==== BEGIN glibc.patch ====
---- a/psearchy/mkdb/pedsort.C	2020-10-02 14:20:13.602810259 +0200
-+++ b/psearchy/mkdb/pedsort.C	2020-10-02 14:20:34.106809546 +0200
-@@ -165,10 +165,12 @@
-   return i + __i;
- }
- 
-+#if __GLIBC__ == 2 && __GLIBC_MINOR__ < 30
- static pid_t gettid(void)
- {
-   return syscall(__NR_gettid);
- }
-+#endif
- 
- void
- set_affinity(int cpu_id)
-==== END glibc.patch ====
+###SHELLPACK include_file 0001-glibc.patch
+###SHELLPACK include_file 0002-python3.patch
