@@ -33,4 +33,3 @@ if [ $? -eq 0 ]; then
 	fi
 fi
 export SALMON_MPI_OPTS
-export MMTESTS_MPI_SELFBUILD=yes

@@ -11,7 +11,7 @@ if [ "$SALMON_PROCESSES" != "1" ]; then
 else
 	MPI_SWITCH="--disable-mpi"
 fi
-install-depends gcc-fortran cmake python
+install-depends gcc-fortran cmake python python3
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
@@ -29,6 +29,9 @@ export CXXFLAGS+=" $INCLUDES $LIBS"
 export FFLAGS+=" $INCLUDES $LIBS -lgomp"
 export LD_LIBRARY_PATH="$LD_LIBS:$LD_LIBRARY_PATH"
 
+if [ "`which python 2> /dev/null`" = "" ]; then
+	sed -i -e "s/env python.*/env python3/" configure.py
+fi
 ###SHELLPACK build_configure_py salmon-${VERSION} $MPI_SWITCH --compiler-vec --enable-scalapack --enable-libxc --verbose
 ###SHELLPACK make_make_install
 
