@@ -4,7 +4,7 @@
 GIT_LOCATION=https://github.com/mcgrof/dbench.git
 MIRROR_LOCATION="$WEBROOT/dbench/"
 
-install-depends popt-devel zlib-devel
+install-depends popt-devel libz1 zlib-devel
 install-depends rpcgen
 install-depends libtirpc-devel
 
@@ -32,6 +32,21 @@ if [ -e /usr/lib64/libtirpc.so -o -e /usr/lib/libtirpc.so -o -e /usr/lib/x86_64-
 
 	if [ -d /usr/include/tirpc ]; then
 		sed -i -e 's@gcc -g@gcc -g -I/usr/include/tirpc@' Makefile
+	fi
+fi
+
+# Fix broken libz link if it exists
+if [ -h /usr/lib64/libz.so ]; then
+	LINK=`readlink /usr/lib64/libz.so`
+	if [ "$LINK" != "" -a ! -e /usr/lib64/libz.so ]; then
+		echo Broken libz link
+		LINK=`basename $LINK`
+		if [ -e /lib64/$LINK ]; then
+			rm /usr/lib64/libz.so
+			ln -s /lib64/$LINK /usr/lib64/libz.so || die "Failed to fix libz symbolic link"
+		else
+			die "Failed to fix libz symbolic link"
+		fi
 	fi
 fi
 
