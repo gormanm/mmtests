@@ -50,7 +50,7 @@ KERNBENCH_TARGETS=`echo $KERNBENCH_TARGETS | sed -e 's/,/ /g'`
 	cd linux-$VERSION || die "Unexpected layout"
 
 	# Configure
-	yes '' | make $KERNBENCH_CONFIG > /dev/null 2>&1 || die "Failed to make $KERNBENCH_CONFIG"
+	yes '' | make $COMPILER_FLAGS $KERNBENCH_CONFIG > /dev/null 2>&1 || die "Failed to make $KERNBENCH_CONFIG"
 	make $COMPILER_FLAGS -j$THREADS clean > /dev/null
 
 	if [ "`uname -m`" = "aarch64" ]; then
