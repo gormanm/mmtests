@@ -1,0 +1,19 @@
+#!/bin/bash
+if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
+	export MARVIN_KVM_DOMAIN="marvin-mmtests"
+fi
+
+if [ "$1" = "--vm" ]; then
+	shift
+	VM="$1"
+	shift
+else
+	VM=$MARVIN_KVM_DOMAIN
+fi
+
+STATE=`virsh list --all | grep " marvin-mmtests"  | awk '{print $NF}'`
+if [ "$STATE" = "running" ]; then
+	exit 0
+fi
+exit 1
+
