@@ -26,12 +26,16 @@ REAIM_WORKFILE=workfile.fserver
 ###SHELLPACK check_install_required reaim-${VERSION}
 ###SHELLPACK init_complete
 
+REAIM_SYMLINK="/tmp/reaim-test-dir"
+
 for REAIM_WORKFILE in $REAIM_WORKFILES; do
 	mmtests_activity $REAIM_WORKFILE
 	echo FILESIZE $REAIM_FILESIZE > reaim.config
 	echo POOLSIZE $REAIM_POOLSIZE >> reaim.config
-	echo DISKDIR $SHELLPACK_DATA  >> reaim.config
+	echo DISKDIR $REAIM_SYMLINK  >> reaim.config
 	mkdir -p $SHELLPACK_DATA
+	rm -rf $REAIM_SYMLINK
+	ln -s $SHELLPACK_DATA $REAIM_SYMLINK
 
 	# Remove any tests that were requested to be excluded
 	cp data/$REAIM_WORKFILE data/${REAIM_WORKFILE}.mmtests
@@ -43,23 +47,15 @@ for REAIM_WORKFILE in $REAIM_WORKFILES; do
 	sed -i -e '/POOLSIZE/d' data/${REAIM_WORKFILE}.mmtests
 	mkdir $LOGDIR_RESULTS/$REAIM_WORKFILE
 
+	BENCH_CMD="./src/reaim -s$REAIM_STARTUSERS -e$REAIM_ENDUSERS -t -i$REAIM_INCREMENT -fdata/${REAIM_WORKFILE}.mmtests -r1 -c./reaim.config -l$LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.1"
+	log_cmd $BENCH_CMD
 	monitor_pre_hook $LOGDIR_RESULTS $REAIM_WORKFILE
 	for ITERATION in `seq 1 $REAIM_ITERATIONS`; do
 		echo Running iteration $ITERATION/$REAIM_ITERATIONS workfile $REAIM_WORKFILE
-		save_rc ./src/reaim \
-			-s$REAIM_STARTUSERS \
-			-e$REAIM_ENDUSERS \
-			-t \
-			-i$REAIM_INCREMENT \
-			-fdata/${REAIM_WORKFILE}.mmtests \
-			-r1 \
-			-c./reaim.config \
-			-l$LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.$ITERATION \
-				2>&1 | grep -v NSIG | tee $LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.$ITERATION.raw
-
+		save_rc $BENCH_CMD 2>&1 | grep -v NSIG | tee $LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.$ITERATION.raw
 		recover_rc
 		if [ $? -ne 0 ]; then
-			die Failed to run reaim
+			die "Failed to run reaim"
 		fi
 
 		echo Syncing...
