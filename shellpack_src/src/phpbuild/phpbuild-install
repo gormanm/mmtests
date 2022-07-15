@@ -13,6 +13,7 @@ XCACHE_VERSION=3.2.0
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
+shellpack-check-libz
 ###SHELLPACK sources_fetch php-${PHP_VERSION}.tar.bz2 phpbuild-${PHP_VERSION}
 ###SHELLPACK build_start phpbuild-${PHP_VERSION}
 ###SHELLPACK build_configure phpbuild-${PHP_VERSION} --with-apxs2=$SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed/bin/apxs --with-mysql --with-config-file-path=$SHELLPACK_SOURCES/phpbuild-${PHP_VERSION}-installed/

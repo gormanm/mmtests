@@ -10,7 +10,9 @@ WEB_LOCATION=http://ftp.heanet.ie/mirrors/www.apache.org/dist/httpd
 WEB_LOCATION_ALT=https://archive.apache.org/dist/httpd/
 MIRROR_LOCATION="$WEBROOT/apache/"
 
-install-depends gcc gcc-c++ libxml2-devel bison flex libexpat-devel
+install-depends gcc gcc-c++ libxml2-devel bison flex
+install-depends expat1
+install-depends libexpat-devel
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

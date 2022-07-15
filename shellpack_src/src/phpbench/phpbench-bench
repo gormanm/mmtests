@@ -9,6 +9,8 @@
 
 ###SHELLPACK check_install_required phpbench-${VERSION}
 
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh apachebuild
+
 echo Shutting down apache server...
 $SHELLPACK_INCLUDE/shellpack-bench-apachebuild --stop || die Failed to shutdown apache http server
 ###SHELLPACK init_complete

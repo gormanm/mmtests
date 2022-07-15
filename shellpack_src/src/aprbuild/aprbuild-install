@@ -6,6 +6,8 @@ WEB_LOCATION=http://ftp.heanet.ie/mirrors/www.apache.org/dist/apr/
 WEB_LOCATION_ALT=https://archive.apache.org/dist/apr
 MIRROR_LOCATION="$WEBROOT/apache/"
 
+install-depends libexpat-devel expat
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 

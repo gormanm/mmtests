@@ -9,7 +9,7 @@ APACHE_VERSION=2.4.39
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK sources_fetch siege-${VERSION}.tar.gz siege-${VERSION}
-if [ ! -e $SHELLPACK_SOURCES/apache-build-${APACHE_VERSION}-installed ]; then
+if [ ! -e $SHELLPACK_SOURCES/apachebuild-${APACHE_VERSION}-installed ]; then
 	echo Installing apache server
 	$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh apachebuild
 	$SHELLPACK_INCLUDE/shellpack-install-apachebuild -v ${APACHE_VERSION} || die Failed to install apache httpd
