@@ -10,6 +10,7 @@ install-depends libcurl-devel
 
 ###SHELLPACK git_fetch gitsource-${VERSION}.tar.gz gitsource-${VERSION}-installed
 
+shellpack-check-libz
 ###SHELLPACK build_start gitsource-${VERSION}-installed
 if [ -e .git ]; then
 	git checkout $VERSION || die Failed to checkout version $VERSION
