@@ -35,21 +35,7 @@ if [ -e /usr/lib64/libtirpc.so -o -e /usr/lib/libtirpc.so -o -e /usr/lib/x86_64-
 	fi
 fi
 
-# Fix broken libz link if it exists
-if [ -h /usr/lib64/libz.so ]; then
-	LINK=`readlink /usr/lib64/libz.so`
-	if [ "$LINK" != "" -a ! -e /usr/lib64/libz.so ]; then
-		echo Broken libz link
-		LINK=`basename $LINK`
-		if [ -e /lib64/$LINK ]; then
-			rm /usr/lib64/libz.so
-			ln -s /lib64/$LINK /usr/lib64/libz.so || die "Failed to fix libz symbolic link"
-		else
-			die "Failed to fix libz symbolic link"
-		fi
-	fi
-fi
-
+shellpack-check-libz
 ###SHELLPACK make_make_install
 make tbench_srv
 cp tbench_srv $SHELLPACK_SOURCES/dbench-${VERSION}-installed/bin
