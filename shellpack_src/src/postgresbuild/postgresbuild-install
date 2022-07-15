@@ -1,6 +1,8 @@
 #!/bin/bash
 # This script installs postgres and leaves it ready for benchmarking
 ###SHELLPACK preamble postgresbuild-install 13.3
+WEB_LOCATION=http://ftp.postgresql.org/pub/source/v${VERSION}/
+MIRROR_LOCATION=$WEBROOT/postgres/
 
 POSTGRES_USER=nobody
 POSTGRES_GROUP=nogroup
@@ -34,8 +36,7 @@ update_entry_cnf() {
 	mv ${CONF}.tmp $CONF
 }
 
-WEB_LOCATION=http://ftp.postgresql.org/pub/source/v${VERSION}/
-MIRROR_LOCATION=$WEBROOT/postgres/
+shellpack-check-libz
 ###SHELLPACK sources_fetch postgresql-${VERSION}.tar.bz2 postgresbuild-${VERSION}
 ###SHELLPACK build_start postgresbuild-${VERSION}
 ###SHELLPACK build_configure postgresbuild-${VERSION} --enable-thread-safety --without-krb5 --without-readline --enable-assembler
