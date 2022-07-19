@@ -41,7 +41,7 @@ done
 echo Testing iterations: $ITERATIONS, estimated usage $((ESTIMATED_USAGE/(1048576*1024)))GB, diskspace $((ACTUAL_DISKSIZE/(1048576*1024)))GB
 
 if [ $ITERATIONS -le 0 ]; then
-	die Disk is too small to potentially run benchmark
+	die "Disk is too small to potentially run benchmark"
 fi
 
 PARAM_EXTRA=
@@ -56,10 +56,15 @@ fi
 	else
 		NR_TOP_DIRECTORIES=$FSMARK_NR_TOP_DIRECTORIES
 	fi
+	FSMARK_MAX_FILES=$(($NR_FILES_PER_ITERATION/$NR_TOP_DIRECTORIES))
+	if [ $FSMARK_MAX_FILES -gt 1000000 ]; then
+		echo WARNING: Limiting max files to 1000000
+		FSMARK_MAX_FILES=1000000
+	fi
 	PARAMETERS=$PARAM_EXTRA
 	PARAMETERS+=" -D $NR_SUB_DIRECTORIES"
 	PARAMETERS+=" -S$FSMARK_SYNCMODE"
-	PARAMETERS+=" -n $(($NR_FILES_PER_ITERATION/$NR_TOP_DIRECTORIES))"
+	PARAMETERS+=" -n $FSMARK_MAX_FILES"
 	PARAMETERS+=" -s $FILESIZE"
 	PARAMETERS+=" -L $ITERATIONS"
 	PARAMETERS+=" -t $NR_THREADS"
@@ -72,11 +77,17 @@ fi
 	echo Cleaning up old fs_mark test files
 	rm -rf $SHELLPACK_DATA/*
 
+	BENCH_CMD="./fs_mark $PARAMETERS"
+	log_cmd $BENCH_CMD
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	echo ./fs_mark $PARAMETERS
-	eval ./fs_mark $PARAMETERS &> $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log
+	eval $BENCH_CMD &> $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log
+	RET=$?
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	gzip $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log
+
+	if [ $RET -ne 0 ]; then
+		die "Benchmark failed to execute"
+	fi
 ###SHELLPACK threads_stride_end
 
 rm /tmp/fsmark-$$
