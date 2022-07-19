@@ -22,7 +22,7 @@ C)
 	export MMTESTS="nas-omp-bt nas-omp-cg            nas-omp-ep nas-omp-ft nas-omp-is nas-omp-lu nas-omp-mg nas-omp-sp nas-omp-ua"
 	;;
 D)
-	export MMTESTS="nas-omp-bt nas-omp-cg nas-omp-dc nas-omp-ep            nas-omp-is nas-omp-lu nas-omp-mg nas-omp-sp nas-omp-ua"
+	export MMTESTS="nas-omp-bt nas-omp-cg            nas-omp-ep            nas-omp-is nas-omp-lu nas-omp-mg nas-omp-sp nas-omp-ua"
 	;;
 *)
 	die "Unrecognised class $NAS_CLASS"
