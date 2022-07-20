@@ -4,9 +4,8 @@ if [ "$MARVIN_KVM_DOMAIN" = "" ]; then
 fi
 
 if [ "$1" = "--vm" ]; then
-	shift
-	VM="$1"
-	shift
+	VM="$2"
+	shift 2
 else
 	VM=$MARVIN_KVM_DOMAIN
 fi
