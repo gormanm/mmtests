@@ -1,4 +1,7 @@
 export MMTESTS="parsec-blackscholes parsec-bodytrack parsec-canneal parsec-facesim parsec-fluidanimate parsec-netstreamcluster parsec-streamcluster parsec-x264"
+if [ "`uname -m`" = "aarch64" ]; then
+	MMTESTS=`echo $MMTESTS | sed -e 's/parsec-netstreamcluster//'`
+fi
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
