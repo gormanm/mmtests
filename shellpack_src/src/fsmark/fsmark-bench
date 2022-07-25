@@ -86,7 +86,12 @@ fi
 	gzip $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log
 
 	if [ $RET -ne 0 ]; then
-		die "Benchmark failed to execute"
+		zgrep -q "No space left on device" $LOGDIR_RESULTS/fsmark-${NR_THREADS}.log.gz
+		if [ $? -eq 0 -a $FILESIZE -eq 0 ]; then
+			echo Warning: Ignoring failure due to inode exhaustion on zero-sized files
+		else
+			die "Benchmark failed to execute"
+		fi
 	fi
 ###SHELLPACK threads_stride_end
 
