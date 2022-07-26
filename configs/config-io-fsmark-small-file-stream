@@ -37,3 +37,10 @@ export FSMARK_NR_SUB_DIRECTORIES=10000
 # value of other parameters.
 export FSMARK_ITERATIONS=60
 export FSMARK_NR_FILES_PER_ITERATION=$((MEMTOTAL_BYTES*2*FSMARK_NR_TOP_DIRECTORIES/$FSMARK_FILESIZE/$FSMARK_ITERATIONS))
+
+# Special case for ext4
+# On smaller disks, inodes can be a major limitation for this
+# small files test for ext4
+if [ "$TESTDISK_FILESYSTEM" = "ext4" ]; then
+	TESTDISK_MKFS_PARAM+=" -i $((FSMARK_FILESIZE*2))"
+fi
