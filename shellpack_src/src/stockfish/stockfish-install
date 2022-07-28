@@ -10,7 +10,15 @@ MIRROR_LOCATION="$WEBROOT/stockfish/"
 
 ###SHELLPACK build_start stockfish-${VERSION}/src
 git checkout 54f8a9cb138a1bc0b0054b98f911fafd8d1b03ad
-ARCH=`uname -m | sed -e 's/_/-/'`
+case `uname -m` in
+aarch64)
+	ARCH=general-64
+	;;
+x86_64)
+	ARCH=x86-64
+	;;
+esac
+
 make build ARCH=$ARCH PREFIX=$SHELLPACK_SOURCES/stockfish-${VERSION}-installed || die Failed to run make build
 make install ARCH=$ARCH PREFIX=$SHELLPACK_SOURCES/stockfish-${VERSION}-installed || die Failed to run make install
 
