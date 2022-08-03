@@ -1,0 +1,61 @@
+#!/bin/bash
+# Author: Mel Gorman 2021
+
+KVM_DOMAIN=marvin-mmtests
+USE_EXISTING_SCREEN=yes
+
+while [ $# -gt 0 ]; do
+	case $1 in
+	--vm)
+		KVM_DOMAIN=$2
+		shift 2
+		;;
+	--no-screen)
+		USE_EXISTING_SCREEN=no
+		shift
+		;;
+	--logfile)
+		LOG_FILENAME=$2
+
+		echo "deflog on" > /tmp/screenrc-$$
+		echo "logfile ${LOG_FILENAME}" >> /tmp/screenrc-$$
+		echo "logfile flush 1" >> /tmp/screenrc-$$
+		echo "log on" >> /tmp/screenrc-$$
+		echo "logtstamp on" >> /tmp/screenrc-$$
+		SWITCH="-c /tmp/screerc-$$"
+
+		shift 2
+		;;
+	*)
+		echo "Unrecognised option $1"
+		shift
+		;;
+	esac
+done
+
+trap "rm -f /tmp/screenrc-$$" EXIT
+
+sudo virsh dumpxml $KVM_DOMAIN &> /dev/null
+RUNNING="`sudo virsh list | grep " $KVM_DOMAIN " | awk '{print $3}'`"
+if [ "$RUNNING" != "running" ]; then
+	echo -n Waiting for domain to run
+	while [ "$RUNNING" != "running" ]; do
+		echo -n .
+		sleep 1
+		RUNNING="`sudo virsh list | grep " $KVM_DOMAIN " | awk '{print $3}'`"
+	done
+fi
+
+# Use existing screen session
+if [ "$USE_EXISTING_SCREEN" = "yes" ]; then
+	screen -S kvmconsole-$KVM_DOMAIN -Q select .
+	if [ $? -eq 0 ]; then
+		exec screen -x kvmconsole-$KVM_DOMAIN
+	fi
+fi
+
+if [ "$LOG_FILENAME" = "" ]; then
+	exec sudo virsh -c qemu:///system console --force $KVM_DOMAIN
+else
+	exec sudo screen -c /tmp/screenrc-$$ -DmS kvmconsole-$KVM_DOMAIN unbuffer virsh -c qemu:///system console $KVM_DOMAIN
+fi
