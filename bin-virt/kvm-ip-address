@@ -28,6 +28,16 @@ GUEST_IP=
 TIMEOUT=$1
 STARTTIME=`date +%s`
 
+lookup_state() {
+	local _ip=$1
+	local _state="REACHABLE"
+
+	if [ "`which ip 2> /dev/null`" != "" ]; then
+		_state=`ip n show | grep ^$_ip | awk '{print $NF}'`
+	fi
+	echo $_state
+}
+
 while [ "$GUEST_IP" = "" ]; do
 	if [ "$TIMEOUT" != "" ]; then
 		CURRENTTIME=`date +%s`
@@ -48,13 +58,16 @@ while [ "$GUEST_IP" = "" ]; do
 		if [ "`which arp 2> /dev/null`" != "" ]; then
 			GUEST_IP=`arp -an | grep "$MAC_ADDRESS" | awk '{ gsub(/[\(\)]/,"",$2); print $2 }'`
 		else
-			GUEST_IP=`ip n show | grep REACHABLE | grep "$MAC_ADDRESS" | awk '{print $1}'`
+			GUEST_IP=`ip n show | grep "$MAC_ADDRESS" | awk '{print $1}'`
 		fi
 
 		# We may have got more than one address. Go over the list and
 		# pick the first that answers to a ping.
 		for IP in $GUEST_IP ; do
 			if ping -c 1 -q $IP &> /dev/null ; then
+				while [ "$(lookup_state $IP)" != "REACHABLE" ]; do
+					sleep 1
+				done
 				echo $IP
 				exit 0
 			fi
