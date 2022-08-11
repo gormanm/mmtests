@@ -45,7 +45,7 @@ export PGHOST=127.0.0.1
 export PGPORT=5432
 export PATH=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin:$PATH
 export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/lib
-PSQL=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin/psql
+PSQL="$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin/psql --host /var/run/postgresql/"
 RUNDBUSER="su -s /bin/bash $DBUSER -c"
 
 MID=$(((MEMTOTAL_BYTES-EFFECTIVE_CACHESIZE-SHARED_BUFFERS)/2))

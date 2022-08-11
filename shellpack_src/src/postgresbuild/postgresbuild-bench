@@ -111,14 +111,21 @@ if [ "$SERVER_START" = "yes" ]; then
 	wait_on_pid_file $POSTGRES_PIDFILE 600
 	POSTGRES_PID=`cat $POSTGRES_PIDFILE 2>&1`
 
-	echo -n Waiting on postgres to accept commands
-	$PSQL "$SHELLPACK_INCLUDE/run_background bin/pg_ctl -D $POSTGRES_DATADIR status"
+	echo Waiting on postgres to accept commands
+	$PSQL "bin/pg_ctl -D $POSTGRES_DATADIR status"
 	RETVAL=?
 	while [ $RETVAL != 0 ]; do
 		echo -n .
+		$PSQL "bin/pg_ctl -D $POSTGRES_DATADIR status"
 		RETVAL=$?
+	done
+
+	echo -n Waiting on socket to appear
+	while [ ! -e /var/run/postgresql/.s.PGSQL.5432 ]; do
+		echo -n .
 		sleep 1
 	done
+
 	echo
 fi
 
