@@ -39,11 +39,8 @@ cat >$JOBFILE <<END
 [global]
 direct=0
 ioengine=sync
-runtime=300
-time_based
 invalidate=1
 blocksize=4096
-size=10g	# Just random value, we are running time based workload
 log_avg_msec=10
 group_reporting=1
 
@@ -53,6 +50,10 @@ filesize=1g
 fdatasync=256
 readwrite=randwrite
 numjobs=4
+runtime=300
+time_based
+exitall
+exit_what=all
 
 [reader]
 # Simulate random reading from different files, switching to different file
@@ -62,4 +63,6 @@ filesize=100m
 nrfiles=20
 file_service_type=random:16
 readwrite=randread
+exitall
+exit_what=all
 END
