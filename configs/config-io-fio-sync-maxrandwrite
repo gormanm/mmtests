@@ -43,7 +43,6 @@ cat >$JOBFILE <<END
 [global]
 bs=4k
 ioengine=sync
-iodepth=32
 direct=0
 runtime=900
 invalidate=1
@@ -51,7 +50,6 @@ blocksize=4096
 size=${FIO_SIZE}g
 log_avg_msec=10
 group_reporting=1
-time_based
 
 [writer]
 readwrite=randwrite
