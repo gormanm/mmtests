@@ -38,18 +38,20 @@ cat >$JOBFILE <<END
 [global]
 direct=0
 ioengine=sync
-runtime=300
 blocksize=4096
 invalidate=1
-time_based
 ramp_time=5	# Let the flusher thread start before taking measurements
 log_avg_msec=10
 group_reporting=1
 
 [writer]
 nrfiles=1
-filesize=$((MEMTOTAL_BYTES*2))
+filesize=$((MEMTOTAL_BYTES/2))
 readwrite=write
+runtime=300
+time_based
+exitall
+exit_what=all
 
 [reader]
 # Simulate random reading from different files, switching to different file
@@ -59,4 +61,6 @@ filesize=100m
 nrfiles=20
 file_service_type=random:16
 readwrite=randread
+exitall
+exit_what=all
 END
