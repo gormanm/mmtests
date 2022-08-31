@@ -17,6 +17,20 @@ io-fio-randread-async-seqwrite
 rm -f config-cgroup-*
 
 for CONFIG in ${CPUACC_CONFIGS}; do
+	grep -i "test.*disk" config-${CONFIG} > config-cgroup-${CONFIG}-single
+	echo >> config-cgroup-$CONFIG-single
+	grep -i "monitor" config-${CONFIG} >> config-cgroup-${CONFIG}-single
+	echo >> config-cgroup-${CONFIG}-single
+	cat >>config-cgroup-${CONFIG}-single <<EOF
+# cgroup
+CGROUP_1_CONFIG=configs/config-${CONFIG}
+CGROUP_1_TYPE=CPUAccounting
+CGROUP_1_ATTRIB=CPUWeight
+CGROUP_1_VALUE=400
+EOF
+done
+
+for CONFIG in ${CPUACC_CONFIGS}; do
 	grep -i "test.*disk" config-${CONFIG} > config-cgroup-${CONFIG}
 	echo >> config-cgroup-$CONFIG
 	grep -i "monitor" config-${CONFIG} >> config-cgroup-${CONFIG}
@@ -31,6 +45,20 @@ CGROUP_2_CONFIG=configs/config-${CONFIG}
 CGROUP_2_TYPE=CPUAccounting
 CGROUP_2_ATTRIB=CPUWeight
 CGROUP_2_VALUE=400
+EOF
+done
+
+for CONFIG in ${IOACC_CONFIGS}; do
+	grep -i "test.*disk" config-${CONFIG} > config-cgroup-${CONFIG}-single
+	echo >> config-cgroup-$CONFIG-single
+	grep -i "monitor" config-${CONFIG} >> config-cgroup-${CONFIG}-single
+	echo >> config-cgroup-${CONFIG}-single
+	cat >>config-cgroup-${CONFIG}-single <<EOF
+# cgroup
+CGROUP_1_CONFIG=configs/config-${CONFIG}
+CGROUP_1_TYPE=IOAccounting
+CGROUP_1_ATTRIB=IOWeight
+CGROUP_1_VALUE=400
 EOF
 done
 
