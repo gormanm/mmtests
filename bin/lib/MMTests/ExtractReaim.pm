@@ -22,29 +22,25 @@ sub extractReport() {
 		my $worktitle = $workfile;
 		$worktitle =~ s/.*\.//;
 
-		my @files = <$workfile/reaim.*.csv>;
-		my $iteration = 0;
-		foreach my $file (@files) {
-			open(INPUT, $file) || die("Failed to open $file\n");
+		my $file = "$workfile/reaim.csv";
+		open(INPUT, $file) || die("Failed to open $file\n");
 
-			# Read the header and find the appropriate field
-			my @elements = split(/,/, <INPUT>);
-			my $index = -1;
-			foreach my $element (@elements) {
-				$index++;
-				if ($element eq $required_heading) {
-					last;
-				}
+		# Read the header and find the appropriate field
+		my @elements = split(/,/, <INPUT>);
+		my $index = -1;
+		foreach my $element (@elements) {
+			$index++;
+			if ($element eq $required_heading) {
+				last;
 			}
-
-			$iteration++;
-			while (<INPUT>) {
-				my $line = $_;
-				@elements = split(/,/, $line);
-				$self->addData("$worktitle-$elements[0]", $iteration, $elements[$index]);
-			}
-			close INPUT;
 		}
+
+		while (<INPUT>) {
+			my $line = $_;
+			@elements = split(/,/, $line);
+			$self->addData("$worktitle-$elements[0]", 1, $elements[$index]);
+		}
+		close INPUT;
 	}
 }
 

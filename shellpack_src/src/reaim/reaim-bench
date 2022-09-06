@@ -7,7 +7,6 @@ REAIM_POOLSIZE=1m
 REAIM_STARTUSERS=1
 REAIM_ENDUSERS=$((NUMCPUS*4))
 REAIM_INCREMENT=$((NUMCPUS/4))
-REAIM_ITERATIONS=5
 REAIM_WORKFILE=workfile.fserver
 
 ###SHELLPACK parseargBegin
@@ -17,7 +16,6 @@ REAIM_WORKFILE=workfile.fserver
 ###SHELLPACK parseargParam   --startusers    REAIM_STARTUSERS
 ###SHELLPACK parseargParam   --endusers      REAIM_ENDUSERS
 ###SHELLPACK parseargParam   --increment     REAIM_INCREMENT
-###SHELLPACK parseargParam   --iterations    REAIM_ITERATIONS
 ###SHELLPACK parseargParam   --workfiles     REAIM_WORKFILES
 ###SHELLPACK parseargParam   --exclude       REAIM_EXCLUDE
 ###SHELLPACK parseargEnd
@@ -47,20 +45,18 @@ for REAIM_WORKFILE in $REAIM_WORKFILES; do
 	sed -i -e '/POOLSIZE/d' data/${REAIM_WORKFILE}.mmtests
 	mkdir $LOGDIR_RESULTS/$REAIM_WORKFILE
 
-	BENCH_CMD="./src/reaim -s$REAIM_STARTUSERS -e$REAIM_ENDUSERS -t -i$REAIM_INCREMENT -fdata/${REAIM_WORKFILE}.mmtests -r1 -c./reaim.config"
+	BENCH_CMD="./src/reaim -s$REAIM_STARTUSERS -e$REAIM_ENDUSERS -t -i$REAIM_INCREMENT -fdata/${REAIM_WORKFILE}.mmtests -r1 -c./reaim.config -l$LOGDIR_RESULTS/$REAIM_WORKFILE/reaim"
 	log_cmd $BENCH_CMD
 	monitor_pre_hook $LOGDIR_RESULTS $REAIM_WORKFILE
-	for ITERATION in `seq 1 $REAIM_ITERATIONS`; do
-		echo Running iteration $ITERATION/$REAIM_ITERATIONS workfile $REAIM_WORKFILE
-		save_rc $BENCH_CMD "-l$LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.$ITERATION" 2>&1 | grep -v NSIG | tee $LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.$ITERATION.raw
-		recover_rc
-		if [ $? -ne 0 ]; then
-			die "Failed to run reaim"
-		fi
+	echo Running reaim workfile $REAIM_WORKFILE
+	save_rc $BENCH_CMD 2>&1 | grep -v NSIG | tee $LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.raw
+	recover_rc
+	if [ $? -ne 0 ]; then
+		die "Failed to run reaim"
+	fi
 
-		echo Syncing...
-		$TIME_CMD sync
-	done
+	echo Syncing...
+	$TIME_CMD sync
 	monitor_post_hook $LOGDIR_RESULTS $REAIM_WORKFILE
 done
 

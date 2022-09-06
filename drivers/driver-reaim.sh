@@ -10,7 +10,6 @@ run_bench() {
 		--endusers      $REAIM_ENDUSERS \
 		--increment     $REAIM_INCREMENT \
 		--workfiles     "$REAIM_WORKFILES" \
-		--exclude       $REAIM_EXCLUDE \
-		--iterations    $REAIM_ITERATIONS
+		--exclude       $REAIM_EXCLUDE
 	return $?
 }
