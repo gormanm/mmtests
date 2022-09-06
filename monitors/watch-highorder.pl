@@ -52,7 +52,7 @@ my $regex_pagealloc;
 
 # Static regex used. Specified like this for readability and for use with /o
 #                      (process_pid)     (cpus      )   ( time  )   (tpoint    ) (details)
-my $regex_traceevent = '\s*([a-zA-Z0-9-]*)\s*(\[[0-9]*\])\s*([0-9.]*):\s*([a-zA-Z_]*):\s*(.*)';
+my $regex_traceevent = '\s*([a-zA-Z0-9-]*)\s*(\[[0-9]*\])\s*([0-9. ]*):\s*([a-zA-Z_]*):\s*(.*)';
 my $regex_statname = '[-0-9]*\s\((.*)\).*';
 my $regex_statppid = '[-0-9]*\s\(.*\)\s[A-Za-z]\s([0-9]*).*';
 
@@ -73,6 +73,7 @@ sub generate_traceevent_regex {
 				$regex =~ s/%p/\([0-9a-f]*\)/g;
 				$regex =~ s/%d/\([-0-9]*\)/g;
 				$regex =~ s/%lu/\([0-9]*\)/g;
+				$regex =~ s/%lx/\([0-9a-zA-Z]*\)/g;
 				$regex =~ s/%s/\([A-Z_|]*\)/g;
 				$regex =~ s/\(REC->gfp_flags\).*/REC->gfp_flags/;
 				$regex =~ s/\",.*//;
