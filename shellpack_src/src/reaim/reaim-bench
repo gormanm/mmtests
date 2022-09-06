@@ -47,12 +47,12 @@ for REAIM_WORKFILE in $REAIM_WORKFILES; do
 	sed -i -e '/POOLSIZE/d' data/${REAIM_WORKFILE}.mmtests
 	mkdir $LOGDIR_RESULTS/$REAIM_WORKFILE
 
-	BENCH_CMD="./src/reaim -s$REAIM_STARTUSERS -e$REAIM_ENDUSERS -t -i$REAIM_INCREMENT -fdata/${REAIM_WORKFILE}.mmtests -r1 -c./reaim.config -l$LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.1"
+	BENCH_CMD="./src/reaim -s$REAIM_STARTUSERS -e$REAIM_ENDUSERS -t -i$REAIM_INCREMENT -fdata/${REAIM_WORKFILE}.mmtests -r1 -c./reaim.config"
 	log_cmd $BENCH_CMD
 	monitor_pre_hook $LOGDIR_RESULTS $REAIM_WORKFILE
 	for ITERATION in `seq 1 $REAIM_ITERATIONS`; do
 		echo Running iteration $ITERATION/$REAIM_ITERATIONS workfile $REAIM_WORKFILE
-		save_rc $BENCH_CMD 2>&1 | grep -v NSIG | tee $LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.$ITERATION.raw
+		save_rc $BENCH_CMD "-l$LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.$ITERATION" 2>&1 | grep -v NSIG | tee $LOGDIR_RESULTS/$REAIM_WORKFILE/reaim.$ITERATION.raw
 		recover_rc
 		if [ $? -ne 0 ]; then
 			die "Failed to run reaim"
