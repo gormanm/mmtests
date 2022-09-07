@@ -9,8 +9,9 @@ cd $SCRIPTDIR/../configs || exit
 for CONFIG in `ls config-workload-stream-* | grep -v -E ".*-zen[0-9]$"`; do
 	sed    -e 's/STREAM_SIZE=.*/STREAM_SIZE=\$((1048576*3*2048))/' $CONFIG > $CONFIG-zen3
 	sed -i -e '/STREAM_BUILD_CFLAGS=/d' $CONFIG-zen3
-	echo 'export STREAM_BUILD_CFLAGS="-lm -Ofast -march=znver2 -mcmodel=medium -DOFFSET=512"' >> $CONFIG-zen3
-	echo 'export MMTESTS_TOOLCHAIN="gcc-10"' >> $CONFIG-zen3
+	echo 'export STREAM_BUILD_CFLAGS="-lm -Ofast -march=znver3 -mcmodel=medium -DOFFSET=512"' >> $CONFIG-zen3
+	echo 'export BUILDFLAGS_ENABLE_COMPILEFLAGS=yes' >> $CONFIG-zen3
+	echo 'export MMTESTS_TOOLCHAIN="gcc-11"' >> $CONFIG-zen3
 done
 
 # NAS
@@ -33,10 +34,11 @@ for CPUCOUNT in 16 32 64 128 225 255 256; do
 	echo "echo Setting performance governor"			>> $NAS_BASECONFIG
 	echo "cpupower frequency-set -g performance"			>> $NAS_BASECONFIG
 	echo								>> $NAS_BASECONFIG
-	echo 'export MMTESTS_TOOLCHAIN="gcc-10"' >> $NAS_BASECONFIG
+	echo 'export BUILDFLAGS_ENABLE_COMPILEFLAGS=yes'		>> $CONFIG-zen3
+	echo 'export MMTESTS_TOOLCHAIN="gcc-11"'			>> $NAS_BASECONFIG
 
 	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen3-tuned
-	sed -i  -e 's/NAS_OPTIMISE_FLAGS=.*/NAS_OPTIMISE_FLAGS="-Ofast -march=znver2 -mtune=znver2 -ftree-vectorize"/' \
+	sed -i  -e 's/NAS_OPTIMISE_FLAGS=.*/NAS_OPTIMISE_FLAGS="-Ofast -march=znver3 -mtune=znver3 -ftree-vectorize"/' \
 		-e 's/migration_cost_ns=.*/migration_cost_ns=5000000/'	\
 		-e 's/min_granularity_ns=.*/min_granularity_ns=10000000/'	   config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen3-tuned
 	echo 'export NAS_BIND=yes'						>> config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen3-tuned
