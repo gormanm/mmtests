@@ -1,0 +1,51 @@
+#!/bin/bash
+set ${MMTESTS_SH_DEBUG:-+x}
+
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
+cd $SCRIPTDIR/../configs || exit
+
+# STREAM
+for CONFIG in `ls config-workload-stream-* | grep -v -E ".*-zen[0-9]$"`; do
+	sed    -e 's/STREAM_SIZE=.*/STREAM_SIZE=\$((1048576*3*2048))/' $CONFIG > $CONFIG-zen4
+	sed -i -e '/STREAM_BUILD_CFLAGS=/d' $CONFIG-zen4
+	echo 'export STREAM_BUILD_CFLAGS="-lm -Ofast -march=znver3 -mcmodel=medium -DOFFSET=512"' >> $CONFIG-zen4
+	echo 'export BUILDFLAGS_ENABLE_COMPILEFLAGS=yes' >> $CONFIG-zen4
+	echo 'export MMTESTS_TOOLCHAIN="gcc-11"' >> $CONFIG-zen4
+done
+
+# NAS
+for CPUCOUNT in 16 32 64 128 225 255 256; do
+	NAS_NOTUNECONFIG=config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-notuning
+	NAS_BASECONFIG=config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-default
+
+	# No special tuning
+	cp config-hpc-nas-mpi-full-xfs $NAS_NOTUNECONFIG
+	sed -i  -e "s/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=${CPUCOUNT}/"		\
+		-e "s/NAS_CLASS=.*/NAS_CLASS=D/"				\
+		$NAS_NOTUNECONFIG
+
+	# Default baseline configuration
+	cp $NAS_NOTUNECONFIG $NAS_BASECONFIG
+
+	sed -i -e '/NAS_OPTIMISE_FLAGS/d' $NAS_BASECONFIG
+	echo "export NAS_OPTIMISE_FLAGS=-O3"				>> $NAS_BASECONFIG
+	echo								>> $NAS_BASECONFIG
+	echo "echo Setting performance governor"			>> $NAS_BASECONFIG
+	echo "cpupower frequency-set -g performance"			>> $NAS_BASECONFIG
+	echo								>> $NAS_BASECONFIG
+	echo 'export BUILDFLAGS_ENABLE_COMPILEFLAGS=yes'		>> $CONFIG-zen4
+	echo 'export MMTESTS_TOOLCHAIN="gcc-11"'			>> $NAS_BASECONFIG
+
+	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
+	sed -i  -e 's/NAS_OPTIMISE_FLAGS=.*/NAS_OPTIMISE_FLAGS="-Ofast -march=znver3 -mtune=znver3 -ftree-vectorize"/' \
+		-e 's/migration_cost_ns=.*/migration_cost_ns=5000000/'	\
+		-e 's/min_granularity_ns=.*/min_granularity_ns=10000000/'	   config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
+	echo 'export NAS_BIND=yes'						>> config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
+	echo 'export NAS_BIND_PLACE=l3cache:overload-allowed'			>> config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
+	echo 'echo 0 > /proc/sys/kernel/numa_balancing'				>> config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
+done
+
+cp config-hpc-nas-mpi-256cpus-xfs-zen4-tuned config-hpc-nas-mpi-Ncpus-xfs-zen4-selective
+# echo 'export NAS_JOB_MAX_CPUS="bt=256 cg=32 ep=256 is=256 lu=128 mg=32 sp=256"' >> config-hpc-nas-mpi-Ncpus-xfs-zen4-selective
+echo 'export NAS_JOB_MAX_CPUS="bt=256 cg=32 ep=256 is=256 lu=128 mg=32 sp=256"' >> config-hpc-nas-mpi-Ncpus-xfs-zen4-selective
