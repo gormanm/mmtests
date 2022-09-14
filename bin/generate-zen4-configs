@@ -15,7 +15,7 @@ for CONFIG in `ls config-workload-stream-* | grep -v -E ".*-zen[0-9]$"`; do
 done
 
 # NAS
-for CPUCOUNT in 16 32 64 128 225 255 256; do
+for CPUCOUNT in 12 24 32 64 128 192 256 360 384; do
 	NAS_NOTUNECONFIG=config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-notuning
 	NAS_BASECONFIG=config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-default
 
@@ -39,8 +39,7 @@ for CPUCOUNT in 16 32 64 128 225 255 256; do
 
 	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
 	sed -i  -e 's/NAS_OPTIMISE_FLAGS=.*/NAS_OPTIMISE_FLAGS="-Ofast -march=znver3 -mtune=znver3 -ftree-vectorize"/' \
-		-e 's/migration_cost_ns=.*/migration_cost_ns=5000000/'	\
-		-e 's/min_granularity_ns=.*/min_granularity_ns=10000000/'	   config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
+										   config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
 	echo 'export NAS_BIND=yes'						>> config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
 	echo 'export NAS_BIND_PLACE=l3cache:overload-allowed'			>> config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
 	echo 'echo 0 > /proc/sys/kernel/numa_balancing'				>> config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned

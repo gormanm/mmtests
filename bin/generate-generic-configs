@@ -277,10 +277,10 @@ sed -e 's/SQLITE_TOTALSIZE=.*/SQLITE_TOTALSIZE=$((1048576*2))'/ config-db-sqlite
 # Stream
 sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$((NUMCPUS*4))/' config-workload-stream-omp-nodes > config-workload-stream-omp-overload
 sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$NUMCORES/'	    config-workload-stream-omp-nodes > config-workload-stream-omp-cores
-cp config-workload-stream-omp-llcs  config-workload-stream-omp-llcs-spread
-cp config-workload-stream-omp-nodes config-workload-stream-omp-nodes-spread
-echo export OMP_PROC_BIND=SPREAD >> config-workload-stream-omp-llcs-spread
-echo export OMP_PROC_BIND=SPREAD >> config-workload-stream-omp-nodes-spread
+for CONFIG in stream-omp-llcs stream-omp-2llcs stream-omp-nodes; do
+	cp config-workload-$CONFIG   config-workload-$CONFIG-spread
+	echo export OMP_PROC_BIND=SPREAD >> config-workload-$CONFIG-spread
+done
 
 # Stressng
 rm -f *stressng-*-1k
