@@ -17,11 +17,12 @@ io-fio-randread-async-seqwrite
 rm -f config-cgroup-*
 
 for CONFIG in ${CPUACC_CONFIGS}; do
-	grep -i "test.*disk" config-${CONFIG} > config-cgroup-${CONFIG}-single
-	echo >> config-cgroup-$CONFIG-single
-	grep -i "monitor" config-${CONFIG} >> config-cgroup-${CONFIG}-single
-	echo >> config-cgroup-${CONFIG}-single
-	cat >>config-cgroup-${CONFIG}-single <<EOF
+	configfile=config-cgroup_1-${CONFIG}
+	grep -i "test.*disk" config-${CONFIG} > ${configfile}
+	echo >> ${configfile}
+	grep -i "monitor" config-${CONFIG} >> ${configfile}
+	echo >> ${configfile}
+	cat >>${configfile} <<EOF
 # cgroup
 CGROUP_1_CONFIG=configs/config-${CONFIG}
 CGROUP_1_TYPE=CPUAccounting
@@ -31,11 +32,12 @@ EOF
 done
 
 for CONFIG in ${CPUACC_CONFIGS}; do
-	grep -i "test.*disk" config-${CONFIG} > config-cgroup-${CONFIG}
-	echo >> config-cgroup-$CONFIG
-	grep -i "monitor" config-${CONFIG} >> config-cgroup-${CONFIG}
-	echo >> config-cgroup-${CONFIG}
-	cat >>config-cgroup-${CONFIG} <<EOF
+	configfile=config-cgroup_2-${CONFIG}
+	grep -i "test.*disk" config-${CONFIG} > ${configfile}
+	echo >> ${configfile}
+	grep -i "monitor" config-${CONFIG} >> ${configfile}
+	echo >> ${configfile}
+	cat >>${configfile} <<EOF
 # cgroup
 CGROUP_1_CONFIG=configs/config-${CONFIG}
 CGROUP_1_TYPE=CPUAccounting
@@ -49,11 +51,12 @@ EOF
 done
 
 for CONFIG in ${IOACC_CONFIGS}; do
-	grep -i "test.*disk" config-${CONFIG} > config-cgroup-${CONFIG}-single
-	echo >> config-cgroup-$CONFIG-single
-	grep -i "monitor" config-${CONFIG} >> config-cgroup-${CONFIG}-single
-	echo >> config-cgroup-${CONFIG}-single
-	cat >>config-cgroup-${CONFIG}-single <<EOF
+	configfile=config-cgroup_1-${CONFIG}
+	grep -i "test.*disk" config-${CONFIG} > ${configfile}
+	echo >> ${configfile}
+	grep -i "monitor" config-${CONFIG} >> ${configfile}
+	echo >> ${configfile}
+	cat >>${configfile} <<EOF
 # cgroup
 CGROUP_1_CONFIG=configs/config-${CONFIG}
 CGROUP_1_TYPE=IOAccounting
@@ -63,11 +66,12 @@ EOF
 done
 
 for CONFIG in ${IOACC_CONFIGS}; do
-	grep -i "test.*disk" config-${CONFIG} > config-cgroup-${CONFIG}
-	echo >> config-cgroup-$CONFIG
-	grep -i "monitor" config-${CONFIG} >> config-cgroup-${CONFIG}
-	echo >> config-cgroup-${CONFIG}
-	cat >>config-cgroup-${CONFIG} <<EOF
+	configfile=config-cgroup_2-${CONFIG}
+	grep -i "test.*disk" config-${CONFIG} > ${configfile}
+	echo >> ${configfile}
+	grep -i "monitor" config-${CONFIG} >> ${configfile}
+	echo >> ${configfile}
+	cat >>${configfile} <<EOF
 # cgroup
 CGROUP_1_CONFIG=configs/config-${CONFIG}
 CGROUP_1_TYPE=IOAccounting
