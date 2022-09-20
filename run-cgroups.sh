@@ -9,7 +9,7 @@ function parse_args() {
 	declare -ga CONFIGS
 	local scriptname=$(basename $0)
 	local dirname=$(dirname $0)
-	local opts=$(getopt -o hc: --long config:,help \
+	local opts=$(getopt -o c:hmn --long config:,help,run-monitor,no-monitor \
 			    -n \'${scriptname}\' -- "$@")
 	eval set -- "${opts}"
 
@@ -18,6 +18,14 @@ function parse_args() {
 		-c|--config)
 			CONFIGS+=(${2})
 			shift 2;;
+		-m|--run-monitor)
+			run_monitor=yes
+			shift
+			;;
+		-n|--no-monitor)
+			run_monitor=no
+			shift
+			;;
 		-h|--help) cat <<EOF
 ${scriptname} [OPTIONS] <runname>
 
@@ -27,6 +35,8 @@ Options:
 
   -c, --config <file> cgroup mmtests config file
   -h, --help          print this help text and exit
+  -m, --run-monitor   enable monitoring
+  -n, --no-monitor    disable monitoring
 
 EOF
 			   shift; exit 0;;
@@ -192,9 +202,13 @@ function main() {
 	parse_config
 	mount_only
 	build_only
-	start_monitor
+	if [ "${run_monitor}" = "yes" ]; then
+		start_monitor
+	fi
 	run_only
-	stop_monitor
+	if [ "${run_monitor}" = "yes" ]; then
+		stop_monitor
+	fi
 }
 
 main "$@"
