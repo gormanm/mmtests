@@ -9,7 +9,7 @@ function parse_args() {
 	declare -ga CONFIGS
 	local scriptname=$(basename $0)
 	local dirname=$(dirname $0)
-	local opts=$(getopt -o hc:n: --long config:,name:,help \
+	local opts=$(getopt -o hc: --long config:,help \
 			    -n \'${scriptname}\' -- "$@")
 	eval set -- "${opts}"
 
@@ -18,18 +18,14 @@ function parse_args() {
 		-c|--config)
 			CONFIGS+=(${2})
 			shift 2;;
-		-n|--name)
-			runname=$2
-			shift 2;;
 		-h|--help) cat <<EOF
-${scriptname} [OPTIONS]
+${scriptname} [OPTIONS] <runname>
 
 Cgroup handling script.
 
 Options:
 
   -c, --config <file> cgroup mmtests config file
-  -n, --name	      runname for test
   -h, --help          print this help text and exit
 
 EOF
@@ -38,6 +34,8 @@ EOF
 		esac
 	done
 	export SCRIPTDIR=$(cd "${dirname}" && pwd)
+	shift
+	runname=$1
 }
 
 function prolog() {
@@ -86,37 +84,39 @@ function parse_config() {
 
 function mount_only() {
 	echo "Mounting testdisk"
-	./run-mmtests.sh --mount-only -n -c ${CONFIGS[0]} $(basename ${CONFIGS[0]})-${runname}-mo
+	./run-mmtests.sh --mount-only -n -c ${CONFIGS[0]} ${runname}-mo
 }
 
 function build_only() {
+	local i m max=${#CG_CONFIGS[*]}
 	echo "Installing benchmark(s)"
 	for i in ${!CG_CONFIGS[*]}; do
+		m=$[$i+1]
 		${SCRIPTDIR}/run-mmtests.sh --no-mount --build-only -n \
 			    -c ${CG_CONFIGS[$i]} \
-			    $(basename ${CG_CONFIGS[$i]})-$i-${runname}
+			    ${runname}-cg_${m}_$max
 	done
 }
 
 function write_service() {
-	local n=$1 sfile efile
+	local n=$1 m=$[$1+1] max=$2 sfile efile
 
 	sfile=/etc/systemd/system/$(basename ${CG_CONFIGS[$n]})-$n.service
 	efile=${SCRIPTDIR}/work/tmp/$(basename ${CG_CONFIGS[$n]})-$n.sh
 
 	echo
-	echo "Creating exec file for cgroup $n: ${efile}"
+	echo "Creating exec file for cgroup $m: ${efile}"
 	cat >${efile} <<EOF
 #!/bin/bash
 
 cd ${SCRIPTDIR}
-./run-mmtests.sh --no-mount -n -c ${CG_CONFIGS[$n]} $(basename ${CG_CONFIGS[$n]})-$n-${runname}
+./run-mmtests.sh --no-mount -n -c ${CG_CONFIGS[$n]} ${runname}-cg_${m}_${max}
 EOF
 	cat ${efile}
 	chmod u+x ${efile}
 
 	echo
-	echo "Creating systemd service file for cgroup $n: ${sfile}"
+	echo "Creating systemd service file for cgroup $m: ${sfile}"
 	cat >${sfile} <<EOF
 [Service]
 Type=oneshot
@@ -129,9 +129,9 @@ EOF
 }
 
 function run_only() {
-	local services
+	local services i
 	for i in ${!CG_CONFIGS[*]}; do
-		write_service $i
+		write_service $i ${#CG_CONFIGS[*]}
 		services="${services} $(basename ${CG_CONFIGS[$i]})-$i"
 	done
 	echo "Starting services ${services}"
