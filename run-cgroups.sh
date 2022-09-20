@@ -40,8 +40,7 @@ EOF
 
 function prolog() {
 	if [ ${#CONFIGS[*]} -eq 0 ]; then
-		echo "ERROR: No configuration file specified"
-		exit 22
+		CONFIGS[0]=config
 	elif [ ${#CONFIGS[*]} -gt 1 ]; then
 		echo "ERROR: More than one configuration file specified"
 		exit 22
@@ -68,6 +67,10 @@ function parse_config() {
 	while true; do
 		c=$(eval echo \${CGROUP_${i}_CONFIG})
 		if [ "$c" = "" ]; then
+			if [ $i -eq 1 ]; then
+				echo "ERROR: no cgroup specification found in config file"
+				exit 22
+			fi
 			break
 		fi
 		t=$(eval echo \${CGROUP_${i}_TYPE})
