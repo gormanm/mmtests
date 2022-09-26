@@ -34,8 +34,9 @@ for CPUCOUNT in 12 24 32 64 128 192 256 360 384; do
 	echo "echo Setting performance governor"			>> $NAS_BASECONFIG
 	echo "cpupower frequency-set -g performance"			>> $NAS_BASECONFIG
 	echo								>> $NAS_BASECONFIG
-	echo 'export BUILDFLAGS_ENABLE_COMPILEFLAGS=yes'		>> $CONFIG-zen4
+	echo 'export BUILDFLAGS_ENABLE_COMPILEFLAGS=yes'		>> $NAS_BASECONFIG
 	echo 'export MMTESTS_TOOLCHAIN="gcc-11"'			>> $NAS_BASECONFIG
+	echo 'export MMTESTS_MPI_USE_DISTRO="yes"'			>> $NAS_BASECONFIG
 
 	cat $NAS_BASECONFIG | sed -e '/numa_balancing/d' > config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
 	sed -i  -e 's/NAS_OPTIMISE_FLAGS=.*/NAS_OPTIMISE_FLAGS="-Ofast -march=znver3 -mtune=znver3 -ftree-vectorize"/' \

@@ -111,7 +111,7 @@ log_linkages() {
 		echo >> \$SHELLPACK_LOG/runtime.opts
 	fi
 }
-if [ "\$MMTESTS_TOOLCHAIN\" != "" ]; then
+if [ "\$MMTESTS_TOOLCHAIN\" != "" -a "\$MMTESTS_MPI_USE_DISTRO\" != "yes" ]; then
 	export MMTESTS_MPI_SELFBUILD=yes
 fi
 
