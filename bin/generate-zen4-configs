@@ -46,6 +46,5 @@ for CPUCOUNT in 12 24 32 64 128 192 256 360 384; do
 	echo 'echo 0 > /proc/sys/kernel/numa_balancing'				>> config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-tuned
 done
 
-cp config-hpc-nas-mpi-256cpus-xfs-zen4-tuned config-hpc-nas-mpi-Ncpus-xfs-zen4-selective
-# echo 'export NAS_JOB_MAX_CPUS="bt=256 cg=32 ep=256 is=256 lu=128 mg=32 sp=256"' >> config-hpc-nas-mpi-Ncpus-xfs-zen4-selective
-echo 'export NAS_JOB_MAX_CPUS="bt=256 cg=32 ep=256 is=256 lu=128 mg=32 sp=256"' >> config-hpc-nas-mpi-Ncpus-xfs-zen4-selective
+cp config-hpc-nas-mpi-384cpus-xfs-zen4-tuned config-hpc-nas-mpi-Ncpus-xfs-zen4-selective
+echo 'export NAS_JOB_MAX_CPUS="bt=384 cg=192 ep=384 is=384 lu=192 mg=192 sp=192"' >> config-hpc-nas-mpi-Ncpus-xfs-zen4-selective
