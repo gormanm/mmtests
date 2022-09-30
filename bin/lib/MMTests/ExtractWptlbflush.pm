@@ -1,7 +1,6 @@
 # ExtractWptlbflush.pm
 package MMTests::ExtractWptlbflush;
 use MMTests::SummariseMultiops;
-use Math::Round;
 our @ISA = qw(MMTests::SummariseMultiops);
 
 sub printDataType() {
@@ -35,7 +34,7 @@ sub extractReport() {
 		my $last = 0;
 		while (<INPUT>) {
 			my @elements = split(/\s/);
-			my $t = nearest(.5, $elements[0]);
+			my $t = $elements[0];
 
 			if ($last && $t > $last * 50) {
 				next;
