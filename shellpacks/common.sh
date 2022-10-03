@@ -1404,7 +1404,7 @@ function run_report_name()
 function run_results()
 {
 	FILES=`find -name "tests-activity"`
-	grep -H . $FILES | \
+	grep -H "run-mmtests: Start" $FILES | \
 		cut -d ' ' -f 1 | sort -n -k 2 -t ':' | \
 		cut -d ':' -f 1 | sed -e 's|/iter-.*/tests-activity||' -e 's|/tests-activity||' -e 's|^./||' | uniq
 }
