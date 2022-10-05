@@ -1257,20 +1257,6 @@ for SUBREPORT in $REPORTS; do
 			plain graph-$SUBREPORT-Elapsd
 			echo "</tr>"
 			;;
-		vmr-stream)
-			echo "<tr>"
-			for HEADING in Add Copy; do
-				eval $GRAPH_PNG --logX --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
-				plain graph-$SUBREPORT-$HEADING
-			done
-			echo "</tr>"
-			echo "<tr>"
-			for HEADING in Scale Triad; do
-				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
-				plain graph-$SUBREPORT-$HEADING
-			done
-			echo "</tr>"
-			;;
 		wis-eventfd|wis-fallocate|wis-filelock|wis-futex|wis-getppid|wis-malloc|wis-mmap|wis-open|wis-pf|wis-pipe|wis-poll|wis-posixsems|wis-pread|wis-pthreadmutex|wis-pwrite|wis-read|wis-sched|wis-signal|wis-unlink)
 			SUB_WORKLOADS_FILENAME=`find -name "workloads" | grep $SUBREPORT | head -1`
 			SUB_WORKLOADS=
@@ -1299,7 +1285,7 @@ for SUBREPORT in $REPORTS; do
 		xfsrepair)
 			;;
 		*)
-			eval $GRAPH_PNG --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT
+			eval $GRAPH_PNG $GRAPH_EXTRA --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT.png ]; then
 				if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.png ]; then
 					smoothover graph-$SUBREPORT
@@ -1676,6 +1662,9 @@ for SUBREPORT in $REPORTS; do
 			fi
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults.png ]; then
 				MAJFAULTS=`$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading pgmajfault | awk '{print $2}' | grep -v Nan | max`
+				if [ "$MAJFAULTS" = "" ]; then
+					MAJFAULTS=0
+				fi
 				if [ $MAJFAULTS -gt 0 ]; then
 					smoothover graph-$SUBREPORT-proc-vmstat-majorfaults
 				else

@@ -8,9 +8,10 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractStream";
-	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
+	$self->{_DataType}   = DataTypes::DATA_GBYTES_PER_SECOND;
 	$self->{_PlotType}   = "histogram";
-	$self->{_Opname}     = "MB/sec";
+	$self->{_Opname}     = "GB/sec";
+	$self->{_PlotXaxis}  = "Operation";
 
 	$self->SUPER::initialise($subHeading);
 }
@@ -51,10 +52,10 @@ sub extractReport() {
 		close INPUT;
 	}
 
-	$self->addData("copy-$nr_threads", 0, $copy  / $iterations );
-	$self->addData("scale-$nr_threads", 0, $scale / $iterations );
-	$self->addData("add-$nr_threads", 0, $add   / $iterations );
-	$self->addData("triad-$nr_threads", 0, $triad / $iterations );
+	$self->addData("copy-$nr_threads", 0, $copy / 1024 / $iterations );
+	$self->addData("scale-$nr_threads", 0, $scale / 1024 / $iterations );
+	$self->addData("add-$nr_threads", 0, $add / 1024  / $iterations );
+	$self->addData("triad-$nr_threads", 0, $triad / 1024 / $iterations );
 }
 
 1;
