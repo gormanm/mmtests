@@ -103,6 +103,9 @@ sub printDataType() {
 	} elsif ($dtype == DataTypes::DATA_MBYTES_PER_SECOND) {
 		$yaxis = "MBytes/sec";
 		$units = "Throughput";
+	} elsif ($dtype == DataTypes::DATA_GBYTES_PER_SECOND) {
+		$yaxis = "GBytes/sec";
+		$units = "Throughput";
 	} elsif ($dtype == DataTypes::DATA_KBYTES_PER_SECOND) {
 		$yaxis = "KBytes/sec";
 		$units = "Throughput";
