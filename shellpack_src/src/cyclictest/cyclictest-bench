@@ -42,6 +42,39 @@ kernbench)
 EOF
 	chmod a+x build-loop.sh
 	;;
+klp)
+	echo Preparing git repo
+	cd $SHELLPACK_DATA
+	if [ ! -e qa_test_klp ]; then
+		git clone https://github.com/SUSE/qa_test_klp || die "Failed to clone klp repository"
+	fi
+	cd $SHELLPACK_DATA/qa_test_klp || die "Clone but didn't clone, what?"
+
+	###SHELLPACK self_extract klp_tc_1.sh
+	mv $SHELLPACK_TEMP/klp_tc_1.sh . || die "Failed to self-extract tc-1"
+	chmod a+x klp_tc_1.sh
+
+	cat << EOF > klp-loop.sh
+	PID_KLP_LOOP=
+	cleanup() {
+		if [ "\$PID_KLP_LOOP" != "" ]; then
+			wait \$PID_KLP_LOOP
+		fi
+	}
+	trap cleanup EXIT
+
+	I=0
+	while [ 1 ]; do
+		I=\$((I+1))
+		echo LKP test \$I
+		./klp_tc_1.sh
+		echo Sleep 1 second
+		sleep 1
+		echo
+	done
+EOF
+	chmod a+x klp-loop.sh
+	;;
 esac
 ###SHELLPACK init_only_end
 
@@ -55,12 +88,17 @@ case $CYCLICTEST_BACKGROUND in
 hackbench)
 	./hackbench -P -g $NUMCPUS -l 200000000 &
 	BACKGROUND_PID=$!
-	echo "Background hackbench $PID"
+	echo "Background hackbench $BACKGROUND_PID"
 	;;
 kernbench)
 	$SHELLPACK_DATA/linux-$KERNEL_VERSION/build-loop.sh &
 	BACKGROUND_PID=$!
-	echo "Background kernbench $PID"
+	echo "Background kernbench $BACKGROUND_PID"
+	;;
+klp)
+	$SHELLPACK_DATA/qa_test_klp/klp-loop.sh &> $LOGDIR_RESULTS/klp.log &
+	BACKGROUND_PID=$!
+	echo "Background klp $BACKGROUND_PID"
 	;;
 none)
 	echo "No background task specified"
@@ -92,3 +130,5 @@ if [ "$CYCLICTEST_FINEGRAINED" = "yes" ]; then
 fi
 monitor_post_hook $LOGDIR_RESULTS $P
 exit $SHELLPACK_SUCCESS
+
+###SHELLPACK include_file klp_tc_1.sh
