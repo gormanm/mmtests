@@ -12,6 +12,6 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # cyclictest
-export CYCLICTEST_DURATION=600
+export CYCLICTEST_DURATION=120
 export CYCLICTEST_BACKGROUND=klp
 export CYCLICTEST_KLP_TC="klp_tc_3.sh"

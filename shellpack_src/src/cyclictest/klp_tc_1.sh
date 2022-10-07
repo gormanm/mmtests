@@ -26,10 +26,6 @@ klp_tc_milestone "Compiling kernel live patch"
 PATCH_KO="$(klp_create_patch_module tc_1 ${KLP_TEST_SYSCALL_FN_PREFIX}sys_getpid)"
 PATCH_MOD_NAME="$(basename "$PATCH_KO" .ko)"
 
-klp_tc_milestone "Compiling call_getpid"
-PATCH_DIR="/tmp/live-patch/tc_1"
-gcc -o "$PATCH_DIR"/call_getpid "$SOURCE_DIR"/klp_tc_3-call_getpid.c
-
 klp_tc_milestone "Inserting getpid patch"
 insmod "$PATCH_KO"
 if [ ! -e /sys/kernel/livepatch/"$PATCH_MOD_NAME" ]; then
@@ -45,6 +41,6 @@ fi
 
 # test passed if execution reached this line
 # failures beyond this point are not test case failures
-klp_tc_milestone "Terminating call_getpid"
+klp_tc_milestone "Terminating"
 
 klp_tc_exit

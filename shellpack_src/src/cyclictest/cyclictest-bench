@@ -56,20 +56,46 @@ klp)
 
 	cat << EOF > klp-loop.sh
 	PID_KLP_LOOP=
+	apply_klp() {
+		insmod /tmp/live-patch/tc_1/klp_tc_1_livepatch.ko
+		while [ "\`cat /sys/kernel/livepatch/klp_tc_1_livepatch/transition\`" -ne 0 ]; do
+			sleep 0.1
+		done
+	}
+
+	disable_klp() {
+		echo 0 > /sys/kernel/livepatch/klp_tc_1_livepatch/enabled
+		while [ "0\`cat /sys/kernel/livepatch/klp_tc_1_livepatch/transition 2>/dev/null\`" -ne 0 ]; do
+			sleep 0.1
+		done
+	}
+	remove_klp() {
+		rmmod klp_tc_1_livepatch
+	}
+
 	cleanup() {
-		if [ "\$PID_KLP_LOOP" != "" ]; then
-			wait \$PID_KLP_LOOP
-		fi
+		disable_klp
+		remove_klp
 	}
 	trap cleanup EXIT
+
+	cd \$SHELLPACK_DATA/qa_test_klp
+	./klp_tc_1.sh
+	disable_klp
+	remove_klp
 
 	I=0
 	while [ 1 ]; do
 		I=\$((I+1))
 		echo LKP test \$I
-		./klp_tc_1.sh
-		echo Sleep 1 second
-		sleep 1
+		echo Patching: \`date\`
+		apply_klp
+
+		echo Disabling: \`date\`
+		disable_klp
+
+		echo Removing: \`date\`
+		remove_klp
 		echo
 	done
 EOF
