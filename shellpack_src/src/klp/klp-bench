@@ -1,0 +1,21 @@
+#!/bin/bash
+
+###SHELLPACK preamble klp-bench 0
+
+SCHBENCH_ITERATIONS=1
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_install_required klp-${VERSION}
+###SHELLPACK init_complete
+
+save_rc ./run.sh 2>&1 | tee $LOGDIR_RESULTS/klp.log
+recover_rc
+if [ $? -ne 0 ]; then
+	die "Failed to run kernel live patching test"
+fi
+
+exit $SHELLPACK_SUCCESS

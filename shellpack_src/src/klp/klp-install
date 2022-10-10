@@ -1,0 +1,11 @@
+#!/bin/bash
+###SHELLPACK preamble klp-install 0
+GIT_LOCATION=https://github.com/SUSE/qa_test_klp
+MIRROR_LOCATION="$WEBROOT/klp/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch klp-${VERSION}.tar.gz klp-${VERSION}-installed
+
+echo klp installed successfully
