@@ -17,6 +17,7 @@ CYCLICTEST_BACKGROUND=none
 
 ###SHELLPACK init_only_start
 ###SHELLPACK check_external_install_required rttestbuild rttestbuild-${VERSION} ${VERSION}
+###SHELLPACK check_external_install_required klp         klp-0			0
 
 case $CYCLICTEST_BACKGROUND in
 kernbench)
@@ -43,12 +44,7 @@ EOF
 	chmod a+x build-loop.sh
 	;;
 klp)
-	echo Preparing git repo
-	cd $SHELLPACK_DATA
-	if [ ! -e qa_test_klp ]; then
-		git clone https://github.com/SUSE/qa_test_klp || die "Failed to clone klp repository"
-	fi
-	cd $SHELLPACK_DATA/qa_test_klp || die "Clone but didn't clone, what?"
+	cd $SHELLPACK_SOURCES/klp-0-installed || die "External installation of KLP failed"
 
 	###SHELLPACK self_extract klp_tc_1.sh
 	mv $SHELLPACK_TEMP/klp_tc_1.sh . || die "Failed to self-extract tc-1"

@@ -1,0 +1,82 @@
+diff --git a/klp_tc_functions.sh b/klp_tc_functions.sh
+index 9e73a98590d0..acf608945c80 100644
+--- a/klp_tc_functions.sh
++++ b/klp_tc_functions.sh
+@@ -49,6 +49,7 @@ function klp_create_patch_module_src() {
+ 
+     PATCH_FUNCS=""
+     PATCH_GETPID=0
++    PATCH_GETPPID=0
+     while [ $# -gt 0 ]; do
+ 	local FUNC="$1"
+ 	shift
+@@ -57,6 +58,11 @@ function klp_create_patch_module_src() {
+ 	    PATCH_GETPID=1
+ 	    continue
+ 	fi
++	if [ x"$FUNC" == x${KLP_TEST_SYSCALL_FN_PREFIX}sys_getppid ]; then
++	    PATCH_GETPPID=1
++	    continue
++	fi
++
+ 	PATCH_FUNCS="${PATCH_FUNCS}$(__klp_add_patched_func $PATCH_ID $FUNC)"
+     done
+ 
+@@ -64,6 +70,7 @@ function klp_create_patch_module_src() {
+     sed -f - "$TEMPLATE" > "${SRC_FILE}.tmp" <<EOF
+ s%@@PATCH_ID@@%$PATCH_ID%;
+ s%@@PATCH_GETPID@@%$PATCH_GETPID%;
++s%@@PATCH_GETPPID@@%$PATCH_GETPPID%;
+ s%@@SYSCALL_FN_PREFIX@@%$KLP_TEST_SYSCALL_FN_PREFIX%;
+ s%@@PATCH_REPLACE_ALL@@%$PATCH_REPLACE_ALL%;
+ s%@@PATCH_FUNCS@@%$PATCH_FUNCS%;
+diff --git a/klp_test_livepatch.c b/klp_test_livepatch.c
+index 4d09dbd3e080..93e1d91eb845 100644
+--- a/klp_test_livepatch.c
++++ b/klp_test_livepatch.c
+@@ -24,6 +24,9 @@
+ /* whether or not to identity-patch sys_getpid() */
+ #define PATCH_GETPID @@PATCH_GETPID@@
+ 
++/* whether or not to identity-patch sys_getppid() */
++#define PATCH_GETPPID @@PATCH_GETPPID@@
++
+ #define USE_OLD_REG_API @@USE_OLD_REG_API@@
+ 
+ #if PATCH_GETPID
+@@ -41,13 +44,34 @@ static struct klp_func vmlinux_funcs[] = {
+ };
+ #endif /* PATCH_GETPID */
+ 
++#if PATCH_GETPPID
++asmlinkage long PATCHED_SYM(@@SYSCALL_FN_PREFIX@@sys_getppid)(void)
++{
++	int pid;
++
++	rcu_read_lock();
++	pid = task_tgid_vnr(rcu_dereference(current->real_parent));
++	rcu_read_unlock();
++
++	return pid;
++}
++
++static struct klp_func vmlinux_funcs[] = {
++	{
++		.old_name = "@@SYSCALL_FN_PREFIX@@sys_getppid",
++		.new_func = PATCHED_SYM(@@SYSCALL_FN_PREFIX@@sys_getppid),
++	},
++	{}
++};
++#endif /* PATCH_GETPID */
++
+ static struct klp_func klp_test_support_mod_funcs[] = {
+ 	@@PATCH_FUNCS@@
+ 	{}
+ };
+ 
+ static struct klp_object objs[] = {
+-#if PATCH_GETPID
++#if PATCH_GETPID || PATCH_GETPPID
+ 	{
+ 		/* name being NULL means vmlinux */
+ 		.funcs = vmlinux_funcs,

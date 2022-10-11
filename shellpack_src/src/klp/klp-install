@@ -7,5 +7,25 @@ MIRROR_LOCATION="$WEBROOT/klp/"
 ###SHELLPACK parseargEnd
 
 ###SHELLPACK git_fetch klp-${VERSION}.tar.gz klp-${VERSION}-installed
+cd $SHELLPACK_SOURCES/klp-${VERSION}-installed || die "Failed to change to cloned directory"
+###SHELLPACK self_extract klp_tc_1.sh
+###SHELLPACK self_extract klp_tc_2.sh
+###SHELLPACK self_extract 0001-patch-getppid.patch
+###SHELLPACK self_extract 0002-force-kill-chimem.patch
+
+for SCRIPT in klp_tc_1.sh klp_tc_2.sh; do
+	mv $SHELLPACK_TEMP/$SCRIPT . || die "Failed to self-extract $SCRIPT"
+	chmod a+x $SCRIPT
+done
+
+for PATCH in 0001-patch-getppid.patch 0002-force-kill-chimem.patch; do
+	cat $SHELLPACK_TEMP/$PATCH | patch -p1 || die "Failed to patch $PATCH"
+done
 
 echo klp installed successfully
+exit 0
+
+###SHELLPACK include_file klp_tc_1.sh
+###SHELLPACK include_file klp_tc_2.sh
+###SHELLPACK include_file 0001-patch-getppid.patch
+###SHELLPACK include_file 0002-force-kill-chimem.patch
