@@ -312,6 +312,10 @@ if [ "`lsmod | grep oprofile`" != "" ]; then
 	opcontrol --deinit > /dev/null 2> /dev/null
 fi
 
+if [ "$TESTDISK_NOMOUNT" == "true" ] ; then
+    NOMOUNT="true"
+fi
+
 install_numad
 install_tuned
 
@@ -348,6 +352,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	export TESTDISK_FS_SIZE
 	export TESTDISK_MKFS_PARAM
 	export TESTDISK_MOUNT_ARGS
+	export TESTDISK_NOMOUNT
 	export TESTDISK_NFS_MOUNT
 	export SHELLPACK_TEST_MOUNTS
 	export SHELLPACK_DATA_DIRS
