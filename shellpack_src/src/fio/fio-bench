@@ -34,20 +34,6 @@ fi
 
 FIO_IO_PATTERNS="write read rw randread randwrite randrw"
 
-if [ "$FIO_CMD_OPTIONS" != "" ]; then
-	monitor_pre_hook $LOGDIR_RESULTS $SIZE
-
-	./fio --directory="$SHELLPACK_DATA" --minimal \
-		--write_lat_log $LOGDIR_RESULTS/fio $FIO_CMD_OPTIONS 2>&1 |
-		tee $LOGDIR_RESULTS/fio.log || \
-		die "Failed to have fun with fio"
-
-	rm -rf $SHELLPACK_DATA/*
-	monitor_post_hook $LOGDIR_RESULTS $SIZE
-	gzip $LOGDIR_RESULTS/fio*.log
-	exit $SHELLPACK_SUCCESS
-fi
-
 # default values for scaling test
 FIO_MAX_JOBS=${FIO_MAX_JOBS:-64}
 FIO_RUNTIME=${FIO_RUNTIME:-15}
@@ -133,6 +119,24 @@ function scaling_test() {
 	done
 }
 
+function jobfile_test () {
+	if [ "$FIO_CMD_OPTIONS" == "" ]; then
+		die "Missing required FIO_CMD_OPTIONS"
+	fi
+
+	monitor_pre_hook $LOGDIR_RESULTS $SIZE
+
+	./fio --directory=${SHELLPACK_DATA} --minimal \
+		--write_lat_log $LOGDIR_RESULTS/fio $FIO_CMD_OPTIONS 2>&1 |
+		tee $LOGDIR_RESULTS/fio.log || \
+		die "Failed to have fun with fio"
+
+	rm -rf $SHELLPACK_DATA/*
+	monitor_post_hook $LOGDIR_RESULTS $SIZE
+}
+
+# Historically, if no test type is defined, look for a FIO job file
+[[ -z "$FIO_TEST_TYPE" ]] && FIO_TEST_TYPE=jobfile
 case $FIO_TEST_TYPE in
 scaling)
 	DIR_NR=${#SHELLPACK_DATA_DIRS[*]}
@@ -154,6 +158,9 @@ ssd)
 	# 128k, QD 4, jobs 1
 	seq_write_read 4
 	monitor_post_hook ${LOGDIR_RESULTS}
+	;;
+jobfile)
+	jobfile_test
 	;;
 *)
 	die Unrecognised test type $FIO_TEST_TYPE
