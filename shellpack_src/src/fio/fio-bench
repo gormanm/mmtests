@@ -135,6 +135,24 @@ function jobfile_test () {
 	monitor_post_hook $LOGDIR_RESULTS $SIZE
 }
 
+function rawblock_test () {
+	if [ "$FIO_CMD_OPTIONS" == "" ]; then
+		die "Missing required FIO_CMD_OPTIONS"
+	fi
+	if [ "$TESTDISK_NOMOUNT" != "true" ] ; then
+		die "FIO won't run I/O against a mounted disk"
+	fi
+
+	monitor_pre_hook $LOGDIR_RESULTS $SIZE
+
+	./fio --filename=${TESTDISK_PARTITION} --minimal \
+		--write_lat_log $LOGDIR_RESULTS/fio $FIO_CMD_OPTIONS 2>&1 |
+		tee $LOGDIR_RESULTS/fio.log || \
+		die "Failed to have fun with fio"
+
+	monitor_post_hook $LOGDIR_RESULTS $SIZE
+}
+
 # Historically, if no test type is defined, look for a FIO job file
 [[ -z "$FIO_TEST_TYPE" ]] && FIO_TEST_TYPE=jobfile
 case $FIO_TEST_TYPE in
@@ -161,6 +179,9 @@ ssd)
 	;;
 jobfile)
 	jobfile_test
+	;;
+block)
+	rawblock_test
 	;;
 *)
 	die Unrecognised test type $FIO_TEST_TYPE
