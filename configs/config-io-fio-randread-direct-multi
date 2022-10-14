@@ -13,6 +13,9 @@ export MMTESTS="fio"
 #export TESTDISK_FILESYSTEM=xfs
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
 #export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+#export TESTDISK_NOMOUNT=false
+
+#export FIO_TEST_TYPE=jobfile
 
 # List of monitors
 export RUN_MONITOR=yes

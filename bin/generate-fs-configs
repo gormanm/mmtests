@@ -148,7 +148,7 @@ config-functional-ltp-lite
 config-functional-xfstests-auto
 "
 
-rm -f *-ext3 *-ext4 *-btrfs *-btrfs-nocow *-xfs *-raid0 *-raid1 *-raid5
+rm -f *-ext3 *-ext4 *-btrfs *-btrfs-nocow *-xfs *-raid0 *-raid1 *-raid5 *-nullb
 
 check_io_config() {
 	grep -q TESTDISK_ $CONFIG
@@ -418,4 +418,28 @@ for FS in xfs ext3 ext4 btrfs btrfs-nocow; do
 			cp $CONFIG $CONFIG-$TYPE-raid5
 		done
 	done
+done
+
+
+NULL_BLK_CONFIGS="
+config-io-fio-randread-direct-multi
+config-io-fio-randread-async-randwrite
+config-io-fio-randread-async-seqwrite
+config-io-fio-randread-sync-heavywrite
+config-io-fio-randread-sync-randwrite
+config-io-fio-sync-maxrandwrite
+"
+
+for CONFIG in ${NULL_BLK_CONFIGS} ; do
+	check_io_config
+	if [ ! -e $CONFIG ]; then
+		echo Missing: $CONFIG
+		continue
+	fi
+
+	cat $CONFIG | sed \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/nullb0/' \
+		-e 's/.*export TESTDISK_NOMOUNT=.*/export TESTDISK_NOMOUNT=true/' \
+		-e 's/.*export FIO_TEST_TYPE=.*/export FIO_TEST_TYPE=block/' \
+			> $CONFIG-nullb
 done
