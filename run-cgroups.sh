@@ -96,8 +96,9 @@ function parse_config() {
 }
 
 function mount_only() {
+	local max=${#CG_CONFIGS[*]}
 	echo "Mounting testdisk"
-	./run-mmtests.sh --mount-only -n -c ${CONFIGS[0]} ${runname}-mo
+	./run-mmtests.sh --mount-only -n -c ${CONFIGS[0]} ${runname}-cg_1_$max
 }
 
 function build_only() {
