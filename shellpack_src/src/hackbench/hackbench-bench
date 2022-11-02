@@ -44,16 +44,24 @@ RESULTSLOG=$LOGDIR_RESULTS/hackbench
 # processes, e.g. monitors.
 ulimit -n $((HACKBENCH_MAX_GROUPS * 40 * 2))
 
+TIMEOUT=300
+
 ###SHELLPACK threads_large_stride_begin $HACKBENCH_MIN_GROUPS $HACKBENCH_MAX_GROUPS
 	mmtests_activity $CONN_NAME-$NR_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
 	###SHELLPACK iteration_begin $HACKBENCH_ITERATIONS
-		echo Running $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS
-		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  			\
-			$PERF_CMD bench sched messaging 					\
-				$CONN_SWITCH $TASK_SWITCH -g $NR_THREADS -l $HACKBENCH_LOOPS 	\
-				> $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
+		ATTEMPT=0
+		RET=-1
+		while [ $RET -ne 0 ]; do
+			ATTEMPT=$((ATTEMPT+1))
+			echo Running attempt $ATTEMPT $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS
+			timeout ${TIMEOUT}s $TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  			\
+				$PERF_CMD bench sched messaging 					\
+					$CONN_SWITCH $TASK_SWITCH -g $NR_THREADS -l $HACKBENCH_LOOPS 	\
+					> $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
+			RET=$?
+		done
 
 		# Failure likely due to open file or pid limitations
 		if [ $? -ne 0 ]; then
