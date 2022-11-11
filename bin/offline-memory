@@ -1,0 +1,83 @@
+#!/bin/bash
+# Offline memory until the specified limit is reached.
+
+LIMIT=$1
+if ! [[ $LIMIT =~ ^[0-9]+$ ]] ; then
+	echo Memory limit must be specified in bytes $LIMIT
+	echo Usage: limit-memory [bytes]
+	exit -1
+fi
+
+if [ "`whoami`" != "root" ]; then
+	echo limit-memory requires root
+	exit -1
+fi
+
+MEMORY_BANKS=`\ls -d /sys/devices/system/memory/memory* | sed -e 's/.*memory//' | sort -n -r`
+if [ "$MEMORY_BANKS" = "" ]; then
+	echo Unable to enumerate available memory
+	exit -1
+fi
+
+MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+for BANK in $MEMORY_BANKS; do
+	if [ ! -e /sys/devices/system/memory/memory$BANK/online ]; then
+		echo Unable to detect state of memory bank $BANK
+		continue
+	fi
+
+	if [ ! -e /sys/devices/system/memory/memory$BANK/state ]; then
+		echo Unable to hotplug memory bank $BANK
+		continue
+	fi
+
+	if [ ! -e /sys/devices/system/memory/memory$BANK/removable ]; then
+		echo Bank $BANK is not removable
+		continue
+	fi
+	REMOVABLE=`cat /sys/devices/system/memory/memory$BANK/removable`
+	if [ $REMOVABLE -ne 1 ]; then
+		echo Bank $BANK is not removable
+		continue
+	fi
+
+	echo -n offline > /sys/devices/system/memory/memory$BANK/state 2> /dev/null &
+	OFFLINE_PID=$!
+	ATTEMPT=0
+	STATE=`cat /sys/devices/system/memory/memory$BANK/online`
+	while [ $STATE -ne 0 ]; do
+		if [ $ATTEMPT -eq 0 ]; then
+			echo -n Waiting on bank $BANK for 3 seconds
+		fi
+		ATTEMPT=$((ATTEMPT+1))
+		if [ $ATTEMPT -ge 3 ]; then
+			echo Bank $BANK has not reached offline state
+			ps -p $OFFLINE_PID &>/dev/null
+			if [ $? -eq 0 ]; then
+				kill -9 $OFFLINE_PID
+			fi
+			sleep 1
+			echo -n online > /sys/devices/system/memory/memory$BANK/state &>/dev/null
+			break
+		fi
+		sleep 1
+		echo -n .
+		STATE=`cat /sys/devices/system/memory/memory$BANK/online`
+	done
+	if [ $STATE -eq 0 ]; then
+		echo Offlined bank $BANK
+		MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+		if [ $MEMTOTAL_BYTES -le $LIMIT ]; then
+			break
+		fi
+	fi
+done
+
+MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+if [ $MEMTOTAL_BYTES -gt $LIMIT ]; then
+	echo Unable to limit memory
+	exit -1
+fi
+
+echo Memory limit reached
+exit 0

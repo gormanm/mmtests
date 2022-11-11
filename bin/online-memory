@@ -1,0 +1,13 @@
+#!/bin/bash
+# Offline memory until the specified limit is reached.
+
+MEMORY_BANKS=`\ls -d /sys/devices/system/memory/memory* | sed -e 's/.*memory//' | sort -n -r`
+for BANK in $MEMORY_BANKS; do
+	if [ -e /sys/devices/system/memory/memory$BANK/state ]; then
+		STATE=`cat /sys/devices/system/memory/memory$BANK/state`
+		if [ "$STATE" = "offline" ]; then
+			echo Online $BANK
+			echo -n online > /sys/devices/system/memory/memory$BANK/state
+		fi
+	fi
+done

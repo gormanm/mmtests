@@ -20,13 +20,17 @@ BUILDFLAGS_ENABLE_SYSCTL=${BUILDFLAGS_ENABLE_SYSCTL:-no}
 INTERRUPT_COUNT=0
 clean_exit()
 {
-    while read file; do
-	[ -n "$file" ] && rm -rf $file
-    done < $DELETE_ON_EXIT_FILE
-    rm -f $DELETE_ON_EXIT_FILE
-    if [ "$MMTESTS_SESSION_ID" != "" ]; then
-    	rm -f /tmp/packages.$MMTESTS_SESSION_ID
-    fi
+	while read file; do
+		[ -n "$file" ] && rm -rf $file
+	done < $DELETE_ON_EXIT_FILE
+	rm -f $DELETE_ON_EXIT_FILE
+	if [ "$MMTESTS_SESSION_ID" != "" ]; then
+		rm -f /tmp/packages.$MMTESTS_SESSION_ID
+	fi
+
+	if [ "$OFFLINED_MEMORY" = "1" ]; then
+		online-memory
+	fi
 }
 
 begin_shutdown() {
@@ -232,6 +236,12 @@ if ! $BUILDONLY && [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
 	NOTURBO="/sys/devices/system/cpu/intel_pstate/no_turbo"
 	[ -f $NOTURBO ] && FORCE_PERFORMANCE_NOTURBO_BASE=`cat $NOTURBO`
 	force_performance_setup
+fi
+
+OFFLINED_MEMORY=0
+if [ "$MMTESTS_LIMIT_MEMORY" != "" ]; then
+	offline-memory $MMTESTS_LIMIT_MEMORY || die "Failed to limit memory to $MMTESTS_LIMIT_MEMORY bytes"
+	OFFLINED_MEMORY=1
 fi
 
 # Check monitoring
