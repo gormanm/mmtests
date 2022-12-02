@@ -23,7 +23,8 @@ install-depends zlib-devel-static
 ###SHELLPACK build_start perfbuild-${VERSION}
 
 ###SHELLPACK build_start perfbuild-${VERSION}/tools/perf
-###SHELLPACK make prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed
-###SHELLPACK make prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed install
+sed -i -e s/-DHAVE_LIBBFD_SUPPORT// Makefile.config
+###SHELLPACK make NO_LIBBFD=1 prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed
+###SHELLPACK make NO_LIBBFD=1 prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed install
 
 exit $SHELLPACK_SUCCESS
