@@ -44,7 +44,7 @@ RESULTSLOG=$LOGDIR_RESULTS/hackbench
 # processes, e.g. monitors.
 ulimit -n $((HACKBENCH_MAX_GROUPS * 40 * 2))
 
-TIMEOUT=300
+TIMEOUT=900
 
 ###SHELLPACK threads_large_stride_begin $HACKBENCH_MIN_GROUPS $HACKBENCH_MAX_GROUPS
 	mmtests_activity $CONN_NAME-$NR_THREADS
