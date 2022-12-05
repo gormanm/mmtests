@@ -53,7 +53,7 @@ TIMEOUT=900
 	###SHELLPACK iteration_begin $HACKBENCH_ITERATIONS
 		ATTEMPT=0
 		RET=-1
-		while [ $RET -ne 0 ]; do
+		while [ $RET -ne 0 -a $ATTEMPT -lt 5 ]; do
 			ATTEMPT=$((ATTEMPT+1))
 			echo Running attempt $ATTEMPT $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS
 			timeout ${TIMEOUT}s $TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  			\
