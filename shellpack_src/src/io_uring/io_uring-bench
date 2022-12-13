@@ -1,0 +1,43 @@
+#!/bin/bash
+# This script installs t/io_uring from fio and runs it.
+
+###SHELLPACK preamble io_uring-bench 3.33
+IOURING_CMD_EXTRA=
+IOURING_TEST_TYPE=
+IOURING_THREADS=1
+IOURING_RUNTIME=100
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --extra-args          IOURING_CMD_EXTRA
+###SHELLPACK parseargParam --type                IOURING_TEST_TYPE
+###SHELLPACK parseargParam --threads             IOURING_THREADS
+###SHELLPACK parseargParam --runtime             IOURING_RUNTIME
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_external_install_required fio fio-${VERSION} ${VERSION}
+###SHELLPACK init_complete
+
+FIO_DIR=$SHELLPACK_SOURCES/fio-${VERSION}-installed/
+
+# default values for scaling test
+
+io_uring_nop_test () {
+	${FIO_DIR}/t/io_uring -N 1 \
+		-n ${IOURING_THREADS} \
+		-r ${IOURING_RUNTIME} \
+		${IOURING_CMD_EXTRA} > $LOGDIR_RESULTS/t-io_uring.log
+}
+
+case "${IOURING_TEST_TYPE}" in
+"nops")
+	monitor_pre_hook $LOGDIR_RESULTS $IOURING_THREADS
+	io_uring_nop_test
+	monitor_post_hook $LOGDIR_RESULTS $IOURING_THREADS
+	;;
+*)
+	die Unrecognised test type $FIO_TEST_TYPE
+	;;
+esac
+
+exit $SHELLPACK_SUCCESS
