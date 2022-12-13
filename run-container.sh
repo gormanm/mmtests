@@ -147,9 +147,9 @@ function pull_image() {
 			sp4)
 				image=registry.suse.com/suse/sle15:15.4
 				;;
-			# sp5) # not available yet
-			# 	image=registry.suse.com/suse/sle15:15.5
-			# 	;;
+			sp5) # not available yet, use SP4 BCI
+				image=registry.suse.com/suse/sle15:15.4
+				;;
 			*)
 				echo "ERROR: Distribution SP not supported"
 				cleanup_container_cli
