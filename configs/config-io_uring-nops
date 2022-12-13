@@ -1,0 +1,10 @@
+export MMTESTS="io_uring"
+
+export IOURING_TEST_TYPE=nops
+export IOURING_THREADS=$NUMCPUS
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
