@@ -126,12 +126,12 @@ function pull_image() {
 				;;
 			*)
 				echo "ERROR: Distribution release not supported"
-				cleanup_docker
+				cleanup_container_cli
 				exit 22
 			esac
 		else
 			echo "ERROR: Distribution version not supported"
-			cleanup_docker
+			cleanup_container_cli
 			exit 22
 		fi
 	elif [ "${distro}" = "suse" ]; then
@@ -152,17 +152,17 @@ function pull_image() {
 			# 	;;
 			*)
 				echo "ERROR: Distribution SP not supported"
-				cleanup_docker
+				cleanup_container_cli
 				exit 22
 			esac
 		else
 			echo "ERROR: Distribution version/release not supported"
-			cleanup_docker
+			cleanup_container_cli
 			exit 22
 		fi
 	else
 		echo "ERROR: Distribution not supported"
-		cleanup_docker
+		cleanup_container_cli
 		exit 22
 	fi
 
