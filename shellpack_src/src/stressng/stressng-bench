@@ -36,7 +36,7 @@ io-class)
 	TESTSWITCH="--class io"
 	;;
 io-class-parallel)
-	TESTSWITCH="--class io --all 1"
+	TESTSWITCH="--class io --all"
 	;;
 *)
 	die "Unrecognised test $STRESSNG_TESTNAME"
