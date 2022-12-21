@@ -144,6 +144,7 @@ config-speccpu2017-rate-parallel-full
 config-hpc-parsec-pthreads-half
 config-hpc-parsec-pthreads-full
 config-functional-ltp-cve
+config-functional-ltp-dio_truncate
 config-functional-ltp-lite
 config-functional-xfstests-auto
 "

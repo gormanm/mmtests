@@ -1,6 +1,6 @@
 #!/bin/bash
 # LTP installer
-###SHELLPACK preamble ltp-install 20200930
+###SHELLPACK preamble ltp-install 20220930
 GIT_LOCATION=https://github.com/linux-test-project/ltp
 MIRROR_LOCATION="$WEBROOT/ltp"
 REALTIME_TESTCASES=testcases/realtime/

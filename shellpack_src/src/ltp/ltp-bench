@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs ltp and runs the regression tests
-###SHELLPACK preamble ltp-bench 20200930
+###SHELLPACK preamble ltp-bench 20220930
 LTP_RUN_TESTS="controllers"
 
 ###SHELLPACK parseargBegin
@@ -18,6 +18,9 @@ grep -v fanotify runtest/syscalls > runtest/syscalls-lite
 
 LTP_RUN_TESTS=`echo $LTP_RUN_TESTS | tr ',' ' '`
 
+mkdir -p "$SHELLPACK_DATA/tmp"
+export TMPDIR="$SHELLPACK_DATA/tmp"
+
 for TESTNAME in $LTP_RUN_TESTS; do
 	echo Executing $TEST LTP test
 
@@ -31,10 +34,15 @@ for TESTNAME in $LTP_RUN_TESTS; do
 		# functional tests and a few performance ones.
 		save_rc ./testscripts/test_realtime.sh -t all | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
 	elif [ -e runtest/$TESTNAME ]; then
+		echo Execute via runltp
 		save_rc ./runltp -f $TESTNAME $LTP_RUN_ARGS		\
 			-l $LOGDIR_RESULTS/ltp-${TESTNAME}.log		\
 			-C $LOGDIR_RESULTS/ltp-${TESTNAME}.failed	\
 			-d $SHELLPACK_DATA				\
+				| tee $LOGDIR_RESULTS/log-${TESTNAME}
+	elif [ -e testcases/bin/$TESTNAME ]; then
+		echo Execute direct
+		save_rc testcases/bin/$TESTNAME				\
 				| tee $LOGDIR_RESULTS/log-${TESTNAME}
 	else
 		die "No method available to run $TESTNAME"
