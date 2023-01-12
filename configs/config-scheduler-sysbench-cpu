@@ -1,6 +1,6 @@
 ### Sysbench is a suite of microbenchmarks. This runs the CPU microbench which
 ### calculates primes up to a certain value using varying numbers of instances.
-### In this configuraiton, it calculates primes up to 25000 using between 1 and
+### In this configuration, it calculates primes up to 25000 using between 1 and
 ### 2*NUMCPUS threads.
 
 export MMTESTS="sysbenchcpu"

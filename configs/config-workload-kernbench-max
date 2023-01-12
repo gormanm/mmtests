@@ -1,6 +1,6 @@
 ### kernbench is a simple average of five kernel compiles of the vmlinux binary
 ### image. Note that it is sensitive to the kernel version, configuration and
-### compiler used. In this configuraiton, it's allmodconfig build of the full
+### compiler used. In this configuration, it's allmodconfig build of the full
 ### kernel 4.4 with all CPUs in use.
 
 export MMTESTS="kernbench"

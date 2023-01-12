@@ -3,7 +3,7 @@
 ###
 ### kernbench is a simple average of five kernel compiles of the vmlinux binary
 ### image. Note that it is sensitive to the kernel version, configuration and
-### compiler used. In this configuraiton, it's a defconfig build of vmlinux for
+### compiler used. In this configuration, it's a defconfig build of vmlinux for
 ### kernel 3.0. It does not control the compiler version used so cannot compare
 ### distributions fairly.
 ###
