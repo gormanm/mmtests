@@ -355,6 +355,20 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		TESTDISK_PARTITIONS=($TESTDISK_PARTITION)
 	fi
 
+	if [ -n "${TESTDISK_MIN_SIZE}" ] ; then
+		for disk in ${TESTDISK_PARTITION[*]} ; do
+			SIZE=`blockdev --getsize64 $disk`
+			if [ "$SIZE" = "" -o "$SIZE" = "0" ]; then
+				echo "`hostname`: Tried blockdev --getsize64 $disk"
+				die "Unable to detect test partition $disk size ($SIZE)"
+			fi
+
+			if [ $SIZE -le $TESTDISK_MIN_SIZE ]; then
+				die "Test disk partition is too small"
+			fi
+		done
+	fi
+
 	# Export variables needed for successful setup of filesystems
 	export STORAGE_CACHE_TYPE STORAGE_CACHING_DEVICE STORAGE_BACKING_DEVICE
 	export TESTDISK_PARTITIONS

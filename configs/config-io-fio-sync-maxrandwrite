@@ -11,6 +11,7 @@ export MMTESTS="fio"
 #export TESTDISK_MKFS_PARAM="-f -d agcount=8"
 #export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
 #export TESTDISK_NOMOUNT=false
+export TESTDISK_MIN_SIZE=$((MEMTOTAL_BYTES*2))
 
 #export FIO_TEST_TYPE=jobfile
 
@@ -35,9 +36,6 @@ if [ "$TESTDISK_SIZE" = "" -o "$TESTDISK_PARTITION_SIZE" = "0" ]; then
 fi
 
 export FIO_SIZE=$((TESTDISK_SIZE*8/10))
-if [ $FIO_SIZE -le $((MEMTOTAL_BYTES*2)) ]; then
-	die "Test disk partition is too small"
-fi
 
 NUMJOBS=4
 export FIO_SIZE=$((FIO_SIZE/1048576/1024/NUMJOBS))
