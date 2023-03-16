@@ -1177,6 +1177,38 @@ EOF
 		export TESTDISK_PARTITION=$TESTDISK_NBD_DEVICE
 	fi
 
+	if [ "$TESTDISK_NULLB_DEVICE" != "" ] ; then
+		local DISK
+		local MINOR
+		local MAJOR
+
+		if [ ! -d /sys/module/null_blk ] ; then
+			modprobe null_blk || die "missing required module $1"
+		fi
+
+		DISK=$(mktemp -dq -p /sys/kernel/config/nullb/ mmtests.XXX)
+		export TESTDISK_NULLB_CONFIG_DIR=$DISK
+
+		if [ ! -f "${TESTDISK_NULLB_CONFIG_DIR}/power" ] ; then
+			die "failed to create temporary nullb"
+		fi
+
+		echo 1 > ${TESTDISK_NULLB_CONFIG_DIR}/power
+
+		# Fetch name through major/minor instead of directly
+		# using /dev/nullbX. Since Linux v5.19-rc1, device
+		# name changed to match the configfs directory name.
+		# This is compatible with older and newer kernels.
+		MAJOR=$(grep nullb /proc/devices | cut -f 1 -d ' ')
+		MINOR=$(cat ${TESTDISK_NULLB_CONFIG_DIR}/index)
+
+		export TESTDISK_PARTITION=$(readlink -f /dev/block/${MAJOR}:${MINOR})
+		if [ ! -b $TESTDISK_PARTITION ] ; then
+			# Should never happen.
+			die "failed to find temporary nullb"
+		fi
+	fi
+
 	# Create ram disk
 	if [ "$TESTDISK_RD_SIZE" != "" ]; then
 		if [ -e /dev/ram0 ]; then
@@ -1248,6 +1280,11 @@ function destroy_testdisk
 	fi
 	if [ "$TESTDISK_NBD_DEVICE" != "" ]; then
 		nbd-client -d $TESTDISK_NBD_DEVICE
+	fi
+
+	if [ -d "$TESTDISK_NULLB_CONFIG_DIR" ] ; then
+		echo 0 > ${TESTDISK_NULLB_CONFIG_DIR}/power
+		rmdir ${TESTDISK_NULLB_CONFIG_DIR}
 	fi
 }
 
