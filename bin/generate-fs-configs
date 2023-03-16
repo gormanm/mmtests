@@ -439,7 +439,7 @@ for CONFIG in ${NULL_BLK_CONFIGS} ; do
 	fi
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/nullb0/' \
+		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_NULLB_DEVICE=yes/' \
 		-e 's/.*export TESTDISK_NOMOUNT=.*/export TESTDISK_NOMOUNT=true/' \
 		-e 's/.*export FIO_TEST_TYPE=.*/export FIO_TEST_TYPE=block/' \
 			> $CONFIG-nullb
