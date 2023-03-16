@@ -1,0 +1,3 @@
+source configs/config-io-fio-io_uring-randread-direct-nullb
+
+export FIO_CMD_OPTIONS="$FIO_CMD_OPTIONS --fixedbufs"
