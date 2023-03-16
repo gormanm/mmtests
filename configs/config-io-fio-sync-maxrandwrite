@@ -26,20 +26,8 @@ export MONITOR_UPDATE_FREQUENCY=10
 JOBFILE="/tmp/fio-jobfile-$$"
 export FIO_CMD_OPTIONS="$JOBFILE"
 
-if [ "$TESTDISK_PARTITION" = "" ]; then
-	die "Must specify test disk partition to size fio job"
-fi
-export TESTDISK_SIZE=`blockdev --getsize64 $TESTDISK_PARTITION`
-if [ "$TESTDISK_SIZE" = "" -o "$TESTDISK_PARTITION_SIZE" = "0" ]; then
-	echo `hostname`: Tried blockdev --getsize64 $TESTDISK_PARTITION
-	die "Unable to detect test partition $TESTDISK_PARTITION size ($TESTDISK_SIZE)"
-fi
-
-export FIO_SIZE=$((TESTDISK_SIZE*8/10))
-
-NUMJOBS=4
-export FIO_SIZE=$((FIO_SIZE/1048576/1024/NUMJOBS))
-
+# Limit device size usage up to 80% of capacity, split among all
+# 4 threads.
 cat >$JOBFILE <<END
 [global]
 bs=4k
@@ -48,7 +36,7 @@ direct=0
 runtime=900
 invalidate=1
 blocksize=4096
-size=${FIO_SIZE}g
+size=20%	# done per-thread
 log_avg_msec=10
 group_reporting=1
 
