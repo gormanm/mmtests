@@ -1841,9 +1841,19 @@ for SUBREPORT in $REPORTS; do
 		fi
 
 		if have_monitor_results proc-vmstat $KERNEL_BASE "^compact_stall [1-9]"; then
+			eval $GRAPH_PNG --title \"Compaction pages isolated\"  --print-monitor proc-vmstat --sub-heading compact_isolated         --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_isolated --with-smooth
+			eval $GRAPH_PNG --title \"Compaction migrate scanned\" --print-monitor proc-vmstat --sub-heading compact_migrate_scanned  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_migrate_scanned --with-smooth
+			eval $GRAPH_PNG --title \"Compaction free scanned\"    --print-monitor proc-vmstat --sub-heading compact_free_scanned     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_free_scanned --with-smooth
+
 			eval $GRAPH_PNG --title \"Compaction stall\"          --print-monitor proc-vmstat --sub-heading compact_stall      --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-compact_stall --with-smooth
 			eval $GRAPH_PNG --title \"Pages successful migrate\"  --print-monitor proc-vmstat --sub-heading pgmigrate_success  --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_success --with-smooth
 			eval $GRAPH_PNG --title \"Pages failed migrate\"      --print-monitor proc-vmstat --sub-heading pgmigrate_fail     --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-pgmigrate_failure --with-smooth
+
+			echo "<tr>"
+			smoothover graph-$SUBREPORT-proc-vmstat-compact_isolated
+			smoothover graph-$SUBREPORT-proc-vmstat-compact_migrate_scanned
+			smoothover graph-$SUBREPORT-proc-vmstat-compact_free_scanned
+			echo "</tr>"
 
 			echo "<tr>"
 			smoothover graph-$SUBREPORT-proc-vmstat-compact_stall
