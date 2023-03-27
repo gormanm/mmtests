@@ -15,7 +15,7 @@ for CONFIG in `ls config-workload-stream-* | grep -v -E ".*-zen[0-9]$"`; do
 done
 
 # NAS
-for CPUCOUNT in 12 24 32 64 128 192 256 360 384; do
+for CPUCOUNT in 12 24 32 64 128 192 256 360 384 512; do
 	NAS_NOTUNECONFIG=config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-notuning
 	NAS_BASECONFIG=config-hpc-nas-mpi-${CPUCOUNT}cpus-xfs-zen4-default
 
