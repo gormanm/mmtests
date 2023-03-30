@@ -35,7 +35,7 @@ for WORKLOAD in $PERFNUMA_WORKLOADS; do
 	case $WORKLOAD in
 	light_converge)
 		NR_THREADS=$((PERFNUMA_NR_THREADS/2))
-		$PERF_CMD bench numa mem -m -0 \
+		$PERF_CMD bench numa mem -m \
 			-p $PERFNUMA_NR_PROCESSES	\
 			-t $NR_THREADS			\
 			-P $PERFNUMA_PROCESS_WSS	\
@@ -43,7 +43,7 @@ for WORKLOAD in $PERFNUMA_WORKLOADS; do
 		;;
 	standard_converge)
 		NR_THREADS=$PERFNUMA_NR_THREADS
-		$PERF_CMD bench numa mem -m -0 \
+		$PERF_CMD bench numa mem -m \
 			-p $PERFNUMA_NR_PROCESSES	\
 			-t $NR_THREADS			\
 			-P $PERFNUMA_PROCESS_WSS	\
@@ -51,7 +51,7 @@ for WORKLOAD in $PERFNUMA_WORKLOADS; do
 		;;
 	oversubscribe_converge)
 		NR_THREADS=$((PERFNUMA_NR_THREADS*2))
-		$PERF_CMD bench numa mem -m -0 \
+		$PERF_CMD bench numa mem -m \
 			-p $PERFNUMA_NR_PROCESSES	\
 			-t $NR_THREADS			\
 			-P $PERFNUMA_PROCESS_WSS	\
