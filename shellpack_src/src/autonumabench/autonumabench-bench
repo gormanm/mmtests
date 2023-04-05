@@ -67,7 +67,7 @@
 ###SHELLPACK preamble autonumabench-bench 0
 
 AUTONUMA_TESTS=${AUTONUMA_TESTS:-NUMA01 NUMA01_THREADLOCAL NUMA02 NUMA02_SMT}
-install-depends numactl libnuma-devel gnuplot
+install-depends numactl libnuma-devel gnuplot sysvinit-tools
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
