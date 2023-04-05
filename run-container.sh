@@ -68,6 +68,7 @@ function prolog() {
 		echo "ERROR: Container runtime not supported"
 		exit 22
 	fi
+	install-depends awk
 }
 
 # https://www.freedesktop.org/software/systemd/man/os-release.html
