@@ -8,6 +8,8 @@ MIRROR_LOCATION="$WEBROOT/bonnie"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
+install-depends gcc-c++
+
 rm -rf $SHELLPACK_SOURCES/bonniepp-${VERSION}
 ###SHELLPACK sources_fetch bonnie++-${VERSION}.tgz bonniepp-$VERSION
 
