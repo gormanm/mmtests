@@ -166,6 +166,9 @@ fi
 . $SCRIPTDIR/shellpacks/monitors.sh
 export SHELLPACK_ADDON=$SCRIPTDIR/shellpack_src/addon
 
+# Required in get_numa_details when importing config
+install-depends numactl
+
 # Import MMTests configuration files
 import_configs
 
@@ -214,7 +217,7 @@ fi
 # Install packages that are generally needed by a large number of tests
 install-depends autoconf automake bc binutils-devel btrfsprogs bzip2	\
 	coreutils cpupower e2fsprogs expect expect-devel gcc hdparm	\
-	hwloc libtool make numactl patch perl-Time-HiRes psmisc tcl	\
+	hwloc libtool make patch perl-Time-HiRes psmisc tcl	\
 	time wget xfsprogs xfsprogs-devel xz which perl-File-Slurp netcat-openbsd \
 
 # if we're running in a vm, and the firewall seems on, let's (try to) whitelist
