@@ -161,6 +161,9 @@ if [ -d $SCRIPTDIR/work/sources/ ]; then
 	find $SCRIPTDIR/work/sources/ -maxdepth 1 -type d -name "*deps-installed" -exec rm -rf {} \;
 fi
 
+# required in common.sh
+install-depends awk
+
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
 . $SCRIPTDIR/shellpacks/monitors.sh
