@@ -194,7 +194,7 @@ function prepare_mmtests() {
 	${cli} exec -w ${c_mmtests_dir} ${container_id} \
 	       sed -i -e 's/zypper install/zypper install -y/' bin/install-depends
 	${cli} exec -w ${c_mmtests_dir} ${container_id} \
-	       bin/install-depends gzip wget
+	       bin/install-depends wget
 	${cli} exec -w ${c_mmtests_dir} ${container_id} \
 	       rm -rf work
 	${cli} exec -w ${c_mmtests_dir} ${container_id} \

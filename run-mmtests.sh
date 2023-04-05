@@ -222,6 +222,7 @@ install-depends autoconf automake bc binutils-devel btrfsprogs bzip2	\
 	coreutils cpupower e2fsprogs expect expect-devel gcc hdparm	\
 	hwloc libtool make patch perl-Time-HiRes psmisc tcl	\
 	time wget xfsprogs xfsprogs-devel xz which perl-File-Slurp netcat-openbsd \
+	gzip
 
 # if we're running in a vm, and the firewall seems on, let's (try to) whitelist
 # the host, so we can communicate with it. this should work fine if we're using
