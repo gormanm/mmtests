@@ -6,7 +6,7 @@ MIRROR_LOCATION="$WEBROOT/lkp/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-install-depends pigz pbzip2 pixz plzip
+install-depends pigz pbzip2 pixz plzip ruby
 
 ###SHELLPACK git_fetch lkp-${VERSION}.tar.gz lkp-${VERSION}-installed
 
