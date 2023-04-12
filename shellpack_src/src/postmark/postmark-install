@@ -1,6 +1,6 @@
 #!/bin/bash
 # postmarkmark installer
-###SHELLPACK preamble postmark-install 1.51.orig
+###SHELLPACK preamble postmark-install 1.53.orig
 WEB_LOCATION=http://ftp.de.debian.org/debian/pool/main/p/postmark
 MIRROR_LOCATION="$WEBROOT/postmark/"
 
@@ -20,22 +20,62 @@ if [ $? -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 
-echo "--- postmark-1.51.orig/postmark-1.51.c
-+++ postmark-1.51/postmark-1.51.c
-@@ -71,6 +71,12 @@
- #define GETWD(x) getwd(x)
- #define MKDIR(x) mkdir(x,0700)
- #define SEPARATOR \"/\"
-+
+# Rename directory to something we expect.
+DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
+mv $DST_DIR postmark-${VERSION}-installed
+pushd postmark-${VERSION}-installed > /dev/null || die Failed to rename tar
+
+###SHELLPACK self_extract postmark-1.53-compile-warnings-fix.patch
+cat $SHELLPACK_TEMP/postmark-1.53-compile-warnings-fix.patch | patch -p1 || die Failed to apply postmark fix
+
+# Build
+gcc $DEFAULT_OPTIMISATION_LEVEL -Wall postmark-1.53.c -o postmark
+if [ $? -ne 0 ]; then
+	error "$P: build failed"
+	popd > /dev/null
+	exit $SHELLPACK_ERROR
+fi
+
+echo postmark installed successfully
+
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN postmark-1.53-compile-warnings-fix.patch ====
+diff -Nurp postmark-1.53-orig/postmark-1.53.c postmark-1.53/postmark-1.53.c
+--- postmark-1.53-orig/postmark-1.53.c	2023-04-06 16:38:55.054739732 +0200
++++ postmark-1.53/postmark-1.53.c	2023-04-06 16:40:16.046738820 +0200
+@@ -59,8 +59,11 @@ Versions:
+ #include <stdlib.h>
+ #include <time.h>
+ #include <fcntl.h>
++#include <unistd.h>
 +#include <sys/stat.h>
 +#include <sys/types.h>
-+#include <fcntl.h>
-+#include <unistd.h>
-+
- #endif
  
- #define MAX_LINE 255
-@@ -280,7 +286,7 @@
+-#define PM_VERSION "v1.51 : 8/14/01"
++#define PM_VERSION "v1.53"
+ 
+ #ifdef _WIN32
+ #include <io.h>
+@@ -72,7 +75,7 @@ Versions:
+ #else
+ extern char *getwd();
+ 
+-#define GETWD(x) getwd(x)
++#define GETWD(x) getcwd(x,MAX_LINE)
+ #define MKDIR(x) mkdir(x,0700)
+ #define SEPARATOR "/"
+ #endif
+@@ -130,7 +133,7 @@ cmd command_list[]={ /* table of CLI com
+    {"show",cli_show,"Displays current configuration"},
+    {"help",cli_help,"Prints out available commands"},
+    {"quit",cli_quit,"Exit program"},
+-   NULL
++   {NULL, NULL, NULL},
+ };
+ 
+ extern void verbose_report();
+@@ -284,7 +287,7 @@ char *params;
     int weight=1;
     char *split;
  
@@ -44,7 +84,7 @@ echo "--- postmark-1.51.orig/postmark-1.51.c
        {
        *split='\0';
        if ((weight=atoi(split+1))<=0)
-@@ -299,7 +305,7 @@
+@@ -303,7 +306,7 @@ int weight;
  {
     file_system *new_file_system;
  
@@ -53,65 +93,63 @@ echo "--- postmark-1.51.orig/postmark-1.51.c
        {
        strcpy(new_file_system->system.name,params);
        new_file_system->system.size=weight;
-@@ -528,30 +534,30 @@
+@@ -532,29 +535,29 @@ int deleted; /* files deleted back-to-ba
     t_elapsed=diff_time(t_end_time,t_start_time);
  
-    fprintf(fp,\"Time:\n\");
--   fprintf(fp,\"\t%d seconds total\n\",elapsed);
--   fprintf(fp,\"\t%d seconds of transactions (%d per second)\n\",t_elapsed,
--      transactions/t_elapsed);
-+   fprintf(fp,\"\t%d seconds total\n\", (int)elapsed);
-+   fprintf(fp,\"\t%d seconds of transactions (%d per second)\n\", (int)t_elapsed,
-+      (int)(transactions/t_elapsed));
+    fprintf(fp,"Time:\n");
+-   fprintf(fp,"\t%d seconds total\n",elapsed);
+-   fprintf(fp,"\t%d seconds of transactions (%d per second)\n",t_elapsed,
++   fprintf(fp,"\t%ld seconds total\n", elapsed);
++   fprintf(fp,"\t%ld seconds of transactions (%ld per second)\n", t_elapsed,
+       transactions/t_elapsed);
  
-    fprintf(fp,\"\nFiles:\n\");
-    fprintf(fp,\"\t%d created (%d per second)\n\",files_created,
--      files_created/elapsed);
-+      (int)(files_created/elapsed));
+    fprintf(fp,"\nFiles:\n");
+-   fprintf(fp,"\t%d created (%d per second)\n",files_created,
++   fprintf(fp,"\t%d created (%ld per second)\n",files_created,
+       files_created/elapsed);
  
     interval=diff_time(t_start_time,start_time);
-    fprintf(fp,\"\t\tCreation alone: %d files (%d per second)\n\",simultaneous,
+    fprintf(fp,"\t\tCreation alone: %d files (%d per second)\n",simultaneous,
        simultaneous/interval);
-    fprintf(fp,\"\t\tMixed with transactions: %d files (%d per second)\n\",
--      files_created-simultaneous,(files_created-simultaneous)/t_elapsed);
--   fprintf(fp,\"\t%d read (%d per second)\n\",files_read,files_read/t_elapsed);
-+      files_created-simultaneous, (int)((files_created-simultaneous)/t_elapsed));
-+   fprintf(fp,\"\t%d read (%d per second)\n\",files_read, (int)(files_read/t_elapsed));
-    fprintf(fp,\"\t%d appended (%d per second)\n\",files_appended,
--      files_appended/t_elapsed);
-+       (int)(files_appended/t_elapsed));
-    fprintf(fp,\"\t%d deleted (%d per second)\n\",files_created,
--      files_created/elapsed);
-+       (int)(files_created/elapsed));
+-   fprintf(fp,"\t\tMixed with transactions: %d files (%d per second)\n",
++   fprintf(fp,"\t\tMixed with transactions: %d files (%ld per second)\n",
+       files_created-simultaneous,(files_created-simultaneous)/t_elapsed);
+-   fprintf(fp,"\t%d read (%d per second)\n",files_read,files_read/t_elapsed);
+-   fprintf(fp,"\t%d appended (%d per second)\n",files_appended,
++   fprintf(fp,"\t%d read (%ld per second)\n",files_read,files_read/t_elapsed);
++   fprintf(fp,"\t%d appended (%ld per second)\n",files_appended,
+       files_appended/t_elapsed);
+-   fprintf(fp,"\t%d deleted (%d per second)\n",files_deleted,
++   fprintf(fp,"\t%d deleted (%ld per second)\n",files_deleted,
+       files_deleted/elapsed);
     
     interval=diff_time(end_time,t_end_time);
-    fprintf(fp,\"\t\tDeletion alone: %d files (%d per second)\n\",deleted,
+    fprintf(fp,"\t\tDeletion alone: %d files (%d per second)\n",deleted,
        deleted/interval);
-    fprintf(fp,\"\t\tMixed with transactions: %d files (%d per second)\n\",
--      files_deleted-deleted,(files_deleted-deleted)/t_elapsed);
-+      files_deleted-deleted,(int)((files_deleted-deleted)/t_elapsed));
+-   fprintf(fp,"\t\tMixed with transactions: %d files (%d per second)\n",
++   fprintf(fp,"\t\tMixed with transactions: %d files (%ld per second)\n",
+       files_deleted-deleted,(files_deleted-deleted)/t_elapsed);
  
-    fprintf(fp,\"\nData:\n\");
-    fprintf(fp,\"\t%s read \",scalef(bytes_read));
-@@ -572,7 +578,7 @@
+    fprintf(fp,"\nData:\n");
+@@ -574,7 +577,7 @@ int deleted; /* files deleted back-to-ba
+    elapsed=diff_time(end_time,start_time);
     t_elapsed=diff_time(t_end_time,t_start_time);
-    interval=diff_time(t_start_time,start_time);
  
--   fprintf(fp,\"%d %d %.2f \", elapsed, t_elapsed, 
-+   fprintf(fp,\"%d %d %.2f \", (int)elapsed, (int)t_elapsed, 
+-   fprintf(fp,"%d %d %.2f ", elapsed, t_elapsed, 
++   fprintf(fp,"%d %d %.2f ", (int) elapsed, (int) t_elapsed, 
        (float)transactions/t_elapsed);
-    fprintf(fp, \"%.2f %.2f %.2f \", (float)files_created/elapsed, 
-       (float)simultaneous/interval,
-@@ -661,7 +667,7 @@
+    fprintf(fp, "%.2f %.2f %.2f ", (float)files_created/elapsed, 
+       (float)simultaneous/diff_time(t_start_time,start_time),
+@@ -663,7 +666,7 @@ char *dest;
  
     if (subdirectories>1)
        {
--      sprintf(conversion,\"s%d%s\",RND(subdirectories),SEPARATOR);
-+      sprintf(conversion,\"s%d%s\",(int)(RND(subdirectories)),SEPARATOR);
+-      sprintf(conversion,"s%d%s",RND(subdirectories),SEPARATOR);
++      sprintf(conversion,"s%lu%s", RND(subdirectories),SEPARATOR);
        strcat(dest,conversion);
        }
  
-@@ -1044,6 +1050,8 @@
+@@ -1046,6 +1049,8 @@ char *param; /* unused */
     return(1); /* return 1 unless exit requested, then return 0 */
  }
  
@@ -120,25 +158,25 @@ echo "--- postmark-1.51.orig/postmark-1.51.c
  /* CLI callback for 'load' - read configuration file */
  int cli_load(param)
  char *param;
-@@ -1149,7 +1157,7 @@
+@@ -1151,7 +1156,7 @@ int size;
  
-    printf(\"%s\",PROMPT);                 /* print prompt */
+    printf("%s",PROMPT);                 /* print prompt */
     fflush(stdout);                      /* force prompt to print */
 -   if (result=fgets(buffer,size,stdin)) /* read line safely */
 +   if( (result=fgets(buffer,size,stdin)) ) /* read line safely */
        {
        buffer[strlen(buffer)-1]='\0';    /* delete final CR */
-       if (!strcmp(buffer,\"?\"))           /* translate aliases */
-@@ -1199,7 +1207,7 @@
+       if (!strcmp(buffer,"?"))           /* translate aliases */
+@@ -1201,7 +1206,7 @@ int ignore;     /* ignore file not found
     int result=1; /* default exit value - proceed with UI */
     FILE *fp;
  
--   if (fp=fopen(filename,\"r\")) /* open config file */
-+   if( (fp=fopen(filename,\"r\")) ) /* open config file */
+-   if (fp=fopen(filename,"r")) /* open config file */
++   if ( (fp=fopen(filename,"r")) ) /* open config file */
        {
-       printf(\"Reading configuration from file '%s'\n\",filename);
+       printf("Reading configuration from file '%s'\n",filename);
        while (fgets(buffer,MAX_LINE,fp) && result) /* read lines until 'quit' */
-@@ -1219,7 +1227,7 @@
+@@ -1221,7 +1226,7 @@ int ignore;     /* ignore file not found
  }
  
  /* main function - reads config files then enters get line/parse line loop */
@@ -147,26 +185,13 @@ echo "--- postmark-1.51.orig/postmark-1.51.c
  int argc;
  char *argv[];
  {
-@@ -1229,6 +1237,7 @@
-    if (read_config_file((argc==2)?argv[1]:\".pmrc\",buffer,1))
+@@ -1231,6 +1236,7 @@ char *argv[];
+    if (read_config_file((argc==2)?argv[1]:".pmrc",buffer,1))
        while (cli_read_line(buffer,MAX_LINE) && cli_parse_line(buffer))
           ;
 +   return 0;
  }
  
- /*" | patch -p0 || exit -1
+ /*
 
-# Rename directory to something we expect.
-DST_DIR=`tar tf $TARFILE | head -n 1 | awk -F / '{print $1}'`
-mv $DST_DIR postmark-${VERSION}-installed
-pushd postmark-${VERSION}-installed > /dev/null || die Failed to rename tar
-
-# Build
-gcc $DEFAULT_OPTIMISATION_LEVEL -Wall postmark-1.51.c -o postmark
-if [ $? -ne 0 ]; then
-	error "$P: build failed"
-	popd > /dev/null
-	exit $SHELLPACK_ERROR
-fi
-
-echo postmark installed successfully
+==== END postmark-1.53-compile-warnings-fix.patch ====

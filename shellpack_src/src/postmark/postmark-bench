@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs postmark and runs the regression tests
-###SHELLPACK preamble postmark-bench 1.51.orig
+###SHELLPACK preamble postmark-bench 1.53.orig
 CONSUME_MEMORY=no
 
 ###SHELLPACK parseargBegin
