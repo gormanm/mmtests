@@ -63,7 +63,7 @@ function prolog() {
 	# import variables
 	source ${SCRIPTDIR}/shellpacks/common-config.sh
 	runname=${runname:-default}
-	cli=${MMTESTS_CONTAINER_RUNTIME:-docker}
+	cli=${MMTESTS_CONTAINER_CLI:-docker}
 	if [ "${cli}" != "docker" -a "${cli}" != "podman" ]; then
 		echo "ERROR: Container runtime not supported"
 		exit 22
@@ -103,6 +103,7 @@ function prepare_container_cli() {
 	if [ "${cli}" = "docker" ]; then
 		echo "Starting dockerd"
 		dockerd&
+		sleep 2
 	fi
 }
 
