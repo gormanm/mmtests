@@ -1,7 +1,7 @@
 #!/bin/bash
 # mutilate installer
 ###SHELLPACK preamble mutilate-install 1
-GIT_LOCATION=git://github.com/leverich/mutilate.git
+GIT_LOCATION=https://github.com/leverich/mutilate.git
 MIRROR_LOCATION="$WEBROOT/mutilate"
 
 install-depends libevent-devel scons
