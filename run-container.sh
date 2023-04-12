@@ -217,14 +217,18 @@ function copy_results() {
 	${cli} cp ${container_id}:${c_mmtests_dir}/work/log/${runname} ${SHELLPACK_LOG_BASE}
 }
 
-function cleanup_container_cli() {
-	echo "Cleaning up ${cli}"
+function stop_container() {
 	if [ -n "${container_id}" ]; then
 		echo "Stopping container ${container_id}"
 		${cli} container stop ${container_id}
 		echo "Removing container ${container_id}"
 		${cli} container rm ${container_id}
 	fi
+	# unconditionally umount testdisk
+	umount work/testdisk 2>/dev/null
+}
+
+function cleanup_container_cli() {
 	if [ -n "${image_id}" ]; then
 		echo "Removing image ${image_id}"
 		${cli} image rm ${image_id}
@@ -245,6 +249,7 @@ function main() {
 	prepare_mmtests
 	run_mmtests
 	copy_results
+	stop_container
 	cleanup_container_cli
 }
 
