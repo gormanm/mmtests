@@ -48,6 +48,7 @@ chomp($nr_hugepages);
 die("$nr_hugepages are already allocated") if $nr_hugepages > 0;
 
 # Allocated the requested number of pages in batches
+STDOUT->autoflush(1);
 while ($nr_hugepages < $nr_alloc) {
 	my $attempt = $nr_alloc - $nr_hugepages, $nr_stride;
 	$attempt = $nr_stride if $nr_stride < $attempt;
@@ -60,9 +61,7 @@ while ($nr_hugepages < $nr_alloc) {
 	my $nr_failed = 0;
 
 	while ($actual_hugepages < $target_hugepages && $elapsed < ($alloc_timeout / ($nr_failed+1))) {
-		if (!write_file($hpage_tunable, { err_mode => 'quiet'}, $target_hugepages)) {
-			last;
-		}
+		write_file($hpage_tunable, { err_mode => 'quiet'}, $target_hugepages);
 		$actual_hugepages = read_file($hpage_tunable);
 		if ($actual_hugepages - $nr_hugepages == 0) {
 			if ($nr_failed < 10) {
@@ -77,8 +76,8 @@ while ($nr_hugepages < $nr_alloc) {
 	my $nr_success = $actual_hugepages - $nr_hugepages;
 
 	chomp($nr_hugepages);
-	$elapsed *= 1000;
-	printf "%-4d %-4d %-d %12.4f %12.4f\n", $actual_hugepages, $nr_alloc, $nr_success, $elapsed, $nr_success > 0 ? $elapsed / $nr_success : $elapsed;
+	my $elapsed_ms = $elapsed * 1000;
+	printf "%-4d %-4d %-d %12.4f %12.4f\n", $actual_hugepages, $nr_alloc, $nr_success, $elapsed_ms, $nr_success > 0 ? $elapsed_ms / $nr_success : $elapsed_ms;
 	last if $elapsed >= $alloc_timeout;
 	last if $nr_success == 0;
 	$nr_hugepages = $actual_hugepages;

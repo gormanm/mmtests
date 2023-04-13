@@ -17,10 +17,11 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 
 	my $input = $self->SUPER::open_log("$reportDir/hpagealloc.log");
+	my $nr_sample = 0;
 	while (<$input>) {
 		my @elements = split(/\s+/);
 
-		$self->addData("Latency", $elements[4]);
+		$self->addData("Latency", ++$nr_sample, $elements[4]);
 	}
 	close INPUT;
 }
