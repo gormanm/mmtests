@@ -367,10 +367,12 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 			SIZE=`blockdev --getsize64 $disk`
 			if [ "$SIZE" = "" -o "$SIZE" = "0" ]; then
 				echo "`hostname`: Tried blockdev --getsize64 $disk"
+				fail_log "Unable to detect test partition $disk size ($SIZE)"
 				die "Unable to detect test partition $disk size ($SIZE)"
 			fi
 
 			if [ $SIZE -le $TESTDISK_MIN_SIZE ]; then
+				fail_log "Test disk partition is too small $SIZE le $TESTDISK_MIN_SIZE"
 				die "Test disk partition is too small"
 			fi
 		done

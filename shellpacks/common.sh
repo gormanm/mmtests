@@ -1511,6 +1511,12 @@ function activity_log()
 	echo `date +%s` "$@" >> $SHELLPACK_ACTIVITY
 }
 
+function fail_log()
+{
+	[ -z $SHELLPACK_LOG ] && return
+	echo `date +%s` "$@" >> $SHELLPACK_LOG/fail.log
+}
+
 function sysstate_log_basic_info()
 {
 	[ -z $SHELLPACK_LOG ] && return
