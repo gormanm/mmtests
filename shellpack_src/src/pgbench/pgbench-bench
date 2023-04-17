@@ -130,6 +130,7 @@ LAST_THREAD=0
 RET=$SHELLPACK_SUCCESS
 
 FIRST_TIME=yes
+ulimit -n 16384
 
 ###SHELLPACK threads_huge_stride_begin $MIN_THREADS $MAX_THREADS
 	# Do not repeat iterations due to thread count
