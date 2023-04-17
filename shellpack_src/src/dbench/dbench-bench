@@ -6,9 +6,8 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required dbench-${VERSION}
-###SHELLPACK init_complete
-
+# Common dbench switches
+LOADDIR=$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/
 if [ "$DBENCH_OSYNC" = "yes" ]; then
 	DBENCH_OSYNC_COMMAND=-s
 fi
@@ -19,18 +18,23 @@ if [ "$DBENCH_FSYNC" = "yes" ]; then
 	DBENCH_FSYNC_COMMAND=-F
 fi
 
-DBENCH_CLIENTS=`echo $DBENCH_CLIENTS | tr ',' ' '`
-
+# Init min client
 CLIENT=1
+DBENCH_CLIENTS=`echo $DBENCH_CLIENTS | tr ',' ' '`
 if [ "$DBENCH_MIN_CLIENTS" != "" ]; then
 	CLIENT=$DBENCH_MIN_CLIENTS
 fi
 
-LOADDIR=$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/
+# Dbench install and warmup, init only
+###SHELLPACK init_only_start
+###SHELLPACK check_install_required_continue dbench-${VERSION}
 
+# Warmup phase happens during the init step so monitors only record
+# the active phase.
 if [ "$DBENCH_DURATION_FACTOR" != "" ]; then
 	FACTOR=$((DBENCH_DURATION_FACTOR*1000))
 else
+	echo Warmup Phase
 	./bin/dbench --run-once --skip-cleanup -D $SHELLPACK_DATA \
 		--loadfile $LOADDIR/client-warmup.txt $DBENCH_MAX_CLIENTS \
 		&>/dev/null
@@ -43,7 +47,9 @@ else
 	# runs of each client
 	FACTOR=$((FACTOR * 3 / DBENCH_MAX_CLIENTS))
 fi
+###SHELLPACK init_only_end
 
+cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die "Failed to cd to dbench install directory"
 while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 	mmtests_activity client $CLIENT
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
