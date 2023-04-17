@@ -162,7 +162,7 @@ if [ -d $SCRIPTDIR/work/sources/ ]; then
 fi
 
 # required in common.sh
-install-depends awk
+install-depends gawk
 
 . $SCRIPTDIR/shellpacks/common.sh
 . $SCRIPTDIR/shellpacks/common-config.sh
@@ -218,9 +218,13 @@ if ! $BUILDONLY && [ "$MMTESTS_FORCE_DATE" != "" ]; then
 fi
 
 # Install packages that are generally needed by a large number of tests
+perldoc -l Time::HiRes &>/dev/null
+if [ $? -ne 0 ]; then
+	install-depends perl-Time-HiRes
+fi
 install-depends autoconf automake bc binutils-devel btrfsprogs bzip2	\
 	coreutils cpupower e2fsprogs expect expect-devel gcc hdparm	\
-	hwloc libtool make patch perl-Time-HiRes psmisc tcl	\
+	hwloc libtool make patch psmisc tcl	\
 	time wget xfsprogs xfsprogs-devel xz which perl-File-Slurp netcat-openbsd \
 	gzip hostname iproute2
 
