@@ -25,11 +25,7 @@ sub extractReport() {
 	}
 
 	my @groups = do { my %seen; grep { !$seen{$_}++ } @tmp };
-
-	foreach my $file (<$reportDir/adrestia-$groups[0]-*-1.log>) {
-		my @split = split /-/, $file;
-		push @threads, $split[-2];
-	}
+	my @threads = $self->discover_scaling_parameters($reportDir, "adrestia-$groups[0]-", "-1.log");
 
 	@groups = sort { $a <=> $b} @groups;
 	@threads = sort { $a <=> $b} @threads;
@@ -37,11 +33,11 @@ sub extractReport() {
 	foreach my $thread (@threads) {
 		foreach my $group (@groups) {
 			my $nr_samples = 0;
-			foreach my $file (<$reportDir/adrestia-$group-$thread-*.log>) {
+			foreach my $file (<$reportDir/adrestia-$group-$thread-*.log*>) {
 				my @split = split /-/, $file;
 
-				open(INPUT, $file) || die("Failed to open $file\n");
-				while (<INPUT>) {
+				my $input = $self->SUPER::open_log($file);
+				while (<$input>) {
 					if ($_ !~ /^wakeup cost.*: (.*)us/) {
 						next;
 					}
@@ -49,7 +45,7 @@ sub extractReport() {
 					$self->addData("$thread-$group", ++$nr_samples, $walltime);
 				}
 
-				close INPUT;
+				close $input;
 			}
 		}
 	}
