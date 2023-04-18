@@ -18,30 +18,20 @@ sub initialise() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 
-	# List of report files, sort them to be purty
-	my @files = <$reportDir/aim9-*>;
-	@files = sort {
-		my ($dummy, $aIndex) = split(/-([^-]+)$/, $a);
-		my ($dummy, $bIndex) = split(/-([^-]+)$/, $b);
-		$aIndex <=> $bIndex;
-	} @files;
-
 	# Multiple reads of the same file, don't really care as this is hardly
 	# performance critical code.
+	my @files = <$reportDir/aim9-*>;
 	foreach my $workload (@{$self->{_Operations}}) {
+		my $iteration = 0;
 		foreach my $file (@files) {
-			my @split = split /-/, $file;
-			$split[-1] =~ s/.log//;
-			my $iteration = $split[-1];
-
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				if ($_ =~ /$workload/) {
 					my @elements = split(/\s+/, $_);
-					$self->addData($workload, $iteration, $elements[6]);
+					$self->addData($workload, ++$iteration, $elements[6]);
 				}
 			}
-			close(INPUT);
+			close($input);
 		}
 	}
 }
