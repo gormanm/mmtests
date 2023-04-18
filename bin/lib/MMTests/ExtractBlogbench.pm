@@ -17,11 +17,11 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $recent = 0;
 
-	my @files = <$reportDir/blogbench-*.log>;
+	my @files = <$reportDir/blogbench-*.log*>;
 	my $iteration = 1;
 	foreach my $file (@files) {
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
+		my $input = $self->SUPER::open_log($file);
+		while (<$input>) {
 			my $line = $_;
 			next if $line !~ /^Final score/;
 			my @elements = split(/\s+/, $line);
@@ -30,7 +30,7 @@ sub extractReport() {
 			$self->addData("WriteScore", $iteration, $elements[-1]) if $line =~ /writes/;
 
 		}
-		close INPUT;
+		close $input;
 	}
 }
 
