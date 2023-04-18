@@ -23,11 +23,12 @@ sub extractReport() {
 		my $iteration = 0;
 
 		foreach my $file (@files) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				next if $_ !~ /elapsed/;
 				$self->addData("syst-$job", $iteration, $self->_time_to_sys($_));
 			}
+			close($input);
 		}
 	}
 
@@ -36,14 +37,14 @@ sub extractReport() {
 		my $iteration = 0;
 
 		foreach my $file (@files) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				next if $_ !~ /elapsed/;
 				$self->addData("elsp-$job", $iteration, $self->_time_to_elapsed($_));
 			}
+			close($input);
 		}
 	}
-
 
 	my @ratioops;
 	foreach my $job (@jobs) {
