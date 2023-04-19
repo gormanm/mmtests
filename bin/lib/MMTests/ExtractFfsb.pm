@@ -18,9 +18,8 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $reading_totals = 0;
 
-	my $file = "$reportDir/ffsb.log";
-	open(INPUT, $file) || die("Failed to open $file\n");
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/ffsb.log");
+	while (<$input>) {
 		my $line = $_;
 
 		if ($line =~ /Total Results/) {
@@ -46,7 +45,7 @@ sub extractReport() {
 			$reading_totals = 0;
 		}
 	}
-	close INPUT;
+	close $input;
 }
 
 1;
