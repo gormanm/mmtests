@@ -23,8 +23,8 @@ sub extractReport() {
 
 		my @files = <$reportDir/ebizzy-$instance-*>;
 		foreach my $file (@files) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				my $line = $_;
 				if ($line =~ /([0-9]*) records.*/) {
 					my @elements = split(/\s+/, $line);
@@ -34,7 +34,7 @@ sub extractReport() {
 					}
 				}
 			}
-			close INPUT;
+			close $input;
 		}
 	}
 }

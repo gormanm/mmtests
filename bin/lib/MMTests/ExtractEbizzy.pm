@@ -23,14 +23,14 @@ sub extractReport() {
 		foreach my $file (@files) {
 			my $records;
 
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				my $line = $_;
 				if ($line =~ /([0-9]*) records.*/) {
 					$records = $1;
 				}
 			}
-			close INPUT;
+			close $input;
 
 			$self->addData("Rsec-$instance", $iteration, $records);
 		}
