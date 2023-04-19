@@ -22,22 +22,15 @@ sub extractReport() {
 	chomp($case);
 	close(INPUT);
 
-        my @clients;
-        my @files = <$reportDir/$case-*.1>;
-        foreach my $file (@files) {
-                my @split = split /-/, $file;
-                $split[-1] =~ s/\.1//;
-                push @clients, $split[-1];
-        }
-        @clients = sort { $a <=> $b } @clients;
+	my @clients = $self->discover_scaling_parameters($reportDir, "$case-", ".1*");
 
 	foreach my $client (@clients) {
 		my $iteration = 0;
 		foreach my $file (<$reportDir/$case-$client.*>) {
-			open(INPUT, $file) || die("Failed to open $file");
+			my $input = $self->SUPER::open_log($file);
 			my ($startSetup, $endSetup, $endRun);
-			while (!eof(INPUT)) {
-				my $line = <INPUT>;
+			while (!eof($input)) {
+				my $line = <$input>;
 				if ($line =~ /[0-9]+: ([0-9.]+): Creating fileset/) {
 					$startSetup = $1;
 					next;
@@ -51,7 +44,7 @@ sub extractReport() {
 					$self->addData("$case-$client", ++$iteration, $3);
 				}
 			}
-			close(INPUT);
+			close($input);
 		}
 	}
 }
