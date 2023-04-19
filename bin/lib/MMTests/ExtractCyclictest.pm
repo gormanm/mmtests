@@ -21,13 +21,13 @@ sub new() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 
-	open(INPUT, "$reportDir/cyclictest.log") || die("Failed to open data file\n");
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/cyclictest.log");
+	while (<$input>) {
 		next if ($_ !~ /^T: ([0-9+]) .*Avg:\s+([0-9]+).*Max:\s+([0-9]+)/);
 		$self->addData("Avg-$1", 0, $2);
 		$self->addData("Max-$1", 0, $3);
 	}
-	close INPUT;
+	close $input;
 }
 
 1;

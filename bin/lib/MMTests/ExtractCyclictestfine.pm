@@ -17,12 +17,12 @@ sub new() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 
-	open(INPUT, "unxz --stdout $reportDir/cyclictest.log.xz|") || die("Failed to open data file\n");
-	while (<INPUT>) {
+	my $input = $self->SUPER::open_log("$reportDir/cyclictest.log");
+	while (<$input>) {
 		next if ($_ !~ /\s+([0-9]+):\s+([0-9]+):\s+([0-9]+)/);
 		$self->addData("sample-anycpu", $2, $3);
 	}
-	close INPUT;
+	close $input;
 }
 
 1;
