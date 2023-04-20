@@ -64,6 +64,7 @@ my %package_map = (
 	"debian::perl-List-BinarySearch"	=> "liblist-binarysearch-perl",
 	"debian::perl-GD"			=> "libgd-perl",
 	"debian::sysvinit-tools"		=> "sysvinit-utils",
+	"debian::gettext-runtime"		=> "gettext",
 
 	"gentoo::acl-devel"			=> "sys-apps/acl",
 	"gentoo::attr-devel"			=> "sys-apps/attr",
