@@ -253,7 +253,6 @@ if ! $BUILDONLY && [ "$FORCE_PERFORMANCE_SETUP" = "yes" ]; then
 	force_performance_setup
 fi
 
-OFFLINED_MEMORY=0
 if [ "$MMTESTS_LIMIT_MEMORY" != "" ]; then
 	offline-memory --limit $MMTESTS_LIMIT_MEMORY || die "Failed to limit memory to $MMTESTS_LIMIT_MEMORY bytes"
 	OFFLINED_MEMORY=1

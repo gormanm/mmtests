@@ -19,9 +19,12 @@ export MONITORS_GZIP="proc-vmstat proc-buddyinfo proc-pagetypeinfo ftrace top io
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# thpfioscale
+# Limit memory to 8GB per node to save storage and limit runtime
 . $SHELLPACK_INCLUDE/include-sizes.sh
 get_numa_details
+limit_memory $((8*1048576*1024*NUMNODES))
+
+# thpfioscale
 export THPFIOSCALE_MADV_HUGEPAGE=yes
 export THPFIOSCALE_FIO_THREADS=4
 export THPFIOSCALE_MIN_THREADS=$((((NUMCPUS/NUMNODES)-THPFIOSCALE_FIO_THREADS)/4))

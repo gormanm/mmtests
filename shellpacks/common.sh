@@ -72,6 +72,14 @@ function warn() {
 	echo "WARNING${TAG}: $@"
 }
 
+OFFLINED_MEMORY=0
+function limit_memory() {
+	local _limit=$1
+	offline-memory --limit $_limit || die "Failed to limit memory to $_limit bytes"
+	MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+	OFFLINED_MEMORY=1
+}
+
 function import_configs() {
 	for ((i = 0; i < ${#CONFIGS[@]}; i++ )); do
 		if [ ! -e "${CONFIGS[$i]}" ]; then
