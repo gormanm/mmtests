@@ -4,7 +4,7 @@
 GIT_LOCATION="https://github.com/RedisLabs/memtier_benchmark"
 MIRROR_LOCATION="$WEBROOT/redis-memtier"
 
-install-depends libopenssl-devel libevent-devel pcre2-devel autogen
+install-depends libopenssl-devel libevent-devel pcre2-devel autogen pcre-devel
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
