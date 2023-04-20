@@ -181,7 +181,7 @@ function start_container() {
 	./run-mmtests.sh ${monitor} --mount-only -c ${CONFIGS[0]} ${runname}-tmp
 	rm -rf ${SHELLPACK_LOG_BASE}/${runname}-tmp
 	# bind mount testdisk in container
-	container_id=$(${cli} run -t -d \
+	container_id=$(${cli} run -t -d --pids-limit -1 \
 			      --mount type=bind,source=${SHELLPACK_TEST_MOUNT},target=/testdisk \
 			      ${image_id})
 	echo "container_id: ${container_id}"
