@@ -30,6 +30,10 @@ RUN_CACHE_COLD=no
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
+if [ "$DBDRIVER" = "postgres" ]; then
+	install-depends libpq5
+fi
+
 MARIADB_TABLE_DRIVER=innodb
 # We have to "double" quote, so we can differentiate arguments *for MariaDB*
 # vs. arguments *to our scripts* when parsing arguments.
