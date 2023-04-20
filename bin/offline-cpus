@@ -1,0 +1,47 @@
+#!/bin/bash
+# Offline CPUs until the specified limit is reached.
+
+DIRNAME=`dirname $0`
+export SCRIPTDIR=`cd "$DIRNAME/.." && pwd`
+
+while [ $# -gt 0 ]; do
+	case $1 in
+	--limit)
+		LIMIT=$2
+		shift 2
+		;;
+	*)
+		echo WARNING: Unrecognised option $1
+		shift
+		;;
+	esac
+done
+
+NUMCPUS=`getconf _NPROCESSORS_ONLN`
+
+for CPU in `$SCRIPTDIR/bin/list-cpu-toplogy.sh | awk '{print $10}' | tac`; do
+	if [ $NUMCPUS -le $LIMIT ]; then
+		break
+	fi
+
+	echo -n Offlining CPU $CPU
+	echo 0 > /sys/devices/system/cpu/cpu$CPU/online
+	ATTEMPT=0
+	while [ "`cat /sys/devices/system/cpu/cpu$CPU/online`" != "0" ]; do
+		sleep 1
+		echo -n .
+		ATTEMPT=$((ATTEMPT+1))
+		if [ $ATTEMPT -eq 3 ]; then
+			break
+		fi
+	done
+	echo
+	NUMCPUS=`getconf _NPROCESSORS_ONLN`
+done
+
+if [ $NUMCPUS -gt $LIMIT ]; then
+	echo WARNING: Failed to offline enough CPUs
+	exit -1
+fi
+echo Online CPUs: $NUMCPUS
+exit 0

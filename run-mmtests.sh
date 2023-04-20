@@ -31,6 +31,10 @@ clean_exit()
 	if [ "$OFFLINED_MEMORY" = "1" ]; then
 		online-memory
 	fi
+
+	if [ "$OFFLINED_CPUS" = "1" ]; then
+		online-cpus
+	fi
 }
 
 begin_shutdown() {
@@ -251,8 +255,17 @@ fi
 
 OFFLINED_MEMORY=0
 if [ "$MMTESTS_LIMIT_MEMORY" != "" ]; then
-	offline-memory $MMTESTS_LIMIT_MEMORY || die "Failed to limit memory to $MMTESTS_LIMIT_MEMORY bytes"
+	offline-memory --limit $MMTESTS_LIMIT_MEMORY || die "Failed to limit memory to $MMTESTS_LIMIT_MEMORY bytes"
 	OFFLINED_MEMORY=1
+fi
+
+OFFLINED_CPUS=0
+if [ "$MMTESTS_LIMIT_CPUS" != "" ]; then
+	offline-cpus --limit $MMTESTS_LIMIT_CPUS || die "Failed to limit CPUs to $MMTESTS_LIMIT_CPUS"
+	OFFLINED_CPUS=1
+	NUMCPUS=`getconf _NPROCESSORS_ONLN`
+	echo Reimporting configs
+	import_configs
 fi
 
 # Check monitoring

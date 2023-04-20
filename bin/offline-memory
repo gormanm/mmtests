@@ -1,10 +1,31 @@
 #!/bin/bash
 # Offline memory until the specified limit is reached.
 
-LIMIT=$1
+FREE_FIELD=2
+while [ $# -gt 0 ]; do
+	case $1 in
+	--limit)
+		LIMIT=$2
+		shift 2
+		;;
+	--limit-free)
+		# By default, free until available memory matches the limit
+		# --limit-free means limiting until free memory hits the limit
+		# after dropping cache
+		echo 3 > /proc/sys/vm/drop_caches
+		FREE_FIELD=4
+		shift
+		;;
+	*)
+		echo WARNING: Unrecognised option $1
+		shift
+		;;
+	esac
+done
+
 if ! [[ $LIMIT =~ ^[0-9]+$ ]] ; then
 	echo Memory limit must be specified in bytes $LIMIT
-	echo Usage: limit-memory [bytes]
+	echo Usage: limit-memory --limit [bytes]
 	exit -1
 fi
 
@@ -20,7 +41,21 @@ if [ "$MEMORY_BANKS" = "" ]; then
 	exit -1
 fi
 
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+check_too_limited() {
+	if [ $MEMTOTAL_BYTES -le $((LIMIT*4/5)) ]; then
+		echo WARNING: Available memory is below 80% of the requested limit
+		echo WARNING: Offlining was too aggressive and it may be required
+		echo WARNING: to boot with mem=$((MEMTOTAL_BYTES/1048576))M instead.
+	fi
+}
+
+MEMTOTAL_BYTES=`free -b | grep Mem: | awk "{print \\$\$FREE_FIELD}"`
+if [ $MEMTOTAL_BYTES -le $LIMIT ]; then
+	echo Memory limit already reached
+	check_too_limited
+	exit 0
+fi
+
 for BANK in $MEMORY_BANKS; do
 	if [ ! -e /sys/devices/system/memory/memory$BANK/online ]; then
 		echo Unable to detect state of memory bank $BANK
@@ -67,18 +102,19 @@ for BANK in $MEMORY_BANKS; do
 	done
 	if [ $STATE -eq 0 ]; then
 		echo Offlined bank $BANK
-		MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+		MEMTOTAL_BYTES=`free -b | grep Mem: | awk "{print \\$\$FREE_FIELD}"`
 		if [ $MEMTOTAL_BYTES -le $LIMIT ]; then
 			break
 		fi
 	fi
 done
 
-MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
+MEMTOTAL_BYTES=`free -b | grep Mem: | awk "{print \\$\$FREE_FIELD}"`
 if [ $MEMTOTAL_BYTES -gt $LIMIT ]; then
-	echo Unable to limit memory
+	echo Unable to limit memory, suggest booting with mem=$((MEMTOTAL_BYTES/1048576))M
 	exit -1
 fi
 
+check_too_limited
 echo Memory limit reached
 exit 0
