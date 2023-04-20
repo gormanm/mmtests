@@ -13,7 +13,8 @@ if [ "`whoami`" != "root" ]; then
 	exit -1
 fi
 
-MEMORY_BANKS=`\ls -d /sys/devices/system/memory/memory* | sed -e 's/.*memory//' | sort -n -r`
+SCRIPT_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+MEMORY_BANKS=`$SCRIPT_ROOT/enum-memory.pl`
 if [ "$MEMORY_BANKS" = "" ]; then
 	echo Unable to enumerate available memory
 	exit -1
