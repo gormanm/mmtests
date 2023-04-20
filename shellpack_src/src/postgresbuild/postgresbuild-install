@@ -14,7 +14,7 @@ NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
 WEB_LOCATION=http://ftp.postgresql.org/pub/source/v${VERSION}/
 MIRROR_LOCATION=$WEBROOT/postgres/
 
-install-depends bison gcc-c++ libstdc++-devel popt-devel zlib-devel
+install-depends bison gcc-c++ libstdc++-devel popt-devel zlib-devel system-user-nobody
 
 # Only updates the first occurance of the parameter
 update_entry_cnf() {
