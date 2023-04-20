@@ -6,6 +6,8 @@ MIRROR_LOCATION="$WEBROOT/stockfish/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
+install-depends gcc-c++
+
 ###SHELLPACK git_fetch stockfish-${VERSION}.tar.gz stockfish-${VERSION}
 
 ###SHELLPACK build_start stockfish-${VERSION}/src
