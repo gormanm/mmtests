@@ -197,6 +197,10 @@ function prepare_mmtests() {
 	${cli} cp ${SCRIPTDIR} ${container_id}:${c_mmtests_dir}
 	${cli} exec -w ${c_mmtests_dir} ${container_id} \
 	       sed -i -e 's/zypper install/zypper install -y/' bin/install-depends
+	${cli} exec -w ${c_mmtests_dir} ${container_id} \
+	       sed -i -e 's/apt-get install/DEBIAN_FRONTEND=noninteractive apt-get -y install/' bin/install-depends
+	${cli} exec -w ${c_mmtests_dir} ${container_id} \
+	       sed -i -e 's/yum install/yum -y install/' bin/install-depends
 	${cli} exec -w /root ${container_id} \
 	       bash -c "echo -e \"[http]\n\tsslVerify = false\n\" > .gitconfig"
 	${cli} exec -w ${c_mmtests_dir} ${container_id} \
