@@ -9,8 +9,8 @@ function parse_args() {
 	declare -ga CONFIGS
 	local scriptname=$(basename $0)
 	local dirname=$(dirname $0)
-	local opts=$(getopt -o c:hi:mno: --long config:,help,run-monitor \
-			    --long no-monitor,image:,os-release: \
+	local opts=$(getopt -o c:hi:Imno: --long config:,help,run-monitor \
+			    --long no-monitor,image:,interactive,os-release: \
 			    -n \'${scriptname}\' -- "$@")
 	eval set -- "${opts}"
 
@@ -28,6 +28,9 @@ function parse_args() {
 		-i|--image)
 			image=$2
 			shift 2;;
+		-I|--interactive)
+			interactive=true
+			shift;;
 		-o|--os-release)
 			cpe_name=$2
 			shift 2;;
@@ -41,6 +44,7 @@ Options:
   -c, --config        mmtests config file (default: config)
   -h, --help          print this help text and exit
   -i, --image         container image (default: automatic selection)
+  -I, --interactive   setup container and start bash for interaction
   -m, --run-monitor   enable monitoring
   -n, --no-monitor    disable monitoring
   -o, --os-release    specify cpe_name for desired image
@@ -212,6 +216,11 @@ function prepare_mmtests() {
 	       ln -s /testdisk work/testdisk
 }
 
+function start_bash() {
+	echo "Starting bash"
+	${cli} exec -it -w ${c_mmtests_dir} ${container_id} bash
+}
+
 function run_mmtests() {
 	echo "Running mmtests"
 	# don't mount testdisk, use bind mounted test disk instead
@@ -254,8 +263,12 @@ function main() {
 	pull_image
 	start_container
 	prepare_mmtests
-	run_mmtests
-	copy_results
+	if [ "${interactive}" = "true" ]; then
+		start_bash
+	else
+		run_mmtests
+		copy_results
+	fi
 	stop_container
 	cleanup_container_cli
 }
