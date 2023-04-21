@@ -72,7 +72,7 @@ function prolog() {
 	source ${SCRIPTDIR}/shellpacks/common-config.sh
 	runname=${runname:-default}
 	image=${image:-autoselect}
-	cli=${MMTESTS_CONTAINER_CLI:-docker}
+	cli=${MMTESTS_CONTAINER_CLI:-podman}
 	if [ "${cli}" != "docker" -a "${cli}" != "podman" ]; then
 		echo "ERROR: Container runtime not supported"
 		exit 22
