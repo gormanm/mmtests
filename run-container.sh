@@ -9,8 +9,8 @@ function parse_args() {
 	declare -ga CONFIGS
 	local scriptname=$(basename $0)
 	local dirname=$(dirname $0)
-	local opts=$(getopt -o c:hmno: --long config:,help,run-monitor \
-			    --long no-monitor,os-release: \
+	local opts=$(getopt -o c:hi:mno: --long config:,help,run-monitor \
+			    --long no-monitor,image:,os-release: \
 			    -n \'${scriptname}\' -- "$@")
 	eval set -- "${opts}"
 
@@ -25,6 +25,9 @@ function parse_args() {
 		-n|--no-monitor)
 			monitor=-n
 			shift;;
+		-i|--image)
+			image=$2
+			shift 2;;
 		-o|--os-release)
 			cpe_name=$2
 			shift 2;;
@@ -35,8 +38,9 @@ Mmtests containerization script.
 
 Options:
 
-  -c, --config <file> mmtests config file
+  -c, --config        mmtests config file (default: config)
   -h, --help          print this help text and exit
+  -i, --image         container image (default: automatic selection)
   -m, --run-monitor   enable monitoring
   -n, --no-monitor    disable monitoring
   -o, --os-release    specify cpe_name for desired image
@@ -63,6 +67,7 @@ function prolog() {
 	# import variables
 	source ${SCRIPTDIR}/shellpacks/common-config.sh
 	runname=${runname:-default}
+	image=${image:-autoselect}
 	cli=${MMTESTS_CONTAINER_CLI:-docker}
 	if [ "${cli}" != "docker" -a "${cli}" != "podman" ]; then
 		echo "ERROR: Container runtime not supported"
@@ -80,14 +85,9 @@ function check_os_version() {
 	fi
 
 	# e.g.:
-	# CPE_NAME="cpe:/o:suse:sles:15:sp2"
-	# CPE_NAME="cpe:/o:suse:sles:15:sp3"
 	# CPE_NAME="cpe:/o:suse:sles:15:sp4"
-	# CPE_NAME="cpe:/o:suse:sles:15:sp5"
 	# CPE_NAME="cpe:/o:opensuse:tumbleweed:20220729"
-	# CPE_NAME="cpe:/o:opensuse:leap:15.3"
 	# CPE_NAME="cpe:/o:opensuse:leap:15.4"
-	# CPE_NAME="cpe:/o:opensuse:leap:15.5"
 
 	distro=$(echo ${cpe} | awk -F ":" '{print $3}')
 	version=$(echo ${cpe} | awk -F ":" '{print $4}')
@@ -108,9 +108,7 @@ function prepare_container_cli() {
 	fi
 }
 
-function pull_image() {
-	local image
-
+function autoselect_image() {
 	if [ "${distro}" = "opensuse" ]; then
 		# images from https://registry.opensuse.org/
 		if [ "${version}" = "tumbleweed" ]; then
@@ -167,11 +165,16 @@ function pull_image() {
 		cleanup_container_cli
 		exit 22
 	fi
+}
+
+function pull_image() {
+
+	if [ "${image}" = "autoselect" ]; then
+		autoselect_image
+	fi
 
 	echo "Pulling ${image}"
 	${cli} pull ${image}
-	image_id=$(${cli} images| grep registry | awk '{print $3}')
-	echo "image_id: ${image_id}"
 }
 
 function start_container() {
@@ -183,7 +186,7 @@ function start_container() {
 	# bind mount testdisk in container
 	container_id=$(${cli} run -t -d --pids-limit -1 \
 			      --mount type=bind,source=${SHELLPACK_TEST_MOUNT},target=/testdisk \
-			      ${image_id})
+			      ${image})
 	echo "container_id: ${container_id}"
 }
 
@@ -230,10 +233,9 @@ function stop_container() {
 }
 
 function cleanup_container_cli() {
-	if [ -n "${image_id}" ]; then
-		echo "Removing image ${image_id}"
-		${cli} image rm ${image_id}
-	fi
+	echo "Removing image ${image}"
+	${cli} image rm ${image}
+
 	if [ "${cli}" = "docker" ]; then
 		echo "Stopping dockerd"
 		pkill -SIGTERM dockerd
