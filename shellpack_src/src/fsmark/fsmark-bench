@@ -57,6 +57,7 @@ if [ $ACTUAL_INODES -gt 0 -a $ESTIMATED_INODES -gt $ACTUAL_INODES ]; then
 fi
 
 if [ $ITERATIONS -le 0 ]; then
+	fail_log "Disk is too small to potentially run benchmark"
 	die "Disk is too small to potentially run benchmark"
 fi
 
