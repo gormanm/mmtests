@@ -34,15 +34,15 @@ sub extractReport() {
 			$split[-1] =~ s/.log//;
 			my $nr_samples = 0;
 
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				my $line = $_;
 				if ($line =~ /cost ([0-9.]+) seconds, the FPgrowth cost ([0-9.]+) seconds/) {
 					my $tottime = $1 + $2;
 					$self->addData($nthr, ++$nr_samples, $tottime);
 				}
 			}
-			close INPUT;
+			close $input;
 		}
 
 	}
