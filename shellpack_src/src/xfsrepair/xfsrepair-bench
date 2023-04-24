@@ -45,6 +45,12 @@ echo "o total_files_iter  $NR_FILES_ITERATION"
 echo "o fsmark_files_iter $FSMARK_FILES"
 echo "o fsmark_iterations $FSMARK_ITERATIONS"
 
+ACTUAL_INODES=`df -i $SHELLPACK_DATA | tail -1 | awk '{print $4}'`
+if [ $ACTUAL_INODES -lt $NR_INODES ]; then
+	fail_log "Disk is too small to potentially run benchmark ($ACTUAL_INODES < $NR_INODES)"
+	die "Disk is too small to potentially run benchmark ($ACTUAL_INODES < $NR_INODES)"
+fi
+
 ###SHELLPACK iteration_begin $ITERATIONS
 echo Creating sparse file size $((IMAGE_SIZE/1024))MB $ITERATION/$ITERATIONS 
 cd $SHELLPACK_DATA
