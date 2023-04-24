@@ -68,15 +68,15 @@ sub extractReport() {
 				foreach my $iter (1..$iterations) {
 					my $file = "$reportDir/filelockperf-$wl-$iter-$type-$nthr.log";
 
-					open(INPUT, $file) || die("$! Failed to open $file\n");
-					while (<INPUT>) {
+					my $input = $self->SUPER::open_log($file);
+					while (<$input>) {
 						my $line = $_;
 
 						if ($line =~ /[+-]?(\d+\.\d+|\d+\.|\.\d+)/) {
 							$self->addData("$wl-$type-$nthr", $iter, $1);
 						}
 					}
-					close INPUT;
+					close $input;
 				}
 			}
 		}
