@@ -18,12 +18,12 @@ sub extractReport() {
 	foreach my $file (<$reportDir/time-*>) {
 		my $nr_samples = 0;
 
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
+		my $input = $self->SUPER::open_log($file);
+		while (<$input>) {
 			next if $_ !~ /elapsed/;
 			$self->addData("Elapsed", ++$nr_samples, $self->_time_to_elapsed($_));
 		}
-		close(INPUT);
+		close($input);
 	}
 }
 

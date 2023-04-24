@@ -26,9 +26,9 @@ sub extractReport() {
 	foreach my $file (<$reportDir/hpccoutf-*.txt>) {
 		$iteration++;
 
-		open (INPUT, $file) || die("Failed to open $file");
-		while (!eof(INPUT)) {
-			my $line = <INPUT>;
+		my $input = $self->SUPER::open_log($file);
+		while (!eof($input)) {
+			my $line = <$input>;
 
 			foreach my $metric (@{$self->{_Operations}}) {
 				if ($line =~ /^$metric=(.*)/) {
@@ -36,7 +36,7 @@ sub extractReport() {
 				}
 			}
 		}
-		close (INPUT);
+		close ($input);
 	}
 }
 
