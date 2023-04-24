@@ -46,8 +46,8 @@ sub extractReport() {
 			my $futexType = "private";
 			my $nr_samples = 0;
 
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				my $line = $_;
 				my @tmp = split(/\s+/, $line);
 
@@ -75,7 +75,7 @@ sub extractReport() {
 				$self->addData("$wl-$futexType-$nthr", ++$nr_samples, $tp);
 			}
 
-			close INPUT;
+			close $input;
 		}
 	}
 
