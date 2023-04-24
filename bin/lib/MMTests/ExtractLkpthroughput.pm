@@ -34,8 +34,8 @@ sub extractReport() {
 		foreach my $file (<$reportDir/lkp-$nthr-*.log>) {
 			my $nr_samples = 0;
 
-			open(INPUT, $file) || die("$! Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				my $line = $_;
 				my @tmp = split(/\s+/, $line);
 
@@ -43,7 +43,7 @@ sub extractReport() {
 					$self->addData("tput-$nthr", ++$nr_samples, $1);
 				}
 			}
-			close INPUT;
+			close $input;
 		}
 	}
 }
