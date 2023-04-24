@@ -27,14 +27,14 @@ sub extractReport() {
 			$split[-1] =~ s/.log//;
 			my $nr_samples = 0;
 
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				my $line = $_;
 				if ($line =~ /Result: ([0-9]+) Kiter\/s/) {
 					$self->addData($nthr, ++$nr_samples, $1);
 				}
 			}
-			close INPUT;
+			close $input;
 		}
 	}
 }
