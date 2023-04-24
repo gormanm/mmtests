@@ -19,9 +19,10 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $iteration = 0;
 
-	open(INPUT, "$reportDir/graph500.log");
-	while (!eof(INPUT)) {
-		my $line = <INPUT>;
+	my $input = $self->SUPER::open_log($file);
+	open($input, "$reportDir/graph500.log");
+	while (!eof($input)) {
+		my $line = <$input>;
 
 		if ($line =~ /firstquartile_TEPS: ([0-9e+.]*)/ ||
 				$line =~ /median_TEPS: ([0-9e.+]*)/ ||
@@ -31,7 +32,7 @@ sub extractReport() {
 			$self->addData("megaTEPS", $iteration, $mteps);
 		}
 	}
-	close (INPUT);
+	close ($input);
 }
 
 1;
