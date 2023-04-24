@@ -22,9 +22,8 @@ sub extractReport() {
 	my @files = <$reportDir/semscale.*>;
 	my %samples;
 	foreach my $file (@files) {
-		open(INPUT, $file) || die("Failed to open $file");
-
-		while (<INPUT>) {
+		my $input = $self->SUPER::open_log($file);
+		while (<$input>) {
 			my $line = $_;
 			if ($line =~ /^Threads ([0-9]+), interleave ([0-9]+) threadspercore ([0-9]+) delay ([0-9]+): ([0-9]+) in ([0-9]+) secs/) {
 				my $nr_threads = $1;
@@ -38,10 +37,10 @@ sub extractReport() {
 				}
 			}
 		}
+		close $input;
 	}
 	my @ops = sort { $a cmp $b } keys %samples;
 	$self->{_Operations} = \@ops;
-	close INPUT;
 }
 
 1;
