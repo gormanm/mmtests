@@ -29,9 +29,9 @@ sub extractReport() {
 			my $salt;
 
 			$iteration++;
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (!eof(INPUT)) {
-				my $line = <INPUT>;
+			my $input = $self->SUPER::open_log($file);
+			while (!eof($input)) {
+				my $line = <$input>;
 				my $value = -1;
 				if ($line =~ /^Benchmarking: ([a-zA-Z0-9]+).*/) {
 					$salt = "";
@@ -68,7 +68,7 @@ sub extractReport() {
 				}
 				
 			}
-			close(INPUT);
+			close($input);
 		}
 	}
 }
