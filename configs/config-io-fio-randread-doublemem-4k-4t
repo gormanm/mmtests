@@ -20,6 +20,8 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 FIO_NR_JOBS=4
 
+export TESTDISK_MIN_SIZE=$((2*MEMTOTAL_BYTES))
+
 # fio
 JOBFILE="/tmp/fio-jobfile-$$"
 export FIO_CMD_OPTIONS="$JOBFILE"

@@ -18,7 +18,7 @@ export MONITORS_GZIP="proc-vmstat top iotop"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-export TESTDISK_MIN_SIZE=$((MEMTOTAL_BYTES))
+export TESTDISK_MIN_SIZE=$((2*MEMTOTAL_BYTES))
 
 FIO_NR_JOBS=4
 
