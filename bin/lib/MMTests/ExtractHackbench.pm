@@ -20,15 +20,15 @@ sub extractReport() {
 	foreach my $group (@groups) {
 		my $nr_samples = 0;
 		foreach my $file (<$reportDir/hackbench-$group-*>) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				if ($_ !~ /Total time: ([0-9.]*)/) {
 					next;
 				}
 				my $walltime = $1;
 				$self->addData($group, ++$nr_samples, $walltime);
 			}
-			close INPUT;
+			close $input;
 		}
 	}
 }
