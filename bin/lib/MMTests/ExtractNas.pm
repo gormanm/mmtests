@@ -25,15 +25,15 @@ sub extractReport() {
 		my $nr_samples = 0;
 
 		foreach my $file (<$reportDir/$kernel.log.*>) {
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
+			my $input = $self->SUPER::open_log($file);
+			while (<$input>) {
 				my $line = $_;
 				if ($line =~ /\s+Time in seconds =\s+([0-9.]+)/) {
 					$self->addData($kernel, ++$nr_samples, $1);
 					last;
 				}
 			}
-			close INPUT;
+			close $input;
 		}
 	}
 }
