@@ -24,15 +24,15 @@ sub extractReport() {
 		$testname =~ s/.*\///;
 		$testname =~ s/\.log$//;
 
-		open(INPUT, $file) || die("Failed to open $file\n");
-		while (<INPUT>) {
+		my $input = $self->SUPER::open_log($file);
+		while (<$input>) {
 			my @elements = split(/\s+/);
 			if ($_ =~ /^#\s+mean of 95.*/) {
 				$self->addData("mean95-$testname", 0, $elements[-1]);
 				next;
 			}
 		}
-		close INPUT;
+		close $input;
 	}
 }
 1;
