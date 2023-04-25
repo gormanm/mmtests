@@ -1,11 +1,10 @@
 #!/bin/bash
 # cyclictest
 ###SHELLPACK preamble cyclictest-bench v1.5
-MIRROR_LOCATION="$WEBROOT/kernbench"
-KERNEL_VERSION=5.2.14
-WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v5.x
+###SHELLPACK addon fragment
 
 CYCLICTEST_BACKGROUND=none
+sudo_required
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -20,28 +19,8 @@ CYCLICTEST_BACKGROUND=none
 ###SHELLPACK check_external_install_required klp         klp-0			0
 
 case $CYCLICTEST_BACKGROUND in
-kernbench)
-	echo Preparing kernel tree for background job
-	cd $SHELLPACK_DATA
-	rm -f ./linux-$KERNEL_VERSION.tar.gz
-	sources_fetch $WEB_LOCATION/linux-$KERNEL_VERSION.tar.gz $MIRROR_LOCATION/linux-$KERNEL_VERSION.tar.gz ./linux-$KERNEL_VERSION.tar.gz
-	tar xf linux-$KERNEL_VERSION.tar.gz || die "Failed to extract"
-	cd linux-$KERNEL_VERSION || die "Unexpected layout"
-	yes '' | make defconfig &>/dev/null || die "Failed to make defconfig"
-	make -j$NUMCPUS clean &> /dev/null
-
-	cat << EOF > build-loop.sh
-	cleanup() {
-		killall -KILL make
-	}
-	trap cleanup EXIT
-	cd $SHELLPACK_DATA/linux-$KERNEL_VERSION
-	while [ 1 ]; do
-		make -j$NUMCPUS vmlinux &> /dev/null
-		make clean &> /dev/null
-	done
-EOF
-	chmod a+x build-loop.sh
+kernel-build)
+	fragment prepare --method kernel-build
 	;;
 klp)
 	cd $SHELLPACK_SOURCES/klp-0-installed || die "External installation of KLP failed"
@@ -112,10 +91,10 @@ hackbench)
 	BACKGROUND_PID=$!
 	echo "Background hackbench $BACKGROUND_PID"
 	;;
-kernbench)
-	$SHELLPACK_DATA/linux-$KERNEL_VERSION/build-loop.sh &
+kernel-build)
+	fragment run --method kernel-build
 	BACKGROUND_PID=$!
-	echo "Background kernbench $BACKGROUND_PID"
+	echo "Background kernel-build fragment $BACKGROUND_PID"
 	;;
 klp)
 	$SHELLPACK_DATA/qa_test_klp/klp-loop.sh &> $LOGDIR_RESULTS/klp.log &
@@ -132,25 +111,32 @@ esac
 monitor_pre_hook $LOGDIR_RESULTS $P
 echo Starting cyclictest threads
 if [ "$CYCLICTEST_FINEGRAINED" != "yes" ]; then
-	./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
+	$MMTESTS_SUDO ./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
 		--distance=0 --duration=$CYCLICTEST_DURATION --quiet 2>&1 | \
 		tee $LOGDIR_RESULTS/cyclictest.log
 else
-	./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
+	$MMTESTS_SUDO ./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
 		--distance=0 --duration=$CYCLICTEST_DURATION -v 2>&1 | \
 		stdout-buffer > $LOGDIR_RESULTS/cyclictest.log
 fi
 
-echo Shutdown background $CYCLICTEST_BACKGROUND: $BACKGROUND_PID
-if [ "$BACKGROUND_PID" != "" ]; then
-	shutdown_pid $CYCLICTEST_BACKGROUND $BACKGROUND_PID
-fi
+case $CYCLICTEST_BACKGROUND in
+kernel-build)
+	echo Shutdown fragment kernel-build
+	fragment cleanup --method kernel-build
+	;;
+*)
+	echo Shutdown background $CYCLICTEST_BACKGROUND: $BACKGROUND_PID
+	if [ "$BACKGROUND_PID" != "" ]; then
+		shutdown_pid $CYCLICTEST_BACKGROUND $BACKGROUND_PID
+	fi
+esac
+monitor_post_hook $LOGDIR_RESULTS $P
 
 if [ "$CYCLICTEST_FINEGRAINED" = "yes" ]; then
 	echo Compressing $LOGDIR_RESULTS/cyclictest.log
 	xz $LOGDIR_RESULTS/cyclictest.log
 fi
-monitor_post_hook $LOGDIR_RESULTS $P
 exit $SHELLPACK_SUCCESS
 
 ###SHELLPACK include_file klp_tc_1.sh

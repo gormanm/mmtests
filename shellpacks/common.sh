@@ -333,6 +333,23 @@ function fixup_stap() {
 	fi
 }
 
+function sudo_required() {
+	if [ "`whoami`" = "root" ]; then
+		return
+	fi
+	export MMTESTS_SUDO=`which sudo 2>/dev/null`
+	if [ "$MMTESTS_SUDO" = "" ]; then
+		fail_log "sudo required but not available"
+		die "sudo required but not available"
+	fi
+
+	SUDO_ASKPASS=/bin/false /usr/bin/sudo -A 'whoami' &>/dev/null
+	if [ $? -ne 0 ]; then
+		fail_log "sudo required but not available"
+		die "sudo required but not available passwordless"
+	fi
+}
+
 function check_status() {
 	EXITCODE=$?
 

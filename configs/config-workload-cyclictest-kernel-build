@@ -13,4 +13,4 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # cyclictest
 export CYCLICTEST_DURATION=600
-export CYCLICTEST_BACKGROUND=kernbench
+export CYCLICTEST_BACKGROUND=kernel-build

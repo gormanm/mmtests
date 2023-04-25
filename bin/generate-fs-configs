@@ -73,6 +73,8 @@ config-workload-kerndevel
 config-workload-dedup
 config-workload-shellscripts
 config-io-sparsetruncate-small
+config-workload-cyclictest-fine-kernel-build
+config-workload-cyclictest-kernel-build
 config-workload-thpfioscale
 config-workload-thpfioscale-defrag
 config-workload-thpfioscale-madvhugepage

@@ -128,7 +128,7 @@ END
 	cp $FIO_JOBFILE $LOGDIR_RESULTS/fio-run.jobfile
 	;;
 cleanup)
-	SIGNAL="INT"
+	SIGNAL="TERM"
 	ATTEMPT=0
 	FIO_PID=`cat /tmp/mmtests-fragment-fio-random-reader-pid`
 	echo -n Shutting down fio pid $FIO_PID
