@@ -1,0 +1,83 @@
+# prepare:	Nothing, should be installed as a prereq
+# run:		Apply/remove a Kernel Live Patch (klp) in a loop
+# cleanup:	Shutdown klp loop
+#
+
+while [ $# -ge 1 ]; do
+	case $1 in
+	*)
+		die "Unrecognised $METHOD arg $1"
+		;;
+	esac
+done
+
+case $COMMAND in
+prepare)
+	cd $SHELLPACK_SOURCES/klp-0-installed || die "External installation of KLP required"
+
+	cat << EOF > klp-loop.sh
+	PID_KLP_LOOP=
+	apply_klp() {
+		insmod /tmp/live-patch/tc_1/klp_tc_1_livepatch.ko
+		while [ "\`cat /sys/kernel/livepatch/klp_tc_1_livepatch/transition\`" -ne 0 ]; do
+			sleep 0.1
+		done
+	}
+
+	disable_klp() {
+		echo 0 > /sys/kernel/livepatch/klp_tc_1_livepatch/enabled
+		while [ "0\`cat /sys/kernel/livepatch/klp_tc_1_livepatch/transition 2>/dev/null\`" -ne 0 ]; do
+			sleep 0.1
+		done
+	}
+	remove_klp() {
+		rmmod klp_tc_1_livepatch
+	}
+
+	cleanup() {
+		disable_klp
+		remove_klp
+		touch /tmp/mmtests-fragment-klp-exit
+	}
+	trap cleanup TERM
+
+	cd \$SHELLPACK_DATA/qa_test_klp
+	./klp_tc_1.sh
+	disable_klp
+	remove_klp
+
+	I=0
+	rm -f /tmp/mmtests-fragment-klp-exit
+	while [ ! -e /tmp/mmtests-fragment-klp-exit ]; do
+		I=\$((I+1))
+		echo LKP test \$I
+		echo Patching: \`date\`
+		apply_klp
+
+		echo Disabling: \`date\`
+		disable_klp
+
+		echo Removing: \`date\`
+		remove_klp
+		echo
+	done
+EOF
+	chmod a+x klp-loop.sh
+	;;
+run)
+	echo Starting KLP loop
+	nohup $SHELLPACK_DATA/qa_test_klp/klp-loop.sh &> $LOGDIR_RESULTS/klp.log &
+	KLP_PID=$!
+	echo $KLP_PID > /tmp/mmtests-fragment-klp-loop-pid
+	echo
+	;;
+cleanup)
+	shutdown_pid "klp" `cat /tmp/mmtests-fragment-klp-loop-pid`
+
+	echo Cleaning up klp
+	rm -f  /tmp/mmtests-fragment-klp-loop-pid
+	rm -f  /tmp/mmtests-fragment-klp-exit
+	;;
+esac
+
+exit 0

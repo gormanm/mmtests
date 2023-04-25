@@ -23,58 +23,7 @@ kernel-build)
 	fragment prepare --method kernel-build
 	;;
 klp)
-	cd $SHELLPACK_SOURCES/klp-0-installed || die "External installation of KLP failed"
-
-	###SHELLPACK self_extract klp_tc_1.sh
-	mv $SHELLPACK_TEMP/klp_tc_1.sh . || die "Failed to self-extract tc-1"
-	chmod a+x klp_tc_1.sh
-
-	cat << EOF > klp-loop.sh
-	PID_KLP_LOOP=
-	apply_klp() {
-		insmod /tmp/live-patch/tc_1/klp_tc_1_livepatch.ko
-		while [ "\`cat /sys/kernel/livepatch/klp_tc_1_livepatch/transition\`" -ne 0 ]; do
-			sleep 0.1
-		done
-	}
-
-	disable_klp() {
-		echo 0 > /sys/kernel/livepatch/klp_tc_1_livepatch/enabled
-		while [ "0\`cat /sys/kernel/livepatch/klp_tc_1_livepatch/transition 2>/dev/null\`" -ne 0 ]; do
-			sleep 0.1
-		done
-	}
-	remove_klp() {
-		rmmod klp_tc_1_livepatch
-	}
-
-	cleanup() {
-		disable_klp
-		remove_klp
-	}
-	trap cleanup EXIT
-
-	cd \$SHELLPACK_DATA/qa_test_klp
-	./klp_tc_1.sh
-	disable_klp
-	remove_klp
-
-	I=0
-	while [ 1 ]; do
-		I=\$((I+1))
-		echo LKP test \$I
-		echo Patching: \`date\`
-		apply_klp
-
-		echo Disabling: \`date\`
-		disable_klp
-
-		echo Removing: \`date\`
-		remove_klp
-		echo
-	done
-EOF
-	chmod a+x klp-loop.sh
+	fragment prepare --method klp
 	;;
 esac
 ###SHELLPACK init_only_end
@@ -93,13 +42,9 @@ hackbench)
 	;;
 kernel-build)
 	fragment run --method kernel-build
-	BACKGROUND_PID=$!
-	echo "Background kernel-build fragment $BACKGROUND_PID"
 	;;
 klp)
-	$SHELLPACK_DATA/qa_test_klp/klp-loop.sh &> $LOGDIR_RESULTS/klp.log &
-	BACKGROUND_PID=$!
-	echo "Background klp $BACKGROUND_PID"
+	fragment run --method klp
 	;;
 none)
 	echo "No background task specified"
@@ -124,6 +69,10 @@ case $CYCLICTEST_BACKGROUND in
 kernel-build)
 	echo Shutdown fragment kernel-build
 	fragment cleanup --method kernel-build
+	;;
+klp)
+	echo "Shutdown fragment klp"
+	fragment cleanup --method klp
 	;;
 *)
 	echo Shutdown background $CYCLICTEST_BACKGROUND: $BACKGROUND_PID
