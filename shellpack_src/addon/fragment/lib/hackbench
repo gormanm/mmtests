@@ -1,0 +1,96 @@
+# prepare:	Nothing, should be installed as a prereq
+# run:		Run hackbench in a loop
+# cleanup:	Shutdown hackbench loop
+
+CONN_NAME=
+CONN_SWITCH=
+TASK_SWITCH=
+PERF_VERSION=6.3
+HACKBENCH_TYPE=process
+HACKBENCH_GROUPS=$NUMCPUS
+HACKBENCH_LOOPS=200000000
+
+while [ $# -ge 1 ]; do
+	case $1 in
+	--hackbench-pipes)
+		CONN_SWITCH="--pipe"
+		CONN_NAME=pipes
+		shift
+		;;
+	--hackbench-sockets)
+		CONN_SWITCH=
+		CONN_NAME=sockets
+		;;
+	--hackbench-threads)
+		TASK_SWITCH="--thread"
+		shift
+		;;
+	--hackbench-processes)
+		TASK_SWITCH=
+		shift
+		;;
+	--hackbench-groups)
+		HACKBENCH_GROUPS=$2
+		shift 2
+		;;
+	--hackbench-loops)
+		HACKBENCH_LOOPS=$2
+		shift 2
+		;;
+	--perf-version)
+		PERF_VERSION=$2
+		shift 2
+		;;
+	*)
+		die "Unrecognised $METHOD arg $1"
+		;;
+	esac
+done
+
+PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${PERF_VERSION}-installed/bin
+PERF_CMD=${PERF_DIR}/perf
+
+case $COMMAND in
+prepare)
+	cd $PERF_DIR || die "External installation of perf required"
+
+	cat << EOF > hackbench-loop.sh
+#!/bin/bash
+HACKBENCH_PID=
+cleanup() {
+	touch /tmp/mmtests-fragment-hackbench-exit
+	HACKBENCH_PID=\`cat /tmp/mmtests-fragment-hackbench-pid\`
+	if [ "\$HACKBENCH_PID" != "" ]; then
+		pkill -TERM -P \$HACKBENCH_PID
+		rm -f /tmp/mmtests-fragment-hackbench-pid
+	fi
+}
+trap cleanup TERM
+
+while [ ! -e /tmp/mmtests-fragment-hackbench-exit ]; do
+	$PERF_CMD bench sched messaging 	\
+		$CONN_SWITCH $TASK_SWITCH -g $HACKBENCH_GROUPS -l $HACKBENCH_LOOPS &>/dev/null &
+	HACKBENCH_PID=\$!
+	echo \$HACKBENCH_PID > /tmp/mmtests-fragment-hackbench-pid
+	wait
+done
+EOF
+	chmod a+x hackbench-loop.sh
+	;;
+run)
+	echo -n "Starting Hackbench loop: "
+	nohup $PERF_DIR/hackbench-loop.sh &> /dev/null &
+	HACKBENCH_PID=$!
+	echo $HACKBENCH_PID | tee /tmp/mmtests-fragment-hackbench-loop-pid
+	;;
+cleanup)
+	shutdown_pid "hackbench" `cat /tmp/mmtests-fragment-hackbench-loop-pid`
+
+	echo Cleaning up hackbench
+	rm -f  /tmp/mmtests-fragment-hackbench-loop-pid
+	rm -f  /tmp/mmtests-fragment-hackbench-pid
+	rm -f  /tmp/mmtests-fragment-hackbench-exit
+	;;
+esac
+
+exit 0

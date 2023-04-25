@@ -6,6 +6,8 @@
 CYCLICTEST_BACKGROUND=none
 sudo_required
 
+PERF_VERSION=6.3
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam   --duration		CYCLICTEST_DURATION
@@ -15,17 +17,21 @@ sudo_required
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK init_only_start
-###SHELLPACK check_external_install_required rttestbuild rttestbuild-${VERSION} ${VERSION}
-###SHELLPACK check_external_install_required klp         klp-0			0
+###SHELLPACK check_external_install_required rttestbuild rttestbuild-${VERSION}		${VERSION}
+###SHELLPACK check_external_install_required klp         klp-0				0
+###SHELLPACK check_external_install_required perfbuild   perfbuild-${PERF_VERSION}	${PERF_VERSION}
 
 case $CYCLICTEST_BACKGROUND in
-kernel-build)
-	fragment prepare --method kernel-build
+hackbench|kernel-build|klp)
+	fragment prepare --method $CYCLICTEST_BACKGROUND || die "Failed to prepare $CYCLICTEST_BACKGROUND"
 	;;
-klp)
-	fragment prepare --method klp
+none)
+	echo No background task to prepare
 	;;
+*)
+	die "Unrecognised background task $CYCLICTEST_BACKGROUND"
 esac
+
 ###SHELLPACK init_only_end
 
 cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change to rttest directory"
@@ -36,18 +42,16 @@ fi
 BACKGROUND_PID=
 case $CYCLICTEST_BACKGROUND in
 hackbench)
-	./hackbench -P -g $NUMCPUS -l 200000000 &
-	BACKGROUND_PID=$!
-	echo "Background hackbench $BACKGROUND_PID"
+	fragment run --method hackbench --perf-version $PERF_VERSION || die "Failed to run background $CYCLICTEST_BACKGROUND"
 	;;
 kernel-build)
-	fragment run --method kernel-build
+	fragment run --method kernel-build || die "Failed to run background $CYCLICTEST_BACKGROUND"
 	;;
 klp)
-	fragment run --method klp
+	fragment run --method klp || die "Failed to run background $CYCLICTEST_BACKGROUND"
 	;;
 none)
-	echo "No background task specified"
+	echo "No background task to run"
 	;;
 *)
 	die "Unrecognised background task $CYCLICTEST_BACKGROUND"
@@ -66,20 +70,16 @@ else
 fi
 
 case $CYCLICTEST_BACKGROUND in
-kernel-build)
-	echo Shutdown fragment kernel-build
-	fragment cleanup --method kernel-build
+hackbench|kernel-build|klp)
+	fragment cleanup --method $CYCLICTEST_BACKGROUND
 	;;
-klp)
-	echo "Shutdown fragment klp"
-	fragment cleanup --method klp
+none)
+	echo No background task to shutdown
 	;;
 *)
-	echo Shutdown background $CYCLICTEST_BACKGROUND: $BACKGROUND_PID
-	if [ "$BACKGROUND_PID" != "" ]; then
-		shutdown_pid $CYCLICTEST_BACKGROUND $BACKGROUND_PID
-	fi
+	die "Unrecognised background task $CYCLICTEST_BACKGROUND"
 esac
+
 monitor_post_hook $LOGDIR_RESULTS $P
 
 if [ "$CYCLICTEST_FINEGRAINED" = "yes" ]; then
@@ -87,5 +87,3 @@ if [ "$CYCLICTEST_FINEGRAINED" = "yes" ]; then
 	xz $LOGDIR_RESULTS/cyclictest.log
 fi
 exit $SHELLPACK_SUCCESS
-
-###SHELLPACK include_file klp_tc_1.sh
