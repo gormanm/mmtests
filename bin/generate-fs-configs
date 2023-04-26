@@ -75,9 +75,9 @@ config-workload-shellscripts
 config-io-sparsetruncate-small
 config-workload-cyclictest-fine-kernel-build
 config-workload-cyclictest-kernel-build
-config-workload-thpfioscale
-config-workload-thpfioscale-defrag
-config-workload-thpfioscale-madvhugepage
+config-workload-thpchallenge-fio
+config-workload-thpchallenge-fio-defrag
+config-workload-thpchallenge-fio-madvhugepage
 config-reaim-io-alltests
 config-reaim-io-compute
 config-reaim-io-disk

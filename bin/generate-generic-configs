@@ -92,7 +92,7 @@ EOF
 cp config-workload-kvmstart-memhog config-workload-kvmstart-memhog-frag-fio-randread
 cat >> config-workload-kvmstart-memhog-frag-fio-randread <<EOF
 export KVMSTART_PRETEST=fragment
-export KVMSTART_PRETEST_METHOD="fio-random-reader"
+export KVMSTART_PRETEST_METHOD="fio-random-reader-inefficient"
 export KVMSTART_PRETEST_PREPARE_ARGS="--fio-threads 4 --fio-version 2.99 --fio-size \$((MEMTOTAL_BYTES*4/2))"
 export KVMSTART_PRETEST_RUN_ARGS=\$KVMSTART_PRETEST_PREPARE_ARGS
 export KVMSTART_PRETEST_CLEANUP_ARGS=

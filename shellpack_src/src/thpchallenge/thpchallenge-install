@@ -1,0 +1,17 @@
+#!/bin/bash
+###SHELLPACK preamble thpchallenge 0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+install-depends libnuma-devel libnuma
+###SHELLPACK self_extract thpchallenge.c
+
+mkdir $SHELLPACK_SOURCES/thpchallenge-${VERSION}-installed
+gcc -Wall -lpthread -lnuma $SHELLPACK_TEMP/thpchallenge.c -o $SHELLPACK_SOURCES/thpchallenge-${VERSION}-installed/thpchallenge || \
+	die "Failed to build thpchallenge"
+
+echo thpchallenge installed successfully
+exit $SHELLPACK_SUCCESS
+
+###SHELLPACK include_file thpchallenge.c

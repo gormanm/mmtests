@@ -138,7 +138,7 @@ int main(int argc, char **argv)
 	pthread_t *th;
 	int nr_threads, i, j;
 	if (argc != 4) {
-		printf("Usage: thpfioscale [nr_threads] [total_size] [madvise_hugepage]\n");
+		printf("Usage: thpchallenge [nr_threads] [total_size] [madvise_hugepage]\n");
 		exit(EXIT_FAILURE);
 	}
 

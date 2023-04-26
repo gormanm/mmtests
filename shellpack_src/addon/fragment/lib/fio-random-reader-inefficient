@@ -1,9 +1,15 @@
 # prepare:	Create the test files that will be read
 # run:		Run fio reading random files from a configured number of threads
 # cleanup:	Shutdown fio and delete test files
+#
+# Note that the "inefficient" is related to fallocate primarily. By disabling
+# fallocate and setting create_on_open, the timing of allocations for page cache
+# and inodes is bad. While this is terrible for IO efficiency, it mixes the
+# timing of slab and page cache pages which can be interesting for compaction
+# tests.
 
 FRAGMENT_FIO_FILESIZE=${FRAGMENT_FIO_FILESIZE:-65536}
-FRAGMENT_FIO_VERSION=2.99
+FRAGMENT_FIO_VERSION=3.33
 
 while [ $# -ge 1 ]; do
 	case $1 in
@@ -61,7 +67,7 @@ readwrite=write
 numjobs=$FRAGMENT_FIO_THREADS
 filename_format=\$jobnum/workfile.\$filenum
 END
-	echo Fragment via fio-random-reader parameters
+	echo Fragment via fio-random-reader-inefficient parameters
 	echo "o Directory   $SCRATCH"
 	echo "o Total sz    $((FRAGMENT_FIO_WSETSIZE/1048576/1024))gb"
 	echo "o Thread sz   $((FRAGMENT_FIO_WSETSIZE/FRAGMENT_FIO_THREADS/1048576/1024))gb"
@@ -84,7 +90,7 @@ END
 		die "Failed to initialse files"
 	fi
 	END=`date +%s`
-	echo $((END-START)) > /tmp/mmtests-fragment-fio-random-reader-init-time
+	echo $((END-START)) > /tmp/mmtests-fragment-fio-random-reader-inefficient-init-time
 	cp $FIO_JOBFILE $LOGDIR_RESULTS/fio-init.jobfile
 	sync
 	;;
@@ -96,7 +102,7 @@ direct=0
 ioengine=sync
 blocksize=4096
 invalidate=0
-runtime=36000
+runtime=360000
 time_based
 
 [reader]
@@ -112,17 +118,17 @@ END
 		--alloc-size=$FIO_ALLOCSIZE                   \
 		--minimal                                     \
 		$FIO_JOBFILE                                  \
-		&> $LOGDIR_RESULTS/fio-random-reader.log &
+		&> $LOGDIR_RESULTS/fio-random-reader-inefficient.log &
 	FIO_PID=$!
-	echo $FIO_PID > /tmp/mmtests-fragment-fio-random-reader-pid
+	echo $FIO_PID > /tmp/mmtests-fragment-fio-random-reader-inefficient-pid
 
-	FRAGMENT_FIO_WARMUP=`cat /tmp/mmtests-fragment-fio-random-reader-init-time`
+	FRAGMENT_FIO_WARMUP=`cat /tmp/mmtests-fragment-fio-random-reader-inefficient-init-time`
 	date
 	echo Warming up fio pid $FIO_PID for $FRAGMENT_FIO_WARMUP seconds
 	sleep $FRAGMENT_FIO_WARMUP
 	ps -p $FIO_PID &> /dev/null
 	if [ $? -ne 0 ]; then
-		cat $LOGDIR_RESULTS/fio-random-reader.log
+		cat $LOGDIR_RESULTS/fio-random-reader-inefficient.log
 		die "fio was not still running at end of warmup phase"
 	fi
 	cp $FIO_JOBFILE $LOGDIR_RESULTS/fio-run.jobfile
@@ -130,7 +136,7 @@ END
 cleanup)
 	SIGNAL="TERM"
 	ATTEMPT=0
-	FIO_PID=`cat /tmp/mmtests-fragment-fio-random-reader-pid`
+	FIO_PID=`cat /tmp/mmtests-fragment-fio-random-reader-inefficient-pid`
 	echo -n Shutting down fio pid $FIO_PID
 	kill -$SIGNAL $FIO_PID
 	while [ $? -eq 0 ]; do
@@ -155,8 +161,8 @@ cleanup)
 
 	echo Cleaning up fio
 	rm -rf $SCRATCH
-	rm -f /tmp/mmtests-fragment-fio-random-reader-init-time
-	rm -f /tmp/mmtests-fragment-fio-random-reader-pid
+	rm -f /tmp/mmtests-fragment-fio-random-reader-inefficient-init-time
+	rm -f /tmp/mmtests-fragment-fio-random-reader-inefficient-pid
 	;;
 esac
 

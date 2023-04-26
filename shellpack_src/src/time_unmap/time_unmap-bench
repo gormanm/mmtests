@@ -14,10 +14,6 @@ MADV_HUGEPAGE=0
 ###SHELLPACK check_install_required time_unmap-${VERSION}
 ###SHELLPACK init_complete
 
-if [ "$THPFIOSCALE_MADV_HUGEPAGE" = "yes" ]; then
-	MADV_HUGEPAGE=1
-fi
-
 ###SHELLPACK iteration_begin $TIME_UNMAP_ITERATIONS
 	echo Iteration $ITERATION/$TIME_UNMAP_ITERATIONS
 	$TIME_CMD -o $LOGDIR_RESULTS/unmap-$ITERATION.time \

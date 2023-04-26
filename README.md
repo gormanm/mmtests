@@ -190,7 +190,7 @@ resulting in some subdirectories being present in the results directory.
 Configuring the system for running a benchmark may include doing some changes
 to the system itself that can only be done with `root` provileges.
 
-For instance, the [config-workload-thpfioscale-defrag](https://github.com/gormanm/mmtests/blob/master/configs/config-workload-thpfioscale-defrag)
+For instance, the [config-workload-thpchallenge-fio-defrag](https://github.com/gormanm/mmtests/blob/master/configs/config-workload-thpchallenge-fio-defrag)
 config does:
 
 ```

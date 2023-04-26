@@ -749,7 +749,7 @@ for SUBREPORT in $REPORTS; do
 		cache-mmtests.sh compare-mmtests.pl -d . -b trunc -a fault -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	thp*scale|thpcompact)
+	thpchallenge|thpcompact)
 		echo $SUBREPORT Fault Latencies
 		eval $COMPARE_CMD
 		echo

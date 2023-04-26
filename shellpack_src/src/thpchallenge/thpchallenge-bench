@@ -1,0 +1,85 @@
+#!/bin/bash
+###SHELLPACK preamble thpchallenge-bench 0
+###SHELLPACK addon fragment
+
+export FIO_VERSION="3.33"
+
+MADV_HUGEPAGE=0
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-threads	THPCHALLENGE_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads	THPCHALLENGE_MAX_THREADS
+###SHELLPACK parseargParam	--fio-threads	THPCHALLENGE_FIO_THREADS
+###SHELLPACK parseargParam	--thp-size	THPCHALLENGE_THP_WSETSIZE
+###SHELLPACK parseargParam	--fio-size	THPCHALLENGE_FIO_WSETSIZE
+###SHELLPACK parseargParam	--madv-huge	THPCHALLENGE_MADV_HUGEPAGE
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK init_only_start
+###SHELLPACK check_external_install_required fio fio-${FIO_VERSION} ${FIO_VERSION}
+###SHELLPACK check_install_required_continue thpchallenge-${VERSION}
+
+case $THPCHALLENGE_BACKGROUND in
+fio-random-reader-inefficient)
+	export FIO_VERSION=3.33
+	ulimit -n 1000000
+	fragment prepare --method $THPCHALLENGE_BACKGROUND	\
+		--fio-size    $THPCHALLENGE_FIO_WSETSIZE	\
+		--fio-threads $THPCHALLENGE_FIO_THREADS		\
+		--fio-version $FIO_VERSION || die "Failed to prepare $THPCHALLENGE_BACKGROUND"
+	;;
+none)
+	echo No background task to prepare
+	;;
+*)
+	die "Unrecognised background task $THPCHALLENGE_BACKGROUND"
+esac
+
+###SHELLPACK init_only_end
+cd $SHELLPACK_SOURCES/thpchallenge-${VERSION}-installed
+
+if [ "$THPCHALLENGE_MADV_HUGEPAGE" = "yes" ]; then
+	MADV_HUGEPAGE=1
+fi
+
+case $THPCHALLENGE_BACKGROUND in
+fio-random-reader-inefficient)
+	ulimit -n 1000000
+	fragment run --method $THPCHALLENGE_BACKGROUND		\
+		--fio-size    $THPCHALLENGE_FIO_WSETSIZE	\
+		--fio-threads $THPCHALLENGE_FIO_THREADS		\
+		--fio-version $FIO_VERSION || die "Failed to run $THPCHALLENGE_BACKGROUND"
+	;;
+none)
+	echo No background task to prepare
+	;;
+*)
+	die "Unrecognised background task $THPCHALLENGE_BACKGROUND"
+esac
+
+echo Warmup complete
+###SHELLPACK threads_large_stride_begin $THPCHALLENGE_MIN_THREADS $THPCHALLENGE_MAX_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	echo Starting thpchallenge $NR_THREADS/$THPCHALLENGE_MAX_THREADS size:$THPCHALLENGE_THP_WSETSIZE madv:$MADV_HUGEPAGE
+	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
+		./thpchallenge $NR_THREADS $THPCHALLENGE_THP_WSETSIZE $MADV_HUGEPAGE \
+			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+	gzip $LOGDIR_RESULTS/threads-${NR_THREADS}.log
+###SHELLPACK threads_stride_end
+echo Finished thpchallenge
+
+case $THPCHALLENGE_BACKGROUND in
+fio-random-reader-inefficient)
+	fragment cleanup --method $THPCHALLENGE_BACKGROUND
+	;;
+none)
+	echo No background task to shutdown
+	;;
+*)
+	die "Unrecognised background task $THPCHALLENGE_BACKGROUND"
+esac
+
+exit $SHELLPACK_SUCCESS
