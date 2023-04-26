@@ -1,5 +1,5 @@
-# ExtractThpscalecounts.pm
-package MMTests::ExtractThpscalecounts;
+# ExtractThpcompactcounts.pm
+package MMTests::ExtractThpcompactcounts;
 use MMTests::SummariseSingleops;
 use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
@@ -7,7 +7,7 @@ use strict;
 
 sub initialise() {
 	my ($self, $subHeading) = @_;
-	$self->{_ModuleName} = "ExtractThpscalecounts";
+	$self->{_ModuleName} = "ExtractThpcompactcounts";
 	$self->{_DataType}   = DataTypes::DATA_ACTIONS;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Percentage";

@@ -1,6 +1,6 @@
 # ExtractThpfioscale.pm
 package MMTests::ExtractThpfioscale;
-use MMTests::ExtractThpscale;
-our @ISA = qw(MMTests::ExtractThpscale);
+use MMTests::ExtractThpcompact;
+our @ISA = qw(MMTests::ExtractThpcompact);
 
 1;

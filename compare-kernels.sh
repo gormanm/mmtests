@@ -749,7 +749,7 @@ for SUBREPORT in $REPORTS; do
 		cache-mmtests.sh compare-mmtests.pl -d . -b trunc -a fault -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	thp*scale)
+	thp*scale|thpcompact)
 		echo $SUBREPORT Fault Latencies
 		eval $COMPARE_CMD
 		echo
@@ -1241,11 +1241,11 @@ for SUBREPORT in $REPORTS; do
 			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`" "Estimated time"
 			echo "</tr>"
 			;;
-		thpscale)
+		thpcompact)
 			echo "<tr>"
 
 			for SIZE in fault-base fault-huge; do
-				eval $GRAPH_PNG        -b thpscale --title \"$SUBREPORT $SIZE\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$SIZE --sub-heading $SIZE
+				eval $GRAPH_PNG        -b thpcompact --title \"$SUBREPORT $SIZE\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$SIZE --sub-heading $SIZE
 				plain graph-$SUBREPORT-$SIZE
 			done
 			echo "</tr>"

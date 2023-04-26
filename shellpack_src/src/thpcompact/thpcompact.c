@@ -84,6 +84,7 @@ static void *worker(void *data)
 		perror("First mapping");
 		exit(EXIT_FAILURE);
 	}
+	madvise(first_mapping, thread_size, MADV_HUGEPAGE);
 	memset(first_mapping, 1, thread_size);
 
 	/* Align index to huge page boundary */
@@ -189,7 +190,7 @@ int main(int argc, char **argv)
 	pthread_t *th;
 	int nr_threads, i, j;
 	if (argc != 5) {
-		printf("Usage: thpscale [nr_threads] [total_size] [filename] [madvise_hugepage]\n");
+		printf("Usage: thpcompact [nr_threads] [total_size] [filename] [madvise_hugepage]\n");
 		exit(EXIT_FAILURE);
 	}
 

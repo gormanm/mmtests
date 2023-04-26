@@ -1,5 +1,5 @@
-# ExtractThpscale.pm
-package MMTests::ExtractThpscale;
+# ExtractThpcompact.pm
+package MMTests::ExtractThpcompact;
 use MMTests::SummariseMultiops;
 use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
@@ -7,7 +7,7 @@ use strict;
 
 sub initialise() {
 	my ($self, $subHeading) = @_;
-	$self->{_ModuleName} = "ExtractThpscale";
+	$self->{_ModuleName} = "ExtractThpcompact";
 	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";

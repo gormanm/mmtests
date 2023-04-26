@@ -1,5 +1,5 @@
-# ExtractThpscalelocality.pm
-package MMTests::ExtractThpscalelocality;
+# ExtractThpcompactlocality.pm
+package MMTests::ExtractThpcompactlocality;
 use MMTests::SummariseSingleops;
 use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
@@ -7,7 +7,7 @@ use strict;
 
 sub initialise() {
 	my ($self, $subHeading) = @_;
-	$self->{_ModuleName} = "ExtractThpscalelocality";
+	$self->{_ModuleName} = "ExtractThpcompactlocality";
 	$self->{_DataType}   = DataTypes::DATA_ACTIONS;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Percentage";

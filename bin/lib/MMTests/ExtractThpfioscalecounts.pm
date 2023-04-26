@@ -1,7 +1,7 @@
 # ExtractThpfioscalecounts.pm
 package MMTests::ExtractThpfioscalecounts;
-use MMTests::ExtractThpscalecounts;
+use MMTests::ExtractThpcompactcounts;
 use MMTests::Stat;
-our @ISA = qw(MMTests::ExtractThpscalecounts);
+our @ISA = qw(MMTests::ExtractThpcompactcounts);
 
 1;

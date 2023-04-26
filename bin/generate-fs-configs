@@ -108,8 +108,8 @@ config-workload-kvmstart-memhog-frag-singlefile
 config-workload-kvmstart-memhog-frag-singlefile-nothp
 config-workload-pedsort
 config-workload-pedsort-light
-config-workload-thpscale
-config-workload-thpscale-madvhugepage
+config-workload-thpcompact
+config-workload-thpcompact-madvhugepage
 config-workload-will-it-scale-io-threads
 config-workload-will-it-scale-io-processes
 config-db-sqlite-insert-small

@@ -1,0 +1,33 @@
+### See config-workload-thpcompact for a description of the workload. The
+### main difference is that MADV_HUGEPAGE is used for the final mapping.
+
+export MMTESTS="thpcompact"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat mpstat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# thpcompact
+export THPCOMPACT_MIN_THREADS=1
+export THPCOMPACT_MAX_THREADS=$((NUMCPUS*4))
+if [ $THPCOMPACT_MAX_THREADS -gt 32 ]; then
+	export THPCOMPACT_MAX_THREADS=32
+fi
+export THPCOMPACT_MAPSIZE=$((MEMTOTAL_BYTES*8/10))
+export THPCOMPACT_MADV_HUGEPAGE=yes
+
+export TESTDISK_MIN_SIZE=$((THPCOMPACT_MAPSIZE*5/4))
