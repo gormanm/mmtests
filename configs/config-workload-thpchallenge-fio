@@ -1,3 +1,13 @@
+### THPChallenge is a benchmark that allocates THPs while there is interference
+### from a background workload.
+###
+### The THP test creates a number of threads, each of which faults a region that
+### is THPCHALLENGE_THP_WSETSIZE/$NR_THREADS in size. Optionally the mapping
+### will use madvise. The time to fault each page, the size allocated and the
+### locality is recorded.
+###
+### The "challenge" load is fio inefficiently creating many small files, the
+### total size of which is THPCHALLENGE_FIO_WSETSIZE
 export MMTESTS="thpchallenge"
 
 # Test disk to setup (optional)
@@ -32,5 +42,5 @@ export THPCHALLENGE_MAX_THREADS=$THPCHALLENGE_MIN_THREADS
 if [ $THPCHALLENGE_MAX_THREADS -le 0 ]; then
 	die "Insufficient number of CPUs to run benchmark"
 fi
-export THPCHALLENGE_THP_WSETSIZE=$((${MMTESTS_NODE_SIZE[0]}*3/4))
-export THPCHALLENGE_FIO_WSETSIZE=$(($MEMTOTAL_BYTES*3/2))
+export THPCHALLENGE_THP_WSETSIZE=$((MEMTOTAL_BYTES*8/10))
+export THPCHALLENGE_FIO_WSETSIZE=$((MEMTOTAL_BYTES*3/2))

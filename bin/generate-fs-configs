@@ -109,6 +109,7 @@ config-workload-kvmstart-memhog-frag-singlefile-nothp
 config-workload-pedsort
 config-workload-pedsort-light
 config-workload-thpcompact
+config-workload-thpcompact-defrag
 config-workload-thpcompact-madvhugepage
 config-workload-will-it-scale-io-threads
 config-workload-will-it-scale-io-processes

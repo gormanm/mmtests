@@ -325,7 +325,22 @@ for TYPE in ro rw; do
 	done
 done
 
+# THPChallenge/THPCompact
+for CONFIG in config-workload-thpchallenge-fio config-workload-thpcompact; do
+	cp $CONFIG $CONFIG-defrag
+	cat >> $CONFIG-defrag <<EOF
 
+echo always > /sys/kernel/mm/transparent_hugepage/defrag
+if [ \$? -ne 0 ]; then
+       die "Failed to set defrag option for THP to always"
+fi
+EOF
+done
+
+cp config-workload-thpchallenge-fio config-workload-thpchallenge-fio-madvhugepage
+echo "export THPCHALLENGE_MADV_HUGEPAGE=yes" >> config-workload-thpchallenge-fio-madvhugepage
+cp config-workload-thpcompact config-workload-thpcompact-madvhugepage
+echo "export THPCOMPACT_MADV_HUGEPAGE=yes" >> config-workload-thpcompact-madvhugepage
 
 # Trinity
 for GROUP in vfs vm; do
