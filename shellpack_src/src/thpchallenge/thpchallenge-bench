@@ -4,16 +4,21 @@
 
 export FIO_VERSION="3.33"
 
+THPCHALLENGE_KBUILD_JOBS=$NUMCPUS
+THPCHALLENGE_KBUILD_WARMUP=
+
 MADV_HUGEPAGE=0
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam	--min-threads	THPCHALLENGE_MIN_THREADS
 ###SHELLPACK parseargParam	--max-threads	THPCHALLENGE_MAX_THREADS
-###SHELLPACK parseargParam	--fio-threads	THPCHALLENGE_FIO_THREADS
 ###SHELLPACK parseargParam	--thp-size	THPCHALLENGE_THP_WSETSIZE
-###SHELLPACK parseargParam	--fio-size	THPCHALLENGE_FIO_WSETSIZE
 ###SHELLPACK parseargParam	--madv-huge	THPCHALLENGE_MADV_HUGEPAGE
+###SHELLPACK parseargParam	--fio-threads	THPCHALLENGE_FIO_THREADS
+###SHELLPACK parseargParam	--fio-size	THPCHALLENGE_FIO_WSETSIZE
+###SHELLPACK parseargParam	--kbuild-jobs	THPCHALLENGE_KBUILD_JOBS
+###SHELLPACK parseargParam	--kbuild-warmup	THPCHALLENGE_KBUILD_WARMUP
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -29,6 +34,14 @@ fio-random-reader-inefficient)
 		--fio-size    $THPCHALLENGE_FIO_WSETSIZE	\
 		--fio-threads $THPCHALLENGE_FIO_THREADS		\
 		--fio-version $FIO_VERSION || die "Failed to prepare $THPCHALLENGE_BACKGROUND"
+	;;
+kernel-build)
+	if [ "$THPCHALLENGE_KBUILD_WARMUP" = "yes" ]; then
+		THPCHALLENGE_KBUILD_WARMUP="--kbuild-warmup"
+	fi
+	fragment prepare --method $THPCHALLENGE_BACKGROUND	\
+		--kbuild-jobs $THPCHALLENGE_KBUILD_JOBS		\
+		$THPCHALLENGE_KBUILD_WARMUP || die "Failed to prepare $THPCHALLENGE_BACKGROUND"
 	;;
 none)
 	echo No background task to prepare
@@ -52,6 +65,10 @@ fio-random-reader-inefficient)
 		--fio-threads $THPCHALLENGE_FIO_THREADS		\
 		--fio-version $FIO_VERSION || die "Failed to run $THPCHALLENGE_BACKGROUND"
 	;;
+kernel-build)
+	fragment run --method $THPCHALLENGE_BACKGROUND		\
+		|| die "Failed to run $THPCHALLENGE_BACKGROUND"
+	;;
 none)
 	echo No background task to prepare
 	;;
@@ -61,18 +78,25 @@ esac
 
 echo Warmup complete
 ###SHELLPACK threads_large_stride_begin $THPCHALLENGE_MIN_THREADS $THPCHALLENGE_MAX_THREADS
+	if [ "$THPCHALLENGE_BACKGROUND" = "kernel-build" ]; then
+		echo Prepare thpchallenge $NR_THREADS/$THPCHALLENGE_MAX_THREADS
+		fragment wait-build-phase --method $THPCHALLENGE_BACKGROUND --kbuild-wait-phase vmlinux
+		fragment wait-build-phase --method $THPCHALLENGE_BACKGROUND --kbuild-wait-phase modules
+	fi
+
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	echo Starting thpchallenge $NR_THREADS/$THPCHALLENGE_MAX_THREADS size:$THPCHALLENGE_THP_WSETSIZE madv:$MADV_HUGEPAGE
+	echo Starting thpchallenge $NR_THREADS/$THPCHALLENGE_MAX_THREADS size:$((THPCHALLENGE_THP_WSETSIZE/1048576))MB madv:$MADV_HUGEPAGE
 	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
 		./thpchallenge $NR_THREADS $THPCHALLENGE_THP_WSETSIZE $MADV_HUGEPAGE \
 			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+	echo Complete thpchallenge $NR_THREADS/$THPCHALLENGE_MAX_THREADS
 	gzip $LOGDIR_RESULTS/threads-${NR_THREADS}.log
 ###SHELLPACK threads_stride_end
 echo Finished thpchallenge
 
 case $THPCHALLENGE_BACKGROUND in
-fio-random-reader-inefficient)
+fio-random-reader-inefficient|kernel-build)
 	fragment cleanup --method $THPCHALLENGE_BACKGROUND
 	;;
 none)

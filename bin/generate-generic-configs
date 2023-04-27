@@ -326,7 +326,7 @@ for TYPE in ro rw; do
 done
 
 # THPChallenge/THPCompact
-for CONFIG in config-workload-thpchallenge-fio config-workload-thpcompact; do
+for CONFIG in config-workload-thpchallenge-fio config-workload-thpchallenge-kernel-build config-workload-thpcompact; do
 	cp $CONFIG $CONFIG-defrag
 	cat >> $CONFIG-defrag <<EOF
 
@@ -337,8 +337,10 @@ fi
 EOF
 done
 
-cp config-workload-thpchallenge-fio config-workload-thpchallenge-fio-madvhugepage
-echo "export THPCHALLENGE_MADV_HUGEPAGE=yes" >> config-workload-thpchallenge-fio-madvhugepage
+for WORKLOAD in fio kernel-build; do
+	cp config-workload-thpchallenge-$WORKLOAD config-workload-thpchallenge-$WORKLOAD-madvhugepage
+	echo "export THPCHALLENGE_MADV_HUGEPAGE=yes" >> config-workload-thpchallenge-$WORKLOAD-madvhugepage
+done
 cp config-workload-thpcompact config-workload-thpcompact-madvhugepage
 echo "export THPCOMPACT_MADV_HUGEPAGE=yes" >> config-workload-thpcompact-madvhugepage
 

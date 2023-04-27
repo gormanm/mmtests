@@ -1,0 +1,44 @@
+### THPChallenge is a benchmark that allocates THPs while there is interference
+### from a background workload.
+###
+### The THP test creates a number of threads, each of which faults a region that
+### is THPCHALLENGE_THP_WSETSIZE/$NR_THREADS in size. Optionally the mapping
+### will use madvise. The time to fault each page, the size allocated and the
+### locality is recorded.
+###
+### The "challenge" load is a kernel compilation
+export MMTESTS="thpchallenge"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="-f -d agcount=8"
+#export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
+
+# List of monitors
+export MONITOR_FTRACE_EVENTS="kmem/mm_page_alloc_extfrag kmem/mm_fragmentation_stall compaction/mm_compaction_kcompactd_migrated compaction/mm_compaction_wakeup_kcompactd_queue compaction/mm_compaction_kcompactd_wake"
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat proc-buddyinfo proc-pagetypeinfo ftrace top iotop"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# Limit memory to 10GB so kernel build occupies some memory required
+# for THP allocations
+# memory required for THP allocations
+. $SHELLPACK_INCLUDE/include-sizes.sh
+get_numa_details
+limit_memory $((12*1048576*1024))
+
+# thpchallenge
+export THPCHALLENGE_BACKGROUND="kernel-build"
+export THPCHALLENGE_KBUILD_JOBS=$NUMCPUS
+export THPCHALLENGE_KBUILD_WARMUP=yes
+export THPCHALLENGE_MIN_THREADS=1
+export THPCHALLENGE_MAX_THREADS=$NUMCPUS
+export THPCHALLENGE_THP_WSETSIZE=$((MEMTOTAL_BYTES*8/10))

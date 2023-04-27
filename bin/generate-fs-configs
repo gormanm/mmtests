@@ -142,6 +142,9 @@ config-workload-stressng-class-io-parallel
 config-workload-thpchallenge-fio
 config-workload-thpchallenge-fio-defrag
 config-workload-thpchallenge-fio-madvhugepage
+config-workload-thpchallenge-kernel-build
+config-workload-thpchallenge-kernel-build-defrag
+config-workload-thpchallenge-kernel-build-madvhugepage
 config-workload-thpcompact
 config-workload-thpcompact-defrag
 config-workload-thpcompact-madvhugepage

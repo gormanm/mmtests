@@ -52,10 +52,10 @@ sub extractReport() {
 		close $input;
 
 		if ($faults[0] + $faults[1] != 0) {
-			$self->addData("local-base-$client", 0, $local[0] * 100 / $faults[0]);
-			$self->addData("local-huge-$client", 0, $local[1] * 100 / $faults[1]);
-			$self->addData("remote-base-$client", 0, $remote[0] * 100 / $faults[0]);
-			$self->addData("remote-huge-$client", 0, $remote[1] * 100 / $faults[1]);
+			$self->addData("local-base-$client", 0, $faults[0]  == 0 ? 0 : $local[0] * 100 / $faults[0]);
+			$self->addData("local-huge-$client", 0, $faults[1]  == 0 ? 0 : $local[1] * 100 / $faults[1]);
+			$self->addData("remote-base-$client", 0, $faults[0] == 0 ? 0 : $remote[0] * 100 / $faults[0]);
+			$self->addData("remote-huge-$client", 0, $faults[1] == 0 ? 0 : $remote[1] * 100 / $faults[1]);
 			if ($uncertain != 0) {
 				$self->addData("uncertain-$client", 0, $uncertain * 100 / ($faults[0] + $faults[1]));
 			}

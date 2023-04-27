@@ -1,5 +1,5 @@
 # prepare:	Create the kernel files that will be built
-# run:		Build defconfig kernel in a loop, each loop cleans
+# run:		Build kernel in a loop, each loop cleans
 # cleanup:	Shutdown kernel build
 #
 MIRROR_LOCATION="$WEBROOT/kernbench"
@@ -7,12 +7,27 @@ KERNEL_VERSION=5.14
 WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v5.x
 
 KBUILD_JOBS=$NUMCPUS
+KBUILD_WARMUP=0
+KBUILD_CONFIG=allmodconfig
+KBUILD_WAIT_PHASE=$1
+
+set_kbuild_status() {
+	echo "$@" > /tmp/mmtests-fragment-kernel-build-status
+}
 
 while [ $# -ge 1 ]; do
 	case $1 in
 	--kbuild-jobs)
 		KBUILD_JOBS=$2
 		shift 2
+		;;
+	--kbuild-wait-phase)
+		KBUILD_WAIT_PHASE=$2
+		shift 2
+		;;
+	--kbuild-warmup)
+		KBUILD_WARMUP=1
+		shift
 		;;
 	*)
 		die "Unrecognised $METHOD arg $1"
@@ -21,15 +36,67 @@ while [ $# -ge 1 ]; do
 done
 
 case $COMMAND in
+wait-build-phase)
+	if [ ! -e /tmp/mmtests-fragment-kernel-build-status ]; then
+		die "Unknown state"
+	fi
+	STATUS=`cat /tmp/mmtests-fragment-kernel-build-status`
+	if [ "$STATUS" = "build-$KBUILD_WAIT_PHASE" ]; then
+		exit 0
+	fi
+	echo -n Waiting for kernel-build $KBUILD_WAIT_PHASE phase to start.
+	WAIT=-1
+	while [ "$STATUS" != "build-$KBUILD_WAIT_PHASE" ]; do
+		sleep 1
+		STATUS=`cat /tmp/mmtests-fragment-kernel-build-status`
+		WAIT=$((WAIT+1))
+		if [ $((WAIT%5)) -ne 0 ]; then
+			continue
+		fi
+
+		case $STATUS in
+		prepare-warmup-vmlinux)
+			echo -n V
+			;;
+		prepare-warmup-modules)
+			echo -n M
+			;;
+		build-clean)
+			echo -n c
+			;;
+		build-vmlinux)
+			echo -n v
+			;;
+		build-modules)
+			echo -n m
+			;;
+		*)
+			die "Unrecognised status $STATUS"
+			;;
+		esac
+	done
+	echo
+	;;
 prepare)
 	cd $SHELLPACK_DATA
+	set_kbuild_status prepare
 	if [ ! -e ./linux-$KERNEL_VERSION.tar.xz ]; then
 		sources_fetch $WEB_LOCATION/linux-$KERNEL_VERSION.tar.xz $MIRROR_LOCATION/linux-$KERNEL_VERSION.tar.xz ./linux-$KERNEL_VERSION.tar.xz
 	fi
 	echo Extracting linux-$KERNEL_VERSION.tar.xz
 	tar xf linux-$KERNEL_VERSION.tar.xz || die "Failed to extract"
 	cd linux-$KERNEL_VERSION || die "Unexpected layout"
-	yes '' | make defconfig &>/dev/null || die "Failed to make defconfig"
+	yes '' | make $KBUILD_CONFIG &>/dev/null || die "Failed to make $KBUILD_CONFIG"
+
+	if [ $KBUILD_WARMUP -ne 0 ]; then
+		KBUILD_STATUS="prepare-warmup"
+		echo Prepare warmup build vmlinux
+		set_kbuild_status prepare-warmup-vmlinux
+		make -j$KBUILD_JOBS vmlinux &>/dev/null
+		echo Prepare warmup build modules
+		set_kbuild_status prepare-warmup-modules
+		make -j$KBUILD_JOBS modules &>/dev/null
+	fi
 
 	cat << EOF > build-loop.sh
 #!/bin/bash
@@ -46,11 +113,13 @@ trap cleanup TERM
 cd $SHELLPACK_DATA/linux-$KERNEL_VERSION || exit -1
 rm -f /tmp/mmtests-fragment-kernel-build-exit
 while [ ! -e /tmp/mmtests-fragment-kernel-build-exit ]; do
-	make -j$KBUILD_JOBS clean &> /dev/null
-	make -j$KBUILD_JOBS vmlinux &> /dev/null &
-	KBUILD_PID=\$!
-	echo \$KBUILD_PID > /tmp/mmtests-fragment-kernel-build-make-pid
-	wait
+	for PHASE in clean vmlinux modules; do
+		echo build-\$PHASE > /tmp/mmtests-fragment-kernel-build-status
+		make -j$KBUILD_JOBS \$PHASE &> /dev/null &
+		KBUILD_PID=\$!
+		echo \$KBUILD_PID > /tmp/mmtests-fragment-kernel-build-make-pid
+		wait
+	done
 done
 EOF
 	chmod a+x build-loop.sh
@@ -72,6 +141,7 @@ cleanup)
 	rm -f  /tmp/mmtests-fragment-kernel-build-loop-pid
 	rm -f  /tmp/mmtests-fragment-kernel-build-make-pid
 	rm -f  /tmp/mmtests-fragment-kernel-build-exit
+	rm -f  /tmp/mmtests-fragment-kernel-build-status
 	;;
 esac
 
