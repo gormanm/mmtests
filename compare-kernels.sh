@@ -2066,7 +2066,7 @@ compare-kernels.sh - Compare results between benchmarking runs
 
 =head1 SYNOPSIS
 
-compare-kernels.sh B[options]
+compare-kernels.sh B<[options]>
 
  Options:
   --baseline <testname>		Baseline test name, default is time ordered

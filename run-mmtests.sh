@@ -770,7 +770,7 @@ run-mmtests.sh - Install and execute a set of tests as specified by a configurat
 
 =head1 SYNOPSIS
 
-run-mmtests B[options] test-name
+run-mmtests B<[options]> test-name
 
  Options:
  -m, --run-monitors	Run with monitors enabled as specified by the configuration
