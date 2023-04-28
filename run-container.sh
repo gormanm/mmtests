@@ -239,6 +239,20 @@ function copy_results() {
 	${cli} cp ${container_id}:${c_mmtests_dir}/work/log/${runname} ${SHELLPACK_LOG_BASE}
 }
 
+function log_host_info() {
+	local host_log=${SHELLPACK_LOG_BASE}/${runname}/host
+
+	mkdir ${host_log}
+	dmesg > ${host_log}/dmesg
+	gzip -f ${host_log}/dmesg
+	journalctl -k 2>/dev/null > ${host_log}/journalctl-kernel
+	gzip -f ${host_log}/journalctl-kernel
+	cp /etc/os-release ${host_log}/
+
+	${cli} --version > ${host_log}/container_cli
+	runc --version >> ${host_log}/container_cli
+}
+
 function stop_container() {
 	if [ -n "${container_id}" ]; then
 		echo "Stopping container ${container_id}"
@@ -274,6 +288,7 @@ function main() {
 	else
 		run_mmtests
 		copy_results
+		log_host_info
 	fi
 	stop_container
 	cleanup_container_cli
