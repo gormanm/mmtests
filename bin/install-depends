@@ -101,6 +101,12 @@ my %force_install = (
 	"redhat" => "",
 );
 
+my %noninteractive_install = (
+	"suse" => "",
+	"debian" => "",
+	"redhat" => "",
+);
+
 my %allow_downgrade = (
 	"suse" => "",
 	"debian" => "",
@@ -229,6 +235,7 @@ foreach my $package (@ARGV) {
 		$force_install{"suse"} = "-y";
 		$force_install{"debian"} = "-y";
 		$force_install{"redhat"} = "-y";
+		$noninteractive_install{"debian"} = "DEBIAN_FRONTEND=noninteractive";
 	}
 
 	if ($ENV{"AUTO_PACKAGE_DOWNGRADE"} eq "yes" || -e $ENV{"HOME"} . "/.mmtests-auto-package-downgrade") {
@@ -236,8 +243,8 @@ foreach my $package (@ARGV) {
 	}
 
 	if (system("$check_package{$distro} $package >/dev/null 2>&1") != 0) {
-		if (system("$sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
-			if (system("$sudo $package_bin{$distro} $allow_downgrade{$distro} $force_install{$distro} $package") != 0) {
+		if (system("$noninteractive_install{$distro} $sudo $package_bin{$distro} $force_install{$distro} $package") != 0) {
+			if (system("$noninteractive_install{$distro} $sudo $package_bin{$distro} $allow_downgrade{$distro} $force_install{$distro} $package") != 0) {
 				print("WARNING: Failed to cleanly install package $package for distro $distro\n");
 				$exit_code = -1;
 			}
