@@ -194,6 +194,15 @@ function start_container() {
 	echo "container_id: ${container_id}"
 }
 
+# some distro specific preparations
+function update_container() {
+	if $(echo ${image} | grep -q ubuntu); then
+		${cli} exec ${container_id} apt-get update
+	elif $(echo ${image} | grep -q fedora); then
+		${cli} exec ${container_id} yum -y install perl
+	fi
+}
+
 function prepare_mmtests() {
 	echo "Copying and preparing mmtests"
 	c_mmtests_dir=/$(basename ${SCRIPTDIR})
@@ -258,6 +267,7 @@ function main() {
 	prepare_container_cli
 	pull_image
 	start_container
+	update_container
 	prepare_mmtests
 	if [ "${interactive}" = "true" ]; then
 		start_bash
