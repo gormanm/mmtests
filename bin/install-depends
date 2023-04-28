@@ -84,6 +84,9 @@ my %package_map = (
 	"redhat::openmpi-32bit"			=> "openmpi.i686",
 	"redhat::openmpi-32bit"			=> "openmpi.i686",
 	"redhat::tcsh"				=> "csh",
+	"redhat::netcat-openbsd"		=> "netcat",
+	"redhat::iproute2"			=> "iproute",
+	"redhat::procps"			=> "procps-ng",
 );
 
 my %package_bin = (
