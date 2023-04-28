@@ -686,6 +686,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	journalctl -k 2>/dev/null > $SHELLPACK_LOG/journalctl-kernel
 	gzip -f $SHELLPACK_LOG/journalctl-kernel
 	gzip -f $SHELLPACK_SYSSTATEFILE
+	cp /etc/os-release $SHELLPACK_LOG/
 
 	shutdown_numad
 	shutdown_tuned
