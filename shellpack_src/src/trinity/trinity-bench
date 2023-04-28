@@ -17,6 +17,8 @@ SYSCALL=
 ###SHELLPACK check_install_required trinity-${VERSION}
 ###SHELLPACK init_complete
 
+install-depends system-user-nobody
+
 # Default limit duration to 15 minutes of testing
 if [ "$DURATION" = "" ]; then
 	DURATION=900
