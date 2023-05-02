@@ -21,7 +21,10 @@ foreach my $memdir (</sys/devices/system/memory/memory*>) {
 		$nid = $nodedir =~ s/.*node//r;
 		$nr_nid++;
 	}
-	die("Bank belongs to multiple nodes ($nr_nid) or expectations violated\n") if $nr_nid != 1;
+	if ($nr_nid > 1) {
+		print STDERR "Ignoring memory bank $bank as it spans $nr_nid nodes\n";
+		next;
+	}
 
 	my $phys_index = hex (do { local( @ARGV, $/ ) = "$memdir/phys_index" ; <> });
 
