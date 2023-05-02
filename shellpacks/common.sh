@@ -863,7 +863,7 @@ function create_random_file() {
 	fi
 
 	echo Creating file $OUTPUT of size $((SIZE/1048576)) MB filled with garbage
-	dd if=/dev/urandom of=$SHELLPACK_TEMP/random_base_file ibs=1048575 count=20 2> /dev/null
+	dd if=/dev/urandom of=$SHELLPACK_TEMP/random_base_file ibs=1048576 count=20 2> /dev/null
 
 	if [ -e $OUTPUT ]; then
 		echo Removing existing $OUTPUT file

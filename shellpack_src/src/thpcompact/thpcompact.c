@@ -26,8 +26,8 @@
 #define PTR_ALIGN(p, a)         ((typeof(p))ALIGN((unsigned long)(p), (a)))
 #define HPAGE_ALIGN(p)          PTR_ALIGN(p, HPAGESIZE)
 
-size_t total_size;
-size_t thread_size;
+size_t anon_size, file_size;
+size_t anon_thread_size, file_thread_size;
 unsigned long *anon_init;
 unsigned long *file_init;
 int nr_hpages;
@@ -70,25 +70,24 @@ static void *worker(void *data)
 	char *first_mapping, *second_mapping, *file_mapping;
 	char *aligned, *end_mapping;
 	struct timeval tv_start, tv_end;
-	size_t second_size, file_size;
+	size_t second_size;
 	int task_nid, memory_nid;
 
-	second_size = thread_size / 2;
-	file_size = thread_size / 4;
+	second_size = anon_thread_size / 2;
 
 	gettimeofday(&tv_start, NULL);
 
 	/* Create a large mapping */
-	first_mapping = mmap(NULL, thread_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
+	first_mapping = mmap(NULL, anon_thread_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
 	if (first_mapping == MAP_FAILED) {
 		perror("First mapping");
 		exit(EXIT_FAILURE);
 	}
-	madvise(first_mapping, thread_size, MADV_HUGEPAGE);
-	memset(first_mapping, 1, thread_size);
+	madvise(first_mapping, anon_thread_size, MADV_HUGEPAGE);
+	memset(first_mapping, 1, anon_thread_size);
 
 	/* Align index to huge page boundary */
-	end_mapping = first_mapping + thread_size;
+	end_mapping = first_mapping + anon_thread_size;
 	aligned = HPAGE_ALIGN(first_mapping);
 	i = aligned - first_mapping;
 
@@ -124,19 +123,20 @@ static void *worker(void *data)
 		perror("open");
 		exit(EXIT_FAILURE);
 	}
-	file_mapping = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, thread_size*thread_idx);
+	printf("File %d Size 0x%lX Offset 0x%lX\n", thread_idx, file_thread_size, file_thread_size*thread_idx);
+	file_mapping = mmap(NULL, file_thread_size, PROT_READ, MAP_SHARED, fd, file_thread_size*thread_idx);
 	if (file_mapping == MAP_FAILED) {
 		perror("File mapping");
 		exit(EXIT_FAILURE);
 	}
-	for (i = 0; i < file_size; i += PAGESIZE)
+	for (i = 0; i < file_thread_size; i += PAGESIZE)
 		sum += file_mapping[i];
 
 	/* Record file init timings */
 	gettimeofday(&tv_end, NULL);
 	file_init[thread_idx] = timeval_to_us(&tv_end) - timeval_to_us(&tv_start);
 
-	printf("Artifical sum for offset 0x%016lX: %d\n", thread_size * thread_idx, sum);
+	printf("Artifical sum for offset 0x%016lX: %d\n", file_thread_size * thread_idx, sum);
 	fflush(NULL);
 
 	/* Wait for all threads to init */
@@ -177,8 +177,8 @@ static void *worker(void *data)
 	}
 
 	/* Cleanup */
-	munmap(file_mapping, file_size);
-	munmap(first_mapping, thread_size);
+	munmap(file_mapping, file_thread_size);
+	munmap(first_mapping, anon_thread_size);
 	munmap(second_mapping, second_size);
 	close(fd);
 
@@ -189,15 +189,16 @@ int main(int argc, char **argv)
 {
 	pthread_t *th;
 	int nr_threads, i, j;
-	if (argc != 5) {
-		printf("Usage: thpcompact [nr_threads] [total_size] [filename] [madvise_hugepage]\n");
+	if (argc != 6) {
+		printf("Usage: thpcompact [nr_threads] [anon_size] [file_size] [filename] [madvise_hugepage]\n");
 		exit(EXIT_FAILURE);
 	}
 
 	nr_threads = atoi(argv[1]);
-	total_size = atol(argv[2]);
-	filename = argv[3];
-	madvise_huge = atoi(argv[4]);
+	anon_size = atol(argv[2]);
+	file_size = atol(argv[3]);
+	filename = argv[4];
+	madvise_huge = atoi(argv[5]);
 	printf("Running with %d thread%c\n", nr_threads, nr_threads > 1 ? 's' : ' ');
 	anon_init = malloc(nr_threads * sizeof(unsigned long));
 	if (anon_init == NULL) {
@@ -211,14 +212,13 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	nr_hpages = total_size / nr_threads / HPAGESIZE / 2;
-	thread_size = (total_size / nr_threads) & ~(HPAGESIZE-1);
+	nr_hpages = anon_size / nr_threads / HPAGESIZE / 2;
+	anon_thread_size = (anon_size / nr_threads) & ~(HPAGESIZE-1);
+	file_thread_size = (file_size / nr_threads) & ~(HPAGESIZE-1);
 
-	if (thread_size * nr_threads > total_size) {
-		printf("file size %zd is insufficient for thread count; requires %ld bytes.\n",
-			total_size, thread_size * nr_threads);
-		exit(EXIT_FAILURE);
-	}
+	printf("Nr Threads:       %d\n",	nr_threads);
+	printf("Thread anon size: %lu\n",	anon_thread_size);
+	printf("Thread file size: %lu\n",	file_thread_size);
 
 	th = malloc(nr_threads * sizeof(pthread_t));
 	if (th == NULL) {

@@ -5,7 +5,8 @@
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam	--min-threads	THPCOMPACT_MIN_THREADS
 ###SHELLPACK parseargParam	--max-threads	THPCOMPACT_MAX_THREADS
-###SHELLPACK parseargParam	--mapsize	THPCOMPACT_MAPSIZE
+###SHELLPACK parseargParam	--anon-mapsize	THPCOMPACT_ANONSIZE
+###SHELLPACK parseargParam	--file-mapsize	THPCOMPACT_FILESIZE
 ###SHELLPACK parseargParam	--madv-huge	THPCOMPACT_MADV_HUGEPAGE
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
@@ -13,7 +14,15 @@
 ###SHELLPACK check_install_required thpcompact-${VERSION}
 ###SHELLPACK init_complete
 
-create_random_file $((THPCOMPACT_MAPSIZE+1048576*16)) $SHELLPACK_DATA/workfile
+ALIGN=$((2*1048576*THPCOMPACT_MAX_THREADS))
+THPCOMPACT_FILESIZE=$(((THPCOMPACT_FILESIZE+ALIGN)&~(ALIGN-1)))
+
+# Increase max map count to account for hole punching
+sysctl vm.max_map_count=$((THPCOMPACT_ANONSIZE*2/1048576))
+
+create_random_file $THPCOMPACT_FILESIZE $SHELLPACK_DATA/workfile
+echo Total anon: $((THPCOMPACT_ANONSIZE/1048576)) MB
+echo Total file: $((THPCOMPACT_FILESIZE/1048576)) MB
 
 MADV_HUGEPAGE=0
 if [ "$THPCOMPACT_MADV_HUGEPAGE" = "yes" ]; then
@@ -25,9 +34,10 @@ fi
 	echo 3 > /proc/sys/vm/drop_caches
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	echo Starting $NR_THREADS/$THPCOMPACT_MAX_THREADS
-	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time \
-		./thpcompact $NR_THREADS $THPCOMPACT_MAPSIZE $SHELLPACK_DATA/workfile $MADV_HUGEPAGE \
-			> $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
+	BENCH_CMD="./thpcompact $NR_THREADS $THPCOMPACT_ANONSIZE $THPCOMPACT_FILESIZE $SHELLPACK_DATA/workfile $MADV_HUGEPAGE"
+	log_cmd "$BENCH_CMD"
+	$TIME_CMD -o $LOGDIR_RESULTS/threads-${NR_THREADS}.time 		\
+		$BENCH_CMD > $LOGDIR_RESULTS/threads-${NR_THREADS}.log 2>&1
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	gzip $LOGDIR_RESULTS/threads-${NR_THREADS}.log
 ###SHELLPACK threads_stride_end

@@ -8,7 +8,7 @@
 install-depends libnuma-devel
 
 mkdir $SHELLPACK_SOURCES/thpcompact-${VERSION}-installed
-gcc -Wall -lpthread -lnuma $SHELLPACK_TEMP/thpcompact.c -o $SHELLPACK_SOURCES/thpcompact-${VERSION}-installed/thpcompact || \
+gcc -Wall -g -lpthread -lnuma $SHELLPACK_TEMP/thpcompact.c -o $SHELLPACK_SOURCES/thpcompact-${VERSION}-installed/thpcompact || \
 	die "Failed to build thpcompact"
 
 echo thpcompact installed successfully

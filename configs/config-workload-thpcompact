@@ -1,21 +1,21 @@
 ### This a benchmark that stresses THP allocations in a specific manner.
 ###
-### THPCOMPACT_MAPSIZE is split based on the number of active threads at
+### THPCOMPACT_ANONSIZE is split based on the number of active threads at
 ### each stage of the test. The active memory for a thread is referred
-### to as THREAD_MAPSIZE
+### to as THREAD_ANONSIZE
 ###
-### 1. It first creates a large THREAD_MAPSIZE anonymous mapping that is THP
+### 1. It first creates a large THREAD_ANONSIZE anonymous mapping that is THP
 ###    aligned, specifies madvise(MADV_HUGEPAGE) and faults it. It then punches
 ###    holes in the (hopefully) THP mapping that are naturally aligned and
 ###    half the size of a THP. This mapping is a migration source that frees
 ###    pageblocks as the pages are moved. At this point, the migration source
 ###    only has anonymous pages.
 ###
-### 2. It then creates a THREAD_MAPSIZE/2 anonymous mapping that is not yet
+### 2. It then creates a THREAD_ANONSIZE/2 anonymous mapping that is not yet
 ###    faulted. The size of this mapping represents the sum of the holes created
 ###    in step 1.
 ###
-### 3. A file mapping is created of size THREAD_MAPSIZE/4 and the file is
+### 3. A file mapping is created of size THREAD_FILE and the file is
 ###    read-faulted. These are also potential migration sources as some of
 ###    the holes will be used to store file-backed pages.
 ###
@@ -53,6 +53,7 @@ export THPCOMPACT_MAX_THREADS=$((NUMCPUS*4))
 if [ $THPCOMPACT_MAX_THREADS -gt 32 ]; then
 	export THPCOMPACT_MAX_THREADS=32
 fi
-export THPCOMPACT_MAPSIZE=$((MEMTOTAL_BYTES*8/10))
+export THPCOMPACT_ANONSIZE=$((MEMTOTAL_BYTES*8/10))
+export THPCOMPACT_FILESIZE=$((THPCOMPACT_ANONSIZE/4))
 
-export TESTDISK_MIN_SIZE=$((THPCOMPACT_MAPSIZE*5/4))
+export TESTDISK_MIN_SIZE=$((THPCOMPACT_FILESIZE*5/4))
