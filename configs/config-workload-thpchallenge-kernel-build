@@ -28,12 +28,13 @@ export MONITORS_GZIP="proc-vmstat proc-buddyinfo proc-pagetypeinfo ftrace mpstat
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=1
 
-# Limit memory to 10GB so kernel build occupies some memory required
-# for THP allocations
-# memory required for THP allocations
+# Limit memory to 16GB so kernel build occupies some memory required
+# for THP allocations. This is not ideal as limited to memory hotplug
+# will not always work but booting mem= can leave assymetric node
+# sizes in NUMA machines.
 . $SHELLPACK_INCLUDE/include-sizes.sh
 get_numa_details
-limit_memory $((12*1048576*1024))
+limit_memory $((16*1048576*1024))
 
 # thpchallenge
 export THPCHALLENGE_BACKGROUND="kernel-build"

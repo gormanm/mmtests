@@ -29,10 +29,10 @@ export MONITORS_GZIP="proc-vmstat proc-buddyinfo proc-pagetypeinfo ftrace mpstat
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=1
 
-# Limit memory to 8GB per node to save storage and limit runtime
+# Limit memory to 16GB per node to save storage and limit runtime
 . $SHELLPACK_INCLUDE/include-sizes.sh
 get_numa_details
-limit_memory $((8*1048576*1024*NUMNODES))
+limit_memory $((16*1048576*1024*NUMNODES))
 
 # thpchallenge
 export THPCHALLENGE_BACKGROUND="fio-random-reader-inefficient"

@@ -111,7 +111,8 @@ done
 
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk "{print \\$\$FREE_FIELD}"`
 if [ $MEMTOTAL_BYTES -gt $LIMIT ]; then
-	echo Unable to limit memory, suggest booting with mem=$((MEMTOTAL_BYTES/1048576))M
+	free -m
+	echo FAILED: Unable to limit memory, suggest booting with mem=$((LIMIT/1048576))M
 	exit -1
 fi
 
