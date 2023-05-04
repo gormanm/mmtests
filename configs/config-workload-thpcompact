@@ -40,7 +40,22 @@ export MMTESTS="thpcompact"
 #export TESTDISK_MOUNT_ARGS=inode64,delaylog,logbsize=262144,nobarrier
 
 # List of monitors
-export MONITOR_FTRACE_EVENTS="compaction/mm_compaction_begin compaction/mm_compaction_deferred compaction/mm_compaction_defer_reset compaction/mm_compaction_end compaction/mm_compaction_finished compaction/mm_compaction_suitable compaction/mm_compaction_kcompactd_wake compaction/mm_compaction_kcompactd_sleep compaction/mm_compaction_wakeup_kcompactd compaction/mm_compaction_try_to_compact_pages kmem/mm_page_alloc_extfrag"
+export MONITOR_FTRACE_EVENTS="
+	compaction/mm_compaction_begin
+	compaction/mm_compaction_defer_compaction
+	compaction/mm_compaction_deferred
+	compaction/mm_compaction_defer_reset
+	compaction/mm_compaction_end
+	compaction/mm_compaction_finished
+	compaction/mm_compaction_isolate_freepages
+	compaction/mm_compaction_isolate_migratepages
+	compaction/mm_compaction_kcompactd_sleep
+	compaction/mm_compaction_kcompactd_wake
+	compaction/mm_compaction_migratepages
+	compaction/mm_compaction_suitable
+	compaction/mm_compaction_try_to_compact_pages
+	compaction/mm_compaction_wakeup_kcompactd
+	kmem/mm_page_alloc_extfrag"
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat proc-buddyinfo proc-pagetypeinfo ftrace mpstat"
