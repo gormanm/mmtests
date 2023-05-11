@@ -56,10 +56,10 @@ fi
 
 cd $DATADIR || exit -1
 if [ ! -e wal ]; then
-	die No wal file
+	die "No wal file"
 fi
 if [ ! -e data ]; then
-	due No data file
+	die "No data file"
 fi
 
 echo Dropping caches for a cold run
