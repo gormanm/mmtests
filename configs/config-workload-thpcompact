@@ -58,7 +58,7 @@ export MONITOR_FTRACE_EVENTS="
 	kmem/mm_page_alloc_extfrag"
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat proc-buddyinfo proc-pagetypeinfo ftrace mpstat"
+export MONITORS_GZIP="proc-vmstat proc-buddyinfo proc-pagetypeinfo mpstat"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=1
 
