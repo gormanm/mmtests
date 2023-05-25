@@ -76,6 +76,7 @@ log_linkages ./wrf.exe
 monitor_pre_hook $LOGDIR_RESULTS $SPECFEM3D_MODEL
 case $WRF_MODEL in
 conus12km)
+	ulimit -n 1048576
 	cd $SHELLPACK_SOURCES/wrf-$VERSION-installed/test/em_real_bench
 	save_rc $TIME_CMD -o $LOGDIR_RESULTS/wrf-time.$WRF_MODEL   \
 		$BENCH_CMD 2>&1 | tee $LOGDIR_RESULTS/wrf-log.$WRF_MODEL
