@@ -19,8 +19,7 @@ sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my $iteration = 0;
 
-	my $input = $self->SUPER::open_log($file);
-	open($input, "$reportDir/graph500.log");
+	my $input = $self->SUPER::open_log("$reportDir/graph500.log");
 	while (!eof($input)) {
 		my $line = <$input>;
 
