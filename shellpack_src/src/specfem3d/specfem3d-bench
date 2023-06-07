@@ -17,6 +17,8 @@ if [ "$INSTALL_ONLY" = "yes" ]; then
 	rm -rf $SHELLPACK_DATA/model-$SPECFEM3D_MODEL
 fi
 
+ulimit -n 1048576
+
 if [ ! -e $SHELLPACK_DATA/model-$SPECFEM3D_MODEL ]; then
 	case $SPECFEM3D_MODEL in
 	small_s362)
