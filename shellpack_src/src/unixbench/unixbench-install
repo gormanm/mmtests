@@ -1,13 +1,13 @@
 #!/bin/bash
 ###SHELLPACK preamble unixbench-install 5.1.3
-WEB_LOCATION=http://www.skynet.ie/~mel/mmtests-archive/unixbench
+WEB_LOCATION=https://github.com/kdlucas/byte-unixbench/archive/refs/tags
 MIRROR_LOCATION="$WEBROOT/unixbench/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
 rm -rf $SHELLPACK_SOURCES/unixbench-${VERSION}
-###SHELLPACK sources_fetch UnixBench${VERSION}.tgz unixbench-${VERSION}-installed
+###SHELLPACK sources_fetch v{VERSION}.tar.gz unixbench-${VERSION}-installed
 
 ###SHELLPACK build_start unixbench-${VERSION}-installed
 
