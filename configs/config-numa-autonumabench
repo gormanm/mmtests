@@ -74,3 +74,6 @@ export MONITOR_UPDATE_FREQUENCY=10
 export MONITOR_PERF_EVENTS=node-load-misses,node-store-misses
 
 export AUTONUMABENCH_ITERATIONS=7
+
+# when run in container
+export CONTAINER_CAP_SYS_NICE=yes

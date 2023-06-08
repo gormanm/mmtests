@@ -11,3 +11,6 @@ export MONITOR_PERF_EVENTS=node-load-misses,node-store-misses
 
 export AUTONUMABENCH_ITERATIONS=7
 export AUTONUMA_TESTS=NUMA01_THREADLOCAL
+
+# when run in container
+export CONTAINER_CAP_SYS_NICE=yes

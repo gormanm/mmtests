@@ -10,3 +10,6 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # rtmigration
 export RTMIGRATION_DURATION=20
+
+# when run in container
+export CONTAINER_CAP_SYS_NICE=yes
