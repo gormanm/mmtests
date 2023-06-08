@@ -10,3 +10,6 @@ export MONITOR_UPDATE_FREQUENCY=10
 # sembench
 export SEMBENCH_MIN_THREADS=2
 export SEMBENCH_MAX_THREADS=$((NUMCPUS*64))
+
+# when run in container
+export CONTAINER_NO_PIDS_LIMIT=yes

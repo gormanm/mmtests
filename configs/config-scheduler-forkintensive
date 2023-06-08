@@ -25,3 +25,6 @@ if [ $HACKBENCH_MAX_GROUPS -gt 296 ]; then
 fi
 export HACKBENCH_LOOPS=1000
 export MMTESTS_THREAD_CUTOFF=
+
+# when run in container
+export CONTAINER_NO_PIDS_LIMIT=yes
