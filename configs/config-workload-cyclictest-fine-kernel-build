@@ -25,3 +25,7 @@ export MONITOR_UPDATE_FREQUENCY=10
 # cyclictest
 export CYCLICTEST_DURATION=120
 export CYCLICTEST_BACKGROUND=kernel-build
+
+# when run in container
+export CONTAINER_CAP_SYS_NICE=yes
+export CONTAINER_CAP_IPC_LOCK=yes
