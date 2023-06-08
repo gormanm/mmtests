@@ -4,6 +4,7 @@
 # script to run mmtests test in container
 
 set ${MMTESTS_SH_DEBUG:-+x}
+shopt -s extglob
 
 function parse_args() {
 	declare -ga CONFIGS
@@ -204,18 +205,18 @@ function update_container() {
 }
 
 function prepare_mmtests() {
+	local i
 	echo "Copying and preparing mmtests"
 	c_mmtests_dir=/$(basename ${SCRIPTDIR})
 
-	${cli} cp ${SCRIPTDIR} ${container_id}:${c_mmtests_dir}
+	${cli} exec ${container_id} mkdir -p ${c_mmtests_dir}/work
+	for i in $(ls -d ${SCRIPTDIR}/!(work)); do
+		${cli} cp $i ${container_id}:${c_mmtests_dir}/
+	done
 	${cli} exec ${container_id} touch ~/.mmtests-auto-package-install
 	${cli} exec ${container_id} touch ~/.mmtests-auto-package-downgrade
 	${cli} exec -w /root ${container_id} \
-	       bash -c "echo -e \"[http]\n\tsslVerify = false\n\" > .gitconfig"
-	${cli} exec -w ${c_mmtests_dir} ${container_id} \
-	       rm -rf work
-	${cli} exec -w ${c_mmtests_dir} ${container_id} \
-	       mkdir work
+	       bash -c "echo -e \"[http]\n\tsslVerify = false\" > .gitconfig"
 	# point to bind mounted testdisk
 	${cli} exec -w ${c_mmtests_dir} ${container_id} \
 	       ln -s /testdisk work/testdisk
