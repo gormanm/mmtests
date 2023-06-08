@@ -71,6 +71,8 @@ function prolog() {
 	export PATH="${SCRIPTDIR}/bin:${PATH}"
 	# import variables
 	source ${SCRIPTDIR}/shellpacks/common-config.sh
+	# import helpers, e.g. import_configs
+	source ${SCRIPTDIR}/shellpacks/common.sh
 	runname=${runname:-default}
 	image=${image:-autoselect}
 	cli=${MMTESTS_CONTAINER_CLI:-podman}
@@ -79,6 +81,10 @@ function prolog() {
 		exit 22
 	fi
 	install-depends awk
+}
+
+function import_config() {
+	import_configs
 }
 
 # https://www.freedesktop.org/software/systemd/man/os-release.html
@@ -182,14 +188,30 @@ function pull_image() {
 	${cli} pull ${image}
 }
 
-function start_container() {
-	echo "Starting container"
+function set_runargs() {
+	runargs=""
 
-	# mount testdisk in host system
+	# unlimited pids.max
+	if [ "${CONTAINER_NO_PIDS_LIMIT}" = "true" -o \
+	     "${CONTAINER_NO_PIDS_LIMIT}" = "yes" ]; then
+		runargs="--pids-limit -1"
+	fi
+
+	if [ -n "${runargs}" ]; then
+		echo "Additional args: \"${runargs}\""
+	fi
+}
+
+function start_container() {
+	echo "Mounting testdisk"
 	./run-mmtests.sh ${monitor} --mount-only -c ${CONFIGS[0]} ${runname}-tmp
 	rm -rf ${SHELLPACK_LOG_BASE}/${runname}-tmp
+
+	set_runargs
+
+	echo "Starting container"
 	# bind mount testdisk in container
-	container_id=$(${cli} run -t -d --pids-limit -1 \
+	container_id=$(${cli} run -t -d ${runargs} \
 			      --mount type=bind,source=${SHELLPACK_TEST_MOUNT},target=/testdisk \
 			      ${image})
 	echo "container_id: ${container_id}"
@@ -278,6 +300,7 @@ function cleanup_container_cli() {
 function main() {
 	parse_args "$@"
 	prolog
+	import_config
 	check_os_version
 	prepare_container_cli
 	pull_image
