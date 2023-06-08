@@ -197,6 +197,18 @@ function set_runargs() {
 		runargs="--pids-limit -1"
 	fi
 
+	# allow to increase scheduling priority or to change scheduling policy
+	if [ "${CONTAINER_CAP_SYS_NICE}" = "true" -o \
+	     "${CONTAINER_CAP_SYS_NICE}" = "yes" ]; then
+		runargs="${runargs} --cap-add=sys_nice"
+	fi
+
+	# allow use of mlockall
+	if [ "${CONTAINER_CAP_IPC_LOCK}" = "true" -o \
+	     "${CONTAINER_CAP_IPC_LOCK}" = "yes" ]; then
+		runargs="${runargs} --cap-add=ipc_lock"
+	fi
+
 	if [ -n "${runargs}" ]; then
 		echo "Additional args: \"${runargs}\""
 	fi
