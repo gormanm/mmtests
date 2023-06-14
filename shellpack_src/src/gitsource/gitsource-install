@@ -16,8 +16,61 @@ shellpack-check-libz
 if [ -e .git ]; then
 	git checkout $VERSION || die Failed to checkout version $VERSION
 fi
+
+###SHELLPACK self_extract Gitsource-t0021-make-sure-clean-filter-runs.patch
+cat $SHELLPACK_TEMP/Gitsource-t0021-make-sure-clean-filter-runs.patch | patch -p1 || \
+	die Failed to apply gitsource t0021-make-sure-clean-filter-runs  patch
+
 make configure || die Failed to run make configure
 ###SHELLPACK build_configure gitsource-${VERSION}
 ###SHELLPACK make
 
 echo gitsource installed successfully
+exit $SHELLPACK_SUCCESS
+
+==== BEGIN Gitsource-t0021-make-sure-clean-filter-runs.patch ====
+Author: Thomas Gummerer <t.gummerer@gmail.com>
+Date:   Thu Aug 22 20:22:40 2019 +0100
+
+    t0021: make sure clean filter runs
+    
+    In t0021.15 one of the things we are checking is that the clean filter
+    is run when checking out empty-branch.  The clean filter needs to be
+    run to make sure there are no modifications on the file system for the
+    test.r file, and thus it isn't dangerous to overwrite it.
+    
+    However in the current test setup it is not always necessary to run
+    the clean filter, and thus the test sometimes fails, as debug.log
+    isn't written.
+    
+    This happens when test.r has an older mtime than the index itself.
+    That mtime is also recorded as stat data for test.r in the index, and
+    based on the heuristic we're using for index entries, git correctly
+    assumes this file is up-to-date.
+    
+    Usually this test succeeds because the mtime of test.r is the same as
+    the mtime of the index.  In this case test.r is racily clean, so git
+    actually checks the contents, for which the clean filter is run.
+    
+    Fix the test by updating the mtime of test.r, so git is forced to
+    check the contents of the file, and the clean filter is run as the
+    test expects.
+    
+    Signed-off-by: Thomas Gummerer <t.gummerer@gmail.com>
+    Signed-off-by: Junio C Hamano <gitster@pobox.com>
+
+diff --git a/t/t0021-conversion.sh b/t/t0021-conversion.sh
+index e10f5f787f..c954c709ad 100755
+--- a/t/t0021-conversion.sh
++++ b/t/t0021-conversion.sh
+@@ -390,6 +390,9 @@ test_expect_success PERL 'required process filter should filter data' '
+ 		EOF
+ 		test_cmp_exclude_clean expected.log debug.log &&
+ 
++		# Make sure that the file appears dirty, so checkout below has to
++		# run the configured filter.
++		touch test.r &&
+ 		filter_git checkout --quiet --no-progress empty-branch &&
+ 		cat >expected.log <<-EOF &&
+ 			START
+==== END Gitsource-t0021-make-sure-clean-filter-runs.patch ====
