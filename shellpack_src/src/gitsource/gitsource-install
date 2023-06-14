@@ -4,6 +4,7 @@ GIT_LOCATION=https://github.com/git/git
 MIRROR_LOCATION="$WEBROOT/gitsource/"
 
 install-depends libcurl-devel gettext-runtime glibc-locale python
+install-depends unzip perl-IO-Tty acl perl-libintl-perl
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
