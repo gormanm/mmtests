@@ -3,7 +3,7 @@
 GIT_LOCATION=https://github.com/git/git
 MIRROR_LOCATION="$WEBROOT/gitsource/"
 
-install-depends libcurl-devel gettext-runtime
+install-depends libcurl-devel gettext-runtime glibc-locale python
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
