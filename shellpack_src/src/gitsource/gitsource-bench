@@ -20,6 +20,9 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
+export NO_SVN_TESTS=skip
+export GIT_SKIP_TESTS="t9010.22 t9010.23"
+
 echo Warming run
 make test > $LOGDIR_RESULTS/warmup.log 2>&1
 tail $LOGDIR_RESULTS/warmup.log
