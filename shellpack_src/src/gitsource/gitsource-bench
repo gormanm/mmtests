@@ -5,7 +5,8 @@
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-###SHELLPACK parseargParam	--iterations GITSOURCE_ITERATIONS
+###SHELLPACK parseargParam	--iterations  GITSOURCE_ITERATIONS
+###SHELLPACK parseargYes	--skip-warmup GITSOURCE_SKIP_WARMUP
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -30,9 +31,11 @@ if [ ! -e $USERRUNDIR ]; then
 	mkdir -p $USERRUNDIR
 fi
 
-echo Warming run
-make test > $LOGDIR_RESULTS/warmup.log 2>&1
-tail $LOGDIR_RESULTS/warmup.log
+if [ "$GITSOURCE_SKIP_WARMUP" = "no" ]; then
+	echo Warming run
+	make test > $LOGDIR_RESULTS/warmup.log 2>&1
+	tail $LOGDIR_RESULTS/warmup.log
+fi
 
 monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $GITSOURCE_ITERATIONS
