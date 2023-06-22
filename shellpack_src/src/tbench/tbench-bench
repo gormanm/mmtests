@@ -64,7 +64,6 @@ LOADDIR=$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share
 
 server_stop 0
 ###SHELLPACK threads_powertwo_begin $TBENCH_MIN_CLIENTS $TBENCH_MAX_CLIENTS
-	mmtests_activity $NR_THREADS
 	echo tbench run $NR_THREADS
 	server_start $NR_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS

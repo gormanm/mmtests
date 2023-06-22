@@ -31,7 +31,7 @@ echo $FUTEXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 
 ###SHELLPACK threads_large_stride_begin $FUTEXBENCH_MIN_THREADS $FUTEXBENCH_MAX_THREADS
 	for WORKLOAD in $FUTEXBENCH_WORKLOADS; do
-		mmtests_activity $WORKLOAD-$NR_THREADS
+		mmtests_activity $WORKLOAD
 		echo "Running test $WORKLOAD (shared=$FUTEXBENCH_SHARED)"
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 

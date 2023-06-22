@@ -21,7 +21,6 @@ SCHBENCH_ITERATIONS=1
 ###SHELLPACK init_complete
 
 ###SHELLPACK threads_powertwo_begin 1 $SCHBENCH_THREADS
-	mmtests_activity $NR_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
 	###SHELLPACK iteration_begin $SCHBENCH_ITERATIONS

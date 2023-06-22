@@ -204,6 +204,7 @@ ulimit -n 16384
 	FIRST_TIME=no
 
 	if [ "$RUN_CACHE_COLD" = "yes" ]; then
+		mmtests_activity cache cold
 		echo Stopping database to drop cache
 		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
 
@@ -235,7 +236,7 @@ ulimit -n 16384
 	fi
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	mmtests_activity $NR_THREADS
+	mmtests_activity workload
 	echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions
 	start_deferred_monitors "$NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions"
 	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS} \

@@ -108,7 +108,6 @@ server_start
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $REDIS_MEMTIER_ITERATIONS
-		mmtests_activity $NR_THREADS-$ITERATION
 		echo Running test $NR_THREADS threads iteration $ITERATION/$REDIS_MEMTIER_ITERATIONS
 		eval $BENCH_CMD &> $LOGDIR_RESULTS/redis-memtier-${NR_THREADS}-${ITERATION}.log
 	###SHELLPACK iteration_end

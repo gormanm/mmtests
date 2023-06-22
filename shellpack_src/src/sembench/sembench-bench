@@ -30,7 +30,7 @@ echo $SEMBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 
 	NR_WAKEUPS=$(($NR_THREADS / $WAKEUP_FACTOR))
 	for WORKLOAD in $SEMBENCH_WORKLOADS; do
-		mmtests_activity $WORKLOAD $NR_THREADS
+		mmtests_activity $WORKLOAD
 		if [ $WORKLOAD = "sem" ]; then
 			WORKLOAD_NUM=0
 		fi

@@ -33,7 +33,7 @@ ln -s $PWD/bin/hello /tmp/hello
 		log_cmd $BENCH_CMD
 
 		monitor_pre_hook $LOGDIR_RESULTS $PROC-$NR_THREADS
-		mmtests_activity lat_proc-$PROC-$NR_THREADS
+		mmtests_activity lat_proc-$PROC
 		for ITERATION in `seq 1 $LMBENCH_LATPROC_ITERATIONS`; do
 			echo Running $PROC with $NR_THREADS threads iter $ITERATION/$LMBENCH_LATPROC_ITERATIONS
 			./bin/$BENCH_CMD &>> $LOGDIR_RESULTS/lmbench-lat_proc-${NR_THREADS}.log

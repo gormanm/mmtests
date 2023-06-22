@@ -28,9 +28,9 @@ echo $PERFNUMA_WORKLOADS > $LOGDIR_RESULTS/workloads
 PERFNUMA_PROCESS_WSS=$((PERFNUMA_PROCESS_WSS/1048576))
 
 for WORKLOAD in $PERFNUMA_WORKLOADS; do
+mmtests_activity $WORKLOAD
 ###SHELLPACK iteration_begin $PERFNUMA_ITERATIONS
 	echo Running workload $WORKLOAD iteration $ITERATION/$PERFNUMA_ITERATIONS
-	mmtests_activity $WORKLOAD-$ITERATION
 	monitor_pre_hook $LOGDIR_RESULTS $WORKLOAD
 	case $WORKLOAD in
 	light_converge)

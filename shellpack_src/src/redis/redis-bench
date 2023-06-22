@@ -105,7 +105,6 @@ server_start
 	log_cmd $BENCH_CMD
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $REDIS_ITERATIONS
-		mmtests_activity $NR_THREADS-$ITERATION
 		echo Running test $NR_THREADS threads iteration $ITERATION/$REDIS_ITERATIONS
 		eval $BENCH_CMD &> $LOGDIR_RESULTS/redis-${NR_THREADS}-${ITERATION}.log
 	###SHELLPACK iteration_end

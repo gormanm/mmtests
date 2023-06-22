@@ -25,7 +25,7 @@ export UB_TESTDIR=$SHELLPACK_DATA
 
 ###SHELLPACK threads_min_max_stride_begin $UNIXBENCH_MIN_THREADS $UNIXBENCH_MAX_THREADS
 	for WORKLOAD in $UNIXBENCH_WORKLOADS; do
-		mmtests_activity $WORKLOAD-$NR_THREADS
+		mmtests_activity $WORKLOAD
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 		###SHELLPACK iteration_begin $UNIXBENCH_ITERATIONS
 			echo Running test $WORKLOAD iteration $ITERATION/$UNIXBENCH_ITERATIONS

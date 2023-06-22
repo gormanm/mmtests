@@ -70,10 +70,10 @@ if [ "$PROTOCOL" = "UDP_STREAM" ]; then
 fi
 
 for SIZE in $BUFFER_SIZES; do
+mmtests_activity size $SIZE
 monitor_pre_hook $LOGDIR_RESULTS $SIZE
 mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 ###SHELLPACK iteration_begin $ITERATIONS
-	mmtests_activity size $SIZE
 	MSGSIZE_OPT=
 	SOCKETSIZE_OPT=
 	if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" -o "$PROTOCOL" = "STREAM_STREAM" ]; then

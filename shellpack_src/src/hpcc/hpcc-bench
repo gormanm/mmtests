@@ -83,7 +83,6 @@ log_cmd $BENCH_CMD
 
 monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $HPCC_ITERATIONS
-	mmtests_activity hpcc-$ITERATION
 	echo Running hpcc iteration $ITERATION/$HPCC_ITERATIONS
 	eval $TIME_CMD -o $LOGDIR_RESULTS/time-${ITERATION} \
 		$BENCH_CMD 2>&1 | tee $LOGDIR_RESULTS/hpcc-${ITERATION}.log

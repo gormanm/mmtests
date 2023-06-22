@@ -44,7 +44,6 @@ io-class-parallel)
 esac
 
 ###SHELLPACK threads_powertwo_begin $STRESSNG_MIN_THREADS $STRESSNG_MAX_THREADS
-	mmtests_activity $NR_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	BENCH_CMD=" ./stress-ng $TESTSWITCH $NR_THREADS --timeout ${STRESSNG_RUNTIME}s --metrics-brief"
 	log_cmd $BENCH_CMD

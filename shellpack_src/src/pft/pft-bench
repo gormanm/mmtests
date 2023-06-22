@@ -22,7 +22,6 @@ fi
 
 cd $SHELLPACK_SOURCES/pft-${VERSION}-installed || die Failed to cd to pft directory
 ###SHELLPACK threads_large_stride_begin $PFT_MIN_CLIENTS $PFT_MAX_CLIENTS
-	mmtests_activity client ${NR_THREADS}
 	BENCH_CMD="./pft -m $PFT_MAPPING_SIZE $PFT_CLIENT_SWITCH $NR_THREADS"
 	log_cmd $BENCH_CMD
 

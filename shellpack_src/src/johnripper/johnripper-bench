@@ -16,8 +16,6 @@
 
 cd $SHELLPACK_SOURCES/johnripper-${VERSION}-installed/run || die "Failed to cd to johnripper install directory"
 ###SHELLPACK threads_huge_stride_begin $JOHNRIPPER_MIN_THREADS $JOHNRIPPER_MAX_THREADS
-	mmtests_activity client $NR_THREADS/$JOHNRIPPER_MAX_THREADS	
-
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $JOHNRIPPER_ITERATIONS
 		echo Starting iteration $ITERATION/$JOHNRIPPER_ITERATIONS threads $NR_THREADS/$JOHNRIPPER_MAX_THREADS
