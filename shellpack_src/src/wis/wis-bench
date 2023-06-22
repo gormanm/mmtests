@@ -26,7 +26,7 @@ IFS=',' read -a ALL_WORKLOADS <<< "$WIS_WORKLOADS"
 
 for WORKLOAD in ${ALL_WORKLOADS[@]}
 do
-	###SHELLPACK threads_large_stride_begin $WIS_MIN_THREADS $WIS_MAX_THREADS $WIS_ITERATIONS
+	###SHELLPACK threads_large_stride_begin $WIS_MIN_THREADS $WIS_MAX_THREADS
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 		echo Running test $WORKLOAD
 		for MODEL in ${ALL_MODELS[@]}

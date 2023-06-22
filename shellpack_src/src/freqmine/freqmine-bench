@@ -18,7 +18,7 @@ TESTLIST=
 ###SHELLPACK check_install_required freqmine-${VERSION}
 ###SHELLPACK init_complete
 
-###SHELLPACK threads_large_stride_begin $FREQMINE_MIN_THREADS $FREQMINE_MAX_THREADS $FREQMINE_ITERATIONS
+###SHELLPACK threads_large_stride_begin $FREQMINE_MIN_THREADS $FREQMINE_MAX_THREADS
 	for SIZE in $FREQMINE_SIZE; do
 		echo "Running $SIZE workload";
 		#

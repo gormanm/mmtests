@@ -47,7 +47,7 @@ else
 	gzip -dc $SHELLPACK_TEMP/in.file.gz >$SHELLPACK_DATA/in.file || die Failed to decompress source file
 fi
 
-###SHELLPACK threads_large_stride_begin $DEDUP_MIN_THREADS $DEDUP_MAX_THREADS $DEDUP_ITERATIONS
+###SHELLPACK threads_large_stride_begin $DEDUP_MIN_THREADS $DEDUP_MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $DEDUP_ITERATIONS
 		echo Starting threads $NR_THREADS/$DEDUP_MAX_THREADS iteration $ITERATION/$DEDUP_ITERATIONS
