@@ -1,0 +1,113 @@
+#!/usr/bin/env python
+# Copyright (c) 2023, Oracle and/or its affiliates.
+
+import argparse
+import re
+import sys
+import textwrap
+
+# The common format across much of monitors/.
+monitor_re = re.compile(r'^time: (\d+)')
+
+# Scrapes the printf in latency-output.
+monitor_lat_re = re.compile(r'^\s*(\d+)\.\d{4}\s+\d+\.\d{4}\s+\d+\.\d{4} -- ')
+
+
+def get_time(line, is_activity):
+    if is_activity:
+        # tests-activity files have 'date +%s' as the first token in a line.
+        # The explicit arg avoids false positives from matching the first
+        # number in a monitor log line.
+        time = int(line.split()[0])
+        return time
+
+    match = monitor_re.match(line)
+    if match:
+        time = int(match.group(1))
+        return time
+
+    match = monitor_lat_re.match(line)
+    if match:
+        time = int(match.group(1))
+        return time
+
+    return None
+
+
+def find_next_time(f, is_activity):
+    '''Finds the next line with a "`date +%s`" timestamp, printing lines before
+    it.  @is_activity indicates the file is a tests-activity file.
+
+    If a time is found, returns a tuple with the time as an int and the line
+    containing the timestamp; otherwise, returns a tuple with None and the last
+    line searched.'''
+
+    time = None
+    line = ''
+
+    for line in f:
+        time = get_time(line, is_activity)
+        if time:
+            break
+        print(line.strip())
+
+    return (time, line)
+
+
+def write_split_log(activity_f, log_f):
+    a_time, a_line = find_next_time(activity_f, True)
+    l_time, l_line = find_next_time(log_f, False)
+
+    while True:
+        if not a_time:
+            # No more activity lines, print the rest of the log lines.
+            if l_line:
+                print(l_line.strip())
+            for l_line in log_f:
+                print(l_line.strip())
+            return
+
+        if not l_time:
+            # No more log lines, print the rest of the activity lines.
+            if a_line:
+                print(a_line.strip())
+            for a_line in activity_f:
+                print(a_line.strip())
+            return
+
+        if a_time <= l_time:
+            print(a_line.strip())
+            a_time, a_line = find_next_time(activity_f, True)
+        else:
+            print(l_line.strip())
+            l_time, l_line = find_next_time(log_f, False)
+
+
+def main():
+    desc = textwrap.dedent('''\
+        Writes each monitor log on stdout, merging tests-activity lines into the
+        output according to the timestamps in both files, to delimit the data
+        from the log by test parameters such as thread count and iteration.
+        This utility allows monitor output to be correlated with test activity
+        without having to rerun individual parameters of a benchmark.
+
+        Supports monitor logs from MONITORS_WITH_LATENCY in addition to regular
+        ones from MONITORS_ALWAYS/MONITORS_GZIP.
+        ''')
+
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument('tests_activity',
+                        help='Path to a tests-activity file.')
+    parser.add_argument('monitor_logs', metavar='monitor_log', nargs='+',
+                        help='Path(s) to uncompressed monitor log(s) corresponding to the tests-activity file.')
+    args = parser.parse_args()
+
+    for log in args.monitor_logs:
+        print('Output from ' + log + ' interleaved with ' + args.tests_activity + ':')
+        with open(args.tests_activity) as activity_f, open(log) as log_f:
+            write_split_log(activity_f, log_f)
+        print('')
+
+
+if __name__ == '__main__':
+    main()
