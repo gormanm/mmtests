@@ -17,65 +17,6 @@ function discover_script()
 	echo "unable to discover script for ${_discovered}"
 }
 
-# support for deferred monitors
-function is_deferred_monitor()
-{
-	local _tmp
-
-	for i in $DEFERRED_MONITORS
-	do
-		[ $i == "$1" -o "$i" == "all" ] && return 0
-	done
-
-	return 1
-}
-
-function add_deferred_monitor()
-{
-	local _monitor _type
-
-	_type=$1
-	_monitor=$2
-
-	export MONITORS_TO_DEFER="$MONITORS_TO_DEFER $_monitor:$_type"
-}
-
-function create_monitor_dir()
-{
-	local _deferred
-	local OPTIND
-	local _o
-	local _tagdesc
-
-	_deferred=0
-	_tagdesc=""
-	while getopts ":t:d" _o
-	do
-		case $_o in
-		t) _tagdesc=$OPTARG;;
-		d) _deferred=1;;
-		esac
-	done
-	shift $((OPTIND-1))
-
-	if [ $_deferred -eq 1 ]
-	then
-		if [ -z "$DEFERRED_MONITOR_INDEX" ]
-		then
-			export DEFERRED_MONITOR_INDEX=1
-		else
-			export DEFERRED_MONITOR_INDEX=$((DEFERRED_MONITOR_INDEX+1))
-		fi
-		export MONITOR_DIR=$SHELLPACK_LOG/deferred_monitors.${DEFERRED_MONITOR_INDEX}
-	else
-		export MONITOR_DIR=$SHELLPACK_LOG
-	fi
-
-	[ -d $MONITOR_DIR ] || mkdir $MONITOR_DIR
-
-	[ -n "$_tagdesc" ] && echo "$_tagdesc" > ${MONITOR_DIR}/description
-}
-
 function start_monitor
 {
 	local _type _monitor
@@ -88,22 +29,6 @@ function start_monitor
 	start_${_type}_monitor $_monitor
 	echo `date +%s` > ${MONITOR_LOG}.start
 	cat /proc/uptime >> ${MONITOR_LOG}.start
-}
-
-function start_deferred_monitor()
-{
-	local _monitor _type
-
-	case $1 in
-		*:*) IFS=:
-		     set -- $1
-		     _monitor=$1
-		     _type=$2
-		     start_monitor $_type $_monitor
-		     unset IFS
-		     ;;
-		*) return
-	esac
 }
 
 function shutdown_monitors()
@@ -144,33 +69,6 @@ function shutdown_monitors()
 	done
 
 	rm $_pidfile
-}
-
-function stop_deferred_monitors()
-{
-	[ -n "$MONITORS_TO_DEFER" ] && shutdown_monitors $MONITOR_DIR/monitor.pids
-}
-
-function start_deferred_monitors()
-{
-	local _monitor
-	local _arg
-
-	if [ "$MONITORS_TO_DEFER" = "" ]; then
-		return
-	fi
-
-	if [ -n "$1" ]
-	then
-		create_monitor_dir -d -t "$1"
-	else
-		create_monitor_dir -d
-	fi
-
-	for _monitor in $MONITORS_TO_DEFER
-	do
-		start_deferred_monitor $_monitor
-	done
 }
 
 function start_always_monitor()
@@ -257,7 +155,8 @@ function start_tracer_monitor()
 function start_monitors() {
 	local _start _type _monitors _monitor _wait_time
 
-	create_monitor_dir
+	export MONITOR_DIR=$SHELLPACK_LOG
+	mkdir -p $MONITOR_DIR
 	export GLOBAL_MONITOR_DIR=$MONITOR_DIR
 
 	_wait_time=${MONITOR_WAIT_TIME:-0}
@@ -270,12 +169,7 @@ function start_monitors() {
 	do
 		_monitors=$(eval echo \$MONITORS_$(echo $_type | tr '[:lower:]' '[:upper:]'))
 		for _monitor in $_monitors; do
-			if is_deferred_monitor $_monitor
-			then
-				add_deferred_monitor $_type $_monitor
-			else
-				start_monitor $_type $_monitor
-			fi
+			start_monitor $_type $_monitor
 		done
 	done
 
@@ -286,8 +180,6 @@ function start_monitors() {
 }
 
 function stop_monitors() {
-	# If all monitors are deferred, there will be no global monitor.pids
-
 	[ -f ${GLOBAL_MONITOR_DIR}/monitor.pids ] && \
 		shutdown_monitors ${GLOBAL_MONITOR_DIR}/monitor.pids
 }

@@ -238,16 +238,13 @@ ulimit -n 16384
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	mmtests_activity workload
 	echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions
-	start_deferred_monitors "$NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions"
 	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS} \
 		pgbench -v -h $PGHOST -p $PGPORT -r \
 			-l --aggregate-interval=1 \
 			$VACUUM_ARG $READONLY_ARG -c $NR_THREADS -j $PGBENCH_THREADS \
 			$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
 			pgbench > $LOGDIR_RESULTS/pgbench-$NR_THREADS.log
-	SYSRET=$?
-	stop_deferred_monitors
-	if [ $SYSRET -ne 0 ]; then
+	if [ $? -ne 0 ]; then
 		cat $LOGDIR_RESULTS/pgbench-$NR_THREADS.log
 		die pgbench failed to execute
 	fi
