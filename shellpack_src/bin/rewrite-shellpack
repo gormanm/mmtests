@@ -578,6 +578,7 @@ while [ \$NR_THREADS -lt $max_thread ]; do
 	if [ \$NR_THREADS -gt $max_thread ]; then
 		NR_THREADS=$max_thread
 	fi
+	mmtests_activity nr_threads \$NR_THREADS
 EOC
 	} elsif ($command eq "threads_fib_end") {
 		print "done\n";
@@ -613,6 +614,7 @@ for NR_THREADS in \$THREADS; do
 	if [ \$NR_THREADS -gt $max_thread ]; then
 		NR_THREADS=$max_thread
 	fi
+	mmtests_activity nr_threads \$NR_THREADS
 EOC
 	} elsif ($command eq "threads_powertwo_end") {
 		print <<EOC
@@ -623,6 +625,7 @@ EOC
 		my ($min_thread, $max_thread) = @details;
 		print <<EOC
 for NR_THREADS in `seq $min_thread $max_thread`; do
+	mmtests_activity nr_threads \$NR_THREADS
 EOC
 	} elsif ($command eq "threads_iterate_end") {
 		print "done\n";
@@ -630,6 +633,7 @@ EOC
 		my ($min_thread, $max_thread) = @details;
 		print <<EOC
 for NR_THREADS in $min_thread $max_thread; do
+	mmtests_activity nr_threads \$NR_THREADS
 EOC
 
 	} elsif ($command eq "threads_stride_begin") {
@@ -652,6 +656,7 @@ for NR_THREADS in \$THREADS; do
 	if [ \$NR_THREADS -lt $min_thread ]; then
 		continue
 	fi
+	mmtests_activity nr_threads \$NR_THREADS
 EOC
 	} elsif ($command eq "threads_large_stride_begin") {
 		my ($min_thread, $max_thread) = @details;
@@ -685,6 +690,7 @@ for NR_THREADS in \$THREADS; do
 			continue
 		fi
 	fi
+	mmtests_activity nr_threads \$NR_THREADS
 EOC
 	} elsif ($command eq "threads_huge_stride_begin") {
 		my ($min_thread, $max_thread) = @details;
@@ -715,6 +721,7 @@ for NR_THREADS in \$THREADS; do
 	if [ \$NR_THREADS -lt $min_thread ]; then
 		continue
 	fi
+	mmtests_activity nr_threads \$NR_THREADS
 EOC
 	} elsif ($command eq "threads_stride_fixed_begin") {
 		my ($min_thread, $max_thread, $samples) = @details;
@@ -733,6 +740,7 @@ for NR_THREADS in \$THREADS; do
 	if [ \$NR_THREADS -lt $min_thread ]; then
 		continue
 	fi
+	mmtests_activity nr_threads \$NR_THREADS
 EOC
 	} elsif ($command eq "threads_stride_alt_fixed_begin") {
 		my ($min_thread, $max_thread, $samples) = @details;
@@ -752,6 +760,7 @@ for NR_THREADS in \$THREADS; do
 	if [ \$NR_THREADS -lt $min_thread ]; then
 		continue
 	fi
+	mmtests_activity nr_threads \$NR_THREADS
 EOC
 	} elsif ($command eq "threads_stride_end") {
 		print "done\n";
