@@ -190,11 +190,18 @@ function pull_image() {
 
 function set_runargs() {
 	runargs=""
+	local dtm=$(systemctl show --property DefaultTasksMax)
 
-	# unlimited pids.max
+
+	# unlimited pids.max might not be possible due to systemd default config
 	if [ "${CONTAINER_NO_PIDS_LIMIT}" = "true" -o \
 	     "${CONTAINER_NO_PIDS_LIMIT}" = "yes" ]; then
-		runargs="--pids-limit -1"
+		if $(echo ${dtm} | grep -qi "infinity"); then
+			runargs="--pids-limit=-1"
+		else
+			# set arbitrarily large pid limit
+			runargs="--pids-limit=15000"
+		fi
 	fi
 
 	# allow to increase scheduling priority or to change scheduling policy
