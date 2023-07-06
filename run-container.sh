@@ -297,15 +297,16 @@ function copy_results() {
 function log_host_info() {
 	local host_log=${SHELLPACK_LOG_BASE}/${runname}/host
 
-	mkdir ${host_log}
+	mkdir -p ${host_log}
 	dmesg > ${host_log}/dmesg
 	gzip -f ${host_log}/dmesg
 	journalctl -k 2>/dev/null > ${host_log}/journalctl-kernel
 	gzip -f ${host_log}/journalctl-kernel
 	cp /etc/os-release ${host_log}/
 
-	${cli} --version > ${host_log}/container_cli
-	runc --version >> ${host_log}/container_cli
+	${cli} info > ${host_log}/container_cli
+	env | grep "^CONTAINER" > ${host_log}/container
+	${cli} inspect ${container_id} >> ${host_log}/container
 }
 
 function stop_container() {
