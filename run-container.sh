@@ -192,10 +192,8 @@ function set_runargs() {
 	runargs=""
 	local dtm=$(systemctl show --property DefaultTasksMax)
 
-
 	# unlimited pids.max might not be possible due to systemd default config
-	if [ "${CONTAINER_NO_PIDS_LIMIT}" = "true" -o \
-	     "${CONTAINER_NO_PIDS_LIMIT}" = "yes" ]; then
+	if [ "${CONTAINER_NO_PIDS_LIMIT}" = "yes" ]; then
 		if $(echo ${dtm} | grep -qi "infinity"); then
 			runargs="--pids-limit=-1"
 		else
@@ -205,15 +203,23 @@ function set_runargs() {
 	fi
 
 	# allow to increase scheduling priority or to change scheduling policy
-	if [ "${CONTAINER_CAP_SYS_NICE}" = "true" -o \
-	     "${CONTAINER_CAP_SYS_NICE}" = "yes" ]; then
+	if [ "${CONTAINER_CAP_SYS_NICE}" = "yes" ]; then
 		runargs="${runargs} --cap-add=sys_nice"
 	fi
 
 	# allow use of mlockall
-	if [ "${CONTAINER_CAP_IPC_LOCK}" = "true" -o \
-	     "${CONTAINER_CAP_IPC_LOCK}" = "yes" ]; then
+	if [ "${CONTAINER_CAP_IPC_LOCK}" = "yes" ]; then
 		runargs="${runargs} --cap-add=ipc_lock"
+	fi
+
+	# turn off apparmor confinement
+	if [ "${CONTAINER_NO_APPARMOR}" = "yes" ]; then
+		runargs="${runargs} --security-opt apparmor=unconfined"
+	fi
+
+	# turn off seccomp confinement
+	if [ "${CONTAINER_NO_SECCOMP}" = "yes" ]; then
+		runargs="${runargs} --security-opt seccomp=unconfined"
 	fi
 
 	if [ -n "${runargs}" ]; then
