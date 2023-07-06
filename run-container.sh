@@ -250,6 +250,11 @@ function update_container() {
 		${cli} exec ${container_id} yum -y install perl
 	elif $(echo ${image} | grep -q tumbleweed); then
 		${cli} exec ${container_id} zypper install -y perl
+	elif $(echo ${image} | grep -q leap); then
+		if [ "${CONTAINER_NO_FIPS}" = "yes" ]; then
+			${cli} exec ${container_id} zypper remove -y \
+			       --clean-deps patterns-base-fips
+		fi
 	fi
 }
 
