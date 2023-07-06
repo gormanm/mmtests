@@ -80,7 +80,7 @@ function prolog() {
 		echo "ERROR: Container runtime not supported"
 		exit 22
 	fi
-	install-depends awk
+	install-depends gawk
 }
 
 function import_config() {
