@@ -50,6 +50,19 @@ Options:
   -n, --no-monitor    disable monitoring
   -o, --os-release    specify cpe_name for desired image
 
+Runtime variables:
+
+  MMTESTS_CONTAINER_CLI   command line interface: 'podman' (default) or 'docker'
+
+  Set the following to 'yes' to change container environment.
+
+  CONTAINER_NO_PIDS_LIMIT increase pids.max value (unlimited or very large)
+  CONTAINER_CAP_SYS_NICE  grant CAP_SYS_NICE (see capabilities(7))
+  CONTAINER_CAP_IPC_LOCK  grant CAP_IPC_LOCK (see capabilities(7))
+  CONTAINER_NO_APPARMOR   turn off apparmor confinement
+  CONTAINER_NO_SECCOMP    turn off seccomp confinement
+  CONTAINER_NO_FIPS       remove FIPS specific packages
+
 EOF
 			   shift; exit 0;;
 		*) break;;
