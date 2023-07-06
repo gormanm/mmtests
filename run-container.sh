@@ -242,6 +242,8 @@ function update_container() {
 		${cli} exec ${container_id} apt-get update
 	elif $(echo ${image} | grep -q fedora); then
 		${cli} exec ${container_id} yum -y install perl
+	elif $(echo ${image} | grep -q tumbleweed); then
+		${cli} exec ${container_id} zypper install -y perl
 	fi
 }
 
