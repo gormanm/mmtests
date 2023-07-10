@@ -360,9 +360,14 @@ sub calc_stddev {
 }
 
 sub calc_coeffvar {
-	my $dataref = shift;
-	my $stddev = calc_stddev($dataref);
-	my $mean = calc_amean($dataref);
+	my ($dataref, $statsref) = @_;
+	my $mean;
+	my $stddev;
+
+	$mean = defined($$statsref->{amean}) ? $$statsref->{amean} :
+	    (calc_amean($dataref, $statsref));
+	$stddev = defined($$statsref->{stddev}) ? $$statsref->{stddev} :
+	    (calc_stddev($dataref, $statsref));
 
 	if ($stddev eq "NaN") {
 		$stddev = 0;
