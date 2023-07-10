@@ -131,16 +131,22 @@ sub calc_sum {
 }
 
 sub calc_min {
-	my ($dataref) = @_;
+	my ($dataref, $statsref) = @_;
+	my $elements = @{$dataref};
+	my $min;
 
 	if (!defined($dataref->[0])) {
-		return "NaN";
-	}
-
-	my $min = $dataref->[0];
-	foreach my $value (@{$dataref}) {
-		if ($value < $min) {
-			$min = $value;
+		$min = "NaN";
+	} elsif (defined($$statsref->{data_ascending})) {
+		$min = $dataref->[0];
+	} elsif (defined($$statsref->{data_descending})) {
+		$min = $dataref->[$elements - 1];
+	} else {
+		$min = $dataref->[0];
+		foreach my $value (@{$dataref}) {
+			if ($value < $min) {
+				$min = $value;
+			}
 		}
 	}
 
@@ -148,16 +154,22 @@ sub calc_min {
 }
 
 sub calc_max {
-	my ($dataref) = @_;
+	my ($dataref, $statsref) = @_;
+	my $elements = @{$dataref};
+	my $max;
 
 	if  (!defined($dataref->[0])) {
-		return "NaN";
-	}
-
-	my $max = $dataref->[0];
-	foreach my $value (@{$dataref}) {
-		if ($value > $max) {
-			$max = $value;
+		$max = "NaN";
+	} elsif (defined($$statsref->{data_ascending})) {
+		$max = $dataref->[$elements - 1];
+	} elsif (defined($$statsref->{data_descending})) {
+		$max = $dataref->[0];
+	} else {
+		$max = $dataref->[0];
+		foreach my $value (@{$dataref}) {
+			if ($value > $max) {
+				$max = $value;
+			}
 		}
 	}
 
