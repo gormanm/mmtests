@@ -13,7 +13,7 @@ use FindBin qw($Bin);
 use List::BinarySearch qw(binsearch_range);
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &cidiff &calc_sum &calc_min &calc_max &calc_range &calc_true_mean &select_lowest &select_highest &calc_amean &select_trim &calc_geomean &calc_hmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_confidence_interval_lower &calc_confidence_interval_upper &calc_submean_ci &stat_compare &calc_samplespct);
+@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &cidiff &calc_sum &calc_min &calc_max &calc_range &select_lowest &select_highest &calc_amean &select_trim &calc_geomean &calc_hmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_submean_ci &stat_compare &calc_samplespct);
 
 # This defines function to use for comparison of a particular statistic
 # (computed by calc_xxx function). If the statistic does not have comparison
@@ -304,67 +304,6 @@ sub select_lowest {
 	return select_data(0, $nr_trim - 1, $dataref);
 }
 
-sub calc_true_mean {
-	my ($confidenceLevel, $confidenceLimit, $samplesref) = @_;
-	my @samples = @{$samplesref};
-	my $nr_samples = $#samples;
-	my $mean = calc_amean($samplesref);
-	my $standardMean = $mean;
-	if ($standardMean eq "NaN") {
-		return "NaN";
-	}
-
-	my $stddev = calc_stddev($samplesref);
-	my $conf = calc_confidence_interval_lower("NaN", $confidenceLevel, $samplesref);
-	my $limit = $mean * $confidenceLimit / 100;
-	my $conf_delta = $mean - $conf; 
-	my $usable_samples = $nr_samples;
-	my $minSamples = 3;
-
-	
-	for (my $sample = 0; $sample <= $nr_samples; $sample++) {
-
-CONF_LOOP:
-		while ($conf_delta > $limit) {
-			if ($usable_samples == $minSamples) {
-				printVerbose("Minimum number of samples reached\n");
-				return $standardMean;
-			}
-			printVerbose("  o confidence delta $conf_delta outside $limit\n");
-			my $max_delta = -1;
-			my $max_index = -1;
-			for ($sample = 0; $sample <= $nr_samples; $sample++) {
-				if (! defined $samples[$sample]) {
-					next;
-				}
-				my $delta = abs($samples[$sample] - $mean);
-				if ($delta > $max_delta) {
-					$max_delta = $delta;
-					$max_index = $sample;
-				}
-			}
-
-			printVerbose("  o dropping index $max_index result $samples[$max_index]\n");
-			undef $samples[$max_index];
-			$usable_samples--;
-
-			$mean = calc_amean($samplesref);
-			$stddev = calc_stddev($samplesref);
-			$conf = calc_confidence_interval_lower("NaN", $confidenceLevel, $samplesref);
-			$limit = $mean * $confidenceLimit / 100;
-			$conf_delta = $mean - $conf;
-
-			printVerbose("  o recalc mean   = $mean\n");
-			printVerbose("  o recalc stddev = $stddev\n");
-			printVerbose("  o recalc con $confidenceLevel = $conf\n");
-			printVerbose("  o limit     = $limit\n");
-			printVerbose("  o con delta = $conf_delta\n");
-		}
-	}
-
-	return calc_amean($samplesref);
-}
-
 sub calc_stddev {
 	my $dataref = shift;
 	my @data = @{$dataref};
@@ -425,47 +364,6 @@ sub calc_quartiles {
 	}
 
 	return \@quartiles;
-}
-
-sub calc_confidence_interval {
-	my ($variance, $confidence_level, $dataref) = @_;
-	my @data = @{$dataref};
-	my $elements = $#data + 1;
-	my $n = 0;
-	my $i;
-	my $stddev;
-	my $q; my $q1;
-
-	for ($i = 0; $i < $elements; $i++) {
-		if (defined $data[$i]) {
-			$n++;
-		}
-	}
-
-	my $mean = calc_amean($dataref);
-	if ($variance !~ /^[-0-9]+/) {
-		$stddev = calc_stddev($dataref);
-		$q = qx(echo 'qt(c((100 - $confidence_level)/200), $n-1, lower.tail = FALSE)' | R --slave);
-		$q =~ s/\[1\]|\s//g;
-	} else {
-		$stddev = sqrt($variance);
-		$q = qx(echo 'qnorm(c((100 - $confidence_level)/200), lower.tail = FALSE)' | R --slave);
-		$q =~ s/\[1\]|\s//g;
-	}
-
-	return ($q*($stddev/sqrt($n)));
-}
-
-sub calc_confidence_interval_lower {
-	my ($variance, $confidence_level, $dataref) = @_;
-	my $mean = calc_amean($dataref);
-	return $mean - calc_confidence_interval($variance, $confidence_level, $dataref);
-}
-
-sub calc_confidence_interval_upper {
-	my ($variance, $confidence_level, $dataref) = @_;
-	my $mean = calc_amean($dataref);
-	return $mean + calc_confidence_interval($variance, $confidence_level, $dataref);
 }
 
 # Perform Welch's t-test.
