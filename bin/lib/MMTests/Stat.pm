@@ -187,11 +187,12 @@ sub calc_range {
 }
 
 sub calc_amean {
-	my ($dataref) = @_;
+	my ($dataref, $statsref) = @_;
 	my $sum = 0;
 	my $n = 0;
 	my $elements = @{$dataref};
 	my $i;
+	my $mean;
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined($dataref->[$i])) {
@@ -201,9 +202,16 @@ sub calc_amean {
 	}
 
 	if ($n == 0) {
-		return "NaN";
+		$mean = "NaN";
+	} else {
+		$mean = $sum / $n;
 	}
-	return $sum / $n;
+
+	if (defined($$statsref->{save_stats})) {
+		$$statsref->{amean} = $mean;
+	}
+
+	return $mean;
 }
 
 sub calc_geomean {
@@ -227,11 +235,12 @@ sub calc_geomean {
 }
 
 sub calc_hmean {
-	my ($dataref) = @_;
+	my ($dataref, $statsref) = @_;
 	my $sum = 0;
 	my $n = 0;
 	my $elements = @{$dataref};
 	my $i;
+	my $mean;
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined($dataref->[$i])) {
@@ -245,9 +254,16 @@ sub calc_hmean {
 	}
 
 	if ($n == 0) {
-		return "NaN";
+		$mean = "NaN";
+	} else {
+		$mean = $n/$sum;
 	}
-	return $n/$sum;
+
+	if (defined($$statsref->{save_stats})) {
+		$$statsref->{hmean} = $mean;
+	}
+
+	return $mean;
 }
 
 sub calc_median {
