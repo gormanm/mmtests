@@ -237,7 +237,7 @@ sub printPlot() {
 
 sub runStatFunc
 {
-	my ($self, $operation, $func, $dataref) = @_;
+	my ($self, $operation, $func, $dataref, $statsref) = @_;
 	my ($mean, $arg);
 
 	# $dataref is expected to be already sorted in appropriate order
@@ -264,6 +264,10 @@ sub runStatFunc
 		return $dataref->[0];
 	}
 	$func =~ s/^_mean/$mean/;
+
+	if (defined($$statsref->{$func})) {
+		return $$statsref->{$func};
+	}
 
 	($func, $arg) = split("-", $func);
 	# Percentiles are trivial, no need to copy the whole data array for them
@@ -293,7 +297,7 @@ sub runStatFunc
 		return &$func(\@data);
 	}
 	no strict "refs";
-	return &$func($dataref);
+	return &$func($dataref, $statsref);
 }
 
 sub extractSummary() {
@@ -305,18 +309,21 @@ sub extractSummary() {
 	my %significance;
 	foreach my $operation (@_operations) {
 		my @units;
+		my $stats = { save_stats => 1 };
 
 		@units = map { @{$_->{Values}} } @{$data{$operation}};
 		if ($self->getPreferredValue($operation) eq "Lower") {
 			@units = sort { $a <=> $b} @units;
+			$stats->{data_ascending} = 1;
 		} else {
 			@units = sort { $b <=> $a} @units;
+			$stats->{data_descending} = 1;
 		}
 
 		$summary{$operation} = [];
 		foreach my $func (@{$self->{_SummaryStats}}) {
 			my @values = $self->runStatFunc($operation, $func,
-							\@units);
+							\@units, \$stats);
 			foreach my $value (@values) {
 				if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
 					push @{$summary{$operation}}, $value;
@@ -326,10 +333,10 @@ sub extractSummary() {
 
 		$significance{$operation} = [];
 
-		my $mean = $self->runStatFunc($operation, "_mean", \@units);
+		my $mean = $self->runStatFunc($operation, "_mean", \@units, \$stats);
 		push @{$significance{$operation}}, $mean;
 
-		my $stderr = calc_stddev(\@units);
+		my $stderr = $self->runStatFunc($operation, "stddev", \@units, \$stats);
 		push @{$significance{$operation}}, $stderr ne "NaN" ? $stderr : 0;
 
 		push @{$significance{$operation}}, $#units+1;
