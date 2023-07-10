@@ -11,9 +11,14 @@ use strict;
 use POSIX qw(floor);
 use FindBin qw($Bin);
 use List::BinarySearch qw(binsearch_range);
+use Scalar::Util qw(looks_like_number);
 
 @ISA    = qw(Exporter);
-@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &cidiff &calc_sum &calc_min &calc_max &calc_range &select_lowest &select_highest &calc_amean &select_trim &calc_geomean &calc_hmean &calc_median &calc_coeffvar &calc_stddev &calc_quartiles &calc_submean_ci &stat_compare &calc_samplespct);
+@EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &cidiff &calc_sum
+	     &calc_min &calc_max &calc_range &select_lowest &select_highest
+	     &calc_amean &select_trim &calc_geomean &calc_hmean &calc_median
+	     &calc_coeffvar &calc_stddev &calc_quartiles &calc_submean_ci
+	     &stat_compare &calc_samplespct &data_valid);
 
 # This defines function to use for comparison of a particular statistic
 # (computed by calc_xxx function). If the statistic does not have comparison
@@ -465,6 +470,19 @@ sub calc_samplespct {
 	my ($dataref, $arg) = @_;
 
 	return calc_samples($dataref, $arg) * 100 / scalar(@{$dataref});
+}
+
+sub data_valid {
+	my $dataref = shift;
+	my $elements = @{$dataref};
+	my $i;
+
+	for ($i = 0; $i < $elements; $i++) {
+		if (!looks_like_number($dataref->[$i])) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 1;

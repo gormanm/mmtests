@@ -8,5 +8,5 @@ use MMTests::Stat;
 $x[$i++] = $_;
 END {
 	$i = 0;
-	print calc_max(\@x);
+	data_valid(\@x) ? print calc_max(\@x) : print "NaN";
 }
