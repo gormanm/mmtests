@@ -183,9 +183,6 @@ sub calc_amean {
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined($dataref->[$i])) {
-			if ($dataref->[$i] !~ /^[-0-9]+/) {
-				return "NaN";
-			}
 			$sum += $dataref->[$i];
 			$n++;
 		}
@@ -206,9 +203,6 @@ sub calc_geomean {
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined $dataref->[$i]) {
-			if ($dataref->[$i] !~ /^[-0-9]+/) {
-				return "NaN";
-			}
 			$mult *= $dataref->[$i];
 			$n++;
 		}
@@ -229,9 +223,6 @@ sub calc_hmean {
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined($dataref->[$i])) {
-			if ($dataref->[$i] !~ /^[-0-9]+/) {
-				return "NaN";
-			}
 			if ($dataref->[$i] > 0) {
 				$sum += 1/$dataref->[$i];
 				$n++;
@@ -316,9 +307,6 @@ sub calc_stddev {
 
 	for ($i = 0; $i < $elements; $i++) {
 		if (defined($dataref->[$i])) {
-			if ($dataref->[$i] !~ /^[-0-9]+/) {
-				return "NaN";
-			}
 			$diff += ($dataref->[$i] - $mean) ** 2;
 			$n++;
 		}
