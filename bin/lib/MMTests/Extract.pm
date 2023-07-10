@@ -11,6 +11,7 @@ use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
 use List::Util ();
 use strict;
+use Scalar::Util qw(looks_like_number);
 
 sub new() {
 	my $class = shift;
@@ -457,6 +458,10 @@ sub addData() {
 			push @{$self->{_GeneratedOperations}}, $op;
 			$self->{_OperationsSeen}->{$op} = 1;
 		}
+	}
+
+	if (!looks_like_number($val) || !looks_like_number($sample)) {
+		return;
 	}
 
 	push @{$self->{_ResultData}->{$op}->[$self->{_CurrentIteration}]->{SampleNrs}}, $sample;
