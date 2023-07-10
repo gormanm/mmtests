@@ -325,26 +325,38 @@ sub select_lowest {
 }
 
 sub calc_stddev {
-	my ($dataref) = @_;
+	my ($dataref, $statsref) = @_;
 	my $n = 0;
 	my $elements = @{$dataref};
 	my $diff;
 	my $i;
+	my $mean;
+	my $stddev;
 
-	my $mean = calc_amean($dataref);
+	$mean = defined($$statsref->{amean}) ? $$statsref->{amean} :
+	    (calc_amean($dataref, $statsref));
+	if ($mean eq "NaN") {
+		$stddev = "NaN";
+	} else {
+		for ($i = 0; $i < $elements; $i++) {
+			if (defined $dataref->[$i]) {
+				$diff += ($dataref->[$i] - $mean) ** 2;
+				$n++;
+			}
+		}
 
-	for ($i = 0; $i < $elements; $i++) {
-		if (defined($dataref->[$i])) {
-			$diff += ($dataref->[$i] - $mean) ** 2;
-			$n++;
+		if ($n <= 1) {
+			$stddev = "NaN";
+		} else {
+			$stddev = sqrt($diff / ($n - 1));
 		}
 	}
 
-	if ($n <= 1) {
-		return "NaN";
+	if (defined($$statsref->{save_stats})) {
+		$$statsref->{stddev} = $stddev;
 	}
 
-	return sqrt($diff / ($n - 1));
+	return $stddev;
 }
 
 sub calc_coeffvar {
