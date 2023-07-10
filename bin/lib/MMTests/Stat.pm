@@ -126,15 +126,14 @@ sub calc_sum {
 }
 
 sub calc_min {
-	my $dataref = shift;
-	my @data = @{$dataref};
+	my ($dataref) = @_;
 
-	if (! defined $data[0]) {
+	if (!defined($dataref->[0])) {
 		return "NaN";
 	}
 
-	my $min = $data[0];
-	foreach my $value (@data) {
+	my $min = $dataref->[0];
+	foreach my $value (@{$dataref}) {
 		if ($value < $min) {
 			$min = $value;
 		}
@@ -144,15 +143,14 @@ sub calc_min {
 }
 
 sub calc_max {
-	my $dataref = shift;
-	my @data = @{$dataref};
+	my ($dataref) = @_;
 
-	if (! defined $data[0]) {
+	if  (!defined($dataref->[0])) {
 		return "NaN";
 	}
 
-	my $max = $data[0];
-	foreach my $value (@data) {
+	my $max = $dataref->[0];
+	foreach my $value (@{$dataref}) {
 		if ($value > $max) {
 			$max = $value;
 		}
@@ -172,19 +170,18 @@ sub calc_range {
 }
 
 sub calc_amean {
-	my $dataref = shift;
-	my @data = @{$dataref};
+	my ($dataref) = @_;
 	my $sum = 0;
 	my $n = 0;
-	my $elements = scalar(@data);
+	my $elements = @{$dataref};
 	my $i;
 
 	for ($i = 0; $i < $elements; $i++) {
-		if (defined $data[$i]) {
-			if ($data[$i] !~ /^[-0-9]+/) {
+		if (defined($dataref->[$i])) {
+			if ($dataref->[$i] !~ /^[-0-9]+/) {
 				return "NaN";
 			}
-			$sum += $data[$i];
+			$sum += $dataref->[$i];
 			$n++;
 		}
 	}
@@ -219,20 +216,19 @@ sub calc_geomean {
 }
 
 sub calc_hmean {
-	my $dataref = shift;
-	my @data = @{$dataref};
+	my ($dataref) = @_;
 	my $sum = 0;
 	my $n = 0;
-	my $elements = $#data + 1;
+	my $elements = @{$dataref};
 	my $i;
 
 	for ($i = 0; $i < $elements; $i++) {
-		if (defined $data[$i]) {
-			if ($data[$i] !~ /^[-0-9]+/) {
+		if (defined($dataref->[$i])) {
+			if ($dataref->[$i] !~ /^[-0-9]+/) {
 				return "NaN";
 			}
-			if ($data[$i] > 0) {
-				$sum += 1/$data[$i];
+			if ($dataref->[$i] > 0) {
+				$sum += 1/$dataref->[$i];
 				$n++;
 			} else {
 				return -1;
@@ -305,21 +301,20 @@ sub select_lowest {
 }
 
 sub calc_stddev {
-	my $dataref = shift;
-	my @data = @{$dataref};
+	my ($dataref) = @_;
 	my $n = 0;
-	my $elements = $#data + 1;
+	my $elements = @{$dataref};
 	my $diff;
 	my $i;
 
 	my $mean = calc_amean($dataref);
 
 	for ($i = 0; $i < $elements; $i++) {
-		if (defined $data[$i]) {
-			if ($data[$i] !~ /^[-0-9]+/) {
+		if (defined($dataref->[$i])) {
+			if ($dataref->[$i] !~ /^[-0-9]+/) {
 				return "NaN";
 			}
-			$diff += ($data[$i] - $mean) ** 2;
+			$diff += ($dataref->[$i] - $mean) ** 2;
 			$n++;
 		}
 	}
@@ -448,21 +443,21 @@ sub calc_submean_ci {
 
 sub calc_samples {
 	my ($dataref, $arg) = @_;
-	my @data = @{$dataref};
+	my $elements = @{$dataref};
 
 	# Simple sample count?
 	if (!defined($arg)) {
-		return scalar(@data);
+		return $elements;
 	}
 	# Range specified
 	my ($low,$high) = split(',', $arg);
 
 	if ($low eq "min") {
-		$low = $data[0];
+		$low = $dataref->[0];
 	} elsif ($high eq "max") {
-		$high = $data[$#data];
+		$high = $dataref->[$elements - 1];
 	}
-	my ($lowidx, $highidx) = binsearch_range { $a <=> $b }  $low, $high, @data;
+	my ($lowidx, $highidx) = binsearch_range { $a <=> $b }  $low, $high, @{$dataref};
 	return $highidx - $lowidx + 1;
 }
 
