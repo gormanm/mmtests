@@ -671,6 +671,13 @@ for SUBREPORT in $REPORTS; do
 		cache-mmtests.sh compare-mmtests.pl -d . -b pgbench -a exectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
+	redis-memtier)
+		for HEADING in Ops/sec Hits/sec Miss/sec; do
+			echo $SUBREPORT $HEADING
+			eval $COMPARE_CMD --sub-heading `echo $HEADING | tr A-Z a-z`
+			echo
+		done
+		;;
 	simoop)
 		echo $SUBREPORT latencies
 		eval $COMPARE_CMD
@@ -1147,7 +1154,7 @@ for SUBREPORT in $REPORTS; do
 		reaim)
 			generate_client_subtest_graphs
 			;;
-		redis)
+		redis*)
 			generate_ops_graphs
 			;;
 		schbench)
