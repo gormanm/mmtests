@@ -31,5 +31,5 @@ export REDIS_PIPELINE=256
 export REDIS_MIN_CLIENTS=1
 export REDIS_MAX_CLIENTS=$((NUMCPUS-REDIS_MEMTIER_SERVER_THREADS))
 
-# Disable THP
+# Disable THP as recommended by redis documentation
 disable_transhuge
