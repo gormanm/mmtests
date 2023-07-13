@@ -72,6 +72,12 @@ function warn() {
 	echo "WARNING${TAG}: $@"
 }
 
+START_TIMESTAMP=`date +%s`
+function log_info() {
+	local _current_timestamp=`date +%s`
+	echo "[`date` $((_current_timestamp-$START_TIMESTAMP))] $@"
+}
+
 OFFLINED_MEMORY=0
 function limit_memory() {
 	local _limit=$1

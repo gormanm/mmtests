@@ -131,18 +131,18 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 	sed -e "s/NR_WRITERS/$NR_FILE_WRITERS/" -e "s/FIO_FILESIZE/$WSS_PER_WRITER/" $FIO_JOBFILE_TEMPLATE > $FIO_JOBFILE
 
 	# Dump all existing cache for full IO effect
-	echo Dropping page cache, inodes and dentries
+	log_info Dropping page cache, inodes and dentries
 	sync
 	echo 3 > /proc/sys/vm/drop_caches
 
 	# Purge the data directory
-	echo Recreating data directory
+	log_info Recreating data directory
 	rm -rf "$SHELLPACK_DATA/stutterp-data"
 	mkdir -p "$SHELLPACK_DATA/stutterp-data"
 
 	# Start fio running in the background
 	monitor_pre_hook $LOGDIR_RESULTS $NR_WORKERS
-	echo Running fio pid $FIO_PID for $WARMUP seconds
+	log_info Running fio pid $FIO_PID for $WARMUP seconds
 	fio --directory="$SHELLPACK_DATA/stutterp-data"			\
 	    --minimal							\
 	    --write_lat_log $LOGDIR_RESULTS/fio-$NR_WORKERS.latlog	\
@@ -157,7 +157,7 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 
 	# Start memory hogs
 	ANON_PIDS=
-	echo Starting $NR_ANON_HOGS memory hogs
+	log_info Starting $NR_ANON_HOGS memory hogs
 	for INSTANCE in `seq 1 $NR_ANON_HOGS`; do
 		./memory-hog $((WSS_PER_MEMHOG*1048576)) $MEMFAULT_FILE > $LOGDIR_RESULTS/memory-hog-$NR_WORKERS.log &
 		ANON_PIDS+=" $!"
@@ -172,7 +172,7 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 	done
 
 	# Start mmap latency
-	echo Starting $NR_ANON_LATENCY mmap-latency
+	log_info Starting $NR_ANON_LATENCY mmap-latency
 	LATENCY_PIDS=
 	for INSTANCE in `seq 1 $NR_ANON_LATENCY`; do
 		./mmap-latency $LATENCY_FILE > $LOGDIR_RESULTS/mmap-latency-$NR_WORKERS.log &
@@ -188,41 +188,44 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 		fi
 	done
 
-	echo Sleeping $STUTTER_DURATION seconds
+	log_info Sleeping $STUTTER_DURATION seconds
 	sleep $STUTTER_DURATION
 	monitor_post_hook $LOGDIR_RESULTS $NR_WORKERS
 
-	echo Shutting down fio
+	log_info Shutting down fio
 	kill $FIO_PID
 	wait_on_pid_exit $FIO_PID
 
-	echo Shuttdown down memory hogs
+	log_info Shutting down memory hogs
 	for PID in $ANON_PIDS; do
 		kill $PID
 		wait_on_pid_exit $ANON_PIDS
 	done
-	echo Shutting down mmap latency
+	log_info Shutting down mmap latency
 	for PID in $LATENCY_PIDS; do
 		kill $PID
 		wait_on_pid_exit $PID
 	done
 
-	echo Compressing logs
+	log_info Compressing logs
 	gzip $LOGDIR_RESULTS/memory-hog-$NR_WORKERS.log
 	gzip $LOGDIR_RESULTS/mmap-latency-$NR_WORKERS.log
-
+	log_info Completed $NR_WORKERS workers
 ###SHELLPACK threads_stride_end
 
 # Cleanup
-echo Cleanup
-sleep 30
+log_info Cleanup sync
 sync
 
+log_info Cleanup data
 cd /
 rm -rf "$SHELLPACK_DATA/stutterp-data"
 if [ "$MEMFAULT_TMPFS" = "yes" ]; then
 	umount $SHELLPACK_DATA/mnt
 fi
+
+log_info Cleanup tmp
 rm -rf $SHELLPACK_TEMP
 
+log_info Complete
 exit $SHELLPACK_SUCCESS
