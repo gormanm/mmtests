@@ -14,7 +14,7 @@ export MMTESTS="redis-memtier"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat iotop"
+export MONITORS_GZIP="proc-vmstat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
@@ -23,7 +23,7 @@ export REDIS_MEMTIER_ITERATIONS=5
 export REDIS_MEMTIER_PERSISTENCE="default-persist"
 export REDIS_MEMTIER_REQUESTS=allkeys
 export REDIS_MEMTIER_KEYSPACE_MIN=1
-export REDIS_MEMTIER_KEYSPACE_MAX=1500000
+export REDIS_MEMTIER_KEYSPACE_MAX=50000
 export REDIS_MEMTIER_KEYSPACE_PREFIX=memtier-prefix
 export REDIS_MEMTIER_PIPELINE=256
 export REDIS_MEMTIER_DATASIZE=2048

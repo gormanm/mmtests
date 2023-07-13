@@ -241,6 +241,14 @@ for TYPE in ro rw; do
 	done
 done
 
+# Redis
+sed -e 's/REDIS_KEYSPACE=.*/REDIS_KEYSPACE=500000/' configs/config-memdb-redis-benchmark-small > configs/config-memdb-redis-benchmark-medium
+sed -e 's/REDIS_KEYSPACE=.*/REDIS_KEYSPACE=1500000/' configs/config-memdb-redis-benchmark-small > configs/config-memdb-redis-benchmark-large
+
+# Redis memtier
+sed -e 's/REDIS_MEMTIER_KEYSPACE_MAX=.*/REDIS_MEMTIER_KEYSPACE_MAX=500000/' configs/config-memdb-redis-memtier-small > configs/config-memdb-redis-memtier-medium
+sed -e 's/REDIS_MEMTIER_KEYSPACE_MAX=.*/REDIS_MEMTIER_KEYSPACE_MAX=1500000/' configs/config-memdb-redis-memtier-small > configs/config-memdb-redis-memtier-large
+
 # SALMON
 for MODEL in omp; do
 	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-salmon-classicem-$MODEL-full > config-hpc-salmon-classicem-$MODEL-hpcext-full

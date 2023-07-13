@@ -1,11 +1,6 @@
 ### redis is a single-threaded server in-memory data store. This is a basic
 ### configuration that uses one server even if running on a NUMA machine
-### with clients unbound. The number of requests is small (100,000) with
-### a keyspace of 50,000 keys. The data is not persisted as the test is
-### too short-lived to detect whether the timing of disk IO is a major
-### factor. Contrary to recommendations, THP is left as its default
-### setting which in most cases will be enabled.
-
+### with clients unbound. The number of requests is double the keyspace.
 export MMTESTS="redis"
 
 # Test disk to setup (optional)
@@ -22,16 +17,19 @@ export MMTESTS="redis"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat iotop"
+export MONITORS_GZIP="proc-vmstat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # Redis
 export REDIS_ITERATIONS=5
 export REDIS_PERSISTENCE="default-persist"
-export REDIS_KEYSPACE=300000
-export REDIS_REQUESTS=$REDIS_KEYSPACE
+export REDIS_KEYSPACE=50000
+export REDIS_REQUESTS=$((REDIS_KEYSPACE*2))
 export REDIS_MEMTIER_THREADS=4
 export REDIS_PIPELINE=256
 export REDIS_MIN_CLIENTS=1
 export REDIS_MAX_CLIENTS=$((NUMCPUS-REDIS_MEMTIER_SERVER_THREADS))
+
+# Disable THP
+disable_transhuge
