@@ -194,17 +194,17 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 
 	log_info Shutting down fio
 	kill $FIO_PID
-	wait_on_pid_exit $FIO_PID
+	wait_on_pid_exit_force $FIO_PID 60
 
 	log_info Shutting down memory hogs
 	for PID in $ANON_PIDS; do
 		kill $PID
-		wait_on_pid_exit $ANON_PIDS
+		wait_on_pid_exit_force $PID 60
 	done
 	log_info Shutting down mmap latency
 	for PID in $LATENCY_PIDS; do
 		kill $PID
-		wait_on_pid_exit $PID
+		wait_on_pid_exit_force $PID 60
 	done
 
 	log_info Compressing logs

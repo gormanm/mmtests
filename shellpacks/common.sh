@@ -78,6 +78,11 @@ function log_info() {
 	echo "[`date` $((_current_timestamp-$START_TIMESTAMP))] $@"
 }
 
+function log_warn() {
+	local _current_timestamp=`date +%s`
+	echo "[`date` $((_current_timestamp-$START_TIMESTAMP))] WARNING: $@"
+}
+
 OFFLINED_MEMORY=0
 function limit_memory() {
 	local _limit=$1
@@ -115,7 +120,7 @@ function wait_on_pid_start() {
 			sleep 1
 			SLEPT=$((SLEPT+1))
 			if [ $ABORTTIME -gt 0 -a $SLEPT -gt $ABORTTIME ]; then
-				echo WARNING: Pid wait timeout
+				log_warn "WARNING: Pid wait timeout"
 				return 1
 			fi
 		done
@@ -141,13 +146,38 @@ function wait_on_pid_exit() {
 			sleep 1
 			SLEPT=$((SLEPT+1))
 			if [ $ABORTTIME -gt 0 -a $SLEPT -gt $ABORTTIME ]; then
-				echo WARNING: Pid wait timeout
+				log_warn "Pid $WAITPID wait timeout"
 				return 1
 			fi
 		done
 		echo
 	fi
 	return 0
+}
+
+# Similar to wait_on_pid_exit but only returns when the task is definitely
+# dead. When the abort time is set, a signal will be sent to kill again
+# until it's dead
+function wait_on_pid_exit_force() {
+	WAITPID=$1
+	SIGNALTIME=$2
+	SIGNAL=$3
+
+	if [ "$SIGNALTIME" = "" ]; then
+		SIGNALTIME=5
+	fi
+	if [ "$SIGNAL" = "" ]; then
+		SIGNAL=9
+	fi
+
+	if [ "$WAITPID" != "" ]; then
+		wait_on_pid_exit $WAITPID $SIGNALTIME
+		while [ $? -ne 0 ]; do
+			log_warn "Sending $PID signal $SIGNAL to retry exit"
+			kill -$SIGNAL $WAITPID
+			wait_on_pid_exit $WAITPID $SIGNALTIME
+		done
+	fi
 }
 
 function wait_on_pid_file_create()
