@@ -1,5 +1,5 @@
-# ExtractStuttercalibrate.pm
-package MMTests::ExtractStuttercalibrate;
+# ExtractStutterpcalibrate.pm
+package MMTests::ExtractStutterpcalibrate;
 use MMTests::SummariseSingleops;
 use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseSingleops);
@@ -10,7 +10,7 @@ my @_threads;
 sub new() {
 	my $class = shift;
 	my $self = {
-		_ModuleName  => "ExtractStutter",
+		_ModuleName  => "ExtractStutterp",
 		_DataType    => DataTypes::DATA_MBYTES_PER_SECOND,
 		_Precision   => 4,
 	};

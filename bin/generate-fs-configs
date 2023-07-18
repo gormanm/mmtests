@@ -109,7 +109,6 @@ config-memdb-redis-memtier-small
 config-memdb-redis-memtier-medium
 config-memdb-redis-memtier-large
 config-multi-kernbench__netperf-tcp-rr-multipair
-config-pagereclaim-stutter
 config-pagereclaim-stutterp
 config-pagereclaim-stutterp-noreaders
 config-reaim-highsys
@@ -404,7 +403,7 @@ done
 TMPFS_CONFIGS="
 config-io-paralleldd-read-small
 config-io-dbench4-async
-config-pagereclaim-stutter
+config-pagereclaim-stutterp
 config-reaim-io-disk
 "
 

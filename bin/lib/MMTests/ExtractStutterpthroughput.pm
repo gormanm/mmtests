@@ -1,5 +1,5 @@
-# ExtractStutterthroughput.pm
-package MMTests::ExtractStutterthroughput;
+# ExtractStutterpthroughput.pm
+package MMTests::ExtractStutterpthroughput;
 use MMTests::SummariseMultiops;
 use MMTests::Stat;
 our @ISA = qw(MMTests::SummariseMultiops);
@@ -7,7 +7,7 @@ use strict;
 
 sub initialise() {
 	my ($self, $subHeading) = @_;
-	$self->{_ModuleName} = "ExtractStutterthroughput";
+	$self->{_ModuleName} = "ExtractStutterpthroughput";
 	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
 	$self->{_Precision}  = 4;
 	$self->SUPER::initialise($subHeading);

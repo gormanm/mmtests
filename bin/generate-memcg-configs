@@ -10,7 +10,7 @@ db-pgbench-timed-ro-scale1-xfs
 db-pgbench-timed-ro-medium
 io-dbench4-async-xfs
 pagereclaim-lmbench
-pagereclaim-stutter
+pagereclaim-stutterp
 reaim-io-disk-large-xfs
 reaim-io-new_fserver-large-xfs
 workload-kerndevel-xfs

@@ -705,15 +705,15 @@ for SUBREPORT in $REPORTS; do
 		cache-mmtests.sh compare-mmtests.pl -d . -b stockfish -a time -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	stutter)
+	stutterp)
 		echo $SUBREPORT
 		$COMPARE_CMD
 		echo
 		echo $SUBREPORT estimated write speed
-		cache-mmtests.sh compare-mmtests.pl -d . -b stutter -a calibrate -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -a calibrate -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT parallel write throughput
-		cache-mmtests.sh compare-mmtests.pl -d . -b stutter -a throughput -n $KERNEL_LIST $FORMAT_CMD
+		cache-mmtests.sh compare-mmtests.pl -d . -b $SUBREPORT -a throughput -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	sysbench)
 		echo $SUBREPORT Transactions
@@ -1213,8 +1213,6 @@ for SUBREPORT in $REPORTS; do
 			plain graph-$SUBREPORT
 			plain graph-$SUBREPORT-time
 			echo "</tr>"
-			;;
-		stutter)
 			;;
 		sysbench)
 			echo "<tr>"
