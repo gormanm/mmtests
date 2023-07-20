@@ -7,7 +7,7 @@
 ###SHELLPACK self_extract memory-hog.c
 ###SHELLPACK self_extract mmap-latency.c
 
-install-depends gcc fio
+install-depends gcc fio coreutils
 
 mkdir $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed

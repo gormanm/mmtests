@@ -55,6 +55,9 @@ RUNTIME=$((WARMUP+STUTTER_DURATION))
 echo "Iteration warmup time:   $WARMUP"
 echo "Iteration total runtime: $RUNTIME"
 
+# Backstop on termination
+RUNTIME_TIMEOUT=$((STUTTER_DURATION+60))
+
 FIO_JOBFILE_TEMPLATE="$SHELLPACK_TEMP/fio-jobfile-template"
 cat >$FIO_JOBFILE_TEMPLATE <<EOF
 [global]
@@ -143,10 +146,11 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 	# Start fio running in the background
 	monitor_pre_hook $LOGDIR_RESULTS $NR_WORKERS
 	log_info Running fio pid $FIO_PID for $WARMUP seconds
-	fio --directory="$SHELLPACK_DATA/stutterp-data"			\
-	    --minimal							\
-	    --write_lat_log $LOGDIR_RESULTS/fio-$NR_WORKERS.latlog	\
-	    $FIO_JOBFILE &> $LOGDIR_RESULTS/fio-$NR_WORKERS.log &
+	timeout $((RUNTIME_TIMEOUT+WARMUP*2))s					\
+		fio --directory="$SHELLPACK_DATA/stutterp-data"			\
+			--minimal						\
+			--write_lat_log $LOGDIR_RESULTS/fio-$NR_WORKERS.latlog	\
+			$FIO_JOBFILE &> $LOGDIR_RESULTS/fio-$NR_WORKERS.log &
 	FIO_PID=$!
 	sleep $WARMUP
 	ps -p $FIO_PID &> /dev/null
@@ -159,7 +163,7 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 	ANON_PIDS=
 	log_info Starting $NR_ANON_HOGS memory hogs
 	for INSTANCE in `seq 1 $NR_ANON_HOGS`; do
-		./memory-hog $((WSS_PER_MEMHOG*1048576)) $MEMFAULT_FILE > $LOGDIR_RESULTS/memory-hog-$NR_WORKERS.log &
+		timeout ${RUNTIME_TIMEOUT}s ./memory-hog $((WSS_PER_MEMHOG*1048576)) $MEMFAULT_FILE > $LOGDIR_RESULTS/memory-hog-$NR_WORKERS.log &
 		ANON_PIDS+=" $!"
 	done
 	for ANON_PID in $ANON_PIDS; do
@@ -175,7 +179,7 @@ cd $SHELLPACK_SOURCES/stutterp-${VERSION}-installed
 	log_info Starting $NR_ANON_LATENCY mmap-latency
 	LATENCY_PIDS=
 	for INSTANCE in `seq 1 $NR_ANON_LATENCY`; do
-		./mmap-latency $LATENCY_FILE > $LOGDIR_RESULTS/mmap-latency-$NR_WORKERS.log &
+		timeout ${RUNTIME_TIMEOUT}s ./mmap-latency $LATENCY_FILE > $LOGDIR_RESULTS/mmap-latency-$NR_WORKERS.log &
 		LATENCY_PIDS+=" $!"
 	done
 	for LATENCY_PID in $LATENCY_PIDS; do
