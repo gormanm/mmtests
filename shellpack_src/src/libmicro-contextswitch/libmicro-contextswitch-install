@@ -1,7 +1,7 @@
 #!/bin/bash
 # libmicro installer
 ###SHELLPACK preamble libmicro-contextswitch-install 1
-HG_LOCATION=https://hg.java.net/hg/libmicro~hg-repo
+GIT_LOCATION=https://github.com/redhat-performance/libMicro
 MIRROR_LOCATION="$WEBROOT/libmicro"
 
 install-depends gcc
@@ -9,21 +9,9 @@ install-depends gcc
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK hg_fetch libmicro-contextswitch-${VERSION}.tar.gz libmicro-contextswitch-${VERSION}-installed
+###SHELLPACK git_fetch libmicro-contextswitch-${VERSION}.tar.gz libmicro-contextswitch-${VERSION}-installed
 
 ###SHELLPACK build_start libmicro-contextswitch-${VERSION}-installed
-
-echo '--- Makefile.com.orig	2014-03-31 12:09:53.689008589 +0100
-+++ Makefile.com	2014-03-31 12:09:57.317989834 +0100
-@@ -107,7 +107,7 @@
- 	echo "char compiler_version[] = \""`$(COMPILER_VERSION_CMD)`"\";" > tattle.h
- 	echo "char CC[] = \""$(CC)"\";" >> tattle.h
- 	echo "char extra_compiler_flags[] = \""$(extra_CFLAGS)"\";" >> tattle.h
--	$(CC) -o tattle $(CFLAGS) -I. ../tattle.c libmicro.a -lrt -lm
-+	$(CC) -o tattle $(CFLAGS) -I. ../tattle.c libmicro.a -lrt -lm -lpthread
- 
- $(ELIDED_BENCHMARKS):	../elided.c
- 	$(CC) -o $(@) ../elided.c' | patch -p0
 
 ###SHELLPACK make_clean
 ###SHELLPACK make
