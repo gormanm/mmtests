@@ -2,7 +2,7 @@
 
 ###SHELLPACK preamble specjvm-install 2005_kitv1.07
 WEB_LOCATION="NOT_AVAILABLE"
-MIRROR_LOCATION="$WEBROOT/spec"
+MIRROR_LOCATION="$WEBROOT/proprietary/spec"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble mlc-install 3.4
 WEB_LOCATION=NOT_AVAILABLE
-MIRROR_LOCATION="$WEBROOT/mlc/"
+MIRROR_LOCATION="$WEBROOT/proprietary/mlc/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

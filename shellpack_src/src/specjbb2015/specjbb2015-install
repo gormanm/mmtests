@@ -2,7 +2,7 @@
 
 ###SHELLPACK preamble specjbb2015-install 1.00
 WEB_LOCATION="NOT_AVAILABLE"
-MIRROR_LOCATION="$WEBROOT/spec"
+MIRROR_LOCATION="$WEBROOT/proprietary/spec"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

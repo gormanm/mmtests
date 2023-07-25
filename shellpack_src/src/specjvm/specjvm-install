@@ -2,7 +2,7 @@
 
 P='specjvm-install'
 WEB_LOCATION="NOT_AVAILABLE"
-MIRROR_LOCATION="$WEBROOT/spec/SPECjvm2008_1_00_setup.jar"
+MIRROR_LOCATION="$WEBROOT/proprietary/spec/SPECjvm2008_1_00_setup.jar"
 export PATH=$SPECJVM_JRE:$PATH
 
 . $SHELLPACK_INCLUDE/common.sh

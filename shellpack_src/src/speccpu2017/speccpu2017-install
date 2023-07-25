@@ -2,7 +2,7 @@
 
 ###SHELLPACK preamble speccpu2017-install 1.0.5
 WEB_LOCATION="NOT_AVAILABLE"
-MIRROR_LOCATION="$WEBROOT/spec"
+MIRROR_LOCATION="$WEBROOT/proprietary/spec"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

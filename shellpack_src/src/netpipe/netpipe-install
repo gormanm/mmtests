@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble netpipe-install 3.7.2
 WEB_LOCATION=http://bitspjoule.org/netpipe/code
-MIRROR_LOCATION="$WEBROOT/netpipe/"
+MIRROR_LOCATION="$WEBROOT/proprietary/netpipe/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
