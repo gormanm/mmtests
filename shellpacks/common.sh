@@ -566,38 +566,6 @@ function git_fetch() {
 	update_local_mirror $MIRROR
 }
 
-function hg_fetch() {
-	HG=$1
-	TREE=$2
-	MIRROR=$3
-	OUTPUT=$4
-
-	install-depends mercurial
-
-	echo "$P: Fetching from mirror $MIRROR"
-	wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $MIRROR
-	if [ $? -ne 0 ]; then
-		if [ "$HG" = "NOT_AVAILABLE" ]; then
-			die Benchmark is not publicly available. You must make it available from a local mirror
-		fi
-
-		cd $SHELLPACK_SOURCES
-		echo "$P: Cloning from internet $HG"
-		hg clone $HG $TREE
-		if [ $? -ne 0 ]; then
-			die "$P: Could not clone $HG"
-		fi
-		cd $TREE || die "$P: Could not cd $TREE"
-		echo Creating $OUTPUT
-		BASENAME=`basename $OUTPUT .gz`
-		hg archive --type tar --prefix=$TREE/ $BASENAME
-		gzip -f $BASENAME
-		mv $BASENAME.gz $OUTPUT
-		cd -
-	fi
-
-}
-
 export TRANSHUGE_AVAILABLE=no
 if [ -e /sys/kernel/mm/transparent_hugepage/enabled ]; then
 	export TRANSHUGE_AVAILABLE=yes
