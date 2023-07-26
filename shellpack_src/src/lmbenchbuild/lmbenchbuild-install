@@ -1,13 +1,13 @@
 #!/bin/bash
 ###SHELLPACK preamble lmbenchbuild-install 3
-WEB_LOCATION=http://www.bitmover.com/lmbench
-MIRROR_LOCATION="$WEBROOT/lmbench"
+GIT_LOCATION="https://github.com/intel/lmbench"
+MIRROR_LOCATION="$WEBROOT/extra/lmbench"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 install-depends libtirpc-devel
 
-###SHELLPACK sources_fetch lmbench${VERSION}.tar.gz lmbenchbuild-${VERSION}-installed
+###SHELLPACK git_fetch lmbench${VERSION}.tar.gz lmbenchbuild-${VERSION}-installed
 
 ###SHELLPACK build_start lmbenchbuild-${VERSION}-installed
 # Workaround build problem
