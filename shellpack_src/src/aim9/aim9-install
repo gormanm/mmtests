@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###SHELLPACK preamble aim9-install 9110
-WEB_LOCATION="http://www.skynet.ie/~mel/mmtests-archive/aim9"
+WEB_LOCATION="https://master.dl.sourceforge.net/project/aimbench/aim-suite9/Initial%20release"
 MIRROR_LOCATION="$WEBROOT/aim9"
 
 ###SHELLPACK parseargBegin
