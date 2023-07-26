@@ -11,11 +11,11 @@ export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # SPECjvm
-export SPECJVM_JRE=/opt/java/jre/bin
+export SPECJVM_PACKAGES="java-1_8_0-openjdk java-1_8_0-openjdk-devel"
+export SPECJVM_JRE=/usr/lib64/jvm/java-1.8.0-openjdk-1.8.0/jre/bin
 export SPECJVM_DEFAULT_ITERATION_TIME=300
 export SPECJVM_DEFAULT_WARMUP_TIME=120
 export SPECJVM_DEFAULT_ITERATIONS=3
 export SPECJVM_MAXHEAP=-Xmx$((MEMTOTAL_BYTES*6/10/1048576))m
 export SPECJVM_PAGESIZES="default"
-#export SPECJVM_PAGESIZES="base huge"
 export SPECJVM_HUGESWITCH=-Xlp

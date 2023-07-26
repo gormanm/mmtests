@@ -74,7 +74,7 @@ for PAGES in $SPECJVM_PAGESIZES; do
 
 	for JOB in $JOBLIST; do
 		monitor_pre_hook $LOGDIR_RESULTS $JOB
-		java $USE_HUGEPAGE $SPECJVM_MAXHEAP -jar SPECjvm2008.jar $WARMUP_TIME $ITERATION_TIME --parseJvmArgs -i $ITERATIONS --peak $JOB -ikv
+		java $USE_HUGEPAGE $SPECJVM_MAXHEAP $SPECJVM_ARGS -jar SPECjvm2008.jar $WARMUP_TIME $ITERATION_TIME --parseJvmArgs -i $ITERATIONS --peak $JOB -ikv
 		monitor_post_hook $LOGDIR_RESULTS $JOB
 	done
 
