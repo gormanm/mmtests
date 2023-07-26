@@ -74,6 +74,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 	EXIT_CODE=$SHELLPACK_SUCCESS
 	if [ $INSTANCES -eq 1 ]; then
 		set_mmtests_numactl $INSTANCES $INSTANCES
+		echo DEBUG DEBUG save_rc $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP -jar specjbb2015.jar -m COMPOSITE 2> /dev/null | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log
 		eval save_rc $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP -jar specjbb2015.jar -m COMPOSITE 2> /dev/null | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log
 		recover_rc
 		if [ $EXIT_CODE -ne 0 ]; then
