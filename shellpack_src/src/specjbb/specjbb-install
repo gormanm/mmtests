@@ -4,6 +4,10 @@
 WEB_LOCATION="NOT_AVAILABLE"
 MIRROR_LOCATION="$WEBROOT/proprietary/spec"
 
+for PACKAGE in $SPECJBB_PACKAGES; do
+        install-depends $PACKAGE
+done
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 

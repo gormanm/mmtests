@@ -12,7 +12,8 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # SPECjbb - max heap 60% of memory.
 # Total heap is divided between number of instances
-export SPECJBB_JRE=/opt/java/jre/bin
+export SPECJBB_PACKAGES="java-17-openjdk java-17-openjdk-devel"
+export SPECJBB_JRE=/usr/lib64/jvm/java-17-openjdk-17/bin
 export SPECJBB_STARTING_WAREHOUSES=1
 export SPECJBB_INCREMENT_WAREHOUSES=1
 export SPECJBB_ENDING_WAREHOUSES=$((NUMCPUS/NUMNODES))
@@ -20,7 +21,6 @@ export SPECJBB_JVM_INSTANCES=$NUMNODES
 export SPECJBB_MAXHEAP_TOTAL_MB=$((MEMTOTAL_BYTES*6/10/1048576))
 export SPECJBB_MAXHEAP=-Xmx$(($SPECJBB_MAXHEAP_TOTAL_MB/$SPECJBB_JVM_INSTANCES))m
 export SPECJBB_PAGESIZES="default"
-#export SPECJBB_PAGESIZES="base huge"
 export SPECJBB_HUGESWITCH=-Xlp
 
 if [ $NUMNODES -eq 1 ]; then
