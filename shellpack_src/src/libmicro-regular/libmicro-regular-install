@@ -2,7 +2,7 @@
 # libmicro installer
 ###SHELLPACK preamble libmicro-regular-install 1
 GIT_LOCATION=https://github.com/redhat-performance/libMicro
-MIRROR_LOCATION="$WEBROOT/libmicro"
+MIRROR_LOCATION="$WEBROOT/extra/libmicro"
 
 install-depends gcc
 

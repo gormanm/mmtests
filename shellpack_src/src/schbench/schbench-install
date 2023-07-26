@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble schbench-install 0
 GIT_LOCATION=git://git.kernel.org/pub/scm/linux/kernel/git/mason/schbench.git
-MIRROR_LOCATION="$WEBROOT/schbench/"
+MIRROR_LOCATION="$WEBROOT/extra/schbench/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

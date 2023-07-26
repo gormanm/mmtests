@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble trinity-install 0
 GIT_LOCATION=https://github.com/kernelslacker/trinity
-MIRROR_LOCATION="$WEBROOT/trinity/"
+MIRROR_LOCATION="$WEBROOT/extra/trinity/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

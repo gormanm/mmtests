@@ -2,7 +2,7 @@
 ###SHELLPACK preamble specfem3d v7.0.2
 export GIT_CLONE_FLAGS="--recursive"
 GIT_LOCATION="https://github.com/geodynamics/specfem3d_globe.git"
-MIRROR_LOCATION="$WEBROOT/specfem3d/"
+MIRROR_LOCATION="$WEBROOT/extra/specfem3d/"
 
 if [ "$SPECFEM3D_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps SPECFEM3D_OPENMPI_VERSION

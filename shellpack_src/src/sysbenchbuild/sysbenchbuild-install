@@ -2,7 +2,7 @@
 ###SHELLPACK preamble sysbenchbuild-install 1.0.20
 
 GIT_LOCATION="https://github.com/akopytov/sysbench"
-MIRROR_LOCATION=$WEBROOT/sysbench
+MIRROR_LOCATION="$WEBROOT/extra/sysbench"
 
 install-depends pkg-config
 

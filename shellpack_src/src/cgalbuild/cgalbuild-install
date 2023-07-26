@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble cgalbuild 4.12.2
 GIT_LOCATION=https://github.com/CGAL/cgal
-MIRROR_LOCATION="$WEBROOT/cgal/"
+MIRROR_LOCATION="$WEBROOT/extra/cgal/"
 
 install-depends cmake
 

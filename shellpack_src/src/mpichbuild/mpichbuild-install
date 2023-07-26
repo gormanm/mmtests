@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble mpichbuild v3.3.2
 GIT_LOCATION=https://github.com/pmodels/mpich
-MIRROR_LOCATION="$WEBROOT/mpich/"
+MIRROR_LOCATION="$WEBROOT/extra/mpich/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

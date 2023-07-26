@@ -2,7 +2,7 @@
 
 ###SHELLPACK preamble parsec-install 0
 GIT_LOCATION="https://github.com/cirosantilli/parsec-benchmark"
-MIRROR_LOCATION="$WEBROOT/parsec/"
+MIRROR_LOCATION="$WEBROOT/extra/parsec/"
 
 for PACKAGE in glib2-devel libxml2-devel gsl-devel libgsl23 libgslcblas0 libjpeg8-devel libjpeg8 xz cmake libXt-devel libXmu-devel libXi-devel; do
 	install-depends $PACKAGE

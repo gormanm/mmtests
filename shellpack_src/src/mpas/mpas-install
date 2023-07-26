@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble mpas v6.2
 GIT_LOCATION=https://github.com/MPAS-Dev/MPAS-Model
-MIRROR_LOCATION="$WEBROOT/mpas/"
+MIRROR_LOCATION="$WEBROOT/extra/mpas/"
 
 if [ "$MPAS_OPENMPI_VERSION" != "" ]; then
 	###SHELLPACK mpi_setup_deps MPAS_OPENMPI_VERSION

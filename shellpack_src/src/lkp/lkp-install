@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble lkp-install 0
 GIT_LOCATION=git://git.kernel.org/pub/scm/linux/kernel/git/wfg/lkp-tests.git
-MIRROR_LOCATION="$WEBROOT/lkp/"
+MIRROR_LOCATION="$WEBROOT/extra/lkp/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

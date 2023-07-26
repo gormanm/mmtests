@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble stockfish-install 0
 GIT_LOCATION=https://github.com/mcostalba/Stockfish.git
-MIRROR_LOCATION="$WEBROOT/stockfish/"
+MIRROR_LOCATION="$WEBROOT/extra/stockfish/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

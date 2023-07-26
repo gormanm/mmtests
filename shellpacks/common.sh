@@ -550,7 +550,7 @@ function git_fetch() {
 		[ $RET -eq 0 ] && export MMTESTS_CREATE_MIRROR=no
 	fi
 
-	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
+	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $RET -ne 0 ]; then
 		if [ "$GIT" = "NOT_AVAILABLE" ]; then
 			die "Benchmark is not publicly available. You must make it available from a local mirror"
 		fi

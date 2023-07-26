@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble xcbuild 2.2.2
 GIT_LOCATION=https://gitlab.com/libxc/libxc
-MIRROR_LOCATION="$WEBROOT/xc/"
+MIRROR_LOCATION="$WEBROOT/extra/xc/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

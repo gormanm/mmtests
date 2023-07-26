@@ -3,7 +3,7 @@
 
 ###SHELLPACK preamble autonumabench-install 0
 GIT_LOCATION=https://gitorious.org/autonuma-benchmark/autonuma-benchmark.git
-MIRROR_LOCATION="$WEBROOT/autonumabench/"
+MIRROR_LOCATION="$WEBROOT/extra/autonumabench/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

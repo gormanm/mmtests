@@ -2,7 +2,7 @@
 # Sockperf installer
 ###SHELLPACK preamble sockperf-install 0
 GIT_LOCATION=https://github.com/Mellanox/sockperf
-MIRROR_LOCATION="$WEBROOT/sockperf/"
+MIRROR_LOCATION="$WEBROOT/extra/sockperf/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

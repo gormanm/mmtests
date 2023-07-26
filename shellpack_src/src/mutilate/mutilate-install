@@ -2,7 +2,7 @@
 # mutilate installer
 ###SHELLPACK preamble mutilate-install 1
 GIT_LOCATION=https://github.com/leverich/mutilate.git
-MIRROR_LOCATION="$WEBROOT/mutilate"
+MIRROR_LOCATION="$WEBROOT/extra/mutilate"
 
 install-depends libevent-devel scons
 install-depends gengetopt

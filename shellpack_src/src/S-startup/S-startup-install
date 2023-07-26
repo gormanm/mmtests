@@ -3,7 +3,7 @@
 # shellpack bound to commit 8d22ab8 ("S benchmark suite 3.4")
 ###SHELLPACK preamble S-startup-install 8d22ab8
 GIT_LOCATION="https://github.com/Algodev-github/S.git"
-MIRROR_LOCATION="$WEBROOT/S"
+MIRROR_LOCATION="$WEBROOT/extra/S"
 
 install-depends gawk gnuplot coreutils fio time sysstat gcc-c++ libaio-devel
 install-depends xterm libreoffice-writer gnome-terminal sysstat
