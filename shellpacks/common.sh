@@ -454,13 +454,14 @@ function file_fetch() {
 
 	if [ -s $OUTPUT ]; then
 		echo Downloaded file already available at $OUTPUT
+		export MMTESTS_CREATE_MIRROR=no
 		return
 	fi
 	rm -f $OUTPUT
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $MIRROR
+		wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $MIRROR || export MMTESTS_CREATE_MIRROR=no
 	fi
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$WEB" = "NOT_AVAILABLE" ]; then
@@ -484,13 +485,14 @@ function sources_fetch() {
 
 	if [ -s $OUTPUT ]; then
 		echo Downloaded file already available at $OUTPUT
+		export MMTESTS_CREATE_MIRROR=no
 		return
 	fi
 	rm -f $OUTPUT
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $MIRROR
+		wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $MIRROR || export MMTESTS_CREATE_MIRROR=no
 	fi
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$WEB" = "NOT_AVAILABLE" ]; then
@@ -527,6 +529,7 @@ function git_fetch() {
 
 	if [ -s $OUTPUT ]; then
 		echo Downloaded file already available at $OUTPUT
+		export MMTESTS_CREATE_MIRROR=no
 		return
 	fi
 
@@ -538,12 +541,12 @@ function git_fetch() {
 
 	if [ "$MMTESTS_IGNORE_MIRROR" != "yes" ]; then
 		echo "$P: Fetching from mirror $MIRROR"
-		wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $MIRROR
+		wget -q $WGET_SHOW_PROGRESS -O $OUTPUT $MIRROR || export MMTESTS_CREATE_MIRROR=no
 	fi
 
 	if [ "$MMTESTS_IGNORE_MIRROR" = "yes" -o $? -ne 0 ]; then
 		if [ "$GIT" = "NOT_AVAILABLE" ]; then
-			die Benchmark is not publicly available. You must make it available from a local mirror
+			die "Benchmark is not publicly available. You must make it available from a local mirror"
 		fi
 
 		cd $SHELLPACK_SOURCES
