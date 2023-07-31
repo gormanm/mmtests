@@ -5,6 +5,7 @@ GIT_LOCATION=https://github.com/redhat-performance/libMicro
 MIRROR_LOCATION="$WEBROOT/extra/libmicro"
 
 install-depends gcc
+install-depends glibc-devel
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

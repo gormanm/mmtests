@@ -1,7 +1,7 @@
 ### libmicro runs a few basic microbenchmarks that were used when isolating
 ### regressions from other benchmarks.
 
-export MMTESTS="libmicro-regular libmicro-memory libmicro-contextswitch libmicro-socket"
+export MMTESTS="libmicro-regular"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
