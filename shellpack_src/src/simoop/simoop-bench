@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run simoop benchmark
 
-###SHELLPACK preamble simoop-bench 0
+###SHELLPACK preamble simoop-bench 18929ada
 TESTTIME=15
 ITERATIONS=12
 
