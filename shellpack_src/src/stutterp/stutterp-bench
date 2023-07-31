@@ -229,6 +229,9 @@ if [ "$MEMFAULT_TMPFS" = "yes" ]; then
 fi
 
 log_info Cleanup tmp
+killall -KILL mmap-latency
+killall -KILL memory-hog
+killall -KILL fio
 rm -rf $SHELLPACK_TEMP
 
 log_info Complete
