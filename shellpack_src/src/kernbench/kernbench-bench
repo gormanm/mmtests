@@ -37,7 +37,14 @@ for V in `seq 2 5`; do
 	fi
 done
 
-WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v5.x/linux-${VERSION}.tar.xz
+if $(echo ${VERSION} | grep -q "^5\."); then
+	WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v5.x/linux-${VERSION}.tar.xz
+elif $(echo ${VERSION} | grep -q "^6\."); then
+	WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v6.x/linux-${VERSION}.tar.xz
+else
+	die "KERNBENCH_VERSION '$VERSION' not supported"
+fi
+
 MIRROR_LOCATION=$WEBROOT/extra/kernel/linux-$VERSION.tar.xz
 THREADS=$(($NUMCPUS))
 KERNBENCH_TARGETS=`echo $KERNBENCH_TARGETS | sed -e 's/,/ /g'`
