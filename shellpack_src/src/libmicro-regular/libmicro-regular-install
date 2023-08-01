@@ -13,6 +13,7 @@ install-depends glibc-devel
 ###SHELLPACK git_fetch libmicro-regular-${VERSION}.tar.gz libmicro-regular-${VERSION}-installed
 
 ###SHELLPACK build_start libmicro-regular-${VERSION}-installed
+sed -i -e 's/tattle.c libmicro.a -lrt -lm.*/tattle.c libmicro.a -lrt -lm -lpthread/' Makefile.com
 
 ###SHELLPACK make_clean
 ###SHELLPACK make

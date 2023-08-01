@@ -12,6 +12,7 @@ install-depends gcc
 ###SHELLPACK git_fetch libmicro-mutex-${VERSION}.tar.gz libmicro-mutex-${VERSION}-installed
 
 ###SHELLPACK build_start libmicro-mutex-${VERSION}-installed
+sed -i -e 's/tattle.c libmicro.a -lrt -lm.*/tattle.c libmicro.a -lrt -lm -lpthread/' Makefile.com
 
 ###SHELLPACK make_clean
 ###SHELLPACK make

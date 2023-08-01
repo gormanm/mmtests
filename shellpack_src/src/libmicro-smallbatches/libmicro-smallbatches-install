@@ -12,6 +12,7 @@ install-depends gcc
 ###SHELLPACK git_fetch libmicro-smallbatches-${VERSION}.tar.gz libmicro-smallbatches-${VERSION}-installed
 
 ###SHELLPACK build_start libmicro-smallbatches-${VERSION}-installed
+sed -i -e 's/tattle.c libmicro.a -lrt -lm.*/tattle.c libmicro.a -lrt -lm -lpthread/' Makefile.com
 
 ###SHELLPACK make_clean
 ###SHELLPACK make

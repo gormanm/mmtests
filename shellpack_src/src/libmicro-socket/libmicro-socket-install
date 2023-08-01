@@ -12,6 +12,7 @@ install-depends gcc
 ###SHELLPACK git_fetch libmicro-socket-${VERSION}.tar.gz libmicro-socket-${VERSION}-installed
 
 ###SHELLPACK build_start libmicro-socket-${VERSION}-installed
+sed -i -e 's/tattle.c libmicro.a -lrt -lm.*/tattle.c libmicro.a -lrt -lm -lpthread/' Makefile.com
 
 ###SHELLPACK make_clean
 ###SHELLPACK make
