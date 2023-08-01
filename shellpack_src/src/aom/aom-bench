@@ -3,12 +3,14 @@
 MIRROR_LOCATION="$WEBROOT/aom/"
 
 ###SHELLPACK preamble aom-bench v3.3.0
+AOM_ENCODER_SPEED=5
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --min-threads	AOM_MIN_THREADS
 ###SHELLPACK parseargParam --max-threads	AOM_MAX_THREADS
 ###SHELLPACK parseargParam --source-file	AOM_SOURCE_FILE
+###SHELLPACK parseargParam --encoder-speed	AOM_ENCODER_SPEED
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -23,6 +25,12 @@ rm -f $SHELLPACK_DATA/*.txt
 	|| die "Failed to extract $SHELLPACK_DATA/$AOM_SOURCE_FILE"
 ###SHELLPACK init_complete
 
+if [ $AOM_ENCODER_SPEED -eq 0 ]; then
+	echo "WARNING: AOM_ENCODER_SPEED=0: This is exceptionally slow"
+else
+	echo "AOM_ENCODER_SPEED=$AOM_ENCODER_SPEED"
+fi
+
 AOM_SOURCE_FILE=`ls $SHELLPACK_DATA/*.y4m`
 AOM_SOURCE_FILE=`basename $AOM_SOURCE_FILE`
 ###SHELLPACK threads_large_stride_begin $AOM_MIN_THREADS $AOM_MAX_THREADS
@@ -31,6 +39,7 @@ AOM_SOURCE_FILE=`basename $AOM_SOURCE_FILE`
 	$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS				\
 		$SHELLPACK_SOURCES/aom-${VERSION}-installed/bin/aomenc		\
 			--threads=$NR_THREADS					\
+			--cpu-used=$AOM_ENCODER_SPEED				\
 			-o $SHELLPACK_DATA/output.avi				\
 			$SHELLPACK_DATA/$AOM_SOURCE_FILE			\
 			&> $LOGDIR_RESULTS/aom-$NR_THREADS.log
