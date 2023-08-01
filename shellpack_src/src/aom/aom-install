@@ -6,12 +6,7 @@ MIRROR_LOCATION="$WEBROOT/aom/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-install-depends cmake
-install-depends git-core
-install-depends nasm
-install-depends yasm
-install-depends p7zip
-install-depends p7zip-full
+install-depends cmake git-core nasm yasm p7zip p7zip-full gcc-c++
 
 ###SHELLPACK git_fetch aom-${VERSION}.tar.gz aom-${VERSION}
 ###SHELLPACK build_start_alt aom-${VERSION}
