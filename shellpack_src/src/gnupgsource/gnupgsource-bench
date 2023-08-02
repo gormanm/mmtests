@@ -1,0 +1,41 @@
+#!/bin/bash
+# This script runs the git source unit tests
+
+###SHELLPACK preamble gnupgsource-bench gnupg-2.2.27
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--iterations  GNUPGSOURCE_ITERATIONS
+###SHELLPACK parseargYes	--skip-warmup GNUPGSOURCE_SKIP_WARMUP
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK init_only_start
+###SHELLPACK check_install_required_continue gnupgsource-${VERSION}
+cp -ar $SHELLPACK_SOURCES/gnupgsource-${VERSION}-installed $SHELLPACK_DATA || die "Failed to copy gnupgsource-$VERSION-installed"
+###SHELLPACK init_only_end
+
+cd $SHELLPACK_DATA/gnupgsource-${VERSION}-installed || die Failed to cd to gnupgsource-$VERSION-installed
+
+if [ "$GNUPGSOURCE_SKIP_WARMUP" = "no" ]; then
+	echo Warming run
+	make check > $LOGDIR_RESULTS/warmup.log 2>&1
+	tail $LOGDIR_RESULTS/warmup.log
+fi
+
+monitor_pre_hook $LOGDIR_RESULTS $P
+###SHELLPACK iteration_begin $GNUPGSOURCE_ITERATIONS
+	echo Starting iteration $ITERATION/$GNUPGSOURCE_ITERATIONS
+	$TIME_CMD -o $LOGDIR_RESULTS/gnupgsource-${ITERATION}.time \
+		make check \
+		> $LOGDIR_RESULTS/gnupgsource-${ITERATION}.log 2>&1
+	tail $LOGDIR_RESULTS/gnupgsource-${ITERATION}.log
+	gzip $LOGDIR_RESULTS/gnupgsource-${ITERATION}.log
+	cat $LOGDIR_RESULTS/gnupgsource-${ITERATION}.time
+###SHELLPACK iteration_end
+monitor_post_hook $LOGDIR_RESULTS $P
+
+cat $LOGDIR_RESULTS/gnupgsource-*.time | grep elapsed | tee $LOGDIR_RESULTS/time
+rm -rf $SHELLPACK_DATA/gnupgsource-${VERSION}-installed
+
+exit $SHELLPACK_SUCCESS
