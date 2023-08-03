@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble aom-install v3.3.0
 GIT_LOCATION=https://aomedia.googlesource.com/aom
-MIRROR_LOCATION="$WEBROOT/aom/"
+MIRROR_LOCATION="$WEBROOT/extra/aom/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
