@@ -6,7 +6,7 @@ MIRROR_LOCATION="$WEBROOT/scalapackbuild/"
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-install-depends cmake
+install-depends cmake gcc-fortran
 
 # Install openmpi requirements
 ###SHELLPACK mpi_setup_deps SCALAPACK_OPENMPI_VERSION
