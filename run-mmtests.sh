@@ -681,6 +681,10 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	done
 	teststate_log "finish :: `date +%s`"
 
+	if [ -e /sys/kernel/debug/sched/preempt ]; then
+		cat /sys/kernel/debug/sched/preempt > $SHELLPACK_LOG/preempt-dynamic
+	fi
+
 	dmesg > $SHELLPACK_LOG/dmesg
 	gzip -f $SHELLPACK_LOG/dmesg
 	journalctl -k 2>/dev/null > $SHELLPACK_LOG/journalctl-kernel
