@@ -1,0 +1,42 @@
+#!/bin/bash
+export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
+
+DMESG=$1
+if [ "$DMESG" = "" -o ! -e "$DMESG" ]; then
+	echo Specify dmesg.gz to extract cmdline
+	exit -1
+fi
+
+CMDLINE=`zcat $DMESG | grep "Command line:" | head -1 | sed -e 's/.*Command line: //'`
+if [ "$CMDLINE" = "" ]; then
+	echo No command line available in dmesg log
+	exit -1
+fi
+
+TMPFILE=`mktemp`
+cleanup() {
+	rm -f $TMPFILE
+}
+trap cleanup EXIT
+
+
+CMDLINE_CLEAR_LIST="BOOT_IMAGE= root= resume="
+for PARAM in $CMDLINE; do
+	PARAM_OK=yes
+	for PARAM_CLEAR in BOOT_IMAGE= root= resume=; do
+		if [ "$PARAM" = "$PARAM_CLEAR" ]; then
+			PARAM_OK=no
+		fi
+		if [[ "$PARAM_CLEAR" = *= ]] && [[ $PARAM =~ ^$PARAM_CLEAR ]]; then
+			PARAM_OK=no
+		fi
+	done
+	if [ "$PARAM_OK" = "yes" ]; then
+		echo $PARAM >> $TMPFILE
+		BOOTARGS_GENERIC+="$PARAM "
+	fi
+done
+
+sort -u $TMPFILE | tr '\n' ' '
+echo

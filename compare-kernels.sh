@@ -170,6 +170,39 @@ fi
 
 KERNEL_LIST_ITER=`echo $KERNEL_LIST | sed -e 's/,/ /g'`
 
+# Print kernel command line options if they differ
+FIRST=yes
+FIRST_CMDLINE=
+CMDLINE_DIFFER=no
+rm -f /tmp/cmdline.$$
+for KERNEL in $KERNEL_LIST_ITER; do
+	if [ ! -e $KERNEL/iter-0/dmesg.gz ]; then
+		continue
+	fi
+	CMDLINE=`extract-dmesg-cmdline $KERNEL/iter-0/dmesg.gz`
+	if [ "$FIRST" = "yes" ]; then
+		FIRST=no
+		FIRST_CMDLINE="$CMDLINE"
+	else
+		if [ "$CMDLINE" != "$FIRST_CMDLINE" ]; then
+			CMDLINE_DIFFER=yes
+		fi
+	fi
+	printf "%-40s %s\n" "$KERNEL" "$CMDLINE" >> /tmp/cmdline.$$
+done
+if [ "$CMDLINE_DIFFER" = "yes" ]; then
+	if [ "$FORMAT" = "html" ]; then
+		echo "<a name="kernel-cmdline">"
+		echo "<pre>"
+	fi
+	echo Test kernel command lines
+	cat /tmp/cmdline.$$
+	if [ "$FORMAT" = "html" ]; then
+		echo "</pre>"
+	fi
+fi
+
+# Print IO storage details if available
 FIRST=yes
 for KERNEL in $KERNEL_LIST_ITER; do
 	IODETAILS=`find $KERNEL -name "storageioqueue.txt"`
