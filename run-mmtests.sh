@@ -685,6 +685,10 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		cat /sys/kernel/debug/sched/preempt > $SHELLPACK_LOG/preempt-dynamic
 	fi
 
+	if [ -e /sys/kernel/security/lsm ]; then
+		cat /sys/kernel/security/lsm > $SHELLPACK_LOG/security-lsm
+	fi
+
 	dmesg > $SHELLPACK_LOG/dmesg
 	gzip -f $SHELLPACK_LOG/dmesg
 	journalctl -k 2>/dev/null > $SHELLPACK_LOG/journalctl-kernel
