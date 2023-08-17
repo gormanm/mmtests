@@ -201,6 +201,40 @@ if [ "$CMDLINE_DIFFER" = "yes" ]; then
 		echo "</pre>"
 	fi
 fi
+rm -f /tmp/cmdline.$$
+
+# Print LSM options
+FIRST=yes
+FIRST_LSM=
+LSM=no
+rm -f /tmp/lsm.$$
+for KERNEL in $KERNEL_LIST_ITER; do
+	if [ ! -e $KERNEL/iter-0/security-lsm ]; then
+		LSM="(unavailable)"
+	else
+		LSM=`cat $KERNEL/iter-0/security-lsm`
+	fi
+	if [ "$FIRST" = "yes" ]; then
+		FIRST=no
+		FIRST_LSM="$LSM"
+	else
+		if [ "$LSM" != "$FIRST_LSM" ]; then
+			LSM_DIFFER=yes
+		fi
+	fi
+	printf "%-40s %s\n" "$KERNEL" "$LSM" >> /tmp/lsm.$$
+done
+if [ "$LSM_DIFFER" = "yes" ]; then
+	if [ "$FORMAT" = "html" ]; then
+		echo "<a name="lsm-enabled">"
+		echo "<pre>"
+	fi
+	echo Test kernel LSM module order
+	cat /tmp/lsm.$$
+	if [ "$FORMAT" = "html" ]; then
+		echo "</pre>"
+	fi
+fi
 
 # Print IO storage details if available
 FIRST=yes
