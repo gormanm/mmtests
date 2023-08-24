@@ -10,7 +10,9 @@ install-depends libnuma-devel
 
 ###SHELLPACK git_fetch rttestbuild-${VERSION}.tar.gz rttestbuild-${VERSION}-installed
 ###SHELLPACK build_start rttestbuild-${VERSION}-installed
-git checkout $VERSION || die "Failed to checkout version $VERSION"
+if [ -e .git ]; then
+	git checkout $VERSION || die "Failed to checkout version $VERSION"
+fi
 sed -i -e 's/elif defined __arm__/else/' src/queuelat/queuelat.c
 
 ###SHELLPACK make
