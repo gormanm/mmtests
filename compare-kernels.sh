@@ -206,7 +206,6 @@ rm -f /tmp/cmdline.$$
 # Print LSM options
 FIRST=yes
 FIRST_LSM=
-LSM=no
 rm -f /tmp/lsm.$$
 for KERNEL in $KERNEL_LIST_ITER; do
 	if [ ! -e $KERNEL/iter-0/security-lsm ]; then
@@ -229,12 +228,46 @@ if [ "$LSM_DIFFER" = "yes" ]; then
 		echo "<a name="lsm-enabled">"
 		echo "<pre>"
 	fi
-	echo Test kernel LSM module order
+	echo Test LSM module order
 	cat /tmp/lsm.$$
 	if [ "$FORMAT" = "html" ]; then
 		echo "</pre>"
 	fi
 fi
+rm -f /tmp/lsm.$$
+
+# Print cstate information if different
+FIRST=yes
+FIRST_CPUIDLE=
+rm -f /tmp/cpuidle.$$
+for KERNEL in $KERNEL_LIST_ITER; do
+	if [ ! -e $KERNEL/iter-0/cpuidle-latencies.txt ]; then
+		CPUIDLE="(unavailable)"
+	else
+		CPUIDLE=`cat $KERNEL/iter-0/cpuidle-latencies.txt`
+	fi
+	if [ "$FIRST" = "yes" ]; then
+		FIRST=no
+		FIRST_CPUIDLE="$CPUIDLE"
+	else
+		if [ "$CPUIDLE" != "$FIRST_CPUIDLE" ]; then
+			CPUIDLE_DIFFER=yes
+		fi
+	fi
+	printf "CState exit latencies: %-40s\n%s\n" "$KERNEL" "$CPUIDLE" >> /tmp/cpuidle.$$
+done
+if [ "$CPUIDLE_DIFFER" = "yes" ]; then
+	if [ "$FORMAT" = "html" ]; then
+		echo "<a name="cpuidle-enabled">"
+		echo "<pre>"
+	fi
+	echo Test CState latencies
+	cat /tmp/cpuidle.$$
+	if [ "$FORMAT" = "html" ]; then
+		echo "</pre>"
+	fi
+fi
+rm -f /tmp/cpuidle.$$
 
 # Print IO storage details if available
 FIRST=yes
