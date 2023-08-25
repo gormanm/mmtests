@@ -225,6 +225,13 @@ for CONFIG in $RAMCONFIGS; do
 #		echo 'export TESTDISK_RD_SIZE=$((${MMTESTS_NODE_SIZE[$TESTDISK_RD_PREALLOC_NODE]}/5))' >> ${CONFIG}-$FS
 #	done
 done
+TESTDISK_PARTITION="/dev/sdaNN"
+if [ -e $HOME/.mmtests-test-partition ]; then
+	CHECK_PARTITION=`cat $HOME/.mmtests-test-partition 2>/dev/null`
+	if [ "$CHECK_PARTITION" != "" -a -e "$CHECK_PARTITION" ]; then
+		TESTDISK_PARTITION=$CHECK_PARTITION
+	fi
+fi
 for CONFIG in $FSCONFIGS; do
 	check_io_config
 	if [ ! -e $CONFIG ]; then
@@ -232,35 +239,35 @@ for CONFIG in $FSCONFIGS; do
 		continue
 	fi
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext3/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM=/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
 			> $CONFIG-ext3
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext4/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-F -E lazy_itable_init=0"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
 			> $CONFIG-ext4
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier/' \
 			> $CONFIG-btrfs
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier,nodatacow/' \
 			> $CONFIG-btrfs-nocow
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=/' \
@@ -275,35 +282,35 @@ for CONFIG in $DEADLINE_FSCONFIGS; do
 	fi
 	OUT_CONFIG=`echo $CONFIG | sed -e 's/^config-io-/config-io-deadline-/'`
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext3/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM=/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
 			> $OUT_CONFIG-ext3
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext4/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-F -E lazy_itable_init=0"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
 			> $OUT_CONFIG-ext4
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier/' \
 			> $OUT_CONFIG-btrfs
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier,nodatacow/' \
 			> $OUT_CONFIG-btrfs-nocow
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=/' \
@@ -323,28 +330,28 @@ for CONFIG in $NOATIME_FSCONFIGS; do
 	fi
 	OUT_CONFIG=`echo $CONFIG | sed -e 's/^config-/config-deadline-/'`
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext3/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM=/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0,noatime/' \
 			> $CONFIG-ext3
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext4/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-F -E lazy_itable_init=0"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0,noatime/' \
 			> $CONFIG-ext4
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=noatime,nobarrier/' \
 			> $CONFIG-btrfs
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=noatime,nobarrier,nodatacow/' \
@@ -352,14 +359,12 @@ for CONFIG in $NOATIME_FSCONFIGS; do
 
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=noatime/' \
 			> $CONFIG-xfs
-
 done
-
 
 LIMITMEM_CONFIGS="
 "
@@ -373,28 +378,28 @@ for CONFIG in $LIMITMEM_CONFIGS; do
 	fi
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext3/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM=/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0/' \
 			> $DESTCONFIG-ext3
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=ext4/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-F -E lazy_itable_init=0"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=barrier=0,noatime/' \
 			> $DESTCONFIG-ext4
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=btrfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=nobarrier/' \
 			> $DESTCONFIG-btrfs
 
 	cat $CONFIG | sed \
-		-e 's/.*export TESTDISK_PARTITION.*/export TESTDISK_PARTITION=\/dev\/sda6/' \
+		-e "s@.*export TESTDISK_PARTITION.*@export TESTDISK_PARTITION=$TESTDISK_PARTITION@" \
 		-e 's/.*export TESTDISK_FILESYSTEM=.*/export TESTDISK_FILESYSTEM=xfs/' \
 		-e 's/.*export TESTDISK_MKFS_PARAM=.*/export TESTDISK_MKFS_PARAM="-f"/' \
 		-e 's/.*export TESTDISK_MOUNT_ARGS=.*/export TESTDISK_MOUNT_ARGS=/' \
