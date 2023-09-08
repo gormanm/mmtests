@@ -69,6 +69,22 @@ sed -e 's/HACKBENCH_MAX_GROUPS=.*/HACKBENCH_MAX_GROUPS=1/' config-scheduler-unbo
 # hpcc
 sed -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((512*1048576))'/ config-hpc-hpcc-large-full > config-hpc-hpcc-small-full
 
+# Iperf3 binding configs
+for NET in ipv4 ipv6; do
+	for BINDING in cross-ht cross-node cross-socket; do
+		cp config-network-iperf-$NET-unbound config-network-iperf-$NET-$BINDING
+		echo "export IPERF3_BINDING=$BINDING" >> config-network-iperf-$NET-$BINDING
+	done
+done
+
+# Iperf3 c-state limiting
+for NET in ipv4 ipv6; do
+	for BINDING in unbound cross-ht cross-node cross-socket; do
+		cp config-network-iperf-$NET-$BINDING config-network-iperf-$NET-$BINDING-cstate
+		echo "export CPUIDLE_CSTATE=C1" >> config-network-iperf-$NET-$BINDING-cstate
+	done
+done
+
 # KVM start
 cp config-workload-kvmstart-memhog config-workload-kvmstart-deployonly
 sed -i -e 's/KVMSTART_MIN_MEMORY=.*/KVMSTART_MIN_MEMORY=\$((KVMSTART_MAX_MEMORY+1))/' config-workload-kvmstart-deployonly

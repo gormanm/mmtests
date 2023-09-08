@@ -1,0 +1,3 @@
+IPERF3_NET_PROTOCOL=ipv4
+IPERF3_PROTOCOL=udp
+. $SHELLPACK_TOPLEVEL/drivers/driver-iperf3-common.sh

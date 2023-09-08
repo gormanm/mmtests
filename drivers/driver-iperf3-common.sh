@@ -1,3 +1,4 @@
+$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh iperf3
 SERVER_SIDE_SUPPORT=yes
 SERVER_SIDE_BENCH_SCRIPT=shellpacks/shellpack-bench-iperf3
 
@@ -11,11 +12,13 @@ run_bench() {
 	fi
 	$SCRIPTDIR/shellpacks/shellpack-bench-iperf3 $BIND_SWITCH \
 		$SERVER_ADDRESS				\
-		--protocol   $IPERF3_PROTOCOL		\
-		--msg-size   $IPERF3_MESSAGE_SIZE	\
-		--msg-rate   $IPERF3_MESSAGE_RATE	\
-		--min-client $IPERF3_MIN_CLIENTS	\
-		--max-client $IPERF3_MAX_CLIENTS	\
-		--duration   $IPERF3_DURATION
+		--net-protocol	$IPERF3_NET_PROTOCOL	\
+		--protocol	$IPERF3_PROTOCOL	\
+		--buffer-sizes	$IPERF3_BUFFER_SIZES	\
+		--bitrates	$IPERF3_BITRATES	\
+		--min-streams	$IPERF3_MIN_STREAMS	\
+		--max-streams	$IPERF3_MAX_STREAMS	\
+		--duration	$IPERF3_DURATION	\
+		--iterations	$IPERF3_ITERATIONS
 	return $?
 }

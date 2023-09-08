@@ -1,0 +1,17 @@
+export MMTESTS="iperf3-ipv4-udp iperf3-ipv4-tcp"
+
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat mpstat turbostat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# Iperf3
+export IPERF3_BUFFER_SIZES=200,1420,8920
+# This variable holds a list of bitrates (values separated with a comma).
+# Bitrate of 0 means throughput limiting is off.
+export IPERF3_BITRATES=0
+export IPERF3_MIN_STREAMS=1
+export IPERF3_MAX_STREAMS=32
+export IPERF3_DURATION=30
+export IPERF3_ITERATIONS=5

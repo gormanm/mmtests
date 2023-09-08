@@ -1,0 +1,3 @@
+IPERF3_NET_PROTOCOL=ipv6
+IPERF3_PROTOCOL=tcp
+. $SHELLPACK_TOPLEVEL/drivers/driver-iperf3-common.sh
