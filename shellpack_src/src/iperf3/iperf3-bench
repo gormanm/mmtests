@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs iperf and runs the regression tests
-###SHELLPACK preamble iperf3-bench 3.1.3
+###SHELLPACK preamble iperf3-bench 3.14
 IPV_SWITCH=-4
 
 TASKSET_SERVER=
