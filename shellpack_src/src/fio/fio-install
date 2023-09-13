@@ -4,7 +4,7 @@
 WEB_LOCATION=http://brick.kernel.dk/snaps
 MIRROR_LOCATION="$WEBROOT/fio"
 
-install-depends glibc-devel
+install-depends glibc-devel libaio-devel
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
