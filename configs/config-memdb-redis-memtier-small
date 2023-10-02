@@ -31,5 +31,10 @@ export REDIS_MEMTIER_THREADS=4
 export REDIS_MEMTIER_MIN_CLIENTS=1
 export REDIS_MEMTIER_MAX_CLIENTS=$((NUMCPUS-REDIS_MEMTIER_THREADS))
 
+# Excessive runtime otherwise
+if [ $REDIS_MEMTIER_MAX_CLIENTS -gt 128 ]; then
+	REDIS_MEMTIER_MAX_CLIENTS=128
+fi
+
 # Disable THP as recommended by redis documentation
 disable_transhuge
