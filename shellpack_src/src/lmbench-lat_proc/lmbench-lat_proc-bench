@@ -26,9 +26,13 @@ export ENOUGH=250000
 rm -f /tmp/hello
 ln -s $PWD/bin/hello /tmp/hello
 
+if [ "$LMBENCH_LATPROC_SUBTESTS" = "" ]; then
+	LMBENCH_LATPROC_SUBTESTS="fork exec shell"
+fi
+
 # Run test
 ###SHELLPACK threads_large_stride_begin $LMBENCH_LATPROC_MIN_THREADS $LMBENCH_LATPROC_MAX_THREADS
-	for PROC in fork exec shell; do
+	for PROC in $LMBENCH_LATPROC_SUBTESTS; do
 		BENCH_CMD="$LMBENCH_TEST -W 5 -N 5 -P $NR_THREADS $PROC"
 		log_cmd $BENCH_CMD
 
