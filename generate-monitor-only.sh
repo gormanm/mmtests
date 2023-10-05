@@ -96,7 +96,6 @@ sed -i -e '/^#/d' $TREE_MMTESTS/config
 
 echo Altering auto-install commands
 sed -i -e 's/install -y/install/' $TREE_MMTESTS/bin/install-depends
-sed -i -e '/install-depends/d' $TREE_MMTESTS/run-mmtests.sh
 sed -i -e '/cpupower e2fsprogs/d' $TREE_MMTESTS/run-mmtests.sh
 sed -i -e '/make numactl/d' $TREE_MMTESTS/run-mmtests.sh
 sed -i -e '/wget xfsprogs/d' $TREE_MMTESTS/run-mmtests.sh
