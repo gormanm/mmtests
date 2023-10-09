@@ -29,6 +29,13 @@ if [ $FIO_MAJOR -gt 2 -a $GCC_MAJOR -eq 4 -a $GCC_MINOR -lt 9 ]; then
 	echo Forcing fio 2.99 due to old compiler
 fi
 
+cleanup() {
+	if [ "$SHELLPACK_DATA" != "" ]; then
+		rm -rf $SHELLPACK_DATA/*
+	fi
+}
+trap cleanup EXIT
+
 ###SHELLPACK check_install_required fio-${VERSION}
 ###SHELLPACK init_complete
 
