@@ -1,0 +1,3 @@
+NETPERF_NET_PROTOCOL=ipv6
+NETPERF_PROTOCOL=UDP_STREAM
+. $SHELLPACK_TOPLEVEL/drivers/driver-netperf-common.sh

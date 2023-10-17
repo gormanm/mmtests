@@ -1,2 +1,1 @@
-NETPERF_PROTOCOL=TCP_RR
-. $SHELLPACK_TOPLEVEL/drivers/driver-netperf-common.sh
+driver-netperf-ipv4-tcp-rr.sh

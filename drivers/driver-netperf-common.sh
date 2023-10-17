@@ -25,6 +25,7 @@ run_bench() {
 	$SCRIPTDIR/shellpacks/shellpack-bench-netperf $BIND_SWITCH $VERSION_SWITCH \
 		$SERVER_ADDRESS \
 		--iterations $NETPERF_ITERATIONS	\
+		--net-protocol $NETPERF_NET_PROTOCOL	\
 		--protocol $NETPERF_PROTOCOL		\
 		--buffer-sizes $NETPERF_BUFFER_SIZES	\
 		--nr-pairs $NETPERF_NR_PAIRS
