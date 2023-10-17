@@ -75,10 +75,6 @@ none)
 esac
 
 echo $PROTOCOL > $LOGDIR_RESULTS/protocols
-EXTRA=
-if [ "$PROTOCOL" = "UDP_STREAM" ]; then
-	EXTRA="-P 15895"
-fi
 
 for SIZE in $BUFFER_SIZES; do
 mmtests_activity size $SIZE
@@ -105,7 +101,7 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 		-t $PROTOCOL \
 		-i 3,3 -I 95,5 \
 		-H $SERVER_HOST \
-		-- $SOCKETSIZE_OPT $MSGSIZE_OPT $EXTRA"
+		-- $SOCKETSIZE_OPT $MSGSIZE_OPT"
 	echo $TASKSET_CLIENT "netperf" $NETPERF_OPTS
 
 	PIDS=
