@@ -180,9 +180,6 @@ ssd)
 jobfile)
 	jobfile_test
 	;;
-block)
-	jobfile_test
-	;;
 *)
 	die Unrecognised test type $FIO_TEST_TYPE
 	;;

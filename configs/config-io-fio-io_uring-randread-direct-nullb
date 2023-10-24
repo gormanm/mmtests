@@ -6,7 +6,7 @@ export MMTESTS="fio"
 export TESTDISK_NULLB_DEVICE=yes
 export TESTDISK_NOMOUNT=true
 
-export FIO_TEST_TYPE=block
+export FIO_TEST_TYPE=jobfile
 
 # List of monitors
 export RUN_MONITOR=yes
