@@ -40,8 +40,6 @@ trap cleanup EXIT
 ###SHELLPACK check_install_required fio-${VERSION}
 ###SHELLPACK init_complete
 
-FIO_IO_PATTERNS="write read rw randread randwrite randrw"
-
 # default values for scaling test
 FIO_MAX_JOBS=${FIO_MAX_JOBS:-64}
 FIO_RUNTIME=${FIO_RUNTIME:-15}
@@ -50,6 +48,7 @@ FIO_IOENGINE=${FIO_IOENGINE:-libaio}
 FIO_DIRECT=${FIO_DIRECT:-1}
 FIO_IODEPTH=${FIO_IODEPTH:-1}
 FIO_REUSE_FILES=${FIO_REUSE_FILES:-no}
+FIO_IO_PATTERNS=${FIO_IO_PATTERNS:-"write read rw randread randwrite randrw"}
 
 function remove_fio_files() {
 	local logfile=$1 name=$2
