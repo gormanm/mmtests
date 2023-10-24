@@ -1,0 +1,35 @@
+### fio is a tool that will spawn a number of threads or processes
+### doing a particular type of I/O action as specified by the user.
+###
+### This fio configuration is for a fio scaling test. It runs a single
+### job with an increasingly large queue depth.
+###
+
+export MMTESTS="fio"
+
+# Test disk to setup (optional)
+#export TESTDISK_RAID_DEVICES=
+#export TESTDISK_RAID_MD_DEVICE=/dev/md0
+#export TESTDISK_RAID_OFFSET=63
+#export TESTDISK_RAID_SIZE=250019532
+#export TESTDISK_RAID_TYPE=raid0
+#export TESTDISK_PARTITION=/dev/sda6
+#export TESTDISK_FILESYSTEM=xfs
+#export TESTDISK_MKFS_PARAM="inode64,delaylog,logbsize=262144,nobarrier"
+#export TESTDISK_MOUNT_ARGS=barrier=0
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat top iotop"
+export MONITORS_WITH_LATENCY="vmstat iostat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# fio
+export FIO_TEST_TYPE=multivar_scale
+export FIO_IOENGINE=io_uring
+export FIO_IODEPTH="4 8 16 32 128 256 512"
+export FIO_BLOCK_SIZE=4k
+export FIO_SIZE=10G
+export FIO_IO_PATTERNS='randrw'
+export FIO_MAX_JOBS=1

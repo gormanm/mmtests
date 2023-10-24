@@ -87,6 +87,7 @@ config-io-fio-randread-doublemem-4k-4t
 config-io-fio-randread-sync-heavywrite
 config-io-fio-randread-sync-randwrite
 config-io-fio-scaling
+config-io-fio-randrw-direct-scale-iodepth
 config-io-fio-seqread-doublemem-32k-4t
 config-io-fio-seqread-doublemem-4k-4t
 config-io-fio-ssd
