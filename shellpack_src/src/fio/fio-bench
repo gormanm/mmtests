@@ -64,24 +64,24 @@ function remove_fio_files() {
 	done
 }
 
+run_fio() {
+	echo fio $*
+	./fio $*
+}
+
 function one_pass() {
 	local logfile=$1 rw=$2 size=$3 qd=$4 rt=$5 njobs=$6 bs=$7 name=$8
 
 	if [ "${FIO_REUSE_FILES}" != "yes" ]; then
 		remove_fio_files ${logfile} ${name}
 	fi
-	echo "fio --directory=${DIRS} --rw=${rw} --name=${name} \
-	    --size=${size} --group_reporting \
-	    --output-format=terse --terse-version=5 \
-	    --ioengine=${FIO_IOENGINE} --direct=${FIO_DIRECT} \
-	    --iodepth=${qd} --runtime=${rt} --numjobs=${njobs} \
-	    --blocksize=${bs}" | tee -a ${logfile}
-	./fio --directory=${DIRS} --rw=${rw} --name=${name} \
-	    --size=${size} --group_reporting \
-	    --output-format=terse --terse-version=5 \
-	    --ioengine=${FIO_IOENGINE} --direct=${FIO_DIRECT} \
-	    --iodepth=${qd} --runtime=${rt} --numjobs=${njobs} \
-	    --blocksize=${bs} | tee -a ${logfile} \
+
+	run_fio --directory=${DIRS} --rw=${rw} --name=${name} \
+		--size=${size} --group_reporting \
+		--output-format=terse --terse-version=5 \
+		--ioengine=${FIO_IOENGINE} --direct=${FIO_DIRECT} \
+		--iodepth=${qd} --runtime=${rt} --numjobs=${njobs} \
+		--blocksize=${bs} | tee -a ${logfile} \
 	    || die Failed to have fun with fio
 }
 
