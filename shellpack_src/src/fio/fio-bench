@@ -70,59 +70,103 @@ run_fio() {
 }
 
 function one_pass() {
-	local logfile=$1 rw=$2 size=$3 qd=$4 rt=$5 njobs=$6 bs=$7 name=$8
+	local logfile=$1
+	local -n fio_params=$2
 
 	if [ "${FIO_REUSE_FILES}" != "yes" ]; then
-		remove_fio_files ${logfile} ${name}
+		remove_fio_files ${logfile} ${fio_pass["NAME"]}
 	fi
 
-	run_fio --directory=${DIRS} --rw=${rw} --name=${name} \
-		--size=${size} --group_reporting \
-		--output-format=terse --terse-version=5 \
-		--ioengine=${FIO_IOENGINE} --direct=${FIO_DIRECT} \
-		--iodepth=${qd} --runtime=${rt} --numjobs=${njobs} \
-		--blocksize=${bs} | tee -a ${logfile} \
-	    || die Failed to have fun with fio
+	run_fio --directory=${DIRS} --name=${fio_params["NAME"]}	\
+		--ioengine=${FIO_IOENGINE}				\
+		--rw=${fio_params["IO_PATTERNS"]}  			\
+		--size=${fio_params["SIZE"]}				\
+		--direct=${FIO_DIRECT} 					\
+		--iodepth=${fio_params["IODEPTH"]} 			\
+		--runtime=${fio_params["RUNTIME"]} 			\
+		--numjobs=${fio_params["NJOBS"]} 			\
+		--blocksize=${fio_params["BLOCK_SIZE"]} 		\
+		--group_reporting --output-format=terse --terse-version=5 \
+		| tee -a ${logfile} || die Failed to have fun with fio
 }
 
 function rand_read_write() {
-	local rw size qd=$1 rt=30 njobs=$2 bs=4k name=fio-ssd
-	local logfile=${LOGDIR_RESULTS}/fio-ssd-rand-jobs_${njobs}-qd_${qd}-bs_${bs}
+	local rw size qd=$1 njobs=$2
+	local logfile
+	local -A fio_args
+
+	fio_args["IODEPTH"]=$qd
+	fio_args["NJOBS"]=$njobs
+
+	# These are constants
+	fio_args["NAME"]=fio-ssd
+	fio_args["RUNTIME"]=30
+	fio_args["BLOCK_SIZE"]=4k
+
+	logfile=${LOGDIR_RESULTS}/fio-ssd-rand-jobs_${njobs}-qd_${qd}-bs_4k
+
 	for rw in randread randwrite; do
+		fio_args["IO_PATTERNS"]=$rw
 		for size in 1G 2G 4G 8G 16G; do
-			one_pass ${logfile} ${rw} ${size} ${qd} ${rt} ${njobs} ${bs} ${name}
+			fio_args["SIZE"]=$size
+			one_pass ${logfile} "fio_args"
 		done
 	done
 }
 
 function seq_write_read() {
-	local rw size qd=$1 rt=10 njobs=1 bs=128k name=fio-ssd
-	local logfile=${LOGDIR_RESULTS}/fio-ssd-seq-jobs_${njobs}-qd_${qd}-bs_${bs}
+	local rw size qd=$1
+	local logfile
+	local -A fio_args
+
+	fio_args["IODEPTH"]=$qd
+
+	# These are constants
+	fio_args["NAME"]=fio-ssd
+	fio_args["NJOBS"]=1
+	fio_args["RUNTIME"]=10
+	fio_args["BLOCK_SIZE"]=128k
+
+	logfile=${LOGDIR_RESULTS}/fio-ssd-seq-jobs_1-qd_${qd}-bs_128k
+
 	for rw in write read; do
+		fio_args["IO_PATTERNS"]=$rw
 		for size in 8G 16G 32G; do
-			one_pass ${logfile} ${rw} ${size} ${qd} ${rt} ${njobs} ${bs} ${name}
+			fio_args["SIZE"]=$size
+			one_pass ${logfile} "fio_args"
 		done
 	done
 }
 
 function scaling_test() {
-	local rw size=${FIO_SIZE} qd=${FIO_IODEPTH} rt=${FIO_RUNTIME} bs=4k name=fio-scaling
-	local logfile i njobs=0 p_njobs=0
+	local rw
+	local logfile i p_njobs=0
+	local -A fio_args
+
+	fio_args["IODEPTH"]=$FIO_IODEPTH
+	fio_args["SIZE"]=$FIO_SIZE
+	fio_args["RUNTIME"]=${FIO_RUNTIME}
+
+	# These are constants
+	fio_args["NAME"]=fio-scaling
+	fio_args["BLOCK_SIZE"]=4k
+
 	for rw in ${FIO_IO_PATTERNS}; do
 		logfile=${LOGDIR_RESULTS}/fio-scaling-${rw}
+		fio_args["IO_PATTERNS"]=$rw
 		for i in $(seq 0 ${NUMCPUS}); do
-			njobs=$[2**${i}*${DIR_NR}]
-			if [ ${njobs} -gt ${FIO_MAX_JOBS} ]; then
+			fio_args["NJOBS"]=$[2**${i}*${DIR_NR}]
+			if [ fio_args["NJOBS"] -gt ${FIO_MAX_JOBS} ]; then
 				break
 			fi
-			if [ ${njobs} -gt ${NUMCPUS} ]; then
+			if [ fio_args["NJOBS"] -gt ${NUMCPUS} ]; then
 				njobs=${NUMCPUS}
 			fi
-			if [ ${njobs} -eq ${p_njobs} ]; then
+			if [ fio_args["NJOBS"] -eq ${p_njobs} ]; then
 				break
 			fi
-			p_njobs=${njobs}
-			one_pass ${logfile} ${rw} ${size} ${qd} ${rt} ${njobs} ${bs} ${name}
+			p_njobs=fio_args["NJOBS"]
+			one_pass ${logfile} ${fio_args}
 		done
 	done
 }
