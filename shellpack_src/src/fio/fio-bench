@@ -7,6 +7,7 @@ FIO_CMD_OPTIONS=
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam --cmdline                FIO_CMD_OPTIONS
+###SHELLPACK parseargParam --target_file	    FIO_TARGET_FILE
 ###SHELLPACK parseargParam --type		    FIO_TEST_TYPE
 ###SHELLPACK parseargParam --max_jobs		    FIO_MAX_JOBS
 ###SHELLPACK parseargParam --runtime		    FIO_RUNTIME
@@ -127,36 +128,28 @@ function scaling_test() {
 }
 
 function jobfile_test () {
+	local FIO_DEST_ARG
+
 	if [ "$FIO_CMD_OPTIONS" == "" ]; then
 		die "Missing required FIO_CMD_OPTIONS"
+	fi
+	if [ "$FIO_TARGET_FILE" != "" ]; then
+		if [ "$TESTDISK_NOMOUNT" != "true" ] ; then
+			die "FIO won't run I/O against a mounted disk"
+		fi
+		FIO_DEST_ARG="--filename=${FIO_TARGET_FILE}"
+
+	else
+		FIO_DEST_ARG="--directory=${SHELLPACK_DATA}"
 	fi
 
 	monitor_pre_hook $LOGDIR_RESULTS $SIZE
 
-	./fio --directory=${SHELLPACK_DATA} --minimal \
-		--write_lat_log $LOGDIR_RESULTS/fio $FIO_CMD_OPTIONS 2>&1 |
-		tee $LOGDIR_RESULTS/fio.log || \
+	./fio ${FIO_DEST_ARG} --minimal --write_lat_log $LOGDIR_RESULTS/fio  \
+	      $FIO_CMD_OPTIONS 2>&1 | tee $LOGDIR_RESULTS/fio.log || \
 		die "Failed to have fun with fio"
 
 	rm -rf $SHELLPACK_DATA/*
-	monitor_post_hook $LOGDIR_RESULTS $SIZE
-}
-
-function rawblock_test () {
-	if [ "$FIO_CMD_OPTIONS" == "" ]; then
-		die "Missing required FIO_CMD_OPTIONS"
-	fi
-	if [ "$TESTDISK_NOMOUNT" != "true" ] ; then
-		die "FIO won't run I/O against a mounted disk"
-	fi
-
-	monitor_pre_hook $LOGDIR_RESULTS $SIZE
-
-	./fio --filename=${TESTDISK_PARTITION} --minimal \
-		--write_lat_log $LOGDIR_RESULTS/fio $FIO_CMD_OPTIONS 2>&1 |
-		tee $LOGDIR_RESULTS/fio.log || \
-		die "Failed to have fun with fio"
-
 	monitor_post_hook $LOGDIR_RESULTS $SIZE
 }
 
@@ -188,7 +181,7 @@ jobfile)
 	jobfile_test
 	;;
 block)
-	rawblock_test
+	jobfile_test
 	;;
 *)
 	die Unrecognised test type $FIO_TEST_TYPE
