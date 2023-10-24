@@ -160,9 +160,7 @@ config-workload-will-it-scale-io-processes
 config-workload-will-it-scale-io-threads
 "
 
-mv config-io-fio-io_uring-randread-direct-nullb config-io-fio-io_uring-randread-direct-namespace-conflict
 rm -f *-ext3 *-ext4 *-btrfs *-btrfs-nocow *-xfs *-raid0 *-raid1 *-raid5 *-nullb
-mv config-io-fio-io_uring-randread-direct-namespace-conflict config-io-fio-io_uring-randread-direct-nullb
 
 check_io_config() {
 	grep -q TESTDISK_ $CONFIG
@@ -447,6 +445,10 @@ config-io-fio-randread-async-seqwrite
 config-io-fio-randread-sync-heavywrite
 config-io-fio-randread-sync-randwrite
 config-io-fio-sync-maxrandwrite
+config-io-fio-io_uring-randread-direct
+config-io-fio-io_uring-randread-direct-sqpoll
+config-io-fio-io_uring-randread-direct-fixedbufs
+config-io-fio-io_uring-randread-direct-registerfiles
 "
 
 for CONFIG in ${NULL_BLK_CONFIGS} ; do
