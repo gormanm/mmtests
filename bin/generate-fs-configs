@@ -79,6 +79,10 @@ config-io-filebench-webproxy-medium
 config-io-filebench-webproxy-small
 config-io-filebench-webserver-medium
 config-io-filebench-webserver-small
+config-io-fio-io_uring-randread-direct
+config-io-fio-io_uring-randread-direct-sqpoll
+config-io-fio-io_uring-randread-direct-fixedbufs
+config-io-fio-io_uring-randread-direct-registerfiles
 config-io-fio-randread-async-randwrite
 config-io-fio-randread-async-seqwrite
 config-io-fio-randread-direct-multi
