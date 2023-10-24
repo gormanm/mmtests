@@ -45,7 +45,8 @@ log_avg_msec=10
 group_reporting=1
 cpumask=1
 
-[write]
+[randread]
+filesize=1g
 numjobs=1
 readwrite=randread
 END
