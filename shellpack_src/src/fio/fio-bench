@@ -78,7 +78,7 @@ function one_pass() {
 	fi
 
 	run_fio --directory=${DIRS} --name=${fio_params["NAME"]}	\
-		--ioengine=${FIO_IOENGINE}				\
+		--ioengine=${fio_params["IOENGINE"]}			\
 		--rw=${fio_params["IO_PATTERNS"]}  			\
 		--size=${fio_params["SIZE"]}				\
 		--direct=${FIO_DIRECT} 					\
@@ -102,6 +102,7 @@ function rand_read_write() {
 	fio_args["NAME"]=fio-ssd
 	fio_args["RUNTIME"]=30
 	fio_args["BLOCK_SIZE"]=4k
+	fio_params["IOENGINE"]=${FIO_IOENGINE}
 
 	logfile=${LOGDIR_RESULTS}/fio-ssd-rand-jobs_${njobs}-qd_${qd}-bs_4k
 
@@ -126,6 +127,7 @@ function seq_write_read() {
 	fio_args["NJOBS"]=1
 	fio_args["RUNTIME"]=10
 	fio_args["BLOCK_SIZE"]=128k
+	fio_params["IOENGINE"]= ${FIO_IOENGINE}
 
 	logfile=${LOGDIR_RESULTS}/fio-ssd-seq-jobs_1-qd_${qd}-bs_128k
 
@@ -148,6 +150,7 @@ function scaling_test() {
 	fio_args["RUNTIME"]=${FIO_RUNTIME}
 
 	# These are constants
+	fio_params["IOENGINE"]=${FIO_IOENGINE}
 	fio_args["NAME"]=fio-scaling
 	fio_args["BLOCK_SIZE"]=4k
 
