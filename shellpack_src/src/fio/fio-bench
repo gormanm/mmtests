@@ -89,6 +89,59 @@ function one_pass() {
 		| tee -a ${logfile} || die Failed to have fun with fio
 }
 
+function __multivar_scale() {
+	local param=$(echo $1 | cut -d ";" -f 1)
+	local rest=$(echo $1 | cut -d ";" -f 2-)
+	local set
+	case "$param" in
+	"")
+		p=${fio_args["IOENGINE"]}-${fio_args["IO_PATTERNS"]}-${fio_args["BLOCK_SIZE"]}-j${fio_args["NJOBS"]}-qd${fio_args["IODEPTH"]}
+		logfile="${LOGDIR_RESULTS}/fio.log"
+		fio_args["NAME"]=$p
+
+		monitor_pre_hook ${LOGDIR_RESULTS} ${p}
+		one_pass ${logfile} "fio_args"
+		monitor_post_hook ${LOGDIR_RESULTS} ${p}
+		return
+		;;
+	"IOENGINE")
+		set=${FIO_IOENGINE}
+		;;
+	"IO_PATTERNS")
+		set=${FIO_IO_PATTERNS}
+		;;
+	"SIZE")
+		set=${FIO_SIZE}
+		;;
+	"IODEPTH")
+		set=${FIO_IODEPTH}
+		;;
+	"RUNTIME")
+		set=${FIO_RUNTIME}
+		;;
+	"NJOBS")
+		set=${FIO_MAX_JOBS}
+		;;
+	"BLOCK_SIZE")
+		set=${FIO_BLOCK_SIZE}
+		;;
+	*)
+		die "multivar scale got bad token"
+		;;
+	esac
+
+	for i in ${set} ; do
+		echo "set $param to $i (${set})"
+		fio_args["$param"]=$i
+		__multivar_scale "$rest"
+	done
+}
+
+function multivar_scale() {
+	local -A fio_args
+	__multivar_scale "IOENGINE;IO_PATTERNS;SIZE;IODEPTH;RUNTIME;NJOBS;BLOCK_SIZE;"
+}
+
 function rand_read_write() {
 	local rw size qd=$1 njobs=$2
 	local logfile
@@ -225,6 +278,11 @@ ssd)
 	;;
 jobfile)
 	jobfile_test
+	;;
+multivar_scale)
+	DIR_NR=${#SHELLPACK_DATA_DIRS[*]}
+	DIRS=$(echo ${SHELLPACK_DATA_DIRS[*]} | tr " " ":")
+	multivar_scale
 	;;
 *)
 	die Unrecognised test type $FIO_TEST_TYPE
