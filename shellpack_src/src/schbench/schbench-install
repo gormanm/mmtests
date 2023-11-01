@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble schbench-install 0
+###SHELLPACK preamble schbench-install 48aed1dc08e5
 GIT_LOCATION=git://git.kernel.org/pub/scm/linux/kernel/git/mason/schbench.git
 MIRROR_LOCATION="$WEBROOT/schbench/"
 

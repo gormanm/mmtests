@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble schbench-bench 0
+###SHELLPACK preamble schbench-bench 48aed1dc08e5
 
 SCHBENCH_ITERATIONS=1
 
