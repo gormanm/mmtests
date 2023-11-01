@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble gnupgsource-install gnupg-2.2.27
 GIT_LOCATION=https://dev.gnupg.org/source/gnupg.git
-MIRROR_LOCATION="$WEBROOT/extra/gnupgsource/"
+MIRROR_LOCATION="$WEBROOT/gnupgsource/"
 
 install-depends gettext-tools libgpg-error-devel libksba-devel \
 		npth-devel libgcrypt-devel libassuan-devel makeinfo \

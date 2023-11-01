@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble stressng-install V0.13.03
 GIT_LOCATION=https://github.com/ColinIanKing/stress-ng
-MIRROR_LOCATION="$WEBROOT/extra/stressng/"
+MIRROR_LOCATION="$WEBROOT/stressng/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

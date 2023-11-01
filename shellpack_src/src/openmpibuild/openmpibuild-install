@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble openmpibuild v3.1.6
 GIT_LOCATION=https://github.com/open-mpi/ompi
-MIRROR_LOCATION="$WEBROOT/extra/openmpi/"
+MIRROR_LOCATION="$WEBROOT/openmpi/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

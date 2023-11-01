@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble coremark-install v1.01
 GIT_LOCATION=https://github.com/eembc/coremark
-MIRROR_LOCATION="$WEBROOT/extra/coremark/"
+MIRROR_LOCATION="$WEBROOT/coremark/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

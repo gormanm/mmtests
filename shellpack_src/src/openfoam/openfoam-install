@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble openfoam OpenFOAM-v1812
 GIT_LOCATION=https://develop.openfoam.com/Development/openfoam.git
-MIRROR_LOCATION="$WEBROOT/extra/openfoam/"
+MIRROR_LOCATION="$WEBROOT/openfoam/"
 
 install-depends cmake gnuplot glu-devel flex		\
 	libqt4-devel qt4-assistant-adp-devel qt4-x11-tools

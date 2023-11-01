@@ -2,7 +2,7 @@
 # libmicro installer
 ###SHELLPACK preamble libmicro-socket-install 1
 GIT_LOCATION=https://github.com/redhat-performance/libMicro
-MIRROR_LOCATION="$WEBROOT/extra/libmicro"
+MIRROR_LOCATION="$WEBROOT/libmicro"
 
 install-depends gcc
 

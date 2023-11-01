@@ -2,7 +2,7 @@
 # sysjitter installer
 ###SHELLPACK preamble sysjitter-install sysjitter-1.4
 GIT_LOCATION="https://github.com/Xilinx-CNS/cns-sysjitter"
-MIRROR_LOCATION="$WEBROOT/extra/sysjitter/"
+MIRROR_LOCATION="$WEBROOT/sysjitter/"
 
 install-depends popt-devel
 

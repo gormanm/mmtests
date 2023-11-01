@@ -2,7 +2,7 @@
 # memcachetest installer
 ###SHELLPACK preamble memcachetest-install 0.01
 GIT_LOCATION=https://github.com/ingenthr/memcachetest.git
-MIRROR_LOCATION="$WEBROOT/extra/memcachetest"
+MIRROR_LOCATION="$WEBROOT/memcachetest"
 
 install-depends libevent-devel
 

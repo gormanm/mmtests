@@ -2,7 +2,7 @@
 # dbench installer
 ###SHELLPACK preamble dbench-install 781852c2b38a
 GIT_LOCATION=https://github.com/mcgrof/dbench.git
-MIRROR_LOCATION="$WEBROOT/extra/dbench/"
+MIRROR_LOCATION="$WEBROOT/dbench/"
 
 install-depends popt-devel libz1 zlib-devel
 install-depends rpcgen

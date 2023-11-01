@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble filelockperf-install 0
 GIT_LOCATION=git://git.samba.org/jlayton/lockperf.git
-MIRROR_LOCATION="$WEBROOT/extra/filelockperf/"
+MIRROR_LOCATION="$WEBROOT/filelockperf/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

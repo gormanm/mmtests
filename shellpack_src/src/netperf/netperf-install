@@ -2,7 +2,7 @@
 # Netperf installer
 ###SHELLPACK preamble netperf-install 2.4.5
 GIT_LOCATION=https://github.com/HewlettPackard/netperf
-MIRROR_LOCATION="$WEBROOT/extra/netperf/"
+MIRROR_LOCATION="$WEBROOT/netperf/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

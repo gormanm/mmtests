@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble pedsort-install 1
 GIT_LOCATION=https://pdos.csail.mit.edu/mosbench/mosbench.git
-MIRROR_LOCATION="$WEBROOT/extra/mosbench/"
+MIRROR_LOCATION="$WEBROOT/mosbench/"
 
 install-depends libdb-devel
 if [ ! -e /usr/include/db.h ]; then

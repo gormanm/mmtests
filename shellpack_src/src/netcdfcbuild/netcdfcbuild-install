@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble netcdfcbuild v4.7.3
 GIT_LOCATION=https://github.com/Unidata/netcdf-c
-MIRROR_LOCATION="$WEBROOT/extra/netcdf/"
+MIRROR_LOCATION="$WEBROOT/netcdf/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

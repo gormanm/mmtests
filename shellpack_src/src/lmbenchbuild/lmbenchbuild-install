@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble lmbenchbuild-install 3
 GIT_LOCATION="https://github.com/intel/lmbench"
-MIRROR_LOCATION="$WEBROOT/extra/lmbench"
+MIRROR_LOCATION="$WEBROOT/lmbench"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

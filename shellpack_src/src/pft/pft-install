@@ -2,7 +2,7 @@
 # This script installs the page fault test
 ###SHELLPACK preamble pft-install 0.12x
 GIT_LOCATION=https://github.com/gormanm/pft
-MIRROR_LOCATION="$WEBROOT/extra/pft/$TARFILE"
+MIRROR_LOCATION="$WEBROOT/pft/$TARFILE"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

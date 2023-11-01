@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble hdf5build hdf5-1_10_5
 GIT_LOCATION=https://github.com/HDFGroup/hdf5
-MIRROR_LOCATION="$WEBROOT/extra/netcdf/"
+MIRROR_LOCATION="$WEBROOT/netcdf/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

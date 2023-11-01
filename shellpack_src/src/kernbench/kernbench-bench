@@ -39,7 +39,7 @@ done
 
 MAJOR_VERSION=${VERSION%%.*}
 WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v${MAJOR_VERSION}.x/linux-${VERSION}.tar.xz
-MIRROR_LOCATION=$WEBROOT/extra/kernel/linux-$VERSION.tar.xz
+MIRROR_LOCATION=$WEBROOT/kernel/linux-$VERSION.tar.xz
 THREADS=$(($NUMCPUS))
 KERNBENCH_TARGETS=`echo $KERNBENCH_TARGETS | sed -e 's/,/ /g'`
 

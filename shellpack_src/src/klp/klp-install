@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble klp-install 0
 GIT_LOCATION=https://github.com/SUSE/qa_test_klp
-MIRROR_LOCATION="$WEBROOT/extra/klp/"
+MIRROR_LOCATION="$WEBROOT/klp/"
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
