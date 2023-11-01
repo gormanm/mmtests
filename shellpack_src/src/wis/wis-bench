@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run wis benchmark
 
-###SHELLPACK preamble wis-bench 0
+###SHELLPACK preamble wis-bench a34a85cc1e9b
 TESTTIME=15
 ITERATIONS=12
 

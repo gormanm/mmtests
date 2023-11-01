@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble wis-install 0
+###SHELLPACK preamble wis-install a34a85cc1e9b
 GIT_LOCATION=https://github.com/antonblanchard/will-it-scale.git
 MIRROR_LOCATION="$WEBROOT/wis/"
 
