@@ -15,10 +15,8 @@ TESTLIST=
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
+###SHELLPACK init_only_start
 ###SHELLPACK check_install_required dedup-${VERSION}
-###SHELLPACK init_complete
-
-# Copy/download test file into the test partition
 if [ "$DEDUP_FILE" = "" ]; then
 	die "DEDUP_FILE must be specified"
 fi
@@ -43,6 +41,7 @@ else
 	echo Uncompressing source file
 	xzcat $SHELLPACK_TEMP/in.file.xz >$SHELLPACK_DATA/in.file || die "Failed to decompress source file"
 fi
+###SHELLPACK init_only_end
 
 ###SHELLPACK threads_large_stride_begin $DEDUP_MIN_THREADS $DEDUP_MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
@@ -56,7 +55,7 @@ fi
 				2>&1 | tee $LOGDIR_RESULTS/dedup-${NR_THREADS}-${ITERATION}.log
 		recover_rc
 		if [ $? -ne 0 ]; then
-			die Failed to run dedup
+			die "Failed to run dedup"
 		fi
 
 		#cleanup
