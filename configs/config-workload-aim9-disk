@@ -1,0 +1,17 @@
+### aim9 is a number of micro-benchmarks. The results of this are very sensitive
+### to a number of factors but it can be useful early warning system. Results
+### tend to be difficult if not impossible to bisect but can sometimes be
+### correlated with degradations in other benchmarks.
+
+export MMTESTS="aim9"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat mpstat turbostat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=1
+
+# AIM9
+export AIM9_TESTTIME=300
+export AIM9_TESTLIST=disk_cp,disk_rd,disk_rr,disk_rw,disk_src,disk_wrt

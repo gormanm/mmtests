@@ -10,7 +10,7 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractAim9";
 	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
 	$self->{_PlotType}   = "operation-candlesticks";
-	$self->{_Operations} = [ "page_test", "brk_test", "exec_test", "fork_test" ];
+	$self->{_Operations} = [ "page_test", "brk_test", "exec_test", "fork_test", "disk_cp", "disk_rd", "disk_rr", "disk_rw", "disk_src", "disk_wrt" ];
 
 	$self->SUPER::initialise($subHeading);
 }
