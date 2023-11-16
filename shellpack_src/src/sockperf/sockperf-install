@@ -1,6 +1,6 @@
 #!/bin/bash
 # Sockperf installer
-###SHELLPACK preamble sockperf-install 0
+###SHELLPACK preamble sockperf-install sockperf_v2
 GIT_LOCATION=https://github.com/Mellanox/sockperf
 MIRROR_LOCATION="$WEBROOT/sockperf/"
 

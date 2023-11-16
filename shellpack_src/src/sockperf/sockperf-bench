@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs sockperf and runs the regression tests
-###SHELLPACK preamble sockperf-bench 0
+###SHELLPACK preamble sockperf-bench sockperf_v2
 TASKSET_SERVER=
 TASKSET_CLIENT=
 SERVER_HOST=127.0.0.1
