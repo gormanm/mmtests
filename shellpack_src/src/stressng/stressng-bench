@@ -41,6 +41,9 @@ af-alg)
 getdent)
 	TESTSWITCH="--getdent"
 	;;
+bad-altstack)
+  TESTSWITCH="--bad-altstack"
+  ;;
 io-class)
 	TESTSWITCH="--class io"
 	;;

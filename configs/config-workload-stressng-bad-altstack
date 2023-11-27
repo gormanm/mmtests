@@ -1,0 +1,18 @@
+### stressng broken alternative signal stacks test
+###
+
+export MMTESTS="stressng"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat mpstat turbostat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# bad-altstack
+export STRESSNG_MIN_THREADS=1
+export STRESSNG_MAX_THREADS=$((NUMCPUS*2))
+export STRESSNG_RUNTIME=60
+export STRESSNG_ITERATIONS=7
+export STRESSNG_TESTNAME=bad-altstack
