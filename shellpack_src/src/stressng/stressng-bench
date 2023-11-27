@@ -35,6 +35,9 @@ mmap)
 madvise)
 	TESTSWITCH="--madvise"
 	;;
+af-alg)
+	TESTSWITCH="--af-alg"
+	;;
 io-class)
 	TESTSWITCH="--class io"
 	;;
