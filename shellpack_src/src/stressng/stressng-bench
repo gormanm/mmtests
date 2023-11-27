@@ -32,6 +32,9 @@ context)
 mmap)
 	TESTSWITCH="--mmap"
 	;;
+madvise)
+	TESTSWITCH="--madvise"
+	;;
 io-class)
 	TESTSWITCH="--class io"
 	;;
