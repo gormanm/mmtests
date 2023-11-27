@@ -50,6 +50,9 @@ zombie)
 fork)
   TESTSWITCH="--fork"
   ;;
+vm-splice)
+  TESTSWITCH="--vm-splice"
+  ;;
 io-class)
 	TESTSWITCH="--class io"
 	;;
