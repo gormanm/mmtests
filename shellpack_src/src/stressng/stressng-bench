@@ -38,6 +38,9 @@ madvise)
 af-alg)
 	TESTSWITCH="--af-alg"
 	;;
+getdent)
+	TESTSWITCH="--getdent"
+	;;
 io-class)
 	TESTSWITCH="--class io"
 	;;
