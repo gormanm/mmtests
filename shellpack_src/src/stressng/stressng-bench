@@ -47,6 +47,9 @@ bad-altstack)
 zombie)
   TESTSWITCH="--zombie"
   ;;
+fork)
+  TESTSWITCH="--fork"
+  ;;
 io-class)
 	TESTSWITCH="--class io"
 	;;
