@@ -44,6 +44,9 @@ getdent)
 bad-altstack)
   TESTSWITCH="--bad-altstack"
   ;;
+zombie)
+  TESTSWITCH="--zombie"
+  ;;
 io-class)
 	TESTSWITCH="--class io"
 	;;
