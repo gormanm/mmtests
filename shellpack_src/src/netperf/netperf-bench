@@ -5,6 +5,8 @@
 TASKSET_SERVER=
 TASKSET_CLIENT=
 
+ITERATIONS=5
+NR_PAIRS=1
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargBindings
@@ -28,6 +30,9 @@ ipv6)
 	NET_PROTOCOL_OPT=-6
 	SERVER_HOST=::1
 	;;
+unix)
+	SERVER_HOST=127.0.0.1
+	;;
 esac
 if [ "$REMOTE_SERVER_HOST" != "" ]; then
 	SERVER_HOST=$REMOTE_SERVER_HOST
@@ -46,7 +51,7 @@ start)
 	monitor_pre_hook $LOGDIR_RESULTS netperf-$SERVERSIDE_NAME
 	NETROOT=$SHELLPACK_SOURCES/netperf-${VERSION}-installed 
 	$TASKSET_SERVER $NETROOT/bin/netserver $NET_PROTOCOL_OPT \
-		|| die Failed to start netserver
+		|| die "Failed to start netserver"
 	sleep 2
 	exit $SHELLPACK_SUCCESS
 	;;
@@ -70,7 +75,7 @@ none)
 	sleep 2
 	;;
 *)
-	die Unrecognised server-side command
+	die "Unrecognised server-side command"
 	;;
 esac
 
