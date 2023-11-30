@@ -7,7 +7,7 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required phpbench-${VERSION}
+###SHELLPACK check_install_required blogbench-${VERSION}
 ###SHELLPACK init_complete
 
 monitor_pre_hook $LOGDIR_RESULTS $P
