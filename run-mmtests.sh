@@ -394,6 +394,13 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		done
 	fi
 
+	if [ -n "${SYSTEM_MIN_MEMORY}" ] ; then
+		if [ ${MEMTOTAL_BYTES} -lt ${SYSTEM_MIN_MEMORY} ]; then
+			fail_log "System has insufficient memory $MEMTOTAL_BYTES le $SYSTEM_MIN_MEMORY"
+			die "System has insufficient memory"
+		fi
+	fi
+
 	# Export variables needed for successful setup of filesystems
 	export STORAGE_CACHE_TYPE STORAGE_CACHING_DEVICE STORAGE_BACKING_DEVICE
 	export TESTDISK_PARTITIONS
