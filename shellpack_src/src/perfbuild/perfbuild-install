@@ -4,15 +4,17 @@
 WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/vX.X"
 MIRROR_LOCATION="$WEBROOT/linux/"
 
-install-depends python3-devel
 install-depends bison
 install-depends flex
 install-depends libdw-devel
 install-depends libfdata-devel
 install-depends libnuma-devel
 install-depends python-devel
-install-depends libzstd-devel
+install-depends python3-devel
+install-depends libtraceevent1
+install-depends libtraceevent-devel
 install-depends libunwind-devel
+install-depends libzstd-devel
 install-depends zlib-devel-static
 
 ###SHELLPACK parseargBegin
@@ -25,12 +27,12 @@ WEB_LOCATION=`echo $WEB_LOCATION | sed -e "s/vX.X/v$MAJOR.x/"`
 ###SHELLPACK sources_fetch linux-${VERSION}.tar.xz perfbuild-${VERSION}
 ###SHELLPACK build_start perfbuild-${VERSION}
 ###SHELLPACK self_extract perf-fix-access-data-segfault.patch
-cat $SHELLPACK_TEMP/perf-fix-access-data-segfault.patch | patch -p1 || die Failed to apply perf fix
+cat $SHELLPACK_TEMP/perf-fix-access-data-segfault.patch | patch -p1
 
 ###SHELLPACK build_start perfbuild-${VERSION}/tools/perf
 sed -i -e s/-DHAVE_LIBBFD_SUPPORT// Makefile.config
-###SHELLPACK make NO_LIBBFD=1 prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed
-###SHELLPACK make NO_LIBBFD=1 prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed install
+###SHELLPACK make NO_LIBBFD=1 NO_LIBTRACEEVENT=1 prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed
+###SHELLPACK make NO_LIBBFD=1 NO_LIBTRACEEVENT=1 prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed install
 
 exit $SHELLPACK_SUCCESS
 
