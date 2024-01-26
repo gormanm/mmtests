@@ -64,7 +64,7 @@ for SIZE in kinder toy; do
 done
 
 # Hackbench
-sed -e 's/HACKBENCH_MAX_GROUPS=.*/HACKBENCH_MAX_GROUPS=1/' config-scheduler-unbound > config-scheduler-unbound-small
+sed -e 's/HACKBENCH_MAX_GROUPS=.*/HACKBENCH_MAX_GROUPS=1/' config-scheduler-hackbench > config-scheduler-hackbench-small
 
 # hpcc
 sed -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((512*1048576))'/ config-hpc-hpcc-large-full > config-hpc-hpcc-small-full
