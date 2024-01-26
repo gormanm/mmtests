@@ -11,10 +11,7 @@
 ### and releasing those locks as well as the inevitable bounces of cache
 ### line data as waker/wakee processes do not run on the same CPUs but
 ### instead select CPUs that are nearby during wakeups.
-###
-### pipetest is a scheduler ping-pong test that measures context switch latency.
-
-export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets perfpipe"
+export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets"
 
 # List of monitors
 export RUN_MONITOR=yes
@@ -36,10 +33,6 @@ if [ $HACKBENCH_MAX_GROUPS -gt 296 ]; then
 fi
 export HACKBENCH_LOOPS=10000
 export MMTESTS_THREAD_CUTOFF=
-
-# PipeTest
-export PERFPIPE_ITERATIONS=30
-export PERFPIPE_LOOPS=500000
 
 # when run in container
 export CONTAINER_NO_PIDS_LIMIT=yes
