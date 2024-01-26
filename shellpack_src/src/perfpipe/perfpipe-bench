@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run perf-bench pipe benchmark
 
-###SHELLPACK preamble perfpipe-bench 5.9
+###SHELLPACK preamble perfpipe-bench 6.7
 PERFPIPE_LOOPS=500000
 PERFPIPE_ITERATIONS=30
 
