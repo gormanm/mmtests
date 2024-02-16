@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run perf-bench numa mem benchmark
 
-###SHELLPACK preamble perfnuma-bench 5.9
+###SHELLPACK preamble perfnuma-bench 6.7
 TESTTIME=15
 ITERATIONS=12
 TESTLIST=

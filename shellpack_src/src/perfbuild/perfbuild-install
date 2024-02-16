@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble perfbuild-install 5.15
+###SHELLPACK preamble perfbuild-install 6.7
 WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/vX.X"
 MIRROR_LOCATION="$WEBROOT/linux/"
 
@@ -26,8 +26,6 @@ WEB_LOCATION=`echo $WEB_LOCATION | sed -e "s/vX.X/v$MAJOR.x/"`
 
 ###SHELLPACK sources_fetch linux-${VERSION}.tar.xz perfbuild-${VERSION}
 ###SHELLPACK build_start perfbuild-${VERSION}
-###SHELLPACK self_extract perf-fix-access-data-segfault.patch
-cat $SHELLPACK_TEMP/perf-fix-access-data-segfault.patch | patch -p1
 
 ###SHELLPACK build_start perfbuild-${VERSION}/tools/perf
 sed -i -e s/-DHAVE_LIBBFD_SUPPORT// Makefile.config
@@ -35,18 +33,3 @@ sed -i -e s/-DHAVE_LIBBFD_SUPPORT// Makefile.config
 ###SHELLPACK make NO_LIBBFD=1 NO_LIBTRACEEVENT=1 prefix=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed install
 
 exit $SHELLPACK_SUCCESS
-
-==== BEGIN perf-fix-access-data-segfault.patch ====
-diff -Nurp perfbuild-5.9-orig/tools/perf/bench/numa.c perfbuild-5.9/tools/perf/bench/numa.c
---- a/tools/perf/bench/numa.c	2023-03-30 11:30:07.744569086 +0200
-+++ b/tools/perf/bench/numa.c	2023-03-30 11:30:33.256568199 +0200
-@@ -797,7 +797,7 @@ static u64 do_work(u8 *__data, long byte
- 
- 	if (g->p.data_rand_walk) {
- 		u32 lfsr = nr + loop + val;
--		int j;
-+		long j;
- 
- 		for (i = 0; i < words/1024; i++) {
- 			long start, end;
-==== END perf-fix-access-data-segfault.patch ====
