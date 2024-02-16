@@ -646,7 +646,7 @@ if [ \$END_THREAD -gt \$((NUMCPUS*8)) ]; then
 	THREADS="\$THREADS `seq 12 9 32`"
 	THREADS="\$THREADS `seq 48 31 \$NUMCPUS`"
 	THREADS="\$THREADS `seq \$((NUMCPUS*2)) \$((NUMCPUS*2)) \$END_THREAD`"
-if [ \$END_THREAD -gt 32 ]; then
+elif [ \$END_THREAD -gt 32 ]; then
 	THREADS=`seq \$START_THREAD 3 8`
 	THREADS="\$THREADS `seq 12 9 32`"
 	THREADS="\$THREADS `seq 48 31 \$END_THREAD`"
