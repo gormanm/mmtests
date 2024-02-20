@@ -22,7 +22,7 @@ export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
 export NO_SVN_TESTS=skip
-export GIT_SKIP_TESTS="t9010.2[23] t0013* t6120.6[45] t0007.3 t7502.3[45] t9001.2[67] t9200* t940[0-2]* t960[0-4]*"
+export GIT_SKIP_TESTS="t9010.2[23] t0013* t6120.6[45] t0007.3 t7502.3[45] t9001.2[67] t9020* t9200* t940[0-2]* t960[0-4]*"
 
 # create directory where gnupg can place its sockets
 USERRUNDIR=/var/run/user/$(id -u)
