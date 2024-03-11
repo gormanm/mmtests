@@ -23,41 +23,44 @@ STRESSNG_TESTNAME=context
 
 TESTSWITCH=
 case $STRESSNG_TESTNAME in
-get)
-	TESTSWITCH="--get"
+af-alg)
+	TESTSWITCH="--af-alg"
+	;;
+bad-altstack)
+	TESTSWITCH="--bad-altstack"
 	;;
 context)
 	TESTSWITCH="--context"
 	;;
-mmap)
-	TESTSWITCH="--mmap"
+fork)
+	TESTSWITCH="--fork"
 	;;
-madvise)
-	TESTSWITCH="--madvise"
-	;;
-af-alg)
-	TESTSWITCH="--af-alg"
+get)
+	TESTSWITCH="--get"
 	;;
 getdent)
 	TESTSWITCH="--getdent"
 	;;
-bad-altstack)
-  TESTSWITCH="--bad-altstack"
-  ;;
-zombie)
-  TESTSWITCH="--zombie"
-  ;;
-fork)
-  TESTSWITCH="--fork"
-  ;;
-vm-splice)
-  TESTSWITCH="--vm-splice"
-  ;;
 io-class)
 	TESTSWITCH="--class io"
 	;;
 io-class-parallel)
 	TESTSWITCH="--class io --all"
+	;;
+madvise)
+	TESTSWITCH="--madvise"
+	;;
+mmap)
+	TESTSWITCH="--mmap"
+	;;
+vm-splice)
+	TESTSWITCH="--vm-splice"
+	;;
+wait)
+	TESTSWITCH="--wait"
+	;;
+zombie)
+	TESTSWITCH="--zombie"
 	;;
 *)
 	die "Unrecognised test $STRESSNG_TESTNAME"
