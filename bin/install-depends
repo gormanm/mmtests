@@ -61,7 +61,6 @@ my %package_map = (
 	"debian::xz"				=> "xz-utils",
 	"debian::zeromq-devel"			=> "libzmq3-dev",
 	"debian::zlib-devel"			=> "zlib1g-dev",
-	"debian::perl-List-BinarySearch"	=> "liblist-binarysearch-perl",
 	"debian::perl-GD"			=> "libgd-perl",
 	"debian::sysvinit-tools"		=> "sysvinit-utils",
 	"debian::gettext-runtime"		=> "gettext",

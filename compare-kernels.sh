@@ -83,11 +83,6 @@ if [ ! -t 1 ]; then
 	OUT=$(mktemp ~/.compare-kernel-XXXX.out)
 fi
 
-perldoc -l List::BinarySearch &>/dev/null
-if [ $? -ne 0 ]; then
-	install-depends perl-List-BinarySearch &> $OUT
-fi
-
 if [ "$FORMAT" = "html" ]; then
 	install-depends gnuplot &>> $OUT
 	install-depends perl-GD &>> $OUT

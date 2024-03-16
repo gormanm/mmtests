@@ -1,16 +1,23 @@
+# SPDX-License-Identifier: GPL-2.0-or-later OR copyleft-next-0.3.1
 #
 # Stat.pm
 #
 # Basic stats module
+#
+# Copyright (c) 2002-2024 Mel Gorman <mgorman@techsingularity.net>
+# Copyright (c) 2017-2019 Jan Kara <jack@suse.cz>
+# Copyright (c) 2017-2023 Andreas Herrmann <aherrmann@suse.de>
+# Copyright (c) 2024 Luis Chamberlain <mcgrof@kernel.org>
 
 package MMTests::Stat;
 require Exporter;
 use vars qw (@ISA @EXPORT);
 use MMTests::Report;
 use strict;
+use feature 'signatures';
+no warnings 'experimental::signatures';
 use POSIX qw(floor);
 use FindBin qw($Bin);
-use List::BinarySearch qw(binsearch_range);
 use Scalar::Util qw(looks_like_number);
 
 @ISA    = qw(Exporter);
@@ -479,6 +486,43 @@ sub calc_submean_ci {
 	return ($parsedrow[1], $parsedrow[2]);
 }
 
+sub binsearch_pos_num($target, $aref) {
+	die "Only numbers allowed" unless looks_like_number($target);
+	die "Expected an array reference!" unless ref $aref eq 'ARRAY';
+
+	my ($low, $high) = (0, scalar @$aref - 1);
+
+	while ($low <= $high) {
+		my $mid = int(($low + $high) / 2);
+		if ($aref->[$mid] < $target) {
+			$low = $mid + 1;
+		} elsif ($aref->[$mid] > $target) {
+			$high = $mid - 1;
+		} else {
+			return $mid;
+		}
+	}
+
+	return $low;
+}
+
+# Returns an inclusive range for both, if you only use one return
+# value, you consume the last value.
+sub binsearch_range_num ($low_target, $high_target, $aref) {
+	die "Only numbers allowed" unless looks_like_number($low_target);
+	die "Only numbers allowed" unless looks_like_number($high_target);
+	die "Expected an array reference!" unless ref $aref eq 'ARRAY';
+
+	my $index_low  = binsearch_pos_num($low_target, $aref);
+	my $index_high = binsearch_pos_num($high_target, $aref);
+
+	if($index_high == scalar @$aref or $aref->[$index_high] > $high_target) {
+		$index_high--;
+	}
+
+	return ($index_low, $index_high);
+}
+
 sub calc_samples {
 	my ($dataref, $arg) = @_;
 	my $elements = @{$dataref};
@@ -495,7 +539,7 @@ sub calc_samples {
 	} elsif ($high eq "max") {
 		$high = $dataref->[$elements - 1];
 	}
-	my ($lowidx, $highidx) = binsearch_range { $a <=> $b }  $low, $high, @{$dataref};
+	my ($lowidx, $highidx) = binsearch_range_num($low, $high, $dataref);
 	return $highidx - $lowidx + 1;
 }
 

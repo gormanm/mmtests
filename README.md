@@ -44,9 +44,8 @@ $ ../../compare-kernels.sh --format html --output-dir /tmp/html > /tmp/html/inde
 The first step is optional. Some configurations are auto-generated from
 a template, particularly the filesystem-specific ones.
 
-Note that [`List::BinarySearch`](https://metacpan.org/pod/List::BinarySearch)
-and maybe even [`Math::Gradient`](https://metacpan.org/pod/Math::Gradient) may
-need to be installed from [CPAN](https://www.cpan.org/) for the reporting to
+Note that perhaps [`Math::Gradient`](https://metacpan.org/pod/Math::Gradient)
+may need to be installed from [CPAN](https://www.cpan.org/) for the reporting to
 work. Similarly, [`R`](https://www.r-project.org/) should be installed if
 attempting to highlight whether performance differences are statistically
 relevant.
