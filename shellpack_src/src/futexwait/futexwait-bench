@@ -27,7 +27,7 @@ FUTEXWAIT_CMD=${FUTEXWAIT_DIR}/futex_wait
 			tee $LOGDIR_RESULTS/futexwait-${NR_THREADS}-${ITERATION}.log
 		recover_rc
 		if [ $? -ne 0 ]; then
-			die Failed to run futexwait
+			die "Failed to run futexwait"
 		fi
 	###SHELLPACK iteration_end
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
