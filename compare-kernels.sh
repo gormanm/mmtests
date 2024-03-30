@@ -8,6 +8,9 @@ export SCRIPTDIR=$(dirname "$SCRIPTPATH")
 . $SCRIPTDIR/config
 export PATH=$SCRIPTDIR/bin:$PATH
 
+REPORT_TITLE=
+OUTPUT_FILE=
+IGNORE_FINGERPRINT=no
 KERNEL_BASE=
 KERNEL_COMPARE=
 
@@ -26,9 +29,13 @@ while [ "$1" != "" ]; do
 		FORMAT_CMD="--format $FORMAT"
 		shift 2
 		;;
-	--output-dir)
+	--output-dir|--output-directory)
 		OUTPUT_DIRECTORY=$2
 		mkdir -p $OUTPUT_DIRECTORY
+		shift 2
+		;;
+	--output-file)
+		OUTPUT_FILE=`basename $2`
 		shift 2
 		;;
 	--baseline)
@@ -50,6 +57,14 @@ while [ "$1" != "" ]; do
 	--from-json)
 		FROM_JSON=yes
 		JSON_FILE=$2
+		shift 2
+		;;
+	--ignore-fingerprint)
+		IGNORE_FINGERPRINT=yes
+		shift
+		;;
+	--report-title)
+		REPORT_TITLE="$2"
 		shift 2
 		;;
 	--sort-version)
@@ -116,6 +131,9 @@ if [ "$OUTPUT_DIRECTORY" != "" -a ! -d "$OUTPUT_DIRECTORY" ]; then
 	echo Output directory is not a directory
 	exit -1
 fi
+if [ "$OUTPUT_DIRECTORY" = "" -o "$OUTPUT_FILE" = "" ]; then
+	IGNORE_FINGERPRINT=yes
+fi
 
 if [ "$FROM_JSON" != "yes" ]; then
 	if ! have_run_results; then
@@ -168,7 +186,33 @@ if [ "$SORT_VERSION" = "yes" ]; then
 	done
 fi
 
+REPORT_FINGERPRINT=
 KERNEL_LIST_ITER=`echo $KERNEL_LIST | sed -e 's/,/ /g'`
+
+# Use fingerprint to determine if report needs to be generated
+if [ "$IGNORE_FINGERPRINT" = "no" ]; then
+	TIMESTAMP_FILES=
+	FIND_ARGS=
+	for KERNEL in $KERNEL_LIST_ITER; do
+		for TIMESTAMP_FILE in `find $KERNEL -name tests-timestamp`; do
+			TIMESTAMP_FILES+=" $TIMESTAMP_FILE"
+		done
+	done
+	REPORT_FINGERPRINT=`cat $TIMESTAMP_FILES | md5sum | head -1 | cut -d\  -f1`
+
+	OLD_FINGERPRINT=`cat $OUTPUT_DIRECTORY/report.md5 2>/dev/null`
+	if [ "$OLD_FINGERPRINT" = "$REPORT_FINGERPRINT" ]; then
+		if [ "$REPORT_TITLE" != "" ]; then
+			REPORT_TITLE_PRINT=" '$REPORT_TITLE'"
+		fi
+		echo "Report$REPORT_TITLE_PRINT comparing '$KERNEL_LIST_ITER' is up to date"
+		exit 0
+	fi
+fi
+
+if [ "$OUTPUT_DIRECTORY" != "" -a "$OUTPUT_FILE" != "" ]; then
+	exec > $OUTPUT_DIRECTORY/$OUTPUT_FILE
+fi
 
 # Print kernel command line options if they differ
 FIRST=yes
@@ -2169,6 +2213,10 @@ for SUBREPORT in $REPORTS; do
 	fi
 done
 cat $SCRIPTDIR/shellpacks/common-footer-$FORMAT 2> /dev/null
+
+if [ "$OUTPUT_DIRECTORY" != "" ]; then
+	echo -n $REPORT_FINGERPRINT > $OUTPUT_DIRECTORY/report.md5
+fi
 
 exit 0
 
