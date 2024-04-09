@@ -31,10 +31,6 @@ sub extractReport() {
 		$protocol = $elements[-4];
 		$protocol =~ s/.*\///;
 
-		# Do not process the max rates any more. The dropped packets
-		# confuse everything.
-		next if $elements[-2] eq "max";
-
 		push @sizes, $elements[-3];
 		push @rates, $elements[-2];
 	}
@@ -50,14 +46,14 @@ sub extractReport() {
 			while (!eof($input)) {
 				my $line = <$input>;
 
-				next if $line !~ /^([0-9.]+), ([0-9.]+)/;
+				next if $line !~ /^([0-9.]+), ([0-9.]+), ([0-9.]+)/;
 
 				# This is how sockperf calculates rtt internally.
 				# Not sure what the /2 is about but without it
 				# the report differences from what sockperf
 				# spits out in its summary.
-				my $rtt = ($2-$1) * 1000000 / 2;
-				my $time = $1;
+				my $rtt = ($3-$2) * 1000000 / 2;
+				my $time = $2;
 
 				if (!$start_time) {
 					$start_time = $time;
