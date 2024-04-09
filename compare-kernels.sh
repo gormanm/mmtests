@@ -194,7 +194,7 @@ if [ "$IGNORE_FINGERPRINT" = "no" ]; then
 	TIMESTAMP_FILES=
 	FIND_ARGS=
 	for KERNEL in $KERNEL_LIST_ITER; do
-		for TIMESTAMP_FILE in `find $KERNEL -name tests-timestamp`; do
+		for TIMESTAMP_FILE in `find $KERNEL -name tests-timestamp | sort`; do
 			TIMESTAMP_FILES+=" $TIMESTAMP_FILE"
 		done
 	done
