@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 	size_t shared_buf_size = 0;
 	int i, j;
 	struct timeval tv_start, tv_end;
-	char opt;
+	int opt;
 	char *shared_buf;
 	int nr_online_cpus =0;
 	int *online_cpus;
