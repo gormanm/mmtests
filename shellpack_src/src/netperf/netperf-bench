@@ -80,6 +80,8 @@ none)
 esac
 
 echo $PROTOCOL > $LOGDIR_RESULTS/protocols
+ip addr show > $LOGDIR_RESULTS/interfaces
+echo $SERVER_HOST > $LOGDIR_RESULTS/server-host
 
 for SIZE in $BUFFER_SIZES; do
 mmtests_activity size $SIZE
@@ -99,13 +101,18 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 			SOCKETSIZE_OPT="-s 851968 -S 851968"
 		fi
 	fi
+
+	echo Starting /proc/net/dev monitor
+	MONITOR_UPDATE_FREQUENCY=1 $SHELLPACK_MONITORS/watch-proc-net-dev.sh > $LOGDIR_RESULTS/procnetdev-$PROTOCOL-${SIZE}-${ITERATION}.log &
+	MONITOR_PID=$!
 	
 	echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE nr_pairs $NR_PAIRS
 	NETPERF_OPTS="\
-		$NET_PROTOCOL_OPT \
-		-t $PROTOCOL \
-		-i 3,3 -I 95,5 \
-		-H $SERVER_HOST \
+		$NET_PROTOCOL_OPT			\
+		-f m -D 1				\
+		-t $PROTOCOL				\
+		-i 3,3 -I 95,5				\
+		-H $SERVER_HOST				\
 		-- $SOCKETSIZE_OPT $MSGSIZE_OPT"
 	echo $TASKSET_CLIENT "netperf" $NETPERF_OPTS
 
@@ -128,6 +135,11 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 		rm /tmp/mmtests-shutdown-netperf
 		break
 	fi
+
+	echo Stopping /proc/net/dev monitor pid $MONITOR_PID
+	kill $MONITOR_PID
+	wait_on_pid_exit_force $MONITOR_PID 30
+	xz $LOGDIR_RESULTS/procnetdev-$PROTOCOL-${SIZE}-${ITERATION}.log
 ###SHELLPACK iteration_end
 mmtests_server_ctl stop --serverside-name $PROTOCOL-$SIZE
 monitor_post_hook $LOGDIR_RESULTS $SIZE

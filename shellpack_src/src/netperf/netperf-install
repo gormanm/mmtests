@@ -21,6 +21,7 @@ if [ ! -e ./configure ]; then
 fi
 
 export CFLAGS+=" -DWANT_UNIX"
+export MMTESTS_BUILD_CONFIGURE+=" --enable-demo=yes"
 
 ###SHELLPACK build_configure netperf-${VERSION}
 ###SHELLPACK make_make_install
