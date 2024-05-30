@@ -94,10 +94,14 @@ mmtests_activity size $SIZE
 monitor_pre_hook $LOGDIR_RESULTS $SIZE
 mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 ###SHELLPACK iteration_begin $ITERATIONS
+	UNITS=m
 	MSGSIZE_OPT=
 	SOCKETSIZE_OPT=
 	if [ "$PROTOCOL" = "UDP_STREAM" -o "$PROTOCOL" = "TCP_STREAM" -o "$PROTOCOL" = "STREAM_STREAM" ]; then
 		MSGSIZE_OPT="-m $SIZE -M $SIZE"
+	fi
+	if [ "$PROTOCOL" = "TCP_RR" -o "$PROTOCOL" = "UDP_RR" ]; then
+		UNITS=k
 	fi
 	if [ "$REMOTE_SERVER_HOST" != "" ]; then
 		# UDP_STREAM on a 10GbE network was found to lose excessive
@@ -117,7 +121,7 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 	NETPERF_OPTS="\
 		$NET_PROTOCOL_OPT					\
 		$NETPERF_DURATION_OPT					\
-		-f m -D 1						\
+		-f $UNITS -D 1						\
 		-t $PROTOCOL						\
 		-H $SERVER_HOST						\
 		-- $SOCKETSIZE_OPT $MSGSIZE_OPT"
