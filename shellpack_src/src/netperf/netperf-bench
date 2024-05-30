@@ -5,16 +5,22 @@
 TASKSET_SERVER=
 TASKSET_CLIENT=
 
+CONFIDENCE_MIN=3
+CONFIDENCE_MAX=3
+CONFIDENCE_LEVEL=95,5
 ITERATIONS=5
 NR_PAIRS=1
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargBindings
-###SHELLPACK parseargParam    --iterations   ITERATIONS
-###SHELLPACK parseargParam    --net-protocol NET_PROTOCOL
-###SHELLPACK parseargParam    --protocol     PROTOCOL
-###SHELLPACK parseargParam    --buffer-sizes BUFFER_SIZES
-###SHELLPACK parseargParam    --nr-pairs     NR_PAIRS
+###SHELLPACK parseargParam    --iterations		ITERATIONS
+###SHELLPACK parseargParam    --net-protocol		NET_PROTOCOL
+###SHELLPACK parseargParam    --protocol		PROTOCOL
+###SHELLPACK parseargParam    --buffer-sizes		BUFFER_SIZES
+###SHELLPACK parseargParam    --nr-pairs		NR_PAIRS
+###SHELLPACK parseargParam    --confidence-min		CONFIDENCE_MIN
+###SHELLPACK parseargParam    --confidence-max		CONFIDENCE_MAX
+###SHELLPACK parseargParam    --confidence-level	CONFIDENCE_LEVEL
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -105,16 +111,17 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 	echo Starting /proc/net/dev monitor
 	MONITOR_UPDATE_FREQUENCY=1 $SHELLPACK_MONITORS/watch-proc-net-dev.sh > $LOGDIR_RESULTS/procnetdev-$PROTOCOL-${SIZE}-${ITERATION}.log &
 	MONITOR_PID=$!
-	
+
 	echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE nr_pairs $NR_PAIRS
+	NETPERF_DURATION_OPT="-i $CONFIDENCE_MIN,$CONFIDENCE_MAX -I $CONFIDENCE_LEVEL"
 	NETPERF_OPTS="\
-		$NET_PROTOCOL_OPT			\
-		-f m -D 1				\
-		-t $PROTOCOL				\
-		-i 3,3 -I 95,5				\
-		-H $SERVER_HOST				\
+		$NET_PROTOCOL_OPT					\
+		$NETPERF_DURATION_OPT					\
+		-f m -D 1						\
+		-t $PROTOCOL						\
+		-H $SERVER_HOST						\
 		-- $SOCKETSIZE_OPT $MSGSIZE_OPT"
-	echo $TASKSET_CLIENT "netperf" $NETPERF_OPTS
+	log_cmd "`echo $TASKSET_CLIENT netperf $NETPERF_OPTS | sed 's/  */ /g'`"
 
 	PIDS=
 	SAMPLES=
