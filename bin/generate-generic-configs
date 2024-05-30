@@ -152,7 +152,7 @@ sed -e 's/NAS_ITERATIONS=.*/NAS_ITERATIONS=30/' \
     config-hpc-nas-mpich-quarter > config-hpc-nas-mpich-quarter-mgD-many
 
 # Netperf binding configs
-for TYPE in {rr,stream}{,-ipv4,-ipv6} unix; do
+for TYPE in {rr,stream}{-ipv4,-ipv6} unix; do
 	for BINDING in cross-ht cross-node cross-socket; do
 		cp config-network-netperf-$TYPE-unbound config-network-netperf-$TYPE-$BINDING
 		echo "export NETPERF_BINDING=$BINDING" >> config-network-netperf-$TYPE-$BINDING
@@ -160,7 +160,7 @@ for TYPE in {rr,stream}{,-ipv4,-ipv6} unix; do
 done
 
 # Netperf c-state limiting
-for TYPE in {rr,stream}{,-ipv4,-ipv6} unix; do
+for TYPE in {rr,stream}{-ipv4,-ipv6} unix; do
 	for BINDING in unbound cross-ht cross-node cross-socket; do
 		cp config-network-netperf-$TYPE-$BINDING config-network-netperf-$TYPE-$BINDING-cstate
 		echo "export CPUIDLE_CSTATE=C1" >> config-network-netperf-$TYPE-$BINDING-cstate
