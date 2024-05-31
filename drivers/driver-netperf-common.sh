@@ -14,6 +14,7 @@ run_bench() {
 		${NETPERF_PROTOCOL:+--protocol "${NETPERF_PROTOCOL}"}				\
 		${NETPERF_BUFFER_SIZES:+--buffer-sizes "${NETPERF_BUFFER_SIZES}"}		\
 		${NETPERF_CONFIDENCE_MIN:+--confidence-min "${NETPERF_CONFIDENCE_MIN}"}		\
+		${NETPERF_DURATION:+--duration "${NETPERF_DURATION}"}				\
 		${NETPERF_CONFIDENCE_MAX:+--confidence-max "${NETPERF_CONFIDENCE_MAX}"}		\
 		${NETPERF_CONFIDENCE_LEVEL:+--confidence-level "${NETPERF_CONFIDENCE_LEVEL}"}
 	return $?

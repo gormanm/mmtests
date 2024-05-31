@@ -157,6 +157,9 @@ for TYPE in {rr,stream}{-ipv4,-ipv6} unix; do
 		cp config-network-netperf-$TYPE-unbound config-network-netperf-$TYPE-$BINDING
 		echo "export NETPERF_BINDING=$BINDING" >> config-network-netperf-$TYPE-$BINDING
 	done
+	cp config-network-netperf-$TYPE-unbound config-network-netperf-timed-$TYPE-unbound
+	echo "export NETPERF_DURATION=60" >> config-network-netperf-timed-$TYPE-unbound
+	sed -i -e /NETPERF_CONFIDENCE/d config-network-netperf-timed-$TYPE-unbound
 done
 
 # Netperf c-state limiting

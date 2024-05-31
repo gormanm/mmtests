@@ -5,6 +5,7 @@
 TASKSET_SERVER=
 TASKSET_CLIENT=
 
+DURATION=0
 CONFIDENCE_MIN=3
 CONFIDENCE_MAX=3
 CONFIDENCE_LEVEL=95,5
@@ -21,6 +22,7 @@ NR_PAIRS=1
 ###SHELLPACK parseargParam    --confidence-min		CONFIDENCE_MIN
 ###SHELLPACK parseargParam    --confidence-max		CONFIDENCE_MAX
 ###SHELLPACK parseargParam    --confidence-level	CONFIDENCE_LEVEL
+###SHELLPACK parseargParam    --duration		DURATION
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -42,6 +44,11 @@ unix)
 esac
 if [ "$REMOTE_SERVER_HOST" != "" ]; then
 	SERVER_HOST=$REMOTE_SERVER_HOST
+fi
+if [ $DURATION -gt 0 ]; then
+	CONFIDENCE_MIN=1
+	CONFIDENCE_MAX=1
+	CONFIDENCE_LEVEL=95,5
 fi
 
 BUFFER_SIZES=`echo $BUFFER_SIZES | sed -e 's/,/ /g'`
@@ -103,6 +110,7 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 	if [ "$PROTOCOL" = "TCP_RR" -o "$PROTOCOL" = "UDP_RR" ]; then
 		UNITS=k
 	fi
+	echo $UNITS > $LOGDIR_RESULTS/units-$PROTOCOL
 	if [ "$REMOTE_SERVER_HOST" != "" ]; then
 		# UDP_STREAM on a 10GbE network was found to lose excessive
 		# packets unless the socket sizes were increase. These values
@@ -118,6 +126,7 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 
 	echo Running test $PROTOCOL iteration $ITERATION/$ITERATIONS size $SIZE nr_pairs $NR_PAIRS
 	NETPERF_DURATION_OPT="-i $CONFIDENCE_MIN,$CONFIDENCE_MAX -I $CONFIDENCE_LEVEL"
+	[ $DURATION -gt 0 ] && NETPERF_DURATION_OPT+=" -l $DURATION"
 	NETPERF_OPTS="\
 		$NET_PROTOCOL_OPT					\
 		$NETPERF_DURATION_OPT					\
@@ -125,14 +134,16 @@ mmtests_server_ctl start --serverside-name $PROTOCOL-$SIZE
 		-t $PROTOCOL						\
 		-H $SERVER_HOST						\
 		-- $SOCKETSIZE_OPT $MSGSIZE_OPT"
-	log_cmd "`echo $TASKSET_CLIENT netperf $NETPERF_OPTS | sed 's/  */ /g'`"
+	BENCH_CMD=`echo $TASKSET_CLIENT netperf $NETPERF_OPTS | sed 's/  */ /g'`
+	echo $BENCH_CMD
+	log_cmd "$BENCH_CMD"
+	BENCH_CMD=`echo $BENCH_CMD | sed -e "s@netperf@$NETROOT/bin/netperf@"`
 
 	PIDS=
 	SAMPLES=
 	for PAIR in `seq 0 $((NR_PAIRS-1))`; do
 		NR_SAMPLE=$(((ITERATION-1)*NR_PAIRS+PAIR+1))
-		eval $TASKSET_CLIENT $NETROOT/bin/netperf $NETPERF_OPTS \
-			&> $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$NR_SAMPLE &
+		eval $BENCH_CMD &> $LOGDIR_RESULTS/$PROTOCOL-${SIZE}.$NR_SAMPLE &
 		PIDS+=" $!"
 		SAMPLES+=" $NR_SAMPLE"
 	done
