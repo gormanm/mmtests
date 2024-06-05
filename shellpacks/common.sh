@@ -1543,10 +1543,17 @@ function teststate_log()
 	echo "$@" >> $SHELLPACK_LOGFILE
 }
 
+function mmtests_activity_log()
+{
+	[ -z $MMTESTS_ACTIVITY ] && return
+	echo `date +%s` "$@" >> $MMTESTS_ACTIVITY
+}
+
 function activity_log()
 {
 	[ -z $SHELLPACK_LOG ] && return
 	echo `date +%s` "$@" >> $SHELLPACK_ACTIVITY
+	mmtests_activity_log "$@"
 }
 
 function fail_log()

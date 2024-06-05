@@ -360,6 +360,7 @@ mkdir -p $SHELLPACK_LOG_RUNBASE
 
 mmtests_wait_token "mmtests_start"
 
+export MMTESTS_ACTIVITY="$SHELLPACK_LOG_RUNBASE/mmtests-activity"
 for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERATION++ )); do
 	export SHELLPACK_LOG=$SHELLPACK_LOG_RUNBASE/iter-$MMTEST_ITERATION
 	export SHELLPACK_ACTIVITY="$SHELLPACK_LOG/tests-activity"
@@ -560,7 +561,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 	export SHELLPACK_LOGFILE="$SHELLPACK_LOG/tests-timestamp"
 	export SHELLPACK_SYSSTATEFILE="$SHELLPACK_LOG/tests-sysstate"
-	activity_log "run-mmtests: Iteration $MMTEST_ITERATION start"
+	activity_log "run-mmtests: Iteration $((MMTEST_ITERATION+1)) start"
 
 	start_numad
 	start_tuned
@@ -595,7 +596,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 		# Run the test
 		echo Starting test $TEST
 		teststate_log "test begin :: $TEST `date +%s`"
-		activity_log "run-mmtests: begin $TEST"
+		activity_log "run-mmtests: test start :: $TEST `date +%s`"
 
 		# Record some basic information at start of test
 		sysstate_log_proc_files "start"
@@ -674,7 +675,8 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 
 		# Mark the finish of the test
 		echo test exit :: $TEST $EXIT_CODE
-		teststate_log "test end :: $TEST `date +%s`"
+		activity_log "run-mmtests: test end :: $TEST `date +%s` $EXIT_CODE"
+		teststate_log "test end :: $TEST `date +%s` $EXIT_CODE"
 		teststate_log "`cat $SHELLPACK_LOG/timestamp`"
 		rm $SHELLPACK_LOG/timestamp
 
@@ -700,13 +702,12 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	gzip -f $SHELLPACK_LOG/dmesg
 	journalctl -k 2>/dev/null > $SHELLPACK_LOG/journalctl-kernel
 	gzip -f $SHELLPACK_LOG/journalctl-kernel
-	gzip -f $SHELLPACK_SYSSTATEFILE
 	cp /etc/os-release $SHELLPACK_LOG/
 
 	shutdown_numad
 	shutdown_tuned
 
-	activity_log "run-mmtests: Iteration $MMTEST_ITERATION end"
+	mmtests_activity_log "run-mmtests: Iteration $((MMTEST_ITERATION+1)) end"
 	echo Cleaning up
 
 	if [ "$RUN_MONITOR" = "yes" ]; then
@@ -745,6 +746,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	fi
 
 	destroy_testdisk
+	gzip -f $SHELLPACK_SYSSTATEFILE
 done
 
 mmtests_wait_token "mmtests_end"
@@ -773,7 +775,7 @@ if [ "$MMTESTS_FORCE_DATE" != "" ]; then
 fi
 
 activity_log "run-mmtests: End"
-teststate_log "status :: $EXIT_CODE"
+mmtests_activity_log "status :: $EXIT_CODE"
 exit $EXIT_CODE
 
 : <<=cut
