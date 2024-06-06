@@ -1,6 +1,6 @@
 #!/bin/bash
 ###SHELLPACK preamble usemembuild-install 0
-WEB_LOCATION=http://www.spinics.net/lists/linux-mm/attachments/
+WEB_LOCATION=https://www.spinics.net/lists/linux-mm/attachments
 MIRROR_LOCATION="$WEBROOT/usemem"
 
 ###SHELLPACK parseargBegin
