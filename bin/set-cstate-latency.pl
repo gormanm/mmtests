@@ -24,7 +24,7 @@ sub read_cstates() {
 	my @cstates;
 	my $cpuidle_root = "/sys/devices/system/cpu/cpu0/cpuidle";
 
-	foreach my $state (<$cpuidle_root/*>) {
+	foreach my $state (<$cpuidle_root/state*>) {
 		my ($fh, $name, $latency);
 		my $index = $state;
 		$index =~ s/^state//;
