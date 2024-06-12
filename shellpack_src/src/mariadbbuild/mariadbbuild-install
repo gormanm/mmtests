@@ -11,7 +11,7 @@ NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
 ###SHELLPACK parseargParam --mariadb-user	 MARIADB_USER
 ###SHELLPACK parseargEnd
 
-for PACKAGE in bison gcc-c++ libstdc++-devel zlib-devel ncurses-devel libncurses5 libtool automake autoconf cmake libxml2-devel boost-devel bzr libopenssl-devel systemtap-sdt-devel system-user-nobody; do
+for PACKAGE in bison gcc-c++ libstdc++-devel zlib-devel ncurses-devel libncurses5 libtool automake autoconf cmake libxml2-devel boost-devel bzr libopenssl-devel systemtap-sdt-devel system-user-nobody libgnutls-devel; do
 	install-depends $PACKAGE
 done
 
