@@ -707,7 +707,7 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	shutdown_numad
 	shutdown_tuned
 
-	mmtests_activity_log "run-mmtests: Iteration $((MMTEST_ITERATION+1)) end"
+	activity_log "run-mmtests: Iteration $((MMTEST_ITERATION+1)) end"
 	echo Cleaning up
 
 	if [ "$RUN_MONITOR" = "yes" ]; then
