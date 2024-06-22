@@ -253,10 +253,7 @@ foreach my $package (@ARGV) {
 	print "Installed $package\n";
 }
 
-if (system("ldconfig") != 0) {
-	print "ERROR: ldconfig failed\n";
-	exit(-1);
-}
+die "ldconfig failed" if system("$sudo ldconfig") != 0;
 
 if ($ENV{"MMTESTS_SESSION_ID"} ne "") {
 	close(SESSION);
