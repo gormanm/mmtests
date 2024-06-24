@@ -1434,12 +1434,32 @@ function umount_filesystems
 	done
 }
 
+MMTESTS_ACTIVITY_FILE=
+function discover_activity_file()
+{
+	for POSSIBLE in tests-activity mmtests-activity; do
+		if [ -n "$1" ]; then
+			NR=`find $1 -maxdepth 3 -type f -name $POSSIBLE 2>/dev/null | wc -l`
+		else
+			NR=`find -maxdepth 3 -type f -name $POSSIBLE 2>/dev/null | wc -l`
+		fi
+		if [ $NR -gt 0 ]; then
+			if [ "$POSSIBLE" = "mmtests-activity" ]; then
+				MMTESTS_ACTIVITY_FILE=$POSSIBLE
+			else
+				MMTESTS_ACTIVITY_FILE="iter-0/$POSSIBLE"
+			fi
+		fi
+	done
+}
+
 function have_run_results()
 {
+	discover_activity_file $1
 	if [ -n "$1" ]; then
-		LIST=`find $1 -maxdepth 3 -type f -name tests-activity 2>/dev/null`
+		LIST=`find $1 -maxdepth 3 -type f -name $MMTESTS_ACTIVITY_FILE 2>/dev/null`
 	else
-		LIST=`find -maxdepth 3 -type f -name tests-activity 2>/dev/null`
+		LIST=`find -maxdepth 3 -type f -name $MMTESTS_ACTIVITY_FILE 2>/dev/null`
 	fi
 	if [ "$LIST" != "" ]; then
 		return 0
@@ -1467,21 +1487,26 @@ function have_monitor_results()
 # of tests.
 function run_report_name()
 {
-	if [ -e $1/iter-0/tests-activity ]; then
+	discover_activity_file $1
+	if [ -e $1/$MMTESTS_ACTIVITY_FILE ]; then
 		awk '/^[0-9]* run-(mmtests|kvm): begin / { print $4 }
-		/^[0-9]* run-(mmtests|kvm): Iteration 0 end/ { exit }' <$1/iter-0/tests-activity
+		     /[^[0-9]* run-(mmtests|kvm): test start :: / {print $6 }
+		     /^[0-9]* run-(mmtests|kvm): Iteration 1 end/ { exit }' <$1/$MMTESTS_ACTIVITY_FILE
 	else
+		echo RRN A: $1/$MMTESTS_ACTIVITY_FILE 1>&2
 		awk '/^[0-9]* run-(mmtests|kvm): begin / { print $4 }
-		    /^[0-9]* run-(mmtests|kvm): Iteration 0 end/ { exit }' <$1/tests-activity
+		     /[^[0-9]* run-(mmtests|kvm): test start :: / {print $6 }
+		     /^[0-9]* run-(mmtests|kvm): Iteration 1 end/ { exit }' <$1/$MMTESTS_ACTIVITY_FILE
 	fi
 }
 
 function run_results()
 {
-	FILES=`find -name "tests-activity"`
+	discover_activity_file
+	FILES=$(find -name "`basename $MMTESTS_ACTIVITY_FILE`")
 	grep -H "run-mmtests: Start" $FILES | \
 		cut -d ' ' -f 1 | sort -n -k 2 -t ':' | \
-		cut -d ':' -f 1 | sed -e 's|/iter-.*/tests-activity||' -e 's|/tests-activity||' -e 's|^./||' | uniq
+		cut -d ':' -f 1 | sed -e "s|/iter-.*/$MMTESTS_ACTIVITY_FILE||" -e "s|/$MMTESTS_ACTIVITY_FILE||" -e 's|^./||' | uniq
 }
 
 function setup_dirs() {
