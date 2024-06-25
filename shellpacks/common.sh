@@ -1457,11 +1457,11 @@ function have_run_results()
 {
 	discover_activity_file $1
 	if [ -n "$1" ]; then
-		LIST=`find $1 -maxdepth 3 -type f -name $MMTESTS_ACTIVITY_FILE 2>/dev/null`
+		LIST=$(find $1 -maxdepth 3 -type f -name `basename $MMTESTS_ACTIVITY_FILE` 2>/dev/null)
 	else
-		LIST=`find -maxdepth 3 -type f -name $MMTESTS_ACTIVITY_FILE 2>/dev/null`
+		LIST=$(find -maxdepth 3 -type f -name `basename $MMTESTS_ACTIVITY_FILE` 2>/dev/null)
 	fi
-	if [ "$LIST" == "" ]; then
+	if [ "$LIST" != "" ]; then
 		return 0
 	fi
 	return 1
