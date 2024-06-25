@@ -1461,7 +1461,7 @@ function have_run_results()
 	else
 		LIST=`find -maxdepth 3 -type f -name $MMTESTS_ACTIVITY_FILE 2>/dev/null`
 	fi
-	if [ "$LIST" != "" ]; then
+	if [ "$LIST" == "" ]; then
 		return 0
 	fi
 	return 1
