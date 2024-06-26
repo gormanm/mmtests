@@ -132,8 +132,7 @@ fi
 
 if [ "$FROM_JSON" != "yes" ]; then
 	if ! have_run_results; then
-		echo THIS
-		die This does not look like a mmtests results directory
+		die "This does not look like a mmtests results directory"
 	fi
 
 	if [ -n "$KERNEL_BASE" ]; then

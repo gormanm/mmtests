@@ -1451,6 +1451,7 @@ function discover_activity_file()
 			fi
 		fi
 	done
+	[ "$MMTESTS_ACTIVITY_FILE" = "" ] && MMTESTS_ACTIVITY_FILE="mmtests-activity-not-detected"
 }
 
 function have_run_results()
