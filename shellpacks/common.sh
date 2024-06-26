@@ -1503,11 +1503,12 @@ function run_report_name()
 
 function run_results()
 {
-	discover_activity_file
-	FILES=$(find -name "`basename $MMTESTS_ACTIVITY_FILE`")
+	for POSSIBLE in tests-activity mmtests-activity; do
+		FILES+=" $(find -maxdepth 3 -name "$POSSIBLE")"
+	done
 	grep -H "run-mmtests: Start" $FILES | \
 		cut -d ' ' -f 1 | sort -n -k 2 -t ':' | \
-		cut -d ':' -f 1 | sed -e "s|/iter-.*/$MMTESTS_ACTIVITY_FILE||" -e "s|/$MMTESTS_ACTIVITY_FILE||" -e 's|^./||' | uniq
+		cut -d ':' -f 1 | sed -e "s|/iter-.*/tests-activity||" -e "s|/mmtests-activity||" -e 's|^./||' | uniq
 }
 
 function setup_dirs() {
