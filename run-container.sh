@@ -171,9 +171,11 @@ function autoselect_image() {
 			sp4)
 				image=registry.suse.com/suse/sle15:15.4
 				;;
-			sp5)    ;&
-			sp6) # not available yet, use SP5 BCI
+			sp5)
 				image=registry.suse.com/suse/sle15:15.5
+				;;
+			sp6)
+				image=registry.suse.com/suse/sle15:15.6
 				;;
 			*)
 				echo "ERROR: Distribution SP not supported"
