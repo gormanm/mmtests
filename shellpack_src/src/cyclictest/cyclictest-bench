@@ -6,7 +6,7 @@
 CYCLICTEST_BACKGROUND=none
 sudo_required
 
-PERF_VERSION=6.3
+PERF_VERSION=6.9
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall

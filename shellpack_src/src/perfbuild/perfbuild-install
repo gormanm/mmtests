@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble perfbuild-install 6.7
+###SHELLPACK preamble perfbuild-install 6.9
 WEB_LOCATION="https://www.kernel.org/pub/linux/kernel/vX.X"
 MIRROR_LOCATION="$WEBROOT/linux/"
 
