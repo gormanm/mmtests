@@ -33,7 +33,6 @@ sub extractReport() {
 		}
 		next if !$reading;
 
-
 		if ($line =~ /Run time: ([0-9]*) seconds/) {
 			$timestamp = $1;
 			next;
@@ -41,7 +40,7 @@ sub extractReport() {
 
 		my $op;
 		my ($p50,  $p95,  $p99);
-		if ($line =~ /([a-zA-Z]*) latency \(p50: ([0-9,]*)\) \(p95: ([0-9,]*)\) \(p99: ([0-9,]*)\)/) {
+		if ($line =~ /([a-zA-Z]*) latency usec: \(p50: ([0-9,]*)\) \(p95: ([0-9,]*)\) \(p99: ([0-9,]*)\)/) {
 			$op = $1;
 			$p50 = $2;
 			$p95 = $3;
