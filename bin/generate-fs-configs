@@ -144,7 +144,6 @@ config-workload-kvmstart-memhog-frag-singlefile-nothp
 config-workload-libmicro-file
 config-workload-mailserver
 config-workload-pedsort
-config-workload-pedsort-light
 config-workload-shellscripts
 config-workload-simoop-short
 config-workload-stressng-class-io-parallel
