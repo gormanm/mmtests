@@ -138,18 +138,18 @@ OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 			--start_opts $MARIADB_START_OPTIONS			\
 			--effective_cachesize $EFFECTIVE_CACHESIZE		\
 			--shared_buffers $SHARED_BUFFERS			\
-			--work_mem $WORK_MEM || die Failed to get usable database installation
+			--work_mem $WORK_MEM || die "Failed to get usable database installation"
 
 		echo Preparing database
 		if [ "$DBDRIVER" = "postgres" ]; then
 			$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgtest;'"
 			$RUNDBUSER "$PSQL template1 -c 'DROP ROLE sbtest;'"
-			$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgtest;'" || die Failed to setup database
-			$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE sbtest with LOGIN;'" || die Failed to create sbtest role
+			$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgtest;'" || die "Failed to setup database"
+			$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE sbtest with LOGIN;'" || die "Failed to create sbtest role"
 			cp $SHELLPACK_SOURCES/postgresbuild-${POSTGRES_VERSION}-installed/data/postgresql.conf $LOGDIR_RESULTS
 		else
 			eval $MYSQLADMIN -f drop sbtest
-			eval $MYSQLADMIN create sbtest || die Failed to setup database
+			eval $MYSQLADMIN create sbtest || die "Failed to setup database"
 			cp /etc/my.cnf $LOGDIR_RESULTS
 		fi
 
@@ -172,7 +172,7 @@ OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 		$SHELLPACK_INCLUDE/shellpack-bench-${DBDRIVER}build --start \
 			--effective_cachesize $EFFECTIVE_CACHESIZE \
 			--shared_buffers $SHARED_BUFFERS \
-			--work_mem $WORK_MEM || die Failed to get usable database installation
+			--work_mem $WORK_MEM || die "Failed to get usable database installation"
 	fi
 
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
@@ -180,15 +180,13 @@ OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 		mmtests_activity iteration "$ITER"
 		echo Running $NR_THREADS threads Iteration $ITER/$MAX_ITERATIONS
 		echo sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS --num-threads=$NR_THREADS run | tee $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITER
-		eval $TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITER} \
-			sysbench $SYSBENCH_OPTIONS \
-				$OLTP_OPTIONS \
-				--num-threads=$NR_THREADS \
-				run >> $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITER
+		BENCH_CMD="sysbench $SYSBENCH_OPTIONS $OLTP_OPTIONS --num-threads=$NR_THREADS run"
+		log_cmd "$BENCH_CMD"
+		eval $TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITER} $BENCH_CMD >> $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITER
 		SYSRET=$?
 		if [ $SYSRET -ne 0 ]; then
 			cat $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITER
-			die sysbench exited abnormally
+			die "sysbench exited abnormally"
 		fi
 	done
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
