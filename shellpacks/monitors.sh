@@ -45,7 +45,7 @@ function shutdown_monitors()
 			echo -n "Shutting down monitor: $_pid"
 			kill $_pid
 
-			while [ "`ps h --pid $_pid`" != "" ]; do
+			while [ "`ps h --pid $_pid`" != "" -a $_attempt -le 60 ]; do
 				echo -n .
 				sleep 1
 				_attempt=$((_attempt+1))
@@ -57,6 +57,9 @@ function shutdown_monitors()
 					_shutdown_signal=KILL
 					echo -n O
 					kill -$_shutdown_signal $_pid
+				fi
+				if [ $_attempt -ge 60 ]; then
+					echo -n X
 				fi
 			done
 			echo
