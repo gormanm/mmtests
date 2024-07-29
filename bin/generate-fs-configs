@@ -61,7 +61,6 @@ config-hpc-nas-mpi-quartet
 config-hpc-nas-mpi-third
 config-hpc-parsec-pthreads-full
 config-hpc-parsec-pthreads-half
-config-http-apachebench
 config-io-blogbench
 config-io-bonniepp-dir-async
 config-io-bonniepp-dir-fsync
