@@ -16,7 +16,7 @@ TESTLIST=
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK init_only_start
-###SHELLPACK check_install_required dedup-${VERSION}
+###SHELLPACK check_install_required_continue dedup-${VERSION}
 if [ "$DEDUP_FILE" = "" ]; then
 	die "DEDUP_FILE must be specified"
 fi
