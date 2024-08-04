@@ -19,7 +19,7 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK check_external_install_required unixbench     unixbench-${VERSION}         ${VERSION}
 ###SHELLPACK init_complete
 
-cd $SHELLPACK_SOURCES/unixbench-$VERSION-installed || die "Failed to cd to installation directory"
+cd $SHELLPACK_SOURCES/unixbench-$VERSION-installed/UnixBench || die "Failed to cd to installation directory"
 
 export UB_TESTDIR=$SHELLPACK_DATA
 

@@ -23,6 +23,7 @@ echo $UNIXBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 
 export UB_TESTDIR=$SHELLPACK_DATA
 
+cd UnixBench
 ###SHELLPACK threads_min_max_stride_begin $UNIXBENCH_MIN_THREADS $UNIXBENCH_MAX_THREADS
 	for WORKLOAD in $UNIXBENCH_WORKLOADS; do
 		mmtests_activity $WORKLOAD
@@ -31,7 +32,7 @@ export UB_TESTDIR=$SHELLPACK_DATA
 			echo Running test $WORKLOAD iteration $ITERATION/$UNIXBENCH_ITERATIONS
 			./Run -q -c $NR_THREADS $WORKLOAD 2>&1 | \
 				tee $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}-${ITERATION}.log \
-				|| die Failed ro run unixbench
+				|| die "Failed to run unixbench"
 		###SHELLPACK iteration_end $UNIXBENCH_ITERATIONS
 		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	done

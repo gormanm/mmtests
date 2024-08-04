@@ -7,7 +7,7 @@ MIRROR_LOCATION="$WEBROOT/unixbench/"
 ###SHELLPACK parseargEnd
 
 rm -rf $SHELLPACK_SOURCES/unixbench-${VERSION}
-###SHELLPACK sources_fetch UnixBench${VERSION}.tar.gz unixbench-${VERSION}-installed
+###SHELLPACK sources_fetch v${VERSION}.tar.gz unixbench-${VERSION}-installed
 
 ###SHELLPACK build_start unixbench-${VERSION}-installed
 
@@ -23,6 +23,7 @@ if [ $RETVAL -ne 0 ]; then
 	exit $SHELLPACK_ERROR
 fi
 
+cd UnixBench
 ###SHELLPACK make
 
 echo unixbench installed successfully
@@ -31,8 +32,8 @@ exit $SHELLPACK_SUCCESS
 ==== BEGIN PATCH FILE ====
 diff --git a/Run b/Run
 index d615935..7322003 100755
---- a/Run
-+++ b/Run
+--- a/UnixBench/Run
++++ b/UnixBench/Run
 @@ -106,7 +106,7 @@ my $TESTDIR = getDir('UB_TESTDIR', $BASEDIR . "/testdir");
  
  # Configure the categories to which tests can belong.
