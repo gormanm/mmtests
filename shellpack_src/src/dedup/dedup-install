@@ -12,10 +12,10 @@ install-depends libopenssl-devel
 
 ###SHELLPACK build_start dedup-${VERSION}-installed
 
-###SHELLPACK self_extract signed-fix.patch
-###SHELLPACK self_extract timeout-fix.patch
+###SHELLPACK self_extract 0001-type-fix.patch
+###SHELLPACK self_extract 0002-timeout-fix.patch
 
-for FILE in signed-fix.patch timeout-fix.patch; do
+for FILE in 0001-type-fix.patch 0002-timeout-fix.patch; do
 	cat $SHELLPACK_TEMP/${FILE} | patch -p1 || exit $SHELLPACK_FAILURE
 done
 
@@ -24,71 +24,5 @@ done
 echo dedup installed successfully
 exit $SHELLPACK_SUCCESS
 
-==== BEGIN signed-fix.patch ====
-diff --git a/encoder.c b/encoder.c
-index 3b86743e8f81..58314d6d3936 100644
---- a/encoder.c
-+++ b/encoder.c
-@@ -163,7 +163,7 @@ static void print_stats(stats_t *s) {
- 
-   //determine most suitable unit to use
-   for(unit_idx=0; unit_idx<unit_str_size; unit_idx++) {
--    unsigned int unit_div_next = unit_div * 1024;
-+    size_t unit_div_next = unit_div * 1024;
- 
-     if(s->total_input / unit_div_next <= 0) break;
-     if(s->total_dedup / unit_div_next <= 0) break;
-==== END signed-fix.patch ====
-
-==== BEGIN timeout-fix.patch ====
-diff --git a/queue.c b/queue.c
-index 823fdc000d05..2d08c1d174b8 100644
---- a/queue.c
-+++ b/queue.c
-@@ -1,4 +1,5 @@
- #include <assert.h>
-+#include <sys/time.h>
- 
- #include "util.h"
- #include "queue.h"
-@@ -6,6 +7,8 @@
- 
- #ifdef ENABLE_PTHREADS
- #include <pthread.h>
-+#include <errno.h>
-+#include <stdio.h>
- #endif //ENABLE_PTHREADS
- 
- void queue_init(queue_t * que, size_t size, int nProducers) {
-@@ -86,8 +89,16 @@ int queue_enqueue(queue_t *que, ringbuffer_t *buf, int limit) {
- #ifdef ENABLE_PTHREADS
-   pthread_mutex_lock(&que->mutex);
-   assert(!queue_isTerminated(que));
--  while (ringbuffer_isFull(&que->buf))
--    pthread_cond_wait(&que->notFull, &que->mutex);
-+  while (ringbuffer_isFull(&que->buf)) {
-+    struct timeval currentTime;
-+    struct timespec timeout;
-+
-+    gettimeofday(&currentTime, NULL);
-+    timeout.tv_sec = currentTime.tv_sec + 10;
-+    timeout.tv_nsec = currentTime.tv_usec * 1000UL;
-+
-+    pthread_cond_timedwait(&que->notFull, &que->mutex, &timeout);
-+  }
- #else
-   assert(!queue_isTerminated(que));
- #endif
-diff --git a/queue.h b/queue.h
-index f1c43751f2bf..c5dad71eb2b9 100644
---- a/queue.h
-+++ b/queue.h
-@@ -42,6 +42,7 @@ typedef struct _queue_t queue_t;
- //Initialize a ring buffer
- static inline int ringbuffer_init(ringbuffer_t *buf, size_t size) {
-   //NOTE: We have to allocate one extra element because one element will be unusable (we need to distinguish between full and empty).
-+  size *= 2;
-   buf->data = (void **)malloc(sizeof(void*) * (size+1));
-   buf->size = (size+1);
-   buf->head = 0;
-==== END timeout-fix.patch ====
+###SHELLPACK include_file 0001-type-fix.patch
+###SHELLPACK include_file 0002-timeout-fix.patch
