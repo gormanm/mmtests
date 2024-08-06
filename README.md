@@ -33,8 +33,8 @@ A basic invocation of the suite is
 
 ```
 $ ./bin/autogen-configs
-$ ./run-mmtests.sh --no-monitor --config configs/config-pagealloc-performance 5.8-vanilla
-$ ./run-mmtests.sh --no-monitor --config configs/config-pagealloc-performance 5.9-vanilla
+$ ./run-mmtests.sh --no-monitor --config configs/config-workload-stream-single 5.8-vanilla
+$ ./run-mmtests.sh --no-monitor --config configs/config-workload-stream-single 5.9-vanilla
 $ cd work/log
 $ ../../compare-kernels.sh
 $ mkdir /tmp/html/
@@ -60,9 +60,9 @@ available here:
 
 All available configurations are stored in `configs/`.
 
-For example `config-pagealloc-performance` can be used to run tests that
-may be able to identify performance regressions or gains in the page allocator.
-Similarly there are network, disk and scheduler configs.
+For example `config-workload-stream-single` can be used to run tests that
+measure sustainable memory bandwidth and computation rates for vector kernels
+(i.e. workloads). Similarly there are network, disk and scheduler configs.
 
 The config file can take many options, in the form of `export`-ed
 variables. there is a functional sample config file available in
