@@ -29,7 +29,6 @@ sub extractReport() {
 			while (<$input>) {
 				my $line = $_;
 				if ($line =~ /^Lookups\/s:\s+([0-9,]+)/) {
-					print "BINGO: $line";
 					my $lookups = $1;
 					$lookups =~ s/,//g;
 					$self->addData($nr_threads, ++$nr_samples, $lookups);
