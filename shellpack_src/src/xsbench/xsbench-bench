@@ -5,17 +5,20 @@ XSBENCH_ITERATIONS=7
 XSBENCH_MIN_THREADS=$NUMCPUS
 XSBENCH_MIN_THREADS=$NUMCPUS
 XSBENCH_SIZE=small
+XSBENCH_LOOKUPS=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam	--min-threads		XSBENCH_MIN_THREADS
 ###SHELLPACK parseargParam	--max-threads		XSBENCH_MAX_THREADS
 ###SHELLPACK parseargParam	--iterations		XSBENCH_ITERATIONS
-###SHELLPACK parseargParam	--parallel-model        XSBENCH_MODEL
-###SHELLPACK parseargParam	--size	         	XSBENCH_SIZE
+###SHELLPACK parseargParam	--parallel-model	XSBENCH_MODEL
+###SHELLPACK parseargParam	--size			XSBENCH_SIZE
+###SHELLPACK parseargParam	--lookups	       	XSBENCH_LOOKUPS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
+XSBENCH_ARGS_EXTRA=${XSBENCH_LOOKUPS:+-l "${XSBENCH_LOOKUPS}"}
 XSBENCH_DATA="$SHELLPACK_DATA"
 export PATH=$SHELLPACK_SOURCES/xsbench-${VERSION}-installed/$XSBENCH_MODEL:$PATH
 
@@ -33,7 +36,7 @@ cd $XSBENCH_DATA	|| die "Failed to execute load from data directory $XSBENCH_DAT
 [ -e XS_data.dat ] 	|| die "XS_data.dat failed to load initialised data from $XSBENCH_DATA/XS_data.dat"
 ###SHELLPACK threads_large_stride_begin $XSBENCH_MIN_THREADS $XSBENCH_MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	BENCH_CMD="XSBench -b read -s $XSBENCH_SIZE -t $NR_THREADS"
+	BENCH_CMD="XSBench -b read -s $XSBENCH_SIZE -t $NR_THREADS $XSBENCH_ARGS_EXTRA"
 	log_cmd "$BENCH_CMD"
 	###SHELLPACK iteration_begin $XSBENCH_ITERATIONS
 		echo Starting threads $NR_THREADS/$XSBENCH_MAX_THREADS iteration $ITERATION/$XSBENCH_ITERATIONS

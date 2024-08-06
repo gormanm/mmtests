@@ -5,6 +5,7 @@ run_bench() {
 		${XSBENCH_MAX_THREADS:+--max-threads "${XSBENCH_MAX_THREADS}"}	\
 		${XSBENCH_ITERATIONS:+--iterations "${XSBENCH_ITERATIONS}"}	\
 		${XSBENCH_MODEL:+--parallel-model "${XSBENCH_MODEL}"}		\
-		${XSBENCH_SIZE:+--size "${XSBENCH_SIZE}"}
+		${XSBENCH_SIZE:+--size "${XSBENCH_SIZE}"}			\
+		${XSBENCH_LOOKUPS:+--lookups "${XSBENCH_LOOKUPS}"}
 	return $?
 }
