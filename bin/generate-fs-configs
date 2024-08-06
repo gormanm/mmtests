@@ -64,6 +64,9 @@ config-hpc-parsec-pthreads-half
 config-hpc-xsbench-omp-small-full
 config-hpc-xsbench-omp-small-half
 config-hpc-xsbench-omp-small-quarter
+config-hpc-xsbench-omp-large-full
+config-hpc-xsbench-omp-large-half
+config-hpc-xsbench-omp-large-quarter
 config-hpc-xsbench-omp-XL-full
 config-hpc-xsbench-omp-XL-half
 config-hpc-xsbench-omp-XL-quarter
