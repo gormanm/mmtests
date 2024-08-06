@@ -394,3 +394,12 @@ for PARMODEL in hybrid mpi omp; do
 	sed -i -e '/WRF_MPI_PATH/d'    config-hpc-wrf-conus12km-hpcext-$PARMODEL-full
 	sed -i -e '/WRF_MPI_LIBPATH/d' config-hpc-wrf-conus12km-hpcext-$PARMODEL-full
 done
+
+# XSBench
+sed -e 's/_THREADS=.*/_THREADS=$((NUMCPUS\/2))/' config-hpc-xsbench-omp-small-full > config-hpc-xsbench-omp-small-half
+sed -e 's/_THREADS=.*/_THREADS=$((NUMCPUS\/4))/' config-hpc-xsbench-omp-small-full > config-hpc-xsbench-omp-small-quarter
+for DEGREE in full half quarter; do
+	for SIZE in large XL XXL; do
+		sed -e "s/XSBENCH_SIZE=.*/XSBENCH_SIZE=$SIZE/"  config-hpc-xsbench-omp-small-$DEGREE > config-hpc-xsbench-omp-$SIZE-$DEGREE
+	done
+done

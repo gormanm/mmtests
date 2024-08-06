@@ -61,6 +61,15 @@ config-hpc-nas-mpi-quartet
 config-hpc-nas-mpi-third
 config-hpc-parsec-pthreads-full
 config-hpc-parsec-pthreads-half
+config-hpc-xsbench-omp-small-full
+config-hpc-xsbench-omp-small-half
+config-hpc-xsbench-omp-small-quarter
+config-hpc-xsbench-omp-XL-full
+config-hpc-xsbench-omp-XL-half
+config-hpc-xsbench-omp-XL-quarter
+config-hpc-xsbench-omp-XXL-full
+config-hpc-xsbench-omp-XXL-half
+config-hpc-xsbench-omp-XXL-quarter
 config-io-blogbench
 config-io-bonniepp-dir-async
 config-io-bonniepp-dir-fsync

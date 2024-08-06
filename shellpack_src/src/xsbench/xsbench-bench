@@ -1,0 +1,47 @@
+#!/bin/bash
+###SHELLPACK preamble xsbench-bench ba08e5221af6
+
+XSBENCH_ITERATIONS=7
+XSBENCH_MIN_THREADS=$NUMCPUS
+XSBENCH_MIN_THREADS=$NUMCPUS
+XSBENCH_SIZE=small
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam	--min-threads		XSBENCH_MIN_THREADS
+###SHELLPACK parseargParam	--max-threads		XSBENCH_MAX_THREADS
+###SHELLPACK parseargParam	--iterations		XSBENCH_ITERATIONS
+###SHELLPACK parseargParam	--parallel-model        XSBENCH_MODEL
+###SHELLPACK parseargParam	--size	         	XSBENCH_SIZE
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+XSBENCH_DATA="$SHELLPACK_DATA"
+export PATH=$SHELLPACK_SOURCES/xsbench-${VERSION}-installed/$XSBENCH_MODEL:$PATH
+
+###SHELLPACK init_only_start
+###SHELLPACK check_install_required_continue xsbench-${VERSION}
+cd $SHELLPACK_SOURCES/xsbench-${VERSION}-installed/$XSBENCH_MODEL || die "Model $XSBENCH_MODEL does not exist"
+make || die "Failed to build model $XSBENCH_MODEL"
+
+echo Initialising historical data
+cd $XSBENCH_DATA || die "Failed to execute init from data directory $XSBENCH_DATA"
+XSBench -b write -s $XSBENCH_SIZE &> $LOGDIR_RESULTS/init.log || die "Failed to init historical data"
+###SHELLPACK init_only_end
+
+cd $XSBENCH_DATA	|| die "Failed to execute load from data directory $XSBENCH_DATA"
+[ -e XS_data.dat ] 	|| die "XS_data.dat failed to load initialised data from $XSBENCH_DATA/XS_data.dat"
+###SHELLPACK threads_large_stride_begin $XSBENCH_MIN_THREADS $XSBENCH_MAX_THREADS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	BENCH_CMD="XSBench -b read -s $XSBENCH_SIZE -t $NR_THREADS"
+	log_cmd "$BENCH_CMD"
+	###SHELLPACK iteration_begin $XSBENCH_ITERATIONS
+		echo Starting threads $NR_THREADS/$XSBENCH_MAX_THREADS iteration $ITERATION/$XSBENCH_ITERATIONS
+		$TIME_CMD -o $LOGDIR_RESULTS/xsbench-${NR_THREADS}-$ITERATION.time		\
+			$BENCH_CMD &> $LOGDIR_RESULTS/xsbench-${NR_THREADS}-${ITERATION}.log	\
+			|| die "Failed to run xzbench"
+	###SHELLPACK iteration_end $ITERATIONS
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+rm -f $XSBENCH_DATA/XS_data.dat
+exit $SHELLPACK_SUCCESS

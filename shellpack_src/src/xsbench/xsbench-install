@@ -1,0 +1,20 @@
+#!/bin/bash
+###SHELLPACK preamble xzbench-install ba08e5221af6
+GIT_LOCATION=https://github.com/ANL-CESAR/XSBench
+MIRROR_LOCATION="$WEBROOT/xsbench/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch xsbench-${VERSION}.tar.gz xsbench-${VERSION}-installed
+
+SUPPORTED_MODELS="openmp-threading"
+
+for SUPPORTED_MODEL in $SUPPORTED_MODELS; do
+	###SHELLPACK build_start xsbench-${VERSION}-installed
+	cd $SUPPORTED_MODEL || die "Parallelisation model $SUPPORTED_MODEL does not exist"
+	###SHELLPACK make
+done
+
+echo "xsbench ($SUPPORTED_MODELS) installed successfully"
+exit $SHELLPACK_SUCCESS
