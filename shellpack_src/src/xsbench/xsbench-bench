@@ -41,8 +41,9 @@ cd $XSBENCH_DATA	|| die "Failed to execute load from data directory $XSBENCH_DAT
 	###SHELLPACK iteration_begin $XSBENCH_ITERATIONS
 		echo Starting threads $NR_THREADS/$XSBENCH_MAX_THREADS iteration $ITERATION/$XSBENCH_ITERATIONS
 		$TIME_CMD -o $LOGDIR_RESULTS/xsbench-${NR_THREADS}-$ITERATION.time		\
-			$BENCH_CMD &> $LOGDIR_RESULTS/xsbench-${NR_THREADS}-${ITERATION}.log	\
-			|| die "Failed to run xzbench"
+			$BENCH_CMD &> $LOGDIR_RESULTS/xsbench-${NR_THREADS}-${ITERATION}.log
+	grep -q "Simulation complete." $LOGDIR_RESULTS/xsbench-${NR_THREADS}-${ITERATION}.log || die "Log did not report simulation was complete"
+	gzip -f $LOGDIR_RESULTS/xsbench-${NR_THREADS}-${ITERATION}.log
 	###SHELLPACK iteration_end $ITERATIONS
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end
