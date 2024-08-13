@@ -1,6 +1,10 @@
 #!/bin/bash
 # Optionally caches results in a directory so multiple invocations run quickly
 # after the first one
+
+# Disabled to evalute new caching mechanism
+exec "$@"
+
 set ${MMTESTS_SH_DEBUG:-+x}
 
 DIRNAME=`dirname $0`

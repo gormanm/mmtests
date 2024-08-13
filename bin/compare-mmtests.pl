@@ -120,7 +120,7 @@ if ($opt_from_json) {
 
 			foreach my $iterdir (@iterdirs) {
 				if (!defined($opt_monitor)) {
-					$extractModules[$nrModules]->extractReport("$iterdir/$opt_benchmark/logs");
+					$extractModules[$nrModules]->extractReportCached("$iterdir/$opt_benchmark/logs");
 				} else {
 					$extractModules[$nrModules]->extractReport($iterdir, $opt_benchmark, $opt_subheading, 1);
 				}
@@ -130,7 +130,7 @@ if ($opt_from_json) {
 			if (!defined($opt_monitor) && $opt_printRatio) {
 				$extractModules[$nrModules++]->extractRatioSummary($opt_subheading);
 			} else {
-				$extractModules[$nrModules++]->extractSummary($opt_subheading);
+				$extractModules[$nrModules++]->extractSummaryCached("$reportDirectory/iter-0/$opt_benchmark/logs", $opt_subheading);
 			}
 		} or do {
 			printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport: $name\n$@");

@@ -1,7 +1,8 @@
 # Summarise.pm
 package MMTests::Summarise;
-use MMTests::Extract;
+use MMTests::Cache;
 use MMTests::DataTypes;
+use MMTests::Extract;
 use MMTests::Stat;
 our @ISA = qw(MMTests::Extract);
 use strict;
@@ -350,6 +351,34 @@ sub extractSummary() {
 	$self->{_SummaryData} = \%summary;
 	$self->{_SignificanceData} = \%significance;
 
+	return 1;
+}
+
+sub extractSummaryCached() {
+	my ($self, $reportDir, $subHeading) = @_;
+	shift;
+	shift;
+
+	my $cache = MMTests::Cache->new("Summarise_extractSummary", $self->{_ModuleName}, $reportDir, $subHeading);
+	if (!defined $cache->{_CUID}) {
+		return $self->extractSummary(@_);
+	}
+
+	my @fields = (	"_SummaryData",
+			"_SignificanceData",
+			# "_Operations",
+			# "_OperationsSeen",
+			# "_GeneratedOperations",
+			# "_ResultData",
+			# "_ResultDataUnsorted",
+			# "_SummaryStats",
+			# "_SignificanceLevel"
+			);
+
+	if (!$cache->load($self)) {
+		$self->extractSummary(@_);
+		$cache->save($self, \@fields);
+	}
 	return 1;
 }
 

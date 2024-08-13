@@ -4,14 +4,15 @@
 # and extract information from them
 
 package MMTests::Extract;
+use MMTests::Blessless qw(blessless);
+use MMTests::Cache;
 use MMTests::DataTypes;
 use MMTests::Stat;
-use MMTests::Blessless qw(blessless);
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
 use List::Util ();
-use strict;
 use Scalar::Util qw(looks_like_number);
+use strict;
 
 sub new() {
 	my $class = shift;
@@ -344,6 +345,28 @@ sub extractSummary() {
 	print "Unknown data type for summarising\n";
 
 	return 1;
+}
+
+sub extractReportCached() {
+	my ($self, $reportDir) = @_;
+	shift;
+
+	my $cache = MMTests::Cache->new("Extract__extractReport", $self->{_ModuleName}, $reportDir);
+	if (!defined $cache->{_CUID}) {
+		return $self->extractReport(@_);
+	}
+
+	my @fields = ("_GeneratedOperations",
+		      "_LastSample",
+		      "_Operations",
+		      "_OperationsSeen",
+		      "_ResultData",
+		      "_ResultDataUnsorted");
+
+	if (!$cache->load($self)) {
+		$self->extractReport(@_);
+		$cache->save($self, \@fields);
+	}
 }
 
 sub extractRatioSummary() {
