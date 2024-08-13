@@ -429,6 +429,7 @@ sub printReport() {
 	push @format, @{$self->{_FieldFormat}};
 
 	foreach my $op ($self->getOperations("")) {
+		my @table = ();
 		for (my $iter = 0;
 		     $iter < scalar(@{$self->{_ResultData}->{$op}});
 		     $iter++) {
@@ -436,16 +437,12 @@ sub printReport() {
 			for (my $dataidx = 0;
 			     $dataidx < scalar(@{$iterref->{Values}});
 			     $dataidx++) {
-				my @row = ($op, $iter);
-				my @table = ();
 
-				push @row, $iterref->{SampleNrs}->[$dataidx];
-				push @row, $iterref->{Values}->[$dataidx];
-				push @table, \@row;
-				$self->{_PrintHandler}->printRow(\@table, $fieldLength,
-								 \@format);
+				push @table, [ $op, $iter, $iterref->{SampleNrs}->[$dataidx], $iterref->{Values}->[$dataidx] ];
 			}
 		}
+		$self->{_PrintHandler}->printRow(\@table, $fieldLength,
+						 \@format);
 	}
 }
 

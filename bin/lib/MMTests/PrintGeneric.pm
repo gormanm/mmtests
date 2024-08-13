@@ -36,36 +36,28 @@ sub printHeaders($$$) {
 
 sub printRow($$@) {
 	my ($self, $dataRef, $fieldLength, $formatColumnRef) = @_;
-	my (@formatColumnList);
-	my $rowIndex = 1;
-	@formatColumnList = @{$formatColumnRef};
+	my @formatColumnList = @{$formatColumnRef};;
+	my $outBuffer;
+	my $checkSig = (defined $self->{_CompareTable});
 
 	foreach my $row (@{$dataRef}) {
 		my $columnIndex = 0;
-		my @rowArr = @$row;
 
-		foreach my $column (@rowArr) {
-			my $out;
+		foreach my $column (@$row) {
+			my $format = $formatColumnList[$columnIndex++];
+			$format = "%${fieldLength}.2f" if !defined($format);
 
-			if (defined $formatColumnList[$columnIndex]) {
-				my $format = $formatColumnList[$columnIndex];
-				if ($column =~ /:SIG:$/) {
-					$format =~ s/\(/*/;
-					$format =~ s/\)/*/;
-					$column =~ /:SIG:/;
-				}
-
-				$column =~ /:SIG:/;
-				$out = sprintf($format, $column);
-			} else {
-				$out = sprintf("%${fieldLength}.2f", $column);
+			if ($checkSig && $column =~ /:SIG:$/) {
+				$format =~ s/[()]/*/g;
 			}
-			print (defined $column ? $out : " "x(length $out));
-			$columnIndex++;
+
+			my $out = sprintf($format, $column);
+			$out = defined $column ? $out : " "x(length $out);
+			$outBuffer .= $out;
 		}
-		print "\n";
-		$rowIndex++;
+		$outBuffer .= "\n";
 	}
+	print $outBuffer;
 }
 
 sub printHeaderRow($$@) {
