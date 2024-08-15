@@ -241,7 +241,7 @@ read -a KERNEL_NAMES <<< $KERNEL_LIST_SPACE
 
 SUBREPORTSJSON=
 for SUBREPORT in $(run_report_name $KERNEL_BASE); do
-	COMPARE_CMD="cache-mmtests.sh compare-mmtests.pl --json-export --print-ratio -d . -b $SUBREPORT -n $KERNEL_LIST"
+	COMPARE_CMD="compare-mmtests.pl --json-export --print-ratio -d . -b $SUBREPORT -n $KERNEL_LIST"
 
 	case $SUBREPORT in
 	*)

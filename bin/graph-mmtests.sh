@@ -191,7 +191,7 @@ TITLES=
 COUNT=0
 for TEST in $TEST_LIST; do
 	PLOTFILE="$TMPDIR/$TEST"
-	eval $SCRIPTDIR/cache-mmtests.sh $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | \
+	eval $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | \
 		grep -v nan 		| \
 		sed -e 's/_/\\\\_/g'	  \
 		> $PLOTFILE || exit
