@@ -10,6 +10,7 @@ use MMTests::DataTypes;
 use MMTests::Stat;
 use MMTests::PrintGeneric;
 use MMTests::PrintHtml;
+use MMTests::PrintScript;
 use List::Util ();
 use Scalar::Util qw(looks_like_number);
 use strict;
@@ -224,6 +225,8 @@ sub setFormat() {
 	my ($self, $format) = @_;
 	if ($format eq "html") {
 		$self->{_PrintHandler} = MMTests::PrintHtml->new();
+	} elsif ($format eq "script") {
+		$self->{_PrintHandler} = MMTests::PrintScript->new();
 	} else {
 		$self->{_PrintHandler} = MMTests::PrintGeneric->new();
 	}

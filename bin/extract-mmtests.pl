@@ -131,7 +131,7 @@ my $nrModules = 0;
 my $extractFactory = MMTests::ExtractFactory->new();
 for my $name (split /,/, $opt_names) {
 	eval {
-		$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $name, $opt_subheading);
+		$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $name, $opt_format, $opt_subheading);
 	} or do {
 		printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport\n$@");
 		exit(-1);
