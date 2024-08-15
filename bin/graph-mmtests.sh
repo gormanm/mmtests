@@ -158,7 +158,7 @@ done
 # for cycle used just to get the first test easily, breaks after first iteration
 for TEST in $TEST_LIST; do
 	# Read graph information as described by extract-mmtests.pl
-	TYPE=`$SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-type`
+	TYPE=`$SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS --print-type`
 	XLABEL=`echo $TYPE | cut -d, -f2`
 	YLABEL=`echo $TYPE | cut -d, -f3`
 	PLOTTYPE=`echo $TYPE | cut -d, -f4`
@@ -174,7 +174,7 @@ for TEST in $TEST_LIST; do
 	fi
 
 	if [ "$GRAPH_DEBUG" = "yes" ]; then
-		echo "TRACE: $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-type"
+		echo "TRACE: $SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS --print-type"
 		echo "TRACE: TYPE     $TYPE"
 		echo "TRACE: XLABEL   $XLABEL"
 		echo "TRACE: YLABEL   $YLABEL"
@@ -191,7 +191,7 @@ TITLES=
 COUNT=0
 for TEST in $TEST_LIST; do
 	PLOTFILE="$TMPDIR/$TEST"
-	eval $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot | \
+	eval $SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS --print-plot | \
 		grep -v nan 		| \
 		sed -e 's/_/\\\\_/g'	  \
 		> $PLOTFILE || exit
@@ -211,7 +211,7 @@ for TEST in $TEST_LIST; do
 	fi
 
 	if [ "$GRAPH_DEBUG" = "yes" ]; then
-		echo TRACE: $SCRIPTDIR/extract-mmtests.pl -n $TEST $EXTRACT_ARGS --print-plot
+		echo TRACE: $SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS --print-plot
 		echo TRACE: Writing /tmp/lastplot
 		cp $PLOTFILE /tmp/lastplot
 	fi

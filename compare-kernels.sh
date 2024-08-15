@@ -628,7 +628,7 @@ for SUBREPORT in $REPORTS; do
 		OLD_KERNEL_LIST=$KERNEL_LIST
 		KERNEL_LIST="NONE"
 	fi
-	EXTRACT_CMD="extract-mmtests.pl -d . -b $SUBREPORT"
+	EXTRACT_CMD="extract-mmtests.pl --format script -d . -b $SUBREPORT"
 	COMPARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD $AUTO_DETECT_SIGNIFICANCE"
 	COMPARE_BARE_CMD="compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST"
 	GRAPH_PNG="graph-mmtests.sh -d . -b $SUBREPORT -n $KERNEL_LIST --format png"
@@ -2080,7 +2080,7 @@ for SUBREPORT in $REPORTS; do
 		if have_monitor_results ftrace $KERNEL_BASE "mm_migrate_misplaced_pages"; then
 			PLOT_TITLES=
 			for NAME in `echo $KERNEL_LIST | sed -e 's/,/ /g'`; do
-				extract-mmtests.pl -d . -b $SUBREPORT -n $NAME --print-monitor Ftracenumatraffic > /tmp/mmtests-numatraffic-$$-$NAME
+				$EXTRACT_CMD -n $NAME --print-monitor Ftracenumatraffic > /tmp/mmtests-numatraffic-$$-$NAME
 				if [ "$PLOT_TITLES" = "" ]; then
 					PLOT_TITLES=$NAME
 				else
