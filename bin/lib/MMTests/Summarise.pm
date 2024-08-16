@@ -203,12 +203,7 @@ sub printPlot() {
 					$stamp = $samples;
 				}
 
-				# Use %d for integers to avoid strangely looking graphs
-				if (int $index[$samples] != $index[$samples]) {
-					printf("%-${fieldLength}.3f %${fieldLength}.3f\n", $stamp, $units[$samples]);
-				} else {
-					printf("%-${fieldLength}d %${fieldLength}.3f\n", $stamp, $units[$samples]);
-				}
+				print("$stamp $units[$samples]\n");
 			}
 		} elsif ($self->{_PlotType} eq "candlesticks") {
 			printf "%-${fieldLength}s ", $niceheading;

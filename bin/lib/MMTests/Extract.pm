@@ -15,6 +15,13 @@ use List::Util ();
 use Scalar::Util qw(looks_like_number);
 use strict;
 
+my @cacheFields = ("_GeneratedOperations",
+	      "_LastSample",
+	      "_Operations",
+	      "_OperationsSeen",
+	      "_ResultData",
+	      "_ResultDataUnsorted");
+
 sub new() {
 	my $class = shift;
 	my $self = {
@@ -354,21 +361,14 @@ sub extractReportCached() {
 	my ($self, $reportDir) = @_;
 	shift;
 
-	my $cache = MMTests::Cache->new("Extract__extractReport", $self->{_ModuleName}, $reportDir);
-	if (!defined $cache->{_CUID}) {
+	$self->{_CacheHandle} = MMTests::Cache->new("Extract__extractReport", $self->{_ModuleName}, $reportDir);
+	if (!defined $self->{_CacheHandle}->{_CUID}) {
 		return $self->extractReport(@_);
 	}
 
-	my @fields = ("_GeneratedOperations",
-		      "_LastSample",
-		      "_Operations",
-		      "_OperationsSeen",
-		      "_ResultData",
-		      "_ResultDataUnsorted");
-
-	if (!$cache->load($self)) {
+	if (!$self->{_CacheHandle}->load($self)) {
 		$self->extractReport(@_);
-		$cache->save($self, \@fields);
+		$self->{_CacheHandle}->save($self, \@cacheFields);
 	}
 }
 
@@ -500,6 +500,12 @@ sub sortResults() {
 			     $iter < scalar(@{$self->{_ResultData}->{$op}});
 			     $iter++) {
 				my $iterref = $self->{_ResultData}->{$op}->[$iter];
+				if (defined $iterref->{SampleNrsSorted} &&
+				    defined $iterref->{ValuesSorted}) {
+					$iterref->{SampleNrs} = $iterref->{SampleNrsSorted};
+					$iterref->{ValuesSorted} = $iterref->{Values};
+					next;
+				}
 
 				my @indices = 0..$#{\@{$iterref->{Values}}};
 				@indices = sort {
@@ -509,6 +515,11 @@ sub sortResults() {
 
 				$iterref->{SampleNrs} = [ map {$iterref->{SampleNrs}->[$_]} @indices ];
 				$iterref->{Values} = [ map {$iterref->{Values}->[$_]} @indices ];
+				if (defined($self->{_CacheHandle})) {
+					$iterref->{SampleNrsSorted} = $iterref->{SampleNrs};
+					$iterref->{ValuesSorted} = $iterref->{Values};
+					$self->{_CacheHandle}->save($self, \@cacheFields);
+				}
 			}
 		}
 	}
