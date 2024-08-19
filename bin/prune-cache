@@ -1,0 +1,115 @@
+#!/bin/bash
+
+CACHE_DIR=$CACHE_MMTESTS
+MAX_SIZE_BYTES=
+MIN_AGE_DAYS=3
+MAX_AGE_DAYS=21
+DRY_RUN=no
+
+die() {
+	echo "FATAL: $@"
+	exit $EXIT_FAILURE
+}
+
+while [ $# -gt 0 ]; do
+	case $1 in
+	--max|--max-size)
+		MAX_SIZE_BYTES=`numfmt --from=iec $2`
+		if [ "$MAX_SIZE_BYTES" = "" ]; then
+			echo ERROR: Unable to parse $2
+			exit -1
+		fi
+		shift 2
+		;;
+	--min-age)
+		MIN_AGE_DAYS=$2
+		shift 2
+		;;
+	--max-age)
+		MAX_AGE_DAYS=$2
+		shift 2
+		;;
+	--cache-dir|--cache-directory)
+		CACHE_DIR="$2"
+		shift 2
+		;;
+	--dry-run)
+		DRY_RUN=yes
+		shift
+		;;
+	*)
+		echo Unrecognised switch: $1
+		exit -1
+		;;
+	esac
+done
+
+[ "$MAX_SIZE_BYTES" = "" ] && die "Specify maximum cache size with --max-size."
+[ "$CACHE_DIR" = "" ] && die "Specify cache directory with --cache-directory."
+[ ! -e $CACHE_DIR ] && die "Cache directory $CACHE_DIR does not exist."
+[ $MIN_AGE_DAYS -gt $MAX_AGE_DAYS ] && die "Min age ($MIN_AGE_DAYS) and Max age ($MAX_AGE_DAYS) are inverted."
+
+echo Calculating size...
+ACTUAL_SIZE=`du -s -b $CACHE_DIR | awk '{print $1}'`
+
+IFS_OLD=$IFS
+IFS="
+"
+
+purge() {
+	PURGE_CMD="rm -f $1"
+	if [ "$DRY_RUN" = "yes" ]; then
+		echo "    Dry-run: $PURGE_CMD"
+	else
+		$PURGE_CMD
+	fi
+}
+
+echo Purging...
+DAYS_NOW=$(((`date +%s`+3600*24)/3600/24))
+DAYS_MAX_AGE=$((DAYS_NOW-MAX_AGE_DAYS))
+DAYS_MIN_AGE=$((DAYS_NOW-MIN_AGE_DAYS))
+NR_PURGE=0
+PRUNED_SIZE=$ACTUAL_SIZE
+for LINE in `find /srv/marvin/tmp/mmtests-cache -type f \! -type l \! -name last_update -printf "%A@ %b %h/%f\n" | awk '{print int($1)" "($2*512)" "$3}' | sort -n -k1 -k2  | grep -E 'Summarise_extractSummary|Extract__extractReport'`; do
+	IFS=" " read -r LAST_ACCESS SIZE ENTRY <<< "$LINE"
+	DAYS_ACCESSED=$(((LAST_ACCESS+3600*24)/3600/24))
+	AGE=$((DAYS_NOW-DAYS_ACCESSED))
+
+	# Unconditionally preserve entries younger than the min allowed age
+	if [ $AGE -le $MIN_AGE_DAYS ]; then
+		echo "Remaining entries are too young, unable to prune further"
+		break
+	fi
+
+	# After this point, the entry is being deleted
+	PRUNED_SIZE=$((PRUNED_SIZE-SIZE))
+	NR_PURGE=$((NR_PURGE+1))
+
+	# Unconditionally purge entries older than the max allowed age
+	if [ $AGE -gt $MAX_AGE_DAYS ]; then
+		echo "Purge age:$AGE too old $ENTRY"
+		purge "$ENTRY"
+		continue
+	fi
+
+	echo "Purge age:$AGE remaining `numfmt --to-iec $((MAX_SIZE_BYTES-PRUNED_SIZE))` $ENTRY"
+	purge "$ENTRY"
+	if [ $PRUNED_SIZE -le $MAX_SIZE_BYTES ]; then
+		break
+	fi
+done
+IFS=$IFS_OLD
+
+echo
+ACTUAL_SIZE=`du -s -b $CACHE_DIR | awk '{print $1}'`
+printf "Cache location: $CACHE_DIR\n"
+printf "Target size: %8s\n" `numfmt --to=iec $MAX_SIZE_BYTES`
+printf "Actual size: %8s\n" `numfmt --to=iec $ACTUAL_SIZE`
+printf "Purged:      %8s (%d entries)\n" `numfmt --to=iec $PRUNED_SIZE` $NR_PURGE
+
+if [ $ACTUAL_SIZE -gt $MAX_SIZE_BYTES ]; then
+	echo WARNING: Unable to prune cache to specified limits, probably due to age of entries.
+	exit 1
+fi
+exit 0
