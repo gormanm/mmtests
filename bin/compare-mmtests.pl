@@ -7,6 +7,7 @@
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 
+use File::Which;
 use Getopt::Long;
 use Pod::Usage;
 use MMTests::Report;
@@ -163,7 +164,11 @@ if ($opt_JSONExport && $opt_benchmark) {
 	# $compareModule might occupy more than 50% of memory. In such case
 	# forking to call gzip will result in ENOMEM from clone(2).
 	# We need to start afresh with a new sheet of memory using exec.
-	exec "xz -3 -f $fname";
+	if (which("zstd") ne "") {
+		exec "zstd --quiet --rm --no-progress -f $fname";
+	} else {
+		exec "xz -3 -f $fname";
+	}
 }
 # The branch above terminates the program. Don't put any code below this line.
 exit(0)
