@@ -19,12 +19,14 @@ sub new() {
 
 	my $self = {};
 	bless $self, $class;
+	return $self if ($cacheMMTests eq "");
 
 	eval {
-		return $self if ($cacheMMTests eq "");
 		require Sereal::Encoder;
 		require Sereal::Decoder;
 	} or do {
+
+		warn("ENV:MMTESTS specified but unable to load Sereal");
 		return $self;
 	};
 
