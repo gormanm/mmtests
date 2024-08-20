@@ -40,12 +40,12 @@ index b782d90c38e4..c87e2ec61119 100644
 	scons
 	if [ $? -ne 0 ]; then
 		echo
-		echo Trying an alternative compiler: gcc48
-		install-depends gcc48-c++
-		sed -i -e 's/g++-4.7/g++-4.8/' SConstruct
+		echo Trying an alternative compiler: gcc7
+		install-depends gcc7-c++
+		sed -i -e 's/g++-4.7/g++-7/' SConstruct
 		scons
 		if [ $? -ne 0 ]; then
-			die Failed to build mutilate
+			die "Failed to build mutilate"
 		fi
 	fi
 fi
