@@ -19,7 +19,12 @@ for FILE in 0001-type-fix.patch 0002-timeout-fix.patch; do
 	cat $SHELLPACK_TEMP/${FILE} | patch -p1 || exit $SHELLPACK_FAILURE
 done
 
-###SHELLPACK make
+make
+if [ $? -ne 0 ]; then
+	sed -i -e 's/^LIBS += -lm.*/LIBS += -lm -lssl -lcrypto/' Makefile
+	sed -i -e '/sha_locl.h*/d' sha.c
+	###SHELLPACK make
+fi
 
 echo dedup installed successfully
 exit $SHELLPACK_SUCCESS
