@@ -414,4 +414,26 @@ sub extractRatioSummary() {
 	return 1;
 }
 
+sub extractRatioSummaryCached() {
+	my ($self, $reportDir, $subHeading) = @_;
+	shift;
+	shift;
+
+	my $cache = MMTests::Cache->new("Summarise_extractRatioSummary", $self->{_ModuleName}, $reportDir, $subHeading);
+	if (!defined $cache->{_CUID}) {
+		return $self->extractRatioSummary(@_);
+	}
+
+	my @fields = (	"_SummaryData",
+			"__SummaryCILen",
+			);
+
+	if (!$cache->load($self)) {
+		$self->extractRatioSummary(@_);
+		$cache->save($self, \@fields);
+	}
+	return 1;
+}
+
+
 1;

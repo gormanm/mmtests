@@ -128,10 +128,11 @@ if ($opt_from_json) {
 				$extractModules[$nrModules]->nextIteration();
 			}
 
+			my $logDirectory = "$reportDirectory/iter-0/$opt_benchmark/logs";
 			if (!defined($opt_monitor) && $opt_printRatio) {
-				$extractModules[$nrModules++]->extractRatioSummary($opt_subheading);
+				$extractModules[$nrModules++]->extractRatioSummary($logDirectory, $opt_subheading);
 			} else {
-				$extractModules[$nrModules++]->extractSummaryCached("$reportDirectory/iter-0/$opt_benchmark/logs", $opt_subheading);
+				$extractModules[$nrModules++]->extractSummaryCached($logDirectory, $opt_subheading);
 			}
 		} or do {
 			printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport: $name\n$@");
