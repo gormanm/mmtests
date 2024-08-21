@@ -130,7 +130,7 @@ if ($opt_from_json) {
 
 			my $logDirectory = "$reportDirectory/iter-0/$opt_benchmark/logs";
 			if (!defined($opt_monitor) && $opt_printRatio) {
-				$extractModules[$nrModules++]->extractRatioSummary($logDirectory, $opt_subheading);
+				$extractModules[$nrModules++]->extractRatioSummaryCached($logDirectory, $opt_subheading);
 			} else {
 				$extractModules[$nrModules++]->extractSummaryCached($logDirectory, $opt_subheading);
 			}
