@@ -53,7 +53,6 @@ sub new() {
 	}
 
 	if (! -e "$reportDir/../../tests-timestamp") {
-		warn("MMTests::Cache Report directory $reportDir does not appear to have tests-timestamp at $reportDir/../../, disabling cache");
 		$cacheMMTests = "";
 		return $self;
 	}
