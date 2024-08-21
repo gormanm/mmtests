@@ -93,7 +93,9 @@ for LINE in `find /srv/marvin/tmp/mmtests-cache -type f \! -type l \! -name last
 		continue
 	fi
 
-	echo "Purge age:$AGE remaining `numfmt --to-iec $((MAX_SIZE_BYTES-PRUNED_SIZE))` $ENTRY"
+	REMAINING=$((PRUNED_SIZE-MAX_SIZE_BYTES))
+	[ $REMAINING -lt 0 ] && REMAINING=0
+	echo "Purge age:$AGE remaining `numfmt --to-unit=Mi $REMAINING` $ENTRY"
 	purge "$ENTRY"
 	if [ $PRUNED_SIZE -le $MAX_SIZE_BYTES ]; then
 		break
