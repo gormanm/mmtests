@@ -82,24 +82,25 @@ for LINE in `find /srv/marvin/tmp/mmtests-cache -type f \! -type l \! -name last
 		break
 	fi
 
-	# After this point, the entry is being deleted
-	PRUNED_SIZE=$((PRUNED_SIZE-SIZE))
-	NR_PURGE=$((NR_PURGE+1))
-
 	# Unconditionally purge entries older than the max allowed age
 	if [ $AGE -gt $MAX_AGE_DAYS ]; then
-		echo "Purge age:$AGE too old $ENTRY"
+		echo "Purge max-age age:$AGE too old $ENTRY"
 		purge "$ENTRY"
 		continue
 	fi
 
-	REMAINING=$((PRUNED_SIZE-MAX_SIZE_BYTES))
-	[ $REMAINING -lt 0 ] && REMAINING=0
-	echo "Purge age:$AGE remaining `numfmt --to-unit=Mi $REMAINING` $ENTRY"
-	purge "$ENTRY"
 	if [ $PRUNED_SIZE -le $MAX_SIZE_BYTES ]; then
+		echo "Purge complete."
 		break
 	fi
+
+	# After this point, the entry is being deleted
+	PRUNED_SIZE=$((PRUNED_SIZE-SIZE))
+	NR_PURGE=$((NR_PURGE+1))
+	REMAINING=$((PRUNED_SIZE-MAX_SIZE_BYTES))
+	[ $REMAINING -lt 0 ] && REMAINING=0
+	echo "Purge quota   :$AGE remaining `numfmt --to-unit=Mi $REMAINING` $ENTRY"
+	purge "$ENTRY"
 done
 IFS=$IFS_OLD
 
