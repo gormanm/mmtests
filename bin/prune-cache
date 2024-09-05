@@ -5,6 +5,7 @@ MAX_SIZE_BYTES=
 MIN_AGE_DAYS=3
 MAX_AGE_DAYS=21
 DRY_RUN=no
+VERBOSE=no
 
 die() {
 	echo "FATAL: $@"
@@ -33,6 +34,10 @@ while [ $# -gt 0 ]; do
 		CACHE_DIR="$2"
 		shift 2
 		;;
+	--verbose)
+		VERBOSE=yes
+		shift
+		;;
 	--dry-run)
 		DRY_RUN=yes
 		shift
@@ -44,10 +49,10 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-[ "$MAX_SIZE_BYTES" = "" ] && die "Specify maximum cache size with --max-size."
-[ "$CACHE_DIR" = "" ] && die "Specify cache directory with --cache-directory."
-[ ! -e $CACHE_DIR ] && die "Cache directory $CACHE_DIR does not exist."
-[ $MIN_AGE_DAYS -gt $MAX_AGE_DAYS ] && die "Min age ($MIN_AGE_DAYS) and Max age ($MAX_AGE_DAYS) are inverted."
+[ "$MAX_SIZE_BYTES" = "" ]		&& die "Specify maximum cache size with --max-size."
+[ "$CACHE_DIR" = "" ]			&& die "Specify cache directory with --cache-directory."
+[ ! -e $CACHE_DIR ]			&& die "Cache directory $CACHE_DIR does not exist."
+[ $MIN_AGE_DAYS -gt $MAX_AGE_DAYS ]	&& die "Min age ($MIN_AGE_DAYS) and Max age ($MAX_AGE_DAYS) are inverted."
 
 echo Calculating size...
 START_SIZE=`du -s -b $CACHE_DIR | awk '{print $1}'`
@@ -62,7 +67,7 @@ purge() {
 	PRUNED_SIZE=$((PRUNED_SIZE-SIZE))
 	NR_PURGE=$((NR_PURGE+1))
 	if [ "$DRY_RUN" = "yes" ]; then
-		echo "    Dry-run: $PURGE_CMD"
+		[ "$VERBOSE" = "yes" ] && echo "    Dry-run: $PURGE_CMD"
 	else
 		$PURGE_CMD
 	fi
@@ -81,13 +86,13 @@ for LINE in `find /srv/marvin/tmp/mmtests-cache -type f \! -type l \! -name last
 
 	# Unconditionally preserve entries younger than the min allowed age
 	if [ $AGE -le $MIN_AGE_DAYS ]; then
-		echo "Remaining entries are too young, unable to prune further"
+		[ "$VERBOSE" = "yes" ] && echo "Remaining entries are too young, unable to prune further"
 		break
 	fi
 
 	# Unconditionally purge entries older than the max allowed age
 	if [ $AGE -gt $MAX_AGE_DAYS ]; then
-		echo "Purge max-age age:$AGE too old $ENTRY"
+		[ "$VERBOSE" = "yes" ] && echo "Purge max-age age:$AGE too old $ENTRY"
 		purge "$ENTRY"
 		continue
 	fi
@@ -101,8 +106,8 @@ for LINE in `find /srv/marvin/tmp/mmtests-cache -type f \! -type l \! -name last
 	# Delete due to quota
 	purge "$ENTRY"
 	REMAINING=$((PRUNED_SIZE-MAX_SIZE_BYTES))
-	[ $REMAINING -lt 0 ] && REMAINING=0
-	echo "Purge quota:  age:$AGE remaining `numfmt --to-unit=Mi $REMAINING` $ENTRY"
+	[ $REMAINING -lt 0 ]   && REMAINING=0
+	[ "$VERBOSE" = "yes" ] && echo "Purge quota:  age:$AGE remaining `numfmt --to-unit=Mi $REMAINING` $ENTRY"
 done
 IFS=$IFS_OLD
 
