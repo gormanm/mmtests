@@ -55,6 +55,7 @@ done
 [ $MIN_AGE_DAYS -gt $MAX_AGE_DAYS ]	&& die "Min age ($MIN_AGE_DAYS) and Max age ($MAX_AGE_DAYS) are inverted."
 
 echo Calculating size...
+START_ENTRIES=`find $CACHE_DIR -type f | wc -l`
 START_SIZE=`du -s -b $CACHE_DIR | awk '{print $1}'`
 ACTUAL_SIZE=$START_SIZE
 
@@ -64,8 +65,8 @@ IFS="
 
 purge() {
 	PURGE_CMD="rm -f $1"
-	PRUNED_SIZE=$((PRUNED_SIZE-SIZE))
-	NR_PURGE=$((NR_PURGE+1))
+	CURRENT_SIZE=$((CURRENT_SIZE-SIZE))
+	((NR_PURGE++))
 	if [ "$DRY_RUN" = "yes" ]; then
 		[ "$VERBOSE" = "yes" ] && echo "    Dry-run: $PURGE_CMD"
 	else
@@ -77,8 +78,13 @@ echo Purging...
 DAYS_NOW=$(((`date +%s`+3600*24)/3600/24))
 DAYS_MAX_AGE=$((DAYS_NOW-MAX_AGE_DAYS))
 DAYS_MIN_AGE=$((DAYS_NOW-MIN_AGE_DAYS))
-PRUNED_SIZE=$ACTUAL_SIZE
+CURRENT_SIZE=$ACTUAL_SIZE
 NR_PURGE=0
+NR_PURGE_AGE=0
+NR_PURGE_QUOTA=0
+PRUNED_SIZE_AGE=0
+PRUNED_SIZE_QUOTA=0
+
 for LINE in `find /srv/marvin/tmp/mmtests-cache -type f \! -type l \! -name last_update -printf "%A@ %b %h/%f\n" | awk '{print int($1)" "($2*512)" "$3}' | sort -n -k1 -k2  | grep -E 'Summarise_extractSummary|Extract__extractReport'`; do
 	IFS=" " read -r LAST_ACCESS SIZE ENTRY <<< "$LINE"
 	DAYS_ACCESSED=$(((LAST_ACCESS+3600*24)/3600/24))
@@ -93,35 +99,41 @@ for LINE in `find /srv/marvin/tmp/mmtests-cache -type f \! -type l \! -name last
 	# Unconditionally purge entries older than the max allowed age
 	if [ $AGE -gt $MAX_AGE_DAYS ]; then
 		[ "$VERBOSE" = "yes" ] && echo "Purge max-age age:$AGE too old $ENTRY"
+		((NR_PURGE_AGE++))
+		((PRUNED_SIZE_AGE+=SIZE))
 		purge "$ENTRY"
 		continue
 	fi
 
 	# If quota is met and all entries older than max are purged then stop
-	if [ $PRUNED_SIZE -le $MAX_SIZE_BYTES ]; then
+	if [ $CURRENT_SIZE -le $MAX_SIZE_BYTES ]; then
 		echo "Purge complete."
 		break
 	fi
 
 	# Delete due to quota
+	((NR_PURGE_QUOTA++))
+	((PRUNED_SIZE_QUOTA+=SIZE))
 	purge "$ENTRY"
-	REMAINING=$((PRUNED_SIZE-MAX_SIZE_BYTES))
+	REMAINING=$((CURRENT_SIZE-MAX_SIZE_BYTES))
 	[ $REMAINING -lt 0 ]   && REMAINING=0
-	[ "$VERBOSE" = "yes" ] && echo "Purge quota:  age:$AGE remaining `numfmt --to-unit=Mi $REMAINING` $ENTRY"
+	[ "$VERBOSE" = "yes" ] && echo "Purge quota:  age:$AGE remaining `numfmt --to=unit=Mi $REMAINING` $ENTRY"
 done
 IFS=$IFS_OLD
 
 echo
 ACTUAL_SIZE=`du -s -b $CACHE_DIR | awk '{print $1}'`
 printf "Cache location: $CACHE_DIR\n"
+printf "Start    size: %8s ( %8d entries)\n" `numfmt --to=iec $START_SIZE` $START_ENTRIES
 printf "Target   size: %8s\n" `numfmt --to=iec $MAX_SIZE_BYTES`
-printf "Start    size: %8s\n" `numfmt --to=iec $START_SIZE`
-printf "Expected size: %8s\n" `numfmt --to=iec $PRUNED_SIZE`
+printf "Expected size: %8s\n" `numfmt --to=iec $CURRENT_SIZE`
 printf "Actual   size: %8s\n" `numfmt --to=iec $ACTUAL_SIZE`
-printf "Purged:        %8s (%d entries)\n" `numfmt --to=iec $((ACTUAL_SIZE-PRUNED_SIZE))` $NR_PURGE
+printf "Purged age:    %8s ( %8d entries)\n" `numfmt --to=iec $PRUNED_SIZE_AGE` $NR_PURGE_AGE
+printf "Purged quota:  %8s ( %8d entries)\n" `numfmt --to=iec $PRUNED_SIZE_QUOTA` $NR_PURGE_QUOTA
+printf "Purged total:  %8s ( %8d entries)\n" `numfmt --to=iec $((ACTUAL_SIZE-CURRENT_SIZE))` $NR_PURGE
 
-if [ $ACTUAL_SIZE -gt $MAX_SIZE_BYTES ]; then
-	echo WARNING: Unable to prune cache to specified limits, probably due to age of entries.
+if [ "$MAX_SIZE_BYTES" != "" -a "$ACTUAL_SIZE" -gt "$MAX_SIZE_BYTES" ]; then
+	echo "WARNING: Unable to prune cache to `numfmt --to=iec $MAX_SIZE_BYTES` due to age of entries."
 	exit 1
 fi
 exit 0
