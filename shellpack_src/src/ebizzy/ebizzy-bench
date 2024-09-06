@@ -7,6 +7,7 @@ EBIZZY_DURATION=30
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --min-threads       EBIZZY_MIN_THREADS
 ###SHELLPACK parseargParam --max-threads       EBIZZY_MAX_THREADS
 ###SHELLPACK parseargParam --iterations        EBIZZY_ITERATIONS
 ###SHELLPACK parseargParam --duration          EBIZZY_DURATION
@@ -20,7 +21,7 @@ EXIT_CODE=$SHELLPACK_SUCCESS
 
 set_mmtests_numactl $EBIZZY_MAX_THREADS $EBIZZY_MAX_THREADS
 
-###SHELLPACK threads_large_stride_begin 1 $EBIZZY_MAX_THREADS
+###SHELLPACK threads_large_stride_begin $EBIZZY_MIN_THREADS $EBIZZY_MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $EBIZZY_ITERATIONS
 		echo Iteration:$ITERATION Threads:$NR_THREADS/$EBIZZY_MAX_THREADS \

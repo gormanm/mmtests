@@ -64,13 +64,18 @@ IFS="
 "
 
 purge() {
+	if [ "$1" = "" ]; then
+		echo "WARNING: purge passed empty file name"
+		return
+	fi
+
 	PURGE_CMD="rm -f $1"
 	CURRENT_SIZE=$((CURRENT_SIZE-SIZE))
 	((NR_PURGE++))
 	if [ "$DRY_RUN" = "yes" ]; then
 		[ "$VERBOSE" = "yes" ] && echo "    Dry-run: $PURGE_CMD"
 	else
-		$PURGE_CMD
+		eval "$PURGE_CMD"
 	fi
 }
 

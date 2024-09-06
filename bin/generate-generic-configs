@@ -26,6 +26,11 @@ cat config-workload-coremark | sed -e 's/COREMARK_THREADS=.*/COREMARK_THREADS=$N
 # dbench
 cat config-io-dbench4-async | sed -e 's/async/fsync/' -e 's/DBENCH_FSYNC=.*/DBENCH_FSYNC=yes/' > config-io-dbench4-fsync
 
+# ebizzy
+sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=1/' 	   config-workload-ebizzy > config-workload-ebizzy-single
+sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=$NUMCPUS/' config-workload-ebizzy > config-workload-ebizzy-max
+sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=$((NUMCPUS*4))/' config-workload-ebizzy > config-workload-ebizzy-overload
+
 # FRONTISTR
 sed 	-e 's/FRONTISTR_DOMAINS=.*/FRONTISTR_DOMAINS=$NUMCPUS/'		\
 	-e 's/FRONTISTR_OMP_THREADS=.*/FRONTISTR_OMP_THREADS=1/'	\
