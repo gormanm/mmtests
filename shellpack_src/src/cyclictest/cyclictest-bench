@@ -8,6 +8,7 @@ sudo_required
 
 PERF_VERSION=6.9
 CYCLICTEST_PRIORITY=98
+CYCLICTEST_DISTANCE=0
 CYCLICTEST_DURATION=600
 CYCLICTEST_BACKGROUND=none
 CYCLICTEST_FINEGRAINED=no
@@ -15,8 +16,9 @@ CYCLICTEST_AFFINITY_ALL=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-###SHELLPACK parseargParam   --duration		CYCLICTEST_DURATION
 ###SHELLPACK parseargParam   --background	CYCLICTEST_BACKGROUND
+###SHELLPACK parseargParam   --distance		CYCLICTEST_DISTANCE
+###SHELLPACK parseargParam   --duration		CYCLICTEST_DURATION
 ###SHELLPACK parseargParam   --priority		CYCLICTEST_PRIORITY
 ###SHELLPACK parseargYes     --affinity-all	CYCLICTEST_AFFINITY_ALL
 ###SHELLPACK parseargYes     --fine-grained     CYCLICTEST_FINEGRAINED
@@ -69,7 +71,7 @@ esac
 monitor_pre_hook $LOGDIR_RESULTS $P
 echo "Starting cyclictest threads"
 $MMTESTS_SUDO ./cyclictest --mlockall -p$CYCLICTEST_PRIORITY --threads $CYCLICTEST_AFFINITY_PARAM \
-	--distance=0 --duration=$CYCLICTEST_DURATION $VERBOSE_SWITCH 2>&1 | \
+	--distance=$CYCLICTEST_DISTANCE --duration=$CYCLICTEST_DURATION $VERBOSE_SWITCH 2>&1 | \
 	tee $LOGDIR_RESULTS/cyclictest.log
 
 case $CYCLICTEST_BACKGROUND in

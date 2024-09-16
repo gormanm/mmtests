@@ -24,6 +24,7 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # cyclictest
 export CYCLICTEST_DURATION=600
+export CYCLICTEST_DISTANCE=0
 
 # when run in container
 export CONTAINER_CAP_SYS_NICE=yes
