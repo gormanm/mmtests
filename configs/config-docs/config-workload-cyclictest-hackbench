@@ -1,0 +1,2 @@
+### This configuration runs "perf bench messaging" in the background
+### as an adverse interference workload

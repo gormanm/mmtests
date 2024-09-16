@@ -23,6 +23,18 @@ done
 # coremark
 cat config-workload-coremark | sed -e 's/COREMARK_THREADS=.*/COREMARK_THREADS=$NUMLLCS/' > config-workload-coremark-llcs
 
+# cyclictest
+for BGWORK in hackbench kernel-build; do
+	grep "###" config-workload-cyclictest-none		> config-workload-cyclictest-$BGWORK
+	cat config-docs/config-workload-cyclictest-$BGWORK	>> config-workload-cyclictest-$BGWORK
+	grep -v "###" config-workload-cyclictest-none		>> config-workload-cyclictest-$BGWORK
+	echo "export CYCLICTEST_BACKGROUND=$BGWORK"		>> config-workload-cyclictest-$BGWORK
+done
+for BGWORK in none hackbench kernel-build; do
+	cp config-workload-cyclictest-$BGWORK config-workload-cyclictest-fine-$BGWORK
+	echo "export CYCLICTEST_FINEGRAINED=yes" >> config-workload-cyclictest-fine-$BGWORK
+done
+
 # dbench
 cat config-io-dbench4-async | sed -e 's/async/fsync/' -e 's/DBENCH_FSYNC=.*/DBENCH_FSYNC=yes/' > config-io-dbench4-fsync
 
