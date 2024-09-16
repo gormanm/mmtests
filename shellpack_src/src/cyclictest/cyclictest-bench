@@ -10,13 +10,16 @@ PERF_VERSION=6.9
 CYCLICTEST_PRIORITY=98
 CYCLICTEST_DURATION=600
 CYCLICTEST_BACKGROUND=none
+CYCLICTEST_FINEGRAINED=no
+CYCLICTEST_AFFINITY_ALL=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam   --duration		CYCLICTEST_DURATION
 ###SHELLPACK parseargParam   --background	CYCLICTEST_BACKGROUND
-###SHELLPACK parseargYes     --affinity		CYCLICTEST_AFFINITY
 ###SHELLPACK parseargParam   --priority		CYCLICTEST_PRIORITY
+###SHELLPACK parseargYes     --affinity-all	CYCLICTEST_AFFINITY_ALL
+###SHELLPACK parseargYes     --fine-grained     CYCLICTEST_FINEGRAINED
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -39,9 +42,8 @@ esac
 ###SHELLPACK init_only_end
 
 cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change to rttest directory"
-if [ "$CYCLICTEST_AFFINITY" = "yes" ]; then
-	CYCLICTEST_AFFINITY_PARAM=-a
-fi
+
+[ "$CYCLICTEST_AFFINITY_ALL" = "yes" ] && CYCLICTEST_AFFINITY_PARAM="-a"
 
 VERBOSE_SWITCH="--quiet"
 [ "$CYCLICTEST_FINEGRAINED" = "yes" ] && VERBOSE_SWITCH="-v"

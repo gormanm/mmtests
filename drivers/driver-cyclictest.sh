@@ -5,6 +5,8 @@ run_bench() {
 		${CYCLICTEST_PINNED:+--affinity}				\
 		${CYCLICTEST_BACKGROUND:+--background $CYCLICTEST_BACKGROUND}	\
 		${CYCLICTEST_PRIORITY:+--priority $CYCLICTEST_PRIORITY}		\
-		${CYCLICTEST_DURATION:+--duration $CYCLICTEST_DURATION}
+		${CYCLICTEST_DURATION:+--duration $CYCLICTEST_DURATION}		\
+		${CYCLICTEST_AFFINITY_ALL:+--affinity-all}			\
+		${CYCLICTEST_FINEGRAINED:+--fine-grained}
 	return $?
 }

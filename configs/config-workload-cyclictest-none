@@ -1,7 +1,7 @@
 ### cyclictest is a latency measurement benchmark.
 ###
 
-export MMTESTS="cyclictest-pinned"
+export MMTESTS="cyclictest"
 
 # List of monitors
 export RUN_MONITOR=yes

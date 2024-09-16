@@ -1,7 +1,7 @@
 ### cyclictest is a latency measurement benchmark.
 ###
 
-export MMTESTS="cyclictest-pinned"
+export MMTESTS="cyclictest"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
