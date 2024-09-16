@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble rttestbuild-install v1.5
+###SHELLPACK preamble rttestbuild-install v2.7
 GIT_LOCATION=git://git.kernel.org/pub/scm/utils/rt-tests/rt-tests.git
 MIRROR_LOCATION="$WEBROOT/rttestbuild/"
 
@@ -10,7 +10,6 @@ install-depends libnuma-devel
 
 ###SHELLPACK git_fetch rttestbuild-${VERSION}.tar.gz rttestbuild-${VERSION}-installed
 ###SHELLPACK build_start rttestbuild-${VERSION}-installed
-sed -i -e 's/elif defined __arm__/else/' src/queuelat/queuelat.c
 
 ###SHELLPACK make
 

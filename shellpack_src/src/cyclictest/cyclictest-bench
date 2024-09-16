@@ -1,6 +1,6 @@
 #!/bin/bash
 # cyclictest
-###SHELLPACK preamble cyclictest-bench v1.5
+###SHELLPACK preamble cyclictest-bench v2.7
 ###SHELLPACK addon fragment
 
 CYCLICTEST_BACKGROUND=none
@@ -8,12 +8,13 @@ sudo_required
 
 PERF_VERSION=6.9
 CYCLICTEST_PRIORITY=98
-CYCLICTEST_DISTANCE=0
+CYCLICTEST_DISTANCE=
 CYCLICTEST_DURATION=600
 CYCLICTEST_BACKGROUND=none
 CYCLICTEST_FINEGRAINED=no
 CYCLICTEST_AFFINITY_ALL=
 CYCLICTEST_NR_THREADS=
+CYCLICTEST_HISTOGRAM=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -24,6 +25,7 @@ CYCLICTEST_NR_THREADS=
 ###SHELLPACK parseargYes     --fine-grained     CYCLICTEST_FINEGRAINED
 ###SHELLPACK parseargParam   --priority		CYCLICTEST_PRIORITY
 ###SHELLPACK parseargParam   --threads		CYCLICTEST_NR_THREADS
+###SHELLPACK parseargParam   --histogram	CYCLICTEST_HISTOGRAM
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -48,6 +50,13 @@ esac
 cd $SHELLPACK_SOURCES/rttestbuild-${VERSION}-installed || die "Failed to change to rttest directory"
 
 [ "$CYCLICTEST_AFFINITY_ALL" = "yes" ] && CYCLICTEST_AFFINITY_PARAM="-a"
+[ "$CYCLICTEST_DISTANCE" != "" ]       && CYCLICTEST_DISTANCE_PARAM="--distance=$CYCLICTEST_DISTANCE"
+[ "$CYCLICTEST_HISTOGRAM" != "" ]      && CYCLICTEST_HISTOGRAM_PARAM="--histofall=$CYCLICTEST_HISTOGRAM"
+
+if [ "$CYCLICTEST_DISTANCE_PARAM" != "" -a "$CYCLICTEST_HISTOGRAM" != "" ]; then
+	echo "WARNING: Distance is forced to 0 when histogram is enabled, disabling distance parameter"
+	CYCLICTEST_DISTANCE_PARAM=
+fi
 
 VERBOSE_SWITCH="--quiet"
 [ "$CYCLICTEST_FINEGRAINED" = "yes" ] && VERBOSE_SWITCH="-v"
@@ -73,7 +82,7 @@ esac
 monitor_pre_hook $LOGDIR_RESULTS $P
 echo "Starting cyclictest threads"
 $MMTESTS_SUDO ./cyclictest --mlockall -p$CYCLICTEST_PRIORITY --threads $CYCLICTEST_NR_THREADS $CYCLICTEST_AFFINITY_PARAM \
-	--distance=$CYCLICTEST_DISTANCE --duration=$CYCLICTEST_DURATION $VERBOSE_SWITCH 2>&1 | \
+	--duration=$CYCLICTEST_DURATION $CYCLICTEST_DISTANCE_PARAM $CYCLICTEST_HISTOGRAM_PARAM $VERBOSE_SWITCH 2>&1 | \
 	tee $LOGDIR_RESULTS/cyclictest.log
 
 case $CYCLICTEST_BACKGROUND in

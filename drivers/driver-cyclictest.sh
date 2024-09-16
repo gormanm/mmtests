@@ -7,6 +7,7 @@ run_bench() {
 		${CYCLICTEST_PRIORITY:+--priority $CYCLICTEST_PRIORITY}		\
 		${CYCLICTEST_DISTANCE:+--distance $CYCLICTEST_DISTANCE}		\
 		${CYCLICTEST_DURATION:+--duration $CYCLICTEST_DURATION}		\
-		${CYCLICTEST_FINEGRAINED:+--fine-grained}
+		${CYCLICTEST_FINEGRAINED:+--fine-grained}			\
+		${CYCLICTEST_HISTOGRAM:+--histogram $CYCLICTEST_HISTOGRAM}
 	return $?
 }

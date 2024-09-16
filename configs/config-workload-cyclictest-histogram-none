@@ -24,9 +24,15 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # cyclictest
 export CYCLICTEST_AFFINITY_ALL=yes
-export CYCLICTEST_DISTANCE=0
 export CYCLICTEST_DURATION=600
 export CYCLICTEST_HISTOGRAM=500
+
+# Distance is forced to 0 with SMP switch, NUMA or with histograms. As
+# it's not entirely clear why setting distrance would be required but
+# it's possible it's needed when skew_tick is not set on kernels that
+# can bounce timer-related locks. Note the existance of the distrance
+# parameter but do not set it.
+# export CYCLICTEST_DISTANCE=0
 
 # when run in container
 export CONTAINER_CAP_SYS_NICE=yes
