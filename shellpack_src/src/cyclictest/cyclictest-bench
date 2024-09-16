@@ -13,15 +13,17 @@ CYCLICTEST_DURATION=600
 CYCLICTEST_BACKGROUND=none
 CYCLICTEST_FINEGRAINED=no
 CYCLICTEST_AFFINITY_ALL=
+CYCLICTEST_NR_THREADS=
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
+###SHELLPACK parseargYes     --affinity-all	CYCLICTEST_AFFINITY_ALL
 ###SHELLPACK parseargParam   --background	CYCLICTEST_BACKGROUND
 ###SHELLPACK parseargParam   --distance		CYCLICTEST_DISTANCE
 ###SHELLPACK parseargParam   --duration		CYCLICTEST_DURATION
-###SHELLPACK parseargParam   --priority		CYCLICTEST_PRIORITY
-###SHELLPACK parseargYes     --affinity-all	CYCLICTEST_AFFINITY_ALL
 ###SHELLPACK parseargYes     --fine-grained     CYCLICTEST_FINEGRAINED
+###SHELLPACK parseargParam   --priority		CYCLICTEST_PRIORITY
+###SHELLPACK parseargParam   --threads		CYCLICTEST_NR_THREADS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -70,7 +72,7 @@ none)
 esac
 monitor_pre_hook $LOGDIR_RESULTS $P
 echo "Starting cyclictest threads"
-$MMTESTS_SUDO ./cyclictest --mlockall -p$CYCLICTEST_PRIORITY --threads $CYCLICTEST_AFFINITY_PARAM \
+$MMTESTS_SUDO ./cyclictest --mlockall -p$CYCLICTEST_PRIORITY --threads $CYCLICTEST_NR_THREADS $CYCLICTEST_AFFINITY_PARAM \
 	--distance=$CYCLICTEST_DISTANCE --duration=$CYCLICTEST_DURATION $VERBOSE_SWITCH 2>&1 | \
 	tee $LOGDIR_RESULTS/cyclictest.log
 

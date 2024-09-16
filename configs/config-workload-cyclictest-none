@@ -23,8 +23,9 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # cyclictest
-export CYCLICTEST_DURATION=600
+export CYCLICTEST_AFFINITY_ALL=yes
 export CYCLICTEST_DISTANCE=0
+export CYCLICTEST_DURATION=600
 
 # when run in container
 export CONTAINER_CAP_SYS_NICE=yes
