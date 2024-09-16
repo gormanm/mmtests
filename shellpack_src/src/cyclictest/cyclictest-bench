@@ -7,12 +7,16 @@ CYCLICTEST_BACKGROUND=none
 sudo_required
 
 PERF_VERSION=6.9
+CYCLICTEST_PRIORITY=98
+CYCLICTEST_DURATION=600
+CYCLICTEST_BACKGROUND=none
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam   --duration		CYCLICTEST_DURATION
 ###SHELLPACK parseargParam   --background	CYCLICTEST_BACKGROUND
 ###SHELLPACK parseargYes     --affinity		CYCLICTEST_AFFINITY
+###SHELLPACK parseargParam   --priority		CYCLICTEST_PRIORITY
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -26,7 +30,7 @@ hackbench|kernel-build|klp)
 	fragment prepare --method $CYCLICTEST_BACKGROUND || die "Failed to prepare $CYCLICTEST_BACKGROUND"
 	;;
 none)
-	echo No background task to prepare
+	echo "No background task to prepare"
 	;;
 *)
 	die "Unrecognised background task $CYCLICTEST_BACKGROUND"
@@ -60,11 +64,11 @@ esac
 monitor_pre_hook $LOGDIR_RESULTS $P
 echo Starting cyclictest threads
 if [ "$CYCLICTEST_FINEGRAINED" != "yes" ]; then
-	$MMTESTS_SUDO ./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
+	$MMTESTS_SUDO ./cyclictest --mlockall -p$CYCLICTEST_PRIORITY --threads $CYCLICTEST_AFFINITY_PARAM \
 		--distance=0 --duration=$CYCLICTEST_DURATION --quiet 2>&1 | \
 		tee $LOGDIR_RESULTS/cyclictest.log
 else
-	$MMTESTS_SUDO ./cyclictest --mlockall -p99 --threads $CYCLICTEST_AFFINITY_PARAM \
+	$MMTESTS_SUDO ./cyclictest --mlockall -p$CYCLICTEST_PRIORITY --threads $CYCLICTEST_AFFINITY_PARAM \
 		--distance=0 --duration=$CYCLICTEST_DURATION -v 2>&1 | \
 		stdout-buffer > $LOGDIR_RESULTS/cyclictest.log
 fi
@@ -74,7 +78,7 @@ hackbench|kernel-build|klp)
 	fragment cleanup --method $CYCLICTEST_BACKGROUND
 	;;
 none)
-	echo No background task to shutdown
+	echo "No background task to shutdown"
 	;;
 *)
 	die "Unrecognised background task $CYCLICTEST_BACKGROUND"
