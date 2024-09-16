@@ -54,7 +54,7 @@ done
 [ ! -e $CACHE_DIR ]			&& die "Cache directory $CACHE_DIR does not exist."
 [ $MIN_AGE_DAYS -gt $MAX_AGE_DAYS ]	&& die "Min age ($MIN_AGE_DAYS) and Max age ($MAX_AGE_DAYS) are inverted."
 
-echo Calculating size...
+echo Calculating size $CACHE_DIR
 START_ENTRIES=`find $CACHE_DIR -type f | wc -l`
 START_SIZE=`du -s -b $CACHE_DIR | awk '{print $1}'`
 ACTUAL_SIZE=$START_SIZE
@@ -79,7 +79,8 @@ purge() {
 	fi
 }
 
-echo Purging...
+echo Pruning...
+OLDEST_ENTRY=-1
 DAYS_NOW=$(((`date +%s`+3600*24)/3600/24))
 DAYS_MAX_AGE=$((DAYS_NOW-MAX_AGE_DAYS))
 DAYS_MIN_AGE=$((DAYS_NOW-MIN_AGE_DAYS))
@@ -94,6 +95,10 @@ for LINE in `find /srv/marvin/tmp/mmtests-cache -type f \! -type l \! -name last
 	IFS=" " read -r LAST_ACCESS SIZE ENTRY <<< "$LINE"
 	DAYS_ACCESSED=$(((LAST_ACCESS+3600*24)/3600/24))
 	AGE=$((DAYS_NOW-DAYS_ACCESSED))
+
+	if [ $OLDEST_ENTRY -lt 0 ]; then
+		OLDEST_ENTRY=$AGE
+	fi
 
 	# Unconditionally preserve entries younger than the min allowed age
 	if [ $AGE -le $MIN_AGE_DAYS ]; then
@@ -128,14 +133,20 @@ IFS=$IFS_OLD
 
 echo
 ACTUAL_SIZE=`du -s -b $CACHE_DIR | awk '{print $1}'`
-printf "Cache location: $CACHE_DIR\n"
+PURGED_TOTAL=$((START_SIZE-CURRENT_SIZE))
+if [ $PURGED_TOTAL -eq 0 -a "$DRY_RUN" = "no" ]; then
+	printf "Prune report `date "+%d/%m/%Y %H:%M"` No action required (size:`numfmt --to=iec $ACTUAL_SIZE` oldest:$OLDEST_ENTRY)\n"
+	exit 0
+fi
+
+printf "Prune report `date "+%d/%m/%Y %H:%M"` (size:`numfmt --to=iec $ACTUAL_SIZE` oldest:$OLDEST_ENTRY)\n"
 printf "Start    size: %8s ( %8d entries)\n" `numfmt --to=iec $START_SIZE` $START_ENTRIES
 printf "Target   size: %8s\n" `numfmt --to=iec $MAX_SIZE_BYTES`
 printf "Expected size: %8s\n" `numfmt --to=iec $CURRENT_SIZE`
 printf "Actual   size: %8s\n" `numfmt --to=iec $ACTUAL_SIZE`
 printf "Purged age:    %8s ( %8d entries)\n" `numfmt --to=iec $PRUNED_SIZE_AGE` $NR_PURGE_AGE
 printf "Purged quota:  %8s ( %8d entries)\n" `numfmt --to=iec $PRUNED_SIZE_QUOTA` $NR_PURGE_QUOTA
-printf "Purged total:  %8s ( %8d entries)\n" `numfmt --to=iec $((ACTUAL_SIZE-CURRENT_SIZE))` $NR_PURGE
+printf "Purged total:  %8s ( %8d entries)\n" `numfmt --to=iec $((START_SIZE-CURRENT_SIZE))` $NR_PURGE
 
 if [ "$MAX_SIZE_BYTES" != "" -a "$ACTUAL_SIZE" -gt "$MAX_SIZE_BYTES" ]; then
 	echo "WARNING: Unable to prune cache to `numfmt --to=iec $MAX_SIZE_BYTES` due to age of entries."
