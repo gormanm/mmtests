@@ -21,13 +21,13 @@ export MONITORS_GZIP="proc-vmstat mpstat turbostat proc-interrupts proc-timer_li
 export MONITORS_WITH_LATENCY="vmstat proc-interrupts"
 export MONITOR_UPDATE_FREQUENCY=10
 
+# when run in container
+export CONTAINER_CAP_SYS_NICE=yes
+export CONTAINER_CAP_IPC_LOCK=yes
+
 # cyclictest
 export CYCLICTEST_AFFINITY_ALL=yes
 export CYCLICTEST_DISTANCE=0
 export CYCLICTEST_DURATION=600
 export CYCLICTEST_HISTOGRAM=500
 export CYCLICTEST_INTERVAL=
-
-# when run in container
-export CONTAINER_CAP_SYS_NICE=yes
-export CONTAINER_CAP_IPC_LOCK=yes

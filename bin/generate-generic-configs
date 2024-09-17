@@ -24,14 +24,36 @@ done
 cat config-workload-coremark | sed -e 's/COREMARK_THREADS=.*/COREMARK_THREADS=$NUMLLCS/' > config-workload-coremark-llcs
 
 # cyclictest
-for BGWORK in hackbench kernel-build; do
-	grep "###" config-workload-cyclictest-none		> config-workload-cyclictest-$BGWORK
-	cat config-docs/config-workload-cyclictest-$BGWORK	>> config-workload-cyclictest-$BGWORK
-	grep -v "###" config-workload-cyclictest-none		>> config-workload-cyclictest-$BGWORK
-	echo "export CYCLICTEST_BACKGROUND=$BGWORK"		>> config-workload-cyclictest-$BGWORK
+# o Basic histogram configuration
+BASELINE_CYCLICTEST_CONFIGS="config-workload-cyclictest-none config-workload-cyclictest-histogram-none"
+sed -e /CYCLICTEST_DURATION/d config-workload-cyclictest-none > config-workload-cyclictest-histogram-none
+cat >> config-workload-cyclictest-histogram-none <<EOF
+
+# Distance is forced to 0 with SMP switch, NUMA or with histograms. As
+# it's not entirely clear why setting distrance would be required but
+# it's possible it's needed when skew_tick is not set on kernels that
+# can bounce timer-related locks. Note the existance of the distrance
+# parameter but do not set it.
+# export CYCLICTEST_DISTANCE=0
+EOF
+
+# o Background load scripts
+for BASELINE in $BASELINE_CYCLICTEST_CONFIGS; do
+	for BGWORK in hackbench kernel-build; do
+		BASELINE_BG=`echo $BASELINE | sed -e "s/-none/-$BGWORK/"`
+		grep "###" $BASELINE					>  $BASELINE_BG
+		cat config-docs/config-workload-cyclictest-$BGWORK	>> $BASELINE_BG
+		grep -v "###" config-workload-cyclictest-none		>> $BASELINE_BG
+		echo "export CYCLICTEST_BACKGROUND=$BGWORK"		>> $BASELINE_BG
+		BASELINE_CYCLICTEST_CONFIGS+=" $BASELINE_BG"
+	done
 done
-for BGWORK in none hackbench kernel-build; do
-	cp config-workload-cyclictest-$BGWORK config-workload-cyclictest-fine-$BGWORK
+
+# o Fine-grained configs
+for BASELINE in $BASELINE_CYCLICTEST_CONFIGS; do
+	[[ $BASELINE = *-histogram* ]] && continue
+	BASELINE_FINE=`echo $BASELINE | sed -e 's/cyclictest-/cyclictest-fine-/'`
+	cp $BASELINE $BASELINE_FINE
 	echo "export CYCLICTEST_FINEGRAINED=yes" >> config-workload-cyclictest-fine-$BGWORK
 done
 
