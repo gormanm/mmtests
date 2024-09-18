@@ -26,8 +26,9 @@ cat config-workload-coremark | sed -e 's/COREMARK_THREADS=.*/COREMARK_THREADS=$N
 # cyclictest
 # o Basic histogram configuration
 BASELINE_CYCLICTEST_CONFIGS="config-workload-cyclictest-none config-workload-cyclictest-histogram-none"
-sed -e /CYCLICTEST_DURATION/d config-workload-cyclictest-none > config-workload-cyclictest-histogram-none
+sed -e /CYCLICTEST_DISTANCE/d -e /CYCLICTEST_HISTOGRAM/d config-workload-cyclictest-none > config-workload-cyclictest-histogram-none
 cat >> config-workload-cyclictest-histogram-none <<EOF
+export CYCLICTEST_HISTOGRAM=500
 
 # Distance is forced to 0 with SMP switch, NUMA or with histograms. As
 # it's not entirely clear why setting distrance would be required but
@@ -43,7 +44,7 @@ for BASELINE in $BASELINE_CYCLICTEST_CONFIGS; do
 		BASELINE_BG=`echo $BASELINE | sed -e "s/-none/-$BGWORK/"`
 		grep "###" $BASELINE					>  $BASELINE_BG
 		cat config-docs/config-workload-cyclictest-$BGWORK	>> $BASELINE_BG
-		grep -v "###" config-workload-cyclictest-none		>> $BASELINE_BG
+		grep -v "###" $BASELINE					>> $BASELINE_BG
 		echo "export CYCLICTEST_BACKGROUND=$BGWORK"		>> $BASELINE_BG
 		BASELINE_CYCLICTEST_CONFIGS+=" $BASELINE_BG"
 	done

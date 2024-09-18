@@ -658,6 +658,19 @@ for SUBREPORT in $REPORTS; do
 	fi
 
 	case $SUBREPORT in
+	cyclictest)
+		echo $SUBREPORT
+		eval $COMPARE_CMD
+		echo
+
+		for KERNEL in $KERNEL_LIST; do
+			if [ `find $KERNEL -name cyclictest-histogram.log | wc -l` -gt 0 ]; then
+				echo Cyclictest Histogram
+				eval compare-mmtests.pl -d . -b cyclictest-histogram -n $KERNEL_LIST $FORMAT_CMD
+			fi
+			break
+		done
+		;;
 	dbench4)
 		echo $SUBREPORT Loadfile Execution Time
 		eval $COMPARE_CMD
@@ -1105,7 +1118,7 @@ for SUBREPORT in $REPORTS; do
 		blogbench)
 			generate_subheading_graphs "Read Write"
 			;;
-		cyclictest-pinned|cyclictest-unbound)
+		cyclictest)
 			for HEADING in Max Avg; do
 				eval $GRAPH_PNG --title \"$SUBREPORT Latency $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
 				plain graph-$SUBREPORT-$HEADING
