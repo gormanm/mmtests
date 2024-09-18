@@ -106,6 +106,10 @@ none)
 	die "Unrecognised background task $CYCLICTEST_BACKGROUND"
 	;;
 esac
+
+for PROC_FILE in timer_list interrupts; do
+	$MMTESTS_SUDO cat /proc/$PROC_FILE > $LOGDIR_RESULTS/$PROC_FILE.before
+done
 monitor_pre_hook $LOGDIR_RESULTS $P
 BENCH_CMD="./cyclictest --mlockall -p$CYCLICTEST_PRIORITY --threads $CYCLICTEST_NR_THREADS $CYCLICTEST_AFFINITY_PARAM $CYCLICTEST_MAIN_AFFINITY_PARAM --duration=$CYCLICTEST_DURATION $CYCLICTEST_DISTANCE_PARAM $CYCLICTEST_HISTOGRAM_PARAM $CYCLICTEST_INTERVAL_PARAM $VERBOSE_SWITCH"
 BENCH_CMD=`echo "$BENCH_CMD" | sed -e 's/  / /g'`
@@ -125,6 +129,9 @@ none)
 esac
 
 monitor_post_hook $LOGDIR_RESULTS $P
+for PROC_FILE in timer_list interrupts; do
+	$MMTESTS_SUDO cat /proc/$PROC_FILE > $LOGDIR_RESULTS/$PROC_FILE.after
+done
 
 if [ "$CYCLICTEST_FINEGRAINED" = "yes" ]; then
 	echo Compressing $LOGDIR_RESULTS/cyclictest.log
