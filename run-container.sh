@@ -244,6 +244,8 @@ function set_runargs() {
 }
 
 function start_container() {
+	c_mmtests_dir=/$(basename ${SCRIPTDIR})
+
 	echo "Mounting testdisk"
 	./run-mmtests.sh ${monitor} --mount-only -c ${CONFIGS[0]} ${runname}-tmp
 	rm -rf ${SHELLPACK_LOG_BASE}/${runname}-tmp
@@ -253,7 +255,7 @@ function start_container() {
 	echo "Starting container"
 	# bind mount testdisk in container
 	container_id=$(${cli} run -t -d ${runargs} \
-			      --mount type=bind,source=${SHELLPACK_TEST_MOUNT},target=/testdisk \
+			      --mount type=bind,source=${SHELLPACK_TEST_MOUNT},target=${c_mmtests_dir}/work/testdisk \
 			      ${image})
 	echo "container_id: ${container_id}"
 }
@@ -277,9 +279,7 @@ function update_container() {
 function prepare_mmtests() {
 	local i
 	echo "Copying and preparing mmtests"
-	c_mmtests_dir=/$(basename ${SCRIPTDIR})
 
-	${cli} exec ${container_id} mkdir -p ${c_mmtests_dir}/work
 	for i in $(ls -d ${SCRIPTDIR}/!(work)); do
 		${cli} cp $i ${container_id}:${c_mmtests_dir}/
 	done
@@ -287,9 +287,6 @@ function prepare_mmtests() {
 	${cli} exec ${container_id} touch ~/.mmtests-auto-package-downgrade
 	${cli} exec -w /root ${container_id} \
 	       bash -c "echo -e \"[http]\n\tsslVerify = false\" > .gitconfig"
-	# point to bind mounted testdisk
-	${cli} exec -w ${c_mmtests_dir} ${container_id} \
-	       ln -s /testdisk work/testdisk
 }
 
 function start_bash() {
