@@ -10,9 +10,13 @@ my @node_core_list;
 my @sibling_list;
 my @llc_core_list;
 
-open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/topology/thread_siblings_list") ||
-	open(INPUT, "/sys/devices/system/cpu/cpu$ARGV[0]/topology/thread_siblings_list") ||
- 	die("Failed to open core topology file for CPU $ARGV[0]");
+my $target_cpu = $ARGV[0];
+die "CPU $target_cpu does not exist or cannot be examined" if ! -e "/sys/bus/cpu/drivers/processor/cpu$target_cpu";
+
+# Identify SMT siblings of target_cpu
+open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$target_cpu/topology/thread_siblings_list") ||
+	open(INPUT, "/sys/devices/system/cpu/cpu$target_cpu/topology/thread_siblings_list") ||
+	die("Failed to open core topology file for CPU $target_cpu");
 while (!eof(INPUT)) {
 	my $line = <INPUT>;
 
@@ -21,13 +25,13 @@ while (!eof(INPUT)) {
 		if ($range =~ /-/) {
 			my ($from, $to) = split(/-/, $range);
 			for (my $i = $from; $i <= $to; $i++) {
-				if ($i == $ARGV[0]) {
+				if ($i == $target_cpu) {
 					next;
 				}
 				push @ht_list, $i;
 			}
 		} else {
-			if ($range != $ARGV[0]) {
+			if ($range != $target_cpu) {
 				push @ht_list, $range;
 			}
 		
@@ -36,9 +40,9 @@ while (!eof(INPUT)) {
 }
 close INPUT;
 
-open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/node$ARGV[2]/cpulist") ||
-	open(INPUT, "/sys/devices/system/cpu/cpu$ARGV[0]/node$ARGV[2]/cpulist") ||
-	die("Failed to open node cpulist file for CPU $ARGV[0]");
+open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$target_cpu/node$ARGV[2]/cpulist") ||
+	open(INPUT, "/sys/devices/system/cpu/cpu$target_cpu/node$ARGV[2]/cpulist") ||
+	die("Failed to open node cpulist file for CPU $target_cpu");
 while (!eof(INPUT)) {
 	my $line = <INPUT>;
 
@@ -47,13 +51,13 @@ while (!eof(INPUT)) {
 		if ($range =~ /-/) {
 			my ($from, $to) = split(/-/, $range);
 			for (my $i = $from; $i <= $to; $i++) {
-				if ($i == $ARGV[0] || grep {$_ == $i} @ht_list) {
+				if ($i == $target_cpu || grep {$_ == $i} @ht_list) {
 					next;
 				}
 				push @node_core_list, $i;
 			}
 		} else {
-			if ($range != $ARGV[0] && ! grep {$_ == $range} @ht_list) {
+			if ($range != $target_cpu && ! grep {$_ == $range} @ht_list) {
 				push @node_core_list, $range;
 			}
 		}
@@ -61,9 +65,9 @@ while (!eof(INPUT)) {
 }
 close INPUT;
 
-open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/topology/core_siblings_list") ||
-	open(INPUT, "/sys/devices/system/cpu/cpu$ARGV[0]/topology/core_siblings_list") ||
-	die("Failed to open core topology file for CPU $ARGV[0]");
+open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$target_cpu/topology/core_siblings_list") ||
+	open(INPUT, "/sys/devices/system/cpu/cpu$target_cpu/topology/core_siblings_list") ||
+	die("Failed to open core topology file for CPU $target_cpu");
 while (!eof(INPUT)) {
 	my $line = <INPUT>;
 
@@ -72,13 +76,13 @@ while (!eof(INPUT)) {
 		if ($range =~ /-/) {
 			my ($from, $to) = split(/-/, $range);
 			for (my $i = $from; $i <= $to; $i++) {
-				if ($i == $ARGV[0] || grep {$_ == $i} @ht_list) {
+				if ($i == $target_cpu || grep {$_ == $i} @ht_list) {
 					next;
 				}
 				push @sibling_list, $i;
 			}
 		} else {
-			if ($range != $ARGV[0] && ! grep {$_ == $range} @ht_list) {
+			if ($range != $target_cpu && ! grep {$_ == $range} @ht_list) {
 				push @sibling_list, $range;
 			}
 		
@@ -87,8 +91,8 @@ while (!eof(INPUT)) {
 }
 close INPUT;
 
-if (open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/cache/index3/shared_cpu_list") ||
-    open(INPUT, "/sys/devices/system/cpu/cpu$ARGV[0]/cache/index3/shared_cpu_list")) {
+if (open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$target_cpu/cache/index3/shared_cpu_list") ||
+    open(INPUT, "/sys/devices/system/cpu/cpu$target_cpu/cache/index3/shared_cpu_list")) {
 	while (!eof(INPUT)) {
 		my $line = <INPUT>;
 
@@ -98,7 +102,7 @@ if (open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$ARGV[0]/cache/index3/shared_
 				split(/-/, $range) : ($range, $range);
 
 			for (my $i = $from; $i <= $to; $i++) {
-				if ($i == $ARGV[0] || (grep {$_ == $i} @ht_list) ||
+				if ($i == $target_cpu || (grep {$_ == $i} @ht_list) ||
 				    ! grep {$_ == $i} @node_core_list) {
 					next;
 				}
