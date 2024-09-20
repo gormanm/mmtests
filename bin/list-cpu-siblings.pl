@@ -2,15 +2,26 @@
 
 use strict;
 die "Must specify CPU as first argument"					if !defined $ARGV[0];
-die "Must specify threads|node_cores|llc_cores as second argument"		if !defined $ARGV[1];
-die "Must specify NUMA node of CPU as third argument"				if !defined $ARGV[2];
+die "Must specify threads|llc_cores|node_cores as second argument"		if !defined $ARGV[1];
 
 my @ht_list;
 my @node_core_list;
 my @llc_core_list;
 
+# Sanity check target CPU argument
 my $target_cpu = $ARGV[0];
+my $target_topology = $ARGV[1];
 die "CPU $target_cpu does not exist or cannot be examined" if ! -e "/sys/bus/cpu/drivers/processor/cpu$target_cpu";
+
+# Auto-detect NUMA node if not specified.
+my $target_node = $ARGV[2];
+if (!defined $target_node) {
+	my @node_dirs = </sys/bus/cpu/drivers/processor/cpu$target_cpu/node*>;
+	die "Core belongs to multiple nodes?!? Must specify correct node as third argument" if $#node_dirs > 0;
+	$target_node = $node_dirs[0];
+	$target_node =~ s/.*([0-9]+)$/\1/;
+	die "Unable to discover node information" if ! -e "/sys/bus/cpu/drivers/processor/cpu$target_cpu/node$target_node";
+}
 
 # Identify SMT siblings of target_cpu
 open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$target_cpu/topology/thread_siblings_list") ||
@@ -39,8 +50,9 @@ while (!eof(INPUT)) {
 }
 close INPUT;
 
-open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$target_cpu/node$ARGV[2]/cpulist") ||
-	open(INPUT, "/sys/devices/system/cpu/cpu$target_cpu/node$ARGV[2]/cpulist") ||
+# Identify CPUs on the same node as target_cpu that are not SMT siblings
+open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$target_cpu/node$target_node/cpulist") ||
+	open(INPUT, "/sys/devices/system/cpu/cpu$target_cpu/node$target_node/cpulist") ||
 	die("Failed to open node cpulist file for CPU $target_cpu");
 while (!eof(INPUT)) {
 	my $line = <INPUT>;
@@ -64,6 +76,7 @@ while (!eof(INPUT)) {
 }
 close INPUT;
 
+# Identify CPUs sharing a Last Level Cache (LLC) that are not SMT siblings
 if (open(INPUT, "/sys/bus/cpu/drivers/processor/cpu$target_cpu/cache/index3/shared_cpu_list") ||
     open(INPUT, "/sys/devices/system/cpu/cpu$target_cpu/cache/index3/shared_cpu_list")) {
 	while (!eof(INPUT)) {
@@ -92,12 +105,12 @@ if (! @llc_core_list)  {
 }
 
 
-if ($ARGV[1] eq "threads") {
+if ($target_topology eq "threads") {
 	print join ",", @ht_list;
-} elsif ($ARGV[1] eq "node_cores") {
-	print join ",", @node_core_list;
-} elsif ($ARGV[1] eq "llc_cores") {
+} elsif ($target_topology eq "llc_cores") {
 	print join ",", @llc_core_list;
+} elsif ($target_topology eq "node_cores") {
+	print join ",", @node_core_list;
 } else {
 	die("Did not recognise attribute");
 }
