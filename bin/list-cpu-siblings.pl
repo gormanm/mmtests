@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 
 use strict;
-die if !defined $ARGV[0];
-die if !defined $ARGV[1];
-die if !defined $ARGV[2];
+die "Must specify CPU as first argument"					if !defined $ARGV[0];
+die "Must specify threads|node_cores|cores|llc_cores as second argument"	if !defined $ARGV[1];
+die "Must specify NUMA node of CPU as third argument"				if !defined $ARGV[2];
 
 my @ht_list;
 my @node_core_list;
