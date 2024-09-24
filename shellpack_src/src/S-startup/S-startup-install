@@ -7,6 +7,7 @@ MIRROR_LOCATION="$WEBROOT/S"
 
 install-depends gawk gnuplot coreutils fio time sysstat gcc-c++ libaio-devel
 install-depends xterm libreoffice-writer gnome-terminal sysstat
+install-depends util-linux-systemd procps
 
 # Done separately as openSUSE requires packman repo for MPlayer
 install-depends MPlayer
