@@ -1,6 +1,8 @@
 #!/bin/bash
 ###SHELLPACK preamble time_unmap 0
 
+install-depends procps
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
