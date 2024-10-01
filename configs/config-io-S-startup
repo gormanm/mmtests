@@ -20,3 +20,6 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # S-startup
 export S_STARTUP_ITERATIONS=2
+
+# when run in container
+export CONTAINER_PRIVILEGED=yes

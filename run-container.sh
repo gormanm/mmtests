@@ -56,12 +56,13 @@ Runtime variables:
 
   Set the following to 'yes' to change container environment.
 
-  CONTAINER_NO_PIDS_LIMIT increase pids.max value (unlimited or very large)
   CONTAINER_CAP_SYS_NICE  grant CAP_SYS_NICE (see capabilities(7))
   CONTAINER_CAP_IPC_LOCK  grant CAP_IPC_LOCK (see capabilities(7))
   CONTAINER_NO_APPARMOR   turn off apparmor confinement
-  CONTAINER_NO_SECCOMP    turn off seccomp confinement
   CONTAINER_NO_FIPS       remove FIPS specific packages
+  CONTAINER_NO_PIDS_LIMIT increase pids.max value (unlimited or very large)
+  CONTAINER_NO_SECCOMP    turn off seccomp confinement
+  CONTAINER_PRIVILEGED    run container in privileged mode
 
 EOF
 			   shift; exit 0;;
@@ -236,6 +237,10 @@ function set_runargs() {
 	# turn off seccomp confinement
 	if [ "${CONTAINER_NO_SECCOMP}" = "yes" ]; then
 		runargs="${runargs} --security-opt seccomp=unconfined"
+	fi
+
+	if [ "${CONTAINER_PRIVILEGED}" = "yes" ]; then
+		runargs="${runargs} --privileged"
 	fi
 
 	if [ -n "${runargs}" ]; then
