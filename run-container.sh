@@ -10,8 +10,9 @@ function parse_args() {
 	declare -ga CONFIGS
 	local scriptname=$(basename $0)
 	local dirname=$(dirname $0)
-	local opts=$(getopt -o c:hi:Imno: --long config:,help,run-monitor \
+	local opts=$(getopt -o c:hi:Imno:p --long config:,help,run-monitor \
 			    --long no-monitor,image:,interactive,os-release: \
+			    --long privileged \
 			    -n \'${scriptname}\' -- "$@")
 	eval set -- "${opts}"
 
@@ -35,6 +36,9 @@ function parse_args() {
 		-o|--os-release)
 			cpe_name=$2
 			shift 2;;
+		-p|--privileged)
+			privileged=true
+			shift;;
 		-h|--help) cat <<EOF
 ${scriptname} [OPTIONS] <runname>
 
@@ -49,6 +53,7 @@ Options:
   -m, --run-monitor   enable monitoring
   -n, --no-monitor    disable monitoring
   -o, --os-release    specify cpe_name for desired image
+  -p, --privileged    run container in privileged mode
 
 Runtime variables:
 
@@ -239,7 +244,7 @@ function set_runargs() {
 		runargs="${runargs} --security-opt seccomp=unconfined"
 	fi
 
-	if [ "${CONTAINER_PRIVILEGED}" = "yes" ]; then
+	if [[ "${CONTAINER_PRIVILEGED}" = "yes" || "${privileged}" = "true" ]]; then
 		runargs="${runargs} --privileged"
 	fi
 
