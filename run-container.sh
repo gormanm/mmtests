@@ -188,6 +188,16 @@ function autoselect_image() {
 				cleanup_container_cli
 				exit 22
 			esac
+		elif [ "${version}" = "sl-micro" ]; then
+			case "${release}" in
+			6.0 | 6.1)
+				image=registry.suse.com/suse/sle15:15.6
+				;;
+			*)
+				echo "ERROR: Distribution release not supported"
+				cleanup_container_cli
+				exit 22
+			esac
 		else
 			echo "ERROR: Distribution version/release not supported"
 			cleanup_container_cli
