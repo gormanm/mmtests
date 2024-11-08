@@ -53,6 +53,13 @@ sub extractReport() {
 
 					$self->addData($op, ++$samples{$op}, $lat);
 				}
+
+				elsif ($line =~ /(\w+):\W+([0-9]+)\s+nsec\/call/) {
+					my $op = "$wl-$1";
+					my $lat = $2;
+
+					$self->addData($op, ++$samples{$op}, $lat);
+				}
 			}
 			close INPUT;
 		}
