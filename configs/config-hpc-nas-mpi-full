@@ -30,6 +30,8 @@ export NAS_USE_CMA=no
 export NAS_MAX_CPUS=$NUMCPUS
 export NAS_ITERATIONS=3
 
+NAS_MPI_OPTS+=" --display-map"
+
 if [ "$NAS_MAX_CPUS" -lt 4 ]; then
 	echo "ERROR: Too few CPUs ($NAS_MAX_CPUS) to parallelise loads requiring a square number of helpers"
 	exit -1
