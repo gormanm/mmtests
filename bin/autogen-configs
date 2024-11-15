@@ -11,6 +11,7 @@ $SCRIPTDIR/generate-memcg-configs
 $SCRIPTDIR/generate-zen2-configs
 $SCRIPTDIR/generate-zen3-configs
 $SCRIPTDIR/generate-zen4-configs
+$SCRIPTDIR/generate-zen5-configs
 
 if [ -e $SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh ]; then
 	chmod a+x $SCRIPTDIR/../configs/build-flags/generate-mmtests-configs.sh
