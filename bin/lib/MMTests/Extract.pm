@@ -50,7 +50,10 @@ sub getDataType() {
 	if (defined($self->{_DataType})) {
 		return $self->{_DataType};
 	}
-	return $self->{_DataTypes}->{$op};
+	if (defined($self->{_DataTypes})) {
+		return $self->{_DataTypes}->{$op};
+	}
+	return undef;
 }
 
 sub getPlotYaxis() {

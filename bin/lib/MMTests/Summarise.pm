@@ -69,7 +69,15 @@ sub typeToPreferredVal() {
 
 sub getPreferredValue() {
 	my ($self, $op) = @_;
-	return $self->typeToPreferredVal($self->getDataType($op));
+	my $type = $self->getDataType($op);
+
+	if ($type == undef) {
+		if (!defined($self->{_PreferredVal})) {
+			return "Lower";
+		}
+		return $self->{_PreferredVal});
+	}
+	return $self->typeToPreferredVal($type);
 }
 
 # If there's single data type for the module, use its direction even for
