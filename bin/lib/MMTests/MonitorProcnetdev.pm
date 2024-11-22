@@ -33,38 +33,24 @@ my %_colMap = (
 	"tcompressed"	=> 16,
 );
 
-use constant typeMap => {
-	"rbytes"	=> DataTypes::DATA_SIZE_BYTES,
-	"rpackets"	=> DataTypes::DATA_ACTIONS,
-	"rerrs"		=> DataTypes::DATA_ACTIONS,
-	"rdrop"		=> DataTypes::DATA_ACTIONS,
-	"rfifo"		=> DataTypes::DATA_ACTIONS,
-	"rframe"	=> DataTypes::DATA_ACTIONS,
-	"rcompressed"	=> DataTypes::DATA_ACTIONS,
-	"rmulticast"	=> DataTypes::DATA_ACTIONS,
-	"tbytes"	=> DataTypes::DATA_SIZE_BYTES,
-	"tpackets"	=> DataTypes::DATA_ACTIONS,
-	"terrs"		=> DataTypes::DATA_ACTIONS,
-	"tdrop"		=> DataTypes::DATA_ACTIONS,
-	"tfifo"		=> DataTypes::DATA_ACTIONS,
-	"tcolls"	=> DataTypes::DATA_ACTIONS,
-	"tcarrier"	=> DataTypes::DATA_ACTIONS,
-	"tcompressed"	=> DataTypes::DATA_ACTIONS,
-};
-
 use constant headings => {
 	"rbytes"	=> "Received Bytes",
 	"rpackets"	=> "Received Packets",
+	"rerrs"		=> "Receive Errors",
+	"rdrop"		=> "Receive Dropped Packets",
+	"rfifo"		=> "Packets",
+	"rframe"	=> "Packets",
+	"rcompressed"	=> "Actions",
+	"rmulticast"	=> "Packets",
 	"tbytes"	=> "Transmitted Bytes",
 	"tpackets"	=> "Transmitted Packets",
+	"terrs"		=> "Transmit Errors",
+	"tdrop"		=> "Transmit Dropped Packets",
+	"tfifo"		=> "Packets",
+	"tcolls"	=> "Transmit Collisions",
+	"tcarrier"	=> "Actions",
+	"tcompressed"	=> "Actions",
 };
-
-sub getDataType() {
-	my ($self, $op) = @_;
-	my ($interface, $field) = split(/-/, $op);
-
-	return typeMap->{$field};
-}
 
 sub getPlotYaxis() {
 	my ($self, $op) = @_;
