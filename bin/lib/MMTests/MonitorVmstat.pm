@@ -37,28 +37,6 @@ my %_colMap = (
 	"pfree" => 99,
 );
 
-use constant typeMap => {
-	"r"	=> DataTypes::DATA_ACTIONS,
-	"b"	=> DataTypes::DATA_ACTIONS,
-	"swpd"	=> DataTypes::DATA_SIZE_PAGES,
-	"free"	=> DataTypes::DATA_SIZE_MBYTES,
-	"buff"	=> DataTypes::DATA_SIZE_KBYTES,
-	"cache"	=> DataTypes::DATA_SIZE_KBYTES,
-	"si"	=> DataTypes::DATA_KBYTES_PER_SECOND,
-	"so"	=> DataTypes::DATA_KBYTES_PER_SECOND,
-	"bi"	=> DataTypes::DATA_KBYTES_PER_SECOND,
-	"bo"	=> DataTypes::DATA_KBYTES_PER_SECOND,
-	"in"	=> DataTypes::DATA_ACTIONS_PER_SECOND,
-	"cs"	=> DataTypes::DATA_ACTIONS_PER_SECOND,
-	"us"	=> DataTypes::DATA_USAGE_PERCENT,
-	"sy"	=> DataTypes::DATA_USAGE_PERCENT,
-	"id"	=> DataTypes::DATA_USAGE_PERCENT,
-	"wa"	=> DataTypes::DATA_USAGE_PERCENT,
-	"st"	=> DataTypes::DATA_USAGE_PERCENT,
-	"ussy"	=> DataTypes::DATA_RATIO_SPEEDUP,
-	"totalcpu" => DataTypes::DATA_USAGE_PERCENT,
-};
-
 use constant headings => {
 	"r"	=> "Runnable Processes",
 	"b"	=> "Blocked Processes",
@@ -79,7 +57,6 @@ use constant headings => {
 sub initialise() {
 	my ($self, $subHeading) = @_;
 
-	$self->{_DataTypes} = typeMap;
 	$self->{_PlotXaxis} = "Time";
 	$self->{_PlotYaxes} = headings;
 	$self->{_PlotType} = "simple";
