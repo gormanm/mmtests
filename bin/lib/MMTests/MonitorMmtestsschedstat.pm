@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName	=> "Mmtestsschedstat",
-		_DataType	=> DataTypes::DATA_ACTIONS,
+		_PlotYaxis	=> "Actions",
 		_FieldLength	=> 15,
 	};
 	bless $self, $class;
