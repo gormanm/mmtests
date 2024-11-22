@@ -15,7 +15,6 @@ sub initialise() {
 	$self->{_PlotLength} = $fieldLength;
 	$self->{_PlotType} = "operation-candlesticks";
 	$self->{_PlotXaxis}  = "TestName";
-	$self->{_PlotHeaders} = [ "LowStddev", "Min", "Max", "HighStddev", "Mean" ];
 	$self->{_RatioOperations} = [ "Elapsed" ];
 }
 
