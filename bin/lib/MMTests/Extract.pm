@@ -260,13 +260,6 @@ sub printFieldHeaders() {
 		$self->{_FieldHeaderFormat});
 }
 
-sub printPlotHeaders() {
-	my ($self) = @_;
-	$self->{_PrintHandler}->printHeaders(
-		$self->{_PlotLength}, $self->{_PlotHeaders},
-		$self->{_FieldHeaderFormat});
-}
-
 sub _printCandlePlotData() {
 	my ($self, $fieldLength, @data) = @_;
 

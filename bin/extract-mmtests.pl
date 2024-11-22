@@ -106,7 +106,6 @@ if (defined $opt_monitor) {
 	}
 	if ($opt_printPlot) {
 		foreach my $monitorModule (@monitorModules) {
-			$monitorModule->printPlotHeaders() if $opt_printHeader;
 			$monitorModule->printPlot($opt_subheading);
 			print "\n";
 		}
@@ -169,7 +168,6 @@ if ($opt_printJSON) {
 foreach my $extractModule (@extractModules) {
 	$extractModule->printReportTop();
 	if ($opt_printPlot) {
-		$extractModule->printPlotHeaders() if $opt_printHeader;
 		$extractModule->printPlot($opt_subheading);
 	} else {
 		$extractModule->printFieldHeaders() if $opt_printHeader;
