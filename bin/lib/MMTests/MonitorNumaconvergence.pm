@@ -16,7 +16,6 @@ sub new() {
 	my $self = {
 		_ModuleName  => "MonitorNumaconvergence",
 		_PlotYaxis   => "Convergence",
-		_DataType    => DataTypes::DATA_CONVERGENCE,
 	};
 	bless $self, $class;
 	return $self;

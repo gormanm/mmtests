@@ -30,7 +30,6 @@ sub initialise() {
 
 	$self->{_FieldLength}   = 18;
 	$self->{_ExactSubheading} = 1;
-	$self->{_DataType} = DataTypes::DATA_ACTIONS;
 	$self->{_PlotXaxis} = "Time";
 	$self->{_PlotYaxis} = "cpu-migrations";
 	$self->{_PlotType}  = "simple";

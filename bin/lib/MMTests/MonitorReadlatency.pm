@@ -8,7 +8,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName    => "MonitorReadlatency",
-		_DataType      => DataTypes::DATA_TIME_MSECONDS,
 		_Heading       => "read-latency",
 		_PlotYaxis     => "Read Latency (ms)",
 	};

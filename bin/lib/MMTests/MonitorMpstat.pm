@@ -9,7 +9,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName	=> "MonitorMpstat",
-		_DataType	=> DataTypes::DATA_USAGE_PERCENT,
 		_PlotType	=> "simple",
 		_PlotXaxis	=> "Time",
 		_PlotYaxis	=> "Total CPU Percentage",
