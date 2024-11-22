@@ -7,7 +7,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} 		= "ExtractDbench4tput";
-	$self->{_DataType}   		= DataTypes::DATA_MBYTES_PER_SECOND;
+	$self->{_PlotYaxis}  		= DataTypes::LABEL_MBYTES_PER_SECOND;
+	$self->{_PreferredVal}		= "Higher";
 	$self->{_PlotType}   		= "client-errorlines";
 	$self->{_SubheadingPlotType}	= "simple-clients";
 	$self->{_LogPrefix}		= "dbench";

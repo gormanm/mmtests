@@ -8,7 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractStream";
-	$self->{_DataType}   = DataTypes::DATA_GBYTES_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_GBYTES_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "GB/sec";
 	$self->{_PlotXaxis}  = "Operation";

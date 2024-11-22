@@ -8,7 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractFio";
-	$self->{_DataType}   = DataTypes::DATA_KBYTES_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_KBYTES_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
 	$self->{_FieldLength} = 12;

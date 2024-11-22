@@ -10,7 +10,8 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "ExtractMlc";
-	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_MBYTES_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_Operations} = [
 		"Reads-All",
 		"RW-3:1",

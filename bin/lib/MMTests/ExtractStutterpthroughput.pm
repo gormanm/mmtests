@@ -8,7 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractStutterpthroughput";
-	$self->{_DataType}   = DataTypes::DATA_MBYTES_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_MBYTES_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_Precision}  = 4;
 	$self->SUPER::initialise($subHeading);
 }

@@ -11,7 +11,8 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractStutterp",
-		_DataType    => DataTypes::DATA_MBYTES_PER_SECOND,
+		_PlotYaxis   => DataTypes::LABEL_MBYTES_PER_SECOND,
+		_PreferredVal => "Higher",
 		_Precision   => 4,
 	};
 	bless $self, $class;
