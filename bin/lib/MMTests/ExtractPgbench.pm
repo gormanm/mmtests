@@ -8,7 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName}		= "ExtractPgbench";
-	$self->{_DataType}		= DataTypes::DATA_TRANS_PER_SECOND;
+	$self->{_PlotYaxis}		= DataTypes::LABEL_TRANS_PER_SECOND;
+	$self->{_PreferredVal}		= "Higher";
 	$self->{_PlotType}		= "client-errorlines";
 	$self->{_SubheadingPlotType}	= "simple-clients";
 

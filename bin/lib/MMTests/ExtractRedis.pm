@@ -8,7 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractRedis";
-	$self->{_DataType}   = DataTypes::DATA_TRANS_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TRANS_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_ClientSubheading} = 1;
 	$self->SUPER::initialise($subHeading);
