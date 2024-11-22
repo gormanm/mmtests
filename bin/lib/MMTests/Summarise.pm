@@ -45,39 +45,13 @@ sub initialise() {
 	$self->{_SummaryHeaders} = \@sumheaders;
 }
 
-sub typeToPreferredVal() {
-	my ($self, $type) = @_;
-
-	if ($type == DataTypes::DATA_TIME_SECONDS ||
-	    $type == DataTypes::DATA_TIME_NSECONDS ||
-	    $type == DataTypes::DATA_TIME_MSECONDS ||
-	    $type == DataTypes::DATA_TIME_USECONDS ||
-	    $type == DataTypes::DATA_TIME_CYCLES ||
-	    $type == DataTypes::DATA_BAD_ACTIONS ||
-	    $type == DataTypes::DATA_SIZE_QUEUED ||
-	    $type == DataTypes::DATA_CONSUMPTION_WATT ||
-	    $type == DataTypes::DATA_USAGE_PERCENT ||
-	    $type == DataTypes::DATA_SIZE_BYTES ||
-	    $type == DataTypes::DATA_SIZE_KBYTES ||
-	    $type == DataTypes::DATA_SIZE_MBYTES ||
-	    $type == DataTypes::DATA_SIZE_PAGES ||
-	    $type == DataTypes::DATA_BALANCE) {
-		return "Lower";
-	}
-	return "Higher";
-}
-
 sub getPreferredValue() {
 	my ($self, $op) = @_;
-	my $type = $self->getDataType($op);
 
-	if ($type == undef) {
-		if (!defined($self->{_PreferredVal})) {
-			return "Lower";
-		}
-		return $self->{_PreferredVal});
+	if (!defined($self->{_PreferredVal})) {
+		return "Lower";
 	}
-	return $self->typeToPreferredVal($type);
+	return $self->{_PreferredVal};
 }
 
 sub summaryOps() {

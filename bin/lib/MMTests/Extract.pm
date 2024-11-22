@@ -44,18 +44,6 @@ sub getModuleName() {
 	return $self->{_ModuleName};
 }
 
-sub getDataType() {
-	my ($self, $op) = @_;
-
-	if (defined($self->{_DataType})) {
-		return $self->{_DataType};
-	}
-	if (defined($self->{_DataTypes})) {
-		return $self->{_DataTypes}->{$op};
-	}
-	return undef;
-}
-
 sub getPlotYaxis() {
 	my ($self, $op) = @_;
 
@@ -81,71 +69,6 @@ sub printDataType() {
 		$xaxis = $self->{_PlotXaxis};
 	}
 	my $yaxis = $self->getPlotYaxis($subHeading);
-	if (!defined($yaxis) || $yaxis eq "UNKNOWN") {
-		my $dtype = $self->getDataType($subHeading);
-
-		if ($dtype == DataTypes::DATA_TIME_USECONDS) {
-			$yaxis = "Time (usec)";
-		} elsif ($dtype == DataTypes::DATA_TIME_NSECONDS) {
-			$yaxis = "Time (nanosec)";
-		} elsif ($dtype == DataTypes::DATA_TIME_MSECONDS) {
-			$yaxis = "Time (msec)";
-		} elsif ($dtype == DataTypes::DATA_TIME_SECONDS) {
-			$yaxis = "Time (seconds)";
-		} elsif ($dtype == DataTypes::DATA_TIME_CYCLES) {
-			$yaxis = "Time (cpu cycles)";
-		} elsif ($dtype == DataTypes::DATA_ACTIONS) {
-			$yaxis = "Actions";
-		} elsif ($dtype == DataTypes::DATA_ACTIONS_PER_SECOND) {
-			$yaxis = "Actions/sec";
-		} elsif ($dtype == DataTypes::DATA_ACTIONS_PER_MINUTE) {
-			$yaxis = "Actions/minute";
-		} elsif ($dtype == DataTypes::DATA_OPS_PER_SECOND) {
-			$yaxis = "Ops/sec";
-		} elsif ($dtype == DataTypes::DATA_OPS_PER_MINUTE) {
-			$yaxis = "Ops/minute";
-		} elsif ($dtype == DataTypes::DATA_TRANS_PER_SECOND) {
-			$yaxis = "Transactions/sec";
-		} elsif ($dtype == DataTypes::DATA_TRANS_PER_MINUTE) {
-			$yaxis = "Transactions/minute";
-		} elsif ($dtype == DataTypes::DATA_MBITS_PER_SECOND) {
-			$yaxis = "MBits/sec";
-		} elsif ($dtype == DataTypes::DATA_MBYTES_PER_SECOND) {
-			$yaxis = "MBytes/sec";
-		} elsif ($dtype == DataTypes::DATA_GBYTES_PER_SECOND) {
-			$yaxis = "GBytes/sec";
-		} elsif ($dtype == DataTypes::DATA_KBYTES_PER_SECOND) {
-			$yaxis = "KBytes/sec";
-		} elsif ($dtype == DataTypes::DATA_SUCCESS_PERCENT) {
-			$yaxis = "Percentage";
-		} elsif ($dtype == DataTypes::DATA_USAGE_PERCENT) {
-			$yaxis = "Percentage";
-		} elsif ($dtype == DataTypes::DATA_REQ_PER_SECOND) {
-			$yaxis = "Requests/sec";
-		} elsif ($dtype == DataTypes::DATA_SIZE_SECTOR) {
-			$yaxis = "Size (sectors)";
-		} elsif ($dtype == DataTypes::DATA_SIZE_BYTES) {
-			$yaxis = "Size (Bytes)";
-		} elsif ($dtype == DataTypes::DATA_SIZE_KBYTES) {
-			$yaxis = "Size (KiB)";
-		} elsif ($dtype == DataTypes::DATA_SIZE_MBYTES) {
-			$yaxis = "Size (MiB)";
-		} elsif ($dtype == DataTypes::DATA_SIZE_PAGES) {
-			$yaxis = "Size (pages)";
-		} elsif ($dtype == DataTypes::DATA_SIZE_QUEUED) {
-			$yaxis = "Queue size";
-		} elsif ($dtype == DataTypes::DATA_FREQUENCY_MHZ) {
-			$yaxis = "MHz";
-		} elsif ($dtype == DataTypes::DATA_CONSUMPTION_WATT) {
-			$yaxis = "Watt";
-		} elsif ($dtype == DataTypes::DATA_RATIO_SPEEDUP) {
-			$yaxis = "Speedup (ratio)";
-		} elsif ($dtype == DataTypes::DATA_BALANCE) {
-			$yaxis = "Balance";
-		} elsif ($dtype == DataTypes::DATA_CONVERGENCE) {
-			$yaxis = "Convergence";
-		}
-	}
 
 	my $plotType = "UNKNOWN";
 	if (defined($self->{_PlotType})) {

@@ -7,7 +7,6 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractMonitor",
-		_DataType    => DataTypes::DATA_NONE,
 	};
 	bless $self, $class;
 	return $self;
