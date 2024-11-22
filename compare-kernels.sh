@@ -14,6 +14,8 @@ IGNORE_FINGERPRINT=no
 KERNEL_BASE=
 KERNEL_COMPARE=
 
+install-depends perl-File-Which
+
 while [ "$1" != "" ]; do
 	case $1 in
 	-h|--help)
