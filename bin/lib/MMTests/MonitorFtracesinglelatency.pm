@@ -16,7 +16,7 @@ sub initialise() {
 
 	$self->{_PlotXaxis} = "Time";
 	$self->{_PlotType} = "points";
-	$self->{_DataType} = DataTypes::DATA_TIME_MSECONDS;
+	$self->{_PlotYaxis} = DataTypes::LABEL_TIME_MSECONDS;
 	# Some modules using this define their own set of thresholds...
 	if (!defined($self->{_SummaryStats})) {
 		$self->{_SummaryStats} = [ "min", "percentile-25",

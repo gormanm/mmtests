@@ -5,10 +5,6 @@ SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 export PATH=$PATH:$SCRIPTDIR
 
-if [ -e /usr/share/bcc ]; then
-	exit 0
-fi
-
 cd $SCRIPTDIR/..
 MMTESTS_ROOT=`pwd`
 SOURCEDIR=$MMTESTS_ROOT/build
@@ -52,6 +48,8 @@ mkdir -p $SOURCEDIR
 cd $SOURCEDIR || exit -1
 git clone https://github.com/iovisor/bcc || exit -1
 mkdir $SOURCEDIR/bcc/build || exit -1
+cd $SOURCEDIR/bcc || exit -1
+git checkout v0.31.0 || exit -1
 cd $SOURCEDIR/bcc/build
 echo Building bcc
 cmake .. \
@@ -68,6 +66,7 @@ if [ $? -ne 0 ]; then
 	sed -i -e 's/-no-pie//' ../src/lua/CMakeLists.txt
 	make -j8 || exit -1
 fi
+exit
 make install || exit -1
 
 echo Building python bindings

@@ -10,7 +10,7 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "ExtractTruncfault";
-	$self->{_DataType}   = DataTypes::DATA_TIME_MSECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_MSECONDS;
 	$self->{_PlotType}   = "process-errorlines";
 	$self->SUPER::initialise($subHeading);
 }

@@ -8,7 +8,7 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 	my $fieldLength = 12;
 	$self->{_ModuleName} 		= "ExtractDbench4";
-	$self->{_DataType}   		= DataTypes::DATA_TIME_MSECONDS;
+	$self->{_PlotYaxis}  		= DataTypes::LABEL_TIME_MSECONDS;
 	$self->{_PlotType}   		= "client-errorlines";
 	$self->{_SubheadingPlotType}	= "simple-clients";
 	$self->{_LogPrefix}		= "dbench";

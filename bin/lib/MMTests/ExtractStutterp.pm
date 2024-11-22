@@ -10,7 +10,7 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "ExtractStutter";
-	$self->{_DataType}   = DataTypes::DATA_TIME_MSECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_MSECONDS;
 	$self->{_Precision}  = 4;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->SUPER::initialise($subHeading);

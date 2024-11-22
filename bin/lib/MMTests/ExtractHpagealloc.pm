@@ -8,7 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractHpagealloc";
-	$self->{_DataType} = DataTypes::DATA_TIME_MSECONDS,
+	$self->{_PlotYaxis} = DataTypes::LABEL_TIME_MSECONDS,
 	$self->{_PlotType} = "simple";
 	$self->SUPER::initialise($subHeading);
 }

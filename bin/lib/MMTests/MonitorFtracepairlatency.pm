@@ -21,7 +21,7 @@ sub initialise() {
 
 	$self->{_PlotXaxis} = "Time";
 	$self->{_PlotType} = "points";
-	$self->{_DataType} = DataTypes::DATA_TIME_MSECONDS;
+	$self->{_PlotYaxis} = DataTypes::LABEL_TIME_MSECONDS;
 	$self->{_SummaryStats} = [ "min", "percentile-25", "percentile-50",
 		"percentile-75", "percentile-1", "percentile-5",
 		"percentile-10", "percentile-90",  "percentile-95",

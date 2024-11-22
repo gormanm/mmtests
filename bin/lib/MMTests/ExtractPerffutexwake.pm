@@ -8,7 +8,7 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 	my $fieldLength = 12;
 	$self->{_ModuleName} 		= "ExtractPerffutexwake";
-	$self->{_DataType}   		= DataTypes::DATA_TIME_MSECONDS;
+	$self->{_PlotYaxis}  		= DataTypes::LABEL_TIME_MSECONDS;
 	$self->{_PlotType}   		= "client-errorlines";
 	$self->{_Precision}		= 4;
         $self->SUPER::initialise($subHeading);

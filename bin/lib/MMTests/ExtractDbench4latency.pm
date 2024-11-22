@@ -9,7 +9,7 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName}	= "ExtractDbench4latency";
-	$self->{_DataType}	= DataTypes::DATA_TIME_MSECONDS,
+	$self->{_PlotYaxis}	= DataTypes::LABEL_TIME_MSECONDS,
 	$self->{_LogPrefix}	= "dbench";
 	$self->SUPER::initialise($subHeading);
 }
