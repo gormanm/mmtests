@@ -8,7 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractPhpbench";
-	$self->{_DataType}   = DataTypes::DATA_ACTIONS;
+	$self->{_PlotYaxis}  = "Score";
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "operation-candlesticks";
 	$self->SUPER::initialise($subHeading);
 }

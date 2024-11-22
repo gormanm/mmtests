@@ -8,8 +8,9 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractBlogbench";
-	$self->{_DataType}   = DataTypes::DATA_ACTIONS;
+	$self->{_PlotYaxis}  = "Score";
 	$self->{_PlotType}   = "operation-candlesticks";
+	$self->{_PreferredVal} = "Higher";
 	$self->SUPER::initialise($subHeading);
 }
 
