@@ -12,6 +12,7 @@ sub initialise() {
 
 	$self->{_SummaryStats} = [ "_mean", "max" ];
 	$self->{_RatioSummaryStat} = [ "_mean", "stddev" ];
+	$self->{_PreferredVal} = "Lower";
 	$self->SUPER::initialise($subHeading);
 }
 
