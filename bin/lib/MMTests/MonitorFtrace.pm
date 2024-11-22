@@ -24,8 +24,8 @@ sub initialise() {
 	if (!defined($self->{_RatioSummaryStat})) {
 		$self->{_RatioSummaryStat} = [ "_value" ];
 	}
-	if (!defined($self->{_DataType}) && !defined($self->{_DataTypes})) {
-		$self->{_DataType} = DataTypes::DATA_ACTIONS;
+	if (!defined($self->{_PlotYaxis}) && !defined($self->{_PlotYaxes})) {
+		$self->{_PlotYaxis} = "Actions";
 	}
 	$self->SUPER::initialise($subHeading);
 
