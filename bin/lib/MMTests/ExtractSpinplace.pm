@@ -6,7 +6,7 @@ our @ISA = qw(MMTests::SummariseMultiops);
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSpinplace";
-	$self->{_DataType}   = DataTypes::DATA_USAGE_PERCENT;
+	$self->{_PlotYaxis}  = "Percent";
 
 	$self->SUPER::initialise($subHeading);
 }
