@@ -9,7 +9,8 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractEbizzyrange",
-		_DataType    => DataTypes::DATA_ACTIONS_PER_SECOND,
+		_PlotYaxis   => "Records/sec",
+		_PreferredVal => "Higher",
 	};
 	bless $self, $class;
 	return $self;
