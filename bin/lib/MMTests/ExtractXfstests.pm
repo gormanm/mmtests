@@ -7,7 +7,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractXfstests";
-	$self->{_DataType}   = DataTypes::DATA_BAD_ACTIONS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_FAILURES;
 	$self->{_SingleType} = 1;
 	$self->{_Opname} = "Test";
 

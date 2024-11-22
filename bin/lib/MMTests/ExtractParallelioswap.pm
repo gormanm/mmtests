@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractParallelioswap",
-		_DataType    => DataTypes::DATA_BAD_ACTIONS,
+		_PlotYaxis   => DataTypes::LABEL_FAILURES,
 	};
 	bless $self, $class;
 	return $self;
