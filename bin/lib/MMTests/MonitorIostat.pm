@@ -16,28 +16,28 @@ sub initialise() {
 	$self->SUPER::initialise($subHeading);
 }
 
-my %devices;
-
-my %typeMap = (
-	"avgqusz" => DataTypes::DATA_SIZE_QUEUED,
-	"await"   => DataTypes::DATA_TIME_MSECONDS,
-	"r_await" => DataTypes::DATA_TIME_MSECONDS,
-	"w_await" => DataTypes::DATA_TIME_MSECONDS,
-	"avgrqsz" => DataTypes::DATA_SIZE_SECTOR,
-	"rrqm"    => DataTypes::DATA_REQ_PER_SECOND,
-	"wrqm"    => DataTypes::DATA_REQ_PER_SECOND,
-	"rkbs"    => DataTypes::DATA_KBYTES_PER_SECOND,
-	"wkbs"	  => DataTypes::DATA_KBYTES_PER_SECOND,
-	"totalkbs" => DataTypes::DATA_KBYTES_PER_SECOND,
-	"svctm"   => DataTypes::DATA_TIME_MSECONDS,
+my %labelMap = (
+	"avgqusz" => "Queue size",
+	"await"   => DataTypes::LABEL_TIME_MSECONDS,
+	"r_await" => DataTypes::LABEL_TIME_MSECONDS,
+	"w_await" => DataTypes::LABEL_TIME_MSECONDS,
+	"avgrqsz" => "Size (sectors)",
+	"rrqm"    => "Requests/sec",
+	"wrqm"    => "Requests/sec",
+	"rkbs"    => DataTypes::LABEL_KBYTES_PER_SECOND,
+	"wkbs"	  => DataTypes::LABEL_KBYTES_PER_SECOND,
+	"totalkbs" => DataTypes::LABEL_KBYTES_PER_SECOND,
+	"svctm"   => DataTypes::LABEL_TIME_MSECONDS,
 );
 
-sub getDataType() {
+sub getPlotYaxis() {
 	my ($self, $op) = @_;
 	my @elements = split(/-/, $op);
 
-	return $typeMap{$elements[1]};
+	return $labelMap{$elements[1]};
 }
+
+my %devices;
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $testBenchmark, $subHeading, $rowOrientated) = @_;
