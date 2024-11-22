@@ -8,22 +8,22 @@ use strict;
 my %_colMap;
 my @fieldHeaders;
 
-my %datatypes = (
-	"CorWatt" => DataTypes::DATA_SUCCESS_PERCENT,
-	"PkgWatt" => DataTypes::DATA_SUCCESS_PERCENT,
-	"CPU%c0"  => DataTypes::DATA_SUCCESS_PERCENT,
-	"CPU%c1"  => DataTypes::DATA_SUCCESS_PERCENT,
-	"CPU%c2"  => DataTypes::DATA_SUCCESS_PERCENT,
-	"CPU%c3"  => DataTypes::DATA_SUCCESS_PERCENT,
-	"CPU%c4"  => DataTypes::DATA_SUCCESS_PERCENT,
-	"CPU%c5"  => DataTypes::DATA_SUCCESS_PERCENT,
-	"CPU%c6"  => DataTypes::DATA_SUCCESS_PERCENT,
-	"CPU%c7"  => DataTypes::DATA_SUCCESS_PERCENT,
-	"CPU%c8"  => DataTypes::DATA_SUCCESS_PERCENT,
-	"CPU%c9"  => DataTypes::DATA_SUCCESS_PERCENT,
-	"Busy%"   => DataTypes::DATA_SUCCESS_PERCENT,
-	"%Busy"   => DataTypes::DATA_SUCCESS_PERCENT,
-	"Avg_MHz" => DataTypes::DATA_FREQUENCY_MHZ,
+my %headings = (
+	"CorWatt" => "Core Watts",
+	"PkgWatt" => "Package Watts",
+	"CPU%c0"  => "C0 Percent",
+	"CPU%c1"  => "C1 Percent",
+	"CPU%c2"  => "C2 Percent",
+	"CPU%c3"  => "C3 Percent",
+	"CPU%c4"  => "C4 Percent",
+	"CPU%c5"  => "C5 Percent",
+	"CPU%c6"  => "C6 Percent",
+	"CPU%c7"  => "C7 Percent",
+	"CPU%c8"  => "C8 Percent",
+	"CPU%c9"  => "C9 Percent",
+	"Busy%"   => "Busy Percent",
+	"%Busy"   => "Busy Percent",
+	"Avg_MHz" => "Average Frequency (MHz)",
 );
 
 sub initialise() {
@@ -33,7 +33,7 @@ sub initialise() {
 	$self->{_PlotType} = "simple";
 	$self->{_DefaultPlot} = "Avg_Mhz";
 	$self->{_ExactSubheading} = 1;
-	$self->{_DataTypes} = \%datatypes;
+	$self->{_PlotYaxes} = \%headings;
 	$self->SUPER::initialise($subHeading);
 }
 
