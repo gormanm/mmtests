@@ -8,7 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractThpcompactlocality";
-	$self->{_DataType}   = DataTypes::DATA_ACTIONS;
+	$self->{_PlotYaxis}  = "Percentage";
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Percentage";
 	$self->{_FieldLength} = 12;
