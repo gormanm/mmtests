@@ -26,18 +26,18 @@ my %_colMap = (
 	"Proc"		=> 11,
 );
 
-my %typeMap = (
-	"Read"		=> DataTypes::DATA_KBYTES_PER_SECOND,
-	"Write"		=> DataTypes::DATA_KBYTES_PER_SECOND,
-	"Swapin"	=> DataTypes::DATA_USAGE_PERCENT,
-	"IO"		=> DataTypes::DATA_USAGE_PERCENT,
+my %labelMap = (
+	"Read"	=> DataTypes::LABEL_KBYTES_PER_SECOND,
+	"Write"	=> DataTypes::LABEL_KBYTES_PER_SECOND,
+	"Swapin" => "Percent",
+	"IO"	=> "Percent",
 );
 
-sub getDataType() {
+sub getPlotYaxis() {
 	my ($self, $op) = @_;
 	my @elements = split(/-/, $op);
 
-	return $typeMap{$elements[0]};
+	return $labelMap{$elements[0]};
 }
 
 # For iotop monitor subHeading defines processing during extraction. Not
