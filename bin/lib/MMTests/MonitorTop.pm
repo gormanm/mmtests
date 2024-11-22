@@ -27,15 +27,6 @@ my %_colMap = (
 	"TIME"	=> 10,
 );
 
-use constant typeMap => {
-	"VIRT"	=> DataTypes::DATA_SIZE_KBYTES,
-	"RES"	=> DataTypes::DATA_SIZE_KBYTES,
-	"SHR"	=> DataTypes::DATA_SIZE_KBYTES,
-	"CPU"	=> DataTypes::DATA_USAGE_PERCENT,
-	"MEM"	=> DataTypes::DATA_USAGE_PERCENT,
-	"TIME"	=> DataTypes::DATA_TIME_SECONDS,
-};
-
 use constant headingnames => {
 	"VIRT"	=> "Virtual memory (KiB)",
 	"RES"	=> "Resident memory (KiB)",
@@ -44,13 +35,6 @@ use constant headingnames => {
 	"MEM"	=> "Memory Usage",
 	"TIME"	=> "Accumulated CPU Time",
 };
-
-sub getDataType() {
-	my ($self, $op) = @_;
-	my @elements = split(/-/, $op);
-
-	return typeMap->{$elements[1]};
-}
 
 sub getPlotYaxis() {
 	my ($self, $op) = @_;
