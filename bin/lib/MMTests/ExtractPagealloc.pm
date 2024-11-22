@@ -7,7 +7,8 @@ use strict;
 
 sub initialise() {
 	my ($self, $subHeading) = @_;
-	$self->{_DataType} = DataTypes::DATA_TIME_CYCLES;
+	$self->{_PlotYaxis} = "Time (cpu cycles)";
+	$self->{_PreferredVal} = "Lower";
 	$self->{_FilterNaN} = 1;
 	$self->SUPER::initialise($subHeading);
 }
