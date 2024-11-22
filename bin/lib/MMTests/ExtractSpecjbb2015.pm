@@ -9,7 +9,8 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractSpecjbb2015",
-		_DataType    => DataTypes::DATA_ACTIONS,
+		_PlotYaxis   => "Operations",
+		_PreferredVal => "Higher",
 		_PlotType    => "histogram",
 	};
 	bless $self, $class;
