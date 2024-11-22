@@ -8,7 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractTlbflush";
-	$self->{_DataType}   = DataTypes::DATA_TIME_NSECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_NSECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->SUPER::initialise($subHeading);
 }

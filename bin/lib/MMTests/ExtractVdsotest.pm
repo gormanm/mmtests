@@ -10,7 +10,7 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "ExtractVdsotest";
-	$self->{_DataType}   = DataTypes::DATA_TIME_NSECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_NSECONDS;
 	$self->{_Opname} = "Latency";
 	$self->{_PlotType}   = "histogram";
 	$self->{_DefaultPlot} = "1";

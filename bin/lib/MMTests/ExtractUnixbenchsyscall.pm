@@ -6,7 +6,7 @@ our @ISA = qw(MMTests::ExtractUnixbenchcommon);
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractUnixbenchsyscall";
-	$self->{_DataType}   = DataTypes::DATA_TIME_NSECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_NSECONDS;
 	$self->{_PlotType}   = "thread-errorlines";
 	$self->SUPER::initialise($subHeading);
 }

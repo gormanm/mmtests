@@ -8,7 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSysjitter";
-	$self->{_DataType}   = DataTypes::DATA_TIME_NSECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_NSECONDS;
 	$self->{_PlotType}   = "histogram";
 	$self->{_Opname}     = "Time";
 	$self->{_FieldLength} = 14;

@@ -9,7 +9,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "Fiolatency.pm",
-		_DataType    => DataTypes::DATA_TIME_NSECONDS,
+		_PlotYaxis   => DataTypes::LABEL_TIME_NSECONDS,
 		_PlotType    => "simple-filter",
 		_PlotXaxis   => "Time (seconds)",
 		_FieldLength => 16,
