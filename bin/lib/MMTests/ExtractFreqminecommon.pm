@@ -12,7 +12,7 @@ sub initialise() {
 	$self->SUPER::initialise($subHeading);
 
 	$self->{_ModuleName} = "ExtractFreqmine";
-	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_SECONDS;
 	$self->{_PlotType}   = "thread-errorlines";
 	$self->SUPER::initialise($subHeading);
 }

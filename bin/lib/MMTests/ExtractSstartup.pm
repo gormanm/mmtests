@@ -10,7 +10,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractSstartup",
-		_DataType    => DataTypes::DATA_TIME_SECONDS,
+		_PlotYaxis   => DataTypes::LABEL_TIME_SECONDS,
 		_PlotType    => "simple-filter-points",
 		_PlotXaxis   => "Sample #"
 	};

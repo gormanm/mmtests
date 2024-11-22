@@ -6,7 +6,7 @@ our @ISA = qw(MMTests::SummariseMultiops);
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractHackbench";
-	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_SECONDS;
 	$self->{_PlotType}   = "group-errorlines";
 	$self->{_Precision} = 4;
 

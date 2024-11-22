@@ -8,7 +8,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractParallelioio",
-		_DataType    => DataTypes::DATA_TIME_SECONDS,
+		_PlotYaxis   => DataTypes::LABEL_TIME_SECONDS,
 	};
 	bless $self, $class;
 	return $self;

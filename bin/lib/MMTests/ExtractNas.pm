@@ -8,7 +8,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractNas";
-	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_SECONDS;
 	$self->{_PlotType}   = "operation-candlesticks";
 	$self->{_Opname}     = "Time";
 

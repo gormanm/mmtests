@@ -10,7 +10,7 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "ExtractFilelockperf";
-	$self->{_DataType}   = DataTypes::DATA_TIME_SECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_SECONDS;
 	$self->{_PlotType}   = "process-errorlines";
 	$self->SUPER::initialise($subHeading);
 }
