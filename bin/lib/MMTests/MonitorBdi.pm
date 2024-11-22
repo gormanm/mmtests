@@ -16,26 +16,26 @@ sub initialise() {
 	$self->SUPER::initialise($subHeading);
 }
 
-my %devices;
-
-my %typeMap = (
-	"BdiWriteback"		=> DataTypes::DATA_SIZE_KBYTES,
-	"BdiReclaimable"	=> DataTypes::DATA_SIZE_KBYTES,
-	"BdiDirtyThresh"	=> DataTypes::DATA_SIZE_KBYTES,
-	"DirtyThresh"		=> DataTypes::DATA_SIZE_KBYTES,
-	"BackgroundThresh"	=> DataTypes::DATA_SIZE_KBYTES,
-	"BdiDirtied"		=> DataTypes::DATA_SIZE_KBYTES,
-	"BdiWritten"		=> DataTypes::DATA_SIZE_KBYTES,
-	"BdiWriteBandwidth"	=> DataTypes::DATA_KBYTES_PER_SECOND,
-	# Other fields ignored for now
+my %labelMap = (
+	"BdiWriteback"		=> DataTypes::LABEL_KBYTES,
+	"BdiReclaimable"	=> DataTypes::LABEL_KBYTES,
+	"BdiDirtyThresh"	=> DataTypes::LABEL_KBYTES,
+	"DirtyThresh"		=> DataTypes::LABEL_KBYTES,
+	"BackgroundThresh"	=> DataTypes::LABEL_KBYTES,
+	"BdiDirtied"		=> DataTypes::LABEL_KBYTES,
+	"BdiWritten"		=> DataTypes::LABEL_KBYTES,
+	"BdiWriteBandwidth"	=> DataTypes::LABEL_KBYTES_PER_SECOND,
 );
 
-sub getDataType() {
+sub getPlotYaxis() {
 	my ($self, $op) = @_;
 	my @elements = split(/-/, $op);
 
-	return $typeMap{$elements[1]};
+	return $labelMap{$elements[1]};
 }
+
+
+my %devices;
 
 sub extractReport($$$) {
 	my ($self, $reportDir, $testBenchmark, $subHeading, $rowOrientated) = @_;
