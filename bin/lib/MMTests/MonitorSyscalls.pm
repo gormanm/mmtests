@@ -36,7 +36,7 @@ sub initialise() {
 		die("Unrecognised heading $subHeading");
 	}
 	$self->{_DataType} = typeMap->{$subHeading};
-	$self->{_PlotYAxis} = headings->{$subHeading};
+	$self->{_PlotYaxis} = headings->{$subHeading};
 	$self->SUPER::initialise($subHeading);
 }
 
