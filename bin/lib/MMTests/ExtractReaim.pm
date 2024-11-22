@@ -8,8 +8,9 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractReaim";
-	$self->{_DataType}   = DataTypes::DATA_ACTIONS_PER_MINUTE;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_MINUTE,
 	$self->{_PlotType}   = "process-errorlines";
+	$self->{_PreferredVal} = "Higher";
 	$self->SUPER::initialise($subHeading);
 }
 
