@@ -11,12 +11,7 @@ sub initialise() {
 	$self->{_ModuleName}	= "ExtractDbench4opslatency";
 	$self->{_DataType}	= DataTypes::DATA_TIME_MSECONDS;
 	$self->{_LogPrefix}	= "dbench";
-	$self->SUPER::initialise($subHeading);
-}
-
-sub initialise() {
-	my ($self, $subHeading) = @_;
-	$self->{_Opname} = "latency";
+	$self->{_Opname}	= "latency";
 	$self->SUPER::initialise($subHeading);
 }
 
