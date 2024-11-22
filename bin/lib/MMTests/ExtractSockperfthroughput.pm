@@ -8,7 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSockperfthroughput";
-	$self->{_DataType}   = DataTypes::DATA_MBITS_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_MBITS_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "client-errorlines";
 
 	$self->SUPER::initialise($subHeading);

@@ -8,7 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractNetpipe";
-	$self->{_DataType}   = DataTypes::DATA_MBITS_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_MBITS_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "simple";
 	$self->{_PlotXaxis}  = "Message Size KBytes";
 	$self->{_FieldLength} = 12;
