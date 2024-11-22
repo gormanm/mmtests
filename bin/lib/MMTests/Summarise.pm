@@ -80,18 +80,6 @@ sub getPreferredValue() {
 	return $self->typeToPreferredVal($type);
 }
 
-# If there's single data type for the module, use its direction even for
-# ratio comparisons. Otherwise create ratios so that lower values are always
-# preferred.
-sub getRatioPreferredValue() {
-	my ($self) = @_;
-
-	if (defined($self->{_DataType})) {
-		return $self->typeToPreferredVal($self->{_DataType});
-	}
-	return "Lower";
-}
-
 sub summaryOps() {
 	my ($self, $subHeading) = @_;
 

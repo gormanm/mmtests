@@ -162,7 +162,7 @@ sub _generateRatioComparisonTable() {
 	my %baseline = %{$baselineRef};
 	my $baseCILenRef = $extractModules[0]->{_SummaryCILen};
 	my %baseCILen = %{$baseCILenRef // {}};
-	my $preferred = $extractModules[0]->getRatioPreferredValue();
+	my $preferred = $extractModules[0]->getPreferredValue();
 
 	for my $operation (keys %baseline) {
 		my ($ratioCompareOp, $compareOp);
@@ -356,7 +356,7 @@ sub _generateRenderRatioTable() {
 	# Final comparison table
 	my @extractModules = @{$self->{_ExtractModules}};
 	my @rowLine;
-	my $preferred = $extractModules[0]->getRatioPreferredValue();
+	my $preferred = $extractModules[0]->getPreferredValue();
 	for my $operation (@operations) {
 		@rowLine = ("Ratio $operation");
 		if ($#{$resultsTable{$operation}} > $maxCols) {
