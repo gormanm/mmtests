@@ -18,11 +18,6 @@ my %_colMap = (
 	"Latency"	=> 5,
 );
 
-use constant typeMap => {
-	"Count"		=> DataTypes::DATA_ACTIONS,
-	"Latency"	=> DataTypes::DATA_TIME_NSECONDS,
-};
-
 use constant headings => {
 	"Count"		=> "Syscalls",
 	"Latency"	=> "Syscall time (ns)",
@@ -35,8 +30,7 @@ sub initialise() {
 	if (!defined $_colMap{$subHeading}) {
 		die("Unrecognised heading $subHeading");
 	}
-	$self->{_DataType} = typeMap->{$subHeading};
-	$self->{_PlotYaxis} = headings->{$subHeading};
+	$self->{_PlotYaxes} = headings;
 	$self->SUPER::initialise($subHeading);
 }
 
