@@ -8,7 +8,8 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractHpccscore",
-		_DataType    => DataTypes::DATA_OPS_PER_SECOND,
+		_PlotYaxis   => DataTypes::LABEL_OPS_PER_SECOND,
+		_PreferredVal => "Higher",
 		_Precision   => 4,
 		_Operations  => [ "HPL_Tflops", "PTRANS_GBs",
 			"MPIRandomAccess_GUPs", "MPIFFT_Gflops",

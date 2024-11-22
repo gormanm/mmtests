@@ -7,7 +7,8 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "ExtractCoremark";
-	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND,
+	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_SECOND,
+	$self->{_PreferredVal} = "Higher",
 
 	$self->SUPER::initialise($subHeading);
 }

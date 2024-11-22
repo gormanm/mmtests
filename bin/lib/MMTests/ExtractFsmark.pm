@@ -7,7 +7,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractFsmark";
-	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
         $self->{_ExactSubheading} = 1;
         $self->{_PlotType} = "simple-filter";
         $self->{_DefaultPlot} = "1";

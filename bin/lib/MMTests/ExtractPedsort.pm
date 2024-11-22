@@ -10,7 +10,8 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "ExtractPedsort";
-	$self->{_DataType}   = DataTypes::DATA_OPS_PER_MINUTE;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_MINUTE;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "thread-errorlines";
 
 	$self->SUPER::initialise($subHeading);

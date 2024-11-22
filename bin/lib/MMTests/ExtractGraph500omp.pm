@@ -6,7 +6,8 @@ our @ISA = qw(MMTests::ExtractGraph500common);
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractGraph500omp";
-	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 
 	$self->SUPER::initialise($subHeading);
 }

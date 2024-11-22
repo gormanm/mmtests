@@ -9,7 +9,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractPft";
-	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_Precision} = 4;
 	$self->{_FieldLength} = 14;

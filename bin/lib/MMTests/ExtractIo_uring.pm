@@ -9,7 +9,8 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "ExtractIo_uring";
-	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
 	$self->{_FieldLength} = 12;

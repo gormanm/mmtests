@@ -10,7 +10,8 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_ModuleName} = "ExtractWiscommon";
-	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "thread-errorlines";
 	$self->{_FieldLength} = 16;
 	$self->SUPER::initialise($subHeading);

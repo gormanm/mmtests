@@ -9,7 +9,8 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName    => "MonitorKcacheslabs",
-		_DataType      => DataTypes::DATA_OPS_PER_SECOND,
+		_PlotYaxis     => DataTypes::LABEL_OPS_PER_SECOND,
+		_PreferredVal  => "Higher",
 		_FieldLength   => 24,
 		_PlotType      => "simple",
 		_PlotXaxis     => "Time"

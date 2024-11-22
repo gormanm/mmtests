@@ -7,7 +7,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSpecjvm";
-	$self->{_DataType}   = DataTypes::DATA_OPS_PER_MINUTE;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_MINUTE;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "histogram";
 
 	$self->SUPER::initialise($subHeading);

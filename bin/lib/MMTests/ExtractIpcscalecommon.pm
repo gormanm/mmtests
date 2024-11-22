@@ -8,7 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractIpcscale";
-	$self->{_DataType}  = DataTypes::DATA_OPS_PER_SECOND;
+	$self->{_PlotYaxis} = DataTypes::LABEL_OPS_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_Opname} = "Latency";
 	$self->{_PlotType} = "thread-errorlines";
 	$self->{_ClientSubheading} = 1;
