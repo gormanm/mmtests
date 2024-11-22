@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractSockperfunderload",
-		_DataType    => DataTypes::DATA_TIME_USECONDS,
+		_PlotYaxis   => DataTypes::LABEL_TIME_USECONDS,
 		_Opname      => "Round-Trip-Time",
 		_PlotType    => "simple-filter-points",
 	};

@@ -9,7 +9,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractLmbench",
-		_DataType    => DataTypes::DATA_TIME_USECONDS,
+		_PlotYaxis   => DataTypes::LABEL_TIME_USECONDS,
 		_FieldLength => 16,
 		_Precision   => 4,
 		_PlotType    => "operation-candlesticks",

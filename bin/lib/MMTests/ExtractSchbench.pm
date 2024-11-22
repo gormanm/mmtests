@@ -9,7 +9,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSchbench";
-	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
 	$self->{_PlotXaxis}  = "Threads";
 	$self->{_Opname} = "Lat";
 	$self->{_FieldLength} = 12;

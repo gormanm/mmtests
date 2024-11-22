@@ -6,7 +6,7 @@ our @ISA = qw(MMTests::ExtractFutexbenchcommon);
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractFutexbenchwakeparallel";
-	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
 	$self->{_PlotType}   = "thread-errorlines";
 
 	$self->SUPER::initialise($subHeading);

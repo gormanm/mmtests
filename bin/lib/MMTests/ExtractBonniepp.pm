@@ -7,7 +7,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractBonniepp";
-	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
 	$self->{_PlotType}   = "simple-samples";
 	$self->{_DefaultPlot} = "SeqOut Block";
 	$self->{_ExactSubheading} = 1;

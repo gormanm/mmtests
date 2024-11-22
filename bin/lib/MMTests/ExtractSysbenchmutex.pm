@@ -9,7 +9,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSysbenchmutex";
-	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->SUPER::initialise($subHeading);
 }

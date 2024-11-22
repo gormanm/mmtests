@@ -6,7 +6,7 @@ our @ISA = qw(MMTests::SummariseMultiops);
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractSaladfork";
-	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
 
 	$self->SUPER::initialise($subHeading);
 }

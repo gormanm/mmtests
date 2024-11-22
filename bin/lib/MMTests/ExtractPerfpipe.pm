@@ -7,7 +7,7 @@ sub new() {
 	my $class = shift;
 	my $self = {
 		_ModuleName  => "ExtractPerfpipe",
-		_DataType    => DataTypes::DATA_TIME_USECONDS,
+		_PlotYaxis   => DataTypes::LABEL_TIME_USECONDS,
 		_PlotType    => "simple",
 	};
 	bless $self, $class;

@@ -7,7 +7,7 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractLmbenchlat_proc";
-	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_ExactPlottype} = "simple";
 	$self->{_ExactSubheading} = 1;

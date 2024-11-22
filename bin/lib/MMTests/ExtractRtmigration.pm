@@ -6,7 +6,7 @@ our @ISA = qw(MMTests::SummariseMultiops);
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractRtmigration";
-	$self->{_DataType}   = DataTypes::DATA_TIME_USECONDS;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
 	$self->{_PlotType}   = "group-errorlines";
 	$self->{_Precision} = 2;
 
