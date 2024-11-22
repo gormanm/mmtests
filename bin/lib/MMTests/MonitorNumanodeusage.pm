@@ -24,12 +24,10 @@ sub initialise() {
 	}
 	die if $subHeading ne "Usage" && $subHeading ne "MemoryBalance";
 
-	if ($subHeading eq "Usage") {
-		$self->{_DataType} = DataTypes::DATA_SIZE_BYTES;
-	} else {
-		$self->{_DataType} = DataTypes::DATA_BALANCE;
-		$self->{_PlotYaxis} = "Memory Balance";
-	}
+	$self->{_PlotYaxes} = (
+		"MemoryBalance"	=> "Memory Balance",
+		"Usage"		=> "Usage (Bytes)",
+	);
 
 	$self->SUPER::initialise($subHeading);
 }
