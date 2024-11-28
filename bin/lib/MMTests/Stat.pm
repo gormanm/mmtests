@@ -26,6 +26,7 @@ use Scalar::Util qw(looks_like_number);
 	     &calc_amean &select_trim &calc_geomean &calc_hmean &calc_median
 	     &calc_coeffvar &calc_stddev &calc_quartiles &calc_submean
 	     &calc_submeanci &calc_submeanci_low &calc_submeanci_high
+	     &calc_meanci &calc_meanci_low &calc_meanci_high
 	     &stat_compare &calc_samplespct &data_valid);
 
 # This defines function to use for comparison of a particular statistic
@@ -43,12 +44,18 @@ use constant stat_names => {
 	"min"		=> "Min",
 	"max"		=> "Max",
 	"amean"		=> "Amean",
+	"meanci-amean"	=> "AmeanCI",
+	"meanci_low-amean"	=> "AmeanCI-Low",
+	"meanci_high-amean"	=> "AmeanCI-High",
 	"submean-amean"	=> "SubAmean",
 	"submeanci-amean"	=> "SubAmeanCI",
 	"submeanci_low-amean"	=> "SubAmeanCI-Low",
 	"submeanci_high-amean"	=> "SubAmeanCI-High",
 	"amean-"	=> "BAmean-%d",
 	"hmean"		=> "Hmean",
+	"meanci-hmean"	=> "HmeanCI",
+	"meanci_low-hmean"	=> "HmeanCI-Low",
+	"meanci_high-hmean"	=> "HmeanCI-High",
 	"submean-hmean"	=> "SubHmean",
 	"submeanci-hmean"	=> "SubHmeanCI",
 	"submeanci_low-hmean"	=> "SubHmeanCI-Low",
@@ -403,6 +410,50 @@ sub calc_stddev {
 	}
 
 	return $stddev;
+}
+
+sub _calc_meanci {
+	my ($meanname, $alpha, $dataref, $statsref) = @_;
+	my $n = 0;
+	my $elements = @{$dataref};
+	my $diff;
+	my $i;
+	my $mean;
+	my $stddev;
+
+	$mean = _calc_mean($meanname, $dataref, $statsref);
+	if ($mean eq "NaN") {
+		$stddev = "NaN";
+	} elsif (defined($$statsref->{"stddev-$meanname"})) {
+		$stddev = $$statsref->{"stddev-$meanname"};
+	} else {
+		$stddev = calc_stddev($meanname, $dataref, $statsref);
+	}
+	my $q = qx(echo 'qnorm(1-$alpha/2, mean=0, sd=$stddev)' | R --slave);
+	$q =~ s/\[1\]|\s//g;
+
+	if (defined($$statsref->{save_stats})) {
+		$$statsref->{"meanci-$meanname"} = $q;
+		$$statsref->{"meanci_low-$meanname"} = $mean - $q;
+		$$statsref->{"meanci_high-$meanname"} = $mean + $q;
+	}
+
+	return ($mean - $q, $mean + $q);
+}
+
+sub calc_meanci {
+	my ($low, $high) = _calc_meanci(@_);
+	return ($high - $low) / 2;
+}
+
+sub calc_meanci_low {
+	my ($low, $high) = _calc_meanci(@_);
+	return $low;
+}
+
+sub calc_meanci_high {
+	my ($low, $high) = _calc_meanci(@_);
+	return $high;
 }
 
 sub calc_coeffvar {

@@ -237,6 +237,12 @@ sub runStatFunc
 		no strict "refs";
 		return &$func($arg, $dataref, $statsref);
 	}
+	if ($func eq "meanci" || $func eq "meanci_low" ||
+	    $func eq "meanci_high") {
+		$func = "calc_$func";
+		no strict "refs";
+		return &$func($arg, $alpha, $dataref, $statsref);
+	}
 	# Subselection means are special. They take mean name as an argument
 	# and they also need 2-dimensional array with data to know which sample
 	# comes from which iteration.
