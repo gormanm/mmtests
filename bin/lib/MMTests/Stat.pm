@@ -27,6 +27,7 @@ use Scalar::Util qw(looks_like_number);
 	     &calc_coeffvar &calc_stddev &calc_quartiles &calc_submean
 	     &calc_submeanci &calc_submeanci_low &calc_submeanci_high
 	     &calc_meanci &calc_meanci_low &calc_meanci_high
+	     &calc_percentileci_low &calc_percentileci_high
 	     &stat_compare &calc_samplespct &data_valid);
 
 # This defines function to use for comparison of a particular statistic
@@ -77,6 +78,8 @@ use constant stat_names => {
 	"percentile-99.9999" => "Max-99.9999",
 	"percentile-99.99999" => "Max-99.99999",
 	"percentile-"	=> "Max-%d",
+	"percentileci_low-"	=> "Max-%d-CI-Low",
+	"percentileci_high-"	=> "Max-%d-CI-High",
 	"samples"	=> "Samples",
 	"samples-"	=> "Samples-[%s)",
 	"samplespct-"	=> "Samples%%-[%s)",
@@ -353,6 +356,38 @@ sub select_lowest {
 	my $nr_trim = int ($nr_elements * $percentage / 100);
 
 	return select_data(0, $nr_trim - 1, $dataref);
+}
+
+sub _calc_percentileci {
+	my ($percentage, $alpha, $dataref, $statsref) = @_;
+	my $quantile;
+	my $nr_elements = scalar(@{$dataref});
+	my $count;
+	my $q;
+
+	$quantile = $percentage / 100;
+	$q = qx(echo 'qbinom($alpha/2, $nr_elements-1, $quantile);
+		      qbinom(1-$alpha/2, $nr_elements-1, $quantile)' | R --slave);
+	$q =~ s/\[1\] //g;
+	my ($low, $high) = split("\n", $q);
+
+	if (defined($$statsref->{save_stats})) {
+		$$statsref->{"percentileci_low-$percentage"} = $$dataref[$low];
+		$$statsref->{"percentileci_high-$percentage"} = $$dataref[$high];
+	}
+	return ($$dataref[$low], $$dataref[$high]);
+}
+
+sub calc_percentileci_low {
+	my ($low, $high) = _calc_percentileci(@_);
+
+	return $low;
+}
+
+sub calc_percentileci_high {
+	my ($low, $high) = _calc_percentileci(@_);
+
+	return $high;
 }
 
 # Internal helper for calculating specified mean including cache lookup

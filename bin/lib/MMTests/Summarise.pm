@@ -238,7 +238,8 @@ sub runStatFunc
 		return &$func($arg, $dataref, $statsref);
 	}
 	if ($func eq "meanci" || $func eq "meanci_low" ||
-	    $func eq "meanci_high") {
+	    $func eq "meanci_high" || $func eq "percentileci_low" ||
+	    $func eq "percentileci_high") {
 		$func = "calc_$func";
 		no strict "refs";
 		return &$func($arg, $alpha, $dataref, $statsref);
