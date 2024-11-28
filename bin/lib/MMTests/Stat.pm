@@ -138,9 +138,15 @@ sub sdiff {
 }
 
 sub cidiff {
-	my ($new, $newci, $base, $baseci) = @_;
+	my ($new, $newciref, $base, $baseciref) = @_;
 	my $diff = $new - $base;
-	my $cisum = $newci + $baseci;
+	my $cisum;
+
+	if ($new < $base) {
+		$cisum = ${$newciref}[1] - $new + $base - ${$baseciref}[0];
+	} else {
+		$cisum = $new - ${$newciref}[0] + ${$baseciref}[1] - $base
+	}
 
 	if ($cisum == 0) {
 		return $diff;

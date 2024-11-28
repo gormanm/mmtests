@@ -160,8 +160,8 @@ sub _generateRatioComparisonTable() {
 	my @extractModules = @{$self->{_ExtractModules}};
 	my $baselineRef = $extractModules[0]->{_SummaryData};
 	my %baseline = %{$baselineRef};
-	my $baseCILenRef = $extractModules[0]->{_SummaryCILen};
-	my %baseCILen = %{$baseCILenRef // {}};
+	my $baseCIIntervalRef = $extractModules[0]->{_SummaryCIInterval};
+	my %baseCIInterval = %{$baseCIIntervalRef // {}};
 	my $preferred = $extractModules[0]->getPreferredValue();
 
 	for my $operation (keys %baseline) {
@@ -184,18 +184,18 @@ sub _generateRatioComparisonTable() {
 			no strict "refs";
 			my $summaryRef = $extractModules[$module]->{_SummaryData};
 			my %summary = %{$summaryRef};
-			my $summaryCILenRef = $extractModules[$module]->{_SummaryCILen};
-			my %summaryCILen = %{$summaryCILenRef};
+			my $summaryCIIntervalRef = $extractModules[$module]->{_SummaryCIInterval};
+			my %summaryCIInterval = %{$summaryCIIntervalRef};
 			my ($ratio, $ratiocmp, $normcmp);
-			my ($aval, $aci, $bval, $bci);
+			my ($aval, @aci, $bval, @bci);
 
 			if ($summary{$operation}[0] eq "") {
 				$summary{$operation}[0] = "NaN";
 			}
 			$aval = $summary{$operation}[0];
-			$aci = $summaryCILen{$operation};
+			@aci = @{$summaryCIInterval{$operation}};
 			$bval = $baseline{$operation}[0];
-			$bci = $baseCILen{$operation};
+			@bci = @{$baseCIInterval{$operation}};
 			if ($aval != -1 && $aval ne "NaN" && $bval != -1 && $bval ne "NaN") {
 				# If preferred value for current operation is
 				# different from preferred value for the whole
@@ -203,12 +203,12 @@ sub _generateRatioComparisonTable() {
 				# comparable.
 				if ($extractModules[$module]->getPreferredValue($operation) ne $preferred) {
 					($aval, $bval) = ($bval, $aval);
-					($aci, $bci) = ($bci, $aci);
+					(@aci, @bci) = (@bci, @aci);
 				}
 				$ratio = rdiff($aval, $bval);
 				$ratiocmp = &$compareOp($ratio, 1);
-				if ($baseCILenRef) {
-					$normcmp = &$ratioCompareOp($aval, $aci, $bval, $bci);
+				if ($baseCIIntervalRef) {
+					$normcmp = &$ratioCompareOp($aval, \@aci, $bval, \@bci);
 					if ($normcmp eq "NaN" || $normcmp eq "nan") {
 						$normcmp = 0;
 					}
@@ -248,8 +248,8 @@ sub _generateRatioComparisonTable() {
 		push @geomean, calc_geomean(\@units);
 	}
 
-	$self->{_ResultsNormalizedTable} = \%normCompareTable if $baseCILenRef;
-	$self->{_NormalizedDiffStatsTable} = \@normcmpmean if $baseCILenRef;
+	$self->{_ResultsNormalizedTable} = \%normCompareTable if $baseCIIntervalRef;
+	$self->{_NormalizedDiffStatsTable} = \@normcmpmean if $baseCIIntervalRef;
 	$self->{_ResultsRatioTable} = \%compareRatioTable;
 	$self->{_GeometricMeanTable} = \@geomean;
 	if ($showCompare) {

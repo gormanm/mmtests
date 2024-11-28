@@ -11,7 +11,9 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->{_SummaryStats} = [ "_mean", "max" ];
-	$self->{_RatioSummaryStat} = [ "_mean", "stddev-_mean" ];
+	$self->{_RatioSummaryStat} = [ "_mean", "meanci_low-_mean",
+		"meanci_high-_mean" ];
+	$self->{_RatioCompareOp} = "cidiff";
 	$self->{_PreferredVal} = "Lower";
 	$self->SUPER::initialise($subHeading);
 }

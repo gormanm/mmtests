@@ -15,7 +15,9 @@ sub initialise() {
 		"percentile-99", "max", "_mean", "stddev-_mean",
 		"coeffvar-_mean", "_mean-99", "_mean-95", "_mean-90",
 		"_mean-75", "_mean-50", "_mean-25" ];
-	$self->{_RatioSummaryStat} = [ "percentile-95" ];
+	$self->{_RatioSummaryStat} = [ "percentile-95", "percentileci_low-95",
+				       "percentileci_high-95" ];
+	$self->{_RatioCompareOp} = "cidiff";
 	$self->SUPER::initialise($subHeading);
 }
 

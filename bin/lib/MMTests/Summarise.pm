@@ -363,7 +363,7 @@ sub extractRatioSummary() {
 	my @_operations = $self->ratioSummaryOps($subHeading);
 	my %data = %{$self->{_ResultData}};
 	my %summary;
-	my %summaryCILen;
+	my %summaryCIInterval;
 	foreach my $operation (@_operations) {
 		my @units;
 		my @values;
@@ -385,13 +385,15 @@ sub extractRatioSummary() {
 		if (($values[0] ne "NaN" && $values[0] ne "nan") ||
 		    $self->{_FilterNaN} != 1) {
 			$summary{$operation} = [$values[0]];
-			if ($#values == 1 && $values[1] ne "NaN") {
-				$summaryCILen{$operation} = $values[1];
+			if ($#values == 2 && $values[1] ne "NaN" &&
+			    $values[2] ne "NaN") {
+				$summaryCIInterval{$operation} =
+						[$values[1], $values[2]];
 			}
 		}
 	}
 	$self->{_SummaryData} = \%summary;
-	$self->{_SummaryCILen} = \%summaryCILen if %summaryCILen;
+	$self->{_SummaryCIInterval} = \%summaryCIInterval if %summaryCIInterval;
 
 	return 1;
 }
@@ -407,7 +409,7 @@ sub extractRatioSummaryCached() {
 	}
 
 	my @fields = (	"_SummaryData",
-			"__SummaryCILen",
+			"_SummaryCIInterval",
 			);
 
 	if (!$cache->load($self)) {

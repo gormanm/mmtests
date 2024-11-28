@@ -12,7 +12,8 @@ sub initialise() {
 
 	$self->{_SummaryStats} = [ "min", "_mean", "stddev-_mean",
 		"coeffvar-_mean", "max", "submean-_mean", "submeanci-_mean" ];
-	$self->{_RatioSummaryStat} = [ "submean-_mean", "submeanci-_mean" ];
+	$self->{_RatioSummaryStat} = [ "submean-_mean", "submeanci_low-_mean",
+				       "submeanci_high-_mean" ];
 	$self->{_RatioCompareOp} = "cidiff";
 	$self->SUPER::initialise($subHeading);
 }
