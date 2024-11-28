@@ -24,7 +24,8 @@ use Scalar::Util qw(looks_like_number);
 @EXPORT = qw(&calc_welch_test &pdiff &pndiff &rdiff &sdiff &cidiff &calc_sum
 	     &calc_min &calc_max &calc_range &select_lowest &select_highest
 	     &calc_amean &select_trim &calc_geomean &calc_hmean &calc_median
-	     &calc_coeffvar &calc_stddev &calc_quartiles &calc_submean_ci
+	     &calc_coeffvar &calc_stddev &calc_quartiles &calc_submean
+	     &calc_submeanci &calc_submeanci_low &calc_submeanci_high
 	     &stat_compare &calc_samplespct &data_valid);
 
 # This defines function to use for comparison of a particular statistic
@@ -42,10 +43,16 @@ use constant stat_names => {
 	"min"		=> "Min",
 	"max"		=> "Max",
 	"amean"		=> "Amean",
-	"amean-sub"	=> "SubAmean",
+	"submean-amean"	=> "SubAmean",
+	"submeanci-amean"	=> "SubAmeanCI",
+	"submeanci_low-amean"	=> "SubAmeanCI-Low",
+	"submeanci_high-amean"	=> "SubAmeanCI-High",
 	"amean-"	=> "BAmean-%d",
 	"hmean"		=> "Hmean",
-	"hmean-sub"	=> "SubHmean",
+	"submean-hmean"	=> "SubHmean",
+	"submeanci-hmean"	=> "SubHmeanCI",
+	"submeanci_low-hmean"	=> "SubHmeanCI-Low",
+	"submeanci_high-hmean"	=> "SubHmeanCI-High",
 	"hmean-"	=> "BHmean-%d",
 	"stddev-amean"	=> "Stddev",
 	"stddev-hmean"	=> "HStddev",
@@ -66,7 +73,6 @@ use constant stat_names => {
 	"samples"	=> "Samples",
 	"samples-"	=> "Samples-[%s)",
 	"samplespct-"	=> "Samples%%-[%s)",
-	"submeanci"	=> "SubmeanCI",
 };
 
 # Print the percentage difference between two values
@@ -505,8 +511,8 @@ sub pipe_to_R {
 	return \@result;
 }
 
-sub calc_submean_ci {
-	my ($meanName, $dataref) = @_;
+sub _calc_submean_ci {
+	my ($meanName, $dataref, $statsref) = @_;
 	my $resultref;
 	my $row;
 	my @parsedrow;
@@ -516,7 +522,35 @@ sub calc_submean_ci {
 	$row = @{$resultref}[0];
 	@parsedrow = split(' ', $row);
 	# Skip initial "[1]" output by R
+	if (defined($$statsref->{save_stats})) {
+		$$statsref->{"submean-$meanName"} = $parsedrow[1];
+		$$statsref->{"submeanci-$meanName"} = $parsedrow[2];
+		$$statsref->{"submeanci_low-$meanName"} =
+						$parsedrow[1] - $parsedrow[2];
+		$$statsref->{"submeanci_high-$meanName"} =
+						$parsedrow[1] + $parsedrow[2];
+	}
 	return ($parsedrow[1], $parsedrow[2]);
+}
+
+sub calc_submean {
+	my ($mean, $ci) = _calc_submean_ci(@_);
+	return $mean;
+}
+
+sub calc_submeanci {
+	my ($mean, $ci) = _calc_submean_ci(@_);
+	return $ci;
+}
+
+sub calc_submeanci_low {
+	my ($mean, $ci) = _calc_submean_ci(@_);
+	return $mean - $ci;
+}
+
+sub calc_submeanci_high {
+	my ($mean, $ci) = _calc_submean_ci(@_);
+	return $mean + $ci;
 }
 
 sub binsearch_pos_num($target, $aref) {

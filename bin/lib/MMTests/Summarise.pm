@@ -207,31 +207,17 @@ sub runStatFunc
 	my ($self, $operation, $func, $dataref, $statsref) = @_;
 	my ($mean, $arg);
 
+	if ($func eq "_value") {
+		return $dataref->[0];
+	}
+
 	# $dataref is expected to be already sorted in appropriate order
 	if ($self->getPreferredValue($operation) eq "Higher") {
 		$mean = "hmean";
 	} else {
 		$mean = "amean";
 	}
-	# Subselection means are special. They take mean name as an argument
-	# and they also need 2-dimensional array with data to know which sample
-	# comes from which iteration.
-	if ($func eq "_mean-sub") {
-		my @data = map {$_->{Values}} @{$self->{_ResultData}->{$operation}};
-		return calc_submean_ci($mean, \@data);
-	}
-	# calc_submean_ci returns two element list, thus following 'submeanci'
-	# has nothing to do and must return empty list. This is because
-	# calculating submean is relatively expensive and we get CI with it
-	# as well so it would be stupid to recompute it again.
-	if ($func eq "submeanci") {
-		return ();
-	}
-	if ($func eq "_value") {
-		return $dataref->[0];
-	}
 	$func =~ s/^_mean/$mean/;
-
 	if (defined($$statsref->{$func})) {
 		return $$statsref->{$func};
 	}
@@ -250,6 +236,17 @@ sub runStatFunc
 		no strict "refs";
 		return &$func($arg, $dataref, $statsref);
 	}
+	# Subselection means are special. They take mean name as an argument
+	# and they also need 2-dimensional array with data to know which sample
+	# comes from which iteration.
+	if ($func eq "submean" || $func eq "submeanci" ||
+	    $func eq "submeanci_low" || $func eq "submeanci_high") {
+		my @data = map {$_->{Values}} @{$self->{_ResultData}->{$operation}};
+		$func = "calc_$func";
+		no strict "refs";
+		return &$func($mean, \@data, $statsref);
+	}
+
 	# Percentiles are trivial, no need to copy the whole data array for them
 	if ($func eq "percentile") {
 		my $nr_elements = scalar(@{$dataref});
@@ -296,12 +293,10 @@ sub extractSummary() {
 
 		$summary{$operation} = [];
 		foreach my $func (@{$self->{_SummaryStats}}) {
-			my @values = $self->runStatFunc($operation, $func,
-							\@units, \$stats);
-			foreach my $value (@values) {
-				if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
-					push @{$summary{$operation}}, $value;
-				}
+			my $value = $self->runStatFunc($operation, $func,
+						       \@units, \$stats);
+			if (($value ne "NaN" && $value ne "nan") || $self->{_FilterNaN} != 1) {
+				push @{$summary{$operation}}, $value;
 			}
 		}
 
@@ -364,6 +359,7 @@ sub extractRatioSummary() {
 	foreach my $operation (@_operations) {
 		my @units;
 		my @values;
+		my $stats = { save_stats => 1 };
 
 		@units = map { @{$_->{Values}} } @{$data{$operation}};
 		if ($self->getPreferredValue($operation) eq "Lower") {
@@ -375,7 +371,7 @@ sub extractRatioSummary() {
 		foreach my $func (@{$self->{_RatioSummaryStat}}) {
 			no strict "refs";
 			push @values, $self->runStatFunc($operation, $func,
-				\@units);
+				\@units, \$stats);
 		}
 
 		if (($values[0] ne "NaN" && $values[0] ne "nan") ||
