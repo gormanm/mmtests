@@ -8,5 +8,5 @@ use MMTests::Stat;
 $x[$i++] = $_;
 END {
 	$i = 0;
-	data_valid(\@x) ? print calc_stddev(\@x) : print "NaN";
+	data_valid(\@x) ? print calc_stddev("amean", \@x) : print "NaN";
 }

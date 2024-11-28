@@ -58,11 +58,7 @@ sub extractReport($$$$) {
 
 	my ($subOp, $subCalc) = split(/-/, $subHeading);
 	if ($subCalc ne "") {
-		if ($subCalc eq "mean") {
-			$subCalc = "calc_hmean";
-		} elsif ($subCalc eq "stddev") {
-			$subCalc = "calc_stddev";
-		} else {
+		if ($subCalc ne "mean" && $subCalc ne "stddev") {
 			die("Unrecognised subcalc $subCalc");
 		}
 	}
@@ -84,11 +80,14 @@ sub extractReport($$$$) {
 				$timestamp = $1;
 				$start_timestamp = $timestamp;
 			} else {
-				if ($subCalc ne "" && $#vals >= 0) {
-					no strict "refs";
+				if ($subCalc eq "mean" && $#vals >= 0) {
 					$self->addData("threads",
 						$timestamp - $start_timestamp,
-						&$subCalc(\@vals));
+						calc_hmean(\@vals));
+				} elsif ($subCalc eq "stddev" && $#vals > 0) {
+					$self->addData("threads",
+						$timestamp - $start_timestamp,
+						calc_stddev("hmean", \@vals));
 				}
 				$timestamp = $1;
 			}

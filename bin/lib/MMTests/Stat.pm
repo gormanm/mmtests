@@ -47,8 +47,10 @@ use constant stat_names => {
 	"hmean"		=> "Hmean",
 	"hmean-sub"	=> "SubHmean",
 	"hmean-"	=> "BHmean-%d",
-	"stddev"	=> "Stddev",
-	"coeffvar"	=> "CoeffVar",
+	"stddev-amean"	=> "Stddev",
+	"stddev-hmean"	=> "HStddev",
+	"coeffvar-amean"	=> "CoeffVar",
+	"coeffvar-hmean"	=> "HCoeffVar",
 	"percentile-25" => "1st-qrtle",
 	"percentile-50" => "2nd-qrtle",
 	"percentile-75" => "3rd-qrtle",
@@ -340,50 +342,72 @@ sub select_lowest {
 	return select_data(0, $nr_trim - 1, $dataref);
 }
 
+# Internal helper for calculating specified mean including cache lookup
+sub _calc_mean {
+	my ($meanname, $dataref, $statsref) = @_;
+	my $mean;
+
+	if (defined($$statsref->{$meanname})) {
+		$mean = $$statsref->{$meanname};
+	} else {
+		my $func = "calc_$meanname";
+		no strict 'refs';
+		$mean = &$func($dataref, $statsref);
+	}
+	return $mean;
+}
+
 sub calc_stddev {
-	my ($dataref, $statsref) = @_;
+	my ($meanname, $dataref, $statsref) = @_;
 	my $n = 0;
 	my $elements = @{$dataref};
-	my $diff;
+	my $diff = 0;
 	my $i;
 	my $mean;
 	my $stddev;
 
-	$mean = defined($$statsref->{amean}) ? $$statsref->{amean} :
-	    (calc_amean($dataref, $statsref));
+	$mean = _calc_mean($meanname, $dataref, $statsref);
 	if ($mean eq "NaN") {
 		$stddev = "NaN";
 	} else {
 		for ($i = 0; $i < $elements; $i++) {
 			if (defined $dataref->[$i]) {
-				$diff += ($dataref->[$i] - $mean) ** 2;
+				if ($meanname eq "amean") {
+					$diff += ($dataref->[$i] - $mean) ** 2;
+				} else {
+					$diff += (1/$dataref->[$i] - 1/$mean) ** 2;
+				}
 				$n++;
 			}
 		}
 
 		if ($n <= 1) {
 			$stddev = "NaN";
-		} else {
+		} elsif ($meanname eq "amean") {
 			$stddev = sqrt($diff / ($n - 1));
+		} else {
+			# People better than me in statistics have come up with
+			# this formula :)
+			$stddev = sqrt($diff * ($mean ** 4)/ $n)
 		}
 	}
 
 	if (defined($$statsref->{save_stats})) {
-		$$statsref->{stddev} = $stddev;
+		$$statsref->{"stddev-$meanname"} = $stddev;
 	}
 
 	return $stddev;
 }
 
 sub calc_coeffvar {
-	my ($dataref, $statsref) = @_;
+	my ($meanname, $dataref, $statsref) = @_;
 	my $mean;
 	my $stddev;
 
-	$mean = defined($$statsref->{amean}) ? $$statsref->{amean} :
-	    (calc_amean($dataref, $statsref));
-	$stddev = defined($$statsref->{stddev}) ? $$statsref->{stddev} :
-	    (calc_stddev($dataref, $statsref));
+	$mean = _calc_mean($meanname, $dataref, $statsref);
+	$stddev = defined($$statsref->{"stddev-$meanname"}) ?
+	    $$statsref->{"stddev-$meanname"} :
+	    (calc_stddev($meanname, $dataref, $statsref));
 
 	if ($stddev eq "NaN") {
 		$stddev = 0;
@@ -533,11 +557,11 @@ sub binsearch_range_num ($low_target, $high_target, $aref) {
 }
 
 sub calc_samples {
-	my ($dataref, $arg) = @_;
+	my ($arg, $dataref) = @_;
 	my $elements = @{$dataref};
 
 	# Simple sample count?
-	if (!defined($arg)) {
+	if ($arg eq "") {
 		return $elements;
 	}
 	# Range specified
@@ -553,9 +577,9 @@ sub calc_samples {
 }
 
 sub calc_samplespct {
-	my ($dataref, $arg) = @_;
+	my ($arg, $dataref) = @_;
 
-	return calc_samples($dataref, $arg) * 100 / scalar(@{$dataref});
+	return calc_samples($arg, $dataref) * 100 / scalar(@{$dataref});
 }
 
 sub data_valid {

@@ -85,8 +85,9 @@ sub getStatName() {
 	} else {
 		$mean = "amean";
 	}
-	$sumop =~ s/^_mean/$mean/;
 	$sumop =~ s/^_value/$self->{_Opname}/;
+	$sumop =~ s/^_mean/$mean/;
+	$sumop =~ s/-_mean/-$mean/;
 
 	if (defined(MMTests::Stat::stat_names->{$sumop})) {
 		return MMTests::Stat::stat_names->{$sumop};
@@ -236,6 +237,19 @@ sub runStatFunc
 	}
 
 	($func, $arg) = split("-", $func);
+	if (!defined $arg) {
+		$arg = "";
+	} else {
+		$arg =~ s/^_mean/$mean/;
+	}
+	# These are parametrized statistics where parameter is handled by the
+	# function itself
+	if ($func eq "samples" || $func eq "samplespct" || $func eq "stddev" ||
+	    $func eq "coeffvar") {
+		$func = "calc_$func";
+		no strict "refs";
+		return &$func($arg, $dataref, $statsref);
+	}
 	# Percentiles are trivial, no need to copy the whole data array for them
 	if ($func eq "percentile") {
 		my $nr_elements = scalar(@{$dataref});
@@ -244,13 +258,7 @@ sub runStatFunc
 		$count = $count < 1 ? 1 : $count;
 		return $dataref->[$count-1];
 	}
-	if ($func eq "samples") {
-		return calc_samples($dataref, $arg);
-	} elsif ($func eq "samplespct") {
-		return calc_samplespct($dataref, $arg);
-	}
 	$func = "calc_$func";
-	# Another argument to statistics function?
 	if ($arg > 0) {
 		# All other numeric arguments are just a percentage of data to
 		# compute function from.
@@ -302,7 +310,7 @@ sub extractSummary() {
 		my $mean = $self->runStatFunc($operation, "_mean", \@units, \$stats);
 		push @{$significance{$operation}}, $mean;
 
-		my $stderr = $self->runStatFunc($operation, "stddev", \@units, \$stats);
+		my $stderr = $self->runStatFunc($operation, "stddev-_mean", \@units, \$stats);
 		push @{$significance{$operation}}, $stderr ne "NaN" ? $stderr : 0;
 
 		push @{$significance{$operation}}, $#units+1;

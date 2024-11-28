@@ -10,8 +10,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 
-	$self->{_SummaryStats} = [ "min", "_mean", "stddev", "coeffvar", "max",
-		"_mean-sub", "submeanci" ];
+	$self->{_SummaryStats} = [ "min", "_mean", "stddev-_mean",
+		"coeffvar-_mean", "max", "_mean-sub", "submeanci" ];
 	$self->{_RatioSummaryStat} = [ "_mean-sub", "submeanci" ];
 	$self->{_RatioCompareOp} = "cidiff";
 	$self->SUPER::initialise($subHeading);
