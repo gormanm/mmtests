@@ -38,7 +38,6 @@ sub printRow($$@) {
 	my ($self, $dataRef, $fieldLength, $formatColumnRef) = @_;
 	my @formatColumnList = @{$formatColumnRef};;
 	my $outBuffer;
-	my $checkSig = (defined $self->{_CompareTable});
 
 	foreach my $row (@{$dataRef}) {
 		my $columnIndex = 0;
@@ -47,7 +46,7 @@ sub printRow($$@) {
 			my $format = $formatColumnList[$columnIndex++];
 			$format = "%${fieldLength}.2f" if !defined($format);
 
-			if ($checkSig && $column =~ /:SIG:$/) {
+			if ($column =~ /:SIG:$/) {
 				$format =~ s/[()]/*/g;
 			}
 
