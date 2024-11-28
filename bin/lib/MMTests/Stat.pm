@@ -263,7 +263,8 @@ sub calc_hmean {
 				$sum += 1/$dataref->[$i];
 				$n++;
 			} else {
-				return -1;
+				$n = "NaN";
+				last;
 			}
 		}
 	}
