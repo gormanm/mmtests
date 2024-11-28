@@ -72,13 +72,10 @@ sub _generateComparisonTable() {
 	my ($self, $showCompare) = @_;
 	my %resultsTable;
 	my %compareTable;
-	my %significanceTable;
 
 	my @extractModules = @{$self->{_ExtractModules}};
 	my $baselineRef = $extractModules[0]->{_SummaryData};
 	my %baseline = %{$baselineRef};
-	my $baseSignificanceRef = $extractModules[0]->{_SignificanceData};
-	my %baseSignificance = %{$baseSignificanceRef // {}};
 	my $columns = scalar(@{$extractModules[0]->{_SummaryStats}});
 
 	for my $operation (keys %baseline) {
@@ -120,22 +117,23 @@ sub _generateComparisonTable() {
 	my %significance;
 	for my $operation (keys %baseline) {
 		$significance{$operation} = [];
-		my %baselineSignificance;
+		my %baselineCI;
+		my $baselineVal;
 		for (my $module = 0; $module <= $#extractModules; $module++) {
-			my $significanceRef = $extractModules[$module]->{_SignificanceData};
-			if ($significanceRef) {
-				my %rdata = %{$significanceRef};
+			my $summaryCIIntervalRef = $extractModules[$module]->{_SummaryCIInterval};
+			if ($summaryCIIntervalRef) {
+				my $val;
 
+				$val = $extractModules[$module]->{_SummaryData}{$operation}[$extractModules[$module]->{_ComparisonStatIndex}];
 				if ($module == 0) {
-					%baselineSignificance = %{$significanceRef};
+					$baselineVal = $val;
+					%baselineCI = %{$summaryCIIntervalRef};
 					push @{$significance{$operation}}, 0;
 					push @{$significance{$operation}}, 0;
 				} else {
-						my $baselineRRef = \@{$baselineSignificance{$operation}};
-						my $rowRef = \@{$rdata{$operation}};
-						my ($val, $prob) = $self->_significanceTest($baselineRRef, $rowRef);
-						push @{$significance{$operation}}, $val;
-						push @{$significance{$operation}}, $prob;
+					my $ratio = cidiff($baselineVal, \@{$baselineCI{$operation}}, $val, \@{%{$summaryCIIntervalRef}{$operation}});
+					push @{$significance{$operation}}, (abs($ratio) > 1);
+					push @{$significance{$operation}}, $ratio;
 				}
 			} else {
 				push @{$significance{$operation}}, 0;
@@ -490,7 +488,7 @@ sub _generateRenderTable() {
 				if (defined $self->{_CompareTable}) {
 					my $sig = "";
 					# Determine if this is a good row to mark significance
-					if ($headerName =~ /^.mean/) {
+					if ($extractModules[0]->{_ComparisonStatIndex} == $header) {
 						if ($significanceTable{$operation}[$i*2]) {
 							$sig = ":SIG:";
 						} else {
@@ -567,55 +565,6 @@ sub printComparison() {
 sub printReport() {
 	my ($self) = @_;
 	print "Unknown data type for reporting raw data\n";
-}
-
-# Two sample t-test
-sub _significanceTest() {
-	my ($self, $baselineref, $rdataref) = @_;
-
-	my @baseline = @$baselineref;
-	my @rdata = @$rdataref;
-
-	my $variance_base = $baseline[1];
-	my $variance_rdata = $rdata[1];
-	my $num_samples_base = $baseline[2];
-	my $num_samples_rdata = $rdata[2];
-
-	my $stderror = 0;
-	if ($num_samples_base && $num_samples_rdata) {
-		$stderror = sqrt(($variance_base**2/$num_samples_base) + ($variance_rdata**2/$num_samples_rdata));
-	}
-
-	# Special case the situation where the variance of both data sets
-	# is zero, which means we can't perform a t-test.
-
-	if (!$stderror) {
-		my $delta = $baseline[0] - $rdata[0];
-		my $sig = $delta ? 1 : 0;
-
-		# If there is a difference in means then there's 0%
-		# probability of $delta being described by our model
-		# (with zero variance, our model has a single value for
-		# the mean). No difference is 100% described by the model.
-
-		my $prob = $delta ? 0 : 100;
-
-		return ($sig, $prob);
-	}
-
-	my $t_stat = abs(($baseline[0] - $rdata[0]) / $stderror);
-
-	# Each sample variance as N-1 degrees of freedom.
-	my $df = $num_samples_base + $num_samples_rdata - 2;
-
-	my $t_prob = qx(echo 'pt(c($t_stat), $df, lower.tail = FALSE)' | R --slave);
-	$t_prob =~ s/\[1\]|\s//g;
-
-	my $p_value = $t_prob*2;
-
-	my $significance_level = $baseline[3];
-
-	return ($p_value < $significance_level, $p_value*100);
 }
 
 1;

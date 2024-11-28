@@ -283,11 +283,23 @@ sub extractSummary() {
 	my ($self, $subHeading) = @_;
 	my @_operations = $self->summaryOps($subHeading);
 	my %data = %{$self->{_ResultData}};
-
 	my %summary;
-	my %significance;
+	my %summaryCIInterval;
+	my @CIStatFuncs = ();
+
+	# Can we compute confidence interval of main comparison value?
+	if ($#{$self->{_RatioSummaryStat}} == 2) {
+		for (my $column = 0; $column < scalar(@{$self->{_SummaryStats}}); $column++) {
+			if ($self->{_SummaryStats}[$column] eq ${$self->{_RatioSummaryStat}}[0]) {
+				@CIStatFuncs = (${$self->{_RatioSummaryStat}}[1], ${$self->{_RatioSummaryStat}}[2]);
+				$self->{_ComparisonStatIndex} = $column;
+				last;
+			}
+		}
+	}
 	foreach my $operation (@_operations) {
 		my @units;
+		my @civals;
 		my $stats = { save_stats => 1 };
 
 		@units = map { @{$_->{Values}} } @{$data{$operation}};
@@ -307,25 +319,17 @@ sub extractSummary() {
 				push @{$summary{$operation}}, $value;
 			}
 		}
-
-		$significance{$operation} = [];
-
-		my $mean = $self->runStatFunc($operation, "_mean", \@units, \$stats);
-		push @{$significance{$operation}}, $mean;
-
-		my $stderr = $self->runStatFunc($operation, "stddev-_mean", \@units, \$stats);
-		push @{$significance{$operation}}, $stderr ne "NaN" ? $stderr : 0;
-
-		push @{$significance{$operation}}, $#units+1;
-
-		if ($self->{_SignificanceLevel}) {
-			push @{$significance{$operation}}, $self->{_SignificanceLevel};
-		} else {
-			push @{$significance{$operation}}, 0.10;
+		foreach my $func (@CIStatFuncs) {
+			push @civals, $self->runStatFunc($operation, $func,
+							 \@units, \$stats);
+		}
+		if ($#civals == 1 && $civals[0] ne "NaN" && $civals[1] ne "NaN") {
+			$summaryCIInterval{$operation} =
+						[$civals[0], $civals[1]];
 		}
 	}
 	$self->{_SummaryData} = \%summary;
-	$self->{_SignificanceData} = \%significance;
+	$self->{_SummaryCIInterval} = \%summaryCIInterval if %summaryCIInterval;
 
 	return 1;
 }
@@ -341,14 +345,13 @@ sub extractSummaryCached() {
 	}
 
 	my @fields = (	"_SummaryData",
-			"_SignificanceData",
+			"_SummaryCIInterval",
 			# "_Operations",
 			# "_OperationsSeen",
 			# "_GeneratedOperations",
 			# "_ResultData",
 			# "_ResultDataUnsorted",
 			# "_SummaryStats",
-			# "_SignificanceLevel"
 			);
 
 	if (!$cache->load($self)) {
