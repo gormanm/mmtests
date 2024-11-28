@@ -512,13 +512,14 @@ sub pipe_to_R {
 }
 
 sub _calc_submean_ci {
-	my ($meanName, $dataref, $statsref) = @_;
+	my ($meanName, $alpha, $dataref, $statsref) = @_;
 	my $resultref;
 	my $row;
 	my @parsedrow;
 
 	$resultref = pipe_to_R($dataref,
-		"$Bin/lib/R/subselection-confidence-interval.R", $meanName);
+		"$Bin/lib/R/subselection-confidence-interval.R", $meanName,
+		$alpha);
 	$row = @{$resultref}[0];
 	@parsedrow = split(' ', $row);
 	# Skip initial "[1]" output by R

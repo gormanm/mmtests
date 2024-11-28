@@ -66,7 +66,12 @@ mean.func = "mean"
 if (length(args) > 0) {
 	mean.func = mean.name.to.func(args[[1]])
 }
+if (length(args) > 1) {
+	alpha = as.numeric(args[[2]])
+} else {
+	alpha = 0.05
+}
 
-result <- subselection.confidence.interval(data, mean.func)
+result <- subselection.confidence.interval(data, mean.func, alpha=alpha)
 
 print(result)

@@ -206,6 +206,7 @@ sub runStatFunc
 {
 	my ($self, $operation, $func, $dataref, $statsref) = @_;
 	my ($mean, $arg);
+	my $alpha = 0.05;
 
 	if ($func eq "_value") {
 		return $dataref->[0];
@@ -244,7 +245,7 @@ sub runStatFunc
 		my @data = map {$_->{Values}} @{$self->{_ResultData}->{$operation}};
 		$func = "calc_$func";
 		no strict "refs";
-		return &$func($mean, \@data, $statsref);
+		return &$func($mean, $alpha, \@data, $statsref);
 	}
 
 	# Percentiles are trivial, no need to copy the whole data array for them
