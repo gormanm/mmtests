@@ -23,6 +23,7 @@ function parse_args() {
 			shift 2;;
 		-m|--run-monitor)
 			monitor=-m
+			export CONTAINER_INSTALL_PERF=yes
 			shift;;
 		-n|--no-monitor)
 			monitor=-n
@@ -69,6 +70,7 @@ Runtime variables:
   CONTAINER_NO_SECCOMP    turn off seccomp confinement
   CONTAINER_PRIVILEGED    run container in privileged mode
   CONTAINER_ADD_UPDATE_REPO  add distro specific update repo (SUSE only)
+  CONTAINER_INSTALL_PERF  install perf in the container (SUSE only)
 
 EOF
 			   shift; exit 0;;
@@ -313,8 +315,12 @@ function update_container() {
 			       --clean-deps patterns-base-fips
 		fi
 	fi
-	if [ "${CONTAINER_ADD_UPDATE_REPO}" = "yes" ]; then
+	if [ "${CONTAINER_ADD_UPDATE_REPO}" = "yes" -o \
+	     "${CONTAINER_INSTALL_PERF}" = "yes" ]; then
 		add_update_repo
+	fi
+	if [ "${CONTAINER_INSTALL_PERF}" = "yes" ]; then
+		${cli} exec ${container_id} zypper install -y perf
 	fi
 }
 
