@@ -68,6 +68,7 @@ Runtime variables:
   CONTAINER_NO_PIDS_LIMIT increase pids.max value (unlimited or very large)
   CONTAINER_NO_SECCOMP    turn off seccomp confinement
   CONTAINER_PRIVILEGED    run container in privileged mode
+  CONTAINER_ADD_UPDATE_REPO  add distro specific update repo (SUSE only)
 
 EOF
 			   shift; exit 0;;
@@ -170,18 +171,28 @@ function autoselect_image() {
 			case "${sp}" in
 			sp2)
 				image=registry.suse.com/suse/sle15:15.2
+				urepo_uri=http://download.suse.de/ibs/SUSE:/SLE-15-SP2:/Update/standard
+				urepo_alias=SLE-15-SP2-Update
 				;;
 			sp3)
 				image=registry.suse.com/suse/sle15:15.3
+				urepo_uri=http://download.suse.de/ibs/SUSE:/SLE-15-SP3:/Update/standard
+				urepo_alias=SLE-15-SP3-Update
 				;;
 			sp4)
 				image=registry.suse.com/suse/sle15:15.4
+				urepo_uri=http://download.suse.de/ibs/SUSE:/SLE-15-SP4:/Update/standard
+				urepo_alias=SLE-15-SP4-Update
 				;;
 			sp5)
 				image=registry.suse.com/suse/sle15:15.5
+				urepo_uri=http://download.suse.de/ibs/SUSE:/SLE-15-SP5:/Update/standard
+				urepo_alias=SLE-15-SP5-Update
 				;;
 			sp6)
 				image=registry.suse.com/suse/sle15:15.6
+				urepo_uri=http://download.suse.de/ibs/SUSE:/SLE-15-SP6:/GA/standard/
+				urepo_alias=SLE-15-SP6-GA
 				;;
 			*)
 				echo "ERROR: Distribution SP not supported"
@@ -280,6 +291,14 @@ function start_container() {
 	echo "container_id: ${container_id}"
 }
 
+# add update repository (for SUSE only)
+function add_update_repo() {
+	if [ "${urepo_uri}" != "" -a "${urepo_alias}" != "" ]; then
+		${cli} exec ${container_id} zypper ar ${urepo_uri} ${urepo_alias}
+		${cli} exec ${container_id} zypper refresh ${urepo_alias}
+	fi
+}
+
 # some distro specific preparations
 function update_container() {
 	if $(echo ${image} | grep -q ubuntu); then
@@ -293,6 +312,9 @@ function update_container() {
 			${cli} exec ${container_id} zypper remove -y \
 			       --clean-deps patterns-base-fips
 		fi
+	fi
+	if [ "${CONTAINER_ADD_UPDATE_REPO}" = "yes" ]; then
+		add_update_repo
 	fi
 }
 
