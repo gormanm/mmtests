@@ -912,10 +912,10 @@ for SUBREPORT in $REPORTS; do
 		;;
 
 	trunc)
-		echo $SUBREPORT Truncate all files
+		echo $SUBREPORT Truncate files
 		eval $COMPARE_CMD
 		echo
-		echo $SUBREPORT Fault each file
+		echo $SUBREPORT Fault files
 		compare-mmtests.pl -d . -b trunc -a fault -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;

@@ -24,17 +24,16 @@ echo Truncate filesize: $((TRUNC_FILESIZE/1048576))MB
 
 ###SHELLPACK iteration_begin $TRUNC_ITERATIONS
 	echo Iteration $ITERATION/$TRUNC_ITERATIONS
-	monitor_pre_hook $LOGDIR_RESULTS trunc-fault-$ITERATION
 	for i in `seq 1 $TRUNC_NR_FILES`; do
 		dd if=/dev/zero of=$SHELLPACK_DATA/sparse_file-$i bs=1 count=0 seek=$TRUNC_FILESIZE &>/dev/null || \
 			die "Failed to create sparse file $i"
-		$TIME_CMD -o $LOGDIR_RESULTS/fault-$i.time \
-			cat $SHELLPACK_DATA/sparse_file-$i > /dev/null
 	done
-	monitor_post_hook $LOGDIR_RESULTS trunc-fault-$ITERATION
 	sync
+	monitor_pre_hook $LOGDIR_RESULTS trunc-fault-$ITERATION
+	$TIME_CMD -o $LOGDIR_RESULTS/fault-$i.time \
+		cat $SHELLPACK_DATA/sparse_file-* > /dev/null
+	monitor_post_hook $LOGDIR_RESULTS trunc-fault-$ITERATION
 
-	# Monitoring done per iteration as 
 	monitor_pre_hook $LOGDIR_RESULTS trunc-iter-$ITERATION
 	$TIME_CMD -o $LOGDIR_RESULTS/trunc-${ITERATION}.time \
 		rm $SHELLPACK_DATA/sparse_file-*

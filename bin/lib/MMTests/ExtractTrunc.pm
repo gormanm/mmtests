@@ -25,7 +25,7 @@ sub extractReport() {
 		open(INPUT, $file) || die("Failed to open $file\n");
 		while (<INPUT>) {
 			next if $_ !~ /elapsed/;
-			$self->addData("elapsed", ++$iteration, $self->_time_to_sys($_) * 1000);
+			$self->addData("elapsed", ++$iteration, $self->_time_to_elapsed($_) * 1000);
 		}
 		close(INPUT);
 	}
