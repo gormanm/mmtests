@@ -30,7 +30,7 @@ echo Truncate filesize: $((TRUNC_FILESIZE/1048576))MB
 	done
 	sync
 	monitor_pre_hook $LOGDIR_RESULTS trunc-fault-$ITERATION
-	$TIME_CMD -o $LOGDIR_RESULTS/fault-$i.time \
+	$TIME_CMD -o $LOGDIR_RESULTS/fault-${ITERATION}.time \
 		cat $SHELLPACK_DATA/sparse_file-* > /dev/null
 	monitor_post_hook $LOGDIR_RESULTS trunc-fault-$ITERATION
 
