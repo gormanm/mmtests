@@ -191,7 +191,7 @@ function autoselect_image() {
 				urepo_uri=http://download.suse.de/ibs/SUSE:/SLE-15-SP5:/Update/standard
 				urepo_alias=SLE-15-SP5-Update
 				;;
-			sp6)
+			sp6 | sp7)
 				image=registry.suse.com/suse/sle15:15.6
 				urepo_uri=http://download.suse.de/ibs/SUSE:/SLE-15-SP6:/GA/standard/
 				urepo_alias=SLE-15-SP6-GA
