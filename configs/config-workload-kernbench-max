@@ -34,4 +34,4 @@ export MMTESTS_THREAD_CUTOFF=
 # Note that, depending on your userspace/gcc/etc, a specific kernel version
 # may not be buildable. MMTests will try to sort things out automatically, but
 # if you have problems, point it to a specific version from here.
-export KERNBENCH_VERSION=5.14
+export KERNBENCH_VERSION=5.15.178
