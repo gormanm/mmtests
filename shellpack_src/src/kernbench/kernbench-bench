@@ -80,7 +80,7 @@ cd $SHELLPACK_DATA/linux-$VERSION || die "Unexpected layout"
 		grep elapsed $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time``
 		recover_rc
 		if [ $? -ne 0 ]; then
-			die Failed to run kernbench
+			die "Failed to run kernbench"
 		fi
 
 		# cleanup
@@ -90,10 +90,7 @@ cd $SHELLPACK_DATA/linux-$VERSION || die "Unexpected layout"
 ###SHELLPACK threads_powertwo_end
 
 # Cleanup
-rm -rf $SHELLPACK_DATA/*
-
-# clean up the tree to save space
-popd > /dev/null
-rm -rf $TMPDIR/kernbench
+cd /
+rm -rf $SHELLPACK_DATA/linux-$VERSION
 
 exit $SHELLPACK_SUCCESS
