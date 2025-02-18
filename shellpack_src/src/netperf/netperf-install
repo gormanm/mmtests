@@ -12,6 +12,7 @@ GIT_FETCH_BRANCH="netperf-${VERSION}"
 
 ###SHELLPACK build_start netperf-${VERSION}
 
+sed  -i '1i #define _GNU_SOURCE' src/netlib.c
 if [ "$VERSION" = "2.7.0" ]; then
 	export CFLAGS+=" -fno-strict-aliasing -fcommon"
 fi
