@@ -8,7 +8,8 @@ use strict;
 sub initialise() {
 	my ($self, $subHeading) = @_;
 	$self->{_ModuleName} = "ExtractXsbench";
-	$self->{_DataType}   = DataTypes::DATA_OPS_PER_SECOND;
+	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_SECOND;
+	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "operation-candlesticks";
 	$self->{_Opname}     = "Lookups/Sec";
 
@@ -17,14 +18,14 @@ sub initialise() {
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @threads = $self->discover_scaling_parameters($reportDir, "xsbench-", "-1.log");
+	my @threads = $self->discover_scaling_parameters($reportDir, "xsbench-", "-1.log.gz");
 
 	die("No data") if $threads[0] eq "";
 
 	foreach my $nr_threads (@threads) {
 		my $nr_samples = 0;
 
-		foreach my $file (<$reportDir/xsbench-$nr_threads-*.log>) {
+		foreach my $file (<$reportDir/xsbench-$nr_threads-*.log.gz>) {
 			my $input = $self->SUPER::open_log($file);
 			while (<$input>) {
 				my $line = $_;
