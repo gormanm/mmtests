@@ -1,7 +1,7 @@
 #!/bin/bash
 # libmicro installer
-###SHELLPACK preamble libmicro-file-install 1
-GIT_LOCATION=https://github.com/redhat-performance/libMicro
+###SHELLPACK preamble libmicro-file-install 0.4.2
+GIT_LOCATION=https://github.com/gormanm/libMicro
 MIRROR_LOCATION="$WEBROOT/libmicro"
 
 install-depends gcc

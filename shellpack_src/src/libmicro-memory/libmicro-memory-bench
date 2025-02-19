@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble libmicro-memory-bench 1
+###SHELLPACK preamble libmicro-memory-bench 0.4.2
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
