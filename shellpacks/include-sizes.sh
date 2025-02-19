@@ -69,6 +69,7 @@ getpagesize() {
 	cat > $TEMPFILE.c << EOF
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 int main() {
 	printf("%d\n", getpagesize());
 	return 0;

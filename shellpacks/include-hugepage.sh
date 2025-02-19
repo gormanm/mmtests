@@ -65,6 +65,7 @@ getwordsize() {
 	cat > $TEMPFILE.c << EOF
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 int main() {
 	printf("%d\n", sizeof(unsigned long));
 	return 0;
