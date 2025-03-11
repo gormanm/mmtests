@@ -1,0 +1,35 @@
+### libmicro runs a few basic microbenchmarks that were used when isolating
+### regressions from other benchmarks.
+
+export MMTESTS="libmicro-pipe"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat mpstat turbostat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+export LIBMICRO_DURATION=30
+export LIBMICRO_COMMON="-E -C 0 -D $((LIBMICRO_DURATION*1000)) -B 10000 -L -S -W"
+export LIBMICRO_LOADFILE=$(cat <<EOL
+pipe    pipe_pst1       -s 1    -x pipe -m st
+pipe    pipe_pmt1       -s 1    -x pipe -m mt
+pipe    pipe_pmp1       -s 1    -x pipe -m mp
+pipe    pipe_pst4k      -s 4k   -x pipe -m st
+pipe    pipe_pmt4k      -s 4k   -x pipe -m mt
+pipe    pipe_pmp4k      -s 4k   -x pipe -m mp
+pipe    pipe_sst1       -s 1    -x sock -m st
+pipe    pipe_smt1       -s 1    -x sock -m mt
+pipe    pipe_smp1       -s 1    -x sock -m mp
+pipe    pipe_sst4k      -s 4k   -x sock -m st
+pipe    pipe_smt4k      -s 4k   -x sock -m mt
+pipe    pipe_smp4k      -s 4k   -x sock -m mp
+pipe    pipe_tst1       -s 1    -x tcp -m st
+pipe    pipe_tmt1       -s 1    -x tcp -m mt
+pipe    pipe_tmp1       -s 1    -x tcp -m mp
+pipe    pipe_tst4k      -s 4k   -x tcp -m st
+pipe    pipe_tmt4k      -s 4k   -x tcp -m mt
+pipe    pipe_tmp4k      -s 4k   -x tcp -m mp
+EOL
+)
