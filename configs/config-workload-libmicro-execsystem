@@ -9,3 +9,11 @@ export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat mpstat turbostat"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
+
+export LIBMICRO_DURATION=30
+export LIBMICRO_COMMON="-E -C 0 -D $((LIBMICRO_DURATION*1000)) -B 10000 -L -S -W"
+export LIBMICRO_LOADFILE=$(cat <<EOL
+exec    exec    -B 10
+system  system  -D 300000 -I 1000000
+EOL
+)

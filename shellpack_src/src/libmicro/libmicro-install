@@ -1,6 +1,6 @@
 #!/bin/bash
 # libmicro installer
-###SHELLPACK preamble libmicro-execsystem-install 0.4.2
+###SHELLPACK preamble libmicro-install 0.4.2
 GIT_LOCATION=https://github.com/gormanm/libMicro
 MIRROR_LOCATION="$WEBROOT/libmicro"
 
@@ -9,9 +9,9 @@ install-depends gcc
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK git_fetch libmicro-execsystem-${VERSION}.tar.gz libmicro-execsystem-${VERSION}-installed
+###SHELLPACK git_fetch libmicro-${VERSION}.tar.gz libmicro-${VERSION}-installed
 
-###SHELLPACK build_start libmicro-execsystem-${VERSION}-installed
+###SHELLPACK build_start libmicro-${VERSION}-installed
 sed -i -e 's/tattle.c libmicro.a -lrt -lm.*/tattle.c libmicro.a -lrt -lm -lpthread/' Makefile.com
 
 ###SHELLPACK make_clean
