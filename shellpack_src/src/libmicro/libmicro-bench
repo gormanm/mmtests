@@ -7,11 +7,15 @@
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required libmicro-${VERSION}
+
+###SHELLPACK self_extract libmicro-prep-file
+for PREPFILE in $LIBMICRO_PREP; do
+	. $SHELLPACK_TEMP/$PREPFILE || exit $SHELLPACK_FAILURE
+done
+
 ###SHELLPACK init_complete
 
 cd $SHELLPACK_SOURCES/libmicro-${VERSION}-installed || die "Failed to cd to libmicro directory"
-
-COMMON="-E -C 0 -D 30000 -B 10000 -L -S -W"
 
 while read A B C; do
 	[ "$A" = "" ]   && continue
@@ -24,3 +28,4 @@ $LIBMICRO_LOADFILE
 EOL
 
 exit $SHELLPACK_SUCCESS
+###SHELLPACK include_file libmicro-prep-file

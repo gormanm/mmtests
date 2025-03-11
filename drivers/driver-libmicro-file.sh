@@ -1,5 +1,1 @@
-
-run_bench() {
-	$SHELLPACK_INCLUDE/shellpack-bench-libmicro-file
-	return $?
-}
+. $SHELLPACK_TOPLEVEL/drivers/driver-libmicro.sh

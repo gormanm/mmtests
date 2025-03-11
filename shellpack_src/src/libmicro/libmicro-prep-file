@@ -1,0 +1,14 @@
+echo Executing prep script: libmicro-prep-file
+TMPROOT=$SHELLPACK_DATA/libmicro.$$
+mkdir -p $TMPROOT
+trap "rm -rf $TMPROOT" 0 2
+
+TFILE=$TMPROOT/data
+TDIR1=$TMPROOT/0/1/2/3/4/5/6/7/8/9
+TDIR2=$TMPROOT/10/11/12/13/14/15/16/17/18/19
+IFILE=$TMPROOT/ifile
+
+dd if=/dev/zero of=$TFILE bs=1024k count=10 2>/dev/null
+mkdir -p $TDIR1
+mkdir -p $TDIR2
+touch $IFILE
