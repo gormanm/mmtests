@@ -1,7 +1,7 @@
 ### libmicro runs a few basic microbenchmarks that were used when isolating
 ### regressions from other benchmarks.
 
-export MMTESTS="libmicro-process"
+export MMTESTS="libmicro-execsystem"
 
 # List of monitors
 export RUN_MONITOR=yes
@@ -9,3 +9,26 @@ export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat mpstat turbostat"
 export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
+
+export LIBMICRO_DURATION=30
+export LIBMICRO_COMMON="-E -C 0 -D $((LIBMICRO_DURATION*1000)) -B 10000 -L -S -W"
+export LIBMICRO_LOADFILE=$(cat <<EOL
+exec            exec_10                 -B 10
+exec            exec_100                -B 100
+exec            exec_1000               -B 1000
+exit            exit_10                 -B 10
+exit            exit_100                -B 100
+exit            exit_1000               -B 1000 -C 50
+fork            fork_10                 -B 10
+fork            fork_100                -B 100  -C 100
+fork            fork_1000               -B 1000 -C 50
+pthread_create  pthread_128             -B 128
+pthread_create  pthread_32              -B 32
+pthread_create  pthread_512             -B 512
+pthread_create  pthread_8               -B 8
+sigaction       sigaction               -I 100
+signal          signal                  -I 1000
+sigprocmask     sigprocmask             -I 200
+system          system                  -D 300000 -I 1000000
+EOL
+)
