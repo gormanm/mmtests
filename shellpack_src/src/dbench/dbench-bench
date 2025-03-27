@@ -17,6 +17,9 @@ fi
 if [ "$DBENCH_FSYNC" = "yes" ]; then
 	DBENCH_FSYNC_COMMAND=-F
 fi
+if [ "$DBENCH_STAGGER" != "" ]; then
+	DBENCH_STAGGER_COMMAND="--stagger $DBENCH_STAGGER"
+fi
 
 # Init min client
 CLIENT=1
@@ -38,10 +41,11 @@ else
 	./bin/dbench --run-once --skip-cleanup -D $SHELLPACK_DATA \
 		--loadfile $LOADDIR/client-warmup.txt $DBENCH_MAX_CLIENTS \
 		&>/dev/null
-	FACTOR=$(./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND \
-		$DBENCH_FSYNC_COMMAND --show-execute-time --run-once \
-		-D $SHELLPACK_DATA --loadfile $LOADDIR/client-tiny.txt \
-		--machine-readable -t 10000 $DBENCH_MAX_CLIENTS | \
+	FACTOR=$(./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND	\
+		$DBENCH_FSYNC_COMMAND $DBENCH_STAGGER_COMMAND			\
+		--show-execute-time --run-once					\
+		-D $SHELLPACK_DATA --loadfile $LOADDIR/client-tiny.txt		\
+		--machine-readable -t 10000 $DBENCH_MAX_CLIENTS |		\
 		grep "^@E@" | cut -d '@' -f 4 | head -n 1)
 	# We multiply the factor by 3 to get enough time for at least about 3
 	# runs of each client
@@ -63,7 +67,7 @@ while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 
 	# Then run the benchmark
 	echo dbench run $CLIENT
-	BENCH_CMD="dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
+	BENCH_CMD="dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND $DBENCH_STAGGER_COMMAND \
 		-D $SHELLPACK_DATA --warmup 0 \
 		-t $((DBENCH_DURATION_BASE + FACTOR*CLIENT/1000)) \
 		--loadfile $LOADDIR/client-tiny.txt --show-execute-time \

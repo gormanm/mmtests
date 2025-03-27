@@ -16,7 +16,9 @@ install-depends libtirpc-devel
 
 # Build
 ###SHELLPACK self_extract 0001-autogen-prerequisite.patch
+###SHELLPACK self_extract 0002-opt-stagger.patch
 patch -p1 <$SHELLPACK_TEMP/0001-autogen-prerequisite.patch
+patch -p1 <$SHELLPACK_TEMP/0002-opt-stagger.patch
 
 ###SHELLPACK build_start dbench-${VERSION}
 
@@ -54,3 +56,4 @@ echo dbench installed successfully
 exit $SHELLPACK_SUCCESS
 
 ###SHELLPACK include_file 0001-autogen-prerequisite.patch
+###SHELLPACK include_file 0002-opt-stagger.patch

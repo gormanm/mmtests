@@ -1,0 +1,54 @@
+diff --git a/dbench.c b/dbench.c
+index ca29373d4174..62ababf370be 100644
+--- a/dbench.c
++++ b/dbench.c
+@@ -52,6 +52,7 @@ struct options options = {
+ 	.iscsi_initiatorname = "iqn.2011-09.org.samba.dbench:client",
+ 	.machine_readable    = 0,
+ 	.show_execute_time   = 0,
++	.stagger             = 0,
+ };
+ 
+ static struct timeval tv_start;
+@@ -308,6 +309,7 @@ static void create_procs(int nprocs, void (*fn)(struct child_struct *, const cha
+ 	sbuf.sem_flg =  0;
+ 
+ 	for (i=0;i<nprocs;i++) {
++
+ 		if (fork() == 0) {
+ 			int j;
+ 
+@@ -324,6 +326,12 @@ static void create_procs(int nprocs, void (*fn)(struct child_struct *, const cha
+ 				exit(1);
+ 			}
+ 
++			if (options.stagger > 0) {
++				useconds_t delay = i * 10 * 1000;
++				printf("stagger child %d by %ums\n", i, delay);
++				usleep(delay);
++			}
++
+ 			fn(&children[i*options.clients_per_process], options.loadfile);
+ 			_exit(0);
+ 		}
+@@ -387,6 +395,8 @@ static void process_opts(int argc, const char **argv)
+ 		  "dbench backend (fileio, sockio, nfs, scsi, iscsi, smb)", "string" },
+ 		{ "timelimit", 't', POPT_ARG_INT, &options.timelimit, 0, 
+ 		  "timelimit", "integer" },
++		{ "stagger", 'O', POPT_ARG_INT, &options.stagger, 0,
++		  "stagger", "integer" },
+ 		{ "loadfile",  'c', POPT_ARG_STRING, &options.loadfile, 0, 
+ 		  "loadfile", "filename" },
+ 		{ "directory", 'D', POPT_ARG_STRING, &options.directory, 0, 
+diff --git a/dbench.h b/dbench.h
+index 7e628b254c99..3c765a3e23f6 100644
+--- a/dbench.h
++++ b/dbench.h
+@@ -142,6 +142,7 @@ struct child_struct {
+ 
+ struct options {
+ 	const char *backend;
++	int stagger;
+ 	int nprocs;
+ 	int sync_open;
+ 	int sync_dirs;
