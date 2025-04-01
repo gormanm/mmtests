@@ -25,61 +25,61 @@ export LIBMICRO_DURATION=30
 export LIBMICRO_COMMON="-E -C 0 -D $((LIBMICRO_DURATION*1000)) -B 10000 -L -S -W"
 export LIBMICRO_PREP="libmicro-prep-file"
 export LIBMICRO_LOADFILE=$(cat <<EOL
+chdir           chdir_tmp       \$TDIR1 \$TDIR2
+chdir           chgetwd_tmp     -g \$TDIR1 \$TDIR2
 close           close_bad       -b
 close           close_tmp       -f \$TFILE
 close           close_zero      -f /dev/zero
-chdir           chdir_tmp       \$TDIR1 \$TDIR2
-chdir           chgetwd_tmp     -g \$TDIR1 \$TDIR2
-realpath        realpath_tmp    -f \$TDIR1
-lseek           lseek_t8k       -s 8k   -f \$TFILE
+dup             dup
+fcntl           fcntl_tmp       -f \$TFILE
+fcntl_ndelay    fcntl_ndelay
+file_lock       file_lock
+isatty          isatty_no       -f              \$IFILE
+lseek           lseek_t8k       -s 8k           -f \$TFILE
+mmap            mmap_rt128k     -l 128k -r      -f \$TFILE
+mmap            mmap_rt8k       -l 8k -r        -f \$TFILE
+mmap            mmap_t128k      -l 128k         -f \$TFILE
+mmap            mmap_t8k        -l 8k           -f \$TFILE
+mmap            mmap_wt128k     -l 128k -w      -f \$TFILE
+mmap            mmap_wt8k       -l 8k -w        -f \$TFILE
+munmap          unmap_rt128k    -l 128k -r      -f \$TFILE
+munmap          unmap_rt8k      -l 8k   -r      -f \$TFILE
+munmap          unmap_t128k     -l 128k         -f \$TFILE
+munmap          unmap_t8k       -l 8k           -f \$TFILE
+munmap          unmap_wt128k    -l 128k -w      -f \$TFILE
+munmap          unmap_wt8k      -l 8k   -w      -f \$TFILE
 open            open_tmp        -f \$TFILE
 open            open_zero       -f /dev/zero
-dup             dup
-recurse         recurse
-read            read_t1k        -s 1k           -f \$TFILE
-read            read_t10k       -s 10k          -f \$TFILE
-read            read_t100k      -s 100k         -f \$TFILE
-read            read_z1k        -s 1k           -f /dev/zero
-read            read_z10k       -s 10k          -f /dev/zero
-read            read_z100k      -s 100k         -f /dev/zero
-read            read_zw100k     -s 100k -w      -f /dev/zero
-write           write_t1k       -s 1k           -f \$TFILE
-write           write_t10k      -s 10k          -f \$TFILE
-write           write_n1k       -s 1k           -f /dev/null
-write           write_n10k      -s 10k          -f /dev/null
-write           write_n100k     -s 100k         -f /dev/null
-writev          writev_t1k      -s 1k           -f \$TFILE
-writev          writev_n1k      -s 1k           -f /dev/null
-writev          writev_n10k     -s 10k          -f /dev/null
-writev          writev_n100k    -s 100k         -f /dev/null
-pread           pread_t1k       -s 1k           -f \$TFILE
-pread           pread_t10k      -s 10k          -f \$TFILE
 pread           pread_t100k     -s 100k         -f \$TFILE
-pread           pread_z1k       -s 1k           -f /dev/zero
-pread           pread_z10k      -s 10k          -f /dev/zero
+pread           pread_t10k      -s 10k          -f \$TFILE
+pread           pread_t1k       -s 1k           -f \$TFILE
 pread           pread_z100k     -s 100k         -f /dev/zero
+pread           pread_z10k      -s 10k          -f /dev/zero
+pread           pread_z1k       -s 1k           -f /dev/zero
 pread           pread_zw100k    -s 100k -w      -f /dev/zero
-pwrite          pwrite_t1k      -s 1k           -f \$TFILE
-pwrite          pwrite_t10k     -s 10k          -f \$TFILE
-pwrite          pwrite_t100k    -s 100k         -f \$TFILE
-pwrite          pwrite_n1k      -s 1k           -f /dev/null
-pwrite          pwrite_n10k     -s 10k          -f /dev/null
 pwrite          pwrite_n100k    -s 100k         -f /dev/null
-fcntl           fcntl_tmp       -f \$TFILE
-file_lock       file_lock
-fcntl_ndelay    fcntl_ndelay
-mmap            mmap_t8k        -l 8k           -f \$TFILE
-mmap            mmap_t128k      -l 128k         -f \$TFILE
-mmap            mmap_rt8k       -l 8k -r        -f \$TFILE
-mmap            mmap_rt128k     -l 128k -r      -f \$TFILE
-mmap            mmap_wt8k       -l 8k -w        -f \$TFILE
-munmap          unmap_t8k       -l 8k           -f \$TFILE
-munmap          unmap_t128k     -l 128k         -f \$TFILE
-munmap          unmap_rt8k      -l 8k   -r      -f \$TFILE
-munmap          unmap_rt128k    -l 128k -r      -f \$TFILE
-munmap          unmap_wt8k      -l 8k   -w      -f \$TFILE
-isatty          isatty_no       -f              \$IFILE
-mmap            mmap_wt128k     -l 128k -w      -f \$TFILE
-munmap          unmap_wt128k    -l 128k -w      -f \$TFILE
+pwrite          pwrite_n10k     -s 10k          -f /dev/null
+pwrite          pwrite_n1k      -s 1k           -f /dev/null
+pwrite          pwrite_t100k    -s 100k         -f \$TFILE
+pwrite          pwrite_t10k     -s 10k          -f \$TFILE
+pwrite          pwrite_t1k      -s 1k           -f \$TFILE
+read            read_t100k      -s 100k         -f \$TFILE
+read            read_t10k       -s 10k          -f \$TFILE
+read            read_t1k        -s 1k           -f \$TFILE
+read            read_z100k      -s 100k         -f /dev/zero
+read            read_z10k       -s 10k          -f /dev/zero
+read            read_z1k        -s 1k           -f /dev/zero
+read            read_zw100k     -s 100k -w      -f /dev/zero
+realpath        realpath_tmp    -f \$TDIR1
+recurse         recurse
+write           write_n100k     -s 100k         -f /dev/null
+write           write_n10k      -s 10k          -f /dev/null
+write           write_n1k       -s 1k           -f /dev/null
+write           write_t10k      -s 10k          -f \$TFILE
+write           write_t1k       -s 1k           -f \$TFILE
+writev          writev_n100k    -s 100k         -f /dev/null
+writev          writev_n10k     -s 10k          -f /dev/null
+writev          writev_n1k      -s 1k           -f /dev/null
+writev          writev_t1k      -s 1k           -f \$TFILE
 EOL
 )

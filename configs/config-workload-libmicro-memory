@@ -13,62 +13,64 @@ export MONITOR_UPDATE_FREQUENCY=10
 export LIBMICRO_DURATION=30
 export LIBMICRO_COMMON="-E -C 0 -D $((LIBMICRO_DURATION*1000)) -B 10000 -L -S -W"
 export LIBMICRO_LOADFILE=$(cat <<EOL
-memset  memset_10       -s 10
-memset  memset_256      -s 256
-memset  memset_256_u    -s 256   -a 1
-memset  memset_1k       -s 1k
-memset  memset_4k       -s 4k
-memset  memset_4k_uc    -s 4k -u
-memset  memset_10k      -s 10k
-memrand memrand -s 128m
-cachetocache    cachetocache    -s 100k -T 2
-malloc  malloc_10       -s 10 -g 10
-malloc  malloc_100      -s 100 -g 10
-malloc  malloc_1k       -s 1k -g 10
-malloc  malloc_10k      -s 10k -g 10
-malloc  malloc_100k     -s 100k -g 10
-malloc  mallocT2_10     -s 10 -g 10 -T 2
-malloc  mallocT2_100    -s 100 -g 10 -T 2
-malloc  mallocT2_1k     -s 1k -g 10 -T 2
-malloc  mallocT2_10k    -s 10k -g 10 -T 2
-memcpy  memcpy_10       -s 10
-memcpy  memcpy_1k       -s 1k
-memcpy  memcpy_10k      -s 10k
-strcpy  strcpy_10       -s 10
-strcpy  strcpy_1k       -s 1k
-strlen  strlen_10       -s 10
-strlen  strlen_1k       -s 1k
-strchr  strchr_10       -s 10
-strchr  strchr_1k       -s 1k
-strcmp  strcmp_10       -s 10
-strcmp  strcmp_1k       -s 1k
+cachetocache    cachetocache    -s 100k         -T 2
+malloc          mallocT2_10     -s 10           -g 10 -T 2
+malloc          mallocT2_100    -s 100          -g 10 -T 2
+malloc          mallocT2_10k    -s 10k          -g 10 -T 2
+malloc          mallocT2_1k     -s 1k           -g 10 -T 2
+malloc          malloc_10       -s 10           -g 10
+malloc          malloc_100      -s 100          -g 10
+malloc          malloc_100k     -s 100k         -g 10
+malloc          malloc_10k      -s 10k          -g 10
+malloc          malloc_1k       -s 1k           -g 10
+memcpy          memcpy_10       -s 10
+memcpy          memcpy_10k      -s 10k
+memcpy          memcpy_1k       -s 1k
+memrand         memrand         -s 128m
+memset          memset_10       -s 10
+memset          memset_10k      -s 10k
+memset          memset_1k       -s 1k
+memset          memset_256      -s 256
+memset          memset_256_u    -s 256   -a 1
+memset          memset_4k       -s 4k
+memset          memset_4k_uc    -s 4k -u
+mmap            mmap_a128k      -l 128k         -f MAP_ANON
+mmap            mmap_a8k        -l 8k           -f MAP_ANON
+mmap            mmap_ra128k     -l 128k -r      -f MAP_ANON
+mmap            mmap_ra8k       -l 8k   -r      -f MAP_ANON
+mmap            mmap_rz128k     -l 128k -r      -f /dev/zero
+mmap            mmap_rz8k       -l 8k   -r      -f /dev/zero
+mmap            mmap_wa8k       -l 8k   -w      -f MAP_ANON
+mmap            mmap_wz8k       -l 8k   -w      -f /dev/zero
+mmap            mmap_z128k      -l 128k         -f /dev/zero
+mmap            mmap_z8k        -l 8k           -f /dev/zero
+mprotect        mprot_tw128k    -l 128k -w -t   -f /dev/zero
+mprotect        mprot_twz8k     -l 8k   -w -t   -f /dev/zero
+mprotect        mprot_wz128k    -l 128k -w      -f /dev/zero
+mprotect        mprot_wz8k      -l 8k   -w      -f /dev/zero
+mprotect        mprot_z128k     -l 128k         -f /dev/zero
+mprotect        mprot_z8k       -l 8k           -f /dev/zero
+munmap          unmap_a128k     -l 128k         -f MAP_ANON
+munmap          unmap_a8k       -l 8k           -f MAP_ANON
+munmap          unmap_ra128k    -l 128k -r      -f MAP_ANON
+munmap          unmap_ra8k      -l 8k   -r      -f MAP_ANON
+munmap          unmap_rz128k    -l 128k -r      -f /dev/zero
+munmap          unmap_rz8k      -l 8k   -r      -f /dev/zero
+munmap          unmap_wa8k      -l 8k   -w      -f MAP_ANON
+munmap          unmap_wz8k      -l 8k   -w      -f /dev/zero
+munmap          unmap_z128k     -l 128k         -f /dev/zero
+munmap          unmap_z8k       -l 8k           -f /dev/zero
+strcasecmp      scasecmp_10     -s 10
 strcasecmp      scasecmp_10     -s 10
 strcasecmp      scasecmp_1k     -s 1k
-mmap    mmap_z8k        -l 8k           -f /dev/zero
-mmap    mmap_z128k      -l 128k         -f /dev/zero
-mmap    mmap_a8k        -l 8k           -f MAP_ANON
-mmap    mmap_a128k      -l 128k         -f MAP_ANON
-mmap    mmap_rz8k       -l 8k -r        -f /dev/zero
-mmap    mmap_rz128k     -l 128k -r      -f /dev/zero
-mmap    mmap_ra8k       -l 8k -r        -f MAP_ANON
-mmap    mmap_ra128k     -l 128k -r      -f MAP_ANON
-mmap    mmap_wz8k       -l 8k -w        -f /dev/zero
-mmap    mmap_wa8k       -l 8k -w        -f MAP_ANON
-munmap  unmap_z8k       -l 8k           -f /dev/zero
-munmap  unmap_z128k     -l 128k         -f /dev/zero
-munmap  unmap_a8k       -l 8k           -f MAP_ANON
-munmap  unmap_a128k     -l 128k         -f MAP_ANON
-munmap  unmap_rz8k      -l 8k   -r      -f /dev/zero
-munmap  unmap_rz128k    -l 128k -r      -f /dev/zero
-munmap  unmap_ra8k      -l 8k   -r      -f MAP_ANON
-munmap  unmap_ra128k    -l 128k -r      -f MAP_ANON
-munmap  unmap_wz8k      -l 8k   -w      -f /dev/zero
-munmap  unmap_wa8k      -l 8k   -w      -f MAP_ANON
-mprotect        mprot_z8k       -l 8k                   -f /dev/zero
-mprotect        mprot_z128k     -l 128k         -f /dev/zero
-mprotect        mprot_wz8k      -l 8k   -w      -f /dev/zero
-mprotect        mprot_wz128k    -l 128k -w      -f /dev/zero
-mprotect        mprot_twz8k     -l 8k -w -t -f /dev/zero
-mprotect        mprot_tw128k    -l 128k -w -t -f /dev/zero
+strcasecmp      scasecmp_1k     -s 1k
+strchr          strchr_10       -s 10
+strchr          strchr_1k       -s 1k
+strcmp          strcmp_10       -s 10
+strcmp          strcmp_1k       -s 1k
+strcpy          strcpy_10       -s 10
+strcpy          strcpy_1k       -s 1k
+strlen          strlen_10       -s 10
+strlen          strlen_1k       -s 1k
 EOL
 )
