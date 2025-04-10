@@ -51,6 +51,7 @@ my %package_map = (
 	"debian::MPlayer"			=> "mplayer",
 	"debian::perl-Math-Round"		=> "libmath-round-perl",
 	"debian::perl-File-Slurp"		=> "libfile-slurp-perl",
+	"debian::perl-File-Which"		=> "libfile-which-perl",
 	"debian::perl-Time-HiRes"		=> "perl",
 	"debian::popt-devel"			=> "libpopt-dev",
 	"debian::python3-devel"			=> "python3-dev",
