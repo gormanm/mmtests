@@ -1,6 +1,7 @@
 #!/bin/bash
 # generate-speccpu2017.sh - Generate SPECcpu 2017 configuration file
 set ${MMTESTS_SH_DEBUG:-+x}
+SCRIPTDIR=$(readlink -e "`dirname $0`")
 
 # Exit codes
 EXIT_SUCCESS=0
@@ -239,7 +240,7 @@ emit_portall() {
 	echo "    EXTRA_PORTABILITY          = -D$port_all"
 
 	VECTORISE=-fno-tree-loop-vectorize
-	MAJOR=`gcc${GCC_VERSION} --version | head -1 | awk '{print $NF}' | awk -F . '{print $1}'`
+	MAJOR=`gcc${GCC_VERSION} --version | $SCRIPTDIR/gcc-parse-version`
 	if [ $MAJOR -lt 6 ]; then
 		VECTORISE=
 	fi

@@ -1,0 +1,13 @@
+#!/bin/bash
+# Print major gcc version.
+
+if [ -t 0 ]; then
+	INPUT=`gcc --version`
+else
+	read -t 2 INPUT
+	[ $? -ne 0 ] && exit
+fi
+[ "$INPUT" = "" ] && exit -1
+
+GCC_VERSION_FULL=`echo "$INPUT" | head -1 | sed -e 's@(.*)@@' -e 's@\[.*\]@@' | awk '{print $2}'`
+echo $GCC_VERSION_FULL | cut -d. -f1
