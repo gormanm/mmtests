@@ -55,6 +55,13 @@ fi
 
 cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die "Failed to cd to dbench install directory"
 while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
+	if [ "$MMTESTS_THREAD_CUTOFF" != "" ]; then
+		if [ $CLIENT -gt $MMTESTS_THREAD_CUTOFF ]; then
+			echo Forcing cutoff at $MMTESTS_THREAD_CUTOFF
+			CLIENT=$MMTESTS_THREAD_CUTOFF
+			continue
+		fi
+	fi
 	mmtests_activity client $CLIENT
 	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
 	# Make sure test tree is clean before the run - dbench does not clean
