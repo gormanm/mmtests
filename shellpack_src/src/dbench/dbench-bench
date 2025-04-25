@@ -58,7 +58,7 @@ while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 	if [ "$MMTESTS_THREAD_CUTOFF" != "" ]; then
 		if [ $CLIENT -gt $MMTESTS_THREAD_CUTOFF ]; then
 			echo Forcing cutoff at $MMTESTS_THREAD_CUTOFF
-			CLIENT=$MMTESTS_THREAD_CUTOFF
+			CLIENT=$((DBENCH_MAX_CLIENTS+1))
 			continue
 		fi
 	fi
