@@ -2162,7 +2162,7 @@ for SUBREPORT in $REPORTS; do
 		echo "</table>"
 
 		if have_monitor_results proc-interrupts $KERNEL_BASE; then
-			SOURCES=`$EXTRACT_CMD -n $KERNEL --print-monitor proc-interrupts | awk '{print $1}' | sort | uniq`
+			SOURCES=`$EXTRACT_CMD -n $KERNEL --print-monitor proc-interrupts | awk '{print $1}' | sort | uniq | grep -v -- -edge- `
 			echo "<table>"
 			COUNT=-1
 			for HEADING in $SOURCES; do
