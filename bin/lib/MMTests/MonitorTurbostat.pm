@@ -8,16 +8,16 @@ use strict;
 my %headings = (
 	"CorWatt" => "Core Watts",
 	"PkgWatt" => "Package Watts",
-	"CPU%c0"  => "C0 Percent",
-	"CPU%c1"  => "C1 Percent",
-	"CPU%c2"  => "C2 Percent",
-	"CPU%c3"  => "C3 Percent",
-	"CPU%c4"  => "C4 Percent",
-	"CPU%c5"  => "C5 Percent",
-	"CPU%c6"  => "C6 Percent",
-	"CPU%c7"  => "C7 Percent",
-	"CPU%c8"  => "C8 Percent",
-	"CPU%c9"  => "C9 Percent",
+	"CPU%c0"  => "C0 Hardware Percent",
+	"CPU%c1"  => "C1 Hardware Percent",
+	"CPU%c2"  => "C2 Hardware Percent",
+	"CPU%c3"  => "C3 Hardware Percent",
+	"CPU%c4"  => "C4 Hardware Percent",
+	"CPU%c5"  => "C5 Hardware Percent",
+	"CPU%c6"  => "C6 Hardware Percent",
+	"CPU%c7"  => "C7 Hardware Percent",
+	"CPU%c8"  => "C8 Hardware Percent",
+	"CPU%c9"  => "C9 Hardware Percent",
 	"Busy%"   => "Busy Percent",
 	"%Busy"   => "Busy Percent",
 	"Avg_MHz" => "Average Frequency (MHz)",
@@ -53,9 +53,12 @@ sub extractReport() {
 		my $index;
 		foreach my $header (@elements) {
 			if ($header =~ /CPU%c[0-9]/ ||
+			    $header =~ /C[0-9]%/ ||
+			    $header =~ /C[0-9][A-Z]*%/ ||
 			    $header eq "CorWatt" ||
 			    $header eq "PkgWatt" ||
 			    $header eq "%Busy" ||
+			    $header eq "POLL%" ||
 			    $header eq "Busy%" ||
 			    $header eq "Avg_MHz") {
 				$_colMap{$header} = $index;
