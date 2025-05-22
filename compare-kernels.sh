@@ -687,8 +687,11 @@ for SUBREPORT in $REPORTS; do
 				echo
 			done
 		else
-			echo $SUBREPORT Latency
-			compare-mmtests.pl -d . -b dbench4 -a latency -n $KERNEL_LIST $FORMAT_CMD
+			echo "$SUBREPORT All Clients Loadfile Execution Time"
+			compare-mmtests.pl -d . -b dbench4 -a completionlag -n $KERNEL_LIST $FORMAT_CMD
+			echo
+			echo "$SUBREPORT Loadfile Complete Spread (Max-Min completions between processes every second)"
+			compare-mmtests.pl -d . -b dbench4 -a completions -n $KERNEL_LIST $FORMAT_CMD
 			echo
 			echo "$SUBREPORT Throughput (misleading but traditional)"
 			compare-mmtests.pl -d . -b dbench4 -a tput -n $KERNEL_LIST $FORMAT_CMD
@@ -900,9 +903,11 @@ for SUBREPORT in $REPORTS; do
 				echo
 			done
 		else
-			echo $SUBREPORT Latency
-			compare-mmtests.pl -d . -b tbench4 -a latency -n $KERNEL_LIST $FORMAT_CMD
+			echo "$SUBREPORT All Clients Loadfile Execution Time"
+			compare-mmtests.pl -d . -b tbench4 -a completionlag -n $KERNEL_LIST $FORMAT_CMD
 			echo
+			echo "$SUBREPORT Loadfile Complete Spread (Max-Min completions between processes every second)"
+			compare-mmtests.pl -d . -b tbench4 -a completions -n $KERNEL_LIST $FORMAT_CMD
 			echo "$SUBREPORT Throughput (misleading but traditional)"
 			compare-mmtests.pl -d . -b tbench4 -a tput -n $KERNEL_LIST $FORMAT_CMD
 			echo
