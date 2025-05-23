@@ -22,74 +22,41 @@ if [ "$DBENCH_STAGGER" != "" ]; then
 fi
 
 # Init min client
-CLIENT=1
-DBENCH_CLIENTS=`echo $DBENCH_CLIENTS | tr ',' ' '`
-if [ "$DBENCH_MIN_CLIENTS" != "" ]; then
-	CLIENT=$DBENCH_MIN_CLIENTS
+if [ "$DBENCH_MIN_CLIENTS" = "" ]; then
+	DBENCH_MIN_CLIENTS=1
 fi
 
 # Dbench install and warmup, init only
 ###SHELLPACK init_only_start
 ###SHELLPACK check_install_required_continue dbench-${VERSION}
-
-# Warmup phase happens during the init step so monitors only record
-# the active phase.
-if [ "$DBENCH_DURATION_FACTOR" != "" ]; then
-	FACTOR=$((DBENCH_DURATION_FACTOR*1000))
-else
-	echo Warmup Phase
-	./bin/dbench --run-once --skip-cleanup -D $SHELLPACK_DATA \
-		--loadfile $LOADDIR/client-warmup.txt $DBENCH_MAX_CLIENTS \
-		&>/dev/null
-	FACTOR=$(./bin/dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND	\
-		$DBENCH_FSYNC_COMMAND $DBENCH_STAGGER_COMMAND			\
-		--show-execute-time --run-once					\
-		-D $SHELLPACK_DATA --loadfile $LOADDIR/client-tiny.txt		\
-		--machine-readable -t 10000 $DBENCH_MAX_CLIENTS |		\
-		grep "^@E@" | cut -d '@' -f 4 | head -n 1)
-	# We multiply the factor by 3 to get enough time for at least about 3
-	# runs of each client
-	FACTOR=$((FACTOR * 3 / DBENCH_MAX_CLIENTS))
-fi
 ###SHELLPACK init_only_end
 
 cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die "Failed to cd to dbench install directory"
-while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
-	if [ "$MMTESTS_THREAD_CUTOFF" != "" ]; then
-		if [ $CLIENT -gt $MMTESTS_THREAD_CUTOFF ]; then
-			echo Forcing cutoff at $MMTESTS_THREAD_CUTOFF
-			CLIENT=$((DBENCH_MAX_CLIENTS+1))
-			continue
-		fi
-	fi
-	mmtests_activity client $CLIENT
-	monitor_pre_hook $LOGDIR_RESULTS $CLIENT
-	# Make sure test tree is clean before the run - dbench does not clean
-	# up after itself
-	rm -rf $SHELLPACK_DATA/clients &>/dev/null
-	sync
-	# First create directory hierarchy
-	./bin/dbench --run-once --skip-cleanup -D $SHELLPACK_DATA \
-		--loadfile $LOADDIR/client-warmup.txt $CLIENT &>/dev/null
+###SHELLPACK threads_large_stride_begin $DBENCH_MIN_CLIENTS $DBENCH_MAX_CLIENTS
 
-	# Then run the benchmark
-	echo dbench run $CLIENT
+	mmtests_activity client $NR_THREADS
+
+	# Init
+	echo dbench init $NR_THREADS
+	rm -rf $SHELLPACK_DATA/clients &>/dev/null
+	./bin/dbench --run-once --skip-cleanup -D $SHELLPACK_DATA \
+		--loadfile $LOADDIR/client-warmup.txt $NR_THREADS &>/dev/null
+
+	# Execute
+	echo dbench run $NR_THREADS
 	BENCH_CMD="dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND $DBENCH_STAGGER_COMMAND \
 		-D $SHELLPACK_DATA --warmup 0 \
 		-t $((DBENCH_DURATION_BASE + FACTOR*CLIENT/1000)) \
 		--loadfile $LOADDIR/client-tiny.txt --show-execute-time \
-		$CLIENT"
+		$NR_THREADS"
 	log_cmd $BENCH_CMD
-	./bin/$BENCH_CMD 2>&1 > $LOGDIR_RESULTS/dbench-$CLIENT.log
-	monitor_post_hook $LOGDIR_RESULTS $CLIENT
-	grep "completed in" $LOGDIR_RESULTS/dbench-$CLIENT.log | sort -n -k8 > $LOGDIR_RESULTS/dbench-sorted-$CLIENT.log
-	xz $LOGDIR_RESULTS/dbench-$CLIENT.log
-	xz $LOGDIR_RESULTS/dbench-sorted-$CLIENT.log
-	if [ $CLIENT -lt $NUMCPUS ]; then
-		CLIENT=$((CLIENT*2))
-	else
-		CLIENT=$((CLIENT*8))
-	fi
-done
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	./bin/$BENCH_CMD 2>&1 > $LOGDIR_RESULTS/dbench-$NR_THREADS.log
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+
+	grep "completed in" $LOGDIR_RESULTS/dbench-$NR_THREADS.log | sort -n -k8 > $LOGDIR_RESULTS/dbench-sorted-$NR_THREADS.log
+	xz $LOGDIR_RESULTS/dbench-$NR_THREADS.log
+	xz $LOGDIR_RESULTS/dbench-sorted-$NR_THREADS.log
+###SHELLPACK threads_stride_end
 
 exit $SHELLPACK_SUCCESS
