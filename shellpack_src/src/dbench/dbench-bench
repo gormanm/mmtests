@@ -82,7 +82,9 @@ while [ $CLIENT -le $DBENCH_MAX_CLIENTS ]; do
 	log_cmd $BENCH_CMD
 	./bin/$BENCH_CMD 2>&1 > $LOGDIR_RESULTS/dbench-$CLIENT.log
 	monitor_post_hook $LOGDIR_RESULTS $CLIENT
-	gzip $LOGDIR_RESULTS/dbench-$CLIENT.log
+	grep "completed in" $LOGDIR_RESULTS/dbench-$CLIENT.log | sort -n -k8 > $LOGDIR_RESULTS/dbench-sorted-$CLIENT.log
+	xz $LOGDIR_RESULTS/dbench-$CLIENT.log
+	xz $LOGDIR_RESULTS/dbench-sorted-$CLIENT.log
 	if [ $CLIENT -lt $NUMCPUS ]; then
 		CLIENT=$((CLIENT*2))
 	else
