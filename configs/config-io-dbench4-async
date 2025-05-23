@@ -33,10 +33,10 @@ export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat turbostat mpstat iotop"
 export MONITORS_WITH_LATENCY="vmstat iostat"
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_UPDATE_FREQUENCY=5
 
 # DBench
-export DBENCH_DURATION_BASE=180
+export DBENCH_DURATION_BASE=120
 export DBENCH_OSYNC=no
 export DBENCH_SYNC_DIRECTORY=no
 export DBENCH_FSYNC=no
