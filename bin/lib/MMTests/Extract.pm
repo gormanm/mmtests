@@ -419,7 +419,7 @@ sub sortResults() {
 }
 
 sub discover_scaling_parameters() {
-	my ($self, $reportDir, $prefix, $suffix) = @_;
+	my ($self, $reportDir, $prefix, $suffix, $infix) = @_;
 	my @scaling;
 
 	my @files = <$reportDir/$prefix*$suffix>;
@@ -428,6 +428,10 @@ sub discover_scaling_parameters() {
 
 		if ($suffix ne "") {
 			$file =~ s/$suffix$//;
+		}
+
+		if ($infix ne "") {
+			$file =~ s/$infix//;
 		}
 
 		push @scaling, $file;

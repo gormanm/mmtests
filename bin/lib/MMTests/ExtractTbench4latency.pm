@@ -6,7 +6,7 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 
 	$self->SUPER::initialise($subHeading);
-	$self->{_LogPrefix} = "tbench";
+	$self->{_LogPrefix} = "tbench-execute";
 }
 
 1;

@@ -54,9 +54,11 @@ cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die "Failed to cd to dbench
 	./bin/$BENCH_CMD 2>&1 > $LOGDIR_RESULTS/dbench-$NR_THREADS.log
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 
-	grep "completed in" $LOGDIR_RESULTS/dbench-$NR_THREADS.log | sort -n -k8 > $LOGDIR_RESULTS/dbench-sorted-$NR_THREADS.log
-	xz $LOGDIR_RESULTS/dbench-$NR_THREADS.log
-	xz $LOGDIR_RESULTS/dbench-sorted-$NR_THREADS.log
+	grep "completed in" $LOGDIR_RESULTS/dbench-$NR_THREADS.log | sort -n -k8 > $LOGDIR_RESULTS/dbench-loadfile-$NR_THREADS.log
+	sed -e "/completed in/d" $LOGDIR_RESULTS/dbench-$NR_THREADS.log > $LOGDIR_RESULTS/dbench-execute-$NR_THREADS.log
+	rm $LOGDIR_RESULTS/dbench-$NR_THREADS.log
+	xz $LOGDIR_RESULTS/dbench-execute-$NR_THREADS.log
+	xz $LOGDIR_RESULTS/dbench-loadfile-$NR_THREADS.log
 ###SHELLPACK threads_stride_end
 
 exit $SHELLPACK_SUCCESS

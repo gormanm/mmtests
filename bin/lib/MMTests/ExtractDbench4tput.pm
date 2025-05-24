@@ -11,13 +11,13 @@ sub initialise() {
 	$self->{_PreferredVal}		= "Higher";
 	$self->{_PlotType}   		= "client-errorlines";
 	$self->{_SubheadingPlotType}	= "simple-clients";
-	$self->{_LogPrefix}		= "dbench";
+	$self->{_LogPrefix}		= "dbench-execute";
 	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.gz");
+	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.[g|x]z");
 
 	foreach my $client (@clients) {
 

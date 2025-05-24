@@ -10,13 +10,13 @@ sub initialise() {
 
 	$self->{_ModuleName}	= "ExtractDbench4latency";
 	$self->{_PlotYaxis}	= DataTypes::LABEL_TIME_MSECONDS,
-	$self->{_LogPrefix}	= "dbench";
+	$self->{_LogPrefix}	= "dbench-execute";
 	$self->SUPER::initialise($subHeading);
 }
 
 sub extractReport() {
 	my ($self, $reportDir) = @_;
-	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.gz");
+	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.[g|x]z");
 
 	foreach my $client (@clients) {
 		my $nr_samples = 0;

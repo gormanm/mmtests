@@ -4,7 +4,7 @@
 
 SERVER_HOST=127.0.0.1
 if [ "$REMOTE_SERVER_HOST" != "" ]; then
-        SERVER_HOST=$REMOTE_SERVER_HOST
+	SERVER_HOST=$REMOTE_SERVER_HOST
 fi
 
 ###SHELLPACK parseargBegin
@@ -78,7 +78,13 @@ server_stop 0
 	RET=$?
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	server_stop $NR_THREADS
-	gzip $LOGDIR_RESULTS/tbench-$NR_THREADS.log
+
+	grep "completed in" $LOGDIR_RESULTS/tbench-$NR_THREADS.log | sort -n -k8 > $LOGDIR_RESULTS/tbench-loadfile-$NR_THREADS.log
+	sed -e "/completed in/d" $LOGDIR_RESULTS/tbench-$NR_THREADS.log > $LOGDIR_RESULTS/tbench-execute-$NR_THREADS.log
+	rm $LOGDIR_RESULTS/tbench-$NR_THREADS.log
+
+	xz $LOGDIR_RESULTS/tbench-execute-$NR_THREADS.log
+	xz $LOGDIR_RESULTS/tbench-loadfile-$NR_THREADS.log
 
 	rm /tmp/mmtests-tbench.pid
 	if [ $RET -ne 0 ]; then

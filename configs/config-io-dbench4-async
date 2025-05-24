@@ -31,9 +31,9 @@ export MMTESTS="dbench4"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat turbostat mpstat iotop"
+export MONITORS_GZIP="proc-vmstat turbostat mpstat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
-export MONITOR_UPDATE_FREQUENCY=5
+export MONITOR_UPDATE_FREQUENCY=1
 
 # DBench
 export DBENCH_DURATION_BASE=120
@@ -41,7 +41,7 @@ export DBENCH_OSYNC=no
 export DBENCH_SYNC_DIRECTORY=no
 export DBENCH_FSYNC=no
 export DBENCH_MIN_CLIENTS=1
-export DBENCH_MAX_CLIENTS=$((NUMCPUS*4))
+export DBENCH_MAX_CLIENTS=$((NUMCPUS*2))
 
 # Force small filesystem size to limit variations of the test due to
 # differences in inode placement in the partition. Each client needs ~25 MB

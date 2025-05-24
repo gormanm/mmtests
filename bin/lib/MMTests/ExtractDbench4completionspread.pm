@@ -11,7 +11,7 @@ sub initialise() {
 	$self->{_PlotYaxis}  		= DataTypes::LABEL_OPS_SPREAD;
 	$self->{_PlotType}   		= "client-errorlines";
 	$self->{_SubheadingPlotType}	= "simple-clients";
-	$self->{_LogPrefix}		= "dbench";
+	$self->{_LogPrefix}		= "dbench-loadfile";
 	$self->SUPER::initialise($subHeading);
 	$self->{_FieldFormat} = [ "%-${fieldLength}.3f", "%${fieldLength}d" ];
 }
@@ -27,7 +27,7 @@ sub compare_time() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 
-	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.gz");
+	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.[g|x]z");
 
 	foreach my $client (@clients) {
 		my @time_sorted;

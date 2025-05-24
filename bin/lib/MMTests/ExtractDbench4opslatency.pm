@@ -10,7 +10,7 @@ sub initialise() {
 
 	$self->{_ModuleName}	= "ExtractDbench4opslatency";
 	$self->{_PlotYaxis}	= DataTypes::LABEL_TIME_MSECONDS;
-	$self->{_LogPrefix}	= "dbench";
+	$self->{_LogPrefix}	= "dbench-execute";
 	$self->{_Opname}	= "latency";
 	$self->SUPER::initialise($subHeading);
 }
@@ -25,7 +25,7 @@ sub extractReport() {
 			  "Qfileinfo"	=> 1, "Qfsinfo"	=> 1, "Flush"	=> 1,
 			  "Sfileinfo"	=> 1, "LockX"	=> 1, "UnlockX"	=> 1,
 			  "Find"	=> 1);
-	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.gz");
+	my @clients = $self->discover_scaling_parameters($reportDir, "$self->{_LogPrefix}-", ".log.[g|x]z");
 
 	my $index = 1;
 	foreach my $header ("count", "avg", "max") {
