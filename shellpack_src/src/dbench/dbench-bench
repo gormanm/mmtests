@@ -17,9 +17,6 @@ fi
 if [ "$DBENCH_FSYNC" = "yes" ]; then
 	DBENCH_FSYNC_COMMAND=-F
 fi
-if [ "$DBENCH_STAGGER" != "" ]; then
-	DBENCH_STAGGER_COMMAND="--stagger $DBENCH_STAGGER"
-fi
 
 # Init min client
 if [ "$DBENCH_MIN_CLIENTS" = "" ]; then
@@ -44,7 +41,7 @@ cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die "Failed to cd to dbench
 
 	# Execute
 	echo dbench run $NR_THREADS
-	BENCH_CMD="dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND $DBENCH_STAGGER_COMMAND \
+	BENCH_CMD="dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
 		-D $SHELLPACK_DATA --warmup 0 \
 		-t $((DBENCH_DURATION_BASE + FACTOR*CLIENT/1000)) \
 		--loadfile $LOADDIR/client-tiny.txt --show-execute-time \
