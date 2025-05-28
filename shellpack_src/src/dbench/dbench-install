@@ -1,7 +1,7 @@
 #!/bin/bash
 # dbench installer
-###SHELLPACK preamble dbench-install 781852c2b38a
-GIT_LOCATION=https://github.com/mcgrof/dbench.git
+###SHELLPACK preamble dbench-install ed505f4eafb7
+GIT_LOCATION=https://github.com/gormanm/dbench.git
 MIRROR_LOCATION="$WEBROOT/dbench/"
 
 install-depends popt-devel libz1 zlib-devel
