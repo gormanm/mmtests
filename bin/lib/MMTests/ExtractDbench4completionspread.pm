@@ -16,14 +16,6 @@ sub initialise() {
 	$self->{_FieldFormat} = [ "%-${fieldLength}.3f", "%${fieldLength}d" ];
 }
 
-sub compare_time() {
-
-	my @elements_a = split(/\s+/, $a);
-	my @elements_b = split(/\s+/, $b);
-
-	return $elements_a[7] <=> $elements_b[7];
-}
-
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 
@@ -35,18 +27,10 @@ sub extractReport() {
 		my $last_timestamp = 0;
 
 		my $input = $self->SUPER::open_log("$reportDir/$self->{_LogPrefix}-$client.log");
-		while (<$input>) {
-			my $line = $_;
-			if ($line =~ /completed in/) {
-				chomp($line);
-				$line =~ s/^\s+//;
-				push @time_sorted, $line;
-			}
-		}
-		@time_sorted = sort compare_time @time_sorted;
-		close($input);
-
-		foreach my $line (@time_sorted) {
+		while (!eof($input)) {
+			my $line = <$input>;
+			chomp($line);
+			next if $line !~ /completed in/;
 			my @elements = split(/\s+/, $line);
 
 			my $worker = $elements[0];
@@ -70,6 +54,7 @@ sub extractReport() {
 				undef @completions;
 			}
 		}
+		close($input);
 	}
 }
 
