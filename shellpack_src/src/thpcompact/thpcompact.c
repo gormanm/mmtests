@@ -89,7 +89,6 @@ static void *worker(void *data)
 	/* Align index to huge page boundary */
 	end_mapping = first_mapping + anon_thread_size;
 	aligned = HPAGE_ALIGN(first_mapping);
-	i = aligned - first_mapping;
 
 	/* Punch holes */
 	for (; aligned + HPAGESIZE/2 < end_mapping; aligned += HPAGESIZE) {
