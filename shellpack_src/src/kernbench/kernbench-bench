@@ -1,6 +1,6 @@
 #!/bin/bash
 # Benchmark a number of kernel builds
-###SHELLPACK preamble kernbench 5.14
+###SHELLPACK preamble kernbench 6.15
 ITERATIONS=5
 KERNBENCH_CONFIG=defconfig
 KERNBENCH_TARGETS=vmlinux
@@ -19,7 +19,7 @@ install-depends flex bison libelf-devel libopenssl-devel
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-GCC_VERSION=`gcc --version | head -1 | awk '{print $NF}'`
+GCC_VERSION=`gcc-parse-version`
 GCC_MAJOR=`echo $GCC_VERSION | awk -F . '{print $1}'`
 
 # May not work with older !SUSE distributions
