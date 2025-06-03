@@ -1,0 +1,25 @@
+#!/bin/bash
+###SHELLPACK preamble nap-bench 0
+
+NAP_DURATION=30
+NAP_MSG_INTERVAL=5
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --duration       NAP_DURATION
+###SHELLPACK parseargParam --interval       NAP_MSG_INTERVAL
+###SHELLPACK parseargEnd
+###SHELLPACK init_complete
+
+(
+	ELAPSED=0
+	while true; do
+		sleep $NAP_MSG_INTERVAL
+		ELAPSED=$((ELAPSED + NAP_MSG_INTERVAL))
+		echo "been sleeping for $ELAPSED seconds"
+	done
+) & PRINTER_PID=$!
+
+sleep $NAP_DURATION
+kill $PRINTER_PID
+
+exit $SHELLPACK_SUCCESS
