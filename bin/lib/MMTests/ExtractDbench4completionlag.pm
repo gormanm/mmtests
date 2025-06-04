@@ -38,6 +38,7 @@ sub extractReport() {
 			my $line = <$input>;
 			chomp($line);
 			next if $line !~ /completed in/;
+			$line =~ s/^\s*//;
 			my @elements = split(/\s+/, $line);
 
 			my $worker = $elements[0];
