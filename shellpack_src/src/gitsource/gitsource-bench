@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script runs the git source unit tests
 
-###SHELLPACK preamble gitsource-bench v2.16.6
+###SHELLPACK preamble gitsource-bench v2.49.0
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall

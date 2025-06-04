@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble gitsource-install v2.16.6
+###SHELLPACK preamble gitsource-install v2.49.0
 GIT_LOCATION=https://github.com/git/git
 MIRROR_LOCATION="$WEBROOT/gitsource/"
 
