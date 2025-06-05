@@ -576,15 +576,15 @@ sub calc_welch_test {
 	}
 }
 
-# Get reference to data structure, a file with R script, and possible optional
-# arguments and pipe the data structure into R script. Return R output as a
-# reference to array.
-sub pipe_to_R {
+# Get reference to data structure, a python script, and possible optional
+# arguments and pipe the data structure into the script. Return script
+# output as a reference to array.
+sub pipe_to_python {
 	require Cpanel::JSON::XS;
 	require IPC::Open2;
 
 	my $dataref = shift;
-	my $cmd = "Rscript ".join(" ", @_);
+	my $cmd = "python3 ".join(" ", @_);
 	my $json = Cpanel::JSON::XS->new();
 	my @result;
 
@@ -609,21 +609,20 @@ sub _calc_submean_ci {
 	my $row;
 	my @parsedrow;
 
-	$resultref = pipe_to_R($dataref,
-		"$Bin/lib/R/subselection-confidence-interval.R", $meanName,
-		$alpha);
+	$resultref = pipe_to_python($dataref,
+		"$Bin/lib/Python/subselection-confidence-interval.py",
+		$meanName, $alpha);
 	$row = @{$resultref}[0];
 	@parsedrow = split(' ', $row);
-	# Skip initial "[1]" output by R
 	if (defined($$statsref->{save_stats})) {
-		$$statsref->{"submean-$meanName"} = $parsedrow[1];
-		$$statsref->{"submeanci-$meanName"} = $parsedrow[2];
+		$$statsref->{"submean-$meanName"} = $parsedrow[0];
+		$$statsref->{"submeanci-$meanName"} = $parsedrow[1];
 		$$statsref->{"submeanci_low-$meanName"} =
-						$parsedrow[1] - $parsedrow[2];
+						$parsedrow[0] - $parsedrow[1];
 		$$statsref->{"submeanci_high-$meanName"} =
-						$parsedrow[1] + $parsedrow[2];
+						$parsedrow[0] + $parsedrow[1];
 	}
-	return ($parsedrow[1], $parsedrow[2]);
+	return ($parsedrow[0], $parsedrow[1]);
 }
 
 sub calc_submean {
