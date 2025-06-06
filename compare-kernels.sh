@@ -15,6 +15,7 @@ KERNEL_BASE=
 KERNEL_COMPARE=
 
 install-depends perl-File-Which
+install-depends python3-scipy
 
 while [ "$1" != "" ]; do
 	case $1 in
