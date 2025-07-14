@@ -1474,6 +1474,9 @@ function have_monitor_results()
 	local runname=$2
 	local contains=$3
 
+	if [ "$monitor" = "ftrace" -a "$INCLUDE_FTRACE" != "yes" ]; then
+		return 1
+	fi
 	if [ -z "$contains" ]; then
 		ls $runname/iter-*/$monitor-* &>/dev/null
 	else
