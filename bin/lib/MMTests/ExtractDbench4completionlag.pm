@@ -52,35 +52,22 @@ sub extractReport() {
 
 			# Have all clients finished the window?
 			$window_seen[$window]++;
-			#print "Worker finish $worker:$window end $timestamp finished $window_seen[$window]/$client\n";
+			# print "Worker finish $worker:$window end $timestamp finished $window_seen[$window]/$client\n";
 			if ($window_seen[$window] == $client) {
 				my $duration = $timestamp - $window_start[$window];
-				#print "WINDOW $window FINISH duration $duration ms\n";
+				# print "WINDOW $window FINISH duration $duration ms\n";
 				$self->addData("$client", $window, $duration);
 			}
 
 			if ($window_start[$worker_window[$worker]] == 0) {
 				$window_start[$worker_window[$worker]] = $timestamp;
-				#print "Worker $worker INIT NEW WINDOW[$worker_window[$worker]] $timestamp\n";
+				# print "Worker $worker INIT NEW WINDOW[$worker_window[$worker]] $timestamp\n";
 			}
 
 			next;
 
 			# Look for what is probably a negative wrap
 			next if ($duration > (1<<31));
-
-			$completions[$worker]++;
-			if ($timestamp > $last_timestamp) {
-				my $max = $completions[0];
-				my $min = $completions[0];
-				for (my $i = 0; $i < $client; $i++) {
-					$max = $completions[$i] if $completions[$i] > $max;
-					$min = $completions[$i] if $completions[$i] < $min;
-				}
-				my $spread = $max - $min;
-				$last_timestamp = $timestamp;
-				undef @completions;
-			}
 		}
 		close($input);
 	}
