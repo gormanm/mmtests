@@ -22,6 +22,14 @@ if [ ! -e ./configure ]; then
 fi
 
 export CFLAGS+=" -DWANT_UNIX"
+
+if (( `gcc -dumpversion` >= 14 )) ; then
+   # netperf doesn't declare library, which became -Werror in gcc-14
+   export CFLAGS+=" -Wno-implicit-function-declaration"
+   # netperf has function declarations without parameters, breaking C23:
+   export CFLAGS+=" -std=gnu17"
+fi
+
 export MMTESTS_BUILD_CONFIGURE+=" --enable-demo=yes"
 
 ###SHELLPACK build_configure netperf-${VERSION}
