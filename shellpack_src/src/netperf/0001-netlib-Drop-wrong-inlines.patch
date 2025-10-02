@@ -1,0 +1,25 @@
+diff --git a/src/netlib.c b/src/netlib.c
+index 206e002..988fbc9 100644
+--- a/src/netlib.c
++++ b/src/netlib.c
+@@ -3959,7 +3959,7 @@ void demo_stream_setup(uint32_t a, uint32_t b) {
+ #ifdef WIN32
+ __forceinline void demo_interval_display(double actual_interval)
+ #else
+-  inline void demo_interval_display(double actual_interval)
++  void demo_interval_display(double actual_interval)
+ #endif
+ {
+   static int count = 0;
+@@ -4026,7 +4026,7 @@ __forceinline void demo_interval_display(double actual_interval)
+    inline directive has to appear in netlib.h... */
+ void demo_interval_tick(uint32_t units)
+ #else
+-  inline void demo_interval_tick(uint32_t units)
++  void demo_interval_tick(uint32_t units)
+ #endif
+ {
+   double actual_interval = 0.0;
+-- 
+2.51.0
+

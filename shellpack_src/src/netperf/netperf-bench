@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs netperf and runs the regression tests
-###SHELLPACK preamble netperf-bench 2.4.5
+###SHELLPACK preamble netperf-bench 2.6.0
 
 TASKSET_SERVER=
 TASKSET_CLIENT=

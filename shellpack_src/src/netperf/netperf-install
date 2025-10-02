@@ -1,6 +1,6 @@
 #!/bin/bash
 # Netperf installer
-###SHELLPACK preamble netperf-install 2.4.5
+###SHELLPACK preamble netperf-install 2.6.0
 GIT_LOCATION=https://github.com/HewlettPackard/netperf
 MIRROR_LOCATION="$WEBROOT/netperf/"
 
@@ -11,9 +11,11 @@ GIT_FETCH_BRANCH="netperf-${VERSION}"
 ###SHELLPACK git_fetch ${VERSION}.tar.gz netperf-${VERSION}
 
 ###SHELLPACK build_start netperf-${VERSION}
+###SHELLPACK self_extract 0001-netlib-Drop-wrong-inlines.patch
+cat $SHELLPACK_TEMP/0001-netlib-Drop-wrong-inlines.patch | patch -p1
 
 sed  -i '1i #define _GNU_SOURCE' src/netlib.c
-if [ "$VERSION" = "2.7.0" ]; then
+if [ "$VERSION" = "2.6.0" ]; then
 	export CFLAGS+=" -fno-strict-aliasing -fcommon"
 fi
 
@@ -37,3 +39,4 @@ export MMTESTS_BUILD_CONFIGURE+=" --enable-demo=yes"
 
 echo Netperf installed successfully
 exit $SHELLPACK_SUCCESS
+###SHELLPACK include_file 0001-netlib-Drop-wrong-inlines.patch
