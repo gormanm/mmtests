@@ -13,6 +13,7 @@ OUTPUT_FILE=
 IGNORE_FINGERPRINT=no
 KERNEL_BASE=
 KERNEL_COMPARE=
+CHANGE_DIR=
 
 install-depends perl-File-Which
 install-depends python3-scipy
@@ -74,6 +75,10 @@ while [ "$1" != "" ]; do
 		SORT_VERSION=yes
 		shift
 		;;
+	-C)
+		CHANGE_DIR="$2"
+		shift 2
+		;;
 	*)
 		echo Unrecognised argument: $1 1>&2
 		shift
@@ -94,6 +99,10 @@ fi
 # Comment the following line if debugging and/or thinking that installing
 # the packages above is having or causing issues and you want to see the output
 [ "$OUT" != "/dev/stdout" ] && rm -f $OUT
+
+if [ "$CHANGE_DIR" != "" ]; then
+	cd "$CHANGE_DIR" || die "Failed to change to start directory $CHANGE_DIR"
+fi
 
 if [ "$CACHE_MMTESTS" != "" ]; then
 	mkdir -p $CACHE_MMTESTS
