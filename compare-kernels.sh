@@ -221,6 +221,8 @@ if [ "$OUTPUT_DIRECTORY" != "" -a "$OUTPUT_FILE" != "" ]; then
 	exec > $OUTPUT_DIRECTORY/$OUTPUT_FILE
 fi
 
+cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
+
 # Print kernel command line options if they differ
 FIRST=yes
 FIRST_CMDLINE=
@@ -623,8 +625,6 @@ generate_subheading_trans_graphs() {
 		echo "</tr>"
 	done
 }
-
-cat $SCRIPTDIR/shellpacks/common-header-$FORMAT 2> /dev/null
 
 if [ "$FROM_JSON" = "yes" ]; then
 	JSON_FILES=(${JSON_FILE//,/ })
