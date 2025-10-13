@@ -2,34 +2,35 @@
 
 ###SHELLPACK preamble schbench-bench 6300b8f3a892
 
-SCHBENCH_ITERATIONS=1
+SCHBENCH_INTERVAL=10
+SCHBENCH_RUNTIME=180
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
-###SHELLPACK parseargParam    --message-threads SCHBENCH_MESSAGE_THREADS
-###SHELLPACK parseargParam    --threads         SCHBENCH_THREADS
-###SHELLPACK parseargParam    --runtime         SCHBENCH_RUNTIME
-###SHELLPACK parseargParam    --sleeptime       SCHBENCH_SLEEPTIME
-###SHELLPACK parseargParam    --cputime         SCHBENCH_CPUTIME
-###SHELLPACK parseargYes      --auto            SCHBENCH_AUTO
-###SHELLPACK parseargParam    --pipe            SCHBENCH_PIPE_SIZE
-###SHELLPACK parseargParam    --rps             SCHBENCH_REQS_PER_SECOND
+###SHELLPACK parseargParam    --messangers     SCHBENCH_MESSAGE_THREADS
+###SHELLPACK parseargParam    --min-workers    SCHBENCH_MIN_WORKER_THREADS
+###SHELLPACK parseargParam    --max-workers    SCHBENCH_MAX_WORKER_THREADS
+###SHELLPACK parseargParam    --runtime        SCHBENCH_RUNTIME
+###SHELLPACK parseargParam    --interval       SCHBENCH_INTERVAL
+###SHELLPACK parseargParam    --sleeptime      SCHBENCH_SLEEPTIME
+###SHELLPACK parseargParam    --cputime        SCHBENCH_CPUTIME
+###SHELLPACK parseargYes      --auto           SCHBENCH_AUTO
+###SHELLPACK parseargParam    --pipe           SCHBENCH_PIPE_SIZE
+###SHELLPACK parseargParam    --rps            SCHBENCH_REQS_PER_SECOND
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
 ###SHELLPACK check_install_required schbench-${VERSION}
 ###SHELLPACK init_complete
 
-###SHELLPACK threads_powertwo_begin 1 $SCHBENCH_THREADS
+###SHELLPACK threads_powertwo_begin $SCHBENCH_MIN_WORKER_THREADS $SCHBENCH_MAX_WORKER_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
-	###SHELLPACK iteration_begin $SCHBENCH_ITERATIONS
-		echo Running $NR_THREADS schbench
-		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS \
-			./schbench -r $SCHBENCH_RUNTIME -m $SCHBENCH_MESSAGE_THREADS \
-				-t $NR_THREADS 2>&1 | \
-				tee $LOGDIR_RESULTS/schbench-$NR_THREADS.log
-	###SHELLPACK iteration_end $SCHBENCH_ITERATIONS
+	echo Running schbench $SCHBENCH_MESSAGE_THREADS messangers, $NR_THREADS workers
+	BENCH_CMD=" ./schbench -z $SCHBENCH_INTERVAL -i $SCHBENCH_INTERVAL -r $SCHBENCH_RUNTIME -m $SCHBENCH_MESSAGE_THREADS -t $NR_THREADS"
+	log_cmd "$BENCH_CMD"
+	$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS \
+		$BENCH_CMD &> $LOGDIR_RESULTS/schbench-$NR_THREADS.log
 
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_powertwo_end

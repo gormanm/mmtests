@@ -16,7 +16,7 @@ KERNEL_COMPARE=
 CHANGE_DIR=
 
 install-depends perl-File-Which
-install-depends python3-scipy
+install-depends python313-scipy
 
 while [ "$1" != "" ]; do
 	case $1 in
@@ -851,6 +851,13 @@ for SUBREPORT in $REPORTS; do
 		for HEADING in Ops/sec Hits/sec Miss/sec; do
 			echo $SUBREPORT $HEADING
 			eval $COMPARE_CMD --sub-heading `echo $HEADING | tr A-Z a-z`
+			echo
+		done
+		;;
+	schbench)
+		for HEADING in Wakeup Request; do
+			echo "$SUBREPORT $HEADING Latency (usec)"
+			eval $COMPARE_CMD --sub-heading $HEADING
 			echo
 		done
 		;;
