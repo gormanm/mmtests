@@ -135,8 +135,8 @@ if [ "$OUTPUT_DIRECTORY" != "" -a ! -e "$OUTPUT_DIRECTORY" ]; then
 	mkdir -p $OUTPUT_DIRECTORY
 fi
 if [ "$OUTPUT_DIRECTORY" != "" -a ! -d "$OUTPUT_DIRECTORY" ]; then
-	echo Output directory is not a directory
-	exit -1
+	ls -lh $OUTPUT_DIRECTORY
+	die "Output directory ($OUTPUT_DIRECTORY) is not a directory"
 fi
 if [ "$OUTPUT_DIRECTORY" = "" -o "$OUTPUT_FILE" = "" ]; then
 	IGNORE_FINGERPRINT=yes
@@ -860,6 +860,8 @@ for SUBREPORT in $REPORTS; do
 			eval $COMPARE_CMD --sub-heading $HEADING
 			echo
 		done
+		echo "$SUBREPORT Requests Per Second (ops/sec)"
+		eval $COMPARE_CMD --sub-heading RPS
 		;;
 	simoop)
 		echo $SUBREPORT latencies

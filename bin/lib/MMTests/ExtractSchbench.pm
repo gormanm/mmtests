@@ -41,17 +41,26 @@ sub extractReport() {
 		while (!eof($input)) {
 			my $line = <$input>;
 			if ($line =~ /^([a-zA-Z]+) Latencies percentiles.*\(([0-9]+) total samples/) {
+				$reading = 0;
 				$metric = $1;
 				$interval++  if $metric eq "Wakeup";
-				$reading = 1 if $interval != $nr_intervals;
-
-			} elsif ($reading == 1 && $line =~ /[ \t\*]+([0-9]+\.[0-9]+)th: ([0-9]+)/) {
-				my $quartile = $1;
-				my $lat = $2;
-				$quartile =~ s/00$//;
-				$self->addData("$metric-${quartile}th-$group", $interval, $lat);
-				if ($quartile == 99) {
-					push @ratioops, "$metric-${quartile}th-$group";
+				$reading = 1 if ($interval != $nr_intervals && $2 > 0);
+			} elsif ($line =~ /^RPS percentiles/) {
+				$metric = "RPS";
+			} elsif ($reading == 1) {
+				if ($line =~ /[ \t\*]+([0-9]+\.[0-9]+)th: ([0-9]+)/) {
+					my $quartile = $1;
+					my $lat = $2;
+					$quartile =~ s/\.0+$//;
+					$self->addData("$metric-${quartile}th-$group", $interval, $lat);
+					if (($metric ne "RPS" && $quartile == 99) ||
+					    ($metric eq "RPS" && $quartile == 50)) {
+						push @ratioops, "$metric-${quartile}th-$group";
+					}
+				}
+				if ($line =~ /.*max=([0-9]+)/) {
+					my $lat = $1;
+					$self->addData("$metric-max-$group", $interval, $lat);
 				}
 			} else {
 				$reading = 0;
