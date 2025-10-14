@@ -1,0 +1,35 @@
+### schbench is a latency measurement benchmark that uses a mix of worker and
+### messaging threads. The worker threads wait for messages to come in which
+### include a timestamp of when they were queued and records how long it took
+### to receive the message. The message threads send messages and sleep for
+### a small random amount of time in between. The benchmark reports quartiles
+### of wakeup times of the worker threads with a specific interest in the
+### worse-case outliers.
+###
+### This configuration uses 4 pinned messangers with NUMCPUS*4 workers with
+### no locks, no think time operations or sleep time per request. The
+### messengers and workers do no real work but create a storm of task
+### wakeups and idle operations within th ekernel. This stresses the TTWU paths
+### in the scheduler and idle load balancing.
+###
+
+export MMTESTS="schbench"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat mpstat turbostat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=3
+
+# schbench
+export SCHBENCH_RUNTIME=180
+export SCHBENCH_INTERVAL=10
+export SCHBENCH_MESSAGE_THREADS=4
+export SCHBENCH_MIN_WORKER_THREADS=$((NUMCPUS*4))
+export SCHBENCH_MAX_WORKER_THREADS=$((NUMCPUS*4))
+
+export SCHBENCH_DISABLE_SPINLOCK=yes
+export SCHBENCH_PIN_MESSENGERS=auto
+export SCHBENCH_THINKTIME_OPS=0
+export SCHBENCH_THINKTIME_SLEEP=0
