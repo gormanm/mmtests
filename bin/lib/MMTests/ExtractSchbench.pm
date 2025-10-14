@@ -48,14 +48,18 @@ sub extractReport() {
 			} elsif ($line =~ /^RPS percentiles/) {
 				$metric = "RPS";
 			} elsif ($reading == 1) {
-				if ($line =~ /[ \t\*]+([0-9]+\.[0-9]+)th: ([0-9]+)/) {
+				if ($line =~ /[ \t\*]+([0-9]+\.[0-9]+)th: ([0-9]+).*\(([0-9]+) samples/) {
 					my $quartile = $1;
 					my $lat = $2;
+					my $samples = $3;
 					$quartile =~ s/\.0+$//;
-					$self->addData("$metric-${quartile}th-$group", $interval, $lat);
 					if (($metric ne "RPS" && $quartile == 99) ||
 					    ($metric eq "RPS" && $quartile == 50)) {
 						push @ratioops, "$metric-${quartile}th-$group";
+					}
+
+					if ($samples > 0) {
+						$self->addData("$metric-${quartile}th-$group", $interval, $lat);
 					}
 				}
 				if ($line =~ /.*max=([0-9]+)/) {
