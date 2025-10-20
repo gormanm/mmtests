@@ -6,11 +6,16 @@
 ### of wakeup times of the worker threads with a specific interest in the
 ### worse-case outliers.
 ###
-### This configuration uses 4 pinned messangers with NUMCPUS*4 workers with
-### no locks, no think time operations or sleep time per request. The
-### messengers and workers do no real work but create a storm of task
-### wakeups and idle operations within th ekernel. This stresses the TTWU paths
-### in the scheduler and idle load balancing.
+### This configuration uses 4 pinned messangers with NUMCPUS*2 workers
+### split between the messangers. Each work uses no locks, no think time
+### operations or sleep time per request. No real work is done and the
+### intent is to simulate 4 CPUs waking all other CPUs constantly similar
+### to an intensive NAPI workload. All CPUs should be used and each task
+### should immediately go idle. This stresses the TTWU paths, go-to-idle
+### and idle load balancing decisions.
+###
+### See https://lore.kernel.org/lkml/3c67ae44-5244-4341-9edd-04a93b1cb290@meta.com
+### and the related thread for more information.
 ###
 
 export MMTESTS="schbench"
@@ -26,8 +31,8 @@ export MONITOR_UPDATE_FREQUENCY=3
 export SCHBENCH_RUNTIME=180
 export SCHBENCH_INTERVAL=10
 export SCHBENCH_MESSAGE_THREADS=4
-export SCHBENCH_MIN_WORKER_THREADS=$((NUMCPUS*4))
-export SCHBENCH_MAX_WORKER_THREADS=$((NUMCPUS*4))
+export SCHBENCH_MIN_WORKER_THREADS=$((NUMCPUS*2/SCHBENCH_MESSAGE_THREADS))
+export SCHBENCH_MAX_WORKER_THREADS=$((NUMCPUS*2/SCHBENCH_MESSAGE_THREADS))
 
 export SCHBENCH_DISABLE_SPINLOCK=yes
 export SCHBENCH_PIN_MESSENGERS=auto
