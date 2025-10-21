@@ -12,7 +12,7 @@ sub new() {
 }
 
 sub loadModule($$$) {
-	my ($self, $type, $moduleName, $testName, $format, $subheading) = @_;
+	my ($self, $type, $moduleName, $testName, $subheading) = @_;
 	printVerbose("Loading module $moduleName\n");
 
 	my $pmName = ucfirst($moduleName);
@@ -26,7 +26,6 @@ sub loadModule($$$) {
 	my $classInstance = $className->new(0);
 	$classInstance->{_TestName} = $testName;
 	$classInstance->initialise($subheading);
-	$classInstance->setFormat($format);
 	printVerbose("Loaded  module " . $classInstance->getModuleName() . "\n");
 
 	bless $classInstance, $className;

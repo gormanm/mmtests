@@ -16,6 +16,10 @@ sub initialise() {
 	$self->{_ExactSubheading} = 0;
 	$self->{_ExactPlottype} = "simple";
 	$self->{_DefaultPlot} = "1";
+	if ($subHeading eq "RPS") {
+		$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_SECOND;
+		$self->{_PreferredVal} = "Higher";
+	}
 	$self->SUPER::initialise($subHeading);
 }
 
