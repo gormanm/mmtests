@@ -1,6 +1,6 @@
 #!/bin/bash
 # cyclictest
-###SHELLPACK preamble cyclictest-bench v2.7
+###SHELLPACK preamble cyclictest-bench v2.9
 ###SHELLPACK addon fragment
 
 CYCLICTEST_BACKGROUND=none

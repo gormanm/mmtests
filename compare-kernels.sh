@@ -1862,7 +1862,7 @@ for SUBREPORT in $REPORTS; do
 			fi
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults.png ]; then
 				MAJFAULTS=`$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading pgmajfault | awk '{print $2}' | grep -v Nan | max`
-				if [ "$MAJFAULTS" = "" ]; then
+				if [ "$MAJFAULTS" = "" -o "$MAJFAULTS" = "NaN" ]; then
 					MAJFAULTS=0
 				fi
 				if [ $MAJFAULTS -gt 0 ]; then
