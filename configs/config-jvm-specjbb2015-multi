@@ -11,8 +11,8 @@ export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # Total heap is divided between number of instances
-export SPECJBB_PACKAGES="java-1_8_0-openjdk java-1_8_0-openjdk-devel"
-export SPECJBB_JRE=/usr/lib64/jvm/java-1.8.0-openjdk-1.8.0/jre/bin
+export SPECJBB_PACKAGES="java-17-openjdk java-17-openjdk-devel"
+export SPECJBB_JRE=/usr/lib64/jvm/java-17-openjdk-17/bin
 
 # SPECjbb - max heap 70% of memory.
 export SPECJBB_JVM_INSTANCES=$NUMNODES
