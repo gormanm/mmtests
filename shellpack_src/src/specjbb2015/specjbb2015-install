@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###SHELLPACK preamble specjbb2015-install 1.00
+###SHELLPACK preamble specjbb2015-install 1.04
 WEB_LOCATION="NOT_AVAILABLE"
 MIRROR_LOCATION="$WEBROOT/proprietary/spec"
 
@@ -11,9 +11,6 @@ done
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-sources_fetch $WEB_LOCATION/$TARFILE $MIRROR_LOCATION/SPECjbb2015_${VERSION}.zip $SHELLPACK_SOURCES/SPECjbb2015_${VERSION}.zip
-cd $SHELLPACK_SOURCES
-unzip SPECjbb2015_${VERSION}.zip || die Failed to unzip SPECjbb2015_${VERSION}.zip
-mv SPECjbb2015_${VERSION} specjbb2015-${VERSION}-installed || die Failed to rename specjbb2015 directory
+###SHELLPACK sources_fetch SPECjbb2015-${VERSION}.tar.gz specjbb2015-${VERSION}-installed
 
 exit $SHELLPACK_SUCCESS

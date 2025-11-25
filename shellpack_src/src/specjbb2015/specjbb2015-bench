@@ -1,7 +1,7 @@
 #!/bin/bash
 # This is the script for running SPECjbb2015
 
-###SHELLPACK preamble specjbb2015-bench 1.00
+###SHELLPACK preamble specjbb2015-bench 1.04
 . $SHELLPACK_INCLUDE/common-detect.sh
 
 install-depends dmidecode
@@ -23,8 +23,8 @@ export PATH=$SPECJBB_JRE:$PATH
 STARTING_HUGEPAGES=`cat /proc/sys/vm/nr_hugepages`
 
 # Ensure everything is where it is expected to be
-pushd $SHELLPACK_SOURCES/specjbb2015-${VERSION}-installed > /dev/null || die Failed to cd to specjbb
-[ ! -e specjbb2015.jar ] && die No specjbb2015.jar available
+pushd $SHELLPACK_SOURCES/specjbb2015-${VERSION}-installed > /dev/null || die "Failed to cd to specjbb"
+[ ! -e specjbb2015.jar ] && die "No specjbb2015.jar available"
 
 # Increase open file limit
 ulimit -n 65536
@@ -74,7 +74,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 	EXIT_CODE=$SHELLPACK_SUCCESS
 	if [ $INSTANCES -eq 1 ]; then
 		set_mmtests_numactl $INSTANCES $INSTANCES
-		echo DEBUG DEBUG save_rc $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP -jar specjbb2015.jar -m COMPOSITE 2> /dev/null | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log
+		echo CMD: save_rc $MMTESTS_NUMACTL `which java` $USE_HUGEPAGE $SPECJBB_MAXHEAP -jar specjbb2015.jar -m COMPOSITE 2> /dev/null | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log
 		eval save_rc $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP -jar specjbb2015.jar -m COMPOSITE 2> /dev/null | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log
 		recover_rc
 		if [ $EXIT_CODE -ne 0 ]; then
