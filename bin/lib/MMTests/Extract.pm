@@ -141,7 +141,9 @@ sub setFormat() {
 
 sub printReportTop() {
 	my ($self) = @_;
-	$self->{_PrintHandler}->printTop();
+	if (defined($self->{_PrintHandler})) {
+		$self->{_PrintHandler}->printTop();
+	}
 }
 
 sub printReportBottom() {
