@@ -26,6 +26,7 @@ sub loadModule($$$) {
 	my $classInstance = $className->new(0);
 	$classInstance->{_TestName} = $testName;
 	$classInstance->initialise($subheading);
+	$classInstance->setFormat("generic");
 	printVerbose("Loaded  module " . $classInstance->getModuleName() . "\n");
 
 	bless $classInstance, $className;
