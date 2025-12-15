@@ -411,11 +411,6 @@ done
 cp config-workload-thpcompact config-workload-thpcompact-madvhugepage
 echo "export THPCOMPACT_MADV_HUGEPAGE=yes" >> config-workload-thpcompact-madvhugepage
 
-# Trinity
-for GROUP in vfs vm; do
-	sed -e "s/TRINITY_GROUP=.*/TRINITY_GROUP=$GROUP/" config-functional-trinity > config-functional-trinity-$GROUP
-done
-
 # XSBench
 cp config-hpc-xsbench-short-omp-small-full config-hpc-xsbench-long-omp-small-full
 echo "export XSBENCH_LOOKUPS=10000" >> config-hpc-xsbench-long-omp-small-full
