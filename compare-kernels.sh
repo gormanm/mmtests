@@ -774,13 +774,6 @@ for SUBREPORT in $REPORTS; do
 		echo No meaningful extraction script for monitor
 		echo
 		;;
-	multi)
-		for MULTI_TEST in `cat $KERNEL_BASE/iter-0/multi/logs/multi.list`; do
-			echo $SUBREPORT subtest $MULTI_TEST
-			compare-mmtests.pl -d . -b $MULTI_TEST -n $KERNEL_LIST $FORMAT_CMD
-			echo
-		done
-		;;
 	nas*)
 		echo $SUBREPORT NAS Time
 		compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD
