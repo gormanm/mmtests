@@ -416,25 +416,6 @@ for GROUP in vfs vm; do
 	sed -e "s/TRINITY_GROUP=.*/TRINITY_GROUP=$GROUP/" config-functional-trinity > config-functional-trinity-$GROUP
 done
 
-# WRF
-cp config-hpc-wrf-conus12km-hybrid-full config-hpc-wrf-conus12km-mpi-full
-sed -i	\
-	-e 's/WRF_PAR=.*/WRF_PAR="dmpar"/'		\
-	-e 's/WRF_PROCESSES=.*/WRF_PROCESSES=$NUMCPUS/'	\
-	-e 's/WRF_THREADS=.*/WRF_THREADS=1/'		config-hpc-wrf-conus12km-mpi-full
-cp config-hpc-wrf-conus12km-hybrid-full config-hpc-wrf-conus12km-omp-full
-sed -i	\
-	-e 's/WRF_PAR=.*/WRF_PAR="smpar"/'		\
-	-e 's/WRF_PROCESSES=.*/WRF_PROCESSES=1/'	\
-	-e 's/WRF_THREADS=.*/WRF_THREADS=$NUMCPUS/'	config-hpc-wrf-conus12km-omp-full
-
-PARMODEL=hybrid
-for PARMODEL in hybrid mpi omp; do
-	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-wrf-conus12km-$PARMODEL-full > config-hpc-wrf-conus12km-hpcext-$PARMODEL-full
-	sed -i -e '/WRF_MPI_PATH/d'    config-hpc-wrf-conus12km-hpcext-$PARMODEL-full
-	sed -i -e '/WRF_MPI_LIBPATH/d' config-hpc-wrf-conus12km-hpcext-$PARMODEL-full
-done
-
 # XSBench
 cp config-hpc-xsbench-short-omp-small-full config-hpc-xsbench-long-omp-small-full
 echo "export XSBENCH_LOOKUPS=10000" >> config-hpc-xsbench-long-omp-small-full

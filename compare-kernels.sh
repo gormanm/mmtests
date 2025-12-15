@@ -1229,7 +1229,7 @@ for SUBREPORT in $REPORTS; do
 		johnripper)
 			generate_ops_graphs
 			;;
-		abinit|frontistr|openfoam|specfem3d|wrf)
+		abinit|frontistr|openfoam|specfem3d)
 			echo "<tr>"
 			for HEADING in elsp syst user; do
 				TITLE_HEADING=
