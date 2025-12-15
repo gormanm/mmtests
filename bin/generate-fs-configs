@@ -159,7 +159,6 @@ config-workload-cyclictest-fine-kernel-build
 config-workload-cyclictest-histogram-kernel-build
 config-workload-cyclictest-kernel-build
 config-workload-dedup
-config-workload-gnupg
 config-workload-kernbench-max
 config-workload-kerndevel
 config-workload-kvmstart-memhog-frag-fio-randread

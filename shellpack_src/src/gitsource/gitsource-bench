@@ -24,13 +24,6 @@ export LANGUAGE=en_US.UTF-8
 export NO_SVN_TESTS=skip
 export GIT_SKIP_TESTS="t9010.2[23] t0013* t6120.6[45] t0007.3 t7502.3[45] t9001.2[67] t9020* t9200* t940[0-2]* t960[0-4]*"
 
-# create directory where gnupg can place its sockets
-USERRUNDIR=/var/run/user/$(id -u)
-if [ ! -e $USERRUNDIR ]; then
-	echo "Creating $USERRUNDIR"
-	mkdir -p $USERRUNDIR
-fi
-
 if [ "$GITSOURCE_SKIP_WARMUP" = "no" ]; then
 	echo Warming run
 	make test > $LOGDIR_RESULTS/warmup.log 2>&1
