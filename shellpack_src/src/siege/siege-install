@@ -1,6 +1,6 @@
 #!/bin/bash
 # siege installer
-###SHELLPACK preamble siege-install 4.0.2
+###SHELLPACK preamble siege-install 4.0.4
 
 APACHE_VERSION=2.4.39
 
