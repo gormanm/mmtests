@@ -1318,9 +1318,6 @@ for SUBREPORT in $REPORTS; do
 			;;
 		pistress)
 			;;
-		postmark)
-			generate_basic "$SUBREPORT" "--logY"
-			;;
 		reaim)
 			generate_client_subtest_graphs
 			;;
