@@ -1,0 +1,24 @@
+default-metric: Wakeup
+
+metrics:
+  - Wakeup
+  - Request
+  - RPS
+
+summarise: Multiops
+PlotXaxis: Workers
+PlotYaxis: Latency
+PlotType: client-candlesticks
+
+Wakeup:
+  title: Wakeup Latency
+  units: TIME_USECONDS
+
+Request:
+  title: Request Latency
+  units: TIME_USECONDS
+
+RPS:
+  title: Requests Per Second
+  units: OPS_PER_SECOND
+  preferhigher: true

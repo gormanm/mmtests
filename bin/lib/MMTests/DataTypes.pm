@@ -20,4 +20,9 @@ use constant LABEL_MBYTES_PER_SECOND	=> "MBytes/sec";
 use constant LABEL_GBYTES_PER_SECOND	=> "GBytes/sec";
 use constant LABEL_FAILURES		=> "Failures";
 
+sub getDataTypeLabel($) {
+	no strict;
+	return &{"LABEL_" . $_[0]}();
+}
+
 1;

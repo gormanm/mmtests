@@ -16,7 +16,9 @@ KERNEL_COMPARE=
 CHANGE_DIR=
 
 install-depends perl-File-Which
+install-depends perl-YAML-PP
 install-depends python313-scipy
+install-depends python313-yq
 
 while [ "$1" != "" ]; do
 	case $1 in

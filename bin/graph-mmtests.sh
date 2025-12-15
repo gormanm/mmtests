@@ -191,7 +191,9 @@ TITLES=
 COUNT=0
 for TEST in $TEST_LIST; do
 	PLOTFILE="$TMPDIR/$TEST"
-	eval $SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS --print-plot | \
+	EXTRACT_CMD="$SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS --print-plot"
+	[ "$GRAPH_DEBUG" = "yes" ] && echo "TRACE: Extract: $EXTRACT_CMD"
+	eval $EXTRACT_CMD | \
 		grep -v nan 		| \
 		sed -e 's/_/\\\\_/g'	  \
 		> $PLOTFILE || exit
@@ -211,7 +213,6 @@ for TEST in $TEST_LIST; do
 	fi
 
 	if [ "$GRAPH_DEBUG" = "yes" ]; then
-		echo TRACE: $SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS --print-plot
 		echo TRACE: Writing /tmp/lastplot
 		cp $PLOTFILE /tmp/lastplot
 	fi
@@ -274,7 +275,8 @@ for PLOTSCRIPT in $PLOTSCRIPTS; do
 		eval $COMMAND $OUTPUT_CMD $TITLE_CMD $WITH_SMOOTH $PLOTS
 	fi
 	if [ "$GRAPH_DEBUG" != "" ]; then
-		cat $PLOTSCRIPT
+		[ "$GRAPH_DEBUG" = "yes" ] && echo TRACE: Dump $PLOTS
+		cat $PLOTS
 		echo
 	fi
 done

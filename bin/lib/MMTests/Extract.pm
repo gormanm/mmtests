@@ -79,6 +79,7 @@ sub printDataType() {
 		$xaxis = "-";
 	}
 
+	$subHeading = "all" if ($subHeading eq "");
 	print "$subHeading,$xaxis,$yaxis,$plotType";
 	if ($self->{_SubheadingPlotType} != "") {
 		print ",$self->{_SubheadingPlotType}";

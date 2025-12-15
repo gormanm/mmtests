@@ -1,0 +1,9 @@
+#!/bin/bash
+SHELLPACK_ROOT=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
+
+LOGDIR=${1:-`pwd`}
+cd $LOGDIR || exit 1
+
+for WORKERS in `\ls schbench-* | sed -e 's/^schbench-//' -e 's/\.log$//' | sort -n`; do
+	grep -v '(0 samples)' schbench-$WORKERS.log | awk -v workers="$WORKERS" -f $SHELLPACK_ROOT/parse-results.awk | sed -e 's/\.0th-/th-/'
+done
