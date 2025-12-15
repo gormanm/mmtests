@@ -1315,16 +1315,6 @@ for SUBREPORT in $REPORTS; do
 			plain graph-$SUBREPORT-faultssec
 			echo "</tr>"
 			;;
-		pgioperfbench)
-			for OPER in commit read wal; do
-				echo "<tr>"
-				eval $GRAPH_PNG --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER
-				eval $GRAPH_PNG --logY --title \"$SUBREPORT $OPER\" --sub-heading $OPER --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$OPER-logY
-				plain graph-$SUBREPORT-$OPER
-				plain graph-$SUBREPORT-$OPER-logY
-				echo "</tr>"
-			done
-			;;
 		pgbench)
 			echo "<tr>"
 			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}

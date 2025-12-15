@@ -26,7 +26,6 @@ config-db-sysbench-postgres-oltp-ro-medium
 config-db-sysbench-postgres-oltp-ro-small
 config-db-sysbench-postgres-oltp-rw-medium
 config-db-sysbench-postgres-oltp-rw-small
-config-io-pgioperf
 config-workload-usemem
 "
 
