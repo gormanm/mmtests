@@ -1,7 +1,0 @@
-### Sleeps for some time and exits.
-
-# MM Test Parameters
-export MMTESTS="nap"
-
-export NAP_DURATION=30
-export NAP_MSG_INTERVAL=5

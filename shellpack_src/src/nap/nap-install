@@ -1,9 +1,0 @@
-#!/bin/bash
-###SHELLPACK preamble nap-install 0
-
-install-depends coreutils
-
-###SHELLPACK parseargBegin
-###SHELLPACK parseargEnd
-
-exit $SHELLPACK_SUCCESS
