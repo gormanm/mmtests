@@ -14,7 +14,6 @@ sub initialise() {
 	$self->{_Opname} = "Latency";
 	$self->{_PlotType}   = "histogram";
 	$self->{_DefaultPlot} = "1";
-	$self->{_FieldLength} = 12;
 	$self->{_ClientSubheading} = 1;
 	$self->SUPER::initialise($subHeading);
 }

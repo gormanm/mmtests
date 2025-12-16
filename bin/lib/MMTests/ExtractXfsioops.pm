@@ -10,7 +10,6 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractXfsioops";
 	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_SECOND;
 	$self->{_PreferredVal} = "Higher";
-	$self->{_FieldLength} = 12;
 
 	$self->SUPER::initialise($subHeading);
 }

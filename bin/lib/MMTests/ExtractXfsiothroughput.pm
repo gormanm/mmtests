@@ -10,7 +10,6 @@ sub initialise() {
 	$self->{_ModuleName} = "ExtractXfsiothroughput";
 	$self->{_PlotYaxis}  = DataTypes::LABEL_MBYTES_PER_SECOND;
 	$self->{_PreferredVal} = "Higher";
-	$self->{_FieldLength} = 12;
 
 	$self->SUPER::initialise($subHeading);
 }

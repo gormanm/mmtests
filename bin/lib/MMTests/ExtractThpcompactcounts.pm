@@ -12,7 +12,6 @@ sub initialise() {
 	$self->{_PlotType}   = "histogram";
 	$self->{_PreferredVal} = "Higher";
 	$self->{_Opname}     = "Percentage";
-	$self->{_FieldLength} = 12;
 
 	$self->SUPER::initialise($subHeading);
 }

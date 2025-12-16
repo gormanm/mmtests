@@ -11,7 +11,6 @@ sub initialise() {
 	$self->{_PlotYaxis} = DataTypes::LABEL_TIME_SECONDS;
 	$self->SUPER::initialise($subHeading);
 
-	my $fieldLength = $self->{_FieldLength} = 12;
 	$self->{_PlotLength} = $fieldLength;
 	$self->{_PlotType} = "operation-candlesticks";
 	$self->{_PlotXaxis}  = "TestName";

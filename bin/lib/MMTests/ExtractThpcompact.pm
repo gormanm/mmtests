@@ -11,7 +11,6 @@ sub initialise() {
 	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
-	$self->{_FieldLength} = 12;
 
 	$self->SUPER::initialise($subHeading);
 }

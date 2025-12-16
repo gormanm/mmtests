@@ -12,7 +12,6 @@ sub initialise() {
 	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "simple";
 	$self->{_PlotXaxis}  = "Message Size KBytes";
-	$self->{_FieldLength} = 12;
 
         $self->SUPER::initialise($subHeading);
 }

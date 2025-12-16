@@ -12,7 +12,6 @@ sub initialise() {
 	$self->{_PreferredVal} = "Higher";
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
-	$self->{_FieldLength} = 12;
 
         $self->SUPER::initialise($subHeading);
 }

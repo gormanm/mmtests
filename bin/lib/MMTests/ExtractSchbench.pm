@@ -12,7 +12,6 @@ sub initialise() {
 	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
 	$self->{_PlotXaxis}  = "Threads";
 	$self->{_Opname} = "Lat";
-	$self->{_FieldLength} = 12;
 	$self->{_ExactSubheading} = 0;
 	$self->{_ExactPlottype} = "simple";
 	$self->{_DefaultPlot} = "1";

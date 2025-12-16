@@ -13,7 +13,6 @@ sub initialise() {
 	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
 	$self->{_PlotType}   = "client-errorlines";
 	$self->{_PlotXaxis}  = "Clients";
-	$self->{_FieldLength} = 12;
 	$self->{_ExactSubheading} = 1;
 	$self->{_ExactPlottype} = "simple";
 	$self->{_DefaultPlot} = "1";
