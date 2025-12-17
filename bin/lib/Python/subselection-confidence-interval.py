@@ -29,7 +29,7 @@ def geometric_mean(x):
 def harmonic_mean(x):
     return 1/mean(1/x)
 
-def confidence_interval(x, func, alpha, selections=100, fracsize=0.8):
+def confidence_interval(x, func, alpha, selections=1000, fracsize=0.8):
     iters = len(x)
 
     med = numpy.zeros(iters)
