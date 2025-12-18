@@ -1,0 +1,29 @@
+default-metric: page_test
+
+metrics:
+  - brk_test
+  - exec_test
+  - fork_test
+  - page_test
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: Test
+PlotYaxis: Ops/sec
+PlotType: operation-candlesticks
+
+page_test:
+  title: Fault Operations
+  units: OPS_PER_SECOND
+
+exec_test:
+  title: exec() Operations
+  units: OPS_PER_SECOND
+
+brk_test:
+  title: brk() Operations
+  units: OPS_PER_SECOND
+
+fork_test:
+  title: fork() Operations
+  units: OPS_PER_SECOND
