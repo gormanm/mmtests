@@ -12,6 +12,7 @@ use constant LABEL_KBYTES_PER_SECOND	=> "KBytes/sec";
 use constant LABEL_KBYTES		=> "KiB";
 use constant LABEL_OPS_PER_SECOND	=> "Ops/sec";
 use constant LABEL_OPS_PER_MINUTE	=> "Ops/min";
+use constant LABEL_OPS_SCORE		=> "Ops/score";
 use constant LABEL_OPS_SPREAD		=> "Ops spread";
 use constant LABEL_TRANS_PER_SECOND	=> "Transactions/sec";
 use constant LABEL_MBITS_PER_SECOND	=> "Mbits/sec";

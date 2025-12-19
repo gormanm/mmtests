@@ -1,0 +1,18 @@
+#!/bin/bash
+SHELLPACK_ROOT=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
+
+LOGDIR=${1:-`pwd`}
+cd $LOGDIR || exit 1
+
+# Required output format, tab delimited
+# - metric factorA factorB interval value extra
+# Where;
+# metric:	A primary metric like time, a specific operation e.g. Latency, Elapsed, transaction
+# factorA:	Statistically relevant modifier such as percentile, thread count, worker etc
+# factorB:	Secondary factor
+# interval:	e.g. time elapsed, iteration etc
+# value:	the benchmark measurement
+# extra:	Optional value, currently used to identify a metric+factor for dashboard comparisons
+for ITERATION in `\ls blogbench-*.log | sed -e 's/\.log$//' | cut -d- -f2 | sort -n`; do
+	grep -E 'Final score for'  blogbench-$ITERATION.log | sed -e 's/://g' | awk "{print \$4\"_score\t_\t_\t\"$ITERATION\"\t\"\$NF\"\t_\"}"
+done | sort -k1,1 -k4,4n
