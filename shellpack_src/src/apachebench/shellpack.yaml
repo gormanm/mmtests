@@ -1,0 +1,13 @@
+default-metric: mean_latency
+
+metrics:
+  - mean_latency
+
+summarise: Multiops
+PlotXaxis: Clients
+PlotYaxis: Mean Latency
+PlotType: operation-candlesticks
+
+mean_latency:
+  title: Mean Latency
+  units: TIME_MSECONDS
