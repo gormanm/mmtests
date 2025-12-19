@@ -24,13 +24,10 @@ set_mmtests_numactl $EBIZZY_MAX_THREADS $EBIZZY_MAX_THREADS
 ###SHELLPACK threads_large_stride_begin $EBIZZY_MIN_THREADS $EBIZZY_MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $EBIZZY_ITERATIONS
-		echo Iteration:$ITERATION Threads:$NR_THREADS/$EBIZZY_MAX_THREADS \
-			| tee -a $LOGDIR_RESULTS/ebizzy-$NR_THREADS-$ITERATION.log
-
+		echo Start iteration $ITERATION/$EBIZZY_ITERATIONS Threads:$NR_THREADS/$EBIZZY_MAX_THREADS
 		save_rc $SHELLPACK_SOURCES/ebizzy-${VERSION}-installed/bin/ebizzy \
 			-S $EBIZZY_DURATION \
-			-t $NR_THREADS \
-			| tee $LOGDIR_RESULTS/ebizzy-$NR_THREADS-$ITERATION.log
+			-t $NR_THREADS > $LOGDIR_RESULTS/ebizzy-$NR_THREADS-$ITERATION.log
 		recover_rc
 		RETVAL=$?
 		if [ $RETVAL -ne 0 ]; then

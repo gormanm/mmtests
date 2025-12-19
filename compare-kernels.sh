@@ -722,13 +722,10 @@ for SUBREPORT in $REPORTS; do
 		;;
 	ebizzy)
 		echo $SUBREPORT Overall Throughput
-		$COMPARE_CMD
+		$COMPARE_CMD       -d . -b ebizzy --sub-heading total_rec -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Per-thread
-		compare-mmtests.pl -d . -b ebizzy -a thread -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		echo $SUBREPORT Thread spread
-		compare-mmtests.pl -d . -b ebizzy -a range -n $KERNEL_LIST $FORMAT_CMD
+		compare-mmtests.pl -d . -b ebizzy --sub-heading thread_rec -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	fio)
 		echo $SUBREPORT Throughput
