@@ -2,11 +2,6 @@
 # Run unixbench sub-command directly benchmark
 
 ###SHELLPACK preamble unixbenchd-bench 5.1.3
-TESTTIME=15
-ITERATIONS=12
-TESTLIST=
-MAX_THREADS=$NUMCPUS
-
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam   --iterations	UNIXBENCHD_ITERATIONS
@@ -16,10 +11,10 @@ MAX_THREADS=$NUMCPUS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_external_install_required unixbench     unixbench-${VERSION}         ${VERSION}
+###SHELLPACK check_install_required unixbench     unixbench-${VERSION}         ${VERSION}
 ###SHELLPACK init_complete
 
-cd $SHELLPACK_SOURCES/unixbench-$VERSION-installed/UnixBench || die "Failed to cd to installation directory"
+cd $SHELLPACK_SOURCES/unixbenchd-$VERSION-installed/UnixBench || die "Failed to cd to installation directory"
 
 export UB_TESTDIR=$SHELLPACK_DATA
 

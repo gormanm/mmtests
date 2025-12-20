@@ -1,0 +1,18 @@
+#!/bin/bash
+###SHELLPACK preamble unixbenchd-install 5.1.3
+WEB_LOCATION=https://github.com/kdlucas/byte-unixbench/archive/refs/tags
+MIRROR_LOCATION="$WEBROOT/unixbench/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+rm -rf $SHELLPACK_SOURCES/unixbenchd-${VERSION}
+###SHELLPACK sources_fetch v${VERSION}.tar.gz unixbenchd-${VERSION}-installed
+
+###SHELLPACK build_start unixbenchd-${VERSION}-installed
+
+cd UnixBench
+###SHELLPACK make
+
+echo unixbench installed successfully
+exit $SHELLPACK_SUCCESS

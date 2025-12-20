@@ -1,0 +1,19 @@
+default-metric: syscall_context1
+
+metrics:
+  - syscall_context1
+  - syscall_getpid
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: Test
+PlotYaxis: Ops/iteation
+PlotType: operation-candlesticks
+
+syscall_context1:
+  title: Nr. Syscall context1
+  units: OPS_ITERATION
+
+sysscall_getpid:
+  title: Nr. Syscall getpid
+  units: OPS_ITERATION
