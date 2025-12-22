@@ -6,7 +6,6 @@ export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`/..
 cd $SCRIPTDIR/configs || exit
 
 CPUACC_CONFIGS="
-workload-kernbench-max
 "
 
 IOACC_CONFIGS="
