@@ -59,16 +59,17 @@ $SHELLPACK_TEMP/gitcheckout.sh || die "Failed to warmup"
 	fi
 
 	echo Iteration $ITERATION/$GITCHECKOUT_ITERATIONS
-	$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION $SHELLPACK_TEMP/gitcheckout.sh &> $LOGDIR_RESULTS/gitcheckout-$ITERATION.log
+	$TIME_CMD -o $LOGDIR_RESULTS/gitcheckout-$ITERATION.time $SHELLPACK_TEMP/gitcheckout.sh &>gitcheckout-last.log
 	if [ $? -ne 0 ]; then
 		echo Dumping output
-		cat $LOGDIR_RESULTS/gitcheckout-$ITERATION.log
+		cat $LOGDIR_RESULTS/gitcheckout-last.log
 		die "Failed to execute git checkout"
 	fi
 	monitor_post_hook $LOGDIR_RESULTS $ITERATION
 ###SHELLPACK iteration_end
 
 # Cleanup
+rm $LOGDIR_RESULTS/gitcheckout-last.log
 cd /
 rm -rf $SHELLPACK_DATA/gitcheckout-$VERSION*
 
