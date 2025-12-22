@@ -1,4 +1,13 @@
 ### Sleeps for some time and exits.
+###
+### In itself this configuration does nothing but it's still useful for
+### two reasons.
+###
+### - when MMTests is used as part of a larger automation, "nap-bench"
+###   serves as a dry-run benchmark to verify that all other configuration
+###   is correct
+### - measure power consumption at idle, assuming the appropriate monitors
+###   are enabled.
 
 # MM Test Parameters
 export MMTESTS="nap"
