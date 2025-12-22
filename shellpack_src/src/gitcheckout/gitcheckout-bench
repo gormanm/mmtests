@@ -3,15 +3,12 @@
 # between two kernel versions. It is somewhat metadata intensive
 #
 # Copyright Mel Gorman 2013
-###SHELLPACK preamble gitcheckout-bench 0
+###SHELLPACK preamble gitcheckout-bench v6.18
 
 GITCHECKOUT_CACHE=hot
-GITCHECKOUT_ITERATIONS=10
-GITCHECKOUT_SOURCETAR=
+GITCHECKOUT_ITERATIONS=15
 
 ###SHELLPACK parseargBegin
-###SHELLPACK parseargParam --git-tar	GITCHECKOUT_SOURCETAR
-###SHELLPACK parseargParam --git-source	GITCHECKOUT_SOURCE
 ###SHELLPACK parseargParam --commits	GITCHECKOUT_COMMITS
 ###SHELLPACK parseargParam --iterations GITCHECKOUT_ITERATIONS
 ###SHELLPACK parseargParam --cache      GITCHECKOUT_CACHE
@@ -22,53 +19,39 @@ install-depends git-core
 
 # Get the git repository
 ###SHELLPACK init_only_start
-	pushd $SHELLPACK_DATA > /dev/null
-	if [ "$GITCHECKOUT_SOURCETAR" != "" -a "$GITCHECKOUT_SOURCETAR" != "none" ]; then
-		echo Using $GITCHECKOUT_SOURCETAR
-		wget -q -O gitcheckout.tar.gz $GITCHECKOUT_SOURCETAR
-		if [ $? -ne 0 ]; then
-			echo "Can't retrieve $GITCHECKOUT_SOURCETAR, falling back to $GITCHECKOUT_SOURCE"
-			rm -f gitcheckout.tar.gz
-		fi
-	fi
-	if [ -e gitcheckout.tar.gz ]; then
-		tar -xf gitcheckout.tar.gz
-		if [ $? -ne 0 ]; then
-			die "$P: tar xf gitcheckout.tar.gz failed"
-		fi
-		DST_DIR=`tar tf gitcheckout.tar.gz | head -n 1 | awk -F / '{print $1}'`
-		mv $DST_DIR gitcheckout
-	else
-		echo Cloning $GITCHECKOUT_SOURCE
-		git clone $GITCHECKOUT_SOURCE gitcheckout
-		if [ $? -ne 0 ]; then
-			GITCHECKOUT_SOURCE=git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6
-			echo "Clone failed! Falling back to $GITCHECKOUT_SOURCE"
-			git clone $GITCHECKOUT_SOURCE gitcheckout || exit $SHELLPACK_ERROR
-		fi
-	fi
+###SHELLPACK check_install_required_continue gitcheckout-${VERSION}
+	# Setup source
+	cd $SHELLPACK_DATA || die "Failed to change to $SHELLPACK_DATA"
+        rm -rf gitcheckout-$VERSION
+	tar -xf $SHELLPACK_SOURCES/gitcheckout-$VERSION.tar.xz || die "Failed to extract $SHELLPACK_SOURCES/gitcheckout-$VERSION.tar.xz"
 ###SHELLPACK init_only_end
 
 GITCHECKOUT_COMMITS=`echo $GITCHECKOUT_COMMITS | sed -e 's/,/ /g'`
-sysctl -w vm.drop_caches=3
+cd $SHELLPACK_DATA/gitcheckout-$VERSION-installed || die "Unexpected directory layout for source, no $SHELLPACK_DATA/gitcheckout-$VERSION-installed"
+
+if [ "$GITCHECKOUT_CACHE" = "cold" ]; then
+	sysctl -w vm.drop_caches=3
+fi
+
+echo Creating test script to checkout $GITCHECKOUT_COMMITS
+cat > $SHELLPACK_TEMP/gitcheckout.sh << EOF
+#!/bin/bash
+echo Workdir: $SHELLPACK_DATA/gitcheckout-$VERSION-installed
+cd $SHELLPACK_DATA/gitcheckout-$VERSION-installed
+for COMMIT in $GITCHECKOUT_COMMITS; do
+	echo Checkout: \$COMMIT
+	git checkout \$COMMIT || exit 127
+done
+EOF
+
+chmod u+x $SHELLPACK_TEMP/gitcheckout.sh
 
 echo Warming up
 mmtests_activity warmup
-cd $SHELLPACK_DATA/gitcheckout   || exit $SHELLPACK_ERROR
-for COMMIT in $GITCHECKOUT_COMMITS; do
-	git checkout $COMMIT || exit $SHELLPACK_ERROR
-done
+$SHELLPACK_TEMP/gitcheckout.sh || die "Failed to warmup"
 
-echo "#!/bin/bash
-for COMMIT in $GITCHECKOUT_COMMITS; do
-	git checkout \$COMMIT
-done
-" > $SHELLPACK_TEMP/gitcheckout.sh
-chmod u+x $SHELLPACK_TEMP/gitcheckout.sh
-
-mkdir -p $LOGDIR_RESULTS
-monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $GITCHECKOUT_ITERATIONS
+	monitor_pre_hook $LOGDIR_RESULTS $ITERATION
 	if [ "$GITCHECKOUT_CACHE" = "cold" ]; then
 		echo Dropping caches as per requested
 		sync
@@ -76,14 +59,17 @@ monitor_pre_hook $LOGDIR_RESULTS $P
 	fi
 
 	echo Iteration $ITERATION/$GITCHECKOUT_ITERATIONS
-	$TIME_CMD $SHELLPACK_TEMP/gitcheckout.sh 2>> $LOGDIR_RESULTS/time.$ITERATION
-	grep elapsed $LOGDIR_RESULTS/time.$ITERATION
+	$TIME_CMD -o $LOGDIR_RESULTS/time.$ITERATION $SHELLPACK_TEMP/gitcheckout.sh &> $LOGDIR_RESULTS/gitcheckout-$ITERATION.log
+	if [ $? -ne 0 ]; then
+		echo Dumping output
+		cat $LOGDIR_RESULTS/gitcheckout-$ITERATION.log
+		die "Failed to execute git checkout"
+	fi
+	monitor_post_hook $LOGDIR_RESULTS $ITERATION
 ###SHELLPACK iteration_end
-monitor_post_hook $LOGDIR_RESULTS $P
 
-# Summarise and cleanup
-popd > /dev/null
-grep elapsed $LOGDIR_RESULTS/time.* | tee $LOGDIR_RESULTS/time
-rm -rf $SHELLPACK_DATA/gitcheckout
+# Cleanup
+cd /
+rm -rf $SHELLPACK_DATA/gitcheckout-$VERSION*
 
 exit $SHELLPACK_SUCCESS

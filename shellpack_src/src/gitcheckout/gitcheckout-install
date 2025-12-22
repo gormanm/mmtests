@@ -1,0 +1,22 @@
+#!/bin/bash
+###SHELLPACK preamble gitcheckout-install v6.18
+GIT_LOCATION="git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6"
+MIRROR_LOCATION="$WEBROOT/gitcheckout/"
+
+install-depends git-core
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+###SHELLPACK git_fetch gitcheckout-${VERSION}.tar.xz gitcheckout-${VERSION}-installed
+cd $SHELLPACK_SOURCES
+
+echo Tarring up full git tree for future use
+rm gitcheckout-v6.18.tar.xz
+tar -cJf gitcheckout-v6.18.tar.xz gitcheckout-${VERSION}-installed || die "Failed to create tar of $SHELLPACK_SOURCES/gitcheckout-${VERSION}-installed"
+
+echo Checkout $VERSION
+git -C $SHELLPACK_SOURCES/gitcheckout-$VERSION-installed checkout $VERSION || die "Failed to checkout $VERSION"
+
+echo gitcheckout installed successfully
+exit $SHELLPACK_SUCCESS
