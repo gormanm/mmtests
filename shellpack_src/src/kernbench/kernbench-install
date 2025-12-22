@@ -1,0 +1,16 @@
+#!/bin/bash
+###SHELLPACK preamble kernbench-install 6.18
+WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v6.x
+MIRROR_LOCATION="$WEBROOT/kernbench/"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+install-depends flex bison libelf-devel libopenssl-devel
+
+###SHELLPACK sources_fetch linux-$VERSION.tar.xz linux-$VERSION
+cd $SHELLPACK_SOURCES
+rm -f kernbench-$VERSION-installed
+ln -s linux-$VERSION kernbench-$VERSION-installed || die "Failed to link fake installation directory $SHELLPACK_SOURCES/linux-$VERSION-installed"
+
+echo kernbench installed successfully

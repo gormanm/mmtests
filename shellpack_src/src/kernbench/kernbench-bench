@@ -1,10 +1,10 @@
 #!/bin/bash
 # Benchmark a number of kernel builds
-###SHELLPACK preamble kernbench 6.15
+###SHELLPACK preamble kernbench-bench 6.15
 ITERATIONS=5
 KERNBENCH_CONFIG=defconfig
 KERNBENCH_TARGETS=vmlinux
-KERNBENCH_SKIP_WARMUP=no
+KERNBENCH_WARMUP=no
 
 install-depends flex bison libelf-devel libopenssl-devel
 
@@ -15,76 +15,49 @@ install-depends flex bison libelf-devel libopenssl-devel
 ###SHELLPACK parseargParam	--iterations	KERNBENCH_ITERATIONS
 ###SHELLPACK parseargParam	--kernel-config	KERNBENCH_CONFIG
 ###SHELLPACK parseargParam	--build-targets	KERNBENCH_TARGETS
-###SHELLPACK parseargYes	--skip-warmup	KERNBENCH_SKIP_WARMUP
+###SHELLPACK parseargYes	--warmup	KERNBENCH_WARMUP
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-GCC_VERSION=`gcc-parse-version`
-GCC_MAJOR=`echo $GCC_VERSION | awk -F . '{print $1}'`
-
-# May not work with older !SUSE distributions
-COMPILER_FLAGS=
-if [ $GCC_MAJOR -lt 5 ]; then
-	install-depends gcc-9
-	COMPILER_FLAGS="CC=gcc-9"
-fi
-
-KERNEL_FAMILY=v4.x
-for V in `seq 2 5`; do
-	echo $VERSION | grep -q ^$V
-	if [ $? -eq 0 ]; then
-		KERNEL_FAMILY=v$V.x
-	fi
-done
-
-MAJOR_VERSION=${VERSION%%.*}
-WEB_LOCATION=https://www.kernel.org/pub/linux/kernel/v${MAJOR_VERSION}.x/linux-${VERSION}.tar.xz
-MIRROR_LOCATION=$WEBROOT/kernel/linux-$VERSION.tar.xz
-THREADS=$(($NUMCPUS))
-KERNBENCH_TARGETS=`echo $KERNBENCH_TARGETS | sed -e 's/,/ /g'`
-
 ###SHELLPACK init_only_start
-	cd $SHELLPACK_DATA > /dev/null
-	rm -f ./linux-$VERSION.tar.xz
-	sources_fetch $WEB_LOCATION $MIRROR_LOCATION ./linux-$VERSION.tar.xz
-	tar xf linux-$VERSION.tar.xz || die "Failed to extract"
-	cd linux-$VERSION || die "Unexpected layout"
+###SHELLPACK check_install_required_continue kernbench-${VERSION}
+	# Setup source
+	cd $SHELLPACK_DATA || die "Failed to change to $SHELLPACK_DATA"
+	rm -rf linux-$VERSION
 
-	# Configure
-	yes '' | make $COMPILER_FLAGS $KERNBENCH_CONFIG > /dev/null 2>&1 || die "Failed to make $KERNBENCH_CONFIG"
-	make $COMPILER_FLAGS -j$THREADS clean > /dev/null
+	echo Setup kernel source on test data directory
+	tar -xf $SHELLPACK_SOURCES/linux-$VERSION.tar.xz || die "Failed to extract $SHELLPACK_SOURCES/linux-$VERSION.tar.xz"
+	cd linux-$VERSION || die "Unexpected directory layout for source, no $SHELLPACK_DATA/linux-$VERSION/"
+	make -j$NUMCPUS mrproper &>/dev/null || die "Failed to clean"
 
-	if [ "`uname -m`" = "aarch64" ]; then
-		echo Removing broken entry from aarch64 $KERNBENCH_CONFIG
-		sed -i -e '/CONFIG_CRYPTO_CRC32_ARM64/d' .config
-		echo "# CONFIG_CRYPTO_CRC32_ARM64 is not set" >> .config
-		yes '' | make oldconfig
-	fi
-
-	if [ "$KERNBENCH_SKIP_WARMUP" = "no" ]; then
+	# Configure and warmup if requested
+	yes '' | make $KERNBENCH_CONFIG &>/dev/null || die "Failed to make $KERNBENCH_CONFIG"
+	if [ "$KERNBENCH_WARMUP" = "yes" ]; then
 		echo Install-only warming run
-		make $COMPILER_FLAGS -j$THREADS $KERNBENCH_TARGETS > /dev/null 2>&1 || die "Failed to build $KERNBENCH_TARGETS"
+		make $COMPILER_FLAGS -j$NUMCPUS $KERNBENCH_TARGETS > /dev/null 2>&1 || die "Failed to build $KERNBENCH_TARGETS"
 	fi
 	make $COMPILER_FLAGS clean >/dev/null
 ###SHELLPACK init_only_end
 
-# Build pass
-cd $SHELLPACK_DATA/linux-$VERSION || die "Unexpected layout"
+echo Clean and reconfigure source
+cd $SHELLPACK_DATA/linux-$VERSION || die "Unexpected directory layout for source, no $SHELLPACK_DATA/linux-$VERSION/"
+yes '' | make $KERNBENCH_CONFIG &>/dev/null || die "Failed to make $KERNBENCH_CONFIG"
+make -j$NUMCPUS clean
+
 ###SHELLPACK threads_powertwo_begin $KERNBENCH_MIN_THREADS $KERNBENCH_MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $KERNBENCH_ITERATIONS
 		echo Starting threads $NR_THREADS/$KERNBENCH_MAX_THREADS iteration $ITERATION/$KERNBENCH_ITERATIONS
-		sync
 
-		save_rc $TIME_CMD make $COMPILER_FLAGS -j$NR_THREADS $KERNBENCH_TARGETS 2>> $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time > /dev/null
-		grep elapsed $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time``
+		save_rc $TIME_CMD make -j$NR_THREADS $KERNBENCH_TARGETS 2>> $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time > /dev/null
+		grep elapsed $LOGDIR_RESULTS/kernbench-${NR_THREADS}-$ITERATION.time
 		recover_rc
 		if [ $? -ne 0 ]; then
 			die "Failed to run kernbench"
 		fi
 
 		# cleanup
-		make $COMPILER_FLAGS clean >/dev/null
+		make clean >/dev/null
 	###SHELLPACK iteration_end $ITERATIONS
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_powertwo_end

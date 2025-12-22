@@ -1,7 +1,6 @@
 ### kernbench is a simple average of five kernel compiles of the vmlinux binary
 ### image. Note that it is sensitive to the kernel version, configuration and
-### compiler used. In this configuration, it's allmodconfig build of the full
-### kernel 4.4 with all CPUs in use.
+### compiler used.
 
 export MMTESTS="kernbench"
 
@@ -19,19 +18,17 @@ export MMTESTS="kernbench"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat mpstat iotop"
+export MONITORS_GZIP="proc-vmstat mpstat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_UPDATE_FREQUENCY=5
 
 # kernbench
 export KERNBENCH_ITERATIONS=3
-export KERNBENCH_MIN_THREADS=$((NUMCPUS))
+export KERNBENCH_MIN_THREADS=$((NUMCPUS/NUMLLCS/4))
 export KERNBENCH_MAX_THREADS=$((NUMCPUS))
-export KERNBENCH_CONFIG=allmodconfig
-export KERNBENCH_TARGETS=vmlinux,modules
-export KERNBENCH_SKIP_WARMUP=yes
+export KERNBENCH_CONFIG=defconfig
+export KERNBENCH_TARGETS=vmlinux
 export MMTESTS_THREAD_CUTOFF=
-# Note that, depending on your userspace/gcc/etc, a specific kernel version
-# may not be buildable. MMTests will try to sort things out automatically, but
-# if you have problems, point it to a specific version from here.
-export KERNBENCH_VERSION=6.15
+export KERNBENCH_VERSION=6.18
+
+[ $KERNBENCH_MIN_THREADS -lt 4 ] && export KERNBENCH_MIN_THREADS=$KERNBENCH_MAX_THREADS
