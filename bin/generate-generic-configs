@@ -110,14 +110,6 @@ export KVMSTART_PRETEST_RUN_ARGS=\$KVMSTART_PRETEST_PREPARE_ARGS
 export KVMSTART_PRETEST_CLEANUP_ARGS=
 EOF
 
-# John the Ripper
-sed 	-e 's/JOHNRIPPER_MIN_THREADS=.*/JOHNRIPPER_MIN_THREADS=$((NUMCPUS\/2))/'	\
-	-e 's/JOHNRIPPER_MAX_THREADS=.*/JOHNRIPPER_MAX_THREADS=$((NUMCPUS\/2))/'	\
-	config-workload-johnripper > config-workload-johnripper-half
-sed 	-e 's/JOHNRIPPER_MIN_THREADS=.*/JOHNRIPPER_MIN_THREADS=$NUMCPUS/'	\
-	-e 's/JOHNRIPPER_MAX_THREADS=.*/JOHNRIPPER_MAX_THREADS=$NUMCPUS/'	\
-	config-workload-johnripper > config-workload-johnripper-full
-
 # NAS
 for TYPE in omp mpi mpich; do
 	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/2))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-half

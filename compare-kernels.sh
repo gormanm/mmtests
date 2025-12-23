@@ -761,15 +761,6 @@ for SUBREPORT in $REPORTS; do
 		compare-mmtests.pl -d . -b ${SUBREPORT} -a score -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	johnripper)
-		echo $SUBREPORT Transactions
-		eval $COMPARE_CMD
-		echo
-
-		echo $SUBREPORT User/System CPU time
-		compare-mmtests.pl -d . -b johnripper -a exectime -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		;;
 	monitor)
 		echo No meaningful extraction script for monitor
 		echo
@@ -1214,9 +1205,6 @@ for SUBREPORT in $REPORTS; do
 			generate_basic "$SUBREPORT" "--logX"
 			;;
 		highalloc)
-			;;
-		johnripper)
-			generate_ops_graphs
 			;;
 		abinit|specfem3d)
 			echo "<tr>"
