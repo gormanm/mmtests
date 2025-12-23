@@ -59,17 +59,6 @@ sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=1/' 	   config-workload-ebizzy > config-w
 sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=$NUMCPUS/' config-workload-ebizzy > config-workload-ebizzy-max
 sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=$((NUMCPUS*4))/' config-workload-ebizzy > config-workload-ebizzy-overload
 
-# FRONTISTR
-sed 	-e 's/FRONTISTR_DOMAINS=.*/FRONTISTR_DOMAINS=$NUMCPUS/'		\
-	-e 's/FRONTISTR_OMP_THREADS=.*/FRONTISTR_OMP_THREADS=1/'	\
-	config-hpc-frontistr-hinge-full > config-hpc-frontistr-hinge-allproc-full
-sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-frontistr-hinge-full > config-hpc-frontistr-hinge-hpcext-full
-sed -i -e '/_MPI_PATH/d'    config-hpc-frontistr-hinge-hpcext-full
-sed -i -e '/_MPI_LIBPATH/d' config-hpc-frontistr-hinge-hpcext-full
-sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-frontistr-hinge-allproc-full > config-hpc-frontistr-hinge-allproc-hpcext-full
-sed -i -e '/_MPI_PATH/d'    config-hpc-frontistr-hinge-allproc-hpcext-full
-sed -i -e '/_MPI_LIBPATH/d' config-hpc-frontistr-hinge-allproc-hpcext-full
-
 # Hackbench
 sed -e 's/HACKBENCH_MAX_GROUPS=.*/HACKBENCH_MAX_GROUPS=1/' config-scheduler-hackbench > config-scheduler-hackbench-small
 
