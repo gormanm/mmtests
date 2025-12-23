@@ -757,11 +757,16 @@ for SUBREPORT in $REPORTS; do
 		echo
 		;;
 	nas*)
-		echo $SUBREPORT NAS Time
-		compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD
+		echo $SUBREPORT Elapsed Time
+		compare-mmtests.pl -d . -b ${SUBREPORT} -n $KERNEL_LIST $FORMAT_CMD --sub-heading Elapsed
 		echo
-		echo $SUBREPORT Wall Time
-		compare-mmtests.pl -d . -b ${SUBREPORT} -a time -n $KERNEL_LIST $FORMAT_CMD
+
+		echo $SUBREPORT System CPU Time
+		compare-mmtests.pl -d . -b ${SUBREPORT} -n $KERNEL_LIST $FORMAT_CMD --sub-heading System
+		echo
+
+		echo $SUBREPORT NAS Time
+		compare-mmtests.pl -d . -b ${SUBREPORT} -n $KERNEL_LIST $FORMAT_CMD --sub-heading NAS
 		echo
 		;;
 	netperf-*)
