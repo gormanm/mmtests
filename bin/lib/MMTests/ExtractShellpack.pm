@@ -18,6 +18,10 @@ sub initialise() {
 
 	$self->setSummaryMultiops() if !defined($yamlMap{'summarise'}) || $yamlMap{'summarise'} eq "Multiops";
 
+	# Set reporting options specified by YAML
+	$self->{_Precision} = 2;
+	$self->{_Precision} = $yamlMap{'DecimalPlaces'} if defined($yamlMap{'DecimalPlaces'});
+
 	# Set graphing options specified by YAML
 	$self->{_PlotXaxis} = $self->{_PlotYaxis} = "UNKNOWN";
 	$self->{_PlotType} = "candlesticks";
@@ -39,6 +43,7 @@ sub open_parser() {
 	my ($self, $reportDir) = @_;
 	my $fh;
 
+	printVerbose("Generic parse $reportDir\n");
 	open($fh, $self->{_ShellpackParser} . " $reportDir|") || die("Failed to open pipe to " . $self->{_ShellpackParser} . " $reportDir");
 	return $fh;
 }

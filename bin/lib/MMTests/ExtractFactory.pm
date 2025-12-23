@@ -12,6 +12,22 @@ sub new() {
 	return $self;
 }
 
+sub lookupShellpackRoot($) {
+	my $moduleName = lcfirst($_[0]);
+	my $lastModuleName = "";
+
+	do {
+		printVerbose("Trying  module $moduleName\n");
+		my $candidate = "$Bin/../shellpack_src/src/$moduleName";
+		return $candidate if -e $candidate;
+
+		$lastModuleName = $moduleName;
+		$moduleName =~ s/-[a-zA-Z_.0-9]*$//;
+	} while ($lastModuleName ne $moduleName);
+
+	return "";
+}
+
 sub loadModule($$$) {
 	my ($self, $type, $moduleName, $testName, $subheading) = @_;
 	printVerbose("Loading module $moduleName\n");
@@ -27,7 +43,7 @@ sub loadModule($$$) {
 	# Load specific module if available or generic extraction
 	# module if YAML configuration exists
 	my $className;
-	my $shellpackRoot = "$Bin/../shellpack_src/src/" . lc($moduleName);
+	my $shellpackRoot = lookupShellpackRoot($moduleName);
 	my $shellpackConfig = $shellpackRoot . "/shellpack.yaml";
 	if (eval "require \"$loadModule\"") {
 		printVerbose("Import  specific module MMTests::$type$pmName\n");
@@ -53,6 +69,7 @@ sub loadModule($$$) {
 		$classInstance->{_ShellpackParser} = $classInstance->{_ShellpackRoot}  . "/parse-results";
 		die("Shellpack config ($shellpackConfig) exists but parse-results does not exist") if (! -f $classInstance->{_ShellpackParser});
 		die("Shellpack config ($shellpackConfig) exists but parse-results is not executable") if (! -x $classInstance->{_ShellpackParser});
+		printVerbose("Result  parser $classInstance->{_ShellpackParser}\n");
 		printVerbose("YAML    config $shellpackConfig\n");
 	}
 	$classInstance->initialise($subheading);
