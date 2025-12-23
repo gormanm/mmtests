@@ -796,14 +796,6 @@ for SUBREPORT in $REPORTS; do
 		compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b netpipe -a 4mb -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	openfoam)
-		echo $SUBREPORT Wall Time
-		compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		echo $SUBREPORT Step Times
-		compare-mmtests.pl -d . -b $SUBREPORT -a steps -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		;;
 	parallelio)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
@@ -1226,7 +1218,7 @@ for SUBREPORT in $REPORTS; do
 		johnripper)
 			generate_ops_graphs
 			;;
-		abinit|openfoam|specfem3d)
+		abinit|specfem3d)
 			echo "<tr>"
 			for HEADING in elsp syst user; do
 				TITLE_HEADING=

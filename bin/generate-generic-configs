@@ -165,28 +165,6 @@ for CONFIG in `find -type f -name "config-network-netperf-*" | sort | grep -v 4c
 	echo "export NETPERF_NR_PAIRS=4" >> $CONFIG-4clients
 done
 
-# Openfoam
-for MODEL in motorbike-default motorbike-subdomains; do
-	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-openfoam-$MODEL-full > config-hpc-openfoam-$MODEL-hpcext-full
-	sed -i -e '/OPENFOAM_MPI_PATH/d'    config-hpc-openfoam-$MODEL-hpcext-full
-	sed -i -e '/OPENFOAM_MPI_LIBPATH/d' config-hpc-openfoam-$MODEL-hpcext-full
-
-	for CONFIG in config-hpc-openfoam-$MODEL-full config-hpc-openfoam-$MODEL-hpcext-full; do
-		NEWCONFIG=`echo $CONFIG | sed -e "s/-$MODEL-/-$MODEL-large-/"`
-		sed	-e 's/OPENFOAM_CELL_LEVELS=.*/OPENFOAM_CELL_LEVELS=40/'			\
-			-e 's/OPENFOAM_ITERATIONS=.*/OPENFOAM_ITERATIONS=1/'			\
-			-e 's/Solver:.*/Solver:  PCG/'						\
-			-e 's/Faces:.*/Faces:   14.6 million/'					\
-			$CONFIG > $NEWCONFIG
-	done
-done
-rm -f config-hpc-openfoam-*-meshonly
-for CONFIG in `ls config-hpc-openfoam-*`; do
-	sed -e 's/Steps:.*/Steps:   Stops after the mesh is integrated/'		\
-		$CONFIG > $CONFIG-meshonly
-	echo 'export OPENFOAM_STOPAT_MESH="yes"' >> $CONFIG-meshonly
-done
-
 # Parsec
 sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUMCPUS\/2))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-half
 sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUMCPUS\/3))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-third
