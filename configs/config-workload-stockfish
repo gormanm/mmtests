@@ -3,12 +3,13 @@ export MMTESTS="stockfish"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat perf-time-stat mpstat turbostat"
+export MONITORS_GZIP="proc-vmstat mpstat turbostat"
 export MONITORS_WITH_LATENCY="vmstat"
-export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_UPDATE_FREQUENCY=5
 
 # Stockfish
-export STOCKFISH_MIN_THREADS=1
+export STOCKFISH_MIN_THREADS=$((NUMCPUS/NUMLLCS/4))
 export STOCKFISH_MAX_THREADS=$((NUMCPUS*2))
 export STOCKFISH_ITERATIONS=3
+
+[ $STOCKFISH_MIN_THREADS -lt 4 ] && export STOCKFISH_MIN_THREADS=$STOCKFISH_MAX_THREADS

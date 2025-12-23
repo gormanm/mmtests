@@ -25,8 +25,9 @@ if [ $STOCKFISH_MAX_THREADS -gt 128 ]; then
 	STOCKFISH_MAX_THREADS=128
 fi
 
-###SHELLPACK threads_large_stride_begin $STOCKFISH_MIN_THREADS $STOCKFISH_MAX_THREADS
+###SHELLPACK threads_powertwo_begin $STOCKFISH_MIN_THREADS $STOCKFISH_MAX_THREADS
 cat > $EXPECT_SCRIPT <<EOF
+set timeout -1
 spawn $SHELLPACK_SOURCES/stockfish-${VERSION}-installed/bin/stockfish
 expect "Stockfish"             {
 exp_send "uci\\r"
@@ -45,12 +46,12 @@ ulimit -s unlimited
 chmod u+x $EXPECT_SCRIPT
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK iteration_begin $STOCKFISH_ITERATIONS
-	echo Starting iteration $ITERATION threads $NR_THREADS
+	echo Starting iteration $ITERATION/$STOCKFISH_ITERATIONS threads $NR_THREADS
 	$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION \
-		$EXPECT -f $EXPECT_SCRIPT > $LOGDIR_RESULTS/stockfish-$NR_THREADS-$ITERATION
-	gzip $LOGDIR_RESULTS/stockfish-$NR_THREADS-$ITERATION
+		$EXPECT -f $EXPECT_SCRIPT > /dev/null
 ###SHELLPACK iteration_end $ITERATIONS
 monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-###SHELLPACK threads_stride_end
+###SHELLPACK threads_powertwo_end
 
+rm -f $EXPECT_SCRIPT
 exit $SHELLPACK_SUCCESS
