@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble blasbuild v0.3.10
+###SHELLPACK preamble blasbuild v0.3.30
 GIT_LOCATION=https://github.com/xianyi/OpenBLAS
 MIRROR_LOCATION="$WEBROOT/blasbuild/"
 

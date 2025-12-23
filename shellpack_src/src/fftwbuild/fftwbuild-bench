@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble fftwbuild-bench fftw-3.3.7
+###SHELLPACK preamble fftwbuild-bench fftw-3.3.10
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -7,6 +7,6 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-export FFTW_VERSION="3.3.7"
+export FFTW_VERSION="3.3.10"
 # dependencies
 ###SHELLPACK check_external_install_required fftwbuild      fftwbuild-${FFTW_VERSION}           ${FFTW_VERSION}

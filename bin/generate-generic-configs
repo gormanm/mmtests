@@ -5,13 +5,6 @@ export SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
 export SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
 cd $SCRIPTDIR/../configs || exit
 
-# ABINIT
-for TYPE in full; do
-	sed -e 's/=openmpi3/=openmpi3-hpc/' config-hpc-abinit-tmbt-$TYPE > config-hpc-abinit-tmbt-hpcext-$TYPE
-	sed -i -e '/ABINIT_MPI_PATH/d'    config-hpc-abinit-tmbt-hpcext-$TYPE
-	sed -i -e '/ABINIT_MPI_LIBPATH/d' config-hpc-abinit-tmbt-hpcext-$TYPE
-done
-
 # bonnie
 for FILE in `ls config-io-bonnie*-async`; do
 	FSYNC_FILE=`echo $FILE | sed -e 's/-async$/-fsync/'`

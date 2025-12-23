@@ -1,6 +1,6 @@
 #!/bin/bash
-###SHELLPACK preamble scalapackbuild 2.1.0
-WEB_LOCATION="http://www.netlib.org/scalapack"
+###SHELLPACK preamble scalapackbuild 46d1837e0f6f
+GIT_LOCATION="https://github.com/Reference-ScaLAPACK/scalapack"
 MIRROR_LOCATION="$WEBROOT/scalapackbuild/"
 
 ###SHELLPACK parseargBegin
@@ -14,14 +14,14 @@ install-depends cmake gcc-fortran
 ###SHELLPACK mpi_setup_shmem
 
 export LIB_SUFFIX=`echo $MMTESTS_LIBDIR | sed -e 's/^lib//'`
-###SHELLPACK sources_fetch scalapack-${VERSION}.tgz scalapackbuild-${VERSION}
+###SHELLPACK git_fetch scalapackbuild-${VERSION}.tar.gz scalapackbuild-${VERSION}
 ###SHELLPACK build_start scalapackbuild-${VERSION}
 mkdir build
 ###SHELLPACK build_cmake scalapackbuild-${VERSION}/build scalapackbuild-${VERSION} -DCMAKE_EXE_LINKER_FLAGS="-fopenmp" -DBLAS_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/$MMTESTS_LIBDIR/libopenblas.a -DLAPACK_LIBRARIES=$SHELLPACK_SOURCES/blasbuild-$BLAS_VERSION-installed/$MMTESTS_LIBDIR/libopenblas.a -DMPI_BASE_DIR=$MPI_BASE_DIR -DBUILD_SHARED_LIBS:BOOL=ON -DBUILD_STATIC_LIBS:BOOL=ON -DLIB_SUFFIX=$LIB_SUFFIX $SCALAPACK_MAKE_FLAGS
 ###SHELLPACK make_make_install
 
 # Scalapack hard-codes lib/ for cmake files
-if [ "$MMTESTS_LIBDIR" = "lib64" ]; then
+if [ "$MMTESTS_LIBDIR" = "lib64" -a ! -e $SHELLPACK_SOURCES/scalapackbuild-${VERSION}-installed/lib64 ]; then
 	mv $SHELLPACK_SOURCES/scalapackbuild-${VERSION}-installed/lib/cmake $SHELLPACK_SOURCES/scalapackbuild-${VERSION}-installed/$MMTESTS_LIBDIR/
 	rmdir $SHELLPACK_SOURCES/scalapackbuild-${VERSION}-installed/lib || die "Failed to remove lib as expected"
 fi

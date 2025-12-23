@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble fftwbuild-install 3.3.7
+###SHELLPACK preamble fftwbuild-install 3.3.10
 WEB_LOCATION="http://fftw.org/"
 MIRROR_LOCATION="$WEBROOT/fftw/"
 
