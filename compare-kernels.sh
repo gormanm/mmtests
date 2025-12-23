@@ -1179,9 +1179,6 @@ for SUBREPORT in $REPORTS; do
 			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`" "Estimated time"
 			echo "</tr>"
 			;;
-		dedup)
-			generate_basic "$SUBREPORT" "--wide --logX"
-			;;
 		ebizzy)
 			generate_basic "$SUBREPORT" "--logX"
 			;;
