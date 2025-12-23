@@ -293,7 +293,7 @@ done
 echo
 
 # Validate systemtap installation if it exists
-TESTS_STAP="highalloc pagealloc highalloc"
+TESTS_STAP="highalloc highalloc"
 MONITORS_STAP="dstate stap-highorder-atomic function-frequency syscalls"
 export STAP_USED=
 export MONITOR_STAP=

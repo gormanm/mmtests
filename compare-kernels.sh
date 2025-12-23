@@ -1294,8 +1294,6 @@ for SUBREPORT in $REPORTS; do
 		netperf-tcp|netperf-udp-rr|netperf-tcp-rr)
 			generate_basic "$SUBREPORT" "--logX --xrange 16:32768"
 			;;
-		pagealloc)
-			;;
 		parsec-*)
 			;;
 		parsecbuild)
