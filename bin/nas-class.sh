@@ -2,6 +2,9 @@
 # Select NAS class based on machine characteristics. Preference is for
 # class D.
 
+echo C
+exit 0
+
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
 MEMTOTAL_GB=$((MEMTOTAL_BYTES/1048576/1024))
 NUMCPUS=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`

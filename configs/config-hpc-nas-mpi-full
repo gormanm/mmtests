@@ -22,6 +22,7 @@ export MONITORS_WITH_LATENCY="vmstat"
 export MONITOR_UPDATE_FREQUENCY=10
 
 # NAS Parallel Benchmark
+export NAS_PARALLEL_TYPE=MPI
 export NAS_OPENMPI_VERSION=openmpi4
 export NAS_MPI_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_OPENMPI_VERSION/bin
 export NAS_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_OPENMPI_VERSION/$MMTESTS_LIBDIR
@@ -53,10 +54,10 @@ export NAS_MPI_OPTS
 # Select tests based on class
 case $NAS_CLASS in
 C)
-	export MMTESTS="nas-mpi-bt nas-mpi-cg nas-mpi-ep nas-mpi-ft nas-mpi-is nas-mpi-lu nas-mpi-mg nas-mpi-sp"
+	export MMTESTS="nas-bt nas-cg nas-ep nas-ft nas-is nas-lu nas-mg nas-sp"
 	;;
 D)
-	export MMTESTS="nas-mpi-bt nas-mpi-cg nas-mpi-ep            nas-mpi-is nas-mpi-lu nas-mpi-mg nas-mpi-sp"
+	export MMTESTS="nas-bt nas-cg nas-ep            nas-is nas-lu nas-mg nas-sp"
 	;;
 *)
 	die "Unrecognised class $NAS_CLASS"

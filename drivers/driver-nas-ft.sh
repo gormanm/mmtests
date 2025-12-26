@@ -1,3 +1,2 @@
-NAS_PARALLEL_TYPE=MPICH
-NAS_JOBLIST="mg"
+NAS_JOBLIST="ft"
 . $SHELLPACK_TOPLEVEL/drivers/driver-nas-common.sh
