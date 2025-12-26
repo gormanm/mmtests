@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble blasbuild-bench blas-v0.3.10
+###SHELLPACK preamble blasbuild-bench blas-v0.3.30
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -7,6 +7,6 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-export BLAS_VERSION="v0.3.10"
+export BLAS_VERSION="v0.3.30"
 # dependencies
 ###SHELLPACK check_external_install_required blasbuild     blasbuild-${BLAS_VERSION}         ${BLAS_VERSION}
