@@ -3,11 +3,11 @@ export MMTESTS="poundsyscall"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat top mpstat turbostat"
+export MONITORS_GZIP="proc-vmstat mpstat turbostat"
 export MONITORS_WITH_LATENCY="vmstat"
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_UPDATE_FREQUENCY=2
 
 # poundtime
-export POUNDSYSCALL_ITERATIONS=10
-export POUNDSYSCALL_MIN_THREADS=2
-export POUNDSYSCALL_MAX_THREADS=$((NUMCPUS*4))
+export POUNDSYSCALL_ITERATIONS=15
+export POUNDSYSCALL_MIN_THREADS=1
+export POUNDSYSCALL_MAX_THREADS=$((NUMCPUS*2))

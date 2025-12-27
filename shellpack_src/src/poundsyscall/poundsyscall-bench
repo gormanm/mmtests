@@ -1,7 +1,7 @@
 #!/bin/bash
 ###SHELLPACK preamble poundsyscall-bench 0
 
-ITERATIONS=12
+ITERATIONS=30
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
@@ -13,22 +13,24 @@ ITERATIONS=12
 
 ###SHELLPACK check_install_required poundsyscall-${VERSION}
 
-###SHELLPACK threads_large_stride_begin $POUNDSYSCALL_MIN_THREADS $POUNDSYSCALL_MAX_THREADS
-	for FILE in pound_syscall; do
+TESTBIN="pound_getppid"
+
+###SHELLPACK threads_powertwo_begin $POUNDSYSCALL_MIN_THREADS $POUNDSYSCALL_MAX_THREADS
+	for FILE in ${TESTBIN}; do
 		gcc -O2 -lpthread -DNUM_THREADS=$NR_THREADS \
-				$SHELLPACK_SOURCES/poundsyscall-${VERSION}-installed/${FILE}.c \
-				-o $SHELLPACK_TEMP/$FILE || \
-			die Failed to build ${FILE}.c thread count $NR_THREADS
+				$SHELLPACK_SOURCES/poundsyscall-${VERSION}-installed/${TESTBIN}.c \
+				-o $SHELLPACK_TEMP/${TESTBIN} || \
+			die "Failed to build ${TESTBIN}.c thread count $NR_THREADS"
 	done
 
-	for FILE in pound_syscall; do
-		monitor_pre_hook $LOGDIR_RESULTS $FILE-$NR_THREADS
+	for FILE in ${TESTBIN}; do
+		monitor_pre_hook $LOGDIR_RESULTS ${TESTBIN}-$NR_THREADS
 		###SHELLPACK iteration_begin $POUNDSYSCALL_ITERATIONS
-			echo Starting $FILE $NR_THREADS/$POUNDSYSCALL_MAX_THREADS iteration $ITERATION/$POUNDSYSCALL_ITERATIONS
-				$TIME_CMD -o $LOGDIR_RESULTS/$FILE-${NR_THREADS}-${ITERATION}.time \
-					$SHELLPACK_TEMP/$FILE 2>&1 | tee $LOGDIR_RESULTS/$FILE-${NR_THREADS}-${ITERATION}.log
+			echo Starting ${TESTBIN} $NR_THREADS/$POUNDSYSCALL_MAX_THREADS iteration $ITERATION/$POUNDSYSCALL_ITERATIONS
+				$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITERATION} \
+					$SHELLPACK_TEMP/${TESTBIN} &>/dev/null
 		###SHELLPACK iteration_end $POUNDSYSCALL_ITERATIONS
-		monitor_post_hook $LOGDIR_RESULTS $FILE-$NR_THREADS
+		monitor_post_hook $LOGDIR_RESULTS ${TESTBIN}-$NR_THREADS
 	done
-###SHELLPACK threads_stride_end
+###SHELLPACK threads_powertwo_end
 exit $SHELLPACK_SUCCESS
