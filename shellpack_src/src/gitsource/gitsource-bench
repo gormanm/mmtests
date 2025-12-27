@@ -10,13 +10,6 @@
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK init_only_start
-###SHELLPACK check_install_required_continue gitsource-${VERSION}
-cp -ar $SHELLPACK_SOURCES/gitsource-${VERSION}-installed $SHELLPACK_DATA || die "Failed to copy gitsource-$VERSION-installed"
-###SHELLPACK init_only_end
-
-cd $SHELLPACK_DATA/gitsource-${VERSION}-installed || die Failed to cd to gitsource-$VERSION-installed
-
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
@@ -24,25 +17,30 @@ export LANGUAGE=en_US.UTF-8
 export NO_SVN_TESTS=skip
 export GIT_SKIP_TESTS="t9010.2[23] t0013* t6120.6[45] t0007.3 t7502.3[45] t9001.2[67] t9020* t9200* t940[0-2]* t960[0-4]*"
 
+###SHELLPACK init_only_start
+###SHELLPACK check_install_required_continue gitsource-${VERSION}
+rm -rf $SHELLPACK_DATA/gitsource-${VERSION}-installed
+cp -ar $SHELLPACK_SOURCES/gitsource-${VERSION}-installed $SHELLPACK_DATA || die "Failed to copy gitsource-$VERSION-installed"
+
 if [ "$GITSOURCE_SKIP_WARMUP" = "no" ]; then
 	echo Warming run
-	make test > $LOGDIR_RESULTS/warmup.log 2>&1
+	cd $SHELLPACK_DATA/gitsource-${VERSION}-installed || die "Failed to cd to $SHELLPACK_DATA/gitsource-$VERSION-installed"
+	make test &> $LOGDIR_RESULTS/warmup.log
 	tail $LOGDIR_RESULTS/warmup.log
 fi
 
+###SHELLPACK init_only_end
+
 monitor_pre_hook $LOGDIR_RESULTS $P
+cd $SHELLPACK_DATA/gitsource-${VERSION}-installed || die "Failed to cd to $SHELLPACK_DATA/gitsource-$VERSION-installed"
 ###SHELLPACK iteration_begin $GITSOURCE_ITERATIONS
 	echo Starting iteration $ITERATION/$GITSOURCE_ITERATIONS
-	$TIME_CMD -o $LOGDIR_RESULTS/gitsource-${ITERATION}.time \
-		make test \
-		> $LOGDIR_RESULTS/gitsource-${ITERATION}.log 2>&1
-	tail $LOGDIR_RESULTS/gitsource-${ITERATION}.log
-	gzip $LOGDIR_RESULTS/gitsource-${ITERATION}.log
-	cat $LOGDIR_RESULTS/gitsource-${ITERATION}.time
+	$TIME_CMD -o $LOGDIR_RESULTS/time-_-${ITERATION} \
+		make test &> $LOGDIR_RESULTS/gitsource-last.log
 ###SHELLPACK iteration_end
 monitor_post_hook $LOGDIR_RESULTS $P
 
-cat $LOGDIR_RESULTS/gitsource-*.time | grep elapsed | tee $LOGDIR_RESULTS/time
 rm -rf $SHELLPACK_DATA/gitsource-${VERSION}-installed
+gzip $LOGDIR_RESULTS/gitsource-last.log
 
 exit $SHELLPACK_SUCCESS
