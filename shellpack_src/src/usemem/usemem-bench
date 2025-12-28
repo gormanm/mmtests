@@ -73,7 +73,7 @@ echo File portion: $((MEMTOTAL_FILE/1048576))M
 			wait \$USEMEM_PID
 		done" > $SHELLPACK_TEMP/usemem.sh
 		chmod a+x $SHELLPACK_TEMP/usemem.sh
-		$TIME_CMD -o $LOGDIR_RESULTS/usemem-$NR_THREADS-$ITERATION $SHELLPACK_TEMP/usemem.sh
+		$TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION $SHELLPACK_TEMP/usemem.sh
 		echo
 	###SHELLPACK iteration_end $USEMEM_ITERATIONS
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
