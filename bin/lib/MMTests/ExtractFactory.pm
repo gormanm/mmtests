@@ -30,7 +30,7 @@ sub lookupShellpackRoot($) {
 
 sub loadModule($$$) {
 	my ($self, $type, $moduleName, $testName, $subheading) = @_;
-	printVerbose("Loading module $moduleName\n");
+	printVerbose("Loading module $type $moduleName\n");
 
 	# Construct module name
 	my $loadModule;
@@ -61,6 +61,7 @@ sub loadModule($$$) {
 
 	# Common module configuration
 	my $classInstance = $className->new(0);
+	$classInstance->{_Precision} = (($type eq "Extract") ? 8 : 2);
 	$classInstance->{_ModuleName} = "$type$pmName";
 	$classInstance->{_TestName} = $testName;
 	$classInstance->{_ShellpackRoot} = $shellpackRoot;

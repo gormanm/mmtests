@@ -45,7 +45,9 @@ sub initialise() {
 	$self->SUPER::initialise($subHeading);
 	$self->{_FieldLength} = 12 if ($self->{_FieldLength} == 0);
 	my $fieldLength = $self->{_FieldLength};
-	$self->{_FieldFormat} = [ "%${fieldLength}d", "%${fieldLength}.2f" ];
+	my $precision = (defined($self->{_Precision}) ? $self->{_Precision} : 2);
+
+	$self->{_FieldFormat} = [ "%${fieldLength}d", "%${fieldLength}.${precision}f" ];
 	$self->{_FieldHeaders} = [ "Sample", $opName ];
 	for (my $header = 0; $header < scalar @{$self->{_SummaryStats}};
 	     $header++) {
