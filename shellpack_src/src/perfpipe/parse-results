@@ -1,20 +1,7 @@
 #!/bin/bash
 SHELLPACK_ROOT=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
-SHELLPACK_BIN=$SHELLPACK_ROOT/../../bin/
+SHELLPACK_BIN=$SHELLPACK_ROOT/../../parsers
 
 LOGDIR=${1:-`pwd`}
 cd $LOGDIR || exit 1
-
-# Required output format, tab delimited
-# - metric factorA factorB interval value extra
-# Where;
-# metric:	A primary metric like time, a specific operation e.g. Latency, Elapsed, transaction
-# factorA:	Statistically relevant modifier such as percentile, thread count, worker etc
-# factorB:	Secondary factor
-# interval:	e.g. time elapsed, iteration etc
-# value:	the benchmark measurement
-# extra:	Optional value, currently used to identify a metric+factor for dashboard comparisons
-for ITERATION in `\ls pipe-*.log | sed -e 's/\.log$//' | cut -f2 -d- | sort -n`; do
-	VALUE=`grep usecs/op pipe-$ITERATION.log | awk '{print $1}'`
-	echo -e "usecs-op\t_\t_\t$ITERATION\t$VALUE\t_"
-done
+$SHELLPACK_BIN/line-parse-results `pwd` 'usecs/op' usecs-op 1

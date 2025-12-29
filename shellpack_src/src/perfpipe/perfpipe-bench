@@ -19,12 +19,14 @@ PERFPIPE_ITERATIONS=30
 PERF_DIR=$SHELLPACK_SOURCES/perfbuild-${VERSION}-installed/bin
 PERF_CMD=${PERF_DIR}/perf
 
-echo Perf invocation: $TASKSET_ALL $PERF_CMD bench sched pipe -l $PERFPIPE_LOOPS
+BENCH_CMD="$TASKSET_ALL $PERF_CMD bench sched pipe -l $PERFPIPE_LOOPS"
+log_cmd "$BENCH_CMD"
+
 monitor_pre_hook $LOGDIR_RESULTS $P
 ###SHELLPACK iteration_begin $PERFPIPE_ITERATIONS
+	echo "Starting iteration $ITERATION/$PERFPIPE_ITERATIONS"
 	mmtests_activity bench
-	$TASKSET_ALL $PERF_CMD bench sched pipe -l $PERFPIPE_LOOPS \
-			2>&1 | tee $LOGDIR_RESULTS/pipe-${ITERATION}.log
+	$BENCH_CMD &> $LOGDIR_RESULTS/benchlog-_-_-${ITERATION}
 ###SHELLPACK iteration_end
 monitor_post_hook $LOGDIR_RESULTS $P
 
