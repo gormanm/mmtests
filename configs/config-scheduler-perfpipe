@@ -6,7 +6,7 @@ export MONITORS_ALWAYS=
 #export MONITORS_TRACER="perf-event-stat"
 export MONITORS_GZIP="proc-vmstat mpstat turbostat"
 export MONITORS_WITH_LATENCY="vmstat"
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_UPDATE_FREQUENCY=2
 
 # Perf pipe
 export PERFPIPE_LOOPS=500000

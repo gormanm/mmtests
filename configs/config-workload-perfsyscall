@@ -6,8 +6,8 @@ export MONITORS_ALWAYS=
 #export MONITORS_TRACER="perf-event-stat"
 export MONITORS_GZIP="proc-vmstat mpstat turbostat"
 export MONITORS_WITH_LATENCY="vmstat"
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_UPDATE_FREQUENCY=2
 
-# Perf pipe
+# Perf syscall
 export PERFSYSCALL_LOOPS=5000000
-export PERFSYSCALL_ITERATIONS=60
+export PERFSYSCALL_ITERATIONS=30
