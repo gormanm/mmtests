@@ -745,13 +745,6 @@ for SUBREPORT in $REPORTS; do
 		echo $SUBREPORT ssd
 		compare-mmtests.pl -d . -b fio -a ssd -n $KERNEL_LIST 2> /dev/null
 		;;
-	fsmark-single|fsmark-threaded)
-		echo $SUBREPORT
-		$COMPARE_CMD
-		echo
-		echo $SUBREPORT App Overhead
-		compare-mmtests.pl -d . -b ${SUBREPORT}overhead -n $KERNEL_LIST $FORMAT_CMD
-		;;
 	monitor)
 		echo No meaningful extraction script for monitor
 		echo

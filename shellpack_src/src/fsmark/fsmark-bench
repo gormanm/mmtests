@@ -68,6 +68,13 @@ if [ "$FSMARK_KEEP_FILES" = "yes" ]; then
 	PARAM_EXTRA+=" -k"
 fi
 
+cleanup() {
+	echo Cleaning up fs_mark test files
+	rm /tmp/fsmark-$$
+	rm -rf $SHELLPACK_DATA/fsmark-$$
+}
+trap cleanup EXIT
+
 ###SHELLPACK threads_large_stride_begin $MIN_THREADS $MAX_THREADS
 	NR_TOP_DIRECTORIES=0
 	if [ "$FSMARK_NR_TOP_DIRECTORIES" = "nr_threads" ]; then
@@ -96,6 +103,7 @@ fi
 	echo Cleaning up old fs_mark test files
 	rm -rf $SHELLPACK_DATA/*
 
+	echo Starting fs_mark
 	BENCH_CMD="./fs_mark $PARAMETERS"
 	log_cmd $BENCH_CMD
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
@@ -113,8 +121,5 @@ fi
 		fi
 	fi
 ###SHELLPACK threads_stride_end
-
-rm /tmp/fsmark-$$
-rm -rf $SHELLPACK_DATA/fsmark-$$
 
 exit $SHELLPACK_SUCCESS

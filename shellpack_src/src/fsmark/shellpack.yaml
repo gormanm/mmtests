@@ -1,0 +1,13 @@
+default-metric: files_sec
+
+metrics:
+  - files_sec
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: Files/sec
+PlotType: operation-candlesticks
+
+files_sec:
+  title: Files/second
+  units: OPS_PER_SECOND
