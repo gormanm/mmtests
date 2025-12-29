@@ -24,4 +24,4 @@ for FACTORA in `ls time-*-1 | awk -F - '{print $2}'`; do
 		echo -e "System\t$FACTORA\t_\t$ITERATION\t$SYST\t_"
 		echo -e "Elapsed\t$FACTORA\t_\t$ITERATION\t$ELSP\t_"
 	done
-done | sort -k1,1 -k2,2n
+done | sort -k1,1 -k2,2n -k4,4n
