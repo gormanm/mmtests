@@ -30,11 +30,20 @@ fi
 ITERATION=0
 for FACTORA in `\ls benchlog-* | cut -f2 -d- | sort -u`; do
 	for FACTORB in `\ls benchlog-$FACTORA-* | cut -f3 -d- | sort -u`; do
-		for LOG_NR in `\ls benchlog-$FACTORA-$FACTORB-* | cut -f4 -d- | sort -n`; do
-			for VALUE in `cat benchlog-$FACTORA-$FACTORB-$LOG_NR | grep -E "$LPATTERN" | awk "{print \\$\$POS}"`; do
+		LOG_LIST=
+		ITERATION=0
+		if [ -e benchlog-$FACTORA-$FACTORB ]; then
+			for VALUE in `cat benchlog-$FACTORA-$FACTORB | grep -E "$LPATTERN" | awk "{print \\$\$POS}"`; do
 				((ITERATION++))
 				echo -e "$METRIC\t$FACTORA\t$FACTORB\t$ITERATION\t$VALUE\t_"
 			done
-		done
+		else
+			for LOG_NR in `\ls benchlog-$FACTORA-$FACTORB-* | cut -f4 -d- | sort -n`; do
+				for VALUE in `cat benchlog-$FACTORA-$FACTORB-$LOG_NR | grep -E "$LPATTERN" | awk "{print \\$\$POS}"`; do
+					((ITERATION++))
+					echo -e "$METRIC\t$FACTORA\t$FACTORB\t$ITERATION\t$VALUE\t_"
+				done
+			done
+		fi
 	done
-done
+done | sort -k1,1 -k2,2 -k3,3n -k4,4n

@@ -1,0 +1,13 @@
+default-metric: ops
+
+metrics:
+  - ops
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: Operations
+PlotType: operation-candlesticks
+
+ops:
+  title: Operations/Iteration
+  units: OPS_COUNT

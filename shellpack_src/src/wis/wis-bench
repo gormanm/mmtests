@@ -28,19 +28,17 @@ for WORKLOAD in ${ALL_WORKLOADS[@]}
 do
 	###SHELLPACK threads_large_stride_begin $WIS_MIN_THREADS $WIS_MAX_THREADS
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-		echo Running test $WORKLOAD
-		for MODEL in ${ALL_MODELS[@]}
-		do
-			echo Starting $MODEL $NR_THREADS/$WIS_MAX_THREADS
-			cmd="$WORKLOAD"
-			cmd+="_$MODEL"
-			outfile="$LOGDIR_RESULTS/wis-${WORKLOAD}-${MODEL}-$NR_THREADS.log"
-			./$cmd -t $NR_THREADS -s $WIS_ITERATIONS | tee $outfile > /dev/null
+		for MODEL in ${ALL_MODELS[@]}; do
+			echo Starting $WORKLOAD-$MODEL $NR_THREADS/$WIS_MAX_THREADS
+			CMD="${WORKLOAD}_${MODEL}"
+			$TIME_CMD -o $LOGDIR_RESULTS/time-$CMD-$NR_THREADS \
+				./$CMD -t $NR_THREADS -s $WIS_ITERATIONS	\
+					> $LOGDIR_RESULTS/benchlog-$CMD-$NR_THREADS
 
 			# Get rid of the warmup values (number of runs are constant).
-			sed -i '1,8d' $outfile
+			sed -i '1,8d' $LOGDIR_RESULTS/benchlog-$CMD-$NR_THREADS
 		done
-	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK threads_stride_end
 done
 
