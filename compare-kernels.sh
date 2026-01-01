@@ -1324,12 +1324,6 @@ for SUBREPORT in $REPORTS; do
 			done
 			echo "</tr>"
 			;;
-		sparsetruncate)
-			echo "<tr>"
-			generate_basic_single "$SUBREPORT truncation times"
-			generate_basic_single "$SUBREPORT truncation times" "--logY"
-			echo "</tr>"
-			;;
 		sockperf-tcp-under-load|sockperf-udp-under-load)
 			generate_subtest_graphs_sorted
 			;;
@@ -1339,14 +1333,6 @@ for SUBREPORT in $REPORTS; do
 			;;
 		sqlite)
 			generate_subheading_trans_graphs "Trans" "sqlite"
-			;;
-		starve)
-			echo "<tr>"
-			for HEADING in User System Elapsed CPU; do
-				eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" --sub-heading $HEADING --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING
-				plain graph-$SUBREPORT-$HEADING
-			done
-			echo "</tr>"
 			;;
 		stockfish)
 			echo "<tr>"
