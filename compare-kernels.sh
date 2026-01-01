@@ -800,13 +800,6 @@ for SUBREPORT in $REPORTS; do
 	parsecbuild)
 		echo $SUBREPORT
 		;;
-	pft)
-		echo $SUBREPORT timings
-		compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b pft -a time -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		echo $SUBREPORT faults
-		eval $COMPARE_CMD
-		;;
 	pgbench)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
@@ -1271,14 +1264,6 @@ for SUBREPORT in $REPORTS; do
 		parsec-*)
 			;;
 		parsecbuild)
-			;;
-		pft)
-			echo "<tr>"
-			eval $GRAPH_PNG --title \"$SUBREPORT faults/cpu\" --sub-heading faults/cpu --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultscpu
-			eval $GRAPH_PNG --title \"$SUBREPORT faults/sec\" --sub-heading faults/sec --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-faultssec
-			plain graph-$SUBREPORT-faultscpu
-			plain graph-$SUBREPORT-faultssec
-			echo "</tr>"
 			;;
 		pgbench)
 			echo "<tr>"
