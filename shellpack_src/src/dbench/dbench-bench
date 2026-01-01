@@ -7,7 +7,7 @@
 ###SHELLPACK monitor_hooks
 
 # Common dbench switches
-LOADDIR=$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share/
+LOADDIR="$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share"
 if [ "$DBENCH_OSYNC" = "yes" ]; then
 	DBENCH_OSYNC_COMMAND=-s
 fi
@@ -40,7 +40,7 @@ cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die "Failed to cd to dbench
 		--loadfile $LOADDIR/client-warmup.txt $NR_THREADS &>/dev/null
 
 	# Execute
-	echo dbench run $NR_THREADS
+	echo dbench run $NR_THREADS/$DBENCH_MAX_CLIENTS
 	BENCH_CMD="dbench $DBENCH_OSYNC_COMMAND $DBENCH_SYNC_COMMAND $DBENCH_FSYNC_COMMAND \
 		-D $SHELLPACK_DATA --warmup 0 \
 		-t $((DBENCH_DURATION_BASE + FACTOR*CLIENT/1000)) \
@@ -48,14 +48,20 @@ cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die "Failed to cd to dbench
 		$NR_THREADS"
 	log_cmd $BENCH_CMD
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	./bin/$BENCH_CMD 2>&1 > $LOGDIR_RESULTS/dbench-$NR_THREADS.log
+	./bin/$BENCH_CMD &> $LOGDIR_RESULTS/dbench-$NR_THREADS.log
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 
-	grep "completed in" $LOGDIR_RESULTS/dbench-$NR_THREADS.log | sort -n -k8 > $LOGDIR_RESULTS/dbench-loadfile-$NR_THREADS.log
-	sed -e "/completed in/d" $LOGDIR_RESULTS/dbench-$NR_THREADS.log > $LOGDIR_RESULTS/dbench-execute-$NR_THREADS.log
-	rm $LOGDIR_RESULTS/dbench-$NR_THREADS.log
-	xz $LOGDIR_RESULTS/dbench-execute-$NR_THREADS.log
-	xz $LOGDIR_RESULTS/dbench-loadfile-$NR_THREADS.log
+	grep "completed in" $LOGDIR_RESULTS/dbench-$NR_THREADS.log | sort -n -k8	> $LOGDIR_RESULTS/benchlog-loadfile-$NR_THREADS
+	sed -e "/completed in/d" $LOGDIR_RESULTS/dbench-$NR_THREADS.log 		> $LOGDIR_RESULTS/remainder
+	grep execute $LOGDIR_RESULTS/remainder						> $LOGDIR_RESULTS/benchlog-tput-$NR_THREADS
+	grep -A 99 Operation $LOGDIR_RESULTS/remainder \
+		| sed -e '/-----/d' -e '/^$/d' -e '/Throughput/d' -e '/Operation/d'	> $LOGDIR_RESULTS/benchlog-op-$NR_THREADS
+
+	rm -f $LOGDIR_RESULTS/remainder
+	xz $LOGDIR_RESULTS/dbench-$NR_THREADS.log
+	xz $LOGDIR_RESULTS/benchlog-tput-$NR_THREADS
+	xz $LOGDIR_RESULTS/benchlog-loadfile-$NR_THREADS
+	xz $LOGDIR_RESULTS/benchlog-op-$NR_THREADS
 ###SHELLPACK threads_stride_end
 
 exit $SHELLPACK_SUCCESS

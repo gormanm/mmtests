@@ -685,9 +685,9 @@ for SUBREPORT in $REPORTS; do
 			break
 		done
 		;;
-	dbench4)
+	dbench)
 		echo $SUBREPORT Loadfile Execution Time
-		eval $COMPARE_CMD
+		eval $COMPARE_CMD --sub-heading loadfile
 		echo
 		if [ "$FROM_JSON" = "yes" ]; then
 			SUBREPORT_NAMES=('Latency' 'Throughput (misleading but traditional)' 'Per-VFS Operation latency Latency')
@@ -695,21 +695,15 @@ for SUBREPORT in $REPORTS; do
 			min=$(( ${#SUBREPORTS_JSON[@]} < ${#SUBREPORT_NAMES[@]} ?	${#SUBREPORTS_JSON[@]} : ${#SUBREPORT_NAMES[@]} ))
 			for ((i=start; i<min; i++)) do
 				echo "$SUBREPORT ${SUBREPORT_NAMES[$i]}"
-				compare-mmtests.pl -d . -b dbench4 --from-json ${SUBREPORTS_JSON[$i]}
+				compare-mmtests.pl -d . -b dbench --from-json ${SUBREPORTS_JSON[$i]}
 				echo
 			done
 		else
-			echo "$SUBREPORT All Clients Loadfile Execution Time"
-			compare-mmtests.pl -d . -b dbench4 -a completionlag -n $KERNEL_LIST $FORMAT_CMD
-			echo
-			echo "$SUBREPORT Loadfile Complete Spread (Max-Min completions between processes every second)"
-			compare-mmtests.pl -d . -b dbench4 -a completions -n $KERNEL_LIST $FORMAT_CMD
-			echo
 			echo "$SUBREPORT Throughput (misleading but traditional)"
-			compare-mmtests.pl -d . -b dbench4 -a tput -n $KERNEL_LIST $FORMAT_CMD
+			compare-mmtests.pl -d . -b dbench --sub-heading tput -n $KERNEL_LIST $FORMAT_CMD
 			echo
 			echo $SUBREPORT Per-VFS Operation latency Latency
-			compare-mmtests.pl -d . -b dbench4 -a opslatency -n $KERNEL_LIST $FORMAT_CMD
+			compare-mmtests.pl -d . -b dbench --sub-heading op -n $KERNEL_LIST $FORMAT_CMD
 		fi
 		;;
 	bonniepp)
@@ -862,9 +856,9 @@ for SUBREPORT in $REPORTS; do
 		compare-mmtests.pl -d . -b sysbench -a exectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	tbench4)
+	tbench)
 		echo $SUBREPORT Loadfile Execution Time
-		eval $COMPARE_CMD
+		eval $COMPARE_CMD --sub-heading loadfile
 		echo
 		if [ "$FROM_JSON" = "yes" ]; then
 			SUBREPORT_NAMES=('Latency' 'Throughput (misleading but traditional)' 'Per-VFS Operation latency Latency')
@@ -872,29 +866,26 @@ for SUBREPORT in $REPORTS; do
 			min=$(( ${#SUBREPORTS_JSON[@]} < ${#SUBREPORT_NAMES[@]} ?	${#SUBREPORTS_JSON[@]} : ${#SUBREPORT_NAMES[@]} ))
 			for ((i=start; i<min; i++)) do
 				echo "$SUBREPORT ${SUBREPORT_NAMES[$i]}"
-				compare-mmtests.pl -d . -b tbench4 --from-json ${SUBREPORTS_JSON[$i]}
+				compare-mmtests.pl -d . -b tbench --from-json ${SUBREPORTS_JSON[$i]}
 				echo
 			done
 		else
-			echo "$SUBREPORT All Clients Loadfile Execution Time"
-			compare-mmtests.pl -d . -b tbench4 -a completionlag -n $KERNEL_LIST $FORMAT_CMD
-			echo
-			echo "$SUBREPORT Loadfile Complete Spread (Max-Min completions between processes every second)"
-			compare-mmtests.pl -d . -b tbench4 -a completions -n $KERNEL_LIST $FORMAT_CMD
 			echo "$SUBREPORT Throughput (misleading but traditional)"
-			compare-mmtests.pl -d . -b tbench4 -a tput -n $KERNEL_LIST $FORMAT_CMD
+			compare-mmtests.pl -d . -b tbench -n $KERNEL_LIST $FORMAT_CMD --sub-heading tput
 			echo
 			echo $SUBREPORT Per-VFS Operation latency Latency
-			compare-mmtests.pl -d . -b tbench4 -a opslatency -n $KERNEL_LIST $FORMAT_CMD
+			compare-mmtests.pl -d . -b tbench -n $KERNEL_LIST $FORMAT_CMD --sub-heading op
 		fi
 		;;
 
 	trunc)
-		echo $SUBREPORT Truncate files
-		eval $COMPARE_CMD
-		echo
-		echo $SUBREPORT Fault files
-		compare-mmtests.pl -d . -b trunc -a fault -n $KERNEL_LIST $FORMAT_CMD
+		for OP in trunc fault; do
+			for TYPE in Elapsed System; do
+				echo $SUBREPORT $TYPE $OP
+				compare-mmtests.pl -d . -b trunc --sub-heading $TYPE-$OP  -n $KERNEL_LIST $FORMAT_CMD
+				echo
+			done
+		done
 		echo
 		;;
 	thpchallenge|thpcompact)
@@ -1123,7 +1114,7 @@ for SUBREPORT in $REPORTS; do
 				plain graph-$SUBREPORT-$HEADING
 			done
 			;;
-		dbench4)
+		dbench)
 			echo "<tr>"
 			generate_basic_single "$SUBREPORT Completion times" "--logX"
 			generate_basic_single "$SUBREPORT Completion times" "--logX --logY"
@@ -1277,7 +1268,7 @@ for SUBREPORT in $REPORTS; do
 				echo "</tr>"
 			done
 			;;
-		tbench4)
+		tbench)
 			echo "<tr>"
 			generate_basic_single "$SUBREPORT Throughput" "--logX"
 			generate_basic_single "$SUBREPORT Throughput" "--logX --logY"

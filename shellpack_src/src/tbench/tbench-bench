@@ -60,18 +60,20 @@ none)
 	;;
 esac
 
-LOADDIR=$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share
+LOADDIR="$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share"
 
 server_stop 0
-###SHELLPACK threads_powertwo_begin $TBENCH_MIN_CLIENTS $TBENCH_MAX_CLIENTS
-	echo tbench run $NR_THREADS
+###SHELLPACK threads_large_stride_begin $TBENCH_MIN_CLIENTS $TBENCH_MAX_CLIENTS
 	server_start $NR_THREADS
+
+	echo tbench run $NR_THREADS/$TBENCH_MAX_CLIENTS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	./bin/tbench \
-		-t $TBENCH_DURATION			\
+	BENCH_CMD="tbench -t $TBENCH_DURATION	\
 		--loadfile $LOADDIR/client-tiny.txt	\
-		--show-execute-time			\
-		$NR_THREADS $SERVER_HOST &> $LOGDIR_RESULTS/tbench-$NR_THREADS.log &
+		--show-execute-time $NR_THREADS $SERVER_HOST"
+	log_cmd "$BENCH_CMD"
+	./bin/$BENCH_CMD &> $LOGDIR_RESULTS/dbench-$NR_THREADS.log &
+
 	TBENCH_PID=$!
 	echo $TBENCH_PID > /tmp/mmtests-tbench.pid
 	wait $TBENCH_PID
@@ -79,17 +81,18 @@ server_stop 0
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	server_stop $NR_THREADS
 
-	grep "completed in" $LOGDIR_RESULTS/tbench-$NR_THREADS.log | sort -n -k8 > $LOGDIR_RESULTS/tbench-loadfile-$NR_THREADS.log
-	sed -e "/completed in/d" $LOGDIR_RESULTS/tbench-$NR_THREADS.log > $LOGDIR_RESULTS/tbench-execute-$NR_THREADS.log
-	rm $LOGDIR_RESULTS/tbench-$NR_THREADS.log
+	# Split out logs for easier parsing
+	grep "completed in" $LOGDIR_RESULTS/dbench-$NR_THREADS.log | sort -n -k8	> $LOGDIR_RESULTS/benchlog-loadfile-$NR_THREADS
+	sed -e "/completed in/d" $LOGDIR_RESULTS/dbench-$NR_THREADS.log 		> $LOGDIR_RESULTS/remainder
+	grep execute $LOGDIR_RESULTS/remainder						> $LOGDIR_RESULTS/benchlog-tput-$NR_THREADS
+	grep -A 99 Operation $LOGDIR_RESULTS/remainder \
+		| sed -e '/-----/d' -e '/^$/d' -e '/Throughput/d' -e '/Operation/d'	> $LOGDIR_RESULTS/benchlog-op-$NR_THREADS
 
-	xz $LOGDIR_RESULTS/tbench-execute-$NR_THREADS.log
-	xz $LOGDIR_RESULTS/tbench-loadfile-$NR_THREADS.log
-
-	rm /tmp/mmtests-tbench.pid
-	if [ $RET -ne 0 ]; then
-		die "Failed to run tbench"
-	fi
-###SHELLPACK threads_powertwo_end
+	rm -f $LOGDIR_RESULTS/remainder
+	xz $LOGDIR_RESULTS/dbench-$NR_THREADS.log
+	xz $LOGDIR_RESULTS/benchlog-tput-$NR_THREADS
+	xz $LOGDIR_RESULTS/benchlog-loadfile-$NR_THREADS
+	xz $LOGDIR_RESULTS/benchlog-op-$NR_THREADS
+###SHELLPACK threads_stride_end
 
 exit $SHELLPACK_SUCCESS

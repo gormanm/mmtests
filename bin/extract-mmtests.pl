@@ -146,7 +146,7 @@ for my $name (split /,/, $opt_names) {
 		foreach my $iterdir (@iterdirs) {
 			# Make a guess at the sub-directory name if one is not specified
 			$iterdir = "$iterdir/$opt_benchmark";
-			$extractModules[$nrModules]->extractReportCached("$iterdir/logs");
+			$extractModules[$nrModules]->extractReportCached("$iterdir/logs", $opt_subheading);
 			$extractModules[$nrModules]->nextIteration();
 		}
 		$nrModules ++;

@@ -2,7 +2,7 @@
 ###
 ### netperf-tcp is a TCP_STREAM netperf run on a loopback device.
 
-export MMTESTS="netperf-udp netperf-tcp tbench4"
+export MMTESTS="netperf-udp netperf-tcp tbench"
 
 # Machine configuration
 export REMOTE_SERVER_USER=root
@@ -20,6 +20,6 @@ export NETPERF_BUFFER_SIZES=64,128,256,1024,2048,3312,4096,8192,16384
 export NETPERF_ITERATIONS=5
 
 # TBench
-export TBENCH_DURATION=$((3*60))
+export TBENCH_DURATION=120
 export TBENCH_MIN_CLIENTS=1
-export TBENCH_MAX_CLIENTS=$((NUMCPUS*8))
+export TBENCH_MAX_CLIENTS=$((NUMCPUS*2))

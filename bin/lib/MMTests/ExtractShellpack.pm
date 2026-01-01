@@ -16,11 +16,25 @@ sub initialise() {
 	my @documents = $yaml->load_file($self->{_ShellpackConfig});
 	my %yamlMap = %{$documents[0]};
 
-	$self->setSummaryMultiops() if !defined($yamlMap{'summarise'}) || $yamlMap{'summarise'} eq "Multiops";
+	if (defined($yamlMap{'summarise'})) {
+		$self->setSummaryMultiops()	if $yamlMap{'summarise'} eq "Multiops";
+		$self->setSummarySingleops()	if $yamlMap{'summarise'} eq "Singleops";
+		$self->setSummarySubselection()	if $yamlMap{'summarise'} eq "Subselection";
+	}
+
+	if (defined($yamlMap{$subHeading}) && defined($yamlMap{$subHeading}{'summarise'})) {
+		$self->setSummaryMultiops()	if $yamlMap{$subHeading}{'summarise'} eq "Multiops";
+		$self->setSummarySingleops()	if $yamlMap{$subHeading}{'summarise'} eq "Singleops";
+		$self->setSummarySubselection()	if $yamlMap{$subHeading}{'summarise'} eq "Subselection";
+	}
 
 	# Set reporting options specified by YAML
 	$self->{_Precision} = 2;
 	$self->{_Precision} = $yamlMap{'DecimalPlaces'} if defined($yamlMap{'DecimalPlaces'});
+	$self->{_PreferredVal} = "Higher" if (lc($yamlMap{'preferhigher'}) =~ /^(|1|higher|true)$/);
+	if (defined($yamlMap{$subHeading})) {
+		$self->{_PreferredVal} = "Higher" if (lc($yamlMap{$subHeading}{'preferhigher'}) =~ /^(|1|higher|true)$/);
+	}
 
 	# Set graphing options specified by YAML
 	$self->{_PlotXaxis} = $self->{_PlotYaxis} = "UNKNOWN";
@@ -28,12 +42,6 @@ sub initialise() {
 	$self->{_PlotXaxis} = $yamlMap{'PlotXaxis'} if defined($yamlMap{'PlotXaxis'});
 	$self->{_PlotYaxis} = $yamlMap{'PlotYaxis'} if defined($yamlMap{'PlotYaxis'});
 	$self->{_PlotType}  = $yamlMap{'PlotType'}  if defined($yamlMap{'PlotType'});
-
-	# Set reporting options specified by YAML
-	$self->{_PreferredVal} = "Higher" if (lc($yamlMap{'preferhigher'}) =~ /^(|1|higher|true)$/);
-	if (defined($yamlMap{$subHeading})) {
-		$self->{_PreferredVal} = "Higher" if (lc($yamlMap{$subHeading}{'preferhigher'}) =~ /^(|1|higher|true)$/);
-	}
 
 	printVerbose("Init    module " . $self->{_ModuleName} . " summarise " . $yamlMap{'summarise'} . "\n");
 	$self->SUPER::initialise($subHeading);
@@ -49,7 +57,7 @@ sub open_parser() {
 }
 
 sub extractReport() {
-	my ($self, $reportDir) = @_;
+	my ($self, $reportDir, $opt_subheading) = @_;
 	my @ratioOps;
 	my $fh = $self->open_parser($reportDir);
 

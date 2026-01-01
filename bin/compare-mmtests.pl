@@ -121,7 +121,7 @@ if ($opt_from_json) {
 
 			foreach my $iterdir (@iterdirs) {
 				if (!defined($opt_monitor)) {
-					$extractModules[$nrModules]->extractReportCached("$iterdir/$opt_benchmark/logs");
+					$extractModules[$nrModules]->extractReportCached("$iterdir/$opt_benchmark/logs", $opt_subheading);
 				} else {
 					$extractModules[$nrModules]->extractReport($iterdir, $opt_benchmark, $opt_subheading, 1);
 				}

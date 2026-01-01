@@ -22,9 +22,7 @@ sub initialise() {
 		$fieldLength = $self->{_FieldLength};
 	}
 
-	$self->{_SummaryStats} = [ "_value" ];
-	$self->{_RatioSummaryStat} = [ "_value" ];
-
+	$self->setSummarySingleops();
 	$self->SUPER::initialise($subHeading);
 
 	$self->{_FieldFormat} = [ "", "%${fieldLength}.2f" ];

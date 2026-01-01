@@ -1,0 +1,24 @@
+default-metric: loadfile
+
+metrics:
+  - loadfile
+  - tput
+  - op
+
+summarise: Subselection
+PlotXaxis: Type Time
+PlotType: operation-candlesticks
+DecimalPlaces: 4
+
+loadfile:
+  title: Elapsed Time
+  units: TIME_MSECONDS
+
+tput:
+  title: Throughput
+  units: MBYTES_PER_SECOND
+
+op:
+  title: Operation Latency
+  units: TIME_MSECONDS
+  summarise: Singleops

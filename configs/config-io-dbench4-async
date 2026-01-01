@@ -15,7 +15,7 @@
 ### completed. The metric reported is time to complete execution as
 ### throughput is difficult to interpret when different operations take
 ### different amounts of time.
-export MMTESTS="dbench4"
+export MMTESTS="dbench"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=

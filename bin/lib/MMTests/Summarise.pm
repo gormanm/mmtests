@@ -23,6 +23,26 @@ sub setSummaryMultiops() {
 	$self->{_RatioSummaryStat} = [ "_mean", "meanci_low-_mean",
 		"meanci_high-_mean" ];
 	$self->{_RatioCompareOp} = "cidiff";
+	$self->{_Summarytype} = "Multiops";
+}
+
+sub setSummarySingleops() {
+	my ($self) = @_;
+	$self->{_SummaryStats} = [ "_value" ];
+	$self->{_RatioSummaryStat} = [ "_value" ];
+	delete $self->{_RatioCompareOp};
+	$self->{_Summarytype} = "Singleops";
+}
+
+sub setSummarySubselection() {
+	my ($self) = @_;
+
+	$self->{_SummaryStats} = [ "min", "_mean", "_mean-50", "_mean-90", "_mean-95", "_mean-99", "stddev-_mean",
+		"coeffvar-_mean", "max", "submean-_mean", "submeanci-_mean" ];
+	$self->{_RatioSummaryStat} = [ "submean-_mean", "submeanci_low-_mean",
+				       "submeanci_high-_mean" ];
+	$self->{_RatioCompareOp} = "cidiff";
+	$self->{_Summarytype} = "Subselection";
 }
 
 sub initialise() {
