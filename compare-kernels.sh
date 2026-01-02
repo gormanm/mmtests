@@ -914,16 +914,6 @@ for SUBREPORT in $REPORTS; do
 		echo $SUBREPORT Percentage Locality
 		compare-mmtests.pl -d . -b $SUBREPORT -a locality -n $KERNEL_LIST $FORMAT_CMD
 		;;
-	xfsio)
-		echo $SUBREPORT Time
-		$COMPARE_CMD
-		echo
-		echo $SUBREPORT Throughput
-		compare-mmtests.pl -d . -b xfsio -a throughput -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		echo $SUBREPORT Ops
-		compare-mmtests.pl -d . -b xfsio -a ops -n $KERNEL_LIST $FORMAT_CMD
-		;;
 	*)
 		echo $SUBREPORT
 		eval $COMPARE_CMD
