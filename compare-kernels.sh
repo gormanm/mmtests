@@ -1195,9 +1195,6 @@ for SUBREPORT in $REPORTS; do
 		futexwait)
 			generate_basic "$SUBREPORT" "--wide --logX"
 			;;
-		ipcscale-waitforzero|ipcscale-sysvsempp|ipcscale-posixsempp)
-			generate_ops_graphs
-			;;
 		gitcheckout)
 			generate_cputime_graphs
 			;;
