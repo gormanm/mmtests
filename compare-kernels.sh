@@ -753,14 +753,6 @@ for SUBREPORT in $REPORTS; do
 		echo $SUBREPORT App Overhead
 		compare-mmtests.pl -d . -b ${SUBREPORT}overhead -n $KERNEL_LIST $FORMAT_CMD
 		;;
-	hpcc)
-		echo $SUBREPORT HPCC Time
-		compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		echo $SUBREPORT HPCC Load Scores
-		compare-mmtests.pl -d . -b ${SUBREPORT} -a score -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		;;
 	monitor)
 		echo No meaningful extraction script for monitor
 		echo

@@ -62,9 +62,6 @@ sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=$((NUMCPUS*4))/' config-workload-ebizzy >
 # Hackbench
 sed -e 's/HACKBENCH_MAX_GROUPS=.*/HACKBENCH_MAX_GROUPS=1/' config-scheduler-hackbench > config-scheduler-hackbench-small
 
-# hpcc
-sed -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((512*1048576))'/ config-hpc-hpcc-large-full > config-hpc-hpcc-small-full
-
 # Iperf3 binding configs
 for NET in ipv4 ipv6; do
 	for BINDING in cross-ht cross-node cross-socket; do
