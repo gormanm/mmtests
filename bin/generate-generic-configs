@@ -227,17 +227,6 @@ sed -e 's/REDIS_KEYSPACE=.*/REDIS_KEYSPACE=1500000/' config-memdb-redis-benchmar
 sed -e 's/REDIS_MEMTIER_KEYSPACE_MAX=.*/REDIS_MEMTIER_KEYSPACE_MAX=500000/' config-memdb-redis-memtier-small > config-memdb-redis-memtier-medium
 sed -e 's/REDIS_MEMTIER_KEYSPACE_MAX=.*/REDIS_MEMTIER_KEYSPACE_MAX=1500000/' config-memdb-redis-memtier-small > config-memdb-redis-memtier-large
 
-# Sockperf
-for BINDING in cross-ht cross-socket; do
-	cp config-network-sockperf-unbound config-network-sockperf-$BINDING
-	echo "export SOCKPERF_BINDING=$BINDING" >> config-network-sockperf-$BINDING
-done
-
-for BINDING in unbound cross-ht cross-socket; do
-	cp config-network-sockperf-$BINDING config-network-sockperf-$BINDING-cstate
-	echo "export CPUIDLE_CSTATE=C1" >> config-network-sockperf-$BINDING-cstate
-done
-
 # sqlite
 sed -e 's/SQLITE_TOTALSIZE=.*/SQLITE_TOTALSIZE=$((1048576*2))'/ config-db-sqlite-insert-small > config-db-sqlite-insert-medium
 

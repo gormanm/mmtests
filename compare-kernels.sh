@@ -1306,9 +1306,6 @@ for SUBREPORT in $REPORTS; do
 			done
 			echo "</tr>"
 			;;
-		sockperf-tcp-under-load|sockperf-udp-under-load)
-			generate_subtest_graphs_sorted
-			;;
 		speccpu2017-*-build)
 			;;
 		specjbb2013)
