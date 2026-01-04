@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+
+use FindBin qw($Bin);
+use Cwd;
+use strict;
+
+require "$Bin/../../parsers/legacy-support.pl";
+require "$Bin/extract-report.pl";
+
+my %dummy;
+chdir($ARGV[0]) || die "Failed to change directory $ARGV[0]";
+parseResults(\%dummy, getcwd())

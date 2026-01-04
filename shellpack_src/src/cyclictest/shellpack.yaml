@@ -1,0 +1,27 @@
+default-metric: AvgLat
+
+metrics:
+  - MinLat
+  - AvgLat
+  - MaxLat
+  - Overflows
+
+summarise: Multiops
+PlotXaxis: Type Time
+PlotType: operation-candlesticks
+
+MinLat:
+  title: Minimum Latency Per-CPU
+  units: TIME_USECONDS
+
+AvgLat:
+  title: Average Latency Per-CPU
+  units: TIME_USECONDS
+
+MaxLat:
+  title: Maximum Latency Per-CPU
+  units: TIME_USECONDS
+
+Overflow:
+  title: Number Overflow Events Per-CPU
+  units: OPS_COUNT
