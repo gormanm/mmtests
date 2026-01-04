@@ -1140,21 +1140,6 @@ for SUBREPORT in $REPORTS; do
 		ebizzy)
 			generate_basic "$SUBREPORT" "--logX"
 			;;
-		filelockperf-flock|filelockperf-posix|filelockperf-lease)
-			SUB_WORKLOADS_FILENAME=`find -name "workloads" | grep $SUBREPORT | head -1`
-			SUB_WORKLOADS=
-			if [ "$SUB_WORKLOADS_FILENAME" != "" ]; then
-				SUB_WORKLOADS=`cat $SUB_WORKLOADS_FILENAME | sed -e 's/,/ /g'`
-			fi
-			for LOCKTYPE in single multi; do
-				echo "<tr>"
-				for SUB_WORKLOAD in $SUB_WORKLOADS; do
-						eval $GRAPH_PNG --title \"$SUBREPORT $SUB_WORKLOAD $LOCKTYPE\" --sub-heading $SUB_WORKLOAD-$LOCKTYPE --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$SUB_WORKLOAD-$LOCKTYPE
-						plain graph-$SUBREPORT-$SUB_WORKLOAD-$LOCKTYPE
-				done
-				echo "</tr>"
-			done
-			;;
 		fio)
 			generate_subheading_trans_graphs "latency-read latency-write" "latency" "--logY"
 			;;
