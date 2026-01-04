@@ -1,0 +1,14 @@
+default-metric: trunc
+
+metrics:
+  - fault
+  - trunc
+
+summarise: Multiops
+PlotXaxis: Time
+PlotType: operation-candlesticks
+DecimalPlaces: 4
+
+time:
+  title: Time
+  units: TIME_SECONDS
