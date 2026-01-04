@@ -1,0 +1,13 @@
+default-metric: mean95
+
+metrics:
+  - mean95
+
+summarise: Multiops
+PlotXaxis: USecs/Operation
+PlotType: operation-candlesticks
+DecimalPlaces: 5
+
+mean95:
+  title: USecs/Operation
+  units: TIME_USECONDS
