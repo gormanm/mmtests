@@ -18,20 +18,7 @@ cat config-workload-coremark | sed -e 's/COREMARK_THREADS=.*/COREMARK_THREADS=$N
 
 # cyclictest
 # o Basic histogram configuration
-BASELINE_CYCLICTEST_CONFIGS="config-workload-cyclictest-none config-workload-cyclictest-histogram-none"
-sed -e /CYCLICTEST_DISTANCE/d -e /CYCLICTEST_HISTOGRAM/d config-workload-cyclictest-none > config-workload-cyclictest-histogram-none
-cat >> config-workload-cyclictest-histogram-none <<EOF
-export CYCLICTEST_HISTOGRAM=500
-
-# Distance is forced to 0 with SMP switch, NUMA or with histograms. As
-# it's not entirely clear why setting distrance would be required but
-# it's possible it's needed when skew_tick is not set on kernels that
-# can bounce timer-related locks. Note the existance of the distrance
-# parameter but do not set it.
-# export CYCLICTEST_DISTANCE=0
-EOF
-
-# o Background load scripts
+BASELINE_CYCLICTEST_CONFIGS="config-workload-cyclictest-histogram-none"
 for BASELINE in $BASELINE_CYCLICTEST_CONFIGS; do
 	for BGWORK in hackbench kernel-build; do
 		BASELINE_BG=`echo $BASELINE | sed -e "s/-none/-$BGWORK/"`
