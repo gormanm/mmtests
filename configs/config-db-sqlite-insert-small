@@ -22,11 +22,12 @@ export MMTESTS="sqlite"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat top iotop"
+export MONITORS_GZIP="proc-vmstat top"
 export MONITORS_WITH_LATENCY="vmstat iostat"
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_UPDATE_FREQUENCY=1
 
 # sqlite, assumes a row is roughly 52 bytes and splits the target size.
 export SQLITE_ROWSIZE=52
 export SQLITE_TOTALSIZE=$((1048576/8))
 export SQLITE_SIZE=$((SQLITE_TOTALSIZE/SQLITE_ROWSIZE))
+export SQLITE_ITERATIONS=10

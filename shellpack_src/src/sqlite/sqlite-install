@@ -14,4 +14,11 @@ MIRROR_LOCATION="$WEBROOT/sqlite/"
 ###SHELLPACK build_configure sqlite-${VERSION}
 ###SHELLPACK make_make_install
 
+###SHELLPACK self_extract sqlite-txnpersec.pl
+chmod a+x $SHELLPACK_TEMP/sqlite-txnpersec.pl
+mv $SHELLPACK_TEMP/sqlite-txnpersec.pl $SHELLPACK_SOURCES/sqlite-${VERSION}-installed/bin || die "Failed to relocate transction processing script"
+
 echo sqlite installed successfully
+exit $SHELLPACK_SUCCESS
+
+###SHELLPACK include_file sqlite-txnpersec.pl

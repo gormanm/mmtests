@@ -4,80 +4,38 @@
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
 ###SHELLPACK parseargParam    --size         SQLITE_SIZE
+###SHELLPACK parseargParam    --iterations   SQLITE_ITERATIONS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
+###SHELLPACK init_only_start
 install-depends util-linux
 ###SHELLPACK check_install_required sqlite-${VERSION}
-###SHELLPACK init_complete
-
-###SHELLPACK self_extract perl-trans.pl
-chmod a+x $SHELLPACK_TEMP/perl-trans.pl
-
-cd $SHELLPACK_SOURCES/sqlite-${VERSION}-installed || die Failed to cd to sqlite install directory
+###SHELLPACK init_only_end
 
 echo Creating insert script for $SQLITE_SIZE entries
-cat /dev/urandom | base64 -w 20 | head -$SQLITE_SIZE | sed "s/\(.\{4\}\)\(.\{16\}\)/INSERT INTO 'mmtests' ('SmallInt', 'DateTime', 'ShortString', 'LongString') VALUES ('10', CURRENT_TIMESTAMP, '\1', '\2');/" > $SHELLPACK_DATA/basic-insert.script
+cat /dev/urandom | base64 -w 20 | head -$SQLITE_SIZE | sed "s/\(.\{4\}\)\(.\{16\}\)/INSERT INTO 'mmtests' ('SmallInt', 'DateTime', 'ShortString', 'LongString') VALUES ('10', CURRENT_TIMESTAMP, '\1', '\2');/" > $SHELLPACK_TEMP/basic-insert.script
 
-mmtests_activity sqlite-insert
-monitor_pre_hook $LOGDIR_RESULTS $P
-
-echo Creating table
-rm -f $SHELLPACK_DATA/benchmark.db
-./bin/sqlite3 $SHELLPACK_DATA/benchmark.db "CREATE TABLE mmtests
+###SHELLPACK iteration_begin $SQLITE_ITERATIONS
+echo Creating table iteration $ITERATION/$SQLITE_ITERATIONS
+cd $SHELLPACK_SOURCES/sqlite-${VERSION}-installed || die "Failed to cd to sqlite install directory"
+rm -f $SHELLPACK_DATA/benchmark-$ITERATION.db
+./bin/sqlite3 $SHELLPACK_DATA/benchmark-$ITERATION.db "CREATE TABLE mmtests
 	('SmallInt'    SMALLINT NOT NULL,
 	 'DateTime'    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	 'ShortString' VARCHAR(4) NOT NULL,
 	 'LongString'  VARCHAR(16) NOT NULL
-	);" || die Failed to create table
+	);" || die "Failed to create table"
 
-echo Inserting $SQLITE_SIZE rows
-$TIME_CMD -o $LOGDIR_RESULTS/sqlite.time		\
-	$SHELLPACK_TEMP/perl-trans.pl $SHELLPACK_DATA/benchmark.db $SHELLPACK_DATA/basic-insert.script \
-		&> $LOGDIR_RESULTS/sqlite.log
-gzip -f $LOGDIR_RESULTS/sqlite.log
-gzip -f $SHELLPACK_DATA/basic-insert.script
-monitor_post_hook $LOGDIR_RESULTS $P
+echo Inserting $SQLITE_SIZE rows iterations $ITERATION/$SQLITE_ITERATIONS
+mmtests_activity sqlite-insert
+monitor_pre_hook $LOGDIR_RESULTS $P-$ITERATION
+$TIME_CMD -o $LOGDIR_RESULTS/time-_-$ITERATION									\
+	./bin/sqlite-txnpersec.pl $SHELLPACK_DATA/benchmark-$ITERATION.db $SHELLPACK_TEMP/basic-insert.script	\
+		&> $LOGDIR_RESULTS/benchlog-_-_-$ITERATION || die "Failed to execute sqlite basic-insert.script"
+monitor_post_hook $LOGDIR_RESULTS $P-$ITERATION
+###SHELLPACK iteration_end $SQLITE_ITERATIONS
 
+mv $SHELLPACK_TEMP/basic-insert.script $LOGDIR_RESULTS/
+xz $LOGDIR_RESULTS/basic-insert.script
 exit $SHELLPACK_SUCCESS
-
-==== BEGIN perl-trans.pl ====
-#!/usr/bin/perl
-
-use strict;
-use Time::HiRes qw/ time sleep /;
-
-open(SQLITE, "|./bin/sqlite3 $ARGV[0]") || die("Failed to exec sqlite3");
-open(INPUT, "$ARGV[1]") || die("Failed to open script $ARGV[1]");
-
-my $threshold = 2;
-my $nr_trans = 0;
-my $last_trans = 0;
-my $start_time = time;
-my $last_time = $start_time;
-
-while (!eof(INPUT)) {
-	my $line = <INPUT>;
-	print SQLITE $line;
-	$nr_trans++;
-
-	my $current_time = time;
-	my $time_diff = $current_time - $last_time;
-	my $total_time = $current_time - $start_time;
-	if ($time_diff > 0.1) {
-		my $seconds_trans = ($nr_trans - $last_trans) / $time_diff;
-
-		my $type = "execute";
-		if ($total_time < $threshold) {
-			$type = "warmup ";
-		}
-
-		printf "$type %12.2f %12.2f %12.3f\n", $total_time, $time_diff, $seconds_trans;
-		$last_time = $current_time;
-		$last_trans = $nr_trans;
-	}
-}
-
-close(INPUT);
-close(SQLITE);
-==== END perl-trans.pl ====
