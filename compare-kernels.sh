@@ -1143,9 +1143,6 @@ for SUBREPORT in $REPORTS; do
 		fio)
 			generate_subheading_trans_graphs "latency-read latency-write" "latency" "--logY"
 			;;
-		freqmine-small|freqmine-medium|freqmine-large)
-			generate_basic "$SUBREPORT" "--wide --logX"
-			;;
 		fsmark-threaded|fsmark-single)
 			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`"
 			;;
