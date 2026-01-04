@@ -1,6 +1,6 @@
 #!/bin/bash
 # libmicro installer
-###SHELLPACK preamble libmicro-install 0.4.2
+###SHELLPACK preamble libmicro-install 0.4.3
 GIT_LOCATION=https://github.com/gormanm/libMicro
 MIRROR_LOCATION="$WEBROOT/libmicro"
 

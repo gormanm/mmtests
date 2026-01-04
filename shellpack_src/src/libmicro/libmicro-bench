@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble libmicro-bench 0.4.2
+###SHELLPACK preamble libmicro-bench 0.4.3
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargInstall
