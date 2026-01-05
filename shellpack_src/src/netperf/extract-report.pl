@@ -1,21 +1,4 @@
-# ExtractNetperf.pm
-package MMTests::ExtractNetperf;
-use MMTests::SummariseMultiops;
-use MMTests::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
-use strict;
-
-sub initialise() {
-	my ($self, $subHeading) = @_;
-	$self->{_ModuleName} = "ExtractNetperf";
-	$self->{_PlotYaxis}  = DataTypes::LABEL_MBITS_PER_SECOND;
-	$self->{_PreferredVal} = "Higher";
-	$self->{_PlotType}   = "client-errorlines";
-
-	$self->SUPER::initialise($subHeading);
-}
-
-sub extractReport() {
+sub extractReport($$) {
 	my ($self, $reportDir) = @_;
 
 	open (INPUT, "$reportDir/protocols");
@@ -63,12 +46,16 @@ sub extractReport() {
 				}
 			}
 			close(INPUT);
+			$iteration++;
 			if ($protocol ne "UDP_STREAM") {
-				$self->addData($size, ++$iteration, $send_tput);
+				my $pretty = lc($protocol);
+				$pretty =~ s/_//g;
+				print "$pretty\tsend\t$size\t$iteration\t$send_tput\t_\n";
 			} else {
-				$self->addData("send-$size", ++$iteration, $send_tput);
-				$self->addData("recv-$size", ++$iteration, $recv_tput);
+				print "udpstream\tsend\t$size\t$iteration\t$send_tput\t_\n";
+				print "udpstream\trecv\t$size\t$iteration\t$send_tput\t_\n";
 				if (($send_tput - $recv_tput) > ($send_tput / 10)) {
+					print "udpstream\tloss\t$size\t$iteration\t$send_tput\t_\n";
 					$self->addData("loss-$size", ++$iteration, $send_tput - $recv_tput );
 				}
 			}

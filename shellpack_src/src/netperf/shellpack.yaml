@@ -1,0 +1,33 @@
+default-metric: ipv4-tcp-rr
+
+metrics:
+  - tcprr
+  - tcpstream
+  - udprr
+  - udpstream
+  - unix
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: MBit/sec
+PlotType: operation-candlesticks
+
+tcprr:
+  title: TCP RR
+  units: MBITS_PER_SECOND
+
+tcpstream:
+  title: TCP STREAM
+  units: MBITS_PER_SECOND
+
+udprr:
+  title: UDP RR
+  units: MBITS_PER_SECOND
+
+udpstream:
+  title: UDP STREAM
+  units: MBITS_PER_SECOND
+
+unix:
+  title: UNIX Socket
+  units: MBITS_PER_SECOND
