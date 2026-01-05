@@ -1,0 +1,29 @@
+default-metric: Copy
+
+metrics:
+  - Copy
+  - Scale
+  - Add
+  - Triad
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: Operation
+PlotYaxis: MB/sec
+PlotType: client-candlesticks
+
+Copy:
+  title: Copy
+  units: MBYTES_PER_SECOND
+
+Scale:
+  title: Scale
+  units: MBYTES_PER_SECOND
+
+Add:
+  title: Add
+  units: MBYTES_PER_SECOND
+
+Triad:
+  title: Triad
+  units: MBYTES_PER_SECOND

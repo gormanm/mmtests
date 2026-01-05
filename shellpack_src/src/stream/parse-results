@@ -1,0 +1,11 @@
+#!/bin/bash
+SHELLPACK_ROOT=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
+
+LOGDIR=${1:-`pwd`}
+cd $LOGDIR || exit 1
+
+for THREADS in `\ls benchlog-* | cut -d- -f2 | sort -n -u`; do
+	for ITERATION in `\ls benchlog-* | cut -d- -f4 | sort -n -u`; do
+		cat benchlog-$THREADS-_-$ITERATION | awk -v threads="$THREADS" -v iteration="$ITERATION" -f $SHELLPACK_ROOT/parse-results.awk
+	done
+done
