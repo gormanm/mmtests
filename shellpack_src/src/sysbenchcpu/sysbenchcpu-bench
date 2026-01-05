@@ -24,12 +24,9 @@ export PATH=$SHELLPACK_SOURCES/sysbenchbuild-${VERSION}-installed/bin:$PATH
 	###SHELLPACK iteration_begin $ITERATIONS
 		echo Running $NR_THREADS threads Iteration $ITERATION/$ITERATIONS
 		eval $TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-${ITERATION}	\
-			$BENCH_CMD >> $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITERATION
+			$BENCH_CMD >> $LOGDIR_RESULTS/benchlog-$NR_THREADS-_-$ITERATION
 		SYSRET=$?
-		if [ $SYSRET -ne 0 ]; then
-			cat $LOGDIR_RESULTS/sysbench-raw-$NR_THREADS-$ITERATION
-			die "sysbench exited abnormally"
-		fi
+		[ $SYSRET -ne 0 ] && die "sysbench exited abnormally (benchlog-$NR_THREADS-$ITERATION)"
 	###SHELLPACK iteration_end
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end

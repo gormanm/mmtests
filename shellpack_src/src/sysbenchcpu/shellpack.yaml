@@ -1,0 +1,12 @@
+default-metric: events/sec
+
+metrics:
+  - events/sec
+
+summarise: Multiops
+PlotXaxis: Events/Second
+PlotType: operation-candlesticks
+
+txn/sec:
+  title: Events/Second
+  units: OPS_PER_SECOND
