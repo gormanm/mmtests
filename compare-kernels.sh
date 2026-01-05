@@ -1149,9 +1149,6 @@ for SUBREPORT in $REPORTS; do
 		futexbench-hash|futexbench-requeue|futexbench-requeue-pi|futexbench-wake|futexbench-wake-parallel|futexbench-lock-pi)
 			generate_basic "$SUBREPORT" "--wide --logX"
 			;;
-		futexwait)
-			generate_basic "$SUBREPORT" "--wide --logX"
-			;;
 		gitcheckout)
 			generate_cputime_graphs
 			;;
