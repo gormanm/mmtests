@@ -1,0 +1,42 @@
+default-metric: hash
+
+metrics:
+  - hash
+  - lock-pi
+  - requeue
+  - requeue-pi
+  - wake
+  - wake-parallel
+  - wait
+
+summarise: Multiops
+PlotXaxis: Type Time
+PlotType: operation-candlesticks
+
+hash:
+  title: Hash
+  units: OPS_PER_SECOND
+
+lock-pi:
+  title: Lock-PI
+  units: OPS_PER_SECOND
+
+requeue:
+  title: Requeue
+  units: TIME_MSECONDS
+
+requeue-pi:
+  title: requeue-pi
+  units: TIME_MSECONDS
+
+wake:
+  title: wake
+  units: TIME_MSECONDS
+
+wake-parallel:
+  title: wake
+  units: TIME_MSECONDS
+
+wait:
+  title: wait
+  units: KOPS_PER_SECOND

@@ -1,22 +1,9 @@
-# ExtractFutexbench.pm
-package MMTests::ExtractFutexbenchcommon;
-use MMTests::SummariseMultiops;
-use MMTests::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
-use strict;
-use Data::Dumper qw(Dumper);
-
-sub initialise() {
-	my ($self, $subHeading) = @_;
-	$self->SUPER::initialise($subHeading);
-}
-
 sub uniq {
 	my %seen;
 	grep !$seen{$_}++, @_;
 }
 
-sub extractReport() {
+sub extractReport($$) {
 	my ($self, $reportDir) = @_;
 	my ($tp, $name);
 	my $file_wk = "$reportDir/workloads";
@@ -46,7 +33,7 @@ sub extractReport() {
 			my $futexType = "private";
 			my $nr_samples = 0;
 
-			my $input = $self->SUPER::open_log($file);
+			my $input = open_log($file);
 			while (<$input>) {
 				my $line = $_;
 				my @tmp = split(/\s+/, $line);
@@ -72,7 +59,8 @@ sub extractReport() {
 				}
 
 				$futexTypesSeen{$futexType} = 1;
-				$self->addData("$wl-$futexType-$nthr", ++$nr_samples, $tp);
+				$nr_samples++;
+				print("$wl\t$futexType\t$nthr\t$nr_samples\t$tp\t_\n");
 			}
 
 			close $input;
@@ -89,3 +77,5 @@ sub extractReport() {
 	}
 	$self->{_Operations} = \@ops;
 }
+
+1;

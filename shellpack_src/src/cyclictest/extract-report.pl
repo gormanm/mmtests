@@ -1,4 +1,4 @@
-sub parseResults($$) {
+sub extractReport($$) {
 	my ($self, $reportDir) = @_;
 	my $value;
 
