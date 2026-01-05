@@ -115,7 +115,6 @@ config-io-paralleldd-read-large
 config-io-paralleldd-read-large-multi
 config-io-paralleldd-read-small
 config-io-paralleldd-read-small-multi
-config-io-sparsetruncate-small
 config-io-trunc
 config-io-xfsrepair
 config-memdb-redis-benchmark-large
