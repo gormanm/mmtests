@@ -799,6 +799,13 @@ for SUBREPORT in $REPORTS; do
 		compare-mmtests.pl -d . -b pgbench -a exectime -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
+	redis)
+		for HEADING in RPS lat95; do
+			echo $SUBREPORT $HEADING
+			eval $COMPARE_CMD --sub-heading ".*$HEADING"
+			echo
+		done
+		;;
 	redis-memtier)
 		for HEADING in Ops/sec Hits/sec Miss/sec; do
 			echo $SUBREPORT $HEADING

@@ -1,0 +1,11 @@
+#!/bin/bash
+SHELLPACK_ROOT=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
+
+LOGDIR=${1:-`pwd`}
+cd $LOGDIR || exit 1
+
+for NR_CLIENT in `\ls redis-*-1.log | cut -d- -f2 | sort -n`; do
+	for ITERATION in `\ls redis-$NR_CLIENT-* | cut -d- -f3 | sed -e 's/.log//' | sort -n`; do
+		cat redis-$NR_CLIENT-$ITERATION.log | $SHELLPACK_ROOT/parse-results.awk -v nr_client=$NR_CLIENT iteration=$ITERATION
+	done
+done | sort -k1,1 -k2,2n -k4,4n

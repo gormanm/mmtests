@@ -97,11 +97,7 @@ esac
 
 server_start
 ###SHELLPACK threads_large_stride_begin $REDIS_MIN_CLIENTS $REDIS_MAX_CLIENTS
-	CLIENT_THREADS=$REDIS_MEMTIER_THREADS
-	if [ $NR_THREADS -eq 1 ]; then
-		CLIENT_THREADS=1
-	fi
-	BENCH_CMD="redis-benchmark --csv -c $NR_THREADS --threads $CLIENT_THREADS -r $REDIS_KEYSPACE -n $REDIS_REQUESTS -P $REDIS_PIPELINE"
+	BENCH_CMD="redis-benchmark --csv -c $NR_THREADS -r $REDIS_KEYSPACE -n $REDIS_REQUESTS -P $REDIS_PIPELINE"
 	log_cmd $BENCH_CMD
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $REDIS_ITERATIONS

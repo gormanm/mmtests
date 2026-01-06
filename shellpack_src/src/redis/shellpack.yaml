@@ -1,0 +1,38 @@
+default-metric: RPS
+
+metrics:
+  - RPS
+  - latMin
+  - latAvg
+  - lat95
+  - lat99
+  - latMax
+
+summarise: Singleops
+PlotXaxis: CPU
+PlotYaxis: Interrupts
+PlotType: client-candlesticks
+
+RPS:
+  title: KiloRPS
+  units: KOPS_PER_SECOND 
+
+latMin:
+  title: Min Latency
+  units: TIME_USECONDS
+
+latAvg:
+  title: Average Latency
+  units: TIME_USECONDS
+
+lat95:
+  title: 95th Percentile Latency
+  units: TIME_USECONDS
+
+lat99:
+  title: 99th Percentile Latency
+  units: TIME_USECONDS
+
+latMax:
+  title: Max Latency
+  units: TIME_USECONDS

@@ -17,19 +17,18 @@ export MMTESTS="redis"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat"
-export MONITORS_WITH_LATENCY="vmstat iostat"
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITORS_GZIP="proc-vmstat mpstat turbostat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=1
 
 # Redis
 export REDIS_ITERATIONS=5
 export REDIS_PERSISTENCE="default-persist"
 export REDIS_KEYSPACE=50000
 export REDIS_REQUESTS=$((REDIS_KEYSPACE*2))
-export REDIS_MEMTIER_THREADS=4
 export REDIS_PIPELINE=256
 export REDIS_MIN_CLIENTS=1
-export REDIS_MAX_CLIENTS=$((NUMCPUS-REDIS_MEMTIER_SERVER_THREADS))
+export REDIS_MAX_CLIENTS=$((NUMCPUS*2))
 
 # Disable THP as recommended by redis documentation
 disable_transhuge
