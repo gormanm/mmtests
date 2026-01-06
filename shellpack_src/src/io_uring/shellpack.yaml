@@ -1,0 +1,14 @@
+default-metric: IOops
+
+metrics:
+  - IOops
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: io_uring
+PlotYaxis: KiloOps/sec
+PlotType: client-candlesticks
+
+IOops:
+  title: io_uring IO Operations
+  units: KOPS_PER_SECOND
