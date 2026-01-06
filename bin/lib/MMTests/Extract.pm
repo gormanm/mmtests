@@ -91,7 +91,7 @@ sub initialise() {
 	my @fieldHeaders;
 	my ($fieldLength, $plotLength, $summaryLength);
 
-	$fieldLength = 12;
+	$fieldLength = 18;
 	@fieldHeaders = ("UnknownType");
 	$fieldLength = $self->{_FieldLength}   if defined $self->{_FieldLength};
 

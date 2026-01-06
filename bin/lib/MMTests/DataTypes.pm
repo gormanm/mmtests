@@ -8,6 +8,7 @@ use constant LABEL_TIME_NSECONDS	=> "Time (nsec)";
 use constant LABEL_TIME_USECONDS	=> "Time (usec)";
 use constant LABEL_TIME_MSECONDS	=> "Time (msec)";
 use constant LABEL_TIME_SECONDS		=> "Time (sec)";
+use constant LABEL_TIME_PERCENTAGE	=> "Time Percentage";
 use constant LABEL_KBYTES_PER_SECOND	=> "KBytes/sec";
 use constant LABEL_KBYTES		=> "KiB";
 use constant LABEL_KOPS_PER_SECOND	=> "KiloOps/sec";

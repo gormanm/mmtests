@@ -1,0 +1,65 @@
+default-metric: int_n_per_sec
+
+metrics:
+  - int_n
+  - int_n_per_sec
+  - int_min_ns
+  - int_median_ns
+  - int_mean_ns
+  - int_90_ns
+  - int_99_ns
+  - int_999_ns
+  - int_9999_ns
+  - int_99999_ns
+  - int_max_ns
+  - int_total_ns
+  - int_total_%age
+
+summarise: Singleops
+PlotXaxis: CPU
+PlotYaxis: Interrupts
+PlotType: client-candlesticks
+
+int_n:
+  title: Interrupts Per CPU
+  units: OPS_COUNT
+
+int_n_per_sec:
+  title: Interrupts/Sec Per CPU
+  units: OPS_PER_SECOND
+
+int_min_ns:
+  title: Min Time in Interrupt Per CPU
+  units: TIME_USECONDS
+
+int_median_ns:
+  title: Median Time in Interrupt Per CPU
+  units: TIME_USECONDS
+
+int_99_ns:
+  title: 99th Percentile Time in Interrupt Per CPU
+  units: TIME_USECONDS
+
+int_999_ns:
+  title: 99.9th Percentile Time in Interrupt Per CPU
+  units: TIME_USECONDS
+
+int_9999_ns:
+  title: 99.99th Percentile Time in Interrupt Per CPU
+  units: TIME_USECONDS
+
+int_99999_ns:
+  title: 99.999th Percentile Time in Interrupt Per CPU
+  units: TIME_USECONDS
+
+int_max_ns:
+  title: Max Time in Interrupt Per CPU
+  units: TIME_USECONDS
+
+int_total_ns:
+  title: Total Time in Interrupt Per CPU
+  units: TIME_USECONDS
+
+int_total_%age:
+  title: Percentage Time in Interrupt Per CPU
+  units: TIME_PERCENTAGE
