@@ -1,9 +1,12 @@
+. $SCRIPTDIR/shellpacks/user-hooks.sh
+
 monitor_pre_hook() {
 	if [ "$MONITOR_PRE_HOOK" != "" ]; then
 		echo Monitor pre-hook: $MONITOR_PRE_HOOK
 		echo Monitor args: $@
 		$MONITOR_PRE_HOOK $@ || die Failed to execute monitor pre-hook
 	fi
+	call_user_hooks pre $@
 }
 
 monitor_post_hook() {
@@ -12,6 +15,7 @@ monitor_post_hook() {
 		echo Monitor args: $@
 		$MONITOR_POST_HOOK $@ || die Failed to execute monitor post-hook
 	fi
+	call_user_hooks post $@
 }
 
 monitor_cleanup_hook() {

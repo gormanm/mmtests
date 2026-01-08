@@ -8,6 +8,8 @@ RUNNING_TEST=
 export EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer
 export BUILDONLY=false
 export DELETE_ON_EXIT_FILE=$(mktemp /tmp/mmtest-cleanup-XXXXXXXXX)
+echo $PWD
+. $SCRIPTDIR/shellpacks/user-hooks.sh
 
 # External optimisations and tuning can be specified via the build-flags
 # repository. Set the defaults to use compiler optimisations if available
@@ -339,6 +341,9 @@ if [ $NR_HOOKS -gt 0 ]; then
 	fi
 fi
 
+# Exposes user defined hooks to test driver.
+export_user_hooks
+
 # Disable any inadvertent profiling going on right now
 if [ "`lsmod | grep oprofile`" != "" ]; then
 	opcontrol --stop > /dev/null 2> /dev/null
@@ -359,6 +364,8 @@ rm -rf $SHELLPACK_LOG_RUNBASE &>/dev/null
 mkdir -p $SHELLPACK_LOG_RUNBASE
 
 mmtests_wait_token "mmtests_start"
+
+call_user_hooks init
 
 export MMTESTS_ACTIVITY="$SHELLPACK_LOG_RUNBASE/mmtests-activity"
 for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERATION++ )); do
@@ -748,6 +755,8 @@ for (( MMTEST_ITERATION = 0; MMTEST_ITERATION < $MMTEST_ITERATIONS; MMTEST_ITERA
 	destroy_testdisk
 	gzip -f $SHELLPACK_SYSSTATEFILE
 done
+
+call_user_hooks end
 
 mmtests_wait_token "mmtests_end"
 

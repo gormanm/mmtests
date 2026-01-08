@@ -1,0 +1,68 @@
+# This is an example configuration of how to use hooks to profile any
+# mmtest benchmark.  Though it runs successfully, it is not supposed to
+# be used as a benchmark, ever.  It uses io_uring just as an example of
+# a trivial benchmark that completes very fast.
+export MMTESTS="io_uring"
+
+export IOURING_TEST_TYPE=nops
+export IOURING_THREADS=$NUMCPUS
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# User Hooks. useful to start profiles, tracers, etc.
+my_own_helper_func() {
+	echo "This is a helper function called in the benchmark driver context."
+}
+perf_monitor-init() {
+	# Called once for the entire configuration before the test is
+	# started from mmtests context.
+	zypper install -y perf
+
+	# Exports the my_own_helper_func allowing it to be
+	# called by the subshell under -pre and -post hooks.
+	export -f my_own_helper_func
+}
+
+perf_monitor-pre () {
+	# Called once for each subtest execution, right before the
+	# command-under-test from the driver context. The first argument
+	# is the logdir, but the rest are benchmark-specific arguments
+	# to uniquely identify the subtest.  Check the benchmark driver
+	# for the expected input.
+	#
+	# You *can* call other bash functions and reference bash
+	# variables here, as long as they are exported to the driver
+	# environment by adding the following to the init hook:
+	#  - function:
+	#      export -f $FUNCNAME
+	#  - variable
+	#      export $VAR
+	local logdir=$1
+	local subtest=$2
+
+	perf record -F 999 -o $logdir/profile-$subtest &
+	echo $! > $logdir/perf.pid
+}
+perf_monitor-post() {
+	# Called once for each subtest execution from the driver
+	# context, right after the command-under-test. Arguments are
+	# exactly the same as perf-monitor-pre.
+	local logdir=$1
+	local subtest=$2
+
+	kill $(cat $logdir/perf.pid)
+	rm $logdir/perf.pid
+}
+perf_monitor-end() {
+	# Called once for the entire configuration after the test
+	# completes, successful or not, from the mmtests context.
+	echo "Collected all profiles! Bye Bye"
+}
+
+# Expose the hooks to mmtests.  Multiple hooks are separated with a
+# space.
+export MONITOR_HOOKS="perf"
