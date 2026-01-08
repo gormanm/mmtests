@@ -59,18 +59,6 @@ if [ "$REMOTE_SERVER_HOST" != "" ]; then
 	mmtests_server_init
 fi
 
-NR_HOOKS=`ls $PROFILE_PATH/profile-hooks* 2> /dev/null | wc -l`
-if [ $NR_HOOKS -gt 0 ]; then
-	for PROFILE_HOOK in `ls $PROFILE_PATH/profile-hooks-*.sh 2> /dev/null`; do
-		echo Processing profile hook $PROFILE_HOOK title $PROFILE_TITLE
-		. $PROFILE_HOOK
-	done
-
-	export MONITOR_PRE_HOOK=`pwd`/monitor-pre-hook
-	export MONITOR_POST_HOOK=`pwd`/monitor-post-hook
-	export MONITOR_CLEANUP_HOOK=`pwd`/monitor-cleanup-hook
-fi
-
 export LOGDIR_RESULTS=$LOGDIR_TOPLEVEL/logs
 mkdir logs
 setup_dirs
