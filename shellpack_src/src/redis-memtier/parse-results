@@ -1,0 +1,16 @@
+#!/bin/bash
+SHELLPACK_ROOT=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
+
+LOGDIR=${1:-`pwd`}
+cd $LOGDIR || exit 1
+
+for NR_CLIENT in `\ls benchlog-* | cut -d- -f2 | sort -u -n`; do
+	for ITERATION in `\ls benchlog-$NR_CLIENT-* | cut -d- -f3 | sort -u -n`; do
+		read DUMMY OPS HITS MISSES LATENCY KB <<< $(grep ^Totals benchlog-$NR_CLIENT-$ITERATION)
+		 echo -e "ops/sec\t$NR_CLIENT\t_\t$ITERATION\t$OPS\tR"
+		 echo -e "hits/sec\t$NR_CLIENT\t_\t$ITERATION\t$HITS\t_"
+		 echo -e "misses/sec\t$NR_CLIENT\t_\t$ITERATION\t$MISSES\t_"
+		 echo -e "latency\t$NR_CLIENT\t_\t$ITERATION\t$LATENCY\t_"
+		 echo -e "kb/sec\t$NR_CLIENT\t_\t$ITERATION\t$KB\t_"
+	 done
+done

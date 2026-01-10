@@ -109,7 +109,7 @@ server_start
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $REDIS_MEMTIER_ITERATIONS
 		echo Running test $NR_THREADS threads iteration $ITERATION/$REDIS_MEMTIER_ITERATIONS
-		eval $BENCH_CMD &> $LOGDIR_RESULTS/redis-memtier-${NR_THREADS}-${ITERATION}.log
+		eval $BENCH_CMD &> $LOGDIR_RESULTS/benchlog-${NR_THREADS}-${ITERATION}
 	###SHELLPACK iteration_end
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 ###SHELLPACK threads_stride_end

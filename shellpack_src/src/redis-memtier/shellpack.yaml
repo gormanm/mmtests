@@ -1,0 +1,37 @@
+default-metric: ops/sec
+
+metrics:
+  - ops/sec
+  - hits/sec
+  - misses/sec
+  - latency
+  - kb/sec
+
+summarise: Multiops
+PlotXaxis: Clients
+PlotYaxis: Latency
+PlotType: client-candlesticks
+
+ops/sec:
+  title: Operations/sec
+  units: OPS_PER_SECOND
+  preferhigher: true
+
+hits/sec:
+  title: Hits/sec
+  units: OPS_PER_SEC
+  preferhigher: true
+
+misses/sec:
+  title: Misses/sec
+  units: OPS_PER_SEC
+  preferhigher: true
+
+kb/sec:
+  title: Kilobytes/sec
+  units: KBYTES_PER_SECOND
+  preferhigher: true
+
+latency:
+  title: Latency
+  units: TIME_MSECONDS
