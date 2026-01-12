@@ -13,53 +13,60 @@
 ###SHELLPACK parseargParam   --cache		PEDSORT_CACHE
 ###SHELLPACK parseargParam   --tmpfs		PEDSORT_TMPFS
 ###SHELLPACK parseargEnd
-
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required pedsort-${VERSION}
-
-WORDS_CMD=$PEDSORT_DIR/generate-words.pl
-
 PEDSORT_DIR=$SHELLPACK_SOURCES/pedsort-${VERSION}-installed/psearchy/mkdb
+PEDSORT_WORDS_DIR=$PEDSORT_DIR/words
 PEDSORT_CMD=${PEDSORT_DIR}/pedsort
+WORDS_CMD=${PEDSORT_DIR}/generate-words.pl
 
-PEDSORT_WORDS_DIR=$PEDSORT_DIR/words # where all the files go
+cleanup() {
+	rm -rf  $SHELLPACK_TEMP/db/*
+	umount $SHELLPACK_TEMP/db &>/dev/null
+}
+trap cleanup EXIT
+
+###SHELLPACK init_only_start
+###SHELLPACK check_install_required_continue pedsort-${VERSION}
 mkdir -p $PEDSORT_WORDS_DIR
 
 ###SHELLPACK self_extract generate-words.pl
 mv $SHELLPACK_TEMP/generate-words.pl $WORDS_CMD
 chmod a+x $WORDS_CMD
 
+echo Generating text files
 $WORDS_CMD -t $(( $NUMCPUS * 2 )) -w $PEDSORT_NFILES_WORDS -m bruit \
 	   -f $PEDSORT_NFILES -p $PEDSORT_WORDS_DIR/text-file-%d.txt ||
-    die "Failed to generate words for benchmark input."
-
+		die "Failed to generate words for benchmark input."
 ls --format single-column $PEDSORT_WORDS_DIR/text-file-*.txt > $PEDSORT_WORDS_DIR/pedsort-input.txt
 
-rm -rf SHELLPACK_TEMP/db/
-if [ "$PEDSORT_TMPFS" = "yes" ]; then
-    mkdir $SHELLPACK_TEMP/db/
-    mount -t tmpfs none $SHELLPACK_TEMP/db/
-fi
+###SHELLPACK init_only_end
 
+echo Creating db directory structure
+rm -rf $SHELLPACK_TEMP/db/
+mkdir $SHELLPACK_TEMP/db/
+if [ "$PEDSORT_TMPFS" = "yes" ]; then
+	mount -t tmpfs none $SHELLPACK_TEMP/db/
+fi
 for i in $(seq 0 $(( $PEDSORT_MAX_THREADS - 1 ))); do
-    mkdir -p $SHELLPACK_TEMP/db/db$i
+	mkdir -p $SHELLPACK_TEMP/db/db$i
 done
 
-if [ "$PEDSORT_CACHE" = "warm" ]; then
-    echo Warming up
-    mmtests_activity warmup
 
-    $PEDSORT_CMD -t $SHELLPACK_TEMP/db/db -c $NR_THREADS < $PEDSORT_WORDS_DIR/pedsort-input.txt  2>/dev/null
+if [ "$PEDSORT_CACHE" = "warm" ]; then
+	echo Warming up
+	mmtests_activity warmup
+
+	$PEDSORT_CMD -t $SHELLPACK_TEMP/db/db -c $NR_THREADS < $PEDSORT_WORDS_DIR/pedsort-input.txt 2>/dev/null
 fi
 
-###SHELLPACK init_complete
-
 ###SHELLPACK threads_large_stride_begin $PEDSORT_MIN_THREADS $PEDSORT_MAX_THREADS
+	BENCH_CMD="$PEDSORT_CMD -t $SHELLPACK_TEMP/db/db -c $NR_THREADS < $PEDSORT_WORDS_DIR/pedsort-input.txt"
+	log_cmd "$BENCH_CMD"
+
+	mmtests_activity threads-$NR_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-
 	###SHELLPACK iteration_begin $PEDSORT_ITERATIONS
-
 	if [ "$PEDSORT_CACHE" = "cold" ]; then
 		echo Dropping caches as per requested
 		sysctl -w vm.drop_caches=3
@@ -67,329 +74,19 @@ fi
 		# build the indexes from scratch
 		rm -rf SHELLPACK_TEMP/db/
 		for i in $(seq 0 $(( $PEDSORT_MAX_THREADS - 1 ))); do
-		    mkdir -p $SHELLPACK_TEMP/db/db$i
+			mkdir -p $SHELLPACK_TEMP/db/db$i
 		done
 	fi
 
 	echo Running with indexing-threads $NR_THREADS/$PEDSORT_MAX_THREADS iteration $ITERATION/$PEDSORT_ITERATIONS
-	save_rc $PEDSORT_CMD -t $SHELLPACK_TEMP/db/db -c $NR_THREADS < $PEDSORT_WORDS_DIR/pedsort-input.txt  2>&1 | \
-	    tee $LOGDIR_RESULTS/pedsort-${NR_THREADS}-${ITERATION}.log
-	recover_rc
-
-	if [ $? -ne 0 ]; then
-	    if [ "$PEDSORT_TMPFS" = "yes" ]; then
-		rm -rf	$SHELLPACK_TEMP/db/*
-		umount $SHELLPACK_TEMP/db
-	    fi
-	    die Failed to run pedsort
-	fi
+	eval $BENCH_CMD &> $LOGDIR_RESULTS/benchlog-${NR_THREADS}-_-${ITERATION} || die "Failed to run pedsort ($LOGDIR_RESULTS/benchlog-${NR_THREADS}-${ITERATION})"
 	###SHELLPACK iteration_end
-
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+
 ###SHELLPACK threads_stride_end
 
 DBSIZE=$(du -sh $SHELLPACK_TEMP/db/)
 echo $DBSIZE >> $LOGDIR_RESULTS/db_size.txt
-
-rm -rf	$SHELLPACK_TEMP/db/*
-if [ "$PEDSORT_TMPFS" = "yes" ]; then
-    umount $SHELLPACK_TEMP/db
-fi
-
 exit $SHELLPACK_SUCCESS
 
-==== BEGIN generate-words.pl ====
-#!/usr/bin/perl -l
-# Generate one or more files with random words inside.
-
-use strict;
-use warnings;
-use threads;
-
-use Getopt::Long qw(GetOptionsFromArray);
-
-
-my $BRUIT_MAXLENGTH = 10;
-
-sub bruit_generate
-{
-    my ($fd, $w) = @_;
-    my $length = 1 + int(rand($BRUIT_MAXLENGTH));
-    my $buffer = '';
-    my ($i, $c);
-
-    for ($i = 0; $i < $length; $i++) {
-	$c = 65 + int(rand(26));
-	$buffer .= chr($c);
-    }
-
-    printf($fd "%s\n", $buffer);
-}
-
-
-my %DISTRIBUTION = (
-    a => 8.16, b => 1.49, c => 2.78, d => 4.25, e => 12.70,
-    f => 2.22, g => 2.01, h => 6.09, i => 6.96, j => 0.15,
-    k => 0.77, l => 4.02, m => 2.40, n => 6.74, o => 7.50,
-    p => 1.92, q => 0.09, r => 5.98, s => 6.32, t => 9.05,
-    u => 2.75, v => 0.97, w => 2.36, x => 0.15, y => 1.97,
-    z => 0.07
-    );
-
-my %LENGTH_PROBA = (
-    1  => 5,  2  => 5,  3  => 15,
-    4  => 20, 5  => 20, 6  => 15,
-    7  => 10, 8  => 5,  9  => 2,
-    10 => 2,  11 => 1
-    );
-
-sub generate_english
-{
-    my ($i, $prob, $key);
-    my $buffer = '';
-    my $length;
-
-    $prob = rand(100);
-    foreach $key (keys(%LENGTH_PROBA)) {
-	$prob -= $LENGTH_PROBA{$key};
-	if ($prob < 0) {
-	    $length = $key;
-	    last;
-	}
-    }
-
-    for ($i = 0; $i < $length; $i++) {
-	$prob = rand(100);
-	foreach $key (keys(%DISTRIBUTION)) {
-	    $prob -= $DISTRIBUTION{$key};
-	    if ($prob < 0) {
-		$buffer .= $key;
-		last;
-	    }
-	}
-    }
-
-    return $buffer;
-}
-
-
-my %DICT_MAP;
-
-sub dict_generate
-{
-    my ($fd, $w) = @_;
-    my $word;
-
-    if ($w == 0) {
-	%DICT_MAP = ();
-    }
-
-    do {
-	$word = generate_english();
-    } while (defined($DICT_MAP{$word}));
-    $DICT_MAP{$word} = 1;
-
-    printf($fd "%s\n", $word);
-}
-
-
-my @TEXT_LIST;
-
-sub text_generate
-{
-    my ($fd, $w) = @_;
-    my $retake = (rand(100) < 5);
-    my ($index, $word);
-
-    if ($w == 0) {
-	@TEXT_LIST = ();
-    }
-
-    if ($retake && scalar(@TEXT_LIST)) {
-	$index = int(rand(scalar(@TEXT_LIST)));
-	$word = $TEXT_LIST[$index];
-    } else {
-	$word = generate_english();
-	push(@TEXT_LIST, $word);
-    }
-
-    printf($fd "%s\n", $word);
-}
-
-
-sub usage
-{
-    return <<'EOF'
-Usage: ./generate-words.pl [--word-count <count>] [--proba-model <model>]
-		       [--file-count <count>] [--file-pattern <pattern>]
-		       [--threads <count>]
-Generate one or more files containing randomly generated words. The precise
-amount of word, file and the way they are generated are controlled by the
-options.
-
-Options:
-  -h, --help                       Print this help message, then exit
-
-  -w, --word-count <count>         The amount of word generated per file. Note
-				   this is not the amount of *different* words.
-				   The collision rate is controller by the -m
-				   option. Default = 500
-
-  -m, --proba-model <model>        The probability model to generate the words.
-				   The available models are :
-				   - bruit : each word is generated
-					     independently with equiprobable
-					     characters
-				   - dict : each word is generated with no
-					    possible collision with english
-					    language character probability
-				   - text : same than dict but each word has
-					    5% chance to be a doublon
-				   Default = bruit
-
-  -f, --file-count <count>         The amount of generated file. If only one,
-				   and no -p option is specified, write on the
-				   standard output. Default = 1
-
-  -p, --file-pattern <pattern>     The pattern of filepaths to write on. The
-				   last '%d' sequence is replaced by a number
-				   from 1 to the value of -f option.
-				   Default = generated-%d.txt
-
-  -t, --threads <count>            The amount of thread to use to generate the
-				   files. Default = 8
-EOF
-}
-
-
-sub error
-{
-    my ($message, $retcode) = @_;
-
-    if (!defined($message)) {
-	$message = 'undefined error';
-    }
-
-    if (!defined($retcode)) {
-	$retcode = 1;
-    }
-
-    printf(STDERR "%s: %s\nPlease type '%s --help' for more informations\n",
-	   $0, $message, $0);
-
-    exit ($retcode);
-}
-
-
-my @THREAD_POOL;
-my $MAX_THREADS = 8;
-
-sub register_thread
-{
-    my ($tid) = @_;
-    my ($t, @pool);
-
-    if (scalar(@THREAD_POOL) >= $MAX_THREADS) {
-	foreach $t (@THREAD_POOL) {
-	    if ($t->is_joinable()) {
-		$t->join();
-	    } else {
-		push(@pool, $t);
-	    }
-	}
-
-	@THREAD_POOL = @pool;
-    }
-
-    if (scalar(@THREAD_POOL) >= $MAX_THREADS) {
-	$t = pop(@THREAD_POOL);
-	$t->join();
-    }
-
-    push(@THREAD_POOL, $tid);
-}
-
-sub wait_threads
-{
-    my $tid;
-
-    foreach $tid (@THREAD_POOL) {
-	$tid->join();
-    }
-}
-
-sub main
-{
-    my ($wcount, $probam, $fcount, $fpattern, $fdefpat);
-    my ($ret, $generator, $f, $w, $path, $fd);
-    my ($tid);
-    my %generators = (
-	'bruit' => \&bruit_generate,
-	'dict'  => \&dict_generate,
-	'text'  => \&text_generate
-	);
-
-    $ret = GetOptionsFromArray(
-	\@_,
-	'h|help'           => sub { printf("%s", usage()); exit (0); },
-	'w|word-count=i'   => \$wcount,
-	'm|proba-model=s'  => \$probam,
-	'f|file-count=i'   => \$fcount,
-	'p|file-pattern=s' => \$fpattern,
-	't|threads=i'      => \$MAX_THREADS
-	);
-
-    $fdefpat = defined($fpattern);
-    if (!defined($wcount))   { $wcount = 500; }
-    if (!defined($probam))   { $probam = 'bruit'; }
-    if (!defined($fcount))   { $fcount = 1; }
-    if (!defined($fpattern)) { $fpattern = 'generated-%d.txt'; }
-
-    $generator = $generators{$probam};
-
-
-    if ($wcount < 1) { error("invalid --word-count option '$wcount'"); }
-    if ($fcount < 1) { error("invalid --file-count option '$wcount'"); }
-
-    if (!($fpattern =~ m|%d|)) {
-	error("invalid --file-pattern option '$fpattern'");
-    }
-
-    if (!defined($generator)) {
-	error("invalid --proba-model option '$probam'");
-    }
-
-    for ($f = 0; $f < $fcount; $f++) {
-	$tid = async {
-	    srand($f);
-
-	    if (!$fdefpat && $fcount == 1) {
-		$fd = \*STDOUT;
-	    } else {
-		$path = $fpattern;
-		$path =~ s|^(.*)%d(.*)$|$1$f$2|;
-		if (!open($fd, '>', $path)) {
-		    error("cannot open '$path' : $!");
-		}
-	    }
-
-	    for ($w = 0; $w < $wcount; $w++) {
-		$generator->($fd, $w);
-	    }
-
-	    close($fd);
-	};
-
-	register_thread($tid);
-	printf(STDERR "\r--> generating %d files", $f);
-    }
-
-    wait_threads();
-    printf(STDERR "\n");
-
-    return 0;
-}
-
-
-exit (main(@ARGV));
-==== END generate-words.pl ====
+###SHELLPACK include_file generate-words.pl

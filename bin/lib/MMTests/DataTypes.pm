@@ -14,6 +14,7 @@ use constant LABEL_KBYTES		=> "KiB";
 use constant LABEL_KOPS_PER_SECOND	=> "KiloOps/sec";
 use constant LABEL_OPS_PER_SECOND	=> "Ops/sec";
 use constant LABEL_OPS_PER_MINUTE	=> "Ops/min";
+use constant LABEL_OPS_PER_HOUR		=> "Ops/hour";
 use constant LABEL_OPS_SCORE		=> "Ops/score";
 use constant LABEL_OPS_COUNT		=> "Ops/count";
 use constant LABEL_OPS_ITERATION	=> "Ops/iteration";

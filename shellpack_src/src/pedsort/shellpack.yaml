@@ -1,0 +1,12 @@
+default-metric: jobs/core
+
+metrics:
+  - jobs/core
+
+summarise: Multiops
+PlotXaxis: Jobs/Hour/Core
+PlotType: operation-candlesticks
+
+jobs/core:
+  title: Jobs/hour/core
+  units: OPS_PER_HOUR
