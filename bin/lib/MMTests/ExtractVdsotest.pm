@@ -21,46 +21,43 @@ sub initialise() {
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 	my ($tp, $name);
-	my $file_wk = "$reportDir/workloads";
-	open(INPUT, "$file_wk") || die("Failed to open $file_wk\n");
-	my @workloads = split(/ /, <INPUT>);
-	$self->{_Workloads} = \@workloads;
 	close(INPUT);
 	my @ops;
 
-	foreach my $wl (@workloads) {
-		my @files = <$reportDir/vdsotest-$wl-*.log>;
-		my %samples;
+	my @files = <$reportDir/benchlog-*-_-*>;
+	my %samples;
 
-		foreach my $file (@files) {
-			next if (!($file =~ /$wl-[0-9]/));
+	foreach my $file (@files) {
+		my $bare = $file;
+		$bare =~ s/.*\///;
+		my ($dummy, $wl, $dummy) = split(/-/, $bare);
 
-			open(INPUT, $file) || die("Failed to open $file\n");
-			while (<INPUT>) {
-				my $line = $_;
+		open(INPUT, $file) || die("Failed to open $file\n");
+		while (<INPUT>) {
+			my $line = $_;
 
-				if ($line =~ /.*system calls per second:\W+([0-9]+).*/) {
-					my $op = "$wl-syscall";
-					my $lat = ($1/1000000000) ** -1;
+			if ($line =~ /.*system calls per second:\W+([0-9]+).*/) {
+				my $op = "$wl-syscall";
+				my $lat = ($1/1000000000) ** -1;
 
-					$self->addData($op, ++$samples{$op}, $lat);
-				}
-
-				elsif ($line =~ /.*vdso calls per second:\W+([0-9]+).*/) {
-					my $op = "$wl-vdso";
-					my $lat = ($1/1000000000) ** -1;
-
-					$self->addData($op, ++$samples{$op}, $lat);
-				}
-
-				elsif ($line =~ /(\w+):\W+([0-9]+)\s+nsec\/call/) {
-					my $op = "$wl-$1";
-					my $lat = $2;
-
-					$self->addData($op, ++$samples{$op}, $lat);
-				}
+				$self->addData($op, ++$samples{$op}, $lat);
 			}
-			close INPUT;
+
+			elsif ($line =~ /.*vdso calls per second:\W+([0-9]+).*/) {
+				my $op = "$wl-vdso";
+				my $lat = ($1/1000000000) ** -1;
+
+				$self->addData($op, ++$samples{$op}, $lat);
+			}
+
+			elsif ($line =~ /(\w+):\W+([0-9]+)\s+nsec\/call/) {
+				my $op = "$wl-$1";
+				my $lat = $2;
+
+				$self->addData($op, ++$samples{$op}, $lat);
+			}
 		}
+		close INPUT;
 	}
+
 }

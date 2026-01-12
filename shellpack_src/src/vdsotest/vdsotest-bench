@@ -16,13 +16,18 @@
 VDSOTEST_CLOCKS="clock-gettime-monotonic clock-getres-monotonic clock-gettime-monotonic-coarse clock-getres-monotonic-coarse clock-gettime-realtime clock-getres-realtime clock-gettime-realtime-coarse clock-getres-realtime-coarse clock-getres-realtime-coarse getcpu gettimeofday "
 
 echo $VDSOTEST_CLOCKS > $LOGDIR_RESULTS/workloads
-
-###SHELLPACK iteration_begin $VDSOTEST_ITERATIONS
-	echo Iteration $ITERATION/$VDSOTEST_ITERATIONS for $VDSOTEST_DURATION seconds
-	for WORKLOAD in $VDSOTEST_CLOCKS; do
-	    save_rc ./vdsotest -d $VDSOTEST_DURATION $WORKLOAD bench 2>&1 | \
-		tee $LOGDIR_RESULTS/vdsotest-${WORKLOAD}-${ITERATION}.log
-	done
-###SHELLPACK iteration_end $ITERATIONS
+for WORKLOAD in $VDSOTEST_CLOCKS; do
+	BENCH_CMD="vdsotest -d $VDSOTEST_DURATION $WORKLOAD bench"
+	log_cmd "$BENCH_CMD"
+	mmtests_activity $WORKLOAD
+	monitor_pre_hook $LOGDIR_RESULTS $WORKLOAD
+	LOG_WORKLOAD=`echo $WORKLOAD | sed -e 's/-/_/g'`
+	###SHELLPACK iteration_begin $VDSOTEST_ITERATIONS
+		printf "%-35s Iteration $ITERATION/$VDSOTEST_ITERATIONS\n" $WORKLOAD
+		./$BENCH_CMD &> $LOGDIR_RESULTS/benchlog-${LOG_WORKLOAD}-_-${ITERATION} ||
+			die "Failed to run vdso $WORKLOAD ($LOGDIR_RESULTS/benchlog-${LOG_WORKLOAD}-_-${ITERATION})"
+	###SHELLPACK iteration_end $ITERATIONS
+	monitor_post_hook $LOGDIR_RESULTS $WORKLOAD
+done
 
 exit $SHELLPACK_SUCCESS
