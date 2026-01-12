@@ -13,6 +13,7 @@ install-depends automake autoconf
 ###SHELLPACK build_start vdsotest-${VERSION}-installed
 
 ./autogen.sh && sed -i -e 's/LT_INIT\(disable-static\)//' configure && ./configure
+sed -i -e 's/nullptr/null_ptr/g' src/*.c
 
 ###SHELLPACK make
 
