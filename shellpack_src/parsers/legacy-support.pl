@@ -16,4 +16,27 @@ sub open_log($) {
 	return $fh;
 }
 
+sub discover_scaling_parameters {
+	my ($reportDir, $prefix, $suffix, $infix) = @_;
+	my @scaling;
+
+	my @files = <$reportDir/$prefix*$suffix>;
+	foreach my $file (<$reportDir/$prefix*$suffix>) {
+		$file =~ s/.*\/$prefix//;
+
+		if ($suffix ne "") {
+			$file =~ s/$suffix$//;
+		}
+
+		if ($infix ne "") {
+			$file =~ s/$infix//;
+		}
+
+		push @scaling, $file;
+	}
+
+	@scaling = sort { $a <=> $b } @scaling;
+	return @scaling;
+}
+
 1;
