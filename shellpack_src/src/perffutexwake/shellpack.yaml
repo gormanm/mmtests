@@ -1,0 +1,12 @@
+default-metric: wake-latency
+
+metrics:
+  - wake-latency
+
+summarise: Multiops
+PlotXaxis: Type Time
+PlotType: operation-candlesticks
+
+wake-latency:
+  title: Wake Latency
+  units: TIME_USECONDS

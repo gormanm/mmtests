@@ -27,8 +27,7 @@ PERF_CMD=${PERF_DIR}/perf
 	mmtests_activity bench
 	
 	monitor_pre_hook $LOGDIR_RESULTS $P
-	$BENCH_CMD &> $LOGDIR_RESULTS/perffutexwake-$NR_THREADS.log || die "Failed to run perf futex wake"
-	gzip $LOGDIR_RESULTS/perffutexwake-$NR_THREADS.log
+	$BENCH_CMD &> $LOGDIR_RESULTS/benchlog-$NR_THREADS-_-1 || die "Failed to run perf futex wake"
 	monitor_post_hook $LOGDIR_RESULTS $P
 ###SHELLPACK threads_stride_end
 
