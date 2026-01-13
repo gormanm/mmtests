@@ -125,15 +125,6 @@ config-memdb-redis-memtier-medium
 config-memdb-redis-memtier-small
 config-pagereclaim-stutterp
 config-pagereclaim-stutterp-noreaders
-config-reaim-highsys
-config-reaim-io-alltests
-config-reaim-io-compute
-config-reaim-io-disk
-config-reaim-io-disk-large
-config-reaim-io-new_dbase
-config-reaim-io-new_fserver-large
-config-reaim-io-shared
-config-reaim-stress
 config-speccpu2017-rate-parallel-full
 config-speccpu2017-rate-parallel-half
 config-speccpu2017-rate-parallel-quarter
@@ -419,7 +410,6 @@ TMPFS_CONFIGS="
 config-io-paralleldd-read-small
 config-io-dbench4-async
 config-pagereclaim-stutterp
-config-reaim-io-disk
 "
 
 for CONFIG in $TMPFS_CONFIGS; do

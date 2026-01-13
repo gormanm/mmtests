@@ -1216,9 +1216,6 @@ for SUBREPORT in $REPORTS; do
 			;;
 		pistress)
 			;;
-		reaim)
-			generate_client_subtest_graphs
-			;;
 		redis*)
 			generate_ops_graphs
 			;;
