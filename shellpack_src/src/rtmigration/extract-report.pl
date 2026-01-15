@@ -1,19 +1,4 @@
-# ExtractRtmigration.pm
-package MMTests::ExtractRtmigration;
-use MMTests::SummariseMultiops;
-our @ISA = qw(MMTests::SummariseMultiops);
-
-sub initialise() {
-	my ($self, $subHeading) = @_;
-	$self->{_ModuleName} = "ExtractRtmigration";
-	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
-	$self->{_PlotType}   = "group-errorlines";
-	$self->{_Precision} = 2;
-
-	$self->SUPER::initialise($subHeading);
-}
-
-sub extractReport() {
+sub extractReport($$) {
 	my ($self, $reportDir) = @_;
 	my $nr_threads = 0;
 	my $reading_samples = 0;
@@ -21,7 +6,7 @@ sub extractReport() {
 	my %samples;
 	my %prios;
 
-	my $input = $self->SUPER::open_log("$reportDir/rtmigration.log");
+	my $input = open_log("$reportDir/rtmigration.log");
 	while (!eof($input)) {
 		my $line = <$input>;
 
@@ -59,7 +44,8 @@ sub extractReport() {
 	for (my $i = 0; $i < $nr_threads; $i++) {
 		my $nr_samples = 0;
 		foreach my $sample (@{$samples{$i}}) {
-			$self->addData("task-$i-p$prios{$i}", ++$nr_samples, $sample);
+			$nr_samples++;
+			print "task-$i-p$prios{$i}\t_\t_\t$nr_samples\t$sample\t_\n";
 		}
 	}
 }

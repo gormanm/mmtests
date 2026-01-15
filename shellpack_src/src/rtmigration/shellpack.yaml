@@ -1,0 +1,13 @@
+default-metric: task
+
+metrics:
+  - task
+
+summarise: Multiops
+PlotXaxis: USecs/Operation
+PlotType: operation-candlesticks
+DecimalPlaces: 2
+
+task:
+  title: USecs/Operation
+  units: TIME_USECONDS
