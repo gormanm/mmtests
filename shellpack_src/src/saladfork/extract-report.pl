@@ -1,16 +1,3 @@
-# ExtractSaladfork.pm
-package MMTests::ExtractSaladfork;
-use MMTests::SummariseMultiops;
-our @ISA = qw(MMTests::SummariseMultiops);
-
-sub initialise() {
-	my ($self, $subHeading) = @_;
-	$self->{_ModuleName} = "ExtractSaladfork";
-	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_USECONDS;
-
-	$self->SUPER::initialise($subHeading);
-}
-
 sub parseNumactl {
 	my ($numactl) = @_;
 	my %cpu_node;
@@ -50,23 +37,24 @@ sub extractReport() {
 
 		my $latency = $3;
 		if ($cpu_node{$parent_cpu} == $cpu_node{$child_cpu}) {
-			$self->addData("local", ++$nr_samples_local, $latency);
+			$nr_samples_local++;
+			print "local\t_\t_\t$nr_samples_local\t$latency\tR\n";
 		} else {
-			$self->addData("remote", ++$nr_samples_remote, $latency);
+			$nr_samples_remote++;
+			print "remote\t_\t_\t$nr_samples_remote\t$latency\t_\n";
 		}
 	}
 	close INPUT;
 
-	# If we don't have any local (or remote) fork, add a placeholder NaN
-	if ($nr_samples_local == 0) {
-		$self->addData("local", 1, NaN);
-	}
-	if ($nr_samples_remote == 0) {
-		$self->addData("remote", 1, NaN);
+	# An additional "syntethic" operation: ratio of local forks VS total
+	my $nr_total = $nr_samples_local + $nr_samples_remote;
+	my $rLocal;
+	if ($nr_total == 0) {
+		$rLocal = 0;
+	} else {
+		$rLocal = $nr_samples_local / $nr_total;
 	}
 
-	# An additional "syntethic" operation: ratio of local forks VS total
-	my $local_v_total = $nr_samples_local / ($nr_samples_local + $nr_samples_remote);
-	$self->addData("local_v_total", 1, $local_v_total);
+	print "local_v_total\t_\t_\t1\t$rLocal\t_\n"
 }
 1;

@@ -1,0 +1,17 @@
+default-metric: latency
+
+metrics:
+  - latency
+  - pctLocal
+
+summarise: Multiops
+PlotXaxis: Type Time
+PlotType: operation-candlesticks
+
+latency:
+  title: Latency
+  units: TIME_USECONDS
+
+pctLocal:
+  title: Percentage Placed Local CPU
+  units: OPS_PERCENTAGE
