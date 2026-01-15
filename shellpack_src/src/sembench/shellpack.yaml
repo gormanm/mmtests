@@ -1,0 +1,14 @@
+default-metric: futex
+
+metrics:
+  - futex
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: Workload
+PlotYaxis: Burns/sec
+PlotType: client-candlesticks
+
+futex:
+  title: Burns/sec
+  units: OPS_PER_SECOND

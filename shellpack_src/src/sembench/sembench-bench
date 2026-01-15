@@ -17,8 +17,6 @@ RUNTIME=30
 ###SHELLPACK check_install_required sembench-${VERSION}
 ###SHELLPACK init_complete
 
-echo $SEMBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
-
 ###SHELLPACK threads_large_stride_begin $SEMBENCH_MIN_THREADS $SEMBENCH_MAX_THREADS
 	if [ $NR_THREADS -gt 128 ]; then
 		WAKEUP_FACTOR=8
@@ -41,11 +39,12 @@ echo $SEMBENCH_WORKLOADS > $LOGDIR_RESULTS/workloads
 			WORKLOAD_NUM=2
 		fi
 
-		echo Running test $WORKLOAD
+		echo Running test $WORKLOAD threads $NR_THREADS/$SEMBENCH_MAX_THREADS
+		BENCH_CMD="sembench -r $RUNTIME -o $WORKLOAD_NUM -t $NR_THREADS -w $NR_WAKEUPS"
+		log_cmd "$BENCH_CMD"
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-		./sembench -r $RUNTIME -o $WORKLOAD_NUM -t $NR_THREADS -w $NR_WAKEUPS 2>&1 | \
-			tee $LOGDIR_RESULTS/$WORKLOAD-${NR_THREADS}.log \
-			|| die Failed ro run sembench
+		./$BENCH_CMD &> $LOGDIR_RESULTS/benchlog-$WORKLOAD-${NR_THREADS}-1 \
+			|| die "Failed to run sembench"
 		monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
 	done
 ###SHELLPACK threads_stride_end
