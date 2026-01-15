@@ -1,0 +1,14 @@
+default-metric: bops
+
+metrics:
+  - bops
+
+summarise: Multiops
+PlotXaxis: Test
+PlotYaxis: BogoOps/sec
+PlotType: client-candlesticks
+preferhigher: yes
+
+bops:
+  title: BogoOps/sec
+  units: BOPS_PER_SECOND

@@ -12,6 +12,7 @@ use constant LABEL_TIME_PERCENTAGE	=> "Time Percentage";
 use constant LABEL_KBYTES_PER_SECOND	=> "KBytes/sec";
 use constant LABEL_KBYTES		=> "KiB";
 use constant LABEL_KOPS_PER_SECOND	=> "KiloOps/sec";
+use constant LABEL_BOPS_PER_SECOND	=> "BogoOps/sec";
 use constant LABEL_OPS_PER_SECOND	=> "Ops/sec";
 use constant LABEL_OPS_PER_MINUTE	=> "Ops/min";
 use constant LABEL_OPS_PER_HOUR		=> "Ops/hour";
