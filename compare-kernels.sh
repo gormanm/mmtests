@@ -832,10 +832,6 @@ for SUBREPORT in $REPORTS; do
 		compare-mmtests.pl -d . -b simoop -a rates -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	specjvm)
-		echo $SUBREPORT
-		eval $COMPARE_CMD
-		;;
 	specjbb)
 		echo $SUBREPORT
 		eval $COMPARE_CMD
