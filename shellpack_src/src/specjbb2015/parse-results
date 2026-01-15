@@ -1,0 +1,7 @@
+#!/bin/bash
+SHELLPACK_ROOT=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
+
+LOGDIR=${1:-`pwd`}
+cd $LOGDIR || exit 1
+
+$SHELLPACK_ROOT/parse-results.awk < default/specjbb2015.log

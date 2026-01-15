@@ -22,15 +22,15 @@ fi
 export PATH=$SPECJBB_JRE:$PATH
 STARTING_HUGEPAGES=`cat /proc/sys/vm/nr_hugepages`
 
-# Ensure everything is where it is expected to be
-pushd $SHELLPACK_SOURCES/specjbb2015-${VERSION}-installed > /dev/null || die Failed to cd to specjbb
-[ ! -e specjbb2015.jar ] && die No specjbb2015.jar available
-
 # Increase open file limit
 ulimit -n 65536
 
 # Run the actual test
 for PAGES in $SPECJBB_PAGESIZES; do
+	# Ensure everything is where it is expected to be
+	pushd $SHELLPACK_SOURCES/specjbb2015-${VERSION}-installed > /dev/null || die "Failed to cd to specjbb"
+	[ ! -e specjbb2015.jar ] && die "No specjbb2015.jar available"
+
 	USE_HUGEPAGE=
 	case $PAGES in
 		default)
@@ -74,8 +74,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 	EXIT_CODE=$SHELLPACK_SUCCESS
 	if [ $INSTANCES -eq 1 ]; then
 		set_mmtests_numactl $INSTANCES $INSTANCES
-		echo DEBUG DEBUG save_rc $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP -jar specjbb2015.jar -m COMPOSITE 2> /dev/null | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log
-		eval save_rc $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP -jar specjbb2015.jar -m COMPOSITE 2> /dev/null | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log
+		eval save_rc $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_MAXHEAP -jar specjbb2015.jar -m COMPOSITE 2>&1 | tee $LOGDIR_RESULTS/$PAGES/specjbb2015-raw.log
 		recover_rc
 		if [ $EXIT_CODE -ne 0 ]; then
 			echo ERROR: java exited with an error
@@ -94,7 +93,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 		SPEC_OPTS="-Dspecjbb.group.count=$INSTANCES -Dspecjbb.txi.pergroup.count=$SPECJBB_TXI_PER_INSTANCE"
 		
 		# Start controller
-		java $SPECJBB_HEAP_CONTROLLER $SPEC_OPTS -jar specjbb2015.jar -m MULTICONTROLLER 2> /dev/null | tee $LOGDIR_RESULTS/$PAGES/specjbb2015.log &
+		java $SPECJBB_HEAP_CONTROLLER $SPEC_OPTS -jar specjbb2015.jar -m MULTICONTROLLER 2>&1 | tee $LOGDIR_RESULTS/$PAGES/specjbb2015-raw.log &
 		CONTROLLER_PID=`jobs -p`
 		echo $CONTROLLER_PID > $SHELLPACK_TEMP/jvm-instances.pids
 		echo Started controller pid: $CONTROLLER_PID
@@ -113,7 +112,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 				eval $MMTESTS_NUMACTL java $USE_HUGEPAGE $SPECJBB_HEAP_TXI -jar specjbb2015.jar \
 					-m TXINJECTOR \
 					-G=$GROUPID \
-					-J=$JVMID 2> /dev/null > $LOGDIR_RESULTS/$PAGES/txi-${GROUPID}-${JVMID}.log &
+					-J=$JVMID &> $LOGDIR_RESULTS/$PAGES/txi-${GROUPID}-${JVMID}.log &
 				TXI_PID=$!
 				echo $TXI_PID >> $SHELLPACK_TEMP/jvm-instances.pids
 				echo o TXI instance $GROUPID $JVMID: $TXI_PID
@@ -124,7 +123,7 @@ for PAGES in $SPECJBB_PAGESIZES; do
 					-m BACKEND \
 					-G=$GROUPID \
 					-J=$JVMID \
-					2> /dev/null > $LOGDIR_RESULTS/$PAGES/backend-${GROUPID}.log &
+					&> $LOGDIR_RESULTS/$PAGES/backend-${GROUPID}.log &
 			BE_PID=$!
 			echo o BE instance $GROUPID: $BE_PID
 			echo $BE_PID >> $SHELLPACK_TEMP/jvm-instances.pids
@@ -141,7 +140,9 @@ for PAGES in $SPECJBB_PAGESIZES; do
 	fi
 
 	monitor_post_hook $LOGDIR_RESULTS $P
-	tar -czf $LOGDIR_RESULTS/$PAGES/result.tar.gz result
+	cd $LOGDIR_RESULTS/$PAGES || die "Failed to change to $LOGDIR_RESULTS/$PAGES"
+	tar -cJf $LOGDIR_RESULTS/$PAGES/result.tar.xz result
+	cp `find result/ -name "specjbb2015*.raw"` specjbb2015.log
 	rm -rf result
 done
 

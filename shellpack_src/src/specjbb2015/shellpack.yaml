@@ -1,0 +1,69 @@
+default-metric: JOPS-Critical
+
+metrics:
+  - JOPS-Max
+  - JOPS-Critical
+  - JOPS-10000us
+  - JOPS-25000us
+  - JOPS-50000us
+  - JOPS-75000us
+  - JOPS-100000us
+  - pctMax-10000us
+  - pctMax-25000us
+  - pctMax-50000us
+  - pctMax-75000us
+  - pctMax-100000us
+
+summarise: Singleops
+PlotXaxis: Latency
+PlotYaxis: jOPs
+PlotType: client-candlesticks
+preferhigher: true
+
+JOPS-Max:
+  title: Max JOPS
+  units: OPS_COUNT
+
+JOPS-Critical:
+  title: Critical JOPS
+  units: OPS_COUNT
+
+JOPS-10000us:
+  title: JOPS Below 10000us
+  units: OPS_COUNT
+
+JOPS-25000us:
+  title: JOPS Below 25000us
+  units: OPS_COUNT
+
+JOPS-50000us:
+  title: JOPS Below 50000us
+  units: OPS_COUNT
+
+JOPS-75000us:
+  title: JOPS Below 75000us
+  units: OPS_COUNT
+
+JOPS-100000us:
+  title: JOPS Below 100000us
+  units: OPS_COUNT
+
+pctMax-10000us:
+  title: Percentage JOPS Below 10000us
+  units: OPS_PERCENTAGE
+
+pctMax-25000us:
+  title: Percentage JOPS Below 25000us
+  units: OPS_PERCENTAGE
+
+pctMax-50000us:
+  title: Percentage JOPS Below 50000us
+  units: OPS_PERCENTAGE
+
+pctMax-75000us:
+  title: Percentage JOPS Below 75000us
+  units: OPS_PERCENTAGE
+
+pctMax-100000us:
+  title: Percentage JOPS Below 100000us
+  units: OPS_PERCENTAGE
