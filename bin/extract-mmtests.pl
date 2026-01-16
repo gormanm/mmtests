@@ -130,7 +130,7 @@ my $nrModules = 0;
 my $extractFactory = MMTests::ExtractFactory->new();
 for my $name (split /,/, $opt_names) {
 	eval {
-		$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $name, $opt_format, $opt_subheading);
+		$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$opt_benchmark", $name, $opt_subheading, $opt_altreport);
 	} or do {
 		printWarning("Failed to load module for benchmark $opt_benchmark$opt_altreport\n$@");
 		exit(-1);
@@ -146,7 +146,7 @@ for my $name (split /,/, $opt_names) {
 		foreach my $iterdir (@iterdirs) {
 			# Make a guess at the sub-directory name if one is not specified
 			$iterdir = "$iterdir/$opt_benchmark";
-			$extractModules[$nrModules]->extractReportCached("$iterdir/logs", $opt_subheading);
+			$extractModules[$nrModules]->extractReportCached("$iterdir/logs", $opt_subheading, $opt_altreport);
 			$extractModules[$nrModules]->nextIteration();
 		}
 		$nrModules ++;

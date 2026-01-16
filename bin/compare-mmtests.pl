@@ -79,7 +79,7 @@ if ($opt_from_json) {
 		$module_name =~ s/Extract//;
 		$module_name = lc($module_name);
 		my $test_name = $module_ref->{"_TestName"};
-		$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$module_name", $test_name, $opt_subheading);
+		$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$module_name", $test_name, $opt_subheading, $opt_altreport);
 		my $data = $module_ref->{"_ResultData"};
 		my $iterations = scalar(@{$data->{(keys %$data)[0]}});
 		foreach my $i (0..$iterations - 1) {
@@ -105,14 +105,14 @@ if ($opt_from_json) {
 	# Read extractions in the classic way
 	# Instantiate extract handlers for the requested type for the benchmark
 	for my $name (split /,/, $opt_names) {
-		printVerbose("Loading extract $opt_benchmark$opt_altreport $name\n");
+		printVerbose("Loading extract $opt_benchmark($opt_altreport) $name\n");
 		eval {
 			my $reportDirectory = "$opt_reportDirectory/$name";
 			my @iterdirs = <$reportDirectory/iter-*>;
 
 			# Load the appropriate extraction model
 			if (!defined($opt_monitor)) {
-				$extractModules[$nrModules] = $extractFactory->loadModule("extract", "$opt_benchmark$opt_altreport", $name, $opt_subheading);
+				$extractModules[$nrModules] = $extractFactory->loadModule("extract", $opt_benchmark, $name, $opt_subheading, $opt_altreport);
 			} else {
 				$opt_altreport = "";
 				$opt_hideCompare = 1;
@@ -121,7 +121,7 @@ if ($opt_from_json) {
 
 			foreach my $iterdir (@iterdirs) {
 				if (!defined($opt_monitor)) {
-					$extractModules[$nrModules]->extractReportCached("$iterdir/$opt_benchmark/logs", $opt_subheading);
+					$extractModules[$nrModules]->extractReportCached("$iterdir/$opt_benchmark/logs", $opt_subheading, $opt_altreport);
 				} else {
 					$extractModules[$nrModules]->extractReport($iterdir, $opt_benchmark, $opt_subheading, 1);
 				}

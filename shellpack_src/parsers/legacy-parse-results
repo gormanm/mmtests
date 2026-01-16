@@ -4,8 +4,10 @@ use FindBin qw($Bin);
 use Cwd;
 use strict;
 
+my $altExt;
+$altExt = "-$ARGV[1]" if ($ARGV[1] ne "");
 require "$Bin/../../parsers/legacy-support.pl";
-require "$Bin/extract-report.pl";
+require "$Bin/extract-report$altExt.pl";
 
 my %dummy;
 chdir($ARGV[0]) || die "Failed to change directory $ARGV[0]";

@@ -28,9 +28,12 @@ sub lookupShellpackRoot($) {
 	return "";
 }
 
-sub loadModule($$$) {
-	my ($self, $type, $moduleName, $testName, $subheading) = @_;
-	printVerbose("Loading module $type $moduleName\n");
+sub loadModule($$$$$) {
+	my ($self, $type, $moduleName, $testName, $subheading, $altreport) = @_;
+	my ($altExt);
+
+	$altExt = "-$altreport" if ($altreport ne "");
+	printVerbose("Loading module $type $moduleName$altExt\n");
 
 	# Construct module name
 	my $loadModule;
@@ -44,7 +47,7 @@ sub loadModule($$$) {
 	# module if YAML configuration exists
 	my $className;
 	my $shellpackRoot = lookupShellpackRoot($moduleName);
-	my $shellpackConfig = $shellpackRoot . "/shellpack.yaml";
+	my $shellpackConfig = $shellpackRoot . "/shellpack$altExt.yaml";
 	if (eval "require \"$loadModule\"") {
 		printVerbose("Import  specific module MMTests::$type$pmName\n");
 		$pmName->import();
@@ -67,9 +70,9 @@ sub loadModule($$$) {
 	$classInstance->{_ShellpackRoot} = $shellpackRoot;
 	if (-e $shellpackConfig) {
 		$classInstance->{_ShellpackConfig} = $shellpackConfig;
-		$classInstance->{_ShellpackParser} = $classInstance->{_ShellpackRoot}  . "/parse-results";
-		die("Shellpack config ($shellpackConfig) exists but parse-results does not exist") if (! -f $classInstance->{_ShellpackParser});
-		die("Shellpack config ($shellpackConfig) exists but parse-results is not executable") if (! -x $classInstance->{_ShellpackParser});
+		$classInstance->{_ShellpackParser} = $classInstance->{_ShellpackRoot}  . "/parse-results$altExt";
+		die("Shellpack config ($shellpackConfig) exists but parse-results$altExt does not exist") if (! -f $classInstance->{_ShellpackParser});
+		die("Shellpack config ($shellpackConfig) exists but parse-results$altExt is not executable") if (! -x $classInstance->{_ShellpackParser});
 		printVerbose("Result  parser $classInstance->{_ShellpackParser}\n");
 		printVerbose("YAML    config $shellpackConfig\n");
 	}

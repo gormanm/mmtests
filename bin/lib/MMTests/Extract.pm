@@ -252,7 +252,7 @@ sub extractSummary() {
 }
 
 sub extractReportCached() {
-	my ($self, $reportDir) = @_;
+	my ($self, $reportDir, $altReport) = @_;
 	shift;
 
 	$self->{_CacheHandle} = MMTests::Cache->new("Extract__extractReport", $self->{_ModuleName}, $reportDir);

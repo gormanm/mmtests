@@ -48,18 +48,18 @@ sub initialise() {
 }
 
 sub open_parser() {
-	my ($self, $reportDir) = @_;
+	my ($self, $reportDir, $opt_altreport) = @_;
 	my $fh;
 
-	printVerbose("Generic parse $reportDir\n");
-	open($fh, $self->{_ShellpackParser} . " $reportDir|") || die("Failed to open pipe to " . $self->{_ShellpackParser} . " $reportDir");
+	printVerbose("Generic parse $reportDir $opt_altreport\n");
+	open($fh, $self->{_ShellpackParser} . " $reportDir $opt_altreport|") || die("Failed to open pipe to " . $self->{_ShellpackParser} . " $reportDir");
 	return $fh;
 }
 
 sub extractReport() {
-	my ($self, $reportDir, $opt_subheading) = @_;
+	my ($self, $reportDir, $opt_subheading, $opt_altreport) = @_;
 	my @ratioOps;
-	my $fh = $self->open_parser($reportDir);
+	my $fh = $self->open_parser($reportDir, $opt_altreport);
 
 	while (!eof($fh)) {
 		my $line = <$fh>;
