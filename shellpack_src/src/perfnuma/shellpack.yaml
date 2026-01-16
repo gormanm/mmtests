@@ -1,0 +1,23 @@
+default-metric: converged
+
+metrics:
+  - converged
+  - threadspeed
+  - totalspeed
+
+summarise: Multiops
+PlotXaxis: Time
+PlotType: operation-candlesticks
+DecimalPlaces: 4
+
+converged:
+  title: Time to Converge
+  units: TIME_SECONDS
+
+threadspeed:
+  title: Thread Transfer Rate
+  units: GBYTES_PER_SECOND
+
+totalspeed:
+  title: Total Transfer Rate
+  units: GBYTES_PER_SECOND

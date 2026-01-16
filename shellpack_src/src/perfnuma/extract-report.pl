@@ -1,20 +1,4 @@
-# ExtractPerfnuma.pm
-package MMTests::ExtractPerfnuma;
-use MMTests::SummariseMultiops;
-use MMTests::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
-use strict;
-
-sub initialise() {
-	my ($self, $subHeading) = @_;
-	$self->{_ModuleName} = "ExtractPerfnuma";
-	$self->{_PlotYaxis}  = DataTypes::LABEL_TIME_SECONDS;
-	$self->{_PlotType}   = "operation-candlesticks";
-	$self->{_FieldLength} = 34;
-	$self->SUPER::initialise($subHeading);
-}
-
-sub extractReport() {
+sub extractReport($$) {
 	my ($self, $reportDir) = @_;
 	my ($tm, $tput, $latency);
 	my $iteration;
@@ -35,17 +19,21 @@ sub extractReport() {
 
 		my @files = <$reportDir/$convergance-*>;
 		foreach my $file (@files) {
+			$convergance =~ s/_converge//;
 			open(INPUT, $file) || die("Failed to open $file\n");
 			while (<INPUT>) {
 				my $line = $_;
 				if ($line =~ /\s+([0-9.]+), secs,\s+NUMA-convergence-latency/) {
-					$self->addData("converged-$convergance", $iteration, $1);
+					$iteration++;
+					print "converged-$convergance\t_\t_\t$iteration\t$1\tR\n";
 				}
 				if ($line =~ /\s+([0-9.]+), GB\/sec,\s+thread-speed/) {
-					$self->addData("threadspeed-$convergance", $iteration, $1);
+					$iteration++;
+					print "threadspeed-$convergance\t_\t_\t$iteration\t$1\t_\n";
 				}
 				if ($line =~ /\s+([0-9.]+), GB\/sec,\s+total-speed/) {
-					$self->addData("totalspeed-$convergance", $iteration, $1);
+					$iteration++;
+					print "totalspeed-$convergance\t_\t_\t$iteration\t$1\t_\n";
 				}
 			}
 			close(INPUT);
@@ -55,7 +43,7 @@ sub extractReport() {
 
 	my @ops;
 	foreach my $heading ("converged", "threadspeed", "totalspeed") {
-		for my $convergance (@convergances) {
+		foreach my $convergance (@convergances) {
 			push @ops, "$heading-$convergance";
 		}
 	}
