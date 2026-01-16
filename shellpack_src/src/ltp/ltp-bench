@@ -28,22 +28,23 @@ for TESTNAME in $LTP_RUN_TESTS; do
 	if [ "$TESTNAME" = "test-direct-process" ]; then
 		# This is part of a CPU hotplug reproduction case. It hammers
 		# process creation and is intended as a scheduler stress test
-		save_rc ./testcases/bin/process -b 10 -d 5 | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
+		echo Execute specific: direct-process
+		save_rc ./testcases/bin/process -b 10 -d 5 &> $LOGDIR_RESULTS/benchlog-${TESTNAME}.log
 	elif [ "$TESTNAME" = "realtime" ]; then
 		# This is part of a realtime testing suite. It contains some
 		# functional tests and a few performance ones.
-		save_rc ./testscripts/test_realtime.sh -t all | tee $LOGDIR_RESULTS/ltp-${TESTNAME}.log
+		echo Execute realtime
+		save_rc ./testscripts/test_realtime.sh -t all &> $LOGDIR_RESULTS/benchlog-${TESTNAME}.log
 	elif [ -e runtest/$TESTNAME ]; then
-		echo Execute via runltp
+		echo Execute runltp: $TESTNAME
 		save_rc ./runltp -f $TESTNAME $LTP_RUN_ARGS		\
-			-l $LOGDIR_RESULTS/ltp-${TESTNAME}.log		\
-			-C $LOGDIR_RESULTS/ltp-${TESTNAME}.failed	\
+			-l $LOGDIR_RESULTS/runltp-${TESTNAME}		\
+			-C $LOGDIR_RESULTS/failed-${TESTNAME}		\
 			-d $SHELLPACK_DATA				\
-				| tee $LOGDIR_RESULTS/log-${TESTNAME}
+				&> $LOGDIR_RESULTS/benchlog-${TESTNAME}
 	elif [ -e testcases/bin/$TESTNAME ]; then
-		echo Execute direct
-		save_rc testcases/bin/$TESTNAME				\
-				| tee $LOGDIR_RESULTS/log-${TESTNAME}
+		echo Execute direct: $TESTNAME
+		save_rc testcases/bin/$TESTNAME &> $LOGDIR_RESULTS/benchlog-${TESTNAME}
 	else
 		die "No method available to run $TESTNAME"
 	fi
