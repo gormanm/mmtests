@@ -1,20 +1,4 @@
-# ExtractSpecjbb.pm
-package MMTests::ExtractSpecjbb;
-use MMTests::SummariseMultiops;
-use MMTests::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
-use strict;
-
-sub initialise() {
-	my ($self, $subHeading) = @_;
-	$self->{_ModuleName} = "ExtractSpecjbb";
-	$self->{_PlotYaxis}  = DataTypes::LABEL_OPS_PER_SECOND;
-	$self->{_PreferredVal} = "Higher";
-	$self->{_PlotType}   = "client-errorlines";
-	$self->SUPER::initialise($subHeading);
-}
-
-sub extractReport() {
+sub extractReport($$) {
 	my ($self, $reportDir) = @_;
 	my %warehouses;
 	my $jvm_instance = -1;
@@ -112,7 +96,7 @@ sub extractReport() {
 				$included = "";
 			}
 			$warehouses{$warehouse}++;
-			$self->addData("tput-$warehouse", $warehouses{$warehouse}, $throughput);
+			print "tput\t$warehouse\t_\t$warehouses{$warehouse}\t$throughput\t_\n";
 		}
 	}
 

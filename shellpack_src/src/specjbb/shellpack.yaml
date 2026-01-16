@@ -1,0 +1,14 @@
+default-metric: tput
+
+metrics:
+  - tput
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: Warehouses
+PlotYaxis: Throughput/Score
+PlotType: client-candlesticks
+
+tput:
+  title: Warehouses Throughput
+  units: OPS_SCORE
