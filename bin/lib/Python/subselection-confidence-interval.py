@@ -27,7 +27,7 @@ def geometric_mean(x):
     return a.prod()**(1.0/len(a))
 
 def harmonic_mean(x):
-    return 1/mean(1/x)
+    return 1/numpy.mean(1/x)
 
 def confidence_interval(x, func, alpha, selections=1000, fracsize=0.8):
     iters = len(x)
