@@ -1,19 +1,3 @@
-# ExtractXfstests.pm
-package MMTests::ExtractXfstests;
-use MMTests::SummariseSingleops;
-our @ISA = qw(MMTests::SummariseSingleops);
-use strict;
-
-sub initialise() {
-	my ($self, $subHeading) = @_;
-	$self->{_ModuleName} = "ExtractXfstests";
-	$self->{_PlotYaxis}  = DataTypes::LABEL_FAILURES;
-	$self->{_SingleType} = 1;
-	$self->{_Opname} = "Test";
-
-	$self->SUPER::initialise($subHeading);
-}
-
 sub extractReport() {
 	my ($self, $reportDir) = @_;
 
@@ -43,7 +27,7 @@ sub extractReport() {
 	}
 
 	foreach my $xfstest (@all_tests) {
-		$self->addData($xfstest, 0, $status{$xfstest})
+		print "$xfstest\t_\t_\t1\t$status{$xfstest}\t_\n";
 	}
 
 	close(INPUT);

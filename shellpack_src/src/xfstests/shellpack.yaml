@@ -1,0 +1,13 @@
+default-metric: failures
+
+metrics:
+  - failures
+
+summarise: Singleops
+PlotXaxis: Test
+PlotYaxis: Failures
+PlotType: client-candlesticks
+
+failures:
+  title: Number of Failures
+  units: FAILURES
