@@ -759,26 +759,6 @@ for SUBREPORT in $REPORTS; do
 	netperf-*)
 		echo $SUBREPORT Default report
 		compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD
-
-		echo
-		echo $SUBREPORT Over-time report
-		compare-mmtests.pl -d . -b $SUBREPORT -n $KERNEL_LIST $FORMAT_CMD -a overtime
-		echo
-		;;
-	netpipe)
-		echo $SUBREPORT Throughput
-		compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b netpipe -a 4mb -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		;;
-	parallelio)
-		echo $SUBREPORT Transactions
-		eval $COMPARE_CMD
-		echo
-		echo $SUBREPORT Background IO
-		compare-mmtests.pl -d . -b parallelio -a io -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		echo $SUBREPORT Swap totals
-		compare-mmtests.pl -d . -b parallelio -a swap -n $KERNEL_LIST $FORMAT_CMD
 		;;
 	parsecbuild)
 		echo $SUBREPORT
