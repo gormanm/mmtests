@@ -1,0 +1,22 @@
+default-metric: Avg
+
+metrics:
+  - Min
+  - Avg
+  - Max
+
+summarise: Multiops
+PlotXaxis: Type Time
+PlotType: operation-candlesticks
+
+Min:
+  title: Minimum Cycles Between CPU Pair
+  units: TIME_USECONDS
+
+Avg:
+  title: Average Cycles Between CPU Pair
+  units: TIME_USECONDS
+
+Max:
+  title: Maximum Cycles Between CPU Pair
+  units: TIME_USECONDS
