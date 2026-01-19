@@ -1,0 +1,24 @@
+default-metric: work/sec
+
+metrics:
+  - work/sec
+  - stalls/sec
+  - vmscanwrite/sec
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: Operation
+PlotYaxis: Latency
+PlotType: client-candlesticks
+
+work/sec:
+  title: Work/sec
+  units: OPS_PER_SECOND
+
+stall/sec:
+  title: stall/sec
+  units: OPS_PER_SECOND
+
+vmscanwrite/sec:
+  title: vmscanwrite/sec
+  units: OPS_PER_SECOND

@@ -1,0 +1,29 @@
+default-metric: p90-latency
+
+metrics:
+  - p50-latency
+  - p90-latency
+  - p99-latency
+  - max-latency
+
+summarise: Multiops
+PlotXaxis: Percentile
+PlotYaxis: Latency
+PlotType: client-candlesticks
+
+p50-latency:
+  title: P50 Latency
+  units: TIME_USECONDS
+
+p90-latency:
+  title: P50 Latency
+  units: TIME_USECONDS
+
+p99-latency:
+  title: P50 Latency
+  units: TIME_USECONDS
+
+max-latency:
+  title: P50 Latency
+  units: TIME_USECONDS
+
