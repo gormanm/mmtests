@@ -1,0 +1,23 @@
+default-metric: fault-huge
+
+metrics:
+  - fault-base
+  - fault-huge
+  - fault-both
+
+summarise: Multiops
+PlotXaxis: Workers
+PlotYaxis: Latency
+PlotType: client-candlesticks
+
+fault-huge:
+  title: Fault Huge Page Latency
+  units: TIME_USECONDS
+
+fault-base:
+  title: Fault Base Page Latency
+  units: TIME_USECONDS
+
+fault-both:
+  title: Fault Page Latency
+  units: TIME_USECONDS

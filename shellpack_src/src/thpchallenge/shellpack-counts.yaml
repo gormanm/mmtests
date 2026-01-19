@@ -1,0 +1,13 @@
+default-metric: huge-pct
+
+metrics:
+  - huge-pct
+
+summarise: Multiops
+PlotXaxis: Workers
+PlotYaxis: Percentage Huge Pages
+PlotType: client-candlesticks
+
+huge-pct:
+  title: Percentage Huge Pages
+  units: PERCENTAGE

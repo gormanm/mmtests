@@ -249,8 +249,8 @@ for TYPE in ro rw; do
 	done
 done
 
-# THPChallenge/THPCompact
-for CONFIG in config-workload-thpchallenge-fio config-workload-thpchallenge-kernel-build config-workload-thpcompact; do
+# THPChallenge
+for CONFIG in config-workload-thpchallenge-fio config-workload-thpchallenge-kernel-build config-workload-thpchallenge-none; do
 	cp $CONFIG $CONFIG-defrag
 	cat >> $CONFIG-defrag <<EOF
 
@@ -265,8 +265,6 @@ for WORKLOAD in fio kernel-build; do
 	cp config-workload-thpchallenge-$WORKLOAD config-workload-thpchallenge-$WORKLOAD-madvhugepage
 	echo "export THPCHALLENGE_MADV_HUGEPAGE=yes" >> config-workload-thpchallenge-$WORKLOAD-madvhugepage
 done
-cp config-workload-thpcompact config-workload-thpcompact-madvhugepage
-echo "export THPCOMPACT_MADV_HUGEPAGE=yes" >> config-workload-thpcompact-madvhugepage
 
 # XSBench
 cp config-hpc-xsbench-short-omp-small-full config-hpc-xsbench-long-omp-small-full

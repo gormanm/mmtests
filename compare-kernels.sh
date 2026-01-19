@@ -859,7 +859,7 @@ for SUBREPORT in $REPORTS; do
 		done
 		echo
 		;;
-	thpchallenge|thpcompact)
+	thpchallenge)
 		echo $SUBREPORT Fault Latencies
 		eval $COMPARE_CMD
 		echo
@@ -1244,15 +1244,6 @@ for SUBREPORT in $REPORTS; do
 			generate_basic_single "$SUBREPORT Throughput" "--logX"
 			generate_basic_single "$SUBREPORT Throughput" "--logX --logY"
 			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`" "Estimated time"
-			echo "</tr>"
-			;;
-		thpcompact)
-			echo "<tr>"
-
-			for SIZE in fault-base fault-huge; do
-				eval $GRAPH_PNG        -b thpcompact --title \"$SUBREPORT $SIZE\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-$SIZE --sub-heading $SIZE
-				plain graph-$SUBREPORT-$SIZE
-			done
 			echo "</tr>"
 			;;
 		unixbench-dhry2reg|unixbench-syscall|unixbench-pipe|unixbench-spawn|unixbench-execl)

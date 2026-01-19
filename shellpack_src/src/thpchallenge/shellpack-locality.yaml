@@ -1,0 +1,13 @@
+default-metric: locality-pct
+
+metrics:
+  - locality-pct
+
+summarise: Multiops
+PlotXaxis: Workers
+PlotYaxis: Percentage Huge Pages
+PlotType: client-candlesticks
+
+locality-pct:
+  title: Percentage Locality
+  units: PERCENTAGE

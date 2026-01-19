@@ -149,9 +149,6 @@ config-workload-thpchallenge-fio-madvhugepage
 config-workload-thpchallenge-kernel-build
 config-workload-thpchallenge-kernel-build-defrag
 config-workload-thpchallenge-kernel-build-madvhugepage
-config-workload-thpcompact
-config-workload-thpcompact-defrag
-config-workload-thpcompact-madvhugepage
 config-workload-unixbench-io-fsbuffer
 config-workload-unixbench-io-fsdisk
 config-workload-unixbench-io-fstime
