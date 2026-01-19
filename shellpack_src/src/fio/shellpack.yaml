@@ -1,0 +1,14 @@
+default-metric: tput
+
+metrics:
+  - tput
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: Throughput
+PlotType: operation-candlesticks
+DecimalPlaces: 6
+
+tput:
+  title: Throughput
+  units: KBYTES_PER_SECOND

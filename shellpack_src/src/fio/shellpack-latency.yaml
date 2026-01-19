@@ -1,0 +1,13 @@
+default-metric: latency
+
+metrics:
+  - latency
+
+summarise: Multiops
+PlotXaxis: Latency
+PlotType: operation-candlesticks
+DecimalPlaces: 4
+
+latency:
+  title: Latency
+  units: TIME_USECONDS
