@@ -1,6 +1,9 @@
 #!/bin/bash
 SHELLPACK_ROOT=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
 SHELLPACK_BIN=$SHELLPACK_ROOT/../../bin/
+if [ ! -e $SHELLPACK_BIN ]; then
+	SHELLPACK_BIN=$SHELLPACK_ROOT/../bin/
+fi
 
 LOGDIR=${1:-`pwd`}
 cd $LOGDIR || exit 1
@@ -20,8 +23,8 @@ for FACTORA in `ls time-*-1 | awk -F - '{print $2}'`; do
 		USER=`echo $ENTRY | cut -d' ' -f1`
 		SYST=`echo $ENTRY | cut -d' ' -f2`
 		ELSP=`echo $ENTRY | cut -d' ' -f3`
-		echo -e "User\t$FACTORA\t_\t$ITERATION\t$USER\t_"
-		echo -e "System\t$FACTORA\t_\t$ITERATION\t$SYST\t_"
-		echo -e "Elapsed\t$FACTORA\t_\t$ITERATION\t$ELSP\t_"
+		[ "$PARSE_EXCLUDE_USER_TIME" != "yes" ] && echo -e "User\t$FACTORA\t_\t$ITERATION\t$USER\t_"
+		[ "$PARSE_EXCLUDE_SYST_TIME" != "yes" ] && echo -e "System\t$FACTORA\t_\t$ITERATION\t$SYST\t_"
+		[ "$PARSE_EXCLUDE_ELSP_TIME" != "yes" ] && echo -e "Elapsed\t$FACTORA\t_\t$ITERATION\t$ELSP\t_"
 	done
 done | sort -k1,1 -k2,2n -k4,4n
