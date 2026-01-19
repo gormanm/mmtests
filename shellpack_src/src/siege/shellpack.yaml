@@ -1,0 +1,13 @@
+default-metric: txn/sec
+
+metrics:
+  - txn/sec
+
+summarise: Multiops
+preferhigher: true
+PlotXaxis: Clients
+PlotType: operation-candlesticks
+
+txn/sec:
+  title: Transactions/second
+  units: TRANS_PER_SECOND
