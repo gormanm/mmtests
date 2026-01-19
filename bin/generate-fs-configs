@@ -104,10 +104,8 @@ config-io-fio-randread-doublemem-4k-4t
 config-io-fio-randread-sync-heavywrite
 config-io-fio-randread-sync-randwrite
 config-io-fio-randrw-direct-scale-iodepth
-config-io-fio-scaling
 config-io-fio-seqread-doublemem-32k-4t
 config-io-fio-seqread-doublemem-4k-4t
-config-io-fio-ssd
 config-io-fio-sync-maxrandwrite
 config-io-fsmark-small-file-stream
 config-io-fsmark-xfsrepair

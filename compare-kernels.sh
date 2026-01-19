@@ -732,12 +732,6 @@ for SUBREPORT in $REPORTS; do
 		echo $SUBREPORT Latency write
 		compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b fio -a latency -n $KERNEL_LIST --sub-heading latency-write $FORMAT_CMD
 		echo
-		# all sub-headings (ie. fio-scaling-[rand]{rw,read,write}-{read,write})
-		echo $SUBREPORT scaling
-		compare-mmtests.pl -d . -b fio -a scaling -n $KERNEL_LIST 2> /dev/null
-		# all sub-headings (ie. fio-ssd-{rand|seq}_jobs_{1|4}-qd_{1|32}-bs_{4k|128k}-{read|write})
-		echo $SUBREPORT ssd
-		compare-mmtests.pl -d . -b fio -a ssd -n $KERNEL_LIST 2> /dev/null
 		;;
 	monitor)
 		echo No meaningful extraction script for monitor
