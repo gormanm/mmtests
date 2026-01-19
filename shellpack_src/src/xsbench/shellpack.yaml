@@ -1,13 +1,13 @@
-default-metric: txn/sec
+default-metric: lookups/sec
 
 metrics:
-  - txn/sec
+  - lookups/sec
 
 summarise: Multiops
 preferhigher: true
 PlotXaxis: USecs/Operation
 PlotType: operation-candlesticks
 
-txn/sec:
-  title: Transactions/second
+lookups/sec:
+  title: Lookups/second
   units: TRANS_PER_SECOND
