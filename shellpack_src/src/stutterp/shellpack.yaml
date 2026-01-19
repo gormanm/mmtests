@@ -1,0 +1,15 @@
+default-metric: latency
+
+metrics:
+  - latency
+  - tput
+  - op
+
+summarise: Multiops
+PlotXaxis: Number Mmap Workers
+PlotType: operation-candlesticks
+DecimalPlaces: 4
+
+latency:
+  title: Map, Fault, Unmap Latency
+  units: TIME_MSECONDS

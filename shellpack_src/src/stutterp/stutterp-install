@@ -1,5 +1,5 @@
 #!/bin/bash
-###SHELLPACK preamble stutterp-install 2
+###SHELLPACK preamble stutterp-install 3
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd

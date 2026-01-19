@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 	unsigned long long time0, time1;
 	unsigned long pagesize = getpagesize();
 	const size_t map_size = NR_MAP_PAGES * pagesize;
-	int c = 0;
+	int c = 1;
 	unsigned long long sum_latency = 0;
 
 	clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -44,39 +44,29 @@ int main(int argc, char **argv)
 		unsigned long latency;
 
 		nanosleep(&intv_ts, NULL);
+
+		/* Measure time to map, fault and unmap */
+		time0 = time1;
 		map = mmap(NULL, map_size, PROT_READ | PROT_WRITE,
 			   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (map == MAP_FAILED) {
 			perror("mmap");
 			exit(EXIT_FAILURE);
 		}
-
 		for (p = map; p < map + map_size; p += pagesize)
 			*(volatile unsigned long long *)p = time1;
-
 		munmap(map, map_size);
 
-		time0 = time1;
+		/* Calculate latency */
 		clock_gettime(CLOCK_MONOTONIC, &ts);
 		time1 = ts.tv_sec * 1000000000LLU + ts.tv_nsec;
-
 		latency = (time1 - time0);
-		if (latency < NSECS_DELAY)
-			latency = 0;
-		else
-			latency -= NSECS_DELAY;
 		sum_latency += latency;
-		if (latency < NSECS_DELAY) {
-			if (++c == PRINT_THRESHOLD) {
-				printf("%d %llu\n", c, (sum_latency / c));
-				c = 0;
-				sum_latency = 0;
-			}
-		} else {
-			if (c)
-				printf("%d %llu\n", c, (sum_latency / c));
-			printf("1 %lu\n", latency);
-			c = 0;
+
+		/* Print when delay threshold is exceeded */
+		if (latency >= NSECS_DELAY) {
+			printf("%d %llu\n", c, (sum_latency / c));
+			c = 1;
 			sum_latency = 0;
 		}
 	}

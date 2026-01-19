@@ -819,16 +819,6 @@ for SUBREPORT in $REPORTS; do
 		compare-mmtests.pl -d . -b stockfish -a time -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		;;
-	stutterp)
-		echo $SUBREPORT
-		$COMPARE_CMD
-		echo
-		echo $SUBREPORT estimated write speed
-		compare-mmtests.pl -d . -b $SUBREPORT -a calibrate -n $KERNEL_LIST $FORMAT_CMD
-		echo
-		echo $SUBREPORT parallel write throughput
-		compare-mmtests.pl -d . -b $SUBREPORT -a throughput -n $KERNEL_LIST $FORMAT_CMD
-		;;
 	sysbench)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD

@@ -2,9 +2,9 @@
 # This benchmark simualtes a simple workload. One part uses a lot of anonymous
 # memory, a second measures mmap latency and a third runs fio. In an ideal world
 # the latency application would never notice but there are times when this
-# regresses and the benchmark catches that
+# regresses and the benchmark catches that.
 
-###SHELLPACK preamble stutterp-bench 2
+###SHELLPACK preamble stutterp-bench 3
 
 MEMFAULT_TMPFS=no
 
