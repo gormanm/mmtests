@@ -1,0 +1,12 @@
+default-metric: time
+
+metrics:
+  - time
+
+summarise: Multiops
+PlotXaxis: Workload
+PlotType: operation-candlesticks
+
+time:
+  title: Time
+  units: TIME_SECONDS

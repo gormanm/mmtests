@@ -1,23 +1,3 @@
-# ExtractSstartup.pm
-package MMTests::ExtractSstartup;
-use MMTests::SummariseVariabletime;
-use MMTests::DataTypes;
-use MMTests::Stat;
-our @ISA = qw(MMTests::SummariseVariabletime);
-use strict;
-
-sub new() {
-	my $class = shift;
-	my $self = {
-		_ModuleName  => "ExtractSstartup",
-		_PlotYaxis   => DataTypes::LABEL_TIME_SECONDS,
-		_PlotType    => "simple-filter-points",
-		_PlotXaxis   => "Sample #"
-	};
-	bless $self, $class;
-	return $self;
-}
-
 sub extractReport($$$) {
 	my ($self, $reportDir) = @_;
 
@@ -64,7 +44,7 @@ sub extractReport($$$) {
 					chomp($line);
 					$line =~ s/^\s+//;
 					$nr_samples++;
-					$self->addData("$jobname-$pattern", $nr_samples, $line);
+					print "$jobname\t$pattern\t_\t$nr_samples\t$line\t_\n";
 				}
 				close INPUT;
 			}

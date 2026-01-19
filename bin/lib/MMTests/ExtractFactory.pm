@@ -53,7 +53,7 @@ sub loadModule($$$$$) {
 		$pmName->import();
 		$className = "MMTests::$type$pmName";
         } else {
-		die("Extraction module $type$pmName does not exist and generic extraction not configured with shellpack.yaml") if (! -e $shellpackConfig);
+		die("Extraction module $type$pmName does not exist and generic extraction not configured at $shellpackConfig") if (! -e $shellpackConfig);
 		$loadModule = "MMTests/${type}Shellpack.pm";
 		$className = "MMTests::${type}Shellpack";
 		$pmName = "Shellpack";
