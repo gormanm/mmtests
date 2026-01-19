@@ -1,20 +1,3 @@
-# ExtractIperf3.pm
-package MMTests::ExtractIperf3;
-use MMTests::SummariseMultiops;
-use MMTests::Stat;
-our @ISA = qw(MMTests::SummariseMultiops);
-use strict;
-
-sub initialise() {
-	my ($self, $subHeading) = @_;
-	$self->{_ModuleName} = "ExtractIperf3";
-	$self->{_PlotYaxis}  = DataTypes::LABEL_MBITS_PER_SECOND;
-	$self->{_PreferredVal} = "Higher";
-	$self->{_PlotType}   = "client-candlesticks";
-
-	$self->SUPER::initialise($subHeading);
-}
-
 sub sort_unique {
 	foreach my $array (@_) {
 		my %tmp;
@@ -58,10 +41,9 @@ sub process_files {
 		}
 		close(INPUT);
 
-		$self->addData("send-$size-$rate-$stream", ++$iteration,
-			       $send_tput);
-		$self->addData("recv-$size-$rate-$stream", ++$iteration,
-			       $recv_tput);
+		$iteration++;
+		print "send\t$size\t$rate-$stream\t$iteration\t$send_tput\t_\n";
+		print "recv\t$size\t$rate-$stream\t$iteration\t$recv_tput\t_\n";
 	}
 }
 
@@ -93,19 +75,6 @@ sub extractReport() {
 			}
 		}
 	}
-
-	my @ops;
-	my @directions = ("send", "recv");
-	foreach my $direction (@directions) {
-		foreach my $size (@sizes) {
-			foreach my $rate (@rates) {
-				foreach my $stream (@streams) {
-					push @ops, "$direction-$size-$rate-$stream";
-				}
-			}
-		}
-	}
-	$self->{_Operations} = \@ops;
 }
 
 1;
