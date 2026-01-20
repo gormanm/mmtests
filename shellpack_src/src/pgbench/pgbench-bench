@@ -238,7 +238,7 @@ ulimit -n 16384
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	mmtests_activity workload
 	echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions
-	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS} \
+	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-1 \
 		pgbench -v -h $PGHOST -p $PGPORT -r \
 			-l --aggregate-interval=1 \
 			$VACUUM_ARG $READONLY_ARG -c $NR_THREADS -j $PGBENCH_THREADS \

@@ -760,14 +760,7 @@ for SUBREPORT in $REPORTS; do
 	pgbench)
 		echo $SUBREPORT Transactions
 		eval $COMPARE_CMD
-		compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b pgbench -a stalls -n $KERNEL_LIST $FORMAT_CMD > /tmp/pgbench-$$
-		TEST=`grep MinStall-1 /tmp/pgbench-$$ | grep -v nan`
-		if [ "$TEST" != "" ]; then
-			echo
-			echo $SUBREPORT Stalls
-			cat /tmp/pgbench-$$
-		fi
-		rm /tmp/pgbench-$$
+		compare-mmtests.pl $AUTO_DETECT_SIGNIFICANCE -d . -b pgbench -a stalls -n $KERNEL_LIST $FORMAT_CMD
 		echo
 		echo $SUBREPORT Time
 		compare-mmtests.pl -d . -b pgbench -a exectime -n $KERNEL_LIST $FORMAT_CMD
