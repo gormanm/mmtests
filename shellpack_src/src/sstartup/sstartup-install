@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # shellpack bound to commit 8d22ab8 ("S benchmark suite 3.4")
-###SHELLPACK preamble S-startup-install 8d22ab8
+###SHELLPACK preamble sstartup-install 8d22ab8
 GIT_LOCATION="https://github.com/Algodev-github/S.git"
 MIRROR_LOCATION="$WEBROOT/S"
 
@@ -15,10 +15,10 @@ install-depends MPlayer
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
-###SHELLPACK git_fetch S-startup-${VERSION}.tar.gz S-startup-${VERSION}-installed
+###SHELLPACK git_fetch sstartup-${VERSION}.tar.gz sstartup-${VERSION}-installed
 
 # Specify standard required to build some tools
-echo Patching S-startup for C++ standards
+echo Patching sstartup for C++ standards
 sed -i -e 's/g++ -pthread/g++ -std=c++11 -pthread/' comm_startup_lat/comm_startup_lat.sh
 
 # Put kernel devel tree in place that S expects
@@ -47,4 +47,4 @@ if [ "$S_STARTUP_REQUIRES_KERNELTREE" = "yes" ]; then
 fi
 sync
 
-echo S-startup installed successfully
+echo sstartup installed successfully

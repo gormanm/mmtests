@@ -1,14 +1,14 @@
 #!/bin/bash
-# Run S-startup benchmark
+# Run sstartup benchmark
 
-###SHELLPACK preamble S-startup-bench 8d22ab8
+###SHELLPACK preamble sstartup-bench 8d22ab8
 
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --iterations       S_STARTUP_ITERATIONS
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-###SHELLPACK check_install_required S-startup-${VERSION}
+###SHELLPACK check_install_required sstartup-${VERSION}
 ###SHELLPACK init_complete
 
 if [ "$SUDO_USER" != "" ]; then

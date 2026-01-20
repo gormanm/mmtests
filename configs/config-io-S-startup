@@ -1,4 +1,4 @@
-export MMTESTS="S-startup"
+export MMTESTS="sstartup"
 
 # Test disk to setup (optional)
 #export TESTDISK_RAID_DEVICES=
@@ -18,7 +18,7 @@ export MONITORS_GZIP="proc-vmstat top mpstat iotop"
 export MONITORS_WITH_LATENCY="vmstat iostat"
 export MONITOR_UPDATE_FREQUENCY=10
 
-# S-startup
+# sstartup
 export S_STARTUP_ITERATIONS=2
 
 # when run in container
