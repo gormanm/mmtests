@@ -1,0 +1,17 @@
+#!/bin/bash
+# Extract user, system or elapsed time from /usr/bin/time output
+
+OUT=
+for ENTRY in `cat | grep elapsed`; do
+	[[ $ENTRY =~ user$	]] && OUT="${ENTRY%user} "
+	[[ $ENTRY =~ system$	]] && OUT+="${ENTRY%system} "
+	if [[ $ENTRY =~ elapsed	]]; then
+		DELIMITS="${ENTRY//[^:]}"
+		while [ ${#DELIMITS} -lt 2 ]; do
+			ENTRY="0:$ENTRY"
+			DELIMITS="${ENTRY//[^:]}"
+		done
+		OUT+=`echo ${ENTRY%elapsed} | awk -F : '{print $1*3600+$2*60+$3}'`
+	fi
+done
+echo $OUT
