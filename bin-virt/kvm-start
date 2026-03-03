@@ -57,7 +57,7 @@ do
 	GUEST_IP=`kvm-ip-address --vm $VM 600`
 	if [ $? -eq 0 ]; then
 		wait_ssh_available $GUEST_IP
-		if [ $? -ne 1 ]; then
+		if [ $? -ne 0 ]; then
 			echo "ERROR: Unable to start $VM"
 			exit -1
 		fi
