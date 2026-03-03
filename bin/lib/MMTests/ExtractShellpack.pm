@@ -31,11 +31,12 @@ sub initialise() {
 	# Set reporting options specified by YAML
 	$self->{_Precision} = 2;
 	$self->{_Precision} = $yamlMap{'DecimalPlaces'} if defined($yamlMap{'DecimalPlaces'});
-	$self->{_PreferredVal} = "Higher" if (lc($yamlMap{'preferhigher'}) =~ /^(|1|higher|true)$/);
-	if (defined($yamlMap{$subHeading})) {
-		$self->{_PreferredVal} = "Higher" if (lc($yamlMap{$subHeading}{'preferhigher'}) =~ /^(|1|higher|true)$/);
-	}
-
+	$self->{_PreferredVal} = "Lower";
+	$self->{_PreferredVal} = "Higher" if (defined($yamlMap{'preferhigher'}) &&
+					      lc($yamlMap{'preferhigher'}) =~ /^(|1|higher|true)$/);
+	$self->{_PreferredVal} = "Higher" if (defined($yamlMap{$subHeading}{'preferhigher'}) &&
+					      lc($yamlMap{$subHeading}{'preferhigher'}) =~ /^(|1|higher|true)$/);
+	printVerbose("Improve val if $self->{_PreferredVal}\n");
 	# Set graphing options specified by YAML
 	$self->{_PlotXaxis} = $self->{_PlotYaxis} = "UNKNOWN";
 	$self->{_PlotType} = "lines";
