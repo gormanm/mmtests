@@ -1122,7 +1122,9 @@ for SUBREPORT in $REPORTS; do
 			;;
 		speccpu2017-*-build)
 			;;
-		specjbb2013)
+		specjbb|specjbb2015)
+			eval $GRAPH_PNG --very-large --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT
+			plain graph-$SUBREPORT
 			;;
 		sqlite)
 			generate_subheading_graphs 2 "" ""
@@ -1197,11 +1199,7 @@ for SUBREPORT in $REPORTS; do
 		*)
 			eval $GRAPH_PNG $GRAPH_EXTRA --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT.png ]; then
-				if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-smooth.png ]; then
-					smoothover graph-$SUBREPORT
-				else
-					plain graph-$SUBREPORT
-				fi
+				plain graph-$SUBREPORT
 			else
 				echo "<tr><td>No graph representation</td></tr>"
 			fi

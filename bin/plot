@@ -8,6 +8,7 @@ USING=
 declare -a TITLES
 FORMAT="postscript color"
 PLOTCOMMAND=standard
+RESOLUTION="800,600"
 
 while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 	case $1 in
@@ -91,23 +92,23 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			shift
 			;;
 		--medium)
-			echo set term $FORMAT size 1000,800 >> $TEMP
+			RESOLUTION="1000,750"
 			shift
 			;;
 		--large)
-			echo set term $FORMAT size 1200,1200 >> $TEMP
+			RESOLUTION="1200,1200"
 			shift
 			;;
 		--very-large)
-			echo set term $FORMAT size 2200,1200 >> $TEMP
+			RESOLUTION="2200,1200"
 			shift
 			;;
 		--wide)
-			echo set term $FORMAT size 1200,600 >> $TEMP
+			RESOLUTION="1200,600"
 			shift
 			;;
 		--very-wide)
-			echo set term $FORMAT size 1900,600 >> $TEMP
+			RESOLUTION="1900,600"
 			shift
 			;;
 		--rotate-xaxis)
@@ -206,6 +207,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 	esac
 done
 
+echo set term $FORMAT size $RESOLUTION >> $TEMP
 FIRST=yes
 if [ "$CLIENT_CANDLESTICKS" = "yes" -o "$CLIENT_ERRORBARS" = "yes" ]; then
 	echo set boxwidth 0.2 >> $TEMP
