@@ -1016,7 +1016,7 @@ for SUBREPORT in $REPORTS; do
 			generate_cputime_graphs
 			;;
 		hackbench-process-pipes|hackbench-process-sockets|hackbench-thread-pipes|hackbench-thread-sockets)
-			generate_basic "$SUBREPORT" "--logX"
+			generate_basic "$SUBREPORT" "--very-large"
 			;;
 		highalloc)
 			;;

@@ -99,7 +99,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			shift
 			;;
 		--very-large)
-			echo set term $FORMAT size 1900,1200 >> $TEMP
+			echo set term $FORMAT size 2200,1200 >> $TEMP
 			shift
 			;;
 		--wide)
