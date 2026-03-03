@@ -8,7 +8,7 @@ metrics:
 summarise: Multiops
 PlotXaxis: Workers
 PlotYaxis: Latency
-PlotType: client-candlesticks
+PlotType: operation-candlesticks
 
 Wakeup:
   title: Wakeup Latency

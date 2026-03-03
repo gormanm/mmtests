@@ -1096,6 +1096,8 @@ for SUBREPORT in $REPORTS; do
 			generate_subheading_graphs 3 "local remote local_v_total" ""
 			;;
 		schbench)
+			eval $GRAPH_PNG --very-large --logY --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT
+			plain graph-$SUBREPORT
 			;;
 		sembench-sem|sembench-nanosleep|sembench-futex)
 			generate_basic "$SUBREPORT" "--logX --wide"
