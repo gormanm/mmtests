@@ -69,7 +69,7 @@ sub extractReport() {
 		my $label = $metric;
 		$label .= "-$factorA" if ($factorA ne "" && $factorA ne "_");
 		$label .= "-$factorB" if ($factorB ne "" && $factorB ne "_");
-		$self->addData($label, $interval, $value);
+		$self->addData($label, $interval, $value) if (!defined($opt_subheading) || $label =~ /$opt_subheading/);
 		if ($extra =~ /^R/ && $seenOps{$label} != 1) {
 			push @ratioOps, $label;
 			$seenOps{$label} = 1;
