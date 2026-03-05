@@ -17,9 +17,10 @@ sub initialise() {
 	my %yamlMap = %{$documents[0]};
 
 	if (defined($yamlMap{'summarise'})) {
-		$self->setSummaryMultiops()	if $yamlMap{'summarise'} eq "Multiops";
-		$self->setSummarySingleops()	if $yamlMap{'summarise'} eq "Singleops";
-		$self->setSummarySubselection()	if $yamlMap{'summarise'} eq "Subselection";
+		$self->setSummaryMultiops()		if $yamlMap{'summarise'} eq "Multiops";
+		$self->setSummaryNormalisedops()	if $yamlMap{'summarise'} eq "Normalisedops";
+		$self->setSummarySingleops()		if $yamlMap{'summarise'} eq "Singleops";
+		$self->setSummarySubselection()		if $yamlMap{'summarise'} eq "Subselection";
 	}
 
 	if (defined($yamlMap{$subHeading}) && defined($yamlMap{$subHeading}{'summarise'})) {
