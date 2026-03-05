@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+# freq-to-util
+# Count frequency of a last of samples and express as percentages
+use Getopt::Long;
+use strict;
+
+my $opt_trim = 100;
+my $opt_binwidth = 1;
+GetOptions(
+	'trim-right|t=f'	=> \$opt_trim,
+	'bin-width|w=f'		=> \$opt_binwidth,
+);
+
+my %freq_map;
+my $nr_samples;
+while (!eof(STDIN)) {
+	my @fields = split(/\s+/, <STDIN>);
+	my $sample = $fields[-1] + 0;
+	chomp($sample);
+
+	# Transform
+	$sample = int($sample / $opt_binwidth) * $opt_binwidth;
+	$nr_samples++;
+	$freq_map{$sample}++;
+}
+
+my @values = sort { $a <=> $b } keys %freq_map;
+my @freq =   map { $freq_map{$_} } @values;
+my @freq_pct;
+
+my $cumulative_pct;
+my $last_value;
+my $i;
+for ($i = 0; $i <= $#values; $i++) {
+	$freq_pct[$i] = $freq[$i] * 100 / $nr_samples;
+	$cumulative_pct += $freq_pct[$i];
+	if ($cumulative_pct > $opt_trim) {
+		last;
+	}
+	printf("%7.4f %3.2f\n", $values[$i], $freq_pct[$i]);
+}
+
+my $nr_samples_trimmed = 0;
+my $last_i = $i;
+my $last_value = int($values[$i]) + ($opt_trim / 100);
+for ($i; $i <= $#values; $i++) {
+	$nr_samples_trimmed += $freq[$i]
+}
+printf("%7.4f %3.2f\n", $last_value, $nr_samples_trimmed * 100 / $nr_samples) if $nr_samples_trimmed > 0;
