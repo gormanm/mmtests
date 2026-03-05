@@ -65,7 +65,7 @@ sub new() {
 	my $absDir = abs_path($reportDir);
 	my $timestamp = read_file("$reportDir/../../tests-timestamp") || die "Failed to read $reportDir/../../tests-timestamp";
 	my $checksum = md5_hex($absDir, $modulename, $subHeading, $timestamp);
-	my $cacheRoot = "$cacheMMTests/$namespace";
+	my $cacheRoot = "$cacheMMTests/$namespace/$modulename";
 	my $cacheFile = "$cacheRoot/$checksum";
 	make_path($cacheRoot, {error => \$mkpathErr});
 	if ($mkpathErr && @$mkpathErr) {

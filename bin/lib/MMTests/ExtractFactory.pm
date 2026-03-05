@@ -73,6 +73,7 @@ sub loadModule($$$$$) {
 	$classInstance->{_TestName} = $testName;
 	$classInstance->{_ShellpackRoot} = $shellpackRoot;
 	if (-e $shellpackConfig) {
+		$classInstance->{_ModuleName} = "$type$pmName$moduleName";
 		$classInstance->{_ShellpackConfig} = $shellpackConfig;
 		$classInstance->{_ShellpackParser} = $classInstance->{_ShellpackRoot}  . "/parse-results$altExt";
 		die("Shellpack config ($shellpackConfig) exists but parse-results$altExt does not exist") if (! -f $classInstance->{_ShellpackParser});
