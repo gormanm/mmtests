@@ -14,9 +14,9 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # HackBench
-export HACKBENCH_ITERATIONS=7
+export HACKBENCH_ITERATIONS=15
 export HACKBENCH_MIN_GROUPS=1
-export HACKBENCH_MAX_GROUPS=$((NUMCPUS*4))
+export HACKBENCH_MAX_GROUPS=$((NUMCPUS*2))
 if [[ `uname -m` =~ i.86 ]]; then
 	export HACKBENCH_MAX_GROUPS=128
 fi
