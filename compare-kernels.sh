@@ -408,6 +408,7 @@ generate_client_trans_graphs() {
 	CLIENT_LIST=$1
 	XLABEL="$2"
 	SUBHEADING="$3"
+	FREQ_PARAM="$4"
 	if [ "$CLIENT_LIST" = "" ]; then
 		CLIENT_LIST=`$COMPARE_BARE_CMD --sub-heading $SUBHEADING | grep ^Hmean | awk '{print $2}' | sed -e 's/.*-//' | sort -n | uniq`
 		if [ "$CLIENT_LIST" = "" ]; then
@@ -431,10 +432,10 @@ generate_client_trans_graphs() {
 			LABEL="$SUBREPORT transactions $CLIENT clients"
 		fi
 		eval $GRAPH_PNG --sub-heading $SUBHEADING$CLIENT\$ --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME} --x-label \"$XLABEL\" --with-smooth
-		eval $GRAPH_PNG --sub-heading $SUBHEADING$CLIENT\$ --plottype lines --title \"$LABEL sorted\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-sorted --sort-samples-reverse --x-label \"Sorted samples\"
+		eval $GRAPH_PNG --sub-heading $SUBHEADING$CLIENT\$ --freq                                     --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-freq $FREQ_PARAM
 		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}
 		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-smooth
-		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-sorted
+		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-freq
 		echo "</tr>"
 		COUNT=$((COUNT+1))
 	done
@@ -1162,7 +1163,9 @@ for SUBREPORT in $REPORTS; do
 		tbench)
 			echo "<tr>"
 			generate_basic_single "$SUBREPORT Throughput" "--very-large"
-			generate_client_trans_graphs "`$COMPARE_BARE_CMD | grep ^Min | awk '{print $2}' | sort -n | uniq`" "Estimated time"
+			echo "</tr></table>"
+			echo "<table class=\"resultsGraphs\">"
+			generate_client_trans_graphs "" "Estimated time" "loadfile" "--freq-binwidth 2"
 			echo "</tr>"
 			;;
 		unixbench-dhry2reg|unixbench-syscall|unixbench-pipe|unixbench-spawn|unixbench-execl)

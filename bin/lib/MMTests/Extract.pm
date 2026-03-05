@@ -254,10 +254,10 @@ sub extractSummary() {
 }
 
 sub extractReportCached() {
-	my ($self, $reportDir, $altReport) = @_;
+	my ($self, $reportDir, $opt_subheading, $altReport) = @_;
 	shift;
 
-	$self->{_CacheHandle} = MMTests::Cache->new("Extract__extractReport", $self->{_ModuleName}, $reportDir);
+	$self->{_CacheHandle} = MMTests::Cache->new("Extract__extractReport", $self->{_ModuleName}, $reportDir, $opt_subheading);
 	if (!defined $self->{_CacheHandle}->{_CUID}) {
 		return $self->extractReport(@_);
 	}
