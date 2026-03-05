@@ -5,7 +5,7 @@ metrics:
   - tput
   - op
 
-summarise: Subselection
+summarise: Normalisedops
 PlotXaxis: Clients
 PlotType: client-candlesticks
 DecimalPlaces: 4

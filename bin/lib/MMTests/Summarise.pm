@@ -16,6 +16,17 @@ sub new() {
 	return $self;
 }
 
+sub setSummaryNormalisedops() {
+	my ($self) = @_;
+	$self->{_SummaryStats} = [ "min",
+		"_mean", "_mean-95", "percentile-95",
+		"stddev-_mean", "coeffvar-_mean", "max" ];
+	$self->{_RatioSummaryStat} = [ "percentile-95", "percentileci_low-95",
+		"percentileci_high-95" ];
+	$self->{_RatioCompareOp} = "cidiff";
+	$self->{_Summarytype} = "Normalisedops";
+}
+
 sub setSummaryMultiops() {
 	my ($self) = @_;
 	$self->{_SummaryStats} = [ "min", "_mean", "stddev-_mean",
