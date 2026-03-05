@@ -239,9 +239,10 @@ lookup_type() {
 	[ "$PLOTTYPE" = "" ]	 && PLOTTYPE="operation-candlesticks"
 
 	YLABEL=
-	YDESC=`yq .\"$METRIC\".title $SHELLPACK_YAML |sed -e 's/"//g'`
+	METRIC_BASE=${METRIC//-[0-9]*}
+	YDESC=`yq .\"$METRIC_BASE\".title $SHELLPACK_YAML |sed -e 's/"//g'`
 	[ "$YDESC" != "null" ] && YLABEL="$YDESC\\n"
-	YUNITS=`yq .\"$METRIC\".units $SHELLPACK_YAML | sed -e 's/"//g'`
+	YUNITS=`yq .\"$METRIC_BASE\".units $SHELLPACK_YAML | sed -e 's/"//g'`
 	if [ "$YUNITS" = "null" ]; then
 		YUNITS=`yq .units $SHELLPACK_YAML | sed -e 's/"//g'`
 		if [ "$YUNITS" = "null" ]; then

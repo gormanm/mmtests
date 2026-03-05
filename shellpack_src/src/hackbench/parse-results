@@ -19,4 +19,4 @@ for NR_JOBS in `ls hackbench-*-1 | awk -F - '{print $2}'`; do
 		VALUE=`grep "Total time:" hackbench-$NR_JOBS-$ITERATION | awk '{print $3}'`
 		echo -e "time\t$NR_JOBS\t_\t$ITERATION\t$VALUE\t_"
 	done
-done | sort -k1,1 -k2,2n
+done | sort -k1,1 -k2,2n -k4,4n

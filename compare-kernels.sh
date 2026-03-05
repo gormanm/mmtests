@@ -1018,6 +1018,9 @@ for SUBREPORT in $REPORTS; do
 			;;
 		hackbench-process-pipes|hackbench-process-sockets|hackbench-thread-pipes|hackbench-thread-sockets)
 			generate_basic "$SUBREPORT" "--very-large"
+			echo "<table class=\"resultsGraphs\">"
+			generate_client_trans_graphs "" "Estimated time" "time" "--freq-binwidth 0.01"
+			echo "</tr>"
 			;;
 		highalloc)
 			;;
