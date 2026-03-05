@@ -11,6 +11,8 @@ METRIC=
 SMOOTH=
 YRANGE_COMMAND=
 XRANGE_COMMAND=
+EXTRACT_PARAM="--print-plot"
+FREQDIST_CMD=
 
 # Do Not Litter
 cleanup() {
@@ -136,6 +138,26 @@ while [ "$1" != "" ]; do
 		SORT_REVERSE=yes
 		shift
 		;;
+	--freq)
+		FREQUENCY=yes
+		EXTRACT_PARAM=
+		shift
+		;;
+	--freq-trim-right)
+		FREQUENCY=yes
+		EXTRACT_PARAM=
+		FREQUENCY_TRIM_RIGHT="$2"
+		FREQUENCY_PARAM+="--trim-right $FREQUENCY_TRIM_RIGHT "
+		shift 2
+		;;
+	--freq-binwidth)
+		FREQUENCY=yes
+		EXTRACT_PARAM=
+		FREQUENCY_BINWIDTH="$2"
+		FREQUENCY_PARAM+="--bin-width $FREQUENCY_BINWIDTH "
+		shift 2
+		;;
+
 	-b)
 		SUBREPORT="$2"
 		EXTRACT_ARGS+=" $1 $2"
@@ -200,14 +222,21 @@ lookup_type() {
 		TYPE=`$SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS --print-type`
 		XLABEL=`echo $TYPE | cut -d, -f2`
 		YLABEL=`echo $TYPE | cut -d, -f3`
-		PLOTTYPE=`echo $TYPE | cut -d, -f4`
+		[ "$PLOTTYPE" = "" ] && PLOTTYPE=`echo $TYPE | cut -d, -f4`
+		return
+	fi
+
+	if [ "$FREQUENCY" = "yes" ]; then
+		PLOTTYPE="linespoint"
+		XLABEL="Sample Value"
+		YLABEL="Percentage"
 		return
 	fi
 
 	XLABEL=`yq '.PlotXaxis' $SHELLPACK_YAML | sed -e 's/"//g'`
-	PLOTTYPE=`yq .\"$METRIC\".PlotType $SHELLPACK_YAML 2>/dev/null | sed -e 's/"//g'`
+	[ "$PLOTTYPE" = "" ]	 && PLOTTYPE=`yq .\"$METRIC\".PlotType $SHELLPACK_YAML 2>/dev/null | sed -e 's/"//g'`
 	[ "$PLOTTYPE" = "null" ] && PLOTTYPE=`yq .PlotType $SHELLPACK_YAML 2>/dev/null | sed -e 's/"//g'`
-	[ "$PLOTTYPE" = "" ] && PLOTTYPE="operation-candlesticks"
+	[ "$PLOTTYPE" = "" ]	 && PLOTTYPE="operation-candlesticks"
 
 	YLABEL=
 	YDESC=`yq .\"$METRIC\".title $SHELLPACK_YAML |sed -e 's/"//g'`
@@ -235,6 +264,15 @@ lookup_title() {
 
 	if [ ! -e $SHELLPACK_YAML ]; then
 		TITLE="Default Title"
+		return
+	fi
+
+	if [ "$FREQUENCY" = "yes" ]; then
+		TITLE="Frequency Distribution for $SUBREPORT.$METRIC"
+		TITLE_EXTRA=
+		[ "$FREQUENCY_BINWIDTH"   != "" ] && TITLE_EXTRA+="binwidth=$FREQUENCY_BINWIDTH "
+		[ "$FREQUENCY_TRIM_RIGHT" != "" ] && TITLE_EXTRA+="trim-right=$FREQUENCY_TRIM_RIGHT% "
+		[ "$TITLE_EXTRA" != "" ]	  && TITLE+="\\n$TITLE_EXTRA"
 		return
 	fi
 
@@ -278,7 +316,7 @@ TITLES=
 COUNT=0
 for TEST in $TEST_LIST; do
 	PLOTFILE="$TMPDIR/$TEST"
-	EXTRACT_CMD="$SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS --print-plot"
+	EXTRACT_CMD="$SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS $EXTRACT_PARAM"
 	[ "$PLOTTYPE_OVERRIDE" != "" ] && EXTRACT_CMD+=" --plot-type $PLOTTYPE_OVERRIDE"
 	[ "$GRAPH_DEBUG" = "yes" ] && echo "TRACE: Extract: $EXTRACT_CMD"
 	[ "$METRIC" != "" -a "$SUBHEADING" = "" ] && EXTRACT_CMD+=" --sub-heading $METRIC"
@@ -287,6 +325,16 @@ for TEST in $TEST_LIST; do
 		grep -v nan 					| \
 		sed -e 's/_/\\\\_/g' -e "s/$METRIC_ESC-//"	  \
 		> $PLOTFILE || exit
+
+	if [ "$FREQUENCY" = "yes" ]; then
+		FREQUENCY_CMD="$SCRIPTDIR/freq-to-pct"
+		[ "$FREQUENCY_TRIM_RIGHT" != "" ] && FREQ_CMD+=" --trim-right $FREQUENCY_TRIM_RIGHT"
+		[ "$FREQUENCY_BINWIDTH"   != "" ] && FREQ_CMD+=" --binwidth   $FREQUENCY_BINWIDTH"
+		[ "$GRAPH_DEBUG" = "yes"	] && cp $PLOTFILE /tmp/last-freqdist-in
+		cat $PLOTFILE | $FREQUENCY_CMD $FREQUENCY_PARAM > $PLOTFILE.tmp
+		mv $PLOTFILE.tmp $PLOTFILE
+		[ "$GRAPH_DEBUG" = "yes"	] && cp $PLOTFILE /tmp/last-freqdist-out
+	fi
 
 	if [ "$SORT_SAMPLES" = "yes" ]; then
 		SORT_SWITCH=
@@ -344,6 +392,9 @@ PLOTSCRIPTS="plot"
 
 [ "$TITLES" == "" ] && exit 0
 
+if [ "$FREQUENCY" = "yes" ]; then
+	FREQDIST_CMD="--freqdist"
+fi
 for PLOTSCRIPT in $PLOTSCRIPTS; do
 	OUTPUT_TEMPLATE=`echo $OUTPUT_TEMPLATE | sed -e "s/\.$FORMAT$//"`
 	FORMAT_CMD="--format \"$FORMAT\""
@@ -351,7 +402,7 @@ for PLOTSCRIPT in $PLOTSCRIPTS; do
 	TITLE_CMD="--title \"$TITLE\""
 	COMMAND="$SCRIPTDIR/$PLOTSCRIPT $TITLE_CMD $PLOTTYPE $SMOOTH $FORMAT_CMD 	\
 		$WIDE $SUBREPORT_ARGS$ALTREPORT $XRANGE $XRANGE_COMMAND $YRANGE_COMMAND	\
-		$ROTATE_XAXIS $XTICS_CMD \
+		$ROTATE_XAXIS $XTICS_CMD $FREQDIST_CMD \
 		--xlabel \"$XLABEL\" \
 		--ylabel \"$YLABEL\" \
 		--titles $TITLES"
@@ -364,9 +415,11 @@ for PLOTSCRIPT in $PLOTSCRIPTS; do
 		OUTPUT_CMD="--output \"$OUTPUT_TEMPLATE-smooth.$FORMAT\""
 		eval $COMMAND $OUTPUT_CMD $TITLE_CMD $WITH_SMOOTH $PLOTS
 	fi
-	if [ "$GRAPH_DEBUG" != "" ]; then
-		[ "$GRAPH_DEBUG" = "yes" ] && echo TRACE: Dump $PLOTS
-		cat $PLOTS
-		echo
+	if [ "$GRAPH_DEBUG" = "yes" ]; then
+		for PLOT in $PLOTS; do
+			echo
+			echo TRACE: Dump plot data $PLOT
+			cat $PLOT
+		done
 	fi
 done

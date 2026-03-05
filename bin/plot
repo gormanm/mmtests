@@ -22,7 +22,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			shift 2
 			;;
 		--title)
-			echo "set title '`echo $2 | sed -e 's/_/\\\_/g'`'" >> $TEMP
+			echo "set title \"`echo $2 | sed -e 's/_/\\\_/g'`\"" >> $TEMP
 			shift 2
 			;;
 		--header)
@@ -143,6 +143,12 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 		--smooth)
 			SMOOTH="smooth $2"
 			shift 2
+			;;
+		--freqdist)
+			PLOTCOMMAND="freqdist"
+			SMOOTH="smooth cspline"
+			PLOTTYPE="linespoints"
+			shift
 			;;
 		--dump)
 			DUMP=yes
@@ -282,7 +288,9 @@ echo "plot \\"				>> $TEMP
 FIRST=yes
 COUNT=0
 CLEANUP_FILES=
+LINESTYLE=0
 while [ "$1" != "" ]; do
+	((LINESTYLE++))
 	PLOTFILE=$1
 	if [ "$FIRST" = "no" ]; then
 		echo ", \\"		>> $TEMP
@@ -338,8 +346,12 @@ while [ "$1" != "" ]; do
 		fi
 		;;
 	stacked-histogram)
-		PLOTSTRING="'$PLOTFILE'"
-		echo -n "'$PLOTFILE' using 2 t \"Alloc\", '$PLOTFILE' using 3 t \"Free\"" >> $TEMP
+		echo -n "'$PLOTFILE' using 2 t \"Alloc\", '$PLOTFILE' using 3 t \"Free\""	>> $TEMP
+		;;
+	freqdist)
+		echo -n "'$PLOTFILE' notitle with points linestyle $LINESTYLE,"			>> $TEMP
+		echo -n " \"\" notitle smooth csplines with lines linestyle $LINESTYLE,"	>> $TEMP
+		echo -n " 1 / 0 $TITLE with linespoints linestyle $LINESTYLE"			>> $TEMP
 		;;
 	esac
 	shift
@@ -347,6 +359,7 @@ while [ "$1" != "" ]; do
 done
 echo >> $TEMP
 
+cat $TEMP
 cat $TEMP | gnuplot -persist
 rm $TEMP
 if [ "$CLEANUP_FILES" != "" ]; then
