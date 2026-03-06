@@ -1020,7 +1020,7 @@ for SUBREPORT in $REPORTS; do
 			echo "<tr>"
 			generate_basic_single "$SUBREPORT Loadfile Completion Times" "--sub-heading loadfile --logX"
 			generate_basic_single "$SUBREPORT Loadfile Completion Times" "--sub-heading loadfile --logX --logY"
-			generate_client_trans_graphs "" "Sample" "loadfile"
+			generate_client_trans_graphs "" "Sample" "loadfile" "--freq-binwidth 2"
 			echo "</tr>"
 			;;
 		ebizzy)
