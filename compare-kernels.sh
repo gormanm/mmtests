@@ -1093,6 +1093,12 @@ for SUBREPORT in $REPORTS; do
 			;;
 		parsecbuild)
 			;;
+		perfpipe)
+			generate_basic "$SUBREPORT" "--very-large"
+			echo "<table class=\"resultsGraphs\">"
+			generate_ops_freq_graphs "" "Iteration" "usecs-op" "--freq-binwidth 0.1"
+			echo "</tr>"
+			;;
 		pgbench)
 			echo "<tr>"
 			eval $GRAPH_PNG --logX                    --title \"$SUBREPORT transactions\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}

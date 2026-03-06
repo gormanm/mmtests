@@ -3,7 +3,7 @@ default-metric: usecs-op
 metrics:
   - usecs-op
 
-summarise: Multiops
+summarise: Normalisedops
 PlotXaxis: USecs/Operation
 PlotType: operation-candlesticks
 DecimalPlaces: 4
