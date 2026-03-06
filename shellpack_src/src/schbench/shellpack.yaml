@@ -5,7 +5,7 @@ metrics:
   - Request
   - RPS
 
-summarise: Multiops
+summarise: Normalisedops
 PlotXaxis: Workers
 PlotYaxis: Latency
 PlotType: operation-candlesticks
