@@ -1,5 +1,4 @@
 #!/bin/bash
-
 export SCRIPTPATH=$(readlink -f "$0")
 export SCRIPT=$(basename "$SCRIPTPATH")
 export SCRIPTDIR=$(dirname "$SCRIPTPATH")
@@ -405,7 +404,7 @@ generate_latency_graph() {
 }
 
 generate_client_trans_graphs() {
-	CLIENT_LIST=$1
+	CLIENT_LIST="$1"
 	XLABEL="$2"
 	SUBHEADING="$3"
 	FREQ_PARAM="$4"
@@ -439,6 +438,29 @@ generate_client_trans_graphs() {
 		echo "</tr>"
 		COUNT=$((COUNT+1))
 	done
+}
+
+generate_ops_freq_graphs() {
+	CLIENT_LIST="$1"
+	XLABEL="$2"
+	SUBHEADING="$3"
+	FREQ_PARAM="$4"
+
+	SUBHEADING_PARAM=
+	[ "$SUBHEADING" != "" ] && SUBHEADING_PARAM="--sub-heading $SUBHEADING"
+	[ "$CLIENT_LIST" = "" ] && CLIENT_LIST="`$EXTRACT_CMD -n $KERNEL $SUBHEADING_PARAM | awk '{print $1}' | sort | uniq`"
+
+	for HEADING in $CLIENT_LIST; do
+		SUBHEADING_PARAM="--sub-heading $HEADING"
+		LABEL="$SUBREPORT transactions $HEADING"
+		echo "<tr>"
+		eval $GRAPH_PNG $SUBHEADING_PARAM --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-ops-$HEADING --x-label \"$XLABEL\" --with-smooth 1>&2
+		eval $GRAPH_PNG $SUBHEADING_PARAM --freq			      --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-ops-${HEADING}-freq --with-smooth $FREQ_PARAM
+		plain graph-${SUBREPORT}-ops-${HEADING}
+		plain graph-${SUBREPORT}-ops-${HEADING}-freq
+		echo "</tr>"
+	done
+	exit
 }
 
 generate_ops_graphs() {
@@ -1056,12 +1078,6 @@ for SUBREPORT in $REPORTS; do
 			;;
 		monitor)
 			;;
-		netpipe)
-			echo "<tr>"
-			generate_basic_single "$SUBREPORT Throughput"
-			generate_basic_single "$SUBREPORT Throughput" "--logX"
-			echo "</tr>"
-			;;
 		netperf-udp)
 			echo "<tr>"
 			eval $GRAPH_PNG --xrange 16:32768 --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send
@@ -1100,8 +1116,12 @@ for SUBREPORT in $REPORTS; do
 			generate_subheading_graphs 3 "local remote local_v_total" ""
 			;;
 		schbench)
-			eval $GRAPH_PNG --very-large --logY --title \"$SUBREPORT\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT
-			plain graph-$SUBREPORT
+			echo "<tr>"
+			generate_basic "$SUBREPORT" "--very-large"
+			echo "</tr></table>"
+			echo "<table class=\"resultsGraphs\">"
+			generate_ops_freq_graphs "" "Estimated time" "Wakeup-" "--freq-binwidth 1"
+			echo "</tr>"
 			;;
 		sembench-sem|sembench-nanosleep|sembench-futex)
 			generate_basic "$SUBREPORT" "--logX --wide"

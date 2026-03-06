@@ -9,6 +9,7 @@ declare -a TITLES
 FORMAT="postscript color"
 PLOTCOMMAND=standard
 RESOLUTION="800,600"
+OUTPUT_FILE=
 
 while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 	case $1 in
@@ -17,8 +18,7 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			shift 2
 			;;
 		--output)
-			echo "set terminal $FORMAT"		>> $TEMP
-			echo "set output '$2'"			>> $TEMP
+			OUTPUT_FILE="$2"
 			shift 2
 			;;
 		--title)
@@ -213,7 +213,10 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 	esac
 done
 
-echo set term $FORMAT size $RESOLUTION >> $TEMP
+if [ "$OUTPUT_FILE" != "" ]; then
+	echo "set output '$OUTPUT_FILE'"		>> $TEMP
+	echo "set term $FORMAT size $RESOLUTION"	>> $TEMP
+fi
 FIRST=yes
 if [ "$CLIENT_CANDLESTICKS" = "yes" -o "$CLIENT_ERRORBARS" = "yes" ]; then
 	echo set boxwidth 0.2 >> $TEMP
