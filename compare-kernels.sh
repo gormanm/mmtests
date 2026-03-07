@@ -532,7 +532,6 @@ generate_subheading_graphs() {
 		if [ $((COUNT%$WRAP)) -eq 0 ]; then
 			echo "<tr>"
 		fi
-		echo $GRAPH_PNG --title \"$SUBREPORT $HEADING\" $SUBTEST_ARG --sub-heading \"^$HEADING\$\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME 1>&2
 		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" $SUBTEST_ARG --sub-heading \"^$HEADING\$\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME
 		plain graph-$SUBREPORT-$HEADING_FILENAME
 		if [ $((COUNT%$WRAP)) -eq $((WRAP-1)) ]; then

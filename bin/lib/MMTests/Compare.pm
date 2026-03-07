@@ -131,7 +131,10 @@ sub _generateComparisonTable() {
 					push @{$significance{$operation}}, 0;
 					push @{$significance{$operation}}, 0;
 				} else {
-					my $ratio = cidiff($baselineVal, \@{$baselineCI{$operation}}, $val, \@{%{$summaryCIIntervalRef}{$operation}});
+					my $ratio = 0;
+					if (defined(%{$summaryCIIntervalRef}{$operation})) {
+						$ratio = cidiff($baselineVal, \@{$baselineCI{$operation}}, $val, \@{%{$summaryCIIntervalRef}{$operation}});
+					}
 					push @{$significance{$operation}}, (abs($ratio) > 1);
 					push @{$significance{$operation}}, $ratio;
 				}
