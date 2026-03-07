@@ -49,7 +49,7 @@ make -j$NUMCPUS clean
 	###SHELLPACK iteration_begin $KERNBENCH_ITERATIONS
 		echo Starting threads $NR_THREADS/$KERNBENCH_MAX_THREADS iteration $ITERATION/$KERNBENCH_ITERATIONS
 
-		save_rc $TIME_CMD -o time-$NR_THREADS-$ITERATION -j$NR_THREADS $KERNBENCH_TARGETS > /dev/null
+		save_rc $TIME_CMD -o time-$NR_THREADS-$ITERATION make -j$NR_THREADS $KERNBENCH_TARGETS > /dev/null
 		recover_rc
 		if [ $? -ne 0 ]; then
 			die "Failed to run kernbench"
