@@ -532,6 +532,7 @@ generate_subheading_graphs() {
 		if [ $((COUNT%$WRAP)) -eq 0 ]; then
 			echo "<tr>"
 		fi
+		echo $GRAPH_PNG --title \"$SUBREPORT $HEADING\" $SUBTEST_ARG --sub-heading \"^$HEADING\$\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME 1>&2
 		eval $GRAPH_PNG --title \"$SUBREPORT $HEADING\" $SUBTEST_ARG --sub-heading \"^$HEADING\$\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-$HEADING_FILENAME
 		plain graph-$SUBREPORT-$HEADING_FILENAME
 		if [ $((COUNT%$WRAP)) -eq $((WRAP-1)) ]; then
@@ -1078,16 +1079,13 @@ for SUBREPORT in $REPORTS; do
 			;;
 		monitor)
 			;;
-		netperf-udp)
+		netperf-ipv*-udp)
 			echo "<tr>"
-			eval $GRAPH_PNG --xrange 16:32768 --logX --title \"$SUBREPORT Send Throughput\" --sub-heading send --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-send
-			eval $GRAPH_PNG --xrange 16:32768 --logX --title \"$SUBREPORT Recv Throughput\" --sub-heading recv --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-recv
-			plain graph-$SUBREPORT-send
-			plain graph-$SUBREPORT-recv
+			generate_subheading_graphs 3 ""
 			echo "</tr>"
 			;;
-		netperf-tcp|netperf-udp-rr|netperf-tcp-rr)
-			generate_basic "$SUBREPORT" "--logX --xrange 16:32768"
+		netperf-ipv*-*)
+			generate_basic "$SUBREPORT" ""
 			;;
 		parsec-*)
 			;;

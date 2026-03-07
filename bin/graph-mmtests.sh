@@ -319,8 +319,8 @@ for TEST in $TEST_LIST; do
 	PLOTFILE="$TMPDIR/$TEST"
 	EXTRACT_CMD="$SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS $EXTRACT_PARAM"
 	[ "$PLOTTYPE_OVERRIDE" != "" ] && EXTRACT_CMD+=" --plot-type $PLOTTYPE_OVERRIDE"
-	[ "$GRAPH_DEBUG" = "yes" ] && echo "TRACE: Extract: $EXTRACT_CMD"
 	[ "$METRIC" != "" -a "$SUBHEADING" = "" ] && EXTRACT_CMD+=" --sub-heading $METRIC"
+	[ "$GRAPH_DEBUG" = "yes" ] && echo "TRACE: Extract: $EXTRACT_CMD"
 	METRIC_ESC=`echo $METRIC | sed -e 's/\//\\\\\\//g'`
 	eval $EXTRACT_CMD					| \
 		grep -v nan 					| \
