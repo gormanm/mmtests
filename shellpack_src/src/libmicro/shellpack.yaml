@@ -3,7 +3,7 @@ default-metric: mean95
 metrics:
   - mean95
 
-summarise: Multiops
+summarise: Singleops
 PlotXaxis: Operation
 PlotType: operation-candlesticks
 DecimalPlaces: 5
