@@ -1,0 +1,41 @@
+#!/bin/bash
+# Display the default-metric as defined by a benchmark shellpack.yaml file
+SCRIPT=`basename $0 | sed -e 's/\./\\\./'`
+SCRIPTDIR=`echo $0 | sed -e "s/$SCRIPT//"`
+
+function die() {
+        echo "FATAL: $@"
+        exit 127
+}
+
+SUBREPORT=$1
+[ "$SUBREPORT" = "" ] && die "Usage: mmtests-default-metric [benchmark]"
+
+
+lookup_yaml() {
+	SHELLPACK_YAML="$SCRIPTDIR/../shellpack_src/src/$SUBREPORT/shellpack.yaml"
+	[ -e $SHELLPACK_YAML ] && return
+
+	local _subreport=$SUBREPORT
+	local _yaml=$SHELLPACK_YAML
+
+	while [ ! -e $_yaml ]; do
+		if ! [[ $_subreport =~ - ]]; then
+			return
+		fi
+		_subreport=`echo $_subreport | sed 's/\(.*\)-.*/\1/'`
+		_yaml="$SCRIPTDIR/../shellpack_src/src/$_subreport/shellpack.yaml"
+	done
+	SHELLPACK_YAML=$_yaml
+}
+lookup_yaml
+[ ! -e $SHELLPACK_YAML ] && die "Unable to discover shellpack.yaml file for $SUBREPORT"
+
+METRIC=`yq '."ratio-metric"' $SHELLPACK_YAML | sed -e 's/\"//g'`
+if [ "$METRIC" = "null" ]; then
+	METRIC=`yq '."default-metric"' $SHELLPACK_YAML | sed -e 's/\"//g'`
+fi
+if [ "$METRIC" != "null" ]; then
+	echo $METRIC
+fi
+exit 0

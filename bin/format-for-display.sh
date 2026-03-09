@@ -242,6 +242,10 @@ read -a KERNEL_NAMES <<< $KERNEL_LIST_SPACE
 SUBREPORTSJSON=
 for SUBREPORT in $(run_report_name $KERNEL_BASE); do
 	COMPARE_CMD="compare-mmtests.pl --json-export --print-ratio -d . -b $SUBREPORT -n $KERNEL_LIST"
+	RATIO_METRIC=`mmtests-ratio-metric $SUBREPORT`
+	if [ "$RATIO_METRIC" != "" -a "$RATIO_METRIC" != "all" ]; then
+		COMPARE_CMD+=" --sub-heading $RATIO_METRIC"
+	fi
 
 	case $SUBREPORT in
 	*)
