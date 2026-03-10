@@ -539,10 +539,9 @@ EOC
 		print "mmtests_wait_token \"iteration_end\"\n";
 		print "done\n";
 	} elsif ($command eq "threads_topology_walk_begin") {
-		my ($min_thread, $max_thread, $steps) = @details;
-		$steps = 4 if (!defined($steps));
+		my ($min_thread, $max_thread) = @details;
 		print <<EOC
-for NR_THREADS in `generate-stride-range --min $min_thread --max $max_thread --topology-steps $steps --cutoff=\$MMTESTS_THREAD_CUTOFF`; do
+for NR_THREADS in `generate-stride-range --min $min_thread --max $max_thread --cutoff=\$MMTESTS_THREAD_CUTOFF`; do
 	mmtests_activity nr_threads \$NR_THREADS
 EOC
 	} elsif ($command eq "threads_powertwo_begin") {

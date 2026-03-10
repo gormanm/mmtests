@@ -6,7 +6,7 @@ NUMCPUS=`getconf _NPROCESSORS_ONLN`
 MIN=1
 MAX=$NUMCPUS
 CUTOFF=
-NR_STEPS_BETWEEN=4
+NR_STEPS_BETWEEN_FORCE=4
 PATTERN=topology
 DEBUG=no
 
@@ -25,7 +25,7 @@ while [ $# -ge 1 ]; do
 		shift
 		;;
 	--topology-steps)
-		NR_STEPS_BETWEEN=$2
+		NR_STEPS_BETWEEN_FORCE=$2
 		shift 2
 		;;
 	--stride-topology)
@@ -57,13 +57,13 @@ SOCKET_REACHED=0
 MACHINE_REACHED=0
 
 TOPOLOGY_LEVELS="
-1:$SMT_WEIGHT:0
-$SMT_WEIGHT:$LLC_WEIGHT:1
-$LLC_WEIGHT:$NODE_WEIGHT:2
-$NODE_WEIGHT:$NUMCPUS:3
-$NUMCPUS:$((NUMCPUS*2)):4
-$NUMCPUS:$((NUMCPUS*4)):4
-$((NUMCPUS*4)):$MAX:5
+1:$SMT_WEIGHT:4:SMT
+$SMT_WEIGHT:$LLC_WEIGHT:4:LLC
+$LLC_WEIGHT:$NODE_WEIGHT:3:NODE
+$NODE_WEIGHT:$NUMCPUS:2:MACHINE
+$NUMCPUS:$((NUMCPUS*2)):2:MACHINEx2
+$NUMCPUS:$((NUMCPUS*4)):2:MACHINEx4
+$((NUMCPUS*4)):$MAX:1:MAX
 "
 
 gen_topology() {
@@ -75,11 +75,13 @@ gen_topology() {
 	for RANGE in $TOPOLOGY_LEVELS; do
 		FROM=`echo $RANGE | cut -d: -f1`
 		TO=`echo $RANGE | cut -d: -f2`
+		NR_STEPS_BETWEEN=`echo $RANGE | cut -d : -f3`
 		[ "$LAST_RANGE" = "$FROM:$TO"	] && continue
 		[ "$FROM"	= "$TO"		] && continue
 
+
 		LAST_RANGE="$FROM:$TO"
-		LEVEL=`echo $RANGE | cut -d: -f3`
+		LEVEL=`echo $RANGE | cut -d: -f4`
 		STRIDE=`echo "scale=1; ($TO-$FROM)/$NR_STEPS_BETWEEN" | bc -l`
 		[[ $STRIDE =~ ^- ]] && continue
 
