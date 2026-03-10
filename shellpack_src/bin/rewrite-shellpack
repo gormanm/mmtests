@@ -538,6 +538,10 @@ EOC
 		print "sync\n";
 		print "mmtests_wait_token \"iteration_end\"\n";
 		print "done\n";
+	} elsif ($command eq "threads_topology_walk_begin") {
+		my ($min_thread, $max_thread, $steps) = @details;
+		$steps = 4 if (!defined($steps));
+		print("for NR_THREADS in `generate-stride-range --min $min_thread --max $max_thread --topology-steps $steps`; do\n");
 	} elsif ($command eq "threads_powertwo_begin") {
 		my ($min_thread, $max_thread) = @details;
 		my $max_thread_varname = $max_thread;

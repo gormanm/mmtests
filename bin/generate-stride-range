@@ -1,0 +1,97 @@
+#!/bin/bash
+SCRIPTDIR=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
+. $SCRIPTDIR/../shellpacks/common.sh
+
+NUMCPUS=`getconf _NPROCESSORS_ONLN`
+MIN=1
+MAX=$NUMCPUS
+NR_STEPS_BETWEEN=4
+PATTERN=topology
+DEBUG=no
+
+while [ $# -ge 1 ]; do
+	case $1 in
+	--min)
+		MIN=$2
+		shift 2
+		;;
+	--max)
+		MAX=$2
+		shift 2
+		;;
+	--topology-steps)
+		NR_STEPS_BETWEEN=$2
+		shift 2
+		;;
+	--stride-topology)
+		PATTERN=topology
+		shift 
+		;;
+	--debug)
+		DEBUG=yes
+		shift
+		;;
+	*)
+		die "Unrecognised option: $1"
+		;;
+	esac
+done
+
+CURRENT=1
+STRIDE=1
+[ $MAX -le 0	    ] && exit
+[ $MIN -gt $NUMCPUS ] && exit
+
+SMT_REACHED=0
+LLC_REACHED=0
+SOCKET_REACHED=0
+MACHINE_REACHED=0
+
+TOPOLOGY_LEVELS="
+1:$SMT_WEIGHT:0
+$SMT_WEIGHT:$LLC_WEIGHT:1
+$LLC_WEIGHT:$NODE_WEIGHT:2
+$NODE_WEIGHT:$NUMCPUS:3
+$NUMCPUS:$((NUMCPUS*2)):4
+$NUMCPUS:$((NUMCPUS*4)):4
+$((NUMCPUS*4)):$MAX:5
+"
+
+gen_topology() {
+	CURRENT=1
+
+	echo $MIN
+	echo $MAX
+	LAST_RANGE=
+	for RANGE in $TOPOLOGY_LEVELS; do
+		FROM=`echo $RANGE | cut -d: -f1`
+		TO=`echo $RANGE | cut -d: -f2`
+		[ "$LAST_RANGE" = "$FROM:$TO"	] && continue
+		[ "$FROM"	= "$TO"		] && continue
+
+		LAST_RANGE="$FROM:$TO"
+		LEVEL=`echo $RANGE | cut -d: -f3`
+		STRIDE=`echo "scale=1; ($TO-$FROM)/$NR_STEPS_BETWEEN" | bc -l`
+		[[ $STRIDE =~ ^- ]] && continue
+
+		for CPU in `seq $FROM $STRIDE $TO | cut -d. -f1`; do
+			[ "$DEBUG" = "yes" ] && echo $CPU Level: $LEVEL $FROM:$TO $STRIDE 1>&2
+			echo $CPU
+		done
+	done | sort -n -u
+}
+
+gen_range() {
+	echo $MIN
+	echo $MAX
+
+	[ "$PATTERN" = "topology" ] && gen_topology
+}
+
+gen_list() {
+	for N in `gen_range | sort -n -u | cut -f1`; do
+		[ $N -ge $MIN -a $N -le $MAX ] && echo $N
+	done
+}
+	
+gen_list
