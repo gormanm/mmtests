@@ -5,6 +5,7 @@ SCRIPTDIR=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
 NUMCPUS=`getconf _NPROCESSORS_ONLN`
 MIN=1
 MAX=$NUMCPUS
+CUTOFF=
 NR_STEPS_BETWEEN=4
 PATTERN=topology
 DEBUG=no
@@ -19,13 +20,17 @@ while [ $# -ge 1 ]; do
 		MAX=$2
 		shift 2
 		;;
+	--cutoff*)
+		CUTOFF=`echo $1 | sed -e 's/.*=//'`
+		shift
+		;;
 	--topology-steps)
 		NR_STEPS_BETWEEN=$2
 		shift 2
 		;;
 	--stride-topology)
 		PATTERN=topology
-		shift 
+		shift
 		;;
 	--stride-large)
 		PATTERN=large
@@ -131,9 +136,10 @@ gen_range() {
 }
 
 gen_list() {
+	[ "$CUTOFF" = "" ] && CUTOFF=$MAX
 	for N in `gen_range | sort -n -u | cut -f1`; do
-		[ $N -ge $MIN -a $N -le $MAX ] && echo $N
+		[ $N -ge $MIN -a $N -le $MAX -a $N -le $CUTOFF ] && echo $N
 	done
 }
-	
+
 gen_list
