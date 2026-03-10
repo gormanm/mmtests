@@ -16,20 +16,18 @@ export MMTESTS_HOST_PORT=${MMTESTS_HOST_PORT:-1234}
 export MMTESTS_GUEST_PORT=${MMTESTS_GUEST_PORT:-4321}
 
 MEMTOTAL_BYTES=`free -b | grep Mem: | awk '{print $2}'`
-NUMCPUS=$(grep -c '^processor' /proc/cpuinfo)
-NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
 LLC_INDEX=`find /sys/devices/system/cpu/ -type d -name "index*" | sed -e 's/.*index//' | sort -n | tail -1`
-NUMLLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort | uniq | wc -l`
-MMT_SLURM_NODES=`scontrol show node 2>&1 | grep ^NodeName | wc -l`
-if [ "$MMT_SLURM_NODES" = "" ]; then
-	MMT_SLURM_NODES=0
-fi
+SMT_WEIGHT=`lscpu | grep Thread | awk '{print $NF}'`
+[ "$SMT_WEIGHT" = "" ] && SMT_WEIGHT=1
 
-SMT_LEVEL=`lscpu | grep Thread | awk '{print $NF}'`
-if [ "$SMT_LEVEL" = "" ]; then
-        SMT_LEVEL=1
-fi
-NUMCORES=$((NUMCPUS/SMT_LEVEL))
+NUMCPUS=`getconf _NPROCESSORS_ONLN`
+NUMCORES=$((NUMCPUS/SMT_WEIGHT))
+NUMLLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort -u | wc -l`
+[ "$NUMLLCS" = "0" ] && NUMLLCS=1
+NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
+
+LLC_WEIGHT=$((NUMCPUS/NUMLLCS))
+NODE_WEIGHT=$((NUMCPUS/NUMNODES))
 
 WGET_SHOW_PROGRESS="--show-progress --progress=bar:force:noscroll"
 wget --help | grep -q show-progress
@@ -1727,6 +1725,11 @@ function round_down_nearest_square()
 	square=`echo "sqrt($input_val) / 1" | bc`
 	echo $((square*square))
 }
+
+MMT_SLURM_NODES=`scontrol show node 2>&1 | grep ^NodeName | wc -l`
+if [ "$MMT_SLURM_NODES" = "" ]; then
+	MMT_SLURM_NODES=0
+fi
 
 function setup_slurm_env() {
 	if [ "$SLURM_ENV_SETUP" = "yes" ]; then
