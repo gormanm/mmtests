@@ -27,6 +27,10 @@ while [ $# -ge 1 ]; do
 		PATTERN=topology
 		shift 
 		;;
+	--stride-large)
+		PATTERN=large
+		shift
+		;;
 	--debug)
 		DEBUG=yes
 		shift
@@ -81,11 +85,49 @@ gen_topology() {
 	done | sort -n -u
 }
 
+# This atrocity is cut&pasted from rewrite-shellpack with minor changes. No attempt
+# was made to fix this and acts as a placeholder to make conversions easier.
+gen_large() {
+	THREADS=
+	START_THREAD=$MIN
+	END_THREAD=$MAX
+	if [ $END_THREAD -gt $((NUMCPUS*8)) ]; then
+		THREADS=`seq $START_THREAD 3 8`
+		THREADS="$THREADS `seq 12 9 32`"
+		THREADS="$THREADS `seq 48 31 $NUMCPUS`"
+		LAST_STRIDE=$(((END_THREAD-$NUMCPUS*2)/8))
+		if [ $LAST_STRIDE -le 0 ]; then
+			LAST_STRIDE=31
+		fi
+		THREADS="$THREADS `seq $((NUMCPUS*2)) $LAST_STRIDE $END_THREAD`"
+	elif [ $END_THREAD -gt 32 ]; then
+		THREADS=`seq $START_THREAD 3 8`
+		THREADS="$THREADS `seq 12 9 32`"
+		THREADS="$THREADS `seq 48 31 $END_THREAD`"
+	elif [ $END_THREAD -gt 8 ]; then
+		THREADS=`seq $START_THREAD 2 8`
+		THREADS="$THREADS `seq 12 6 $END_THREAD`"
+	else
+		THREADS=`seq $START_THREAD 2 $END_THREAD`
+	fi
+	if [ `echo $THREADS | awk '{print $NF}'` -ne $END_THREAD ]; then
+		THREADS="$THREADS $END_THREAD"
+	fi
+
+	for NR_THREADS in $THREADS; do
+		if [ $NR_THREADS -lt $MIN ]; then
+			continue
+		fi
+		echo $NR_THREADS
+	done
+}
+
 gen_range() {
 	echo $MIN
 	echo $MAX
 
-	[ "$PATTERN" = "topology" ] && gen_topology
+	[ "$PATTERN" = "topology" ]	&& gen_topology
+	[ "$PATTERN" = "large" ]	&& gen_large
 }
 
 gen_list() {
