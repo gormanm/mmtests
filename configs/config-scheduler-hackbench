@@ -11,6 +11,7 @@
 ### and releasing those locks as well as the inevitable bounces of cache
 ### line data as waker/wakee processes do not run on the same CPUs but
 ### instead select CPUs that are nearby during wakeups.
+
 export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets"
 
 # List of monitors
@@ -31,7 +32,7 @@ fi
 if [ $HACKBENCH_MAX_GROUPS -gt 296 ]; then
 	export HACKBENCH_MAX_GROUPS=296
 fi
-export HACKBENCH_LOOPS=10000
+export HACKBENCH_LOOPS=100
 export MMTESTS_THREAD_CUTOFF=
 
 # when run in container

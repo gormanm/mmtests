@@ -2,7 +2,15 @@
 ### sensitive to regressions in the scheduler fast-path. It creates groups
 ### of threads or processes (depending on configuration) that communicate
 ### via pipes or sockets (depending on configuration).
-
+###
+### Note that while hackbench is often considered to be a scheduler benchmark,
+### it is particularly weak when used with pipes. Given multiple senders and
+### receivers sharing pipes that are unsynchronised, it is dominated heavily
+### by a mutex protecting the pipe structures and a spinlock protecting the
+### queue for wakeups. A significant percentage of time is spend acquiring
+### and releasing those locks as well as the inevitable bounces of cache
+### line data as waker/wakee processes do not run on the same CPUs but
+### instead select CPUs that are nearby during wakeups.
 export MMTESTS="hackbench-process-pipes hackbench-process-sockets hackbench-thread-pipes hackbench-thread-sockets"
 
 # List of monitors
@@ -14,7 +22,7 @@ export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
 export MONITOR_UPDATE_FREQUENCY=10
 
 # HackBench
-export HACKBENCH_ITERATIONS=15
+export HACKBENCH_ITERATIONS=30
 export HACKBENCH_MIN_GROUPS=1
 export HACKBENCH_MAX_GROUPS=$((NUMCPUS*2))
 if [[ `uname -m` =~ i.86 ]]; then
@@ -23,7 +31,7 @@ fi
 if [ $HACKBENCH_MAX_GROUPS -gt 296 ]; then
 	export HACKBENCH_MAX_GROUPS=296
 fi
-export HACKBENCH_LOOPS=1000
+export HACKBENCH_LOOPS=500
 export MMTESTS_THREAD_CUTOFF=
 
 # when run in container
