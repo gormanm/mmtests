@@ -588,42 +588,8 @@ EOC
 		my $max_thread_varname = $max_thread;
 		$max_thread_varname =~ s/^\$//;
 		print <<EOC
-THREADS=
-START_THREAD=$min_thread
-END_THREAD=$max_thread
-if [ \$END_THREAD -gt \$((NUMCPUS*8)) ]; then
-	THREADS=`seq \$START_THREAD 3 8`
-	THREADS="\$THREADS `seq 12 9 32`"
-	THREADS="\$THREADS `seq 48 31 \$NUMCPUS`"
-	LAST_STRIDE=\$(((END_THREAD-\$NUMCPUS*2)/8))
-	if [ \$LAST_STRIDE -le 0 ]; then
-		LAST_STRIDE=31
-	fi
-	THREADS="\$THREADS `seq \$((NUMCPUS*2)) \$LAST_STRIDE \$END_THREAD`"
-elif [ \$END_THREAD -gt 32 ]; then
-	THREADS=`seq \$START_THREAD 3 8`
-	THREADS="\$THREADS `seq 12 9 32`"
-	THREADS="\$THREADS `seq 48 31 \$END_THREAD`"
-elif [ \$END_THREAD -gt 8 ]; then
-	THREADS=`seq \$START_THREAD 2 8`
-	THREADS="\$THREADS `seq 12 6 \$END_THREAD`"
-else
-	THREADS=`seq \$START_THREAD 2 \$END_THREAD`
-fi
-if [ `echo \$THREADS | awk '{print \$NF}'` -ne \$END_THREAD ]; then
-	THREADS="\$THREADS \$END_THREAD"
-fi
-
-for NR_THREADS in \$THREADS; do
-	if [ \$NR_THREADS -lt $min_thread ]; then
-		continue
-	fi
-	if [ "\$MMTESTS_THREAD_CUTOFF" != "" ]; then
-		if [ \$NR_THREADS -gt \$MMTESTS_THREAD_CUTOFF ]; then
-			echo Forcing $max_thread_varname to \$MMTESTS_THREAD_CUTOFF
-			continue
-		fi
-	fi
+for NR_THREADS in `generate-stride-range --min $min_thread --max $max_thread --stride-large --cutoff=\$MMTESTS_THREAD_CUTOFF`; do
+	mmtests_activity nr_threads \$NR_THREADS
 	mmtests_activity nr_threads \$NR_THREADS
 EOC
 	} elsif ($command eq "threads_huge_stride_begin") {
