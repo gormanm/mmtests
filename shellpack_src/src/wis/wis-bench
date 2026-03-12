@@ -26,7 +26,7 @@ IFS=',' read -a ALL_WORKLOADS <<< "$WIS_WORKLOADS"
 
 for WORKLOAD in ${ALL_WORKLOADS[@]}
 do
-	###SHELLPACK threads_large_stride_begin $WIS_MIN_THREADS $WIS_MAX_THREADS
+	###SHELLPACK threads_topology_walk_begin $WIS_MIN_THREADS $WIS_MAX_THREADS
 		monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 		for MODEL in ${ALL_MODELS[@]}; do
 			echo Starting $WORKLOAD-$MODEL $NR_THREADS/$WIS_MAX_THREADS
