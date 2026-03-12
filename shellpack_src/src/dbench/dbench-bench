@@ -29,7 +29,7 @@ fi
 ###SHELLPACK init_only_end
 
 cd $SHELLPACK_SOURCES/dbench-${VERSION}-installed || die "Failed to cd to dbench install directory"
-###SHELLPACK threads_large_stride_begin $DBENCH_MIN_CLIENTS $DBENCH_MAX_CLIENTS
+###SHELLPACK threads_topology_walk_begin $DBENCH_MIN_CLIENTS $DBENCH_MAX_CLIENTS
 
 	mmtests_activity client $NR_THREADS
 

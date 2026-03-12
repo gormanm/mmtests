@@ -63,7 +63,7 @@ esac
 LOADDIR="$SHELLPACK_SOURCES/dbench-${VERSION}-installed/share"
 
 server_stop 0
-###SHELLPACK threads_large_stride_begin $TBENCH_MIN_CLIENTS $TBENCH_MAX_CLIENTS
+###SHELLPACK threads_topology_walk_begin $TBENCH_MIN_CLIENTS $TBENCH_MAX_CLIENTS
 	server_start $NR_THREADS
 
 	echo tbench run $NR_THREADS/$TBENCH_MAX_CLIENTS
