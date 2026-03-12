@@ -132,7 +132,7 @@ RET=$SHELLPACK_SUCCESS
 FIRST_TIME=yes
 ulimit -n 16384
 
-###SHELLPACK threads_huge_stride_begin $MIN_THREADS $MAX_THREADS
+###SHELLPACK threads_topology_walk_begin $MIN_THREADS $MAX_THREADS
 	# Do not repeat iterations due to thread count
 	if [ $NR_THREADS -eq $LAST_THREAD ]; then
 		continue

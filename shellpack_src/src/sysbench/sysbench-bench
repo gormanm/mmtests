@@ -130,7 +130,7 @@ SYSBENCH_OPTIONS="$MAX_TIME_COMMAND $MAX_TRANSACTIONS_COMMAND $SYSBENCH_DB_OPTIO
 OLTP_OPTIONS="--test=oltp $OLTP_TRANSTYPE \
 		--oltp-test-mode=$OLTP_TESTTYPE \
 		--oltp-table-size=$OLTP_TABLESIZE"
-###SHELLPACK threads_huge_stride_begin 1 $MAX_THREADS
+###SHELLPACK threads_topology_walk_begin 1 $MAX_THREADS
 	if [ "$DATABASE_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
 		echo Starting database for initialisation
 		mmtests_activity database-init
