@@ -17,6 +17,7 @@ loadfile:
 tput:
   title: Throughput from T0->Tn
   units: MBYTES_PER_SECOND
+  preferhigher: true
 
 op:
   title: Syscall Operation Latency
