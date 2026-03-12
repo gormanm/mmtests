@@ -55,13 +55,21 @@ SMT_REACHED=0
 LLC_REACHED=0
 SOCKET_REACHED=0
 MACHINE_REACHED=0
+DOUT=
+
+NODE_STRIDE=3
+LLCS_PER_NODE=$((NODE_WEIGHT/LLC_WEIGHT))
+if [ $LLCS_PER_NODE -gt 3 ]; then
+	NODE_STRIDE=6
+fi
+[ "$DEBUG" = "yes" ] && DOUT="LLCS_PER_NODE $LLCS_PER_NODE, NODE_STRIDE $NODE_STRIDE\n"
 
 TOPOLOGY_LEVELS="
 1:$SMT_WEIGHT:4:SMT
 $SMT_WEIGHT:$LLC_WEIGHT:4:LLC
-$LLC_WEIGHT:$NODE_WEIGHT:3:NODE
-$NODE_WEIGHT:$NUMCPUS:2:MACHINE
-$NUMCPUS:$((NUMCPUS*2)):2:MACHINEx2
+$LLC_WEIGHT:$NODE_WEIGHT:$NODE_STRIDE:NODE
+$NODE_WEIGHT:$NUMCPUS:4:MACHINE
+$NUMCPUS:$((NUMCPUS*2)):3:MACHINEx2
 $NUMCPUS:$((NUMCPUS*4)):2:MACHINEx4
 $((NUMCPUS*4)):$MAX:1:MAX
 "
@@ -69,8 +77,6 @@ $((NUMCPUS*4)):$MAX:1:MAX
 gen_topology() {
 	CURRENT=1
 
-	echo $MIN
-	echo $MAX
 	LAST_RANGE=
 	for RANGE in $TOPOLOGY_LEVELS; do
 		FROM=`echo $RANGE | cut -d: -f1`
@@ -86,10 +92,10 @@ gen_topology() {
 		[[ $STRIDE =~ ^- ]] && continue
 
 		for CPU in `seq $FROM $STRIDE $TO | cut -d. -f1`; do
-			[ "$DEBUG" = "yes" ] && echo $CPU Level: $LEVEL $FROM:$TO $STRIDE 1>&2
-			echo $CPU
+			[ "$DEBUG" = "yes" ] && DOUT+="$CPU Level: $LEVEL $FROM:$TO $STRIDE\n"
+			VALUES+="$CPU\n"
 		done
-	done | sort -n -u
+	done
 }
 
 # This atrocity is cut&pasted from rewrite-shellpack with minor changes. No attempt
@@ -125,13 +131,13 @@ gen_large() {
 		if [ $NR_THREADS -lt $MIN ]; then
 			continue
 		fi
-		echo $NR_THREADS
+		VALUES+="$NR_THREADS\n"
 	done
 }
 
 gen_range() {
-	echo $MIN
-	echo $MAX
+	VALUES+="$MIN\n"
+	VALUES+="$MAX\n"
 
 	[ "$PATTERN" = "topology" ]	&& gen_topology
 	[ "$PATTERN" = "large" ]	&& gen_large
@@ -139,9 +145,12 @@ gen_range() {
 
 gen_list() {
 	[ "$CUTOFF" = "" ] && CUTOFF=$MAX
-	for N in `gen_range | sort -n -u | cut -f1`; do
+	VALUES=
+	gen_range
+	for N in `printf "$VALUES" | sort -n -u | cut -f1`; do
 		[ $N -ge $MIN -a $N -le $MAX -a $N -le $CUTOFF ] && echo $N
 	done
 }
 
 gen_list
+[ "$DEBUG" = "yes" ] && printf "$DOUT" 1>&2
