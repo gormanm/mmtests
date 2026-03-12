@@ -23,7 +23,7 @@ SCHBENCH_MESSENGER_PIN=
 ###SHELLPACK check_install_required schbench-${VERSION}
 ###SHELLPACK init_complete
 
-###SHELLPACK threads_powertwo_begin $SCHBENCH_MIN_WORKER_THREADS $SCHBENCH_MAX_WORKER_THREADS
+###SHELLPACK threads_topology_walk_begin $SCHBENCH_MIN_WORKER_THREADS $SCHBENCH_MAX_WORKER_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
 	echo Running schbench $SCHBENCH_MESSAGE_THREADS messengers, $NR_THREADS workers
