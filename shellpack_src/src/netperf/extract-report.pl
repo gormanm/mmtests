@@ -56,7 +56,7 @@ sub extractReport($$) {
 				print "udpstream\trecv\t$size\t$iteration\t$send_tput\t_\n";
 				if (($send_tput - $recv_tput) > ($send_tput / 10)) {
 					print "udpstream\tloss\t$size\t$iteration\t$send_tput\t_\n";
-					$self->addData("loss-$size", ++$iteration, $send_tput - $recv_tput );
+					addData("loss-$size", ++$iteration, $send_tput - $recv_tput );
 				}
 			}
 		}
