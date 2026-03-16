@@ -168,6 +168,13 @@ for SIZE in scale1 small medium large; do
 	sed -e 's/PGBENCH_READONLY=.*/PGBENCH_READONLY=no/' \
 	    -e 's/read-only/read-write/' \
 	    config-db-pgbench-timed-ro-$SIZE > config-db-pgbench-timed-rw-$SIZE
+	cat >> config-db-pgbench-timed-rw-$SIZE <<EOF
+
+# Limit parallelisation for writes by default. Increasing
+# number of threads by default offers little benefit unless
+# testing high performance storage
+[ \$PGBENCH_MAX_THREADS -gt 16 ] && PGBENCH_MAX_THREADS=16
+EOF
 done
 
 # o Generate tuned configurations
