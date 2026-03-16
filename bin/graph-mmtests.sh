@@ -12,6 +12,9 @@ SMOOTH=
 YRANGE_COMMAND=
 XRANGE_COMMAND=
 EXTRACT_PARAM="--print-plot"
+FREQUENCY_TRIM_RIGHT=
+FREQUENCY_BINWIDTH=
+FREQUENCY_CUMULATIVE=
 FREQDIST_CMD=
 
 # Do Not Litter
@@ -157,7 +160,12 @@ while [ "$1" != "" ]; do
 		FREQUENCY_PARAM+="--bin-width $FREQUENCY_BINWIDTH "
 		shift 2
 		;;
-
+	--freq-cumulative)
+		FREQUENCY=yes
+		FREQUENCY_CUMULATIVE=yes
+		FREQUENCY_PARAM+="--cumulative "
+		shift
+		;;
 	-b)
 		SUBREPORT="$2"
 		EXTRACT_ARGS+=" $1 $2"
@@ -270,6 +278,9 @@ lookup_title() {
 
 	if [ "$FREQUENCY" = "yes" ]; then
 		TITLE="Frequency Distribution for $SUBREPORT.$METRIC"
+		if [ "$FREQUENCY_CUMULATIVE" = "yes" ]; then
+			TITLE="Cumulative $TITLE"
+		fi
 		TITLE_EXTRA=
 		[ "$FREQUENCY_BINWIDTH"   != "" ] && TITLE_EXTRA+="binwidth=$FREQUENCY_BINWIDTH "
 		[ "$FREQUENCY_TRIM_RIGHT" != "" ] && TITLE_EXTRA+="trim-right=$FREQUENCY_TRIM_RIGHT% "

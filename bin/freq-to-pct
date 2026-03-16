@@ -6,9 +6,11 @@ use strict;
 
 my $opt_trim = 100;
 my $opt_binwidth = 1;
+my $opt_cumulative = 0;
 GetOptions(
 	'trim-right|t=f'	=> \$opt_trim,
 	'bin-width|w=f'		=> \$opt_binwidth,
+	'cumulative'		=> \$opt_cumulative,
 );
 
 my %freq_map;
@@ -37,7 +39,7 @@ for ($i = 0; $i <= $#values; $i++) {
 	if ($cumulative_pct > $opt_trim) {
 		last;
 	}
-	printf("%7.4f %3.2f\n", $values[$i], $freq_pct[$i]);
+	printf("%7.4f %3.2f\n", $values[$i], $opt_cumulative ? $cumulative_pct : $freq_pct[$i]);
 }
 
 my $nr_samples_trimmed = 0;

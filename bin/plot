@@ -352,8 +352,12 @@ while [ "$1" != "" ]; do
 		echo -n "'$PLOTFILE' using 2 t \"Alloc\", '$PLOTFILE' using 3 t \"Free\""	>> $TEMP
 		;;
 	freqdist)
+		FREQSMOOTH="smooth csplines"
+		if [ `cat $PLOTFILE | wc -l` -lt 3 ]; then
+			FREQSMOOTH=
+		fi
 		echo -n "'$PLOTFILE' notitle with points linestyle $LINESTYLE,"			>> $TEMP
-		echo -n " \"\" notitle smooth csplines with lines linestyle $LINESTYLE,"	>> $TEMP
+		echo -n " \"\" notitle $FREQSMOOTH with lines linestyle $LINESTYLE,"		>> $TEMP
 		echo -n " 1 / 0 $TITLE with linespoints linestyle $LINESTYLE"			>> $TEMP
 		;;
 	esac

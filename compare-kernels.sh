@@ -432,9 +432,10 @@ generate_client_trans_graphs() {
 		fi
 		eval $GRAPH_PNG --sub-heading $SUBHEADING$CLIENT\$ --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME} --x-label \"$XLABEL\" --with-smooth
 		eval $GRAPH_PNG --sub-heading $SUBHEADING$CLIENT\$ --freq                                     --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-freq $FREQ_PARAM
-		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}
-		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-smooth
+		eval $GRAPH_PNG --sub-heading $SUBHEADING$CLIENT\$ --freq --freq-cumulative                   --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-freq-cumulative $FREQ_PARAM
+		smoothover graph-${SUBREPORT}-trans-${CLIENT_FILENAME}
 		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-freq
+		plain graph-${SUBREPORT}-trans-${CLIENT_FILENAME}-freq-cumulative
 		echo "</tr>"
 		COUNT=$((COUNT+1))
 	done
@@ -456,8 +457,10 @@ generate_ops_freq_graphs() {
 		echo "<tr>"
 		eval $GRAPH_PNG $SUBHEADING_PARAM --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-ops-$HEADING --x-label \"$XLABEL\" --with-smooth 1>&2
 		eval $GRAPH_PNG $SUBHEADING_PARAM --freq			      --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-ops-${HEADING}-freq --with-smooth $FREQ_PARAM
+		eval $GRAPH_PNG $SUBHEADING_PARAM --freq --freq-cumulative	      --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-ops-${HEADING}-freq-cumulative --with-smooth $FREQ_PARAM
 		plain graph-${SUBREPORT}-ops-${HEADING}
 		plain graph-${SUBREPORT}-ops-${HEADING}-freq
+		plain graph-${SUBREPORT}-ops-${HEADING}-freq-cumulative
 		echo "</tr>"
 	done
 	exit
