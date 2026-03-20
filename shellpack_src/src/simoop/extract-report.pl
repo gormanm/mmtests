@@ -24,10 +24,12 @@ sub extractReport() {
 
 		my ($op, $p50,  $p95,  $p99, $max);
 		if ($line =~ /([a-zA-Z]*) latency usec: \(p50: ([0-9,]*)\) \(p95: ([0-9,]*)\) \(p99: ([0-9,]*)\) \(max: ([0-9,]*)\)/) {
+			$op = $1;
+			next if ($op ne "Read" && $op ne "Write" && $op ne "Allocation");
+
 			print $lastReport;
 			$lastReport = "";
 
-			$op = $1;
 			$p50 = $2;
 			$p95 = $3;
 			$p99 = $4;

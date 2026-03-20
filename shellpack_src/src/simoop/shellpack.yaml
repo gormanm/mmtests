@@ -1,29 +1,68 @@
-default-metric: p90-latency
+default-metric: p95-Allocation
 
 metrics:
-  - p50-latency
-  - p90-latency
-  - p99-latency
-  - max-latency
+  - p50-Allocation
+  - p90-Allocation
+  - p99-Allocation
+  - max-Allocation
+  - p50-Read
+  - p90-Read
+  - p99-Read
+  - max-Read
+  - p50-Write
+  - p90-Write
+  - p99-Write
+  - max-Write
 
 summarise: Multiops
 PlotXaxis: Percentile
 PlotYaxis: Latency
 PlotType: client-candlesticks
 
-p50-latency:
+p50-Allocation:
   title: P50 Latency
   units: TIME_USECONDS
 
-p90-latency:
+p90-Allocation:
   title: P50 Latency
   units: TIME_USECONDS
 
-p99-latency:
+p99-Allocation:
   title: P50 Latency
   units: TIME_USECONDS
 
-max-latency:
+max-Allocation:
   title: P50 Latency
   units: TIME_USECONDS
 
+p50-Read:
+  title: P50 Latency
+  units: TIME_USECONDS
+
+p90-Read:
+  title: P50 Latency
+  units: TIME_USECONDS
+
+p99-Read:
+  title: P50 Latency
+  units: TIME_USECONDS
+
+max-Read:
+  title: P50 Latency
+  units: TIME_USECONDS
+
+p50-Write:
+  title: P50 Latency
+  units: TIME_USECONDS
+
+p90-Write:
+  title: P50 Latency
+  units: TIME_USECONDS
+
+p99-Write:
+  title: P50 Latency
+  units: TIME_USECONDS
+
+max-Write:
+  title: P50 Latency
+  units: TIME_USECONDS
