@@ -1,4 +1,4 @@
-default-metric: elapsed
+default-metric: Elapsed-xfsrepair
 
 metrics:
   - system
@@ -8,10 +8,26 @@ summarise: Multiops
 PlotXaxis: Type Time
 PlotType: operation-candlesticks
 
-elapsed:
+Elapsed-xfsrepair:
   title: Elapsed Time
   units: TIME_SECONDS
 
-system:
+System-xfsrepair:
+  title: System CPU Time
+  units: TIME_SECONDS
+
+Elapsed-fsmark:
+  title: Elapsed Time
+  units: TIME_SECONDS
+
+System-fsmark:
+  title: System CPU Time
+  units: TIME_SECONDS
+
+Elapsed-sparsecreate:
+  title: Elapsed Time
+  units: TIME_SECONDS
+
+System-sparsecreate:
   title: System CPU Time
   units: TIME_SECONDS
