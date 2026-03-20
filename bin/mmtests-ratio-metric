@@ -31,7 +31,10 @@ lookup_yaml() {
 lookup_yaml
 [ ! -e $SHELLPACK_YAML ] && die "Unable to discover shellpack.yaml file for $SUBREPORT"
 
-METRIC=`yq '."ratio-metric"' $SHELLPACK_YAML | sed -e 's/\"//g'`
+METRIC=`yq .\"$SUBREPORT\".\"ratio-metric\" $SHELLPACK_YAML | sed -e 's/\"//g'`
+if [ "$METRIC" = "null" ]; then
+	METRIC=`yq '."ratio-metric"' $SHELLPACK_YAML | sed -e 's/\"//g'`
+fi
 if [ "$METRIC" = "null" ]; then
 	METRIC=`yq '."default-metric"' $SHELLPACK_YAML | sed -e 's/\"//g'`
 fi

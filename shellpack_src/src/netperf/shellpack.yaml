@@ -13,6 +13,21 @@ preferhigher: true
 PlotXaxis: Buffer Size Bytes
 PlotType: operation-candlesticks
 
+netperf-ipv4-tcp-rr:
+  ratio-metric: tcprr-send
+
+netperf-ipv4-udp-rr:
+  ratio-metric: udprr-send
+
+netperf-ipv4-tcp:
+  ratio-metric: tcpstream-send
+
+netperf-ipv4-udp:
+  ratio-metric: udpstream-send
+
+netperf-unix:
+  ratio-metric: streamstream-send
+
 tcprr-send:
   title: NetPerf TCP RR
   units: MBITS_PER_SECOND
