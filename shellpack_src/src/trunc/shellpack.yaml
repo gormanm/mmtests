@@ -1,14 +1,38 @@
-default-metric: trunc
+default-metric: Elapsed-trunc
 
 metrics:
-  - fault
-  - trunc
+  - Elapsed-fault
+  - Elapsed-trunc
+  - System-fault
+  - System-trunc
+  - User-fault
+  - User-trunc
 
 summarise: Multiops
 PlotXaxis: Time
 PlotType: operation-candlesticks
 DecimalPlaces: 4
 
-time:
+Elapsed-fault:
+  title: Time
+  units: TIME_SECONDS
+
+Elapsed-trunc:
+  title: Time
+  units: TIME_SECONDS
+
+System-fault:
+  title: Time
+  units: TIME_SECONDS
+
+System-trunc:
+  title: Time
+  units: TIME_SECONDS
+
+User-fault:
+  title: Time
+  units: TIME_SECONDS
+
+User-trunc:
   title: Time
   units: TIME_SECONDS
