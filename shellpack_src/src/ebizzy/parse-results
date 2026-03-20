@@ -21,10 +21,10 @@ for WORKERS in `\ls ebizzy-*.log | sed -e 's/\.log$//' | cut -d- -f2 | sort -u -
 		PERTHREAD_LIST=`echo $LINE | sed -e 's/.* records\/s //'`
 		PERTHREAD_LIST=`head -1 ebizzy-$WORKERS-$ITERATION.log | sed -e 's/.* records\/s //'`
 
-		echo -e "total_rec\t$WORKERS\t_\t$ITERATION\t$TOTAL\t_"
+		echo -e "total_rsec\t$WORKERS\t_\t$ITERATION\t$TOTAL\t_"
 		for THREAD_VAL in $PERTHREAD_LIST; do
 			((NR_SAMPLE++))
-			echo -e "thread_rec\t$WORKERS\t_\t$NR_SAMPLE\t$THREAD_VAL\t_"
+			echo -e "thread_rsec\t$WORKERS\t_\t$NR_SAMPLE\t$THREAD_VAL\t_"
 		done
 	done
 done | sort -k1,1 -k2,2n -k4,4n
