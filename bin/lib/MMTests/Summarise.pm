@@ -21,8 +21,8 @@ sub setSummaryNormalisedops() {
 	$self->{_SummaryStats} = [ "min",
 		"_mean", "_mean-95", "percentile-95",
 		"stddev-_mean", "coeffvar-_mean", "max" ];
-	$self->{_RatioSummaryStat} = [ "percentile-95", "percentileci_low-95",
-		"percentileci_high-95" ];
+	$self->{_RatioSummaryStat} = [ "_mean", "meanci_low-_mean",
+		"meanci_high-_mean" ];
 	$self->{_RatioCompareOp} = "cidiff";
 	$self->{_Summarytype} = "Normalisedops";
 }
