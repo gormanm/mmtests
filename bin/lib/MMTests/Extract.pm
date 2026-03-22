@@ -20,7 +20,8 @@ my @cacheFields = ("_GeneratedOperations",
 	      "_Operations",
 	      "_OperationsSeen",
 	      "_ResultData",
-	      "_ResultDataUnsorted");
+	      "_ResultDataUnsorted",
+	      "_ComparisonStatIndex");
 
 sub new() {
 	my $class = shift;

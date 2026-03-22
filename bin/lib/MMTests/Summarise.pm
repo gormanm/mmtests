@@ -395,13 +395,7 @@ sub extractSummaryCached() {
 
 	my @fields = (	"_SummaryData",
 			"_SummaryCIInterval",
-			# "_Operations",
-			# "_OperationsSeen",
-			# "_GeneratedOperations",
-			# "_ResultData",
-			# "_ResultDataUnsorted",
-			# "_SummaryStats",
-			);
+			"_ComparisonStatIndex");
 
 	if (!$cache->load($self)) {
 		$self->extractSummary(@_);
