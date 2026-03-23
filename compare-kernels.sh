@@ -242,7 +242,7 @@ for KERNEL in $KERNEL_LIST_ITER; do
 			CMDLINE_DIFFER=yes
 		fi
 	fi
-	printf "%-40s %s\n" "$KERNEL" "$CMDLINE" >> /tmp/cmdline.$$
+	printf "%-40s %s\n" "$KERNEL:" "$CMDLINE" >> /tmp/cmdline.$$
 done
 if [ "$CMDLINE_DIFFER" = "yes" ]; then
 	if [ "$FORMAT" = "html" ]; then
@@ -257,7 +257,7 @@ if [ "$CMDLINE_DIFFER" = "yes" ]; then
 fi
 rm -f /tmp/cmdline.$$
 
-# Print LSM options
+# Print LSM options if different
 FIRST=yes
 FIRST_LSM=
 rm -f /tmp/lsm.$$
@@ -275,7 +275,7 @@ for KERNEL in $KERNEL_LIST_ITER; do
 			LSM_DIFFER=yes
 		fi
 	fi
-	printf "%-40s %s\n" "$KERNEL" "$LSM" >> /tmp/lsm.$$
+	printf "%-40s %s\n" "$KERNEL:" "$LSM" >> /tmp/lsm.$$
 done
 if [ "$LSM_DIFFER" = "yes" ]; then
 	if [ "$FORMAT" = "html" ]; then
@@ -289,6 +289,39 @@ if [ "$LSM_DIFFER" = "yes" ]; then
 	fi
 fi
 rm -f /tmp/lsm.$$
+
+# Print preempt options if different
+FIRST=yes
+FIRST_PREEMPT=
+rm -f /tmp/preempt.$$
+for KERNEL in $KERNEL_LIST_ITER; do
+	if [ ! -e $KERNEL/iter-0/preempt-dynamic ]; then
+		PREEMPT="(unavailable)"
+	else
+		PREEMPT=`cat $KERNEL/iter-0/preempt-dynamic`
+	fi
+	if [ "$FIRST" = "yes" ]; then
+		FIRST=no
+		FIRST_PREEMPT="$PREEMPT"
+	else
+		if [ "$PREEMPT" != "$FIRST_PREEMPT" ]; then
+			PREEMPT_DIFFER=yes
+		fi
+	fi
+	printf "%-40s %s\n" "$KERNEL:" "$PREEMPT" >> /tmp/preempt.$$
+done
+if [ "$PREEMPT_DIFFER" = "yes" ]; then
+	if [ "$FORMAT" = "html" ]; then
+		echo "<a name="preempt-dynamic">"
+		echo "<pre>"
+	fi
+	echo Test Preemption Dynamic Settings
+	cat /tmp/preempt.$$
+	if [ "$FORMAT" = "html" ]; then
+		echo "</pre>"
+	fi
+fi
+rm -f /tmp/preempt.$$
 
 # Print cstate information if different
 FIRST=yes
@@ -308,7 +341,7 @@ for KERNEL in $KERNEL_LIST_ITER; do
 			CPUIDLE_DIFFER=yes
 		fi
 	fi
-	printf "CState exit latencies: %-40s\n%s\n" "$KERNEL" "$CPUIDLE" >> /tmp/cpuidle.$$
+	printf "CState exit latencies: %-40s\n%s\n" "$KERNEL:" "$CPUIDLE" >> /tmp/cpuidle.$$
 done
 if [ "$CPUIDLE_DIFFER" = "yes" ]; then
 	if [ "$FORMAT" = "html" ]; then
@@ -341,7 +374,7 @@ for KERNEL in $KERNEL_LIST_ITER; do
 			DETAILS=`grep -H scheduler: $FILE`
 			KERNEL=`echo $DETAILS | awk -F / '{print $1}'`
 			IOSCHED=`echo $DETAILS | awk -F : '{print $NF}'`
-			printf "%-40s %s\n" "$KERNEL" "$IOSCHED"
+			printf "%-40s %s\n" "$KERNEL:" "$IOSCHED"
 		done
 
 		if [ "$FORMAT" = "html" ]; then
