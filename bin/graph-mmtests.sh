@@ -310,6 +310,10 @@ for TEST in $TEST_LIST; do
 		PLOTTYPE=--$PLOTTYPE
 	fi
 
+	if [ "$PLOTTYPE_OVERRIDE" != "" ]; then
+		PLOTTYPE="--$PLOTTYPE_OVERRIDE"
+	fi
+
 	if [ "$GRAPH_DEBUG" = "yes" ]; then
 		echo "TRACE: $SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS --print-type"
 		echo "TRACE: YAML     $SHELLPACK_YAML"
@@ -320,9 +324,6 @@ for TEST in $TEST_LIST; do
 	break
 done
 
-if [ "$PLOTTYPE_OVERRIDE" != "" ]; then
-	PLOTTYPE="--plottype $PLOTTYPE_OVERRIDE"
-fi
 
 TITLES=
 CANDLESTICK_COUNT=0
