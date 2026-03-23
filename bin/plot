@@ -218,13 +218,8 @@ if [ "$OUTPUT_FILE" != "" ]; then
 	echo "set term $FORMAT size $RESOLUTION"	>> $TEMP
 fi
 FIRST=yes
-if [ "$CLIENT_CANDLESTICKS" = "yes" -o "$CLIENT_ERRORBARS" = "yes" ]; then
-	echo set boxwidth 0.2 >> $TEMP
-fi
-if [ "$SINGLE_CANDLESTICKS" = "yes" ]; then
-	echo set boxwidth 0.2 >> $TEMP
-	echo set xtics format \" \" >> $TEMP
-	XRANGE="-1:$#"
+if [ "$PLOTTYPE" = "candlesticks" ]; then
+	echo set boxwidth >> $TEMP
 fi
 if [ "$HISTOGRAM" = "yes" ]; then
 	echo set style data histogram       >> $TEMP
@@ -367,6 +362,9 @@ done
 echo >> $TEMP
 
 cat $TEMP | gnuplot -persist
+if [ "$GRAPH_DEBUG" = "yes" ]; then
+	cp $TEMP /tmp/lastplot.script
+fi
 rm $TEMP
 if [ "$CLEANUP_FILES" != "" ]; then
 	rm $CLEANUP_FILES

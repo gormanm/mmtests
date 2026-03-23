@@ -7,7 +7,7 @@ metrics:
 
 summarise: Normalisedops
 PlotXaxis: Clients
-PlotType: client-candlesticks
+PlotType: operation-candlesticks
 DecimalPlaces: 4
 
 loadfile:

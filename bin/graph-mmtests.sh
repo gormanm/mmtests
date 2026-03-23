@@ -325,7 +325,7 @@ if [ "$PLOTTYPE_OVERRIDE" != "" ]; then
 fi
 
 TITLES=
-COUNT=0
+CANDLESTICK_COUNT=0
 for TEST in $TEST_LIST; do
 	PLOTFILE="$TMPDIR/$TEST"
 	EXTRACT_CMD="$SCRIPTDIR/extract-mmtests.pl --format script -n $TEST $EXTRACT_ARGS $EXTRACT_PARAM"
@@ -366,11 +366,11 @@ for TEST in $TEST_LIST; do
 		echo TRACE: Writing /tmp/lastplot
 		cp $PLOTFILE /tmp/lastplot
 	fi
-	if [ "$PLOTTYPE" = "--operation-candlesticks" ]; then
-		OFFSET=`perl -e "print (1+$COUNT*0.3)"`
-		awk "\$1=(\$1+$COUNT*0.3)" $PLOTFILE > $PLOTFILE.tmp
+	if [[ $PLOTTYPE =~ candlesticks ]]; then
+		OFFSET=`perl -e "print (1+$CANDLESTICK_COUNT*0.3)"`
+		awk "\$1=(\$1+$CANDLESTICK_COUNT*0.3)" $PLOTFILE > $PLOTFILE.tmp
 		mv $PLOTFILE.tmp $PLOTFILE
-		COUNT=$((COUNT+1))
+		((CANDLESTICK_COUNT++))
 	fi
 
 	if [ "$TITLES" = "" ]; then
@@ -382,13 +382,17 @@ for TEST in $TEST_LIST; do
 	fi
 done
 XRANGE=
-if [ $COUNT -gt 0 ]; then
-	MINX=0.2
-	END=`wc -l $PLOTFILE | awk '{print $1}'`
-	if [ $COUNT -eq 1 ]; then
-		COUNT=2
+if [ $CANDLESTICK_COUNT -gt 0 ]; then
+	MINX=`head -1 $PLOTFILE | awk '{print $1-0.5}'`
+	if [ "$PLOTTYPE" = "--operation-candlesticks" ]; then
+		END=`wc -l $PLOTFILE | awk '{print $1}'`
+	else
+		END=`tail -1 $PLOTFILE | awk '{print $1}'`
 	fi
-	MAXX=`perl -e "print int ($END+0.5+$COUNT*0.3)"`
+	if [ $CANDLESTICK_COUNT -eq 1 ]; then
+		CANDLESTICK_COUNT=2
+	fi
+	MAXX=`perl -e "print int ($END+0.5+$CANDLESTICK_COUNT*0.3)"`
 	XRANGE="--xrange $MINX:$MAXX"
 fi
 
