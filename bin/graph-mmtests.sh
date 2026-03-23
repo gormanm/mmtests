@@ -146,13 +146,6 @@ while [ "$1" != "" ]; do
 		EXTRACT_PARAM=
 		shift
 		;;
-	--freq-trim-right)
-		FREQUENCY=yes
-		EXTRACT_PARAM=
-		FREQUENCY_TRIM_RIGHT="$2"
-		FREQUENCY_PARAM+="--trim-right $FREQUENCY_TRIM_RIGHT "
-		shift 2
-		;;
 	--freq-binwidth)
 		FREQUENCY=yes
 		EXTRACT_PARAM=
@@ -283,7 +276,6 @@ lookup_title() {
 		fi
 		TITLE_EXTRA=
 		[ "$FREQUENCY_BINWIDTH"   != "" ] && TITLE_EXTRA+="binwidth=$FREQUENCY_BINWIDTH "
-		[ "$FREQUENCY_TRIM_RIGHT" != "" ] && TITLE_EXTRA+="trim-right=$FREQUENCY_TRIM_RIGHT% "
 		[ "$TITLE_EXTRA" != "" ]	  && TITLE+="\\n$TITLE_EXTRA"
 		return
 	fi
@@ -341,11 +333,13 @@ for TEST in $TEST_LIST; do
 
 	if [ "$FREQUENCY" = "yes" ]; then
 		FREQUENCY_CMD="$SCRIPTDIR/freq-to-pct"
-		[ "$FREQUENCY_TRIM_RIGHT" != "" ] && FREQ_CMD+=" --trim-right $FREQUENCY_TRIM_RIGHT"
 		[ "$FREQUENCY_BINWIDTH"   != "" ] && FREQ_CMD+=" --binwidth   $FREQUENCY_BINWIDTH"
-		[ "$GRAPH_DEBUG" = "yes"	] && cp $PLOTFILE /tmp/last-freqdist-in
+		[ "$GRAPH_DEBUG" = "yes"	] && cp $PLOTFILE /tmp/lastplot-freqdist-in
+		[ "$GRAPH_DEBUG" = "yes"	] && echo "TRACE: frequency $FREQUENCY_CMD $FREQUENCY_PARAM"
+
 		cat $PLOTFILE | $FREQUENCY_CMD $FREQUENCY_PARAM > $PLOTFILE.tmp
 		mv $PLOTFILE.tmp $PLOTFILE
+		[ "$GRAPH_DEBUG" = "yes"	] && cp $PLOTFILE /tmp/lastplot-freqdist-out
 		[ "$GRAPH_DEBUG" = "yes"	] && cp $PLOTFILE /tmp/last-freqdist-out
 	fi
 
