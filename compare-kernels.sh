@@ -1208,7 +1208,7 @@ for SUBREPORT in $REPORTS; do
 			generate_basic "$SUBREPORT" "--very-large"
 			echo "</tr></table>"
 			echo "<table class=\"resultsGraphs\">"
-			generate_ops_freq_graphs "" "Estimated time" "Wakeup-" "--freq-binwidth 1"
+			generate_ops_freq_graphs "`$EXTRACT_CMD -n $KERNEL --sub-heading Wakeup- | awk '{print $1}' | tr '-' ' ' | sort -k2n -k3n | uniq | tr ' ' '-'`" "Estimated time" "" "--freq-binwidth 1"
 			echo "</tr>"
 			;;
 		sembench-sem|sembench-nanosleep|sembench-futex)
