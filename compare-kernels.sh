@@ -534,7 +534,7 @@ generate_ops_freq_graphs() {
 	[ "$CLIENT_LIST" = "" ] && CLIENT_LIST="`$EXTRACT_CMD -n $KERNEL $SUBHEADING_PARAM | awk '{print $1}' | sort | uniq`"
 
 	for HEADING in $CLIENT_LIST; do
-		SUBHEADING_PARAM="--sub-heading $HEADING"
+		SUBHEADING_PARAM="--sub-heading $HEADING\$"
 		LABEL="$SUBREPORT transactions $HEADING"
 		echo "<tr>"
 		eval $GRAPH_PNG $SUBHEADING_PARAM --plottype lines --title \"$LABEL\" --output $OUTPUT_DIRECTORY/graph-${SUBREPORT}-ops-$HEADING --x-label \"$XLABEL\" --with-smooth 1>&2
