@@ -383,33 +383,6 @@ for KERNEL in $KERNEL_LIST_ITER; do
 	fi
 done
 
-# Print IO storage details if available
-FIRST=yes
-for KERNEL in $KERNEL_LIST_ITER; do
-	IODETAILS=`find $KERNEL -name "storageioqueue.txt"`
-	if [ "$IODETAILS" != "" ]; then
-		if [ "$FORMAT" = "html" ]; then
-			echo "<a name="storageconfig">"
-			echo "<pre>"
-		fi
-
-		if [ "$FIRST" = "yes" ]; then
-			echo Storage scheduler
-			FIRST=
-		fi
-		for FILE in $IODETAILS; do
-			DETAILS=`grep -H scheduler: $FILE`
-			KERNEL=`echo $DETAILS | awk -F / '{print $1}'`
-			IOSCHED=`echo $DETAILS | awk -F : '{print $NF}'`
-			printf "%-40s %s\n" "$KERNEL:" "$IOSCHED"
-		done
-
-		if [ "$FORMAT" = "html" ]; then
-			echo "</pre>"
-		fi
-	fi
-done
-
 # Indicate if oops or warnings triggered during the test
 for KERNEL in $KERNEL_LIST_ITER; do
 	DMESG=`find $KERNEL -name "dmesg.gz"`
