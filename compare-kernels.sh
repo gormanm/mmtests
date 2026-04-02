@@ -625,7 +625,7 @@ generate_basic_single() {
 	fi
 	if [ "$EXTRA" != "" ]; then
 		EXTRA_FILENAME=`echo $EXTRA | sed -e 's/--/-/g' | sed -e 's/ /-/g'`
-		EXTRA_TITLE=`echo " $EXTRA" | sed -e 's/--wide//' -e 's/--//g'`
+		EXTRA_TITLE=`echo " $EXTRA" | sed -e 's/--wide//' -e 's/--very-large//' -e 's/--sub-heading /Metric:/' -e 's/--//g'`
 	fi
 
 	eval $GRAPH_PNG $EXTRA --title \"$TITLE$EXTRA_TITLE\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT$EXTRA_FILENAME
@@ -807,13 +807,11 @@ for SUBREPORT in $REPORTS; do
 		done
 		;;
 	schbench)
-		for HEADING in Wakeup Request; do
+		for HEADING in Wakeup-99.0th Request-99.0th RPS-50.0th Wakeup Request RPS; do
 			echo "$SUBREPORT $HEADING Latency (usec)"
 			eval $COMPARE_CMD --sub-heading $HEADING
 			echo
 		done
-		echo "$SUBREPORT Requests Per Second (ops/sec)"
-		eval $COMPARE_CMD --sub-heading RPS
 		;;
 	simoop)
 		echo $SUBREPORT latencies
@@ -1178,6 +1176,7 @@ for SUBREPORT in $REPORTS; do
 			;;
 		schbench)
 			echo "<tr>"
+			generate_basic "$SUBREPORT" "--sub-heading Wakeup-99.0th --very-large"
 			generate_basic "$SUBREPORT" "--very-large"
 			echo "</tr></table>"
 			echo "<table class=\"resultsGraphs\">"

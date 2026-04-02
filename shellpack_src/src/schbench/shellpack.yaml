@@ -1,4 +1,5 @@
 default-metric: Wakeup
+ratio-metric: Wakeup-99.0th
 
 metrics:
   - Wakeup
@@ -13,12 +14,15 @@ PlotType: operation-candlesticks
 Wakeup:
   title: Wakeup Latency
   units: TIME_USECONDS
+  ratio-metric: Wakeup-99.0th
 
 Request:
   title: Request Latency
   units: TIME_USECONDS
+  ratio-metric: Request-99.0th
 
 RPS:
   title: Requests Per Second
   units: OPS_PER_SECOND
   preferhigher: true
+  ratio-metric: RPS-50.0th
