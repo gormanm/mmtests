@@ -1074,8 +1074,8 @@ for SUBREPORT in $REPORTS; do
 			;;
 		dbench)
 			echo "<tr>"
-			generate_basic_single "$SUBREPORT Loadfile Completion Times" "--sub-heading loadfile --logX"
-			generate_basic_single "$SUBREPORT Loadfile Completion Times" "--sub-heading loadfile --logX --logY"
+			generate_basic "$SUBREPORT" "--very-large"
+			generate_basic "$SUBREPORT" "--very-large --logY"
 			generate_client_trans_graphs "" "Sample" "loadfile" "--freq-binwidth 2"
 			echo "</tr>"
 			;;
