@@ -60,7 +60,6 @@ sub initialise() {
 	my ($self, $subHeading) = @_;
 	my $plotType = "candlesticks";
 	my $opName = "Ops";
-	my @sumheaders;
 
 	if (defined $self->{_Opname}) {
 		$opName = $self->{_Opname};
@@ -80,11 +79,6 @@ sub initialise() {
 
 	$self->{_FieldFormat} = [ "%${fieldLength}d", "%${fieldLength}.${precision}f" ];
 	$self->{_FieldHeaders} = [ "Sample", $opName ];
-	for (my $header = 0; $header < scalar @{$self->{_SummaryStats}};
-	     $header++) {
-		push @sumheaders, $self->getStatName($header);
-	}
-	$self->{_SummaryHeaders} = \@sumheaders;
 }
 
 sub getPreferredValue() {
