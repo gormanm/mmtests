@@ -1076,7 +1076,9 @@ for SUBREPORT in $REPORTS; do
 			echo "<tr>"
 			generate_basic "$SUBREPORT" "--very-large"
 			generate_basic "$SUBREPORT" "--very-large --logY"
-			generate_client_trans_graphs "" "Sample" "loadfile" "--freq-binwidth 2"
+			echo "</tr></table>"
+			echo "<table class=\"resultsGraphs\">"
+			generate_client_trans_graphs "" "Sample" "loadfile" "--freq-binwidth 5"
 			echo "</tr>"
 			;;
 		ebizzy)

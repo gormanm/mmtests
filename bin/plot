@@ -196,6 +196,10 @@ while [ $# -gt 0 -a "$FINISHED" != "yes" ]; do
 			XTICS=$2
 			shift 2
 			;;
+		--ytics)
+			YTICS=$2
+			shift 2
+			;;
 		--xticlabel)
 			USING="2:3:xticlabel(1)"
 			POINTLABEL="2:3:4"
@@ -231,6 +235,10 @@ fi
 if [ "$XTICS" != "" ]; then
 	echo set xtics $XTICS               >> $TEMP
 	echo set grid xtics                 >> $TEMP
+fi
+if [ "$YTICS" != "" ]; then
+	echo set ytics $YTICS               >> $TEMP
+	echo set grid ytics                 >> $TEMP
 fi
 if [ "$OPER_CANDLESTICKS" = "yes" ]; then
 	echo "set xtic rotate by -45" >> $TEMP
