@@ -1,5 +1,5 @@
 default-metric: Wakeup
-ratio-metric: Wakeup-99.0th
+ratio-metric: Request-99.0th
 
 metrics:
   - Wakeup

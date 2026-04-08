@@ -807,7 +807,7 @@ for SUBREPORT in $REPORTS; do
 		done
 		;;
 	schbench)
-		for HEADING in Wakeup-99.0th Request-99.0th RPS-50.0th Wakeup Request RPS; do
+		for HEADING in Request-99.0th Wakeup-99.0th RPS-50.0th RPS-90.0th Request Wakeup RPS; do
 			echo "$SUBREPORT $HEADING Latency (usec)"
 			eval $COMPARE_CMD --sub-heading $HEADING
 			echo
@@ -1178,11 +1178,20 @@ for SUBREPORT in $REPORTS; do
 			;;
 		schbench)
 			echo "<tr>"
-			generate_basic "$SUBREPORT" "--sub-heading Wakeup-99.0th --very-large"
-			generate_basic "$SUBREPORT" "--very-large"
+			generate_basic_single "$SUBREPORT" "--sub-heading Request-99.0th"
+			generate_basic_single "$SUBREPORT" "--sub-heading Wakeup-99.0th"
+			echo "</tr><tr>"
+			generate_basic_single "$SUBREPORT" "--sub-heading RPS-50.0th"
+			generate_basic_single "$SUBREPORT" "--sub-heading RPS-90.0th"
 			echo "</tr></table>"
 			echo "<table class=\"resultsGraphs\">"
+			generate_basic "$SUBREPORT" "--sub-heading Request- --very-large"
+			generate_basic "$SUBREPORT" "--sub-heading Wakeup- --very-large"
+			generate_basic "$SUBREPORT" "--sub-heading RPS- --very-large"
+			echo "</table><table class=\"resultsGraphs\">"
+			generate_ops_freq_graphs "`$EXTRACT_CMD -n $KERNEL --sub-heading Request- | awk '{print $1}' | tr '-' ' ' | sort -k2n -k3n | uniq | tr ' ' '-'`" "Estimated time" "" "--freq-binwidth 2"
 			generate_ops_freq_graphs "`$EXTRACT_CMD -n $KERNEL --sub-heading Wakeup- | awk '{print $1}' | tr '-' ' ' | sort -k2n -k3n | uniq | tr ' ' '-'`" "Estimated time" "" "--freq-binwidth 2"
+			generate_ops_freq_graphs "`$EXTRACT_CMD -n $KERNEL --sub-heading RPS- | awk '{print $1}' | tr '-' ' ' | sort -k2n -k3n | uniq | tr ' ' '-'`" "Estimated time" "" "--freq-binwidth 2"
 			echo "</tr>"
 			;;
 		sembench-sem|sembench-nanosleep|sembench-futex)
