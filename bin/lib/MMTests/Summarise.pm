@@ -16,6 +16,20 @@ sub new() {
 	return $self;
 }
 
+sub setSummaryNormalisedLeftSkewops() {
+	my ($self) = @_;
+	$self->{_SummaryStats} = [ "min", "_mean",
+		"_mean-50", "percentile-50",
+		"_mean-75", "percentile-75",
+		"_mean-90", "percentile-90",
+		"_mean-99", "percentile-99",
+		"stddev-_mean", "coeffvar-_mean", "max" ];
+	$self->{_RatioSummaryStat} = [ "_mean", "meanci_low-_mean",
+		"meanci_high-_mean" ];
+	$self->{_RatioCompareOp} = "cidiff";
+	$self->{_Summarytype} = "Normalisedops";
+}
+
 sub setSummaryNormalisedops() {
 	my ($self) = @_;
 	$self->{_SummaryStats} = [ "min",

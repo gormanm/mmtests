@@ -5,7 +5,7 @@ metrics:
   - tput
   - op
 
-summarise: Normalisedops
+summarise: NormalisedLeftSkewops
 PlotXaxis: Clients
 PlotType: operation-candlesticks
 DecimalPlaces: 4
