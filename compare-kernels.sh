@@ -618,18 +618,18 @@ generate_cputime_graphs() {
 
 generate_basic_single() {
 	TITLE="$1"
-	EXTRA="$2"
+	GRAPH_OPTS="$2"
 
 	if [ "$TITLE" = "" ]; then
 		TITLE="$SUBREPORT"
 	fi
-	if [ "$EXTRA" != "" ]; then
-		EXTRA_FILENAME=`echo $EXTRA | sed -e 's/--/-/g' | sed -e 's/ /-/g'`
-		EXTRA_TITLE=`echo " $EXTRA" | sed -e 's/--wide//' -e 's/--very-large//' -e 's/--sub-heading /Metric:/' -e 's/--//g'`
+	if [ "$GRAPH_OPTS" != "" ]; then
+		GRAPH_OPTS_FILENAME=`echo $GRAPH_OPTS | sed -e 's/--/-/g' | sed -e 's/ /-/g'`
+		GRAPH_OPTS_TITLE=`echo " $GRAPH_OPTS" | sed -e 's/--wide//' -e 's/--very-large//' -e 's/--sub-heading /Metric:/' -e 's/--//g'`
 	fi
 
-	eval $GRAPH_PNG $EXTRA --title \"$TITLE$EXTRA_TITLE\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT$EXTRA_FILENAME
-	plain graph-$SUBREPORT$EXTRA_FILENAME
+	eval $GRAPH_PNG $GRAPH_OPTS --title \"$TITLE$GRAPH_OPTS_TITLE\" --output $OUTPUT_DIRECTORY/graph-$SUBREPORT$GRAPH_OPTS_FILENAME
+	plain graph-$SUBREPORT$GRAPH_OPTS_FILENAME
 }
 
 generate_basic() {
@@ -1142,7 +1142,7 @@ for SUBREPORT in $REPORTS; do
 			echo "</tr>"
 			;;
 		netperf-ipv*-*)
-			generate_basic "$SUBREPORT" ""
+			generate_basic "$SUBREPORT" "--very-large"
 			;;
 		parsec-*)
 			;;
