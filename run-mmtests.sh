@@ -1,14 +1,13 @@
 #!/bin/bash
-set ${MMTESTS_SH_DEBUG:-+x}
+export SCRIPTDIR="$(dirname "$(realpath -s ${BASH_SOURCE[0]})")"
+export MMTESTS_ROOT=$SCRIPTDIR
+export PATH="$MMTESTS_ROOT/bin:$PATH"
+
 DEFAULT_CONFIG=config
-DIRNAME=`dirname $0`
-export SCRIPTDIR=`cd "$DIRNAME" && pwd`
-export PATH="$SCRIPTDIR/bin:$PATH"
 RUNNING_TEST=
 export EXPECT_UNBUFFER=$SCRIPTDIR/bin/unbuffer
 export BUILDONLY=false
 export DELETE_ON_EXIT_FILE=$(mktemp /tmp/mmtest-cleanup-XXXXXXXXX)
-echo $PWD
 . $SCRIPTDIR/shellpacks/user-hooks.sh
 
 # External optimisations and tuning can be specified via the build-flags
