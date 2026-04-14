@@ -12,7 +12,6 @@ MAX_TRANSACTIONS=
 READONLY_ARG=
 SCALE_FACTOR=1
 VACUUM_ARG=-n
-RUN_CACHE_COLD=no
 MIN_THREADS=1
 
 . $SHELLPACK_INCLUDE/monitors.sh
@@ -29,7 +28,6 @@ MIN_THREADS=1
 ###SHELLPACK parseargParam --max-time            MAX_TIME
 ###SHELLPACK parseargParam --max-transactions    MAX_TRANSACTIONS
 ###SHELLPACK parseargYes   --read-only           READONLY
-###SHELLPACK parseargYes   --cache-cold          RUN_CACHE_COLD
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
@@ -202,23 +200,6 @@ ulimit -n 16384
 	fi
 
 	FIRST_TIME=no
-
-	if [ "$RUN_CACHE_COLD" = "yes" ]; then
-		mmtests_activity cache cold
-		echo Stopping database to drop cache
-		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
-
-		echo Dumping cache to run database cache cold as requested
-		echo 3 > /proc/sys/vm/drop_caches
-
-		# Starting database
-		echo Starting database cache cold
-		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
-			--effective_cachesize $EFFECTIVE_CACHESIZE \
-			--shared_buffers $SHARED_BUFFERS \
-			--work_mem $WORK_MEM \
-			-v ${VERSION} || die Failed to get a usable postgres installation
-	fi
 
 	# Work out max time or max transactions commands
 	MAX_TIME_COMMAND=

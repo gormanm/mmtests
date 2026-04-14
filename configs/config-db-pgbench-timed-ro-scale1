@@ -36,7 +36,6 @@ export PGBENCH_MAX_TIME=300
 export PGBENCH_READONLY=yes
 export PGBENCH_MAX_THREADS=1
 export PGBENCH_MAX_THREADS=$((NUMCPUS*2))
-export PGBENCH_CACHE_COLD=no
 
 # The baseline database size is based on the scale factor.
 # Each unit of scaling factor adds approximately 15M of
