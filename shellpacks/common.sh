@@ -82,6 +82,12 @@ function log_warn() {
 	echo "[`date` $((_current_timestamp-$START_TIMESTAMP))] WARNING: $@"
 }
 
+function log_error() {
+	local _current_timestamp=`date +%s`
+	echo "[`date` $((_current_timestamp-$START_TIMESTAMP))] ERROR: $@"
+}
+
+
 OFFLINED_MEMORY=0
 function limit_memory() {
 	local _limit=$1
@@ -127,7 +133,6 @@ function wait_on_pid_start() {
 	fi
 	return 0
 }
-
 
 function wait_on_pid_exit() {
 	WAITPID=$1
@@ -1725,6 +1730,18 @@ function round_down_nearest_square()
 
 	square=`echo "sqrt($input_val) / 1" | bc`
 	echo $((square*square))
+}
+
+function clamp()
+{
+	local _input_val=$1
+	local _min=$2
+	local _max=$3
+
+	[ $_input_val -lt $_min ] && _input_val=$_min
+	[ $_input_val -gt $_max ] && _input_val=$_max
+
+	echo $_input_val
 }
 
 MMT_SLURM_NODES=`scontrol show node 2>&1 | grep ^NodeName | wc -l`

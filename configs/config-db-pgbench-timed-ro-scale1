@@ -23,26 +23,23 @@ export MMTESTS="pgbench"
 # List of monitors
 export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
-export MONITORS_GZIP="proc-vmstat mpstat top iotop"
+export MONITORS_GZIP="proc-vmstat mpstat turbostat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
-export MONITOR_PERF_EVENTS=cpu-migrations,context-switches
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_UPDATE_FREQUENCY=1
 
 # pgbench
-export OLTP_CACHESIZE=$(($MEMTOTAL_BYTES*3/4))
-export OLTP_SHAREDBUFFERS=$((MEMTOTAL_BYTES/5))
-export OLTP_PAGESIZES="default"
-export PGBENCH_MAX_TIME=300
-export PGBENCH_READONLY=yes
-export PGBENCH_MAX_THREADS=1
-export PGBENCH_MAX_THREADS=$((NUMCPUS*2))
+export POSTGRESQL_CACHESIZE=$(($MEMTOTAL_BYTES*3/4))
+export POSTGRESQL_SHAREDBUFFERS=$((MEMTOTAL_BYTES/5))
+export PGBENCH_MAX_TIME=120
+export PGBENCH_MAX_CLIENTS=1
+export PGBENCH_MAX_CLIENTS=$((NUM_LOGICAL_CPUS*2))
+export PGBENCH_LOADSCRIPT="select-only"
 
 # The baseline database size is based on the scale factor.
 # Each unit of scaling factor adds approximately 15M of
 # data to the table. Tune accordingly.
 export TARGET_WORKLOAD_SIZE=
 export PGBENCH_SCALE_FACTOR=1
-export DATABASE_INIT_ONCE=yes
-export MMTESTS_THREAD_CUTOFF=
 
-export TESTDISK_MIN_SIZE=$((OLTP_SHAREDBUFFERS*5/4))
+export TESTDISK_MIN_SIZE=$((POSTGRESQL_SHAREDBUFFERS*5/4))
+export MMTESTS_THREAD_CUTOFF=

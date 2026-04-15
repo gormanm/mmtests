@@ -1,18 +1,16 @@
 #!/bin/bash
 ###SHELLPACK preamble pgbench-bench 18.3
-install-depends gnuplot
 
 ROLE=`whoami`
 DBUSER=nobody
 EFFECTIVE_CACHESIZE=$((756*1048576))
 SHARED_BUFFERS=$((32*1048576))
 WORK_MEM=$((32*1048576))
-MAX_TIME=
-MAX_TRANSACTIONS=
-READONLY_ARG=
+MAX_TIME=60
 SCALE_FACTOR=1
 VACUUM_ARG=-n
-MIN_THREADS=1
+MIN_CLIENTS=1
+LOADSCRIPT="select-only"
 
 . $SHELLPACK_INCLUDE/monitors.sh
 
@@ -22,23 +20,14 @@ MIN_THREADS=1
 ###SHELLPACK parseargParam --shared-buffers      SHARED_BUFFERS
 ###SHELLPACK parseargParam --work-mem            WORK_MEM
 
-###SHELLPACK parseargParam --min-threads	 MIN_THREADS
-###SHELLPACK parseargParam --max-threads         MAX_THREADS
+###SHELLPACK parseargParam --min-clients	 MIN_CLIENTS
+###SHELLPACK parseargParam --max-clients         MAX_CLIENTS
 ###SHELLPACK parseargParam --scale-factor        SCALE_FACTOR
 ###SHELLPACK parseargParam --max-time            MAX_TIME
-###SHELLPACK parseargParam --max-transactions    MAX_TRANSACTIONS
-###SHELLPACK parseargYes   --read-only           READONLY
+###SHELLPACK parseargParam --loadscript          LOADSCRIPT
 ###SHELLPACK parseargEnd
 ###SHELLPACK monitor_hooks
 
-# Always scrub sources as the benchmark in question does not properly
-# reinitialise itself if the data partitions gets scrubbed
-###SHELLPACK init_only_start
-	rm -rf $SHELLPACK_SOURCES/postgres*
-	$SHELLPACK_TOPLEVEL/shellpack_src/src/refresh.sh postgresbuild
-###SHELLPACK init_only_continue
-
-echo Copying database configuration
 export PGHOST=127.0.0.1
 export PGPORT=5432
 export PATH=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin:$PATH
@@ -46,201 +35,117 @@ export LD_LIBRARY_PATH=$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/lib
 PSQL="$SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/bin/psql --host /var/run/postgresql/"
 RUNDBUSER="su -s /bin/bash $DBUSER -c"
 
-MID=$(((MEMTOTAL_BYTES-EFFECTIVE_CACHESIZE-SHARED_BUFFERS)/2))
-if [ $MID -lt 0 ]; then
-	MID=0
-fi
-
-if [ "$MAX_TRANSACTIONS" = "auto" ]; then
-	if [ "$READONLY" = "yes" ]; then
-		CEILING=20000000
-		WEIGHT_MAINMEMORY=2
-		WEIGHT_DISK=600
-	else
-		CEILING=2000000
-		WEIGHT_MAINMEMORY=2
-		WEIGHT_DISK=300
-	fi
-	FLOOR=15000
-	WORKLOAD_SIZE=$((SCALE_FACTOR*15*1048576+30*1048576))
-	cat > /tmp/points <<EOF
-$SHARED_BUFFERS          $CEILING
-$EFFECTIVE_CACHESIZE     $((CEILING/WEIGHT_MAINMEMORY))
-$((EFFECTIVE_CACHESIZE+SHARED_BUFFERS))  $((CEILING/WEIGHT_MAINMEMORY/8))
-$((MEMTOTAL_BYTES-MID))	 $((CEILING/WEIGHT_MAINMEMORY/32))
-$MEMTOTAL_BYTES 	 $((CEILING/WEIGHT_MAINMEMORY/16))
-$((MEMTOTAL_BYTES*3/2))  $((CEILING/WEIGHT_DISK*4))
-$((MEMTOTAL_BYTES*3)) $((CEILING/WEIGHT_DISK))
-$((MEMTOTAL_BYTES*4)) $((CEILING/WEIGHT_DISK*48))
-$((MEMTOTAL_BYTES*8)) $((CEILING/WEIGHT_DISK*96))
-EOF
-
-	cat > /tmp/gnuplot.script <<EOF
-set terminal dumb
-set table "/tmp/coordinates"
-plot '/tmp/points' smooth cspline
-EOF
-	cat /tmp/gnuplot.script | gnuplot > /dev/null
-
-        MAX_TRANSACTIONS=`awk "{ if (\\$1 >= \$WORKLOAD_SIZE) print \\$2 }" /tmp/coordinates | head -1`
-	MAX_TRANSACTIONS=`perl -e "print int $MAX_TRANSACTIONS"`
-	if [ "$MAX_TRANSACTIONS" = "" ]; then
-		MAX_TRANSACTIONS=$FLOOR
-	fi
-	if [ $MAX_TRANSACTIONS -lt $FLOOR ]; then
-		MAX_TRANSACTIONS=$FLOOR
-	fi
-	mv /tmp/points $LOGDIR_RESULTS/pgbench-auto-points
-	mv /tmp/coordinates $LOGDIR_RESULTS/pgbench-auto-coordinates
-fi
-
-if [ "$PGBENCH_DEBUG_AUTO_TRANSACTIONS" = "yes" ]; then
-	cat $LOGDIR_RESULTS/pgbench-auto-points
-	echo MAX_TRANSACTIONS = $MAX_TRANSACTIONS
-	exit $SHELLPACK_SUCCESS
-fi
-
-if [ "$READONLY" = "yes" ]; then
-	READONLY_ARG=-S
-fi
-
 ###SHELLPACK init_only_start
-	echo Starting database for first time as part of init
+	log_info "Starting database for first time as part of init"
+	rm -rf $SHELLPACK_SOURCES/postgres*
 	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
 		--effective_cachesize $EFFECTIVE_CACHESIZE \
 		--shared_buffers $SHARED_BUFFERS \
 		--work_mem $WORK_MEM \
-		-v ${VERSION} || die Failed to get a usable postgres installation
+		-v ${VERSION} || die "Failed to get a usable postgres installation"
 
-	echo Stopping database to finish init
+	$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die "Failed to create $ROLE role"
+	$RUNDBUSER "$PSQL template1 -c 'GRANT ALL PRIVILEGES ON SCHEMA public TO $ROLE;'" || die "Failed to grant privilege to $ROLE role"
+
+	log_info "Stopping database to finish init"
 	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
 
-	echo pgbench installed only as requested
+	log_info "pgbench installed only as requested"
 	exit $SHELLPACK_SUCCESS
 ###SHELLPACK init_only_end
 
-echo Running pgbench
-cp $SHELLPACK_DATA/pgdata/postgresql.conf $LOGDIR_RESULTS
-echo o maximum $MAX_THREADS threads
-echo o scale factor: $SCALE_FACTOR 
-echo $SCALE_FACTOR > $LOGDIR_RESULTS/pgbench-scale
-LAST_THREAD=0
-RET=$SHELLPACK_SUCCESS
+drop() {
+	$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
+	$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
+}
 
-FIRST_TIME=yes
-ulimit -n 16384
+cleanup() {
+	log_info "Delete database and shutdown."
+	drop
+	$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
+	cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
+}
 
-###SHELLPACK threads_topology_walk_begin $MIN_THREADS $MAX_THREADS
-	# Do not repeat iterations due to thread count
-	if [ $NR_THREADS -eq $LAST_THREAD ]; then
-		continue
-	fi
+log_info "Starting database"
+mmtests_activity init
+$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
+	--effective_cachesize $EFFECTIVE_CACHESIZE \
+	--shared_buffers $SHARED_BUFFERS \
+	--work_mem $WORK_MEM \
+	-v ${VERSION} || die "Failed to get a usable postgres installation"
 
-	PGBENCH_THREADS=$NUMNODES
-	if [ $NR_THREADS -lt $NUMNODES ]; then
-		PGBENCH_THREADS=1
-	else
-		NR_THREADS=$(((NR_THREADS+NUMNODES-1)&~(NUMNODES-1)))
-	fi
-	LAST_THREAD=$NR_THREADS
-
-	if [ "$DATABASE_INIT_ONCE" != "yes" -o "$FIRST_TIME" = "yes" ]; then
-		echo Starting database for initialisation
-		mmtests_activity init
-		$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --start \
-			--effective_cachesize $EFFECTIVE_CACHESIZE \
-			--shared_buffers $SHARED_BUFFERS \
-			--work_mem $WORK_MEM \
-			-v ${VERSION} || die Failed to get a usable postgres installation
-
-		echo Preparing database
-		$RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
-		$RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-		$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die Failed to setup database
-		$RUNDBUSER "$PSQL template1 -c 'CREATE ROLE $ROLE with LOGIN;'" || die Failed to create $ROLE role
-
-		echo Initialising database for pgbench: Scale factor $SCALE_FACTOR
-		$TIME_CMD -o $LOGDIR_RESULTS/load-${NR_THREADS}.time \
-			pgbench -h $PGHOST -p $PGPORT \
-				-i $VACUUM_ARG -s $SCALE_FACTOR pgbench \
-				> $LOGDIR_RESULTS/load-${NR_THREADS}.log 2>&1
-		# Abort if DB init failed
-		if [ $? != 0 ]; then
-			echo Database init failed. Exiting.
-			RET=$SHELLPACK_ERROR
-			break
-		fi
-	fi
-
-	if [ "$DATABASE_INIT_ONCE" = "yes" -a "$FIRST_TIME" = "yes" ]; then
-		mmtests_activity warmup
-
-		# Pick a warm-up time based on the database size.
-		# Every scale factor is roughly 30M so warm for
-		# 1 minute per 100M of database size. The minimum
-		# time is MAX_TIME if configured up to a maximum
-		# of 30 minutes.
-		WARM_TIME=$((SCALE_FACTOR/100))
-		if [ $WARM_TIME -eq 0 ]; then
-			WARM_TIME=1
-		fi
-		if [ "$MAX_TIME" != "" ]; then
-			if [ $WARM_TIME -lt $((MAX_TIME/60)) ]; then
-				WARM_TIME=$((MAX_TIME/60))
-			fi
-		fi
-		if [ $WARM_TIME -gt 30 ]; then
-			WARM_TIME=30
-		fi
-
-		echo Warming up database for $WARM_TIME minutes
-		pgbench -v -h $PGHOST -p $PGPORT -r \
-			$VACUUM_ARG $READONLY_ARG -c $MAX_THREADS -j $MAX_THREADS \
-			-T $((60*WARM_TIME)) pgbench
-	fi
-
-	FIRST_TIME=no
-
-	# Work out max time or max transactions commands
-	MAX_TIME_COMMAND=
-	MAX_TRANSACTIONS_COMMAND=
-	if [ "$MAX_TIME" != "" ]; then
-		MAX_TIME_COMMAND="-T $MAX_TIME"
-		echo $MAX_TIME > $LOGDIR_RESULTS/pgbench-time
-	else
-		if [ "$MAX_TRANSACTIONS" != "" ]; then
-			MAX_TRANSACTIONS_COMMAND="-t $((MAX_TRANSACTIONS/NR_THREADS))"
-		else
-			die Specify time or transactions
-		fi
-		echo $((MAX_TRANSACTIONS/NR_THREADS)) > $LOGDIR_RESULTS/pgbench-nr-transactions-$NR_THREADS
-	fi
-
-	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
-	mmtests_activity workload
-	echo o $NR_THREADS/$PGBENCH_MAX_THREADS threads $MAX_TRANSACTIONS transactions
-	$TIME_CMD -o $LOGDIR_RESULTS/time-${NR_THREADS}-1 \
-		pgbench -v -h $PGHOST -p $PGPORT -r \
-			-l --aggregate-interval=1 \
-			$VACUUM_ARG $READONLY_ARG -c $NR_THREADS -j $PGBENCH_THREADS \
-			$MAX_TRANSACTIONS_COMMAND $MAX_TIME_COMMAND \
-			pgbench > $LOGDIR_RESULTS/pgbench-$NR_THREADS.log
-	if [ $? -ne 0 ]; then
-		cat $LOGDIR_RESULTS/pgbench-$NR_THREADS.log
-		die pgbench failed to execute
-	fi
-	for FILE in `ls pgbench_log.*`; do
-		mv $FILE $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS.log
-		gzip -f $LOGDIR_RESULTS/pgbench-transactions-$NR_THREADS.log
-	done
-	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
-###SHELLPACK threads_stride_end
-
-echo Cleaning up and shutting down
+log_info "Preparing database"
 $RUNDBUSER "$PSQL template1 -c 'DROP DATABASE pgbench;'"
 $RUNDBUSER "$PSQL template1 -c 'DROP ROLE $ROLE;'"
-$SHELLPACK_INCLUDE/shellpack-bench-postgresbuild --stop
-cp $SHELLPACK_SOURCES/postgresbuild-${VERSION}-installed/logfile $LOGDIR_RESULTS/dblog
+$RUNDBUSER "$PSQL template1 -c 'CREATE DATABASE pgbench;'" || die "Failed to setup database"
 
-echo pgbench successfully completed
-exit $RET
+FILL_FACTOR=100
+if [ "$LOADSCRIPT" != "select-only" ]; then
+	FILL_FACTOR=90
+fi
+
+log_info "Initialising database for pgbench: Scale factor $SCALE_FACTOR, fill factor $FILL_FACTOR"
+$TIME_CMD -o $LOGDIR_RESULTS/dbinit-${NR_THREADS}.time \
+	pgbench -h $PGHOST -p $PGPORT -i $VACUUM_ARG -s $SCALE_FACTOR -F $FILL_FACTOR pgbench \
+	&> $LOGDIR_RESULTS/pgbench-init.log
+# Abort if DB init failed
+if [ $? != 0 ]; then
+	log_error "Database init failed, cleanup"
+	cleanup
+	log_info "DB Init log below"
+	cat $LOGDIR_RESULTS/pgbench-init.log
+	die "Database init failed, exit."
+fi
+
+# Bound number of PGBENCH threads
+# o Use at least one per node
+# o Use no more than 1 thread per 8 clients
+MIN_PGBENCH_THREADS=$NUMNODES
+MAX_PGBENCH_THREADS=$(($NUM_CORES/$NUMNODES/8))
+[ $MAX_PGBENCH_THREADS -lt $MIN_PGBENCH_THREADS ] && MAX_PGBENCH_THREADS=$MIN_PGBENCH_THREADS
+
+# Pick a warm-up time based on the database size.  Every scale factor is
+# roughly 30M so warm for 1 minute per 100M of database size and for at
+# least 1 minute.
+WARM_TIME=$((SCALE_FACTOR/100))
+WARM_TIME=$(clamp $WARM_TIME 60 $MAX_TIME)
+
+log_info "Running pgbench"
+cp $SHELLPACK_DATA/pgdata/postgresql.conf $LOGDIR_RESULTS
+echo "scale:       $SCALE_FACTOR"		>  $LOGDIR_RESULTS/pgbench.param
+echo "warm:        $WARM_TIME"			>> $LOGDIR_RESULTS/pgbench.param
+echo "run:         $MAX_TIME"			>> $LOGDIR_RESULTS/pgbench.param
+echo "min_threads: $MIN_PGBENCH_THREADS"	>> $LOGDIR_RESULTS/pgbench.param
+echo "max_threads: $MAX_PGBENCH_THREADS"	>> $LOGDIR_RESULTS/pgbench.param
+echo "min_clients: $MIN_CLIENTS"		>> $LOGDIR_RESULTS/pgbench.param
+echo "max_clients: $MAX_CLIENTS"		>> $LOGDIR_RESULTS/pgbench.param
+cat $LOGDIR_RESULTS/pgbench.param
+
+TOTAL_TIME=$((WARM_TIME+MAX_TIME))
+PGBENCH_CMD="pgbench -h $PGHOST -p $PGPORT -b $LOADSCRIPT -r $VACUUM_ARG -T $TOTAL_TIME -l --aggregate-interval=1"
+###SHELLPACK threads_topology_walk_begin $MIN_CLIENTS $MAX_CLIENTS
+	PGBENCH_CLIENTS=$NR_THREADS
+	PGBENCH_THREADS=$(clamp $PGBENCH_CLIENTS $MIN_PGBENCH_THREADS $MAX_PGBENCH_THREADS)
+
+	BENCH_CMD="$PGBENCH_CMD -c $PGBENCH_CLIENTS -j $PGBENCH_THREADS pgbench"
+	log_cmd "$BENCH_CMD"
+
+	mmtests_activity workload-$PGBENCH_CLIENTS
+	log_info "Run $PGBENCH_CLIENTS clients over $PGBENCH_THREADS threads for $TOTAL_TIME ($WARM_TIME+$MAX_TIME) seconds"
+	monitor_pre_hook $LOGDIR_RESULTS $PGBENCH_CLIENTS
+	$TIME_CMD -o $LOGDIR_RESULTS/time-${PGBENCH_CLIENTS}-1 \
+		$BENCH_CMD > $LOGDIR_RESULTS/pgbench-$PGBENCH_CLIENTS.log
+	if [ $? -ne 0 ]; then
+		cat $LOGDIR_RESULTS/pgbench-$PGBENCH_CLIENTS.log
+		die "pgbench failed to execute"
+	fi
+	monitor_post_hook $LOGDIR_RESULTS $NR_THRADS
+	for FILE in `ls pgbench_log.*`; do
+		mv $FILE $LOGDIR_RESULTS/pgbench-transactions-$PGBENCH_CLIENTS.log
+		gzip -f $LOGDIR_RESULTS/pgbench-transactions-$PGBENCH_CLIENTS.log
+	done
+###SHELLPACK threads_stride_end
+
+cleanup
+log_info "pgbench successfully completed"
+exit $SHELLPACK_SUCCESS

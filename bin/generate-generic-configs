@@ -143,7 +143,7 @@ for SIZE in small medium large; do
 	grep -v "###" config-db-pgbench-timed-ro-scale1  >> config-db-pgbench-timed-ro-$SIZE
 	case $SIZE in
 	small)
-		sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((OLTP_SHAREDBUFFERS*3\/5))/' \
+		sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((POSTGRESQL_SHAREDBUFFERS*3\/5))/' \
 		       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
 			config-db-pgbench-timed-ro-$SIZE
 		;;
@@ -165,7 +165,7 @@ done
 
 # o Generate rw configurations
 for SIZE in scale1 small medium large; do
-	sed -e 's/PGBENCH_READONLY=.*/PGBENCH_READONLY=no/' \
+	sed -e 's/PGBENCH_LOADSCRIPT=.*/PGBENCH_LOADSCRIPT="simple-update"/' \
 	    -e 's/read-only/read-write/' \
 	    config-db-pgbench-timed-ro-$SIZE > config-db-pgbench-timed-rw-$SIZE
 	cat >> config-db-pgbench-timed-rw-$SIZE <<EOF
@@ -173,18 +173,8 @@ for SIZE in scale1 small medium large; do
 # Limit parallelisation for writes by default. Increasing
 # number of threads by default offers little benefit unless
 # testing high performance storage
-[ \$PGBENCH_MAX_THREADS -gt 16 ] && PGBENCH_MAX_THREADS=16
+[ \$PGBENCH_MAX_CLIENTS -gt 16 ] && PGBENCH_MAX_THREADS=16
 EOF
-done
-
-# o Generate tuned configurations
-for TYPE in ro rw; do
-	for SIZE in scale1 small medium large; do
-		cp config-db-pgbench-timed-$TYPE-$SIZE config-db-pgbench-timed-$TYPE-$SIZE-tuned
-		echo >> config-db-pgbench-timed-$TYPE-$SIZE-tuned
-		echo "echo Setting cpufreq to performance"        >> config-db-pgbench-timed-$TYPE-$SIZE-tuned
-		echo "cpupower frequency-set -g performance" >> config-db-pgbench-timed-$TYPE-$SIZE-tuned
-	done
 done
 
 # Redis
