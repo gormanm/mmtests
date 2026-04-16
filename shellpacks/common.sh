@@ -21,7 +21,8 @@ SMT_WEIGHT=`lscpu | grep Thread | awk '{print $NF}'`
 [ "$SMT_WEIGHT" = "" ] && SMT_WEIGHT=1
 
 NUMCPUS=`getconf _NPROCESSORS_ONLN`
-NUMCORES=$((NUMCPUS/SMT_WEIGHT))
+NUM_CORES=`getconf _NPROCESSORS_ONLN`
+NUM_LOGICAL_CPUS=$((NUMCPUS*SMT_WEIGHT))
 NUMLLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort -u | wc -l`
 [ "$NUMLLCS" = "0" ] && NUMLLCS=1
 NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
