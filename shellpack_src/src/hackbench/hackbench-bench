@@ -50,23 +50,23 @@ TIMEOUT=900
 	mmtests_activity $CONN_NAME
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 
+	BENCH_CMD="$PERF_CMD bench sched messaging $CONN_SWITCH $TASK_SWITCH -g $NR_THREADS -l $HACKBENCH_LOOPS"
+	log_cmd "$BENCH_CMD"
+
 	###SHELLPACK iteration_begin $HACKBENCH_ITERATIONS
 		ATTEMPT=0
 		RET=-1
 		while [ $RET -ne 0 -a $ATTEMPT -lt 5 ]; do
 			ATTEMPT=$((ATTEMPT+1))
-			echo Running attempt $ATTEMPT $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS
-			timeout ${TIMEOUT}s $TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION  			\
-				$PERF_CMD bench sched messaging 					\
-					$CONN_SWITCH $TASK_SWITCH -g $NR_THREADS -l $HACKBENCH_LOOPS 	\
-					> $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
+			log_info "Running attempt $ATTEMPT $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS"
+			timeout ${TIMEOUT}s $BENCH_CMD > $LOGDIR_RESULTS/hackbench-$NR_THREADS
 			RET=$?
 		done
 
 		# Failure likely due to open file or pid limitations
 		if [ $? -ne 0 ]; then
 			monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
-			rm $LOGDIR_RESULTS/hackbench-$NR_THREADS-$ITERATION
+			rm $LOGDIR_RESULTS/hackbench-$NR_THREADS
 			exit $SHELLPACK_SUCCESS
 		fi
 	###SHELLPACK iteration_end $HACKBENCH_ITERATIONS
