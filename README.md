@@ -134,7 +134,7 @@ where the benchmarks will be running, and use them inside a config file.
 For instance:
 * `MEMTOTAL_BYTES`:
 	Tells how much memory there is in the system.
-* `NUMCPUS`:
+* `NUM_LOGICAL_CPUS`:
 	Tells how many CPUs are present in the system.
 
 It is possible to add the following to the config file:
@@ -156,7 +156,7 @@ knowledge of the platform characteristics.
 For an example check
 [config-workload-stream-omp-llcs](https://github.com/gormanm/mmtests/blob/master/configs/config-workload-stream-omp-llcs), where this is done: `STREAM_THREADS=$NUMLLCS`. Or
 [config-scheduler-schbench](https://github.com/gormanm/mmtests/blob/master/configs/config-scheduler-schbench),
-which has: `SCHBENCH_THREADS=$(((NUMCPUS/NUMNODES)-1))`
+which has: `SCHBENCH_THREADS=$(((NUM_LOGICAL_CPUS/NUMNODES)-1))`
 
 ## Running Benchmarks
 

@@ -5,8 +5,6 @@
 POSTGRES_USER=nobody
 POSTGRES_GROUP=nogroup
 
-NUMCPUS=`grep processor /proc/cpuinfo | wc -l`
-
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargParam --postgres-user	 POSTGRES_USER
 ###SHELLPACK parseargEnd
@@ -89,7 +87,7 @@ fi
 # By default, max_wal_senders = 10, and superuser_reserved_connections = 3.
 # max_connections must be strictly greater than the sum of these, or our
 # configuration is invalid.
-MAX_CONNECTIONS=$(($NUMCPUS*6))
+MAX_CONNECTIONS=$(($NUM_LOGICAL_CPUS*6))
 if [[ "$MAX_CONNECTIONS" -le 13 ]]; then
 	MAX_CONNECTIONS=14
 fi

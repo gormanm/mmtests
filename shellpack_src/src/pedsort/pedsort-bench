@@ -35,7 +35,7 @@ mv $SHELLPACK_TEMP/generate-words.pl $WORDS_CMD
 chmod a+x $WORDS_CMD
 
 echo Generating text files
-$WORDS_CMD -t $(( $NUMCPUS * 2 )) -w $PEDSORT_NFILES_WORDS -m bruit \
+$WORDS_CMD -t $(( $NUM_LOGICAL_CPUS * 2 )) -w $PEDSORT_NFILES_WORDS -m bruit \
 	   -f $PEDSORT_NFILES -p $PEDSORT_WORDS_DIR/text-file-%d.txt ||
 		die "Failed to generate words for benchmark input."
 ls --format single-column $PEDSORT_WORDS_DIR/text-file-*.txt > $PEDSORT_WORDS_DIR/pedsort-input.txt

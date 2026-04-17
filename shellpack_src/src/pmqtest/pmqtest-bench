@@ -28,7 +28,7 @@ kernbench)
 	tar xf linux-$KERNEL_VERSION.tar.gz || die "Failed to extract"
 	cd linux-$KERNEL_VERSION || die "Unexpected layout"
 	yes '' | make defconfig &>/dev/null || die "Failed to make defconfig"
-	make -j$NUMCPUS clean &> /dev/null
+	make -j$NUM_LOGICAL_CPUS clean &> /dev/null
 
 	cat << EOF > build-loop.sh
 	cleanup() {
@@ -37,7 +37,7 @@ kernbench)
 	trap cleanup EXIT
 	cd $SHELLPACK_DATA/linux-$KERNEL_VERSION
 	while [ 1 ]; do
-		make -j$NUMCPUS vmlinux &> /dev/null
+		make -j$NUM_LOGICAL_CPUS vmlinux &> /dev/null
 		make clean &> /dev/null
 	done
 EOF
@@ -54,7 +54,7 @@ fi
 BACKGROUND_PID=
 case $PMQTEST_BACKGROUND in
 hackbench)
-	./hackbench -P -g $NUMCPUS -l 200000000 &
+	./hackbench -P -g $NUM_LOGICAL_CPUS -l 200000000 &
 	BACKGROUND_PID=$!
 	echo "Background hackbench $PID"
 	;;

@@ -15,5 +15,5 @@ export MONITOR_UPDATE_FREQUENCY=10
 
 # pmqtest
 export PMQTEST_DURATION=600 # seconds
-export PMQTEST_PAIRS=$((NUMCPUS)) # amount of sender/receiver pairs
+export PMQTEST_PAIRS=$((NUM_LOGICAL_CPUS)) # amount of sender/receiver pairs
 export PMQTEST_BACKGROUND=hackbench

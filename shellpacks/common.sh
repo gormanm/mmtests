@@ -20,26 +20,19 @@ LLC_INDEX=`find /sys/devices/system/cpu/ -type d -name "index*" | sed -e 's/.*in
 SMT_WEIGHT=`lscpu | grep Thread | awk '{print $NF}'`
 [ "$SMT_WEIGHT" = "" ] && SMT_WEIGHT=1
 
-NUMCPUS=`getconf _NPROCESSORS_ONLN`
 NUM_CORES=`getconf _NPROCESSORS_ONLN`
-NUM_LOGICAL_CPUS=$((NUMCPUS*SMT_WEIGHT))
+NUM_LOGICAL_CPUS=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
 NUMLLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort -u | wc -l`
 [ "$NUMLLCS" = "0" ] && NUMLLCS=1
 NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
 
-LLC_WEIGHT=$((NUMCPUS/NUMLLCS))
-NODE_WEIGHT=$((NUMCPUS/NUMNODES))
+LLC_WEIGHT=$((NUM_LOGICAL_CPUS/NUMLLCS))
+NODE_WEIGHT=$((NUM_LOGICAL_CPUS/NUMNODES))
 
 WGET_SHOW_PROGRESS="--show-progress --progress=bar:force:noscroll"
 wget --help | grep -q show-progress
 if [ $? -ne 0 ]; then
 	WGET_SHOW_PROGRESS=
-fi
-
-grep -q nosmt /proc/cmdline
-if [ $? -eq 0 ]; then
-	echo WARNING: Artifically boosting NUMCPUS to account for nosmt comparison
-	NUMCPUS=$((NUMCPUS*2))
 fi
 
 export MMTESTS_LIBDIR="lib"

@@ -263,7 +263,7 @@ OFFLINED_CPUS=0
 if [ "$MMTESTS_LIMIT_CPUS" != "" ]; then
 	offline-cpus --limit $MMTESTS_LIMIT_CPUS || die "Failed to limit CPUs to $MMTESTS_LIMIT_CPUS"
 	OFFLINED_CPUS=1
-	NUMCPUS=`getconf _NPROCESSORS_ONLN`
+	NUM_LOGICAL_CPUS=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
 	echo Reimporting configs
 	import_configs
 fi

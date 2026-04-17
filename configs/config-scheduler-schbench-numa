@@ -7,7 +7,7 @@
 ### worse-case outliers.
 ###
 ### This configuration uses the default schbench configuration of 1 message
-### thread and NUMCPUS worker threads per message thread.
+### thread and NUM_LOGICAL_CPUS worker threads per message thread.
 ###
 
 export MMTESTS="schbench"
@@ -23,8 +23,8 @@ export MONITOR_UPDATE_FREQUENCY=3
 export SCHBENCH_RUNTIME=1200
 export SCHBENCH_INTERVAL=15
 export SCHBENCH_MESSAGE_THREADS=$NUMNODES
-export SCHBENCH_MIN_WORKER_THREADS=$((NUMCPUS/NUMNODES))
-export SCHBENCH_MAX_WORKER_THREADS=$((NUMCPUS/NUMNODES))
+export SCHBENCH_MIN_WORKER_THREADS=$((NUM_LOGICAL_CPUS/NUMNODES))
+export SCHBENCH_MAX_WORKER_THREADS=$((NUM_LOGICAL_CPUS/NUMNODES))
 
 if [ $NUMNODES -eq 1 ]; then
         echo Skipping NUMA test configuration on single node machine

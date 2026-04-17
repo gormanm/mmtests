@@ -13,7 +13,7 @@ export HPCC_MPI_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$HPCC_OPENMPI_VERSION/bin
 export HPCC_MPI_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_OPENMPI_VERSION/$MMTESTS_LIBDIR
 export HPCC_WORKLOAD_SIZE=$((16*1048576*1024))
 export HPCC_ITERATIONS=3
-export HPCC_MAX_CPUS=$((NUMCPUS))
+export HPCC_MAX_CPUS=$((NUM_LOGICAL_CPUS))
 
 if [ $HPCC_WORKLOAD_SIZE -gt $((MEMTOTAL_BYTES/2)) ]; then
 	echo Insufficient memory for benchmark
@@ -23,7 +23,7 @@ fi
 # Set additional mpi options if required
 grep -q " ht " /proc/cpuinfo
 if [ $? -eq 0 ]; then
-	if [ $HPCC_MAX_CPUS -ge $((NUMCPUS/2)) ]; then
+	if [ $HPCC_MAX_CPUS -ge $((NUM_LOGICAL_CPUS/2)) ]; then
 		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
 		HPCC_MPI_OPTS+=" --use-hwthread-cpus"
 	fi

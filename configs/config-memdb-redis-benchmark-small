@@ -28,7 +28,7 @@ export REDIS_KEYSPACE=50000
 export REDIS_REQUESTS=$((REDIS_KEYSPACE*2))
 export REDIS_PIPELINE=256
 export REDIS_MIN_CLIENTS=1
-export REDIS_MAX_CLIENTS=$((NUMCPUS*2))
+export REDIS_MAX_CLIENTS=$((NUM_LOGICAL_CPUS*2))
 
 # Disable THP as recommended by redis documentation
 disable_transhuge

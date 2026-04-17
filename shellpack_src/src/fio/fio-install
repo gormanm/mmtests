@@ -12,11 +12,11 @@ install-depends glibc-devel libaio-devel
 ###SHELLPACK sources_fetch fio-${VERSION}.tar.bz2 fio-${VERSION}-installed
 
 ###SHELLPACK build_start fio-${VERSION}-installed
-make -j$NUMCPUS
+make -j$NUM_LOGICAL_CPUS
 if [ $? -ne 0 ]; then
 	###SHELLPACK self_extract fio-types.patch
 	cat $SHELLPACK_TEMP/fio-types.patch | patch -p1 || die Failed to apply fio types fix
-	make -j$NUMCPUS
+	make -j$NUM_LOGICAL_CPUS
 	if [ $? -ne 0 ]; then
 		error "$P: make failed"
 		popd > /dev/null

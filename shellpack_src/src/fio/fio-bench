@@ -209,13 +209,13 @@ function scaling_test() {
 	for rw in ${FIO_IO_PATTERNS}; do
 		logfile=${LOGDIR_RESULTS}/fio-scaling-${rw}
 		fio_args["IO_PATTERNS"]=$rw
-		for i in $(seq 0 ${NUMCPUS}); do
+		for i in $(seq 0 ${NUM_LOGICAL_CPUS}); do
 			fio_args["NJOBS"]=$[2**${i}*${DIR_NR}]
 			if [ fio_args["NJOBS"] -gt ${FIO_MAX_JOBS} ]; then
 				break
 			fi
-			if [ fio_args["NJOBS"] -gt ${NUMCPUS} ]; then
-				njobs=${NUMCPUS}
+			if [ fio_args["NJOBS"] -gt ${NUM_LOGICAL_CPUS} ]; then
+				njobs=${NUM_LOGICAL_CPUS}
 			fi
 			if [ fio_args["NJOBS"] -eq ${p_njobs} ]; then
 				break

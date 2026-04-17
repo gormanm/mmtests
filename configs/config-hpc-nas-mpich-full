@@ -17,7 +17,7 @@ export NAS_MPICH_PATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_MPICH_VERSION/bin
 export NAS_MPICH_LIBPATH=/usr/$MMTESTS_LIBDIR/mpi/gcc/$NAS_MPICH_VERSION/$MMTESTS_LIBDIR
 export NAS_CLASS=`nas-class.sh`
 export NAS_USE_CMA=no
-export NAS_MAX_CPUS=$NUMCPUS
+export NAS_MAX_CPUS=$NUM_LOGICAL_CPUS
 export NAS_ITERATIONS=3
 
 if [ "$NAS_MAX_CPUS" -lt 4 ]; then
@@ -28,7 +28,7 @@ fi
 # Set additional mpi options if required
 #grep -q " ht " /proc/cpuinfo
 #if [ $? -eq 0 ]; then
-#	if [ $NAS_MAX_CPUS -gt $((NUMCPUS/2)) ]; then
+#	if [ $NAS_MAX_CPUS -gt $((NUM_LOGICAL_CPUS/2)) ]; then
 #		echo WARNING: Setting use-hwthread-cpus because HT siblings must be used
 #		NAS_MPICH_OPTS+=" --use-hwthread-cpus"
 #	fi

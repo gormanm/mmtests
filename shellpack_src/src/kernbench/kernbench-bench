@@ -28,13 +28,13 @@ install-depends flex bison libelf-devel libopenssl-devel
 	echo Setup kernel source on test data directory
 	tar -xf $SHELLPACK_SOURCES/linux-$VERSION.tar.xz || die "Failed to extract $SHELLPACK_SOURCES/linux-$VERSION.tar.xz"
 	cd linux-$VERSION || die "Unexpected directory layout for source, no $SHELLPACK_DATA/linux-$VERSION/"
-	make -j$NUMCPUS mrproper &>/dev/null || die "Failed to clean"
+	make -j$NUM_LOGICAL_CPUS mrproper &>/dev/null || die "Failed to clean"
 
 	# Configure and warmup if requested
 	yes '' | make $KERNBENCH_CONFIG &>/dev/null || die "Failed to make $KERNBENCH_CONFIG"
 	if [ "$KERNBENCH_WARMUP" = "yes" ]; then
 		echo Install-only warming run
-		make $COMPILER_FLAGS -j$NUMCPUS $KERNBENCH_TARGETS > /dev/null 2>&1 || die "Failed to build $KERNBENCH_TARGETS"
+		make $COMPILER_FLAGS -j$NUM_LOGICAL_CPUS $KERNBENCH_TARGETS > /dev/null 2>&1 || die "Failed to build $KERNBENCH_TARGETS"
 	fi
 	make $COMPILER_FLAGS clean >/dev/null
 ###SHELLPACK init_only_end
@@ -42,7 +42,7 @@ install-depends flex bison libelf-devel libopenssl-devel
 echo Clean and reconfigure source
 cd $SHELLPACK_DATA/linux-$VERSION || die "Unexpected directory layout for source, no $SHELLPACK_DATA/linux-$VERSION/"
 yes '' | make $KERNBENCH_CONFIG &>/dev/null || die "Failed to make $KERNBENCH_CONFIG"
-make -j$NUMCPUS clean
+make -j$NUM_LOGICAL_CPUS clean
 
 ###SHELLPACK threads_powertwo_begin $KERNBENCH_MIN_THREADS $KERNBENCH_MAX_THREADS
 	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS

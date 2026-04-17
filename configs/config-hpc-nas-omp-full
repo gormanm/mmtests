@@ -14,7 +14,7 @@ export MONITOR_UPDATE_FREQUENCY=10
 export NAS_PARALLEL_TYPE=OMP
 export NAS_CLASS=`nas-class.sh`
 export NAS_USE_CMA=no
-export NAS_MAX_CPUS=$NUMCPUS
+export NAS_MAX_CPUS=$NUM_LOGICAL_CPUS
 export NAS_ITERATIONS=3
 
 # Select tests based on class

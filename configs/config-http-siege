@@ -2,7 +2,7 @@
 ### benchmarking tool. It was intended to be a stress test of HTTP applications.
 ### In this configuration, it is hammering on a single static page served by
 ### Apache 2.4.10. Due to the small page size, it runs 6 iterations for 30
-### seconds and runs from 1 user to 64*NUMCPUS users.
+### seconds and runs from 1 user to 64*NUM_LOGICAL_CPUS users.
 
 export MMTESTS="siege"
 
@@ -16,7 +16,7 @@ export MONITOR_FTRACE_EVENTS=
 export MONITOR_PERF_EVENTS=
 
 # Siege
-export SIEGE_MAX_USERS=$((NUMCPUS*64))
+export SIEGE_MAX_USERS=$((NUM_LOGICAL_CPUS*64))
 export SIEGE_ITERATIONS=6
 export SIEGE_ITER_TIME=30
 

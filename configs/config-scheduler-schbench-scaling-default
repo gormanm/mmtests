@@ -7,7 +7,7 @@
 ### worse-case outliers.
 ###
 ### This configuration uses the default schbench configuration of 1 message
-### thread and scales the number of worker threads up to the NUMCPUS.
+### thread and scales the number of worker threads up to the NUM_LOGICAL_CPUS.
 ###
 
 export MMTESTS="schbench"
@@ -24,4 +24,4 @@ export SCHBENCH_INTERVAL=15
 export SCHBENCH_RUNTIME=$((360+SCHBENCH_INTERVAL-1))
 export SCHBENCH_MESSAGE_THREADS=1
 export SCHBENCH_MIN_WORKER_THREADS=1
-export SCHBENCH_MAX_WORKER_THREADS=$NUMCPUS
+export SCHBENCH_MAX_WORKER_THREADS=$NUM_LOGICAL_CPUS

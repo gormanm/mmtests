@@ -12,4 +12,4 @@ export PISTRESS_RUNTIME=60
 # min/max inversion groups -- benchmark will create 3 threads
 # per-group, with low, mid and high priorities.
 export PISTRESS_MIN_INVGROUPS=1
-export PISTRESS_MAX_INVGROUPS=$((NUMCPUS))
+export PISTRESS_MAX_INVGROUPS=$((NUM_LOGICAL_CPUS))

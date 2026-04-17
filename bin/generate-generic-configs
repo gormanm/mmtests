@@ -35,8 +35,8 @@ cat config-io-dbench4-async | sed -e 's/async/fsync/' -e 's/DBENCH_FSYNC=.*/DBEN
 
 # ebizzy
 sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=1/' 	   config-workload-ebizzy > config-workload-ebizzy-single
-sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=$NUMCPUS/' config-workload-ebizzy > config-workload-ebizzy-max
-sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=$((NUMCPUS*4))/' config-workload-ebizzy > config-workload-ebizzy-overload
+sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=$NUM_LOGICAL_CPUS/' config-workload-ebizzy > config-workload-ebizzy-max
+sed -e 's/\(EBIZZY_M.._THREADS\)=.*/\1=$((NUM_LOGICAL_CPUS*4))/' config-workload-ebizzy > config-workload-ebizzy-overload
 
 # Iperf3 binding configs
 for NET in ipv4 ipv6; do
@@ -85,9 +85,9 @@ EOF
 
 # NAS
 for TYPE in omp mpi mpich; do
-	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/2))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-half
-	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/3))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-third
-	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUMCPUS\/4))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-quarter
+	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUM_LOGICAL_CPUS\/2))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-half
+	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUM_LOGICAL_CPUS\/3))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-third
+	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=$((NUM_LOGICAL_CPUS\/4))/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-quarter
 	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=2/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-pair
 	sed -e 's/NAS_MAX_CPUS=.*/NAS_MAX_CPUS=4/' config-hpc-nas-$TYPE-full > config-hpc-nas-$TYPE-quartet
 done
@@ -131,9 +131,9 @@ for CONFIG in `find -type f -name "config-network-netperf-*" | sort | grep -v 4c
 done
 
 # Parsec
-sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUMCPUS\/2))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-half
-sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUMCPUS\/3))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-third
-sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUMCPUS\/4))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-quarter
+sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUM_LOGICAL_CPUS\/2))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-half
+sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUM_LOGICAL_CPUS\/3))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-third
+sed -e 's/PARSEC_THREADS=.*/PARSEC_THREADS=$((NUM_LOGICAL_CPUS\/4))/' config-hpc-parsec-pthreads-full > config-hpc-parsec-pthreads-quarter
 
 # PGBench
 # o Generate size configs
@@ -189,7 +189,7 @@ sed -e 's/REDIS_MEMTIER_KEYSPACE_MAX=.*/REDIS_MEMTIER_KEYSPACE_MAX=1500000/' con
 sed -e 's/SQLITE_TOTALSIZE=.*/SQLITE_TOTALSIZE=$((1048576*2))'/ config-db-sqlite-insert-small > config-db-sqlite-insert-medium
 
 # Stream
-sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$((NUMCPUS*4))/' config-workload-stream-omp-nodes > config-workload-stream-omp-overload
+sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$((NUM_LOGICAL_CPUS*4))/' config-workload-stream-omp-nodes > config-workload-stream-omp-overload
 sed -e 's/STREAM_THREADS=.*/STREAM_THREADS=$NUMCORES/'	    config-workload-stream-omp-nodes > config-workload-stream-omp-cores
 for CONFIG in stream-omp-llcs stream-omp-2llcs stream-omp-nodes; do
 	cp config-workload-$CONFIG   config-workload-$CONFIG-spread
@@ -262,8 +262,8 @@ done
 cp config-hpc-xsbench-short-omp-small-full config-hpc-xsbench-long-omp-small-full
 echo "export XSBENCH_LOOKUPS=10000" >> config-hpc-xsbench-long-omp-small-full
 for LENGTH in short long; do
-	sed -e 's/_THREADS=.*/_THREADS=$((NUMCPUS\/2))/' config-hpc-xsbench-$LENGTH-omp-small-full > config-hpc-xsbench-$LENGTH-omp-small-half
-	sed -e 's/_THREADS=.*/_THREADS=$((NUMCPUS\/4))/' config-hpc-xsbench-$LENGTH-omp-small-full > config-hpc-xsbench-$LENGTH-omp-small-quarter
+	sed -e 's/_THREADS=.*/_THREADS=$((NUM_LOGICAL_CPUS\/2))/' config-hpc-xsbench-$LENGTH-omp-small-full > config-hpc-xsbench-$LENGTH-omp-small-half
+	sed -e 's/_THREADS=.*/_THREADS=$((NUM_LOGICAL_CPUS\/4))/' config-hpc-xsbench-$LENGTH-omp-small-full > config-hpc-xsbench-$LENGTH-omp-small-quarter
 	for DEGREE in full half quarter; do
 		for SIZE in large XL XXL; do
 			sed -e "s/XSBENCH_SIZE=.*/XSBENCH_SIZE=$SIZE/"  config-hpc-xsbench-$LENGTH-omp-small-$DEGREE > config-hpc-xsbench-$LENGTH-omp-$SIZE-$DEGREE

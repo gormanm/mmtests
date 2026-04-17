@@ -68,21 +68,19 @@ zombie)
 esac
 
 ###SHELLPACK threads_powertwo_begin $STRESSNG_MIN_THREADS $STRESSNG_MAX_THREADS
-	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	BENCH_CMD=" ./stress-ng $TESTSWITCH $NR_THREADS --timeout ${STRESSNG_RUNTIME}s --metrics-brief"
 	log_cmd $BENCH_CMD
 
 	PRINT_NR_THREADS=$NR_THREADS
-	if [ $NR_THREADS -eq 0 ]; then
-		PRINT_NR_THREADS=$NUMCPUS
-	fi
+	[ $NR_THREADS -eq 0 ] && PRINT_NR_THREADS=$NUM_LOGICAL_CPUS
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
 	###SHELLPACK iteration_begin $STRESSNG_ITERATIONS
 		echo Running $PRINT_NR_THREADS stressng $STRESSNG_TESTNAME iteration $ITERATION
 		eval $TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION \
 			$BENCH_CMD &> $LOGDIR_RESULTS/stressng-$NR_THREADS-$ITERATION.log
 	###SHELLPACK iteration_end $STRESSNG_ITERATIONS
-
 	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+
 ###SHELLPACK threads_powertwo_end
 
 exit $SHELLPACK_SUCCESS

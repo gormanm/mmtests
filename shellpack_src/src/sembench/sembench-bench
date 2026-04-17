@@ -3,7 +3,6 @@
 
 ###SHELLPACK preamble sembench-bench 3
 TESTLIST=
-MAX_THREADS=$NUMCPUS
 RUNTIME=30
 
 ###SHELLPACK parseargBegin

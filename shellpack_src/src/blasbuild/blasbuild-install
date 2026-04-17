@@ -15,7 +15,7 @@ export MAKE_INSTALL_FLAGS="PREFIX=$PREFIX OPENBLAS_LIBRARY_DIR=$PREFIX/$MMTESTS_
 # Try workaround potential for IceLake not being detected
 # This is not reliable as the target CPU may also not be
 # skylake
-make -j$NUMCPUS
+make -j$NUM_LOGICAL_CPUS
 if [ $? -ne 0 -a "`uname -m`" = "x86_64" ]; then
 	export MAKE_FLAGS="$MAKE_FLAGS TARGET=SKYLAKEX"
 fi

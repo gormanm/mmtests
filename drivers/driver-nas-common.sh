@@ -6,7 +6,7 @@ run_bench() {
 		CMAOPT="--cma"
 	fi
 	if [ "$NAS_MAX_CPUS" = "" ]; then
-		NAS_MAX_CPUS=$NUMCPUS
+		NAS_MAX_CPUS=$NUM_LOGICAL_CPUS
 	fi
 	$SCRIPTDIR/shellpacks/shellpack-bench-nas $CMAOPT	\
 		--type $NAS_PARALLEL_TYPE 			\

@@ -5,7 +5,7 @@
 ### and the results partially depend on where in the loadfile the benchmark
 ### was when the time runs out. This configuration uses async after the IO
 ### completes (-F switch to the benchmark specifically) and varies the number
-### of clients up to NUMCPUS*4.
+### of clients up to NUM_LOGICAL_CPUS*4.
 ###
 ### This is a modified version of the benchmark to reduce variation. The
 ### filesystem is limited in size to offset variations due to disk
@@ -41,7 +41,7 @@ export DBENCH_OSYNC=no
 export DBENCH_SYNC_DIRECTORY=no
 export DBENCH_FSYNC=no
 export DBENCH_MIN_CLIENTS=1
-export DBENCH_MAX_CLIENTS=$((NUMCPUS*2))
+export DBENCH_MAX_CLIENTS=$((NUM_LOGICAL_CPUS*2))
 
 # Force small filesystem size to limit variations of the test due to
 # differences in inode placement in the partition. Each client needs ~25 MB

@@ -5,7 +5,7 @@
 export MMTESTS="io_uring"
 
 export IOURING_TEST_TYPE=nops
-export IOURING_THREADS=$NUMCPUS
+export IOURING_THREADS=$NUM_LOGICAL_CPUS
 
 # List of monitors
 export RUN_MONITOR=yes

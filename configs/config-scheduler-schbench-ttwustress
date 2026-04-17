@@ -6,7 +6,7 @@
 ### of wakeup times of the worker threads with a specific interest in the
 ### worse-case outliers.
 ###
-### This configuration uses 4 pinned messangers with NUMCPUS*2 workers
+### This configuration uses 4 pinned messangers with NUM_LOGICAL_CPUS*2 workers
 ### split between the messangers. Each work uses no locks, no think time
 ### operations or sleep time per request. No real work is done and the
 ### intent is to simulate 4 CPUs waking all other CPUs constantly similar
@@ -31,8 +31,8 @@ export MONITOR_UPDATE_FREQUENCY=3
 export SCHBENCH_RUNTIME=1200
 export SCHBENCH_INTERVAL=15
 export SCHBENCH_MESSAGE_THREADS=4
-export SCHBENCH_MIN_WORKER_THREADS=$((NUMCPUS*2/SCHBENCH_MESSAGE_THREADS))
-export SCHBENCH_MAX_WORKER_THREADS=$((NUMCPUS*2/SCHBENCH_MESSAGE_THREADS))
+export SCHBENCH_MIN_WORKER_THREADS=$((NUM_LOGICAL_CPUS*2/SCHBENCH_MESSAGE_THREADS))
+export SCHBENCH_MAX_WORKER_THREADS=$((NUM_LOGICAL_CPUS*2/SCHBENCH_MESSAGE_THREADS))
 
 export SCHBENCH_DISABLE_SPINLOCK=yes
 export SCHBENCH_PIN_MESSENGERS=auto

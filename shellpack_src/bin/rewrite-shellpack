@@ -395,7 +395,7 @@ EOC
 	} elsif ($command eq "make") {
 		my $opts = join(" ", @details);
 		print <<EOC
-MAKE_JOBS="-j\$NUMCPUS"
+MAKE_JOBS="-j\$NUM_LOGICAL_CPUS"
 if [ "\$MMTESTS_BUILD_SERIAL" = "yes" ]; then
 	MAKE_JOBS=
 fi
