@@ -14,10 +14,6 @@ config-db-pgbench-timed-rw-large
 config-db-pgbench-timed-rw-medium
 config-db-pgbench-timed-rw-scale1
 config-db-pgbench-timed-rw-small
-config-db-pgbench-timed-ro-medium-tuned
-config-db-pgbench-timed-ro-small-tuned
-config-db-pgbench-timed-rw-medium-tuned
-config-db-pgbench-timed-rw-small-tuned
 config-db-sysbench-mariadb-oltp-ro-medium
 config-db-sysbench-mariadb-oltp-ro-small
 config-db-sysbench-mariadb-oltp-rw-medium

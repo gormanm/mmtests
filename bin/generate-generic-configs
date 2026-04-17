@@ -150,11 +150,13 @@ for SIZE in small medium large; do
 	medium)
 		sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((MEMTOTAL_BYTES*3\/5))/' \
 		       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
+		       -e 's/PGBENCH_MAX_TIME=.*/PGBENCH_MAX_TIME=300/'						 \
 			config-db-pgbench-timed-ro-$SIZE
 		;;
 	large)
 		sed -i -e 's/WORKLOAD_SIZE=.*/WORKLOAD_SIZE=$((MEMTOTAL_BYTES*6\/5))/' \
 		       -e 's/SCALE_FACTOR=.*/SCALE_FACTOR=$(((TARGET_WORKLOAD_SIZE-30*1048576)\/(15*1048576)))/' \
+		       -e 's/PGBENCH_MAX_TIME=.*/PGBENCH_MAX_TIME=300/'						 \
 			config-db-pgbench-timed-ro-$SIZE
 		;;
 	*)
@@ -233,7 +235,7 @@ for SIZE in small medium; do
 		config-db-sysbench-mariadb-oltp-ro-$SIZE > config-db-sysbench-mariadb-oltp-rw-$SIZE
 done
 
-# o Generate postgres configs
+# o Generate sysbench postgres configs
 for TYPE in ro rw; do
 	for SIZE in small medium; do
 		sed -e 's/SYSBENCH_DRIVER=.*/SYSBENCH_DRIVER=postgres/' config-db-sysbench-mariadb-oltp-$TYPE-$SIZE \
