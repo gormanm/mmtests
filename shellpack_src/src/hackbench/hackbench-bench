@@ -59,7 +59,7 @@ TIMEOUT=900
 		while [ $RET -ne 0 -a $ATTEMPT -lt 5 ]; do
 			ATTEMPT=$((ATTEMPT+1))
 			log_info "Running attempt $ATTEMPT $CONN_NAME $NR_THREADS groups iteration $ITERATION/$HACKBENCH_ITERATIONS"
-			timeout ${TIMEOUT}s $BENCH_CMD > $LOGDIR_RESULTS/hackbench-$NR_THREADS
+			timeout ${TIMEOUT}s $BENCH_CMD >> $LOGDIR_RESULTS/hackbench-$NR_THREADS
 			RET=$?
 		done
 
