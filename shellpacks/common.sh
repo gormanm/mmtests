@@ -20,13 +20,13 @@ LLC_INDEX=`find /sys/devices/system/cpu/ -type d -name "index*" | sed -e 's/.*in
 SMT_WEIGHT=`lscpu | grep Thread | awk '{print $NF}'`
 [ "$SMT_WEIGHT" = "" ] && SMT_WEIGHT=1
 
-NUM_CORES=`getconf _NPROCESSORS_ONLN`
 NUM_LOGICAL_CPUS=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
-NUMLLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort -u | wc -l`
-[ "$NUMLLCS" = "0" ] && NUMLLCS=1
+NUM_CORES=$((NUM_LOGICAL_CORES/SMT_WEIGHT))
+NUM_LLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort -u | wc -l`
+[ "$NUM_LLCS" = "0" ] && NUMLLCS=1
 NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
 
-LLC_WEIGHT=$((NUM_LOGICAL_CPUS/NUMLLCS))
+LLC_WEIGHT=$((NUM_LOGICAL_CPUS/NUM_LLCS))
 NODE_WEIGHT=$((NUM_LOGICAL_CPUS/NUMNODES))
 
 WGET_SHOW_PROGRESS="--show-progress --progress=bar:force:noscroll"

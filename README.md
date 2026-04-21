@@ -145,7 +145,7 @@ get_numa_details
 ```
 
 This will give access to more information about the system topology, such as:
-* `NUMLLCS`:
+* `NUM_LLCS`:
 	Number of Last Level Caches present in the system.
 * `NUMNODES`:
 	Number of NUMA nodes.
@@ -154,7 +154,7 @@ Benchmark configurations can then be refined, by taking advantage of the
 knowledge of the platform characteristics.
 
 For an example check
-[config-workload-stream-omp-llcs](https://github.com/gormanm/mmtests/blob/master/configs/config-workload-stream-omp-llcs), where this is done: `STREAM_THREADS=$NUMLLCS`. Or
+[config-workload-stream-omp-llcs](https://github.com/gormanm/mmtests/blob/master/configs/config-workload-stream-omp-llcs), where this is done: `STREAM_THREADS=$NUM_LLCS`. Or
 [config-scheduler-schbench](https://github.com/gormanm/mmtests/blob/master/configs/config-scheduler-schbench),
 which has: `SCHBENCH_THREADS=$(((NUM_LOGICAL_CPUS/NUMNODES)-1))`
 

@@ -14,7 +14,7 @@ for FILE in `ls config-io-bonnie*-async`; do
 done
 
 # coremark
-cat config-workload-coremark | sed -e 's/COREMARK_THREADS=.*/COREMARK_THREADS=$NUMLLCS/' > config-workload-coremark-llcs
+cat config-workload-coremark | sed -e 's/COREMARK_THREADS=.*/COREMARK_THREADS=$NUM_LLCS/' > config-workload-coremark-llcs
 
 # cyclictest
 # o Basic histogram configuration
