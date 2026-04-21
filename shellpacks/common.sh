@@ -24,10 +24,10 @@ NUM_LOGICAL_CPUS=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
 NUM_CORES=$((NUM_LOGICAL_CORES/SMT_WEIGHT))
 NUM_LLCS=`grep . /sys/devices/system/cpu/cpu*/cache/index$LLC_INDEX/shared_cpu_map | awk -F : '{print $NF}' | sort -u | wc -l`
 [ "$NUM_LLCS" = "0" ] && NUMLLCS=1
-NUMNODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
+NUM_NODES=`grep ^Node /proc/zoneinfo | awk '{print $2}' | sort | uniq | wc -l`
 
 LLC_WEIGHT=$((NUM_LOGICAL_CPUS/NUM_LLCS))
-NODE_WEIGHT=$((NUM_LOGICAL_CPUS/NUMNODES))
+NODE_WEIGHT=$((NUM_LOGICAL_CPUS/NUM_NODES))
 
 WGET_SHOW_PROGRESS="--show-progress --progress=bar:force:noscroll"
 wget --help | grep -q show-progress
@@ -735,7 +735,7 @@ function set_mmtests_numactl() {
 	fi
 
 	if [ "$MMTESTS_NUMA_POLICY" = "fullbind_single_instance_node" ]; then
-		local NODE_INDEX=$(($THIS_INSTANCE%$NUMNODES+1))
+		local NODE_INDEX=$(($THIS_INSTANCE%$NUM_NODES+1))
 		local NODE_DETAILS=`numactl --hardware | grep cpus: | head -$NODE_INDEX | tail -1`
 		local NODE_ID=`echo $NODE_DETAILS | awk '{print $2}'`
 
@@ -743,7 +743,7 @@ function set_mmtests_numactl() {
 	fi
 
 	if [ "$MMTESTS_NUMA_POLICY" = "fullbind_single_instance_cpu" ]; then
-		local NODE_INDEX=$(($THIS_INSTANCE%$NUMNODES+1))
+		local NODE_INDEX=$(($THIS_INSTANCE%$NUM_NODES+1))
 		local NODE_DETAILS=`numactl --hardware | grep cpus: | head -$NODE_INDEX | tail -1`
 		local NODE_ID=`echo $NODE_DETAILS | awk '{print $2}'`
 		local CPU_ID=`echo $NODE_DETAILS | awk '{print $4}'`
@@ -752,7 +752,7 @@ function set_mmtests_numactl() {
 	fi
 
 	if [ "$MMTESTS_NUMA_POLICY" = "membind_single_instance_node" ]; then
-		local NODE_INDEX=$(($THIS_INSTANCE%$NUMNODES+1))
+		local NODE_INDEX=$(($THIS_INSTANCE%$NUM_NODES+1))
 		local NODE_DETAILS=`numactl --hardware | grep cpus: | head -$NODE_INDEX | tail -1`
 		local NODE_ID=`echo $NODE_DETAILS | awk '{print $2}'`
 
@@ -760,7 +760,7 @@ function set_mmtests_numactl() {
 	fi
 
 	if [ "$MMTESTS_NUMA_POLICY" = "cpubind_single_instance_node" ]; then
-		local NODE_INDEX=$(($THIS_INSTANCE%$NUMNODES+1))
+		local NODE_INDEX=$(($THIS_INSTANCE%$NUM_NODES+1))
 		local NODE_DETAILS=`numactl --hardware | grep cpus: | head -$NODE_INDEX | tail -1`
 		local NODE_ID=`echo $NODE_DETAILS | awk '{print $2}'`
 

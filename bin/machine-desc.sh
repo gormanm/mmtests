@@ -83,7 +83,7 @@ hw_cpu_cores     : $hw_ncores
 hw_smt_threads   : $hw_nthreads
 hw_l1_cache      : $hw_pcache
 hw_memory        : $hw_memory
-hw_memory_nodes  : $NUMNODES
+hw_memory_nodes  : $NUM_NODES
 
 Memory Topology
 ---------------
@@ -112,4 +112,4 @@ EOF
 
 echo
 printf "%-16s %4s %5s %8s %5s %3s\n" hostname cpus sockt mem nodes cpu
-printf "%-16s %4d %5d %8s %5d %s\n" `hostname` $hw_cpus $hw_sockets ${hw_memory} $NUMNODES "$hw_cpu_name"
+printf "%-16s %4d %5d %8s %5d %s\n" `hostname` $hw_cpus $hw_sockets ${hw_memory} $NUM_NODES "$hw_cpu_name"

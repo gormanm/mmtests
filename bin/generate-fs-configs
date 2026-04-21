@@ -196,7 +196,7 @@ for CONFIG in $RAMCONFIGS; do
 #		echo '# Use 1/5 of NUMA node size to leave space for pagecache and other stuff' >> ${CONFIG}-$FS
 #		echo '# Also note we may be on UMA machine after all' >> ${CONFIG}-$FS
 #		echo 'export TESTDISK_RD_PREALLOC=yes' >> ${CONFIG}-$FS
-#		echo 'export TESTDISK_RD_PREALLOC_NODE=${MMTESTS_NODE_ID_BY_SIZE[$((NUMNODES-1))]}' >> ${CONFIG}-$FS
+#		echo 'export TESTDISK_RD_PREALLOC_NODE=${MMTESTS_NODE_ID_BY_SIZE[$((NUM_NODES-1))]}' >> ${CONFIG}-$FS
 #		echo 'export TESTDISK_RD_SIZE=$((${MMTESTS_NODE_SIZE[$TESTDISK_RD_PREALLOC_NODE]}/5))' >> ${CONFIG}-$FS
 #	done
 done

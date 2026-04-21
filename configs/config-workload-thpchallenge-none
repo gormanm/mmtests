@@ -46,12 +46,12 @@ export MONITOR_UPDATE_FREQUENCY=1
 # Limit memory to 16GB per node to save storage and limit runtime
 . $SHELLPACK_INCLUDE/include-sizes.sh
 get_numa_details
-limit_memory $((16*1048576*1024*NUMNODES))
+limit_memory $((16*1048576*1024*NUM_NODES))
 
 # thpchallenge
 export THPCHALLENGE_BACKGROUND="none"
 export THPCHALLENGE_FIO_THREADS=4
-export THPCHALLENGE_MIN_THREADS=$((((NUM_LOGICAL_CPUS/NUMNODES)-THPCHALLENGE_FIO_THREADS)/4))
+export THPCHALLENGE_MIN_THREADS=$((((NUM_LOGICAL_CPUS/NUM_NODES)-THPCHALLENGE_FIO_THREADS)/4))
 export THPCHALLENGE_MAX_THREADS=$THPCHALLENGE_MIN_THREADS
 if [ $THPCHALLENGE_MAX_THREADS -le 0 ]; then
 	die "Insufficient number of CPUs to run benchmark"

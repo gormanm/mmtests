@@ -15,13 +15,13 @@ export MONITOR_UPDATE_FREQUENCY=10
 export MONITOR_PERF_EVENTS=node-load-misses,node-store-misses
 
 # PerfNUMA
-export PERFNUMA_NR_PROCESSES=$NUMNODES
-export PERFNUMA_NR_THREADS=$((NUM_LOGICAL_CPUS/NUMNODES))
+export PERFNUMA_NR_PROCESSES=$NUM_NODES
+export PERFNUMA_NR_THREADS=$((NUM_LOGICAL_CPUS/NUM_NODES))
 export PERFNUMA_PROCESS_WSS=$((${MMTESTS_NODE_SIZE[0]}*4/5))
 export PERFNUMA_WORKLOADS="light_converge standard_converge oversubscribe_converge"
 export PERFNUMA_ITERATIONS=10
 
-if [ $NUMNODES -eq 1 ]; then
+if [ $NUM_NODES -eq 1 ]; then
 	echo Skipping NUMA test configuration on single node machine
 	exit $SHELLPACK_SUCCESS
 fi

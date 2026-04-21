@@ -100,8 +100,8 @@ fi
 # Bound number of PGBENCH threads
 # o Use at least one per node
 # o Use no more than 1 thread per 8 clients
-MIN_PGBENCH_THREADS=$NUMNODES
-MAX_PGBENCH_THREADS=$(($NUM_LOGICAL_CPUS/$NUMNODES/8))
+MIN_PGBENCH_THREADS=$NUM_NODES
+MAX_PGBENCH_THREADS=$(($NUM_LOGICAL_CPUS/$NUM_NODES/8))
 [ $MAX_PGBENCH_THREADS -lt $MIN_PGBENCH_THREADS ] && MAX_PGBENCH_THREADS=$MIN_PGBENCH_THREADS
 
 # Pick a warm-up time based on the database size.  Every scale factor is

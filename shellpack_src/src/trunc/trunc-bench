@@ -12,7 +12,7 @@
 ###SHELLPACK init_complete
 
 WARN_ONCE=
-while [ $((TRUNC_NR_FILES*TRUNC_FILESIZE)) -gt $((MEMTOTAL_BYTES/$NUMNODES/2)) ]; do
+while [ $((TRUNC_NR_FILES*TRUNC_FILESIZE)) -gt $((MEMTOTAL_BYTES/$NUM_NODES/2)) ]; do
 	if [ "$WARN_ONCE" = "" ]; then
 		WARN_ONCE=yes
 		echo WARNING: Reducing TRUNC_FILESIZE due to memory limitations
