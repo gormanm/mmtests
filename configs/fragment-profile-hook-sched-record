@@ -1,0 +1,73 @@
+compress() {
+	local logdir=$1
+	local subtest=$2
+
+	which zstd &>/dev/null
+	if [ $? -eq 0 ]; then
+		echo Compressing zstd $logdir/perf-$subtest.data
+		zstd --quiet --rm --no-progress -f $logdir/perf-$subtest.data
+		return
+	fi
+	which xz &>/dev/null
+	if [ $? -eq 0 ]; then
+		echo Compressing xz $logdir/perf-$subtest.data
+		xz $logdir/perf-$subtest.data
+		return
+	fi
+	which bzip2 &>/dev/null
+	if [ $? -eq 0 ]; then
+		echo Compressing bzip2 $logdir/perf-$subtest.data
+		bzip2 $logdir/perf-$subtest.data
+		return
+	fi
+
+	echo No compression $logdir/perf-$subtest.data
+}
+export -f compress
+
+perf_monitor-init() {
+	# Called once for the entire configuration before the test is
+	# started from mmtests context.
+	zypper install -y perf
+}
+
+perf_monitor-pre () {
+	local logdir=$1
+	local subtest=$2
+
+	echo "Start profile-hook perf sched record -a $logdir/perf-$subtest.data"
+	/usr/bin/perf sched record -a -o $logdir/perf-$subtest.data &
+	echo $! > $logdir/perf.pid
+	echo "Perf pid:     $(cat $logdir/perf.pid)"
+	echo "Perf pidfile: $logdir/perf.pid"
+}
+
+perf_monitor-post() {
+	# Called once for each subtest execution from the driver
+	# context, right after the command-under-test. Arguments are
+	# exactly the same as perf-monitor-pre.
+	local logdir=$1
+	local subtest=$2
+
+	echo "Perf pid:     $(cat $logdir/perf.pid)"
+	echo "Perf pidfile: $logdir/perf.pid"
+
+	local pidperf=$(cat $logdir/perf.pid)
+	kill -INT $pidperf
+
+	echo -n "Wait pid $pidperf exit."
+	ps -p $pidperf &>/dev/null
+	while [ $? -eq 0 ]; do
+		echo -n .
+		sleep 1
+		ps -p $pidperf &>/dev/null
+	done
+	echo
+
+	rm $logdir/perf.pid
+	echo "Finish profile-hook perf sched record $logdir/perf-$subtest.data"
+
+	compress $logdir $subtest
+}
+
+export MONITOR_HOOKS="perf"
