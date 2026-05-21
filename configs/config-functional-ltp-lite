@@ -21,4 +21,4 @@ export MONITORS_WITH_LATENCY=
 export MONITOR_UPDATE_FREQUENCY=10
 
 # LTP
-export LTP_RUN_TESTS="fs,math,mm-lite,nptl,pty,sched,syscalls-ips,syscalls-lite"
+export LTP_RUN_TESTS="fs,math,mm-lite,nptl,pty,sched,syscalls-ipc,syscalls-lite"
