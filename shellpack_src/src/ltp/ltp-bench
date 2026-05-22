@@ -14,6 +14,7 @@ LTP_RUN_TESTS="controllers"
 ###SHELLPACK init_complete
 
 grep -v oom runtest/mm > runtest/mm-lite
+grep    oom runtest/mm > runtest/mm-oom
 grep -v fanotify runtest/syscalls > runtest/syscalls-lite
 
 LTP_RUN_TESTS=`echo $LTP_RUN_TESTS | tr ',' ' '`
