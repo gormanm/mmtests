@@ -1,4 +1,6 @@
-### Runs tests specific to memory management
+### Run regression tests for MM operations such as mmap stressors,
+### ksm, cpuset, hugetlbfs, THP, NUMA policy, NUMA migrations and
+### #overcommit functional tests
 
 export MMTESTS="ltp"
 
