@@ -53,6 +53,9 @@ madvise)
 mmap)
 	TESTSWITCH="--mmap"
 	;;
+net4)
+	TESTSWITCH="--sock-domain inet --sock"
+	;;
 vm-splice)
 	TESTSWITCH="--vm-splice"
 	;;

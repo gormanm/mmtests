@@ -1,4 +1,4 @@
-### stressng context switching stress test
+### stressng VMA operation stress test
 ###
 
 export MMTESTS="stressng"

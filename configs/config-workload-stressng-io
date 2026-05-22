@@ -1,4 +1,4 @@
-### stressng IO class using all CPUs
+### stressng IO class scaling number of CPUs
 ###
 export MMTESTS="stressng"
 
@@ -18,11 +18,11 @@ export RUN_MONITOR=yes
 export MONITORS_ALWAYS=
 export MONITORS_GZIP="proc-vmstat mpstat"
 export MONITORS_WITH_LATENCY="vmstat iostat"
-export MONITOR_UPDATE_FREQUENCY=10
+export MONITOR_UPDATE_FREQUENCY=1
 
 # stressng
-export STRESSNG_MIN_THREADS=$((NUM_LOGICAL_CPUS))
+export STRESSNG_MIN_THREADS=1
 export STRESSNG_MAX_THREADS=$((NUM_LOGICAL_CPUS))
 export STRESSNG_RUNTIME=30
 export STRESSNG_ITERATIONS=7
-export STRESSNG_TESTNAME=io-class-parallel
+export STRESSNG_TESTNAME=io-class
