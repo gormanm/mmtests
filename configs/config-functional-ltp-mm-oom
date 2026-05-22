@@ -1,0 +1,13 @@
+### Run the MM Out-of-memory killer test
+
+export MMTESTS="ltp"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP=
+export MONITORS_WITH_LATENCY=
+export MONITOR_UPDATE_FREQUENCY=10
+
+# LTP
+export LTP_RUN_TESTS="mm-oom"
