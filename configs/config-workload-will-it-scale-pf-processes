@@ -1,6 +1,6 @@
 ### will-is-scale is a set of microbench that run a test case from 1 to N
 ### parallel processes to see if it scales. This configuration runs
-### through the benchmarks that are scheduler, MM or IPC based.
+### through the benchmarks that are page-fault intensive.
 
 export MMTESTS="wis-malloc wis-pf"
 
