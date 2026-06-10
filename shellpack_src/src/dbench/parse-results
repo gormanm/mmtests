@@ -14,7 +14,7 @@ cd $LOGDIR || exit 1
 # interval:	e.g. time elapsed, iteration etc
 # value:	the benchmark measurement
 # extra:	Optional value, currently used to identify a metric+factor for dashboard comparisons
-for HEADING in `ls benchlog-*-1.xz | awk -F - '{print $2}'`; do
+for HEADING in `ls benchlog-*-*.xz | awk -F - '{print $2}' | sort | uniq`; do
 	for NR_CLIENT in `\ls benchlog-$HEADING-*.xz | sed -e 's/.xz$//' | cut -f3 -d- | sort -n`; do
 		case $HEADING in
 		loadfile)
