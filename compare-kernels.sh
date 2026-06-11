@@ -1961,18 +1961,14 @@ for SUBREPORT in $REPORTS; do
 
 		if have_monitor_results proc-net-dev $KERNEL_BASE; then
 			INTERFACE_LIST=""
-			if [ -e $KERNEL_BASE/ip-addr ]; then
-				INTERFACE_LIST=`read-ip-addr.pl -u -f $KERNEL_BASE/ip-addr`
-			else
-				for NET_DEV in $KERNEL_BASE/proc-net-dev-*; do
-					if [[ $NET_DEV == *".gz" ]]; then
-						LIST=`gunzip -c $NET_DEV | awk '{ if($1 != "time:")  print $1 }' | sort -u`
-					else
-						LIST=`cat $NET_DEV | awk '{ if($1 != "time:")  print $1 }' | sort -u`
-					fi
-					INTERFACE_LIST=`printf "$LIST\n$INTERFACE_LIST" | sort -u`
-				done
-			fi
+			for NET_DEV in $KERNEL_BASE/proc-net-dev-*; do
+				if [[ $NET_DEV == *".gz" ]]; then
+					LIST=`gunzip -c $NET_DEV | awk '{ if($1 != "time:")  print $1 }' | sort -u`
+				else
+					LIST=`cat $NET_DEV | awk '{ if($1 != "time:")  print $1 }' | sort -u`
+				fi
+				INTERFACE_LIST=`printf "$LIST\n$INTERFACE_LIST" | sort -u`
+			done
 
 			for INTERFACE in $INTERFACE_LIST; do
 				eval $GRAPH_PNG --title \"$INTERFACE Received Bytes\"      --print-monitor proc-net-dev --sub-heading $INTERFACE-rbytes --output $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-net-dev-$INTERFACE-rbytes --with-smooth
