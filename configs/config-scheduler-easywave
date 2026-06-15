@@ -1,0 +1,30 @@
+### easyWave is an application used to simulate tsunami generation and
+### propagation. GPU support exists but is not used to act as a scheduler
+### benchmark. The interesting characteristic of this benchmark is that
+### it is sensitive to newidle balancing. The success rate is low but
+### found to still be of benefit when it succeeds as described in commit
+### 9fe89f022c05 ("sched/fair: More complex proportional newidle balance")
+###
+### The selected example grid and source is simply the "first simulation"
+### suggested in the documentation for execution. Model time selected
+### based on a test run during patch development.
+export MMTESTS="easywave"
+
+# List of monitors
+export RUN_MONITOR=yes
+export MONITORS_ALWAYS=
+export MONITORS_GZIP="proc-vmstat mpstat turbostat"
+export MONITORS_WITH_LATENCY="vmstat"
+export MONITOR_UPDATE_FREQUENCY=10
+
+# EasyWave
+export EASYWAVE_MIN_THREADS=$((NUM_LOGICAL_CPUS/NUM_NODES/2))
+export EASYWAVE_MAX_THREADS=$((NUM_LOGICAL_CPUS*2))
+export EASYWAVE_ITERATIONS=5
+export EASYWAVE_GRID=e2Asean.grd
+export EASYWAVE_SOURCE=BengkuluSept2007.flt
+export EASYWAVE_MODELTIME=1200
+
+if [ $EASYWAVE_MIN_THREADS -eq 0 ]; then
+	EASYWAVE_MIN_THREADS=$EASYWAVE_MAX_THREADS
+fi

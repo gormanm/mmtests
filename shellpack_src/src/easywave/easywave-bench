@@ -1,0 +1,42 @@
+#!/bin/bash
+# Run easywave benchmark
+
+EASYWAVE_MODELTIME=1200
+
+###SHELLPACK preamble easywave-bench r34
+###SHELLPACK parseargBegin
+###SHELLPACK parseargInstall
+###SHELLPACK parseargParam --min-threads	EASYWAVE_MIN_THREADS
+###SHELLPACK parseargParam --max-threads	EASYWAVE_MAX_THREADS
+###SHELLPACK parseargParam --iterations		EASYWAVE_ITERATIONS
+###SHELLPACK parseargParam --modeltime		EASYWAVE_MODELTIME
+###SHELLPACK parseargParam --grid		EASYWAVE_GRID
+###SHELLPACK parseargParam --source		EASYWAVE_SOURCE
+###SHELLPACK parseargEnd
+###SHELLPACK monitor_hooks
+
+###SHELLPACK check_install_required easywave-${VERSION}
+###SHELLPACK init_complete
+
+EXIT_CODE=$SHELLPACK_SUCCESS
+
+cd $SHELLPACK_SOURCES/easywave-${VERSION}-installed || die "Failed to change to easywave installation directory"
+set_mmtests_numactl $EASYWAVE_MAX_THREADS $EASYWAVE_MAX_THREADS
+
+###SHELLPACK threads_topology_walk_begin $EASYWAVE_MIN_THREADS $EASYWAVE_MAX_THREADS
+	BENCH_CMD="./src/easywave -grid examples/$EASYWAVE_GRID -source examples/$EASYWAVE_SOURCE -time $EASYWAVE_MODELTIME"
+	log_cmd "OMP_NUM_THREADS=$NR_THREADS $BENCH_CMD"
+	monitor_pre_hook $LOGDIR_RESULTS $NR_THREADS
+	###SHELLPACK iteration_begin $EASYWAVE_ITERATIONS
+		echo Start iteration $ITERATION/$EASYWAVE_ITERATIONS Threads:$NR_THREADS/$EASYWAVE_MAX_THREADS
+		eval OMP_NUM_THREADS=$NR_THREADS $TIME_CMD -o $LOGDIR_RESULTS/time-$NR_THREADS-$ITERATION	\
+			$BENCH_CMD > $LOGDIR_RESULTS/benchlog-$NR_THREADS-$ITERATION
+		if [ $? -ne 0 ]; then
+			error "easywave returned non-zero value with $NR_THREADS"
+			EXIT_CODE=$SHELLPACK_ERROR
+		fi
+	###SHELLPACK iteration_end
+	monitor_post_hook $LOGDIR_RESULTS $NR_THREADS
+###SHELLPACK threads_stride_end
+
+exit $EXIT_CODE

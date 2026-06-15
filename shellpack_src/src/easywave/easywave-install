@@ -1,0 +1,23 @@
+#!/bin/bash
+
+###SHELLPACK preamble easywave-install r34
+WEB_LOCATION="https://git.gfz-potsdam.de/id2/geoperil/easyWave/-/raw/master/bin/r34/"
+MIRROR_LOCATION="$WEBROOT/easywave"
+
+###SHELLPACK parseargBegin
+###SHELLPACK parseargEnd
+
+WEB_LOCATION="https://git.gfz-potsdam.de/id2/geoperil/easyWave/-/raw/master/bin/"
+MIRROR_LOCATION="$WEBROOT/easywave"
+###SHELLPACK sources_fetch ${VERSION}/easywave_${VERSION}_src.tar.gz easywave-$VERSION-installed
+###SHELLPACK build_start easywave-$VERSION-installed
+###SHELLPACK build_configure
+###SHELLPACK make
+
+cd $SHELLPACK_SOURCES/easywave-$VERSION-installed || die "Failed to access instal directory"
+file_fetch https://git.gfz-potsdam.de/id2/geoperil/easyWave/-/raw/master/data/examples.tar.gz \
+        $MIRROR_LOCATION/examples.tar.gz \
+        examples.tar.gz || die "Failed to download examples.tar.gz"
+tar -xf examples.tar.gz || die "Failed to extract examples.tar.gz"
+
+exit $SHELLPACK_SUCCESS

@@ -1,0 +1,12 @@
+default-metric: exectime
+
+metrics:
+  - exectime
+
+summarise: Multiops
+PlotXaxis: exectime
+PlotType: operation-candlesticks
+
+exectime:
+  title: Model Compute Time
+  units: TIME_MSECONDS

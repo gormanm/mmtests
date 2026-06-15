@@ -1,0 +1,13 @@
+#!/bin/bash
+SHELLPACK_ROOT=$(dirname $(realpath -s ${BASH_SOURCE[0]}))
+SHELLPACK_BIN=$SHELLPACK_ROOT/../../parsers
+
+LOGDIR=${1:-`pwd`}
+cd $LOGDIR || exit 1
+
+for OMP_THREADS in `\ls benchlog-* | cut -f2 -d- | sort -u`; do
+	for ITERATION in `\ls benchlog-$OMP_THREADS-* | cut -f3 -d- | sort -n`; do
+		VALUE=`grep elapsed: benchlog-$OMP_THREADS-$ITERATION | tail -1 | awk '{print $6}'`
+		echo -e "exectime\t$OMP_THREADS\t_\t$ITERATION\t$VALUE\t_"
+	done
+done | sort -k2,2n

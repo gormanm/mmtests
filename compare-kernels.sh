@@ -1667,7 +1667,7 @@ for SUBREPORT in $REPORTS; do
 				smoothover graph-$SUBREPORT-proc-vmstat-minorfaults
 			fi
 			if [ -e $OUTPUT_DIRECTORY/graph-$SUBREPORT-proc-vmstat-majorfaults.png ]; then
-				MAJFAULTS=`$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading pgmajfault | awk '{print $2}' | grep -v Nan | max`
+				MAJFAULTS=`$EXTRACT_CMD -n $KERNEL --print-monitor proc-vmstat --sub-heading pgmajfault | awk '{print $2}' | grep -v Nan | sort -n | tail -1`
 				if [ "$MAJFAULTS" = "" -o "$MAJFAULTS" = "NaN" ]; then
 					MAJFAULTS=0
 				fi

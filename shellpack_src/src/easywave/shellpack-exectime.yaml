@@ -1,0 +1,22 @@
+default-metric: Elapsed
+
+metrics:
+  - User
+  - system
+  - Elapsed
+
+summarise: Multiops
+PlotXaxis: Threads
+PlotType: operation-candlesticks
+
+Elapsed:
+  title: Elapsed Time
+  units: TIME_SECONDS
+
+User:
+  title: User CPU Time
+  units: TIME_SECONDS
+
+System:
+  title: System CPU Time
+  units: TIME_SECONDS
