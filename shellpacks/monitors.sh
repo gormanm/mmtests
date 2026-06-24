@@ -49,16 +49,16 @@ function shutdown_monitors()
 				echo -n .
 				sleep 1
 				_attempt=$((_attempt+1))
-				if [ $_attempt -ge 10 ]; then
+				if [ $_attempt -ge 60 ]; then
 					echo -n o
 					kill -$_shutdown_signal $_pid
 				fi
-				if [ $_attempt -ge 20 ]; then
+				if [ $_attempt -ge 120 ]; then
 					_shutdown_signal=KILL
 					echo -n O
 					kill -$_shutdown_signal $_pid
 				fi
-				if [ $_attempt -ge 60 ]; then
+				if [ $_attempt -ge 180 ]; then
 					echo -n X
 				fi
 			done
@@ -176,9 +176,23 @@ function start_monitors() {
 		done
 	done
 
-	if [ "$MONITOR_STAP" != "" ]; then
-		echo Sleeping 30 seconds to give stap monitors change to load
-		sleep 30
+	if [ "$MONITOR_INKERNEL" != "" ]; then
+		echo -n Sleeping up to 10 seconds for $MONITOR_INKERNEL to load.
+		ATTEMPT=0
+		while [ ! -e /tmp/tracing-dummy-$MONITOR_INKERNEL-active ]; do
+			echo -n .
+			sleep 1
+			((ATTEMPT++))
+			if [ $ATTEMPT -gt 10 ]; then
+				break
+			fi
+			sleep 1
+		done
+		if [ ! -e /tmp/tracing-dummy-$MONITOR_INKERNEL-active ]; then
+			echo FAILED
+		else
+			echo
+		fi
 	fi
 }
 
@@ -187,15 +201,14 @@ function stop_monitors() {
 		shutdown_monitors ${GLOBAL_MONITOR_DIR}/monitor.pids
 }
 
-function check_monitor_stap() {
+function check_monitor_inkernel() {
 	local mon
 	local chk
 
 	for mon in $MONITORS_ALWAYS $MONITORS_GZIP $MONITORS_WITH_LATENCY $MONITORS_TRACER; do
-		for chk in $MONITORS_STAP; do
+		for chk in $MONITORS_INKERNEL; do
 			if [ "$mon" = "$chk" ]; then
-				STAP_USED=monitor-$MONITOR
-				MONITOR_STAP=monitor-$MONITOR
+				MONITOR_INKERNEL=$mon
 			fi
 		done
 	done

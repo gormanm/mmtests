@@ -212,12 +212,8 @@ else
 	fi
 fi
 
-export STAP_USED=
-export MONITOR_STAP=
-check_monitor_stap
-if [ "$STAP_USED" != "" ]; then
-	fixup_stap
-fi
+export MONITOR_INKERNEL=
+check_monitor_inkernel
 
 install-depends openssh-clients
 

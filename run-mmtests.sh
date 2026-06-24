@@ -294,21 +294,9 @@ done
 echo
 
 # Validate systemtap installation if it exists
-TESTS_STAP="highalloc highalloc"
-MONITORS_STAP="dstate stap-highorder-atomic function-frequency syscalls"
-export STAP_USED=
-export MONITOR_STAP=
-for TEST in $MMTESTS; do
-	for CHECK in $TESTS_STAP; do
-		if [ "$TEST" = "$CHECK" ]; then
-			STAP_USED=test-$TEST
-		fi
-	done
-done
-check_monitor_stap
-if [ "$STAP_USED" != "" ]; then
-	fixup_stap
-fi
+MONITORS_INKERNEL="bpftrace"
+export MONITOR_INKERNEL=
+check_monitor_inkernel
 
 if $BUILDONLY; then
     export INSTALL_ONLY=yes
@@ -757,11 +745,6 @@ done
 call_user_hooks end
 
 mmtests_wait_token "mmtests_end"
-
-# Restore system to original state
-if [ "$STAP_USED" != "" ]; then
-	stap-fix.sh --restore-only
-fi
 
 if [ "$EXPANDED_VMLINUX" = "yes" ]; then
 	echo Recompressing vmlinux
