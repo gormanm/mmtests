@@ -12,7 +12,7 @@ POSTGRES_GROUP=nogroup
 WEB_LOCATION=http://ftp.postgresql.org/pub/source/v${VERSION}/
 MIRROR_LOCATION=$WEBROOT/postgres/
 
-install-depends bison gcc-c++ libstdc++-devel popt-devel zlib-devel system-user-nobody
+install-depends bison gcc-c++ libstdc++-devel popt-devel zlib-devel system-user-nobody libicu-devel
 
 # Only updates the first occurance of the parameter
 update_entry_cnf() {
