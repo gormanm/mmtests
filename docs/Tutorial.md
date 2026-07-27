@@ -16,7 +16,7 @@ git clone https://github.com/gormanm/mmtests.git
 Pick a config and start a run. For instance, let's run a Redis benchmark.
 
 ```
-sudo ./run-mmtests.sh --config configs/config-memdb-redis-small BASELINE
+sudo ./run-mmtests.sh --config configs/config-memdb-redis-benchmark-small BASELINE
 ```
 
 ### Comparison Run
@@ -26,7 +26,7 @@ variation, let's add some disturbing tasks.
 
 ```
 for i in `seq 1 8`; do yes &> /dev/null & done
-sudo ./run-mmtests.sh --config configs/config-memdb-redis-small BUSY
+sudo ./run-mmtests.sh --config configs/config-memdb-redis-benchmark-small BUSY
 ```
 
 ### Results
