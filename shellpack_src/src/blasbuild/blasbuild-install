@@ -3,6 +3,8 @@
 GIT_LOCATION=https://github.com/xianyi/OpenBLAS
 MIRROR_LOCATION="$WEBROOT/blasbuild/"
 
+install-depends gcc-fortran
+
 ###SHELLPACK parseargBegin
 ###SHELLPACK parseargEnd
 
